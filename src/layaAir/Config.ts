@@ -18,7 +18,12 @@ export class Config {
     /**@internal */
     static _uniformBlock: boolean;
 
-    static matUseUBO: boolean = false;
+
+    /** 
+    * @en Whether to enable UniformBuffer
+    * @zh 材质是否启用UniformBuffer
+    */
+    static matUseUBO: boolean = true;
 
     /** 
     * @en Whether to enable UniformBuffer

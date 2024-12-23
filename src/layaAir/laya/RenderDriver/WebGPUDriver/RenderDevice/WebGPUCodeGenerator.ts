@@ -1,11 +1,11 @@
 import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
 import { Graphics } from "../../../display/Graphics";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
+import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { roundUp } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferManager";
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
@@ -87,7 +87,6 @@ export class WebGPUCodeGenerator {
         this.naga = new NagaWASM();
         await this.naga.init();
         this.inited = true;
-        // console.log("naga inited");
         if (next) next();
 
         Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
@@ -224,26 +223,21 @@ export class WebGPUCodeGenerator {
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
-
-                data.forEach((uniform, id) => {
+                data.forEach(uniform => {
                     let nameStr: string;
-                    if (uniform.arrayLength > 0) {
-                        // 数组
-                    }
-
+                    if (uniform.arrayLength > 0) { // 数组
+                        nameStr = `${uniform.propertyName}[${uniform.arrayLength}]`;
+                        arrayMap[nameStr] = uniform.arrayLength;
+                    } else nameStr = uniform.propertyName;
                     if (uniform.propertyName.indexOf('.') !== -1) return;
-
                     const typeStr = this._getAttributeT2S(uniform.uniformtype);
-                    if (typeStr === '')
-                        return;
-                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray') {
+                    if (typeStr === '') return;
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
-                    }
-                    else {
-                        sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
-                    }
+                    else sortedUniforms[this._getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 });
             }
+
             for (let i = 1; i < typeNum; i++)
                 sortedUniforms[0].push(...sortedUniforms[i]);
             for (let i = 0, len = sortedUniforms[0].length; i < len; i++)
@@ -395,8 +389,7 @@ export class WebGPUCodeGenerator {
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
-
-                data.forEach((uniform, id) => {
+                data.forEach(uniform => {
                     let nameStr: string;
                     if (uniform.arrayLength > 0) { //数组
                         nameStr = `${uniform.propertyName}[${uniform.arrayLength}]`;
@@ -1125,7 +1118,7 @@ ${textureGLSL_fs}
     static collectUniform(defineString: string[], uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
         //将uniformMap转换为uniformMapEx
         const uniformMapEx: WebGPUUniformMapType = {};
-        uniformMap.forEach((uniform, id) => {
+        uniformMap.forEach(uniform => {
             uniformMapEx[uniform.propertyName] = { name: uniform.propertyName, type: uniform.uniformtype };
         });
 

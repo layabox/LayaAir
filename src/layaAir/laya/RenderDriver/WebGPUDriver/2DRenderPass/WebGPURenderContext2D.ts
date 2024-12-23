@@ -1,4 +1,3 @@
-import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
@@ -13,7 +12,7 @@ import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
-import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
@@ -26,8 +25,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     destRT: WebGPUInternalRT;
     invertY: boolean = false;
     pipelineMode: string = 'Forward';
-    sceneData: WebGPUShaderData = new WebGPUShaderData();
-    cameraData: WebGPUShaderData = new WebGPUShaderData();
+    sceneData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'scene');
+    cameraData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'camera');
     _globalConfigShaderData: WebDefineDatas;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
     pipelineCache: any[] = []; //所有的2D渲染管线缓存
@@ -114,12 +113,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _submit() {
         const engine = WebGPURenderEngine._instance;
         this.renderCommand.end();
-        if (Laya.timer.currFrame != engine.frameCount) {
-            engine.frameCount = Laya.timer.currFrame;
-            engine.startFrame();
-        }
-        if (WebGPUGlobal.useBigBuffer)
-            engine.upload(); //上传所有Uniform数据
+        engine.upload(); //上传Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数

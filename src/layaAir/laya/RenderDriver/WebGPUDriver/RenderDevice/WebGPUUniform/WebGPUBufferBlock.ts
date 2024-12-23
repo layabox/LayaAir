@@ -14,7 +14,7 @@ export class WebGPUBufferBlock extends UniformBufferBlock {
         super(buffer, index, size, alignedSize, user);
         this.objectName = 'WebGPUBufferBlock';
         this.globalId = WebGPUGlobal.getId(this);
-        WebGPUGlobal.action(this, 'getMemory', this.alignedSize);
+        WebGPUGlobal.action(this, 'getMemory', this._alignedSize);
     }
 
 
@@ -23,7 +23,7 @@ export class WebGPUBufferBlock extends UniformBufferBlock {
      */
     destroy() {
         if (super.destroy()) {
-            WebGPUGlobal.action(this, 'returnMemory | uniform', this.alignedSize);
+            WebGPUGlobal.action(this, 'returnMemory | uniform', this._alignedSize);
             WebGPUGlobal.releaseId(this);
             return true;
         }

@@ -391,7 +391,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _setScreenRT() {
         if (!this.destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
             const engine = WebGPURenderEngine._instance;
-            engine.screenResized = false;
+            engine._screenResized = false;
             engine._screenRT._textures[0].resource = engine._context.getCurrentTexture();
             engine._screenRT._textures[0].multiSamplers = 1;
             if (this.blitFrameCount === Laya.timer.currFrame)
@@ -431,17 +431,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      */
     private _submit() {
         const engine = WebGPURenderEngine._instance;
-        if (this.blitScreen && engine.screenResized) return; //屏幕尺寸改变，丢弃这一帧
+        if (this.blitScreen && engine._screenResized) return; //屏幕尺寸改变，丢弃这一帧
         this.renderCommand.end();
-        if (Laya.timer.currFrame != engine.frameCount) {
-            engine.frameCount = Laya.timer.currFrame;
-            engine.startFrame();
-        }
-        engine.upload(); //上传所有Uniform数据
+        engine.upload(); //上传Uniform数据
         this.device.queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
         WebGPUStatis.addSubmit(); //统计提交次数
-
         engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
     }
 

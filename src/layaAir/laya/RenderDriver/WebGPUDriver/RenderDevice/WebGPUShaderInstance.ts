@@ -11,12 +11,20 @@ import { NotImplementedError } from "../../../utils/Error";
  */
 export class WebGPUShaderInstance implements IShaderInstance {
     static idCounter: number = 0;
+
+    /**
+     * @internal
+     */
     _id: number = WebGPUShaderInstance.idCounter++;
+    /**
+     * @internal
+     */
     _shaderPass: ShaderPass;
+
     private _vsShader: GPUShaderModule;
     private _fsShader: GPUShaderModule;
 
-    destroyed: boolean = false;
+    private _destroyed: boolean = false;
 
     name: string;
     complete: boolean = false;
@@ -187,10 +195,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
      * 销毁
      */
     _disposeResource(): void {
-        if (!this.destroyed) {
+        if (!this._destroyed) {
             WebGPUGlobal.releaseId(this);
             this.renderPipelineMap.clear();
-            this.destroyed = true;
+            this._destroyed = true;
         }
     }
 }

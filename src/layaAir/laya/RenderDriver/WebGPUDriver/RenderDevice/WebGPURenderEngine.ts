@@ -1,6 +1,10 @@
+import { Laya } from "../../../../Laya";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
+import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
@@ -9,14 +13,12 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
-import { WebGPUBufferManager } from "./WebGPUUniform/WebGPUBufferManager";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
-import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { NotImplementedError } from "../../../utils/Error";
+import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUTimingManager } from "./WebGPUTimingManager";
-import { Laya } from "../../../../Laya";
+import { WebGPUBufferManager } from "./WebGPUUniform/WebGPUBufferManager";
 
 export class WebGPUConfig {
     /**
@@ -56,17 +58,18 @@ export class WebGPUConfig {
 /**
  * WebGPU渲染引擎
  */
-export class WebGPURenderEngine implements IRenderEngine {
-    static _offscreenFormat: GPUTextureFormat;
+export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine {
+    //static _offscreenFormat: GPUTextureFormat;
     static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
 
-    _canvas: HTMLCanvasElement;
-    _context: GPUCanvasContext;
+    private _canvas: HTMLCanvasElement;
     _config: WebGPUConfig;
 
-    screenResized: boolean = false;
+    _context: GPUCanvasContext;
+
+    _screenResized: boolean = false;
     _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
     _remapZ: boolean = false;
@@ -74,15 +77,13 @@ export class WebGPURenderEngine implements IRenderEngine {
     _lodTextureSample: boolean = false;
     _breakTextureSample: boolean = false;
 
-    _enableStatistics: boolean;
-
-    frameCount: number = 0;
+    _enableStatistics: boolean = false;
 
     //用于GPU时间戳
-    timingCount: number = 0;
-    timingAverage: number = 0;
-    timingQuerySum: number = 0;
-    timingQueryStart: number = 0;
+    private _timingCount: number = 0;
+    private _timingAverage: number = 0;
+    private _timingQuerySum: number = 0;
+    private _timingQueryStart: number = 0;
 
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
@@ -104,13 +105,14 @@ export class WebGPURenderEngine implements IRenderEngine {
      * 实例化一个webgpuEngine
      */
     constructor(config: WebGPUConfig, canvas: any) {
+        super();
         this._config = config;
         this._canvas = canvas;
         if (navigator.gpu)
             WebGPURenderEngine._instance = this;
         else console.error('WebGPU is not supported by your browser');
 
-        this.gpuBufferMgr = new WebGPUBufferManager(WebGPUGlobal.useBigBuffer);
+        this.gpuBufferMgr = new WebGPUBufferManager(this, WebGPUGlobal.useBigBuffer);
 
         this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
@@ -199,7 +201,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             })
             .then((device: GPUDevice) => {
                 this._initDevice(device);
-                //console.log('WebGPU start');
+                console.log('WebGPU start');
                 return Promise.resolve();
             }, (e) => {
                 console.log(e);
@@ -229,27 +231,6 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * 开始新的一帧
-     */
-    startFrame() {
-        this.gpuBufferMgr.startFrame();
-        if (WebGPUGlobal.useTimeQuery)
-            this.timingManager.getGPUFrameTime().then(time => {
-                this.timingCount++;
-                this.timingQuerySum += time;
-                if (this.timingCount === 1)
-                    this.timingQueryStart = Laya.timer.currTimer;
-                if (this.timingCount >= 1 && Laya.timer.currTimer - this.timingQueryStart > 1000) {
-                    //每秒打印一次GPU帧时间消耗
-                    this.timingAverage = ((this.timingQuerySum / this.timingCount) * 1000 | 0) / 1000;
-                    //console.log('gpuFrameTimeCost = ' + this.timingAverage + 'ms, ' + this.timingManager.groupNum + 'submits');
-                    this.timingCount = 0;
-                    this.timingQuerySum = 0;
-                }
-            });
-    }
-
-    /**
      * 上传数据
      */
     upload() {
@@ -273,7 +254,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             usage,
             alphaMode: this._config.alphaMode,
         });
-        WebGPURenderEngine._offscreenFormat = format;
+        //WebGPURenderEngine._offscreenFormat = format;
     }
 
     /**
@@ -386,9 +367,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     private _initStatisticsInfo() {
-        for (let i = 0; i < GPUEngineStatisticsInfo.Count; i++) {
+        for (let i = 0; i < GPUEngineStatisticsInfo.Count; i++)
             this._GPUStatisticsInfo.set(i, 0);
-        }
     }
 
     /**
@@ -429,9 +409,36 @@ export class WebGPURenderEngine implements IRenderEngine {
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
                     RenderTargetFormat.None, false, false, 1) as WebGPUInternalRT;
-        this.screenResized = true;
+        this._screenResized = true;
     }
 
+    /**
+     * 开始一帧
+     */
+    startFrame() {
+        this.event('startFrame');
+    }
+
+    /**
+     * 结束一帧
+     */
     endFrame() {
+        this.event('endFrame');
+        WebGPUShaderData.endFrame();
+        if (WebGPUGlobal.useTimeQuery) {
+            this.timingManager.getGPUFrameTime().then(time => {
+                this._timingCount++;
+                this._timingQuerySum += time;
+                if (this._timingCount === 1)
+                    this._timingQueryStart = Laya.timer.currTimer;
+                if (this._timingCount >= 1 && Laya.timer.currTimer - this._timingQueryStart > 1000) {
+                    //每秒打印一次GPU帧时间消耗
+                    this._timingAverage = ((this._timingQuerySum / this._timingCount) * 1000 | 0) / 1000;
+                    //console.log('gpuFrameTimeCost = ' + this._timingAverage + 'ms, ' + this.timingManager.groupNum + 'submits');
+                    this._timingCount = 0;
+                    this._timingQuerySum = 0;
+                }
+            });
+        }
     }
 }

@@ -5,20 +5,20 @@ import { WebGPUBuffer } from "./WebGPUBuffer";
  * WebGPU内存回收（需要延迟一帧回收的内存）
  */
 export class WebGPUResourceRecover {
-    recoverList: WebGPUBuffer[] = []; //回收队列
-    frameCount: number; //当前帧
+    private _recoverList: WebGPUBuffer[] = []; //回收队列
+    private _frameCount: number; //当前帧
 
     needRecover(res: WebGPUBuffer) {
-        this.recoverList.push(res);
-        this.frameCount = Laya.timer.currFrame;
+        this._recoverList.push(res);
+        this._frameCount = Laya.timer.currFrame;
     }
 
     recover() {
-        if (this.frameCount < Laya.timer.currFrame) {
+        if (this._frameCount < Laya.timer.currFrame) {
             //回收内存
-            for (let i = this.recoverList.length - 1; i > -1; i--)
-                this.recoverList[i]._source.destroy();
-            this.recoverList.length = 0;
+            for (let i = this._recoverList.length - 1; i > -1; i--)
+                this._recoverList[i]._source.destroy();
+            this._recoverList.length = 0;
         }
     }
 }

@@ -1,13 +1,19 @@
-import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
-import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
+import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { Material } from "../../../resource/Material";
 import { Resource } from "../../../resource/Resource";
+import { Texture } from "../../../resource/Texture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureCube } from "../../../resource/TextureCube";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
@@ -22,41 +28,72 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Material } from "../../../resource/Material";
-import { Texture } from "../../../resource/Texture";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+
+/**
+ * 缓存的绑定组
+ */
+class WebGPUBindGroupCacheItem {
+    uniformBuffer: WebGPUUniformBuffer;
+    bindGroup: GPUBindGroup;
+    bgLayouts: GPUBindGroupLayoutEntry[];
+    user: Set<WebGPUShaderData>;
+    refNum: number;
+    timer: number;
+
+    constructor(buffer: WebGPUUniformBuffer, bindGroup: GPUBindGroup, bgLayouts: GPUBindGroupLayoutEntry[], user: WebGPUShaderData) {
+        this.uniformBuffer = buffer;
+        this.bindGroup = bindGroup;
+        this.bgLayouts = bgLayouts;
+        this.user = new Set();
+        this.user.add(user);
+        this.refNum = 1;
+        this.timer = 0;
+    }
+}
+
+/**
+ * 着色器数据元素类型
+ */
+export enum WebGPUShaderDataElementType {
+    Element3D = 0,
+    Element3DSkin = 1,
+    Element3DInstance = 2,
+    Element2D = 3,
+    UNKNOWN = 4,
+}
 
 /**
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
-    private static _bindGroupCounter: number = 0;
     private static _dummyTexture2D: Texture2D; //替代贴图（2D）
     private static _dummyTextureCube: TextureCube; //替代贴图（Cube）
+
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
     /**@internal */
     _data: any; //数据对象
     /**@internal */
     _name: string; //名称，便于调试
-    /**@internal */
-    protected _gammaColorMap: Map<number, Color>; //颜色矫正数据
+
+    private _gammaColorMap: Map<number, Color>; //颜色矫正数据
 
     stateKey: string = ''; //状态标识符
-    static _stateKeyMap: Set<number>;
+    private static _stateKeyMap: Set<number>;
 
+    private _recovered: boolean = false; //是否已经回收
     private _destroyed: boolean = false; //是否已经销毁
 
-    private _infoId: number; //WebGPUUniformPropertyBindingInfo数据的唯一标识
-    private _uniformBuffer: WebGPUUniformBuffer; //Uniform缓冲区（负责上传数据到GPU）
-    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[], Set<number>]>; //基于主键缓存的BindGroup
-    private _bindGroup: GPUBindGroup; //缓存的BindGroup（非共享模式的着色器数据只有一个绑定组）
-    private _bindGroupLayoutEntries: GPUBindGroupLayoutEntry[]; //该BindGroup的布局
-    private _bindGroupResourceSet: Set<number>; //该BindGroup所包含的重要资源
-    private _bindGroupKey: string = ''; //区别该BindGroup的主键
+    private _infoId: number; //当前UniformBuffer对应的数据标识
+    private _uniformBuffer: WebGPUUniformBuffer; //当前Uniform缓存区（负责上传数据到GPU）
+    private _bindGroupItem: WebGPUBindGroupCacheItem; //缓存的BindGroup
+    private _bindGroupMap: Map<string, WebGPUBindGroupCacheItem>; //本对象创建的BindGroup
+    private _bindGroupChange: boolean; //BindGroup是否发生变化
+    private _bindInfoId: number; //当前BindGroup对应的数据标识
+
+    private _elementType: number = 0; //Element类型 (3D=0, 3DSkin=1, 3DInstance=2, 2D=3)
+    private _texIdSet: Set<number>; //所有贴图Id
 
     //伴随ShaderData
     skinShaderData: WebGPUShaderData[]; //用于骨骼动画
@@ -90,13 +127,45 @@ export class WebGPUShaderData extends ShaderData {
 
     globalId: number;
     objectName: string = 'WebGPUShaderData';
-    static objectCount: number = 0; //对象计数器
+    private static _objectCount: number = 0; //对象计数器
 
+    /**
+     * 全局缓存的BindGroup
+     */
+    private static _MAX_BIND_GROUP_NUM: number = 10; //超过该数后会进行清理
+    private static _BIND_GROUP_CLEAR_INTERVAL: number = 10000; //清理BindGroup的时间间隔（10秒）
+    private static _clearBindGroupTimeStamp: number = 0; //清理缓存的时间戳
+    private static _bindGroupMap: Map<string, WebGPUBindGroupCacheItem> = new Map();
+    static getBindGroup(key: string) {
+        return this._bindGroupMap.get(key);
+    }
+    static setBindGroup(key: string, value: WebGPUBindGroupCacheItem) {
+        this._bindGroupMap.set(key, value);
+    }
+    static removeBindGroup(key: string) {
+        this._bindGroupMap.delete(key);
+    }
+
+    /**
+     * 局部缓存的UniformBuffer，由于UniformBuffer在数据结构相同的情况下具体数据可能不同，
+     * 渲染节点可能使用相同数据结构，不同数据内容的UniformBuffer，
+     * 将UniformBuffer缓存到局部，相当于不同的ShaderData拥有不同的UniformBuffer，不会混淆
+     */
+    private _uniformBufferMap: Map<number, WebGPUUniformBuffer> = new Map();
+    _getUniformBuffer(key: number) {
+        return this._uniformBufferMap.get(key);
+    }
+    _setUniformBuffer(key: number, value: WebGPUUniformBuffer) {
+        this._uniformBufferMap.set(key, value);
+    }
+
+    /**
+     * 全局初始化
+     */
     static __init__() {
         if (!this._dummyTexture2D) { //创建2D空白贴图（替代丢失的贴图）
             this._dummyTexture2D = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, true, false, false);
-            const data = new Uint8Array([255, 255, 255, 255]);
-            this._dummyTexture2D.setPixelsData(data, false, false);
+            this._dummyTexture2D.setPixelsData(new Uint8Array([255, 255, 255, 255]), false, false);
             this._dummyTexture2D.lock = true;
 
         }
@@ -118,46 +187,125 @@ export class WebGPUShaderData extends ShaderData {
         this._stateKeyMap.add(Shader3D.STENCIL_WRITE);
     }
 
-    constructor(ownerResource: Resource = null) {
+    /**
+     * 对象池
+     */
+    private static _pool: WebGPUShaderData[] = [];
+    static create(ownerResource: Resource = null, elementType: number = WebGPUShaderDataElementType.UNKNOWN, name?: string) {
+        const obj = this._pool.pop() ?? new WebGPUShaderData(ownerResource);
+        obj._elementType = elementType;
+        obj._recovered = false;
+        obj._name = name;
+        return obj;
+    }
+    recover(clearData: boolean = false) {
+        this._recovered = true;
+        this.instShaderData?.recover();
+        if (this.skinShaderData)
+            for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                this.skinShaderData[i]?.recover();
+        if (clearData)
+            this.clearData();
+        WebGPUShaderData._pool.push(this);
+    }
+
+    /**
+     * 帧结束时做一些处理
+     */
+    static endFrame() {
+        const currTimer = Laya.timer.currTimer;
+
+        //清理过期的BindGroup缓存
+        if (this._bindGroupMap.size > this._MAX_BIND_GROUP_NUM
+            && currTimer - this._clearBindGroupTimeStamp > this._BIND_GROUP_CLEAR_INTERVAL) {
+            this._clearBindGroupTimeStamp = currTimer;
+            const needToRemove: string[] = [];
+            this._bindGroupMap.forEach((v, k) => {
+                if (v.refNum <= 0) {
+                    v.timer++;
+                    if (v.timer > 10) //删除超过10个处理周期没有被使用的缓存
+                        needToRemove.push(k);
+                }
+            });
+            for (let i = needToRemove.length - 1; i > -1; i--)
+                this._bindGroupMap.delete(needToRemove[i]);
+        }
+    }
+
+    /**
+     * 不允许直接创建，只能通过对象池
+     * @param ownerResource 
+     */
+    private constructor(ownerResource: Resource = null) {
         super(ownerResource);
         this._data = {};
-        this._gammaColorMap = new Map();
+        this._texIdSet = new Set();
         this._bindGroupMap = new Map();
+        this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
 
         this.globalId = WebGPUGlobal.getId(this);
-        WebGPUShaderData.objectCount++;
+        WebGPUShaderData._objectCount++;
     }
 
-    createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap): void {
+    updateUBOBuffer(name: string) { }
+    createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap) { }
 
+    /**
+     * 通知GPUBuffer改变
+     */
+    notifyGPUBufferChange(buffer: WebGPUUniformBuffer, info?: string) {
+        //console.log('notifyGPUBufferChange', buffer.name, buffer.bufferBlock.size, info);
+        //检查当前使用的bindGroup是否需要更新
+        if (this._bindGroupItem?.uniformBuffer === buffer) {
+            this._bindGroupItem = null;
+            this._bindGroupChange = true;
+        }
+        //检查缓存的bindGroup是否需要更新
+        this._bindGroupMap.forEach((v, k) => {
+            if (v.uniformBuffer === buffer) {
+                this._bindGroupMap.delete(k);
+                const item = WebGPUShaderData.getBindGroup(k);
+                if (item) {
+                    WebGPUShaderData.removeBindGroup(k);
+                    item.user.delete(this);
+                    if (item.user.size > 0) //如果还有其他对象使用该bindGroup缓存，也要通知他们
+                        item.user.forEach(user => user.notifyGPUBufferChange(buffer, info));
+                }
+            }
+        });
     }
-    updateUBOBuffer(name: string): void {
 
-    }
     /**
      * 创建UniformBuffer
      * @param info 
      * @param single 
-     * @param inst 
      */
-    _createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false, inst: boolean = false) {
-        //如果指明了这种类型UniformBuffer是single的，则不会重复创建
+    _createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false) {
+        //如果指明了是Single的，则不会重复创建UniformBuffer
         if (single && this._uniformBuffer) return;
         if (info && info.uniform) {
             //如果UniformBuffer还没有创建，或者创建UniformBuffer所使用的信息发生了变化，则创建
-            if (!this._uniformBuffer || this._infoId !== info.uniform.globalId) {
-                if (this._uniformBuffer)
-                    this._uniformBuffer.destroy();
-                this._infoId = info.uniform.globalId;
-                const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
-                this._uniformBuffer = new WebGPUUniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
-                for (let i = 0, len = info.uniform.items.length; i < len; i++) {
-                    const uniform = info.uniform.items[i];
-                    this._uniformBuffer.addUniform(uniform.propertyId, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.element, uniform.count);
+            if (this._infoId !== info.id) {
+                this._infoId = info.id;
+                this._uniformBuffer = this._getUniformBuffer(this._infoId); //先尝试从缓存中获取
+                if (!this._uniformBuffer) { //缓存中没有，创建一个
+                    const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
+                    this._uniformBuffer = new WebGPUUniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
+                    for (let i = 0, len = info.uniform.items.length; i < len; i++) {
+                        const uniform = info.uniform.items[i];
+                        this._uniformBuffer.addUniform(uniform.propertyId, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.element, uniform.count);
+                    }
+                    this._setUniformBuffer(this._infoId, this._uniformBuffer);
+                    //let log = 'createUniformBuffer: ' + this._infoId + '|' + info.name + ', set = ' + info.set + ', binding = ' + info.binding + ', size = ' + info.uniform.size;
+                    //if (WebGPUGlobal.useBigBuffer) {
+                    //    const cluster = this._uniformBuffer.bufferBlock.cluster;
+                    //    log += `, offset = ${this._uniformBuffer.offset}, cluster = ${cluster._id}(${cluster._blockSize})`;
+                    //}
+                    //console.log(log);
                 }
                 this._updateUniformData();
-                //console.log('createUniformBuffer: ' + this.globalId + '|' + info.name + ', set = ' + info.set + ', binding = ' + info.binding + ', size = ' + info.uniform.size, this._uniformBuffer.getUniformStr());
+                this._bindGroupChange = true;
             }
         }
     }
@@ -166,58 +314,14 @@ export class WebGPUShaderData extends ShaderData {
      * 将数据更新到UniformBuffer中
      */
     private _updateUniformData() {
-        for (const id in this._data)
-            this._uniformBuffer.setUniformData(Number(id), this._data[id]);
-        if (this.instShaderData)
-            this.instShaderData._updateUniformData();
+        if (this._uniformBuffer)
+            for (const index in this._data)
+                this._uniformBuffer.setUniformData(Number(index), this._data[index]);
+        this.instShaderData?._updateUniformData();
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i]._updateUniformData();
-    }
-
-    /**
-     * 删除包含指定资源的缓存
-     * @param index 资源id
-     */
-    removeBindGroup(index: number) {
-        if (this._bindGroupResourceSet
-            && this._bindGroupResourceSet.has(index)) {
-            this._bindGroupKey = '';
-            this._bindGroup = null;
-            this._bindGroupResourceSet = null;
-            this._bindGroupLayoutEntries = null;
-            //console.log('removeBindGroup1 =', this.globalId, this._infoId, index);
-        }
-        if (this._bindGroupMap.size > 0) {
-            for (let [key, value] of this._bindGroupMap) {
-                if (value[2].has(index)) {
-                    this._bindGroupMap.delete(key);
-                    //console.log('removeBindGroup2 =', this.globalId, this._infoId, index);
-                }
-            }
-        }
-        if (this.instShaderData)
-            this.instShaderData.removeBindGroup(index);
-        if (this.skinShaderData)
-            for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].removeBindGroup(index);
-    }
-
-    /**
-     * 清理缓存的BindGroup
-     */
-    clearBindGroup() {
-        this._bindGroupMap.clear();
-        this._bindGroupKey = '';
-        this._bindGroup = null;
-        this._bindGroupResourceSet = null;
-        this._bindGroupLayoutEntries = null;
-        if (this.instShaderData)
-            this.instShaderData.clearBindGroup();
-        if (this.skinShaderData)
-            for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].clearBindGroup();
-        //console.log('clearBindGroup =', this.globalId, this._infoId);
+        //console.log('updateUniformData');
     }
 
     /**
@@ -331,32 +435,7 @@ export class WebGPUShaderData extends ShaderData {
         //但BlinnPhongMaterial使用灯光，使用u_lightBuffer贴图，因此这两个渲染节点的bindGroup0是不同的，
         //不同的bindGroup可以通过info中propertyId区分出来。
 
-        let key = '';
-        let bindGroup;
-        let bindGroupResourceSet;
-        let bindGroupLayoutEntries;
-
-        //构建key，查找缓存bindGroup
-        if (this.isShare) { //只有共享的ShaderData才可能需要不同的bindGroup
-            for (let i = info.length - 1; i > -1; i--)
-                key += info[i].propertyId + '_';
-            if (key === this._bindGroupKey) {
-                bindGroup = this._bindGroup;
-                bindGroupResourceSet = this._bindGroupResourceSet;
-                bindGroupLayoutEntries = this._bindGroupLayoutEntries;
-            } else {
-                const bindInfo = this._bindGroupMap.get(key); //根据Key查找缓存
-                bindGroup = bindInfo ? bindInfo[0] : null;
-                bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
-                bindGroupResourceSet = bindInfo ? bindInfo[2] : null;
-            }
-        } else {
-            bindGroup = this._bindGroup;
-            bindGroupResourceSet = this._bindGroupResourceSet;
-            bindGroupLayoutEntries = this._bindGroupLayoutEntries;
-        }
-
-        const _createBindGroupEntry = (info: WebGPUUniformPropertyBindingInfo[], bindGroupEntries: any[], bindGroupResourceSet: Set<number>) => {
+        const _createBindGroupEntry = (info: WebGPUUniformPropertyBindingInfo[], bindGroupEntries: any[]) => {
             let internalTex: WebGPUInternalTex;
             for (const item of info) {
                 switch (item.type) {
@@ -385,7 +464,6 @@ export class WebGPUShaderData extends ShaderData {
                                 binding: item.binding,
                                 resource: internalTex.getTextureView(),
                             });
-                            bindGroupResourceSet.add(item.propertyId);
                         }
                         break;
                     case WebGPUBindingInfoType.sampler:
@@ -408,43 +486,69 @@ export class WebGPUShaderData extends ShaderData {
             }
         }
 
+        //查找缓存
+        let key = '';
+        if (this._bindGroupChange || this._bindInfoId !== info[0].id) {
+            this._bindGroupChange = false;
+            this._bindInfoId = info[0].id;
+            key += this._uniformBuffer.id + '_';
+            if (WebGPUGlobal.useBigBuffer)
+                key += this._uniformBuffer.offset + '_';
+            for (let i = 0, len = info.length; i < len; i++)
+                if (info[i].type !== WebGPUBindingInfoType.texture) //texture和sampler是重复的，只需要保留一个
+                    key += info[i].propertyId + '_';
+            this._texIdSet.forEach(id => key += id + '_');
+            key += this._elementType;
+            const cache = WebGPUShaderData.getBindGroup(key);
+            if (cache) {
+                if (cache !== this._bindGroupItem) {
+                    if (this._bindGroupItem) {
+                        this._bindGroupItem.refNum--;
+                        this._bindGroupItem.user.delete(this);
+                    }
+                    this._bindGroupItem = cache;
+                    cache.user.add(this);
+                    cache.refNum++;
+                    cache.timer = 0;
+                }
+            } else {
+                if (this._bindGroupItem) {
+                    this._bindGroupItem.refNum--;
+                    this._bindGroupItem.user.delete(this);
+                }
+                this._bindGroupItem = null;
+            }
+        }
+
         //如果没有从缓存中找到, 则创建一个bindGroup
-        if (!bindGroup) {
-            bindGroupLayoutEntries = this.createBindGroupLayoutEntry(info);
-            bindGroupResourceSet = new Set<number>();
+        if (!this._bindGroupItem) {
+            const bindGroupLayoutEntries = this.createBindGroupLayoutEntry(info);
             const bindGroupEntries: any[] = [];
-            _createBindGroupEntry(info, bindGroupEntries, bindGroupResourceSet);
+            _createBindGroupEntry(info, bindGroupEntries);
             if (bindGroupEntries.length === 0) return null;
 
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
-            bindGroup = device.createBindGroup({
+            const bindGroup = device.createBindGroup({
                 label: name + '_' + this._infoId + ' ' + key,
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
 
+            this._bindGroupItem = new WebGPUBindGroupCacheItem(this._uniformBuffer, bindGroup, bindGroupLayoutEntries, this);
+
             //缓存绑定组
-            if (this.isShare) {
-                this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries, bindGroupResourceSet]);
-                this._bindGroupKey = key;
-                this._bindGroup = bindGroup;
-                this._bindGroupLayoutEntries = bindGroupLayoutEntries;
-                this._bindGroupResourceSet = bindGroupResourceSet;
-            } else {
-                this._bindGroup = bindGroup;
-                this._bindGroupLayoutEntries = bindGroupLayoutEntries;
-                this._bindGroupResourceSet = bindGroupResourceSet;
-            }
-            //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries);
+            this._bindGroupMap.set(key, this._bindGroupItem); //本地缓存
+            WebGPUShaderData.setBindGroup(key, this._bindGroupItem); //全局缓存
+            //console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, this._bindGroupItem);
         }
 
         //将绑定组附加到命令
-        command?.setBindGroup(groupId, bindGroup);
-        bundle?.setBindGroup(groupId, bindGroup);
+        command?.setBindGroup(groupId, this._bindGroupItem.bindGroup);
+        bundle?.setBindGroup(groupId, this._bindGroupItem.bindGroup);
 
         //返回绑定组结构（用于建立pipeline）
-        return bindGroupLayoutEntries;
+        return this._bindGroupItem.bgLayouts;
     }
 
     /**
@@ -452,8 +556,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     uploadUniform() {
         this._uniformBuffer?.upload();
-        if (this.instShaderData)
-            this.instShaderData.uploadUniform();
+        this.instShaderData?.uploadUniform();
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].uploadUniform();
@@ -497,13 +600,12 @@ export class WebGPUShaderData extends ShaderData {
                     names.push(item);
                 }
             }
-            //console.log('addDefine =', names);
 
-            if (this.instShaderData)
-                this.instShaderData.addDefine(define);
+            this.instShaderData?.addDefine(define);
             if (this.skinShaderData)
                 for (let i = this.skinShaderData.length - 1; i > -1; i--)
                     this.skinShaderData[i].addDefine(define);
+            //console.log('addDefine =', names);
         }
     }
 
@@ -516,13 +618,12 @@ export class WebGPUShaderData extends ShaderData {
 
         const names: string[] = [];
         Shader3D._getNamesByDefineData(defines, names);
-        //console.log('addDefines =', names);
 
-        if (this.instShaderData)
-            this.instShaderData.addDefines(defines)
+        this.instShaderData?.addDefines(defines);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].addDefines(defines);
+        //console.log('addDefines =', names);
     }
 
     /**
@@ -549,13 +650,11 @@ export class WebGPUShaderData extends ShaderData {
                     names.push(item);
                 }
             }
-            //console.log('removeDefine =', names);
-
-            if (this.instShaderData)
-                this.instShaderData.removeDefine(define);
+            this.instShaderData?.removeDefine(define);
             if (this.skinShaderData)
                 for (let i = this.skinShaderData.length - 1; i > -1; i--)
                     this.skinShaderData[i].removeDefine(define);
+            //console.log('removeDefine =', names);
         }
     }
 
@@ -571,8 +670,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     clearDefine() {
         this._defineDatas.clear();
-        if (this.instShaderData)
-            this.instShaderData.clearDefine();
+        this.instShaderData?.clearDefine();
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].clearDefine();
@@ -593,15 +691,15 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 布尔
      */
     setBool(index: number, value: boolean) {
-        if (this._data[index] === value) return;
-        this._data[index] = value;
-        if (this._uniformBuffer)
-            this._uniformBuffer.setBool(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setBool(index, value);
-        if (this.skinShaderData)
-            for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].setBool(index, value);
+        if (this._data[index] !== value) {
+            this._data[index] = value;
+            this._uniformBuffer?.setBool(index, value);
+            this.instShaderData?.setBool(index, value);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].setBool(index, value);
+            //console.log('setBool');
+        }
     }
 
     /**
@@ -640,16 +738,12 @@ export class WebGPUShaderData extends ShaderData {
             this.stateKey += (this._data[Shader3D.STENCIL_Ref] ?? 'x') + '_';
             this.stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '>_';
         }
-
-        //console.log('setInt =', index, value, this.stateKey);
-
-        if (this._uniformBuffer)
-            this._uniformBuffer.setInt(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setInt(index, value);
+        this._uniformBuffer?.setInt(index, value);
+        this.instShaderData?.setInt(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setInt(index, value);
+        //console.log('setInt =', index, value, this.stateKey);
     }
 
     /**
@@ -667,15 +761,15 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 浮点
      */
     setNumber(index: number, value: number) {
-        if (this._data[index] === value) return;
-        this._data[index] = value;
-        if (this._uniformBuffer)
-            this._uniformBuffer.setFloat(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setNumber(index, value);
-        if (this.skinShaderData)
-            for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].setNumber(index, value);
+        if (this._data[index] !== value) {
+            this._data[index] = value;
+            this._uniformBuffer?.setFloat(index, value);
+            this.instShaderData?.setNumber(index, value);
+            if (this.skinShaderData)
+                for (let i = this.skinShaderData.length - 1; i > -1; i--)
+                    this.skinShaderData[i].setNumber(index, value);
+            //console.log('setNumber');
+        }
     }
 
     /**
@@ -698,13 +792,12 @@ export class WebGPUShaderData extends ShaderData {
             if (Vector2.equals(v2, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        if (this._uniformBuffer)
-            this._uniformBuffer.setVector2(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setVector2(index, value);
+        this._uniformBuffer?.setVector2(index, value);
+        this.instShaderData?.setVector2(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setVector2(index, value);
+        //console.log('setVector2');
     }
 
     /**
@@ -727,13 +820,12 @@ export class WebGPUShaderData extends ShaderData {
             if (Vector3.equals(v3, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        if (this._uniformBuffer)
-            this._uniformBuffer.setVector3(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setVector3(index, value);
+        this._uniformBuffer?.setVector3(index, value);
+        this.instShaderData?.setVector3(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setVector3(index, value);
+        //console.log('setVector3');
     }
 
     /**
@@ -756,13 +848,12 @@ export class WebGPUShaderData extends ShaderData {
             if (Vector4.equals(v4, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        if (this._uniformBuffer)
-            this._uniformBuffer.setVector4(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setVector(index, value);
+        this._uniformBuffer?.setVector4(index, value);
+        this.instShaderData?.setVector(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setVector(index, value);
+        //console.log('setVector');
     }
 
     /**
@@ -783,18 +874,18 @@ export class WebGPUShaderData extends ShaderData {
         if (!value) return;
         if (this._data[index]) {
             const gammaColor = this._gammaColorMap.get(index);
-            if ((this._data[index] as Color).equal(gammaColor))
+            if (gammaColor && (this._data[index] as Color).equal(gammaColor))
                 return;
-            value.cloneTo(gammaColor);
+            if (gammaColor)
+                value.cloneTo(gammaColor);
+            else this._gammaColorMap.set(index, value.clone());
             const linearColor = this._data[index];
             linearColor.x = Color.gammaToLinearSpace(value.r);
             linearColor.y = Color.gammaToLinearSpace(value.g);
             linearColor.z = Color.gammaToLinearSpace(value.b);
             linearColor.w = value.a;
-            if (this._uniformBuffer)
-                this._uniformBuffer.setVector4(index, linearColor);
-        }
-        else {
+            this._uniformBuffer?.setVector4(index, linearColor);
+        } else {
             const linearColor = new Vector4();
             linearColor.x = Color.gammaToLinearSpace(value.r);
             linearColor.y = Color.gammaToLinearSpace(value.g);
@@ -802,14 +893,13 @@ export class WebGPUShaderData extends ShaderData {
             linearColor.w = value.a;
             this._data[index] = linearColor;
             this._gammaColorMap.set(index, value.clone());
-            if (this._uniformBuffer)
-                this._uniformBuffer.setVector4(index, linearColor);
+            this._uniformBuffer?.setVector4(index, linearColor);
         }
-        if (this.instShaderData)
-            this.instShaderData.setColor(index, value);
+        this.instShaderData?.setColor(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setColor(index, value);
+        //console.log('setColor');
     }
 
     /**
@@ -831,13 +921,12 @@ export class WebGPUShaderData extends ShaderData {
         if (mat)
             value.cloneTo(this._data[index]);
         else this._data[index] = value.clone();
-        if (this._uniformBuffer)
-            this._uniformBuffer.setMatrix3x3(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setMatrix3x3(index, value);
+        this._uniformBuffer?.setMatrix3x3(index, value);
+        this.instShaderData?.setMatrix3x3(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setMatrix3x3(index, value);
+        //console.log('setMatrix3x3');
     }
 
     /**
@@ -860,10 +949,8 @@ export class WebGPUShaderData extends ShaderData {
             if (mat.equalsOtherMatrix(value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        if (this._uniformBuffer)
-            this._uniformBuffer.setMatrix4x4(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setMatrix4x4(index, value);
+        this._uniformBuffer?.setMatrix4x4(index, value);
+        this.instShaderData?.setMatrix4x4(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setMatrix4x4(index, value);
@@ -885,13 +972,12 @@ export class WebGPUShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array) {
         this._data[index] = value;
-        if (this._uniformBuffer)
-            this._uniformBuffer.setBuffer(index, value);
-        if (this.instShaderData)
-            this.instShaderData.setBuffer(index, value);
+        this._uniformBuffer?.setBuffer(index, value);
+        this.instShaderData?.setBuffer(index, value);
         if (this.skinShaderData)
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
                 this.skinShaderData[i].setBuffer(index, value);
+        //console.log('setBuffer');
     }
 
     /**
@@ -911,14 +997,16 @@ export class WebGPUShaderData extends ShaderData {
                         this.addDefine(shaderDefine);
                     else this.removeDefine(shaderDefine);
                 }
+                this._texIdSet.add(value.id);
             }
+            if (lastValue)
+                this._texIdSet.delete(lastValue.id);
             this.changeMark++;
+            this._bindGroupChange = true;
             this._data[index] = value;
             lastValue && lastValue._removeReference();
             value && value._addReference();
-            this.removeBindGroup(index); //删除包含该纹理的绑定组
-            if (this.instShaderData)
-                this.instShaderData.setTexture(index, value);
+            this.instShaderData?.setTexture(index, value);
             if (this.skinShaderData)
                 for (let i = this.skinShaderData.length - 1; i > -1; i--)
                     this.skinShaderData[i].setTexture(index, value);
@@ -940,12 +1028,14 @@ export class WebGPUShaderData extends ShaderData {
                         this.addDefine(shaderDefine);
                     else this.removeDefine(shaderDefine);
                 }
+                this._texIdSet.add((value as WebGPUInternalTex).globalId);
             }
+            if (lastValue)
+                this._texIdSet.delete(lastValue.globalId);
             this.changeMark++;
+            this._bindGroupChange = true;
             this._data[index] = value;
-            this.removeBindGroup(index); //删除包含该纹理的绑定组
-            if (this.instShaderData)
-                this.instShaderData._setInternalTexture(index, value);
+            this.instShaderData?._setInternalTexture(index, value);
             if (this.skinShaderData)
                 for (let i = this.skinShaderData.length - 1; i > -1; i--)
                     this.skinShaderData[i]._setInternalTexture(index, value);
@@ -962,22 +1052,20 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     getSourceIndex(value: any) {
-        for (const i in this._data)
-            if (this._data[i] === value)
-                return Number(i);
+        for (const index in this._data)
+            if (this._data[index] === value)
+                return Number(index);
         return -1;
     }
 
     /**
-     * 克隆
+     * 克隆（仅克隆数据）
      * @param dest 
      */
     cloneTo(dest: WebGPUShaderData) {
-        dest._data = {};
-        for (const id in this._data) {
-            dest._data[id] = this._data[id];
-            if (dest._uniformBuffer)
-                dest._uniformBuffer.setUniformData(Number(id), this._data[id]);
+        for (const index in this._data) {
+            dest._data[index] = this._data[index];
+            dest._uniformBuffer?.setUniformData(Number(index), this._data[index]);
         }
         dest._defineDatas.clear();
         this._defineDatas.cloneTo(dest._defineDatas);
@@ -985,14 +1073,18 @@ export class WebGPUShaderData extends ShaderData {
         dest._gammaColorMap.clear();
         this._gammaColorMap.forEach((value, key) => { dest._gammaColorMap.set(key, value); });
 
+        dest._texIdSet.clear();
+        this._texIdSet.forEach(id => dest._texIdSet.add(id));
+
         dest._infoId = this._infoId;
         dest._isShare = this._isShare;
         dest._isStatic = this._isStatic;
+        dest.stateKey = this.stateKey;
         dest.changeMark = this.changeMark;
     }
 
     /**
-     * 克隆
+     * 克隆（仅克隆数据）
      */
     clone() {
         const dest = new WebGPUShaderData();
@@ -1001,45 +1093,87 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-     * 清理
+     * 清理数据
      */
-    clear() {
+    clearData() {
+        for (const index in this._data)
+            if (this._data[index] instanceof Resource)
+                this._data[index]._removeReference();
+
+        this._name = undefined;
+
+        this._data = {};
+        this._defineDatas.clear();
+
+        this.changeMark = 0;
+        this._elementType = 0;
+        this._isShare = true;
+        this._isStatic = false;
+        this._texIdSet.clear();
+
+        this.stateKey = '';
+        this._bindGroupChange = false;
+        this._bindInfoId = undefined;
+
         this._gammaColorMap.clear();
-        this._bindGroupMap.clear();
-        this._bindGroupKey = '';
-        this._bindGroup = null;
-        this._bindGroupResourceSet = null;
-        this._bindGroupLayoutEntries = null;
-        if (this.instShaderData)
-            this.instShaderData.clear();
-        if (this.skinShaderData)
+        if (this._bindGroupItem) {
+            this._bindGroupItem.refNum--;
+            this._bindGroupItem = null;
+        }
+        this._infoId = undefined;
+        this._uniformBuffer = null;
+        this._uniformBufferMap.forEach(v => v.destroy());
+        this._uniformBufferMap.clear();
+        if (this.instShaderData) {
+            this.instShaderData.clearData();
+            this.instShaderData = null;
+        }
+        if (this.skinShaderData) {
             for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                this.skinShaderData[i].clear();
+                this.skinShaderData[i].clearData();
+            this.skinShaderData = null;
+        }
+    }
+
+    /**
+     * 销毁转回收
+     */
+    destroy() {
+        if (!this._destroyed)
+            this.recover(true);
     }
 
     /**
      * 销毁
      */
-    destroy() {
-        if (!this._destroyed) {
+    private _realDestroy() {
+        if (!this._destroyed && !this._recovered) {
             this._destroyed = true;
             WebGPUGlobal.releaseId(this);
-            WebGPUShaderData.objectCount--;
+            WebGPUShaderData._objectCount--;
+            for (const index in this._data)
+                if (this._data[index] instanceof Resource)
+                    this._data[index]._removeReference();
+            this._data = null;
+            this.clearDefine();
+            this._texIdSet.clear();
+            this._gammaColorMap.clear();
             this._gammaColorMap = null;
-            this._bindGroupMap = null;
-            this._bindGroupKey = null;
-            this._bindGroup = null;
-            this._bindGroupResourceSet = null;
-            this._bindGroupLayoutEntries = null;
-            if (this._uniformBuffer)
-                this._uniformBuffer.destroy();
+            if (this._bindGroupItem) {
+                this._bindGroupItem.refNum--;
+                this._bindGroupItem = null;
+            }
+            this._uniformBuffer = null;
+            this._uniformBufferMap.forEach(v => v.destroy());
+            this._uniformBufferMap.clear();
+            this._uniformBufferMap = null;
             if (this.instShaderData) {
-                this.instShaderData.destroy();
+                this.instShaderData._realDestroy();
                 this.instShaderData = null;
             }
             if (this.skinShaderData) {
                 for (let i = this.skinShaderData.length - 1; i > -1; i--)
-                    this.skinShaderData[i].destroy();
+                    this.skinShaderData[i]._realDestroy();
                 this.skinShaderData = null;
             }
         }

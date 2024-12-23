@@ -2,16 +2,18 @@ import { roundUp, TypedArray } from "../../../DriverDesign/RenderDevice/UniformB
 import { UniformBufferUser } from "../../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferUser";
 import { WebGPUShaderData } from "../WebGPUShaderData";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUBufferAlone } from "./WebGPUBufferAlone";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
 
 export class WebGPUUniformBuffer extends UniformBufferUser {
     set: number;
     binding: number;
 
-    uniformStr: string;
-
+    id: number;
     globalId: number;
     objectName: string = 'WebGPUUniformBuffer';
+
+    declare data: WebGPUShaderData;
 
     private _gpuBuffer: GPUBuffer;
     private _gpuBindGroupEntry: GPUBindGroupEntry;
@@ -41,14 +43,24 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                 },
             };
         }
+        this.id = WebGPUGlobal.getUniformBufferId();
         this.globalId = WebGPUGlobal.getId(this);
         //console.log('createUniformBuffer: ' + name + ', set = ' + set + ', binding = ' + binding + ', size = ' + size);
     }
 
     /**
+     * 创建独立内存对象
+     * @param size 
+     * @param manager 
+     */
+    protected _createBufferAlone(size: number, manager: WebGPUBufferManager) {
+        return new WebGPUBufferAlone(size, manager, this);
+    }
+
+    /**
      * 通知GPUBuffer改变
      */
-    notifyGPUBufferChange() {
+    notifyGPUBufferChange(info?: string) {
         super.notifyGPUBufferChange();
         this._gpuBuffer = this.bufferBlock.cluster.buffer;
         this._gpuBindGroupEntry = {
@@ -59,13 +71,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                 size: this.bufferBlock.size,
             },
         };
-    }
-
-    /**
-     * 清除GPUBuffer绑定
-     */
-    clearGPUBufferBind() {
-        (this.data as WebGPUShaderData).clearBindGroup();
+        this.data.notifyGPUBufferChange(this, info);
     }
 
     /**
@@ -80,7 +86,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
      */
     getUniformNameStr() {
         let str = '|';
-        this.items.forEach(item => str += item.name + '|');
+        this._items.forEach(item => str += item.name + '|');
         return str;
     }
 
@@ -88,7 +94,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
      * 输出调试信息
      */
     debugInfo() {
-        if (this.itemNum > 0) {
+        if (this._itemNum > 0) {
             const typeName = (type: TypedArray) => {
                 if (type instanceof Int32Array)
                     return 'Init32Array';
@@ -96,8 +102,8 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                     return 'Float32Array';
                 return 'Unknown';
             }
-            console.log("strId =", this.strId);
-            this.items.forEach((item, key) => {
+            console.log("strId =", this._strId);
+            this._items.forEach((item, key) => {
                 console.log("key: %d, type: %s, view: %s, offset: %d, size: %d, padding: %d, elements: %d, count: %d",
                     key, item.type, typeName(item.view), item.view.byteOffset, item.view.byteLength,
                     roundUp(item.view.byteLength / item.count, item.align) - item.view.BYTES_PER_ELEMENT * item.elements,

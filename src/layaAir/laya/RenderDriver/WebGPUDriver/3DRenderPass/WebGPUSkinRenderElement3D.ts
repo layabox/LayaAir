@@ -1,8 +1,9 @@
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUContext } from "./WebGPUContext";
@@ -35,10 +36,11 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         if (len > 0) { //创建蒙皮分组材质数据
             if (!this.renderShaderDatas)
                 this.renderShaderDatas = [];
-            else this._destroyRenderShaderDatas();
+            //else this._destroyRenderShaderDatas();
+            else this._recoverRenderShaderDatas();
             for (let i = 0; i < len; i++) {
-                this.renderShaderDatas[i] = new WebGPUShaderData();
-                this.renderShaderDatas[i]._createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2]);
+                this.renderShaderDatas[i] = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element3DSkin, 'sprite_skin' + i);
+                this.renderShaderDatas[i]._createUniformBuffer(this._shaderInstances[this._passIndex[0]].uniformInfo[2], false);
                 this.renderShaderData.cloneTo(this.renderShaderDatas[i]);
             }
             if (!this.renderShaderData.skinShaderData)
@@ -54,6 +56,15 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     private _destroyRenderShaderDatas() {
         for (let i = this.renderShaderDatas.length - 1; i > -1; i--)
             this.renderShaderDatas[i].destroy();
+        this.renderShaderDatas.length = 0;
+    }
+
+    /**
+     * 回收renderShaderDatas数据
+     */
+    private _recoverRenderShaderDatas() {
+        for (let i = this.renderShaderDatas.length - 1; i > -1; i--)
+            this.renderShaderDatas[i].recover();
         this.renderShaderDatas.length = 0;
     }
 
