@@ -299,21 +299,21 @@ export const allBundles = [{
     ],
 },
 {
-    'libName': "trailCommon",
-    'input': [
-        './layaAir/laya/trail/trailCommon/**/*.*',
+    name: "trailCommon",
+    input: [
+        'laya/trail/trailCommon/**/*.*',
     ],
 },
 {
-    'libName': "trail2D",
-    'input': [
-        './layaAir/laya/trail/trail2D/**/*.*',
+    name: "trail2D",
+    input: [
+        'laya/trail/trail2D/**/*.*',
     ],
 },
 {
-    'libName': "trail3D",
-    'input': [
-        './layaAir/laya/trail/trail3D/**/*.*',
+    name: "trail3D",
+    input: [
+        'laya/trail/trail3D/**/*.*',
     ],
 },
 ];
