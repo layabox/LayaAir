@@ -1,4 +1,5 @@
 import { IUniformBufferUser } from "./IUniformBufferUser";
+import { UniformBufferAlone } from "./UniformBufferAlone";
 import { UniformBufferBlock } from "./UniformBufferBlock";
 import { UniformBufferCluster } from "./UniformBufferCluster";
 
@@ -41,17 +42,15 @@ export function roundDown(n: number, align: number) {
     return res > n ? res - align : res;
 }
 
+/**
+ * UBO统计信息
+ */
 export class UBOStat {
     moveNum: number = 0; //内存块的移动次数
-
     uploadNum: number = 0; //每帧上传次数
-
     uploadByte: number = 0; //每帧上传字节数
-
     timeCostAvg: number = 0; //花费时间（帧平均）
-
     timeCostSum: number = 0; //花费时间（总数）
-
     timeCostCount: number = 0; //统计花费时间的计数器
 }
 
@@ -59,25 +58,18 @@ export class UBOStat {
  * Uniform内存块管理
  */
 export class UniformBufferManager {
-
-
     private _clustersAll: Map<number, UniformBufferCluster[]>; //所有大内存块，按尺寸分组
-
     private _clustersCur: Map<number, UniformBufferCluster>; //当前大内存块，按尺寸分组
-
     private _destroyed: boolean = false; //该对象是否已经销毁
 
     //更新数据缓存数组
-    private _needUpdateCluster: Array<UniformBufferCluster> = [];
+    private _needUpdateClusters: Array<UniformBufferCluster> = [];
     //释放内存缓存数组
     private _removeHoleArray: Array<UniformBufferCluster> = [];
     //优化内存位置数据
     private _optimizeBufferPosArray: Array<UniformBufferCluster> = [];
 
     _useBigBuffer: boolean = true; //是否使用大内存模式
-
-    //序号计数器
-    _snCounter: number = 0;
 
     //字节对齐
     byteAlign: number = 256;
@@ -87,78 +79,85 @@ export class UniformBufferManager {
     //config
     uploadThreshold: number = 200; //判定为动态块的上传次数阈值
     //config
-    optimizeMemoryThreshold: number = 100;//移除内存空洞的阈值
+    removeHoleThreshold: number = 10; //移除内存空洞的阈值
 
     //统计相关
-    _state: UBOStat;
+    _stat: UBOStat;
+    _enableStat: boolean = true;
 
-    _enableStat: boolean = false;
+    //单独的UniformBuffer
+    aloneBuffers: UniformBufferAlone[] = [];
 
     constructor(useBigBuffer: boolean) {
+        this._useBigBuffer = useBigBuffer;
         this._clustersAll = new Map();
         this._clustersCur = new Map();
-        this._useBigBuffer = useBigBuffer;
-        this._state = new UBOStat();
+        this._stat = new UBOStat();
+    }
+
+    /**
+     * 创建大内存块对象
+     * @param size 小内存块尺寸
+     * @param blockNum 小内存块初始容量
+     * @param manager 管理器
+     */
+    protected _createBufferCluster(size: number, blockNum: number) {
+        return new UniformBufferCluster(size, blockNum, this);
     }
 
     /**
      * 添加大内存块
-     * @param size 
-     * @param blockNum 
+     * @param size 小内存块尺寸
+     * @param blockNum 小内存块初始容量
      */
-    private _addCluster(size: number, blockNum: number = 10) {
+    private _addCluster(size: number, blockNum: number = 16) {
         const alignedSize = roundUp(size, this.byteAlign);
-        const cluster = new UniformBufferCluster(alignedSize, blockNum, this);
+        const cluster = this._createBufferCluster(alignedSize, blockNum);
         const clusters = this._clustersAll.get(alignedSize);
         if (clusters) {
             clusters.push(cluster);
-            cluster.sn = clusters.length - 1;
+            cluster._sn = clusters.length - 1; //大内存块的序号就是在相同尺寸大内存块数组中的序号
         }
         else this._clustersAll.set(alignedSize, [cluster]);
-        this._clustersCur.set(alignedSize, cluster);
+        this._clustersCur.set(alignedSize, cluster); //新添加的大内存块作为当前大内存块
         return cluster;
     }
 
     /**
-     * 移除Manager的UBO大的Buffer中的内存空洞
+     * 开始一帧
      */
-    removeHole() {
-        if (this._useBigBuffer) {
-            this._clustersAll.forEach(clusters => {
-                for (let i = clusters.length - 1; i > -1; i--)
-                    clusters[i].removeHole();
-            });
-        }
-    }
+    startFrame() { }
 
     /**
-     * 开始新的一帧
-     */
-    startFrame() {
-        //按帧计数的清零
-        if (this._enableStat) {
-            this._state.uploadNum = 0;
-            this._state.uploadByte = 0;
-        }
-    }
-
-    /**
-     * 结束一帧数据处理
+     * 结束一帧
      */
     endFrame() {
-        if (!this._useBigBuffer)
-            return;
-        if (this._removeHoleArray.length > 0) {
-            for (var i = 0; i < this._removeHoleArray.length; i++) {
-                this._removeHoleArray[i].removeHole();
-            }
-            this._removeHoleArray.length = 0;
+        //显示上传统计信息
+        // const info = 'timeCost = ' + this._stat.timeCostAvg + 'us, moveNum = ' + this._stat.moveNum + ', uploadNum = ' + this._stat.uploadNum + ', uploadByte = ' + this._stat.uploadByte;
+        // if (this._useBigBuffer)
+        //     console.log('BigBuffer ' + info);
+        // else console.log('AloneBuffer ' + info);
+
+        if (this._enableStat) {
+            //按帧计数的清零
+            this._stat.moveNum = 0;
+            this._stat.uploadNum = 0;
+            this._stat.uploadByte = 0;
+            //记录累加帧数
+            this._stat.timeCostCount++;
         }
-        if (this._optimizeBufferPosArray.length > 0) {
-            for (var i = 0; i < this._optimizeBufferPosArray.length; i++) {
-                this._optimizeBufferPosArray[i].optimize();
+
+        if (this._useBigBuffer) {
+            if (this._removeHoleArray.length > 0) {
+                for (let i = this._removeHoleArray.length - 1; i > -1; i--)
+                    this._removeHoleArray[i].removeHole();
+                this._removeHoleArray.length = 0;
             }
-            this._optimizeBufferPosArray.length = 0;
+            if (this._optimizeBufferPosArray.length > 0) {
+                for (let i = this._optimizeBufferPosArray.length - 1; i > -1; i--)
+                    this._optimizeBufferPosArray[i].optimize();
+                this._optimizeBufferPosArray.length = 0;
+            }
         }
     }
 
@@ -180,38 +179,39 @@ export class UniformBufferManager {
      */
     removeCluster(size: number, sn: number) {
         const alignedSize = roundUp(size, this.byteAlign);
-        if (sn === -1) {
+        if (sn < 0) { //<0表示删除所有该尺寸的大内存块
             this._clustersAll.delete(alignedSize);
             this._clustersCur.delete(alignedSize);
             return;
         }
-        const cluster = this._clustersCur.get(alignedSize);
+        const cluster_sn = this._clustersCur.get(alignedSize)?._sn;
         const clusters = this._clustersAll.get(alignedSize);
         if (clusters.length > sn) {
             clusters.splice(sn, 1);
-            if (clusters.length === 0) {
+            if (clusters.length === 0) { //该尺寸的大内存块已经没有了
                 this._clustersAll.delete(alignedSize);
                 this._clustersCur.delete(alignedSize);
                 return;
             } else {
                 for (let i = sn; i < clusters.length; i++)
-                    clusters[i].sn--;
+                    clusters[i]._sn--; //其他大内存块的序号前移
             }
-        } else return;
-        if (cluster.sn === sn) {
-            if (clusters.length === 1)
-                this._clustersCur.set(alignedSize, clusters[0]);
-            else {
-                let index = 0;
-                let usedNum = clusters[0].usedNum;
-                for (let i = 1; i < clusters.length; i++) {
-                    if (clusters[i].usedNum < usedNum) {
-                        index = i;
-                        usedNum = clusters[i].usedNum;
-                    }
+        } else return; //序号不合法，不删除任何大内存块
+        if (cluster_sn !== undefined
+            && cluster_sn === sn) { //当前大内存块被删除了，需要更改当前大内存块
+            //找一个最大usedNum，且有剩余空间的大内存块作为当前大内存块
+            let usedNumMax = -1, usedNum = -1, index = -1;
+            for (let i = clusters.length - 1; i > -1; i--) {
+                usedNum = clusters[i].usedNum;
+                if (usedNum > usedNumMax
+                    && usedNum < this.clusterMaxBlock) {
+                    index = i;
+                    usedNumMax = usedNum;
                 }
-                this._clustersCur.set(alignedSize, clusters[index]);
             }
+            if (index >= 0) //找到符合要求的大内存块
+                this._clustersCur.set(alignedSize, clusters[index]);
+            else this._clustersCur.delete(alignedSize); //没有符合要求的大内存块，当前该尺寸大内存块为空
         }
     }
 
@@ -228,18 +228,26 @@ export class UniformBufferManager {
         if (cluster.usedNum < this.clusterMaxBlock)
             return cluster.getBlock(size, user);
 
+        //当前大内存已经满员，找一个最大usedNum，且有剩余空间的大内存块作为当前大内存块
         cluster = null;
         const clusters = this._clustersAll.get(alignedSize);
-        for (let i = clusters.length - 1; i > -1; i--) {
-            if (clusters[i].usedNum < this.clusterMaxBlock) {
-                cluster = clusters[i];
-                this._clustersCur.set(alignedSize, cluster);
-                break;
+        let usedNumMax = -1, usedNum = -1, index = -1;
+        for (let i = clusters.length - 1; i > 0; i--) {
+            usedNum = clusters[i].usedNum;
+            if (usedNum > usedNumMax
+                && usedNum < this.clusterMaxBlock) {
+                index = i;
+                usedNumMax = usedNum;
             }
         }
-        if (cluster)
-            return cluster.getBlock(size, user);
-        return this._addCluster(alignedSize).getBlock(size, user);
+        if (index >= 0) { //找到符合要求的大内存块
+            cluster = clusters[index];
+            this._clustersCur.set(alignedSize, cluster);
+        } else this._clustersCur.delete(alignedSize); //没有符合要求的大内存块，当前该尺寸大内存块为空
+
+        if (cluster) //已有符合要求的大内存块
+            return cluster.getBlock(size, user); //直接在该大内存块中添加小内存块
+        return this._addCluster(alignedSize).getBlock(size, user); //没有符合要求的大内存块，新建一个大内存块，并在其中添加小内存块
     }
 
     /**
@@ -249,9 +257,9 @@ export class UniformBufferManager {
     freeBlock(bb: UniformBufferBlock) {
         const cluster = bb.cluster;
         if (cluster) {
-            if (cluster.freeBlock(bb)) {
-                if (cluster.usedNum === 0)
-                    this.removeCluster(cluster._blockSize, cluster.sn);
+            if (cluster.freeBlock(bb)) { //释放小内存块
+                if (cluster.usedNum === 0) //该大内存块已经没有小内存块了
+                    this.removeCluster(cluster._blockSize, cluster._sn); //删除该大内存块
                 return true;
             }
             return false;
@@ -259,56 +267,41 @@ export class UniformBufferManager {
         return false;
     }
 
-    // /**
-    //  * 上传所有数据上传数据
-    //  */
-    // uploadAll() {
-    //     if (this._useBigBuffer) {
-    //         const t = performance.now();
-    //         this._clustersAll.forEach(clusters => {
-    //             for (let i = clusters.length - 1; i > -1; i--) {
-    //                 clusters[i].upload();
-    //             }
-    //         });
-
-    //         if (this._enableStat) {
-    //             this._state.timeCostSum += performance.now() - t;
-    //             this._state.timeCostCount++;
-    //             if (this._state.timeCostCount > 100) {
-    //                 this._state.timeCostAvg = (this._state.timeCostSum / this._state.timeCostCount) * 1000 | 0;
-    //                 this._state.timeCostSum = 0;
-    //                 this._state.timeCostCount = 0;
-    //             }
-    //         }
-    //     }
-    // }
-
+    /**
+     * 上传数据
+     */
     upload() {
         if (this._useBigBuffer) {
+            let t: number;
+            if (this._enableStat)
+                t = performance.now();
             let cluster: UniformBufferCluster;
-            for (let i = 0; i < this._needUpdateCluster.length; i++) {
-                cluster = this._needUpdateCluster[i];
+            for (let i = this._needUpdateClusters.length - 1; i > -1; i--) {
+                cluster = this._needUpdateClusters[i];
                 cluster.upload();
                 cluster._inManagerUpdateArray = false;
             }
+            this._needUpdateClusters.length = 0;
+
+            if (this._enableStat)
+                this.statisTimeCostAvg(performance.now() - t);
         }
-        this._needUpdateCluster.length = 0;
     }
 
     _addUpdateArray(cluster: UniformBufferCluster) {
-        if (cluster._inManagerUpdateArray)
-            return;
-        this._needUpdateCluster.push(cluster);
-        cluster._inManagerUpdateArray = true;
+        if (!cluster._inManagerUpdateArray) {
+            this._needUpdateClusters.push(cluster);
+            cluster._inManagerUpdateArray = true;
+        }
     }
 
     _addRemoveHoleCluster(cluster: UniformBufferCluster) {
-        if (this._removeHoleArray.indexOf(cluster) != -1)
+        if (this._removeHoleArray.indexOf(cluster) === -1)
             this._removeHoleArray.push(cluster);
     }
 
-    _addoptimizeBufferPos(cluster: UniformBufferCluster) {
-        if (this._optimizeBufferPosArray.indexOf(cluster) != -1)
+    _addOptimizeBufferPos(cluster: UniformBufferCluster) {
+        if (this._optimizeBufferPosArray.indexOf(cluster) === -1)
             this._optimizeBufferPosArray.push(cluster);
     }
 
@@ -366,11 +359,25 @@ export class UniformBufferManager {
     }
 
     /**
+     * 统计时间花费（平均值）
+     * @param time 耗费时间（毫秒）
+     */
+    statisTimeCostAvg(time: number) {
+        this._stat.timeCostSum += time;
+        if (this._stat.timeCostCount > 100) {
+            this._stat.timeCostAvg = ((this._stat.timeCostSum / this._stat.timeCostCount) * 10000 | 0) / 10; //微秒
+            this._stat.timeCostSum = 0;
+            this._stat.timeCostCount = 0;
+        }
+    }
+
+    /**
      * 统计上传次数
      * @param count 上传次数
      * @param bytes 上传字节
      */
     statisUpload(count: number, bytes: number) {
-        //todo
+        this._stat.uploadNum += count;
+        this._stat.uploadByte += bytes;
     }
 }

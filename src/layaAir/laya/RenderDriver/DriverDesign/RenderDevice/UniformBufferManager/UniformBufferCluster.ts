@@ -2,47 +2,47 @@ import { IUniformBufferUser } from "./IUniformBufferUser";
 import { UniformBufferBlock } from "./UniformBufferBlock";
 import { UniformBufferManager, roundUp } from "./UniformBufferManager";
 
-export interface uniformBlockUpdateRange {
-    start: number;
-    end: number;
-    upload: boolean;
-}
-
 /**
  * Uniform内存块（大内存块）
  */
 export class UniformBufferCluster {
-
+    static _idCounter: number = 0;
+    /**
+     * @internal
+     */
     _inManagerUpdateArray: boolean = false;
 
+    /**
+     * @internal
+     */
+    _sn: number = 0; //序号（数组中的位置）
 
-    sn: number = 0; //序号 TODO??
+    /**
+     * @internal
+     */
+    _id: number = 0; //编号（Cluster中唯一）
 
-    private _blockNum: number; //小块总数量
-
-    private _move: Uint8Array; //移动时的临时数据
-
-    private _destroyed: boolean = false; //该对象是否已经销毁
-
+    protected _blockNum: number; //小块总数量
+    protected _move: Uint8Array; //移动时的临时数据
+    protected _destroyed: boolean = false; //该对象是否已经销毁
     protected _totalSize: number; //总体尺寸
+    protected _blocks: UniformBufferBlock[] = []; //小内存块，如果成员为null，表示空洞
+    protected _needUpload: Array<boolean> = []; //相应序号的小内存块需要上传数据
+    protected _holeNum: number = 0; //空洞数量
 
-    private _blocks: UniformBufferBlock[] = []; //小内存块，如果成员为null，表示空洞
-
-    private needUpload: Array<boolean> = [];
-
-    private _holeNums: number = 0;
-
+    /**
+     * @internal
+     */
     _blockSize: number; //小块尺寸
 
+    private _expand: number = 16; //每次扩展小内存块容量
+
     buffer: any; //GPU内存对象
-
-    expand: number = 10; //每次扩展数量
-
     data: ArrayBuffer; //数据
-
     manager: UniformBufferManager; //管理器
 
     constructor(blockSize: number, blockNum: number, manager: UniformBufferManager) {
+        this._id = UniformBufferCluster._idCounter++;
         this.manager = manager;
         this._blockSize = blockSize;
         this._blockNum = blockNum;
@@ -53,6 +53,9 @@ export class UniformBufferCluster {
         this.manager.statisGPUMemory(this._totalSize);
     }
 
+    /**
+     * 小内存块使用量
+     */
     get usedNum() {
         return this._blocks.length;
     }
@@ -60,16 +63,17 @@ export class UniformBufferCluster {
     /**
      * 扩展GPU缓冲区
      */
-    private _expandBuffer() {
+    protected _expandBuffer() {
         //计算扩展尺寸
         let expandNum = this._blockNum;
-        this._blockNum += this.expand;
+        this._blockNum += this._expand;
         if (this._blockNum > this.manager.clusterMaxBlock)
             this._blockNum = this.manager.clusterMaxBlock;
         expandNum = this._blockNum - expandNum;
+        if (expandNum < 1) return false; //没有空间可以扩展
         this._totalSize = this._blockSize * this._blockNum;
-        const expandSize = this._blockSize * this.expand;
-        this.needUpload = this.needUpload.concat(new Array(expandNum).fill(false));
+        const expandSize = this._blockSize * this._expand;
+        this._needUpload = this._needUpload.concat(new Array(expandNum).fill(false));
 
         //创建一个新的CPUBuffer，将旧数据拷贝过来
         const newArrayBuffer = new ArrayBuffer(this._totalSize);
@@ -83,16 +87,17 @@ export class UniformBufferCluster {
         this.manager.statisGPUMemory(expandSize);
 
         //通知所有使用者
-        this._blocks.forEach(block => block && block.user.notifyGPUBufferChange());
+        this._blocks.forEach(block => block && block.user.notifyGPUBufferChange('expand'));
+        return true;
     }
 
     /**
-     * 移动内存块，后面的块向前移动，填补指定的内存空洞
+     * 移动小内存块，后面的块向前移动，填补指定的内存空洞
      * @param index 
      */
-    private _moveBlock(index: number) {
+    protected _moveBlock(index: number) {
         const len = this._blocks.length;
-        if (index >= len) return;
+        if (index >= len) return false;
         const dataView = new Uint8Array(this.data);
         const size = this._blockSize;
         for (let i = index + 1; i < len; i++) {
@@ -100,17 +105,31 @@ export class UniformBufferCluster {
             const end = start + size;
             const target = start - size;
             dataView.copyWithin(target, start, end);
+            this._needUpload[i - 1] = this._needUpload[i];
+            this._blocks[i - 1] = this._blocks[i];
             if (this._blocks[i - 1]) {
                 this._blocks[i - 1].index--;
                 this._blocks[i - 1].offset -= size;
-                this._blocks[i - 1].user.notifyGPUBufferChange();
+                this._blocks[i - 1].user.notifyGPUBufferChange('moveBlock');
             }
         }
         this._blocks.length--;
+        return true;
     }
 
     /**
-     * 获取内存块
+     * 创建小内存块对象
+     * @param index 
+     * @param size 
+     * @param alignedSize 
+     * @param user 
+     */
+    protected _createBufferBlock(index: number, size: number, alignedSize: number, user: IUniformBufferUser) {
+        return new UniformBufferBlock(this, index, size, alignedSize, user);
+    }
+
+    /**
+     * 获取小内存块
      * @param size 需求尺寸
      * @param user 使用者
      */
@@ -122,30 +141,27 @@ export class UniformBufferCluster {
         }
 
         const index = this._getBlockWithExpand();
-        const bb = new UniformBufferBlock(this, index, size, alignedSize, user);
+        const bb = this._createBufferBlock(index, size, alignedSize, user);
         this._blocks[index] = bb;
         return bb;
     }
 
-
-
-
     /**
-     * 释放内存块
+     * 释放小内存块
      */
     freeBlock(bb: UniformBufferBlock) {
-        //根据传入的块信息，将块信息从used数组中移除，并添加到free数组中
         const index = this._blocks.indexOf(bb);
         if (index !== -1) {
-            if (index === this._blocks.length - 1) { //删除最后一个
+            if (index === this._blocks.length - 1) //删除最后一个
                 this._blocks.length--;
-            } else {
+            else {
                 this._blocks[index] = null; //变成空洞
+                this._holeNum++;
             }
             bb.destroy();
-            if (this._holeNums++ > this.manager.optimizeMemoryThreshold) {
+            if (this._holeNum > this.manager.removeHoleThreshold) {
                 this.manager._addRemoveHoleCluster(this);
-                this._holeNums = 0;
+                this._holeNum = 0;
             }
             return true;
         }
@@ -166,13 +182,13 @@ export class UniformBufferCluster {
 
         //遍历needUpload数组，找到需要上传的块，然后合并相邻块，上传数据
         for (let i = 0, len = this._blocks.length; i < len; i++) {
-            if (this.needUpload[i]) {
+            if (this._needUpload[i]) {
                 if (startIndex === -1)
                     startIndex = i;
                 endIndex = i;
                 next = true;
-                this.needUpload[i] = false;
-                this._blocks[i].user.updateOver();
+                this._needUpload[i] = false;
+                this._blocks[i]?.user.updateOver();
             } else {
                 //如果当前块不需要上传，且之前有需要上传的块，则上传数据
                 if (next) {
@@ -198,28 +214,27 @@ export class UniformBufferCluster {
         }
 
         //记录上传次数，字节数
-        if (this.manager._enableStat) {
-            this.manager._state.uploadNum += count;
-            this.manager._state.uploadByte += bytes;
-        }
-
         this.manager.statisUpload(count, bytes);
     }
 
+    /**
+     * 标记块需要上传
+     * @param index 
+     */
     _addUploadBlock(index: number) {
-        this.needUpload[index] = true;
-        if (!this._inManagerUpdateArray) {
+        this._needUpload[index] = true;
+        if (!this._inManagerUpdateArray)
             this.manager._addUpdateArray(this);
-        }
     }
 
     /**
-     * 优化块顺序，上传频繁的块排前面
+     * 优化小内存块顺序，上传频繁的块放前面
      */
     optimize() {
-        for (let i = this._blocks.length - 1; i > -1; i--) {
+        let ret = false;
+        for (let i = 0, len = this._blocks.length; i < len; i++) { //这里不能用倒序，否则会遗漏
             const bb = this._blocks[i];
-            if (bb && bb.uploadNum > this.manager.uploadThreshold && !bb.moved && i > 0) {
+            if (bb && !bb.moved && bb.uploadNum > this.manager.uploadThreshold && i > 0) {
                 const size = this._blockSize;
                 const dataView = new Uint8Array(this.data);
                 this._move.set(new Uint8Array(this.data, size * i, size));
@@ -228,11 +243,12 @@ export class UniformBufferCluster {
                     const end = start + size;
                     const target = start + size;
                     dataView.copyWithin(target, start, end);
+                    this._needUpload[j + 1] = this._needUpload[j];
                     this._blocks[j + 1] = this._blocks[j];
                     if (this._blocks[j + 1]) {
                         this._blocks[j + 1].index++;
                         this._blocks[j + 1].offset += size;
-                        this._blocks[j + 1].user.notifyGPUBufferChange();
+                        this._blocks[j + 1].user.notifyGPUBufferChange('optimize');
                     }
                 }
                 dataView.set(this._move);
@@ -240,30 +256,35 @@ export class UniformBufferCluster {
                 bb.offset = 0;
                 bb.moved = true;
                 this._blocks[0] = bb;
-                this._blocks[0].user.notifyGPUBufferChange();
-                if (this.manager._enableStat) {
-                    this.manager._state.moveNum++;
-                }
-
-                break; //每帧只处理一个块
+                this._blocks[0].user.notifyGPUBufferChange('optimize');
+                ret = true;
+                if (this.manager._enableStat)
+                    this.manager._stat.moveNum++;
             }
         }
+        return ret;
     }
 
     /**
-     * 移除空洞
+     * 移除空洞，使小内存块连续
      */
     removeHole() {
+        let ret = false;
         for (let i = this._blocks.length - 1; i > -1; i--) {
             if (!this._blocks[i]) {
-                this._moveBlock(i);
-                break;
+                if (this._moveBlock(i)) {
+                    ret = true;
+                    if (this.manager._enableStat)
+                        this.manager._stat.moveNum++;
+                }
             }
         }
+        this._holeNum = 0;
+        return ret;
     }
 
     /**
-     * 清理，释放所有内存块，回到内存未占用状态
+     * 清理，释放所有小内存块，回到内存未占用状态
      * @param blockNum 保留多少小块
      */
     clear(blockNum?: number) {
@@ -280,8 +301,8 @@ export class UniformBufferCluster {
             this.buffer = null;
             this.data = null;
         }
-        this.needUpload.length = this._blockNum;
-        this.needUpload.fill(false);
+        this._needUpload.length = this._blockNum;
+        this._needUpload.fill(false);
     }
 
     /**
@@ -290,13 +311,15 @@ export class UniformBufferCluster {
     private _getBlockWithExpand() {
         //先查找空洞
         for (let i = this._blocks.length - 1; i > -1; i--) {
-            if (!this._blocks[i])
+            if (!this._blocks[i]) { //找到空洞，返回该位置
+                this._holeNum--;
                 return i;
+            }
         }
         if (this._blocks.length < this._blockNum)
             return this._blocks.length;
         else {
-            this._expandBuffer();
+            this._expandBuffer(); //扩展一定会成功，因为调用该函数前已经检查待扩展空间
             return this._blocks.length;
         }
     }

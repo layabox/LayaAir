@@ -24,11 +24,11 @@ type ItemType = {
  */
 export class UniformBufferUser implements IUniformBufferUser {
     name: string;
-    strId: string;
-    size: number;
-    items: Map<number, ItemType>;
-    itemNum: number;
-    destroyed: boolean = false; //该对象是否已经销毁
+    protected _strId: string;
+    protected _size: number;
+    protected _items: Map<number, ItemType>;
+    protected _itemNum: number;
+    private destroyed: boolean = false; //该对象是否已经销毁
 
     needUpload: boolean;
     bufferBlock: UniformBufferBlock;
@@ -39,21 +39,31 @@ export class UniformBufferUser implements IUniformBufferUser {
 
     constructor(name: string, size: number, manager: UniformBufferManager, data: ShaderData) {
         this.name = name;
-        this.strId = '';
-        this.items = new Map();
-        this.itemNum = 0;
+        this._strId = '';
+        this._items = new Map();
+        this._itemNum = 0;
         this.data = data;
-        this.size = size;
+        this._size = size;
         this.manager = manager;
         this.needUpload = false;
 
         if (manager._useBigBuffer) {
             this.bufferBlock = manager.getBlock(size, this);
             this.offset = this.bufferBlock.offset;
-        } else this.bufferAlone = new UniformBufferAlone(size, manager);
+        } else this.bufferAlone = this._createBufferAlone(size, manager);
     }
+
+    /**
+     * 创建独立内存对象
+     * @param size 
+     * @param manager 
+     */
+    protected _createBufferAlone(size: number, manager: UniformBufferManager) {
+        return new UniformBufferAlone(size, manager, this);
+    }
+
     updateOver(): void {
-      this.needUpload = false;
+        this.needUpload = false;
     }
 
     /**
@@ -62,7 +72,7 @@ export class UniformBufferUser implements IUniformBufferUser {
     notifyGPUBufferChange() {
         const offset = this.bufferBlock.offset - this.offset;
         this.offset = this.bufferBlock.offset;
-        this.items.forEach(item => {
+        this._items.forEach(item => {
             const tac = UniformBufferUser._typeArray(item.type);
             item.view = new tac(this.bufferBlock.cluster.data, item.view.byteOffset + offset, item.size / tac.BYTES_PER_ELEMENT);
         });
@@ -87,12 +97,12 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param count 
      */
     addUniform(id: number, name: string, type: string, offset: number, align: number, size: number, elements: number, count: number) {
-        if (this.items.has(id)) return; //该Uniform已经存在
-        this.items.set(id, this._getUniformItem(name, UniformBufferUser._typeArray(type), type, offset, align, size, elements, count));
-        if (this.strId.length > 0)
-            this.strId += '|';
-        this.strId += id;
-        this.itemNum++;
+        if (this._items.has(id)) return; //该Uniform已经存在
+        this._items.set(id, this._getUniformItem(name, UniformBufferUser._typeArray(type), type, offset, align, size, elements, count));
+        if (this._strId.length > 0)
+            this._strId += '|';
+        this._strId += id;
+        this._itemNum++;
     }
 
     /**
@@ -101,7 +111,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setUniformData(id: number, data: any) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             this.needUpload = true;
             if (item.count == 1) {
@@ -153,7 +163,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setBool(id: number, data: boolean) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data ? 1 : 0;
             this.needUpload = true;
@@ -166,7 +176,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setBoolArray(id: number, data: boolean[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
                 item.view[i] = data[i] ? 1 : 0;
@@ -180,7 +190,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setInt(id: number, data: number) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data;
             this.needUpload = true;
@@ -193,7 +203,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setIntArray(id: number, data: number[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
                 item.view[i] = data[i];
@@ -207,7 +217,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setFloat(id: number, data: number) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data;
             this.needUpload = true;
@@ -220,7 +230,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setFloatArray(id: number, data: number[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
                 item.view[i] = data[i];
@@ -234,7 +244,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector2(id: number, data: Vector2) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data.x;
             item.view[1] = data.y;
@@ -248,7 +258,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector2Array(id: number, data: Vector2[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
                 item.view[i * 2 + 0] = data[i].x;
@@ -264,7 +274,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector3(id: number, data: Vector3) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data.x;
             item.view[1] = data.y;
@@ -279,7 +289,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector3Array(id: number, data: Vector3[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
                 item.view[i * 4 + 0] = data[i].x;
@@ -296,7 +306,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector4(id: number, data: Vector4) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view[0] = data.x;
             item.view[1] = data.y;
@@ -312,7 +322,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setVector4Array(id: number, data: Vector4[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++) {
                 item.view[i * 4 + 0] = data[i].x;
@@ -330,7 +340,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setMatrix3x3(id: number, data: Matrix3x3) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0; i < 3; i++) {
                 item.view[i * 4 + 0] = data.elements[i * 3 + 0];
@@ -347,7 +357,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setMatrix3x3Array(id: number, data: Matrix3x3[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let j = 0, len = Math.min(item.count, data.length); j < len; j++) {
                 for (let i = 0; i < 3; i++) {
@@ -366,7 +376,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setMatrix4x4(id: number, data: Matrix4x4) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             item.view.set(data.elements);
             this.needUpload = true;
@@ -379,7 +389,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param data 
      */
     setMatrix4x4Array(id: number, data: Matrix4x4[]) {
-        const item = this.items.get(id);
+        const item = this._items.get(id);
         if (item) {
             for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
                 item.view.set(data[i].elements, i * 16);
@@ -401,7 +411,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param id 
      */
     getUniform(id: number) {
-        return this.items.get(id);
+        return this._items.get(id);
     }
 
     /**
@@ -409,7 +419,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param id  
      */
     hasUniform(id: number) {
-        return this.items.has(id);
+        return this._items.has(id);
     }
 
     /**
@@ -417,7 +427,7 @@ export class UniformBufferUser implements IUniformBufferUser {
      * @param strId 
      */
     isMe(strId: string) {
-        return this.strId === strId;
+        return this._strId === strId;
     }
 
     /**
@@ -439,9 +449,9 @@ export class UniformBufferUser implements IUniformBufferUser {
         if (this.manager._useBigBuffer)
             new Uint8Array(this.bufferBlock.cluster.data).fill(0, this.bufferBlock.offset, this.bufferBlock.offset + this.bufferBlock.size);
         else new Uint8Array(this.bufferAlone.data).fill(0);
-        this.strId = '';
-        this.items.clear();
-        this.itemNum = 0;
+        this._strId = '';
+        this._items.clear();
+        this._itemNum = 0;
         this.needUpload = false;
     }
 

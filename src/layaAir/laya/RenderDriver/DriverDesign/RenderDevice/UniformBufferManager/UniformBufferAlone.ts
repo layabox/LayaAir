@@ -1,49 +1,47 @@
+import { Laya } from "../../../../../Laya";
+import { IUniformBufferUser } from "./IUniformBufferUser";
 import { roundUp, UniformBufferManager } from "./UniformBufferManager";
 
 /**
  * 单独的UniformBuffer
  */
 export class UniformBufferAlone {
-
     private _destroyed: boolean = false; //该对象是否已经销毁
+    private _manager: UniformBufferManager; //管理器
 
     buffer: any; //GPU内存
-
     data: ArrayBuffer;
+    uploadNum: number = 0; //上传次数
+    user: IUniformBufferUser; //内存块使用者
 
-    size: number; //尺寸
+    protected _size: number; //尺寸
+    protected _alignedSize: number; //字节对齐后的尺寸
 
-    alignedSize: number; //字节对齐后的尺寸
-
-    manager: UniformBufferManager; //管理器
-
-    constructor(size: number, manager: UniformBufferManager) {
+    constructor(size: number, manager: UniformBufferManager, user: IUniformBufferUser) {
         this.data = new ArrayBuffer(size);
         this.buffer = manager.getBufferAlone(size);
-        this.manager = manager;
-        this.size = size;
-        this.alignedSize = roundUp(size, manager.byteAlign);
+        this._manager = manager;
+        this._size = size;
+        this._alignedSize = roundUp(size, manager.byteAlign);
+
+        this.user = user;
+        manager.aloneBuffers.push(this);
     }
 
     /**
      * 上传数据
      */
     upload() {
-        //上传数据
-        const t = performance.now();
-        this.manager.writeBuffer(this.buffer, this.data, 0, this.size);
-        if (this.manager._enableStat) {
-            this.manager._state.timeCostSum += performance.now() - t;
-            this.manager._state.timeCostCount++;
-            if (this.manager._state.timeCostCount > 100) {
-                this.manager._state.timeCostAvg = (this.manager._state.timeCostSum / this.manager._state.timeCostCount) * 1000 | 0;
-                this.manager._state.timeCostSum = 0;
-                this.manager._state.timeCostCount = 0;
-            }
+        let t: number;
+        if (this._manager._enableStat)
+            t = performance.now();
+        this.uploadNum++;
+        this._manager.writeBuffer(this.buffer, this.data, 0, this._size);
+        if (this._manager._enableStat) {
             //记录上传次数，字节数
-            this.manager._state.uploadNum++;
-            this.manager._state.uploadByte += this.size;
-            this.manager.statisUpload(1, this.size);
+            this._manager.statisUpload(1, this._size);
+            //记录时间，用于计算上传耗费的平均时间
+            this._manager.statisTimeCostAvg(performance.now() - t);
         }
     }
 
@@ -53,8 +51,10 @@ export class UniformBufferAlone {
     destroy() {
         if (!this._destroyed) {
             this.data = null;
-            this.buffer.destroy ?? this.buffer.destroy();
-            this.manager.statisGPUMemory(-this.size);
+            if (this.buffer.destroy)
+                this.buffer.destroy();
+            this._manager.statisGPUMemory(-this._size);
+            this._manager.aloneBuffers.splice(this._manager.aloneBuffers.indexOf(this), 1);
             this._destroyed = true;
             return true;
         }
