@@ -88,21 +88,7 @@
         //useTex
         info.useTex = a_attribFlags.r;
 
-        //clip
-    	float clipw = length(u_clipMatDir.xy);
-    	float cliph = length(u_clipMatDir.zw);
-	    vec2 clpos = u_clipMatPos.xy;
-        #ifdef WORLDMAT
-            vec2 clippos = transedPos.xy - clpos;
-        #else
-        vec2 clippos = a_posuv.xy - clpos;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
-        #endif
-        if(clipw>20000. && cliph>20000.)
-            info.cliped = vec2(0.5,0.5);
-        else {
-            //转成0到1之间。/clipw/clipw 表示clippos与normalize之后的clip朝向点积之后，再除以clipw
-            info.cliped = vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
-        }
+       
     }
 
     void getPosition(inout vec4 glPosition){
@@ -115,8 +101,26 @@
         #ifdef CAMERA2D
             pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
         #endif  
-
+        
+        //clip
+    	float clipw = length(u_clipMatDir.xy);
+    	float cliph = length(u_clipMatDir.zw);
+	    vec2 clpos = u_clipMatPos.xy;
+        #ifdef WORLDMAT
+            vec2 clippos = transedPos.xy - clpos;
+        #else
+        vec2 clippos = pos.xy- clpos;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+        #endif
+        if(clipw>20000. && cliph>20000.)
+            v_cliped = vec2(0.5,0.5);
+        else {
+            //转成0到1之间。/clipw/clipw 表示clippos与normalize之后的clip朝向点积之后，再除以clipw
+            v_cliped = vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
+        }
+        
         vec4 pos1 = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,0.,1.0);
+        
+        
         #ifdef MVP3D
             glPosition = u_MvpMatrix * pos1;
         #else
@@ -126,6 +130,8 @@
         #ifdef INVERTY
             glPosition.y = -glPosition.y;
         #endif
+
+      
     }
 #endif
 
