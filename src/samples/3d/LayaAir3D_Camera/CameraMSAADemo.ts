@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
@@ -11,13 +10,14 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
 
 /**
  * ...
@@ -79,21 +79,57 @@ export class CameraMSAADemo {
         scene.addChild(sprite);
 
         let planeMesh: Mesh = PrimitiveMesh.createPlane(10, 10, 1, 1);
-        let plane: MeshSprite3D = new MeshSprite3D(planeMesh);
+        let plane: Sprite3D = new Sprite3D();
+        let planerendere: MeshRenderer = plane.addComponent(MeshRenderer);
+        let planefilter: MeshFilter = plane.addComponent(MeshFilter);
+        planefilter.sharedMesh = planeMesh;
+
         scene.addChild(plane);
 
         let cubeMesh: Mesh = PrimitiveMesh.createBox();
         let sphere: Mesh = PrimitiveMesh.createSphere(0.3);
-        let cube0: MeshSprite3D = new MeshSprite3D(cubeMesh);
-        let cube1: MeshSprite3D = new MeshSprite3D(cubeMesh);
-        let cube2: MeshSprite3D = new MeshSprite3D(cubeMesh);
-        let cube3: MeshSprite3D = new MeshSprite3D(cubeMesh);
-        let sphere0: MeshSprite3D = new MeshSprite3D(sphere);
-        let sphere1: MeshSprite3D = new MeshSprite3D(sphere);
-        let sphere2: MeshSprite3D = new MeshSprite3D(sphere);
-        let sphere3: MeshSprite3D = new MeshSprite3D(sphere);
 
-        cube0.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+        let cube0: Sprite3D = new Sprite3D();
+        let cube0render: MeshRenderer = cube0.addComponent(MeshRenderer);
+        let cube0filter: MeshFilter = cube0.addComponent(MeshFilter);
+        cube0filter.sharedMesh = cubeMesh;
+
+        let cube1: Sprite3D = new Sprite3D();
+        let cube1render: MeshRenderer = cube1.addComponent(MeshRenderer);
+        let cube1filter: MeshFilter = cube1.addComponent(MeshFilter);
+        cube1filter.sharedMesh = cubeMesh;
+
+        let cube2: Sprite3D = new Sprite3D();
+        let cube2render: MeshRenderer = cube2.addComponent(MeshRenderer);
+        let cube2filter: MeshFilter = cube2.addComponent(MeshFilter);
+        cube2filter.sharedMesh = cubeMesh;
+
+        let cube3: Sprite3D = new Sprite3D();
+        let cube3render: MeshRenderer = cube3.addComponent(MeshRenderer);
+        let cube3filter: MeshFilter = cube3.addComponent(MeshFilter);
+        cube3filter.sharedMesh = cubeMesh;
+
+        let sphere0: Sprite3D = new Sprite3D();
+        let sphere0render: MeshRenderer = sphere0.addComponent(MeshRenderer);
+        let sphere0filter: MeshFilter = sphere0.addComponent(MeshFilter);
+        sphere0filter.sharedMesh = sphere;
+
+        let sphere1: Sprite3D = new Sprite3D();
+        let sphere1render: MeshRenderer = sphere1.addComponent(MeshRenderer);
+        let sphere1filter: MeshFilter = sphere1.addComponent(MeshFilter);
+        sphere1filter.sharedMesh = sphere;
+
+        let sphere2: Sprite3D = new Sprite3D();
+        let sphere2render: MeshRenderer = sphere2.addComponent(MeshRenderer);
+        let sphere2filter: MeshFilter = sphere2.addComponent(MeshFilter);
+        sphere2filter.sharedMesh = sphere;
+
+        let sphere3: Sprite3D = new Sprite3D();
+        let sphere3render: MeshRenderer = sphere3.addComponent(MeshRenderer);
+        let sphere3filter: MeshFilter = sphere3.addComponent(MeshFilter);
+        sphere3filter.sharedMesh = sphere;
+
+        cube0render.sharedMaterial = new BlinnPhongMaterial;
 
         sprite.addChild(cube0);
         sprite.addChild(cube1);

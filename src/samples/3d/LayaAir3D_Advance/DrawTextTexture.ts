@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
@@ -14,11 +13,16 @@ import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Mesh } from "laya/d3/resource/models/Mesh";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { MaterialRenderMode } from "laya/resource/Material";
 
 
 export class DrawTextTexture {
     private cav: HTMLCanvasElement;
-    private plane: MeshSprite3D;
+    private plane: Sprite3D;
     private mat: UnlitMaterial;
     private texture2D: Texture2D;
     constructor() {
@@ -35,12 +39,16 @@ export class DrawTextTexture {
             camera.addComponent(CameraMoveScript);
 
             //设置一个面板用来渲染
-            this.plane = new MeshSprite3D(PrimitiveMesh.createPlane(10, 10));
+            this.plane = new Sprite3D();
+            let mesh: Mesh = PrimitiveMesh.createPlane(10, 10);
+            let planeMeshrender: MeshRenderer = this.plane.addComponent(MeshRenderer);
+            let planeMeshfilter: MeshFilter = this.plane.addComponent(MeshFilter);
+            planeMeshfilter.sharedMesh = mesh;
             this.plane.transform.rotate(new Vector3(90, 0, 0), true, true);
             scene.addChild(this.plane);
             //材质
             this.mat = new UnlitMaterial();
-            this.plane.meshRenderer.sharedMaterial = this.mat;
+            planeMeshrender.sharedMaterial = this.mat;
 
             //画布cavans
             this.cav = Browser.createElement("canvas");
@@ -68,11 +76,11 @@ export class DrawTextTexture {
             cxt.strokeText("LayaBox", 100, 150,);//只有边框
             this.texture2D = new Texture2D(256, 256, TextureFormat.R8G8B8A8, true, false, false);
             this.texture2D.setImageData(this.cav, false, false);
-            this.mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
+            this.mat.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
 
             //给材质贴图
             this.mat.albedoTexture = this.texture2D;
-            (<BlinnPhongMaterial>this.plane.meshRenderer.sharedMaterial).cull = RenderState.CULL_NONE;
+            (<BlinnPhongMaterial>planeMeshrender.sharedMaterial).cull = RenderState.CULL_NONE;
             var rotate: Vector3 = new Vector3(0, 0, 1);
             Laya.timer.frameLoop(1, this, function (): void {
                 this.plane.transform.rotate(rotate, true, false);
