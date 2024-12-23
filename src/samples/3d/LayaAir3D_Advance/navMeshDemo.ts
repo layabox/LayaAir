@@ -13,7 +13,6 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Component } from "laya/components/Component";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Color } from "laya/maths/Color";
@@ -21,6 +20,10 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { NavAgent } from "laya/navigation/3D/component/NavAgent";
 import { Node } from "laya/display/Node";
 import { NavMeshSurface } from "laya/navigation/3D/component/NavMeshSurface";
+import { Mesh } from "laya/d3/resource/models/Mesh";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
+import { MaterialRenderMode } from "laya/resource/Material";
 
 
 export class NavMeshDemo {
@@ -93,11 +96,15 @@ class NavMeshScript extends Script {
 
     private showDebugMesh(suface: NavMeshSurface) {
         let navMesh = suface.navMesh;
-        var navSprite = this._scene.addChild(new MeshSprite3D(navMesh.buildDebugMesh()));
+        let debugMesh: Mesh = navMesh.buildDebugMesh();
+        var navSprite = new Sprite3D();
+        let navSpriterender: MeshRenderer = navSprite.addComponent(MeshRenderer);
+        let navSpritefilter: MeshFilter = navSprite.addComponent(MeshFilter);
+        this._scene.addChild(navSprite);
         let mat = new UnlitMaterial()
-        mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
+        mat.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
         mat.albedoColor = new Color(0, 0.75, 1, 0.3)
-        navSprite.meshRenderer.material = mat;
+        navSpriterender.material = mat;
         Vector3.lerp(suface.min, suface.max, 0.5, tempV);
         navSprite.transform.position = tempV;
         //@ts-ignore

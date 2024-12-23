@@ -309,7 +309,6 @@ export class IndexView3D extends IndexViewUI {
             //主控制推送
             Client.instance.send({ type: "next", bigType: bigType, smallType: smallType, isMaster: isMaster });
         } else {
-
             this.switchFunc(this.a_length, i_length);
         }
 
@@ -444,7 +443,10 @@ export class IndexView3D extends IndexViewUI {
                     //trace("__________________");
                 }
                 else if (Laya.stage.getChildAt(i)) {
-                    Laya.stage.getChildAt(i).destroy();
+                    let node = Laya.stage.getChildAt(i);
+                    if (!(node.name === "root")) {
+                        node.destroy();
+                    }
                 }
             }
         }

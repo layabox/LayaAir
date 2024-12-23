@@ -66,7 +66,7 @@ export class FogDemo {
 
     private placeVSlider(): void {
         this.vs = new VSlider();
-        this.scene.addChild(this.vs);
+        Laya.stage.addChild(this.vs);
         this.vs.skin = "res/ui/vscroll.png";
         this.vs.height = 500;
         this.vs.right = 100;

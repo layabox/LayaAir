@@ -113,9 +113,7 @@ export class CameraLookAt {
 		this.loadUI();
 	}
 	private loadUI(): void {
-
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-
 			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换注视目标")));
 			changeActionButton.size(200, 40);
 			changeActionButton.labelBold = true;
