@@ -297,5 +297,23 @@ export const allBundles = [{
     input: [
         'laya/legacy/tiledmap/**/*.ts'
     ],
-}
+},
+{
+    'libName': "trailCommon",
+    'input': [
+        './layaAir/laya/trail/trailCommon/**/*.*',
+    ],
+},
+{
+    'libName': "trail2D",
+    'input': [
+        './layaAir/laya/trail/trail2D/**/*.*',
+    ],
+},
+{
+    'libName': "trail3D",
+    'input': [
+        './layaAir/laya/trail/trail3D/**/*.*',
+    ],
+},
 ];
