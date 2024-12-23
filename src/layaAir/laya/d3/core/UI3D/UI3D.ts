@@ -523,6 +523,7 @@ export class UI3D extends BaseRender {
     protected _onDestroy() {
         super._onDestroy();
         this._rendertexure2D && this._rendertexure2D.destroy();
+        this._shellSprite._parent = null;
         this._uisprite && this._uisprite.destroy();
         this._shellSprite && this._shellSprite.destroy();
         this._ui3DMat && this._ui3DMat.destroy();
