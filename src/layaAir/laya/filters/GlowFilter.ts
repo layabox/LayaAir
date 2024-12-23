@@ -1,5 +1,6 @@
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
@@ -111,6 +112,7 @@ export class GlowFilter extends Filter {
             if (this.textureExtend)
                 this.textureExtend.destroy();
             this.textureExtend = new RenderTexture2D(outTexWidth, outTexHeight, RenderTargetFormat.R8G8B8A8);
+            this.textureExtend._invertY = LayaGL.renderEngine._screenInvertY;
         }
 
         let render2d = this._render2D.clone(this.textureExtend);
