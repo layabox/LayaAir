@@ -1,8 +1,10 @@
 
+import { MeshSprite3D } from "../../d3/core/MeshSprite3D";
+import { Sprite3D } from "../../d3/core/Sprite3D";
 import { ILoadTask, IResourceLoader } from "../../net/Loader";
 import { AssetDb } from "../../resource/AssetDb";
 import { Resource } from "../../resource/Resource";
-import { mmdToMesh } from "./mmdToLaya";
+import { MMDSkeleton, MMDSprite, mmdToMesh, mmdToSkeleton } from "./mmdToLaya";
 import type { ILogger } from "./Parser/ILogger";
 import { PmdReader } from "./Parser/pmdReader";
 import type { PmxObject } from "./Parser/pmxObject";
@@ -32,9 +34,11 @@ export class PmdLoader implements ILogger, IResourceLoader {
         });
     }    
 
-    async _parse( task:ILoadTask , data:ArrayBuffer) : Promise<Resource>{
-        let ret = await PmdReader.ParseAsync(data, this);
-        return mmdToMesh(ret);
+    async _parse( task:ILoadTask , data:ArrayBuffer) : Promise<Sprite3D>{
+        let pmxinfo = await PmdReader.ParseAsync(data, this);
+        let ret = new MMDSprite();
+        ret.parsePmxObj(pmxinfo);
+        return ret;
     }
         
 }

@@ -17,8 +17,36 @@ import { CameraController1 } from "../../utils/CameraController1"
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { AnimatorControllerLayer } from "laya/d3/component/Animator/AnimatorControllerLayer";
+import { Color } from "laya/maths/Color";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Quaternion } from "laya/maths/Quaternion";
+import { MMDSprite } from "laya/mmd/Loader/mmdToLaya";
 
 MeshReader; //MeshLoader.v3d 赋值
+
+function createYCylinder(length:number, color: Color) {
+    let sp3 = new Sprite3D();
+    let mf = sp3.addComponent(MeshFilter);
+    mf.sharedMesh = PrimitiveMesh.createCylinder(0.1, length);
+    let r = sp3.addComponent(MeshRenderer)
+    let mtl = new BlinnPhongMaterial();
+    r.material = mtl;
+    mtl.albedoColor = color;
+    return sp3;
+}
+
+function createBoneModel(length:number) {
+    const ycylinder = createYCylinder(length, new Color(1, 1, 1, 1));
+    let Rot = new Quaternion();
+    Quaternion.createFromAxisAngle(new Vector3(1,0,0), Math.PI/2,Rot);
+    ycylinder.transform.localRotation = Rot;
+    ycylinder.transform.localPosition = new Vector3(0, 0, length * 0.5);
+    let sp = new Sprite3D('bone Dummy');
+    sp.addChild(ycylinder);
+    return sp;
+}
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 let lm = './pmx/miku_v2/miku_v2.pmd'
@@ -52,22 +80,29 @@ async function test(){
     directlightSprite.transform.worldMatrix = mat;
 
     // 加载模型
-    let meshData = await Laya.loader.load(lm) as Mesh;
+    let mmdsp = await Laya.loader.load(lm) as MMDSprite;
     
     // 创建MeshSprite3D并应用加载的网格数据
-    let meshSprite = new MeshSprite3D(meshData);
-    scene.addChild(meshSprite);
+    scene.addChild(mmdsp);
+
+    //显示骨骼
+    for (let sp of mmdsp.skeleton.sprites){
+        let length = (sp as any).boneLength ||1;
+        let bone = createBoneModel(length);
+        sp.addChild(bone);
+    }
     
     // 调整模型位置和缩放
-    meshSprite.transform.position = new Vector3(0, 0, 0);
-    meshSprite.transform.setWorldLossyScale(new Vector3(1, 1, 1));
+    mmdsp.transform.position = new Vector3(0, 0, 0);
+    mmdsp.transform.setWorldLossyScale(new Vector3(1, 1, 1));
     
     let mtl = new BlinnPhongMaterial();
-    meshSprite.meshRenderer.sharedMaterial = mtl;
+    mmdsp.renderSprite.meshRenderer.sharedMaterial = mtl;
+    //mmdsp.renderSprite.active=false;
     console.log("Mesh loaded and added to scene");
 
     let vmd = await Laya.loader.load('./pmx/miku_v2/wavefile_v2.vmd');
-    let animator: Animator = meshSprite.addComponent(Animator);
+    let animator: Animator = mmdsp.addComponent(Animator);
     let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer("AnimatorLayer");
     animator.addControllerLayer(animatorLayer);
     animatorLayer.defaultWeight = 1.0;    
