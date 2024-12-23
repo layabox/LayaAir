@@ -52,7 +52,7 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
     }
 
     clearGPUBufferBind(): void {
-        // throw new Error("Method not implemented.");
+        // throw new NotImplementedError();
     }
 
     notifyGPUBufferChange(): void {

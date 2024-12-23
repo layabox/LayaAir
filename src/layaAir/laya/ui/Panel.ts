@@ -44,9 +44,6 @@ export class Panel extends Box {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._content && this._content.destroy(destroyChild);
-        this._vScrollBar && this._vScrollBar.destroy(destroyChild);
-        this._hScrollBar && this._hScrollBar.destroy(destroyChild);
         this._vScrollBar = null;
         this._hScrollBar = null;
         this._content = null;
@@ -57,7 +54,10 @@ export class Panel extends Box {
      * @zh 销毁所有的子对象。
      */
     destroyChildren(): void {
-        this._content.destroyChildren();
+        if (this._destroyed)
+            super.destroyChildren();
+        else
+            this._content.destroyChildren();
     }
 
     protected createChildren(): void {
@@ -133,9 +133,12 @@ export class Panel extends Box {
      * @returns 移除的子节点对象。
      */
     removeChildAt(index: number, destroy?: boolean): Node {
-        this.getChildAt(index).off(Event.RESIZE, this, this._setScrollChanged);
-        this._setScrollChanged();
-        return this._content.removeChildAt(index, destroy);
+        let child = this._content.removeChildAt(index, destroy);
+        if (!destroy) {
+            child.off(Event.RESIZE, this, this._setScrollChanged);
+            this._setScrollChanged();
+        }
+        return child;
     }
 
     /**
@@ -521,7 +524,7 @@ export class Panel extends Box {
     }
 
     protected _setScrollChanged(): void {
-        if (!this._scrollChanged) {
+        if (!this._scrollChanged && !this._destroyed) {
             this._scrollChanged = true;
             this.callLater(this.changeScroll);
         }

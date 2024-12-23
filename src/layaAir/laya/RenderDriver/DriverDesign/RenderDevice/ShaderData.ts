@@ -179,7 +179,7 @@ export class ShaderData implements IClone {
      * 清空数据 与 宏定义
      */
     clearData(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 
