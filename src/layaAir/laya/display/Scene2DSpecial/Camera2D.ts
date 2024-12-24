@@ -283,7 +283,7 @@ export class Camera2D extends Sprite {
         //用来计算camera的矩阵
         let viewport = this._getScreenSize();
         let curPosPoint = Point.TEMP;
-        this.getGlobalPos(curPosPoint);
+        this.getScenePos(curPosPoint);
         let extendHorizental = viewport.x * 0.5;
         let extendVertical = viewport.y * 0.5
         if (!this._firstUpdate) {
@@ -349,8 +349,9 @@ export class Camera2D extends Sprite {
         } else {
             this._cameraRotation = 0;
         }
+
         this._rect.setValue(this._cameraSmoothPos.x - extendHorizental, this._cameraSmoothPos.x + extendHorizental, this._cameraSmoothPos.y - extendVertical, this._cameraSmoothPos.y + extendVertical)
-        Matrix3x3.createMatreixFromValue(this._cameraSmoothPos, this._cameraRotation, Vector2.ONE, this._cameraMatrix);
+        Matrix3x3.createMatreixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, Vector2.ONE, this._cameraMatrix);
         this._cameraMatrix.invert(this._cameraInvertMatrix);
         return this._cameraInvertMatrix;
     }

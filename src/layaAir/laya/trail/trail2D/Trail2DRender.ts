@@ -16,6 +16,7 @@ import { TrailShaderCommon } from "../trailCommon/RenderFeatureComman/Trail/Trai
 import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/TrailTextureMode";
 import { TrailBaseFilter } from "../trailCommon/RenderFeatureComman/TrailBaseFilter";
 import { TrailShaderInit } from "./Shader/Trail2DShaderInit";
+import { Matrix } from "../../maths/Matrix";
 
 export class Trail2DRender extends BaseRenderNode2D {
 
@@ -192,15 +193,16 @@ export class Trail2DRender extends BaseRenderNode2D {
    * @param py 
    */
     addCMDCall(context: Context, px: number, py: number): void {
-        let mat = context._curMat;
+        //渲染节点数据是Global数据，使用Scene的数据
+        let mat = (this.owner.scene && !context._drawingToTexture) ? this.owner.scene.getGlobalMatrix() : Matrix.EMPTY;
         let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
-        vec3.z = px * mat.a + py * mat.c + mat.tx;
+        vec3.z = mat.tx;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
         vec3.x = mat.b;
         vec3.y = mat.d;
-        vec3.z = px * mat.b + py * mat.d + mat.ty;
+        vec3.z = mat.ty;
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         this._setRenderSize(context.width, context.height);
         context._copyClipInfoToShaderData(this._spriteShaderData);
@@ -211,7 +213,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
-        this.owner.getGlobalPos(globalPos);
+        this.owner.getScenePos(globalPos);
         let curPosV3 = Vector3.TEMP;
         curPosV3.set(globalPos.x, globalPos.y, 0);
 
