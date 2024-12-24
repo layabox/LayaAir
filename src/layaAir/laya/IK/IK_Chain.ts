@@ -7,8 +7,9 @@ import { PrimitiveMesh } from "../d3/resource/models/PrimitiveMesh";
 import { Color } from "../maths/Color";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
+import { IK_AngleLimit } from "./IK_Constraint";
 import { IK_EndEffector } from "./IK_EndEffector";
-import { applyAngleLimits_euler, IK_AngleLimit, IK_Joint } from "./IK_Joint";
+import { IK_Joint } from "./IK_Joint";
 import { IK_Pose1 } from "./IK_Pose1";
 import { rotationTo } from "./IK_Utils";
 
@@ -233,7 +234,9 @@ export class IK_Chain extends IK_Pose1 {
             const curQuat = current.rotationQuat;
             Quaternion.multiply(deltaQuat, curQuat, curQuat);
             curQuat.normalize(curQuat);
-            applyAngleLimits_euler(current);
+            if(current.angleLimit){
+                current.angleLimit.constraint(current);
+            }
 
             const direction = new Vector3(0, 0, 1);
             Vector3.transformQuat(direction, curQuat, direction);
