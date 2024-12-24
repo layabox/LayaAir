@@ -253,6 +253,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._widthMultiplier = 50;
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this.texture = Texture2D.whiteTexture;
         if (!Trail2DRender.defaultTrail2DMaterial)
             TrailShaderInit.init();
     }
