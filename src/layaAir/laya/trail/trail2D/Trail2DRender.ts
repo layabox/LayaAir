@@ -209,7 +209,8 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     onPreRender(): void {
-        let curtime = this._trailFilter._curtime += Laya.timer.delta / 1000;
+       let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000,0.016);
+       
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
@@ -236,7 +237,7 @@ export class Trail2DRender extends BaseRenderNode2D {
                 trailGeometry._addTrailByNextPosition(curPosV3, curtime, this.minVertexDistance, pointAtoBVector3, delLength)
             }
         }
-        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode);
+        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode,50);
         curPosV3.cloneTo(this._trailFilter._lastPosition);
         if (trailGeometry._disappearBoundsMode) {
             //caculate bound
