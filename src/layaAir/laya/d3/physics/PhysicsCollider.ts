@@ -36,8 +36,8 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         super();
     }
 
-    _onAdded(): void {
-        super._onAdded();
+    _onEnable(): void {
+        super._onEnable();
         this.isTrigger = this._isTrigger;
     }
 

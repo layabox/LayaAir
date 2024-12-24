@@ -87,6 +87,7 @@ export class PhysicsColliderComponent extends Component {
     protected _collider: ICollider;
     /**@internal */
     protected _eventsArray: string[];
+    private _isColliderInit: boolean = false;
 
     declare owner: Sprite3D;
 
@@ -316,18 +317,16 @@ export class PhysicsColliderComponent extends Component {
     }
 
     protected _onAdded(): void {
-        if (!this.owner.scene) {
-            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
-        } else {
+    }
+
+    protected _onEnable(): void {
+        if (!this._isColliderInit) {
             this.initCollider();
-            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
+            this._isColliderInit = true;
         }
         this.restitution = this._restitution;
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;
-    }
-
-    protected _onEnable(): void {
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
@@ -357,6 +356,7 @@ export class PhysicsColliderComponent extends Component {
         this._collider.destroy();
         this._colliderShape && this._colliderShape.destroy();
         this._collider = null;
+        this._isColliderInit = false;
         this._colliderShape = null;
         this._physicsManager = null;
     }

@@ -310,7 +310,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     get distanceBounciness() {
         return this._distanceBounciness;
     }
-    
+
     set distanceBounciness(value: number) {
         if (value < 0)
             return;
@@ -865,6 +865,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
      * @protected
      */
     protected _onEnable(): void {
+        super._onEnable();
         if (this._joint)
             this._joint.isEnable(true);
     }
