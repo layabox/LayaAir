@@ -208,6 +208,7 @@ export class TrailRenderer extends BaseRender {
         super._cloneTo(dest);
         dest.time = this.time;
         dest.minVertexDistance = this.minVertexDistance;
+        dest.widthMultiplier = this.widthMultiplier;
         //render.widthCurve = this.widthCurve;
         var widthCurve: FloatKeyframe[] = [];
         var widthCurveData: any[] = this.widthCurve;
