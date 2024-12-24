@@ -12,7 +12,7 @@ import { applyAngleLimits_euler, IK_AngleLimit, IK_Joint } from "./IK_Joint";
 import { IK_Pose1 } from "./IK_Pose1";
 import { rotationTo } from "./IK_Utils";
 
-let Z = new Vector3(0, 0, 1);
+const Z = new Vector3(0, 0, 1);
 let dpos = new Vector3();
 
 /**
@@ -101,13 +101,18 @@ export class IK_Chain extends IK_Pose1 {
         let lastJointZ = new Vector3();
         for(let i=0; i<joincnt-1; i++){
             let curJoint = this.joints[i];
-            let curnode = curJoint.userData.bone;
             let nextJoint = this.joints[i+1];
-            let wmat = curnode.transform.worldMatrix.elements;
+            let curnode = curJoint.userData.bone;
+            let curBoneZ:Vector3;
+            if(curnode){
+                let wmat = curnode.transform.worldMatrix.elements;
+                curBoneZ = new Vector3(wmat[8],wmat[9],wmat[10]);
+            }else{
+                curBoneZ = Z;
+            }
             //旋转偏移：ik默认的骨骼朝向是(0,0,1),因此这里先要找出实际z的朝向，作为一个旋转偏移
             nextJoint.position.vsub(curJoint.position,lastJointZ);
             lastJointZ.normalize();
-            let curBoneZ = new Vector3(wmat[8],wmat[9],wmat[10]);
             let rotoff = new Quaternion();
             rotationTo(lastJointZ,curBoneZ,rotoff);
             curJoint.userData.rotOff = rotoff;

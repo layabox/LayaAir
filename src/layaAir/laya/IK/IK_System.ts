@@ -12,6 +12,7 @@ import { IK_ISolver } from "./IK_ISolver";
 import { IK_Joint } from "./IK_Joint";
 import { IK_Target } from "./IK_Pose1";
 import { rotationTo } from "./IK_Utils";
+import { IK_FABRIK_Solver } from "./IKSolver/IK_FABRIK_Solver";
 
 interface IK_ChainUserData{
     target:IK_Target;
@@ -29,7 +30,8 @@ export class IK_System{
     private _showDbg = false;
 
     constructor() {
-        this.solver = new IK_CCDSolver();
+        //this.solver = new IK_CCDSolver();
+        this.solver = new IK_FABRIK_Solver();
     }
 
     setRoot(r:Sprite3D){
