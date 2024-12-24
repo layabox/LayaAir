@@ -57,8 +57,8 @@ export class CharacterController extends PhysicsColliderComponent {
         }
     }
 
-    protected _onAdded(): void {
-        super._onAdded();
+    protected _onEnable(): void {
+        super._onEnable();
         this.radius = this._radius;
         this.height = this._height;
         this.gravity = this._gravity;

@@ -42,6 +42,18 @@ export class SpringConstraint extends ConstraintComponent {
         super._onAdded();
     }
 
+    protected _onEnable(): void {
+        super._onEnable();
+        if (this._joint)
+            this._joint.isEnable(true);
+    }
+
+    protected _onDisable(): void {
+        super._onDisable();
+        if (this._joint)
+            this._joint.isEnable(false);
+    }
+
     /**
      * @en the minimum distance at which a spring constraint begins to exert a separating force when the distance between objects reaches or falls below this value.
      * If the objects get closer than this, the spring applies a separating force to push them apart to a safe distance. When the distance is at or above the set value, the spring doesn't exert any stretching force.
@@ -104,7 +116,7 @@ export class SpringConstraint extends ConstraintComponent {
     get damping() {
         return this._damping;
     }
-    
+
     set damping(value: number) {
         this._damping = value;
         this._joint && this._joint.setDamping(value);

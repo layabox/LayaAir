@@ -27,7 +27,7 @@ export class ConstraintComponent extends Component {
     protected _ownColliderLocalPos: Vector3 = new Vector3();
     /**@internal @protected */
     protected _connectColliderLocalPos: Vector3 = new Vector3();
-
+    private _isJointInit: boolean = false;
     /**
      * @en Initializes the joint instance.
      * @zh 初始化关节实例。
@@ -187,12 +187,6 @@ export class ConstraintComponent extends Component {
      * @protected
      */
     protected _onAdded(): void {
-        if (!this.owner.scene) {
-            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
-        } else {
-            this.initJoint();
-            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
-        }
     }
 
     /**
@@ -215,12 +209,20 @@ export class ConstraintComponent extends Component {
         //TODO
     }
 
+    protected _onEnable(): void {
+        if (!this._isJointInit) {
+            this.initJoint();
+            this._isJointInit = true;
+        }
+    }
+
     /**
      * @internal
      * @protected
      */
     protected _onDestroy() {
         this._joint.destroy();
+        this._isJointInit = false;
     }
 
     /**

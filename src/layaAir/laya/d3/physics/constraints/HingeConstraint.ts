@@ -69,6 +69,7 @@ export class HingeConstraint extends ConstraintComponent {
      * overrid it
      */
     protected _onEnable(): void {
+        super._onEnable();
         if (this._joint)
             this._joint.isEnable(true);
     }

@@ -22,14 +22,6 @@ const reactiveBits = NodeFlags.DISPLAY | NodeFlags.CACHE_GLOBAL | NodeFlags.DEMA
  * 该显示列表管理 LayaAir 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
  */
 export class Node extends EventDispatcher {
-    /**
-     * @internal
-     * @en Event constant: Set active scene
-     * @zh 事件常量：设置活动场景
-     */
-    static EVENT_SET_ACTIVESCENE: string = "ActiveScene";
-    /**@internal */
-    static EVENT_SET_IN_ACTIVESCENE: string = "InActiveScene";
 
     protected _bits: number = 0;
     /**
@@ -1016,7 +1008,6 @@ export class Node extends EventDispatcher {
      * @zh 节点被添加到场景时执行的操作。
      */
     protected _onActiveInScene(): void {
-        this.event(Node.EVENT_SET_ACTIVESCENE, this._scene);
         //override it.
     }
 
@@ -1025,7 +1016,6 @@ export class Node extends EventDispatcher {
      * @zh 节点从场景中移除时执行的操作。
      */
     protected _onInActiveInScene(): void {
-        this.event(Node.EVENT_SET_IN_ACTIVESCENE, this._scene);
         //override it.
     }
 
