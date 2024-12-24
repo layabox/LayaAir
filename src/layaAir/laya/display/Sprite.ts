@@ -26,6 +26,7 @@ import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
+import { Matrix3x3 } from "../maths/Matrix3x3";
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -2030,6 +2031,18 @@ export class Sprite extends Node {
             out.y = this._gPosy;
         }
 
+        return out;
+    }
+
+    /**
+     * @en get the scene position of the node.
+     * @zh 获取节点对象在相应scene坐标系中的位置。
+     * @param out 
+     */
+    getScenePos(out: Point){
+        if(!this.scene)
+            return this.getGlobalPos(out);
+        out =this.scene.getGlobalMatrixInv().transformPoint(this.getGlobalPos(out));
         return out;
     }
 
