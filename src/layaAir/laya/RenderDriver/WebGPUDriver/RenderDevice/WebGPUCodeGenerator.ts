@@ -199,10 +199,24 @@ export class WebGPUCodeGenerator {
             _catalog(key, uniformMap[key].name, dataType);
         }
 
-        if (sprite2DUniforms.length === 0) //没有uniform，则添加默认的u_WorldMat，避免为空
-            sprite2DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
-        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免为空
-            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
+        //添加默认成员，避免为空
+        const _avoidEmpty = (uniforms: NameAndType[], name: string, type: string, set: number) => {
+            if (uniforms.length === 0) //没有uniform，则添加默认成员
+                uniforms.push({ name, type, set });
+            else {
+                let n = 0, typeStr: string;
+                for (let i = uniforms.length - 1; i > -1; i--) {
+                    typeStr = uniforms[i].type
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                        n++;
+                }
+                if (n === uniforms.length) //uniform成员都是贴图，也需要补充一个普通成员
+                    uniforms.push({ name, type, set });
+            }
+        };
+
+        _avoidEmpty(sprite2DUniforms, 'u_WorldMat', 'mat4', 2);
+        _avoidEmpty(materialUniforms, 'u_AlbedoColor', 'vec4', 3);
 
         let uniformGLSL = '';
         const typeNum = 10;
@@ -367,8 +381,23 @@ export class WebGPUCodeGenerator {
         }
         if (!haveWorldMat) //instance模式不使用u_WorldMat，但为了uniformBlock一致，仍然加入u_WorldMat
             sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
-        if (materialUniforms.length === 0) //没有uniform，则添加默认的u_AlbedoColor，避免成员为空
-            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
+
+        //添加默认成员，避免为空
+        const _avoidEmpty = (uniforms: NameAndType[], name: string, type: string, set: number) => {
+            if (uniforms.length === 0) //没有uniform，则添加默认成员
+                uniforms.push({ name, type, set });
+            else {
+                let n = 0, typeStr: string;
+                for (let i = uniforms.length - 1; i > -1; i--) {
+                    typeStr = uniforms[i].type
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube' || typeStr === 'sampler2DArray')
+                        n++;
+                }
+                if (n === uniforms.length) //uniform成员都是贴图，也需要补充一个普通成员
+                    uniforms.push({ name, type, set });
+            }
+        };
+        _avoidEmpty(materialUniforms, 'u_AlbedoColor', 'vec4', 3);
 
         let uniformGLSL = '';
         const typeNum = 10; //type类型数量不超过10个
