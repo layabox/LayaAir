@@ -143,6 +143,7 @@
     uniform vec3 u_NMatrix_0;
     uniform vec3 u_NMatrix_1;
     uniform vec2 u_baseRenderSize2D;
+    uniform vec4 u_baseRenderColor;
    
     uniform vec4 u_clipMatDir;
     uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
@@ -185,6 +186,7 @@
          #ifdef COLOR
             info.color = a_color;
          #endif
+         info.color*=u_baseRenderColor;
          #ifdef UV
             info.uv = a_uv;
          #endif

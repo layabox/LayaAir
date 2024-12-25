@@ -64,7 +64,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
     }
     public set sceneData(value: ShaderData) {
         this._sceneData = value;
-        //TODO Native
+        this._nativeObj.setSceneShaderData(value?(value as GLESShaderData)._nativeObj:null);
     }
 
 
