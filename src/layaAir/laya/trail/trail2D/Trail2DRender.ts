@@ -1,4 +1,3 @@
-import { Context } from "vm";
 import { Laya } from "../../../Laya";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
@@ -17,6 +16,7 @@ import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/Trail
 import { TrailBaseFilter } from "../trailCommon/RenderFeatureComman/TrailBaseFilter";
 import { TrailShaderInit } from "./Shader/Trail2DShaderInit";
 import { Matrix } from "../../maths/Matrix";
+import { Context } from "../../renders/Context";
 
 export class Trail2DRender extends BaseRenderNode2D {
 
@@ -193,8 +193,14 @@ export class Trail2DRender extends BaseRenderNode2D {
    * @param py 
    */
     addCMDCall(context: Context, px: number, py: number): void {
-        //渲染节点数据是Global数据，使用Scene的数据
-        let mat = (this.owner.scene && !context._drawingToTexture) ? this.owner.scene.getGlobalMatrix() : Matrix.EMPTY;
+        //渲染节点数据是Global数据，使用Scene的数据  
+        let mat;
+         if(this.owner.scene && !context._drawingToTexture){
+            mat = Matrix.TEMP;
+            Matrix.mul( this.owner.scene.getGlobalMatrix(),Laya.stage.transform,mat); 
+         }else{
+            mat = Matrix.EMPTY;
+         }
         let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
@@ -209,7 +215,8 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     onPreRender(): void {
-        let curtime = this._trailFilter._curtime += Laya.timer.delta / 1000;
+       let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000,0.016);
+       
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
@@ -236,7 +243,7 @@ export class Trail2DRender extends BaseRenderNode2D {
                 trailGeometry._addTrailByNextPosition(curPosV3, curtime, this.minVertexDistance, pointAtoBVector3, delLength)
             }
         }
-        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode);
+        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode,50);
         curPosV3.cloneTo(this._trailFilter._lastPosition);
         if (trailGeometry._disappearBoundsMode) {
             //caculate bound
@@ -252,6 +259,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._widthMultiplier = 50;
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this.texture = Texture2D.whiteTexture;
         if (!Trail2DRender.defaultTrail2DMaterial)
             TrailShaderInit.init();
     }

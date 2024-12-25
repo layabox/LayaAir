@@ -64,7 +64,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染颜色
      */
     set color(value: Color) {
-        if (this._color.equal(value))
+        if (value != this._color && this._color.equal(value))
             return
         value = value ? value : Color.BLACK;
         value.cloneTo(this._color);

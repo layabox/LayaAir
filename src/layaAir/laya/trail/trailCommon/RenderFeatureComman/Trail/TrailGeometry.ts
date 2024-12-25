@@ -300,7 +300,7 @@ export class TrailGeometry {
      * @internal
      * 更新VertexBuffer2数据
      */
-    _updateVertexBufferUV(colorGradient: Gradient, textureMode: TrailTextureMode,): void {
+    _updateVertexBufferUV(colorGradient: Gradient, textureMode: TrailTextureMode, tileUnit: number = 1): void {
         //var bounds: Bounds;
         //var min: Vector3, max: Vector3;
         // if (this._disappearBoundsMode) {//如果有顶点消失时候，需要重新计算包围盒
@@ -329,7 +329,7 @@ export class TrailGeometry {
                 lerpFactor = uvX;
             } else {
                 lerpFactor = 1.0 - curLength / totalLength;
-                uvX = 1.0 - (totalLength - curLength);
+                uvX = 1.0 - (totalLength - curLength) / tileUnit;
             }
 
             startColorIndex = gradient.evaluateColorRGB(lerpFactor, this.tmpColor, startColorIndex, true);
