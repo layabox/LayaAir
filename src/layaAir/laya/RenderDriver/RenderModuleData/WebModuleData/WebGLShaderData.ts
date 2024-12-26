@@ -113,24 +113,21 @@ export class WebGLShaderData extends ShaderData {
     }
 
     createSubUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>) {
-        if (!Config._uniformBlock) {
-            return null;
-        }
-        else {
-            let subBuffer = this._subUniformBuffers.get(name);
-            if (subBuffer) {
-                //update data
-                for (var i in this._updateCacheArray) {
-                    let index = parseInt(i);
-                    let ubo = this._uniformBuffersPropertyMap.get(index);
-                    if (ubo) {
-                        (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
-                    }
+
+        let subBuffer = this._subUniformBuffers.get(name);
+        if (subBuffer) {
+            //update data
+            for (var i in this._updateCacheArray) {
+                let index = parseInt(i);
+                let ubo = this._uniformBuffersPropertyMap.get(index);
+                if (ubo) {
+                    (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
                 }
-                this._updateCacheArray = {};//clear
-                return subBuffer;
             }
+            this._updateCacheArray = {};//clear
+            return subBuffer;
         }
+
 
         let engine = WebGLEngine.instance;
         let mgr = engine.bufferMgr;
