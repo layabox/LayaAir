@@ -2018,6 +2018,56 @@ export class Sprite extends Node {
     }
 
     /**
+     * 获取基于Scene的变换矩阵
+     * @param out 
+     */
+    getSceneMatrix(out: Matrix) {
+        if (!this.scene)
+            return this.getGlobalMatrix();
+        this.scene.getGlobalMatrix().invert().copyTo(out);
+        Matrix.mul(this.getGlobalMatrix(), out, out);
+        return out;
+    }
+
+    /**
+     * @en get the scene position of the node.
+     * @zh 获取节点对象在相应scene坐标系中的位置。
+     * @param out 
+     */
+    getScenePos(out: Point) {
+        if (!this.scene)
+            return this.getGlobalPos(out);
+        return this.scene.getGlobalMatrixInv().transformPoint(this.getGlobalPos(out));
+    }
+
+    /**
+     * @en get the scene scale of the node.
+     * @zh 获取节点对象在相应scene坐标系中的放缩值。
+     * @param out 
+     */
+    getSceneScale(out: Point) {
+        out.x = this.globalScaleX;
+        out.y = this.globalScaleY;
+        if (this.scene) {
+            const mat = this.scene.getGlobalMatrix();
+            out.x /= mat.getScaleX();
+            out.y /= mat.getScaleY();
+        }
+        return out;
+    }
+
+    /**
+     * @en get the scene rotation of the node.
+     * @zh 获取节点对象在相应scene坐标系中的旋转值。
+     */
+    getSceneRotation() {
+        let angle = this.globalRotation;
+        if (this.scene)
+            angle -= this.scene.globalRotation;
+        return angle;
+    }
+
+    /**
      * @en get the global position of the node.
      * @zh 获取节点对象在全局坐标系中的位置。
      * @param out 
@@ -2031,18 +2081,6 @@ export class Sprite extends Node {
             out.y = this._gPosy;
         }
 
-        return out;
-    }
-
-    /**
-     * @en get the scene position of the node.
-     * @zh 获取节点对象在相应scene坐标系中的位置。
-     * @param out 
-     */
-    getScenePos(out: Point){
-        if(!this.scene)
-            return this.getGlobalPos(out);
-        out =this.scene.getGlobalMatrixInv().transformPoint(this.getGlobalPos(out));
         return out;
     }
 
