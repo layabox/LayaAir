@@ -189,15 +189,16 @@ export class Light2DRenderRes {
         this._cmdShadowMeshs.length = 0;
 
         //创建新缓存
+        const mat = Matrix.EMPTY;
         for (let i = 0, len = this.lightMeshs.length; i < len; i++) {
             const meshs = this.lightMeshs[i];
             const cmds: Command2D[] = this._cmdLightMeshs[i] = [];
             for (let j = meshs.length - 1; j > -1; j--)
-                cmds.push(DrawMesh2DCMD.create(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]));
+                cmds.push(DrawMesh2DCMD.create(meshs[j], mat, this.textures[i], Color.WHITE, this.material[i]));
         }
         for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
             if (this.needShadowMesh)
-                this._cmdShadowMeshs.push(DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]));
+                this._cmdShadowMeshs.push(DrawMesh2DCMD.create(this.shadowMeshs[i], mat, this.textures[i], Color.WHITE, this.materialShadow[i]));
             else this._cmdShadowMeshs.push(null);
         }
     }
@@ -266,6 +267,7 @@ export class Light2DRenderRes {
      */
     enableShadow(light: BaseLight2D, recover: any[]) {
         const layer = this._layer;
+        const mat = Matrix.EMPTY;
         for (let i = this.lights.length - 1; i > -1; i--) {
             if (this.lights[i] === light) {
                 this.needShadowMesh[i] = false;
@@ -285,7 +287,7 @@ export class Light2DRenderRes {
                 } else {
                     if (Light2DManager.REUSE_CMD) {
                         if (!this._cmdShadowMeshs[i])
-                            this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
+                            this._cmdShadowMeshs[i] = DrawMesh2DCMD.create(this.shadowMeshs[i], mat, this.textures[i], Color.WHITE, this.materialShadow[i]);
                     }
                     if (!this.materialShadow[i]) {
                         this.materialShadow[i] = new Material();
@@ -322,17 +324,18 @@ export class Light2DRenderRes {
                 this._cmdBuffer.clear(false);
             }
         } else {
+            const mat = Matrix.EMPTY;
             this._cmdBuffer.setRenderTarget(rt, true, Color.CLEAR, this._invertY);
             for (let i = 0, len = this.lightMeshs.length; i < len; i++) {
                 const meshs = this.lightMeshs[i];
                 for (let j = 0, len = meshs.length; j < len; j++)
                     if (meshs[j] && this.material[i])
-                        this._cmdBuffer.drawMesh(meshs[j], Matrix.EMPTY, this.textures[i], Color.WHITE, this.material[i]);
+                        this._cmdBuffer.drawMesh(meshs[j], mat, this.textures[i], Color.WHITE, this.material[i]);
             }
             for (let i = 0, len = this.shadowMeshs.length; i < len; i++) {
                 const mesh = this.shadowMeshs[i];
                 if (mesh && this.materialShadow[i])
-                    this._cmdBuffer.drawMesh(mesh, Matrix.EMPTY, this.textures[i], Color.WHITE, this.materialShadow[i]);
+                    this._cmdBuffer.drawMesh(mesh, mat, this.textures[i], Color.WHITE, this.materialShadow[i]);
             }
             this._cmdBuffer.apply(true);
             this._cmdBuffer.clear(true);

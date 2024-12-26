@@ -1,5 +1,5 @@
-import { Laya } from "../../../../Laya";
 import { Matrix } from "../../../maths/Matrix";
+import { Point } from "../../../maths/Point";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Pool } from "../../../utils/Pool";
@@ -38,6 +38,8 @@ export class LightOccluder2DCore {
     private _rotation: number = 0; //旋转
     private _transform: Matrix; //矩阵
     private _tfChanged: boolean; //矩阵是否发生变化
+
+    private _sceneMatrix: Matrix = new Matrix(); //基于Scene的变换矩阵
 
     /**
      * @en the layer mask
@@ -613,36 +615,41 @@ export class LightOccluder2DCore {
     }
 
     /**
-     * 变换多边形顶点
+     * 变换多边形顶点（基于Scene）
      */
     private _transformPoly() {
         if (this._globalPolygon) {
-            const t = Laya.stage.transform;
-            const ssx = t ? t.a : 1;
-            const ssy = t ? t.d : 1;
+            let px = this._x;
+            let py = this._y;
+            let sx = this._scaleX;
+            let sy = this._scaleY;
+            const p = Point.TEMP;
+            if (this._owner) {
+                this._owner.getScenePos(p);
+                px = p.x;
+                py = p.y;
+                this._owner.getSceneScale(p);
+                sx = Math.abs(p.x);
+                sy = Math.abs(p.y);
+            }
 
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const ox = (this._owner ? this._owner.globalPosX : this._x) * ssx;
-            const oy = (this._owner ? this._owner.globalPosY : this._y) * ssy;
-            const m = this._owner ? this._owner.getGlobalMatrix() : this._transform;
-
+            const m = this._owner ? this._owner.getSceneMatrix(this._sceneMatrix) : this._transform;
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0];
                     const y = polygon[i * 2 + 1];
-                    globalPoly[i * 2 + 0] = m.a * x * ssx + m.c * y + ox;
-                    globalPoly[i * 2 + 1] = m.b * x + m.d * y * ssy + oy;
+                    globalPoly[i * 2 + 0] = m.a * x + m.c * y + px;
+                    globalPoly[i * 2 + 1] = m.b * x + m.d * y + py;
                 }
             } else {
-                const sx = Math.abs(this._owner ? this._owner.globalScaleX : this._scaleX) * ssx;
-                const sy = Math.abs(this._owner ? this._owner.globalScaleY : this._scaleY) * ssy;
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0];
                     const y = polygon[i * 2 + 1];
-                    globalPoly[i * 2 + 0] = x * sx + ox;
-                    globalPoly[i * 2 + 1] = y * sy + oy;
+                    globalPoly[i * 2 + 0] = x * sx + px;
+                    globalPoly[i * 2 + 1] = y * sy + py;
                 }
             }
             this._clearCache();

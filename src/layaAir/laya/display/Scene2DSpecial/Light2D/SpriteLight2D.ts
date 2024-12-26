@@ -1,4 +1,4 @@
-import { Laya } from "../../../../Laya";
+import { Point } from "../../../maths/Point";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Scene } from "../../Scene";
@@ -71,18 +71,18 @@ export class SpriteLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        const t = Laya.stage.transform;
-        const ssx = t ? t.a : 1;
-        const ssy = t ? t.d : 1;
+        const p = Point.TEMP;
+        this.owner.getScenePos(p);
+        const px = p.x;
+        const py = p.y;
+        this.owner.getSceneScale(p);
+        const sx = Math.abs(p.x);
+        const sy = Math.abs(p.y);
 
         const x = this._localRange.x;
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const sx = Math.abs(this.owner.globalScaleX) * ssx;
-        const sy = Math.abs(this.owner.globalScaleY) * ssy;
-        const px = this.owner.globalPosX * ssx;
-        const py = this.owner.globalPosY * ssy;
         const m = Math.max(w * sx, h * sy) | 0;
         this._worldRange.x = (px - m / 2) | 0;
         this._worldRange.y = (py - m / 2) | 0;

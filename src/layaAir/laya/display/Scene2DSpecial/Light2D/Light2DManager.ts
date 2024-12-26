@@ -4,13 +4,13 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Context } from "../../../renders/Context";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
@@ -26,6 +26,7 @@ import { LightLine2D } from "./LightLine2D";
 import { LightOccluder2DCore } from "./LightOccluder2DCore";
 import { Occluder2DAgent } from "./Occluder2DAgent";
 import { LightAndShadow } from "./Shader/LightAndShadow";
+import { Matrix } from "../../../maths/Matrix";
 
 /**
  * 生成2D光影图的渲染流程
@@ -86,6 +87,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _lightRenderRes: Light2DRenderRes[] = []; //各层的渲染资源
     private _lightRangeChange: boolean[] = []; //各层灯光围栏是否改变
 
+    private _sceneInv0: Vector3 = new Vector3();
+    private _sceneInv1: Vector3 = new Vector3();
+    private _stageMatrixInv: Matrix = new Matrix();
+    //private _isDrawToTexture: boolean; //本次渲染是否是DrawToTexture
+
     private _recoverFC: number = 0; //回收资源帧序号
     private _needToRecover: any[] = []; //需要回收的资源
     private _needUpdateLightRes: number = 0; //是否需要更新灯光资源
@@ -106,6 +112,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
         this.occluderAgent = new Occluder2DAgent(this);
 
+        //this._scene.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
+        //this._scene._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+
         this._PCF = [
             new Vector2(0, 0),
             new Vector2(-1, 0),
@@ -121,6 +130,38 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             new Vector2(-2, 2),
             new Vector2(2, 2),
         ];
+    }
+
+    // private _transformChange() {
+    //     this._isDrawToTexture = undefined;
+    //     console.log('screen trans change');
+    // }
+
+    /**
+     * 场景矩阵发生变化
+     * @param context 
+     */
+    private _sceneTransformChange(context: Context) {
+        if (context._drawingToTexture) { //drawToTexture时，Scene的Matrix置空
+            //if (this._isDrawToTexture === false || this._isDrawToTexture === undefined) {
+            this._sceneInv0.set(1, 0, 0);
+            this._sceneInv1.set(0, 1, 0);
+            for (let i = this._updateMark.length - 1; i > -1; i--)
+                this._updateMark[i]++;
+            //this._isDrawToTexture = true;
+            //}
+        } else {
+            //if (this._isDrawToTexture === true || this._isDrawToTexture === undefined) {
+            const mat = this._scene.getGlobalMatrixInv(); //获取Scene的Global逆矩阵
+            Laya.stage.transform.copyTo(this._stageMatrixInv).invert(); //获取Stage的逆矩阵
+            Matrix.mul(this._stageMatrixInv, mat, mat); //矩阵相乘（因为Scene的Global矩阵没有包含Stage的矩阵，所以需要补全）
+            this._sceneInv0.set(mat.a, mat.c, mat.tx);
+            this._sceneInv1.set(mat.b, mat.d, mat.ty);
+            for (let i = this._updateMark.length - 1; i > -1; i--)
+                this._updateMark[i]++; //刷新每一层的更新标识
+            //this._isDrawToTexture = false;
+            //}
+        }
     }
 
     /**
@@ -723,6 +764,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param context 渲染上下文
      */
     preRenderUpdate(context: Context) {
+        //处理场景矩阵变化
+        this._sceneTransformChange(context);
+
         //灯光状态是否更新
         const _isLightUpdate = (light: BaseLight2D) => {
             return light._needUpdateLightAndShadow;
@@ -901,20 +945,21 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param shaderData 着色器数据
      */
     _updateShaderDataByLayer(layer: number, shaderData: ShaderData) {
-        shaderData.setNumber(Shader3D.propertyNameToID('u_LightHeight'), this.config.lightHeight);
+        shaderData.setNumber(BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT, this.config.lightHeight);
         if (this.config.ambientLayerMask & (1 << layer))
-            shaderData.setColor(Shader3D.propertyNameToID('u_LightAndShadow2DAmbient'), this.config.ambient);
-        else shaderData.setColor(Shader3D.propertyNameToID('u_LightAndShadow2DAmbient'), Color.CLEAR);
+            shaderData.setColor(BaseLight2D.LIGHTANDSHADOW_AMBIENT, this.config.ambient);
+        else shaderData.setColor(BaseLight2D.LIGHTANDSHADOW_AMBIENT, Color.CLEAR);
         if (this.lsTarget[layer]) {
             shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY);
-            shaderData.setTexture(Shader3D.propertyNameToID('u_LightAndShadow2D'), this.lsTarget[layer]);
+            shaderData.setTexture(BaseLight2D.LIGHTANDSHADOW, this.lsTarget[layer]);
         } else {
             shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY);
-            shaderData.setTexture(Shader3D.propertyNameToID('u_LightAndShadow2D'), null);
-            shaderData.setTexture(Shader3D.propertyNameToID('u_LightDirection2D'), null);
+            shaderData.setTexture(BaseLight2D.LIGHTANDSHADOW, null);
         }
         if (this._param[layer])
-            shaderData.setVector(Shader3D.propertyNameToID('u_LightAndShadow2DParam'), this._param[layer]);
+            shaderData.setVector(BaseLight2D.LIGHTANDSHADOW_PARAM, this._param[layer]);
+        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_SCENEINV_0, this._sceneInv0);
+        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_SCENEINV_1, this._sceneInv1);
     }
 
     /**
