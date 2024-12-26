@@ -853,6 +853,9 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     private _updateMark: number = -1;
     renderUpdate(context: IRenderContext2D): void {
         let ps = this.particleSystem;
+        if (!this.particleGeometry) {
+            return;
+        }
         if (this._updateMark != Stat.loopCount) {
             this._updateMark = Stat.loopCount;
 
