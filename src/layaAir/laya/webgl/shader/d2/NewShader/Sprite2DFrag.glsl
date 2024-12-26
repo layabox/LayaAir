@@ -187,7 +187,7 @@ vec4 transspaceColor(vec4 color)
     varying vec2 v_texcoord;
     varying vec4 v_color;
     uniform sampler2D u_baseRender2DTexture;
-
+    uniform vec4 u_baseRenderColor;
 
 #ifdef LIGHT2D_ENABLE
     varying vec2 v_lightUV;

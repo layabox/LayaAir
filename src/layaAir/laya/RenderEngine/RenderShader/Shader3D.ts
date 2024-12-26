@@ -30,7 +30,9 @@ export interface IShaderpassStructor {
 export enum ShaderFeatureType {
     DEFAULT,
     D3,
-    D2,
+    D2_primitive,
+    D2_TextureSV,
+    D2_BaseRednerNode2D,
     PostProcess,
     Sky,
     Effect
