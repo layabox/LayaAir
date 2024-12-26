@@ -316,4 +316,10 @@ export const allBundles = [{
         'laya/trail/trail3D/**/*.*',
     ],
 },
+{
+    name: "particle",
+    input: [
+        'laya/particle/**/*.*',
+    ]
+},
 ];
