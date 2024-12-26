@@ -27,7 +27,7 @@ export class UniformBufferCluster {
     protected _destroyed: boolean = false; //该对象是否已经销毁
     protected _totalSize: number; //总体尺寸
     protected _blocks: UniformBufferBlock[] = []; //小内存块，如果成员为null，表示空洞
-    protected _needUpload: Array<boolean> = []; //相应序号的小内存块需要上传数据
+    protected _needUpload: Array<boolean>; //相应序号的小内存块需要上传数据
     protected _holeNum: number = 0; //空洞数量
 
     /**
@@ -47,6 +47,7 @@ export class UniformBufferCluster {
         this._blockSize = blockSize;
         this._blockNum = blockNum;
         this._totalSize = blockSize * blockNum;
+        this._needUpload = new Array(blockNum).fill(false);
         this.data = new ArrayBuffer(this._totalSize);
         this._move = new Uint8Array(this._blockSize);
         this.buffer = this.manager.createGPUBuffer(this._totalSize);
