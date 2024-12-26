@@ -10,6 +10,7 @@ import "laya/navigation/3D/ModuleDef";
 import "laya/navigation/2D/ModuleDef";
 import "laya/trail/trail2D/ModuleDef";
 import "laya/trail/trail3D/ModuleDef";
+import "laya/particle/ModuleDef";
 
 import "laya/legacy/Animator";
 import "laya/legacy/BaseCamera";

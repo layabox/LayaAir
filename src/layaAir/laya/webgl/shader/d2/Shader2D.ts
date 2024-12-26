@@ -62,21 +62,21 @@ export class Shader2D {
         Shader3D.addInclude("Math.glsl", MathGLSL);
         //textureShader
         Shader2D.textureShader = Shader3D.add("Sprite2DTexture", false, false);
-        Shader2D.textureShader.shaderType = ShaderFeatureType.D2;
+        Shader2D.textureShader.shaderType = ShaderFeatureType.D2_TextureSV;
         let subShader = new SubShader(Shader2D.textureAttribute, {}, {});
         Shader2D.textureShader.addSubShader(subShader);
         subShader.addShaderPass(texture_vs, texture_ps);
 
         //primitiveShader
         Shader2D.primitiveShader = Shader3D.add("Sprite2DPrimitive", false, false);
-        Shader2D.primitiveShader.shaderType = ShaderFeatureType.D2;
+        Shader2D.primitiveShader.shaderType = ShaderFeatureType.D2_primitive;
         subShader = new SubShader(Shader2D.primitiveAttribute, {}, {});
         Shader2D.primitiveShader.addSubShader(subShader);
         subShader.addShaderPass(prime_vs, prime_ps);
 
         //meshspriteShader
         Shader2D.render2DNodeShader = Shader3D.add("baseRender2D", false, false);
-        Shader2D.render2DNodeShader.shaderType = ShaderFeatureType.D2;
+        Shader2D.render2DNodeShader.shaderType = ShaderFeatureType.D2_BaseRednerNode2D;
         subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
         Shader2D.render2DNodeShader.addSubShader(subShader);
         subShader.addShaderPass(baseRender2D_vs, baseRender2D_ps);

@@ -42,7 +42,7 @@ export class LineShader {
         let uniformMap = {
         };
         let shader = Shader3D.add("LineShader", true, false);
-        shader.shaderType = ShaderFeatureType.D2;
+        shader.shaderType = ShaderFeatureType.DEFAULT;
         let subShader = new SubShader(attributeMap, uniformMap, {});
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(LineVs, LineFs);

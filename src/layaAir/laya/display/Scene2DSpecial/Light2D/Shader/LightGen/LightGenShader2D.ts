@@ -17,7 +17,7 @@ export class LightGenShader2D {
 
     static __init__(): void {
         this.renderShader = Shader3D.add('LightGen2D', false, false);
-        this.renderShader.shaderType = ShaderFeatureType.D2;
+        this.renderShader.shaderType = ShaderFeatureType.DEFAULT;
         const subShader = new SubShader(this.RenderAttribute, {}, {});
         this.renderShader.addSubShader(subShader);
         subShader.addShaderPass(lightGen_vs, lightGen_ps);

@@ -229,14 +229,16 @@ vec4 transspaceColor(vec4 color)
 #endif
 
     void setglColor(in vec4 color){
-        color.a *= v_color.w*u_baseRenderColor.a;
-        vec4 transColor = gammaToLinear(v_color)*u_baseRenderColor;
-        transColor.rgb *=color.rgb; 
-        #ifdef GAMMASPACE
-           transColor.rgb = linearToGamma(transColor).rgb;
+
+        color.a *= v_color.w;
+        vec4 transColor = v_color;
+        #ifndef GAMMASPACE
+            transColor = gammaToLinear(v_color);
         #endif
-        gl_FragColor = transColor;
+        color.rgb *= transColor.rgb;
+        gl_FragColor = color;
     }
+
 
     vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
     {
