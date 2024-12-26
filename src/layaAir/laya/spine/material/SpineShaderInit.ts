@@ -210,7 +210,7 @@ export class SpineShaderInit {
         // commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
 
         let shader = Shader3D.add("SpineStandard", true, false);
-        shader.shaderType = ShaderFeatureType.D2;
+        shader.shaderType = ShaderFeatureType.D2_BaseRednerNode2D;
         let uniformMap = {
             "u_spineTexture": ShaderDataType.Texture2D
         }
