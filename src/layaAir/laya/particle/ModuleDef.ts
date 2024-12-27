@@ -14,6 +14,8 @@ import { FanShape } from "./d2/module/shapes/FanShape";
 import { SemicircleShap } from "./d2/module/shapes/SemicircleShap";
 import { Size2DOverLifetimeModule } from "./d2/module/Size2DOverLifetimeModule";
 import { Velocity2DOverLifetimeModule } from "./d2/module/Velocity2DOverLifetimeModule";
+import { ShurikenParticle2DRenderer } from "./d2/ShurikenParticle2DRenderer";
+import { ShurikenParticle2DSystem } from "./d2/ShurikenParticle2DSystem";
 
 
 ClassUtils.regClass("ParticleMinMaxGradient", ParticleMinMaxGradient);
@@ -44,3 +46,7 @@ ClassUtils.regClass("Shape2DModule", Shape2DModule);
 ClassUtils.regClass("Size2DOverLifetimeModule", Size2DOverLifetimeModule);
 
 ClassUtils.regClass("Velocity2DOverLifetimeModule", Velocity2DOverLifetimeModule);
+
+ClassUtils.regClass("ShurikenParticle2DSystem", ShurikenParticle2DSystem);
+
+ClassUtils.regClass("ShurikenParticle2DRenderer", ShurikenParticle2DRenderer);

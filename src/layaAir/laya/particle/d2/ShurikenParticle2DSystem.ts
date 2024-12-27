@@ -493,4 +493,4 @@ function gradientNeedRandom(mode: ParticleMinMaxGradientMode) {
     }
 }
 
-ClassUtils.regClass("ShurikenParticle2DSystem", ShurikenParticle2DSystem);
+

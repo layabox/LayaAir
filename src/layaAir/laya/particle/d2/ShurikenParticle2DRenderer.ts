@@ -194,7 +194,11 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
     declare owner: Sprite;
 
-    readonly particleSystem: ShurikenParticle2DSystem;
+    private _particleSystem: ShurikenParticle2DSystem;
+
+    public get particleSystem(): ShurikenParticle2DSystem {
+        return this._particleSystem;
+    }
 
     _setOwner(node: Sprite): void {
         super._setOwner(node);
@@ -225,8 +229,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
 
-        this.particleSystem = new ShurikenParticle2DSystem();
-        this.particleSystem.shape = new Shape2DModule();
+        this._particleSystem = new ShurikenParticle2DSystem();
+        // this.particleSystem.shape = new Shape2DModule();
 
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
@@ -849,6 +853,9 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     private _updateMark: number = -1;
     renderUpdate(context: IRenderContext2D): void {
         let ps = this.particleSystem;
+        if (!this.particleGeometry) {
+            return;
+        }
         if (this._updateMark != Stat.loopCount) {
             this._updateMark = Stat.loopCount;
 
@@ -921,5 +928,4 @@ addAfterInitCallback(() => {
     Particle2DShader.init();
 })
 
-ClassUtils.regClass("ShurikenParticle2DRenderer", ShurikenParticle2DRenderer);
 

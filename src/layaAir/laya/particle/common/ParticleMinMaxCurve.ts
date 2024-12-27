@@ -1,7 +1,5 @@
-import { regClass } from "../../../Decorators";
 import { GradientDataNumber } from "../../d3/core/particleShuriKen/module/GradientDataNumber";
 import { MathUtil } from "../../maths/MathUtil";
-import { ClassUtils } from "../../utils/ClassUtils";
 import { IClone } from "../../utils/IClone";
 
 export enum ParticleMinMaxCurveMode {
@@ -108,5 +106,3 @@ export class ParticleMinMaxCurve implements IClone {
     }
 
 }
-
-ClassUtils.regClass("ParticleMinMaxCurve", ParticleMinMaxCurve);
