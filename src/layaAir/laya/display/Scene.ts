@@ -15,6 +15,7 @@ import { TransformKind } from "./SpriteConst";
 import { Area2D } from "./Area2D";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { Matrix } from "../maths/Matrix";
+import { LayaEnv } from "../../LayaEnv";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -401,14 +402,14 @@ export class Scene extends Sprite {
 
     protected _onAdded(): void {
         super._onAdded();
-        if (this.displayedInStage) {
+        if (LayaEnv.isPlaying)
             ILaya.stage._scene2Ds.push(this);
-        }
+
     }
 
     protected _onRemoved(): void {
         super._onRemoved();
-        if (this.displayedInStage) {
+        if (LayaEnv.isPlaying){
             let index = ILaya.stage._scene2Ds.indexOf(this);
             ILaya.stage._scene2Ds.splice(index, 1);
         }

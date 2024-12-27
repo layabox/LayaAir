@@ -24,7 +24,7 @@ export class BaseNavAgent extends Component {
     private _targetPos: Vector3 = new Vector3();
 
     /**@internal */
-    protected _agentType: string = NavigationConfig.defaltAgentName;
+    protected _agentType: string = null;
 
     /**@internal */
     protected _currentNaveSurface: BaseNavMeshSurface;
