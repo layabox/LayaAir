@@ -1,5 +1,3 @@
-
-
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
 import { NavTileData } from "../NavTileData";
@@ -440,6 +438,7 @@ export class BaseNavMeshSurface extends Component {
         bindDatas.forEach((value: any) => {
             NavigationUtils._freeLayaData(value);
         });
+        this._cachedata._titleIndex.clear();
         this._cachedata._cacheData = [];
     }
 
