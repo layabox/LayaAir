@@ -11,6 +11,7 @@ export interface IShaderObjStructor {
     supportReflectionProbe: boolean,
     surportVolumetricGI: boolean,
     attributeMap: any;
+    shaderType: ShaderFeatureType;
     uniformMap: any;
     defaultValue: any;
     shaderPass: Array<any>;
@@ -248,6 +249,9 @@ export class Shader3D {
 
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         shader._surportVolumetricGI = data.surportVolumetricGI;
+
+        shader.shaderType = data.shaderType;
+
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
         let passDataArray = data.shaderPass;
