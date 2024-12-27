@@ -8,8 +8,6 @@ import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 import { Physics2D } from "laya/physics/Physics2D";
 import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory"
-import { RenderCMD2DDemo } from "./2d/RenderCMD2DDemo";
-import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
 
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
