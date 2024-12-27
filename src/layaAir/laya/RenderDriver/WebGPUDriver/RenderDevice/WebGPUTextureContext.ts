@@ -157,7 +157,10 @@ export class WebGPUTextureContext implements ITextureContext {
     needBitmap: boolean;
 
     createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
-        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
+        //是否支持生成 Mipmap
+        generateMipmap = generateMipmap && this._canGenerateMipmap(format);
+        
+        let useSRGBExt = this._isSRGBFormat(format) || (sRGB && this._supportSRGB(format, generateMipmap));
         if (premultipliedAlpha) {
             useSRGBExt = false;
         }
@@ -168,7 +171,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         const pixelByteSize = this._getGPUTexturePixelByteSize(format);
         const gpuTextureFormat = this._getGPUTextureFormat(format, useSRGBExt);
-        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, depth, generateMipmap, 1, this.isCompressTexture(format));
+        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, depth, generateMipmap, 1, this._isCompressTexture(format));
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
         textureDescriptor.label = 'texture array';
@@ -419,16 +422,22 @@ export class WebGPUTextureContext implements ITextureContext {
         return webgpuTextureFormat;
     }
 
-    private isCompressTexture(format: TextureFormat) {
+    private _isCompressTexture(format: TextureFormat | RenderTargetFormat) {
         switch (format) {
             case TextureFormat.DXT1:
             case TextureFormat.DXT3:
             case TextureFormat.DXT5:
-            case TextureFormat.ETC2RGBA:
             case TextureFormat.ETC1RGB:
             case TextureFormat.ETC2RGB:
+            case TextureFormat.ETC2RGBA:
             case TextureFormat.ETC2SRGB:
             case TextureFormat.ETC2SRGB_Alpha8:
+            case TextureFormat.ETC2RGB_Alpha1:
+            case TextureFormat.ETC2SRGB_Alpha1:
+            case TextureFormat.PVRTCRGB_2BPPV:
+            case TextureFormat.PVRTCRGBA_2BPPV:
+            case TextureFormat.PVRTCRGB_4BPPV:
+            case TextureFormat.PVRTCRGBA_4BPPV:
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:
             case TextureFormat.ASTC6x6:
@@ -439,14 +448,16 @@ export class WebGPUTextureContext implements ITextureContext {
             case TextureFormat.ASTC10x10SRGB:
             case TextureFormat.ASTC12x12:
             case TextureFormat.ASTC12x12SRGB:
+            case TextureFormat.KTXTEXTURE:
+            case TextureFormat.PVRTEXTURE:
                 return true
             default:
                 return false;
         }
     }
 
-    public getFormatPixelsParams(format: TextureFormat) {
-        let formatParams: { channels: number, bytesPerPixel: number, dataTypedCons: any, typedSize: number } = {
+    private _getFormatPixelsParams(format: TextureFormat) {
+        const formatParams: { channels: number, bytesPerPixel: number, dataTypedCons: any, typedSize: number } = {
             channels: 0,
             bytesPerPixel: 0,
             dataTypedCons: Uint8Array,
@@ -537,6 +548,31 @@ export class WebGPUTextureContext implements ITextureContext {
         return textureDescriptor;
     }
 
+    /**
+     * 检查指定的纹理格式是否支持生成 Mipmap
+     * @param format - 纹理格式
+     * @returns 如果支持生成 Mipmap 返回 true，否则返回 false
+     */
+    private _canGenerateMipmap(format: TextureFormat | RenderTargetFormat): boolean {
+        //不支持压缩纹理生成 Mipmap
+        if (this._isCompressTexture(format)) return false;
+
+        //支持生成 Mipmap 的格式
+        switch (format) {
+            case TextureFormat.R8G8B8:
+            case TextureFormat.R8G8B8A8:
+            case TextureFormat.R5G6B5:
+            case TextureFormat.Alpha8:
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R16G16B16A16:
+            case TextureFormat.R16G16B16:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let layerCount;
         switch (dimension) {
@@ -551,7 +587,10 @@ export class WebGPUTextureContext implements ITextureContext {
             throw "error";
         }
 
-        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
+        //是否支持生成 Mipmap
+        generateMipmap = generateMipmap && this._canGenerateMipmap(format);
+
+        let useSRGBExt = this._isSRGBFormat(format) || (sRGB && this._supportSRGB(format, generateMipmap));
         if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
             useSRGBExt = false;
         }
@@ -562,7 +601,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         const pixelByteSize = this._getGPUTexturePixelByteSize(format);
         const gpuTextureFormat = this._getGPUTextureFormat(format, useSRGBExt);
-        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this.isCompressTexture(format));
+        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this._isCompressTexture(format));
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
         layerCount === 6 ? textureDescriptor.label = 'textureCube' : textureDescriptor.label = 'texture';
@@ -852,7 +891,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         texture.maxMipmapLevel = mipmapCount - 1;
 
-        let formatParams = this.getFormatPixelsParams(ddsInfo.format);
+        let formatParams = this._getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
         let dataTypeConstur = formatParams.dataTypedCons;
 
@@ -881,15 +920,13 @@ export class WebGPUTextureContext implements ITextureContext {
             }
 
             if (compressed) {
-                // todo  size 计算 方式
                 let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
 
                 let sourceData = new Uint8Array(source, dataOffset, dataLength);
                 device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
 
                 dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
-            }
-            else {
+            } else {
                 let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
 
                 let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
@@ -922,7 +959,6 @@ export class WebGPUTextureContext implements ITextureContext {
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
 
-        //for (let index = 0; index < mipmapCount; index++) {
         const imageSize = new Int32Array(source, dataOffset, 1)[0];
         dataOffset += 4;
 
@@ -955,7 +991,6 @@ export class WebGPUTextureContext implements ITextureContext {
 
         mipmapWidth = Math.max(1, mipmapWidth * 0.5);
         mipmapHeight = Math.max(1, mipmapHeight * 0.5);
-        //}
 
         if (texture.maxMipmapLevel > 1)
             genMipmap(WebGPURenderEngine._instance.getDevice(), texture.resource);
@@ -1133,7 +1168,7 @@ export class WebGPUTextureContext implements ITextureContext {
                     device.queue.writeTexture(imageCopy, sourceData, dataLayout, size);
                 }
                 else {
-                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let pixelParams = this._getFormatPixelsParams(ktxInfo.format);
                     let typedSize = imageSize / pixelParams.typedSize;
                     let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
 
@@ -1168,7 +1203,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         texture.maxMipmapLevel = mipmapCount - 1;
 
-        let formatParams = this.getFormatPixelsParams(ddsInfo.format);
+        let formatParams = this._getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
         let dataTypeConstur = formatParams.dataTypedCons;
 
@@ -1224,7 +1259,6 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
-        //throw new NotImplementedError();
         switch (compareMode) {
             case TextureCompareMode.LEQUAL:
                 break;
@@ -1253,6 +1287,9 @@ export class WebGPUTextureContext implements ITextureContext {
         let multiSamples = 1;
         let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
 
+        //是否支持生成 Mipmap
+        generateMipmap = generateMipmap && this._canGenerateMipmap(format);
+
         const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         gpuColorDescriptor.label = 'renderTexture';
@@ -1271,7 +1308,7 @@ export class WebGPUTextureContext implements ITextureContext {
      * @param format 
      * @returns 
      */
-    isSRGBFormat(format: TextureFormat | RenderTargetFormat) {
+    private _isSRGBFormat(format: TextureFormat | RenderTargetFormat) {
         switch (format) {
             case TextureFormat.ETC2SRGB:
             case TextureFormat.ETC2SRGB_Alpha8:
@@ -1285,7 +1322,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 return false;
         }
     }
-    supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
+    private _supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
             case TextureFormat.R8G8B8:
                 return this._engine.getCapable(RenderCapable.Texture_SRGB);
@@ -1300,20 +1337,11 @@ export class WebGPUTextureContext implements ITextureContext {
                 return false;
         }
     }
-    supportGenerateMipmap(format: TextureFormat | RenderTargetFormat) {
-        switch (format) {
-            case RenderTargetFormat.DEPTH_16:
-            case RenderTargetFormat.DEPTHSTENCIL_24_8:
-            case RenderTargetFormat.DEPTH_32:
-            case RenderTargetFormat.STENCIL_8:
-                return false;
-            default:
-                return true;
-        }
-    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        generateMipmap = generateMipmap && this.supportGenerateMipmap(colorFormat);
-        const useSRGBExt = this.isSRGBFormat(colorFormat) || (sRGB && this.supportSRGB(colorFormat, generateMipmap));
+        //是否支持生成 Mipmap
+        generateMipmap = generateMipmap && this._canGenerateMipmap(colorFormat);
+        const useSRGBExt = this._isSRGBFormat(colorFormat) || (sRGB && this._supportSRGB(colorFormat, generateMipmap));
         const gammaCorrection = 1.0;
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
@@ -1540,7 +1568,6 @@ export class WebGPUTextureContext implements ITextureContext {
 
     async updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): Promise<void> {
         if (!video) return;
-        //const imageBitmapSource = await createImageBitmap(video);
         const image: GPUImageCopyExternalImage = { source: video, flipY: invertY, origin: [0, 0] };
 
         const textureCopyView: GPUImageCopyTextureTagged = {

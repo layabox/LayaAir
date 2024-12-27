@@ -4,6 +4,7 @@ import { NodeFlags } from "../../../Const";
 import { Event } from "../../../events/Event";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
+import { Point } from "../../../maths/Point";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -67,7 +68,7 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    static _initLightRender2DRenderProperty() {
+    static __init__() {
         BaseLight2D.LIGHTANDSHADOW = Shader3D.propertyNameToID("u_LightAndShadow2D");
         BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT = Shader3D.propertyNameToID("u_LightHeight");
         BaseLight2D.LIGHTANDSHADOW_PARAM = Shader3D.propertyNameToID("u_LightAndShadow2DParam");
@@ -520,6 +521,15 @@ export class BaseLight2D extends Component {
     }
 
     /**
+     * @en Get light scene position
+     * @zh 获取灯光位置的X坐标值（基于Scene）
+     * @param out 
+     */
+    getScenePos(out: Point) {
+        return this.owner.getScenePos(out);
+    }
+
+    /**
      * @en Set layer mask by list
      * @param layerList Layer list
      * @zh 用列表设置灯光层掩码
@@ -596,17 +606,19 @@ export class BaseLight2D extends Component {
      * 设置灯光放缩和旋转
      */
     protected _lightScaleAndRotation() {
-        //获取放缩量
-        const sx = Math.abs(this.owner.globalScaleX);
-        const sy = Math.abs(this.owner.globalScaleY);
+        //获取放缩量（基于Scene）
+        const p = Point.TEMP;
+        this.owner.getSceneScale(p);
+        const sx = Math.abs(p.x);
+        const sy = Math.abs(p.y);
 
         //设置灯光放缩
         Vector2.TEMP.x = 1 / sx;
         Vector2.TEMP.y = 1 / sy;
         this.lightScale = Vector2.TEMP;
 
-        //设置灯光旋转
-        this.lightRotation = this.owner.globalRotation * Math.PI / 180;
+        //设置灯光旋转（基于Scene）
+        this.lightRotation = this.owner.getSceneRotation() * Math.PI / 180;
     }
 
     /**

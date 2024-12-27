@@ -158,6 +158,8 @@
     #ifdef LIGHT2D_ENABLE
         varying vec2 v_lightUV;
         uniform vec4 u_LightAndShadow2DParam;
+        uniform vec3 u_LightAndShadow2DSceneInv0;
+        uniform vec3 u_LightAndShadow2DSceneInv1;
         void lightAndShadow(inout vertexInfo info) {
             v_lightUV = info.lightUV;
         }
@@ -194,6 +196,7 @@
          #ifdef LIGHT2D_ENABLE
             vec2 global;
             getGlobalPos(info.pos, global);
+            transfrom(global, u_LightAndShadow2DSceneInv0, u_LightAndShadow2DSceneInv1, global); //转换到Scene坐标
             info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
             info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif

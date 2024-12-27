@@ -106,6 +106,10 @@ export class DirectionLight2D extends BaseLight2D {
         this._worldRange.y = this._localRange.y + (screen ? (screen.y | 0) : 0);
         this._worldRange.width = this._localRange.width;
         this._worldRange.height = this._localRange.height;
+        this._lightRange.x = this._worldRange.x;
+        this._lightRange.y = this._worldRange.x;
+        this._lightRange.width = this._worldRange.width;
+        this._lightRange.height = this._worldRange.height;
     }
 
     /**

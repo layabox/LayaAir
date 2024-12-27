@@ -1,7 +1,7 @@
-import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
+import { Point } from "../../../maths/Point";
 import { Rectangle } from "../../../maths/Rectangle";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -35,6 +35,8 @@ export class FreeformLight2D extends BaseLight2D {
 
     private _localCenter: Vector2 = new Vector2(); //多边形中心（局部坐标）
     private _worldCenter: Vector2 = new Vector2(); //多边形中心（世界坐标）
+
+    private _sceneMatrix: Matrix = new Matrix(); //基于Scene的变换矩阵
 
     //用于生成灯光贴图
     private _cmdBuffer: CommandBuffer2D;
@@ -199,20 +201,20 @@ export class FreeformLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        const t = Laya.stage.transform;
-        const ssx = t ? t.a : 1;
-        const ssy = t ? t.d : 1;
+        const p = Point.TEMP;
+        this.owner.getScenePos(p);
+        const px = p.x;
+        const py = p.y;
+        this.owner.getSceneScale(p);
+        const sx = Math.abs(p.x);
+        const sy = Math.abs(p.y);
 
         const x = this._localRange.x;
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const sx = Math.abs(this.owner.globalScaleX) * ssx;
-        const sy = Math.abs(this.owner.globalScaleY) * ssy;
-        const px = this.owner.globalPosX * ssx;
-        const py = this.owner.globalPosY * ssy;
         const m = Math.max(w * sx, h * sy) | 0;
-        const mat = this.owner.getGlobalMatrix();
+        const mat = this.owner.getSceneMatrix(this._sceneMatrix);
         if (mat) {
             this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y;
             this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y;
