@@ -8,7 +8,6 @@ void main() {
 	vertexInfo info;
 	getVertexInfo(info);
 
-	v_cliped = info.cliped;
 	v_texcoordAlpha = info.texcoordAlpha;
 	v_useTex = info.useTex;
 	v_color = info.color;
