@@ -468,6 +468,7 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
 
     destroy(): void {
         super.destroy();
+        this.particlePool.destroy();
         // todo
 
     }
