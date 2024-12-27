@@ -7,7 +7,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
@@ -27,6 +27,8 @@ import { LightOccluder2DCore } from "./LightOccluder2DCore";
 import { Occluder2DAgent } from "./Occluder2DAgent";
 import { LightAndShadow } from "./Shader/LightAndShadow";
 import { Matrix } from "../../../maths/Matrix";
+import { Point } from "../../../maths/Point";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * 生成2D光影图的渲染流程
@@ -87,10 +89,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _lightRenderRes: Light2DRenderRes[] = []; //各层的渲染资源
     private _lightRangeChange: boolean[] = []; //各层灯光围栏是否改变
 
-    private _sceneInv0: Vector3 = new Vector3();
-    private _sceneInv1: Vector3 = new Vector3();
-    private _stageMatrixInv: Matrix = new Matrix();
-    //private _isDrawToTexture: boolean; //本次渲染是否是DrawToTexture
+    private _sceneInv0: Vector3 = new Vector3(); //Scene逆矩阵上半部分
+    private _sceneInv1: Vector3 = new Vector3(); //Scene逆矩阵下半部分
+    private _stageMatrixInv: Matrix = new Matrix(); //Stage逆矩阵
+    private _lightScenePos: Point = new Point(); //灯光基于Scene的位置
 
     private _recoverFC: number = 0; //回收资源帧序号
     private _needToRecover: any[] = []; //需要回收的资源
@@ -102,6 +104,18 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     private _tempRange: Rectangle = new Rectangle();
 
+    static LIGHTANDSHADOW_SCENEINV_0: number;
+    static LIGHTANDSHADOW_SCENEINV_1: number;
+    static __init__() {
+        if (!Scene.scene2DUniformMap)
+            Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap('Sprite2DGlobal');
+        const scene2DUniformMap = Scene.scene2DUniformMap;
+        this.LIGHTANDSHADOW_SCENEINV_0 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv0');
+        this.LIGHTANDSHADOW_SCENEINV_1 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv1');
+        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENEINV_0, 'u_LightAndShadow2DSceneInv0', ShaderDataType.Vector3);
+        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENEINV_1, 'u_LightAndShadow2DSceneInv1', ShaderDataType.Vector3);
+    }
+
     constructor(scene: Scene) {
         this._scene = scene;
         this._scene._light2DManager = this;
@@ -111,9 +125,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._screenSchmittChange = false;
 
         this.occluderAgent = new Occluder2DAgent(this);
-
-        //this._scene.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        //this._scene._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
 
         this._PCF = [
             new Vector2(0, 0),
@@ -132,36 +143,25 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         ];
     }
 
-    // private _transformChange() {
-    //     this._isDrawToTexture = undefined;
-    //     console.log('screen trans change');
-    // }
-
     /**
      * 场景矩阵发生变化
      * @param context 
      */
     private _sceneTransformChange(context: Context) {
         if (context._drawingToTexture) { //drawToTexture时，Scene的Matrix置空
-            //if (this._isDrawToTexture === false || this._isDrawToTexture === undefined) {
             this._sceneInv0.set(1, 0, 0);
             this._sceneInv1.set(0, 1, 0);
-            for (let i = this._updateMark.length - 1; i > -1; i--)
-                this._updateMark[i]++;
-            //this._isDrawToTexture = true;
-            //}
         } else {
-            //if (this._isDrawToTexture === true || this._isDrawToTexture === undefined) {
             const mat = this._scene.getGlobalMatrixInv(); //获取Scene的Global逆矩阵
             Laya.stage.transform.copyTo(this._stageMatrixInv).invert(); //获取Stage的逆矩阵
             Matrix.mul(this._stageMatrixInv, mat, mat); //矩阵相乘（因为Scene的Global矩阵没有包含Stage的矩阵，所以需要补全）
             this._sceneInv0.set(mat.a, mat.c, mat.tx);
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
-            for (let i = this._updateMark.length - 1; i > -1; i--)
-                this._updateMark[i]++; //刷新每一层的更新标识
-            //this._isDrawToTexture = false;
-            //}
         }
+
+        const shaderData = this._scene.sceneShaderData; //上传给着色器
+        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENEINV_0, this._sceneInv0);
+        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENEINV_1, this._sceneInv1);
     }
 
     /**
@@ -325,7 +325,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param newLayerMask 新阴影遮罩层
      */
     lightShadowLayerMaskChange(light: BaseLight2D, oldLayerMask: number, newLayerMask: number) {
-        this.needCollectOccluderInLight(oldLayerMask || newLayerMask);
+        this.needCollectOccluderInLight(oldLayerMask | newLayerMask);
         if (Light2DManager.DEBUG)
             console.log('light shadow layer mask change', light, oldLayerMask, newLayerMask);
     }
@@ -857,6 +857,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 const shadowMesh = renderRes.shadowMeshs[j];
                 const material = renderRes.material[j];
                 const materialShadow = renderRes.materialShadow[j];
+                light.getScenePos(this._lightScenePos); //获取基于Scene的位置
                 light.renderLightTexture(this._scene); //按需更新灯光贴图
                 if (!screenChange) {
                     lightChange = _isLightUpdate(light);
@@ -958,8 +959,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         }
         if (this._param[layer])
             shaderData.setVector(BaseLight2D.LIGHTANDSHADOW_PARAM, this._param[layer]);
-        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_SCENEINV_0, this._sceneInv0);
-        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_SCENEINV_1, this._sceneInv1);
     }
 
     /**
@@ -1037,14 +1036,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 return this._screen.x + this._screen.width / 2 -
                     ((light as DirectionLight2D).directionVector.x +
                         this._PCF[pcf].x * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
-            return (light.getGlobalPosX() + this._PCF[pcf].x * light.shadowFilterSmooth);
+            return (this._lightScenePos.x + this._PCF[pcf].x * light.shadowFilterSmooth);
         };
         const _calcLightY = (light: BaseLight2D, pcf: number) => {
             if (light.getLightType() === Light2DType.Direction)
                 return this._screen.y + this._screen.height / 2 -
                     ((light as DirectionLight2D).directionVector.y +
                         this._PCF[pcf].y * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
-            return (light.getGlobalPosY() + this._PCF[pcf].y * light.shadowFilterSmooth);
+            return (this._lightScenePos.y + this._PCF[pcf].y * light.shadowFilterSmooth);
         };
 
         let ret = mesh;
@@ -1086,13 +1085,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             if (light.getLightType() == Light2DType.Direction)
                 return this._screen.x + this._screen.width / 2 -
                     (light as DirectionLight2D).directionVector.x * DirectionLight2D.LIGHT_SIZE / 4;
-            return light.getGlobalPosX();
+            return this._lightScenePos.x;
         };
         const _calcLightY = (light: BaseLight2D) => {
             if (light.getLightType() == Light2DType.Direction)
                 return this._screen.y + this._screen.height / 2 -
                     (light as DirectionLight2D).directionVector.y * DirectionLight2D.LIGHT_SIZE / 4;
-            return light.getGlobalPosY();
+            return this._lightScenePos.y;
         };
 
         let ret = mesh;

@@ -61,9 +61,6 @@ export class BaseLight2D extends Component {
      */
     static LIGHTANDSHADOW_AMBIENT: number;
 
-    static LIGHTANDSHADOW_SCENEINV_0: number;
-    static LIGHTANDSHADOW_SCENEINV_1: number;
-
     static idCounter: number = 0; //灯光对象计数器
 
     declare owner: Sprite;
@@ -71,21 +68,17 @@ export class BaseLight2D extends Component {
     /**
      * @internal
      */
-    static _initLightRender2DRenderProperty() {
+    static __init__() {
         BaseLight2D.LIGHTANDSHADOW = Shader3D.propertyNameToID("u_LightAndShadow2D");
         BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT = Shader3D.propertyNameToID("u_LightHeight");
         BaseLight2D.LIGHTANDSHADOW_PARAM = Shader3D.propertyNameToID("u_LightAndShadow2DParam");
         BaseLight2D.LIGHTANDSHADOW_AMBIENT = Shader3D.propertyNameToID("u_LightAndShadow2DAmbient");
-        BaseLight2D.LIGHTANDSHADOW_SCENEINV_0 = Shader3D.propertyNameToID("u_LightAndShadow2DSceneInv0");
-        BaseLight2D.LIGHTANDSHADOW_SCENEINV_1 = Shader3D.propertyNameToID("u_LightAndShadow2DSceneInv1");
 
         const sceneUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW, "u_LightAndShadow2D", ShaderDataType.Texture2D);
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT, "u_LightHeight", ShaderDataType.Float);
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_PARAM, "u_LightAndShadow2DParam", ShaderDataType.Vector4);
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_AMBIENT, "u_LightAndShadow2DAmbient", ShaderDataType.Color);
-        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_SCENEINV_0, "u_LightAndShadow2DSceneInv0", ShaderDataType.Vector3);
-        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_SCENEINV_1, "u_LightAndShadow2DSceneInv1", ShaderDataType.Vector3);
     }
 
     protected _type: Light2DType = Light2DType.Base; //灯光类型
@@ -528,19 +521,12 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light scene position x
+     * @en Get light scene position
      * @zh 获取灯光位置的X坐标值（基于Scene）
+     * @param out 
      */
-    getScenePosX() {
-        return this.owner.getScenePos(Point.TEMP).x;
-    }
-
-    /**
-     * @en Get light scene position y
-     * @zh 获取灯光位置的Y坐标值（基于Scene）
-     */
-    getScenePosY() {
-        return this.owner.getScenePos(Point.TEMP).y;
+    getScenePos(out: Point) {
+        return this.owner.getScenePos(out);
     }
 
     /**
