@@ -54,11 +54,11 @@ export class TileSetCellData {
     private _y_sort_origin: number;
 
     //多级数据
-    private _lightOccluderDatas: Record<number , TileSetCellOcclusionInfo>;
+    private _lightOccluderDatas: Record<number, TileSetCellOcclusionInfo>;
 
-    private _navigationDatas: Record< number , TileSetCellNavigationInfo>;
+    private _navigationDatas: Record<number, TileSetCellNavigationInfo>;
 
-    private _physicsDatas: Record<number , TileSetCellPhysicsInfo>;
+    private _physicsDatas: Record<number, TileSetCellPhysicsInfo>;
 
     private _customDatas: Record<number, any>;
 
@@ -85,6 +85,10 @@ export class TileSetCellData {
     get transData(): Vector4 {
         if (this._updateTrans) this._updateTransData();
         return this._transData;
+    }
+
+    get index() {
+        return this._index;
     }
 
     /**
@@ -231,7 +235,7 @@ export class TileSetCellData {
 
     public set physicsDatas(value) {
         this._physicsDatas = value;
-        this._notifyDataChange(TileMapDirtyFlag.CELL_PHYSICS , DirtyFlagType.PHYSICS);
+        this._notifyDataChange(TileMapDirtyFlag.CELL_PHYSICS, DirtyFlagType.PHYSICS);
     }
 
     public get lightOccluderDatas() {
@@ -349,7 +353,7 @@ export class TileSetCellData {
         return this._navigationDatas[layerIndex];
     }
 
-    set_customData(name: string, value: any) :void{
+    set_customData(name: string, value: any): void {
         let layer = this._cellowner._owner._owner.getCustomDataLayer(name);
         if (!layer) return;
         this._customDatas[layer.id] = value;
@@ -362,7 +366,7 @@ export class TileSetCellData {
     }
 
     set_customDataById(id: number, value: any) {
-        this._customDatas[id] = value;    
+        this._customDatas[id] = value;
     }
 
     get_customDataById(id: number) {
@@ -379,7 +383,7 @@ export class TileSetCellData {
         dst._z_index = this._z_index;
         dst._y_sort_origin = this._y_sort_origin;
         this._transData.cloneTo(dst._transData);
-        
+
         dst._updateTrans = true;
     }
 

@@ -44,7 +44,7 @@ class ChunkCellInfo {
 
     _physicsDatas: any[];
 
-    _occluderDatas:TileMapOccluder[];
+    _occluderDatas: TileMapOccluder[];
 
     _renderElementIndex: number;//在第几个RenderElement中
 
@@ -289,10 +289,18 @@ export class TileMapChunkData {
                 return;
             switch (this._tileLayer.sortMode) {
                 case TileLayerSortMode.YSort:
-                    this._chuckCellList.sort((a, b) => { return a.yOrderValue - b.yOrderValue });
+                    this._chuckCellList.sort((a, b) => {
+                        if (a.yOrderValue == b.yOrderValue)
+                            return a.chuckLocalindex - b.chuckLocalindex;
+                        return a.yOrderValue - b.yOrderValue;
+                    });
                     break;
                 case TileLayerSortMode.XSort:
-                    this._chuckCellList.sort((a, b) => { return a.chuckLocalindex - b.chuckLocalindex });
+                    this._chuckCellList.sort((a, b) => { 
+                        if( a.chuckLocalindex - b.chuckLocalindex){
+                            return a.yOrderValue - b.yOrderValue;
+                        }
+                        return a.chuckLocalindex - b.chuckLocalindex });
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
                     this._chuckCellList.sort((a, b) => {
@@ -410,7 +418,7 @@ export class TileMapChunkData {
     private _updatePhysicsData() {
         if (!this._tileLayer.tileMapPhysics.enable || !this._dirtyFlags[DirtyFlagType.PHYSICS].size) return;
         let physicsLayers = this._tileLayer.tileSet.physicsLayers;
-        if(!physicsLayers || !physicsLayers.length) return;
+        if (!physicsLayers || !physicsLayers.length) return;
 
         let physics = this._tileLayer.tileMapPhysics;
         let dirtyFlag = this._dirtyFlags[DirtyFlagType.PHYSICS];
@@ -460,7 +468,7 @@ export class TileMapChunkData {
                         let shapeLength = shape.length;
                         let nShape: Array<number> = new Array(shapeLength);
 
-                        for (let j = 0; j < shapeLength; j+=2) {
+                        for (let j = 0; j < shapeLength; j += 2) {
                             let x = shape[j];
                             let y = shape[j + 1];
                             TileMapUtils.transfromPointByValue(matrix, x + ofx, y + ofy, pos);
@@ -482,11 +490,11 @@ export class TileMapChunkData {
         if (!this._tileLayer.tileMapOccluder.enable || !this._dirtyFlags[DirtyFlagType.OCCLUSION].size) return;
         let lightInfoLayers = this._tileLayer.tileSet.lightInfoLayers;
         if (!lightInfoLayers || !lightInfoLayers.length) return;
-        
+
         let agent = this._tileLayer.tileMapOccluder;
         let dirtyFlag = this._dirtyFlags[DirtyFlagType.OCCLUSION];
-        
-        
+
+
         let layerCount = lightInfoLayers.length;
         let chunk = this._tileLayer._chunk;
         let pos: Vector2 = Vector2.TEMP;
@@ -520,16 +528,16 @@ export class TileMapChunkData {
                         let shape = cellDatas[pIndex].shape;
                         let shapeLength = shape.length;
 
-                        let point:PolygonPoint2D = new PolygonPoint2D;
+                        let point: PolygonPoint2D = new PolygonPoint2D;
 
                         let data = datas[pIndex];
                         if (!data) {
-                            data = agent.addOccluder(point , layer.layerMask);
+                            data = agent.addOccluder(point, layer.layerMask);
                             datas[pIndex] = data;
                         }
 
-                        for (let j = 0; j < shapeLength; j+=2) 
-                            point.addPoint(shape[j] + ofx , shape[j + 1] + ofy);
+                        for (let j = 0; j < shapeLength; j += 2)
+                            point.addPoint(shape[j] + ofx, shape[j + 1] + ofy);
 
                         data.polygonPoint = point;
                     }
@@ -744,7 +752,7 @@ export class TileMapChunkData {
     _setCell(index: number, cellData: TileSetCellData): void {
         //增加cell的时候 先查找是否有，没有直接增加，有直接change
         let gid = cellData.gid;
-        if (gid <= 0)
+        if (gid < 0)
             return;
 
         if (!this._cellDataRefMap[gid]) {
@@ -783,7 +791,7 @@ export class TileMapChunkData {
 
     }
 
-    private _clearChunkCellInfo(cellInfo:ChunkCellInfo){
+    private _clearChunkCellInfo(cellInfo: ChunkCellInfo) {
         let physicsDatas = cellInfo._physicsDatas;
         if (physicsDatas) {
             let physics = this._tileLayer.tileMapPhysics;
@@ -815,7 +823,7 @@ export class TileMapChunkData {
 
         let gid = chunkCellInfo.cell.gid;
         let localIndexArray = this._cellDataRefMap[gid];
-        localIndexArray.slice(localIndexArray.indexOf(index));
+        localIndexArray.splice(localIndexArray.indexOf(index), 1);
         if (localIndexArray.length == 0) {
             delete this._cellDataRefMap[gid];
             chunkCellInfo.cell._removeNoticeRenderTile(this);
@@ -867,8 +875,8 @@ export class TileMapChunkData {
     /**
      * @internal
      */
-    _forceUpdateDrity( flags: boolean[]) {
-        this._cellDataRefMap.forEach((value , gid)=>{
+    _forceUpdateDrity(flags: boolean[]) {
+        this._cellDataRefMap.forEach((value, gid) => {
             for (let i = 0, len = DIRTY_TYPES; i < len; i++) {
                 flags[i] && this._dirtyFlags[i].set(gid, TileMapDirtyFlag.CELL_CHANGE)
             }
@@ -905,13 +913,13 @@ export class TileMapChunkData {
      * @param sprite 
      * @param points 
      */
-    _debugDrawLines(sprite:Sprite , points:number[]){
+    _debugDrawLines(sprite: Sprite, points: number[]) {
         let lastx = points[0];
         let lasty = points[1];
-        for (let i = 2 , len = points.length; i < len; i+=2) {
+        for (let i = 2, len = points.length; i < len; i += 2) {
             let curx = points[i];
             let cury = points[i + 1];
-            sprite.graphics.drawLine(lastx , lasty , curx , cury , "#ff0000");
+            sprite.graphics.drawLine(lastx, lasty, curx, cury, "#ff0000");
             lastx = curx;
             lasty = cury;
         }

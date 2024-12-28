@@ -25,11 +25,7 @@ import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag } from 
 import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
 import { Event } from "../../../events/Event";
 
-export enum TILELAYER_SORTMODE {
-    YSort,
-    ZINDEXSORT,
-    XSort
-}
+
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -231,6 +227,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._cliper = new RectClipper();
         this._renderElements = [];
         this._materials = [];
+        this.sortMode = TileLayerSortMode.YSort;
     }
 
     private _initialTileSet() {
