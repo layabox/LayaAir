@@ -1,3 +1,4 @@
+import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
@@ -14,7 +15,6 @@ import { Mesh2D } from "../../../resource/Mesh2D";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Scene } from "../../Scene";
 import { Sprite } from "../../Sprite";
 import { CommandBuffer2D } from "../RenderCMD2D/CommandBuffer2D";
 import { DrawMesh2DCMD } from "../RenderCMD2D/DrawMesh2DCMD";
@@ -154,14 +154,6 @@ export class FreeformLight2D extends BaseLight2D {
     }
 
     /**
-     * 响应矩阵改变
-     */
-    protected _transformChange() {
-        if (this._lightPolygon)
-            super._transformChange();
-    }
-
-    /**
      * 计算灯光范围（局部坐标）
      */
     protected _calcLocalRange() {
@@ -201,13 +193,13 @@ export class FreeformLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        const p = Point.TEMP;
-        this.owner.getScenePos(p);
-        const px = p.x;
-        const py = p.y;
-        this.owner.getSceneScale(p);
-        const sx = Math.abs(p.x);
-        const sy = Math.abs(p.y);
+        const mm = ILaya.stage.transform;
+        const pp = this.owner.getScenePos(Point.TEMP);
+        const px = mm.a * pp.x + mm.c * pp.y + mm.tx;
+        const py = mm.b * pp.x + mm.d * pp.y + mm.ty;
+        this.owner.getSceneScale(pp);
+        const sx = Math.abs(pp.x * mm.getScaleX());
+        const sy = Math.abs(pp.y * mm.getScaleY());
 
         const x = this._localRange.x;
         const y = this._localRange.y;
@@ -215,16 +207,17 @@ export class FreeformLight2D extends BaseLight2D {
         const h = this._localRange.height;
         const m = Math.max(w * sx, h * sy) | 0;
         const mat = this.owner.getSceneMatrix(this._sceneMatrix);
+        Matrix.mul(ILaya.stage.transform, mat, mat);
         if (mat) {
-            this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y;
-            this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y;
+            this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y + mat.tx;
+            this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y + mat.ty;
         }
         this._worldRange.x = (px - m / 2 + this._worldCenter.x) | 0;
         this._worldRange.y = (py - m / 2 + this._worldCenter.y) | 0;
         this._worldRange.width = m;
         this._worldRange.height = m;
-        this._lightRange.x = (px + x + this._worldCenter.x) | 0;
-        this._lightRange.y = (py + y + this._worldCenter.y) | 0;
+        this._lightRange.x = (px + x + this._localCenter.x) | 0;
+        this._lightRange.y = (py + y + this._localCenter.y) | 0;
         this._lightRange.width = w;
         this._lightRange.height = h;
 
@@ -239,12 +232,10 @@ export class FreeformLight2D extends BaseLight2D {
 
     /**
      * @en Render light texture
-     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 场景对象
      */
-    renderLightTexture(scene: Scene) {
-        super.renderLightTexture(scene);
+    renderLightTexture() {
+        super.renderLightTexture();
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             const range = this._getLocalRange();

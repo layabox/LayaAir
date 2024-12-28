@@ -1,3 +1,4 @@
+import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
@@ -202,13 +203,13 @@ export class SpotLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        const p = Point.TEMP;
-        this.owner.getScenePos(p);
-        const px = p.x;
-        const py = p.y;
-        this.owner.getSceneScale(p);
-        const sx = Math.abs(p.x);
-        const sy = Math.abs(p.y);
+        const mm = ILaya.stage.transform;
+        const pp = this.owner.getScenePos(Point.TEMP);
+        const px = mm.a * pp.x + mm.c * pp.y + mm.tx;
+        const py = mm.b * pp.x + mm.d * pp.y + mm.ty;
+        this.owner.getSceneScale(pp);
+        const sx = Math.abs(pp.x * mm.getScaleX());
+        const sy = Math.abs(pp.y * mm.getScaleY());
 
         const x = this._localRange.x;
         const y = this._localRange.y;
@@ -227,12 +228,10 @@ export class SpotLight2D extends BaseLight2D {
 
     /**
      * @en Render light texture
-     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 场景对象
      */
-    renderLightTexture(scene: Scene) {
-        super.renderLightTexture(scene);
+    renderLightTexture() {
+        super.renderLightTexture();
         if (this._needUpdateLight) {
             this._needUpdateLight = false;
             const range = this._getLocalRange();

@@ -1,4 +1,4 @@
-import { Laya } from "../../../../Laya";
+import { ILaya } from "../../../../ILaya";
 import { Component } from "../../../components/Component";
 import { NodeFlags } from "../../../Const";
 import { Event } from "../../../events/Event";
@@ -388,10 +388,11 @@ export class BaseLight2D extends Component {
     protected _onDestroy() { }
 
     /**
+     * @internal
      * @en Response matrix change
      * @zh 响应矩阵改变
      */
-    protected _transformChange() {
+    _transformChange() {
         this._clearScreenCache();
         this._needUpdateLightAndShadow = true;
         this._needUpdateLightWorldRange = true;
@@ -522,11 +523,17 @@ export class BaseLight2D extends Component {
 
     /**
      * @en Get light scene position
-     * @zh 获取灯光位置的X坐标值（基于Scene）
+     * @zh 获取灯光位置的X坐标值（基于scene和stage）
      * @param out 
      */
     getScenePos(out: Point) {
-        return this.owner.getScenePos(out);
+        this.owner.getScenePos(out);
+        const m = ILaya.stage.transform;
+        const x = m.a * out.x + m.c * out.y + m.tx;
+        const y = m.b * out.x + m.d * out.y + m.ty;
+        out.x = x;
+        out.y = y;
+        return out;
     }
 
     /**
@@ -606,36 +613,34 @@ export class BaseLight2D extends Component {
      * 设置灯光放缩和旋转
      */
     protected _lightScaleAndRotation() {
-        //获取放缩量（基于Scene）
-        const p = Point.TEMP;
-        this.owner.getSceneScale(p);
-        const sx = Math.abs(p.x);
-        const sy = Math.abs(p.y);
+        //获取放缩量（基于scene和stage）
+        const m = ILaya.stage.transform;
+        const p = this.owner.getSceneScale(Point.TEMP);
+        const sx = Math.abs(p.x * m.getScaleX());
+        const sy = Math.abs(p.y * m.getScaleY());
 
         //设置灯光放缩
         Vector2.TEMP.x = 1 / sx;
         Vector2.TEMP.y = 1 / sy;
         this.lightScale = Vector2.TEMP;
 
-        //设置灯光旋转（基于Scene）
+        //设置灯光旋转（基于scene，stage没有旋转）
         this.lightRotation = this.owner.getSceneRotation() * Math.PI / 180;
     }
 
     /**
      * @en Render light texture
-     * @param scene Scene object
      * @zh 渲染灯光贴图
-     * @param scene 场景对象
      */
-    renderLightTexture(scene: Scene) {
+    renderLightTexture() {
         //回收资源（每10帧回收一次）
-        if (Laya.timer.currFrame > this._recoverFC) {
+        if (ILaya.timer.currFrame > this._recoverFC) {
             if (this._needToRecover.length > 0) {
                 for (let i = this._needToRecover.length - 1; i > -1; i--)
                     this._needToRecover[i].destroy();
                 this._needToRecover.length = 0;
             }
-            this._recoverFC = Laya.timer.currFrame + 10;
+            this._recoverFC = ILaya.timer.currFrame + 10;
         }
     }
 
