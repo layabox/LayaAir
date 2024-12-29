@@ -4,6 +4,7 @@
  */
 export class ClassUtils {
     static _classMap: Record<string, any> = {};
+    static _runtimeMap: Record<string, Function> = {};
 
     /**
      * @en Registers a class mapping for easy retrieval during class reflection.
@@ -30,18 +31,27 @@ export class ClassUtils {
     }
 
     /**
-     * @en Creates an instance of a class based on the class name.
-     * @param className The class name (e.g., "laya.display.Sprite") or a registered alias (e.g., "Sprite").
-     * @return An instance of the class.
-     * @zh 根据名称创建 Class 实例。
-     * @param className 类名（比如 "laya.display.Sprite"）或者注册的别名（比如 "Sprite"）。
-     * @return 返回类的实例。
+     * @en Registers a runtime class.
+     * @param url The url of the prefab.
+     * @param cls The class definition. 
+     * @zh 动态注册一个runtime类。
+     * @param url prefab的url。
+     * @param cls 类定义。
      */
-    static getInstance(className: string): any {
-        var compClass: any = ClassUtils.getClass(className);
-        if (compClass) return new compClass();
-        else console.warn("[error] Undefined class:", className);
-        return null;
+    public static regRuntime(url: string, cls: Function) {
+        ClassUtils._runtimeMap[url] = cls;
+    }
+
+    /**
+     * @en Get runtime class by prefab url.
+     * @param url The url of the prefab. 
+     * @returns The class definition.
+     * @zh 通过 prefab url 获取 runtime 类。
+     * @param url prefab的url。
+     * @return 类定义。 
+     */
+    public static getRuntime(url: string) {
+        return ClassUtils._runtimeMap[url];
     }
 }
 

@@ -7,24 +7,21 @@ import { Resource } from "./Resource";
  */
 export class Prefab extends Resource {
     /**
-     * @readonly
-     * @en The version number of the prefab resource.
-     * @zh 预制体资源的版本号。
+     * @ignore
      */
-    public readonly version: number;
+    constructor() {
+        super(false);
+
+        this._traceDeps = true;
+    }
 
     /**
-     * @ignore
-     * @en Create an instance of the prefab.
-     * @param version The version number of the prefab resource.
-     * @zh 创建一个预制体实例。
-     * @param version 预制体资源的版本号。
+     * @en If the prefab is loaded from a url, call this method to enable management of the prefab by the resource manager.
+     * @zh 如果预制体是从 URL 加载的，则调用此方法以启用资源管理器对预制体的管理。
      */
-    constructor(version?: number) {
-        super();
-
-        this.version = version;
-        this._traceDeps = true;
+    onLoad(): this {
+        Resource._idResourcesMap[this._id] = this;
+        return this;
     }
 
     /**

@@ -24,7 +24,6 @@ import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
 import { MorphTarget, MorphTargetChannel } from "../d3/resource/models/MorphTarget";
 import { MorphTargetData } from "../d3/resource/models/MorphTargetData";
 import { SubMesh } from "../d3/resource/models/SubMesh";
-import { Node } from "../display/Node";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
@@ -82,7 +81,7 @@ export class glTFResource extends Prefab {
     private _idCounter: Record<string, number>;
 
     constructor() {
-        super(3);
+        super();
 
         this._buffers = {};
         this._textures = [];
@@ -410,7 +409,7 @@ export class glTFResource extends Prefab {
         });
     }
 
-    public create(): Node {
+    create(): Sprite3D {
         let data = this._data;
 
         this._scenes.length = 0;
@@ -423,7 +422,7 @@ export class glTFResource extends Prefab {
         this.loadAnimations(data.animations);
 
         let defaultSceneIndex = (data.scene != undefined) ? data.scene : 0;
-        let defaultScene: Sprite3D = this._scenes[defaultSceneIndex];
+        let defaultScene = this._scenes[defaultSceneIndex];
         this._scenes.length = 0;
         this._nodes.length = 0;
         this._idCounter = null;

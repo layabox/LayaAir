@@ -1,5 +1,8 @@
 import { Node } from "../display/Node";
+import { Sprite } from "../display/Sprite";
+import { HierarchyParser } from "../loaders/HierarchyParser";
 import { ILoadURL } from "../net/Loader";
+import { ClassUtils } from "../utils/ClassUtils";
 import { Prefab } from "./HierarchyResource";
 
 /**
@@ -38,6 +41,14 @@ export interface IHierarchyParserAPI {
  * @zh 该类用于导入预制体。
  */
 export class PrefabImpl extends Prefab {
+
+    static v3: IHierarchyParserAPI = HierarchyParser;
+    static v2: IHierarchyParserAPI = null;
+    static legacySceneOrPrefab: IHierarchyParserAPI & {
+        createByData(root: Sprite, uiView: any): Sprite;
+        createComp(uiView: any, comp: Sprite, view: Sprite, dataMap: any[], initTool?: any): any;
+    };
+
     /**
      * @en The prefab data.
      * @zh 预制体数据。
@@ -53,16 +64,14 @@ export class PrefabImpl extends Prefab {
      * @en Create an instance of the PrefabImpl class.
      * @param api The hierarchy parser API.
      * @param data The data to initialize the prefab instance with.
-     * @param version The version of the prefab.
      * @zh 创建 PrefabImpl 类的实例。
      * @param api 层次结构API
      * @param data 用于初始化预制体实例的数据。
-     * @param version 预制体的版本。
      */
-    constructor(api: IHierarchyParserAPI, data: any, version: number) {
-        super(version);
+    constructor(api: IHierarchyParserAPI | null, data: any) {
+        super();
 
-        this.api = api;
+        this.api = api || PrefabImpl.v3;
         this.data = data;
     }
 
@@ -77,6 +86,13 @@ export class PrefabImpl extends Prefab {
      * @returns 预制体实例。
      */
     create(options?: Record<string, any>, errors?: any[]): Node {
+        let runtime = ClassUtils.getRuntime(this.url);
+        if (runtime) {
+            if (!options)
+                options = { runtime };
+            else if (!options.runtime)
+                options = Object.assign({ runtime }, options);
+        }
         let ret = this.api.parse(this.data, options, errors);
         if (Array.isArray(ret)) {
             if (ret.length == 1) {

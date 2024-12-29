@@ -10,12 +10,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { HitArea } from "../utils/HitArea";
 import { Pool } from "../utils/Pool";
 import { WeakObject } from "../utils/WeakObject";
-import { Handler } from "laya/utils/Handler";
-import { NodeFlags } from "../Const";
+import { Handler } from "../utils/Handler";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { Scene } from "../display/Scene";
 import { LayaEnv } from "../../LayaEnv";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 var _listClass: any;
 var _viewClass: any;
@@ -267,7 +265,10 @@ export class LegacyUIParser {
         if (prop === "var" && view) {
             view[value] = comp;
         } else {
-            comp[prop] = (value === "true" ? true : (value === "false" ? false : value));
+            if (prop === "texture" && comp instanceof Sprite)
+                comp.loadImage(value);
+            else
+                comp[prop] = (value === "true" ? true : (value === "false" ? false : value));
         }
     }
 
@@ -384,8 +385,20 @@ export class LegacyUIParser {
         var props: any = json.props;
 
         if (!node) {
-            node = instanceHandler ? instanceHandler.runWith(json) : ClassUtils.getInstance(LayaEnv.isPlaying ? (props.runtime || json.type) : json.type);
-            if (!node) return null;
+            if (instanceHandler)
+                node = instanceHandler.runWith(json);
+            else {
+                let className = LayaEnv.isPlaying ? (props.runtime || json.type) : json.type;
+                let compClass: any = ClassUtils.getClass(className);
+                if (compClass)
+                    node = new compClass();
+                else {
+                    console.warn("[error] Undefined class:", className);
+                    return null;
+                }
+            }
+            if (!node)
+                return null;
         }
 
         var child: any[] = json.child;
@@ -718,7 +731,7 @@ class InitTool {
     //TODO:coverage
     getReferData(referStr: string): any {
         if (referStr.indexOf("@Prefab:") >= 0) {
-            return new PrefabImpl(LegacyUIParser, Loader.getRes(referStr.replace("@Prefab:", "")), 2);
+            return new PrefabImpl(LegacyUIParser, Loader.getRes(referStr.replace("@Prefab:", "")));
         } else if (referStr.indexOf("@arr:") >= 0) {
             referStr = referStr.replace("@arr:", "");
             var list: string[];
@@ -764,4 +777,4 @@ class InitTool {
     }
 }
 
-HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;
+PrefabImpl.legacySceneOrPrefab = LegacyUIParser;

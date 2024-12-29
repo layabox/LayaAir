@@ -11,12 +11,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../d3/core/SimpleSkinnedMeshSprite3D";
 import { ILoadURL, Loader } from "../net/Loader";
 import { URL } from "../net/URL";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { ReflectionProbe } from "../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { DirectionLightCom } from "../d3/core/light/DirectionLightCom";
 import { PointLightCom } from "../d3/core/light/PointLightCom";
 import { SpotLightCom } from "../d3/core/light/SpotLightCom";
 import { TrailRenderer } from "../trail/trail3D/TrailRenderer";
+import { PrefabImpl } from "../resource/PrefabImpl";
 
 /**
  * @internal
@@ -400,4 +400,4 @@ export class HierarchyParserV2 {
     }
 }
 
-HierarchyLoader.v2 = HierarchyParserV2;
+PrefabImpl.v2 = HierarchyParserV2;

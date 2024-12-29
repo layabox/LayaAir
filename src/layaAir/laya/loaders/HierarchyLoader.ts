@@ -1,18 +1,10 @@
-import { Sprite } from "../display/Sprite";
 import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
 import { URL } from "../net/URL";
 import { AssetDb } from "../resource/AssetDb";
 import { Prefab } from "../resource/HierarchyResource";
 import { IHierarchyParserAPI, PrefabImpl } from "../resource/PrefabImpl";
-import { HierarchyParser } from "./HierarchyParser";
 
 export class HierarchyLoader implements IResourceLoader {
-    static v3: IHierarchyParserAPI = HierarchyParser;
-    static v2: IHierarchyParserAPI = null;
-    static legacySceneOrPrefab: IHierarchyParserAPI & {
-        createByData(root: Sprite, uiView: any): Sprite;
-        createComp(uiView: any, comp: Sprite, view: Sprite, dataMap: any[], initTool?: any): any;
-    };
 
     load(task: ILoadTask) {
         let url = task.url;
@@ -24,11 +16,11 @@ export class HierarchyLoader implements IResourceLoader {
                 return null;
 
             if (data._$ver != null)
-                return this._load(HierarchyLoader.v3, task, data, 3);
+                return this._load(PrefabImpl.v3, task, data, 3);
             else if (task.ext == "ls" || task.ext == "lh")
-                return this._load(HierarchyLoader.v2, task, data, 2);
+                return this._load(PrefabImpl.v2, task, data, 2);
             else if (task.ext == "scene" || task.ext == "prefab")
-                return this._load(HierarchyLoader.legacySceneOrPrefab, task, data, 2);
+                return this._load(PrefabImpl.legacySceneOrPrefab, task, data, 2);
             else
                 return null;
         });
@@ -43,7 +35,8 @@ export class HierarchyLoader implements IResourceLoader {
         delete options.cache;
         delete options.ignoreCache;
         return task.loader.load(links, options, task.progress.createCallback()).then((resArray: any[]) => {
-            let res = new PrefabImpl(api, data, version);
+            let res = new PrefabImpl(api, data);
+            res.onLoad();
             res.addDeps(resArray);
             return res;
         });
