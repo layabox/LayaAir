@@ -335,7 +335,7 @@ export class Stage extends Sprite {
      * 注意，在移动端输入时，输入法弹出期间不要进行画布尺寸重置。
      */
     private _isInputting(): boolean {
-        return (Browser.onMobile && InputManager.isTextInputting);
+        return (Browser.onMobile && Input.isInputting);
     }
 
     /**

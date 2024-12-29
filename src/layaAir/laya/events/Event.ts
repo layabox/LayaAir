@@ -4,6 +4,7 @@ export interface ITouchInfo {
     touchId: number;
     readonly pos: Point;
 }
+
 /**
  * @en `Event` is a collection of event types. Generally, when an event occurs, the `Event` object is passed as a parameter to the event listener.
  * @zh `Event` 是事件类型的集合。一般当发生事件时,`Event` 对象将作为参数传递给事件侦听器。
@@ -29,12 +30,12 @@ export class Event {
      * @en Defines the value of the `type` property of a `rightmousedown` event object.
      * @zh 定义 `rightmousedown` 事件对象的 `type` 属性值。
      */
-    static RIGHT_MOUSE_DOWN: string = "rightmousedown";
+    static RIGHT_MOUSE_DOWN = "rightmousedown";
     /**
      * @en Defines the value of the `type` property of a `rightmouseup` event object.
      * @zh 定义 `rightmouseup` 事件对象的 `type` 属性值。
      */
-    static RIGHT_MOUSE_UP: string = "rightmouseup";
+    static RIGHT_MOUSE_UP = "rightmouseup";
     /**
      * @en Defines the value of the `type` property of a `click` event object, triggered when a mouse click completes on a display object.
      * @zh 定义 `click` 事件对象的 `type` 属性值，用于鼠标点击对象后触发。
@@ -106,6 +107,11 @@ export class Event {
      * @zh 定义 `dragend` 事件对象的 `type` 属性值，用于拖动结束后触发。
      */
     static DRAG_END = "dragend";
+    /**
+     * @en Defines the value of the `type` property of a `drop` event object, triggered when drop occured.
+     * @zh 定义 `drop` 事件对象的 `type` 属性值，用于拖动放置后触发。
+     */
+    static DROP = "drop";
 
     /**
      * @en Defines the value of the `type` property of a `keydown` event object.
@@ -495,8 +501,8 @@ export class Event {
     }
 
     /**
-     * @en Indicates whether the Shift key is active (true) or inactive (false).
-     * @zh 表示 Shift 键是处于活动状态 (true) 还是非活动状态 (false)。
+     * @en Indicates whether the Meta key is active (true) or inactive (false). It is Command key on the Mac, and the Windows key on Windows.
+     * @zh 表示 Meta 键是处于活动状态 (true) 还是非活动状态 (false)。在 Mac 上是 Command 键，在 Windows 上是 Windows 键。
      */
     get metaKey(): boolean {
         return this.nativeEvent?.metaKey;

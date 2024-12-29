@@ -437,13 +437,6 @@ export class Text extends Sprite {
     }
 
     set color(value: string) {
-        this.set_color(value);
-    }
-
-    /**
-     * @internal
-     */
-    set_color(value: string): void {
         if (this._textStyle.color != value) {
             this._textStyle.color = value;
             //如果仅仅更新颜色，无需重新排版
@@ -726,6 +719,10 @@ export class Text extends Sprite {
         }
     }
 
+    /**
+     * @en Whether to display strikethrough.
+     * @zh 是否显示删除线。
+     */
     get strikethrough(): boolean {
         return this._textStyle.strikethrough;
     }
@@ -738,7 +735,8 @@ export class Text extends Sprite {
     }
 
     /**
-     * 下划线的颜色，为null则使用字体颜色。
+     * @en The color of the strikethrough. If null, it uses the font color.
+     * @zh 下划线的颜色，为null则使用字体颜色。
      */
     get strikethroughColor(): string {
         return this._textStyle.strikethroughColor;
@@ -909,7 +907,7 @@ export class Text extends Sprite {
      * @param value 值
      * @returns 当前 Text 实例。
      */
-    public setVar(name: string, value: any): Text {
+    public setVar(name: string, value: any): this {
         if (!this._templateVars)
             this._templateVars = {};
         this._templateVars[name] = value;

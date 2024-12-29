@@ -2,7 +2,6 @@ import { Text } from "./Text";
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
-import { InputManager } from "../events/InputManager";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 /**
@@ -94,6 +93,17 @@ export class Input extends Text {
      */
     static TYPE_SEARCH: string = "search";
 
+    /**
+     * @en Indicates whether text input is currently active.
+     * @zh 表示当前是否正在输入文字。
+     */
+    static isInputting = false;
+    /**
+     * @en Indicates whether the current platform is iOS's WKWebView.
+     * @zh 表示当前是否是 iOS 的 WKWebView 平台。
+     */
+    static isiOSWKwebView: boolean = false;
+
     protected static input: HTMLInputElement;
     protected static area: HTMLTextAreaElement;
     protected static inputElement: HTMLInputElement | HTMLTextAreaElement;
@@ -156,7 +166,7 @@ export class Input extends Text {
      */
     private static _popupInputMethod(e: any): void {
         //e.preventDefault();
-        if (!InputManager.isTextInputting) return;
+        if (!Input.isInputting) return;
 
         var input: any = Input.inputElement;
 
@@ -358,7 +368,7 @@ export class Input extends Text {
     }
 
     private _focusIn(): void {
-        InputManager.isTextInputting = true;
+        Input.isInputting = true;
         var input = this.nativeInput;
 
         Input.input && (Input.input.type = this._type);		// 设置input控件的 password
@@ -430,10 +440,11 @@ export class Input extends Text {
         Input.promptStyleDOM.innerText = "input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {" + "color:" + this._promptColor + "}" + "input:-moz-placeholder, textarea:-moz-placeholder {" + "color:" + this._promptColor + "}" + "input::-moz-placeholder, textarea::-moz-placeholder {" + "color:" + this._promptColor + "}" + "input:-ms-input-placeholder, textarea:-ms-input-placeholder {" + "color:" + this._promptColor + "}";
     }
 
-    private _focusOut(): void {
-        if (!InputManager.isTextInputting) return;
-        if (!InputManager.isiOSWKwebView)
-            InputManager.isTextInputting = false;
+    /** @internal */
+    _focusOut(): void {
+        if (!Input.isInputting) return;
+        if (!Input.isiOSWKwebView)
+            Input.isInputting = false;
         this._focus = false;
         this._hideText = false;
 
@@ -506,12 +517,17 @@ export class Input extends Text {
      * @en Set the color of the input text.
      * @zh 设置输入文本的颜色。
      */
-    set_color(value: string) {
+    get color(): string {
+        return this._textStyle.color;
+    }
+
+    set color(value: string) {
         if (this._focus)
             (this.nativeInput as any).setColor(value);
 
-        super.set_color(value);
+        super.color = value;
     }
+
 
     /**
      * @en The background color of the input text.

@@ -1,11 +1,13 @@
 import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
-import { Node } from "../display/Node";
+import { Input } from "../display/Input";
+import type { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Browser } from "../utils/Browser";
+import { Delegate } from "../utils/Delegate";
 import { Event, ITouchInfo } from "./Event";
 
 var _isFirstTouch = true;
@@ -48,16 +50,13 @@ export class InputManager {
      * @zh canvas 上鼠标的 Y 坐标。
      */
     static mouseY: number = 0;
+
     /**
-     * @en Indicates whether text input is currently active.
-     * @zh 表示当前是否正在输入文字。
+     * @en Dispatched before the process of a MOUSE_DOWN event, which can be used to preprocess the MOUSE_DOWN event.
+     * @zh 在处理MOUSE_DOWN事件之前调度，可用于提前处理按下事件。
      */
-    static isTextInputting = false;
-    /**
-     * @en Indicates whether the current platform is iOS's WKWebView.
-     * @zh 表示当前是否是 iOS 的 WKWebView 平台。
-     */
-    static isiOSWKwebView: boolean = false;
+    static readonly onMouseDownCapture: Delegate = new Delegate();
+
     /**@internal */
     protected _stage: Stage;
     /**@internal */
@@ -80,6 +79,7 @@ export class InputManager {
     protected _keyEvent: Event;
 
     private _lastTouchTime: number;
+    private _lastTouchId: number = 0;
 
     /**
      * @ignore
@@ -107,9 +107,9 @@ export class InputManager {
      */
     static getTouchPos(touchId?: number): Readonly<Point> {
         if (touchId == null)
-            return _inst._touches[0]?.pos || Point.EMPTY;
-        else
-            return _inst.getTouch(touchId)?.pos || Point.EMPTY;
+            touchId = _inst._lastTouchId;
+
+        return _inst.getTouch(touchId)?.pos || Point.EMPTY;
     }
 
     /**
@@ -143,7 +143,9 @@ export class InputManager {
      * @param touchId 要取消的触摸事件ID。
      */
     static cancelClick(touchId?: number): void {
-        let touch = touchId == null ? _inst._touches[0] : _inst.getTouch(touchId);
+        if (touchId == null)
+            touchId = _inst._lastTouchId;
+        let touch = _inst.getTouch(touchId);
         if (touch)
             touch.clickCancelled = true;
     }
@@ -192,12 +194,12 @@ export class InputManager {
         // });
 
         canvas.addEventListener("touchstart", ev => {
-            if (!_isFirstTouch && !InputManager.isTextInputting)
+            if (!_isFirstTouch && !Input.isInputting)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
         }, { passive: false });
         canvas.addEventListener("touchend", ev => {
-            if (!_isFirstTouch && !InputManager.isTextInputting)
+            if (!_isFirstTouch && !Input.isInputting)
                 (ev.cancelable) && (ev.preventDefault());
             _isFirstTouch = false;
             inst.handleTouch(ev, 1);
@@ -245,6 +247,7 @@ export class InputManager {
     handleMouse(ev: MouseEvent | WheelEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
+        this._lastTouchId = 0;
         let now = Browser.now();
         if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
             return;
@@ -294,9 +297,10 @@ export class InputManager {
                 touch.event.button = ev.button;
                 touch.downButton = ev.button;
 
-                if (InputManager.mouseEventsEnabled) {
-                    this.handleFocus();
+                this.handleFocus();
+                InputManager.onMouseDownCapture.invoke(touch.touchId);
 
+                if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
                         touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
                     else
@@ -389,6 +393,7 @@ export class InputManager {
 
             touch.event.nativeEvent = ev;
             touch.event.touchId = touch.touchId;
+            this._lastTouchId = touch.touchId;
             if (type == 3 || !InputManager.mouseEventsEnabled)
                 touch.target = this._touchTarget = null;
             else {
@@ -422,8 +427,10 @@ export class InputManager {
                 if (!touch.began) {
                     touch.begin();
 
+                    this.handleFocus();
+                    InputManager.onMouseDownCapture.invoke(touch.touchId);
+
                     if (InputManager.mouseEventsEnabled) {
-                        this.handleFocus();
                         touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
                     }
                 }
@@ -433,7 +440,8 @@ export class InputManager {
                     touch.end();
 
                     if (InputManager.mouseEventsEnabled) {
-                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event);
+                        let bubbleFrom = touch.target ? touch.target : this._stage;
+                        bubbleFrom.bubbleEvent(Event.MOUSE_UP, touch.event, touch.downTargets);
 
                         if (touch.moved) {
                             for (let t of touch.downTargets)
@@ -479,21 +487,33 @@ export class InputManager {
     }
 
     private handleFocus() {
-        if (InputManager.isTextInputting
-            && this._stage.focus && (<any>this._stage.focus)["focus"]
-            && !this._stage.focus.contains(this._touchTarget)) {
-            // 从UI Input组件中取得Input引用
-            // _tf 是TextInput的属性
-            let pre_input: any = (<any>this._stage.focus)['_tf'] || this._stage.focus;
-            let new_input = (<any>this._touchTarget)['_tf'] || this._touchTarget;
+        if (!Input.isInputting)
+            return;
 
-            // 新的焦点是Input的情况下，不需要blur；
-            // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
-            if (new_input.nativeInput && new_input.multiline == pre_input.multiline)
-                pre_input['_focusOut']();
-            else
-                pre_input.focus = false;
-        }
+        let lastFocus = this._stage.focus;
+        if (!lastFocus || lastFocus.contains(this._touchTarget))
+            return;
+
+        let pre_input: Input, new_input: Input;
+        if (lastFocus instanceof Input)
+            pre_input = lastFocus;
+        else
+            pre_input = <Input>lastFocus.children.find(e => e instanceof Input);
+
+        if (!pre_input || !pre_input.focus)
+            return;
+
+        if (this._touchTarget instanceof Input)
+            new_input = this._touchTarget;
+        else
+            new_input = <Input>this._touchTarget.children.find(e => e instanceof Input);
+
+        // 新的焦点是Input的情况下，不需要blur；
+        // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
+        if (new_input && new_input.nativeInput && new_input.multiline == pre_input.multiline)
+            pre_input._focusOut();
+        else
+            pre_input.focus = false;
     }
 
     /**
@@ -524,7 +544,7 @@ export class InputManager {
             let ct = target;
             while (ct) {
                 ct.event(type, this._keyEvent.setTo(type, ct, target));
-                ct = ct.parent;
+                ct = ct._parent;
             }
         }
 
@@ -581,11 +601,11 @@ export class InputManager {
             return null;
 
         for (let i = sp._children.length - 1; i > -1; i--) {
-            let child = <Sprite>sp._children[i];
+            let child = sp._children[i];
             let childEditing = editing || child._getBit(NodeFlags.EDITING_NODE);
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
-                && !child._is3D
+                && child._nodeType !== 1
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
                 && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
                 _tempPoint.setTo(x, y);
@@ -667,7 +687,7 @@ export class InputManager {
         let ele = touch.lastRollOver;
         while (ele) {
             _rollOutChain.push(ele);
-            ele = ele.parent;
+            ele = ele._parent;
         }
         touch.lastRollOver = touch.target;
 
@@ -681,7 +701,7 @@ export class InputManager {
 
             _rollOverChain.push(ele);
 
-            ele = ele.parent;
+            ele = ele._parent;
         }
 
         let cnt = _rollOutChain.length;
@@ -806,7 +826,7 @@ class TouchInfo implements ITouchInfo {
             let ele = this.target;
             while (ele) {
                 this.downTargets.push(ele);
-                ele = ele.parent;
+                ele = ele._parent;
             }
         }
     }
@@ -884,7 +904,7 @@ class TouchInfo implements ITouchInfo {
             if (i != -1 && obj.activeInHierarchy)
                 break;
 
-            obj = obj.parent;
+            obj = obj._parent;
         }
 
         this.downTargets.length = 0;
