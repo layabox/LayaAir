@@ -210,6 +210,12 @@ export class Browser {
     static supportLocalStorage: boolean;
 
     /**
+     * @en Indicates whether the environment supports touch input.
+     * @zh 表示环境是否支持触摸输入。
+     */
+    static isTouchDevice: boolean;
+
+    /**
      * @en The global offline canvas (not the main canvas), used primarily for measuring text and obtaining image data.
      * @zh 全局离线画布（非主画布），主要用来测量文本和获取图像数据。
      */
@@ -447,6 +453,8 @@ export class Browser {
         }
         else
             Browser.platform = Browser.PLATFORM_PC;
+
+        Browser.isTouchDevice = Browser.onMobile || maxTouchPoints > 0 || ('ontouchstart' in window);
 
         return win;
     }
