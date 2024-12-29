@@ -305,12 +305,15 @@ export class Timer {
      * @en Immediately executes the callLater.
      * @param caller The scope of the object (this).
      * @param method The callback function for the timer.
+     * @param forceRun Whether to force execution, regardless of whether there is a registered CallLater.
      * @zh 立即执行 callLater。
      * @param caller 执行域(this)。
      * @param method 定时器回调函数。
+     * @param forceRun 是否强制执行，不管是否有注册CallLater.
      */
-    runCallLater(caller: any, method: Function): void {
-        Timer.callLaters.runTimer(caller, method);
+    runCallLater(caller: any, method: Function, forceRun?: boolean): void {
+        if (!Timer.callLaters.runTimer(caller, method) && forceRun)
+            method.apply(caller);
     }
 
     /**
@@ -329,16 +332,21 @@ export class Timer {
      * @en Immediately advance the timer, execute it, and then remove it from the queue.
      * @param caller The scope of the object (this).
      * @param method Timer callback function.
+     * @return Whether the call was successful.
      * @zh 立即提前执行定时器，执行后从队列中删除。
      * @param caller 执行域(this)。
      * @param method 定时器回调函数。
+     * @return 调用是否成功。
      */
-    runTimer(caller: any, method: Function): void {
+    runTimer(caller: any, method: Function): boolean {
         let handler: TimerHandler = this._map[Utils.getGID(caller, method)];
         if (handler && handler.method != null) {
             this._map[handler.key] = null;
             handler.run(true);
+            return true;
         }
+        else
+            return false;
     }
 
     /**
