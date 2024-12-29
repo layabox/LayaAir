@@ -26,7 +26,8 @@ import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
-import { Matrix3x3 } from "../maths/Matrix3x3";
+
+const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -217,6 +218,11 @@ export class Sprite extends Node {
     **/
     _skinBaseUrl: string;
 
+    declare _children: Sprite[];
+    declare _$children: Sprite[];
+    declare _parent: Sprite;
+    declare _scene: Sprite;
+
     /** @ignore */
     constructor() {
         super();
@@ -239,10 +245,18 @@ export class Sprite extends Node {
     }
 
     /**
+     * @en The parent node.
+     * @zh 父节点。
+     */
+    get parent(): Sprite {
+        return <Sprite>this._$parent;
+    }
+
+    /**
      * @en Get the scene the sprite belongs to.
-     * @returns {Scene} The scene object.
+     * @returns The scene object.
      * @zh 获取所属的场景。
-     * @returns {Scene} 场景对象。
+     * @returns 场景对象。
      */
     get scene(): Scene {
         return <Scene>this._scene;
@@ -743,7 +757,6 @@ export class Sprite extends Node {
             return;
 
         this._scrollRect = value;
-        //viewport = value;
         if (value) {
             this._renderType |= SpriteConst.CLIP;
         } else {
@@ -816,8 +829,8 @@ export class Sprite extends Node {
 
     set mouseEnabled(value: boolean) {
         this._mouseState = value ? 2 : 1;
-        if (this._mouseState === 2 && (<Sprite>this._parent)?._mouseState === 0)
-            (<Sprite>this._parent).mouseEnabled = true;
+        if (this._mouseState === 2 && this._parent?._mouseState === 0)
+            this._parent.mouseEnabled = true;
     }
 
     /**
@@ -867,7 +880,7 @@ export class Sprite extends Node {
      * @en Re-sort by zOrder.
      * @zh 根据 zOrder 进行重新排序。
      */
-    updateZOrder(): void {
+    protected updateZOrder(): void {
         SpriteUtils.updateOrder(this._children) && this.repaint();
     }
 
@@ -1458,8 +1471,7 @@ export class Sprite extends Node {
         out = out || new Rectangle();
         out.setTo(0, 0, 0, 0);
 
-        for (let i = this.numChildren - 1; i >= 0; i--) {
-            let child = <Sprite>this.getChildAt(i);
+        for (let child of this._children) {
             if (ignoreInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE))
                 continue;
 
@@ -1566,12 +1578,12 @@ export class Sprite extends Node {
             out.push(...this._graphics.getBoundPoints());
 
         if (this._renderNode != null || this._texture != null)
-            tmpRect2.setTo(0, 0, this._width||this._texture?.width, this._height||this._texture?.height).getBoundPoints(out);
+            tmpRect2.setTo(0, 0, this._width || this._texture?.width, this._height || this._texture?.height).getBoundPoints(out);
 
         //处理子对象区域
         let chidren = this._children;
         for (let i = 0, n = chidren.length; i < n; i++) {
-            let child = <Sprite>chidren[i];
+            let child = chidren[i];
             if (child._getBit(NodeFlags.ACTUAL_VISIBLE) && child._cacheStyle.maskParent != this) {
                 out.push(...child._boundPointsToParent(ifRotate));
             }
@@ -1620,7 +1632,7 @@ export class Sprite extends Node {
             if (ele == globalNode)
                 break;
             point = ele.toParentPoint(point);
-            ele = <Sprite>ele.parent;
+            ele = ele._parent;
         }
 
         return point;
@@ -1649,7 +1661,7 @@ export class Sprite extends Node {
         while (ele && !ele._destroyed) {
             if (ele == globalNode) break;
             list.push(ele);
-            ele = (<Sprite>ele.parent);
+            ele = ele._parent;
         }
         var i: number = list.length - 1;
         while (i >= 0) {
@@ -1822,7 +1834,7 @@ export class Sprite extends Node {
      * @param type 重新绘制类型。默认为 SpriteConst.REPAINT_CACHE。
      */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        var p: Sprite = <Sprite>this._parent;
+        var p: Sprite = this._parent;
         if (p && !(p._repaint & type)) {
             p._repaint |= type;
             p.parentRepaint(type);
@@ -1838,12 +1850,12 @@ export class Sprite extends Node {
      * @param data (Optional) The data carried by the drag event. 
      * @param ratio (Optional) The inertia damping coefficient, which affects the strength and duration of inertia.
      * @zh 开始拖动此对象。
-     * @param area				（可选）拖动区域，此区域为当前对象注册点活动区域（不包括对象宽高） 。
-     * @param hasInertia		（可选）鼠标松开后，是否还惯性滑动，默认为false。
-     * @param elasticDistance	（可选）橡皮筋效果的距离值，0为无橡皮筋效果，默认为0。
-     * @param elasticBackTime	（可选）橡皮筋回弹时间，单位为毫秒，默认为300毫秒。
-     * @param data				（可选）拖动事件携带的数据。
-     * @param ratio				（可选）惯性阻尼系数，影响惯性力度和时长。
+     * @param area （可选）拖动区域，此区域为当前对象注册点活动区域（不包括对象宽高） 。
+     * @param hasInertia （可选）鼠标松开后，是否还惯性滑动，默认为false。
+     * @param elasticDistance （可选）橡皮筋效果的距离值，0为无橡皮筋效果，默认为0。
+     * @param elasticBackTime （可选）橡皮筋回弹时间，单位为毫秒，默认为300毫秒。
+     * @param data （可选）拖动事件携带的数据。
+     * @param ratio （可选）惯性阻尼系数，影响惯性力度和时长。
      */
     startDrag(area: Rectangle = null, hasInertia: boolean = false, elasticDistance: number = 0, elasticBackTime: number = 300, data: any = null, ratio: number = 0.92): void {
         this._dragging || (this._dragging = new Dragging());
@@ -1895,13 +1907,23 @@ export class Sprite extends Node {
 
     /**
      * @internal
+     * @en This method should be called when all variable state determining factors change, typically such as the visible property.
+     * @return Whether the visible status is actually changed.
+     * @zh 这个方法在所有可变状态决定因子改变时都应调用，典型的如visible属性。
+     * @return 可见状态是否真正改变了。
      */
-    _processVisible(forceInvisible?: boolean): void {
-        if (this._setBit(NodeFlags.ACTUAL_VISIBLE, this._visible && !forceInvisible && !this._getBit(NodeFlags.FORCE_INVISIBLE)
-            || this._getBit(NodeFlags.DISABLE_VISIBILITY)))
+    _processVisible(): boolean {
+        if (this._setBit(NodeFlags.ACTUAL_VISIBLE, this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE))) {
             this.parentRepaint(SpriteConst.REPAINT_ALL);
+            return true;
+        }
+        else
+            return false;
     }
 
+    /**
+     * @ignore
+     */
     protected _setParent(value: Node): void {
         super._setParent(value);
         if (value && this._mouseState === 2 && (<Sprite>value)._mouseState === 0) {
@@ -1909,18 +1931,28 @@ export class Sprite extends Node {
         }
     }
 
-    protected _childChanged(child?: Node): void {
+    /**
+     * @ignore
+     */
+    protected _childChanged(child?: Sprite): void {
         super._childChanged(child);
 
         if (this._children.length)
             this._renderType |= SpriteConst.CHILDS;
         else
             this._renderType &= ~SpriteConst.CHILDS;
-        if (child && this._getBit(NodeFlags.HAS_ZORDER))
+        if (child) {
+            if (child._zOrder)
+                this._setBit(NodeFlags.HAS_ZORDER, true);
+        }
+        if (this._getBit(NodeFlags.HAS_ZORDER))
             ILaya.systemTimer.callLater(this, this.updateZOrder);
         this.repaint(SpriteConst.REPAINT_ALL);
     }
 
+    /**
+     * @ignore
+     */
     protected _addComponentInstance(comp: Component): void {
         if (
             comp instanceof BaseRenderNode2D &&
@@ -1932,6 +1964,9 @@ export class Sprite extends Node {
         super._addComponentInstance(comp);
     }
 
+    /**
+     * @ignore
+     */
     protected _onSetBit(bit: number, value: boolean): void {
         super._onSetBit(bit, value);
 
@@ -1958,10 +1993,6 @@ export class Sprite extends Node {
                 for (let child of this._children)
                     child._setBit(NodeFlags.DEMAND_TRANS_EVENT, value);
             }
-        }
-
-        if ((bit & NodeFlags.FORCE_INVISIBLE) != 0 || (bit & NodeFlags.DISABLE_VISIBILITY) != 0) {
-            this._processVisible();
         }
     }
 
@@ -1991,8 +2022,8 @@ export class Sprite extends Node {
             return this._gMatrix;
         } else {
             this._gMatrix.setMatrix(this._x, this._y, this._scaleX, this._scaleY, this._rotation, this._skewX, this._skewY, this._pivotX, this._pivotY);
-            if (this.parent) {
-                Matrix.mul(this._gMatrix, (<Sprite>this.parent).getGlobalMatrix(), this._gMatrix);
+            if (this._parent) {
+                Matrix.mul(this._gMatrix, this._parent.getGlobalMatrix(), this._gMatrix);
                 this._setGlobalFlag(TransformKind.Matrix, false);
                 this._syncGlobalFlag(TransformKind.Matrix, true);
             }
@@ -2103,7 +2134,7 @@ export class Sprite extends Node {
             if (globalx == this._gPosx && globaly == this._gPosy)
                 return;
 
-            let point = (<Sprite>this.parent).getGlobalMatrix().invertTransformPoint(tmpPoint.setTo(globalx, globaly));
+            let point = this._parent.getGlobalMatrix().invertTransformPoint(tmpPoint.setTo(globalx, globaly));
             this._bits &= ~NodeFlags.CACHE_GLOBAL; //临时取消标志，避免死循环
             this.pos(point.x, point.y);
             this._bits |= NodeFlags.CACHE_GLOBAL;
@@ -2128,7 +2159,7 @@ export class Sprite extends Node {
             while (ele) {
                 if (ele === this._scene) break;
                 angle += ele._rotation;
-                ele = (<Sprite>ele._parent);
+                ele = ele._parent;
             }
             return angle;
         } else {
@@ -2151,7 +2182,7 @@ export class Sprite extends Node {
         if (this._parent == this._scene || !this._parent) {
             this.rotation = value;
         } else {
-            this.rotation = value - (this.parent as Sprite).globalRotation;
+            this.rotation = value - (this._parent as Sprite).globalRotation;
         }
         if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
             this._gRotate = value;
@@ -2174,7 +2205,7 @@ export class Sprite extends Node {
             while (ele) {
                 if (ele === ILaya.stage) break;
                 scale *= ele._scaleX;
-                ele = (<Sprite>ele._parent);
+                ele = ele._parent;
             }
             return scale;
         } else {
@@ -2196,7 +2227,7 @@ export class Sprite extends Node {
             while (ele) {
                 if (ele === ILaya.stage) break;
                 scale *= ele._scaleY;
-                ele = (<Sprite>ele._parent);
+                ele = ele._parent;
             }
             return scale;
         } else {
@@ -2251,7 +2282,7 @@ export class Sprite extends Node {
      */
     private _syncGlobalFlag(flag: number, value: boolean) {
         if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            for (let child of <Sprite[]>this._children) {
+            for (let child of this._children) {
                 child._setGlobalFlag(flag, value);
                 child._syncGlobalFlag(flag, value);
             }

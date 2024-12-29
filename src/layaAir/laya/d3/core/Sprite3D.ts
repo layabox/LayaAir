@@ -40,8 +40,6 @@ export class Sprite3D extends Node {
     static WORLDINVERTFRONT: number;
     /**@internal */
     static sprite3DCommandUniformMap: CommandUniformMap;
-    /**@internal */
-    protected static _uniqueIDCounter: number = 0;
 
     /**
      * @internal
@@ -110,6 +108,9 @@ export class Sprite3D extends Node {
     /**@internal 0表示不是渲染节点*/
     _isRenderNode: number = 0;
 
+    declare _children: Sprite3D[];
+    declare _scene: Scene3D;
+
     /**
      * @en Unique identifier ID.
      * @zh 唯一标识ID。
@@ -175,10 +176,10 @@ export class Sprite3D extends Node {
      * @param name 精灵名称。
      * @param isStatic 是否为静态。
      */
-    constructor(name: string = null, isStatic: boolean = false) {
+    constructor(name?: string, isStatic?: boolean) {
         super();
-        this._id = ++Sprite3D._uniqueIDCounter;
-        this._is3D = true;
+        this._nodeType = 1;
+        this._id = ++_uniqueIDCounter;
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(this);
         this._isStatic = isStatic ? StaticFlag.StaticBatch : StaticFlag.Normal;
         this.layer = 0;
@@ -286,3 +287,4 @@ export class Sprite3D extends Node {
     }
 }
 
+var _uniqueIDCounter = 0;

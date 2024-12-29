@@ -244,7 +244,7 @@ export class RenderSprite {
     }
 
     _children(sprite: Sprite, context: Context, x: number, y: number): void {
-        let childs = <Sprite[]>sprite._children, n = childs.length;
+        let childs = sprite._children, n = childs.length;
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);

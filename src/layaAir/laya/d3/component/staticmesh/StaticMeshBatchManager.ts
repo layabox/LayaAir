@@ -1,4 +1,4 @@
-import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { MeshRenderer } from "../../core/MeshRenderer";
 import { StaticBatchMeshRender } from "./StaticBatchMeshRender";
 import { StaticMeshMergeInfo } from "./StaticMeshMergeInfo";
 

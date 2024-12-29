@@ -19,7 +19,7 @@ export class StaticMeshMergeInfo {
     static create(render: MeshRenderer) {
 
         let mesh = render.getMesh();
-        // let owner = <Sprite3D>render.owner;
+        // let owner = render.owner;
 
         let info = new StaticMeshMergeInfo();
         info.lightmapIndex = render.lightmapIndex;
@@ -83,7 +83,7 @@ export class StaticMeshMergeInfo {
     match(render: MeshRenderer): boolean {
 
         let mesh = render.getMesh();
-        let owner = <Sprite3D>render.owner;
+        let owner = render.owner;
 
         let match = true;
 

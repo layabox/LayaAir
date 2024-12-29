@@ -8,7 +8,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Material } from "../../../resource/Material";
 import { TrailShaderCommon } from "../../trailCommon/RenderFeatureComman/Trail/TrailShaderCommon";
 import { Trail2DRender } from "../Trail2DRender";
-export class TrailShaderInit {
+export class Trail2DShaderInit {
     static init() {
         TrailShaderCommon.init();
         let shader = Shader3D.add("Trail2D", false, false);

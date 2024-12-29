@@ -72,7 +72,7 @@ export class Widget extends Component {
     resetLayoutX(): boolean {
         var owner: Sprite = this.owner;
         if (!owner) return false;
-        var parent: Sprite = (<Sprite>owner.parent);
+        var parent: Sprite = owner.parent;
         if (parent) {
             if (this._centerX != null) {
                 owner.x = Math.round((parent.width - owner.displayWidth) * 0.5 + this._centerX + owner.pivotX * owner.scaleX);
@@ -100,9 +100,9 @@ export class Widget extends Component {
      * @zh 重置对象的垂直布局（Y轴方向）。
      */
     resetLayoutY(): boolean {
-        var owner: Sprite = (<Sprite>this.owner);
+        var owner: Sprite = this.owner;
         if (!owner) return false;
-        var parent: Sprite = (<Sprite>owner.parent);
+        var parent: Sprite = owner.parent;
         if (parent) {
             if (this._centerY != null) {
                 owner.y = Math.round((parent.height - owner.displayHeight) * 0.5 + this._centerY + owner.pivotY * owner.scaleY);

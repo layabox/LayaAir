@@ -1,9 +1,10 @@
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
-import { Node } from "../../../display/Node";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { PhysicsColliderComponent } from "../PhysicsColliderComponent";
+import { Sprite3D } from "../../core/Sprite3D";
+
 /**
  * @en ConstraintComponent class is the base class for creating constraints.
  * @zh ConstraintComponent 类用于创建约束的父类。
@@ -28,6 +29,9 @@ export class ConstraintComponent extends Component {
     /**@internal @protected */
     protected _connectColliderLocalPos: Vector3 = new Vector3();
     private _isJointInit: boolean = false;
+
+    declare owner : Sprite3D;
+
     /**
      * @en Initializes the joint instance.
      * @zh 初始化关节实例。

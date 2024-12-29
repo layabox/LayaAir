@@ -52,7 +52,6 @@ export class TextStyle {
      */
     strikethroughColor: string = null;
 
-
     /**
      * @en Indicates the horizontal alignment of text paragraphs using this text format
      * @zh 表示使用此文本格式的文本段落的水平对齐方式

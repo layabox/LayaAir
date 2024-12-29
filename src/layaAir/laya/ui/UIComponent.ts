@@ -271,7 +271,7 @@ export class UIComponent extends Sprite {
     * @zh 子节点发生变化时的回调。
     * @param child 发生变化的子节点。
     */
-    protected _childChanged(child?: Node): void {
+    protected _childChanged(child?: Sprite): void {
         this.callLater(this._sizeChanged);
         super._childChanged(child);
     }
@@ -320,7 +320,7 @@ export class UIComponent extends Sprite {
         var max: number = 0;
         this.commitMeasure();
         for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
+            var comp: Sprite = this.getChildAt(i);
             if (comp._visible) {
                 max = Math.max(comp._x + comp.width * comp.scaleX, max);
             }
@@ -342,10 +342,10 @@ export class UIComponent extends Sprite {
      * @zh 显示对象的实际显示区域高度（以像素为单位）。
      */
     protected measureHeight(): number {
-        var max: number = 0;
+        let max: number = 0;
         this.commitMeasure();
-        for (var i: number = this.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this.getChildAt(i));
+        for (let i: number = this.numChildren - 1; i > -1; i--) {
+            let comp: Sprite = this.getChildAt(i);
             if (comp._visible) {
                 max = Math.max(comp._y + comp.height * comp.scaleY, max);
             }

@@ -1,6 +1,4 @@
-import { Component } from "../../components/Component";
 import { Vector3 } from "../../maths/Vector3";
-import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { Laya3D } from "../../../Laya3D";
 import { ICharacterController } from "../../Physics3D/interface/ICharacterController";
@@ -46,9 +44,9 @@ export class CharacterController extends PhysicsColliderComponent {
      * @internal
      */
     protected _initCollider() {
-        this._physicsManager = (this.owner.scene as Scene3D).physicsSimulation;
+        this._physicsManager = this.owner.scene.physicsSimulation;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
-            this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+            this._physicsManager = this.owner._scene._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
             this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
             this._collider.component = this;

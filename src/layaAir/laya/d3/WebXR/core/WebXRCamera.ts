@@ -105,7 +105,7 @@ export class WebXRCamera extends Camera {
 		var viewport: Viewport = this.viewport;
 		var needInternalRT: boolean = true;
 		var context: RenderContext3D = RenderContext3D._instance;
-		var scene: Scene3D = context.scene = <Scene3D>this._scene;
+		var scene: Scene3D = context.scene = this._scene;
 		context.pipelineMode = context.configPipeLineMode;
 		// context.replaceTag = replacementTag;
 		// context.customShader = shader;

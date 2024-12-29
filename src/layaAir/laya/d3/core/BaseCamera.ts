@@ -495,12 +495,12 @@ export class BaseCamera extends Sprite3D {
         this._calculateProjectionMatrix();
     }
     protected _onActive(): void {
-        ((<Scene3D>this._scene))._addCamera(this);
+        this._scene._addCamera(this);
         super._onActive();
     }
 
     protected _onInActive(): void {
-        ((<Scene3D>this._scene))._removeCamera(this);
+        this._scene._removeCamera(this);
         super._onInActive();
     }
 

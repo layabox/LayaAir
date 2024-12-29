@@ -79,7 +79,7 @@ export class StaticBatchMesh {
 
             Bounds.merge(bounds, render.bounds, bounds);
 
-            let sp = <Sprite3D>render.owner;
+            let sp = render.owner;
             let invertFront = sp.transform._isFrontFaceInvert;
             let worldMat = sp.transform.worldMatrix;
             let normalMat = tempMatrix;

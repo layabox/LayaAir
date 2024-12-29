@@ -4,7 +4,6 @@ import { Laya3D } from "../../../../Laya3D";
 import { D6Axis, D6Drive, D6MotionType, ID6Joint } from "../../../Physics3D/interface/Joint/ID6Joint";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Transform3D } from "../../core/Transform3D";
-import { Scene3D } from "../../core/scene/Scene3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
@@ -885,7 +884,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
      * create joint
      */
     protected _initJoint(): void {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = this.owner._scene._physicsManager;
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_D6Joint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createD6Joint(this._physicsManager);
         } else {

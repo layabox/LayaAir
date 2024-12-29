@@ -165,10 +165,10 @@ export class SpriteUtils {
         dom.style.left = transform.x + 'px';
         dom.style.top = transform.y + 'px';
     }
-    
+
 
     /**
-     * @private
+     * @internal
      * @en Reorders the passed array of items based on the Z property of the child items.
      * Returns a Boolean value indicating whether the array has been reordered.
      * @param array The array of child objects.
@@ -178,9 +178,9 @@ export class SpriteUtils {
      * @param array 子对象数组。
      * @return Boolean 值，表示是否已重新排序。
      */
-    static updateOrder(array: any[]): boolean {
+    static updateOrder(array: Array<Sprite>): boolean {
         if (!array || array.length < 2) return false;
-        var i: number = 1, j: number, len: number = array.length, key: number, c: Sprite;
+        let i: number = 1, j: number, len: number = array.length, key: number, c: Sprite;
         while (i < len) {
             j = i;
             c = array[j];
@@ -193,5 +193,30 @@ export class SpriteUtils {
             i++;
         }
         return true;
+    }
+
+    static localToGlobalRect(sp: Sprite, rect: Rectangle): Rectangle {
+        let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y));
+        let x = pt.x;
+        let y = pt.y;
+        sp.localToGlobal(pt.setTo(rect.right, rect.bottom));
+        return rect.setTo(x, y, x + pt.x, y + pt.y);
+    }
+
+    static globalToLocalRect(sp: Sprite, rect: Rectangle): Rectangle {
+        let pt = sp.globalToLocal(Point.TEMP.setTo(rect.x, rect.y));
+        let x = pt.x;
+        let y = pt.y;
+        sp.globalToLocal(pt.setTo(rect.right, rect.bottom));
+        return rect.setTo(x, y, x + pt.x, y + pt.y);
+    }
+
+    static transformRect(sp: Sprite, rect: Rectangle, targetSpace?: Sprite): Rectangle {
+        let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y), false, targetSpace);
+        let x = pt.x;
+        let y = pt.y;
+
+        sp.localToGlobal(pt.setTo(rect.right, rect.bottom), false, targetSpace);
+        return rect.setTo(x, y, x + pt.x, y + pt.y);
     }
 }

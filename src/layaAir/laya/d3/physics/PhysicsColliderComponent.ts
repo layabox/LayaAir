@@ -3,11 +3,9 @@ import { Component } from "../../components/Component";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
 import { Event } from "../../events/Event";
-import { Scene3D } from "../core/scene/Scene3D";
 import { IPhysicsManager } from "../../Physics3D/interface/IPhysicsManager";
 import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
-import { Node } from "../../display/Node";
 
 /**
  * @en Describes how the physics materials of colliding objects are combined.
@@ -328,7 +326,7 @@ export class PhysicsColliderComponent extends Component {
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = this.owner._scene._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
         this._collider && (this._collider.componentEnable = true);
         if (this._colliderShape) {

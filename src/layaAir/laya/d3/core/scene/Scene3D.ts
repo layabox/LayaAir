@@ -52,6 +52,7 @@ import { Viewport } from "../../../maths/Viewport";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
 import { ILaya3D } from "../../../../ILaya3D";
 import { Config } from "../../../../Config";
+import { Sprite3D } from "../Sprite3D";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -94,14 +95,12 @@ export class Scene3D extends Sprite {
     static TIME: number;
     /**@internal */
     static GIRotate: number;
-    /** @internal */
-    static sceneID: number;
 
     /**@internal scene uniform block */
     static SCENEUNIFORMBLOCK: number;
 
     static UBONAME_SCENE: string = "SceneUniformBlock";
-    
+
     static UBONAME_SHADOW = "ShadowUniformBlock";
     /**Scene3D UniformMap */
     static sceneUniformMap: CommandUniformMap;
@@ -200,7 +199,7 @@ export class Scene3D extends Sprite {
         if (Config._uniformBlock) {
             Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(Scene3D.UBONAME_SCENE);
             sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, Scene3D.UBONAME_SCENE, ShaderDataType.None);
-            let sceneUBOUniformMap = Scene3D.sceneUBOUniformMap =  LayaGL.renderDeviceFactory.createGlobalUniformMap(Scene3D.UBONAME_SCENE);
+            let sceneUBOUniformMap = Scene3D.sceneUBOUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(Scene3D.UBONAME_SCENE);
             sceneUBOUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
             sceneUBOUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
             sceneUBOUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
@@ -357,8 +356,6 @@ export class Scene3D extends Sprite {
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@internal */
     _sundir: Vector3 = new Vector3();
-    /**@internal*/
-    _id = Scene3D.sceneID++;
     /** @internal */
     _mainDirectionLight: DirectionLightCom;
     /** @internal */
@@ -408,6 +405,12 @@ export class Scene3D extends Sprite {
 
     /** @internal */
     private _componentElementDatasMap: any = {};
+
+    /** @ts-ignore **/
+    declare _children: Sprite3D[];
+    /** @ts-ignore **/
+    declare _scene: Scene3D;
+
     /**
      * @en The 2D scene to which the Scene3D belongs, used when the scene is loaded by the IDE editor.
      * @zh Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -736,7 +739,7 @@ export class Scene3D extends Sprite {
     constructor() {
         super();
 
-        this._is3D = true;
+        this._nodeType = 1;
         this._componentDriver = new ComponentDriver();
         this._timer = ILaya.timer;
         this._sceneModuleData = Laya3DRender.Render3DModuleDataFactory.createSceneModuleData();
@@ -752,7 +755,7 @@ export class Scene3D extends Sprite {
             this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SCENE, Scene3D.sceneUBOUniformMap);
             //ShadowUniformBlock
             //Scene3D._shadowCasterPass
-            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SHADOW,ShadowCasterPass.shadowCasterUBOUniformMap);
+            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SHADOW, ShadowCasterPass.shadowCasterUBOUniformMap);
         }
         this._fogParams = new Vector4(300, 1000, 0.01, 0);
         this.enableFog = false;
@@ -1214,7 +1217,7 @@ export class Scene3D extends Sprite {
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
         Scene3D._updateMark++;
-      
+
         for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
             var camera: Camera = (<Camera>this._cameraPool[i]);
             if (camera.enableRender && camera.activeInHierarchy) {

@@ -1,6 +1,6 @@
 import { Box } from "./Box";
-import { Node } from "../display/Node"
 import { Event } from "../events/Event"
+import { Sprite } from "../display/Sprite";
 
 /**
  * @en LayoutBox is a layout container class.
@@ -70,7 +70,7 @@ export class LayoutBox extends Box {
     /**
      * @ignore
      */
-    protected _childChanged(child?: Node): void {
+    protected _childChanged(child?: Sprite): void {
         super._childChanged(child);
 
         if (child) {

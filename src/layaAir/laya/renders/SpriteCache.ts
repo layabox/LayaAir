@@ -315,7 +315,7 @@ export class CachePage {
             //根据sp更新shader数据，例如偏移等
             let oldMat = context.curMatrix.clone();
             let oldAlpha = context.alpha;
-            let parentCacheInfo = (sp.parent as Sprite)._cacheStyle.cacheInfo;
+            let parentCacheInfo = (sp._parent as Sprite)._cacheStyle.cacheInfo;
             //原点设置为父节点的世界坐标，所以加上父节点的相对偏移
             let offmat = parentCacheInfo.mat;
             Matrix.mul(offmat, oldMat, context.curMatrix);
@@ -403,7 +403,7 @@ export class SpriteCache {
                     parentPage.children.push(sprite);
                 }
                 //记录incache可以通过sprite找到父cache
-                let parentNode = sprite.parent as Sprite
+                let parentNode = sprite._parent as Sprite
                 let parentCacheInfo = parentNode._cacheStyle.cacheInfo;
                 parentCacheInfo.page = parentPage;
 
@@ -431,7 +431,7 @@ export class SpriteCache {
                     } else {
                         let curNode = parentNode;
                         while (curNode != pageRootSprite) {
-                            curNode = curNode.parent as Sprite;
+                            curNode = curNode._parent as Sprite;
                             if (curNode.blendMode) {
                                 parentCacheInfo.blend = curNode.blendMode;
                                 break;

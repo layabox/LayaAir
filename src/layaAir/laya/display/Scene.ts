@@ -16,6 +16,8 @@ import { Area2D } from "./Area2D";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { Matrix } from "../maths/Matrix";
 import { LayaEnv } from "../../LayaEnv";
+import { IElementComponentManager } from "../components/IScenceComponentManager";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -136,7 +138,7 @@ export class Scene extends Sprite {
      * 获得某个组件的管理器
      * @param type 组件管理类
      */
-    getComponentElementManager(type: string) {
+    getComponentElementManager(type: string): IElementComponentManager {
         return this._specialManager.componentElementMap.get(type);
     }
 
@@ -359,7 +361,7 @@ export class Scene extends Sprite {
      * @en Gets shader data from scene's manager
      * @zh 获取场景的着色器数据
      */
-    get sceneShaderData() {
+    get sceneShaderData(): ShaderData {
         return this._specialManager._shaderData;
     }
 
@@ -404,12 +406,11 @@ export class Scene extends Sprite {
         super._onAdded();
         if (LayaEnv.isPlaying)
             ILaya.stage._scene2Ds.push(this);
-
     }
 
     protected _onRemoved(): void {
         super._onRemoved();
-        if (LayaEnv.isPlaying){
+        if (LayaEnv.isPlaying) {
             let index = ILaya.stage._scene2Ds.indexOf(this);
             ILaya.stage._scene2Ds.splice(index, 1);
         }
@@ -442,7 +443,7 @@ export class Scene extends Sprite {
     static get root(): Sprite {
         let root = Scene._root;
         if (!root) {
-            root = Scene._root = (<Sprite>ILaya.stage.addChild(new Sprite()));
+            root = Scene._root = ILaya.stage.addChild(new Sprite());
             root.name = "root";
             root.mouseThrough = true;
             ILaya.stage.on("resize", null, () => {
@@ -480,7 +481,7 @@ export class Scene extends Sprite {
 
             if (ret instanceof Scene)
                 scene = ret;
-            else if (ret._is3D) {
+            else if (ret._nodeType === 1) {
                 scene = new Scene();
                 scene.left = scene.right = scene.top = scene.bottom = 0;
                 scene._scene3D = ret;

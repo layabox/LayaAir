@@ -27,7 +27,7 @@ export class AutoBitmap extends Graphics {
     _color: string = "#ffffff";
     /**@internal */
     _offset: any[];
-    private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
+    private _drawCmd: Draw9GridTextureCmd | DrawTextureCmd;
     uv: number[] = null;
 
     /**
@@ -101,7 +101,7 @@ export class AutoBitmap extends Graphics {
                 value.on("reload", this, this._setChanged);
         } else {
             this._source = null;
-            this._setDrawGridCmd(null);
+            this._setDrawCmd(null);
         }
     }
 
@@ -175,19 +175,19 @@ export class AutoBitmap extends Graphics {
             cmd = DrawTextureCmd.create(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, this._color, null, this.uv)
         else
             cmd = Draw9GridTextureCmd.create(source, 0, 0, width, height, sizeGrid, false, this._color);
-        this._setDrawGridCmd(cmd);
+        this._setDrawCmd(cmd);
     }
 
     /**
      * @en Due to the possibility of other graphic commands, the original method of directly using clear() cannot be used.
      * @zh 由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */
-    private _setDrawGridCmd(newcmd: any) {
-        if (this._drawGridCmd) {
-            this.removeCmd(this._drawGridCmd);
-            this._drawGridCmd.recover();
+    private _setDrawCmd(newcmd: any) {
+        if (this._drawCmd) {
+            this.removeCmd(this._drawCmd);
+            this._drawCmd.recover();
         }
-        this._drawGridCmd = newcmd;
+        this._drawCmd = newcmd;
         if (newcmd)
             this.addCmd(newcmd);
     }

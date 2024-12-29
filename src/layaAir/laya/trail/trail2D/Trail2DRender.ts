@@ -14,7 +14,7 @@ import { TrailGeometry } from "../trailCommon/RenderFeatureComman/Trail/TrailGeo
 import { TrailShaderCommon } from "../trailCommon/RenderFeatureComman/Trail/TrailShaderCommon";
 import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/TrailTextureMode";
 import { TrailBaseFilter } from "../trailCommon/RenderFeatureComman/TrailBaseFilter";
-import { TrailShaderInit } from "./Shader/Trail2DShaderInit";
+import { Trail2DShaderInit } from "./Shader/Trail2DShaderInit";
 import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context";
 
@@ -261,6 +261,6 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this.texture = Texture2D.whiteTexture;
         if (!Trail2DRender.defaultTrail2DMaterial)
-            TrailShaderInit.init();
+            Trail2DShaderInit.init();
     }
 }

@@ -2,7 +2,6 @@ import { Box } from "./Box";
 import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
 import { ScrollBar } from "./ScrollBar";
-import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
@@ -49,155 +48,23 @@ export class Panel extends Box {
         this._content = null;
     }
 
-    /**
-     * @en Destroy all child objects.
-     * @zh 销毁所有的子对象。
-     */
-    destroyChildren(): void {
-        if (this._destroyed)
-            super.destroyChildren();
-        else
-            this._content.destroyChildren();
-    }
-
     protected createChildren(): void {
-        this._content = new Box();
+        this._content = new PanelContentBox();
         this._content.hideFlags = HideFlags.HideAndDontSave;
-        this.addChildDirect(this._content);
+        this.addChild(this._content);
+
+        this._setContainer(this._content);
     }
 
-    /**
-     * @internal
-     * @param node 
-     * @returns 
-     */
-    addChildDirect(node: Node): Node {
-        return super.addChildAt(node, this.numChildren);
-    }
-
-    /**
-     * @en Add a child object.
-     * @param child The child object to add.
-     * @returns The added child object.
-     * @zh 添加一个节点子对象。
-     * @param child 要添加的子节点对象。
-     * @returns 添加的子节点对象。
-     */
-    addChild<T extends Node>(child: T): T {
-        child.on(Event.RESIZE, this, this._setScrollChanged);
-        this._setScrollChanged();
-        return this._content.addChild(child);
-    }
-
-    /**
-     * @en Add a child object at a specific index position.
-     * @param child The child object to add.
-     * @param index The index position to place the child at.
-     * @returns The child object that was added.
-     * @zh 在指定的索引位置添加一个子节点对象。
-     * @param child 要添加的子节点对象。
-     * @param index 子节点对象的索引位置。
-     * @returns 添加的子节点对象。
-     */
-    addChildAt<T extends Node>(child: T, index: number): T {
-        child.on(Event.RESIZE, this, this._setScrollChanged);
-        this._setScrollChanged();
-        return this._content.addChildAt(child, index);
-    }
-
-    /**
-     * @en Remove a child object.
-     * @param child The child object to remove.
-     * @returns The removed child object.
-     * @zh 移除一个子节点对象。
-     * @param child 要移除的子节点对象。
-     * @returns 移除的子节点对象。
-     */
-    removeChild(child: Node, destroy?: boolean): Node {
-        child.off(Event.RESIZE, this, this._setScrollChanged);
-        this._setScrollChanged();
-        if (child._parent == this) {
-            let index = this._children.indexOf(child);
-            return super.removeChildAt(index, destroy);
-        }
-        else
-            return this._content.removeChild(child);
-    }
-
-    /**
-     * @en Remove a child object at a specific index position.
-     * @param index The index position of the child object.
-     * @returns The removed child object.
-     * @zh 移除指定索引位置的子节点对象。
-     * @param index 子节点对象的索引位置。
-     * @returns 移除的子节点对象。
-     */
-    removeChildAt(index: number, destroy?: boolean): Node {
-        let child = this._content.removeChildAt(index, destroy);
-        if (!destroy) {
-            child.off(Event.RESIZE, this, this._setScrollChanged);
+    /** @internal */
+    _panelChildChanged(child: Sprite): void {
+        if (child) {
+            if (child.parent)
+                child.on(Event.RESIZE, this, this._setScrollChanged);
+            else
+                child.off(Event.RESIZE, this, this._setScrollChanged);
             this._setScrollChanged();
         }
-        return child;
-    }
-
-    /**
-     * @en Remove a range of children from the object.
-     * @param beginIndex The beginning position.
-     * @param endIndex The ending position. The default value is 0x7fffffff.
-     * @returns The Panel object itself.
-     * @zh 移除指定范围的子节点对象。
-     * @param beginIndex 开始位置。
-     * @param endIndex 结束位置。默认值为 0x7fffffff。
-     * @returns 返回对象本身。
-     */
-    removeChildren(beginIndex?: number, endIndex?: number, destroy?: boolean): void {
-        this._content.removeChildren(beginIndex, endIndex, destroy);
-        this._setScrollChanged();
-    }
-
-    /**
-     * @en Returns the child object at a specific index position.
-     * @param index The index position of the child object.
-     * @returns The child object at the specified index position.
-     * @zh 返回指定索引位置的子节点对象。
-     * @param index 子节点对象的索引位置。
-     * @returns 指定索引位置处的子节点对象。
-     */
-    getChildAt<T extends Node>(index: number, classType?: new (...args: any[]) => T): T {
-        return this._content.getChildAt(index);
-    }
-
-    /**
-     * @en Returns a child object with a specific name.
-     * @param name The name of the child object.
-     * @returns The child object with the specified name.
-     * @zh 返回具有指定名称的子节点对象。
-     * @param name 子节点对象的名称。
-     * @returns 具有指定名称的子节点对象。
-     */
-    getChild<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
-        return this._content.getChild(name);
-    }
-
-    /**
-     * @en Returns the index position of a specific child object.
-     * @param child The child object.
-     * @returns The index position of the child object.
-     * @zh 返回指定子节点对象的索引位置。
-     * @param child 子节点对象。
-     * @returns 子节点对象的索引位置。
-     */
-    getChildIndex(child: Node): number {
-        return this._content.getChildIndex(child);
-    }
-
-    /**
-     * @en The number of child objects.
-     * @zh 子节点对象数量。
-     */
-    get numChildren(): number {
-        return this._content.numChildren;
     }
 
     private changeScroll(): void {
@@ -237,10 +104,9 @@ export class Panel extends Box {
      * @zh 获取内容区域宽度（以像素为单位）。
      */
     get contentWidth(): number {
-        var max = 0;
-        for (var i = this._content.numChildren - 1; i > -1; i--) {
-            var comp = <Sprite>this._content.getChildAt(i);
-            max = Math.max(comp._x + comp.width * comp.scaleX - comp.pivotX, max);
+        let max = 0;
+        for (let child of <Sprite[]>this.children) {
+            max = Math.max(child._x + child.width * child.scaleX - child.pivotX, max);
         }
         return max;
     }
@@ -251,9 +117,8 @@ export class Panel extends Box {
      */
     get contentHeight(): number {
         let max = 0;
-        for (let i = this._content.numChildren - 1; i > -1; i--) {
-            let comp = <Sprite>this._content.getChildAt(i);
-            max = Math.max(comp._y + comp.height * comp.scaleY - comp.pivotY, max);
+        for (let child of <Sprite[]>this.children) {
+            max = Math.max(child._y + child.height * child.scaleY - child.pivotY, max);
         }
         return max;
     }
@@ -358,7 +223,7 @@ export class Panel extends Box {
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._hScrollBarSkin;
         scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        this.addChildDirect(scrollBar);
+        this._addChild(scrollBar);
         this._setScrollChanged();
     }
 
@@ -372,7 +237,7 @@ export class Panel extends Box {
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._vScrollBarSkin;
         scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        this.addChildDirect(scrollBar);
+        this._addChild(scrollBar);
         this._setScrollChanged();
     }
 
@@ -528,5 +393,12 @@ export class Panel extends Box {
             this._scrollChanged = true;
             this.callLater(this.changeScroll);
         }
+    }
+}
+
+class PanelContentBox extends Box {
+    protected _childChanged(child?: Sprite): void {
+        super._childChanged(child);
+        this._parent && (this._parent as Panel)._panelChildChanged(child);
     }
 }

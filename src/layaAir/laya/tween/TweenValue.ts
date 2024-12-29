@@ -11,6 +11,9 @@ export class TweenValue implements ITweenValue {
     readonly nums: Array<number>;
     private _props: Array<TweenPropInfo>;
 
+    /**
+     * @internal
+     */
     constructor(props: Array<TweenPropInfo>) {
         this._props = props;
         this.nums = [];

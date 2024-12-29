@@ -85,7 +85,7 @@ export class SoundNode extends Sprite {
     }
 
     private _onParentChange(): void {
-        this.target = (<Sprite>this.parent);
+        this.target = this.parent;
     }
 
     /**

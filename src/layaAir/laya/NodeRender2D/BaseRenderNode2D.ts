@@ -4,7 +4,6 @@ import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderD
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
-import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -303,7 +302,7 @@ export class BaseRenderNode2D extends Component {
 
     _updateLight() {
         if (!this.lightReceive || !this.owner.scene || !this.owner.scene._light2DManager) return;
-        const light2DManager = (this.owner.scene as Scene)._light2DManager;
+        const light2DManager = this.owner.scene._light2DManager;
         const updateMark = light2DManager._getLayerUpdateMark(this.layer);
         if (this._lightUpdateMark !== updateMark) {
             this._lightUpdateMark = updateMark;
@@ -315,7 +314,7 @@ export class BaseRenderNode2D extends Component {
      * light Manager
      */
     private _addRenderToLightManager() {
-        let light2DManager = (this.owner.scene as Scene)._light2DManager;
+        let light2DManager = this.owner.scene._light2DManager;
         if (light2DManager && !this._lightRecord) {
             light2DManager.addRender(this);
             this._lightRecord = true;
@@ -326,7 +325,7 @@ export class BaseRenderNode2D extends Component {
      * lightManager
      */
     private _removeRenderNodeByLayer() {
-        const light2DManager = (this.owner.scene as Scene)._light2DManager;
+        const light2DManager = this.owner.scene._light2DManager;
         if (light2DManager && this._lightRecord) {
             light2DManager.removeRender(this);
             this._lightRecord = false;

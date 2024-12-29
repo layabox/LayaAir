@@ -2,7 +2,6 @@ import { Laya3D } from "../../../Laya3D";
 import { IStaticCollider } from "../../Physics3D/interface/IStaticCollider";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
-import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { Event } from "../../events/Event";
 
@@ -22,7 +21,7 @@ export class PhysicsCollider extends PhysicsColliderComponent {
      * @override
      */
     protected _initCollider() {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = this.owner._scene._physicsManager;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_StaticCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createStaticCollider(this._physicsManager);
             this._collider.component = this;

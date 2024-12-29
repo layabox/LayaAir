@@ -13,8 +13,9 @@ import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { TransformKind } from "../display/SpriteConst";
+import { Prefab } from "../resource/HierarchyResource";
+import { PrefabImpl } from "../resource/PrefabImpl";
 
 
 /**
@@ -583,15 +584,18 @@ export class List extends Box {
         if (typeof (this._itemRender) == "function") {//TODO:
             box = new this._itemRender();
             box._skinBaseUrl = this._skinBaseUrl;
-        } else {
+        } else if (this._itemRender instanceof Prefab) {
+            box = <UIComponent>this._itemRender.create();
+        }
+        else {
             if (this._itemRender._$type || this._itemRender._$prefab)
                 box = <UIComponent>HierarchyParser.parse(this._itemRender, { skinBaseUrl: this._skinBaseUrl })[0];
             else
-                box = HierarchyLoader.legacySceneOrPrefab.createComp(this._itemRender, null, null, arr);
-            if (!box) {
-                console.warn("cannot create item");
-                box = new Box();
-            }
+                box = PrefabImpl.legacySceneOrPrefab.createComp(this._itemRender, null, null, arr);
+        }
+        if (!box) {
+            console.warn("cannot create list item");
+            box = new Box();
         }
         box.hideFlags = HideFlags.HideAndDontSave;
 

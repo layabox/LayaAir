@@ -38,7 +38,7 @@ export class JointBase extends Component {
     /**@internal */
     protected getBodyAnchor(body: RigidBody, anchorx: number, anchory: number): Point {
         Point.TEMP.setTo(anchorx, anchory)
-        let node = <Sprite>body.owner;
+        let node = body.owner;
         if (node) {
             if (node.transform) {
                 node.transform.transformPointN(Point.TEMP)

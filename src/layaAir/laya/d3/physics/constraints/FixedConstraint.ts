@@ -1,6 +1,5 @@
 import { ConstraintComponent } from "./ConstraintComponent";
 import { Laya3D } from "../../../../Laya3D";
-import { Scene3D } from "../../core/scene/Scene3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
@@ -20,7 +19,7 @@ export class FixedConstraint extends ConstraintComponent {
      * @internal
      */
     protected _initJoint() {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = this.owner._scene._physicsManager;
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_FixedJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createFixedJoint(this._physicsManager);
         } else {

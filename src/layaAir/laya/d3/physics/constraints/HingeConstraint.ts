@@ -2,7 +2,6 @@ import { Laya3D } from "../../../../Laya3D";
 import { IHingeJoint } from "../../../Physics3D/interface/Joint/IHingeJoint";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Vector3 } from "../../../maths/Vector3";
-import { Scene3D } from "../../core/scene/Scene3D";
 import { ConstraintComponent } from "./ConstraintComponent";
 
 /**
@@ -55,7 +54,7 @@ export class HingeConstraint extends ConstraintComponent {
      * create joint
      */
     protected _initJoint(): void {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = this.owner._scene._physicsManager;
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_HingeJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createHingeJoint(this._physicsManager);
         } else {

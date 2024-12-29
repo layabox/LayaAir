@@ -254,7 +254,7 @@ export class Component {
                 this._enableState = true;
 
                 if (LayaEnv.isPlaying || this.runInEditor) {
-                    this._driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+                    this._driver = this.owner._scene?._componentDriver || ILaya.stage._componentDriver;
                     this._driver.add(this);
 
                     if (LayaEnv.isPlaying && this._isScript())

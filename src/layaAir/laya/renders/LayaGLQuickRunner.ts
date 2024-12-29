@@ -217,7 +217,7 @@ export class LayaGLQuickRunner {
         x = -sprite.pivotX;
         y = -sprite.pivotY;
 
-        var childs = <Sprite[]>sprite._children, n = childs.length;
+        var childs = sprite._children, n = childs.length;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
@@ -267,7 +267,7 @@ export class LayaGLQuickRunner {
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
             sprite._graphics && sprite._graphics._render(sprite, context, x, y);
 
-        let childs = <Sprite[]>sprite._children;
+        let childs = sprite._children;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 

@@ -258,17 +258,15 @@ export class Label extends UIComponent {
     /**
      * @en Sets whether the text content adapts to the container size.
      * Possible values: "yes" (both text width and height adapt), "height" (only text height adapts), "no" (does not adapt).
-     * If a boolean value is provided, true corresponds to "yes" and false corresponds to "no".
      * @zh 设置文本内容是否自适应容器大小
      * 可选值："yes"（文本宽度和高度自适应）、"height"（仅文本高度自适应）、"no"（不自适应）
-     * 如果传入布尔值，则 true 对应 "yes"，false 对应 "no"
      */
     get fitContent(): LabelFitContent {
         return this._fitContent;
     }
 
     set fitContent(value: LabelFitContent) {
-        if (typeof (value) === "boolean")
+        if (typeof (value) === "boolean") //兼容旧版本
             value = value ? "yes" : "no";
         if (this._fitContent != value) {
             if ((value == "yes" || value == "height") && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
