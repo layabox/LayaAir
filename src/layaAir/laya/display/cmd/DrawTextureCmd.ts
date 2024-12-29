@@ -44,6 +44,11 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     height: number;
     /**
+     * @en Whether the position and size are percentages
+     * @zh 位置和大小是否是百分比
+     */
+    percent: boolean;
+    /**
      * @en (Optional) Matrix information for transformation.
      * @zh （可选）矩阵信息，用于变换。
      */
@@ -96,17 +101,9 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @param uv UV坐标
      * @returns DrawTextureCmd实例
      */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[]): DrawTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[], percent?: boolean): DrawTextureCmd {
         if (width == null) width = texture.sourceWidth;
         if (height == null) height = texture.sourceHeight;
-
-        let wRate = width / texture.sourceWidth;
-        let hRate = height / texture.sourceHeight;
-        width = texture.width * wRate;
-        height = texture.height * hRate;
-
-        x += texture.offsetX * wRate;
-        y += texture.offsetY * hRate;
 
         var cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
         cmd.texture = texture;
@@ -115,6 +112,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.y = y;
         cmd.width = width;
         cmd.height = height;
+        cmd.percent = percent;
         cmd.matrix = matrix;
         cmd.alpha = alpha;
         cmd.blendMode = blendMode;
@@ -146,14 +144,39 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
 
     run(context: Context, gx: number, gy: number): void {
-        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
+        let tex = this.texture;
+        if (!tex)
+            return;
+
+        let x = this.x, y = this.y, w = this.width, h = this.height;
+        if (this.percent && context.sprite) {
+            x *= context.sprite.width;
+            y *= context.sprite.height;
+            w *= context.sprite.width;
+            h *= context.sprite.height;
+        }
+
+        let wRate = w / tex.sourceWidth;
+        let hRate = h / tex.sourceHeight;
+        w = tex.width * wRate;
+        h = tex.height * hRate;
+
+        x += tex.offsetX * wRate;
+        y += tex.offsetY * hRate;
+
+        context.drawTextureWithTransform(this.texture, x, y, w, h, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
     }
 
     /**
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
-        Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height).getBoundPoints(assembler.points);
+        let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
+        if (this.percent) {
+            rect.scale(assembler.width, assembler.height);
+            assembler.affectBySize = true;
+        }
+        rect.getBoundPoints(assembler.points);
     }
 
     /**

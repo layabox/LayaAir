@@ -89,6 +89,9 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @returns FillTextureCmd实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string, percent?: boolean): FillTextureCmd {
+        if (width == null) width = texture.width;
+        if (height == null) height = texture.height;
+
         var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -125,26 +128,23 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移
      */
     run(context: Context, gx: number, gy: number): void {
-        if (this.texture) {
-            if (this.percent && context.sprite) {
-                let w = context.sprite.width;
-                let h = context.sprite.height;
-                context.fillTexture(this.texture, this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.type, this.offset || Point.EMPTY, this.color);
-            }
-            else
-                context.fillTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.type, this.offset || Point.EMPTY, this.color);
+        if (!this.texture)
+            return;
+
+        if (this.percent && context.sprite) {
+            let w = context.sprite.width;
+            let h = context.sprite.height;
+            context.fillTexture(this.texture, this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.type, this.offset || Point.EMPTY, this.color);
         }
+        else
+            context.fillTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.type, this.offset || Point.EMPTY, this.color);
     }
 
     /**
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
-        let rect: Rectangle;
-        if (this.width && this.height)
-            rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
-        else
-            rect = Rectangle.TEMP.setTo(this.x, this.y, this.texture.width, this.texture.height);
+        let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
             assembler.affectBySize = true;

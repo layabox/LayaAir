@@ -90,7 +90,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @param color 纹理的颜色色调（默认值：null）
      * @returns 一个已用给定参数初始化的 Draw9GridTextureCmd 实例
      */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: string | null = null): Draw9GridTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent?: boolean, color?: string): Draw9GridTextureCmd {
         let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
