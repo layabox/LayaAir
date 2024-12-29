@@ -44,7 +44,7 @@ export class Pool {
      * @param item 对象。
      */
     static recover(sign: string, item: any): void {
-        if (item[Pool.POOLSIGN] !== false) //有这个标志，才表明对象是从Pool里获取的，允许recover
+        if (item[Pool.POOLSIGN])
             return;
         item[Pool.POOLSIGN] = true;
         Pool.getPoolBySign(sign).push(item);
