@@ -1,8 +1,5 @@
-import { ILaya } from "../../ILaya";
-import { Node } from "../display/Node";
 import { Loader } from "../net/Loader";
-import { URL } from "../net/URL";
-import { ClassUtils } from "../utils/ClassUtils";
+import { ObjDecoder } from "./ObjDecoder";
 
 export const TypedArrayClasses: Record<string, any> = {
     "Int8Array": Int8Array,
@@ -15,147 +12,25 @@ export const TypedArrayClasses: Record<string, any> = {
     "Float64Array": Float64Array
 };
 
-export interface IDecodeObjOptions {
-    outErrors?: Array<string>;
-    getNodeByRef?: (id: string | string[]) => Node;
-    getNodeData?: (node: Node) => any;
-}
-
-var _errors: Array<string>;
-var _getNodeByRef: (id: string | string[]) => Node;
-var _getNodeData: (node: Node) => any;
-
 export class SerializeUtil {
     public static isDeserializing = false;
 
-    public static decodeObj(data: any, obj?: any, options?: IDecodeObjOptions) {
-        if (options) {
-            _errors = options.outErrors;
-            _getNodeByRef = options.getNodeByRef;
-            _getNodeData = options.getNodeData;
-        }
-        else {
-            _errors = null;
-            _getNodeByRef = null;
-            _getNodeData = null;
-        }
+    /** @internal */
+    static _data: any;
 
-        SerializeUtil.isDeserializing = true;
-        try {
-            return SerializeUtil._decodeObj(data, obj);
-        } finally {
-            SerializeUtil.isDeserializing = false;
+    static hasProp(...keys: string[]): boolean {
+        for (let k of keys) {
+            if (SerializeUtil._data[k] !== undefined)
+                return true;
         }
+        return false;
     }
 
-    private static _decodeObj(data: any, obj?: any): any {
-        if (data == null)
-            return null;
-        else if (Array.isArray(data)) {
-            let arr: any[] = [];
-            for (let i = 0; i < data.length; i++) {
-                let v = data[i];
-                if (v != null) {
-                    try {
-                        arr[i] = SerializeUtil._decodeObj(v);
-                    }
-                    catch (error: any) {
-                        if (_errors)
-                            _errors.push(error);
-                        arr[i] = null;
-                    }
-                }
-                else
-                    arr[i] = null;
-            }
-            return arr;
-        }
-        else if (typeof (data) === "object") {
-            if (data._$uuid != null) {
-                let url = URL.getResURLByUUID(data._$uuid);
-                return ILaya.loader.getRes(url, SerializeUtil.getLoadTypeByEngineType(data._$type));
-            }
-
-            if (data._$ref != null) {
-                let node = _getNodeByRef?.(data._$ref);
-                if (node && data._$type) {
-                    let cls: any = ClassUtils.getClass(data._$type);
-                    if (cls)
-                        return node.getComponent(cls);
-                    else
-                        return null;
-                }
-                else
-                    return node;
-            }
-
-            let type = data._$type;
-
-            if (type === "any") {
-                if (data._$type)
-                    return data.value;
-                else
-                    return data;
-            }
-
-            let typedArray = TypedArrayClasses[type];
-            if (typedArray != null) {
-                if (data._$type)
-                    return new typedArray(data.value);
-                else
-                    return new typedArray(data);
-            }
-
-            if (!obj) {
-                let cls: any = ClassUtils.getClass(type);
-                if (!cls) {
-                    //this._errors.push(new Error(`missing type '${type}'`));
-                    return null;
-                }
-
-                obj = new cls();
-            }
-
-            for (let key in data) {
-                if (key.startsWith("_$"))
-                    continue;
-
-                let v = data[key];
-                if (v == null || typeof (v) !== "object" || Array.isArray(v)
-                    || v._$type || v._$uuid || v._$ref) {
-                    try {
-                        let v2 = SerializeUtil._decodeObj(v);
-                        obj[key] = v2;
-
-                        if (v2 != null && v != null && v._$tmpl)
-                            obj[v._$tmpl] = _getNodeData(v2);
-                    }
-                    catch (error: any) {
-                        if (_errors)
-                            _errors.push(error);
-                    }
-                }
-                else {
-                    let childObj = obj[key];
-                    if (childObj) {
-                        try {
-                            SerializeUtil._decodeObj(v, childObj);
-                        }
-                        catch (error: any) {
-                            if (_errors)
-                                _errors.push(error);
-                        }
-                    }
-                }
-            }
-
-            if (obj.onAfterDeserialize)
-                obj.onAfterDeserialize();
-
-            return obj;
-        }
-        else
-            return data;
+    static decodeObj(data: any, obj?: any): any {
+        decoder.errors = null;
+        decoder.getNodeByRef = dummy;
+        decoder.getNodeData = dummy;
+        return decoder.decodeObj(data, obj);
     }
 
     static getLoadTypeByEngineType(type: string) {
@@ -372,3 +247,6 @@ function arrayEquals(a: ReadonlyArray<any>, b: ReadonlyArray<any>): boolean {
         return false;
     }
 }
+
+var decoder = new ObjDecoder();
+function dummy(...args: any[]): any { return null; }
