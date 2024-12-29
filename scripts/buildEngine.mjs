@@ -31,6 +31,9 @@ async function buildBundles() {
 
     await proj.emit();
 
+    const diagnostics = proj.getPreEmitDiagnostics();
+    console.error(proj.formatDiagnosticsWithColorAndContext(diagnostics));
+
     shellExec("npx", ["copyfiles", "-u", "1", "./src/**/*.{glsl,vs,fs,wgsl}", "./bin/tsc/"]);
 
     console.timeEnd("completed");
