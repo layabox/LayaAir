@@ -331,6 +331,7 @@ export class SoundManager {
      * @param complete The callback function when the sound playback is complete. It should be a Handler object.
      * @param soundClass The sound class to use for playback. If null, it will be automatically selected.
      * @param startTime The start time of the sound playback.
+     * @param volume The volume of the sound. The range is from 0 to 1.
      * @returns A SoundChannel object, through which you can control the sound and get sound information.
      * @zh 播放音效。音效可以同时播放多个。
      * @param url 声音文件地址。
@@ -338,9 +339,10 @@ export class SoundManager {
      * @param complete 声音播放完成回调，应为Handler对象。
      * @param soundClass 使用哪个声音类进行播放，null表示自动选择。
      * @param startTime 声音播放起始时间。
+     * @param volume 声音音量。范围是 0 到 1。
      * @returns SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
-    static playSound(url: string, loops: number = 1, complete: Handler = null, soundClass: new () => any = null, startTime: number = 0): SoundChannel {
+    static playSound(url: string, loops: number = 1, complete: Handler = null, soundClass: new () => any = null, startTime: number = 0, volume?: number): SoundChannel {
         if (!SoundManager._isActive || !url) return null;
         if (SoundManager._muted) return null;
         SoundManager._recoverWebAudio();
@@ -364,7 +366,7 @@ export class SoundManager {
         let channel = tSound.play(startTime, loops);
         if (!channel) return null;
         channel.url = url;
-        channel.volume = (url == SoundManager._bgMusic) ? SoundManager.musicVolume : SoundManager.soundVolume;
+        channel.volume = volume != null ? volume : (url == SoundManager._bgMusic) ? SoundManager.musicVolume : SoundManager.soundVolume;
         channel.completeHandler = complete;
         return channel;
     }
