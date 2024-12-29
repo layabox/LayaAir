@@ -173,9 +173,13 @@ export class Graphics {
 
     /**
      * @en Save to the command stream.
+     * @param cmd Add the command to the command stream.
+     * @param index (Optional) The index to be inserted.
      * @zh 添加到命令流。
+     * @param cmd 要被添加的命令。
+     * @param index （可选）插入的索引。
      */
-    addCmd(cmd: any): any {
+    addCmd(cmd: any, index?: number): any {
         if (cmd == null) {
             console.warn("null cmd");
             return;
@@ -184,7 +188,10 @@ export class Graphics {
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
         }
-        this._cmds.push(cmd);
+        if (index == null || index >= this._cmds.length)
+            this._cmds.push(cmd);
+        else
+            this._cmds.splice(index, 0, cmd);
         this._render = this._cmds.length === 1 ? this._renderOne : this._renderAll;
         this._repaint();
         return cmd;
