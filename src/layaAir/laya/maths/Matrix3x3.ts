@@ -79,7 +79,7 @@ export class Matrix3x3 implements IClone {
         e[8] = 1;
     }
 
-    static createMatreixFromValue(pos: Vector2, rotate: number, scale: Vector2 = Vector2.ONE, out: Matrix3x3) {
+    static createMatrixFromValue(pos: Vector2, rotate: number, scale: Vector2 = Vector2.ONE, out: Matrix3x3) {
         var e: Float32Array = out.elements;
 
         var s: number = Math.sin(rotate), c: number = Math.cos(rotate);

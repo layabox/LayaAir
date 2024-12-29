@@ -128,7 +128,7 @@ export class Camera2D extends Sprite {
                     this._ownerArea._setMainCamera(this);
                 break;
             }
-            ele = (<Sprite>ele._parent);
+            ele = ele._parent;
         }
         if (this._ownerArea == null) {
             console.warn("Camera2D must be a descendant of Area2D");
@@ -351,7 +351,7 @@ export class Camera2D extends Sprite {
         }
 
         this._rect.setValue(this._cameraSmoothPos.x - extendHorizental, this._cameraSmoothPos.x + extendHorizental, this._cameraSmoothPos.y - extendVertical, this._cameraSmoothPos.y + extendVertical)
-        Matrix3x3.createMatreixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, Vector2.ONE, this._cameraMatrix);
+        Matrix3x3.createMatrixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, Vector2.ONE, this._cameraMatrix);
         this._cameraMatrix.invert(this._cameraInvertMatrix);
         return this._cameraInvertMatrix;
     }
