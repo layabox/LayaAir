@@ -374,7 +374,6 @@ export class BaseLight2D extends Component {
     protected _onEnable(): void {
         super._onEnable();
         this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
         (this.owner.scene?._light2DManager as Light2DManager)?.addLight(this);
     }
 
@@ -509,7 +508,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光世界位置的X坐标值
      */
     getGlobalPosX() {
-        return this.owner.globalPosX;
+        return this.owner.globalTrans.x;
     }
 
     /**
@@ -517,7 +516,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光世界位置的Y坐标值
      */
     getGlobalPosY() {
-        return this.owner.globalPosY;
+        return this.owner.globalTrans.y;
     }
 
     /**
@@ -526,7 +525,7 @@ export class BaseLight2D extends Component {
      * @param out 
      */
     getScenePos(out: Point) {
-        return this.owner.getScenePos(out);
+        return this.owner.globalTrans.getScenePos(out);
     }
 
     /**
@@ -608,7 +607,7 @@ export class BaseLight2D extends Component {
     protected _lightScaleAndRotation() {
         //获取放缩量（基于Scene）
         const p = Point.TEMP;
-        this.owner.getSceneScale(p);
+        this.owner.globalTrans.getSceneScale(p);
         const sx = Math.abs(p.x);
         const sy = Math.abs(p.y);
 
@@ -618,7 +617,7 @@ export class BaseLight2D extends Component {
         this.lightScale = Vector2.TEMP;
 
         //设置灯光旋转（基于Scene）
-        this.lightRotation = this.owner.getSceneRotation() * Math.PI / 180;
+        this.lightRotation = this.owner.globalTrans.getSceneRotation() * Math.PI / 180;
     }
 
     /**

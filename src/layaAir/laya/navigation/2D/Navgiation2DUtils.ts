@@ -59,7 +59,7 @@ export class Navgiation2DUtils {
      * @internal
      */
     static _getSpriteGlobalPos(sprite: Sprite, out: Vector3) {
-        this._setValue3(sprite.globalPosX, sprite.globalPosY, out);
+        this._setValue3(sprite.globalTrans.x, sprite.globalTrans.y, out);
     }
 
     /**
@@ -73,7 +73,7 @@ export class Navgiation2DUtils {
 
     /** @internal*/
     static _getSpriteMatrix4x4(sprite: Sprite, out: Matrix4x4) {
-        let mat = sprite.getGlobalMatrix();
+        let mat = sprite.globalTrans.getMatrix();
         out.elements[0] = mat.a;
         out.elements[1] = 0;
         out.elements[2] = mat.b;
@@ -228,7 +228,7 @@ export class Navgiation2DUtils {
             mat.identity();
         } else {
             let sprite = navMesh._surface.owner;
-            sprite.getGlobalMatrix().copyTo(mat);
+            sprite.globalTrans.getMatrix().copyTo(mat);
             mat.invert();
         }
         Vector3.subtract(navMesh.navTileGrid.max, navMesh.navTileGrid.min, tempVector3);

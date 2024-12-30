@@ -202,10 +202,10 @@ export class FreeformLight2D extends BaseLight2D {
         this._lightScaleAndRotation();
 
         const p = Point.TEMP;
-        this.owner.getScenePos(p);
+        this.owner.globalTrans.getScenePos(p);
         const px = p.x;
         const py = p.y;
-        this.owner.getSceneScale(p);
+        this.owner.globalTrans.getSceneScale(p);
         const sx = Math.abs(p.x);
         const sy = Math.abs(p.y);
 
@@ -214,7 +214,7 @@ export class FreeformLight2D extends BaseLight2D {
         const w = this._localRange.width;
         const h = this._localRange.height;
         const m = Math.max(w * sx, h * sy) | 0;
-        const mat = this.owner.getSceneMatrix(this._sceneMatrix);
+        const mat = this.owner.globalTrans.getSceneMatrix(this._sceneMatrix);
         if (mat) {
             this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y;
             this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y;

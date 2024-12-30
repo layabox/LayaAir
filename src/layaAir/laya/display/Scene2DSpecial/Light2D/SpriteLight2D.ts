@@ -72,10 +72,10 @@ export class SpriteLight2D extends BaseLight2D {
         this._lightScaleAndRotation();
 
         const p = Point.TEMP;
-        this.owner.getScenePos(p);
+        this.owner.globalTrans.getScenePos(p);
         const px = p.x;
         const py = p.y;
-        this.owner.getSceneScale(p);
+        this.owner.globalTrans.getSceneScale(p);
         const sx = Math.abs(p.x);
         const sy = Math.abs(p.y);
 

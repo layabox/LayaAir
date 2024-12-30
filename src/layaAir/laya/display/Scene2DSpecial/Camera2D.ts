@@ -283,7 +283,7 @@ export class Camera2D extends Sprite {
         //用来计算camera的矩阵
         let viewport = this._getScreenSize();
         let curPosPoint = Point.TEMP;
-        this.getScenePos(curPosPoint);
+        this.globalTrans.getScenePos(curPosPoint);
         let extendHorizental = viewport.x * 0.5;
         let extendVertical = viewport.y * 0.5
         if (!this._firstUpdate) {
@@ -344,7 +344,7 @@ export class Camera2D extends Sprite {
             if (this.rotationSmooth) {
                 //TODO
             } else {
-                this._cameraRotation = this.globalRotation;
+                this._cameraRotation = this.globalTrans.rotation;
             }
         } else {
             this._cameraRotation = 0;

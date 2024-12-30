@@ -26,6 +26,7 @@ import type { Material } from "../resource/Material";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
+import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -160,6 +161,10 @@ export class Sprite extends Node {
      * @internal 
      */
     _transform: Matrix;
+    /**
+     * @internal 
+     */
+    _globalTrans: SpriteGlobalTransform;
 
     //以下变量为系统调用，请不要直接使用
 
@@ -486,6 +491,14 @@ export class Sprite extends Node {
         }
         this._renderType |= SpriteConst.TRANSFORM;
         this.parentRepaint();
+    }
+
+    /**
+     * @en The global transformation information of the object.
+     * @zh 对象的全局变换信息。
+     */
+    get globalTrans(): SpriteGlobalTransform {
+        return this._globalTrans || (this._globalTrans = new SpriteGlobalTransform());
     }
 
     /**
@@ -842,6 +855,7 @@ export class Sprite extends Node {
     getMousePoint(): Point {
         return this.globalToLocal(tmpPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
     }
+
     /**
      * @en The X-axis coordinate of the mouse in this object's coordinate system.
      * @zh 鼠标在此对象坐标系上的 X 轴坐标信息。
@@ -856,6 +870,26 @@ export class Sprite extends Node {
      */
     get mouseY(): number {
         return this.getMousePoint().y;
+    }
+
+    /**
+     * @en Gets the global X-axis scale relative to the stage (this value includes the scaling of parent nodes).
+     * @returns The global X-axis scale.
+     * @zh 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
+     * @returns 全局X轴缩放值。
+     */
+    get globalScaleX(): number {
+        return this.globalTrans.scaleX;
+    }
+
+    /**
+     * @en Gets the global Y-axis scale relative to the stage (this value includes the scaling of parent nodes).
+     * @returns The global Y-axis scale.
+     * @zh 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
+     * @returns 全局Y轴缩放值。
+     */
+    get globalScaleY(): number {
+        return this.globalTrans.scaleY;
     }
 
     /**
@@ -1145,10 +1179,8 @@ export class Sprite extends Node {
         }
 
         if ((kind & TransformKind.TRS) != 0) {
-            if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-                this._setGlobalFlag(kind | TransformKind.Matrix, true)
-                this._syncGlobalFlag(kind | TransformKind.Matrix, true);
-            }
+            if (this._globalTrans)
+                this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
@@ -1651,7 +1683,6 @@ export class Sprite extends Node {
      * @return 转换后的坐标的点。
      */
     globalToLocal(point: Point, createNewPoint?: boolean, globalNode?: Sprite): Point {
-        //if (!_displayedInStage || !point) return point;
         if (createNewPoint) {
             point = new Point(point.x, point.y);
         }
@@ -1892,8 +1923,18 @@ export class Sprite extends Node {
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
 
-        if (this._mouseState === 0 && Event.isMouseEvent(type))
-            this.mouseEnabled = true;
+        if (Event.isMouseEvent(type)) {
+            if (this._mouseState === 0)
+                this.mouseEnabled = true;
+        }
+        else if (type === Event.TRANSFORM_CHANGED) {
+            this._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+            let p = this._parent;
+            while (p && p !== ILaya.stage) {
+                p._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+                p = p._parent;
+            }
+        }
     }
 
     /**
@@ -1962,356 +2003,6 @@ export class Sprite extends Node {
             return;
         }
         super._addComponentInstance(comp);
-    }
-
-    /**
-     * @ignore
-     */
-    protected _onSetBit(bit: number, value: boolean): void {
-        super._onSetBit(bit, value);
-
-        if ((bit & NodeFlags.CACHE_GLOBAL) != 0) {
-            if (value) {
-                //缓存全局变量
-                this._setGlobalFlag(TransformKind.Matrix | TransformKind.TRS, true);
-                //更新父节点
-                if (this._parent != null && this._parent != ILaya.stage)
-                    this._parent._setBit(NodeFlags.CACHE_GLOBAL, value);
-            } else {
-                //更新子节点
-                for (let child of this._children)
-                    child._setBit(NodeFlags.CACHE_GLOBAL, value);
-            }
-        }
-
-        if ((bit & NodeFlags.DEMAND_TRANS_EVENT) != 0) {
-            if (value) {
-                if (this._parent != null && this._parent !== ILaya.stage)
-                    this._parent._setBit(NodeFlags.DEMAND_TRANS_EVENT, value);
-            } else {
-                //更新子节点
-                for (let child of this._children)
-                    child._setBit(NodeFlags.DEMAND_TRANS_EVENT, value);
-            }
-        }
-    }
-
-    //miner 为了不破坏之前的local性能架构，采用标志开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
-    //因为此块功能比较集中，顾单独写在下方
-
-    private _gDeltaFlages: number = 0;
-    private _gPosx: number = 0.0;
-    private _gPosy: number = 0.0;
-    private _gRotate: number = 0.0;
-    private _gScaleX: number = 1.0;
-    private _gScaleY: number = 1.0;
-    private _gMatrix: Matrix;
-
-    public static GLOBAL_CHANGE = "globalChange";
-
-    /**
-     * @en Get the global matrix of the sprite.
-     * @returns The global transformation matrix of the sprite.
-     * @zh 获取精灵的全局矩阵。
-     * @returns 精灵的全局变换矩阵。
-     */
-    getGlobalMatrix() {
-        if (this._gMatrix == null) this._gMatrix = new Matrix();
-        //if (this.scene == null) { return this._globalMatrix; }
-        if (this._getBit(NodeFlags.CACHE_GLOBAL) && !this._getGlobalFlag(TransformKind.Matrix)) {
-            return this._gMatrix;
-        } else {
-            this._gMatrix.setMatrix(this._x, this._y, this._scaleX, this._scaleY, this._rotation, this._skewX, this._skewY, this._pivotX, this._pivotY);
-            if (this._parent) {
-                Matrix.mul(this._gMatrix, this._parent.getGlobalMatrix(), this._gMatrix);
-                this._setGlobalFlag(TransformKind.Matrix, false);
-                this._syncGlobalFlag(TransformKind.Matrix, true);
-            }
-
-        }
-        return this._gMatrix;
-    }
-
-    /**
-     * @en The X-axis position in global coordinates.
-     * @zh 全局坐标中的 X 轴位置。
-     */
-    get globalPosX(): number {
-        return this.getGlobalPos(tmpPoint).x;
-    }
-
-    /**
-     * @en The Y-axis position in global coordinates.
-     * @zh 全局坐标中的 Y 轴位置。
-     */
-    get globalPosY(): number {
-        return this.getGlobalPos(tmpPoint).y;
-    }
-
-    /**
-     * 获取基于Scene的变换矩阵
-     * @param out 
-     */
-    getSceneMatrix(out: Matrix) {
-        if (!this.scene)
-            return this.getGlobalMatrix();
-        this.scene.getGlobalMatrix().invert().copyTo(out);
-        Matrix.mul(this.getGlobalMatrix(), out, out);
-        return out;
-    }
-
-    /**
-     * @en get the scene position of the node.
-     * @zh 获取节点对象在相应scene坐标系中的位置。
-     * @param out 
-     */
-    getScenePos(out: Point) {
-        if (!this.scene)
-            return this.getGlobalPos(out);
-        return this.scene.getGlobalMatrixInv().transformPoint(this.getGlobalPos(out));
-    }
-
-    /**
-     * @en get the scene scale of the node.
-     * @zh 获取节点对象在相应scene坐标系中的放缩值。
-     * @param out 
-     */
-    getSceneScale(out: Point) {
-        out.x = this.globalScaleX;
-        out.y = this.globalScaleY;
-        if (this.scene) {
-            const mat = this.scene.getGlobalMatrix();
-            out.x /= mat.getScaleX();
-            out.y /= mat.getScaleY();
-        }
-        return out;
-    }
-
-    /**
-     * @en get the scene rotation of the node.
-     * @zh 获取节点对象在相应scene坐标系中的旋转值。
-     */
-    getSceneRotation() {
-        let angle = this.globalRotation;
-        if (this.scene)
-            angle -= this.scene.globalRotation;
-        return angle;
-    }
-
-    /**
-     * @en get the global position of the node.
-     * @zh 获取节点对象在全局坐标系中的位置。
-     * @param out 
-     */
-    getGlobalPos(out: Point): Point {
-        if (!this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            this.localToGlobal(out.setTo(0, 0), false, null);
-        } else {
-            this._cacheGlobalPos();
-            out.x = this._gPosx;
-            out.y = this._gPosy;
-        }
-
-        return out;
-    }
-
-    /**
-     * @en Sets the global position of the node.
-     * @param globalx The global X position.
-     * @param globaly The global Y position.
-     * @zh 设置节点对象在全局坐标系中的位置。
-     * @param globalx 全局X位置。
-     * @param globaly 全局Y位置。
-     */
-    setGlobalPos(globalx: number, globaly: number) {
-        if (!this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            tmpPoint.setTo(globalx, globaly);
-            let point = this.globalToLocal(tmpPoint, false, null);
-            point = this.toParentPoint(point);
-            this.pos(point.x, point.y);
-        } else {
-            this._cacheGlobalPos();
-            if (globalx == this._gPosx && globaly == this._gPosy)
-                return;
-
-            let point = this._parent.getGlobalMatrix().invertTransformPoint(tmpPoint.setTo(globalx, globaly));
-            this._bits &= ~NodeFlags.CACHE_GLOBAL; //临时取消标志，避免死循环
-            this.pos(point.x, point.y);
-            this._bits |= NodeFlags.CACHE_GLOBAL;
-
-            this._gPosx = globalx;
-            this._gPosy = globaly;
-            this._setGlobalFlag(TransformKind.Pos, false);
-            this._setGlobalFlag(TransformKind.Matrix, true);
-            this._syncGlobalFlag(TransformKind.Pos | TransformKind.Matrix, true);
-        }
-    }
-
-    /**
-     * @en global rotation value relative to the stage (this value includes the rotation of parent nodes).
-     * @zh 相对于stage的全局旋转值（会叠加父亲节点的旋转值）。
-     */
-    get globalRotation(): number {
-        if (!this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            //循环算法
-            let angle: number = 0;
-            let ele: Sprite = this;
-            while (ele) {
-                if (ele === this._scene) break;
-                angle += ele._rotation;
-                ele = ele._parent;
-            }
-            return angle;
-        } else {
-            if (this._getGlobalFlag(TransformKind.Rotation)) {
-                this._setGlobalFlag(TransformKind.Rotation, false);
-                if (this._parent == this._scene || !this._parent)
-                    this._gRotate = this._rotation;
-                else
-                    this._gRotate = this._rotation + (this._parent as Sprite).globalRotation;
-            }
-            return this._gRotate;
-        }
-    }
-
-    set globalRotation(value: number) {
-        if (value == this.globalRotation) {
-            return;
-        }
-        //set local
-        if (this._parent == this._scene || !this._parent) {
-            this.rotation = value;
-        } else {
-            this.rotation = value - (this._parent as Sprite).globalRotation;
-        }
-        if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            this._gRotate = value;
-            this._setGlobalFlag(TransformKind.Rotation, false);
-            this._setGlobalFlag(TransformKind.Matrix, true);
-            this._syncGlobalFlag(TransformKind.Matrix, true);
-        }
-    }
-
-    /**
-     * @en Gets the global X-axis scale relative to the stage (this value includes the scaling of parent nodes).
-     * @returns The global X-axis scale.
-     * @zh 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
-     * @returns 全局X轴缩放值。
-     */
-    get globalScaleX(): number {
-        if (!this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            let scale: number = 1;
-            let ele: Sprite = this;
-            while (ele) {
-                if (ele === ILaya.stage) break;
-                scale *= ele._scaleX;
-                ele = ele._parent;
-            }
-            return scale;
-        } else {
-            this._cacheGlobalScale();
-            return this._gScaleX;
-        }
-    }
-
-    /**
-     * @en Gets the global Y-axis scale relative to the stage (this value includes the scaling of parent nodes).
-     * @returns The global Y-axis scale.
-     * @zh 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
-     * @returns 全局Y轴缩放值。
-     */
-    get globalScaleY(): number {
-        if (!this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            let scale: number = 1;
-            let ele: Sprite = this;
-            while (ele) {
-                if (ele === ILaya.stage) break;
-                scale *= ele._scaleY;
-                ele = ele._parent;
-            }
-            return scale;
-        } else {
-            this._cacheGlobalScale();
-            return this._gScaleY;
-        }
-    }
-
-    private _cacheGlobalPos() {
-        if (this._getGlobalFlag(TransformKind.Matrix | TransformKind.Pos)) {
-            this._setGlobalFlag(TransformKind.Pos, false);
-            let p = this.getGlobalMatrix().transformPoint(tmpPoint.setTo(this.pivotX, this.pivotY));
-            this._gPosx = p.x;
-            this._gPosy = p.y;
-        }
-    }
-
-    private _cacheGlobalScale() {
-        if (this._getGlobalFlag(TransformKind.Matrix | TransformKind.Scale)) {
-            this._setGlobalFlag(TransformKind.Scale, false);
-            let mat = this.getGlobalMatrix();
-            this._gScaleX = mat.getScaleX();
-            this._gScaleY = mat.getScaleY();
-        }
-    }
-
-    private _getGlobalFlag(type: number): boolean {
-        return (this._gDeltaFlages & type) != 0;
-    }
-
-    /**
-     * @en Sets a global cache flag for a specific type.
-     * @param type The type of cache flag to set.
-     * @param value Whether to enable the cache flag.
-     * @zh 设置特定类型的全局缓存标志。
-     * @param type 要设置的缓存标志类型。
-     * @param value 是否启用缓存标志。
-     */
-    private _setGlobalFlag(type: number, value: boolean): void {
-        if (value)
-            this._gDeltaFlages |= type;
-        else
-            this._gDeltaFlages &= ~type;
-        if (value) {
-            this.event(Sprite.GLOBAL_CHANGE, type)
-        }
-    }
-
-    /**
-     * @param flag 
-     * @param value 
-     */
-    private _syncGlobalFlag(flag: number, value: boolean) {
-        if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            for (let child of this._children) {
-                child._setGlobalFlag(flag, value);
-                child._syncGlobalFlag(flag, value);
-            }
-        }
-    }
-
-    /**
-     * @internal 
-     */
-    _globalCacheLocalToGlobal(x: number, y: number): Point {
-        if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            return this.getGlobalMatrix().transformPoint(tmpPoint.setTo(this.pivotX + x, this.pivotY + y));
-        } else {
-            return this.localToGlobal(tmpPoint.setTo(x, y), false, null);
-        }
-    }
-
-    /**
-     * @internal 
-     */
-    _globalCacheGlobalToLocal(x: number, y: number): Point {
-        if (this._getBit(NodeFlags.CACHE_GLOBAL)) {
-            let point = this.getGlobalMatrix().invertTransformPoint(tmpPoint.setTo(x, y));
-            point.x -= this.pivotX;
-            point.y -= this.pivotY;
-            return point;
-        } else {
-            return this.globalToLocal(tmpPoint.setTo(x, y), false, null);
-        }
     }
 }
 

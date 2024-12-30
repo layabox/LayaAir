@@ -625,10 +625,10 @@ export class LightOccluder2DCore {
             let sy = this._scaleY;
             const p = Point.TEMP;
             if (this._owner) {
-                this._owner.getScenePos(p);
+                this._owner.globalTrans.getScenePos(p);
                 px = p.x;
                 py = p.y;
-                this._owner.getSceneScale(p);
+                this._owner.globalTrans.getSceneScale(p);
                 sx = Math.abs(p.x);
                 sy = Math.abs(p.y);
             }
@@ -636,7 +636,7 @@ export class LightOccluder2DCore {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const m = this._owner ? this._owner.getSceneMatrix(this._sceneMatrix) : this._transform;
+            const m = this._owner ? this._owner.globalTrans.getSceneMatrix(this._sceneMatrix) : this._transform;
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0];

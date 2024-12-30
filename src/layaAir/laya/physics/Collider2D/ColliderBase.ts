@@ -60,7 +60,7 @@ export class ColliderBase extends Component {
      * 获得节点的全局缩放X
      */
     protected get scaleX(): number {
-        return this.owner.globalScaleX;
+        return this.owner.globalTrans.scaleX;
     }
 
     /**
@@ -68,7 +68,7 @@ export class ColliderBase extends Component {
      * 获得节点的全局缩放Y
      */
     protected get scaleY(): number {
-        return this.owner.globalScaleY;
+        return this.owner.globalTrans.scaleY;
     }
 
     /**@internal 创建获得相对于描点x的偏移 */

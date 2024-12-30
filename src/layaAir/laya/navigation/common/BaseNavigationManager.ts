@@ -204,7 +204,7 @@ export class BaseNavigationManager implements IElementComponentManager {
         let delta = Math.min(dt, 0.3);
         this._naveMeshMaps.forEach((lists) => {
             for (var i = 0, n = lists.length; i < n; i++) {
-                lists.elements[i]._updata(delta);
+                lists.elements[i]._update(delta);
             }
         })
     }
