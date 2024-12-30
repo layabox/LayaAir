@@ -1,3 +1,4 @@
+import { ILaya } from "../../../../ILaya";
 import { Matrix } from "../../../maths/Matrix";
 import { Point } from "../../../maths/Point";
 import { Rectangle } from "../../../maths/Rectangle";
@@ -623,20 +624,22 @@ export class LightOccluder2DCore {
             let py = this._y;
             let sx = this._scaleX;
             let sy = this._scaleY;
-            const p = Point.TEMP;
             if (this._owner) {
-                this._owner.getScenePos(p);
-                px = p.x;
-                py = p.y;
-                this._owner.getSceneScale(p);
-                sx = Math.abs(p.x);
-                sy = Math.abs(p.y);
+                const mm = ILaya.stage.transform;
+                const pp = this._owner.getScenePos(Point.TEMP);
+                px = mm.a * pp.x + mm.c * pp.y + mm.tx;
+                py = mm.b * pp.x + mm.d * pp.y + mm.ty;
+                this._owner.getSceneScale(pp);
+                sx = Math.abs(pp.x * mm.getScaleX());
+                sy = Math.abs(pp.y * mm.getScaleY());
             }
 
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            const m = this._owner ? this._owner.getSceneMatrix(this._sceneMatrix) : this._transform;
+            let m = this._owner ? this._owner.getSceneMatrix(this._sceneMatrix) : this._transform;
+            Matrix.mul(ILaya.stage.transform, m, this._sceneMatrix); //加上stage变换
+            m = this._sceneMatrix;
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0];
