@@ -678,9 +678,6 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             let posX = translateX;
             let posY = translateY;
 
-            // console.log("pos", posX, posY);
-
-
             let lastX = ps.emission._lastPosition.x;
             let lastY = ps.emission._lastPosition.y;
 
