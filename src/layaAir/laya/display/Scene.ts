@@ -14,7 +14,6 @@ import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { TransformKind } from "./SpriteConst";
 import { Area2D } from "./Area2D";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
-import { Matrix } from "../maths/Matrix";
 import { LayaEnv } from "../../LayaEnv";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -77,11 +76,7 @@ export class Scene extends Sprite {
     /**
      * @internal
      */
-    _Area2Ds: Area2D[] = [];
-    /**
-     * @internal
-     */
-    _invGlobalMat: Matrix = new Matrix();
+    _area2Ds: Area2D[] = [];
 
     /**
      * @en relative layout component
@@ -342,19 +337,6 @@ export class Scene extends Sprite {
         super.render(ctx, x, y);
 
         this._recoverRenderSceneState(ctx);
-    }
-
-
-
-    /**
-     * @en return the invert Matrix of Scene
-     * @zh 返回Scene的逆矩阵
-     * @returns 
-     */
-    getGlobalMatrixInv() {
-        this.getGlobalMatrix().copyTo(this._invGlobalMat);
-        this._invGlobalMat.invert();
-        return this._invGlobalMat;
     }
 
     /**

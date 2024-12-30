@@ -12,7 +12,7 @@ import { type Stage } from "./Stage";
 
 const ARRAY_EMPTY: any[] = [];
 const initBits = NodeFlags.ACTIVE | NodeFlags.ACTUAL_VISIBLE;
-const reactiveBits = NodeFlags.DISPLAY | NodeFlags.CACHE_GLOBAL | NodeFlags.DEMAND_TRANS_EVENT;
+const reactiveBits = NodeFlags.DISPLAY;
 
 /**
  * @en The `Node` class is the base class for all objects that can be placed in the display list.

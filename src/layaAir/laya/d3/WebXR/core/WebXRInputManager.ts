@@ -64,7 +64,7 @@ export class WebXRInputManager {
      * 更新输入挂点
      * @param xrInput 
      */
-    private _updataMeshRender(xrInput: WebXRInput) {
+    private _updateMeshRender(xrInput: WebXRInput) {
         const handness = xrInput.handness;
         //mesh
         if (this.controllerHandMesh.has(handness)) {
@@ -146,7 +146,7 @@ export class WebXRInputManager {
         if (!this.controllers.has(handness)) {
             let value = new WebXRInput(handness);
             this.controllers.set(handness, value);
-            value.on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this._updataMeshRender);
+            value.on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this._updateMeshRender);
         }
         return this.controllers.get(handness);
     }
@@ -158,7 +158,7 @@ export class WebXRInputManager {
     destory() {
         this.webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);
         for (let key in this.controllers) {
-            this.controllers.get(key).off("frameXRInputUpdate", this, this._updataMeshRender);
+            this.controllers.get(key).off("frameXRInputUpdate", this, this._updateMeshRender);
             this.controllers.get(key).destroy();
         }
         this.controllers = null;

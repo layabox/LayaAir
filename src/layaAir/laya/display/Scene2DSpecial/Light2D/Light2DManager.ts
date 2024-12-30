@@ -172,7 +172,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             this._sceneInv0.set(mat.a, mat.c, mat.tx);
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         } else {
-            mat = this._scene.getGlobalMatrixInv(); //获取Scene的Global逆矩阵
+            mat = this._scene.globalTrans.getMatrixInv(Matrix.TEMP); //获取Scene的Global逆矩阵
             this._sceneInv0.set(mat.a, mat.c, mat.tx);
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         }
@@ -985,7 +985,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        const area2DArrays = this._scene._Area2Ds;
+        const area2DArrays = this._scene._area2Ds;
         if (area2DArrays.length > 0) {
             let xL = 10000000;
             let xR = -10000000;

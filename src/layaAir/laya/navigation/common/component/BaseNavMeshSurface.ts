@@ -374,7 +374,7 @@ export class BaseNavMeshSurface extends Component {
      * @internal
      * @param dt 
      */
-    _updata(dt: number) {
+    _update(dt: number) {
         if (this._oriTiles == null) return;
         this._delayCacheMap.forEach((value) => { value._updateCache() });
         this._delayCacheMap.clear();

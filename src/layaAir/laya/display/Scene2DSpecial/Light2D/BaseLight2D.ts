@@ -374,7 +374,6 @@ export class BaseLight2D extends Component {
     protected _onEnable(): void {
         super._onEnable();
         this.owner.on(Event.TRANSFORM_CHANGED, this, this._transformChange);
-        this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
         (this.owner.scene?._light2DManager as Light2DManager)?.addLight(this);
     }
 
@@ -510,7 +509,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光世界位置的X坐标值
      */
     getGlobalPosX() {
-        return this.owner.globalPosX;
+        return this.owner.globalTrans.x;
     }
 
     /**
@@ -518,7 +517,7 @@ export class BaseLight2D extends Component {
      * @zh 获取灯光世界位置的Y坐标值
      */
     getGlobalPosY() {
-        return this.owner.globalPosY;
+        return this.owner.globalTrans.y;
     }
 
     /**
@@ -527,7 +526,7 @@ export class BaseLight2D extends Component {
      * @param out 
      */
     getScenePos(out: Point) {
-        this.owner.getScenePos(out);
+        this.owner.globalTrans.getScenePos(out);
         const m = ILaya.stage.transform;
         const x = m.a * out.x + m.c * out.y + m.tx;
         const y = m.b * out.x + m.d * out.y + m.ty;
@@ -615,7 +614,7 @@ export class BaseLight2D extends Component {
     protected _lightScaleAndRotation() {
         //获取放缩量（基于scene和stage）
         const m = ILaya.stage.transform;
-        const p = this.owner.getSceneScale(Point.TEMP);
+        const p = this.owner.globalTrans.getSceneScale(Point.TEMP);
         const sx = Math.abs(p.x * m.getScaleX());
         const sy = Math.abs(p.y * m.getScaleY());
 
@@ -625,7 +624,7 @@ export class BaseLight2D extends Component {
         this.lightScale = Vector2.TEMP;
 
         //设置灯光旋转（基于scene，stage没有旋转）
-        this.lightRotation = this.owner.getSceneRotation() * Math.PI / 180;
+        this.lightRotation = this.owner.globalTrans.getSceneRotation() * Math.PI / 180;
     }
 
     /**

@@ -197,7 +197,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         let mat;
          if(this.owner.scene && !context._drawingToTexture){
             mat = Matrix.TEMP;
-            Matrix.mul( this.owner.scene.getGlobalMatrix(),Laya.stage.transform,mat); 
+            Matrix.mul( this.owner.scene.globalTrans.getMatrix(),Laya.stage.transform,mat); 
          }else{
             mat = Matrix.EMPTY;
          }
@@ -220,7 +220,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
-        this.owner.getScenePos(globalPos);
+        this.owner.globalTrans.getScenePos(globalPos);
         let curPosV3 = Vector3.TEMP;
         curPosV3.set(globalPos.x, globalPos.y, 0);
 

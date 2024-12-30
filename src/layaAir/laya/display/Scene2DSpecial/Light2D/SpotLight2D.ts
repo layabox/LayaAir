@@ -204,10 +204,10 @@ export class SpotLight2D extends BaseLight2D {
         this._lightScaleAndRotation();
 
         const mm = ILaya.stage.transform;
-        const pp = this.owner.getScenePos(Point.TEMP);
+        const pp = this.owner.globalTrans.getScenePos(Point.TEMP);
         const px = mm.a * pp.x + mm.c * pp.y + mm.tx;
         const py = mm.b * pp.x + mm.d * pp.y + mm.ty;
-        this.owner.getSceneScale(pp);
+        this.owner.globalTrans.getSceneScale(pp);
         const sx = Math.abs(pp.x * mm.getScaleX());
         const sy = Math.abs(pp.y * mm.getScaleY());
 

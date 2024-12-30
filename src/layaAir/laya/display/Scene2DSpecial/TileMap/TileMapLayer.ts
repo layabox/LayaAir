@@ -357,7 +357,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     onEnable(): void {
         super.onEnable();
-        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
+        this.owner.globalTrans.cache = true;
         this._tileMapOccluder._updateManager();
         this._tileMapPhysics.enable && this._tileMapPhysics.enableRigidBodys();
         this._tileMapOccluder.enable && this._tileMapOccluder.enableAllOccluders();
@@ -388,7 +388,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @returns 
      */
     _globalTransfrom(): Matrix {
-        return this.owner.getGlobalMatrix();
+        return this.owner.globalTrans.getMatrix();
     }
 
     /**

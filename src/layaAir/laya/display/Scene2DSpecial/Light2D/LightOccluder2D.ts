@@ -67,7 +67,6 @@ export class LightOccluder2D extends Component {
 
     protected _onEnable(): void {
         super._onEnable();
-        this.owner._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
         this.owner.on(Event.TRANSFORM_CHANGED, this._core, this._core._transformChange);
         this._core.owner = this.owner;
         this._core.manager = this.owner.scene?._light2DManager as Light2DManager;

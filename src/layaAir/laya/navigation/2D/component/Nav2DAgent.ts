@@ -43,7 +43,7 @@ export class Nav2DAgent extends BaseNavAgent {
     /**@ignore */
     onAwake(): void {
         super.onAwake();
-        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
+        this.owner.globalTrans.cache = true;
     }
 
     /**@internal */
@@ -60,7 +60,7 @@ export class Nav2DAgent extends BaseNavAgent {
      * @internal 
      */
     _getradius(): number {
-        return this._radius * Math.max(this.owner.globalScaleX, this.owner.globalScaleY);
+        return this._radius * Math.max(this.owner.globalTrans.scaleX, this.owner.globalTrans.scaleY);
     }
 
 
@@ -89,8 +89,8 @@ export class Nav2DAgent extends BaseNavAgent {
      * 同步寻路位置和方向到渲染引擎
      */
     _updatePosition(pos: Vector3, dir: Vector3) {
-        this.owner.setGlobalPos(pos.x, pos.z);
-        this.owner.globalRotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
+        this.owner.globalTrans.setPos(pos.x, pos.z);
+        this.owner.globalTrans.rotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
     }
 
 
