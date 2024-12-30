@@ -93,7 +93,7 @@ export class TileSet extends Resource {
     
 
     public getCellDataByGid(gid: number): TileSetCellData {
-        if (gid <= 0) { return null; }
+        if (gid < 0) { return null; }
         const groupId = TileMapUtils.parseGroupId(gid);
         //通过查找列表快速定位group
         const group = this._groups.find(group => group.id == groupId);
