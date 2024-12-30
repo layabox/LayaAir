@@ -4,15 +4,18 @@
 #include "TileMapVertex.glsl"
 
 uniform vec2 u_TileSize;
-uniform vec4 u_clipMatDir;
-uniform vec2 u_clipMatPos;
 
 void main(){
     vertexInfo info;
-    getVertexInfo(info);
+    getVertexInfoTileMap(info);
    
     vec4 wordpos;
-    getWorldPos(info,wordpos);
+    getPosition(info,wordpos);
     setVertexInfo(info);
+
+    #ifdef LIGHT2D_ENABLE
+        lightAndShadow(info);
+    #endif
+    
     gl_Position=wordpos;
 }

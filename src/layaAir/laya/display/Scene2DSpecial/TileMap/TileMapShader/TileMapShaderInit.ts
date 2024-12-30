@@ -37,12 +37,13 @@ export class TileMapShaderInit {
 
     static __init__() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
-            'a_posuv': [0, ShaderDataType.Vector4],
-            'a_color': [1, ShaderDataType.Vector4],
-            'a_cellColor': [2, ShaderDataType.Vector4],
-            'a_cellPosScale': [3, ShaderDataType.Vector4],
-            'a_cellUVOriScale': [4, ShaderDataType.Vector4],
-            'a_celluvTrans': [5, ShaderDataType.Vector4],
+            'a_position': [0, ShaderDataType.Vector2],
+            'a_texcoord': [1, ShaderDataType.Vector2],
+            'a_color': [2, ShaderDataType.Vector4],
+            'a_cellColor': [3, ShaderDataType.Vector4],
+            'a_cellPosScale': [4, ShaderDataType.Vector4],
+            'a_cellUVOriScale': [5, ShaderDataType.Vector4],
+            'a_celluvTrans': [6, ShaderDataType.Vector4],
 
         };
         Shader3D.addInclude("TileMapCommon.glsl", TileMapCommonGLSL);
@@ -55,24 +56,25 @@ export class TileMapShaderInit {
         let forwardPass = subShader.addShaderPass(TileMapVS, TileMapFS);
 
         TileMapShaderInit._tileMapPositionUVColorDec = new VertexDeclaration(32, [
-            new VertexElement(0, VertexElementFormat.Vector4, 0),//vec4 a_position uv
-            new VertexElement(16, VertexElementFormat.Vector4, 1),//vec4 a_color
+            new VertexElement(0, VertexElementFormat.Vector2, 0),//vec2 a_position
+            new VertexElement(8, VertexElementFormat.Vector2, 1),//vec2 uv
+            new VertexElement(16, VertexElementFormat.Vector4, 2),//vec4 a_color
         ]);
 
         TileMapShaderInit._tileMapCellColorInstanceDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 2),//vec4 a_cellColor
+            new VertexElement(0, VertexElementFormat.Vector4, 3),//vec4 a_cellColor
         ]);
 
         TileMapShaderInit._tileMapCellPosScaleDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 3),//vec4 a_cellPosScale
+            new VertexElement(0, VertexElementFormat.Vector4, 4),//vec4 a_cellPosScale
         ]);
 
         TileMapShaderInit._tileMapCellUVOriScaleDec = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 4),//vec4 a_cellUVOriScale
+            new VertexElement(0, VertexElementFormat.Vector4, 5),//vec4 a_cellUVOriScale
         ]);
 
         TileMapShaderInit._tileMapCellUVTrans = new VertexDeclaration(16, [
-            new VertexElement(0, VertexElementFormat.Vector4, 5),//vec4 a_uvTrans
+            new VertexElement(0, VertexElementFormat.Vector4, 6),//vec4 a_uvTrans
         ]);
 
 

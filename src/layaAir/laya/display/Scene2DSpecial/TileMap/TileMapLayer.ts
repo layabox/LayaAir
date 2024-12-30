@@ -93,7 +93,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     private _physicsEnable: boolean;
 
-    private _lightEnable: boolean;
+    private _lightOccluderEnable: boolean;
 
     private _tileMapDatas: Uint8Array;
 
@@ -163,13 +163,13 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._physicsEnable = value;
     }
 
-    get lightEnable(): boolean {
-        return this._lightEnable;
+    get lightOccluderEnable(): boolean {
+        return this._lightOccluderEnable;
     }
 
-    set lightEnable(value: boolean) {
+    set lightOccluderEnable(value: boolean) {
         this._tileMapOccluder.updateState(value);
-        this._lightEnable = value;
+        this._lightOccluderEnable = value;
     }
 
     get tileSet(): TileSet {
@@ -215,6 +215,9 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapOccluder;
     }
 
+    /**
+     * @ignore
+     */
     constructor() {
         super();
         this._layerColor = new Color(1, 1, 1, 1);
@@ -228,6 +231,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     private _initialTileSet() {

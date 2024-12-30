@@ -529,7 +529,7 @@ export class TileMapChunkData {
                         let shapeLength = shape.length;
 
                         let point: PolygonPoint2D = new PolygonPoint2D;
-
+    
                         let data = datas[pIndex];
                         if (!data) {
                             data = agent.addOccluder(point, layer.layerMask);
