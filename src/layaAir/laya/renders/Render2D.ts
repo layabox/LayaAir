@@ -152,6 +152,7 @@ export class Render2DSimple extends Render2D {
     renderEnd(): void {
         let lastRT:InternalRenderTarget = this._lastRT?this._lastRT._renderTarget:null;
         //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
+        Render2DSimple.rendercontext2D.invertY = false;
         Render2DSimple.rendercontext2D.setRenderTarget(lastRT, false, Color.BLACK);
         Render2DGlobalState.curRT = this._lastRT;
         this._lastRT = null;

@@ -173,8 +173,10 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         stateKey += dest.formatId + '_';
         stateKey += dest._samples + '_';
         stateKey += shaderInstance._id + '_';
-        if (this.materialShaderData)
-            stateKey += this.materialShaderData.stateKey;
+        if (this.renderStateIsBySprite || !this.materialShaderData)
+            stateKey += this.value2DShaderData.stateKey;
+        else stateKey += this.materialShaderData.stateKey;
+        stateKey += this.value2DShaderData.stateKey;
         stateKey += this.geometry.bufferState.stateId + '_';
         stateKey += this.geometry.bufferState.updateBufferLayoutFlag;
         return stateKey;

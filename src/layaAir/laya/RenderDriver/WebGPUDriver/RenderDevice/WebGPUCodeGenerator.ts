@@ -89,7 +89,7 @@ export class WebGPUCodeGenerator {
         this.inited = true;
         if (next) next();
 
-        Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
+        //Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID('u_GraphicDummy'), 'u_GraphicDummy', ShaderDataType.Vector4);
         WebGPUShaderData.__init__();
     }
 
