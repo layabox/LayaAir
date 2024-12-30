@@ -216,7 +216,9 @@ vec4 transspaceColor(vec4 color)
             ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
             color.rgb *= ls.rgb;
         #else
-            vec4 ls = texture2D(u_LightAndShadow2D, v_lightUV);
+            vec2 uv = v_lightUV;
+            vec2 t = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+            vec4 ls = texture2D(u_LightAndShadow2D, uv) * t.x * t.y;
             ls.rgb = min(vec3(1.0), ls.rgb + u_LightAndShadow2DAmbient.rgb);
             color.rgb *= ls.rgb;
             #ifdef LIGHT2D_NORMAL_PARAM
