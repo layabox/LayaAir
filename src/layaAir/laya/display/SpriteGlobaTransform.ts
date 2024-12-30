@@ -21,6 +21,10 @@ export class SpriteGlobalTransform {
      */
     static CHANGED = "globalTransChanged";
 
+    constructor(sp: Sprite) {
+        this._sp = sp;
+    }
+
     /**
      * @en Whether the global transformation information is cached.
      * @zh 是否缓存了全局变换信息。

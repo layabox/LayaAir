@@ -498,7 +498,7 @@ export class Sprite extends Node {
      * @zh 对象的全局变换信息。
      */
     get globalTrans(): SpriteGlobalTransform {
-        return this._globalTrans || (this._globalTrans = new SpriteGlobalTransform());
+        return this._globalTrans || (this._globalTrans = new SpriteGlobalTransform(this));
     }
 
     /**
