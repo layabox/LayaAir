@@ -64,7 +64,7 @@ export class Area2D extends Sprite {
 
     _setBelongScene(scene: Node): void {
         super._setBelongScene(scene);
-        this._scene._Area2Ds.push(this);
+        this._scene._area2Ds.push(this);
     }
 
     /**
@@ -73,7 +73,7 @@ export class Area2D extends Sprite {
       * @zh 从所属场景中移除节点。
       */
     _setUnBelongScene(): void {
-        let areaArray = this._scene._Area2Ds
+        let areaArray = this._scene._area2Ds;
         let index = areaArray.indexOf(this);
         if (index != -1) {
             areaArray.splice(index, 1);

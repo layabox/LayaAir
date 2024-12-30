@@ -102,7 +102,7 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
      */
     onAwake(): void {
         super.onAwake();
-        this.owner._setBit(NodeFlags.CACHE_GLOBAL, true);
+        this.owner.globalTrans.cache = true;
         this._navMeshAreas.forEach((area) => {
             area._bindSurface(this);
         });

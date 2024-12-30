@@ -117,7 +117,7 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
     play(): void {
         super.play();
         let globalPoint = _globalPoint;
-        this.owner.getGlobalPos(globalPoint);
+        this.owner.globalTrans.getPos(globalPoint);
         this.emission._lastPosition.setValue(globalPoint.x, globalPoint.y, 0);
     }
 
