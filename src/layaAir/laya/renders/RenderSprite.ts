@@ -5,6 +5,7 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
 import { Filter } from "../filters/Filter";
+import { LayaGL } from "../layagl/LayaGL";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { HitArea } from "../utils/HitArea";
@@ -311,6 +312,7 @@ export class RenderSprite {
             let w = tRec.width * scaleInfo.x + marginLeft + marginRight;  //,
             let h = tRec.height * scaleInfo.y + marginTop + marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
+            rt._invertY = LayaGL.renderEngine._screenInvertY;
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w, h);
@@ -403,6 +405,7 @@ export class RenderSprite {
             let w = tRec.width * scaleInfo.x + (isDrawRenderRect ? 0 : tRec.x);
             let h = tRec.height * scaleInfo.y + (isDrawRenderRect ? 0 : tRec.y);
             rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
+            rt._invertY = LayaGL.renderEngine._screenInvertY;
             ctx.size(w, h);
             ctx.clearBG(0, 0, 0, 0);
         }
@@ -507,6 +510,7 @@ export class RenderSprite {
             //先渲染mask，避免rt混乱的可能性。这里的ctx目前只是用来恢复rt的
             RenderSprite.RenderToCacheTexture(mask, ctx, 0, 0);
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
+            rt._invertY = LayaGL.renderEngine._screenInvertY;
             let ctx1 = new Context();
             ctx1.clearBG(0, 0, 0, 0);
             ctx1.size(width1, height1);
