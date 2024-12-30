@@ -1,3 +1,4 @@
+import { Const } from "../Const";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -10,6 +11,7 @@ import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { Context } from "../renders/Context";
 import { Material } from "../resource/Material";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 export enum BaseRender2DType {
     baseRenderNode = 0,
@@ -95,6 +97,8 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
     }
 
     /**
@@ -204,6 +208,7 @@ export class BaseRenderNode2D extends Component {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
         this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR,new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE))
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
     }

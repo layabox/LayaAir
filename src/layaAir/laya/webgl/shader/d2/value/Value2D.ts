@@ -59,7 +59,7 @@ export class Value2D {
         }
         this.textureHost = null;
 
-        this.clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);;
+        this.clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
         this.clipMatPos = new Vector2();
         this._cacheID = mainID;
         let cache = Value2D._cache[this._cacheID];
