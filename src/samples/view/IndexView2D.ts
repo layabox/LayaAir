@@ -134,6 +134,7 @@ import { Mesh2DRenderDemo } from "../2d/Mesh2DRenderDemo";
 import { Trail2DRenderDemo } from "../2d/Trail2DRenderDemo";
 import { TileMapLayerDemo } from "../2d/TileMapLayerDemo";
 import { RenderCMD2DDemo } from "../2d/RenderCMD2DDemo";
+import { Material2DDemo } from "../2d/Material2DDemo";
 
 /**
  * 首页View 
@@ -261,8 +262,8 @@ export class IndexView2D extends IndexViewUI {
     /************************HitTest-end***************************/
 
     /************************Render2D-start***************************/
-    private _render2DTestClsArr: any[] = [Camera2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
-    private _render2DTestArr: any[] = ['2D相机', '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
+    private _render2DTestClsArr: any[] = [Camera2DDemo, Material2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
+    private _render2DTestArr: any[] = ['2D相机', "2D自定义材质示例", '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
     /************************Render2D-end***************************/
 
     private _bigIndex: number = -1;
