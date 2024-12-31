@@ -151,7 +151,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
             //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
             if (i === 0) {
-                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], true);
+                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], false);
                 this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
                 this.value2DShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
                 this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);

@@ -312,7 +312,6 @@ export class RenderSprite {
             let w = tRec.width * scaleInfo.x + marginLeft + marginRight;  //,
             let h = tRec.height * scaleInfo.y + marginTop + marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
-            rt._invertY = LayaGL.renderEngine._screenInvertY;
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w, h);
@@ -405,7 +404,6 @@ export class RenderSprite {
             let w = tRec.width * scaleInfo.x + (isDrawRenderRect ? 0 : tRec.x);
             let h = tRec.height * scaleInfo.y + (isDrawRenderRect ? 0 : tRec.y);
             rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
-            rt._invertY = LayaGL.renderEngine._screenInvertY;
             ctx.size(w, h);
             ctx.clearBG(0, 0, 0, 0);
         }

@@ -66,6 +66,7 @@ export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
     set clearColor(value: boolean) {
         this._clearColor = value;
+        this._nativeObj.setClearColor(value);
     }
 }
 

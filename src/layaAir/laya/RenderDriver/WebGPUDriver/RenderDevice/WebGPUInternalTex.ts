@@ -1,10 +1,11 @@
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { WebGLEngine } from "../../WebGLDriver/RenderDevice/WebGLEngine";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -25,7 +26,9 @@ export class WebGPUInternalTex implements InternalTexture {
     useSRGBLoad: boolean;
     gammaCorrection: number;
     multiSamplers: number;
+    mipmapLoaded: boolean; //是否已经加载了mipmap像素
 
+    format: TextureFormat | RenderTargetFormat;
     _webGPUFormat: WebGPUTextureFormat;
 
     private _engine: WebGPURenderEngine;
