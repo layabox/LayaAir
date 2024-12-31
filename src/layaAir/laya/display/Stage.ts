@@ -247,7 +247,6 @@ export class Stage extends Sprite {
 
         this.mouseEnabled = true;
         this.hitTestPrior = true;
-        this.autoSize = false;
         this._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._isFocused = true;

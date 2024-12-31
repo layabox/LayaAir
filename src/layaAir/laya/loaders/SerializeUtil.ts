@@ -15,7 +15,6 @@ export const TypedArrayClasses: Record<string, any> = {
 export class SerializeUtil {
     public static isDeserializing = false;
 
-    /** @internal */
     static _data: any;
 
     static hasProp(...keys: string[]): boolean {

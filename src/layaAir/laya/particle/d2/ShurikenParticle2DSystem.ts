@@ -341,17 +341,13 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
             return;
         }
 
-        let pxielDistance = emission.rateOverDistance * this.main.unitPixels;
+        let pxielDistance = 1 / emission.rateOverDistance * this.main.unitPixels;
         if (this._emitDistance >= pxielDistance) {
             let count = Math.floor(this._emitDistance / pxielDistance);
             for (let i = 1; i <= count; i++) {
                 let emitTime = this.totalTime;
                 let age = 0;
-
                 this._emit(emitTime, age);
-
-                console.log("emit over distance", emitTime);
-
                 this._emitDistance -= pxielDistance;
             }
         }

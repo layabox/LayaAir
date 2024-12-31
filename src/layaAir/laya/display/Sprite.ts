@@ -177,15 +177,6 @@ export class Sprite extends Node {
     /**@internal */
     _renderNode: BaseRenderNode2D;
 
-    private _tfChanged: boolean;
-    private _repaint: number = 0;
-    private _texture: Texture;
-    private _sizeFlag: number = 0;
-    private _filterArr: Filter[];
-    private _userBounds: Rectangle;
-    private _ownGraphics: boolean;
-    private _tmpBounds: Array<number>;
-
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
      * When penetrable, the engine will no longer detect this object and will recursively check its child objects until it finds the target object or misses all objects.
@@ -210,18 +201,22 @@ export class Sprite extends Node {
      * 合理使用本属性，能减少鼠标事件检测的节点，提高性能。
      */
     hitTestPrior: boolean = false;
-    /**
-     * @en Whether to automatically calculate the width and height of the node. The default value is `false`, which does not automatically calculate and offers better performance.
-     * If you want to get the width and height based on the drawn content, you can set this property to `true`, or use the getBounds method to obtain them, which has some impact on performance.
-     * @zh 是否自动计算节点的宽高数据。默认值为 false，不自动计算，性能更佳。
-     * 如果想根据绘制内容获取宽高，可以设置本属性为true，或者通过getBounds方法获取，对性能有一定影响。
-     */
-    autoSize: boolean = false;
+
     /** 
     * @en If the node needs to load related skins but placed in different domains, you can set it here.
     * @zh 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置。
     **/
     _skinBaseUrl: string;
+
+    protected _autoSize: boolean = false;
+    private _tfChanged: boolean;
+    private _repaint: number = 0;
+    private _texture: Texture;
+    private _sizeFlag: number = 0;
+    private _filterArr: Filter[];
+    private _userBounds: Rectangle;
+    private _ownGraphics: boolean;
+    private _tmpBounds: Array<number>;
 
     declare _children: Sprite[];
     declare _$children: Sprite[];
@@ -296,7 +291,7 @@ export class Sprite extends Node {
      * @zh 节点的宽度，单位为像素。
      */
     get width(): number {
-        if (this.autoSize)
+        if (this._autoSize)
             return this.getSelfBounds(tmpRect).width;
         else if ((this._sizeFlag & 1) == 0)
             return this.measureWidth();
@@ -313,7 +308,7 @@ export class Sprite extends Node {
      * @zh 节点的高度，单位为像素。
      */
     get height(): number {
-        if (this.autoSize)
+        if (this._autoSize)
             return this.getSelfBounds(tmpRect).height;
         else if ((this._sizeFlag & 2) == 0)
             return this.measureHeight();
@@ -989,6 +984,20 @@ export class Sprite extends Node {
     }
 
     /**
+     * @en Whether to automatically calculate the width and height of the node. The default value is `false`, which does not automatically calculate and offers better performance.
+     * If you want to get the width and height based on the drawn content, you can set this property to `true`, or use the getBounds method to obtain them, which has some impact on performance.
+     * @zh 是否自动计算节点的宽高数据。默认值为 false，不自动计算，性能更佳。
+     * 如果想根据绘制内容获取宽高，可以设置本属性为true，或者通过getBounds方法获取，对性能有一定影响。
+     */
+    get autoSize(): boolean {
+        return this._autoSize;
+    }
+
+    set autoSize(value: boolean) {
+        this._autoSize = value;
+    }
+
+    /**
      * @en Set the position. Equivalent to setting the x and y properties separately.
      * Since the return value is the Sprite object itself, you can use the following syntax: spr.pos(...).scale(...);
      * @param x X-axis coordinate.
@@ -1503,7 +1512,8 @@ export class Sprite extends Node {
         out = out || new Rectangle();
         out.setTo(0, 0, 0, 0);
 
-        for (let child of this._children) {
+        let children = recursive ? this._children : this._$children;
+        for (let child of children) {
             if (ignoreInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE))
                 continue;
 

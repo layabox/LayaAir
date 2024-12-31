@@ -308,7 +308,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     }
 
     private _initBufferBlock() {
-        const useUBO = (Config.enableUniformBufferObject || Config.matUseUBO);
+        const useUBO = (Config._uniformBlock || Config.matUseUBO);
         if (useUBO) {
             const gl = <WebGL2RenderingContext>this._context;
 

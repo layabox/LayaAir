@@ -322,4 +322,10 @@ export const allBundles = [{
         'laya/particle/**/*.*',
     ]
 },
+{
+    name: 'ui2',
+    input: [
+        'laya/ui2/**/*.ts'
+    ],
+}
 ];

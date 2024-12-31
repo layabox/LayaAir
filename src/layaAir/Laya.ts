@@ -289,25 +289,6 @@ export class Laya {
     }
 
     /**
-     * @en Enable DebugPanel.
-     * @param debugJsPath Path to the laya.debugtool.js file.
-     * @zh 开启DebugPanel。
-     * @param debugJsPath laya.debugtool.js文件路径。
-     */
-    static enableDebugPanel(debugJsPath: string = "libs/laya.debugtool.js"): void {
-        if (!(window as any)['Laya']["DebugPanel"]) {
-            var script: any = Browser.createElement("script");
-            script.onload = function (): void {
-                (window as any)['Laya']["DebugPanel"].enable();
-            }
-            script.src = debugJsPath;
-            Browser.document.body.appendChild(script);
-        } else {
-            (window as any)['Laya']["DebugPanel"].enable();
-        }
-    }
-
-    /**
      * @en Adds an initialization function. Various engine modules, such as physics, pathfinding, etc., can register their initialization logic here if needed. 
      * Developers typically do not use this directly. All registered callbacks are executed in parallel.
      * @param callback The initialization function of the module.
@@ -381,8 +362,6 @@ export var loader: Loader;
 export var render: Render;
 /**@internal */
 export var alertGlobalError = Laya.alertGlobalError;
-/**@internal */
-export var enableDebugPanel = Laya.enableDebugPanel;
 
 export var addInitCallback = Laya.addInitCallback;
 export var addBeforeInitCallback = Laya.addBeforeInitCallback;
