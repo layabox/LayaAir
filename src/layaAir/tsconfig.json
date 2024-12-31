@@ -20,7 +20,8 @@
         "skipLibCheck": true,
         "strict": true,
         "strictNullChecks": false,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
     },
     "include": [
         "./**/*",

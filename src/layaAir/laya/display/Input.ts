@@ -140,7 +140,7 @@ export class Input extends Text {
 
         this.multiline = false;
         this.overflow = Text.SCROLL;
-        this._promptColor = "#A9A9A9";
+        this._promptColor = "#a9a9a9";
 
         this.on(Event.MOUSE_DOWN, this, this._onMouseDown);
         this.on(Event.UNDISPLAY, this, this._onUnDisplay);
@@ -281,6 +281,7 @@ export class Input extends Text {
     private _onMouseDown(e: Event): void {
         this.focus = true;
     }
+
     /**
      * @en Sync the position of the input box when the Input instance changes during input.
      * @zh 在输入期间，如果 Input 实例的位置改变，调用_syncInputTransform同步输入框的位置。
@@ -527,7 +528,6 @@ export class Input extends Text {
 
         super.color = value;
     }
-
 
     /**
      * @en The background color of the input text.
