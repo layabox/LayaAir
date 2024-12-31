@@ -3,6 +3,7 @@ import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { URL } from "../net/URL";
 import { PrefabImpl } from "../resource/PrefabImpl";
+import { GWidget } from "../ui2/GWidget";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil, TypedArrayClasses } from "./SerializeUtil";
 
@@ -44,7 +45,7 @@ export class ObjDecoder {
 
             v0 = data["controllers"];
             if (v0 !== undefined)
-                (<any>obj).controllers = this._decode(v0);
+                (<GWidget>obj).controllers = this._decode(v0);
         } finally {
             SerializeUtil.isDeserializing = false;
         }
@@ -93,8 +94,11 @@ export class ObjDecoder {
                         return null;
                 }
                 else if (data._$ctrl !== undefined) {
-                    let cls: any = ClassUtils.getClass("ControllerRef");
-                    return new cls(node, data._$ctrl);
+                    let cls: any = crefClass || (crefClass = ClassUtils.getClass("ControllerRef"));
+                    if (cls)
+                        return new cls(node, data._$ctrl);
+                    else
+                        return null;
                 }
                 else
                     return node;
@@ -185,3 +189,4 @@ export class ObjDecoder {
 }
 
 function dummy(...args: any[]): any { return null; }
+var crefClass: any;

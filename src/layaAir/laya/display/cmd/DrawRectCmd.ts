@@ -19,22 +19,22 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en The X-axis position to start drawing.
      * @zh 开始绘制的 X 轴位置。
      */
-    x: number;
+    x: number = 0;
     /**
      * @en The Y-axis position to start drawing.
      * @zh 开始绘制的 Y 轴位置。
      */
-    y: number;
+    y: number = 0;
     /**
      * @en The width of the rectangle.
      * @zh 矩形宽度。
      */
-    width: number;
+    width: number = 1;
     /**
      * @en The height of the rectangle.
      * @zh 矩形高度。
      */
-    height: number;
+    height: number = 1;
     /**
      * @en The fill color  
      * @zh 填充颜色 
@@ -49,13 +49,13 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en (Optional) The width of the border.
      * @zh （可选）边框宽度。
      */
-    lineWidth: number = 0;
+    lineWidth: number = 1;
 
     /**
      * @en Whether the position and size are percentages.
      * @zh 位置和大小是否是百分比。
      */
-    percent: boolean;
+    percent: boolean = true;
 
     /**
      * @en Create a DrawRectCmd instance
