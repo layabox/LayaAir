@@ -11,7 +11,7 @@ import { IK_Chain } from "./IK_Chain";
 import { IK_ISolver } from "./IK_ISolver";
 import { IK_Joint } from "./IK_Joint";
 import { IK_Target } from "./IK_Pose1";
-import { rotationTo } from "./IK_Utils";
+import { delay, rotationTo } from "./IK_Utils";
 import { IK_FABRIK_Solver } from "./IKSolver/IK_FABRIK_Solver";
 import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
@@ -239,25 +239,25 @@ export class IK_System{
     async onUpdate(){
         if(this._updating){
             //调试用:如果没有一帧完成,则只更新骨骼和调试信息
-            for(let chain of this.chains){
-                //应用ik结果
-                chain.applyIKResult();
-            }
+            //因为由于await会导致没有机会更新
             this.visualize(this._showDbg);
             return;
         }
 
         this._updating=true;
+        let delaySolves:Promise<void>[]=[];
         for(let chain of this.chains){
             let target = chain.target;
             if(!target) 
                 continue;
             chain.updateBoneAnim();
-            await this.solve(chain,target);
-            //应用ik结果
+            let p = this.solve(chain,target);
+            delaySolves.push(p);
+            //应用ik结果.注意必须在一帧之内,所以上面不能有await,否则会延迟到下一帧,然后被动画覆盖
             chain.applyIKResult();
         }
         this.visualize(this._showDbg);
+        await Promise.all(delaySolves);
         this._updating=false;
     }
 
