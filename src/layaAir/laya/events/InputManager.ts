@@ -316,9 +316,9 @@ export class InputManager {
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
-                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event);
+                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event, touch.downTargets);
                     else
-                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event);
+                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.downTargets);
 
                     if (touch.moved) {
                         for (let t of touch.downTargets)

@@ -167,6 +167,9 @@ export class TileMapChunkData {
         this._cellDataRefMap.forEach((localIndexs: number[], gid: number) => {
             if (localIndexs) {
                 let cellData = tileSet.getCellDataByGid(gid);
+                if (cellData.cellowner._hasAni())
+                    this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
+                cellData._addNoticeRenderTile(this);
                 for (let i = 0, len = localIndexs.length; i < len; i++) {
                     let index = localIndexs[i];
                     chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
@@ -457,14 +460,16 @@ export class TileMapChunkData {
                     for (let i = 0; i < layerCount; i++) {
                         let physicslayer = physicsLayers[i];
                         let pIndex = physicslayer.id;
-                        if (!cellDatas[pIndex])
-                            continue
+                        if (!cellDatas[pIndex]) continue;
 
                         let data = datas[pIndex];
                         if (data) {
                             physics.destroyFixture(rigidBody, data);
                         }
+
                         let shape = cellDatas[pIndex].shape;
+                        if (!shape) continue;
+
                         let shapeLength = shape.length;
                         let nShape: Array<number> = new Array(shapeLength);
 
@@ -522,10 +527,11 @@ export class TileMapChunkData {
                     for (let i = 0; i < layerCount; i++) {
                         let layer = lightInfoLayers[i];
                         let pIndex = layer.id;
-                        if (!cellDatas[pIndex])
-                            continue
+                        if (!cellDatas[pIndex]) continue;
 
                         let shape = cellDatas[pIndex].shape;
+                        if (!shape) continue;
+
                         let shapeLength = shape.length;
 
                         let point: PolygonPoint2D = new PolygonPoint2D;
@@ -757,10 +763,11 @@ export class TileMapChunkData {
 
         if (!this._cellDataRefMap[gid]) {
             this._cellDataRefMap[gid] = [];
-            if (cellData.cellowner._hasAni())
-                this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
             cellData._addNoticeRenderTile(this);
         }
+
+        if (cellData.cellowner._hasAni())
+            this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
 
         let chuckCellInfo = this._cellDataMap[index];
         if (chuckCellInfo == null) {//create one ChunkCellInfo

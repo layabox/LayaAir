@@ -237,7 +237,7 @@ export class Node extends EventDispatcher {
      * @param type 要设置的位类型。
      */
     _setBitUp(type: number): void {
-        var ele: Node = this;
+        let ele: Node = this;
         ele._setBit(type, true);
         ele = ele._parent;
         while (ele) {
@@ -1356,7 +1356,7 @@ export class Node extends EventDispatcher {
     _cloneTo(destObject: Node, srcRoot: Node, dstRoot: Node): void {
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
-                var destComponent = destObject.addComponent((this._components[i] as any).constructor);
+                let destComponent = destObject.addComponent((this._components[i] as any).constructor);
                 this._components[i]._cloneTo(destComponent);
             }
         }
@@ -1433,7 +1433,7 @@ export class Node extends EventDispatcher {
      * @returns 组件实例数组。
      */
     getComponents(componentType: typeof Component): Component[] {
-        var arr: any[];
+        let arr: any[] = [];
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
                 let comp = this._components[i];

@@ -170,7 +170,6 @@ export class TextInput extends Label {
      * - date
      * - time
      */
-
     get type(): string {
         return this._tf.type;
     }

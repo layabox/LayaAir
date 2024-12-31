@@ -1,0 +1,496 @@
+import { UIConfig2 } from "./UIConfig2";
+import { Sprite } from "../display/Sprite";
+import { ColorFilter } from "../filters/ColorFilter";
+import { SerializeUtil } from "../loaders/SerializeUtil";
+import { Rectangle } from "../maths/Rectangle";
+import { LayoutChangedReason, RelationType } from "./Const";
+import { Controller } from "./Controller";
+import { ControllerRef } from "./ControllerRef";
+import { DragSupport } from "./DragSupport";
+import { Relation } from "./Relation";
+import type { GTreeNode } from "./GTreeNode";
+import { Gear } from "./gear/Gear";
+import { GearDisplay } from "./gear/GearDisplay";
+import { NodeFlags } from "../Const";
+import { UIEventType } from "./UIEvent";
+import { ILaya } from "../../ILaya";
+import { IGraphicsCmd } from "../display/IGraphics";
+import { GRoot } from "./GRoot";
+import { Event } from "../events/Event";
+
+export class GWidget extends Sprite {
+    data: any;
+
+    private _tooltips: string;
+    private _asGroup: boolean = false;
+    private _grayed: boolean = false;
+    private _background: IGraphicsCmd;
+
+    private _draggable: boolean = false;
+    private _dragBounds: Rectangle;
+    private _dragSupport: DragSupport;
+
+    private _controllers: Record<string, Controller>;
+    private _controllerCount: number;
+    private _gears: Array<Gear<any>>;
+    private _relations: Array<Relation>;
+    private _forceSizeFlag: boolean;
+
+    /** @internal */
+    _treeNode: GTreeNode;
+    /** @internal */
+    _rawWidth: number = 0;
+    /** @internal */
+    _rawHeight: number = 0;
+    /** @internal */
+    _deltaWidth: number = 0;
+    /** @internal */
+    _deltaHeight: number = 0;
+
+    _giveWidth: number = 0;
+    _giveHeight: number = 0;
+
+    sourceWidth: number = 0;
+    sourceHeight: number = 0;
+
+    /** @internal */
+    static _defaultRoot: GRoot;
+
+    constructor() {
+        super();
+
+        this._nodeType = 2;
+        this._controllers = {};
+        this._gears = [];
+        this._relations = [];
+        this._controllerCount = 0;
+
+        this._initialize();
+    }
+
+    get left(): number {
+        return this._x - this._width * this._anchorX;
+    }
+
+    set left(value: number) {
+        this.pos(value + this._width * this._anchorX, this.y);
+    }
+
+    get top(): number {
+        return this._y - this._height * this._anchorY;
+    }
+
+    set top(value: number) {
+        this.pos(this._x, value + this._height * this._anchorY);
+    }
+
+    setLeftTop(xv: number, yv: number): void {
+        xv = xv != null ? xv + this._width * this._anchorX : this._x;
+        yv = yv != null ? yv + this._height * this._anchorY : this._y;
+        this.pos(xv, yv);
+    }
+
+    center(target?: GWidget): this {
+        let r: Sprite = target;
+        if (!r) {
+            if (this._parent)
+                r = this._parent;
+            else
+                r = ILaya.stage;
+        }
+
+        this.setLeftTop(Math.floor((r.width - this.width) * 0.5), Math.floor((r.height - this.height) * 0.5));
+
+        return this;
+    }
+
+    pos(x: number, y: number): this {
+        if (this._x != x || this._y != y) {
+            super.pos(x, y);
+
+            if (this._parent?._nodeType == 2)
+                (<GWidget>this._parent).setLayoutChangedFlag?.(LayoutChangedReason.Pos);
+            this.event(UIEventType.pos_changed);
+        }
+
+        return this;
+    }
+
+    size(wv: number, hv: number, changeByLayout?: boolean): this {
+        if (this._width == wv && this._height == hv) {
+            if (this._forceSizeFlag)
+                this._forceSizeFlag = false;
+            else
+                return this;
+        }
+
+        this._rawWidth = wv;
+        this._rawHeight = hv;
+        if (!changeByLayout) {
+            this._giveWidth = wv;
+            this._giveHeight = hv;
+        }
+        if (wv < 0) wv = 0;
+        if (hv < 0) hv = 0;
+        this._deltaWidth = wv - this._width;
+        this._deltaHeight = hv - this._height;
+
+        super.size(wv, hv);
+
+        this.setLayoutChangedFlag();
+
+        this._sizeChanged(changeByLayout);
+
+        if (this._parent) {
+            if (this._relations.length > 0) {
+                for (let item of this._relations)
+                    item.applyOnSelfResized();
+            }
+            if (this._parent?._nodeType == 2)
+                (<GWidget>this._parent).setLayoutChangedFlag(LayoutChangedReason.Size);
+        }
+
+        this.event(UIEventType.size_changed);
+
+        this._deltaWidth = 0;
+        this._deltaHeight = 0;
+
+        return this;
+    }
+
+    makeFullSize(target?: GWidget): this {
+        let r: Sprite = target;
+        if (!r) {
+            if (this._parent)
+                r = this._parent;
+            else
+                r = ILaya.stage;
+        }
+        this.size(r.width, r.height);
+        return this;
+    }
+
+    get grayed(): boolean {
+        return this._grayed;
+    }
+
+    set grayed(value: boolean) {
+        if (this._grayed != value) {
+            this._grayed = value;
+
+            let filters: any[] = this.filters || [];
+            let i = filters.indexOf(grayFilter);
+            if (value) {
+                if (i == -1) {
+                    filters.push(grayFilter);
+                    this.filters = filters;
+                }
+            }
+            else if (i != -1) {
+                filters.splice(i, 1);
+                this.filters = filters;
+            }
+        }
+    }
+
+    get enabled(): boolean {
+        return !this.grayed && this.mouseEnabled;
+    }
+
+    set enabled(value: boolean) {
+        this.grayed = !value;
+        this.mouseEnabled = value;
+    }
+
+    /** @internal */
+    get internalVisible() {
+        return !this._getBit(NodeFlags.NOT_IN_PAGE);
+    }
+
+    /** @internal */
+    set internalVisible(value: boolean) {
+        this._setBit(NodeFlags.NOT_IN_PAGE, !value);
+        this._processVisible();
+    }
+
+    get treeNode(): GTreeNode {
+        return this._treeNode;
+    }
+
+    get tooltips(): string {
+        return this._tooltips;
+    }
+
+    set tooltips(value: string) {
+        if (this._tooltips) {
+            this.off(Event.ROLL_OVER, this, this._rollOver);
+            this.off(Event.ROLL_OUT, this, this._rollOut);
+        }
+
+        this._tooltips = value;
+        if (this._tooltips) {
+            this.on(Event.ROLL_OVER, this, this._rollOver);
+            this.on(Event.ROLL_OUT, this, this._rollOut);
+        }
+    }
+
+    private _rollOver(): void {
+        GWidget._defaultRoot.popupMgr.showTooltips(this._tooltips, UIConfig2.defaultTooltipsShowDelay);
+    }
+
+    private _rollOut(): void {
+        GWidget._defaultRoot.popupMgr.hideTooltips();
+    }
+
+    get text(): string {
+        return "";
+    }
+
+    set text(value: string) {
+    }
+
+    get icon(): string {
+        return null;
+    }
+
+    set icon(value: string) {
+    }
+
+    get background(): IGraphicsCmd {
+        return this._background;
+    }
+
+    set background(value: IGraphicsCmd) {
+        if (this._background)
+            this._graphics.removeCmd(this._background);
+        this._background = value;
+        if (value)
+            this.graphics.addCmd(value, 0);
+    }
+
+    get draggable(): boolean {
+        return this._draggable;
+    }
+
+    set draggable(value: boolean) {
+        if (this._draggable != value) {
+            this._draggable = value;
+
+            if (value) {
+                if (!this._dragSupport)
+                    this._dragSupport = new DragSupport(this);
+            }
+            if (this._dragSupport)
+                this._dragSupport.setAutoStart(value);
+        }
+    }
+
+    get dragBounds(): Rectangle {
+        return this._dragBounds;
+    }
+
+    set dragBounds(value: Rectangle) {
+        this._dragBounds = value;
+    }
+
+    get relations(): Array<Relation> {
+        return this._relations;
+    }
+
+    /** @internal */
+    set relations(value: Array<Relation>) {
+        if (this._relations.length > 0)
+            this._relations.filter(g => !value.includes(g)).forEach(g => g.owner = null);
+        this._relations = value;
+        value.forEach(g => g.owner = this);
+    }
+
+    /** @internal */
+    _addRelations(value: Array<Relation>) {
+        for (let v of value) {
+            v.owner = this;
+            this._relations.push(v);
+        }
+    }
+
+    addRelation(target: GWidget, type: RelationType, percent?: boolean): this {
+        let item = this._relations.find(i => i.target == target);
+        if (!item) {
+            item = new Relation();
+            item.owner = this;
+            item.target = target;
+            this._relations.push(item);
+        }
+        item.add(type, percent);
+        return this;
+    }
+
+    removeRelation(target: GWidget, type: RelationType): this {
+        let item = this._relations.find(i => i.target == target);
+        if (item)
+            item.remove(type);
+        return this;
+    }
+
+    clearRelations(): this {
+        this._relations.length = 0;
+        return this;
+    }
+
+    get controllers(): Readonly<Record<string, Controller>> {
+        return this._controllers;
+    }
+
+    get controllerCount(): number {
+        return this._controllerCount;
+    }
+
+    /** @internal */
+    set controllers(value: Readonly<Record<string, Controller>>) {
+        this._controllers = value;
+        let i = 0;
+        for (let k in value) {
+            value[k].name = k;
+            value[k].owner = this;
+            i++;
+        }
+        this._controllerCount = i;
+        this._controllersChanged();
+    }
+
+    addController(name: string, pageCount?: number): Controller {
+        if (this._controllers[name]) {
+            console.warn(`controller ${name} already exists`);
+            return this._controllers[name];
+        }
+        let c = new Controller();
+        c.name = name;
+        c.owner = this;
+        if (pageCount != null)
+            c.numPages = pageCount;
+        this._controllers[name] = c;
+        this._controllerCount++;
+        this._controllersChanged();
+        return c;
+    }
+
+    getController(name: string): Controller {
+        return this._controllers[name];
+    }
+
+    protected _controllersChanged() {
+        this.event(UIEventType.controllers_changed);
+    }
+
+    get gears(): Array<Gear<any>> {
+        return this._gears;
+    }
+
+    /** @internal */
+    set gears(value: Array<Gear<any>>) {
+        let visChanged: boolean;
+        if (this._gears.length > 0) {
+
+            this._gears.filter(g => !value.includes(g)).forEach(g => {
+                if (g instanceof GearDisplay)
+                    visChanged = true;
+                g.owner = null;
+            });
+        }
+        this._gears = value;
+        value.forEach(g => g.owner = this);
+
+        if (visChanged)
+            this.internalVisible = GearDisplay.check(this);
+    }
+
+    /** @internal */
+    _addGears(value: Array<Gear<any>>) {
+        this._gears.push(...value);
+        value.forEach(g => g.owner = this);
+    }
+
+    addGear(controller: Controller, propPath: string, props?: Record<number, any>) {
+        let gear = new Gear();
+        gear.propPath = propPath;
+        if (props)
+            gear.values = props;
+        gear.controller = new ControllerRef(controller);
+        gear.owner = this;
+        this._gears.push(gear);
+    }
+
+    destroy(): void {
+        super.destroy();
+
+        for (let k in this._controllers)
+            this._controllers[k].offAll();
+        for (let g of this._gears)
+            g.owner = null;
+    }
+
+    protected _sizeChanged(changeByLayout?: boolean): void {
+    }
+
+    /**
+     * @ignore
+     * @returns 
+     */
+    _processVisible(): boolean {
+        if (super._processVisible()) {
+            if (this._parent?._nodeType == 2)
+                (<GWidget>this._parent).setLayoutChangedFlag?.(LayoutChangedReason.Visible);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    setLayoutChangedFlag(reason?: LayoutChangedReason): void {
+    }
+
+    get asGroup(): boolean {
+        return !!this._asGroup;
+    }
+
+    set asGroup(value: boolean) {
+        this._asGroup = !!value;
+    }
+
+    /** @internal */
+    _onConstruct(inPrefab?: boolean): void {
+        if (inPrefab && this._relations.length > 0) {
+            for (let r of this._relations) {
+                r._sw = this._width;
+                r._sh = this._height;
+                if (r.target)
+                    r.target._forceSizeFlag = true;
+            }
+        }
+        this.onConstruct();
+    }
+
+    onConstruct() {
+    }
+
+    onAfterDeserialize() {
+        super.onAfterDeserialize();
+        if (SerializeUtil.hasProp("_startPages")) {
+            let col: Record<string, number> = (<any>this)._startPages;
+            if (col) {
+                for (let k in col) {
+                    let c = this.getController(k);
+                    if (c)
+                        c.selectedIndex = col[k];
+                }
+            }
+        }
+    }
+}
+
+const grayFilter = new ColorFilter([
+    0.3086, 0.6094, 0.082, 0, 0,
+    0.3086, 0.6094, 0.082, 0, 0,
+    0.3086, 0.6094, 0.082, 0, 0,
+    0, 0, 0, 1, 0
+]);

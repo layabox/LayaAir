@@ -88,8 +88,8 @@ export class GraphicsBounds {
         if (cmds.length == 0) return points;
 
         _assembler.allPoints = points;
-        _assembler.width = sp.width;
-        _assembler.height = sp.height;
+        _assembler.width = sp._width; //不能用sp.width，不然在autoSize时会死循环
+        _assembler.height = sp._height;
         _assembler.affectBySize = false;
         _assembler.matrix.identity();
 
@@ -112,7 +112,7 @@ export class GraphicsBounds {
                     if (cmd.getBounds)
                         cmd.getBounds(_assembler);
                     else //没有相应功能的取sprite的
-                        _tempRect.setTo(sp.x, sp.y, sp.width, sp.height).getBoundPoints(_assembler.points);
+                        _tempRect.setTo(sp.x, sp.y, sp._width, sp._height).getBoundPoints(_assembler.points);
                     if (_assembler.points.length > 0)
                         _assembler.flushPoints();
 

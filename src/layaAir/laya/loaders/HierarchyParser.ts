@@ -6,6 +6,7 @@ import { Sprite } from "../display/Sprite";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Prefab } from "../resource/HierarchyResource";
+import { GWidget } from "../ui2/GWidget";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Utils } from "../utils/Utils";
 import { ObjDecoder } from "./ObjDecoder";
@@ -342,8 +343,8 @@ export class HierarchyParser {
 
         if (hasUI) {
             if (topNode._nodeType === 2) {
-                (<any>topNode).sourceWidth = (<Sprite>topNode).width;
-                (<any>topNode).sourceHeight = (<Sprite>topNode).height;
+                (<GWidget>topNode).sourceWidth = (<Sprite>topNode).width;
+                (<GWidget>topNode).sourceHeight = (<Sprite>topNode).height;
             }
 
             //第二轮(Relations)
@@ -354,9 +355,9 @@ export class HierarchyParser {
                     let v = nodeData["relations"];
                     if (v != null) {
                         if (nodeData._$prefab != null)
-                            (<any>node)._addRelations(decoder.decodeObj(v));
+                            (<GWidget>node)._addRelations(decoder.decodeObj(v));
                         else
-                            (<any>node).relations = decoder.decodeObj(v);
+                            (<GWidget>node).relations = decoder.decodeObj(v);
                     }
                 }
             }
@@ -384,8 +385,8 @@ export class HierarchyParser {
         }
 
         //设置组件属性
-        nodeCnt = compInitList.length;
-        for (let i = 0; i < nodeCnt; i += 2) {
+        let compCnt = compInitList.length;
+        for (let i = 0; i < compCnt; i += 2) {
             let compData = compInitList[i];
             let comp = compInitList[i + 1];
             decoder.decodeObj(compData, comp);
@@ -400,16 +401,16 @@ export class HierarchyParser {
                     let v = nodeData["gears"];
                     if (v != null) {
                         if (nodeData._$prefab != null)
-                            (<any>node)._addGears(decoder.decodeObj(v));
+                            (<GWidget>node)._addGears(decoder.decodeObj(v));
                         else
-                            (<any>node).gears = decoder.decodeObj(v);
+                            (<GWidget>node).gears = decoder.decodeObj(v);
                     }
                 }
             }
 
             if (topNode._nodeType === 2 && (!prefabNodeDict || !prefabNodeDict.has(topNode))) {
                 try {
-                    (<any>topNode)._onConstruct(inPrefab);
+                    (<GWidget>topNode)._onConstruct(inPrefab);
                 }
                 catch (error: any) {
                     errors.push(error);
