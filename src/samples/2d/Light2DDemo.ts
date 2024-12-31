@@ -24,10 +24,12 @@ import { Texture } from "laya/resource/Texture";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Stat } from "laya/utils/Stat";
 import { PolygonPoint2D } from "laya/display/Scene2DSpecial/Light2D/PolygonPoint2D";
+import { Area2D } from "laya/display/Area2D";
 
 export class Light2DDemo {
     useWebGPU: boolean = false;
     Main: typeof Main = null;
+    area2d: Area2D;
 
     scene: Scene;
     camera: Camera2D;
@@ -47,6 +49,8 @@ export class Light2DDemo {
 
     private _createScene(): void {
         this.scene = this.Main.box2D.addChild(new Scene());
+        this.area2d = new Area2D();
+        this.scene.addChild(this.area2d);
         this.camera = new Camera2D();
 
         Laya.loader.load("res/light.png", Loader.IMAGE).then(() => {
@@ -54,7 +58,7 @@ export class Light2DDemo {
             tex.bitmap.wrapModeU = WrapMode.Clamp;
             tex.bitmap.wrapModeV = WrapMode.Clamp;
 
-            const spriteLightD1 = this.scene.addChild(new Sprite());
+            const spriteLightD1 = this.area2d.addChild(new Sprite());
             const lightD1 = spriteLightD1.addComponent(DirectionLight2D);
             lightD1.directionAngle = 30;
             lightD1.color = new Color(0.5, 0.5, 0.5, 1);
@@ -64,7 +68,7 @@ export class Light2DDemo {
             lightD1.shadowEnable = true;
             //lightD1.addComponent(editDirectionLight);
 
-            const spriteLight1 = this.scene.addChild(new Sprite());
+            const spriteLight1 = this.area2d.addChild(new Sprite());
             const light1 = spriteLight1.addComponent(SpriteLight2D);
             spriteLight1.x = 500;
             spriteLight1.y = 800;
@@ -78,7 +82,7 @@ export class Light2DDemo {
             //light1.showLightTexture = true;
             //light1.addComponent(editSpriteLight);
 
-            const spriteLight2 = this.scene.addChild(new Sprite());
+            const spriteLight2 = this.area2d.addChild(new Sprite());
             const light2 = spriteLight2.addComponent(FreeformLight2D);
             const ox = 0;
             const oy = 0;
@@ -105,7 +109,7 @@ export class Light2DDemo {
             spriteLight2.addComponent(lightRotate);
             //spriteLight2.addComponent(editFreeform);
 
-            const spriteLight3 = this.scene.addChild(new Sprite());
+            const spriteLight3 = this.area2d.addChild(new Sprite());
             const light3 = spriteLight3.addComponent(SpotLight2D);
             spriteLight3.x = 500;
             spriteLight3.y = 500;
@@ -127,7 +131,7 @@ export class Light2DDemo {
             //spriteLight3.addComponent(lightRotate);
             //spriteLight3.addComponent(spotParam);
 
-            const spriteLight4 = this.scene.addChild(new Sprite());
+            const spriteLight4 = this.area2d.addChild(new Sprite());
             const light4 = spriteLight4.addComponent(SpotLight2D);
             spriteLight4.x = 2000;
             spriteLight4.y = 400;
@@ -145,7 +149,7 @@ export class Light2DDemo {
             light4.layerMask = 1;
             light4.shadowEnable = true;
 
-            const spriteLight5 = this.scene.addChild(new Sprite());
+            const spriteLight5 = this.area2d.addChild(new Sprite());
             const light5 = spriteLight5.addComponent(SpotLight2D);
             spriteLight5.x = 3000;
             spriteLight5.y = 1000;
@@ -166,7 +170,7 @@ export class Light2DDemo {
 
         Laya.loader.load("res/bg2.png", Loader.IMAGE).then(() => {
             const tex = Laya.loader.getRes("res/bg2.png");
-            const bk = this.scene.addChild(new Sprite());
+            const bk = this.area2d.addChild(new Sprite());
             const mesh2Drender = bk.addComponent(Mesh2DRender);
             mesh2Drender.sharedMesh = this.generateRectVerticesAndUV(100000, 100000);
             mesh2Drender.texture = tex;
@@ -175,7 +179,7 @@ export class Light2DDemo {
             bk.y = -50000;
             Laya.loader.load("res/apes/monkey2.png", Loader.IMAGE).then(() => {
                 const tex = Laya.loader.getRes("res/apes/monkey2.png");
-                const ape = this.scene.addChild(new Sprite());
+                const ape = this.area2d.addChild(new Sprite());
                 const mesh2Drender = ape.addComponent(Mesh2DRender);
                 mesh2Drender.sharedMesh = this.generateRectVerticesAndUV(110, 145);
                 mesh2Drender.texture = tex;
@@ -244,7 +248,7 @@ export class Light2DDemo {
                 // light2.shadowEnable = true;
                 // light2.showLightTexture = true;
 
-                // const spriteLight3 = this.scene.addChild(new Sprite());
+                // const spriteLight3 = this.area2d.addChild(new Sprite());
                 // const light3 = spriteLight3.addComponent(SpotLight2D);
                 // spriteLight3.x = 55;
                 // spriteLight3.y = 0;
@@ -263,7 +267,7 @@ export class Light2DDemo {
             });
 
             const ape: Sprite = new Sprite();
-            this.scene.addChild(ape);
+            this.area2d.addChild(ape);
             ape.loadImage("res/apes/monkey1.png");
             ape.x = 50;
             ape.y = 50;

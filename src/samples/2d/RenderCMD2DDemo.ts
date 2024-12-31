@@ -53,7 +53,9 @@ export class RenderCMD2DDemo {
                 mat.setMatrix(0, 0, 1, 1, 0, 0, 0, 0, 0);
                 cmd.drawMesh(mesh, mat, t);
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rtMesh));
+                Utils3D.uint8ArrayToArrayBufferAsync(rtMesh).then((res) => {
+                    console.log(res);
+                })
             }
             let sp1: Sprite = new Sprite();
             sp1.texture = new Texture(rtMesh);
@@ -76,7 +78,9 @@ export class RenderCMD2DDemo {
                 cmd.drawRenderElement((mesh2Drender as any)._renderElements[0], mat);
                 mat.setTranslate(100, 300);
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rtMeshRender));
+                Utils3D.uint8ArrayToArrayBufferAsync(rtMeshRender).then((res) => {
+                    console.log(res);
+                });
             }
             let sp2: Sprite = new Sprite();
             sp2.texture = new Texture(rtMeshRender);
@@ -92,7 +96,9 @@ export class RenderCMD2DDemo {
                 cmd.blitTextureQuad(t, rtBlit as any, new Vector4(0.3, 0.3, 0.5, 0.5));
                 cmd.blitTextureQuad(t, rtBlit as any, new Vector4(0.8, 0.8, 0.2, 0.2));
                 cmd.apply(true);
-                console.log(Utils3D.uint8ArrayToArrayBuffer(rtBlit));
+                Utils3D.uint8ArrayToArrayBufferAsync(rtBlit).then((res) => {
+                    console.log(res);
+                })
             }
             let sp3: Sprite = new Sprite();
             sp3.texture = new Texture(rtBlit);
