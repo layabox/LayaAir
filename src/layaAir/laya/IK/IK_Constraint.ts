@@ -4,6 +4,7 @@ import { Color } from "../maths/Color";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_Joint } from "./IK_Joint";
+import { rotationTo } from "./IK_Utils";
 
 /**
  * 两个向量夹角的弧度
@@ -19,11 +20,17 @@ function VecAngle(v1: Vector3, v2: Vector3) {
 }
 
 var v1 = new Vector3();
+var v2 = new Vector3();
+var v3 = new Vector3();
+var end = new Vector3();
 const Z = new Vector3(0, 0, 1);
+var _visualAxis = new Vector3;
+var _visualRefDir = new Vector3();
 
 const localEuler = new Vector3();
 const localRot = new Quaternion();
 const parentInv = new Quaternion();
+const quatI = new Quaternion();
 
 export interface IK_Constraint {
     /**
@@ -64,7 +71,7 @@ export class IK_AngleLimit implements IK_Constraint {
     constraint(joint: IK_Joint): boolean {
         if (!joint.angleLimit)
             return false;
-
+return false;
         // 获取父关节的世界旋转（如果是根节点，使用单位四元数）
         const parentWorldRot = joint.parent ? joint.parent.rotationQuat : new Quaternion();
 
@@ -159,38 +166,57 @@ export class IK_HingeConstraint implements IK_Constraint {
         if (!joint.angleLimit)
             return false;
 
-        let tailDir = v1;
-        Z.scale(joint.length, tailDir);
-        Vector3.transformQuat(tailDir, joint.rotationQuat, tailDir);
-        //debug
-        let e2 = new Vector3();
-        Vector3.transformQuat( new Vector3(0,0,1),joint.rotationQuat, this.__tailVec)
+        let parent = joint.parent;
+        let parentRot:Quaternion;
+        if(!parent){
+            //TODO 没有parent的处理 
+            quatI.identity();
+            parentRot = quatI;
+        }else{
+            parentRot = parent.rotationQuat;
+        }
 
-        //tailDir.cloneTo(this.__tailVec);
+        //当前关节的朝向.
+        let myDir = v1;
+        Vector3.transformQuat(Z, joint.rotationQuat, myDir);
         //debug
+        myDir.cloneTo(this.__tailVec);
+        //debug
+        let refDir = v3;
+        Vector3.transformQuat(this.refDir,parentRot, refDir);
+        refDir.normalize();
 
         // 投影到铰链平面
         let projectedTail = new Vector3();
-        this.projectToHingePlane(tailDir, projectedTail);
-        //debug
-        projectedTail.cloneTo(this.__projVec)
-        //debug
+        // 计算轴被parent旋转后的值
+        let curAxis = v2;
+        Vector3.transformQuat(this.hingeAxis,parentRot,curAxis);
+        curAxis.normalize();
+        this.projectToHingePlane(myDir, curAxis, projectedTail);
 
         // 计算当前角度
-        let currentAngle = this.calculateAngle(projectedTail);
+        let currentAngle = this.calculateAngle(projectedTail, refDir, curAxis);
 
         // 限制角度
         if (currentAngle >= this.min && currentAngle <= this.max) {
-            return false;  // 无需调整
+            //return false;  // 无需调整
+            //在范围内,则约束到平面上
+            projectedTail.scale(joint.length,end);
+        }else{
+            refDir.scale(joint.length,refDir);
+            let q1 = new Quaternion();
+            //在范围外,约束到边界
+            if(currentAngle>this.max){
+                Quaternion.createFromAxisAngle(curAxis,this.max,q1);
+            }else{
+                Quaternion.createFromAxisAngle(curAxis,this.min,q1);                
+            }
+            Vector3.transformQuat(refDir,q1,end);
         }
 
-        let limitedAngle = Math.max(this.min, Math.min(this.max, currentAngle));
+        rotationTo(Z, end.normalize(), joint.rotationQuat);
 
-        // 计算新的旋转
-        let rotationAxis = this.curHingeAxis;
-        let rotationAngle = limitedAngle - currentAngle;
-
-        Quaternion.createFromAxisAngle(rotationAxis, rotationAngle, joint.rotationQuat);
+        //简化,全部算true
         return true;
     }
 
@@ -199,13 +225,17 @@ export class IK_HingeConstraint implements IK_Constraint {
      * @param vector 
      * @param out 
      */
-    private projectToHingePlane(vector: Vector3, out: Vector3): void {
-        let dot = Vector3.dot(vector, this.curHingeAxis);
+    private projectToHingePlane(vector: Vector3, axis:Vector3, out: Vector3): void {
+        let dot = Vector3.dot(vector, axis);
         out.set(
-            vector.x - dot * this.curHingeAxis.x,
-            vector.y - dot * this.curHingeAxis.y,
-            vector.z - dot * this.curHingeAxis.z
+            vector.x - dot * axis.x,
+            vector.y - dot * axis.y,
+            vector.z - dot * axis.z
         );
+        //debug
+        out.cloneTo(this.__projVec)
+        //debug
+
         out.normalize();
     }
 
@@ -214,32 +244,37 @@ export class IK_HingeConstraint implements IK_Constraint {
      * @param projectedVector 
      * @returns 
      */
-    private calculateAngle(projectedVector: Vector3): number {
-        let angle = VecAngle(this.curRefDir, projectedVector);
+    private calculateAngle(projectedVector: Vector3, refDir:Vector3, axis:Vector3): number {
+        let angle = VecAngle(refDir, projectedVector);
         let cross = v1;
-        Vector3.cross(this.curRefDir, projectedVector, cross);
-        if (Vector3.dot(cross, this.curHingeAxis) < 0) {
+        Vector3.cross(refDir, projectedVector, cross);
+        if (Vector3.dot(cross, axis) < 0) {
             angle = -angle;
         }
         return angle;
     }
 
-    private _visualAxis = new Vector3;
-    private _visualRefDir = new Vector3();
     visualize(line: PixelLineSprite3D, joint: IK_Joint) {
+        //位置在当前joint上,但是空间是parent的
+        let parent = joint.parent;
+        if(!parent){
+            console.log('TODO parent 为空的处理');
+            //TODO 实际不能用单位四元数
+            quatI.identity();
+        }
+        let jointDir = parent?parent.rotationQuat:quatI
         let ori = joint.position;
-        let jointDir = joint.rotationQuat;
         let length=0.5;
-        Vector3.transformQuat(this.hingeAxis, jointDir, this._visualAxis);
-        Vector3.transformQuat(this.refDir, jointDir, this._visualRefDir);
-        this._visualAxis.normalize();
-        this._visualRefDir.normalize();
+        Vector3.transformQuat(this.hingeAxis, jointDir, _visualAxis);
+        Vector3.transformQuat(this.refDir, jointDir, _visualRefDir);
+        _visualAxis.normalize();
+        _visualRefDir.normalize();
 
         let end = new Vector3();
         //转轴
-        line.addLine(ori, ori.vadd( this._visualAxis.scale(length,end), end), Color.GREEN, Color.GREEN);
+        line.addLine(ori, ori.vadd( _visualAxis.scale(length,end), end), Color.GREEN, Color.GREEN);
         //0度的朝向
-        line.addLine(ori, ori.vadd( this._visualRefDir.scale(length,end), end), Color.RED, Color.RED);
+        //line.addLine(ori, ori.vadd( _visualRefDir.scale(length,end), end), Color.RED, Color.RED);
 
         //在与转轴垂直并且经过参考向量的平面上,画出一个扇形,从min到max,min和max是弧度,指与参考向量的夹角(有正负)
         // 画出一个扇形，从min到max
@@ -252,14 +287,14 @@ export class IK_HingeConstraint implements IK_Constraint {
         let lastPoint = new Vector3();
         let curPointOri = new Vector3(); //没有偏移的curPoint,用来持续旋转
         //min边
-        Quaternion.createFromAxisAngle(this._visualAxis, this.min, quatMark);
-        Vector3.transformQuat(this._visualRefDir.scale(radius,end),quatMark,end);
+        Quaternion.createFromAxisAngle(_visualAxis, this.min, quatMark);
+        Vector3.transformQuat(_visualRefDir.scale(radius,end),quatMark,end);
         end.cloneTo(curPointOri);//扇形的起点
         line.addLine(ori, ori.vadd(end,end), Color.YELLOW, Color.YELLOW);
         end.cloneTo(lastPoint); //加了偏移的起点
         
         let dAng = (this.max-this.min)/segments;
-        Quaternion.createFromAxisAngle(this._visualAxis, dAng, quatMark);
+        Quaternion.createFromAxisAngle(_visualAxis, dAng, quatMark);
 
         for (let i = 0; i <segments-2; i++) {
             Vector3.transformQuat(curPointOri, quatMark, curPointOri);
@@ -269,15 +304,15 @@ export class IK_HingeConstraint implements IK_Constraint {
         }
 
         //max边
-        Quaternion.createFromAxisAngle(this._visualAxis, this.max, quatMark);
-        Vector3.transformQuat(this._visualRefDir.scale(radius,end),quatMark,end);
+        Quaternion.createFromAxisAngle(_visualAxis, this.max, quatMark);
+        Vector3.transformQuat(_visualRefDir.scale(radius,end),quatMark,end);
         line.addLine(ori, ori.vadd(end,end), Color.YELLOW, Color.YELLOW);
         line.addLine(lastPoint,end,Color.YELLOW, Color.YELLOW);
 
         //debug
         let e1 = new Vector3();
-        line.addLine(ori, ori.vadd(this.__projVec,e1),Color.BLACK,Color.WHITE)
-        line.addLine(ori, ori.vadd(this.__tailVec,e1),Color.GREEN,Color.RED)
+        line.addLine(ori, ori.vadd(this.__projVec,e1),Color.BLACK,Color.RED)
+        //line.addLine(ori, ori.vadd(this.__tailVec,e1),Color.GREEN,Color.RED)
         //debug
 
     }
@@ -355,6 +390,32 @@ export class IK_BallConstraint implements IK_Constraint {
 
         Quaternion.createFromAxisAngle(axis, rad, outQuat);
 
+        return true;
+    }
+
+    visualize(line: PixelLineSprite3D, joint: IK_Joint) {
+
+    }
+}
+
+
+export class IK_FixConstraint implements IK_Constraint {
+    setQuat(q: Quaternion): void {
+    }
+
+    init(joint: IK_Joint): void {
+    }
+    /**
+     * 约束当前joint的方向
+     * @param joint 
+     * @returns 
+     */
+    constraint(joint: IK_Joint): boolean {
+        if(joint.parent){
+            joint.parent.rotationQuat.cloneTo(joint.rotationQuat);
+        }else{
+            joint.rotationQuat.identity();
+        }
         return true;
     }
 

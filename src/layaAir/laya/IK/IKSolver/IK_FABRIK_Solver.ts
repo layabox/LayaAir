@@ -49,11 +49,15 @@ export class IK_FABRIK_Solver implements IK_ISolver {
                 this.backwardStep(joints[i - 1], joints[i]);
             }
 
+            //TODO 优化 由于约束需要朝向,需要有机会计算一下.可以只计算相关的.
+            this.updateRotations(chain);
+
             // 约束,这个可能会导致位置调整,所以从根开始约束
             for (let i = 0; i < joints.length; i++) {
                 let current = joints[i];
                 if(!current.angleLimit)
                     continue;
+                //如果有约束的话,要更新parent和自己的朝向,因为之前没有计算
                 if(current.angleLimit.constraint(current)){
                     //发生限制了,需要调整子的位置
                     chain.applyJointChange(i);

@@ -23,7 +23,7 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { IK_Target } from "laya/IK/IK_Pose1";
 import { rotationTo } from "laya/IK/IK_Utils";
 import { IK_FABRIK_Solver } from "laya/IK/IKSolver/IK_FABRIK_Solver";
-import { IK_AngleLimit, IK_HingeConstraint } from "laya/IK/IK_Constraint";
+import { IK_AngleLimit, IK_FixConstraint, IK_HingeConstraint } from "laya/IK/IK_Constraint";
 import { IK_System } from "laya/IK/IK_System";
 import { CameraController1 } from "../../utils/CameraController1";
 
@@ -67,7 +67,7 @@ class IKDemo {
         this.iksys.addChain(chain);
         this.joints = [];
 
-        const numJoints = 5;
+        const numJoints = 3;
         const jointLength = 1;
 
         let r1 = new Quaternion();
@@ -77,13 +77,12 @@ class IKDemo {
             const joint = new IK_Joint();
             joint.angleLimit = new IK_AngleLimit( new Vector3(-Math.PI, 0,0), new Vector3(Math.PI, 0,0))
             chain.addJoint(joint, position, true);
-            if(i>=2){
-                if(i==3){
-                    joint.angleLimit = new IK_HingeConstraint(new Vector3(1,0,0),null,-Math.PI/4, Math.PI/4, true);
-                }else{
-                    joint.angleLimit = new IK_AngleLimit( new Vector3(-Math.PI, 0,-Math.PI), new Vector3(Math.PI, 0,Math.PI))
-                }
+            if(i==1){
+                joint.angleLimit = new IK_HingeConstraint(new Vector3(1,0,0),null,-Math.PI/4, Math.PI/4, true);
+            }else if(i==0){
+                joint.angleLimit = new IK_FixConstraint();
             }
+            
 
             const cylinderJoint = createMeshSprite(PrimitiveMesh.createCylinder(0.01, jointLength),new Color(1,1,1,1));
             cylinderJoint.transform.localRotation = r1;
@@ -105,12 +104,12 @@ class IKDemo {
 
     private onUpdate(): void {
         // Move target
-        const time = Laya.timer.currTimer * 0.0001;
+        const time = Laya.timer.currTimer * 0.0002;
         let targetPos = this.target.transform.position;
         targetPos.setValue(
-            Math.sin(time) * 2,
-            Math.cos(time * 0.5) * 3 ,
-            0//Math.cos(time * 0.5) * 3
+            0,
+            Math.sin(time) * 1,
+            Math.cos(time) * 2 ,
         );
         //targetPos.setValue(-2,0,0);
         this.targetPose.pos = this.target.transform.position.clone();
