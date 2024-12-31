@@ -1,6 +1,7 @@
 import { BlinnPhongMaterial } from "../d3/core/material/BlinnPhongMaterial";
 import { MeshFilter } from "../d3/core/MeshFilter";
 import { MeshRenderer } from "../d3/core/MeshRenderer";
+import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Mesh } from "../d3/resource/models/Mesh";
 import { PrimitiveMesh } from "../d3/resource/models/PrimitiveMesh";
@@ -10,7 +11,7 @@ import { Vector3 } from "../maths/Vector3";
 import { IK_AngleLimit } from "./IK_Constraint";
 import { IK_EndEffector } from "./IK_EndEffector";
 import { IK_Joint } from "./IK_Joint";
-import { IK_Pose1 } from "./IK_Pose1";
+import { IK_Pose1, IK_Target } from "./IK_Pose1";
 import { rotationTo } from "./IK_Utils";
 
 const Z = new Vector3(0, 0, 1);
@@ -30,7 +31,7 @@ export class IK_Chain extends IK_Pose1 {
     //设置世界矩阵或者修改某个joint的时候更新。0表示需要全部更新
     //private _dirtyIndex = 0;
     private _showDbg = false;
-    userData:any=null;
+    private _target:IK_Target=null;
 
     constructor() {
         super();
@@ -83,6 +84,18 @@ export class IK_Chain extends IK_Pose1 {
         }
     }
 
+    visualize(line:PixelLineSprite3D){
+        let joints = this.joints;
+        for(let i=0,n=joints.length; i<n; i++){
+            let joint = joints[i];
+            joint.visualize(line);
+            let next = joints[i+1];
+            if(next){
+                //line.addLine(joint.position, next.position, new Color(1,0,0,1), new Color(0,1,0,1));
+            }
+        }
+    }
+
     //给一个相对空间的，如果都是null则使用最后一个joint作为end effector
     //chain只是允许设置相对空间的，如果要设置世界空间，需要在system中设置，那里能得到世界信息
     setEndEffector(index=-1) {
@@ -117,6 +130,12 @@ export class IK_Chain extends IK_Pose1 {
             let rotoff = new Quaternion();
             rotationTo(lastJointZ,curBoneZ,rotoff);
             curJoint.userData.rotOff = rotoff;
+
+            //初始化约束信息
+            let limit = curJoint.angleLimit;
+            if(limit){
+                limit.init(curJoint);
+            }
         }
     }
 
@@ -250,5 +269,41 @@ export class IK_Chain extends IK_Pose1 {
                 current.position.z + direction.z
             );
         }
+    }
+
+    /**
+     * startJoint 节点的朝向或者长度变了,更新子关节的位置.
+     * 不会导致子关节的旋转
+     * @param startJoint 
+     */
+    applyJointChange(startJoint:number){
+        let joints = this.joints;
+        if(startJoint>=joints.length - 1)
+            return;
+        let current = joints[startJoint];
+        let next = joints[startJoint+1];
+        const direction = new Vector3(0, 0, current.length);
+        Vector3.transformQuat(direction, current.rotationQuat, direction);
+        let deltaPos = new Vector3(
+            current.position.x + direction.x - next.position.x,
+            current.position.y + direction.y - next.position.y,
+            current.position.z + direction.z - next.position.z
+        );
+        if(deltaPos.length()<1e-5) 
+            return;
+
+        //从下个位置开始,应用delta位置
+        for (let i = startJoint+1; i < joints.length; i++) {
+            const next = joints[i];
+            next.position.vadd(deltaPos,next.position);
+        }
+    }
+
+    set target(tar:IK_Target){
+        this._target = tar;
+    }
+
+    get target(){
+        return this._target;
     }
 }

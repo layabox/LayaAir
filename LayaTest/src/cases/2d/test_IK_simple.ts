@@ -14,7 +14,7 @@ import { Stage } from "laya/display/Stage";
 import { IK_CCDSolver } from "laya/IK/IKSolver/IK_CCD_Solver";
 import { IK_Chain } from "laya/IK/IK_Chain";
 import { IK_ISolver } from "laya/IK/IK_ISolver";
-import { IK_AngleLimit, IK_Joint } from "laya/IK/IK_Joint";
+import { IK_Joint } from "laya/IK/IK_Joint";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Quaternion } from "laya/maths/Quaternion";
@@ -22,6 +22,10 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { IK_Target } from "laya/IK/IK_Pose1";
 import { rotationTo } from "laya/IK/IK_Utils";
+import { IK_FABRIK_Solver } from "laya/IK/IKSolver/IK_FABRIK_Solver";
+import { IK_AngleLimit, IK_HingeConstraint } from "laya/IK/IK_Constraint";
+import { IK_System } from "laya/IK/IK_System";
+import { CameraController1 } from "../../utils/CameraController1";
 
 function createMeshSprite(mesh:Mesh,color:Color){
     let sp3 = new Sprite3D();
@@ -37,18 +41,20 @@ function createMeshSprite(mesh:Mesh,color:Color){
 class IKDemo {
     private scene: Scene3D;
     private camera: Camera;
-    private chain: IK_Chain;
-    private solver: IK_ISolver;
+    private iksys:IK_System;
+    private chain:IK_Chain;
     private target: Sprite3D;
     private joints: Sprite3D[];
     private targetPose = new IK_Target(new Vector3(), new Quaternion())
 
     constructor(scene:Scene3D, camera:Camera) {
         this.scene = scene;
+        this.iksys = new IK_System(scene);
         this.camera=camera;
         this.createIKChain();
         this.target = createMeshSprite(PrimitiveMesh.createSphere(0.2),new Color(1,0,0,1));
         scene.addChild(this.target);
+        this.iksys.showDbg=true;
 
         // let O = createMeshSprite(PrimitiveMesh.createSphere(0.2),new Color(0,0,0,1));
         // scene.addChild(O);
@@ -57,7 +63,8 @@ class IKDemo {
     }
 
     private createIKChain(): void {
-        this.chain = new IK_Chain();
+        let chain =this.chain= new IK_Chain();
+        this.iksys.addChain(chain);
         this.joints = [];
 
         const numJoints = 5;
@@ -69,10 +76,13 @@ class IKDemo {
             const position = new Vector3(0, i * jointLength, 0);
             const joint = new IK_Joint();
             joint.angleLimit = new IK_AngleLimit( new Vector3(-Math.PI, 0,0), new Vector3(Math.PI, 0,0))
-            this.chain.addJoint(joint, position, true);
+            chain.addJoint(joint, position, true);
             if(i>=2){
-                joint.angleLimit.min.z=-Math.PI;
-                joint.angleLimit.max.z=Math.PI;
+                if(i==3){
+                    joint.angleLimit = new IK_HingeConstraint(new Vector3(1,0,0),null,-Math.PI/4, Math.PI/4, true);
+                }else{
+                    joint.angleLimit = new IK_AngleLimit( new Vector3(-Math.PI, 0,-Math.PI), new Vector3(Math.PI, 0,Math.PI))
+                }
             }
 
             const cylinderJoint = createMeshSprite(PrimitiveMesh.createCylinder(0.1, jointLength),new Color(1,1,1,1));
@@ -86,15 +96,16 @@ class IKDemo {
             this.scene.addChild(sp);
             this.joints.push(sp);
         }
-        this.chain.setEndEffector(numJoints-1)
+        chain.setEndEffector(numJoints-1)
         this.joints[numJoints-1].active=false;  //最后一个是个球
 
-        this.solver = new IK_CCDSolver();
+        //this.solver = new IK_CCDSolver();
+        //this.solver = new IK_FABRIK_Solver();
     }
 
     private onUpdate(): void {
         // Move target
-        const time = Laya.timer.currTimer * 0.001;
+        const time = 100;//Laya.timer.currTimer * 0.0001;
         let targetPos = this.target.transform.position;
         targetPos.setValue(
             Math.sin(time) * 2,
@@ -108,8 +119,11 @@ class IKDemo {
 
         this.target.transform.position = targetPos;
 
+        this.chain.target = this.targetPose;
         // Solve IK
-        this.solver.solve(this.chain, this.targetPose);
+        this.iksys.onUpdate();
+
+        //this.solver.solve(this.chain, this.targetPose);
 
         // Update joint visuals
         for (let i = 0; i < this.chain.joints.length; i++) {
@@ -133,8 +147,9 @@ async function test() {
 
     // 创建相机
     let camera = scene.addChild(new Camera(0, 0.1, 100)) as Camera;
-    camera.transform.translate(new Vector3(-3, 3, 5));
+    camera.transform.translate(new Vector3(-3, 3, 15));
     camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+    camera.addComponent(CameraController1);
 
     // 创建平行光
     let directlightSprite = new Sprite3D();

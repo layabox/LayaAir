@@ -4,7 +4,7 @@ import { IK_Chain } from "../IK_Chain";
 import { IK_ISolver } from "../IK_ISolver";
 import { IK_Joint } from "../IK_Joint";
 import { IK_Target } from "../IK_Pose1";
-import { rotationTo } from "../IK_Utils";
+import { delay, rotationTo } from "../IK_Utils";
 
 let dPos = new Vector3();
 let v1 = new Vector3();
@@ -14,13 +14,14 @@ const Z = new Vector3(0, 0, 1);
 export class IK_FABRIK_Solver implements IK_ISolver {
     maxIterations: number;
     tolerance: number;
+    debugProc=false;
 
     constructor(maxIterations: number = 10, tolerance: number = 0.01) {
         this.maxIterations = maxIterations;
         this.tolerance = tolerance;
     }
 
-    solve(chain: IK_Chain, target: IK_Target): void {
+    async solve(chain: IK_Chain, target: IK_Target) {
         const joints = chain.joints;
         const totalLength = this.getTotalLength(joints);
         const targetPos = target.pos;
@@ -48,11 +49,31 @@ export class IK_FABRIK_Solver implements IK_ISolver {
                 this.backwardStep(joints[i - 1], joints[i]);
             }
 
+            // 约束,这个可能会导致位置调整,所以从根开始约束
+            for (let i = 0; i < joints.length; i++) {
+                let current = joints[i];
+                if(!current.angleLimit)
+                    continue;
+                if(current.angleLimit.constraint(current)){
+                    //发生限制了,需要调整子的位置
+                    chain.applyJointChange(i);
+                }
+            }
+
             if (joints[joints.length - 1].position.vsub(targetPos,v1).length() < this.tolerance) {
                 break;
             }
+            //debug
+            if(this.debugProc){
+                await delay(1000);
+                console.log('ii=',iteration)
+                this.updateRotations(chain);
+            }
+            //debug
         }
 
+        //调整完位置,最后再计算朝向.上面在约束的时候可能已经求解了,但是有的可能没有约束,所以,这里再算一遍
+        // 并且前面是迭代计算,会导致不合理的四元数
         this.updateRotations(chain);
     }
 
@@ -109,8 +130,11 @@ export class IK_FABRIK_Solver implements IK_ISolver {
             rotationTo(Z, direction, rotation);
             rotation.cloneTo(currentJoint.rotationQuat);
 
-            // Apply angle limits if needed
-            // applyAngleLimits_euler(currentJoint);
+            //更新约束轴
+            if(currentJoint.angleLimit){
+                
+            }
+
         }
     }
 }

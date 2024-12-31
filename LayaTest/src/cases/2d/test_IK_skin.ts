@@ -1,33 +1,28 @@
 import "laya/ModuleDef";
 
 import { Laya } from "Laya";
+import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { IK_CCDSolver } from "laya/IK/IKSolver/IK_CCD_Solver";
-import { IK_Chain } from "laya/IK/IK_Chain";
-import { IK_ISolver } from "laya/IK/IK_ISolver";
-import { IK_AngleLimit, IK_Joint } from "laya/IK/IK_Joint";
+import { IK_Comp } from "laya/IK/IK_Comp";
+import { IK_Target } from "laya/IK/IK_Pose1";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
-import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
-import { Mesh } from "laya/d3/resource/models/Mesh";
-import { IK_Target } from "laya/IK/IK_Pose1";
-import { rotationTo } from "laya/IK/IK_Utils";
 import { PrefabImpl } from "laya/resource/PrefabImpl";
-import  "laya/d3/ModuleDef"
-import { Material } from "laya/resource/Material";
-import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
-import { Animator } from "laya/d3/component/Animator/Animator";
-import {IK_Comp} from "laya/IK/IK_Comp"
+import "laya/d3/ModuleDef"
+
+
+
 
 function createMeshSprite(mesh:Mesh,color:Color){
     let sp3 = new Sprite3D();

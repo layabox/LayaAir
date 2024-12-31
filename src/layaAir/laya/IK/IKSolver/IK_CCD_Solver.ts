@@ -2,7 +2,6 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { IK_Chain } from "../IK_Chain";
 import { IK_ISolver } from "../IK_ISolver";
-import { applyAngleLimits_euler, IK_Joint } from "../IK_Joint";
 import { IK_Target } from "../IK_Pose1";
 import {rotationTo} from "../IK_Utils"
 
@@ -18,7 +17,7 @@ export class IK_CCDSolver implements IK_ISolver {
     }
 
 
-    solve(chain: IK_Chain, target: IK_Target): void {
+    async solve(chain: IK_Chain, target: IK_Target) {
         const endEffector = chain.end_effector;
         let iteration = 0;
 

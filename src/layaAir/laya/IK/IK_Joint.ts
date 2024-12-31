@@ -1,19 +1,8 @@
+import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_AngleLimit, IK_Constraint } from "./IK_Constraint";
-
-// 定义关节接口
-export interface IK_IJoint {
-    position: Vector3;
-    rotationQuat:Quaternion;
-    length: number;
-    angleLimit: IK_Constraint;
-    type: "revolute" | "prismatic";    //旋转，平移
-
-    updatePosition(): void;
-    rotate(axis: Vector3, angle: number): void;
-}
 
 export class IK_JointUserData{
     bone:Sprite3D;
@@ -22,12 +11,14 @@ export class IK_JointUserData{
     dbgModel:Sprite3D;
 }
 
+var invQuat = new Quaternion();
+
 // 实现基本关节类
-export class IK_Joint implements IK_IJoint {
+export class IK_Joint {
     // 内部存储使用四元数
     private _rotationQuat = new Quaternion();
     //构造的时候的朝向，以后都用这个朝向来计算，以产生最短旋转（测地线）
-    angleLimit: IK_Constraint = null;  //null就是不限制，-PI到PI
+    _angleLimit: IK_Constraint = null;  //null就是不限制，-PI到PI
     type: "revolute" | "prismatic";
     //世界空间的(system空间的)
     position: Vector3;
@@ -60,11 +51,27 @@ export class IK_Joint implements IK_IJoint {
         return this._rotationQuat;
     }
 
-    setAngleLimit(min: Vector3, max: Vector3): void {
-        this.angleLimit = new IK_AngleLimit(min, max);
+    set angleLimit(v:IK_Constraint){
+        this._angleLimit = v;
     }
 
-    setLimit(limit:IK_Constraint){
-        this.angleLimit = limit;
+    get angleLimit(){
+        return this._angleLimit;
+    }
+
+    visualize(line:PixelLineSprite3D){
+        if(this.angleLimit){
+            this.angleLimit.visualize(line,this);
+        }
+    }
+
+    /**
+     * 把一个世界空间的向量转成本地空间
+     */
+    worldVecToLocal(v:Vector3,out?:Vector3){
+        this._rotationQuat.invert(invQuat);
+        let o = out||v;
+        Vector3.transformQuat(v,invQuat,o)
+        return o;
     }
 }

@@ -13,6 +13,9 @@ import { IK_Joint } from "./IK_Joint";
 import { IK_Target } from "./IK_Pose1";
 import { rotationTo } from "./IK_Utils";
 import { IK_FABRIK_Solver } from "./IKSolver/IK_FABRIK_Solver";
+import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { Scene3D } from "../d3/core/scene/Scene3D";
 
 interface IK_ChainUserData{
     target:IK_Target;
@@ -28,10 +31,14 @@ export class IK_System{
     private chains: IK_Chain[] = [];
     private rootSprite:Sprite3D = null;
     private _showDbg = false;
+    private _visualSp:PixelLineSprite3D=null
+    private _scene:Scene3D;
+    private _updating=false;
 
-    constructor() {
+    constructor(scene:Scene3D) {
         //this.solver = new IK_CCDSolver();
         this.solver = new IK_FABRIK_Solver();
+        this._scene = scene;
     }
 
     setRoot(r:Sprite3D){
@@ -61,11 +68,31 @@ export class IK_System{
         return this._showDbg;
     }
 
+    visualize(b=true){
+        if(b&&!this._visualSp){
+            this._visualSp = new PixelLineSprite3D();
+            this._visualSp.maxLineCount=1000;
+            let mtl = this._visualSp._render.material;
+            mtl.depthTest= RenderState.DEPTHTEST_ALWAYS;
+            this._scene.addChild(this._visualSp);
+            
+        }
+        if(this._visualSp){
+            this._visualSp.clear();
+        }
+        if(b){
+            for(let chain of this.chains){
+                chain.visualize(this._visualSp);
+            }
+        }
+    }
+
     /**
      * 可以包含多个chain
      * @param chain 
      */
     addChain(chain: IK_Chain) {
+        this.chains.push(chain);
     }
 
     private _getChildByID(sp:Sprite3D, id:number):Sprite3D|null{
@@ -151,9 +178,6 @@ export class IK_System{
         }
         let chain = new IK_Chain();
         
-        let userData = {bones:[], target:null, rotOffs:[]} as IK_ChainUserData;
-        chain.userData=userData;
-
         //创建chain
         //确定对应关系
         for(let i=length-1; i>=0; i--){
@@ -192,7 +216,7 @@ export class IK_System{
         let chain = this._findChainByName(endEffectorName);
         if(!chain)
             return;
-        (chain.userData as IK_ChainUserData).target = target;
+        chain.target = target;
     }
 
     private _addMeshSprite(radius:number,color:Color,pos:Vector3){
@@ -208,22 +232,33 @@ export class IK_System{
         return sp3;
     }    
 
-    solve(chain:IK_Chain, target:IK_Target){
-        this.solver.solve(chain,target);
+    async solve(chain:IK_Chain, target:IK_Target){
+        await this.solver.solve(chain,target);
     }
 
-    onUpdate(){
+    async onUpdate(){
+        if(this._updating){
+            //调试用:如果没有一帧完成,则只更新骨骼和调试信息
+            for(let chain of this.chains){
+                //应用ik结果
+                chain.applyIKResult();
+            }
+            this.visualize(this._showDbg);
+            return;
+        }
+
+        this._updating=true;
         for(let chain of this.chains){
-            let udata:IK_ChainUserData = chain.userData;
-            if(!udata) //TODO 没有userData也有用把
-                continue;
-            if(!udata.target)
+            let target = chain.target;
+            if(!target) 
                 continue;
             chain.updateBoneAnim();
-            this.solve(chain,udata.target);
+            await this.solve(chain,target);
             //应用ik结果
             chain.applyIKResult();
         }
+        this.visualize(this._showDbg);
+        this._updating=false;
     }
 
     /**

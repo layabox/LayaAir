@@ -6,7 +6,7 @@ import { IK_Target } from "./IK_Pose1";
 import { IK_System } from "./IK_System";
 
 export class IK_Comp extends Component {
-    private _ik_sys = new IK_System();
+    private _ik_sys:IK_System;
 
     constructor() {
         super();
@@ -19,7 +19,7 @@ export class IK_Comp extends Component {
     }
 
     protected _onAdded(): void {
-        let ik = this._ik_sys;
+        let ik = this._ik_sys = new IK_System(this.owner.scene);
         ik.setRoot(this.owner as Sprite3D);
         ik.showDbg = true;
     }

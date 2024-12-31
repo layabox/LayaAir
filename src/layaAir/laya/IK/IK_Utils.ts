@@ -36,3 +36,9 @@ export function rotationTo(from: Vector3, to: Vector3, out: Quaternion): boolean
     }
     return false;
 }
+
+export function delay(time:number) {
+    return new Promise(function(resolve) { 
+        setTimeout(resolve, time)
+    });
+}
