@@ -23,7 +23,6 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
         if (this.rt) context.invertY = this.invertY;
         else context.invertY = false;
-        console.log("set rt cmd:"+context.invertY);
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
     }
 }
