@@ -20,8 +20,10 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
+
         if (this.rt) context.invertY = this.invertY;
         else context.invertY = false;
+        console.log("set rt cmd:"+context.invertY);
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
     }
 }
@@ -86,10 +88,14 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
     }
 
     apply(context: WebglRenderContext2D): void {
+        let cacheInvert = context.invertY;
+        if (!this._dest)
+             context.invertY = false;
         this.element.materialShaderData._setInternalTexture(WebGLBlit2DQuadCMD.SCREENTEXTURE_ID, this._source);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setRenderTarget(this._dest as WebGLInternalRT, false, Color.BLACK);
         context.drawRenderElementOne(this.element as WebGLRenderelement2D);
+        context.invertY = cacheInvert;
     }
 }
