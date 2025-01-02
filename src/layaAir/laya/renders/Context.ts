@@ -387,34 +387,136 @@ export class Context {
     }
     /**@internal */
     _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
+        if(width<=0)return;
+        if(height<=0) return;
+        //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
         this.beginPath(true);
         var tPath = this._getPath();
         if (0 >= lt) {
             tPath.addPoint(x, y);
         } else {
-            this.arc(x + lt, y + lt, lt, lt, Math.PI, Math.PI + 0.5 * Math.PI);
+            //左上角
+            let st = Math.PI;
+            let ed = 1.5*Math.PI;
+            if(width<lt+rt){
+                //需要裁剪
+                //根据比例分配裁剪
+                let dxlt = lt*(lt+rt-width)/(lt+rt);
+                //计算交点,统一在第一象限算
+                let hity = Math.sqrt(lt*lt-dxlt*dxlt);
+                //根据交点计算角度
+                let ang = Math.atan2(hity,dxlt);
+                let dAng = 0.5*Math.PI-ang;
+                ed -= dAng;
+            }
+            if(height<lt+lb){
+                //需要裁剪
+                let dylt = lt*(lt+lb-height)/(lt+lb);
+                let hitx = Math.sqrt(lt*lt-dylt*dylt);
+                let ang = Math.atan2(dylt,hitx);
+                st += ang;
+            }
+            if(st>ed){
+                //tPath.addPoint(x, y);
+            }else{
+                this.arc(x + lt, y + lt, lt, lt, st, ed,false,true,5);
+            }
         }
         let startX = x + width - rt;
         if (0 >= rt) {
             tPath.addPoint(startX, y);
         } else {
-            this.arc(startX, y + rt, rt, rt, Math.PI + 0.5 * Math.PI, 2 * Math.PI);
+            //右上角
+            let st = 1.5*Math.PI;
+            let ed = 2*Math.PI;
+            if(width<lt+rt){
+                //需要裁剪
+                //根据比例分配裁剪
+                let dxlt = rt*(lt+rt-width)/(lt+rt);
+                //计算交点,统一在第一象限算
+                let hity = Math.sqrt(lt*lt-dxlt*dxlt);
+                //根据交点计算角度
+                let ang = Math.atan2(hity,dxlt);
+                let dAng = 0.5*Math.PI-ang;
+                st += dAng;
+            }
+            if(height<rt+rb){
+                //需要裁剪
+                let dyrt = rt*(rt+rb-height)/(rt+rb);
+                let hitx = Math.sqrt(rt*rt-dyrt*dyrt);
+                let ang = Math.atan2(dyrt,hitx);
+                ed -= ang;
+            }
+            if(st>ed){
+                //tPath.addPoint(startX, y);
+            }else{
+                this.arc(startX, y + rt, rt, rt, st,ed,false,true,5);
+            }
         }
         startX = x + width - rb;
         let startY = y + height - rb;
         if (0 >= rb) {
             tPath.addPoint(startX, startY);
         } else {
-            this.arc(startX, startY, rb, rb, 0, 0.5 * Math.PI);
+            //右下角
+            let st = 0;
+            let ed = 0.5*Math.PI;
+            if(width<lb+rb){
+                //需要裁剪
+                //根据比例分配裁剪
+                let dxlb = rb*(lb+rb-width)/(lb+rb);
+                //计算交点,统一在第一象限算
+                let hity = Math.sqrt(lb*lb-dxlb*dxlb);
+                //根据交点计算角度
+                let ang = Math.atan2(hity,dxlb);
+                let dAng = 0.5*Math.PI-ang;
+                ed -= dAng;
+            }       
+            if(height<rt+rb){
+                //需要裁剪
+                let dyrt = rb*(rt+rb-height)/(rt+rb);
+                let hitx = Math.sqrt(rb*rb-dyrt*dyrt);
+                let ang = Math.atan2(dyrt,hitx);
+                st += ang;
+            }  
+            if(st>ed){
+                //tPath.addPoint(startX, startY);
+            }else{
+                this.arc(startX, startY, rb, rb, st, ed,false,true,5);
+            }
         }
         startX = x + lb;
         startY = y + height - lb;
         if (0 >= lb) {
             tPath.addPoint(startX, startY);
         } else {
-            this.arc(startX, startY, lb, lb, Math.PI - 0.5 * Math.PI, Math.PI);
+            let st = 0.5*Math.PI;
+            let ed = Math.PI;
+            if(width<lb+rb){
+                //需要裁剪
+                //根据比例分配裁剪
+                let dxlb = rb*(lb+rb-width)/(lb+rb);
+                //计算交点,统一在第一象限算
+                let hity = Math.sqrt(lb*lb-dxlb*dxlb);
+                //根据交点计算角度
+                let ang = Math.atan2(hity,dxlb);
+                let dAng = 0.5*Math.PI-ang;
+                st += dAng;
+            }         
+            if(height<lt+lb){
+                //需要裁剪
+                let dylt = lb*(lt+lb-height)/(lt+lb);
+                let hitx = Math.sqrt(lb*lb-dylt*dylt);
+                let ang = Math.atan2(dylt,hitx);
+                ed -= ang;
+            }        
+            if(st>ed){
+                //tPath.addPoint(startX, startY);
+            }else{
+                this.arc(startX, startY, lb, lb, st, ed,false,true,5);
+            }
         }
-        tPath.addPoint(x, y + lt);
+        //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
         this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
