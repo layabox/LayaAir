@@ -83,7 +83,6 @@ export class WebGPUBlit2DQuadCMD extends Blit2DQuadCMD {
         this.element.materialShaderData._setInternalTexture(WebGPUBlit2DQuadCMD.SCREENTEXTURE_ID, this._source);
         this.element.materialShaderData.setVector(WebGPUBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(WebGPUBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
-        context.setRenderTarget(this._dest as WebGPUInternalRT, false, Color.BLACK);
         context.drawRenderElementOne(this.element as WebGPURenderElement2D);
     }
 }
