@@ -6,7 +6,7 @@ import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import type { GWidget } from "./GWidget";
 
 var _rect = new Rectangle();

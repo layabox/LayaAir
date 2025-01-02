@@ -3,7 +3,7 @@ import { ControllerRef } from "./ControllerRef";
 import { Controller } from "./Controller";
 import { GLabel } from "./GLabel";
 import type { GPanel } from "./GPanel";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { Event } from "../events/Event";
 import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
@@ -40,8 +40,8 @@ export class GButton extends GLabel {
         super();
 
         this._mode = ButtonMode.Common;
-        this._sound = UIConfig2.buttonSound;
-        this._soundVolumeScale = UIConfig2.buttonSoundVolumeScale;
+        this._sound = UIConfig2.buttonClickSound;
+        this._soundVolumeScale = UIConfig2.buttonClickSoundVolumeScale;
         this._changeStateOnClick = true;
         this._downEffectValue = 0.8;
 

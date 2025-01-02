@@ -2,7 +2,7 @@ import { ILaya } from "../../ILaya";
 import { Event } from "../events/Event";
 import { PopupDirection, RelationType } from "./Const";
 import { PopupManager } from "./PopupManager";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
 

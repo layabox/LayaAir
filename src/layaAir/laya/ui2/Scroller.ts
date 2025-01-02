@@ -18,7 +18,7 @@ import { DragSupport } from "./DragSupport";
 import { IScroller } from "./IScroller";
 import type { GPanel } from "./GPanel";
 import type { GScrollBar } from "./GScrollBar";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { ILayout } from "./layout/ILayout";
 import { ListLayout } from "./layout/ListLayout";

@@ -164,7 +164,7 @@ export class GList extends GPanel {
         for (let i = 0; i < this._initItemNum; i++) {
             let m: IListItemData = (itemData && i < itemData.length) ? itemData[i] : null;
             if (m != null) {
-                let child = <GWidget>(m.res ? this.addChild(m.res.create()) : this.addItemFromPool());
+                let child = <GWidget>(m.res ? m.res.create() : this.getFromPool());
                 child.hideFlags |= HideFlags.HideAndDontSave;
                 child.text = m.title;
                 child.icon = m.icon;
@@ -174,6 +174,7 @@ export class GList extends GPanel {
                     child.selectedIcon = m.selectedIcon;
                 if (m.name != null)
                     child.name = m.name;
+                this.addChild(child);
             }
             else
                 this.addItemFromPool();

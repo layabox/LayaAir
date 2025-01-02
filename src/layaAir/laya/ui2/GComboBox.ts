@@ -4,7 +4,7 @@ import { ButtonStatus, PopupDirection, RelationType } from "./Const";
 import { ButtonPageAlternatives } from "./GButton";
 import { GLabel } from "./GLabel";
 import { GWidget } from "./GWidget";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { ControllerRef } from "./ControllerRef";
 import { Prefab } from "../resource/HierarchyResource";
 import { Input } from "../display/Input";

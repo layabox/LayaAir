@@ -1,7 +1,7 @@
 
 import { GWidget } from "./GWidget";
 import { RelationType } from "./Const";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { GRoot } from "./GRoot";

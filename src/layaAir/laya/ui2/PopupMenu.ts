@@ -4,7 +4,7 @@ import { RelationType, PopupDirection } from "./Const";
 import { GList } from "./GList";
 import { GWidget } from "./GWidget";
 import { GTextField } from "./GTextField";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Prefab } from "../resource/HierarchyResource";
 import { GRoot } from "./GRoot";

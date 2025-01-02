@@ -59,7 +59,7 @@ export class Gear<T> {
 
     public set propPath(value: string) {
         this._propPath = value;
-        this._propPathArr = null;
+        this._propPathArr = value ? value.split(".") : null;
         this.onChanged(true);
     }
 
@@ -104,11 +104,8 @@ export class Gear<T> {
 
     private runGear(disableTween: boolean) {
         let arr = this._propPathArr;
-        if (!arr) {
-            if (!this._propPath)
-                return;
-            arr = this._propPathArr = this._propPath.split(".");
-        }
+        if (!arr)
+            return;
 
         let obj: any = this._owner;
         let cnt = arr.length;

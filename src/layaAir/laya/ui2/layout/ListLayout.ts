@@ -4,7 +4,7 @@ import { Rectangle } from "../../maths/Rectangle";
 import { GButton } from "../GButton";
 import { LayoutChangedReason, LayoutType, PageMode, StretchMode } from "../Const";
 import type { GList } from "../GList";
-import { UIConfig2 } from "../UIConfig2";
+import { UIConfig2 } from "../UIConfig";
 import type { GWidget } from "../GWidget";
 import { Layout } from "./Layout";
 import { UIEventType } from "../UIEvent";

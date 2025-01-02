@@ -1,4 +1,4 @@
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
@@ -430,6 +430,12 @@ export class GWidget extends Sprite {
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {
+    }
+
+    protected _childChanged(child?: Sprite): void {
+        super._childChanged(child);
+
+        this.setLayoutChangedFlag(LayoutChangedReason.Hierarchy);
     }
 
     /**

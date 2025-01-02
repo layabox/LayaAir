@@ -5,7 +5,7 @@ import { InputManager } from "../events/InputManager";
 import { Point } from "../maths/Point";
 import { PopupDirection } from "./Const";
 import { GRoot } from "./GRoot";
-import { UIConfig2 } from "./UIConfig2";
+import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
 import { Sprite } from "../display/Sprite";
@@ -143,12 +143,12 @@ export class PopupManager {
 
     public showTooltips(msg: string, delay?: number) {
         if (this._defaultTooltipWin == null) {
-            if (!UIConfig2.tooltipsWin) {
+            if (!UIConfig2.tooltipsWidget) {
                 console.warn("UIConfig.tooltipsWin not defined");
                 return;
             }
 
-            this._defaultTooltipWin = <GWidget>UIConfig2.tooltipsWin.create();
+            this._defaultTooltipWin = <GWidget>UIConfig2.tooltipsWidget.create();
             this._defaultTooltipWin.mouseEnabled = false;
         }
 

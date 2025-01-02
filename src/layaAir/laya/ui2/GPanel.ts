@@ -3,7 +3,7 @@ import { ISelection } from "./selection/ISelection";
 import { ILayout } from "./layout/ILayout";
 import { Selection } from "./selection/Selection";
 import { IScroller } from "./IScroller";
-import { SelectionMode } from "./Const";
+import { LayoutChangedReason, SelectionMode } from "./Const";
 import { GBox } from "./GBox";
 import { Rectangle } from "../maths/Rectangle";
 import { Sprite } from "../display/Sprite";
@@ -143,6 +143,7 @@ export class GPanel extends GBox {
 
     /** @internal */
     _panelChildChanged(child: Sprite): void {
+        this.setLayoutChangedFlag(LayoutChangedReason.Hierarchy);
     }
 
     destroy(): void {

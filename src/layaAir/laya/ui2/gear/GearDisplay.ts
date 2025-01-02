@@ -11,7 +11,7 @@ export class GearDisplay extends Gear<boolean> {
         super();
 
         this._pages = [];
-        this._propPath = "internalVisible";
+        this.propPath = "internalVisible";
     }
 
     public get pages() {
