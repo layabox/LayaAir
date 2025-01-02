@@ -4,14 +4,13 @@ import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { FillTextureCmd } from "../display/cmd/FillTextureCmd";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
 import { GWidget } from "./GWidget";
 
 export class GImage extends GWidget {
     private _src: string = "";
     private _source: Texture;
-    private _useSourceSize: boolean;
+    private _autoSize: boolean;
     private _isChanged: boolean;
     private _color: string;
     private _tile: boolean;
@@ -22,7 +21,7 @@ export class GImage extends GWidget {
 
         this._color = "#FFFFFF";
         this._tile = false;
-        this._useSourceSize = true;
+        this._autoSize = true;
     }
 
     public get src(): string {
@@ -63,14 +62,14 @@ export class GImage extends GWidget {
      * @zh 是否使用资源的原始大小。
      */
     get autoSize(): boolean {
-        return this._useSourceSize;
+        return this._autoSize;
     }
 
     set autoSize(value: boolean) {
-        if (this._useSourceSize != value) {
+        if (this._autoSize != value) {
             if (value && this._source)
                 this.size(this._source.sourceWidth, this._source.sourceHeight);
-            this._useSourceSize = value; //放最后，因为size会改变autoSize的值
+            this._autoSize = value; //放最后，因为size会改变autoSize的值
         }
     }
 
@@ -116,12 +115,12 @@ export class GImage extends GWidget {
             this._setDrawCmd(null);
         }
 
-        if (this._useSourceSize) {
+        if (this._autoSize) {
             if (res)
                 this.size(res.width, res.height);
             else
                 this.size(0, 0);
-            this._useSourceSize = true;
+            this._autoSize = true;
         }
     }
 
@@ -179,14 +178,14 @@ export class GImage extends GWidget {
         super._sizeChanged();
 
         if (!changeByLayout && !SerializeUtil.isDeserializing)
-            this._useSourceSize = false;
+            this._autoSize = false;
     }
 
     protected onReload() {
-        if (this._useSourceSize) {
+        if (this._autoSize) {
             let tex = this._source;
             this.size(tex.width, tex.height);
-            this._useSourceSize = true;
+            this._autoSize = true;
         }
     }
 }

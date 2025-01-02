@@ -208,7 +208,7 @@ export class Sprite extends Node {
     **/
     _skinBaseUrl: string;
 
-    protected _autoSize: boolean = false;
+    private _autosize: boolean = false;
     private _tfChanged: boolean;
     private _repaint: number = 0;
     private _texture: Texture;
@@ -291,7 +291,7 @@ export class Sprite extends Node {
      * @zh 节点的宽度，单位为像素。
      */
     get width(): number {
-        if (this._autoSize)
+        if (this._autosize)
             return this.getSelfBounds(tmpRect).width;
         else if ((this._sizeFlag & 1) == 0)
             return this.measureWidth();
@@ -308,7 +308,7 @@ export class Sprite extends Node {
      * @zh 节点的高度，单位为像素。
      */
     get height(): number {
-        if (this._autoSize)
+        if (this._autosize)
             return this.getSelfBounds(tmpRect).height;
         else if ((this._sizeFlag & 2) == 0)
             return this.measureHeight();
@@ -990,11 +990,11 @@ export class Sprite extends Node {
      * 如果想根据绘制内容获取宽高，可以设置本属性为true，或者通过getBounds方法获取，对性能有一定影响。
      */
     get autoSize(): boolean {
-        return this._autoSize;
+        return this._autosize;
     }
 
     set autoSize(value: boolean) {
-        this._autoSize = value;
+        this._autosize = value;
     }
 
     /**
