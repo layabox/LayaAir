@@ -10,6 +10,7 @@ export class IsometricSheet extends BaseSheet {
         this._origMatix.setTo(1, 0, 0, 1, 0.5, 0.5);
         this._ibData = [0, 1, 2, 0, 2, 3];
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
+        this._outline = [0,0.5,0.5,0,1,0.5,0.5,1];
     }
 
     public pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
@@ -28,19 +29,19 @@ export class IsometricSheet extends BaseSheet {
         out.y = col * 2 + offy;
     }
 
-    public gridToPiex(row: number, col: number, out: Vector2) {
+    public gridToPixel(row: number, col: number, out: Vector2) {
         row = Math.floor(row);
         col = Math.floor(col);
         if (col & 1) {
             row = row + 0.5 * this._offset;
         }
-        super.gridToPiex(row, col * 0.5, out);
+        super.gridToPixel(row, col * 0.5, out);
     }
 
     _getChunkSize(rowCount: number, colCount: number, out: Vector2) {
         rowCount = Math.max(rowCount - 1, 0);
         colCount = Math.max(colCount - 1, 0);
-        this.gridToPiex(rowCount, colCount, out);
+        this.gridToPixel(rowCount, colCount, out);
         let endX = this._width;
 
         if (colCount % 2 == 1) {
@@ -52,7 +53,7 @@ export class IsometricSheet extends BaseSheet {
     }
 
     _getChunkLeftTop(row: number, col: number, rowCount: number, colCount: number, out: Vector2) {
-        this.gridToPiex(row, col, out);
+        this.gridToPixel(row, col, out);
 
         if ((colCount == 1) || (col % 2 == 0)) {
             out.x -= 0.5 * this._width;

@@ -133,7 +133,7 @@ export class Grid {
      * 格子系统转像素系统
      */
     _gridToPixel(row: number, col: number, out: Vector2) {
-        this._sheet.gridToPiex(row, col, out);
+        this._sheet.gridToPixel(row, col, out);
     }
 
     /**

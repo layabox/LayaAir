@@ -12,6 +12,7 @@ export class HeixSheet extends BaseSheet {
         this._origMatix.setTo(1, 0, 0.5, 0.75, 0.5, 0.5);
         this._ibData = [0, 1, 2, 0, 2, 3];
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
+        this._outline = [ 0.5 , 0 , 1 , 0.25 , 1 , 0.75 , 0.5 , 1 , 0 , 0.75 , 0 , 0.25];
     }
 
     private prixToGrid(out: Vector2, offset: number) {
@@ -41,15 +42,15 @@ export class HeixSheet extends BaseSheet {
         this.prixToGrid(out, this._offset);
     }
 
-    public gridToPiex(row: number, col: number, out: Vector2) {
+    public gridToPixel(row: number, col: number, out: Vector2) {
         row = row - (col + this._offset * (col & 1)) / 2;
-        super.gridToPiex(row, col, out);
+        super.gridToPixel(row, col, out);
     }
 
     _getChunkSize(rowCount: number, colCount: number, out: Vector2) {
         rowCount = Math.max(rowCount - 1, 0);
         colCount = Math.max(colCount - 1, 0);
-        this.gridToPiex(rowCount, colCount, out);
+        this.gridToPixel(rowCount, colCount, out);
         let endX = this._width;
 
         if (colCount % 2 == 1) {
@@ -61,7 +62,7 @@ export class HeixSheet extends BaseSheet {
     }
 
     _getChunkLeftTop(row: number, col: number, rowCount: number, colCount: number, out: Vector2) {
-        this.gridToPiex(row, col, out);
+        this.gridToPixel(row, col, out);
 
         if ((colCount == 1) || (col % 2 == 0)) {
             out.x -= 0.5 * this._width;

@@ -11,6 +11,7 @@ export class BaseSheet {
     protected _height: number = 0;
     protected _vbData: number[] = [];
     protected _ibData: number[] = [];
+    protected _outline: number[] = [];
 
     constructor() {
         this._matrix = new Matrix();
@@ -31,6 +32,8 @@ export class BaseSheet {
 
     // 格子高度
     getTileHeight(): number { return this._height; }
+
+    getTileBaseOutline(): number[] { return this._outline; }
 
     protected _initData() {
 
@@ -69,7 +72,7 @@ export class BaseSheet {
     /**
      * 格子系统转像素系统
      */
-    public gridToPiex(row: number, col: number, out: Vector2) {
+    public gridToPixel(row: number, col: number, out: Vector2) {
         TileMapUtils.transfromPointByValue(this._matrix, row, col, out);
     }
 
@@ -92,5 +95,4 @@ export class BaseSheet {
      * @param out 
      */
     _getChunkLeftTop(row: number, col: number,rowCount:number,colCount:number, out: Vector2){}
-
 }
