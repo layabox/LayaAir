@@ -160,6 +160,7 @@ export class TileMapChunkData {
 
         let layer = this._tileLayer;
         let tileSet = layer.tileSet;
+        if (!tileSet) return;
         let chunk = this._tileLayer._chunk;
 
         let localPos = Vector2.TEMP;
