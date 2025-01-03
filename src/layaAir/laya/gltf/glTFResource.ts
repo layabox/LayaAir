@@ -286,6 +286,13 @@ export class glTFResource extends Prefab {
             }
         });
 
+        data.nodes?.forEach(node => {
+            if (!node.name) {
+                let storeId = this.generateId("glTFNode");
+                node.name = `node_${storeId}`;
+            }
+        });
+
         let promise: Promise<any> = this.loadBinary(basePath, progress);
 
         promise = promise.then(() => {
