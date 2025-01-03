@@ -58,6 +58,7 @@ import { Mesh2D } from "./resource/Mesh2D";
 import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
 import { Area2D } from "./display/Area2D";
+import { OpenDataContextView } from "./display/OpenDataContextView";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -73,6 +74,7 @@ c("EffectAnimation", EffectAnimation);
 c("SoundNode", SoundNode);
 c("VideoNode", VideoNode);
 c("Area2D", Area2D);
+c("OpenDataContextView", OpenDataContextView);
 
 c("Scene", Scene);
 c("Stage", Stage);
