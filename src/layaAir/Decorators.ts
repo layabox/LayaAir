@@ -238,6 +238,18 @@ export interface FPropertyDescriptor {
     fixedLength: boolean;
 
     /**
+     * @en Applicable to array type properties. Minimum length of the array. Default is null.
+     * @zh 对数组类型属性适用。数组的最小长度。默认为null。
+     */
+    minArrayLength?: number;
+
+    /**
+     * @en Applicable to array type properties. Maximum length of the array. Default is null.
+     * @zh 对数组类型属性适用。数组的最大长度。默认为null。
+     */
+    maxArrayLength?: number;
+
+    /**
      * @en Applicable to array type properties. If not provided, it means the array allows all operations, if provided, only the listed operations are allowed.
      * @zh 对数组类型属性适用。如果不提供，则表示数组允许所有操作，如果提供，则只允许列出的操作。
      */
@@ -350,6 +362,18 @@ export interface FPropertyDescriptor {
     "private": boolean;
 
     /**
+     * @en If true, the property is always written during serialization. Otherwise, it is compared with the default value, and if they are the same, it is not written. Default is false.
+     * @zh 如果为true，则属性在序列化时总是写入。否则，会和默认值比较，如果相同则不写入。默认为false。
+     */
+    forceWriteDefault?: boolean;
+
+    /**
+     * @en If true, the root node of the prefab instance will always write this property during serialization, regardless of whether it is overridden. This also means that this property will not appear in the override list. Default is false.
+     * @zh 如果为true，则prefab实例的根节点在序列化时总是写入这个属性，不管是否被重写。这也意味着这个属性不会出现在重写列表中。默认为false。
+     */
+    forceWriteInPrefabRoot?: boolean;
+
+    /**
      * @en Indicates whether the property is allowed to be edited in multiple selection situations. Default is true.
      * @zh 表示属性是否允许多选情况下编辑。默认true。
      */
@@ -360,6 +384,12 @@ export interface FPropertyDescriptor {
      * @zh 表示属性不显示在派生类的属性表中
      */
     hideInDeriveType: boolean;
+
+    /**
+     * @en Indicates that the property is not allowed to reset to default by the "Reset Default" menu. Default is false.
+     * @zh 表示属性不允许通过“重置为默认”菜单重置为默认值。默认为false。
+     */
+    disableReset?: boolean;
 
     /**
      * @en When the property changes, additionally call a function of the object, this is the function name.
@@ -398,6 +428,12 @@ export interface FTypeDescriptor {
     menu: string;
 
     /**
+     * @en When this type is clicked in the menu to create a new node, the name of the new node.
+     * @zh 当在菜单中点击这个类型创建新节点时，新节点的名字。
+     */
+    newNodeName?: string;
+
+    /**
      * @en Icon.
      * @zh 图标。
      */
@@ -416,6 +452,12 @@ export interface FTypeDescriptor {
      * 可用值参考editor/public/IAssetInfo.ts。
      */
     assetTypeFilter: string;
+
+    /**
+     * @en Effective when isAsset is true. When an instance of the asset is referenced by a field in the inspector, setting it to true allows the properties of the resource to be displayed inline. Similar to the display effect of materials. Default is false.
+     * @zh 当isAsset为true时有效。当资源的实例被在inspector中的字段引用时，设置为true可以让资源的属性内联显示。类似于材质的显示效果。默认为false。
+     */
+    allowInpectInline?: boolean;
 
     /**
      * @en Indicates that this type has struct-like behavior, i.e., it's always used as a whole.
