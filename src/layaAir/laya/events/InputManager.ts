@@ -607,7 +607,7 @@ export class InputManager {
             if (!child._destroyed
                 && child._nodeType !== 1
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR))
-                    : (child._mouseState === 2 || child._mouseState == 0 && child._getBit(NodeFlags.CHECK_INPUT)))
+                    : (child._mouseState === 2 || child._mouseState === 0 && child._getBit(NodeFlags.CHECK_INPUT)))
                 && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
@@ -937,7 +937,9 @@ class TouchInfo implements ITouchInfo {
         let arr: Array<Node> = this.bubbleChain;
         arr.length = 0;
 
-        let obj: Node = target || this.target || ILaya.stage;
+        target = target || this.target || ILaya.stage;
+
+        let obj: Node = target;
         while (obj) {
             if (obj.activeInHierarchy)
                 arr.push(obj);
@@ -948,7 +950,7 @@ class TouchInfo implements ITouchInfo {
         evt._stopped = false;
 
         for (let obj of arr) {
-            evt.setTo(type, obj, this);
+            evt.setTo(type, obj, target);
             obj.event(type, evt);
             if (evt._stopped) {
                 if (type === Event.MOUSE_DOWN || type === Event.RIGHT_MOUSE_DOWN) {
@@ -960,10 +962,10 @@ class TouchInfo implements ITouchInfo {
             }
         }
 
-        if (type === Event.MOUSE_UP) {
+        if (type === Event.MOUSE_UP || type === Event.RIGHT_MOUSE_UP) {
             for (let obj of this.downTargets) {
                 if (obj && arr.indexOf(obj) == -1) {
-                    evt.setTo(type, obj, this);
+                    evt.setTo(type, obj, target);
                     obj.event(type, evt);
                     if (evt && evt._stopped)
                         break;

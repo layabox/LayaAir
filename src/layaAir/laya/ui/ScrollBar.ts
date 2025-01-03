@@ -581,6 +581,7 @@ export class ScrollBar extends UIComponent {
         ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
         ILaya.timer.clear(this, this.tweenMove);
         ILaya.timer.clear(this, this.loop);
+        this._target.mouseEnabled = true;
     }
 
     /**
@@ -711,6 +712,7 @@ export class ScrollBar extends UIComponent {
             if (this._value >= this.min && this._value <= this.max)
                 return;
         }
+        this._target.mouseEnabled = true;
 
         if (this._isElastic) {
             if (this._value < this.min) {
