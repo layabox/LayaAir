@@ -1,7 +1,7 @@
 
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
-import { Grid } from "./Grid/Grid";
+import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
+import { Grid } from "./grid/Grid";
 
 const tempPoint = new Vector2();
 

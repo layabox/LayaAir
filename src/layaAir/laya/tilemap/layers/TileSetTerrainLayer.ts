@@ -1,4 +1,4 @@
-import { Color } from "../../../../maths/Color";
+import { Color } from "../../maths/Color";
 
 export class TileSetTerrainLayer {
    /** 识别用索引 */

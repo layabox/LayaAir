@@ -1,49 +1,27 @@
-import { Vector2 } from "../../../../maths/Vector2";
-import { BaseSheet } from "./BaseSheet";
 
-export class HeixSheet extends BaseSheet {
+import { Vector2 } from "../../maths/Vector2";
+import { BaseSheet } from "./BaseSheet";
+export class HalfOffSquareSheet extends BaseSheet {
     private _offset: number = 0;
     constructor(_offset: number = -1) {
         super();
         this._offset = _offset;
     }
-
     protected _initData() {
-        this._origMatix.setTo(1, 0, 0.5, 0.75, 0.5, 0.5);
+        this._origMatix.setTo(1, 0, 0, 1, 0.5, 0.5);
         this._ibData = [0, 1, 2, 0, 2, 3];
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
-        this._outline = [ 0.5 , 0 , 1 , 0.25 , 1 , 0.75 , 0.5 , 1 , 0 , 0.75 , 0 , 0.25];
+        this._outline= [0,0,1,0,1,1,0,1];
     }
-
-    private prixToGrid(out: Vector2, offset: number) {
-        const q: number = out.x;
-        const r: number = out.y;
-        const s: number = -q - r;
-        var qi = Math.round(q);
-        var ri = Math.round(r);
-        var si = Math.round(s);
-
-        var q_diff = Math.abs(qi - q);
-        var r_diff = Math.abs(ri - r);
-        var s_diff = Math.abs(si - s);
-        if (q_diff > r_diff && q_diff > s_diff) {
-            qi = -ri - si;
-        }
-        else if (r_diff > s_diff) {
-            ri = -qi - si;
-        }
-        out.x = qi + (ri + offset * (ri & 1)) / 2;
-        out.y = ri;
-    }
-
 
     public pixelToGrid(pixelX: number, pixelY: number, out: Vector2) {
         super.pixelToGrid(pixelX, pixelY, out);
-        this.prixToGrid(out, this._offset);
+        let col = out.y = Math.round(out.y);
+        out.x = Math.round(out.x + this._offset * (Math.abs(col) & 1) * 0.5);
     }
 
     public gridToPixel(row: number, col: number, out: Vector2) {
-        row = row - (col + this._offset * (col & 1)) / 2;
+        row = row - this._offset * (Math.abs(col) & 1) * 0.5;
         super.gridToPixel(row, col, out);
     }
 
@@ -71,5 +49,4 @@ export class HeixSheet extends BaseSheet {
         }
         out.y -= this._height * 0.5;
     }
-
 }

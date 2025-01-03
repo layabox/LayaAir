@@ -1,6 +1,6 @@
-import { Light2DManager } from "../Light2D/Light2DManager";
-import { Occluder2DAgent } from "../Light2D/Occluder2DAgent";
-import { PolygonPoint2D } from "../Light2D/PolygonPoint2D";
+import { Light2DManager } from "../display/Scene2DSpecial/Light2D/Light2DManager";
+import { Occluder2DAgent } from "../display/Scene2DSpecial/Light2D/Occluder2DAgent";
+import { PolygonPoint2D } from "../display/Scene2DSpecial/Light2D/PolygonPoint2D";
 import { TileMapOccluder } from "./light/TileMapOccluder";
 import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileMapLayer } from "./TileMapLayer";

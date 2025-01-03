@@ -1,4 +1,4 @@
-import { Vector2 } from "../../../../maths/Vector2";
+import { Vector2 } from "../../maths/Vector2";
 import { BaseSheet } from "./BaseSheet";
 export class IsometricSheet extends BaseSheet {
     private _offset: number = 0;

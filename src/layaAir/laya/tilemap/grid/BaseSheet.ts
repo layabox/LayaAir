@@ -1,5 +1,5 @@
-import { Matrix } from "../../../../maths/Matrix";
-import { Vector2 } from "../../../../maths/Vector2";
+import { Matrix } from "../../maths/Matrix";
+import { Vector2 } from "../../maths/Vector2";
 import { TileMapUtils } from "../TileMapUtils";
 
 

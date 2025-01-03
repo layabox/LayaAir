@@ -2,10 +2,10 @@ import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { DirtyFlagType, TileMapDirtyFlag, TillMap_CellNeighbor } from "./TileMapEnum";
 import { TileMapChunkData } from "./TileMapChunkData";
-import { Color } from "../../../maths/Color";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector4 } from "../../../maths/Vector4";
-import { Material } from "../../../resource/Material";
+import { Color } from "../maths/Color";
+import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
+import { Material } from "../resource/Material";
 
 export class TileSetCellOcclusionInfo {
     //根据light功能定义

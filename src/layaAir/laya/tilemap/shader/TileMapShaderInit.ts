@@ -4,12 +4,12 @@ import TileMapFS from "./TileMap.fs";
 import TileMapCommonGLSL from "./TileMapCommon.glsl"
 import TileMapVertexGLSL from "./TileMapVertex.glsl"
 import TileMapFragmentGLSL from "./TileMapFragment.glsl"
-import { ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { VertexElement } from "../../../../renders/VertexElement";
-import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 
 export class TileMapShaderInit {
     /**
