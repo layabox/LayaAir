@@ -179,6 +179,8 @@ export class TileMapChunkData {
                         this._chuckCellList.push(chuckCellInfo);
                     }
                     this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
+                }else{
+                    delete this._cellDataRefMap[gid];
                 }
             }
         });
