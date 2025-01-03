@@ -1,5 +1,5 @@
-import { Laya } from "../../../../Laya";
-import { FixtureBox2DDef, PhysicsShape, RigidBody2DInfo } from "../../../physics/IPhysiscs2DFactory";
+import { Laya } from "../../Laya";
+import { FixtureBox2DDef, PhysicsShape, RigidBody2DInfo } from "../physics/IPhysiscs2DFactory";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
 import { TileMapLayer } from "./TileMapLayer";
 

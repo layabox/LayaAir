@@ -1,9 +1,9 @@
-import { ILoadOptions, ILoadTask, ILoadURL, IResourceLoader, Loader } from "../../../../net/Loader";
+import { ILoadOptions, ILoadTask, ILoadURL, IResourceLoader, Loader } from "../../net/Loader";
 import { TileSet } from "../TileSet";
 import { TileSetCellGroup } from "../TileSetCellGroup";
-import { URL } from "../../../../net/URL";
-import { Byte } from "../../../../utils/Byte";
-import { ObjDecoder } from "../../../../loaders/ObjDecoder";
+import { URL } from "../../net/URL";
+import { Byte } from "../../utils/Byte";
+import { ObjDecoder } from "../../loaders/ObjDecoder";
 
 class TileSetLoader implements IResourceLoader {
     load(task: ILoadTask): Promise<any> {

@@ -1,4 +1,4 @@
-import { ClassUtils } from "../../../utils/ClassUtils";
+import { ClassUtils } from "../utils/ClassUtils";
 import { TileSetCustomDataLayer } from "./layers/TileSetCustomDataLayer";
 import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
 import { TileSetOcclusionLayer } from "./layers/TileSetOcclusionLayer";
@@ -9,7 +9,7 @@ import { TileMapChunkData } from "./TileMapChunkData";
 import { TileMapLayer } from "./TileMapLayer";
 import { TileMapPhysics } from "./TileMapPhysics";
 import { TileSet } from "./TileSet";
-import { TileSetCellData, TileSetCellPhysicsInfo, TileSetCellNavigationInfo, TileSetCellOcclusionInfo } from "./TileSetCellData";
+import { TileSetCellData, TileSetCellNavigationInfo, TileSetCellOcclusionInfo, TileSetCellPhysicsInfo } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
 
 let c = ClassUtils.regClass;

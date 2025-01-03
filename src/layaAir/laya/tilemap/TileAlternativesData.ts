@@ -1,5 +1,5 @@
-import { Laya } from "../../../../Laya";
-import { Vector2 } from "../../../maths/Vector2";
+import { Laya } from "../../Laya";
+import { Vector2 } from "../maths/Vector2";
 import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";

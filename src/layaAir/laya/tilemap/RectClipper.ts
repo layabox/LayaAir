@@ -1,9 +1,9 @@
 
-import { Matrix } from "../../../maths/Matrix";
-import { Point } from "../../../maths/Point";
-import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector4 } from "../../../maths/Vector4";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
 import { TileMapUtils } from "./TileMapUtils";
 
 //对于给定的轴，计算两个多边形的在轴上的投影值，并存储最大值和最小值

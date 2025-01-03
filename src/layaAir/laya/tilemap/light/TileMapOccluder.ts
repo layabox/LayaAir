@@ -1,8 +1,8 @@
-import { Event } from "../../../../events/Event";
-import { Sprite } from "../../../Sprite";
-import { Light2DManager } from "../../Light2D/Light2DManager";
-import { LightOccluder2DCore } from "../../Light2D/LightOccluder2DCore";
-import { PolygonPoint2D } from "../../Light2D/PolygonPoint2D";
+import { Event } from "../../events/Event";
+import { Sprite } from "../../display/Sprite";
+import { Light2DManager } from "../../display/Scene2DSpecial/Light2D/Light2DManager";
+import { LightOccluder2DCore } from "../../display/Scene2DSpecial/Light2D/LightOccluder2DCore";
+import { PolygonPoint2D } from "../../display/Scene2DSpecial/Light2D/PolygonPoint2D";
 
 /**
  * 2D灯光遮挡器（遮光器）

@@ -1,29 +1,29 @@
 
-import { Color } from "../../../maths/Color";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { IRenderContext2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { Context } from "../../../renders/Context";
-import { Material } from "../../../resource/Material";
-import { Sprite } from "../../Sprite";
-import { Grid } from "./Grid/Grid";
+import { Color } from "../maths/Color";
+import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { Context } from "../renders/Context";
+import { Material } from "../resource/Material";
+import { Sprite } from "../display/Sprite";
+import { Grid } from "./grid/Grid";
 import { TileMapChunk } from "./TileMapChunk";
 import { TileMapChunkData } from "./TileMapChunkData";
-import { TileMapShaderInit } from "./TileMapShader/TileMapShaderInit";
+import { TileMapShaderInit } from "./shader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
 import { TileMapPhysics } from "./TileMapPhysics";
 import { TileSetCellData } from "./TileSetCellData";
-import { Matrix } from "../../../maths/Matrix";
-import { Laya } from "../../../../Laya";
-import { Rectangle } from "../../../maths/Rectangle";
+import { Matrix } from "../maths/Matrix";
+import { Laya } from "../../Laya";
+import { Rectangle } from "../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
-import { Texture2D } from "../../../resource/Texture2D";
+import { Texture2D } from "../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
-import { NodeFlags } from "../../../Const";
+import { NodeFlags } from "../Const";
 import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
-import { Event } from "../../../events/Event";
+import { Event } from "../events/Event";
 
 
 

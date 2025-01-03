@@ -1,6 +1,6 @@
-import { Matrix } from "../../../maths/Matrix";
-import { Vector2 } from "../../../maths/Vector2";
-import { Texture2D } from "../../../resource/Texture2D";
+import { Matrix } from "../maths/Matrix";
+import { Vector2 } from "../maths/Vector2";
+import { Texture2D } from "../resource/Texture2D";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSet } from "./TileSet";

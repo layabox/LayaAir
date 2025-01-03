@@ -238,12 +238,6 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'tiledmap',
-    input: [
-        'laya/map/**/*.*'
-    ],
-},
-{
     name: 'ui',
     input: [
         'laya/ui/**/*.*',
@@ -326,6 +320,12 @@ export const allBundles = [{
     name: 'ui2',
     input: [
         'laya/ui2/**/*.ts'
+    ],
+},
+{
+    name: 'tilemap',
+    input: [
+        'laya/tilemap/**/*.*'
     ],
 }
 ];
