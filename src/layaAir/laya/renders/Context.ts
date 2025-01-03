@@ -2110,7 +2110,6 @@ export class Context {
         var right = sizeGrid[1];
         var bottom = sizeGrid[2];
         var repeat = sizeGrid[4];
-        var needClip = false;
 
         if (width == tex.width) {
             left = right = 0;
@@ -2119,33 +2118,33 @@ export class Context {
             top = bottom = 0;
         }
 
+        var imgid = (tex.bitmap as Texture2D).id;
+        var mat: Matrix = this._curMat;
+        var tuv = this._tempUV;
+
+        //当width过小的情况
+        let hasmidx = true;
+        if (left + right > width) {
+            hasmidx = false;
+            let d = (left + right - width) / 2;
+            left -= d;
+            right -= d;
+        }
+
+        let hasmidy = true;
+        if (top + bottom > height) {
+            hasmidy = false;
+            let d = (top + bottom - height) / 2;
+            top -= d;
+            bottom -= d;
+        }
+
         var d_top = top / h;
         var d_left = left / w;
         var d_right = right / w;
         var d_bottom = bottom / h;
 
-        //处理进度条不好看的问题
-        // if (left + right > width) {
-        // 	var clipWidth = width;
-        // 	needClip = true;
-        // 	width = left + right;
-        // 	this.save();
-        // 	this.clipRect(0 + tx, 0 + ty, clipWidth, height);
-        // }
 
-        var imgid = (tex.bitmap as Texture2D).id;
-        var mat: Matrix = this._curMat;
-        var tuv = this._tempUV;
-
-        //解决九宫格设置left+right或top+bottom的累加值超过宽或高导致九宫格显示错乱的bug
-        var scale_x = 1;
-        var scale_y = 1;
-        if (left + right > width) scale_x = width / (left + right);
-        if (top + bottom > height) scale_y = height / (top + bottom);
-        left *= scale_x;
-        right *= scale_x;
-        top *= scale_y;
-        bottom *= scale_y;
 
         // 整图的uv
         // 一定是方的，所以uv只要左上右下就行
@@ -2191,7 +2190,7 @@ export class Context {
             this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
         }
         //绘制上下两个边
-        if (top) {
+        if (top && hasmidx) {
             uvl_ = uvl + d_left; uvt_ = uvt;
             uvr_ = uvr - d_right; uvb_ = uvt + d_top;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
@@ -2203,7 +2202,7 @@ export class Context {
             }
 
         }
-        if (bottom) {
+        if (bottom &&  hasmidx) {
             uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
             uvr_ = uvr - d_right; uvb_ = uvb;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
@@ -2215,7 +2214,7 @@ export class Context {
             }
         }
         //绘制左右两边
-        if (left) {
+        if (left && hasmidy) {
             uvl_ = uvl; uvt_ = uvt + d_top;
             uvr_ = uvl + d_left; uvb_ = uvb - d_bottom;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
@@ -2226,7 +2225,7 @@ export class Context {
                 this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
             }
         }
-        if (right) {
+        if (right && hasmidy) {
             uvl_ = uvr - d_right; uvt_ = uvt + d_top;
             uvr_ = uvr; uvb_ = uvb - d_bottom;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
@@ -2238,21 +2237,21 @@ export class Context {
             }
         }
         //绘制中间
-        uvl_ = uvl + d_left; uvt_ = uvt + d_top;
-        uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
-        tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-            tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-        if (repeat) {
-            var tuvr: any[] = Context.tmpUVRect;
-            tuvr[0] = uvl_; tuvr[1] = uvt_;
-            tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
-            // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
-            this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
-        } else {
-            this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
+        if(hasmidx && hasmidy){
+            uvl_ = uvl + d_left; uvt_ = uvt + d_top;
+            uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
+            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+            if (repeat) {
+                var tuvr: any[] = Context.tmpUVRect;
+                tuvr[0] = uvl_; tuvr[1] = uvt_;
+                tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
+                // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
+                this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
+            } else {
+                this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
+            }
         }
-
-        if (needClip) this.restore();
     }
 }
 
