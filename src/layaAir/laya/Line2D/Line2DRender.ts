@@ -1,24 +1,23 @@
-
-import { Laya } from "../../../../Laya";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Color } from "../../../maths/Color";
-import { Vector3 } from "../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../../../renders/Context";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "../../../resource/Material";
-import { Texture2D } from "../../../resource/Texture2D";
-import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { Context } from "vm";
+import { Laya } from "../../Laya";
+import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
+import { Vector3 } from "../maths/Vector3";
+import { Vector4 } from "../maths/Vector4";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IVertexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { BaseTexture } from "../resource/BaseTexture";
+import { Material } from "../resource/Material";
+import { Texture2D } from "../resource/Texture2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { LineShader } from "./shader/Line2DShader";
-import { Vector4 } from "../../../maths/Vector4";
 
 
 export class Line2DRender extends BaseRenderNode2D {

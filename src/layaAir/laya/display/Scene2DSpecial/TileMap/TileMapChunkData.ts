@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
+import { PolygonPoint2D } from "../../../Light2D/PolygonPoint2D";
 import { Vector2 } from "../../../maths/Vector2";
 import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
@@ -10,7 +11,6 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Material } from "../../../resource/Material";
 import { Sprite } from "../../Sprite";
-import { PolygonPoint2D } from "../Light2D/PolygonPoint2D";
 import { TileMapOccluder } from "./light/TileMapOccluder";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag, TileShape } from "./TileMapEnum";

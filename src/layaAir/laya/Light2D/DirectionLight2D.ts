@@ -1,5 +1,5 @@
-import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
+import { Rectangle } from "../maths/Rectangle";
+import { Vector2 } from "../maths/Vector2";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
 
 /**

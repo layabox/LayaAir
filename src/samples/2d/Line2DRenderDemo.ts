@@ -10,8 +10,8 @@ import { Vector4 } from "laya/maths/Vector4";
 import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Texture } from "laya/resource/Texture";
-import { Line2DRender } from "laya/display/Scene2DSpecial/Line2D/Line2DRender";
 import { Color } from "laya/maths/Color";
+import { Line2DRender } from "laya/Line2D/Line2DRender";
 
 export class Line2DRenderDemo {
     Main: typeof Main = null;

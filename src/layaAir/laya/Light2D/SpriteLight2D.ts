@@ -1,9 +1,9 @@
-import { ILaya } from "../../../../ILaya";
-import { Point } from "../../../maths/Point";
-import { Rectangle } from "../../../maths/Rectangle";
-import { Texture2D } from "../../../resource/Texture2D";
-import { Sprite } from "../../Sprite";
+import { ILaya } from "../../ILaya";
+import { Sprite } from "../display/Sprite";
 import { BaseLight2D, Light2DType } from "../Light2D/BaseLight2D";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Texture2D } from "../resource/Texture2D";
 import { Light2DManager } from "./Light2DManager";
 
 /**

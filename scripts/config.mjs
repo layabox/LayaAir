@@ -327,5 +327,17 @@ export const allBundles = [{
     input: [
         'laya/ui2/**/*.ts'
     ],
+},
+{
+    name: 'line2D',
+    input: [
+        'laya/Line2D/**/*.ts'
+    ],
+},
+{
+    name: 'light2D',
+    input: [
+        'laya/Light2D/**/*.ts'
+    ],
 }
 ];
