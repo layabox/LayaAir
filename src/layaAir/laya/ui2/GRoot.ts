@@ -6,6 +6,7 @@ import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
 import { Loader } from "../net/Loader";
+import { HideFlags } from "../Const";
 
 export class GRoot extends GWidget {
     private _modalLayer: GWidget;
@@ -21,8 +22,10 @@ export class GRoot extends GWidget {
     constructor() {
         super();
 
+        this.name = "GRoot";
         this.zOrder = GRoot.LAYER;
         this.mouseThrough = true;
+        this.hideFlags |= HideFlags.HideAndDontSave;
         this.size(ILaya.stage.width, ILaya.stage.height);
         ILaya.stage.addChild(this);
 
@@ -30,6 +33,7 @@ export class GRoot extends GWidget {
 
         this._modalLayer = new GWidget();
         this._modalLayer.mouseEnabled = true;
+        this._modalLayer.hideFlags |= HideFlags.HideAndDontSave;
         this._modalLayer.size(this.width, this.height);
         this._modalLayer.graphics.drawRect(0, 0, 1, 1, UIConfig2.modalLayerColor, null, 0, true);
         this._modalLayer.addRelation(this, RelationType.Size);

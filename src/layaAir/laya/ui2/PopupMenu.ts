@@ -6,7 +6,6 @@ import { GWidget } from "./GWidget";
 import { GTextField } from "./GTextField";
 import { UIConfig2 } from "./UIConfig";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { Prefab } from "../resource/HierarchyResource";
 import { GRoot } from "./GRoot";
 import { UIEvent } from "./UIEvent";
 import { Loader } from "../net/Loader";
@@ -22,16 +21,21 @@ export class PopupMenu extends EventDispatcher {
     protected _content: GWidget;
     protected _list: GList;
     protected _initWidth: number;
+    protected _seperatorRes: string;
 
-    constructor(res?: Prefab) {
+    constructor(res?: string, seperatorRes?: string) {
         super();
 
-        if (!res) {
-            res = UIConfig2.popupMenu ? Loader.getRes(UIConfig2.popupMenu) : null;
-            if (!res)
-                throw new Error("UIConfig.popupMenu not defined");
-        }
-        this._content = <GWidget>res.create();
+        if (!res)
+            res = UIConfig2.popupMenu;
+
+        let prefab = res ? Loader.getRes(res) : null;
+        if (!res)
+            throw new Error("UIConfig.popupMenu not defined");
+
+        this._seperatorRes = seperatorRes || UIConfig2.popupMenuSeperator;
+
+        this._content = <GWidget>prefab.create();
         this._initWidth = this._content.width;
         this._list = this._content.getChild("list");
         this._list.removeChildrenToPool();
@@ -68,15 +72,15 @@ export class PopupMenu extends EventDispatcher {
             c.selectedIndex = 0;
         item.offAll(internalEvent);
         if (callback)
-            item.on(internalEvent, callback, target);
+            item.on(internalEvent, target, callback, [item]);
         return item;
     }
 
     public addSeperator(index?: number): void {
         if (index == undefined || index == -1)
-            this._list.addItemFromPool("seperator");
+            this._list.addItemFromPool(this._seperatorRes);
         else {
-            let item = this._list.getFromPool("seperator");
+            let item = this._list.getFromPool(this._seperatorRes);
             this._list.addChildAt(item, index);
         }
     }

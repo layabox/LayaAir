@@ -6,6 +6,7 @@ import { Loader } from "../net/Loader";
 import { GButton } from "./GButton";
 import { GComboBox } from "./GComboBox";
 import { GProgressBar } from "./GProgressBar";
+import { GRoot } from "./GRoot";
 import { GSlider } from "./GSlider";
 import { GTextInput } from "./GTextInput";
 import { UIConfig2 } from "./UIConfig";
@@ -52,6 +53,8 @@ export class UIPackage {
     static _init(): Promise<void> {
         if (!LayaEnv.isPlaying)
             return null;
+
+        GRoot.inst;
 
         const urls: Array<string> = [
             UIConfig2.windowModalWaiting,

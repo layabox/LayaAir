@@ -4,7 +4,6 @@ import { RelationType } from "./Const";
 import { UIConfig2 } from "./UIConfig";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
-import { GRoot } from "./GRoot";
 import { Loader } from "../net/Loader";
 
 export class GWindow extends GWidget {
@@ -100,7 +99,7 @@ export class GWindow extends GWidget {
     }
 
     public show(): void {
-        GRoot.inst.showWindow(this);
+        GWidget._defaultRoot.showWindow(this);
     }
 
     public hide(): void {
@@ -109,7 +108,7 @@ export class GWindow extends GWidget {
     }
 
     public hideImmediately(): void {
-        GRoot.inst.hideWindowImmediately(this);
+        GWidget._defaultRoot.hideWindowImmediately(this);
     }
 
     public toggleStatus(): void {
@@ -136,7 +135,7 @@ export class GWindow extends GWidget {
     }
 
     public bringToFront(): void {
-        GRoot.inst.bringToFront(this);
+        GWidget._defaultRoot.bringToFront(this);
     }
 
     public showModalWait(requestingCmd?: number) {

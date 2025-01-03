@@ -39,6 +39,9 @@ export class UIConfig2 {
     //Resources for PopupMenu.
     public static popupMenu: string = null;
 
+    //Resources for seperator of PopupMenu.
+    public static popupMenuSeperator: string = null;
+
     //Resources for tooltips.
     public static tooltipsWidget: string = null;
     public static defaultTooltipsShowDelay: number = 100; //In milliseconds
