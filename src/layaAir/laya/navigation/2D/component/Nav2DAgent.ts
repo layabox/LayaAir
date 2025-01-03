@@ -90,7 +90,7 @@ export class Nav2DAgent extends BaseNavAgent {
      */
     _updatePosition(pos: Vector3, dir: Vector3) {
         this.owner.globalTrans.setPos(pos.x, pos.z);
-        this.owner.globalTrans.rotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
+       // this.owner.globalTrans.rotation = Math.atan2(dir.x, dir.z) * 180 / Math.PI;
     }
 
 
