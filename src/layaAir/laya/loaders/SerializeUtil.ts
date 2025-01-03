@@ -1,4 +1,5 @@
 import { Loader } from "../net/Loader";
+import { ObjDecoder } from "./ObjDecoder";
 
 export const TypedArrayClasses: Record<string, any> = {
     "Int8Array": Int8Array,
@@ -22,6 +23,10 @@ export class SerializeUtil {
                 return true;
         }
         return false;
+    }
+
+    static decodeObj(data: any, obj?: any): any {
+        return ObjDecoder.decodeObj(data, obj);
     }
 
     static getLoadTypeByEngineType(type: string) {
