@@ -41,7 +41,7 @@ export class TileAlternativesData {
 
     private _animationNode: TileAnimationMode;
 
-    private _animationFrams: number[] = [];;
+    private _animationFrams: number[] = [];
     //动画总时间
     private _totalAnimatorTime: number;
 
@@ -251,7 +251,7 @@ export class TileAlternativesData {
         if (this._animationFrams.length <= 1 || Laya.timer.currFrame == this._animatorUpdateMask) { return; }
         this._animatorUpdateMask = Laya.timer.currFrame;
         let oldFrameIndex = this._frameIndex;
-        let cur = (Laya.timer.totalTime / 1000) % this._totalAnimatorTime;
+        let cur = (Laya.timer.totalTime / 1000) * this._animation_speed % this._totalAnimatorTime;
 
         if (cur < this._animationFramsTime[this._frameIndex]) {
             this._frameIndex = 0;

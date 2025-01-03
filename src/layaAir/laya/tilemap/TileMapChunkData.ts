@@ -588,6 +588,8 @@ export class TileMapChunkData {
 
         if (!mat) {
             mat = this._material;
+        }else{
+            // mat.setTexture("u_render2DTexture", texture);
         }
 
         if (mat == null) {
