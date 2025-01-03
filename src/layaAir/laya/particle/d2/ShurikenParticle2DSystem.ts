@@ -376,6 +376,10 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
         for (let i = start; i < count; i++) {
             let burst = bursts[i];
 
+            if (burst.time > duration) {
+                break;
+            }
+
             let burstTime = this._burstLoopCount * duration + burst.time;
 
             if (burstTime <= this.totalTime) {
