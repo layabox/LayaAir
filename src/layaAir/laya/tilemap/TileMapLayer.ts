@@ -53,6 +53,7 @@ const TempVector3_1: Vector3 = new Vector3();
 export class TileMapLayer extends BaseRenderNode2D {
 
     private static _inited = false;
+    // _testSprite: Sprite;
 
     /**
      * @internal
@@ -442,14 +443,18 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
         let oneChuckSize = Vector2.TEMP;
         this._chunk._getChunkSize(oneChuckSize);
-        let needUpdateDirty = !!this._needUpdateDirtys.length;
 
+        let needUpdateDirty = !!this._needUpdateDirtys.length;
 
         this._renderElements.length = 0;
         
-        this._chunk._getChunkPosByPixel(renderRect.x, renderRect.y, TempVector3_0);
+        //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
+        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
 
-        this._chunk._getChunkPosByPixel(renderRect.width+renderRect.x, renderRect.height+ renderRect.y, TempVector3_1);
+        this._chunk._getChunkPosByPixel(chuckLocalRect.x, chuckLocalRect.y, TempVector3_0);
+
+        this._chunk._getChunkPosByPixel(renderRect.width+chuckLocalRect.x, renderRect.height+ chuckLocalRect.y, TempVector3_1);
+
         let chuckstartCol = Math.min(TempVector3_1.y,TempVector3_0.y);
         let chuckendCol =  Math.max(TempVector3_1.y,TempVector3_0.y);
         let chuckstartRow =  Math.min(TempVector3_1.x,TempVector3_0.x);
@@ -514,6 +519,11 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
         let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
+
+        // let sprite = this._testSprite = this._testSprite || new Sprite;
+        // sprite.graphics.clear();
+        // sprite.graphics.drawRect(chuckLocalRect.x, chuckLocalRect.y, chuckLocalRect.z - chuckLocalRect.x, chuckLocalRect.w - chuckLocalRect.y, "#ff0000");
+        // this.owner.addChild(sprite);
 
         this._renderElements.length = 0;
 
