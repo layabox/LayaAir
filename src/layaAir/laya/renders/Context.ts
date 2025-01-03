@@ -54,6 +54,7 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
+var _clipResult=new Vector2();
 
 /**
  * @private
@@ -2096,6 +2097,27 @@ export class Context {
         }
     }
 
+    private _gridCut(left:number, right:number, width:number,out:Vector2){
+        let c = (left+right)/2;
+        let d = (left + right - width)/2;
+        let ll = 0, lr = left;
+        let rl = left, rr = left+right;
+        let cl = c-d, cr=c+d;
+        //扣掉的部分与左右两部分相交
+        let hl = Math.max(ll,cl);
+        let hr = Math.min(lr,cr);
+        if(hr>hl){
+            left -=(hr-hl);
+        }
+        hl = Math.max(rl,cl);
+        hr = Math.min(rr,cr);
+        if(hr>hl){
+            right-=(hr-hl);
+        }
+        out.x=left;
+        out.y=right;
+    }
+
     private static tmpUVRect: any[] = [0, 0, 0, 0];
     drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
         if (!tex._getSource())
@@ -2126,17 +2148,19 @@ export class Context {
         let hasmidx = true;
         if (left + right > width) {
             hasmidx = false;
-            let d = (left + right - width) / 2;
-            left -= d;
-            right -= d;
+            //有时候用户会把左右切割的大小不一致,如果平分裁剪,会导致左右的半圆对不上,假设用户的图片左右两边的半圆是相同的
+            //那么更好的方法是优先裁剪长的那一段
+            this._gridCut(left, right, width, _clipResult);
+            left = _clipResult.x;
+            right = _clipResult.y;
         }
 
         let hasmidy = true;
         if (top + bottom > height) {
             hasmidy = false;
-            let d = (top + bottom - height) / 2;
-            top -= d;
-            bottom -= d;
+            this._gridCut(top, bottom, height, _clipResult);
+            top = _clipResult.x;
+            bottom = _clipResult.y;
         }
 
         var d_top = top / h;
