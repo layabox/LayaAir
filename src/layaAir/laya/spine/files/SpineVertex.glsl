@@ -80,6 +80,20 @@ vec4 getSpinePos(){
 
 }
 
+void getGlobalPos(vec4 pos, out vec2 globalPos){
+    #ifdef GPU_INSTANCE
+        vec3 down =a_NMatrix_1;
+        vec3 up =a_NMatrix_0;
+    #else
+        vec3 down =u_NMatrix_1;
+        vec3 up =u_NMatrix_0;
+    #endif
+    float x=up.x*pos.x+up.y*pos.y+up.z;
+    float y=down.x*pos.x+down.y*pos.y-down.z;
+
+    globalPos = vec2(x,-y);
+}
+
 vec4 getScreenPos(vec4 pos){
     #ifdef GPU_INSTANCE
         vec3 down =a_NMatrix_1;
@@ -98,6 +112,32 @@ vec4 getScreenPos(vec4 pos){
     #endif  
     v_cliped = getClipedInfo(vec2(x,-y));
     return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(y/u_baseRenderSize2D.y+0.5)*2.0,pos.z,1.0);
+}
+
+void getVertexInfo(vec4 pos, inout vertexInfo info){
+    info.pos = pos.xy;
+    info.color = vec4(1.0);
+    #ifdef COLOR
+        info.color = a_color;
+    #endif
+    info.color *= u_baseRenderColor;
+    #ifdef UV
+        info.uv = a_uv;
+    #endif
+
+    #ifdef LIGHT2D_ENABLE
+        vec2 global;
+        vec3 stageInv0 = vec3(u_LightAndShadow2DStageMat0.x, u_LightAndShadow2DStageMat0.y, u_LightAndShadow2DStageMat0.z);
+        vec3 stageInv1 = vec3(u_LightAndShadow2DStageMat1.x, u_LightAndShadow2DStageMat1.y, u_LightAndShadow2DStageMat1.z);
+        invertMat(stageInv0, stageInv1); //获取stage的逆矩阵
+        getGlobalPos(pos, global); //先获得完整世界变换的位置
+        transfrom(global, stageInv0, stageInv1, global); //先去除stage变换
+        transfrom(global, u_LightAndShadow2DSceneInv0, u_LightAndShadow2DSceneInv1, global); //再去除scene变换
+        transfrom(global, u_LightAndShadow2DStageMat0, u_LightAndShadow2DStageMat1, global); //再恢复stage变换
+        //现在global中的值就和生成光影图时的值一致了，基于这个值生成光影图采样uv坐标
+        info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
+        info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
+    #endif
 }
 
 #endif // SpineVertex_lib

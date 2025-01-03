@@ -166,23 +166,23 @@
         void lightAndShadow(vertexInfo info) {
             v_lightUV = info.lightUV;
         }
-    #endif
 
-    void invertMat(inout vec3 v1, inout vec3 v2) {
-        float a1 = v1.x;
-        float b1 = v2.x;
-        float c1 = v1.y;
-        float d1 = v2.y;
-        float tx1 = v1.z;
-        float ty1 = v2.z;
-        float n = a1 * d1 - b1 * c1;
-        v1.x = d1 / n;
-        v2.x = -b1 / n;
-        v1.y = -c1 / n;
-        v2.y = a1 / n;
-        v1.z = (c1 * ty1 - d1 * tx1) / n;
-        v2.z = -(a1 * ty1 - b1 * tx1) / n;
-    }
+        void invertMat(inout vec3 v1, inout vec3 v2) {
+            float a1 = v1.x;
+            float b1 = v2.x;
+            float c1 = v1.y;
+            float d1 = v2.y;
+            float tx1 = v1.z;
+            float ty1 = v2.z;
+            float n = a1 * d1 - b1 * c1;
+            v1.x = d1 / n;
+            v2.x = -b1 / n;
+            v1.y = -c1 / n;
+            v2.y = a1 / n;
+            v1.z = (c1 * ty1 - d1 * tx1) / n;
+            v2.z = -(a1 * ty1 - b1 * tx1) / n;
+        }
+    #endif
 
     void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
         outPos.x=xDir.x*pos.x+xDir.y*pos.y+xDir.z;
