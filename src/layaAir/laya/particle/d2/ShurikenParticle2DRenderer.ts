@@ -654,8 +654,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             case Particle2DScalingMode.Hierarchy:
                 break;
             case Particle2DScalingMode.Local:
-                scaleX = this.owner.scaleX;
-                scaleY = this.owner.scaleY;
+                scaleX = this.owner.scaleX * this.owner.scene.globalScaleX;
+                scaleY = this.owner.scaleY * this.owner.scene.globalScaleY;
                 break;
             default:
                 break;
