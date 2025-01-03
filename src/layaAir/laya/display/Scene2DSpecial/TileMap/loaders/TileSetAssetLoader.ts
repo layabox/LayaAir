@@ -38,6 +38,7 @@ class TileSetLoader implements IResourceLoader {
             for (let i = 0, len = data.groups.length; i < len; i++) {
                 this.createGroup(tileSet, data.groups[i]);
             }
+            tileSet.tileSize = SerializeUtil.decodeObj(data.tileSize);
             tileSet.physicsLayers = SerializeUtil.decodeObj(data.physicsLayers);
             tileSet.lightInfoLayers = SerializeUtil.decodeObj(data.lightInfoLayers);
             tileSet.customLayers = SerializeUtil.decodeObj(data.customLayers);
