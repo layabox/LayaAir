@@ -110,7 +110,7 @@ export class InputManager {
         if (touchId == null)
             touchId = _inst._lastTouchId;
 
-        return _inst.getTouch(touchId)?.pos || Point.EMPTY;
+        return _inst.getTouch(touchId)?.pos || _inst._mouseTouch.pos;
     }
 
     /**
