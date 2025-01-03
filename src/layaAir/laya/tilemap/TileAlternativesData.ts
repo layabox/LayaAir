@@ -41,7 +41,7 @@ export class TileAlternativesData {
 
     private _animationNode: TileAnimationMode;
 
-    private _animationFrams: number[];
+    private _animationFrams: number[] = [];;
     //动画总时间
     private _totalAnimatorTime: number;
 
@@ -132,6 +132,10 @@ export class TileAlternativesData {
     }
 
     set animationFrams(frams: number[]) {
+        if (!frams) frams = [];
+        let oldLength = this._animationFrams.length;
+        let newLength = frams.length;
+
         this._animationFrams = frams;
         this._animationFramsTime = [];
         this._animationFramsTime.length = frams.length;
@@ -142,6 +146,11 @@ export class TileAlternativesData {
             this._totalAnimatorTime += frams[i];
         }
 
+        if (oldLength != newLength && (oldLength > 1 || newLength > 1)) {
+            for (let k in this._tileDatas) {
+                this._tileDatas[k]._noticeRenderChange();
+            }
+        }
 
     }
 
@@ -155,7 +164,6 @@ export class TileAlternativesData {
         this._uvOri = new Vector2();
         this._uvExtends = new Vector2();
         this._regionSize = new Vector2();
-        this._animationFrams = [];
         this._tileDatas = {};
         this._sizeByAtlas.setValue(1, 1);
     }

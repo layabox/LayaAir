@@ -167,9 +167,7 @@ export class TileMapChunkData {
         this._cellDataRefMap.forEach((localIndexs: number[], gid: number) => {
             if (localIndexs) {
                 let cellData = tileSet.getCellDataByGid(gid);
-                if (cellData) {//todo 算数据丢失
-                    if (cellData.cellowner._hasAni())
-                        this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
+                if (cellData){//todo 算数据丢失
                     cellData._addNoticeRenderTile(this);
                     for (let i = 0, len = localIndexs.length; i < len; i++) {
                         let index = localIndexs[i];
@@ -180,6 +178,8 @@ export class TileMapChunkData {
                         this._chuckCellList.push(chuckCellInfo);
                     }
                     this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
+                }else{
+                    delete this._cellDataRefMap[gid];
                 }
             }
         });
@@ -317,12 +317,18 @@ export class TileMapChunkData {
             }
             let lastCell;
             let tempCellIndexArray: ChunkCellInfo[] = [];
+
+            this._animatorAlterArray.clear();
+
             for (var i = 0; i < this._chuckCellList.length; i++) {
                 // let cellIndex = this._softList[i].xOrider;
                 let chuckCellInfoData = this._chuckCellList[i];
                 let cellData = chuckCellInfoData.cell;
                 if (!cellData)
                     continue;
+
+                if (cellData.cellowner._hasAni())
+                    this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
 
                 if (!lastCell) {
                     lastCell = cellData;
@@ -333,6 +339,7 @@ export class TileMapChunkData {
                     lastCell = cellData;
                     this._createRenderElement(tempCellIndexArray)
                 }
+
                 tempCellIndexArray.push(chuckCellInfoData);
             }
             this._createRenderElement(tempCellIndexArray);
@@ -769,9 +776,6 @@ export class TileMapChunkData {
             cellData._addNoticeRenderTile(this);
         }
 
-        if (cellData.cellowner._hasAni())
-            this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
-
         let chuckCellInfo = this._cellDataMap[index];
         if (chuckCellInfo == null) {//create one ChunkCellInfo
             let chunk = this._tileLayer._chunk;
@@ -880,6 +884,10 @@ export class TileMapChunkData {
             let flags = this._dirtyFlags[type];
             flags.set(gid, flags.get(gid) | flag);
         }
+    }
+
+    modifyRenderData(){
+        this._reCreateRenderData = true;
     }
 
     /**

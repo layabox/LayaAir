@@ -294,6 +294,13 @@ export class TileSetCellData {
         });
     }
 
+    _noticeRenderChange() {
+        if (!this.cellowner) return;
+        this._notiveRenderTile.forEach(element => {
+            element.modifyRenderData()
+        });
+    }
+
     private _updateTransData() {
         this._updateTrans = false;
         let tileshape = this.cellowner.owner._owner.tileShape;
