@@ -3,7 +3,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { ClassUtils } from "../../../../utils/ClassUtils";
 import { Base2DShape, Base2DShapeType } from "./Base2DShape";
 
-export class Box2DShap extends Base2DShape {
+export class Box2DShape extends Base2DShape {
 
     size: Vector2 = new Vector2(1, 1);
 
@@ -30,13 +30,13 @@ export class Box2DShap extends Base2DShape {
         return this.posAndDir;
     }
 
-    cloneTo(destObject: Box2DShap): void {
+    cloneTo(destObject: Box2DShape): void {
         this.size.cloneTo(destObject.size);
         destObject.randomDirection = this.randomDirection;
     }
 
-    clone(): Box2DShap {
-        let destObject = new Box2DShap();
+    clone(): Box2DShape {
+        let destObject = new Box2DShape();
         this.cloneTo(destObject);
         return destObject;
     }

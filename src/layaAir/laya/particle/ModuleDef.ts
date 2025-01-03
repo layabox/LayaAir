@@ -8,7 +8,7 @@ import { Main2DModule } from "./d2/module/Main2DModule";
 import { Rotation2DOverLifetimeModule } from "./d2/module/Rotation2DOverLifetimeModule";
 import { Shape2DModule } from "./d2/module/Shape2DModule";
 import { Base2DShape } from "./d2/module/shapes/Base2DShape";
-import { Box2DShap } from "./d2/module/shapes/Box2DShap";
+import { Box2DShape } from "./d2/module/shapes/Box2DShape";
 import { Circle2DShape } from "./d2/module/shapes/Circle2DShape";
 import { FanShape } from "./d2/module/shapes/FanShape";
 import { SemicircleShap } from "./d2/module/shapes/SemicircleShap";
@@ -31,7 +31,7 @@ ClassUtils.regClass("TextureSheetAnimationModule", TextureSheetAnimationModule);
 
 ClassUtils.regClass("Base2DShape", Base2DShape);
 
-ClassUtils.regClass("Box2DShap", Box2DShap);
+ClassUtils.regClass("Box2DShape", Box2DShape);
 ClassUtils.regClass("Circle2DShape", Circle2DShape);
 
 ClassUtils.regClass("FanShape", FanShape);
