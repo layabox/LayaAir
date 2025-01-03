@@ -27,27 +27,27 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @en X-axis offset.
      * @zh X轴偏移量。
      */
-    x: number;
+    x: number = 0;
     /**
      * @en Y-axis offset.
      * @zh Y轴偏移量。
      */
-    y: number;
+    y: number = 0;
     /**
      * @en (Optional) Width of the filled area.
      * @zh （可选）填充区域的宽度。
      */
-    width: number;
+    width: number = 1;
     /**
      * @en (Optional) Height of the filled area.
      * @zh （可选）填充区域的高度。
      */
-    height: number;
+    height: number = 1;
     /**
      * @en (Optional) Fill type: repeat|repeat-x|repeat-y|no-repeat
      * @zh （可选）填充类型：repeat|repeat-x|repeat-y|no-repeat
      */
-    type?: string;
+    type: string = "repeat";
     /**
      * @en (Optional) Texture offset
      * @zh （可选）贴图纹理偏移
@@ -58,7 +58,7 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @en Whether the position and size are percentages
      * @zh 位置和大小是否是百分比
      */
-    percent: boolean;
+    percent: boolean = true;
 
     /**
      * @en (Optional) Drawing color

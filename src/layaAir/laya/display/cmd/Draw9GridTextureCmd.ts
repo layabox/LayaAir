@@ -26,22 +26,22 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en (Optional) X-axis offset
      * @zh （可选）X轴偏移量
      */
-    x: number;
+    x: number = 0;
     /**
      * @en (Optional) Y-axis offset
      * @zh （可选）Y轴偏移量
      */
-    y: number;
+    y: number = 0;
     /**
      * @en (Optional) Width of the drawn texture
      * @zh （可选）绘制纹理的宽度
      */
-    width: number;
+    width: number = 1;
     /**
      * @en (Optional) Height of the drawn texture
      * @zh （可选）绘制纹理的高度
      */
-    height: number;
+    height: number = 1;
 
     /**
      * @en The size grid of the texture.
@@ -65,7 +65,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en Whether the position and size are percentages
      * @zh 位置和大小是否是百分比
      */
-    percent: boolean;
+    percent: boolean = true;
 
     /**
      * @private

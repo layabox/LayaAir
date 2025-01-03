@@ -18,42 +18,42 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @en The X-axis position of the rounded rectangle.
      * @zh 圆角矩形的 X 轴位置。
      */
-    x: number;
+    x: number = 0;
     /**
      * @en The Y-axis position of the rounded rectangle.
      * @zh 圆角矩形的 Y 轴位置。
      */
-    y: number;
+    y: number = 0;
     /**
      * @en The width of the rounded rectangle.
      * @zh 圆角矩形的宽度。
      */
-    width: number;
+    width: number = 1;
     /**
      * @en The height of the rounded rectangle.
      * @zh 圆角矩形的高度。
      */
-    height: number;
+    height: number = 1;
     /**
      * @en The radius of the top-left corner.
      * @zh 左上圆角的半径。
      */
-    lt: number;
+    lt: number = 6;
     /**
      * @en The radius of the top-right corner.
      * @zh 右上圆角的半径。
      */
-    rt: number;
+    rt: number = 6;
     /**
      * @en The radius of the bottom-left corner.
      * @zh 左下圆角的半径。
      */
-    lb: number;
+    lb: number = 6;
     /**
      * @en The radius of the bottom-right corner.
      * @zh 右下圆角的半径。
      */
-    rb: number;
+    rb: number = 6;
     /**
      * @en The fill color.
      * @zh 填充颜色 
@@ -74,7 +74,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @en Whether the position and size are percentages.
      * @zh 位置和大小是否是百分比。
      */
-    percent: boolean;
+    percent: boolean = true;
 
 
     /**

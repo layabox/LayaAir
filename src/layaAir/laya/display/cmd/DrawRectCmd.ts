@@ -49,7 +49,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en (Optional) The width of the border.
      * @zh （可选）边框宽度。
      */
-    lineWidth: number = 1;
+    lineWidth: number = 0;
 
     /**
      * @en Whether the position and size are percentages.
