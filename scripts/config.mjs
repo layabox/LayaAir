@@ -327,5 +327,17 @@ export const allBundles = [{
     input: [
         'laya/tilemap/**/*.*'
     ],
+},
+{
+    name: 'light2D',
+    input: [
+        'laya/Light2D/**/*.*'
+    ],
+},
+{
+    name: 'line2D',
+    input: [
+        'laya/Line2D/**/*.*'
+    ],
 }
 ];

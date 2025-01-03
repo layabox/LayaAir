@@ -1,10 +1,10 @@
-import { ILaya } from "../../../../ILaya";
-import { Matrix } from "../../../maths/Matrix";
-import { Point } from "../../../maths/Point";
-import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
-import { Pool } from "../../../utils/Pool";
-import { Sprite } from "../../Sprite";
+import { ILaya } from "../../ILaya";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Vector2 } from "../maths/Vector2";
+import { Pool } from "../utils/Pool";
+import { Sprite } from "../display/Sprite";
 import { Light2DManager } from "./Light2DManager";
 import { LightLine2D } from "./LightLine2D";
 import { PolygonPoint2D } from "./PolygonPoint2D";

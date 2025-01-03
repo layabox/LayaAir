@@ -1,9 +1,9 @@
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { VertexMesh2D, Mesh2D } from "../../../resource/Mesh2D";
-import { Scene } from "../../Scene";
-import { Sprite } from "../../Sprite";
-import { Mesh2DRender } from "../Mesh2DRender";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { BaseTexture } from "../resource/BaseTexture";
+import { VertexMesh2D, Mesh2D } from "../resource/Mesh2D";
+import { Scene } from "../display/Scene";
+import { Sprite } from "../display/Sprite";
+import { Mesh2DRender } from "../display/Scene2DSpecial/Mesh2DRender";
 
 /**
  * 用于显示渲染目标

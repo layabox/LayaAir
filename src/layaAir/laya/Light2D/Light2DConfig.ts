@@ -1,4 +1,4 @@
-import { Color } from "../../../maths/Color";
+import { Color } from "../maths/Color";
 
 /**
  * 2D灯光全局配置参数

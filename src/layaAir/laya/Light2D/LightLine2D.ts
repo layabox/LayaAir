@@ -1,4 +1,4 @@
-import { Vector2 } from "../../../maths/Vector2";
+import { Vector2 } from "../maths/Vector2";
 
 /**
  * 2D线段
