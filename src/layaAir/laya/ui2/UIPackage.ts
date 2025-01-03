@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { Laya } from "../../Laya";
 import { LayaEnv } from "../../LayaEnv";
@@ -60,9 +61,23 @@ export class UIPackage {
             UIConfig2.horizontalScrollBar,
             UIConfig2.verticalScrollBar
         ].filter((url) => url != null);
+
+        if (PlayerConfig.UI.alwaysIncludeDefaultSkin) {
+            urls.push(...[
+                "Button.lh",
+                "Radio.lh",
+                "CheckBox.lh",
+                "ProgressBar.lh",
+                "SliderH.lh",
+                "SliderV.lh",
+                "TextInput.lh",
+                "TextArea.lh",
+                "ComboBox.lh"
+            ].map((url) => "internal/UI/" + url));
+        }
         return ILaya.loader.load(urls);
     }
 
 }
 
-Laya.addInitCallback(UIPackage._init);
+Laya.addReadyCallback(UIPackage._init);
