@@ -130,15 +130,22 @@ export class Event {
     static KEY_UP = "keyup";
 
     /**
+     * @en Same as `Event.CHANGED`.
+     * @zh 同 `Event.CHANGED`。
+     */
+    static CHANGE = "changed";
+
+    /**
      * @en Defines the value of the `type` property of a `change` event object.
      * @zh 定义 `change` 事件对象的 `type` 属性值。
      */
-    static CHANGE = "change";
-    /**
-     * @en Defines the value of the `type` property of a `changed` event object.
-     * @zh 定义 `changed` 事件对象的 `type` 属性值。
-     */
     static CHANGED = "changed";
+
+    /**
+     * @en Defines the value of the `type` property of a `moved` event object.
+     * @zh 定义 `moved` 事件对象的 `type` 属性值。
+     */
+    static MOVED = "moved";
     /**
      * @en Defines the value of the `type` property of a `willResize` event object.
      * @zh 定义 `willResize` 事件对象的 `type` 属性值。

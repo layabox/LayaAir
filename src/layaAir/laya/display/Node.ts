@@ -210,8 +210,8 @@ export class Node extends EventDispatcher {
      * @param value The value to set, true or false.
      */
     protected _onSetBit(bit: number, value: boolean): void {
-        if ((bit & NodeFlags.DISPLAY) != 0) {
-            let ele: Node = this;
+        if ((bit & NodeFlags.DISPLAY) !== 0) {
+            let ele: Node = this._parent;
             let stage: Node = ILaya.stage;
             let displayedInStage: boolean = false;
             while (ele) {
@@ -219,7 +219,7 @@ export class Node extends EventDispatcher {
                     displayedInStage = (ele._bits & NodeFlags.DISPLAYED_INSTAGE) !== 0;
                     break;
                 }
-                if (ele === stage || (ele._bits & NodeFlags.DISPLAYED_INSTAGE) !== 0) {
+                if (ele === stage) {
                     displayedInStage = true;
                     break;
                 }
@@ -272,8 +272,8 @@ export class Node extends EventDispatcher {
      * @param data 事件数据。可以传递一个Event对象。
      * @param addChain 额外调用的冒泡链。
      */
-    bubbleEvent(type: string, data?: any, addChain?: ReadonlyArray<Node>) {
-        let arr: Array<Node> = _bubbleChainPool.length > 0 ? _bubbleChainPool.pop() : [];
+    bubbleEvent(type: string, data?: any) {
+        let arr: Array<Node> = [];
         arr.length = 0;
 
         let obj: Node = this;
@@ -299,19 +299,6 @@ export class Node extends EventDispatcher {
             else
                 obj.event(type, data);
         }
-
-        if (addChain) {
-            for (let obj of addChain) {
-                if (obj && arr.indexOf(obj) == -1) {
-                    evt && evt.setTo(type, obj, this);
-                    obj.event(type, data);
-                    if (evt && evt._stopped)
-                        break;
-                }
-            }
-        }
-
-        _bubbleChainPool.push(arr);
     }
 
     /**
@@ -808,7 +795,7 @@ export class Node extends EventDispatcher {
             this.event(Event.ADDED);
             if ((this._bits & NodeFlags.DISPLAY) !== 0) {
                 this._setBitUp(NodeFlags.DISPLAY);
-                if ((value._bits & NodeFlags.DISPLAYED_INSTAGE) !== 0)
+                if (value.displayedInStage)
                     this._displayChild(this, true);
             }
             value._childChanged(this);
@@ -1462,7 +1449,5 @@ export class Node extends EventDispatcher {
      */
     onAfterDeserialize() { }
 }
-
-const _bubbleChainPool: Array<Array<Node>> = [];
 
 export interface INodeExtra { }

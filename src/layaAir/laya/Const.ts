@@ -25,7 +25,7 @@ export class NodeFlags {
     static AREA_2D = 0x40;
     static DISPLAYED_INSTAGE = 0x80;
     static DRAWCALL_OPTIMIZE = 0x100;
-    //static CACHE_GLOBAL = 0x200;
+    static CHECK_INPUT = 0x200;
     static DEMAND_TRANS_EVENT = 0x400;
     static HAS_SCRIPT = 0x800;
     static ESCAPE_DRAWING_TO_TEXTURE = 0x1000; //IDE use
@@ -38,6 +38,7 @@ export class NodeFlags {
     static FORCE_HIDDEN = 0x80000;//IDE use
     static NOT_IN_PAGE = 0x100000; //FGUI use
     static ESCAPE_LAYOUT = 0x200000; //FGUI use
+    static EDITING_ROOT_NODE = 0x400000; //IDE use
 }
 
 export class HideFlags {

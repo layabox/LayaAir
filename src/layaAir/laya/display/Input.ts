@@ -138,8 +138,8 @@ export class Input extends Text {
         this._width = 100;
         this._height = 20;
 
-        this.multiline = false;
         this.overflow = Text.SCROLL;
+        this.valign = "middle";
         this._promptColor = "#a9a9a9";
 
         this.on(Event.MOUSE_DOWN, this, this._onMouseDown);
@@ -261,9 +261,10 @@ export class Input extends Text {
     }
 
     set multiline(value: boolean) {
-        this._multiline = value;
-        if (!SerializeUtil.isDeserializing)
+        if (this._multiline != value) {
+            this._multiline = value;
             this.valign = value ? "top" : "middle";
+        }
     }
 
     /**

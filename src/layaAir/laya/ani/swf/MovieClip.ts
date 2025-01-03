@@ -1,7 +1,6 @@
 import { Sprite } from "../../display/Sprite";
 import { Byte } from "../../utils/Byte";
 import { Handler } from "../../utils/Handler";
-import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { ILaya } from "../../../ILaya";
 import { Matrix } from "../../maths/Matrix";
@@ -81,8 +80,6 @@ export class MovieClip extends Sprite {
         if (!parentMovieClip) {
             this._movieClipList = [this];
             this._isRoot = true;
-            this._setBitUp(NodeFlags.DISPLAY);
-
             this.on(Event.DISPLAY, this, this._onDisplay);
             this.on(Event.UNDISPLAY, this, this._onDisplay);
         } else {

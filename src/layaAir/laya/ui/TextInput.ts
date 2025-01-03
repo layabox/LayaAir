@@ -235,10 +235,6 @@ export class TextInput extends Label {
         }
     }
 
-    protected preinitialize(): void {
-        this.mouseEnabled = true;
-    }
-
     protected createChildren(): void {
         this.setGraphics(new AutoBitmap(), true);
 

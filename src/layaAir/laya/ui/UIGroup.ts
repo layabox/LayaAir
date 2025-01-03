@@ -439,10 +439,6 @@ export class UIGroup extends Box {
         if (this._items && index > -1 && index < this._items.length) this._items[index].selected = selected;
     }
 
-    protected preinitialize(): void {
-        this.mouseEnabled = true;
-    }
-
     /**
      * @en Destroys this instance.
      * @param destroyChild Whether to destroy the child components.

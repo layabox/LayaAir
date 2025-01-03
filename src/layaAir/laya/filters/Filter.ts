@@ -1,6 +1,6 @@
 import { Sprite } from "../display/Sprite";
+import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { Matrix } from "../maths/Matrix";
 import { Context } from "../renders/Context";
 import { Render2D } from "../renders/Render2D";
 import { RenderSprite } from "../renders/RenderSprite";
@@ -37,12 +37,6 @@ export abstract class Filter extends EventDispatcher implements IFilter {
     protected height = 0;
     protected texture: RenderTexture2D;  //TODO 创建 优化
     protected _render2D: Render2D;
-    
-    /**
-     * @en event：some parameter changed
-     * @zh 参数改变事件
-     */
-    static EVENT_CHANGE='change';
 
     /**
      * @en Current usage
@@ -80,7 +74,7 @@ export abstract class Filter extends EventDispatcher implements IFilter {
     }
 
     protected onChange(){
-        this.event(Filter.EVENT_CHANGE);
+        this.event(Event.CHANGED);
     }
 
     /**

@@ -1,3 +1,4 @@
+import { ILaya } from "../../ILaya";
 import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
 import { Input } from "../display/Input";
@@ -279,7 +280,7 @@ export class InputManager {
                 touch.move();
 
                 if (InputManager.mouseEventsEnabled) {
-                    touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
+                    touch.bubble(Event.MOUSE_MOVE);
 
                     for (let t of touch.downTargets)
                         t.event(Event.MOUSE_DRAG, touch.event);
@@ -302,9 +303,9 @@ export class InputManager {
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
-                        touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
+                        touch.bubble(Event.MOUSE_DOWN);
                     else
-                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event);
+                        touch.bubble(Event.RIGHT_MOUSE_DOWN);
                 }
             }
         }
@@ -316,9 +317,9 @@ export class InputManager {
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
-                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event, touch.downTargets);
+                        touch.bubble(Event.MOUSE_UP);
                     else
-                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.downTargets);
+                        touch.bubble(Event.RIGHT_MOUSE_UP);
 
                     if (touch.moved) {
                         for (let t of touch.downTargets)
@@ -330,16 +331,16 @@ export class InputManager {
                         if (ev.button == 0) {
                             touch.event.isDblClick = touch.clickCount == 2;
 
-                            clickTarget.bubbleEvent(Event.CLICK, touch.event);
+                            touch.bubble(Event.CLICK, clickTarget);
 
                             if (touch.clickCount == 2)
-                                clickTarget.bubbleEvent(Event.DOUBLE_CLICK, touch.event);
+                                touch.bubble(Event.DOUBLE_CLICK, clickTarget);
 
                             touch.event.isDblClick = false;
                         }
                         else {
                             touch.event.isDblClick = touch.clickCount == 2;
-                            clickTarget.bubbleEvent(Event.RIGHT_CLICK, touch.event);
+                            touch.bubble(Event.RIGHT_CLICK, clickTarget);
                             touch.event.isDblClick = false;
                         }
                     }
@@ -351,7 +352,7 @@ export class InputManager {
         else if (type == 4) {
             if (InputManager.mouseEventsEnabled) {
                 touch.event.delta = (<WheelEvent>ev).deltaY * 0.025;
-                touch.target?.bubbleEvent(Event.MOUSE_WHEEL, touch.event);
+                touch.bubble(Event.MOUSE_WHEEL);
                 touch.event.delta = 0;
             }
         }
@@ -411,7 +412,7 @@ export class InputManager {
 
                         if (InputManager.mouseEventsEnabled) {
 
-                            touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
+                            touch.bubble(Event.MOUSE_MOVE);
 
                             for (let t of touch.downTargets)
                                 t.event(Event.MOUSE_DRAG, touch.event);
@@ -431,7 +432,7 @@ export class InputManager {
                     InputManager.onMouseDownCapture.invoke(touch.touchId);
 
                     if (InputManager.mouseEventsEnabled) {
-                        touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
+                        touch.bubble(Event.MOUSE_DOWN);
                     }
                 }
             }
@@ -440,8 +441,7 @@ export class InputManager {
                     touch.end();
 
                     if (InputManager.mouseEventsEnabled) {
-                        let bubbleFrom = touch.target ? touch.target : this._stage;
-                        bubbleFrom.bubbleEvent(Event.MOUSE_UP, touch.event, touch.downTargets);
+                        touch.bubble(Event.MOUSE_UP);
 
                         if (touch.moved) {
                             for (let t of touch.downTargets)
@@ -453,10 +453,10 @@ export class InputManager {
                             if (clickTarget != null) {
                                 touch.event.isDblClick = touch.clickCount == 2;
 
-                                clickTarget.bubbleEvent(Event.CLICK, touch.event);
+                                touch.bubble(Event.CLICK, clickTarget);
 
                                 if (touch.clickCount == 2)
-                                    clickTarget.bubbleEvent(Event.DOUBLE_CLICK, touch.event);
+                                    touch.bubble(Event.DOUBLE_CLICK, clickTarget);
 
                                 touch.event.isDblClick = false;
                             }
@@ -606,7 +606,8 @@ export class InputManager {
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
                 && child._nodeType !== 1
-                && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
+                && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR))
+                    : (child._mouseState === 2 || child._mouseState == 0 && child._getBit(NodeFlags.CHECK_INPUT)))
                 && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
@@ -794,6 +795,8 @@ class TouchInfo implements ITouchInfo {
      */
     private downPos: Point;
 
+    private bubbleChain: Array<Node>;
+
     /** 
      * @ignore
      * @en Creates a new instance of the TouchInfo class.
@@ -804,6 +807,7 @@ class TouchInfo implements ITouchInfo {
     constructor(touches: Array<TouchInfo>) {
         this.downPos = new Point();
         this.downTargets = [];
+        this.bubbleChain = [];
         this.event = new Event();
         this.event._touches = touches;
         this.pos = this.event.touchPos;
@@ -927,5 +931,44 @@ class TouchInfo implements ITouchInfo {
         this.lastRollOver = null;
         this.clickCancelled = false;
         this.downButton = 0;
+    }
+
+    bubble(type: string, target?: Node) {
+        let arr: Array<Node> = this.bubbleChain;
+        arr.length = 0;
+
+        let obj: Node = target || this.target || ILaya.stage;
+        while (obj) {
+            if (obj.activeInHierarchy)
+                arr.push(obj);
+            obj = obj._parent;
+        }
+
+        let evt: Event = this.event;
+        evt._stopped = false;
+
+        for (let obj of arr) {
+            evt.setTo(type, obj, this);
+            obj.event(type, evt);
+            if (evt._stopped) {
+                if (type === Event.MOUSE_DOWN || type === Event.RIGHT_MOUSE_DOWN) {
+                    let i = this.downTargets.indexOf(obj);
+                    if (i != -1)
+                        this.downTargets.splice(i + 1, this.downTargets.length - i - 1);
+                }
+                break;
+            }
+        }
+
+        if (type === Event.MOUSE_UP) {
+            for (let obj of this.downTargets) {
+                if (obj && arr.indexOf(obj) == -1) {
+                    evt.setTo(type, obj, this);
+                    obj.event(type, evt);
+                    if (evt && evt._stopped)
+                        break;
+                }
+            }
+        }
     }
 }

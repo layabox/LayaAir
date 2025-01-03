@@ -651,13 +651,13 @@ export class Sprite extends Node {
         //先去掉旧的事件监听
         if (this._filterArr) {
             for (let f of this._filterArr) {
-                f && f.off(Filter.EVENT_CHANGE, this, this.repaint);
+                f && f.off(Event.CHANGED, this, this.repaint);
             }
         }
         this._filterArr = value ? value.slice() : null;
         if (value) {
             for (let f of value) {
-                f && f.on(Filter.EVENT_CHANGE, this, this.repaint);
+                f && f.on(Event.CHANGED, this, this.repaint);
             }
         }
         if (value)
@@ -826,19 +826,30 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Indicates whether the object receives mouse events.
-     * The default is false. If you listen to mouse events, this value and the value of mouseEnable for parent nodes will be automatically set to true (unless the parent node is manually set to false).
-     * @zh 是否接受鼠标事件。
-     * 默认为 false，如果监听鼠标事件，则会自动设置本对象及父节点的属性 mouseEnable 的值都为 true（如果父节点手动设置为 false，则不会更改）。
+     * @en Indicates whether the object receives mouse events. The default is false. If you listen to mouse events, this value will be automatically set to true.
+     * @zh 是否接受鼠标事件。默认为 false，如果监听鼠标事件，则会自动设置为 true.
      */
     get mouseEnabled(): boolean {
-        return this._mouseState > 1;
+        return this._mouseState === 2;
     }
 
     set mouseEnabled(value: boolean) {
-        this._mouseState = value ? 2 : 1;
-        if (this._mouseState === 2 && this._parent?._mouseState === 0)
-            this._parent.mouseEnabled = true;
+        let i = value ? 2 : 1;
+        if (this._mouseState !== i) {
+            this._mouseState = i;
+            if (i === 2)
+                this.setMouseEnabledUp();
+        }
+    }
+
+    private setMouseEnabledUp() {
+        let p = this._parent;
+        while (p && p !== ILaya.stage) {
+            if (p._mouseState !== 0 || !p._setBit(NodeFlags.CHECK_INPUT, true))
+                break;
+
+            p = p._parent;
+        }
     }
 
     /**
@@ -1934,8 +1945,10 @@ export class Sprite extends Node {
         super.onStartListeningToType(type);
 
         if (Event.isMouseEvent(type)) {
-            if (this._mouseState === 0)
-                this.mouseEnabled = true;
+            if (this._mouseState === 0) {
+                this._setBit(NodeFlags.CHECK_INPUT, true);
+                this.setMouseEnabledUp();
+            }
         }
         else if (type === Event.TRANSFORM_CHANGED) {
             this._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
@@ -1977,9 +1990,9 @@ export class Sprite extends Node {
      */
     protected _setParent(value: Node): void {
         super._setParent(value);
-        if (value && this._mouseState === 2 && (<Sprite>value)._mouseState === 0) {
-            (<Sprite>value).mouseEnabled = true;
-        }
+
+        if (value && this._mouseState !== 1 && !(<Sprite>value)._getBit(NodeFlags.CHECK_INPUT))
+            this.setMouseEnabledUp();
     }
 
     /**

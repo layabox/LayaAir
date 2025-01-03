@@ -1,6 +1,5 @@
 import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
-import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 
 /**
@@ -58,7 +57,8 @@ export class AnimationBase extends Sprite {
      */
     constructor() {
         super();
-        this._setBitUp(NodeFlags.DISPLAY);
+
+        this.on(Event.DISPLAY, this, this._resumePlay);
     }
 
     /**
@@ -174,14 +174,6 @@ export class AnimationBase extends Sprite {
             node.on(Event.DISPLAY, this, this._resumePlay);
             node.on(Event.UNDISPLAY, this, this._resumePlay);
         }
-    }
-
-    /**
-     * @internal 
-    */
-    _setDisplay(value: boolean): void {
-        super._setDisplay(value);
-        this._resumePlay();
     }
 
     protected _resumePlay(): void {
