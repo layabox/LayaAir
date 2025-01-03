@@ -8,7 +8,8 @@ import { UIConfig2 } from "./UIConfig";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Prefab } from "../resource/HierarchyResource";
 import { GRoot } from "./GRoot";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
+import { Loader } from "../net/Loader";
 
 const internalEvent = "click_menu_item";
 
@@ -26,9 +27,9 @@ export class PopupMenu extends EventDispatcher {
         super();
 
         if (!res) {
-            res = UIConfig2.popupMenu;
+            res = UIConfig2.popupMenu ? Loader.getRes(UIConfig2.popupMenu) : null;
             if (!res)
-                throw "UIConfig.popupMenu not defined";
+                throw new Error("UIConfig.popupMenu not defined");
         }
         this._content = <GWidget>res.create();
         this._initWidth = this._content.width;
@@ -37,7 +38,7 @@ export class PopupMenu extends EventDispatcher {
         this._list.addRelation(this._content, RelationType.Width);
         this._list.removeRelation(this._content, RelationType.Height);
         this._content.addRelation(this._list, RelationType.Height);
-        this._list.on(UIEventType.click_item, this, this._clickItem);
+        this._list.on(UIEvent.click_item, this, this._clickItem);
     }
 
     public destroy(): void {
@@ -160,7 +161,7 @@ export class PopupMenu extends EventDispatcher {
         if (GRoot.inst.popupMgr.isPopupJustClosed(this._content))
             return;
 
-        this.event(UIEventType.popup);
+        this.event(UIEvent.popup);
 
         if (this.autoSize) {
             this._list.layout.refresh();
@@ -196,7 +197,7 @@ export class PopupMenu extends EventDispatcher {
             GRoot.inst.popupMgr.hidePopup(this._content);
     }
 
-    private _clickItem(evt: Event, item: GWidget): void {
+    private _clickItem(item: GWidget): void {
         if (!(item instanceof GButton))
             return;
 

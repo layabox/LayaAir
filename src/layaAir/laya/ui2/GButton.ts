@@ -3,11 +3,10 @@ import { ControllerRef } from "./ControllerRef";
 import { Controller } from "./Controller";
 import { GLabel } from "./GLabel";
 import type { GPanel } from "./GPanel";
-import { UIConfig2 } from "./UIConfig";
 import { Event } from "../events/Event";
 import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -40,8 +39,7 @@ export class GButton extends GLabel {
         super();
 
         this._mode = ButtonMode.Common;
-        this._sound = UIConfig2.buttonClickSound;
-        this._soundVolumeScale = UIConfig2.buttonClickSoundVolumeScale;
+        this._soundVolumeScale = 1;
         this._changeStateOnClick = true;
         this._downEffectValue = 0.8;
 
@@ -373,13 +371,13 @@ export class GButton extends GLabel {
         if (this._mode == ButtonMode.Check) {
             if (this._changeStateOnClick) {
                 this.selected = !this._selected;
-                this.event(UIEventType.changed);
+                this.event(Event.CHANGED);
             }
         }
         else if (this._mode == ButtonMode.Radio) {
             if (this._changeStateOnClick && !this._selected) {
                 this.selected = true;
-                this.event(UIEventType.changed);
+                this.event(Event.CHANGED);
             }
         }
         else {

@@ -5,6 +5,7 @@ import { UIConfig2 } from "./UIConfig";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { GRoot } from "./GRoot";
+import { Loader } from "../net/Loader";
 
 export class GWindow extends GWidget {
     public bringToFontOnClick: boolean;
@@ -144,8 +145,8 @@ export class GWindow extends GWidget {
 
         if (UIConfig2.windowModalWaiting) {
             if (!this._modalWaitPane)
-                this._modalWaitPane = <GWidget>UIConfig2.windowModalWaiting.create();
-
+                this._modalWaitPane = Loader.createNodes(UIConfig2.windowModalWaiting);
+            this._modalWaitPane.mouseEnabled = true;
             this.layoutModalWaitPane();
 
             this.addChild(this._modalWaitPane);

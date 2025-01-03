@@ -1,11 +1,12 @@
 
 import { ILaya } from "../../ILaya";
+import { NodeFlags } from "../Const";
 import { Event } from "../events/Event";
 import { MathUtil } from "../maths/MathUtil";
 import { Point } from "../maths/Point";
 import { ProgressTitleType } from "./Const";
 import { GWidget } from "./GWidget";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 export class GSlider extends GWidget {
     public changeOnClick: boolean = true;
@@ -103,6 +104,9 @@ export class GSlider extends GWidget {
     }
 
     public update(): void {
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
+            return;
+
         this.updateWithPercent((this._value - this._min) / (this._max - this._min), false);
     }
 
@@ -117,8 +121,7 @@ export class GSlider extends GWidget {
 
             if (newValue != this._value) {
                 this._value = newValue;
-                if (this.event(UIEventType.changed))
-                    return;
+                this.event(Event.CHANGED);
             }
         }
 

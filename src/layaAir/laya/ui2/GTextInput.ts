@@ -1,6 +1,7 @@
 import { GWidget } from "./GWidget";
 import { Input } from "../display/Input";
 import { HideFlags } from "../Const";
+import { TransformKind } from "../display/SpriteConst";
 
 export class GTextInput extends GWidget {
     readonly textIns: Input;
@@ -8,7 +9,6 @@ export class GTextInput extends GWidget {
     constructor() {
         super();
 
-        this.mouseEnabled = true;
         this.textIns = new Input();
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.overflow = "hidden";
@@ -357,5 +357,12 @@ export class GTextInput extends GWidget {
      */
     blur() {
         this.textIns.focus = false;
+    }
+
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
+        if ((kind & TransformKind.Size) != 0) {
+            this.textIns.size(this.width, this.height);
+        }
     }
 }

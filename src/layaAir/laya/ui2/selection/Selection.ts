@@ -6,7 +6,7 @@ import type { GPanel } from "../GPanel";
 import { GTextInput } from "../GTextInput";
 import type { GWidget } from "../GWidget";
 import { ISelection } from "./ISelection";
-import { UIEventType } from "../UIEvent";
+import { UIEvent } from "../UIEvent";
 
 export class Selection implements ISelection {
     public scrollItemToViewOnClick: boolean = false;
@@ -155,7 +155,7 @@ export class Selection implements ISelection {
             return;
 
         if (item.mode == ButtonMode.Common) {
-            this._owner.event(UIEventType.click_item, item);
+            this._owner.event(UIEvent.click_item, item);
             return;
         }
 
@@ -169,7 +169,7 @@ export class Selection implements ISelection {
             if (!item.selected) {
                 this.clearExcept(item);
                 item.selected = true;
-                item.event(UIEventType.changed);
+                item.event(Event.CHANGED);
             }
         }
         else {
@@ -185,7 +185,7 @@ export class Selection implements ISelection {
                             if (obj instanceof GButton) {
                                 obj.selected = true;
                                 if (obj == item)
-                                    item.event(UIEventType.changed);
+                                    item.event(Event.CHANGED);
                             }
                         }
 
@@ -193,19 +193,19 @@ export class Selection implements ISelection {
                     }
                     else {
                         item.selected = true;
-                        item.event(UIEventType.changed);
+                        item.event(Event.CHANGED);
                     }
                 }
             }
             else if ((evt.ctrlKey || evt.metaKey) || this._mode == SelectionMode.MultipleBySingleClick) {
                 item.selected = !item.selected;
-                item.event(UIEventType.changed);
+                item.event(Event.CHANGED);
             }
             else {
                 if (!item.selected) {
                     this.clearExcept(item);
                     item.selected = true;
-                    item.event(UIEventType.changed);
+                    item.event(Event.CHANGED);
                 }
                 else if (evt.button == 0)
                     this.clearExcept(item);
@@ -221,13 +221,13 @@ export class Selection implements ISelection {
         if (evt.isDblClick && (evt.target instanceof Input))
             return;
 
-        this._owner.event(UIEventType.click_item, item);
+        this._owner.event(UIEvent.click_item, item);
     }
 
     public enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string) {
         if (enabled) {
             //this._owner.tabStopChildren = true;
-            this._keyEvent = keySelectEvent != null ? keySelectEvent : UIEventType.click_item;
+            this._keyEvent = keySelectEvent != null ? keySelectEvent : UIEvent.click_item;
             this._owner.on(Event.KEY_DOWN, this, this._keydown);
         }
         else {

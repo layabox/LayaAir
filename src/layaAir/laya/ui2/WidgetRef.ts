@@ -1,7 +1,7 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Event } from "../events/Event";
 import { GWidget } from "./GWidget";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 export class WidgetRef {
     p: GWidget;
@@ -20,14 +20,14 @@ export class WidgetRef {
     constructor(val: GWidget, callback: () => void) {
         this.p = val;
         if (!LayaEnv.isPlaying) {
-            val.on(UIEventType.instance_reload, this, this._reload);
+            val.on(UIEvent.instance_reload, this, this._reload);
             this._callback = callback;
         }
     }
 
     destroy() {
         if (!LayaEnv.isPlaying)
-            this.p.off(UIEventType.instance_reload, this, this._reload);
+            this.p.off(UIEvent.instance_reload, this, this._reload);
     }
 
     private _reload(newIns: any) {

@@ -1,8 +1,9 @@
 import { LayaEnv } from "../../LayaEnv";
+import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { RelationType } from "./Const";
 import { GWidget } from "./GWidget";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 const handlingFlag = Symbol();
 
@@ -102,17 +103,17 @@ export class Relation {
         this._tw = t.width;
         this._th = t.height;
 
-        t.on(UIEventType.pos_changed, this, this.posChanged);
-        t.on(UIEventType.size_changed, this, this.sizeChanged);
+        t.on(Event.MOVED, this, this.posChanged);
+        t.on(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            t.on(UIEventType.instance_reload, this, this.instReload);
+            t.on(UIEvent.instance_reload, this, this.instReload);
     }
 
     private unsetTarget(): void {
-        this._target.off(UIEventType.pos_changed, this, this.posChanged);
-        this._target.off(UIEventType.size_changed, this, this.sizeChanged);
+        this._target.off(Event.MOVED, this, this.posChanged);
+        this._target.off(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            this._target.off(UIEventType.instance_reload, this, this.instReload);
+            this._target.off(UIEvent.instance_reload, this, this.instReload);
     }
 
     public applyOnSelfResized(): void {

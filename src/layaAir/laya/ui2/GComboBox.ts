@@ -9,8 +9,10 @@ import { ControllerRef } from "./ControllerRef";
 import { Prefab } from "../resource/HierarchyResource";
 import { Input } from "../display/Input";
 import { GRoot } from "./GRoot";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 import { Event } from "../events/Event";
+import { LayaEnv } from "../../LayaEnv";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 export class GComboBox extends GLabel {
     public popupDirection: PopupDirection = 0;
@@ -38,6 +40,7 @@ export class GComboBox extends GLabel {
         this._itemsUpdated = true;
         this._selectedIndex = -1;
         this._items = [];
+        this._icons = [];
         this._values = [];
 
         this.on(Event.ROLL_OVER, this, this._rollover);
@@ -51,18 +54,22 @@ export class GComboBox extends GLabel {
     }
 
     public set items(value: string[]) {
-        if (!value)
-            this._items.length = 0;
-        else
-            this._items = value.concat();
+        let arr = this._items;
+        arr.length = 0;
+        if (value)
+            arr.push(...value);
 
-        if (this._items.length > 0) {
-            if (this._selectedIndex >= this._items.length)
-                this._selectedIndex = this._items.length - 1;
+        this._itemsUpdated = true;
+        if (SerializeUtil.isDeserializing)
+            return;
+
+        if (arr.length > 0) {
+            if (this._selectedIndex >= arr.length)
+                this._selectedIndex = arr.length - 1;
             else if (this._selectedIndex == -1)
                 this._selectedIndex = 0;
 
-            this.title = this._items[this._selectedIndex];
+            this.title = arr[this._selectedIndex];
             if (this._icons && this._selectedIndex < this._icons.length)
                 this.icon = this._icons[this._selectedIndex];
         }
@@ -72,7 +79,6 @@ export class GComboBox extends GLabel {
                 this.icon = null;
             this._selectedIndex = -1;
         }
-        this._itemsUpdated = true;
     }
 
     public get icons(): string[] {
@@ -80,10 +86,17 @@ export class GComboBox extends GLabel {
     }
 
     public set icons(value: string[]) {
-        this._icons = value;
-        if (this._icons && this._selectedIndex != -1 && this._selectedIndex < this._icons.length)
-            this.icon = this._icons[this._selectedIndex];
+        let arr = this._icons;
+        arr.length = 0;
+        if (value)
+            arr.push(...value);
+
         this._itemsUpdated = true;
+        if (SerializeUtil.isDeserializing)
+            return;
+
+        if (arr && this._selectedIndex != -1 && this._selectedIndex < arr.length)
+            this.icon = arr[this._selectedIndex];
     }
 
     public get values(): string[] {
@@ -91,10 +104,9 @@ export class GComboBox extends GLabel {
     }
 
     public set values(value: string[]) {
-        if (!value)
-            this._values.length = 0;
-        else
-            this._values = value.concat();
+        this._values.length = 0;
+        if (value)
+            this._values.push(...value);
         this._itemsUpdated = true;
     }
 
@@ -140,7 +152,8 @@ export class GComboBox extends GLabel {
 
     public set dropdownRes(value: Prefab) {
         this._dropdownRes = value;
-        this.createDropdown();
+        if (LayaEnv.isPlaying)
+            this.createDropdown();
     }
 
     public get dropdown(): GWidget {
@@ -195,10 +208,10 @@ export class GComboBox extends GLabel {
             this._dropdown = <GWidget>this._dropdownRes.create();
             this._list = <GList>this._dropdown.getChild("list");
             if (this._list == null) {
-                console.warn(this._dropdownRes + ": should container a list component named list.");
+                console.warn(this._dropdownRes.url + ": should container a list component named list.");
                 return;
             }
-            this._list.on(UIEventType.click_item, this, this._clickItem);
+            this._list.on(UIEvent.click_item, this, this._clickItem);
 
             this._list.addRelation(this._dropdown, RelationType.Width);
             this._list.removeRelation(this._dropdown, RelationType.Height);
@@ -250,7 +263,7 @@ export class GComboBox extends GLabel {
         if (GRoot.inst.popupMgr.isPopupJustClosed(this._dropdown))
             return;
 
-        this.event(UIEventType.popup);
+        this.event(UIEvent.popup);
 
         if (this._itemsUpdated)
             this._updateDropDown();
@@ -281,12 +294,12 @@ export class GComboBox extends GLabel {
         this.setCurrentState();
     }
 
-    private _clickItem(evt: Event, item: GWidget): void {
+    private _clickItem(item: GWidget): void {
         GRoot.inst.popupMgr.hidePopup(this._dropdown);
 
         this._selectedIndex = -1;
         this.selectedIndex = this._list.getChildIndex(item);
-        this.event(UIEventType.changed);
+        this.event(Event.CHANGED);
     }
 
     private _rollover(): void {

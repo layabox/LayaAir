@@ -12,7 +12,7 @@ import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
 import { GearDisplay } from "./gear/GearDisplay";
 import { NodeFlags } from "../Const";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 import { ILaya } from "../../ILaya";
 import { IGraphicsCmd } from "../display/IGraphics";
 import { GRoot } from "./GRoot";
@@ -110,7 +110,7 @@ export class GWidget extends Sprite {
 
             if (this._parent?._nodeType == 2)
                 (<GWidget>this._parent).setLayoutChangedFlag?.(LayoutChangedReason.Pos);
-            this.event(UIEventType.pos_changed);
+            this.event(Event.MOVED);
         }
 
         return this;
@@ -150,7 +150,7 @@ export class GWidget extends Sprite {
                 (<GWidget>this._parent).setLayoutChangedFlag(LayoutChangedReason.Size);
         }
 
-        this.event(UIEventType.size_changed);
+        this.event(Event.RESIZE);
 
         this._deltaWidth = 0;
         this._deltaHeight = 0;
@@ -379,7 +379,7 @@ export class GWidget extends Sprite {
     }
 
     protected _controllersChanged() {
-        this.event(UIEventType.controllers_changed);
+        this.event(UIEvent.controllers_changed);
     }
 
     get gears(): Array<Gear<any>> {

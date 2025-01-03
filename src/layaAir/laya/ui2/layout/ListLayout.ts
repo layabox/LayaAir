@@ -7,7 +7,7 @@ import type { GList } from "../GList";
 import { UIConfig2 } from "../UIConfig";
 import type { GWidget } from "../GWidget";
 import { Layout } from "./Layout";
-import { UIEventType } from "../UIEvent";
+import { UIEvent } from "../UIEvent";
 
 export class ListLayout extends Layout {
     declare _owner: GList;
@@ -140,7 +140,7 @@ export class ListLayout extends Layout {
                 (<any>this._owner.scroller)._loop = 1;
         }
 
-        this._owner.on(UIEventType.scroll, this, this._scrolled);
+        this._owner.on(UIEvent.scroll, this, this._scrolled);
         this._changed = 2;
         ILaya.timer.callLater(this, this._refreshVirtualList);
     }

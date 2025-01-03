@@ -10,7 +10,7 @@ import { Rectangle } from "../../maths/Rectangle";
 import { ILaya } from "../../../ILaya";
 import { NodeFlags } from "../../Const";
 import { Pool } from "../../utils/Pool";
-import { UIEventType } from "../UIEvent";
+import { UIEvent } from "../UIEvent";
 
 export class Layout implements ILayout {
     protected _owner: GBox;
@@ -412,7 +412,7 @@ export class Layout implements ILayout {
 
         (<GPanel>this._owner).scroller?._ownerContentSizeChanged();
 
-        this._owner.event(UIEventType.content_size_changed);
+        this._owner.event(UIEvent.content_size_changed);
     }
 
     public resizeToFit(childCount?: number, minSize?: number): void {

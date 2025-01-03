@@ -7,7 +7,7 @@ import { GWidget } from "../GWidget";
 import { GTextInput } from "../GTextInput";
 import { Event } from "../../events/Event";
 import { Input } from "../../display/Input";
-import { UIEventType } from "../UIEvent";
+import { UIEvent } from "../UIEvent";
 
 export class ListSelection extends Selection {
     declare _owner: GList;
@@ -192,7 +192,7 @@ export class ListSelection extends Selection {
                 return;
 
             if (item.mode == ButtonMode.Common) {
-                this._owner.event(UIEventType.click_item, item);
+                this._owner.event(UIEvent.click_item, item);
                 return;
             }
 
@@ -206,7 +206,7 @@ export class ListSelection extends Selection {
                 if (!item.selected) {
                     this.clearExcept(item);
                     item.selected = true;
-                    item.event(UIEventType.changed);
+                    item.event(Event.CHANGED);
                 }
             }
             else {
@@ -222,7 +222,7 @@ export class ListSelection extends Selection {
                                 if (ii.obj instanceof GButton) {
                                     ii.obj.selected = true;
                                     if (ii.obj == item)
-                                        item.event(UIEventType.changed);
+                                        item.event(Event.CHANGED);
                                 }
                                 ii.selected = true;
                             }
@@ -231,19 +231,19 @@ export class ListSelection extends Selection {
                         }
                         else {
                             item.selected = true;
-                            item.event(UIEventType.changed);
+                            item.event(Event.CHANGED);
                         }
                     }
                 }
                 else if ((evt.ctrlKey || evt.metaKey) || this._mode == SelectionMode.MultipleBySingleClick) {
                     item.selected = !item.selected;
-                    item.event(UIEventType.changed);
+                    item.event(Event.CHANGED);
                 }
                 else {
                     if (!item.selected) {
                         this.clearExcept(item);
                         item.selected = true;
-                        item.event(UIEventType.changed);
+                        item.event(Event.CHANGED);
                     }
                     else if (evt.button == 0)
                         this.clearExcept(item);
@@ -256,7 +256,7 @@ export class ListSelection extends Selection {
             if (evt.isDblClick && (evt.target instanceof Input))
                 return;
 
-            this._owner.event(UIEventType.click_item, item);
+            this._owner.event(UIEvent.click_item, item);
         }
         else
             super.handleClick(item, evt);

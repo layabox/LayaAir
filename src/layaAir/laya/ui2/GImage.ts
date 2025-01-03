@@ -3,6 +3,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { FillTextureCmd } from "../display/cmd/FillTextureCmd";
+import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Texture } from "../resource/Texture";
 import { GWidget } from "./GWidget";
@@ -112,7 +113,11 @@ export class GImage extends GWidget {
                 res.on("reload", this, this._onTextureReload);
         } else {
             this._source = null;
-            this._setDrawCmd(null);
+            if (this._drawCmd) {
+                this.graphics.removeCmd(this._drawCmd);
+                this._drawCmd.recover();
+                this._drawCmd = null;
+            }
         }
 
         if (this._autoSize) {
@@ -125,8 +130,13 @@ export class GImage extends GWidget {
     }
 
     private _onTextureReload() {
-        this.event("resource_reload");
+        if (this._autoSize) {
+            let tex = this._source;
+            this.size(tex.width, tex.height);
+            this._autoSize = true;
+        }
         this._setChanged();
+        this.event(Event.CHANGED);
     }
 
     protected _setChanged(): void {
@@ -148,6 +158,11 @@ export class GImage extends GWidget {
         let sh = source.sourceHeight;
 
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
+        if (this._drawCmd) {
+            this.graphics.removeCmd(this._drawCmd);
+            this._drawCmd.recover();
+        }
+
         let cmd: any;
         if (!source._sizeGrid || (sw === width && sh === height)) {
             if (this._tile)
@@ -157,21 +172,8 @@ export class GImage extends GWidget {
         }
         else
             cmd = Draw9GridTextureCmd.create(source, 0, 0, 1, 1, source._sizeGrid, true, this._color);
-        this._setDrawCmd(cmd);
-    }
-
-    /**
-     * @en Due to the possibility of other graphic commands, the original method of directly using clear() cannot be used.
-     * @zh 由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
-     */
-    private _setDrawCmd(newcmd: any) {
-        if (this._drawCmd) {
-            this.graphics.removeCmd(this._drawCmd);
-            this._drawCmd.recover();
-        }
-        this._drawCmd = newcmd;
-        if (newcmd)
-            this.graphics.addCmd(newcmd);
+        this._drawCmd = cmd;
+        this.graphics.addCmd(cmd);
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {
@@ -179,13 +181,7 @@ export class GImage extends GWidget {
 
         if (!changeByLayout && !SerializeUtil.isDeserializing)
             this._autoSize = false;
-    }
 
-    protected onReload() {
-        if (this._autoSize) {
-            let tex = this._source;
-            this.size(tex.width, tex.height);
-            this._autoSize = true;
-        }
+        this._setChanged();
     }
 }

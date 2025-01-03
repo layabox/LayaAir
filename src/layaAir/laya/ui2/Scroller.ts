@@ -1,6 +1,6 @@
 
 import { ILaya } from "../../ILaya";
-import { HideFlags, NodeFlags } from "../Const";
+import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { InputManager } from "../events/InputManager";
@@ -22,7 +22,7 @@ import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { ILayout } from "./layout/ILayout";
 import { ListLayout } from "./layout/ListLayout";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 type AxisType = "x" | "y";
 
@@ -221,9 +221,7 @@ export class Scroller implements IScroller {
 
     public set hScrollBarRes(value: Prefab) {
         this._hScrollBarRes = value;
-        if (this._hScrollBar)
-            this._hScrollBar._setBit(NodeFlags.LOCK_BY_EDITOR, true); //借用一下这个标志
-        this.createHzScrollBar();
+        this.createHzScrollBar(true);
     }
 
     public get vScrollBarRes(): Prefab {
@@ -232,9 +230,7 @@ export class Scroller implements IScroller {
 
     public set vScrollBarRes(value: Prefab) {
         this._vScrollBarRes = value;
-        if (this._vScrollBar)
-            this._vScrollBar._setBit(NodeFlags.LOCK_BY_EDITOR, true); //借用一下这个标志
-        this.createVtScrollBar();
+        this.createVtScrollBar(true);
     }
 
     public get headerRes(): Prefab {
@@ -751,15 +747,26 @@ export class Scroller implements IScroller {
             this.direction = ScrollDirection.Horizontal;
     }
 
-    private createVtScrollBar() {
+    createVtScrollBar(force?: boolean) {
         if (!this._owner)
             return;
 
+        if (force) {
+            let inst = this._vScrollBar;
+            this._vScrollBar = null;
+            this.createVtScrollBar();
+            if (inst && inst !== this._vScrollBar) {
+                inst.destroy();
+                this.onSizeChanged();
+            }
+            return;
+        }
+
         if (this._barDisplay != ScrollBarDisplay.Hidden && (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Vertical)) {
-            if (this._vScrollBar && !this._vScrollBar._getBit(NodeFlags.LOCK_BY_EDITOR))
+            if (this._vScrollBar)
                 return;
 
-            let res = this._vScrollBarRes ? this._vScrollBarRes : UIConfig2.verticalScrollBar;
+            let res = this._vScrollBarRes ? this._vScrollBarRes : (UIConfig2.verticalScrollBar ? <Prefab>ILaya.loader.getRes(UIConfig2.verticalScrollBar) : null);
             if (res) {
                 this._vScrollBar = <GScrollBar>res.create();
                 if (!this._vScrollBar) {
@@ -767,6 +774,7 @@ export class Scroller implements IScroller {
                     return;
                 }
                 this._vScrollBar.hideFlags |= HideFlags.HideAndDontSave;
+                this._vScrollBar.setOwner(this, true);
                 this._vScrollBar.visible = this._barDisplay != ScrollBarDisplay.OnScroll;
                 this._owner._addChild(this._vScrollBar);
                 this.onSizeChanged();
@@ -779,15 +787,25 @@ export class Scroller implements IScroller {
         }
     }
 
-    private createHzScrollBar() {
+    createHzScrollBar(force?: boolean) {
         if (!this._owner)
             return;
 
+        if (force) {
+            let inst = this._hScrollBar;
+            this._hScrollBar = null;
+            this.createHzScrollBar();
+            if (inst && inst !== this._hScrollBar) {
+                inst.destroy();
+                this.onSizeChanged();
+            }
+        }
+
         if (this._barDisplay != ScrollBarDisplay.Hidden && (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Horizontal)) {
-            if (this._hScrollBar && !this._hScrollBar._getBit(NodeFlags.LOCK_BY_EDITOR))
+            if (this._hScrollBar)
                 return;
 
-            let res = this._hScrollBarRes ? this._hScrollBarRes : UIConfig2.horizontalScrollBar;
+            let res = this._hScrollBarRes ? this._hScrollBarRes : (UIConfig2.horizontalScrollBar ? <Prefab>ILaya.loader.getRes(UIConfig2.horizontalScrollBar) : null);
             if (res) {
                 this._hScrollBar = <GScrollBar>res.create();
                 if (!this._hScrollBar) {
@@ -795,6 +813,7 @@ export class Scroller implements IScroller {
                     return;
                 }
                 this._hScrollBar.hideFlags |= HideFlags.HideAndDontSave;
+                this._hScrollBar.setOwner(this, false);
                 this._hScrollBar.visible = this._barDisplay != ScrollBarDisplay.OnScroll;
                 this._owner._addChild(this._hScrollBar);
                 this.onSizeChanged();
@@ -911,27 +930,14 @@ export class Scroller implements IScroller {
         this._maskContainer.pos(mx, my);
 
         if (this._hScrollBar) {
-            this._hScrollBar.y = aHeight - this._hScrollBar.height;
-            if (this._vScrollBar) {
-                this._hScrollBar.width = aWidth - this._vScrollBar.width - this._barMargin[3] - this._barMargin[1];
-                if (this._barOnLeft)
-                    this._hScrollBar.x = this._barMargin[3] + this._vScrollBar.width;
-                else
-                    this._hScrollBar.x = this._barMargin[3];
-            }
-            else {
-                this._hScrollBar.width = aWidth - this._barMargin[3] - this._barMargin[1];
-                this._hScrollBar.x = this._barMargin[3];
-            }
+            this._hScrollBar.pos(this._barMargin[3] + (this._barOnLeft ? (this._vScrollBar?.width || 0) : 0),
+                aHeight - this._hScrollBar.height - this._barMargin[2]);
+            this._hScrollBar.width = aWidth - (this._vScrollBar?.width || 0) - this._barMargin[3] - this._barMargin[1];
         }
         if (this._vScrollBar) {
-            if (!this._barOnLeft)
-                this._vScrollBar.x = aWidth - this._vScrollBar.width;
-            if (this._hScrollBar)
-                this._vScrollBar.height = aHeight - this._hScrollBar.height - this._barMargin[0] - this._barMargin[2];
-            else
-                this._vScrollBar.height = aHeight - this._barMargin[0] - this._barMargin[2];
-            this._vScrollBar.y = this._barMargin[0];
+            this._vScrollBar.pos(this._barOnLeft ? this._barMargin[3] : aWidth - this._vScrollBar.width - this._barMargin[1],
+                this._barMargin[0]);
+            this._vScrollBar.height = aHeight - (this._hScrollBar?.height || 0) - this._barMargin[0] - this._barMargin[2];
         }
 
         this._viewSize.x = aWidth;
@@ -1142,7 +1148,7 @@ export class Scroller implements IScroller {
 
         this.refresh2();
 
-        this._owner.event(UIEventType.scroll);
+        this._owner.event(UIEvent.scroll);
         if (this._needRefresh) //在onScroll事件里开发者可能修改位置，这里再刷新一次，避免闪烁
         {
             this._needRefresh = false;
@@ -1378,7 +1384,7 @@ export class Scroller implements IScroller {
         this.updateScrollBarPos();
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEventType.scroll);
+        this._owner.event(UIEvent.scroll);
     }
 
     private _touchEnd(): void {
@@ -1418,12 +1424,12 @@ export class Scroller implements IScroller {
             this._tweenChange.setTo(s_endPos.x - this._tweenStart.x, s_endPos.y - this._tweenStart.y);
             if (this._tweenChange.x < -UIConfig2.touchDragSensitivity || this._tweenChange.y < -UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEventType.pull_down_release);
+                this._owner.event(UIEvent.pull_down_release);
                 this._refreshEventDispatching = false;
             }
             else if (this._tweenChange.x > UIConfig2.touchDragSensitivity || this._tweenChange.y > UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEventType.pull_up_release);
+                this._owner.event(UIEvent.pull_up_release);
                 this._refreshEventDispatching = false;
             }
 
@@ -1813,7 +1819,7 @@ export class Scroller implements IScroller {
         if (this._tweening == 1) //取消类型为1的tween需立刻设置到终点
         {
             this._container.pos(this._tweenStart.x + this._tweenChange.x, this._tweenStart.y + this._tweenChange.y);
-            this._owner.event(UIEventType.scroll);
+            this._owner.event(UIEvent.scroll);
         }
 
         this._tweening = 0;
@@ -1821,7 +1827,7 @@ export class Scroller implements IScroller {
 
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEventType.scroll_end);
+        this._owner.event(UIEvent.scroll_end);
     }
 
     private checkRefreshBar(): void {
@@ -1894,13 +1900,13 @@ export class Scroller implements IScroller {
             this.updateScrollBarPos();
             this._updateScrollBarVisible();
 
-            this._owner.event(UIEventType.scroll);
-            this._owner.event(UIEventType.scroll_end);
+            this._owner.event(UIEvent.scroll);
+            this._owner.event(UIEvent.scroll_end);
 
         }
         else {
             this.updateScrollBarPos();
-            this._owner.event(UIEventType.scroll);
+            this._owner.event(UIEvent.scroll);
         }
     }
 

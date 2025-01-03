@@ -3,6 +3,7 @@ import { Tween } from "../tween/Tween";
 import { ProgressTitleType } from "./Const";
 import { ILaya } from "../../ILaya";
 import { MathUtil } from "../maths/MathUtil";
+import { NodeFlags } from "../Const";
 
 export class GProgressBar extends GWidget {
     private _hBar: GWidget;
@@ -100,6 +101,9 @@ export class GProgressBar extends GWidget {
     }
 
     public update(newValue: number): void {
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
+            return;
+
         if (newValue == null)
             newValue = this._value;
         let percent = MathUtil.clamp01((newValue - this._min) / (this._max - this._min));

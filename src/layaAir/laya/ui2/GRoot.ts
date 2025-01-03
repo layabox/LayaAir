@@ -5,6 +5,7 @@ import { PopupManager } from "./PopupManager";
 import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
+import { Loader } from "../net/Loader";
 
 export class GRoot extends GWidget {
     private _modalLayer: GWidget;
@@ -21,12 +22,14 @@ export class GRoot extends GWidget {
         super();
 
         this.zOrder = GRoot.LAYER;
+        this.mouseThrough = true;
         this.size(ILaya.stage.width, ILaya.stage.height);
         ILaya.stage.addChild(this);
 
         this._popupMgr = new PopupManager(this);
 
         this._modalLayer = new GWidget();
+        this._modalLayer.mouseEnabled = true;
         this._modalLayer.size(this.width, this.height);
         this._modalLayer.graphics.drawRect(0, 0, 1, 1, UIConfig2.modalLayerColor, null, 0, true);
         this._modalLayer.addRelation(this, RelationType.Size);
@@ -90,7 +93,7 @@ export class GRoot extends GWidget {
     showModalWait(msg?: string) {
         if (UIConfig2.globalModalWaiting) {
             if (this._modalWaitPane == null)
-                this._modalWaitPane = <GWidget>UIConfig2.globalModalWaiting.create();
+                this._modalWaitPane = Loader.createNodes(UIConfig2.globalModalWaiting);
             this._modalWaitPane.size(this.width, this.height);
             this._modalWaitPane.addRelation(this, RelationType.Size);
 

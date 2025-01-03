@@ -147,4 +147,8 @@ export interface IScroller {
     _updateScrollBarVisible(): void;
     /** @internal */
     _processClipping(): void;
+    /** @internal */
+    createHzScrollBar(force?: boolean): void;
+    /** @internal */
+    createVtScrollBar(force?: boolean): void;
 }

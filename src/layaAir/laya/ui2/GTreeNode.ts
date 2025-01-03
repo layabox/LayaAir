@@ -4,7 +4,7 @@ import type { GWidget } from "./GWidget";
 import type { GTree } from "./GTree";
 import type { TreeSelection } from "./selection/TreeSelection";
 import { GButton } from "./GButton";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 
 export class GTreeNode {
     public data: any;
@@ -120,7 +120,7 @@ export class GTreeNode {
             this._leafController = null;
 
             if (this._expandCtrler)
-                this._expandCtrler.off(UIEventType.changed, this, this._expandedStateChanged);
+                this._expandCtrler.off(Event.CHANGED, this, this._expandedStateChanged);
 
             let btn = this._cell.findChild("expandButton");
             if (btn)
@@ -141,7 +141,7 @@ export class GTreeNode {
 
             this._expandCtrler = this._cell.getController("expanded");
             if (this._expandCtrler) {
-                this._expandCtrler.on(UIEventType.changed, this, this._expandedStateChanged);
+                this._expandCtrler.on(Event.CHANGED, this, this._expandedStateChanged);
                 this._expandCtrler.selectedIndex = this.expanded ? 1 : 0;
             }
 
@@ -392,9 +392,8 @@ export class GTreeNode {
         }
     }
 
-    private _expandedStateChanged(evt: Event): void {
-        let cc = <Controller>evt.target;
-        this._setExpanded(cc.selectedIndex == 1, true);
+    private _expandedStateChanged(): void {
+        this._setExpanded(this._expandCtrler.selectedIndex == 1, true);
     }
 
     private _cellMouseDown(evt: Event): void {

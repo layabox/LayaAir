@@ -1,8 +1,8 @@
 import { LayaEnv } from "../../LayaEnv";
-import { Event } from "../events/Event";
 import { Controller } from "./Controller";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 import type { GWidget } from "./GWidget";
+import { Event } from "../events/Event";
 
 export class ControllerRef {
     private _target: GWidget;
@@ -68,11 +68,11 @@ export class ControllerRef {
     release() {
         if (this._inited) {
             this._inited = false;
-            this._target.off(UIEventType.controllers_changed, this, this._check);
+            this._target.off(UIEvent.controllers_changed, this, this._check);
             if (!LayaEnv.isPlaying)
-                this._target.off(UIEventType.instance_reload, this, this._reload);
+                this._target.off(UIEvent.instance_reload, this, this._reload);
             if (this._inst) {
-                this._inst.off(UIEventType.changed, this, this._onChanged);
+                this._inst.off(Event.CHANGED, this, this._onChanged);
                 this._inst = null;
             }
         }
@@ -81,27 +81,27 @@ export class ControllerRef {
     validate() {
         if (!this._inited) {
             this._inited = true;
-            this._target.on(UIEventType.controllers_changed, this, this._check);
+            this._target.on(UIEvent.controllers_changed, this, this._check);
             if (!LayaEnv.isPlaying)
-                this._target.on(UIEventType.instance_reload, this, this._reload);
-            this._check(null);
+                this._target.on(UIEvent.instance_reload, this, this._reload);
+            this._check(true);
         }
     }
 
     private _reload(newIns: any) {
         this._target = newIns;
-        this._check(Event.EMPTY);
+        this._check();
     }
 
-    private _check(evt: Event) {
+    private _check(noEmit?: boolean) {
         let c = this._target.getController(this._name);
         if (c != this._inst) {
             if (this._inst)
-                this._inst.off(UIEventType.changed, this, this._onChanged);
+                this._inst.off(Event.CHANGED, this, this._onChanged);
             this._inst = c;
             if (c)
-                c.on(UIEventType.changed, this, this._onChanged);
-            if (evt != null)
+                c.on(Event.CHANGED, this, this._onChanged);
+            if (!noEmit)
                 this._onChanged();
         }
     }

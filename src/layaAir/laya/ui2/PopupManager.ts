@@ -9,6 +9,7 @@ import { UIConfig2 } from "./UIConfig";
 import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
 import { Sprite } from "../display/Sprite";
+import { Loader } from "../net/Loader";
 
 const popupTargetKey = Symbol("popupTarget");
 
@@ -144,11 +145,11 @@ export class PopupManager {
     public showTooltips(msg: string, delay?: number) {
         if (this._defaultTooltipWin == null) {
             if (!UIConfig2.tooltipsWidget) {
-                console.warn("UIConfig.tooltipsWin not defined");
+                console.warn("UIConfig.tooltipsWidget not defined");
                 return;
             }
 
-            this._defaultTooltipWin = <GWidget>UIConfig2.tooltipsWidget.create();
+            this._defaultTooltipWin = <GWidget>Loader.createNodes(UIConfig2.tooltipsWidget);
             this._defaultTooltipWin.mouseEnabled = false;
         }
 

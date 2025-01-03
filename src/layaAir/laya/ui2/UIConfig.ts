@@ -1,23 +1,18 @@
-import { Prefab } from "../resource/HierarchyResource";
 import { ScrollBarDisplay } from "./Const";
 
 export class UIConfig2 {
     //Resource using in Window.ShowModalWait for locking the window.
-    public static windowModalWaiting: Prefab;
+    public static windowModalWaiting: string;
     //Resource using in GRoot.ShowModalWait for locking the screen.
-    public static globalModalWaiting: Prefab;
+    public static globalModalWaiting: string;
 
     //When a modal window is in front, the background becomes dark.
     public static modalLayerColor: string = "rgba(50, 50, 50, 0.2)";
 
     //Default button click sound
-    public static buttonClickSound: string = null;
-    public static buttonClickSoundVolumeScale: number = 1;
+    public static horizontalScrollBar: string = null;
 
-    //Default button click sound
-    public static horizontalScrollBar: Prefab = null;
-
-    public static verticalScrollBar: Prefab = null;
+    public static verticalScrollBar: string = null;
 
     //Scrolling step in pixels
     public static defaultScrollStep: number = 25;
@@ -42,10 +37,10 @@ export class UIConfig2 {
     public static defaultScrollPagingThreshold: number = 0.3;
 
     //Resources for PopupMenu.
-    public static popupMenu: Prefab = null;
+    public static popupMenu: string = null;
 
     //Resources for tooltips.
-    public static tooltipsWidget: Prefab = null;
+    public static tooltipsWidget: string = null;
     public static defaultTooltipsShowDelay: number = 100; //In milliseconds
 
     //Max items displayed in combobox without scrolling.

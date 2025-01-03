@@ -1,6 +1,7 @@
 import { EventDispatcher } from "../events/EventDispatcher";
-import { UIEventType } from "./UIEvent";
+import { UIEvent } from "./UIEvent";
 import type { GWidget } from "./GWidget";
+import { Event } from "../events/Event";
 
 export class Controller extends EventDispatcher {
     private _selectedIndex: number;
@@ -70,7 +71,7 @@ export class Controller extends EventDispatcher {
             this._selectedIndex = value;
 
             this.changing = true;
-            this.event(UIEventType.changed);
+            this.event(Event.CHANGED);
             this.changing = false;
         }
     }

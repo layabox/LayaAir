@@ -2,6 +2,7 @@
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
+import { Event } from "../events/Event";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
@@ -136,7 +137,7 @@ export class GLoader extends GWidget {
                 image.hideFlags |= HideFlags.HideAndDontSave;
                 image.color = this._color;
                 if (!LayaEnv.isPlaying) {
-                    image.on("resource_reload", () => {
+                    image.on(Event.CHANGED, () => {
                         this._srcWidth = image.texture.width;
                         this._srcHeight = image.texture.height;
                         this.updateLayout();

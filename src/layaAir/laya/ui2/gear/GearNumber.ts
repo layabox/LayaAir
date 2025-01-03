@@ -30,6 +30,6 @@ export class GearHexColor extends GearNumber {
     protected doTween(obj: any, key: string, oldValue: number, newValue: number): void {
         super.doTween(obj, key, oldValue, newValue);
 
-        this._tween.interp(Tween.seperateChannel);
+        this._tween.interp(Tween.seperateChannel, 4);
     }
 }
