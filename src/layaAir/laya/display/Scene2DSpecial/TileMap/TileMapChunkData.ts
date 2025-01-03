@@ -167,18 +167,20 @@ export class TileMapChunkData {
         this._cellDataRefMap.forEach((localIndexs: number[], gid: number) => {
             if (localIndexs) {
                 let cellData = tileSet.getCellDataByGid(gid);
-                if (cellData.cellowner._hasAni())
-                    this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
-                cellData._addNoticeRenderTile(this);
-                for (let i = 0, len = localIndexs.length; i < len; i++) {
-                    let index = localIndexs[i];
-                    chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
-                    let yorderValue = chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
-                    let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, yorderValue, cellData.z_index, cellData);
-                    this._cellDataMap[index] = chuckCellInfo;
-                    this._chuckCellList.push(chuckCellInfo);
+                if (cellData){//todo 算数据丢失
+                    if (cellData.cellowner._hasAni())
+                        this._animatorAlterArray.set(cellData.cellowner.nativeId, cellData.cellowner);
+                    cellData._addNoticeRenderTile(this);
+                    for (let i = 0, len = localIndexs.length; i < len; i++) {
+                        let index = localIndexs[i];
+                        chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
+                        let yorderValue = chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
+                        let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, yorderValue, cellData.z_index, cellData);
+                        this._cellDataMap[index] = chuckCellInfo;
+                        this._chuckCellList.push(chuckCellInfo);
+                    }
+                    this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
                 }
-                this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
             }
         });
 
