@@ -1,8 +1,8 @@
 import lightGen_vs from './lightGen.vs';
 import lightGen_ps from './lightGen.fs';
-import { SubShader } from '../../../../../RenderEngine/RenderShader/SubShader';
-import { ShaderDataType } from '../../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
-import { Shader3D, ShaderFeatureType } from '../../../../../RenderEngine/RenderShader/Shader3D';
+import { SubShader } from '../../../RenderEngine/RenderShader/SubShader';
+import { ShaderDataType } from '../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
+import { Shader3D, ShaderFeatureType } from '../../../RenderEngine/RenderShader/Shader3D';
 
 /**
  * 用于生成灯光图（SpotLight，FreeformLight）

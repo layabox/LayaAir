@@ -1,28 +1,28 @@
-import { ILaya } from "../../../../ILaya";
-import { Laya } from "../../../../Laya";
-import { IElementComponentManager } from "../../../components/IScenceComponentManager";
-import { Event } from "../../../events/Event";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Color } from "../../../maths/Color";
-import { Matrix } from "../../../maths/Matrix";
-import { Point } from "../../../maths/Point";
-import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../../../renders/Context";
-import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
-import { RenderTexture2D } from "../../../resource/RenderTexture2D";
-import { Pool } from "../../../utils/Pool";
-import { Utils } from "../../../utils/Utils";
-import { RenderState2D } from "../../../webgl/utils/RenderState2D";
-import { ILight2DManager, Scene } from "../../Scene";
+import { ILaya } from "../../ILaya";
+import { Laya } from "../../Laya";
+import { IElementComponentManager } from "../components/IScenceComponentManager";
+import { Event } from "../events/Event";
+import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
+import { Vector4 } from "../maths/Vector4";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { Context } from "../renders/Context";
+import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Pool } from "../utils/Pool";
+import { Utils } from "../utils/Utils";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { ILight2DManager, Scene } from "../display/Scene";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
 import { DirectionLight2D } from "./DirectionLight2D";
 import { Light2DConfig } from "./Light2DConfig";
@@ -47,6 +47,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     static REUSE_CMD: boolean = true; //复用CMD开关
     static REUSE_MESH: boolean = true; //复用Mesh开关
     static DEBUG: boolean = false; //是否打印调试信息
+    static DIRECTION_LIGHT_SIZE: number = 20000; //2D方向光尺寸
+
 
     lsTarget: RenderTexture2D[] = []; //渲染目标（光影图），数量等于有灯光的层数
     occluderAgent: Occluder2DAgent; //遮光器代理，便捷地创建和控制遮光器
@@ -1055,14 +1057,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             if (light.getLightType() === Light2DType.Direction)
                 return this._screen.x + this._screen.width / 2 -
                     ((light as DirectionLight2D).directionVector.x +
-                        this._PCF[pcf].x * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
+                        this._PCF[pcf].x * light.shadowFilterSmooth * 0.01) * Light2DManager.DIRECTION_LIGHT_SIZE / 4;
             return (this._lightScenePos.x + this._PCF[pcf].x * light.shadowFilterSmooth);
         };
         const _calcLightY = (light: BaseLight2D, pcf: number) => {
             if (light.getLightType() === Light2DType.Direction)
                 return this._screen.y + this._screen.height / 2 -
                     ((light as DirectionLight2D).directionVector.y +
-                        this._PCF[pcf].y * light.shadowFilterSmooth * 0.01) * DirectionLight2D.LIGHT_SIZE / 4;
+                        this._PCF[pcf].y * light.shadowFilterSmooth * 0.01) * Light2DManager.DIRECTION_LIGHT_SIZE / 4;
             return (this._lightScenePos.y + this._PCF[pcf].y * light.shadowFilterSmooth);
         };
 
@@ -1104,13 +1106,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         const _calcLightX = (light: BaseLight2D) => {
             if (light.getLightType() == Light2DType.Direction)
                 return this._screen.x + this._screen.width / 2 -
-                    (light as DirectionLight2D).directionVector.x * DirectionLight2D.LIGHT_SIZE / 4;
+                    (light as DirectionLight2D).directionVector.x * Light2DManager.DIRECTION_LIGHT_SIZE / 4;
             return this._lightScenePos.x;
         };
         const _calcLightY = (light: BaseLight2D) => {
             if (light.getLightType() == Light2DType.Direction)
                 return this._screen.y + this._screen.height / 2 -
-                    (light as DirectionLight2D).directionVector.y * DirectionLight2D.LIGHT_SIZE / 4;
+                    (light as DirectionLight2D).directionVector.y * Light2DManager.DIRECTION_LIGHT_SIZE / 4;
             return this._lightScenePos.y;
         };
 

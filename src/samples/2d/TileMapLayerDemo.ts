@@ -9,13 +9,13 @@ import { Handler } from "laya/utils/Handler";
 import { Scene } from "laya/display/Scene";
 import { Vector2 } from "laya/maths/Vector2";
 import { Texture2D } from "laya/resource/Texture2D";
-import { TileSet } from "laya/display/Scene2DSpecial/TileMap/TileSet";
-import { TileShape } from "laya/display/Scene2DSpecial/TileMap/TileMapEnum";
-import { TileAnimationMode } from "laya/display/Scene2DSpecial/TileMap/TileAlternativesData";
-import { TileMapLayer } from "laya/display/Scene2DSpecial/TileMap/TileMapLayer";
-import { TileSetCellData } from "laya/display/Scene2DSpecial/TileMap/TileSetCellData";
-import { TileSetCellGroup } from "laya/display/Scene2DSpecial/TileMap/TileSetCellGroup";
 import { Color } from "laya/maths/Color";
+import { TileAnimationMode } from "laya/tilemap/TileAlternativesData";
+import { TileShape } from "laya/tilemap/TileMapEnum";
+import { TileMapLayer } from "laya/tilemap/TileMapLayer";
+import { TileSet } from "laya/tilemap/TileSet";
+import { TileSetCellData } from "laya/tilemap/TileSetCellData";
+import { TileSetCellGroup } from "laya/tilemap/TileSetCellGroup";
 
 export class TileMapLayerDemo {
     Main: any;

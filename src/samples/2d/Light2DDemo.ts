@@ -2,12 +2,6 @@ import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Scene } from "laya/display/Scene";
 import { Camera2D } from "laya/display/Scene2DSpecial/Camera2D";
-import { ShadowFilterType } from "laya/display/Scene2DSpecial/Light2D/BaseLight2D";
-import { FreeformLight2D } from "laya/display/Scene2DSpecial/Light2D/FreeformLight2D";
-import { LightOccluder2D } from "laya/display/Scene2DSpecial/Light2D/LightOccluder2D";
-import { SpotLight2D } from "laya/display/Scene2DSpecial/Light2D/SpotLight2D";
-import { SpriteLight2D } from "laya/display/Scene2DSpecial/Light2D/SpriteLight2D";
-import { DirectionLight2D } from "laya/display/Scene2DSpecial/Light2D/DirectionLight2D";
 import { Mesh2DRender } from "laya/display/Scene2DSpecial/Mesh2DRender";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -23,8 +17,14 @@ import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { Texture } from "laya/resource/Texture";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Stat } from "laya/utils/Stat";
-import { PolygonPoint2D } from "laya/display/Scene2DSpecial/Light2D/PolygonPoint2D";
 import { Area2D } from "laya/display/Area2D";
+import { ShadowFilterType } from "laya/Light2D/BaseLight2D";
+import { DirectionLight2D } from "laya/Light2D/DirectionLight2D";
+import { PolygonPoint2D } from "laya/Light2D/PolygonPoint2D";
+import { SpriteLight2D } from "laya/Light2D/SpriteLight2D";
+import { FreeformLight2D } from "laya/Light2D/FreeformLight2D";
+import { LightOccluder2D } from "laya/Light2D/LightOccluder2D";
+import { SpotLight2D } from "laya/Light2D/SpotLight2D";
 
 export class Light2DDemo {
     useWebGPU: boolean = false;

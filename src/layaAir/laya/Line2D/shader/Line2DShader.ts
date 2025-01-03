@@ -1,13 +1,13 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { IIndexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
-import { IVertexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { Shader3D, ShaderFeatureType } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { VertexElement } from "../../../../renders/VertexElement";
-import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
+import { LayaGL } from "../../layagl/LayaGL";
+import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
+import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import LineFs from "./2DLine.fs";
 import LineVs from "./2DLine.vs";
 

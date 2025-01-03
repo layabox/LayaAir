@@ -1,8 +1,8 @@
 import shadowGen2D_vs from './shadowGen2D.vs';
 import shadowGen2D_ps from './shadowGen2D.fs';
-import { ShaderDataType } from '../../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
-import { Shader3D, ShaderFeatureType } from '../../../../../RenderEngine/RenderShader/Shader3D';
-import { UniformMapType, SubShader } from '../../../../../RenderEngine/RenderShader/SubShader';
+import { ShaderDataType } from '../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
+import { Shader3D, ShaderFeatureType } from '../../../RenderEngine/RenderShader/Shader3D';
+import { UniformMapType, SubShader } from '../../../RenderEngine/RenderShader/SubShader';
 
 /**
  * 用于在光影图上叠加阴影亮度和颜色（如果阴影没有亮度和颜色，可以不用执行该生成步骤）

@@ -1,8 +1,8 @@
 import lightAndShadowGen2D_vs from './lightAndShadowGen2D.vs';
 import lightAndShadowGen2D_ps from './lightAndShadowGen2D.fs';
-import { ShaderDataType } from '../../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
-import { Shader3D, ShaderFeatureType } from '../../../../../RenderEngine/RenderShader/Shader3D';
-import { UniformMapType, SubShader } from '../../../../../RenderEngine/RenderShader/SubShader';
+import { ShaderDataType } from '../../../RenderDriver/DriverDesign/RenderDevice/ShaderData';
+import { Shader3D, ShaderFeatureType } from '../../../RenderEngine/RenderShader/Shader3D';
+import { UniformMapType, SubShader } from '../../../RenderEngine/RenderShader/SubShader';
 
 /**
  * 用于生成光影图
