@@ -21,4 +21,8 @@ void main(){
         gl_FragColor = gl_FragColor * alphaMat;
         gl_FragColor += u_colorAlpha / 255.0 * gl_FragColor.a;
     #endif
+
+    #ifdef LIGHT2D_ENABLE
+        lightAndShadow(gl_FragColor);
+    #endif
 }
