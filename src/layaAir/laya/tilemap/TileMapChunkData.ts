@@ -1,4 +1,3 @@
-
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
@@ -10,7 +9,6 @@ import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Material } from "../resource/Material";
 import { Sprite } from "../display/Sprite";
-import { PolygonPoint2D } from "../display/Scene2DSpecial/Light2D/PolygonPoint2D";
 import { TileMapOccluder } from "./light/TileMapOccluder";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag, TileShape } from "./TileMapEnum";
@@ -18,6 +16,7 @@ import { TileMapLayer } from "./TileMapLayer";
 import { TileMapShaderInit } from "./shader/TileMapShaderInit";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
+import { PolygonPoint2D } from "../Light2D/PolygonPoint2D";
 
 interface ITileMapRenderElement {
     renderElement: IRenderElement2D,
@@ -302,11 +301,12 @@ export class TileMapChunkData {
                     });
                     break;
                 case TileLayerSortMode.XSort:
-                    this._chuckCellList.sort((a, b) => { 
-                        if( a.chuckLocalindex - b.chuckLocalindex){
+                    this._chuckCellList.sort((a, b) => {
+                        if (a.chuckLocalindex - b.chuckLocalindex) {
                             return a.yOrderValue - b.yOrderValue;
                         }
-                        return a.chuckLocalindex - b.chuckLocalindex });
+                        return a.chuckLocalindex - b.chuckLocalindex
+                    });
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
                     this._chuckCellList.sort((a, b) => {
@@ -545,7 +545,7 @@ export class TileMapChunkData {
                         let shapeLength = shape.length;
 
                         let point: PolygonPoint2D = new PolygonPoint2D;
-    
+
                         let data = datas[pIndex];
                         if (!data) {
                             data = agent.addOccluder(point, layer.layerMask);

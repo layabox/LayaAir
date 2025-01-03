@@ -1,6 +1,7 @@
-import { Rectangle } from "../../../maths/Rectangle";
-import { Vector2 } from "../../../maths/Vector2";
+import { Rectangle } from "../maths/Rectangle";
+import { Vector2 } from "../maths/Vector2";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
+import { Light2DManager } from "./Light2DManager";
 
 /**
  * 线性灯光
@@ -89,10 +90,10 @@ export class DirectionLight2D extends BaseLight2D {
     protected _calcLocalRange() {
         super._calcLocalRange();
 
-        this._localRange.x = -DirectionLight2D.LIGHT_SIZE / 2;
-        this._localRange.y = -DirectionLight2D.LIGHT_SIZE / 2;
-        this._localRange.width = DirectionLight2D.LIGHT_SIZE;
-        this._localRange.height = DirectionLight2D.LIGHT_SIZE;
+        this._localRange.x = -Light2DManager.DIRECTION_LIGHT_SIZE / 2;
+        this._localRange.y = -Light2DManager.DIRECTION_LIGHT_SIZE / 2;
+        this._localRange.width = Light2DManager.DIRECTION_LIGHT_SIZE;
+        this._localRange.height = Light2DManager.DIRECTION_LIGHT_SIZE;
     }
 
     /**

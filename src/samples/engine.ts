@@ -11,6 +11,9 @@ import "laya/navigation/2D/ModuleDef";
 import "laya/trail/trail2D/ModuleDef";
 import "laya/trail/trail3D/ModuleDef";
 import "laya/particle/ModuleDef";
+import "laya/Light2D/ModuleDef";
+import "laya/Line2D/ModuleDef";
+import "laya/utils/StatUI";
 
 import "laya/legacy/Animator";
 import "laya/legacy/BaseCamera";

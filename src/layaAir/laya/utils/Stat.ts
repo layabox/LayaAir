@@ -2,8 +2,25 @@ import { ILaya } from "../../ILaya";
 import { GPUEngineStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
-import { ClassUtils } from "./ClassUtils";
-import { IStatUI, StatToggleUIParams, StatUIParams } from "./IStatUI";
+import type { StatUI } from "./StatUI";
+
+export type StatUnit = "M" | "K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
+export type StatColor = "yellow" | "white" | "red";//颜色
+export type StatMode = "summit" | "average";//是否根据帧分配
+
+export interface StatUIParams {
+    title: string,//显示title
+    value: string,//对应Stat的数据
+    color: StatColor,//显示颜色
+    units: StatUnit,//"M"/"k"/"int"//显示单位
+    mode: StatMode//"resource/average"//显示模式
+}
+
+export interface StatToggleUIParams {
+    title: string,//显示title
+    value: string,//Toggle
+    color: StatColor,//显示颜色
+}
 
 /**
  * @en The Stat class is a performance statistics panel that provides real-time updates on various performance metrics.
@@ -437,12 +454,11 @@ export class Stat {
      */
     public static enableOpaque: boolean = true;
 
-    static _statUI: IStatUI;
+    static _statUIClass: typeof StatUI;
+    static _statUI: StatUI;
 
     /**@internal */
     private static _currentShowArray: Array<StatUIParams>;
-    /**@internal */
-    private static _currentToggleArray: Array<StatToggleUIParams>;
     /**@internal */
     private static _show: boolean;
 
@@ -459,8 +475,8 @@ export class Stat {
      * @param views 可选的 StatUIParams 数组，定义要显示哪些统计信息。
      */
     static show(x?: number, y?: number, views?: Array<StatUIParams>): void {
-        if (!Stat.checkUI())
-            return;
+        if (!Stat._statUI)
+            Stat._statUI = new Stat._statUIClass();
         this.hide();
 
         Stat._show = true;
@@ -469,41 +485,6 @@ export class Stat {
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
         ILaya.timer.frameLoop(1, null, Stat.clear);
-    }
-
-    /**
-     * @en Shows the performance statistics information with toggle functionality.
-     * @param x The x-coordinate of the display position. Optional.
-     * @param y The y-coordinate of the display position. Optional.
-     * @param views An array of StatToggleUIParams objects defining the toggle views to display. Optional.
-     * @zh 显示带有切换功能的性能统计信息。
-     * @param x 显示位置的 x 坐标。可选。
-     * @param y 显示位置的 y 坐标。可选。
-     * @param views 定义要显示的切换视图的 StatToggleUIParams 对象数组。可选。
-     */
-    static showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>): void {
-        if (!Stat.checkUI())
-            return;
-        this.hide();
-
-        Stat._show = true;
-        Stat._currentToggleArray = views;
-        Stat._statUI.showToggle(x, y, views);
-        ILaya.systemTimer.frameLoop(1, null, Stat.loop);
-        ILaya.timer.frameLoop(1, null, Stat.clear);
-    }
-
-    private static checkUI() {
-        if (!Stat._statUI) {
-            let cls = ClassUtils.getClass("StatUI");
-            if (!cls) {
-                console.error("StatUI not found");
-                return false;
-            }
-            Stat._statUI = new cls();
-        }
-
-        return true;
     }
 
     /**
@@ -516,7 +497,6 @@ export class Stat {
 
         Stat._show = false;
         Stat._currentShowArray = null;
-        Stat._currentToggleArray = null;
         ILaya.timer.clear(null, Stat.loop);
         ILaya.timer.clear(null, Stat.clear);
         if (Stat._statUI)

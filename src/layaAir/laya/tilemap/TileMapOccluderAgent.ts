@@ -1,8 +1,6 @@
-import { Light2DManager } from "../display/Scene2DSpecial/Light2D/Light2DManager";
-import { Occluder2DAgent } from "../display/Scene2DSpecial/Light2D/Occluder2DAgent";
-import { PolygonPoint2D } from "../display/Scene2DSpecial/Light2D/PolygonPoint2D";
+import { Light2DManager } from "../Light2D/Light2DManager";
+import { PolygonPoint2D } from "../Light2D/PolygonPoint2D";
 import { TileMapOccluder } from "./light/TileMapOccluder";
-import { DirtyFlagType, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileMapLayer } from "./TileMapLayer";
 
 /**
@@ -12,13 +10,13 @@ import { TileMapLayer } from "./TileMapLayer";
 export class TileMapOccluderAgent {
    /** 当前绑定的TileMap层 */
    private _layer: TileMapLayer;
-   
+
    private _manager: Light2DManager;
- 
+
    /** 遮光功能是否启用 */
    enable: boolean = false;
 
-   private _occluders:TileMapOccluder[] = [];
+   private _occluders: TileMapOccluder[] = [];
 
    /**
      * 创建TileMap遮光器管理器
@@ -52,9 +50,9 @@ export class TileMapOccluderAgent {
     */
    enableAllOccluders() {
       if (!this._manager || !this._occluders.length) return;
-      for (let i = 0 , len = this._occluders.length ; i < len; i++){
+      for (let i = 0, len = this._occluders.length; i < len; i++) {
          this._occluders[i].manager = this._manager;
-         this._occluders[i]._onEnable(); 
+         this._occluders[i]._onEnable();
       }
    }
 
@@ -64,8 +62,8 @@ export class TileMapOccluderAgent {
     */
    disableAllOccluders() {
       if (!this._manager || !this._occluders.length) return;
-      for (let i = 0 , len = this._occluders.length ; i < len; i++)
-         this._occluders[i]._onDisable();       
+      for (let i = 0, len = this._occluders.length; i < len; i++)
+         this._occluders[i]._onDisable();
    }
 
    _removeAllOccluders() {
@@ -96,15 +94,15 @@ export class TileMapOccluderAgent {
      * @param id 遮光器ID
      * @returns 是否成功移除
      */
-   removeOccluder( occluder: TileMapOccluder): boolean {
-      if (!occluder ) return false;
+   removeOccluder(occluder: TileMapOccluder): boolean {
+      if (!occluder) return false;
       let index = this._occluders.indexOf(occluder);
       this._occluders.splice(index, 1);
       occluder.destroy();
       return true;
    }
 
- 
+
    /**
      * 清理所有遮光器
      */

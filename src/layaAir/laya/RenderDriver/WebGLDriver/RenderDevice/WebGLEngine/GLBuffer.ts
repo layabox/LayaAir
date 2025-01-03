@@ -91,6 +91,7 @@ export class GLBuffer extends GLObject {
         this._byteLength = srcData;
         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
         this.unbindBuffer();
+
     }
 
 
@@ -116,6 +117,9 @@ export class GLBuffer extends GLObject {
         const gl = <WebGL2RenderingContext>this._gl;
         let bindInfo = this._engine._uboBindingMap[glPointer];
         if (bindInfo && bindInfo.buffer != this._glBuffer) {
+            if (this._engine._getbindBuffer(this._glTargetType) != this) {
+                this._engine._setbindBuffer(this._glTargetType, this);
+            }
             gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
             bindInfo.buffer = this._glBuffer;
             bindInfo.offset = 0;
@@ -128,6 +132,9 @@ export class GLBuffer extends GLObject {
         let bindInfo = this._engine._uboBindingMap[glPointer];
         if (bindInfo) {
             if (bindInfo.buffer != this._glBuffer || bindInfo.offset != offset || bindInfo.size != byteCount) {
+                if (this._engine._getbindBuffer(this._glTargetType) != this) {
+                    this._engine._setbindBuffer(this._glTargetType, this);
+                }
                 gl.bindBufferRange(this._glTarget, glPointer, this._glBuffer, offset, byteCount);
                 bindInfo.buffer = this._glBuffer;
                 bindInfo.offset = offset;
@@ -137,6 +144,7 @@ export class GLBuffer extends GLObject {
     }
 
     resizeBuffer(dataLength: number) {
+
         this.bindBuffer();
         const gl = this._gl;
         this._byteLength = dataLength;

@@ -1,8 +1,8 @@
 import { Event } from "../../events/Event";
 import { Sprite } from "../../display/Sprite";
-import { Light2DManager } from "../../display/Scene2DSpecial/Light2D/Light2DManager";
-import { LightOccluder2DCore } from "../../display/Scene2DSpecial/Light2D/LightOccluder2DCore";
-import { PolygonPoint2D } from "../../display/Scene2DSpecial/Light2D/PolygonPoint2D";
+import { Light2DManager } from "../../Light2D/Light2DManager";
+import { LightOccluder2DCore } from "../../Light2D/LightOccluder2DCore";
+import { PolygonPoint2D } from "../../Light2D/PolygonPoint2D";
 
 /**
  * 2D灯光遮挡器（遮光器）
@@ -26,7 +26,7 @@ export class TileMapOccluder {
    set manager(value: Light2DManager) {
       this._core.manager = value;
    }
-  
+
    /**
     * @en Can in light boolean value
     * @zh 灯光在内部时是否挡光

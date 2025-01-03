@@ -55,17 +55,10 @@ import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
 import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
 import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";
 import { Mesh2D } from "./resource/Mesh2D";
-import { DirectionLight2D } from "./display/Scene2DSpecial/Light2D/DirectionLight2D";
-import { BaseLight2D } from "./display/Scene2DSpecial/Light2D/BaseLight2D";
-import { SpriteLight2D } from "./display/Scene2DSpecial/Light2D/SpriteLight2D";
-import { FreeformLight2D } from "./display/Scene2DSpecial/Light2D/FreeformLight2D";
-import { SpotLight2D } from "./display/Scene2DSpecial/Light2D/SpotLight2D";
-import { LightOccluder2D } from "./display/Scene2DSpecial/Light2D/LightOccluder2D";
-import { PolygonPoint2D } from "./display/Scene2DSpecial/Light2D/PolygonPoint2D";
 import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
-import { Line2DRender } from "./display/Scene2DSpecial/Line2D/Line2DRender";
 import { Area2D } from "./display/Area2D";
+import { OpenDataContextView } from "./display/OpenDataContextView";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -81,6 +74,7 @@ c("EffectAnimation", EffectAnimation);
 c("SoundNode", SoundNode);
 c("VideoNode", VideoNode);
 c("Area2D", Area2D);
+c("OpenDataContextView", OpenDataContextView);
 
 c("Scene", Scene);
 c("Stage", Stage);
@@ -119,13 +113,3 @@ c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
 c("Gradient", Gradient);
 c("FloatKeyframe", FloatKeyframe);
-
-c("BaseLight2D", BaseLight2D);
-c("DirectionLight2D", DirectionLight2D);
-c("SpriteLight2D", SpriteLight2D);
-c("FreeformLight2D", FreeformLight2D);
-c("SpotLight2D", SpotLight2D);
-c("LightOccluder2D", LightOccluder2D);
-c("PolygonPoint2D", PolygonPoint2D);
-
-c("Line2DRender", Line2DRender);

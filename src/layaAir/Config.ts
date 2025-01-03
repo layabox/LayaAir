@@ -154,5 +154,6 @@ export const PlayerConfig: {
     physics3D?: any,
     spineVersion?: string,
     workerLoaderLib?: string,
+    UI?: any;
     [key: string]: any,
 } = {};
