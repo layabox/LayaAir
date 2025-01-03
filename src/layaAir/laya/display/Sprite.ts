@@ -1991,7 +1991,8 @@ export class Sprite extends Node {
     protected _setParent(value: Node): void {
         super._setParent(value);
 
-        if (value && this._mouseState !== 1 && !(<Sprite>value)._getBit(NodeFlags.CHECK_INPUT))
+        if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
+            && !value._getBit(NodeFlags.CHECK_INPUT))
             this.setMouseEnabledUp();
     }
 

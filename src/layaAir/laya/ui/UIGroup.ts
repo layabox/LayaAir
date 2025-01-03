@@ -323,6 +323,13 @@ export class UIGroup extends Box {
     }
 
     /**
+     * @override
+     */
+    protected preinitialize(): void {
+        this.mouseEnabled = true;
+    }
+
+    /**
      * @internal 
      * @en 2.0 parsing will call
      * @zh 2.0解析会调用 
