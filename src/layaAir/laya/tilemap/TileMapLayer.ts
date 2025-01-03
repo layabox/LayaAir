@@ -445,6 +445,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         let needUpdateDirty = !!this._needUpdateDirtys.length;
 
 
+        this._renderElements.length = 0;
+        
         this._chunk._getChunkPosByPixel(renderRect.x, renderRect.y, TempVector3_0);
 
         this._chunk._getChunkPosByPixel(renderRect.width+renderRect.x, renderRect.height+ renderRect.y, TempVector3_1);
