@@ -1,5 +1,4 @@
 import { Loader } from "../net/Loader";
-import { ObjDecoder } from "./ObjDecoder";
 
 export const TypedArrayClasses: Record<string, any> = {
     "Int8Array": Int8Array,
@@ -23,13 +22,6 @@ export class SerializeUtil {
                 return true;
         }
         return false;
-    }
-
-    static decodeObj(data: any, obj?: any): any {
-        decoder.errors = null;
-        decoder.getNodeByRef = dummy;
-        decoder.getNodeData = dummy;
-        return decoder.decodeObj(data, obj);
     }
 
     static getLoadTypeByEngineType(type: string) {
@@ -246,6 +238,3 @@ function arrayEquals(a: ReadonlyArray<any>, b: ReadonlyArray<any>): boolean {
         return false;
     }
 }
-
-var decoder = new ObjDecoder();
-function dummy(...args: any[]): any { return null; }

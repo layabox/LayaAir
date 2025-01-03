@@ -12,6 +12,13 @@ export class ObjDecoder {
     getNodeByRef: (id: string | string[]) => Node = dummy;
     getNodeData: (node: Node) => any = dummy;
 
+    static decodeObj(data: any, obj?: any): any {
+        decoder.errors = null;
+        decoder.getNodeByRef = dummy;
+        decoder.getNodeData = dummy;
+        return decoder.decodeObj(data, obj);
+    }
+
     decodeObj(data: any, obj?: any, excludeKeys?: Set<string>) {
         SerializeUtil.isDeserializing = true;
         try {
@@ -190,3 +197,4 @@ export class ObjDecoder {
 
 function dummy(...args: any[]): any { return null; }
 var crefClass: any;
+const decoder = new ObjDecoder();

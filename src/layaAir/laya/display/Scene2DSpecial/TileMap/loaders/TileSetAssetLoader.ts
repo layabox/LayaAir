@@ -1,9 +1,9 @@
-import { SerializeUtil } from "../../../../loaders/SerializeUtil";
 import { ILoadOptions, ILoadTask, ILoadURL, IResourceLoader, Loader } from "../../../../net/Loader";
 import { TileSet } from "../TileSet";
 import { TileSetCellGroup } from "../TileSetCellGroup";
 import { URL } from "../../../../net/URL";
 import { Byte } from "../../../../utils/Byte";
+import { ObjDecoder } from "../../../../loaders/ObjDecoder";
 
 class TileSetLoader implements IResourceLoader {
     load(task: ILoadTask): Promise<any> {
@@ -38,12 +38,12 @@ class TileSetLoader implements IResourceLoader {
             for (let i = 0, len = data.groups.length; i < len; i++) {
                 this.createGroup(tileSet, data.groups[i]);
             }
-            tileSet.tileSize = SerializeUtil.decodeObj(data.tileSize);
-            tileSet.physicsLayers = SerializeUtil.decodeObj(data.physicsLayers);
-            tileSet.lightInfoLayers = SerializeUtil.decodeObj(data.lightInfoLayers);
-            tileSet.customLayers = SerializeUtil.decodeObj(data.customLayers);
-            tileSet.navigationLayers = SerializeUtil.decodeObj(data.navigationLayers);
-            tileSet.tileTerrains = SerializeUtil.decodeObj(data.tileTerrains);
+            tileSet.tileSize = ObjDecoder.decodeObj(data.tileSize);
+            tileSet.physicsLayers = ObjDecoder.decodeObj(data.physicsLayers);
+            tileSet.lightInfoLayers = ObjDecoder.decodeObj(data.lightInfoLayers);
+            tileSet.customLayers = ObjDecoder.decodeObj(data.customLayers);
+            tileSet.navigationLayers = ObjDecoder.decodeObj(data.navigationLayers);
+            tileSet.tileTerrains = ObjDecoder.decodeObj(data.tileTerrains);
             tileSet._notifyTileSetCellGroupsChange();
             return tileSet;
         });
@@ -54,7 +54,7 @@ class TileSetLoader implements IResourceLoader {
         group.id = data.id;
         group.name = data.name;
         tileSet.addTileSetCellGroup(group);
-        SerializeUtil.decodeObj(data, group);
+        ObjDecoder.decodeObj(data, group);
         if(data.atlas.path){
             group.atlas = Loader.getBaseTexture(data.atlas.path);
         }
