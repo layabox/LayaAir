@@ -365,7 +365,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapOccluder._updateManager();
         this._tileMapPhysics.enable && this._tileMapPhysics.enableRigidBodys();
         this._tileMapOccluder.enable && this._tileMapOccluder.enableAllOccluders();
-        this.owner.on(Event.TRANSFORM_CHANGED, this, this._refreshLayer);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this._refreshLayer , [[DirtyFlagType.PHYSICS]]);
     }
 
     onDisable(): void {
@@ -381,9 +381,9 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapOccluder.destroy();
     }
 
-    private _refreshLayer() {
-        for (let i = 1; i < DIRTY_TYPES; i++) {
-            this._needUpdateDirtys[i] = true;
+    _refreshLayer(layers:number[]) {
+        for (let i = 1 , len = layers.length; i < len; i++) {
+            this._needUpdateDirtys[layers[i]] = true;
         }
     }
 
@@ -520,10 +520,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
         let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
 
-        // let sprite = this._testSprite = this._testSprite || new Sprite;
-        // sprite.graphics.clear();
-        // sprite.graphics.drawRect(chuckLocalRect.x, chuckLocalRect.y, chuckLocalRect.z - chuckLocalRect.x, chuckLocalRect.w - chuckLocalRect.y, "#ff0000");
-        // this.owner.addChild(sprite);
+        
 
         this._renderElements.length = 0;
 
@@ -540,6 +537,23 @@ export class TileMapLayer extends BaseRenderNode2D {
         let checkPoint = Vector2.TEMP;
 
         let needUpdateDirty = !!this._needUpdateDirtys.length;
+
+
+        // let sprite = this._testSprite;
+        // if (!sprite) {
+        //     sprite = this._testSprite = new Sprite();
+        //     sprite.name = "Draw Rect";
+        //     sprite.alpha = 0.;
+        //     // this.owner.parent.addChild(sprite);
+        //     Laya.stage.addChild(sprite);
+        // }
+        // sprite.graphics.clear();
+        // sprite.graphics.drawRect(
+        //     0, 
+        //     0, 
+        //     chuckLocalRect.z + tileSize.x - chuckLocalRect.x + tileSize.x, 
+        //     chuckLocalRect.w + tileSize.y - chuckLocalRect.y + tileSize.y, 
+        // "#ff0000");
 
         for (var j = chuckstartCol; j <= chuckendCol; j++) {
             if (!this._chunkDatas[j]) { continue; }
