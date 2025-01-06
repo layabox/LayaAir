@@ -444,8 +444,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @zh 清除所有遮光器
      */
     clearOccluder() {
+        for (let i = this._occluders.length - 1; i > -1; i--)
+            this._needCollectOccluderInLight |= this._occluders[i].layerMask;
         this._occluders.length = 0;
-        for (let i = 0; i < this._occluderLayer.length; i++)
+        for (let i = this._occluderLayer.length - 1; i > -1; i--)
             this._occludersInLayer[this._occluderLayer[i]].length = 0;
         this._occluderLayer.length = 0;
     }
@@ -468,6 +470,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 if (this._occluderLayer.indexOf(layer) === -1) //记录有遮光器的层序号
                     this._occluderLayer.push(layer);
             }
+            this._needCollectOccluderInLight |= occluder.layerMask;
             if (Light2DManager.DEBUG)
                 console.log('add occluder', occluder);
         }
@@ -493,6 +496,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                         this._occluderLayer.splice(this._occluderLayer.indexOf(layer), 1);
                 }
             }
+            this._needCollectOccluderInLight |= occluder.layerMask;
             if (Light2DManager.DEBUG)
                 console.log('remove occluder', occluder);
         }
@@ -810,21 +814,21 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._recoverResource();
 
         //遍历屏幕内有灯光的层
-        let works = 0;
-        this._updateScreen();
+        if (!this._updateScreen()) return; //屏幕数据不合理，直接放弃后续处理
+
         if (this._screenSchmittChange) {
             for (let i = this._lightLayerAll.length - 1; i > -1; i--) {
                 const layer = this._lightLayerAll[i];
                 this._collectLightInScreenByLayer(layer); //收集该层屏幕内灯光
             }
-        } else if (this._needCollectLightInLayer > 0) {
+        } else if (this._needCollectLightInLayer !== 0) {
             for (let i = this._lightLayerAll.length - 1; i > -1; i--) {
                 const layer = this._lightLayerAll[i];
                 if (this._needCollectLightInLayer & (1 << layer))
                     this._collectLightInScreenByLayer(layer); //收集该层屏幕内灯光
             }
         }
-        if (this._needCollectOccluderInLight > 0) {
+        if (this._needCollectOccluderInLight !== 0) {
             for (let i = this._lightLayerAll.length - 1; i > -1; i--) {
                 const layer = this._lightLayerAll[i];
                 if (this._needCollectOccluderInLight & (1 << layer)) {
@@ -841,6 +845,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._lightsNeedCheckRange.length = 0;
 
         //遍历有灯光的层
+        let works = 0;
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             let needRender = false;
             const layer = this._lightLayer[i];
@@ -1020,6 +1025,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             this._screen.height = RenderState2D.height | 0;
         }
 
+        if (this._screen.width <= 0 || this._screen.height <= 0)
+            return false; //屏幕尺寸数据不合理
+
         if (this._screen.x < this._screenSchmitt.x
             || this._screen.y < this._screenSchmitt.y
             || this._screen.x + this._screen.width > this._screenSchmitt.x + this._screenSchmitt.width
@@ -1040,6 +1048,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             if (Light2DManager.DEBUG)
                 console.log('screen schmitt change');
         }
+        return true;
     }
 
     /**
