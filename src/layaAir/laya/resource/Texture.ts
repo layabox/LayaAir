@@ -571,6 +571,8 @@ export class Texture extends Resource {
      * @return 一个 `Texture` 对象，表示裁剪后的子纹理，如果裁剪区域越界，则返回 null。
      */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
+        if(this.destroyed)
+            return null;
         let key = `${x}_${y}_${width}_${height}`;
         if (!this._clipCache)
             this._clipCache = new Map();

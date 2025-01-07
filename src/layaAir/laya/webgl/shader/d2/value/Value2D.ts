@@ -5,7 +5,6 @@ import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/Re
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
 import { ColorFilter } from "../../../../filters/ColorFilter"
 import { LayaGL } from "../../../../layagl/LayaGL"
-import { Matrix } from "../../../../maths/Matrix"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector2 } from "../../../../maths/Vector2"
 import { Vector4 } from "../../../../maths/Vector4"
@@ -260,6 +259,7 @@ export class Value2D {
             this.shaderData.clearDefine();
             //this.shaderData.destroy();
         }
+        this.textureHost = null;
     }
 
     //

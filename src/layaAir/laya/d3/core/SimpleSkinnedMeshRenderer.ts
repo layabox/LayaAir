@@ -51,7 +51,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
         this._baseRenderNode.shaderData.setTexture(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, value);
-        value._addReference();
         this._baseRenderNode.shaderData.setNumber(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
     }
 

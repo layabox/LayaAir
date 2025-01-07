@@ -35,7 +35,6 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
@@ -117,6 +116,10 @@ export class Graphics {
         if (this._sp) {
             this._sp._renderType = 0;
             this._sp = null;
+        }
+        if (this._material) {
+            this._material._removeReference();
+            this._material = null;
         }
         this._destroyData();
     }

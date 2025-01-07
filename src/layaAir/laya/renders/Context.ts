@@ -561,6 +561,9 @@ export class Context {
             this.defTexture.bitmap && this.defTexture.bitmap.destroy();
             this.defTexture.destroy();
         }
+        for(var i = 0,n = this._shaderValueNeedRelease.length;i<n;i++){
+            this._shaderValueNeedRelease[i]&&this._shaderValueNeedRelease[i].release();
+        } 
     }
 
     clear(): void {
