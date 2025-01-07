@@ -269,7 +269,7 @@ export class RenderSprite {
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
-                else if (sprite._cacheStyle.mask == ele && ele._visible) //ele._visible condition for case that selected in IDE
+                else if (sprite._cacheStyle.mask == ele && !ele._getBit(NodeFlags.FORCE_VISIBLE))
                     visFlag = false;
             }
 
@@ -460,6 +460,11 @@ export class RenderSprite {
     }
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let mask = sprite.mask;
+        if (mask._getBit(NodeFlags.FORCE_VISIBLE)) {
+            this._next._fun(sprite, ctx, x, y);
+            return;
+        }
         let cache = sprite._getCacheStyle();
         //由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
         if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed || ILaya.stage.isGlobalRepaint()) {
@@ -484,7 +489,6 @@ export class RenderSprite {
             //这个时候获得的rect是包含pivot的。下面的mask按照规则是作为sprite的子来计算，但是，他的位置是相对于原始位置
             //而不是pivot，所以需要根据mask的pivot调整mask的rect的位置
 
-            let mask = sprite.mask;
             //TODO mask如果非常简单，就不要先渲染到texture上
             let maskcache = mask._getCacheStyle();
             maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
