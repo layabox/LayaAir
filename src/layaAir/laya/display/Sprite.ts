@@ -1952,11 +1952,17 @@ export class Sprite extends Node {
         }
         else if (type === Event.TRANSFORM_CHANGED) {
             this._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
-            let p = this._parent;
-            while (p && p !== ILaya.stage) {
-                p._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
-                p = p._parent;
-            }
+            this.setDemandTransEventUp();
+        }
+    }
+
+    private setDemandTransEventUp() {
+        let p = this._parent;
+        while (p && p !== ILaya.stage) {
+            if (!p._setBit(NodeFlags.DEMAND_TRANS_EVENT, true))
+                break;
+
+            p = p._parent;
         }
     }
 
@@ -1992,8 +1998,14 @@ export class Sprite extends Node {
         super._setParent(value);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
-            && !value._getBit(NodeFlags.CHECK_INPUT))
+            && !value._getBit(NodeFlags.CHECK_INPUT)) {
             this.setMouseEnabledUp();
+        }
+
+        if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
+            this.setDemandTransEventUp();
+
+
     }
 
     /**
