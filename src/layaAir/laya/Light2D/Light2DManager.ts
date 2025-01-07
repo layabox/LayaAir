@@ -904,18 +904,20 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     material.setFloat('u_PCFIntensity', pcfIntensity);
                     renderRes.textures[j] = light._texLight;
                     if (light.shadowLayerMask & layerMask) { //此灯光该层有阴影
-                        if (light._isNeedShadowMesh() && materialShadow) {
-                            materialShadow.setColor('u_LightColor', light.color);
-                            materialShadow.setColor('u_ShadowColor', light.shadowColor);
-                            materialShadow.setFloat('u_LightIntensity', light.intensity);
-                            materialShadow.setFloat('u_LightRotation', light.lightRotation);
-                            materialShadow.setVector2('u_LightScale', light.lightScale);
-                            materialShadow.setVector2('u_LightTextureSize', light._getTextureSize());
-                            materialShadow.setFloat('u_Shadow2DStrength', light.shadowStrength);
-                            materialShadow.setFloat('u_PCFIntensity', pcfIntensity);
-                            renderRes.updateShadowMesh(this._updateShadow(layer, x, y, light, shadowMesh, j), j);
-                            works++;
-                        }
+                        if (light._isNeedShadowMesh()) { //是否需要阴影网格
+                            if (materialShadow) {
+                                materialShadow.setColor('u_LightColor', light.color);
+                                materialShadow.setColor('u_ShadowColor', light.shadowColor);
+                                materialShadow.setFloat('u_LightIntensity', light.intensity);
+                                materialShadow.setFloat('u_LightRotation', light.lightRotation);
+                                materialShadow.setVector2('u_LightScale', light.lightScale);
+                                materialShadow.setVector2('u_LightTextureSize', light._getTextureSize());
+                                materialShadow.setFloat('u_Shadow2DStrength', light.shadowStrength);
+                                materialShadow.setFloat('u_PCFIntensity', pcfIntensity);
+                                renderRes.updateShadowMesh(this._updateShadow(layer, x, y, light, shadowMesh, j), j);
+                                works++;
+                            }
+                        } else renderRes.updateShadowMesh(null, j); //去除阴影网格
                     } else if (shadowMesh) { //此灯光该层无阴影
                         if (!Light2DManager.REUSE_MESH)
                             this._needToRecover.push(shadowMesh);
