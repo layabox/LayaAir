@@ -187,10 +187,12 @@ export class RectClipper {
 
 
         if (isDiffClipper || isDiffMatrix) {
-            let ofx = this._clipperRect.x + this._clipperRect.width * 0.5;
-            let ofy = this._clipperRect.y + this._clipperRect.height * 0.5;
-            this._matrix.setMatrix(ofx, ofy, 1, 1, clipperRot, 0, 0, 0, 0);
-            this._matrix.invert();
+            if (clipperRot) {
+                this._matrix.setMatrix(0, 0, 1, 1, clipperRot, 0, 0, 0, 0);
+                this._matrix.invert();
+            }else{
+                this._matrix.identity();
+            }
             Matrix.mul(matrix, this._matrix, this._matrix);
             this._updateCliperInPolygonRect();
         }
