@@ -416,76 +416,12 @@ export class TileMapLayer extends BaseRenderNode2D {
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
-    preRenderUpdate(context: IRenderContext2D): void {
-        let tileSet = this._tileSet;
-        if (tileSet == null) return;
-        const clipChuckMat = TempMatrix;
-        const renderRect = TempRectange;
-        let mat = this._globalTransfrom();
-
-        let scene = this.owner.scene;
-        let camera = scene._curCamera;
-        if (camera == null) {
-            renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
-            mat.copyTo(clipChuckMat);
-        } else {
-            let rect = camera._rect;
-            renderRect.setTo(rect.x, rect.y, rect.w - rect.x, rect.w - rect.y);
-            let cameraMat = camera._getCameraTransform();
-            var e: Float32Array = cameraMat.elements;
-            clipChuckMat.a = e[0];
-            clipChuckMat.b = e[1];
-            clipChuckMat.c = e[3];
-            clipChuckMat.d = e[4];
-            clipChuckMat.tx = e[6];
-            clipChuckMat.ty = e[7];
-            Matrix.mul(mat, clipChuckMat, clipChuckMat);
-        }
-        let oneChuckSize = Vector2.TEMP;
-        this._chunk._getChunkSize(oneChuckSize);
-
-        let needUpdateDirty = !!this._needUpdateDirtys.length;
-
-        this._renderElements.length = 0;
-        
-        //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
-        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
-
-        this._chunk._getChunkPosByPixel(chuckLocalRect.x, chuckLocalRect.y, TempVector3_0);
-
-        this._chunk._getChunkPosByPixel(renderRect.width+chuckLocalRect.x, renderRect.height+ chuckLocalRect.y, TempVector3_1);
-
-        let chuckstartCol = Math.min(TempVector3_1.y,TempVector3_0.y);
-        let chuckendCol =  Math.max(TempVector3_1.y,TempVector3_0.y);
-        let chuckstartRow =  Math.min(TempVector3_1.x,TempVector3_0.x);
-        let chuckendRow =  Math.max(TempVector3_1.x,TempVector3_0.x);
-        //无裁剪
-        for (var j = chuckstartCol; j <= chuckendCol; j++) {
-            if (!this._chunkDatas[j]) { continue; }
-            let rowData = this._chunkDatas[j];
-            for (var i = chuckstartRow; i <= chuckendRow; i++) {
-                let chunkData = rowData[i];
-                if (!chunkData) { continue; }
-                //更新dirty类型
-                needUpdateDirty && chunkData._forceUpdateDrity(this._needUpdateDirtys);
-
-               // this._chunk._getChunkLeftTop(i, j, checkPoint);
-                //是否需要渲染
-                //if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
-                    chunkData._update();//更新数据
-                    chunkData._mergeToElement(this._renderElements);//更新渲染元素
-                //}
-            }
-        }
-
-        this._needUpdateDirtys.length = 0;
-    }
     /**
      * 根据相机和设置做裁剪;更新所有格子的渲染数据
      * @protected
      * @param context 
      */
-    preRenderUpdate1(context: IRenderContext2D): void {
+    preRenderUpdate(context: IRenderContext2D): void {
         let tileSet = this._tileSet;
         if (tileSet == null) return;
 
@@ -503,7 +439,8 @@ export class TileMapLayer extends BaseRenderNode2D {
             mat.copyTo(clipChuckMat);
         } else {
             let rect = camera._rect;
-            renderRect.setTo(rect.x, rect.y, rect.w - rect.x, rect.w - rect.y);
+            // lx rx by ty
+            renderRect.setTo(rect.x, rect.z , rect.y - rect.x,  rect.w - rect.z);
             let cameraMat = camera._getCameraTransform();
             var e: Float32Array = cameraMat.elements;
             clipChuckMat.a = e[0];
@@ -519,8 +456,6 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
         let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
-
-        
 
         this._renderElements.length = 0;
 
