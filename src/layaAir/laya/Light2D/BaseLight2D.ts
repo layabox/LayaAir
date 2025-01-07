@@ -1,6 +1,5 @@
 import { ILaya } from "../../ILaya";
 import { Component } from "../components/Component";
-import { NodeFlags } from "../Const";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
@@ -15,7 +14,6 @@ import { BaseTexture } from "../resource/BaseTexture";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Utils } from "../utils/Utils";
-import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Light2DManager } from "./Light2DManager";
 

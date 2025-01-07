@@ -208,7 +208,7 @@ export class BaseRenderNode2D extends Component {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
         this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR,new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE))
+        this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE));
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
     }
@@ -245,7 +245,7 @@ export class BaseRenderNode2D extends Component {
     protected _onDisable(): void {
         this.owner.renderNode2D = null;
         if (this._lightReceive)
-            this._removeRenderNodeByLayer();
+            this._removeRenderFromLightManager();
 
         super._onDisable();
     }
@@ -272,7 +272,7 @@ export class BaseRenderNode2D extends Component {
     set layer(value: number) {
         if (this._layer !== value) {
             if (value >= 0 && value <= 30) {
-                this._removeRenderNodeByLayer();
+                this._removeRenderFromLightManager();
                 this._layer = value;
                 this._addRenderToLightManager();
                 this._resetUpdateMark();
@@ -289,9 +289,8 @@ export class BaseRenderNode2D extends Component {
         if (value) {
             this._addRenderToLightManager();
             this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
-        }
-        else {
-            this._removeRenderNodeByLayer();
+        } else {
+            this._removeRenderFromLightManager();
             this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
         this._resetUpdateMark();
@@ -319,21 +318,25 @@ export class BaseRenderNode2D extends Component {
      * light Manager
      */
     private _addRenderToLightManager() {
-        let light2DManager = this.owner.scene._light2DManager;
-        if (light2DManager && !this._lightRecord) {
-            light2DManager.addRender(this);
-            this._lightRecord = true;
+        if (this.owner.scene) {
+            let light2DManager = this.owner.scene._light2DManager;
+            if (light2DManager && !this._lightRecord) {
+                light2DManager.addRender(this);
+                this._lightRecord = true;
+            }
         }
     }
 
     /**
      * lightManager
      */
-    private _removeRenderNodeByLayer() {
-        const light2DManager = this.owner.scene._light2DManager;
-        if (light2DManager && this._lightRecord) {
-            light2DManager.removeRender(this);
-            this._lightRecord = false;
+    private _removeRenderFromLightManager() {
+        if (this.owner.scene) {
+            const light2DManager = this.owner.scene._light2DManager;
+            if (light2DManager && this._lightRecord) {
+                light2DManager.removeRender(this);
+                this._lightRecord = false;
+            }
         }
     }
 
