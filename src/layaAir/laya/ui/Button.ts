@@ -207,7 +207,7 @@ export class Button extends UIComponent implements ISelect {
         return this._strokeColors ? this._strokeColors.join(",") : "";
     }
     set strokeColors(value: string) {
-        this._strokeColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
+        this._strokeColors = value ? UIUtils.fillArray(Styles.buttonLabelColors, value, String) : null;
         this._setStateChanged();
     }
 
