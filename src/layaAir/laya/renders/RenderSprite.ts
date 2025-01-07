@@ -269,7 +269,7 @@ export class RenderSprite {
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
-                else if (sprite._cacheStyle.mask == ele && !ele._getBit(NodeFlags.FORCE_VISIBLE))
+                else if (sprite._cacheStyle.mask == ele && (!ele._getBit(NodeFlags.FORCE_VISIBLE) || drawingToTexture))
                     visFlag = false;
             }
 
@@ -461,8 +461,9 @@ export class RenderSprite {
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let mask = sprite.mask;
-        if (mask._getBit(NodeFlags.FORCE_VISIBLE)) {
-            this._next._fun(sprite, ctx, x, y);
+        if (mask._getBit(NodeFlags.FORCE_VISIBLE) && !ctx._drawingToTexture) {
+            if (this._next != RenderSprite.NORENDER)
+                this._next._fun(sprite, ctx, x, y);
             return;
         }
         let cache = sprite._getCacheStyle();
@@ -518,8 +519,10 @@ export class RenderSprite {
             ctx1.size(width1, height1);
             ctx1.render2D = new Render2DSimple(rt);
             ctx1.startRender();
+            ctx1._drawingToTexture = ctx._drawingToTexture;
             //由于是t空间，需要抵消掉pivot的设置（_fun会应用pivot），-x1y1是为了对齐到裁剪的rt
             this._next._fun(sprite, ctx1, sprite.pivotX - x1, sprite.pivotY - y1);
+            ctx1._drawingToTexture = false;
             let maskRT = maskcache.renderTexture;
             ctx1.globalCompositeOperation = 'mask';
             ctx1._drawRenderTexture(maskRT,
