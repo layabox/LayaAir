@@ -308,7 +308,7 @@ export class RenderSprite {
      * @param context 
      * @returns 
      */
-    _renderNextToCacheRT(sprite: Sprite, context: Context,marginLeft=0,marginTop=0,marginRight=0,marginBottom=0) {
+    _renderNextToCacheRT(sprite: Sprite, context: Context, marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0) {
         var _cacheStyle = sprite._getCacheStyle();
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if (_cacheStyle.renderTexture) {
@@ -327,8 +327,8 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            let w = tRec.width * scaleInfo.x+marginLeft+marginRight;  //,
-            let h = tRec.height * scaleInfo.y+marginTop+marginBottom;
+            let w = tRec.width * scaleInfo.x + marginLeft + marginRight;  //,
+            let h = tRec.height * scaleInfo.y + marginTop + marginBottom;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
@@ -486,6 +486,12 @@ export class RenderSprite {
     private _spriteRect_TextureSpace = new Rectangle();
     private _maskRect_TextureSpace = new Rectangle();
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let mask = sprite.mask;
+        if (mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+            this._next._fun(sprite, ctx, x, y);
+            return;
+        }
+
         let cache = sprite._getCacheStyle();
         //由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
         if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed || ILaya.stage.isGlobalRepaint()) {
@@ -509,7 +515,6 @@ export class RenderSprite {
             //这个时候获得的rect是包含pivot的。下面的mask按照规则是作为sprite的子来计算，但是，他的位置是相对于原始位置
             //而不是pivot，所以需要根据mask的pivot调整mask的rect的位置
 
-            let mask = sprite.mask;
             //TODO mask如果非常简单，就不要先渲染到texture上
             let maskcache = mask._getCacheStyle();
             maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
