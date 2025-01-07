@@ -268,6 +268,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.renderelements = null;
         this._commonUniformMap.length = 0;
         this._commonUniformMap = null;
+        this.shaderData.destroy();
     }
 
 }

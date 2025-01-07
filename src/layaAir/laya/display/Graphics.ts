@@ -102,6 +102,10 @@ export class Graphics {
             this._sp._renderType = 0;
             this._sp = null;
         }
+        if (this._material) {
+            this._material._removeReference();
+            this._material = null;
+        }
         this._destroyData();
     }
 

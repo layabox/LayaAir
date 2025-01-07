@@ -450,7 +450,7 @@ export class Texture extends Resource {
         // 如果无法直接获取，只能先渲染出来
         var ctx = new ILaya.Context();
         ctx.size(width, height);
-        let rt = new RenderTexture2D(width,height,RenderTargetFormat.R8G8B8A8);
+        let rt = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
         ctx.render2D = ctx.render2D.clone(rt)
         var uv: number[] = null;
         if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
@@ -575,6 +575,8 @@ export class Texture extends Resource {
      * @return 一个 `Texture` 对象，表示裁剪后的子纹理，如果裁剪区域越界，则返回 null。
      */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
+        if (this.destroyed)
+            return null;
         let key = `${x}_${y}_${width}_${height}`;
         if (!this._clipCache)
             this._clipCache = new Map();

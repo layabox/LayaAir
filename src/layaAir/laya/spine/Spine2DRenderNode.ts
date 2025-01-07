@@ -14,14 +14,10 @@ import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender"
 import { Event } from "../events/Event";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { LayaGL } from "../layagl/LayaGL";
-import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Context } from "../renders/Context";
 import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Vector2 } from "../maths/Vector2";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../resource/Material";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
@@ -29,7 +25,6 @@ import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
 import { Mesh2D } from "../resource/Mesh2D";
 import { Vector3 } from "../maths/Vector3";
-import { Sprite } from "../display/Sprite";
 
 
 /**动画开始播放调度
@@ -202,7 +197,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
                     if (!this._source || templet && !templet.isCreateFromURL(this._source))
                         return;
-
+                    if (this.destroyed)
+                        return;
                     this.templet = templet;
                 });
             }
