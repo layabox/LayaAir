@@ -14,7 +14,6 @@ import { Tween } from "../tween/Tween";
 import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { LayoutType, PageMode, ScrollBarDisplay, ScrollBounceBackEffect, ScrollDirection, ScrollTouchEffect } from "./Const";
-import { DragSupport } from "./DragSupport";
 import { IScroller } from "./IScroller";
 import type { GPanel } from "./GPanel";
 import type { GScrollBar } from "./GScrollBar";
@@ -1229,7 +1228,7 @@ export class Scroller implements IScroller {
         if (!this._touchEffect || this.owner.destroyed)
             return;
 
-        if (Scroller.draggingInst && Scroller.draggingInst != this || DragSupport.draggingInst) //已经有其他拖动
+        if (Scroller.draggingInst && Scroller.draggingInst != this) //已经有其他拖动
             return;
 
         let sensitivity: number = UIConfig2.touchScrollSensitivity;

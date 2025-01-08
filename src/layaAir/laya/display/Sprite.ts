@@ -16,7 +16,7 @@ import { Node } from "./Node";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
-import { Dragging } from "../utils/Dragging";
+import { DragSupport } from "../utils/DragSupport";
 import { URL } from "../net/URL";
 import { Scene } from "./Scene";
 import { LayaEnv } from "../../LayaEnv";
@@ -134,7 +134,7 @@ export class Sprite extends Node {
      * @en Dragging
      * @zh 滑动
      */
-    _dragging: Dragging;
+    _dragSupport: DragSupport;
     /**
      * @internal
      * @en Blend mode
@@ -858,7 +858,7 @@ export class Sprite extends Node {
      * @zh 获得相对于本对象上的鼠标坐标信息。
      * @returns 屏幕点信息。
      */
-    getMousePoint(): Point {
+    getMousePoint(): Readonly<Point> {
         return this.globalToLocal(tmpPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
     }
 
@@ -1894,6 +1894,16 @@ export class Sprite extends Node {
     }
 
     /**
+     * @en Get the drag support object.
+     * @return The drag support object (DragSupport).
+     * @zh 获取拖拽支持对象。
+     * @return 拖拽支持对象 (DragSupport)。
+     */
+    get dragSupport(): DragSupport {
+        return this._dragSupport || (this._dragSupport = new DragSupport(this));
+    }
+
+    /**
      * @en Starts dragging this object.
      * @param area (Optional) The drag area, which is the active area of the object's registration point (excluding the object's width and height).
      * @param hasInertia (Optional) Whether the object has inertia when the mouse is released. The default is false.
@@ -1909,9 +1919,14 @@ export class Sprite extends Node {
      * @param data （可选）拖动事件携带的数据。
      * @param ratio （可选）惯性阻尼系数，影响惯性力度和时长。
      */
-    startDrag(area: Rectangle = null, hasInertia: boolean = false, elasticDistance: number = 0, elasticBackTime: number = 300, data: any = null, ratio: number = 0.92): void {
-        this._dragging || (this._dragging = new Dragging());
-        this._dragging.start(this, area, hasInertia, elasticDistance, elasticBackTime, data, ratio);
+    startDrag(area?: Rectangle, hasInertia?: boolean, elasticDistance?: number, elasticBackTime?: number, data?: any, ratio?: number): void {
+        let d = this.dragSupport;
+        area != null && d.area.copyFrom(area);
+        hasInertia != null && (d.hasInertia = hasInertia);
+        elasticDistance != null && (d.elasticDistance = elasticDistance);
+        elasticBackTime != null && (d.elasticBackTime = elasticBackTime);
+        ratio != null && (d.ratio = ratio);
+        d.start(data);
     }
 
     /**
@@ -1919,7 +1934,7 @@ export class Sprite extends Node {
      * @zh 停止拖动此对象。
      */
     stopDrag(): void {
-        this._dragging && this._dragging.stop();
+        this._dragSupport && this._dragSupport.stop();
     }
 
     /**
