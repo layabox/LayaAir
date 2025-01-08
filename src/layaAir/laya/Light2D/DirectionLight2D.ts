@@ -7,7 +7,6 @@ import { Light2DManager } from "./Light2DManager";
  * 线性灯光
  */
 export class DirectionLight2D extends BaseLight2D {
-    static LIGHT_SIZE: number = 20000; //尺寸
     private _directionAngle: number = 0; //灯光角度
     private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
 

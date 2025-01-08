@@ -14,7 +14,6 @@ import { Mesh2D } from "../resource/Mesh2D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture2D } from "../resource/Texture2D";
-import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
