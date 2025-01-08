@@ -565,11 +565,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         state.update(delta);
 
         //@ts-ignore
-        this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        let currentPlayTime = this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
         
         // 使用当前动画和事件设置骨架
         state.apply(this._skeleton);
-
         
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
@@ -577,7 +576,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
-        this.spineItem.render(this._currentPlayTime);
+        this.spineItem.render(currentPlayTime);
         (this.owner as Sprite).repaint();
     }
 
@@ -676,7 +675,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._pause = true;
             this._clearUpdate();
             //this.timer.clear(this, this._update);
-            this._state.update(-this._currentPlayTime);
+            // this._state.update(-this._currentPlayTime);
+            this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.event(Event.STOPPED);
 
