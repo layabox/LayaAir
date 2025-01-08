@@ -181,7 +181,7 @@ export class SpineAdapter {
      * @zh 初始化并扩展Spine动画库的AnimationState原型。
      */
     static initClass() {
-        let stateProto = window.spine.AnimationState.prototype;
+        let stateProto = spine.AnimationState.prototype;
         stateProto.addListener = function (data: any) {
             //@ts-ignore 
             this.eventsObject = data;

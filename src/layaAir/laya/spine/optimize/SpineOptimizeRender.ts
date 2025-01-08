@@ -909,7 +909,11 @@ class SkinRender implements IVBIBUpdate {
         }
         else {
             let currentData = mutiRenderData.currentData;
-            if (!currentData) return;
+            if (!currentData) {
+                this.owner._nodeOwner.clear();
+                this.material = null;
+                return;
+            }
             let material = currentData.material;
             if (!material) {
                 material = currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
