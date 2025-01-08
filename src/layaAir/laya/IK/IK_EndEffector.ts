@@ -2,6 +2,7 @@ import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_Joint } from "./IK_Joint";
 import { IK_Pose1 } from "./IK_Pose1";
+import { ClsInst } from "./IK_Utils";
 
 /**
  * EndEffetor:
@@ -11,6 +12,7 @@ import { IK_Pose1 } from "./IK_Pose1";
  * 可以用任务空间来描述约束
  */
 export class IK_EndEffector {
+    static clsid = '238b2932-9771-44b8-9d44-783ef9ea6813';
     //对应的joint
     private _joint:IK_Joint = null;
     private _target: IK_Pose1;
@@ -18,6 +20,7 @@ export class IK_EndEffector {
     //TODO 约束
     constructor(joint:IK_Joint) {
         this._joint=joint;
+        ClsInst.addInst(this);
     }
 
     /**

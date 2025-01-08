@@ -12,15 +12,17 @@ import { IK_AngleLimit } from "./IK_Constraint";
 import { IK_EndEffector } from "./IK_EndEffector";
 import { IK_Joint } from "./IK_Joint";
 import { IK_Pose1, IK_Target } from "./IK_Pose1";
-import { rotationTo } from "./IK_Utils";
+import { ClsInst, rotationTo } from "./IK_Utils";
 
 const Z = new Vector3(0, 0, 1);
 let dpos = new Vector3();
+let v1 = new Vector3();
 
 /**
  * 从IK_pose1可以方便的绑定到某个骨骼上，随着动画动
  */
 export class IK_Chain extends IK_Pose1 {
+    static clsid = '6ea18086-4a8d-438f-a17e-639bcdff8718';
     name=''
     //顺序是从根到末端
     joints: IK_Joint[];
@@ -35,6 +37,7 @@ export class IK_Chain extends IK_Pose1 {
 
     constructor() {
         super();
+        ClsInst.addInst(this);
         this.joints = [];
     }
 
@@ -229,7 +232,7 @@ export class IK_Chain extends IK_Pose1 {
                         //mod.addChild(this._addMeshSprite(PrimitiveMesh.createSphere(0.2),new Color(1,1,1,1),new Vector3()))
 
                         //创建一个向上的，原点在中心的模型
-                        let up = this._addMeshSprite(PrimitiveMesh.createCylinder(0.1,1.0),new Color(0,1,0,1),new Vector3());
+                        let up = this._addMeshSprite(PrimitiveMesh.createCylinder(0.01,1.0),new Color(0,1,0,1),new Vector3());
                         let spup = new Sprite3D();
                         spup.addChild(up);
                         up.transform.localPosition = new Vector3(0,0.5,0);
@@ -254,7 +257,7 @@ export class IK_Chain extends IK_Pose1 {
             Quaternion.multiply(deltaQuat, curQuat, curQuat);
             curQuat.normalize(curQuat);
             if(current.angleLimit){
-                current.angleLimit.constraint(current);
+                current.angleLimit.constraint(current,null);
             }
 
             const direction = new Vector3(0, 0, 1);
@@ -271,31 +274,11 @@ export class IK_Chain extends IK_Pose1 {
         }
     }
 
-    /**
-     * startJoint 节点的朝向或者长度变了,更新子关节的位置.
-     * 不会导致子关节的旋转
-     * @param startJoint 
-     */
-    applyJointChange(startJoint:number){
+    applyPosOff(off:Vector3){
         let joints = this.joints;
-        if(startJoint>=joints.length - 1)
-            return;
-        let current = joints[startJoint];
-        let next = joints[startJoint+1];
-        const direction = new Vector3(0, 0, current.length);
-        Vector3.transformQuat(direction, current.rotationQuat, direction);
-        let deltaPos = new Vector3(
-            current.position.x + direction.x - next.position.x,
-            current.position.y + direction.y - next.position.y,
-            current.position.z + direction.z - next.position.z
-        );
-        if(deltaPos.length()<1e-5) 
-            return;
-
-        //从下个位置开始,应用delta位置
-        for (let i = startJoint+1; i < joints.length; i++) {
-            const next = joints[i];
-            next.position.vadd(deltaPos,next.position);
+        for (let i = 0,l = joints.length; i < l; i++) {
+            const current = joints[i];
+            current.position.vadd(off,current.position);
         }
     }
 
@@ -305,5 +288,42 @@ export class IK_Chain extends IK_Pose1 {
 
     get target(){
         return this._target;
+    }
+
+    /**
+     * 根据关节的位置计算关节的朝向。
+     * 为了避免扭的效果，按照从根到末端计算，并且都按照相对parent的来计算，而不是按照Z
+     */
+    updateRotations(): void {
+        const joints = this.joints;
+        let jointCount = joints.length;
+        if(jointCount<2)
+            return;
+        //先计算根的朝向
+        let dir = v1;
+        joints[1].position.vsub(joints[0].position,dir).normalize();
+        const rotation = new Quaternion();
+        rotationTo(Z, dir, rotation);
+        rotation.cloneTo(joints[0].rotationQuat);
+        let lastDir = dir.clone();
+        let lastQuat = rotation.clone();
+
+        for (let i = 1; i < jointCount - 1; i++) {
+            const currentJoint = joints[i];
+            const nextJoint = joints[i + 1];
+            const direction = nextJoint.position.vsub(currentJoint.position, v1).normalize();
+
+            rotationTo(lastDir, direction, rotation);
+            Quaternion.multiply(rotation,lastQuat,currentJoint.rotationQuat);
+
+            direction.cloneTo(lastDir);
+            currentJoint.rotationQuat.cloneTo(lastQuat);
+
+            //更新约束轴
+            if (currentJoint.angleLimit) {
+
+            }
+
+        }
     }
 }

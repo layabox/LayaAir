@@ -4,12 +4,15 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { IK_Chain } from "./IK_Chain";
 import { IK_Target } from "./IK_Pose1";
 import { IK_System } from "./IK_System";
+import { ClsInst } from "./IK_Utils";
 
 export class IK_Comp extends Component {
+    static clsid = '09dce20f-f6bd-4192-a494-5e3654ecd158'
     private _ik_sys:IK_System;
 
     constructor() {
         super();
+        ClsInst.addInst(this);
     }
 
     protected _onEnable(): void {

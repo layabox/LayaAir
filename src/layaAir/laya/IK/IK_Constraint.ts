@@ -4,7 +4,7 @@ import { Color } from "../maths/Color";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_Joint } from "./IK_Joint";
-import { rotationTo } from "./IK_Utils";
+import { ClsInst, rotationTo } from "./IK_Utils";
 
 /**
  * 两个向量夹角的弧度
@@ -47,7 +47,8 @@ export interface IK_Constraint {
      * @param outQuat 把父朝向转到限制后朝向的四元数，为null则不要
      * @return true则表示发生限制了
      */
-    constraint(joint: IK_Joint): boolean;
+    constraint(joint: IK_Joint,dpos:Vector3): boolean;
+    constraintPos(joint: IK_Joint,dpos:Vector3): boolean;
 
     init(joint: IK_Joint): void;
 
@@ -59,16 +60,22 @@ export function updateAxis(joint: IK_Joint, axis: Vector3) {
 }
 
 export class IK_AngleLimit implements IK_Constraint {
+    static clsid = '18b77d93-b503-474a-b513-3119bc81eadc'
     constructor(
         public min: Vector3,    //弧度
         public max: Vector3
-    ) { }
+    ) { 
+        ClsInst.addInst(this);
+    }
 
     setQuat(q: Quaternion): void {
         throw new Error("Method not implemented.");
     }
 
-    constraint(joint: IK_Joint): boolean {
+    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
+        return false;
+    }
+    constraint(joint: IK_Joint,dpos:Vector3): boolean {
         if (!joint.angleLimit)
             return false;
 return false;
@@ -107,6 +114,7 @@ return false;
 
 
 export class IK_HingeConstraint implements IK_Constraint {
+    static clsid = '9d1c1d57-bd6e-4b94-a59a-b735553da1ab'
     private curHingeAxis = new Vector3();
     private curRefDir = new Vector3();
 
@@ -130,6 +138,7 @@ export class IK_HingeConstraint implements IK_Constraint {
         this.refDir.normalize();
         this.hingeAxis.cloneTo(this.curHingeAxis);
         this.refDir.cloneTo(this.curRefDir);
+        ClsInst.addInst(this);
     }
 
     setHingeAxisBySprite(sp: Sprite3D, axis: 'x' | 'y' | 'z') {
@@ -162,7 +171,20 @@ export class IK_HingeConstraint implements IK_Constraint {
         }
     }
 
-    constraint(joint: IK_Joint): boolean {
+    constraint(joint: IK_Joint,dpos:Vector3): boolean {
+        return false;
+    }
+
+    /**
+     * 约束joint
+     * joint实际是受到父joint的约束
+     * 经过约束后，会修改自己的位置
+     * 注意：目前先只是修改位置，因此朝向需要后面再计算
+     * @param joint 
+     * @param dpos 
+     * @returns 
+     */
+    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
         if (!joint.angleLimit)
             return false;
 
@@ -177,11 +199,9 @@ export class IK_HingeConstraint implements IK_Constraint {
         }
 
         //当前关节的朝向.
-        let myDir = v1;
-        Vector3.transformQuat(Z, joint.rotationQuat, myDir);
-        //debug
-        myDir.cloneTo(this.__tailVec);
-        //debug
+        let oriEnd = v1;
+        parent?joint.position.vsub(parent.position,oriEnd):joint.position.cloneTo(oriEnd);
+
         let refDir = v3;
         Vector3.transformQuat(this.refDir,parentRot, refDir);
         refDir.normalize();
@@ -192,7 +212,7 @@ export class IK_HingeConstraint implements IK_Constraint {
         let curAxis = v2;
         Vector3.transformQuat(this.hingeAxis,parentRot,curAxis);
         curAxis.normalize();
-        this.projectToHingePlane(myDir, curAxis, projectedTail);
+        this.projectToHingePlane(oriEnd, curAxis, projectedTail);
 
         // 计算当前角度
         let currentAngle = this.calculateAngle(projectedTail, refDir, curAxis);
@@ -214,6 +234,7 @@ export class IK_HingeConstraint implements IK_Constraint {
             Vector3.transformQuat(refDir,q1,end);
         }
 
+        dpos && end.vsub(oriEnd,dpos);
         rotationTo(Z, end.normalize(), joint.rotationQuat);
 
         //简化,全部算true
@@ -246,7 +267,7 @@ export class IK_HingeConstraint implements IK_Constraint {
      */
     private calculateAngle(projectedVector: Vector3, refDir:Vector3, axis:Vector3): number {
         let angle = VecAngle(refDir, projectedVector);
-        let cross = v1;
+        let cross = new Vector3();
         Vector3.cross(refDir, projectedVector, cross);
         if (Vector3.dot(cross, axis) < 0) {
             angle = -angle;
@@ -320,6 +341,7 @@ export class IK_HingeConstraint implements IK_Constraint {
 
 //只能是一个锥形限制，所以只用一个角度，这个角度没有正负
 export class IK_BallConstraint implements IK_Constraint {
+    static clsid = 'c6d68804-4126-4edc-8a08-c68a48059dfb'
     //轴,就是0度轴. 旋转需要修改轴，所以需要记录原始朝向，计算修改后的朝向
     private curAxis = new Vector3();
     constructor(
@@ -329,6 +351,7 @@ export class IK_BallConstraint implements IK_Constraint {
         private refParendDir = true    //父关节的方向就是参考方向
     ) {
         axis.cloneTo(this.curAxis);
+        ClsInst.addInst(this);
     }
 
     setQuat(q: Quaternion): void {
@@ -345,7 +368,7 @@ export class IK_BallConstraint implements IK_Constraint {
      * @param joint 
      * @returns 
      */
-    constraint(joint: IK_Joint): boolean {
+    constraint(joint: IK_Joint,dpos:Vector3): boolean {
         //先根据parent来更新axis
         if (this.refParendDir) {
             let parent = joint.parent;
@@ -363,6 +386,10 @@ export class IK_BallConstraint implements IK_Constraint {
         let hit = this.limitVector(tailPos, this.curAxis, this.minRad, this.maxRad, joint.rotationQuat);
 
         return hit;
+    }
+
+    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
+        return false;
     }
 
     /**
@@ -400,23 +427,41 @@ export class IK_BallConstraint implements IK_Constraint {
 
 
 export class IK_FixConstraint implements IK_Constraint {
+    static clsid = '5473857a-c1fe-457f-b00f-33934754c822'
+    
+    constructor(){
+        ClsInst.addInst(this);
+    }
     setQuat(q: Quaternion): void {
     }
 
     init(joint: IK_Joint): void {
+    }
+
+    constraintPos(joint: IK_Joint,dpos:Vector3): boolean {
+        let oriEnd = new Vector3();
+        let bone = new Vector3(0,0,joint.length);
+        Vector3.transformQuat(bone,joint.rotationQuat,oriEnd);
+
+        if(joint.parent){
+            joint.parent.rotationQuat.cloneTo(joint.rotationQuat);
+        }else{
+            joint.rotationQuat.identity();
+        }
+
+        let curEnd = new Vector3();
+        Vector3.transformQuat(bone,joint.rotationQuat, curEnd );
+
+        curEnd.vsub(oriEnd, dpos);
+        return true;
     }
     /**
      * 约束当前joint的方向
      * @param joint 
      * @returns 
      */
-    constraint(joint: IK_Joint): boolean {
-        if(joint.parent){
-            joint.parent.rotationQuat.cloneTo(joint.rotationQuat);
-        }else{
-            joint.rotationQuat.identity();
-        }
-        return true;
+    constraint(joint: IK_Joint,dpos:Vector3): boolean {
+        return false;
     }
 
     visualize(line: PixelLineSprite3D, joint: IK_Joint) {

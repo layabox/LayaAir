@@ -1,13 +1,16 @@
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
+import { ClsInst } from "./IK_Utils";
 
 export class IK_Pose1 {
+    static clsid = '4bd7b3e8-f68c-4e1b-97cb-995bd40ef33d'
     protected _pos: Vector3;
     protected _dir: Quaternion;
     protected _poseChanged = true;
     constructor(pos?: Vector3 | null, dir?: Quaternion | null) {
         this._pos = pos ? pos.clone() : new Vector3();
         this._dir = dir ? dir.clone() : new Vector3();
+        ClsInst.addInst(this);
     }
 
     clone(t: IK_Pose1 | null) {

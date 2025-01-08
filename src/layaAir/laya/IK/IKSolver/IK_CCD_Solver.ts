@@ -3,15 +3,15 @@ import { Vector3 } from "../../maths/Vector3";
 import { IK_Chain } from "../IK_Chain";
 import { IK_ISolver } from "../IK_ISolver";
 import { IK_Target } from "../IK_Pose1";
-import {rotationTo} from "../IK_Utils"
-
-let Z = new Vector3(0, 0, 1);
+import {ClsInst, rotationTo} from "../IK_Utils"
 
 export class IK_CCDSolver implements IK_ISolver {
+    static clsid = '2f0b2565-ebee-49bf-9e2b-88d68d4fc8f5'
     maxIterations: number;
     epsilon: number;
 
     constructor(maxIterations: number = 10, epsilon: number = 0.001) {
+        ClsInst.addInst(this);
         this.maxIterations = maxIterations;
         this.epsilon = epsilon;
     }

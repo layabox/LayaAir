@@ -1,8 +1,10 @@
 import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
+import { Color } from "../maths/Color";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_AngleLimit, IK_Constraint } from "./IK_Constraint";
+import { ClsInst } from "./IK_Utils";
 
 export class IK_JointUserData{
     bone:Sprite3D;
@@ -12,9 +14,13 @@ export class IK_JointUserData{
 }
 
 var invQuat = new Quaternion();
+let Z = new Vector3(0,0,1);
+let X = new Vector3(1,0,0);
+let Y = new Vector3(0,1,0);
 
 // 实现基本关节类
 export class IK_Joint {
+    static clsid = '98b0d837-e648-412e-873a-6c4bcf43af1d';
     // 内部存储使用四元数
     private _rotationQuat = new Quaternion();
     //构造的时候的朝向，以后都用这个朝向来计算，以产生最短旋转（测地线）
@@ -25,9 +31,15 @@ export class IK_Joint {
     length = 1;
     preferredDirection:Vector3;// 偏好方向 TODO
     parent:IK_Joint = null;
+    name=''
     userData = new IK_JointUserData();
+    front = Z;
+    left = X;
 
     constructor(bone?:Sprite3D) {
+        //debug
+        ClsInst.addInst(this);
+        //debug
         if(bone){
             this.userData.bone = bone;
             this.userData.rotOff = new Quaternion();
@@ -60,6 +72,12 @@ export class IK_Joint {
     }
 
     visualize(line:PixelLineSprite3D){
+        //画出left 临时
+        let left = this.left;
+        let newLeft = new Vector3();
+        Vector3.transformQuat(left, this.rotationQuat, newLeft);
+        line.addLine(this.position, this.position.vadd(newLeft,newLeft), Color.GREEN, Color.GREEN);
+
         if(this.angleLimit){
             this.angleLimit.visualize(line,this);
         }

@@ -11,7 +11,7 @@ import { IK_Chain } from "./IK_Chain";
 import { IK_ISolver } from "./IK_ISolver";
 import { IK_Joint } from "./IK_Joint";
 import { IK_Target } from "./IK_Pose1";
-import { delay, rotationTo } from "./IK_Utils";
+import { ClsInst, delay, rotationTo } from "./IK_Utils";
 import { IK_FABRIK_Solver } from "./IKSolver/IK_FABRIK_Solver";
 import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
@@ -27,6 +27,7 @@ interface IK_ChainUserData{
 
 //一个可以整体移动的系统，例如一个人身上的多个链
 export class IK_System{
+    static clsid = 'e7c05dbd-3a55-4f8a-a74b-1bb56162ca76'
     private solver: IK_ISolver;
     private chains: IK_Chain[] = [];
     private rootSprite:Sprite3D = null;
@@ -39,6 +40,7 @@ export class IK_System{
         //this.solver = new IK_CCDSolver();
         this.solver = new IK_FABRIK_Solver();
         this._scene = scene;
+        ClsInst.addInst(this);
     }
 
     setRoot(r:Sprite3D){
