@@ -34,9 +34,6 @@ export class FreeformLight2D extends BaseLight2D {
     private _globalPolygon: PolygonPoint2D; //变换后的多边形顶点（顺时针存储）
 
     private _localCenter: Vector2 = new Vector2(); //多边形中心（局部坐标）
-    private _worldCenter: Vector2 = new Vector2(); //多边形中心（世界坐标）
-
-    private _sceneMatrix: Matrix = new Matrix(); //基于Scene的变换矩阵
 
     //用于生成灯光贴图
     private _cmdBuffer: CommandBuffer2D;
@@ -85,7 +82,7 @@ export class FreeformLight2D extends BaseLight2D {
             this._needUpdateLight = true;
             this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
-            super._clearScreenCache();
+            this._clearScreenCache();
             this._limitParam();
         }
     }
@@ -119,7 +116,7 @@ export class FreeformLight2D extends BaseLight2D {
             this._needUpdateLight = true;
             this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
-            super._clearScreenCache();
+            this._clearScreenCache();
             light2DManager?.addLight(this);
         } else {
             this._lightPolygon = null;
@@ -142,7 +139,7 @@ export class FreeformLight2D extends BaseLight2D {
      * @zh 获取灯光世界位置的X坐标值
      */
     getGlobalPosX() {
-        return super.getGlobalPosX() + this._worldCenter.x;
+        return super.getGlobalPosX() + this._localCenter.x;
     }
 
     /**
@@ -150,7 +147,21 @@ export class FreeformLight2D extends BaseLight2D {
      * @zh 获取灯光世界位置的Y坐标值
      */
     getGlobalPosY() {
-        return super.getGlobalPosY() + this._worldCenter.y;
+        return super.getGlobalPosY() + this._localCenter.y;
+    }
+
+    /**
+     * @internal
+     * @en Response matrix change
+     * @zh 响应矩阵改变
+     */
+    _transformChange() {
+        if (this._lightPolygon) {
+            this._clearScreenCache();
+            this._needUpdateLightAndShadow = true;
+            this._needUpdateLightWorldRange = true;
+            (this.owner?.scene?._light2DManager as Light2DManager)?._lightTransformChange(this);
+        }
     }
 
     /**
@@ -205,15 +216,9 @@ export class FreeformLight2D extends BaseLight2D {
         const y = this._localRange.y;
         const w = this._localRange.width;
         const h = this._localRange.height;
-        const m = Math.max(w * sx, h * sy) | 0;
-        const mat = this.owner.globalTrans.getSceneMatrix(this._sceneMatrix);
-        Matrix.mul(ILaya.stage.transform, mat, mat);
-        if (mat) {
-            this._worldCenter.x = mat.a * this._localCenter.x + mat.c * this._localCenter.y + mat.tx;
-            this._worldCenter.y = mat.b * this._localCenter.x + mat.d * this._localCenter.y + mat.ty;
-        }
-        this._worldRange.x = (px - m / 2 + this._worldCenter.x) | 0;
-        this._worldRange.y = (py - m / 2 + this._worldCenter.y) | 0;
+        const m = Math.sqrt((w * sx) ** 2 + (h * sy) ** 2) | 0;
+        this._worldRange.x = (px - m / 2 + this._localCenter.x) | 0;
+        this._worldRange.y = (py - m / 2 + this._localCenter.y) | 0;
         this._worldRange.width = m;
         this._worldRange.height = m;
         this._lightRange.x = (px + x + this._localCenter.x) | 0;
