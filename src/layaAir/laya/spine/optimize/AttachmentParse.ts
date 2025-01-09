@@ -112,7 +112,7 @@ export class AttachmentParse {
      * @param deform 变形数组。
      * @param slot 插槽数据。
      */
-    init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData) {
+    init(attachment: spine.Attachment, boneIndex: number, slotId: number, deform: number[], slot: spine.SlotData ) {
         this.slotId = slotId;
         this.sourceData = attachment;
         this.attachment = attachment.name;
@@ -221,6 +221,7 @@ export class AttachmentParse {
             this.indexCount = this.indexArray.length;
         }
 
+
         if (attchmentColor) {
             if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {
                 this.lightColor = attchmentColor;
@@ -228,12 +229,8 @@ export class AttachmentParse {
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
             color.b = slotColor.b * attchmentColor.b;
-            let a = color.a = slotColor.a * attchmentColor.a;
-            //预乘
-            color.r *= a;
-            color.g *= a;
-            color.b *= a;
         }
+        
 
         return true;
     }

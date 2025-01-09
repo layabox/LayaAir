@@ -70,6 +70,7 @@ export class SpineTemplet extends Resource {
         this._textures = {};
         this.sketonOptimise = new SketonOptimise();
     }
+
     /** @internal */
     get _mainTexture(): Texture2D {
         let i = 0;
@@ -97,6 +98,16 @@ export class SpineTemplet extends Resource {
      * @zh Spine动画的主混合模式
      */
     mainBlendMode: number = 0;
+
+    private _premultipliedAlpha = true;
+    /**
+     * @en Switch for premultipliedAlpha.
+     * @zh 透明预乘的开关。
+     */
+    public get premultipliedAlpha() {
+        return this._premultipliedAlpha;
+    }
+   
 
     /**
      * @en The base path of the Spine animation resources
@@ -127,12 +138,20 @@ export class SpineTemplet extends Resource {
             mat.setShaderName("SpineStandard");
             SpineShaderInit.initSpineMaterial(mat);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
+
             if (texture.gammaCorrection != 1) {
                 mat.addDefine(ShaderDefines2D.GAMMATEXTURE);
             } else {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this.premultipliedAlpha);
+
+            if (this._premultipliedAlpha) {
+                mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
+            }else{
+                mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
+            }
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
             mat._addReference();
@@ -152,7 +171,7 @@ export class SpineTemplet extends Resource {
     }
 
     /** @internal */
-    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>): void {
+    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D> , premultipliedAlpha = true): void {
 
         let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
         if (desc instanceof ArrayBuffer) {
@@ -172,7 +191,8 @@ export class SpineTemplet extends Resource {
         this.height = this.skeletonData.height;
         this.offsetX = this.skeletonData.x;
         this.offsetY = this.skeletonData.y;
-        this.sketonOptimise.checkMainAttach(this.skeletonData);
+        this._premultipliedAlpha = premultipliedAlpha;
+        this.sketonOptimise.checkMainAttach(this.skeletonData );
     }
 
     /**
