@@ -131,8 +131,7 @@ export class SkinRenderUpdate {
         }
 
         let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        let needUpdateRender = this.handleRender(skindata, frame, renderNode, mesh);
-        return needUpdateMesh || needUpdateRender;
+        return this.handleRender(skindata, frame, renderNode, mesh , needUpdateMesh);
     }
 
     private updateCurrentChanges(currentChanges: IVBChange[], lastFrame: number, frame: number, skindata: SkinAniRenderData) {
@@ -162,7 +161,7 @@ export class SkinRenderUpdate {
         return needUpload;
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D): boolean {
+    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D , forceUpdateMesh = false): boolean {
         let frameData = skindata.getFrameData(frame);
         let mulitRenderData = frameData.mulitRenderData;
         let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData);
@@ -173,7 +172,7 @@ export class SkinRenderUpdate {
             this.currentMaterials = mats;
         }
 
-        return !renderNode._onMeshChange(mesh) || needUpdate;;
+        return !renderNode._onMeshChange(mesh , forceUpdateMesh) || needUpdate;
     }
 
     private createMaterials(mulitRenderData: MultiRenderData): Material[] {

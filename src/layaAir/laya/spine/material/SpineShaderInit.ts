@@ -42,11 +42,13 @@ export class SpineShaderInit {
      * @en Set the blend mode for Spine material.
      * @param value The blend mode value.
      * @param mat The material to set the blend mode for.
+     * @param premultipliedAlpha Whether to premultiply the alpha channel.
      * @zh 设置 Spine 材质的混合模式。
      * @param value 混合模式值。
      * @param mat 要设置混合模式的材质。
+     * @param premultipliedAlpha 是否预乘alpha通道。
      */
-    static SetSpineBlendMode(value: number, mat: Material) {
+    static SetSpineBlendMode(value: number, mat: Material , premultipliedAlpha = true) {
         switch (value) {
             case 1: //Additive 
                 mat.blend = RenderState.BLEND_ENABLE_ALL;
@@ -69,8 +71,7 @@ export class SpineShaderInit {
                 break;
             default://nomal
                 mat.blend = RenderState.BLEND_ENABLE_ALL;
-
-                mat.blendSrc = RenderState.BLENDPARAM_ONE;
+                mat.blendSrc = premultipliedAlpha ? RenderState.BLENDPARAM_ONE:RenderState.BLENDPARAM_SRC_ALPHA;
                 mat.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
         }
     }
@@ -146,6 +147,8 @@ export class SpineShaderInit {
      */
     static SPINE_GPU_INSTANCE:ShaderDefine;
 
+    static SPINE_PREMULTIPLYALPHA:ShaderDefine;
+
     /**
      * @en TextureSV Mesh Descript.
      * @zh 纹理 Spine 顶点属性描述。
@@ -188,6 +191,7 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
         SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("COLOR");
         SpineShaderInit.SPINE_COLOR = Shader3D.getDefineByName("UV");
+        SpineShaderInit.SPINE_PREMULTIPLYALPHA = Shader3D.getDefineByName("PREMULTIPLYALPHA");
         
         SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
         SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
