@@ -48,7 +48,6 @@ export interface IK_Constraint {
      * @return true则表示发生限制了
      */
     constraint(joint: IK_Joint,dpos:Vector3): boolean;
-    constraintPos(joint: IK_Joint,dpos:Vector3): boolean;
 
     init(joint: IK_Joint): void;
 
@@ -72,10 +71,7 @@ export class IK_AngleLimit implements IK_Constraint {
         throw new Error("Method not implemented.");
     }
 
-    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
-        return false;
-    }
-    constraint(joint: IK_Joint,dpos:Vector3): boolean {
+    constraint(joint: IK_Joint,dpos:Vector3): boolean{
         if (!joint.angleLimit)
             return false;
 return false;
@@ -171,23 +167,19 @@ export class IK_HingeConstraint implements IK_Constraint {
         }
     }
 
-    constraint(joint: IK_Joint,dpos:Vector3): boolean {
-        return false;
-    }
-
     /**
      * 约束joint
      * joint实际是受到父joint的约束
      * 经过约束后，会修改自己的位置
      * 注意：目前先只是修改位置，因此朝向需要后面再计算
      * @param joint 
-     * @param dpos 
+     * @param dpos 约束后位置与原位置的差
      * @returns 
      */
-    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
-        if (!joint.angleLimit)
-            return false;
-
+    constraint(joint: IK_Joint,dpos:Vector3): boolean{
+        if(joint.angleLimit!=this){
+            throw "joint.angleLimit!=this";
+        }
         let parent = joint.parent;
         let parentRot:Quaternion;
         if(!parent){
@@ -200,7 +192,9 @@ export class IK_HingeConstraint implements IK_Constraint {
 
         //当前关节的朝向.
         let oriEnd = v1;
-        parent?joint.position.vsub(parent.position,oriEnd):joint.position.cloneTo(oriEnd);
+        Z.scale(joint.length,oriEnd);
+        Vector3.transformQuat(oriEnd,joint.rotationQuat,oriEnd);
+        //parent?joint.position.vsub(parent.position,oriEnd):joint.position.cloneTo(oriEnd);
 
         let refDir = v3;
         Vector3.transformQuat(this.refDir,parentRot, refDir);
@@ -212,6 +206,7 @@ export class IK_HingeConstraint implements IK_Constraint {
         let curAxis = v2;
         Vector3.transformQuat(this.hingeAxis,parentRot,curAxis);
         curAxis.normalize();
+        curAxis.cloneTo(this.__projVec)
         this.projectToHingePlane(oriEnd, curAxis, projectedTail);
 
         // 计算当前角度
@@ -235,6 +230,7 @@ export class IK_HingeConstraint implements IK_Constraint {
         }
 
         dpos && end.vsub(oriEnd,dpos);
+        end.vadd(joint.position,joint.tailPosition);
         rotationTo(Z, end.normalize(), joint.rotationQuat);
 
         //简化,全部算true
@@ -254,7 +250,7 @@ export class IK_HingeConstraint implements IK_Constraint {
             vector.z - dot * axis.z
         );
         //debug
-        out.cloneTo(this.__projVec)
+        //out.cloneTo(this.__projVec)
         //debug
 
         out.normalize();
@@ -388,10 +384,6 @@ export class IK_BallConstraint implements IK_Constraint {
         return hit;
     }
 
-    constraintPos(joint: IK_Joint,dpos:Vector3): boolean{
-        return false;
-    }
-
     /**
      * 把v相对于baseAxis的夹角限制在min，max之间,返回一个四元数，使用这个四元数可以把baseAixs转到限制的位置上
      * @param v 
@@ -438,7 +430,7 @@ export class IK_FixConstraint implements IK_Constraint {
     init(joint: IK_Joint): void {
     }
 
-    constraintPos(joint: IK_Joint,dpos:Vector3): boolean {
+    constraint(joint: IK_Joint,dpos:Vector3): boolean {
         let oriEnd = new Vector3();
         let bone = new Vector3(0,0,joint.length);
         Vector3.transformQuat(bone,joint.rotationQuat,oriEnd);
@@ -454,14 +446,6 @@ export class IK_FixConstraint implements IK_Constraint {
 
         curEnd.vsub(oriEnd, dpos);
         return true;
-    }
-    /**
-     * 约束当前joint的方向
-     * @param joint 
-     * @returns 
-     */
-    constraint(joint: IK_Joint,dpos:Vector3): boolean {
-        return false;
     }
 
     visualize(line: PixelLineSprite3D, joint: IK_Joint) {

@@ -9,13 +9,15 @@ import { Vector3 } from "../maths/Vector3";
 import { IK_CCDSolver } from "./IKSolver/IK_CCD_Solver";
 import { IK_Chain } from "./IK_Chain";
 import { IK_ISolver } from "./IK_ISolver";
-import { IK_Joint } from "./IK_Joint";
+import { IK_Joint, IK_JointUserData } from "./IK_Joint";
 import { IK_Target } from "./IK_Pose1";
 import { ClsInst, delay, rotationTo } from "./IK_Utils";
 import { IK_FABRIK_Solver } from "./IKSolver/IK_FABRIK_Solver";
 import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { Scene3D } from "../d3/core/scene/Scene3D";
+import { Laya } from "../../Laya";
+import { Mesh } from "../d3/resource/models/Mesh";
 
 interface IK_ChainUserData{
     target:IK_Target;
@@ -23,6 +25,17 @@ interface IK_ChainUserData{
     //bones:Sprite3D[];
     //rotOffs:Quaternion[];
     //debugMod?:Sprite3D[];
+}
+
+function createMeshSprite(mesh:Mesh,color:Color){
+    let sp3 = new Sprite3D();
+    let mf = sp3.addComponent(MeshFilter);
+    mf.sharedMesh = mesh;
+    let r = sp3.addComponent(MeshRenderer)
+    let mtl = new BlinnPhongMaterial();
+    r.material = mtl;
+    mtl.albedoColor = color;
+    return sp3;
 }
 
 //一个可以整体移动的系统，例如一个人身上的多个链
@@ -77,10 +90,7 @@ export class IK_System{
             let mtl = this._visualSp._render.material;
             mtl.depthTest= RenderState.DEPTHTEST_ALWAYS;
             this._scene.addChild(this._visualSp);
-            
-        }
-        if(this._visualSp){
-            this._visualSp.clear();
+            this.solver;
         }
         if(b){
             //先画坐标轴
@@ -240,10 +250,42 @@ export class IK_System{
     }    
 
     async solve(chain:IK_Chain, target:IK_Target){
-        await this.solver.solve(chain,target);
+        await this.solver.solve(chain,target,this._visualSp);
+    }
+
+    buildDbgModel(){
+        let r1 = new Quaternion();
+        //从y到z的旋转
+        rotationTo(new Vector3(0,1,0), new Vector3(0,0,1), r1);
+
+        for(let chain of this.chains){
+            for(let i=0, n=chain.joints.length-1; i<n; i++){//最后一个是endeffector不添加模型
+                let joint = chain.joints[i];
+                let udata = joint.userData;
+                if(!udata) udata = joint.userData = new IK_JointUserData();
+                let mod = udata.dbgModel = new Sprite3D();
+                //mod.addChild(this._addMeshSprite(PrimitiveMesh.createSphere(0.2),new Color(1,1,1,1),new Vector3()))
+
+                //创建一个向上的，原点在中心的模型
+                const cylinder = createMeshSprite(PrimitiveMesh.createCylinder(0.01, joint.length),new Color(1,1,1,1));
+                cylinder.transform.localRotation = r1;
+                cylinder.transform.localPosition = new Vector3(0,0,joint.length*0.5);
+                let ball = createMeshSprite(PrimitiveMesh.createSphere(0.02),new Color(0,1,0,1));
+    
+                let spup = new Sprite3D();
+                spup.addChild(cylinder);
+                spup.addChild(ball);                        
+                mod.addChild(spup);
+                this._scene.addChild(mod);
+            }
+        }
     }
 
     async onUpdate(){
+        if(this._visualSp){
+            this._visualSp.clear();
+        }
+
         if(this._updating){
             //调试用:如果没有一帧完成,则只更新骨骼和调试信息
             //因为由于await会导致没有机会更新
@@ -253,10 +295,25 @@ export class IK_System{
 
         this._updating=true;
         let delaySolves:Promise<void>[]=[];
+
+        //debug
+        const time = Laya.timer.currTimer * 0.001;
+        let tpos = new Vector3(
+            Math.sin(time) * 2,
+            Math.cos(time * 0.5) * 3 ,
+            0//Math.cos(time * 0.5) * 3
+        );
+
+        //debug
+
         for(let chain of this.chains){
             let target = chain.target;
             if(!target) 
                 continue;
+            //debug
+            tpos.cloneTo(target.pos);
+            target.pos.setValue(-2,1,0);
+            //debug
             chain.updateBoneAnim();
             let p = this.solve(chain,target);
             delaySolves.push(p);

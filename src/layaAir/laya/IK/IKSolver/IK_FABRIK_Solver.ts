@@ -6,17 +6,20 @@ import { IK_Joint } from "../IK_Joint";
 import { IK_Target } from "../IK_Pose1";
 import { ClsInst, delay, rotationTo } from "../IK_Utils";
 import { Pool } from "../../utils/Pool";
+import { PixelLineSprite3D } from "../../d3/core/pixelLine/PixelLineSprite3D";
+import { Color } from "../../maths/Color";
 
 let dPos = new Vector3();
 let v1 = new Vector3();
 let v2 = new Vector3();
 const Z = new Vector3(0, 0, 1);
+var dbg:PixelLineSprite3D = null;
 
 export class IK_FABRIK_Solver implements IK_ISolver {
     static clsid = '5c4f01ab-ca1a-43ba-87d9-ad5277bcb9fb'
     maxIterations: number;
     tolerance: number;
-    debugProc=false;
+    debugProc = false;
 
     constructor(maxIterations: number = 10, tolerance: number = 0.01) {
         ClsInst.addInst(this);
@@ -24,7 +27,8 @@ export class IK_FABRIK_Solver implements IK_ISolver {
         this.tolerance = tolerance;
     }
 
-    async solve(chain: IK_Chain, target: IK_Target) {
+    async solve(chain: IK_Chain, target: IK_Target, dbgline:PixelLineSprite3D) {
+        dbg = dbgline;
         const joints = chain.joints;
         const totalLength = this.getTotalLength(joints);
         const targetPos = target.pos;
@@ -37,7 +41,6 @@ export class IK_FABRIK_Solver implements IK_ISolver {
             return;
         }
 
-        let constraintDpos = new Vector3();
         for (let iteration = 0; iteration < this.maxIterations; iteration++) {
             // Forward pass
             //先把末端设置到目标位置上
@@ -116,28 +119,52 @@ export class IK_FABRIK_Solver implements IK_ISolver {
      * @param nextJoint  下一个关节，更接近末端
      */
     private forwardStep(currentJoint: IK_Joint, nextJoint: IK_Joint): void {
-        //dir = j5-j4
+        //dir = j5-j4 j5=next
         const direction = nextJoint.position.vsub(currentJoint.position,v1).normalize();
         //修改当前关节（从next改当前）的位置 current.pos =  next.pos - current.length*dir
         nextJoint.position.vsub(direction.scale(currentJoint.length,v2),currentJoint.position);
+        //nextJoint.position.cloneTo(currentJoint.tailPosition);
+        //debug
+        if(dbg && (window as any).pos3){
+            dbg.addLine( (window as any).pos3,new Vector3(), Color.BLUE, Color.RED)
+        }
+
+        //debug
         // 前向过程的约束
-        if((window as any).uselimit && currentJoint.angleLimit){
+        if(currentJoint.angleLimit){
             //计算现在的朝向，在这个朝向的基础上应用约束
-            rotationTo(Z, direction, currentJoint.rotationQuat);
+            //rotationTo(Z, direction, currentJoint.rotationQuat);
             //
+            // 修改currentjoint位置以后，需要约束一下nextJoint
             let dpos = new Vector3();
             //这个会修改nextJoint的朝向，并得到被约束了多少距离（约束后位置-无约束位置）
-            //由于希望调整当前节点之后，nextJoint的位置还是在没有约束的情况，所以要进去dpos
-            if(currentJoint.angleLimit.constraintPos(nextJoint, dpos)){
+            //由于希望调整当前节点之后，nextJoint的位置还是在没有约束的情况，所以当前关节的位置要减去dpos
+            if(currentJoint.angleLimit.constraint(currentJoint, dpos)){
+                //console.log('dpos',currentJoint.name,dpos)
                 currentJoint.position.vsub(dpos, currentJoint.position);
             }
+
+            //debug
+            let o1 = currentJoint.position.clone();
+            //o1.x+=0.;
+            (window as any).pos3 = o1;
+            //debug
         }
     }
 
     private backwardStep(prevJoint: IK_Joint, currentJoint: IK_Joint): void {
-        //dir = j1-j0
+        //dir = j1-j0  current=j1
         const direction = currentJoint.position.vsub(prevJoint.position,v1).normalize();
         //修改当前关节(prev的下一个）的位置 current.pos = prev.pos + dir*prev.length
         prevJoint.position.vadd(direction.scale(prevJoint.length,v2),currentJoint.position);
+        if(false && prevJoint.angleLimit){
+            //先更新prevJoint的朝向才能应用约束
+            rotationTo(Z,direction,prevJoint.rotationQuat);
+            let dpos = new Vector3();
+            if(prevJoint.angleLimit.constraint(prevJoint, dpos)){
+                currentJoint.position.vadd(dpos, currentJoint.position);
+                //prevJoint.tailPosition.cloneTo(currentJoint.position);
+            }
+        }
     }
 }

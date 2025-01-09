@@ -88,6 +88,24 @@ export class IK_Chain extends IK_Pose1 {
     }
 
     visualize(line:PixelLineSprite3D){
+        //目标
+        if(this.target){
+            //在target位置画一个十字
+            const pos = this.target.pos;
+            let len = 0.1
+            let end1 = new Vector3(pos.x+len,pos.y,pos.z);
+            let end2 = new Vector3(pos.x-len,pos.y,pos.z);
+            let end3 = new Vector3(pos.x,pos.y+len,pos.z);
+            let end4 = new Vector3(pos.x,pos.y-len,pos.z);
+            let end5 = new Vector3(pos.x,pos.y,pos.z+len);
+            let end6 = new Vector3(pos.x,pos.y,pos.z-len);
+            line.addLine(pos,end1,Color.RED,Color.RED);
+            line.addLine(pos,end2,Color.RED,Color.RED);
+            line.addLine(pos,end3,Color.GREEN,Color.GREEN);
+            line.addLine(pos,end4,Color.GREEN,Color.GREEN);
+            line.addLine(pos,end5,Color.BLUE,Color.BLUE);
+            line.addLine(pos,end6,Color.BLUE,Color.BLUE);
+        }
         let joints = this.joints;
         for(let i=0,n=joints.length; i<n; i++){
             let joint = joints[i];
@@ -211,6 +229,15 @@ export class IK_Chain extends IK_Pose1 {
         for(let i=0, n=this.joints.length; i<n; i++){
             let joint = this.joints[i];
             let bone = joint.userData.bone;
+            let udata = joint.userData;
+            if(udata){
+                let mod = udata.dbgModel;
+                if(mod){
+                    mod.transform.position = joint.position;
+                    mod.transform.rotation = joint.rotationQuat;
+                }
+            }
+
             if(!bone) continue;
             //bone.transform.position = joint.position;
             let rot = joint.rotationQuat;
@@ -221,27 +248,6 @@ export class IK_Chain extends IK_Pose1 {
                 bone.transform.rotation = r;
             }else{
                 //bone.transform.rotation = rot;
-            }
-
-            if(this._showDbg){
-                let udata = joint.userData;
-                if(udata){
-                    let mod = udata.dbgModel;
-                    if(!mod){
-                        mod = udata.dbgModel = new Sprite3D();
-                        //mod.addChild(this._addMeshSprite(PrimitiveMesh.createSphere(0.2),new Color(1,1,1,1),new Vector3()))
-
-                        //创建一个向上的，原点在中心的模型
-                        let up = this._addMeshSprite(PrimitiveMesh.createCylinder(0.01,1.0),new Color(0,1,0,1),new Vector3());
-                        let spup = new Sprite3D();
-                        spup.addChild(up);
-                        up.transform.localPosition = new Vector3(0,0.5,0);
-                        mod.addChild(spup);
-                        bone.scene.addChild(mod);
-                    }
-                    mod.transform.position = joint.position;
-                    mod.transform.rotation = joint.rotationQuat;
-                }
             }
         }
     }

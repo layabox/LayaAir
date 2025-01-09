@@ -28,6 +28,7 @@ export class IK_Joint {
     type: "revolute" | "prismatic";
     //世界空间的(system空间的)
     position: Vector3;
+    tailPosition = new Vector3();
     length = 1;
     preferredDirection:Vector3;// 偏好方向 TODO
     parent:IK_Joint = null;
@@ -76,7 +77,7 @@ export class IK_Joint {
         let left = this.left;
         let newLeft = new Vector3();
         Vector3.transformQuat(left, this.rotationQuat, newLeft);
-        line.addLine(this.position, this.position.vadd(newLeft,newLeft), Color.GREEN, Color.GREEN);
+        line.addLine(this.position, this.position.vadd(newLeft,newLeft), Color.RED, Color.RED);
 
         if(this.angleLimit){
             this.angleLimit.visualize(line,this);
