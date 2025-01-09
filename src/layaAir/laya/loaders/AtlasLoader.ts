@@ -31,6 +31,7 @@ class AtlasLoader implements IResourceLoader {
             }
 
             return Promise.all(toloadPics).then(pics => {
+                pics = pics.filter(pic => pic != null);
                 let baseUrl = task.options.baseUrl || "";
 
                 let frames: any = data.frames;
@@ -41,12 +42,8 @@ class AtlasLoader implements IResourceLoader {
                 if (data.meta && data.meta.scale && data.meta.scale != 1)
                     scaleRate = parseFloat(data.meta.scale);
 
-                for (let tPic of pics) {
-                    if (tPic) {
-                        tPic._addReference();
-                        tPic.scaleRate = scaleRate;
-                    }
-                }
+                for (let tPic of pics)
+                    tPic.scaleRate = scaleRate;
 
                 for (let name in frames) {
                     let obj = frames[name];
