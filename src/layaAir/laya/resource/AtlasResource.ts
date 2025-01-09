@@ -37,24 +37,16 @@ export class AtlasResource extends Resource {
         this.dir = dir;
         this.textures = textures;
         this.frames = frames;
-        this.lock = true;
+
+        for (let tex of frames) {
+            tex._addReference();
+            tex._atlas = this;
+        }
+        for (let tex of textures) {
+            tex._addReference();
+            tex._atlas = this;
+        }
     }
-
-    // get referenceCount(): number {
-    //     let count = 0;
-    //      this.textures.forEach((tex) => {
-    //          count += tex.referenceCount;
-    //     })
-    //     return count;
-    // }
-
-    // _removeReference(count: number = 1): void {
-    //     //this._referenceCount -= count;
-    //     //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
-    //     if (this.referenceCount <= 0 && !this.lock && this.destroyedImmediately) {
-    //         this.destroy();
-    //     }
-    // }
 
     /**
      * @en Disposes of the resources used by the atlas, destroying all textures and frames.
@@ -62,12 +54,14 @@ export class AtlasResource extends Resource {
      */
     protected _disposeResource(): void {
         for (let tex of this.textures) {
-            if (tex)
-                tex.destroy();
+            tex._atlas = null;
+            tex._removeReference();
         }
 
-        for (let tex of this.frames)
-            tex.destroy();
+        for (let tex of this.frames) {
+            tex._atlas = null;
+            tex._removeReference();
+        }
 
         this.frames.length = 0;
         this.textures.length = 0;

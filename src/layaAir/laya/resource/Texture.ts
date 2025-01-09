@@ -7,6 +7,7 @@ import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { AtlasResource } from "./AtlasResource";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -90,8 +91,16 @@ export class Texture extends Resource {
      */
     _stateNum?: number;
 
-    /**@internal */
+    /**
+     * @internal 
+     */
     _clipCache: Map<string, Texture>;
+
+    /**
+     * @internal 
+     * 如果是图集中的小图，记录了图集的引用
+     */
+    _atlas: AtlasResource;
 
     /**
      * @en Creates a `Texture` object based on the specified source, coordinates, dimensions, and offsets.
@@ -311,14 +320,18 @@ export class Texture extends Resource {
      */
     _addReference(count: number = 1): void {
         super._addReference(count);
-        this._bitmap && this._bitmap._addReference(count);
+
+        this._bitmap?._addReference(count);
+        this._atlas?._addReference(count);
     }
 
     /**
      * @internal
      */
     _removeReference(count: number = 1): void {
-        this._bitmap && this._bitmap._removeReference(count);
+        this._bitmap?._removeReference(count);
+        this._atlas?._removeReference(count);
+
         super._removeReference(count);
     }
 
