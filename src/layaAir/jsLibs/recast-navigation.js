@@ -2,7 +2,7 @@
 var Recast = (() => {
   var _scriptName = (document.currentScript && document.currentScript.src) ? document.currentScript.src : undefined;
 
-  if (typeof __filename != 'undefined') scriptName = _scriptName || __filename;
+  if (typeof __filename != 'undefined') _scriptName = _scriptName || __filename;
   return (
 function(moduleArg = {}) {
   var moduleRtn;
