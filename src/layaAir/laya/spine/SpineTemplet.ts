@@ -93,6 +93,8 @@ export class SpineTemplet extends Resource {
      */
     mainTexture: Texture2D;
 
+    
+
     /**
      * @en The main blend mode of the Spine animation
      * @zh Spine动画的主混合模式
@@ -145,7 +147,7 @@ export class SpineTemplet extends Resource {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
 
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this.premultipliedAlpha);
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this._premultipliedAlpha);
 
             if (this._premultipliedAlpha) {
                 mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);

@@ -229,6 +229,8 @@ export class AttachmentParse {
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
             color.b = slotColor.b * attchmentColor.b;
+            color.a = slotColor.a * attchmentColor.a;
+
         }
         
 
