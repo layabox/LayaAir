@@ -68,7 +68,7 @@ export class ChangeRGBA implements IVBChange {
             let attachmentColor = attachment.attachmentColor;
             let light = slot.color;
             let drak = slot.darkColor;
-            let premultipliedAlpha = true;
+            // let premultipliedAlpha = true;
 
             if (!attachmentColor) {
                 r = light.r;
@@ -83,11 +83,11 @@ export class ChangeRGBA implements IVBChange {
                 a = light.a * attachmentColor.a
             }
 
-            if (premultipliedAlpha) {
-                r = r * a;
-                g = g * a;
-                b = b * a;
-            }
+            // if (premultipliedAlpha) {
+            //     r = r * a;
+            //     g = g * a;
+            //     b = b * a;
+            // }
 
             let n = attachment.vertexCount;
             for (let i = 0; i < n; i++) {
