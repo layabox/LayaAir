@@ -337,7 +337,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
 
         let clipper = this.clipper;
         this.clearBatch();
-        let premultipliedAlpha = true;//this.premultipliedAlpha;
+        // let premultipliedAlpha = true;//this.premultipliedAlpha;
         let twoColorTint = this.twoColorTint;
         let blendMode: spine.BlendMode | null = null;
 
@@ -423,23 +423,23 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 finalColor.g = skeletonColor.g * slotColor.g * attachmentColor.g;
                 finalColor.b = skeletonColor.b * slotColor.b * attachmentColor.b;
                 finalColor.a = skeletonColor.a * slotColor.a * attachmentColor.a;
-                if (premultipliedAlpha) {
-                    finalColor.r *= finalColor.a;
-                    finalColor.g *= finalColor.a;
-                    finalColor.b *= finalColor.a;
-                }
+                // if (premultipliedAlpha) {
+                //     finalColor.r *= finalColor.a;
+                //     finalColor.g *= finalColor.a;
+                //     finalColor.b *= finalColor.a;
+                // }
                 let darkColor = this.tempColor2;
                 if (!slot.darkColor)
                     darkColor.set(0, 0, 0, 1.0);
                 else {
-                    if (premultipliedAlpha) {
-                        darkColor.r = slot.darkColor.r * finalColor.a;
-                        darkColor.g = slot.darkColor.g * finalColor.a;
-                        darkColor.b = slot.darkColor.b * finalColor.a;
-                    } else {
+                    // if (premultipliedAlpha) {
+                    //     darkColor.r = slot.darkColor.r * finalColor.a;
+                    //     darkColor.g = slot.darkColor.g * finalColor.a;
+                    //     darkColor.b = slot.darkColor.b * finalColor.a;
+                    // } else {
                         darkColor.setFromColor(slot.darkColor);
-                    }
-                    darkColor.a = premultipliedAlpha ? 1.0 : 0.0;
+                    // }
+                    // darkColor.a = premultipliedAlpha ? 1.0 : 0.0;
                 }
 
                 let slotBlendMode = slot.data.blendMode;

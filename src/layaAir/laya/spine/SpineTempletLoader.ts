@@ -7,6 +7,8 @@ import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
+const _premultipliedAlpha = false;
+
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
  * @zh SpineTempletLoader 类用于加载 Spine 骨骼数据和图集。
@@ -52,7 +54,7 @@ class SpineTempletLoader implements IResourceLoader {
             atlasPages.push({
                 url, type: Loader.TEXTURE2D,
                 propertyParams: {
-                    premultiplyAlpha: true
+                    premultiplyAlpha: _premultipliedAlpha
                 },
                 constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
             });
@@ -61,10 +63,13 @@ class SpineTempletLoader implements IResourceLoader {
 
         return Laya.loader.load(atlasPages, null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
             let textures: Record<string, Texture2D> = {}
+            let premultipliedAlpha = true;
 
             for (var i = 0; i < res.length; i++) {
                 let tex = res[i];
                 if (tex) tex._addReference();
+                premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
+
                 let pages = atlas.pages;
                 // 默认长度 = 1
                 let page = pages[i];
@@ -94,7 +99,7 @@ class SpineTempletLoader implements IResourceLoader {
                 }
             }
 
-            templet._parse(desc, atlas, textures);
+            templet._parse(desc, atlas, textures , premultipliedAlpha);
             return templet;
         });
     }
@@ -107,24 +112,28 @@ class SpineTempletLoader implements IResourceLoader {
                 url: basePath + page.name,
                 type: Loader.TEXTURE2D,
                 propertyParams: {
-                    premultiplyAlpha: true
+                    premultiplyAlpha: _premultipliedAlpha
                 },
                 constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
                 let textures: Record<string, Texture2D> = {}
+                let premultipliedAlpha = true;
+
                 let pages = atlas.pages;
                 for (let i = 0, len = res.length; i < len; i++) {
                     let tex = res[i];
                     if (tex) tex._addReference();
+                    premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
+
                     let page = pages[i];
                     textures[page.name] = tex;
                     //@ts-ignore
                     page.setTexture(new SpineTexture(tex));
                 }
 
-                templet._parse(desc, atlas, textures);
+                templet._parse(desc, atlas, textures , premultipliedAlpha);
                 return templet;
             });
     }

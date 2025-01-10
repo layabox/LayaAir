@@ -98,6 +98,15 @@ export class SpineTemplet extends Resource {
      */
     mainBlendMode: number = 0;
 
+    private _premultipliedAlpha = true;
+    /**
+     * @en Switch for premultipliedAlpha.
+     * @zh 透明预乘的开关。
+     */
+    public get premultipliedAlpha() {
+        return this._premultipliedAlpha;
+    }
+
     /**
      * @en The base path of the Spine animation resources
      * @zh Spine动画资源的基础路径
@@ -132,7 +141,14 @@ export class SpineTemplet extends Resource {
             } else {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this._premultipliedAlpha);
+
+            if (this._premultipliedAlpha) {
+                mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
+            }else{
+                mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
+            }
             //mat.color = this.owner.spineColor;
             //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
             mat._addReference();
@@ -152,7 +168,7 @@ export class SpineTemplet extends Resource {
     }
 
     /** @internal */
-    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>): void {
+    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>, premultipliedAlpha = true): void {
 
         let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
         if (desc instanceof ArrayBuffer) {
@@ -172,6 +188,7 @@ export class SpineTemplet extends Resource {
         this.height = this.skeletonData.height;
         this.offsetX = this.skeletonData.x;
         this.offsetY = this.skeletonData.y;
+        this._premultipliedAlpha = premultipliedAlpha;
         this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 
