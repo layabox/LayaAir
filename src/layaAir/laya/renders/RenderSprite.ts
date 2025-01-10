@@ -6,6 +6,7 @@ import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
 import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
+import { Matrix } from "../maths/Matrix";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { HitArea } from "../utils/HitArea";
@@ -411,6 +412,10 @@ export class RenderSprite {
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
         let scaleInfo = sprite._getCacheStyle()._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+
+        //需要应用自己的transform？
+        this._transBound(sprite._cacheStyle.cacheRect, sprite.transform);
+
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
         ctx._drawingToTexture = true;
@@ -482,6 +487,44 @@ export class RenderSprite {
         context.restore();
     }
 
+    private static  _transBound(bound: Rectangle, trans: Matrix) {
+        if(!trans || !bound)
+            return;
+        // 获取变换矩阵的分量
+        let a = trans.a, b = trans.b, c = trans.c, d = trans.d;
+
+        // 计算变换后的左上角和右下角
+        let x1 = bound.x;
+        let y1 = bound.y;
+        let x2 = x1 + bound.width;
+        let y2 = y1 + bound.height;
+
+        // 预计算四个基础变换值
+        let tx1 = x1 * a;
+        let tx2 = x2 * a;
+        let ty1 = y1 * c;
+        let ty2 = y2 * c;
+
+        let px1 = x1 * b;
+        let px2 = x2 * b;
+        let py1 = y1 * d;
+        let py2 = y2 * d;
+
+        // 计算包围盒
+        let minX = Math.min(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let maxX = Math.max(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let minY = Math.min(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+        let maxY = Math.max(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+
+        // 设置新的包围盒,加上mask的位置偏移
+        bound.setTo(
+            minX,
+            minY,
+            maxX - minX,
+            maxY - minY
+        );
+    }
+
     //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
     private _spriteRect_TextureSpace = new Rectangle();
     private _maskRect_TextureSpace = new Rectangle();
@@ -519,6 +562,8 @@ export class RenderSprite {
             //TODO mask如果非常简单，就不要先渲染到texture上
             let maskcache = mask._getCacheStyle();
             maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
+            //可能有旋转，所以把mask应用一下自己的变换
+            RenderSprite._transBound(maskcache.cacheRect,mask.transform);
             let maskRect_TS = this._maskRect_TextureSpace.copyFrom(maskcache.cacheRect);
             //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
             //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
