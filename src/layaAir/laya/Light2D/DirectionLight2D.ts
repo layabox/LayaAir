@@ -9,6 +9,8 @@ import { Light2DManager } from "./Light2DManager";
 export class DirectionLight2D extends BaseLight2D {
     private _directionAngle: number = 0; //灯光角度
     private _directionVector: Vector2 = new Vector2(1, 0); //灯光角度矢量
+    private _shadowDistance: number = 500; //能够产生阴影的最远距离（遮光器距离屏幕超过该值将不产生阴影）
+    private _shadowRange: Rectangle = new Rectangle(); //能够产生阴影的范围
 
     /**@ignore */
     constructor(directionAngle: number = 0) {
@@ -72,6 +74,28 @@ export class DirectionLight2D extends BaseLight2D {
     }
 
     /**
+     * @en Direction light max shadow distance
+     * @zh 阴影最远距离
+     */
+    get shadowDistance() {
+        return this._shadowDistance;
+    }
+
+    /**
+     * @en Direction light max shadow distance
+     * @param value Distance value
+     * @zh 阴影最远距离
+     * @param value 距离值
+     */
+    set shadowDistance(value: number) {
+        if (this._shadowDistance !== value) {
+            this._shadowDistance = value;
+            this._needUpdateLightAndShadow = true;
+            (this.owner?.scene?._light2DManager as Light2DManager)?.needCollectOccluderInLight(this.layerMask);
+        }
+    }
+
+    /**
      * @internal
      * @param screen 屏幕位置和尺寸
      */
@@ -110,6 +134,19 @@ export class DirectionLight2D extends BaseLight2D {
         this._lightRange.y = this._worldRange.x;
         this._lightRange.width = this._worldRange.width;
         this._lightRange.height = this._worldRange.height;
+    }
+
+    /**
+     * @internal
+     * 获取阴影范围（世界坐标）
+     * @param screen 屏幕位置和尺寸
+     */
+    _getShadowRange(screen?: Rectangle) {
+        this._shadowRange.x = -this._shadowDistance / 2 + (screen ? (screen.x | 0) : 0);
+        this._shadowRange.y = -this._shadowDistance / 2 + (screen ? (screen.y | 0) : 0);
+        this._shadowRange.width = Light2DManager.DIRECTION_LIGHT_SIZE;
+        this._shadowRange.height = Light2DManager.DIRECTION_LIGHT_SIZE;
+        return this._shadowRange;
     }
 
     /**
