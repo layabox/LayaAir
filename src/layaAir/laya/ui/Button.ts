@@ -491,8 +491,13 @@ export class Button extends UIComponent implements ISelect {
             if (this._skinBaseUrl)
                 url = URL.formatURL(url, this._skinBaseUrl);
             let tex = Loader.getRes(url);
-            if (!tex)
-                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
+            if (!tex) {
+                const sk = this._skin;
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => {
+                    if (sk == this._skin && !this.destroyed)
+                        this._skinLoaded(tex);
+                });
+            }
             else {
                 this._skinLoaded(tex);
                 return Promise.resolve();

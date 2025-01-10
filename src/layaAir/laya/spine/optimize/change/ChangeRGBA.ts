@@ -85,19 +85,20 @@ export class ChangeRGBA implements IVBChange {
             let attachment = attachmentPos.attachment;
             let r, g, b, a;
             let attachmentColor = attachment.lightColor;
+            
             if (!attachmentColor) {
-                r = color.r * color.a;
-                g = color.g * color.a;
-                b = color.b * color.a;
+                r = color.r;
+                g = color.g;
+                b = color.b;
                 a = color.a;
             }
             else {
-                r = color.r * color.a * attachmentColor.r;
-                g = color.g * color.a * attachmentColor.g;
-                b = color.b * color.a * attachmentColor.b;
+                r = color.r * attachmentColor.r;
+                g = color.g * attachmentColor.g;
+                b = color.b * attachmentColor.b;
                 a = color.a * attachmentColor.a;
             }
-            
+
             let n = attachment.vertexCount;
             for (let i = 0; i < n; i++) {
                 vbData[offset + i * vertexSize + 2] = r;

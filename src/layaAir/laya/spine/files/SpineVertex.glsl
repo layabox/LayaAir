@@ -121,6 +121,11 @@ void getVertexInfo(vec4 pos, inout vertexInfo info){
         info.color = a_color;
     #endif
     info.color *= u_baseRenderColor;
+
+    #ifdef PREMULTIPLYALPHA
+        info.color.rgb = info.color.rgb * info.color.a;
+    #endif
+    
     #ifdef UV
         info.uv = a_uv;
     #endif
