@@ -235,7 +235,7 @@ export class Laya {
         if (stageConfig.alignH)
             stage.alignH = stageConfig.alignH;
         if (Config.isAlpha)
-            stage.bgColor = "#000000";
+            stage.bgColor = "#00000000";
         else if (stageConfig.backgroundColor)
             stage.bgColor = stageConfig.backgroundColor;
 
