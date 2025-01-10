@@ -283,6 +283,8 @@ export class Texture2D extends BaseTexture {
     _canRead: boolean = false;
     /**@internal */
     _pixels: Uint8Array;
+    /**@internal */
+    _premultiplyAlpha: boolean = false;
 
     /**
      * @en Creates an instance of Texture2D.
@@ -307,6 +309,7 @@ export class Texture2D extends BaseTexture {
         this._dimension = TextureDimension.Tex2D;
         this._gammaSpace = sRGB;
         this._canRead = canRead;
+        this._premultiplyAlpha = premultiplyAlpha;
         this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB, premultiplyAlpha);
         return;
     }
