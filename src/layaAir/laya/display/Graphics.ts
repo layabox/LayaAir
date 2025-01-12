@@ -164,15 +164,8 @@ export class Graphics {
     }
 
     set cmds(value) {
-        if (this._sp) {
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-        }
-
         this._cmds = value;
-
-        let len = value.length;
-        this._render = len === 0 ? this._renderEmpty : (len === 1 ? this._renderOne : this._renderAll);
-        this._repaint();
+        this.onCmdsChanged();
     }
 
     /**
@@ -189,15 +182,11 @@ export class Graphics {
             return;
         }
 
-        if (this._sp) {
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-        }
         if (index == null || index >= this._cmds.length)
             this._cmds.push(cmd);
         else
             this._cmds.splice(index, 0, cmd);
-        this._render = this._cmds.length === 1 ? this._renderOne : this._renderAll;
-        this._repaint();
+        this.onCmdsChanged();
         return cmd;
     }
 
@@ -211,11 +200,46 @@ export class Graphics {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-
-            let len = this._cmds.length;
-            this._render = len === 0 ? this._renderEmpty : (len === 1 ? this._renderOne : this._renderAll);
-            this._repaint();
+            this.onCmdsChanged();
         }
+    }
+
+    /**
+     * @en Replace the command.
+     * @param oldCmd The command to be replaced.
+     * @param newCmd The new command.
+     * @param recover (Optional) Whether to recycle the old command. Default is false.
+     * @zh 替换命令。
+     * @param oldCmd 要被替换的命令。
+     * @param newCmd 新命令。
+     * @param recover （可选）是否回收旧命令。默认为false。
+     */
+    replaceCmd(oldCmd: any, newCmd: any, recover?: boolean) {
+        let index = this._cmds.indexOf(oldCmd);
+        if (newCmd != null) {
+            if (index !== -1) {
+                this._cmds[index] = newCmd;
+                this._repaint();
+            }
+            else {
+                this._cmds.push(newCmd);
+                this.onCmdsChanged();
+            }
+        }
+        else if (index != -1) {
+            this._cmds.splice(index, 1);
+            this.onCmdsChanged();
+        }
+
+        return newCmd;
+    }
+
+    private onCmdsChanged() {
+        let len = this._cmds.length;
+        if (this._sp && len > 0)
+            this._sp._renderType |= SpriteConst.GRAPHICS;
+        this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+        this._repaint();
     }
 
     /**
