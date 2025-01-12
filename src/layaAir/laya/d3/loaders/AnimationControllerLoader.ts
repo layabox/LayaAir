@@ -2,6 +2,7 @@ import { TypeAnimatorLayer, TypeAnimatorState } from "../../components/AnimatorC
 import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
 import { AnimatorController } from "../component/Animator/AnimatorController";
 import { URL } from "../../net/URL";
+
 /**
  * @ignore
  * @en Used for loading and handling 3D animation controllers.
@@ -22,7 +23,7 @@ class AnimationControllerLoader implements IResourceLoader {
             let ret = new AnimatorController(data);
             if (ret.data && ret.data.controllerLayers) {
                 let layers = ret.data.controllerLayers;
-                let promises: Array<any> = [];
+                let promises: Array<Promise<any>> = [];
                 for (let i = layers.length - 1; i >= 0; i--) {
                     if (layers[i].avatarMask) {
                         this.loadAvatarMask(layers[i], promises, task);
@@ -31,7 +32,10 @@ class AnimationControllerLoader implements IResourceLoader {
                     this.loadStates(states, promises, task);
 
                 }
-                return Promise.all(promises).then(() => ret);
+                return Promise.all(promises).then(deps => {
+                    ret.addDeps(deps);
+                    return ret;
+                });
             }
             else
                 return ret;
@@ -48,7 +52,7 @@ class AnimationControllerLoader implements IResourceLoader {
      * @param promises 异步加载的 Promise 列表。
      * @param task 加载任务。
      */
-    loadAvatarMask(l: TypeAnimatorLayer, promises: Array<any>, task: ILoadTask) {
+    loadAvatarMask(l: TypeAnimatorLayer, promises: Array<Promise<any>>, task: ILoadTask) {
         let basePath = URL.getPath(task.url);
         if (l.avatarMask && l.avatarMask._$uuid && '' != l.avatarMask._$uuid) {
             let url = URL.getResURLByUUID(l.avatarMask._$uuid);
@@ -56,6 +60,7 @@ class AnimationControllerLoader implements IResourceLoader {
                 url = URL.join(basePath, url);
             promises.push(task.loader.load(url).then(res => {
                 l.avatarMask = res;
+                return res;
             }));
         } else {
             l.avatarMask = null;
@@ -73,7 +78,7 @@ class AnimationControllerLoader implements IResourceLoader {
      * @param promises 异步加载的 Promise 列表。
      * @param task 加载任务。
      */
-    loadStates(states: TypeAnimatorState[], promises: Array<any>, task: ILoadTask) {
+    loadStates(states: TypeAnimatorState[], promises: Array<Promise<any>>, task: ILoadTask) {
         let basePath = URL.getPath(task.url);
         for (let j = states.length - 1; j >= 0; j--) {
             if (states[j].clip && states[j].clip._$uuid) {
@@ -82,11 +87,8 @@ class AnimationControllerLoader implements IResourceLoader {
                     url = URL.join(basePath, url);
                 promises.push(task.loader.load(url).then(res => {
                     states[j].clip = res;
+                    return res;
                 }));
-
-                // promises.push(task.loader.load("res://" + states[j].clip._$uuid).then(res => {
-                //     states[j].clip = res;
-                // }));
             }
 
             if (states[j].states) {
