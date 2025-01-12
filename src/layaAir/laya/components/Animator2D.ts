@@ -58,8 +58,11 @@ export class Animator2D extends Component {
     }
 
     set controller(val: AnimatorController2D) {
+        if (this._controller)
+            this._controller._removeReference();
         this._controller = val;
         if (val) {
+            val._addReference();
             val.updateTo(this);
         }
     }
@@ -721,12 +724,12 @@ export class Animator2D extends Component {
 
     /**
      * @en Adds an animator controller layer.
-     * @param controllderLayer The animator controller layer to be added.
+     * @param controllerLayer The animator controller layer to be added.
      * @zh 增加一个动画控制器层。
-     * @param controllderLayer 动画控制器层.
+     * @param controllerLayer 动画控制器层.
      */
-    addControllerLayer(controllderLayer: AnimatorControllerLayer2D): void {
-        this._controllerLayers.push(controllderLayer);
+    addControllerLayer(controllerLayer: AnimatorControllerLayer2D): void {
+        this._controllerLayers.push(controllerLayer);
     }
 
     /**
@@ -876,6 +879,10 @@ export class Animator2D extends Component {
      * @internal
      */
     onDestroy() {
+        if (this._controller) {
+            this._controller._removeReference();
+            this._controller = null;
+        }
         for (var i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i].destroy();
         this._controllerLayers.length = 0;
