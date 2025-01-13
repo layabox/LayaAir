@@ -90,7 +90,7 @@ export class DragSupport {
     start(data?: any): void {
         this.reset();
 
-        this._touchId = InputManager.lastTouchId;
+        this._touchId = ILaya.InputManager.lastTouchId;
         this._dragging = true;
         this._testing = false;
         this._elasticRateX = this._elasticRateY = 1;

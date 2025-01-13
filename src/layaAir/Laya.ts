@@ -363,6 +363,7 @@ ILaya.Laya = Laya;
 ILaya.Loader = Loader;
 ILaya.Context = Context;
 ILaya.Browser = Browser;
+ILaya.InputManager = InputManager;
 
 /**@internal */
 export var init = Laya.init;
