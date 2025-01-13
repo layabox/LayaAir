@@ -374,6 +374,8 @@ export class SkinAttach {
             let slot = slots[i];
             let boneIndex = slot.boneData.index;
             let map = this.slotAttachMap.get(i);
+            let slotAttachName = slot.attachmentName;
+
             if (!map) {
                 map = new Map();
                 this.slotAttachMap.set(i, map);
@@ -393,6 +395,17 @@ export class SkinAttach {
                     map.set(key, parse);
                 }
             }
+            else if (slotAttachName) {
+                let parse = map.get(slotAttachName);
+                if (parse) {
+                    vertexBones = Math.max(vertexBones , parse.vertexBones);
+                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    if (tempType < type) {
+                        type = tempType;
+                    }
+                }
+            }
+            
             if (!map.get(null)) {
                 let nullAttachment = new AttachmentParse();
                 nullAttachment.slotId = i;
