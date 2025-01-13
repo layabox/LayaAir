@@ -79,6 +79,7 @@ export class InputManager {
     protected _keyEvent: Event;
 
     private _lastTouchTime: number;
+    private _lastTouchId: number = 0;
 
     /**
      * @ignore
@@ -106,9 +107,9 @@ export class InputManager {
      */
     static getTouchPos(touchId?: number): Readonly<Point> {
         if (touchId == null)
-            return _inst._touches[0]?.pos || Point.EMPTY;
-        else
-            return _inst.getTouch(touchId)?.pos || Point.EMPTY;
+            touchId = _inst._lastTouchId;
+
+        return _inst.getTouch(touchId)?.pos || _inst._mouseTouch.pos;
     }
 
     /**
@@ -142,7 +143,9 @@ export class InputManager {
      * @param touchId 要取消的触摸事件ID。
      */
     static cancelClick(touchId?: number): void {
-        let touch = touchId == null ? _inst._touches[0] : _inst.getTouch(touchId);
+        if (touchId == null)
+            touchId = _inst._lastTouchId;
+        let touch = _inst.getTouch(touchId);
         if (touch)
             touch.clickCancelled = true;
     }
@@ -244,6 +247,7 @@ export class InputManager {
     handleMouse(ev: MouseEvent | WheelEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
+        this._lastTouchId = 0;
         let now = Browser.now();
         if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
             return;
@@ -388,6 +392,7 @@ export class InputManager {
 
             touch.event.nativeEvent = ev;
             touch.event.touchId = touch.touchId;
+            this._lastTouchId = touch.touchId;
             if (type == 3 || !InputManager.mouseEventsEnabled)
                 touch.target = this._touchTarget = null;
             else {
@@ -523,7 +528,7 @@ export class InputManager {
             let ct = target;
             while (ct) {
                 ct.event(type, this._keyEvent.setTo(type, ct, target));
-                ct = ct.parent;
+                ct = ct._parent;
             }
         }
 
@@ -659,7 +664,7 @@ export class InputManager {
         let ele = touch.lastRollOver;
         while (ele) {
             _rollOutChain.push(ele);
-            ele = ele.parent;
+            ele = ele._parent;
         }
         touch.lastRollOver = touch.target;
 
@@ -673,7 +678,7 @@ export class InputManager {
 
             _rollOverChain.push(ele);
 
-            ele = ele.parent;
+            ele = ele._parent;
         }
 
         let cnt = _rollOutChain.length;
@@ -798,7 +803,7 @@ class TouchInfo implements ITouchInfo {
             let ele = this.target;
             while (ele) {
                 this.downTargets.push(ele);
-                ele = ele.parent;
+                ele = ele._parent;
             }
         }
     }
@@ -876,7 +881,7 @@ class TouchInfo implements ITouchInfo {
             if (i != -1 && obj.activeInHierarchy)
                 break;
 
-            obj = obj.parent;
+            obj = obj._parent;
         }
 
         this.downTargets.length = 0;
