@@ -49,7 +49,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     static DEBUG: boolean = false; //是否打印调试信息
     static DIRECTION_LIGHT_SIZE: number = 20000; //2D方向光尺寸
 
-
     lsTarget: RenderTexture2D[] = []; //渲染目标（光影图），数量等于有灯光的层数
     occluderAgent: Occluder2DAgent; //遮光器代理，便捷地创建和控制遮光器
 
@@ -69,7 +68,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _screenPrev: Vector2; //先前屏幕尺寸
     private _screenSchmitt: Rectangle; //带施密特性质的屏幕偏移和尺寸
     private _screenSchmittChange: boolean; //带施密特性质的屏幕是否发生变化
-    private _lightRangeSchmitt: Rectangle[] = []; //带施密特性质灯光范围
     private _segments: LightLine2D[] = []; //当前层所有遮光器组成的线段
     private _points: number[] = []; //遮光器线段提取的点集
     private _param: Vector4[] = []; //光影图参数（xy：偏移，zw：宽高）
@@ -102,12 +100,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _recoverFC: number = 0; //回收资源帧序号
     private _needToRecover: any[] = []; //需要回收的资源
     private _needUpdateLightRes: number = 0; //是否需要更新灯光资源
-    private _needUpdateLightRange: number = 0; //是否需要更新灯光范围
     private _needCollectLightInLayer: number = 0; //是否需要更新各层中的灯光
     private _needCollectOccluderInLight: number = 0; //是否需要更新各层中影响各灯光的遮光器
     private _lightsNeedCheckRange: BaseLight2D[] = []; //需要检查范围的灯光
-
-    private _tempRange: Rectangle = new Rectangle();
 
     static LIGHTANDSHADOW_SCENE_INV_0: number;
     static LIGHTANDSHADOW_SCENE_INV_1: number;
@@ -249,7 +244,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             if (!light._isInRange(this._screenSchmitt)) {
                 const mask = (1 << layer);
                 this.needCollectLightInLayer(mask)
-                this.needUpdateLightRange(mask);
                 this._updateLayerLight[layer] = true;
             }
         }
@@ -262,17 +256,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param light 灯光对象
      */
     needCheckLightRange(light: BaseLight2D) {
-        this._lightsNeedCheckRange.push(light);
-    }
-
-    /**
-     * @en Need update the light range
-     * @param layerMask mask layer
-     * @zh 需要更新灯光范围
-     * @param layerMask 遮罩层
-     */
-    needUpdateLightRange(layerMask: number) {
-        this._needUpdateLightRange |= layerMask;
+        if (this._lightsNeedCheckRange.indexOf(light) < 0)
+            this._lightsNeedCheckRange.push(light);
     }
 
     /**
@@ -330,7 +315,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     }
                 }
             }
-            this.needUpdateLightRange(newLayerMask); //通知相应的层更新灯光范围并集
             if (Light2DManager.DEBUG)
                 console.log('light layer mask change', light, oldLayerMask, newLayerMask);
         }
@@ -385,6 +369,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._lights.length = 0;
         this._lightLayerAll.length = 0;
         this._lightsInLayerAll.length = 0;
+        this._lightsNeedCheckRange.length = 0;
     }
 
     /**
@@ -406,7 +391,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     this._lightLayerAll.push(layer);
                 this._collectLightInScreenByLayer(layer); //收集该层屏幕内的灯光
             }
-            this.needUpdateLightRange(light.layerMask); //通知相应的层更新灯光范围并集
             if (Light2DManager.DEBUG)
                 console.log('add light', light);
         }
@@ -433,7 +417,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     this._collectLightInScreenByLayer(layer); //收集该层屏幕内的灯光
                 }
             }
-            this.needUpdateLightRange(light.layerMask); //通知相应的层更新灯光范围并集
+            this._lightsNeedCheckRange.splice(this._lightsNeedCheckRange.indexOf(light), 1); //将灯光从该数组中去除
             if (Light2DManager.DEBUG)
                 console.log('remove light', light);
         }
@@ -655,70 +639,19 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     }
 
     /**
-     * 计算当前层的光影图范围（带施密特）
-     * @param layer 层序号
-     */
-    private _calcLightRange(layer: number) {
-        const range = this._tempRange.reset();
-        const lights = this._lightsInLayer[layer];
-        const screen = this._screenSchmitt;
-        for (let i = 0, len = lights.length; i < len; i++) {
-            if (i === 0) {
-                const r = lights[i]._getWorldRange(this._screenSchmitt);
-                if (Light2DManager.DEBUG)
-                    console.log('range =', r.x, r.y, r.width, r.height, lights[i]);
-                lights[i]._getWorldRange(this._screenSchmitt).cloneTo(range);
-            }
-            else {
-                const r = lights[i]._getWorldRange(this._screenSchmitt);
-                if (Light2DManager.DEBUG)
-                    console.log('range =', r.x, r.y, r.width, r.height, lights[i]);
-                range.union(lights[i]._getWorldRange(this._screenSchmitt), range);
-            }
-        }
-        range.union(screen, range); //不要小于屏幕，避免IDE中滚动屏幕时，灯光计算范围过窄
-        if (Light2DManager.DEBUG)
-            console.log('light range =', range.x, range.y, range.width, range.height);
-
-        let rangeSchmitt = this._lightRangeSchmitt[layer];
-        if (!rangeSchmitt) {
-            rangeSchmitt = this._lightRangeSchmitt[layer] = new Rectangle();
-            this._lightRangeChange[layer] = false;
-        }
-
-        if (range.x < rangeSchmitt.x
-            || range.y < rangeSchmitt.y
-            || range.x + range.width > rangeSchmitt.x + rangeSchmitt.width
-            || range.y + range.height > rangeSchmitt.y + rangeSchmitt.height) {
-            rangeSchmitt.x = (range.x - Light2DManager.LIGHT_SCHMITT_SIZE) | 0;
-            rangeSchmitt.y = (range.y - Light2DManager.LIGHT_SCHMITT_SIZE) | 0;
-            rangeSchmitt.width = (range.width + Light2DManager.LIGHT_SCHMITT_SIZE * 2) | 0;
-            rangeSchmitt.height = (range.height + Light2DManager.LIGHT_SCHMITT_SIZE * 2) | 0;
-            this._lightRangeChange[layer] = true;
-            if (Light2DManager.DEBUG)
-                console.log('light range schmitt =', rangeSchmitt.x, rangeSchmitt.y, rangeSchmitt.width, rangeSchmitt.height, layer);
-        }
-
-        if (Light2DManager.DEBUG)
-            console.log('calc light range', layer);
-        return rangeSchmitt;
-    }
-
-    /**
      * 提取指定层中灯光遮挡器线段
      * @param layer 
      * @param sn 
      * @param lightX 
      * @param lightY 
+     * @param range
      * @param shadow 
      */
-    private _getOccluderSegment(layer: number, sn: number, lightX: number, lightY: number, shadow: boolean) {
-        const range = this._lightRangeSchmitt[layer];
-        if (!range) return this._segments;
-        const x = range.x - 10;
-        const y = range.y - 10;
-        const w = range.width + 20;
-        const h = range.height + 20;
+    private _getOccluderSegment(layer: number, sn: number, lightX: number, lightY: number, range: Rectangle, shadow: boolean) {
+        const x = range.x;
+        const y = range.y;
+        const w = range.width;
+        const h = range.height;
         const segments = this._segments;
         if (segments.length >= 4) {
             for (let i = 0; i < 4; i++) //只能recover本函数创建的4个线段
@@ -854,8 +787,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             const layerMask = (1 << layer);
             const x = this._screenSchmitt.x;
             const y = this._screenSchmitt.y;
-            if (this._needUpdateLightRange & layerMask)
-                this._calcLightRange(layer);
             if (this._spriteNumInLayer[layer] === 0)
                 continue; //该层没有精灵，跳过
             if (occluders)
@@ -946,7 +877,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         }
         this._screenSchmittChange = false;
         this._needUpdateLightRes = 0;
-        this._needUpdateLightRange = 0;
         this._needCollectLightInLayer = 0;
         this._needCollectOccluderInLight = 0;
 
@@ -1083,11 +1013,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         const lightX = _calcLightX(light, pcf);
         const lightY = _calcLightY(light, pcf);
         const lightRange = light._getLightRange();
+        const worldRange = light._getWorldRange(this._screenSchmitt);
         const lightOffsetX = lightRange.x;
         const lightOffsetY = lightRange.y;
         const lightWidth = lightRange.width;
         const lightHeight = lightRange.height;
-        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, light.shadowEnable);
+        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, worldRange, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
         if (len > 2) {
@@ -1131,12 +1062,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         const lightX = _calcLightX(light);
         const lightY = _calcLightY(light);
         const lightRange = light._getLightRange();
-        const worldRange = light._getWorldRange();
+        const worldRange = light._getWorldRange(this._screenSchmitt);
         const lightOffsetX = lightRange.x;
         const lightOffsetY = lightRange.y;
         const lightWidth = lightRange.width;
         const lightHeight = lightRange.height;
-        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, light.shadowEnable);
+        const ss = this._getOccluderSegment(layer, sn, lightX, lightY, worldRange, light.shadowEnable);
         const poly = this._getLightPolygon(lightX, lightY, ss);
         const len = poly.length;
         if (len > 2) {
