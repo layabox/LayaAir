@@ -25,6 +25,10 @@ export class GlCapable {
         //Index Uint32
         let value = isWebgl2 || !!(this.getExtension(WebGLExtension.OES_element_index_uint));
         this._capabilityMap.set(RenderCapable.Element_Index_Uint32, value);
+
+        //Index uint8
+        this._capabilityMap.set(RenderCapable.Element_Index_Uint8, true);
+
         //FLoat32Texture
         value = isWebgl2 || !!(this.getExtension(WebGLExtension.OES_texture_float));
         this._capabilityMap.set(RenderCapable.TextureFormat_R32G32B32A32, value);
