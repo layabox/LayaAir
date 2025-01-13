@@ -1,5 +1,4 @@
 import { Component } from "../components/Component"
-import { FrameAnimation } from "../display/FrameAnimation"
 import { Node } from "../display/Node"
 import { ILaya } from "../../ILaya";
 import { Graphics } from "../display/Graphics";
@@ -84,30 +83,30 @@ export class LegacyUIParser {
         }
 
         //处理动画信息
-        if (uiView.animations) {
-            var anilist: any[] = [];
-            var animations: any[] = uiView.animations;
-            var i: number, len: number = animations.length;
-            var tAni: FrameAnimation;
-            var tAniO: any;
-            for (i = 0; i < len; i++) {
-                tAni = new FrameAnimation();
-                tAniO = animations[i];
-                tAni._setUp(tInitTool._idMap, tAniO);
-                (<any>root)[tAniO.name] = tAni;
-                tAni._setControlNode(root);
-                switch (tAniO.action) {
-                    case 1:
-                        tAni.play(0, false);
-                        break;
-                    case 2:
-                        tAni.play(0, true);
-                        break;
-                }
-                anilist.push(tAni);
-            }
-            (<any>root)._aniList = anilist;
-        }
+        // if (uiView.animations) {
+        //     var anilist: any[] = [];
+        //     var animations: any[] = uiView.animations;
+        //     var i: number, len: number = animations.length;
+        //     var tAni: FrameAnimation;
+        //     var tAniO: any;
+        //     for (i = 0; i < len; i++) {
+        //         tAni = new FrameAnimation();
+        //         tAniO = animations[i];
+        //         tAni._setUp(tInitTool._idMap, tAniO);
+        //         (<any>root)[tAniO.name] = tAni;
+        //         tAni._setControlNode(root);
+        //         switch (tAniO.action) {
+        //             case 1:
+        //                 tAni.play(0, false);
+        //                 break;
+        //             case 2:
+        //                 tAni.play(0, true);
+        //                 break;
+        //         }
+        //         anilist.push(tAni);
+        //     }
+        //     (<any>root)._aniList = anilist;
+        // }
 
         //设置页面穿透
         if ((root instanceof Scene) && root._width > 0 && uiView.props.hitTestPrior == null && !root.mouseThrough)

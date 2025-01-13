@@ -86,6 +86,7 @@ export class TileMapOccluderAgent {
       occluder.polygonPoint = poly;
       occluder.layerMask = layerMask;
       occluder._onEnable();
+      this._occluders.push(occluder);
       return occluder
    }
 

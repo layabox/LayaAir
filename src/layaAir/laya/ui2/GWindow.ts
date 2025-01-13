@@ -238,7 +238,7 @@ export class GWindow extends GWidget {
     private _dragStart(evt: Event): void {
         this._dragArea.stopDrag();
 
-        //this.startDrag(evt.touchId);
+        this.startDrag();
     }
 }
 

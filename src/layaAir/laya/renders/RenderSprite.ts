@@ -269,7 +269,7 @@ export class RenderSprite {
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
-                else if (sprite._cacheStyle.mask == ele && ele._visible) //ele._visible condition for case that selected in IDE
+                else if (sprite._cacheStyle.mask == ele && (!ele._getBit(NodeFlags.FORCE_VISIBLE) || drawingToTexture))
                     visFlag = false;
             }
 
@@ -460,6 +460,12 @@ export class RenderSprite {
     }
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let mask = sprite.mask;
+        if (mask._getBit(NodeFlags.FORCE_VISIBLE) && !ctx._drawingToTexture) {
+            if (this._next != RenderSprite.NORENDER)
+                this._next._fun(sprite, ctx, x, y);
+            return;
+        }
         let cache = sprite._getCacheStyle();
         //由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
         if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed || ILaya.stage.isGlobalRepaint()) {
@@ -484,7 +490,6 @@ export class RenderSprite {
             //这个时候获得的rect是包含pivot的。下面的mask按照规则是作为sprite的子来计算，但是，他的位置是相对于原始位置
             //而不是pivot，所以需要根据mask的pivot调整mask的rect的位置
 
-            let mask = sprite.mask;
             //TODO mask如果非常简单，就不要先渲染到texture上
             let maskcache = mask._getCacheStyle();
             maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
@@ -514,8 +519,10 @@ export class RenderSprite {
             ctx1.size(width1, height1);
             ctx1.render2D = new Render2DSimple(rt);
             ctx1.startRender();
+            ctx1._drawingToTexture = ctx._drawingToTexture;
             //由于是t空间，需要抵消掉pivot的设置（_fun会应用pivot），-x1y1是为了对齐到裁剪的rt
             this._next._fun(sprite, ctx1, sprite.pivotX - x1, sprite.pivotY - y1);
+            ctx1._drawingToTexture = false;
             let maskRT = maskcache.renderTexture;
             ctx1.globalCompositeOperation = 'mask';
             ctx1._drawRenderTexture(maskRT,

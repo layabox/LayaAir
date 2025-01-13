@@ -67,24 +67,13 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @returns 绘制图片命令实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
-        if (width == null) width = texture.sourceWidth;
-        if (height == null) height = texture.sourceHeight;
-
-        let wRate = width / texture.sourceWidth;
-        let hRate = height / texture.sourceHeight;
-        width = texture.width * wRate;
-        height = texture.height * hRate;
-
-        x += texture.offsetX * wRate;
-        y += texture.offsetY * hRate;
-
-        var cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
+        let cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
         cmd.texture = texture;
-        texture._addReference();
-        cmd.x = x;
-        cmd.y = y;
-        cmd.width = width;
-        cmd.height = height;
+        texture && texture._addReference();
+        cmd.x = x ?? 0;
+        cmd.y = y ?? 0;
+        cmd.width = width ?? texture.sourceWidth;
+        cmd.height = height ?? texture.sourceHeight;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
@@ -110,9 +99,21 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移
      */
     run(context: Context, gx: number, gy: number): void {
-        if (this.texture) {
-            context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.color);
-        }
+        let tex = this.texture;
+        if (!tex)
+            return;
+
+        let x = this.x, y = this.y, w = this.width, h = this.height;
+
+        let wRate = w / tex.sourceWidth;
+        let hRate = h / tex.sourceHeight;
+        w = tex.width * wRate;
+        h = tex.height * hRate;
+
+        x += tex.offsetX * wRate;
+        y += tex.offsetY * hRate;
+
+        context.drawTexture(this.texture, x + gx, y + gy, w, h, this.color);
     }
 
     /**

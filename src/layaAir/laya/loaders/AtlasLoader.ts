@@ -31,6 +31,7 @@ class AtlasLoader implements IResourceLoader {
             }
 
             return Promise.all(toloadPics).then(pics => {
+                pics = pics.filter(pic => pic != null);
                 let baseUrl = task.options.baseUrl || "";
 
                 let frames: any = data.frames;
@@ -41,12 +42,8 @@ class AtlasLoader implements IResourceLoader {
                 if (data.meta && data.meta.scale && data.meta.scale != 1)
                     scaleRate = parseFloat(data.meta.scale);
 
-                for (let tPic of pics) {
-                    if (tPic) {
-                        tPic._addReference();
-                        tPic.scaleRate = scaleRate;
-                    }
-                }
+                for (let tPic of pics)
+                    tPic.scaleRate = scaleRate;
 
                 for (let name in frames) {
                     let obj = frames[name];
@@ -56,7 +53,6 @@ class AtlasLoader implements IResourceLoader {
 
                     let url = baseUrl + directory + (obj.filename || name);
                     let tt = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
-                    tt.lock = true;
                     tt._sizeGrid = obj.sizeGrid;
                     tt._stateNum = obj.stateNum;
                     task.loader.cacheRes(url, tt);

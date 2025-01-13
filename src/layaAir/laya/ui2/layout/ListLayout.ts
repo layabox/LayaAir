@@ -8,6 +8,7 @@ import { UIConfig2 } from "../UIConfig";
 import type { GWidget } from "../GWidget";
 import { Layout } from "./Layout";
 import { UIEvent } from "../UIEvent";
+import { Sprite } from "../../display/Sprite";
 
 export class ListLayout extends Layout {
     declare _owner: GList;
@@ -785,7 +786,7 @@ export class ListLayout extends Layout {
         if (deltaWidth != 0 || deltaHeight != 0 || firstItemDeltaSize != 0)
             scroller._changeContentSizeOnScrolling(deltaWidth, deltaHeight, 0, firstItemDeltaSize);
 
-        if (curIndex > 0 && this._owner.numChildren > 0 && this._owner._container.y <= 0 && (<GWidget>this._owner.getChildAt(0)).y > -this._owner._container.y)//最后一页没填满！
+        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).y <= 0 && (<GWidget>this._owner.getChildAt(0)).y > -(<Sprite>this._owner._$container).y)//最后一页没填满！
             return true;
         else
             return false;
@@ -938,7 +939,7 @@ export class ListLayout extends Layout {
         if (deltaSize != 0 || firstItemDeltaSize != 0)
             this._owner.scroller._changeContentSizeOnScrolling(deltaSize, 0, firstItemDeltaSize, 0);
 
-        if (curIndex > 0 && this._owner.numChildren > 0 && this._owner._container.x <= 0 && (<GWidget>this._owner.getChildAt(0)).x > - this._owner._container.x)//最后一页没填满！
+        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).x <= 0 && (<GWidget>this._owner.getChildAt(0)).x > - (<Sprite>this._owner._$container).x)//最后一页没填满！
             return true;
         else
             return false;

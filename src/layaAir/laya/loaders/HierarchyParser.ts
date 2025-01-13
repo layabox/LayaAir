@@ -29,6 +29,7 @@ export class HierarchyParser {
         let skinBaseUrl: string;
         let overrideData: Array<Array<any>>;
         let hasRuntime: boolean;
+        let hasUI: boolean;
 
         if (options) {
             inPrefab = options.inPrefab;
@@ -119,8 +120,11 @@ export class HierarchyParser {
                     }
                 }
 
-                if (node)
+                if (node) {
                     nodeMap[nodeData._$id] = node;
+                    if (node._nodeType === 2)
+                        hasUI = true;
+                }
             }
 
             return node;
@@ -330,15 +334,12 @@ export class HierarchyParser {
         decoder.getNodeByRef = getNodeByRef;
         decoder.getNodeData = getNodeData;
 
-        let hasUI = false;
         //第一轮
         for (let i = 0; i < nodeCnt; i++) {
             let nodeData = dataList[i];
             let node = <Sprite>allNodes[i];
-            if (node && node._nodeType === 2) {
-                hasUI = true;
+            if (node && (node._nodeType === 2 || node === scene))
                 decoder.decodeObjBounds(nodeData, node);
-            }
         }
 
         if (hasUI) {
@@ -371,7 +372,7 @@ export class HierarchyParser {
                 if (skinBaseUrl != null && node._nodeType === 0)
                     (<Sprite>node)._skinBaseUrl = skinBaseUrl;
 
-                decoder.decodeObj(nodeData, node, node._nodeType === 2 ? excludeKeys : null);
+                decoder.decodeObj(nodeData, node, (node._nodeType === 2 || node === scene) ? excludeKeys : null);
 
                 if (hasRuntime && nodeData._$var && node.name) {
                     try {

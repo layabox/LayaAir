@@ -98,10 +98,12 @@ export class Animator extends Component {
         return this._controller;
     }
     set controller(val: AnimatorController) {
-
+        if (this._controller)
+            this._controller._removeReference();
         this._controller = val;
-        if (this._controller) {
-            this._controller.updateTo(this);
+        if (val) {
+            val._addReference();
+            val.updateTo(this);
         }
 
     }
@@ -1223,6 +1225,10 @@ export class Animator extends Component {
     }
 
     protected _onDestroy() {
+        if (this._controller) {
+            this._controller._removeReference();
+            this._controller = null;
+        }
         for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
     }
@@ -1446,15 +1452,15 @@ export class Animator extends Component {
 
     /**
      * @en Adds a controller layer.
-     * @param controllderLayer The animation controller layer to add.
+     * @param controllerLayer The animation controller layer to add.
      * @zh 添加控制器层。
-     * @param controllderLayer 动画控制层。
+     * @param controllerLayer 动画控制层。
      */
-    addControllerLayer(controllderLayer: AnimatorControllerLayer): void {
-        this._controllerLayers.push(controllderLayer);
-        controllderLayer._animator = this;//TODO:可以复用,不应该这么设计
-        controllderLayer._addReference();
-        var states: AnimatorState[] = controllderLayer._states;
+    addControllerLayer(controllerLayer: AnimatorControllerLayer): void {
+        this._controllerLayers.push(controllerLayer);
+        controllerLayer._animator = this;//TODO:可以复用,不应该这么设计
+        controllerLayer._addReference();
+        var states: AnimatorState[] = controllerLayer._states;
         for (var i: number = 0, n: number = states.length; i < n; i++)
             this._getOwnersByClip(states[i]);
     }

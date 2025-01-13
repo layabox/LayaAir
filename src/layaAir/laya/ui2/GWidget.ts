@@ -2,11 +2,9 @@ import { UIConfig2 } from "./UIConfig";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { Rectangle } from "../maths/Rectangle";
 import { LayoutChangedReason, RelationType } from "./Const";
 import { Controller } from "./Controller";
 import { ControllerRef } from "./ControllerRef";
-import { DragSupport } from "./DragSupport";
 import { Relation } from "./Relation";
 import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
@@ -17,6 +15,8 @@ import { ILaya } from "../../ILaya";
 import { IGraphicsCmd } from "../display/IGraphics";
 import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
+import { DragSupport } from "../utils/DragSupport";
+import { Scene } from "../display/Scene";
 
 export class GWidget extends Sprite {
     data: any;
@@ -27,8 +27,6 @@ export class GWidget extends Sprite {
     private _background: IGraphicsCmd;
 
     private _draggable: boolean = false;
-    private _dragBounds: Rectangle;
-    private _dragSupport: DragSupport;
 
     private _controllers: Record<string, Controller>;
     private _controllerCount: number;
@@ -281,16 +279,8 @@ export class GWidget extends Sprite {
                     this._dragSupport = new DragSupport(this);
             }
             if (this._dragSupport)
-                this._dragSupport.setAutoStart(value);
+                this._dragSupport.autoStart = value;
         }
-    }
-
-    get dragBounds(): Rectangle {
-        return this._dragBounds;
-    }
-
-    set dragBounds(value: Rectangle) {
-        this._dragBounds = value;
     }
 
     get relations(): Array<Relation> {
@@ -313,7 +303,7 @@ export class GWidget extends Sprite {
         }
     }
 
-    addRelation(target: GWidget, type: RelationType, percent?: boolean): this {
+    addRelation(target: GWidget | Scene, type: RelationType, percent?: boolean): this {
         let item = this._relations.find(i => i.target == target);
         if (!item) {
             item = new Relation();
@@ -325,7 +315,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
-    removeRelation(target: GWidget, type: RelationType): this {
+    removeRelation(target: GWidget | Scene, type: RelationType): this {
         let item = this._relations.find(i => i.target == target);
         if (item)
             item.remove(type);
@@ -470,7 +460,7 @@ export class GWidget extends Sprite {
                 r._sw = this._width;
                 r._sh = this._height;
                 if (r.target)
-                    r.target._forceSizeFlag = true;
+                    (<GWidget>r.target)._forceSizeFlag = true;
             }
         }
         this.onConstruct();

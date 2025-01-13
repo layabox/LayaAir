@@ -14,14 +14,10 @@ import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender"
 import { Event } from "../events/Event";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { LayaGL } from "../layagl/LayaGL";
-import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Context } from "../renders/Context";
 import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Vector2 } from "../maths/Vector2";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../resource/Material";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
@@ -29,7 +25,10 @@ import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Texture2D } from "../resource/Texture2D";
 import { Mesh2D } from "../resource/Mesh2D";
 import { Vector3 } from "../maths/Vector3";
-import { Sprite } from "../display/Sprite";
+import { Vector4 } from "../maths/Vector4";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Color } from "../maths/Color";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 
 /**动画开始播放调度
@@ -168,6 +167,28 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
         Vector2.TEMP.setValue(context.width, context.height);
         shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
+
+        if (this._renderAlpha !==  context.globalAlpha) {
+            let scolor = this.spineItem.getSpineColor();
+            let a = scolor.a * context.globalAlpha;
+            let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
+            color.setValue(scolor.r , scolor.g , scolor.b , a);
+            shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+            this._renderAlpha =  context.globalAlpha;
+        }
+        
+        // 兼容 colorfilter
+        let filter = context._colorFiler;
+        if (filter) {
+            this._spriteShaderData.addDefine(ShaderDefines2D.FILTERCOLOR);
+            Matrix4x4.TEMP.cloneByArray(filter._mat);
+            shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
+            Vector4.TEMP.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
+            shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
+        }else{
+            this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
+        }
+
         context._copyClipInfoToShaderData(shaderData);
 
         this._lightReceive && this._updateLight();
@@ -202,7 +223,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
                     if (!this._source || templet && !templet.isCreateFromURL(this._source))
                         return;
-
+                    if (this.destroyed)
+                        return;
                     this.templet = templet;
                 });
             }
@@ -509,11 +531,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         state.update(delta);
 
         //@ts-ignore
-        this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        let currentPlayTime = this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
 
         // 使用当前动画和事件设置骨架
         state.apply(this._skeleton);
-
 
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton) {
@@ -521,7 +542,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform();
-        this.spineItem.render(this._currentPlayTime);
+        this.spineItem.render(currentPlayTime);
         this.owner.repaint();
     }
 
@@ -601,7 +622,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._pause = true;
             this._clearUpdate();
             //this.timer.clear(this, this._update);
-            this._state.update(-this._currentPlayTime);
+            // this._state.update(-this._currentPlayTime);
+            this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.event(Event.STOPPED);
 
@@ -847,7 +869,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             // renderNode._materials.push(mat);
         } else {
             mat = this._materials[this._renderElements.length];
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat);
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this.templet.premultipliedAlpha);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
         }
         return mat;
