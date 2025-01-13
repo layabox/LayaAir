@@ -16,6 +16,7 @@ import { IGraphicsCmd } from "../display/IGraphics";
 import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
+import { Scene } from "../display/Scene";
 
 export class GWidget extends Sprite {
     data: any;
@@ -302,7 +303,7 @@ export class GWidget extends Sprite {
         }
     }
 
-    addRelation(target: GWidget, type: RelationType, percent?: boolean): this {
+    addRelation(target: GWidget | Scene, type: RelationType, percent?: boolean): this {
         let item = this._relations.find(i => i.target == target);
         if (!item) {
             item = new Relation();
@@ -314,7 +315,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
-    removeRelation(target: GWidget, type: RelationType): this {
+    removeRelation(target: GWidget | Scene, type: RelationType): this {
         let item = this._relations.find(i => i.target == target);
         if (item)
             item.remove(type);
@@ -459,7 +460,7 @@ export class GWidget extends Sprite {
                 r._sw = this._width;
                 r._sh = this._height;
                 if (r.target)
-                    r.target._forceSizeFlag = true;
+                    (<GWidget>r.target)._forceSizeFlag = true;
             }
         }
         this.onConstruct();

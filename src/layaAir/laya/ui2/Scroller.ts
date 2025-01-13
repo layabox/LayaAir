@@ -169,8 +169,8 @@ export class Scroller implements IScroller {
 
         if (value) {
             this._layout = value.layout;
-            this._maskContainer = value._maskContainer;
-            this._container = value._container;
+            this._container = <Sprite>value._$container;
+            this._maskContainer = this._container.parent;
             this._container.pos(0, 0);
 
             if (!SerializeUtil.isDeserializing) {
@@ -607,8 +607,8 @@ export class Scroller implements IScroller {
     }
 
     private getRect(target: GWidget, rect: Rectangle) {
-        if (target.parent != this._owner)
-            SpriteUtils.transformRect(target.parent, rect.setTo(target.x, target.y, target.width, target.height), this._owner);
+        if (target._parent != this._owner._$container)
+            SpriteUtils.transformRect(target._parent, rect.setTo(target.x, target.y, target.width, target.height), <Sprite>this._owner._$container);
         else
             rect.setTo(target.x, target.y, target.width, target.height);
         return rect;
