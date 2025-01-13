@@ -392,6 +392,11 @@ export class SkinAttach {
                 if (parse) {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
+                    vertexBones = Math.max(vertexBones , parse.vertexBones);
+                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    if (tempType < type) {
+                        type = tempType;
+                    }
                 }
             }
 
