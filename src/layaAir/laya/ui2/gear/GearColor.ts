@@ -12,7 +12,6 @@ export class GearColor extends Gear<Color> {
             if (tweener && newValue.equal(tweener.endValue.getAt(0)))
                 return;
             this._tween.kill(true);
-            this._tween.recover();
         }
 
         this._tween = Tween.create(obj)
