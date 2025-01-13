@@ -160,12 +160,12 @@ export class FrameAnimation extends Component {
             if (this._stretchMode == AnimationStretchMode.ResizeToFit) {
                 this.owner.size(this._frames[0].sourceWidth, this._frames[0].sourceHeight);
             }
+
+            this.drawFrame();
         }
         else {
             this._count = 0;
         }
-
-        this.drawFrame();
     }
 
     /**
@@ -329,6 +329,12 @@ export class FrameAnimation extends Component {
     protected _onEnable(): void {
         if (this._autoPlay)
             this.play();
+    }
+
+    protected _onDestroy(): void {
+        super._onDestroy();
+
+        this.frames = null;
     }
 
     /**
