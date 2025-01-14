@@ -279,7 +279,6 @@ export class RigidBody extends Component {
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         this._needrefeshShape();
-        this._updateBodyType()
     }
 
     /**
@@ -312,7 +311,8 @@ export class RigidBody extends Component {
     /** @internal */
     _onEnable(): void {
         (<Sprite>this.owner).cacheGlobal = true;
-        this._createBody();
+        Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
+        this._updateBodyType();
         this.owner.on("GlobaChange", this, this._globalChangeHandler)
     }
 
@@ -368,6 +368,8 @@ export class RigidBody extends Component {
 
     /**@internal */
     _onDisable(): void {
+        Physics2D.I._removeRigidBody(this);
+        Physics2D.I._removeRigidBodyAttribute(this);
         this.owner.off("GlobaChange", this, this._globalChangeHandler)
         //添加到物理世界
         Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
