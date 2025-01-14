@@ -251,7 +251,7 @@ export class ColliderBase extends Component {
     /**@internal*/
     protected _onDisable(): void {
         let factory = Physics2D.I._factory;
-        if (this._fixture && this.rigidBody._getOriBody()) {
+        if (this._fixture && this.rigidBody.body) {
             factory.rigidBody_DestroyFixture(this.rigidBody.body, this._fixture);
         }
         this._fixture = null;

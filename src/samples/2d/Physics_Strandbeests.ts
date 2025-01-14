@@ -237,7 +237,7 @@ export class Physics_Strandbeests {
             Vector2.normalize(tempVec, tempVec);
             Vector2.scale(tempVec, 50, tempVec);
             Vector2.scale(tempVec, Physics2DOption.pixelRatio, tempVec);
-            circleBody.linearVelocity = tempVec.toArray();
+            circleBody.linearVelocity = tempVec;
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
