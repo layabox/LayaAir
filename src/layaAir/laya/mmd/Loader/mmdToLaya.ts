@@ -9,11 +9,14 @@ import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { SubMesh } from "../../d3/resource/models/SubMesh";
+import { Node } from "../../display/Node";
 import { rotationTo } from "../../IK/IK_Utils";
 import { Keyframe } from "../../maths/Keyframe";
 import { Quaternion } from "../../maths/Quaternion";
+import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
+import { Vector4 } from "../../maths/Vector4";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
@@ -181,6 +184,16 @@ class MyVector3Keyframe extends Vector3Keyframe{
     }
 }
 
+class MyQuaternionKeyframe extends QuaternionKeyframe{
+    constructor(tm:number, value:Quaternion, inTangent?:Vector4, outTangent?:Vector4){
+        super();
+        this.time = tm;
+        value.cloneTo(this.value);
+        if(inTangent) inTangent.cloneTo(this.inTangent);
+        if(outTangent) outTangent.cloneTo(this.outTangent);
+    }
+}
+
 class MyKeyFrameNode extends KeyframeNode{
     constructor(type:KeyFrameValueType){
         super();
@@ -258,9 +271,13 @@ export function vmdToLayaClip1(vmddata:MmdAnimation){
     return clip;
 }
 
+export class MMDBone extends Sprite3D{
+    boneLength=0;
+}
+
 export class MMDSkeleton {
     root:Sprite3D;
-    sprites:Sprite3D[]=[];
+    sprites:MMDBone[]=[];
 }
 
 export class MMDSprite extends Sprite3D{
@@ -270,11 +287,39 @@ export class MMDSprite extends Sprite3D{
         let mesh =  mmdToMesh(data);
         let meshSprite = new MeshSprite3D(mesh);
         this.renderSprite = meshSprite;
-        this.addChild(meshSprite);
+        //this.addChild(meshSprite);
         let bones = mmdToSkeleton(data);
         this.skeleton = bones;
         this.addChild(bones.root);
     }
+
+    //vmd中的节点目前还没有层次结构，要根据实际的结构修改一下
+    linkAnim(clip:AnimationClip){
+        let nodecnt =  clip._nodes.count;
+        let rootname = this._children[0].name;
+        for(let i=0; i<nodecnt; i++){
+            let n = clip._nodes.getNodeByIndex(i) as MyKeyFrameNode;
+            let name = n.getOwnerPathByIndex(0);
+            let bone = this._getBone(name);
+            let ownerpath:string[]=[];
+            this._getBonePath(bone,rootname,ownerpath);
+            n.setProp(ownerpath,[n.propertyOwner].concat((n as any)._propertys));
+        }
+        return clip;
+    }
+
+    private _getBone(name:string){
+        return this.skeleton.sprites.find(v=>v.name==name);
+    }
+
+    private _getBonePath(sp:Node, rootname:string,out:string[]){
+        out.splice(0,0,sp.name);
+        if(sp.name==rootname)
+            return;
+        if(sp.parent){
+            this._getBonePath(sp.parent,rootname,out);
+        }
+    }    
 }
 
 
@@ -316,7 +361,7 @@ export function mmdToSkeleton(data:PmxObject){
                 }
         }
 
-        let sp = new Sprite3D(bone.name);
+        let sp = new MMDBone(bone.name);
         sps.push(sp);
         let pos = sp.transform.position;
         myPos.cloneTo(pos);
@@ -328,11 +373,11 @@ export function mmdToSkeleton(data:PmxObject){
         if(hasTailPos){
             tailPos.vsub(myPos,dPos);
             let length = dPos.length();
-            (sp as any).boneLength = length;
+            sp.boneLength = length;
             dPos.normalize();
             rotationTo(Z,dPos,spTran.rot);
         }else{
-            (sp as any).boneLength = 0.01;
+            sp.boneLength = 0.01;
         }
     }
 
@@ -390,15 +435,7 @@ export function mmdToSkeleton(data:PmxObject){
     return ske;
 }
 
-export function vmdToLayaClip(vmddata:MmdAnimation){
-    let boneTracks = vmddata.boneTracks;
-    let posTracks = vmddata.movableBoneTracks;
-
-    let b0 = boneTracks[0];
-    b0.frameNumbers;    //时间
-    b0.rotations;   //帧数*4   Q:x,y,z,w
-    b0.rotationInterpolations;//x1,x2,y1,y2
-
+function createSimpleClip(){
     //动画示例
     let clip = new AnimationClip();
     clip.name='test';
@@ -417,6 +454,75 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
     node.setKeyframes(keys);
 
     nodes.setNodes([node]);
+    return clip;
+}
+
+export function vmdToLayaClip(vmddata:MmdAnimation){
+    let boneTracks = vmddata.boneTracks;
+    const FPS = 30;
+
+    let clip = new AnimationClip();
+    clip.name='test';
+    clip._frameRate=FPS;
+    clip._duration = vmddata.endFrame/FPS;
+    var nodes = clip._nodes = new MyKeyframeNodeList();
+
+    let allnode = [];
+    for(let i=0,n=boneTracks.length; i<n; i++){
+        let cur = boneTracks[i];
+        let node = new MyKeyFrameNode(KeyFrameValueType.Rotation);
+        node.setProp([cur.name],['transform','localRotaion']);
+        
+        let frmcnt = cur.frameNumbers.length;
+        let keys =[];
+        for(let f =0; f<frmcnt; f++){
+            keys.push( new MyQuaternionKeyframe( cur.frameNumbers[f]/FPS, new Quaternion(
+                cur.rotations[f*4],cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
+            )));
+        }
+        node.setKeyframes(keys);
+        allnode.push(node);
+    }
+    //b0.rotationInterpolations;//x1,x2,y1,y2
     
+    let posTracks = vmddata.movableBoneTracks;
+    for(let i=0,n=posTracks.length; i<n; i++){
+        let cur = posTracks[i];
+        cur.rotations;
+        cur.positions;
+        if(cur.rotations.length/4!=cur.positions.length/3){
+            debugger;
+        }
+        
+        let noder = new MyKeyFrameNode(KeyFrameValueType.Rotation);
+        noder.setProp([cur.name],['transform','localRotaion']);
+        let nodep = new MyKeyFrameNode(KeyFrameValueType.Position);
+        nodep.setProp([cur.name],['transform','localPosition']);
+        
+        let frmcnt = cur.frameNumbers.length;
+        let keysr =[];
+        let keysp = [];
+        for(let f =0; f<frmcnt; f++){
+            if(cur.rotations[f*4]!=undefined){
+                keysr.push( new MyQuaternionKeyframe( cur.frameNumbers[f]/FPS, new Quaternion(
+                    cur.rotations[f*4],cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
+                )));
+            }
+            if(cur.positions[f*3]!=undefined){
+                keysp.push(new MyVector3Keyframe(cur.frameNumbers[f]/FPS, new Vector3(
+                    cur.positions[f*3],cur.positions[f*3+1],cur.positions[f*3+2]
+                )));
+            }
+        }
+        if(keysr.length==0)debugger;
+        if(keysp.length==0)debugger;
+        noder.setKeyframes(keysr);
+        nodep.setKeyframes(keysp);
+        allnode.push(noder);
+        allnode.push(nodep);
+    }
+    
+    nodes.setNodes(allnode);
+
     return clip;
 }

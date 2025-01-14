@@ -34,7 +34,7 @@ export class PmdLoader implements ILogger, IResourceLoader {
         });
     }    
 
-    async _parse( task:ILoadTask , data:ArrayBuffer) : Promise<Sprite3D>{
+    async _parse( task:ILoadTask , data:ArrayBuffer) : Promise<MMDSprite>{
         let pmxinfo = await PmdReader.ParseAsync(data, this);
         let ret = new MMDSprite();
         ret.parsePmxObj(pmxinfo);
