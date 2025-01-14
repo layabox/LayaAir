@@ -12,6 +12,8 @@ export class WebGPUCapable {
         this._capabilityMap = new Map();
         //Index Uint32
         this._capabilityMap.set(RenderCapable.Element_Index_Uint32, true);
+        //Index Uint8
+        this._capabilityMap.set(RenderCapable.Element_Index_Uint8, false);
         //FLoat32Texture
         this._capabilityMap.set(RenderCapable.TextureFormat_R32G32B32A32, true);
         //halfFloatTexture

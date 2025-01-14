@@ -158,11 +158,6 @@ export class GImage extends GWidget {
         let sh = source.sourceHeight;
 
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
-        if (this._drawCmd) {
-            this.graphics.removeCmd(this._drawCmd);
-            this._drawCmd.recover();
-        }
-
         let cmd: any;
         if (!source._sizeGrid || (sw === width && sh === height)) {
             if (this._tile)
@@ -172,8 +167,8 @@ export class GImage extends GWidget {
         }
         else
             cmd = Draw9GridTextureCmd.create(source, 0, 0, 1, 1, source._sizeGrid, true, this._color);
-        this._drawCmd = cmd;
-        this.graphics.addCmd(cmd);
+
+        this._drawCmd = this.graphics.replaceCmd(this._drawCmd, cmd, true);
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {

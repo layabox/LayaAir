@@ -57,7 +57,9 @@ export class AnimatorController2D extends Resource {
                 }
                 try {
                     (acl as any)[k] = (l as any)[k];
-                } catch (err: any) { }
+                } catch (err: any) {
+                    console.error(err);
+                }
             }
             this.getState(l.states, acl, this.data);
 

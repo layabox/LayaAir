@@ -68,11 +68,11 @@ export class BlendMode_Lighter {
 		animation.loadImages(frames);
 		this.Main.box2D.addChild(animation);
 
-		var clips: any[] = animation.frames.concat();
+		var clips: any[] = frames.concat();
 		// 反转帧
 		clips = clips.reverse();
 		// 添加到已有帧末尾
-		animation.frames = animation.frames.concat(clips);
+		animation.images = frames.concat(clips);
 
 		animation.play();
 

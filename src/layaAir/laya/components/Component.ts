@@ -317,10 +317,9 @@ export class Component {
         this._setActive(false);
         this._status = 4;
 
-        if (this._driver) {
-            this._driver._toDestroys.add(this);
-            this._driver = null;
-        }
+        if (LayaEnv.isPlaying || this.runInEditor) //如果未激活过，this._driver为空
+            (this._driver || ILaya.stage._componentDriver)._toDestroys.add(this);
+        this._driver = null;
     }
 
     /**

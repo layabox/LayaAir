@@ -1,5 +1,6 @@
 export enum RenderCapable {
     Element_Index_Uint32,//Index Usage 32
+    Element_Index_Uint8,
     TextureFormat_R32G32B32A32,//Texturefloat32
     TextureFormat_R16G16B16A16,//TextureFloat16
     Texture_anisotropic,//anisotropic function

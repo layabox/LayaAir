@@ -91,7 +91,6 @@ export class Gear<T> {
         let tc = this._tweenCfg;
         if (this._tween) {
             this._tween.kill(true);
-            this._tween = null;
         }
 
         this._tween = Tween.create(this)

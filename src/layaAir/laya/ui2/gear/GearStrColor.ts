@@ -10,7 +10,6 @@ export class GearStrColor extends Gear<string> {
             if (tweener && newValue == (tweener.endValue.getAt(0)))
                 return;
             this._tween.kill(true);
-            this._tween.recover();
         }
 
         this._tween = Tween.create(obj)

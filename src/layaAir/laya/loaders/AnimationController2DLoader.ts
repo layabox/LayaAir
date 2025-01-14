@@ -9,13 +9,16 @@ class AnimationController2DLoader implements IResourceLoader {
             let ret = new AnimatorController2D(data);
             if (ret.data && ret.data.controllerLayers) {
                 let layers = ret.data.controllerLayers;
-                let promises: Array<any> = [];
+                let promises: Array<Promise<any>> = [];
                 for (let i = layers.length - 1; i >= 0; i--) {
                     let states = layers[i].states;
                     this.loadStates(states, promises, task);
 
                 }
-                return Promise.all(promises).then(() => ret);
+                return Promise.all(promises).then(deps => {
+                    ret.addDeps(deps);
+                    return ret;
+                });
             }
             else
                 return ret;
@@ -23,7 +26,7 @@ class AnimationController2DLoader implements IResourceLoader {
     }
 
 
-    loadStates(states: TypeAnimatorState[], promises: Array<any>, task: ILoadTask) {
+    loadStates(states: TypeAnimatorState[], promises: Array<Promise<any>>, task: ILoadTask) {
         let basePath = URL.getPath(task.url);
         for (let j = states.length - 1; j >= 0; j--) {
             if (states[j].clip && states[j].clip._$uuid) {
@@ -32,11 +35,8 @@ class AnimationController2DLoader implements IResourceLoader {
                     url = URL.join(basePath, url);
                 promises.push(task.loader.load(url).then(res => {
                     states[j].clip = res;
+                    return res;
                 }));
-
-                // promises.push(task.loader.load("res://" + states[j].clip._$uuid).then(res => {
-                //     states[j].clip = res;
-                // }));
             }
 
             if (states[j].states) {
