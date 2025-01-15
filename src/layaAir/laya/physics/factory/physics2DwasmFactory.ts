@@ -1849,7 +1849,10 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @returns 线性速度。
      */
     get_rigidBody_linearVelocity(body: any): IV2 {
-        return body.GetLinearVelocity();
+        let value: IV2 = body.GetLinearVelocity();
+        value.x = this.phyToLayaValue(value.x);
+        value.y = this.phyToLayaValue(value.y);
+        return value;
     }
 
     /**
