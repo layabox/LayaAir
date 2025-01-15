@@ -47,6 +47,16 @@ export class GearDisplay extends Gear<boolean> {
     }
 
     protected doTween(obj: any, key: string, oldValue: boolean, newValue: boolean): void {
+        if (this._tween) {
+            let tweener = this._tween.findTweener(null);
+            if (tweener && newValue == tweener.endValue.getAt(0))
+                return;
+
+            this._tween.kill();
+            this._tween.recover();
+            this._tween = null;
+        }
+
         if (!newValue)
             super.doTween(obj, key, oldValue, newValue);
         else
