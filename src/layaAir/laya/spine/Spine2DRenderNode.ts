@@ -622,8 +622,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._pause = true;
             this._clearUpdate();
             //this.timer.clear(this, this._update);
-            // this._state.update(-this._currentPlayTime);
-            this._state.clearTrack(this.trackIndex);
+            this._state.update(-this._currentPlayTime);
+            // this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.event(Event.STOPPED);
 
