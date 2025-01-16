@@ -68,9 +68,9 @@ export class ControllerRef {
     release() {
         if (this._inited) {
             this._inited = false;
-            this._target.off(UIEvent.controllers_changed, this, this._check);
+            this._target.off(UIEvent.ControllersChanged, this, this._check);
             if (!LayaEnv.isPlaying)
-                this._target.off(UIEvent.instance_reload, this, this._reload);
+                this._target.off(UIEvent.InstanceReload, this, this._reload);
             if (this._inst) {
                 this._inst.off(Event.CHANGED, this, this._onChanged);
                 this._inst = null;
@@ -81,9 +81,9 @@ export class ControllerRef {
     validate() {
         if (!this._inited) {
             this._inited = true;
-            this._target.on(UIEvent.controllers_changed, this, this._check);
+            this._target.on(UIEvent.ControllersChanged, this, this._check);
             if (!LayaEnv.isPlaying)
-                this._target.on(UIEvent.instance_reload, this, this._reload);
+                this._target.on(UIEvent.InstanceReload, this, this._reload);
             this._check(true);
         }
     }

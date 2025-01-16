@@ -211,7 +211,7 @@ export class GComboBox extends GLabel {
                 console.warn(this._dropdownRes.url + ": should container a list component named list.");
                 return;
             }
-            this._list.on(UIEvent.click_item, this, this._clickItem);
+            this._list.on(UIEvent.ClickItem, this, this._clickItem);
 
             this._list.addRelation(this._dropdown, RelationType.Width);
             this._list.removeRelation(this._dropdown, RelationType.Height);
@@ -263,7 +263,7 @@ export class GComboBox extends GLabel {
         if (GRoot.inst.popupMgr.isPopupJustClosed(this._dropdown))
             return;
 
-        this.event(UIEvent.popup);
+        this.event(UIEvent.Popup);
 
         if (this._itemsUpdated)
             this._updateDropDown();

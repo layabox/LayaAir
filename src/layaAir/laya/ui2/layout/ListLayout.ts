@@ -141,7 +141,7 @@ export class ListLayout extends Layout {
                 (<any>this._owner.scroller)._loop = 1;
         }
 
-        this._owner.on(UIEvent.scroll, this, this._scrolled);
+        this._owner.on(UIEvent.Scroll, this, this._scrolled);
         this._changed = 2;
         ILaya.timer.callLater(this, this._refreshVirtualList);
     }

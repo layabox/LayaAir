@@ -555,6 +555,7 @@ export class InputManager {
         }
 
         this._keyEvent.nativeEvent = ev;
+        this._keyEvent._defaultPrevented = false;
 
         if (InputManager.keyEventsEnabled) {
             let target = (this._stage.focus && this._stage.focus.displayedInStage) ? this._stage.focus : this._stage;
@@ -564,6 +565,9 @@ export class InputManager {
                 ct = ct._parent;
             }
         }
+
+        if (this._keyEvent._defaultPrevented)
+            ev.preventDefault();
 
         this._keyEvent.nativeEvent = null;
     }

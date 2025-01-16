@@ -42,7 +42,7 @@ export class PopupMenu extends EventDispatcher {
         this._list.addRelation(this._content, RelationType.Width);
         this._list.removeRelation(this._content, RelationType.Height);
         this._content.addRelation(this._list, RelationType.Height);
-        this._list.on(UIEvent.click_item, this, this._clickItem);
+        this._list.on(UIEvent.ClickItem, this, this._clickItem);
     }
 
     public destroy(): void {
@@ -165,7 +165,7 @@ export class PopupMenu extends EventDispatcher {
         if (GRoot.inst.popupMgr.isPopupJustClosed(this._content))
             return;
 
-        this.event(UIEvent.popup);
+        this.event(UIEvent.Popup);
 
         if (this.autoSize) {
             this._list.layout.refresh();

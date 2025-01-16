@@ -412,7 +412,7 @@ export class Layout implements ILayout {
 
         (<GPanel>this._owner).scroller?._ownerContentSizeChanged();
 
-        this._owner.event(UIEvent.content_size_changed);
+        this._owner.event(UIEvent.ContentSizeChanged);
     }
 
     public resizeToFit(childCount?: number, minSize?: number): void {

@@ -1142,7 +1142,7 @@ export class Scroller implements IScroller {
 
         this.refresh2();
 
-        this._owner.event(UIEvent.scroll);
+        this._owner.event(UIEvent.Scroll);
         if (this._needRefresh) //在onScroll事件里开发者可能修改位置，这里再刷新一次，避免闪烁
         {
             this._needRefresh = false;
@@ -1349,7 +1349,7 @@ export class Scroller implements IScroller {
         this.updateScrollBarPos();
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEvent.scroll);
+        this._owner.event(UIEvent.Scroll);
     }
 
     private _touchEnd(): void {
@@ -1389,12 +1389,12 @@ export class Scroller implements IScroller {
             this._tweenChange.setTo(s_endPos.x - this._tweenStart.x, s_endPos.y - this._tweenStart.y);
             if (this._tweenChange.x < -UIConfig2.touchDragSensitivity || this._tweenChange.y < -UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEvent.pull_down_release);
+                this._owner.event(UIEvent.PullDownRelease);
                 this._refreshEventDispatching = false;
             }
             else if (this._tweenChange.x > UIConfig2.touchDragSensitivity || this._tweenChange.y > UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEvent.pull_up_release);
+                this._owner.event(UIEvent.PullUpRelease);
                 this._refreshEventDispatching = false;
             }
 
@@ -1755,7 +1755,7 @@ export class Scroller implements IScroller {
         if (this._tweening == 1) //取消类型为1的tween需立刻设置到终点
         {
             this._container.pos(this._tweenStart.x + this._tweenChange.x, this._tweenStart.y + this._tweenChange.y);
-            this._owner.event(UIEvent.scroll);
+            this._owner.event(UIEvent.Scroll);
         }
 
         this._tweening = 0;
@@ -1763,7 +1763,7 @@ export class Scroller implements IScroller {
 
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEvent.scroll_end);
+        this._owner.event(UIEvent.ScrollEnd);
     }
 
     private checkRefreshBar(): void {
@@ -1836,13 +1836,13 @@ export class Scroller implements IScroller {
             this.updateScrollBarPos();
             this._updateScrollBarVisible();
 
-            this._owner.event(UIEvent.scroll);
-            this._owner.event(UIEvent.scroll_end);
+            this._owner.event(UIEvent.Scroll);
+            this._owner.event(UIEvent.ScrollEnd);
 
         }
         else {
             this.updateScrollBarPos();
-            this._owner.event(UIEvent.scroll);
+            this._owner.event(UIEvent.Scroll);
         }
     }
 

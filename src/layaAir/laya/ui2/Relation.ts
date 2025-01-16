@@ -107,14 +107,14 @@ export class Relation {
         t.on(Event.MOVED, this, this.posChanged);
         t.on(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            t.on(UIEvent.instance_reload, this, this.instReload);
+            t.on(UIEvent.InstanceReload, this, this.instReload);
     }
 
     private unsetTarget(): void {
         this._target.off(Event.MOVED, this, this.posChanged);
         this._target.off(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            this._target.off(UIEvent.instance_reload, this, this.instReload);
+            this._target.off(UIEvent.InstanceReload, this, this.instReload);
     }
 
     public applyOnSelfResized(): void {

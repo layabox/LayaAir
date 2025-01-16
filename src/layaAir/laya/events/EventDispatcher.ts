@@ -40,10 +40,12 @@ export class EventDispatcher {
      * @en Dispatch an event.
      * @param type The type of event.
      * @param data (Optional) Data to pass to the callback. If multiple parameters p1, p2, p3, ... need to be passed, use an array structure such as [p1, p2, p3, ...]. If a single parameter p needs to be passed and p is an array, use a structure such as [p]. For other single parameters p, you can directly pass parameter p.
+     * If data is Event.EMPTY, it means passing an Event object to the callback function. Note that it is not passing Event.TEMP, but an independent Event object.
      * @returns True if there are listeners for this event type, false otherwise.
      * @zh 派发事件。
      * @param type 事件类型。
      * @param data （可选）回调数据。<b>注意：</b>如果是需要传递多个参数 p1,p2,p3,...可以使用数组结构如：[p1,p2,p3,...] ；如果需要回调单个参数 p ，且 p 是一个数组，则需要使用结构如：[p]，其他的单个参数 p ，可以直接传入参数 p。
+     * 特别的，如果data是Event.EMPTY，则表示传递一个Event对象给回调函数，注意，并不是传递Event.TEMP，而是一个独立的Event对象。
      * @returns 此事件类型是否有侦听者，如果有侦听者则值为 true，否则值为 false。
      */
     event(type: string, data?: any): boolean {
