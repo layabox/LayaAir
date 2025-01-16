@@ -12,6 +12,7 @@ import { SubMesh } from "../../d3/resource/models/SubMesh";
 import { Node } from "../../display/Node";
 import { rotationTo } from "../../IK/IK_Utils";
 import { Keyframe } from "../../maths/Keyframe";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
 import { Vector3 } from "../../maths/Vector3";
@@ -47,7 +48,7 @@ export function mmdToMesh(info: PmxObject): Mesh {
             let curVert = vertices[i];
             let x = curVert.position[0];
             let y = curVert.position[1];
-            let z = curVert.position[2];
+            let z = -curVert.position[2];
             if (x < minx) minx = x; if (x > maxx) maxx = x;
             if (y < miny) miny = y; if (y > maxy) maxy = y;
             if (z < minz) minz = z; if (z > maxz) maxz = z;
@@ -60,7 +61,7 @@ export function mmdToMesh(info: PmxObject): Mesh {
             // 读取法线
             floatArray[curFloat+3] = curVert.normal[0];
             floatArray[curFloat+4] = curVert.normal[1];
-            floatArray[curFloat+5] = curVert.normal[2];
+            floatArray[curFloat+5] = -curVert.normal[2];
 
             // 读取UV
             floatArray[curFloat+6] = curVert.uv[0];
@@ -146,8 +147,8 @@ export function mmdToMesh(info: PmxObject): Mesh {
     const indices = info.indices;
     for (let i = 0; i < indexCount; i+=3) {
         indexData[i] = indices[i];
-        indexData[i+1] = indices[i+2];
-        indexData[i+2] = indices[i+1];
+        indexData[i+1] = indices[i+1];
+        indexData[i+2] = indices[i+2];
     }
 
     const indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, true);
@@ -182,6 +183,12 @@ class MyVector3Keyframe extends Vector3Keyframe{
         if(inTangent) inTangent.cloneTo(this.inTangent);
         if(outTangent) outTangent.cloneTo(this.outTangent);
     }
+    addInitPos(pos:Vector3){
+        this.value.vadd(pos,this.value);
+    }
+    addInitRot(q:Quaternion){
+
+    }
 }
 
 class MyQuaternionKeyframe extends QuaternionKeyframe{
@@ -192,6 +199,11 @@ class MyQuaternionKeyframe extends QuaternionKeyframe{
         if(inTangent) inTangent.cloneTo(this.inTangent);
         if(outTangent) outTangent.cloneTo(this.outTangent);
     }
+    addInitPos(pos:Vector3){
+    }
+    addInitRot(q:Quaternion){
+        Quaternion.multiply(this.value, q,this.value);
+    }    
 }
 
 class MyKeyFrameNode extends KeyframeNode{
@@ -287,7 +299,7 @@ export class MMDSprite extends Sprite3D{
         let mesh =  mmdToMesh(data);
         let meshSprite = new MeshSprite3D(mesh);
         this.renderSprite = meshSprite;
-        //this.addChild(meshSprite);
+        this.addChild(meshSprite);
         let bones = mmdToSkeleton(data);
         this.skeleton = bones;
         this.addChild(bones.root);
@@ -296,7 +308,7 @@ export class MMDSprite extends Sprite3D{
     //vmd中的节点目前还没有层次结构，要根据实际的结构修改一下
     linkAnim(clip:AnimationClip){
         let nodecnt =  clip._nodes.count;
-        let rootname = this._children[0].name;
+        let rootname = this.skeleton.root.name;
         for(let i=0; i<nodecnt; i++){
             let n = clip._nodes.getNodeByIndex(i) as MyKeyFrameNode;
             let name = n.getOwnerPathByIndex(0);
@@ -304,6 +316,15 @@ export class MMDSprite extends Sprite3D{
             let ownerpath:string[]=[];
             this._getBonePath(bone,rootname,ownerpath);
             n.setProp(ownerpath,[n.propertyOwner].concat((n as any)._propertys));
+            //修改动画信息，把关键帧中的旋转和平移都加上初始姿态
+            let initRot = bone.transform.localRotation;
+            let initPos = bone.transform.localPosition;
+            let frms = n.keyFramesCount;
+            for(let f=0; f<frms; f++){
+                let keyf = n.getKeyframeByIndex(f) as any;
+                keyf.addInitPos(initPos);
+                keyf.addInitRot(initRot);
+            }
         }
         return clip;
     }
@@ -341,6 +362,7 @@ export function mmdToSkeleton(data:PmxObject){
         let spTran = spTrans[i] = {pos:new Vector3, rot:new Quaternion};
         //根据tailPosition计算全局朝向
         myPos.fromArray(bone.position);
+        myPos.z=-myPos.z;
         switch(typeof bone.tailPosition){
             case 'number':{
                 let tailid = bone.tailPosition;
@@ -371,6 +393,7 @@ export function mmdToSkeleton(data:PmxObject){
 
         //计算全局朝向
         if(hasTailPos){
+            tailPos.z=-tailPos.z;
             tailPos.vsub(myPos,dPos);
             let length = dPos.length();
             sp.boneLength = length;
@@ -477,7 +500,7 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
         let keys =[];
         for(let f =0; f<frmcnt; f++){
             keys.push( new MyQuaternionKeyframe( cur.frameNumbers[f]/FPS, new Quaternion(
-                cur.rotations[f*4],cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
+                -cur.rotations[f*4],-cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
             )));
         }
         node.setKeyframes(keys);
@@ -488,12 +511,10 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
     let posTracks = vmddata.movableBoneTracks;
     for(let i=0,n=posTracks.length; i<n; i++){
         let cur = posTracks[i];
-        cur.rotations;
-        cur.positions;
         if(cur.rotations.length/4!=cur.positions.length/3){
             debugger;
         }
-        
+              
         let noder = new MyKeyFrameNode(KeyFrameValueType.Rotation);
         noder.setProp([cur.name],['transform','localRotaion']);
         let nodep = new MyKeyFrameNode(KeyFrameValueType.Position);
@@ -505,12 +526,12 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
         for(let f =0; f<frmcnt; f++){
             if(cur.rotations[f*4]!=undefined){
                 keysr.push( new MyQuaternionKeyframe( cur.frameNumbers[f]/FPS, new Quaternion(
-                    cur.rotations[f*4],cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
+                    -cur.rotations[f*4],-cur.rotations[f*4+1],cur.rotations[f*4+2],cur.rotations[f*4+3]
                 )));
             }
             if(cur.positions[f*3]!=undefined){
                 keysp.push(new MyVector3Keyframe(cur.frameNumbers[f]/FPS, new Vector3(
-                    cur.positions[f*3],cur.positions[f*3+1],cur.positions[f*3+2]
+                    cur.positions[f*3],cur.positions[f*3+1],-cur.positions[f*3+2]
                 )));
             }
         }
@@ -526,3 +547,4 @@ export function vmdToLayaClip(vmddata:MmdAnimation){
 
     return clip;
 }
+
