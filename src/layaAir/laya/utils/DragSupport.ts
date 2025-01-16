@@ -5,7 +5,7 @@ import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "../../ILaya";
 import { Ease } from "../tween/Ease";
 import { Tween } from "../tween/Tween";
-import { InputManager } from "../events/InputManager";
+import { Browser } from "./Browser";
 
 /**
  * @en The `DragSupport` class is a touch sliding control.
@@ -59,18 +59,14 @@ export class DragSupport {
     private _touchId: number;
     private _elasticRateX: number;
     private _elasticRateY: number;
-    private _lastX: number;
-    private _lastY: number;
-    private _offsetX: number;
-    private _offsetY: number;
-    private _offsets: number[];
+    private _points: number[];
     private _tween: Tween;
     private _data: any;
 
     constructor(owner: Sprite) {
         this.target = owner;
         this.area = new Rectangle();
-        this._offsets = [];
+        this._points = [];
 
         this.target.on(Event.MOUSE_DOWN, this, this.onMouseDown);
         this.target.on(Event.MOUSE_DRAG, this, this.onMouseDrag);
@@ -94,9 +90,9 @@ export class DragSupport {
         this._dragging = true;
         this._testing = false;
         this._elasticRateX = this._elasticRateY = 1;
-        this._lastX = this.target._parent.mouseX;
-        this._lastY = this.target._parent.mouseY;
-        this._offsets.length = 0;
+        let pt = this.target._parent.getMousePoint();
+        this._points.length = 0;
+        this._points.push(pt.x, pt.y, Browser.now());
         this._data = data;
     }
 
@@ -148,8 +144,8 @@ export class DragSupport {
         let point: Point = this.target._parent.getMousePoint();
         let mouseX: number = point.x;
         let mouseY: number = point.y;
-        let offsetX: number = mouseX - this._lastX;
-        let offsetY: number = mouseY - this._lastY;
+        let offsetX: number = mouseX - this._points[this._points.length - 3];
+        let offsetY: number = mouseY - this._points[this._points.length - 2];
 
         if (this._testing) {
             if (Math.abs(offsetX * ILaya.stage._canvasTransform.getScaleX()) < 1 && Math.abs(offsetY * ILaya.stage._canvasTransform.getScaleY()) < 1)
@@ -163,11 +159,12 @@ export class DragSupport {
             this._testing = false;
         }
 
-        this._offsets.push(offsetX, offsetY);
-        this._lastX = mouseX;
-        this._lastY = mouseY;
-        this.moveTarget(offsetX * this._elasticRateX, offsetY * this._elasticRateY);
+        let now = Browser.now();
+        while (this._points.length > 0 && this._points[2] < now - 100)
+            this._points.splice(0, 3);
+        this._points.push(mouseX, mouseY, now);
 
+        this.moveTarget(offsetX * this._elasticRateX, offsetY * this._elasticRateY);
         this.target.event(Event.DRAG_MOVE, this._data);
     }
 
@@ -181,27 +178,9 @@ export class DragSupport {
             return;
 
         if (this.hasInertia) {
-            //计算平均值
-            if (this._offsets.length < 1) {
-                this._offsets.push(this.target._parent.mouseX - this._lastX, this.target._parent.mouseY - this._lastY);
-            }
-
-            this._offsetX = this._offsetY = 0;
-            let len: number = this._offsets.length;
-            let n: number = Math.min(len, 6);
-            let m: number = this._offsets.length - n;
-            for (let i: number = len - 1; i > m; i--) {
-                this._offsetY += this._offsets[i--];
-                this._offsetX += this._offsets[i];
-            }
-
-            this._offsetX = this._offsetX / n * 2;
-            this._offsetY = this._offsetY / n * 2;
-
-            if (Math.abs(this._offsetX) > this.maxOffset)
-                this._offsetX = this._offsetX > 0 ? this.maxOffset : -this.maxOffset;
-            if (Math.abs(this._offsetY) > this.maxOffset)
-                this._offsetY = this._offsetY > 0 ? this.maxOffset : -this.maxOffset;
+            let v = DragSupport.computeVelocity(this._points, this.maxOffset);
+            this._points[0] = v.x;
+            this._points[1] = v.y;
             ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 
         } else if (!this.area.isEmpty() && this.elasticDistance > 0) {
@@ -274,19 +253,32 @@ export class DragSupport {
     }
 
     private tweenMove(): void {
-        this._offsetX *= this.ratio * this._elasticRateX;
-        this._offsetY *= this.ratio * this._elasticRateY;
+        let n = Math.pow(this.ratio, ILaya.timer.delta / 16.6);
+        let s = this.ratio * (1 - n) / (1 - this.ratio); //  S = r(1-rⁿ)/(1-r), r is this.ratio
+        let dx = this._points[0] * s * this._elasticRateX;
+        let dy = this._points[1] * s * this._elasticRateY;
+        if (dx < 0)
+            dx = Math.ceil(dx);
+        else
+            dx = Math.floor(dx);
+        if (dy < 0)
+            dy = Math.ceil(dy);
+        else
+            dy = Math.floor(dy);
+        this._points[0] *= n * this._elasticRateX;
+        this._points[1] *= n * this._elasticRateY;
 
-        this.moveTarget(this._offsetX, this._offsetY);
-
-        this.target.event(Event.DRAG_MOVE, this._data);
-
-        if ((Math.abs(this._offsetX) < 1 && Math.abs(this._offsetY) < 1) || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1 || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
             ILaya.systemTimer.clear(this, this.tweenMove);
             if (!this.area.isEmpty() && this.elasticDistance > 0)
                 this.checkElastic();
             else
                 this.clear();
+        }
+        else {
+            this.moveTarget(dx, dy);
+
+            this.target.event(Event.DRAG_MOVE, this._data);
         }
     }
 
@@ -295,5 +287,45 @@ export class DragSupport {
         this.reset();
         this.target.event(Event.DRAG_END, d);
     }
+
+    /**
+     * 
+     * @param points 
+     * @param max 
+     * @returns 
+     */
+    static computeVelocity(points: Array<number>, max?: number): Readonly<Point> {
+        let now = Browser.now();
+        while (points.length > 0 && points[2] < now - 100)
+            points.splice(0, 3);
+
+        let len = points.length / 3;
+        let x = 0, y = 0;
+        let t = 0;
+        for (let i = 1; i < len; i++) {
+            x += points[i * 3] - points[i * 3 - 3];
+            y += points[i * 3 + 1] - points[i * 3 - 2];
+            t += points[i * 3 + 2] - points[i * 3 - 1];
+        }
+
+        if (t != 0) {
+            t = t / 16.6; //16.6 is 1000/60
+            x = x / t;
+            y = y / t;
+        }
+        else
+            x = y = 0;
+
+        if (max != null) {
+            if (Math.abs(x) > max)
+                x = x > 0 ? max : -max;
+            if (Math.abs(y) > max)
+                y = y > 0 ? max : -max;
+        }
+
+        _velocity.setTo(x, y);
+        return _velocity;
+    }
 }
 
+const _velocity = new Point();
