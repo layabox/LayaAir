@@ -23,7 +23,6 @@ import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTexture } from "./laya/d3/graphics/Vertex/VertexPositionTexture";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
-import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
@@ -137,7 +136,6 @@ export class Laya3D {
         ColorGradEffect.init();
         LensFlareEffect.init();
 
-        Mesh.__init__();
         PrimitiveMesh.__init__();
         Sprite3D.__init__();
         RenderableSprite3D.__init__();

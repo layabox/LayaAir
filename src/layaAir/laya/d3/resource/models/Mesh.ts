@@ -56,12 +56,6 @@ export class Mesh extends Resource implements IClone {
     _triangleMesh: any;
     /**@internal */
     __convexMesh: Mesh;
-    /**
-      * @internal
-      */
-    static __init__(): void {
-    }
-
 
     /**
      * @en Loads a mesh template from the specified URL and calls the complete callback upon completion.
