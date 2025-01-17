@@ -134,6 +134,8 @@ export class SpineMeshUtils {
     static _updateSpineSubMesh(mesh: Mesh2D, frameData: FrameRenderData): boolean {
         let subMeshCount = mesh.subMeshCount;
         let mulitRenderData = frameData.mulitRenderData;
+        //没有渲染变化
+        if (!mulitRenderData) return false;
         let renderdata = mulitRenderData.renderData;
         let rdLength = renderdata.length;
         let needUpdate = subMeshCount != rdLength;
