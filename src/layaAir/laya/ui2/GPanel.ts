@@ -14,11 +14,9 @@ export class GPanel extends GBox {
     private _clipping: boolean;
     private _scroller: IScroller;
     private _cachedScrollRect: Rectangle;
+    private _maskContainer: Sprite;
 
     protected _selection: ISelection;
-
-    _container: Sprite;
-    _maskContainer: Sprite;
 
     constructor(layoutClass?: new (...args: any[]) => ILayout, selectionClass?: new (...args: any[]) => ISelection) {
         super(layoutClass);
@@ -28,12 +26,12 @@ export class GPanel extends GBox {
         this._maskContainer.hideFlags |= HideFlags.HideAndDontSave;
         this.addChild(this._maskContainer);
 
-        this._container = new PanelContainer();
-        this._container.mouseThrough = true;
-        this._container.hideFlags |= HideFlags.HideAndDontSave;
-        this._maskContainer.addChild(this._container);
+        let container = new PanelContainer();
+        container.mouseThrough = true;
+        container.hideFlags |= HideFlags.HideAndDontSave;
+        this._maskContainer.addChild(container);
 
-        this._setContainer(this._container);
+        this._setContainer(container);
 
         this._selection = new (selectionClass || Selection)(this);
         this.clipping = true;

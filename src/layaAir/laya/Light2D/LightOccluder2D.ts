@@ -1,5 +1,4 @@
 import { Component } from "../components/Component";
-import { NodeFlags } from "../Const";
 import { Event } from "../events/Event";
 import { Sprite } from "../display/Sprite";
 import { Light2DManager } from "./Light2DManager";

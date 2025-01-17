@@ -46,10 +46,16 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         meshArrayDefine.length = 0;
         if (value) {
-            VertexMesh2D.getMeshDefine(value, meshArrayDefine);
-            for (var i: number = 0, n: number = meshArrayDefine.length; i < n; i++)
-                this._spriteShaderData.addDefine(meshArrayDefine[i]);
-            value._addReference();
+            if (!value._vertexBuffers) {
+                value = null;
+                console.warn("not a 2D mesh");
+            }
+            else {
+                VertexMesh2D.getMeshDefine(value, meshArrayDefine);
+                for (var i: number = 0, n: number = meshArrayDefine.length; i < n; i++)
+                    this._spriteShaderData.addDefine(meshArrayDefine[i]);
+                value._addReference();
+            }
         }
         this._sharedMesh = value;
         this._changeMesh();

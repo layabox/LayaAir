@@ -324,12 +324,16 @@ export class Layout implements ILayout {
     }
 
     public refresh(force?: boolean) {
-        if (force) {
-            if (!this._layoutChanged) this._childSizeChangedFlag = true;
-            this._layoutChanged = true;
+        if (this._owner.destroyed || this._disabled) {
+            this._layoutChanged = false;
+            return;
         }
 
-        if (!this._layoutChanged || this._owner.destroyed || this._disabled || this._refreshing)
+        if (force) {
+            if (!this._layoutChanged)
+                this._childSizeChangedFlag = true;
+        }
+        else if (!this._layoutChanged || this._refreshing)
             return;
 
         this._refreshing = true;
@@ -412,7 +416,7 @@ export class Layout implements ILayout {
 
         (<GPanel>this._owner).scroller?._ownerContentSizeChanged();
 
-        this._owner.event(UIEvent.content_size_changed);
+        this._owner.event(UIEvent.ContentSizeChanged);
     }
 
     public resizeToFit(childCount?: number, minSize?: number): void {

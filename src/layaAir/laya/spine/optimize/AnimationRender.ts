@@ -9,13 +9,13 @@ import { SpineMeshUtils } from "../mesh/SpineMeshUtils";
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
 import { MultiRenderData } from "./MultiRenderData";
+import { SketonOptimise } from "./SketonOptimise";
 import { VBCreator } from "./VBCreator";
 import { ChangeDeform } from "./change/ChangeDeform";
 import { ChangeDrawOrder } from "./change/ChangeDrawOrder";
 import { ChangeRGBA } from "./change/ChangeRGBA";
 import { ChangeSlot } from "./change/ChangeSlot";
 import { IChange } from "./interface/IChange";
-import { IPreRender } from "./interface/IPreRender";
 import { IVBChange } from "./interface/IVBChange";
 
 export type FrameRenderData = {
@@ -149,7 +149,7 @@ export class AnimationRender {
      * @zh 缓存动画的骨骼变换。
      * @param preRender 用于缓存的预渲染器。
      */
-    cacheBones(preRender: IPreRender) {
+    cacheBones(preRender: SketonOptimise) {
         let duration = preRender._play(this.name);
         let totalFrame = Math.round(duration / step) || 1;
         for (let i = 0; i <= totalFrame; i++) {
@@ -172,7 +172,7 @@ export class AnimationRender {
      * @param animation 要检查的spine动画。
      * @param preRender 要使用的预渲染器。
      */
-    check(animation: spine.Animation, preRender: IPreRender) {
+    check(animation: spine.Animation, preRender: SketonOptimise) {
         this.name = animation.name;
 
         let timeline = animation.timelines;

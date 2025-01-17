@@ -145,7 +145,7 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         let rigidbody: RigidBody = this.curTarget.getComponent(RigidBody);
         rigidbody.type = "dynamic";
-        rigidbody.linearVelocity = [this.preMovementX, this.preMovementY];
+        rigidbody.linearVelocity = { x: this.preMovementX, y: this.preMovementY };
         this.curTarget = null;
     }
 

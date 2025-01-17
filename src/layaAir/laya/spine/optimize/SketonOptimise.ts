@@ -1,28 +1,21 @@
-import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
-import { Graphics } from "../../display/Graphics";
-import { Mesh2D } from "../../resource/Mesh2D";
 import { Texture2D } from "../../resource/Texture2D";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderType } from "../SpineSkeleton";
 import { SpineTemplet } from "../SpineTemplet";
-import { AnimationRender, FrameRenderData } from "./AnimationRender";
+import { AnimationRender } from "./AnimationRender";
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "./IBCreator";
-import { MultiRenderData } from "./MultiRenderData";
 import { SlotUtils } from "./SlotUtils";
 import { SpineNormalRender } from "./SpineNormalRender";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
-import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 /**
  * @en SketonOptimise class used for skeleton optimization.
  * @zh SketonOptimise 类用于骨骼优化。
  */
-export class SketonOptimise implements IPreRender {
+export class SketonOptimise {
     /**
      * @en Switch for normal rendering mode.
      * @zh 普通渲染模式的开关。
@@ -37,6 +30,7 @@ export class SketonOptimise implements IPreRender {
      * @zh 缓存模式的开关。
      */
     static cacheSwitch: boolean = false;
+
     /**
      * @en Indicates whether caching is possible.
      * @zh 表示是否可以缓存。
@@ -141,13 +135,14 @@ export class SketonOptimise implements IPreRender {
      * @zh 检查并初始化主附件。
      * @param skeletonData 要检查的骨骼数据。
      */
-    checkMainAttach(skeletonData: spine.SkeletonData) {
+    checkMainAttach(skeletonData: spine.SkeletonData ) {
         // return;
-        this.sketon = new window.spine.Skeleton(skeletonData);
+        this.sketon = new spine.Skeleton(skeletonData);
         //@ts-ignore
-        this._stateData = new window.spine.AnimationStateData(this.sketon.data);
+        this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类
-        this._state = new window.spine.AnimationState(this._stateData);
+        this._state = new spine.AnimationState(this._stateData);
+
         this.attachMentParse(skeletonData);
         this.initAnimation(skeletonData.animations);
     }
@@ -173,7 +168,7 @@ export class SketonOptimise implements IPreRender {
             if (i != 0) {
                 skinAttach.copyFrom(defaultSkinAttach);
             }
-            skinAttach.attachMentParse(skin, slots);
+            skinAttach.attachMentParse( skin , slots );
             this.skinAttachArray.push(skinAttach);
             // if (i != 0) {
             //     defaultSkinAttach.mainVB._cloneBones(skinAttach.mainVB)
@@ -358,7 +353,6 @@ export class SkinAttach {
      * @param slots spine插槽数据数组。
      */
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
-        
         let type: ESpineRenderType = ESpineRenderType.rigidBody;
         let vertexBones = 0;
         let attachments = skinData.attachments;
@@ -381,7 +375,7 @@ export class SkinAttach {
                     let attach = attachment[key];
                     let deform = null;//slot.deform; TODO
                     let parse = new AttachmentParse();
-                    
+
                     parse.init(attach, boneIndex, i, deform, slot);
                     // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones , parse.vertexBones);
@@ -398,6 +392,11 @@ export class SkinAttach {
                 if (parse) {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
+                    vertexBones = Math.max(vertexBones , parse.vertexBones);
+                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    if (tempType < type) {
+                        type = tempType;
+                    }
                 }
             }
 

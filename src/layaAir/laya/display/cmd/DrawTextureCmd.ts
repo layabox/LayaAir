@@ -101,20 +101,17 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @param uv UV坐标
      * @returns DrawTextureCmd实例
      */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[], percent?: boolean): DrawTextureCmd {
-        if (width == null) width = texture.sourceWidth;
-        if (height == null) height = texture.sourceHeight;
-
-        var cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
+    static create(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string, uv?: number[], percent?: boolean): DrawTextureCmd {
+        let cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
         cmd.texture = texture;
-        texture._addReference();
-        cmd.x = x;
-        cmd.y = y;
-        cmd.width = width;
-        cmd.height = height;
+        texture && texture._addReference();
+        cmd.x = x ?? 0;
+        cmd.y = y ?? 0;
+        cmd.width = width ?? texture.sourceWidth;
+        cmd.height = height ?? texture.sourceHeight;
         cmd.percent = percent;
         cmd.matrix = matrix;
-        cmd.alpha = alpha;
+        cmd.alpha = alpha ?? 1;
         cmd.blendMode = blendMode;
         cmd.uv = uv || null;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;

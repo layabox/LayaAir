@@ -2,6 +2,8 @@ import { GWidget } from "./GWidget";
 import { Input } from "../display/Input";
 import { HideFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
+import { Event } from "../events/Event";
+import { UIEvent } from "./UIEvent";
 
 export class GTextInput extends GWidget {
     readonly textIns: Input;
@@ -14,6 +16,7 @@ export class GTextInput extends GWidget {
         this.textIns.overflow = "hidden";
         this.textIns.wordWrap = true;
         this.textIns.padding.fill(2);
+        this.textIns.on(Event.KEY_DOWN, this, this._onKeyDown);
         this.addChild(this.textIns);
     }
 
@@ -363,6 +366,13 @@ export class GTextInput extends GWidget {
         super._transChanged(kind);
         if ((kind & TransformKind.Size) != 0) {
             this.textIns.size(this.width, this.height);
+        }
+    }
+
+    private _onKeyDown(evt: Event): void {
+        if (!this.multiline && evt.key == "Enter") {
+            this.event(UIEvent.Submit);
+            evt.preventDefault();
         }
     }
 }

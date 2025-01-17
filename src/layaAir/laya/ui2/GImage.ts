@@ -3,24 +3,24 @@ import { LayaEnv } from "../../LayaEnv";
 import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { FillTextureCmd } from "../display/cmd/FillTextureCmd";
-import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Texture } from "../resource/Texture";
 import { GWidget } from "./GWidget";
 
 export class GImage extends GWidget {
     private _src: string = "";
-    private _source: Texture;
+    private _tex: Texture;
     private _autoSize: boolean;
     private _isChanged: boolean;
     private _color: string;
     private _tile: boolean;
     private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd | FillTextureCmd;
+    private _loadID: number = 0;
 
     constructor() {
         super();
 
-        this._color = "#FFFFFF";
+        this._color = "#ffffff";
         this._tile = false;
         this._autoSize = true;
     }
@@ -34,20 +34,20 @@ export class GImage extends GWidget {
             return;
 
         this._src = value;
+        let loadID = ++this._loadID;
         if (value)
-            ILaya.loader.load(value).then(res => this.onLoad(res, value));
+            ILaya.loader.load(value).then(res => this.onLoad(res, loadID));
         else
-            this.onLoad(null, value);
+            this.onLoad(null, loadID);
     }
 
     public get texture(): Texture {
-        return this._source;
+        return this._tex;
     }
 
     public set texture(value: Texture) {
         this._src = "";
-        this._source = value;
-        this.onLoad(value, "");
+        this.onLoad(value, ++this._loadID);
     }
 
     public get icon(): string {
@@ -68,8 +68,8 @@ export class GImage extends GWidget {
 
     set autoSize(value: boolean) {
         if (this._autoSize != value) {
-            if (value && this._source)
-                this.size(this._source.sourceWidth, this._source.sourceHeight);
+            if (value && this._tex)
+                this.size(this._tex.sourceWidth, this._tex.sourceHeight);
             this._autoSize = value; //放最后，因为size会改变autoSize的值
         }
     }
@@ -100,24 +100,19 @@ export class GImage extends GWidget {
         }
     }
 
-    protected onLoad(res: Texture, src: string) {
-        if (src != this._src)
+    protected onLoad(res: Texture, loadID: number) {
+        if (this._loadID != loadID)
             return;
 
-        if (res && !LayaEnv.isPlaying)
-            res.off("reload", this, this._onTextureReload);
-        this._source = res;
+        if (this._tex && !LayaEnv.isPlaying)
+            this._tex.off("reload", this, this._onTextureReload);
+        this._tex = res;
         if (res) {
             this._setChanged();
             if (!LayaEnv.isPlaying)
                 res.on("reload", this, this._onTextureReload);
         } else {
-            this._source = null;
-            if (this._drawCmd) {
-                this.graphics.removeCmd(this._drawCmd);
-                this._drawCmd.recover();
-                this._drawCmd = null;
-            }
+            this._drawCmd = this.graphics.replaceCmd(this._drawCmd, null, true);
         }
 
         if (this._autoSize) {
@@ -131,12 +126,11 @@ export class GImage extends GWidget {
 
     private _onTextureReload() {
         if (this._autoSize) {
-            let tex = this._source;
+            let tex = this._tex;
             this.size(tex.width, tex.height);
             this._autoSize = true;
         }
         this._setChanged();
-        this.event(Event.CHANGED);
     }
 
     protected _setChanged(): void {
@@ -148,7 +142,7 @@ export class GImage extends GWidget {
 
     protected changeSource(): void {
         this._isChanged = false;
-        let source = this._source;
+        let source = this._tex;
         if (!source || !source.bitmap || this._destroyed)
             return;
 
@@ -158,11 +152,6 @@ export class GImage extends GWidget {
         let sh = source.sourceHeight;
 
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
-        if (this._drawCmd) {
-            this.graphics.removeCmd(this._drawCmd);
-            this._drawCmd.recover();
-        }
-
         let cmd: any;
         if (!source._sizeGrid || (sw === width && sh === height)) {
             if (this._tile)
@@ -172,8 +161,8 @@ export class GImage extends GWidget {
         }
         else
             cmd = Draw9GridTextureCmd.create(source, 0, 0, 1, 1, source._sizeGrid, true, this._color);
-        this._drawCmd = cmd;
-        this.graphics.addCmd(cmd);
+
+        this._drawCmd = this.graphics.replaceCmd(this._drawCmd, cmd, true);
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {
@@ -183,5 +172,13 @@ export class GImage extends GWidget {
             this._autoSize = false;
 
         this._setChanged();
+    }
+
+    destroy(): void {
+        super.destroy();
+        if (this._tex && !LayaEnv.isPlaying) {
+            this._tex.off("reload", this, this._onTextureReload);
+            this._tex = null;
+        }
     }
 }

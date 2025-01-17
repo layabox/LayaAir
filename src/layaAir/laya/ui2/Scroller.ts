@@ -14,7 +14,6 @@ import { Tween } from "../tween/Tween";
 import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { LayoutType, PageMode, ScrollBarDisplay, ScrollBounceBackEffect, ScrollDirection, ScrollTouchEffect } from "./Const";
-import { DragSupport } from "./DragSupport";
 import { IScroller } from "./IScroller";
 import type { GPanel } from "./GPanel";
 import type { GScrollBar } from "./GScrollBar";
@@ -23,6 +22,7 @@ import { GWidget } from "./GWidget";
 import { ILayout } from "./layout/ILayout";
 import { ListLayout } from "./layout/ListLayout";
 import { UIEvent } from "./UIEvent";
+import { DragSupport } from "../utils/DragSupport";
 
 type AxisType = "x" | "y";
 
@@ -81,11 +81,7 @@ export class Scroller implements IScroller {
     private _pageSize: Point;
     private _containerPos: Point;
     private _beginTouchPos: Point;
-    private _lastTouchPos: Point;
-    private _lastTouchGlobalPos: Point;
-    private _velocity: Point;
-    private _velocityScale: number = 0;
-    private _lastMoveTime: number = 0;
+    private _slidingPoints: Array<number>;
     private _isHoldAreaDone: boolean;
     private _aniFlag: number = 0;
     private _loop: number = 0;
@@ -117,11 +113,9 @@ export class Scroller implements IScroller {
         this._tweenStart = new Point();
         this._tweenDuration = new Point();
         this._tweenChange = new Point();
-        this._velocity = new Point();
+        this._slidingPoints = [];
         this._containerPos = new Point();
         this._beginTouchPos = new Point();
-        this._lastTouchPos = new Point();
-        this._lastTouchGlobalPos = new Point();
         this._cachedScrollRect = new Rectangle();
         this._step = UIConfig2.defaultScrollStep;
         this._decelerationRate = UIConfig2.defaultScrollDecelerationRate;
@@ -170,8 +164,8 @@ export class Scroller implements IScroller {
 
         if (value) {
             this._layout = value.layout;
-            this._maskContainer = value._maskContainer;
-            this._container = value._container;
+            this._container = <Sprite>value._$container;
+            this._maskContainer = this._container.parent;
             this._container.pos(0, 0);
 
             if (!SerializeUtil.isDeserializing) {
@@ -608,8 +602,8 @@ export class Scroller implements IScroller {
     }
 
     private getRect(target: GWidget, rect: Rectangle) {
-        if (target.parent != this._owner)
-            SpriteUtils.transformRect(target.parent, rect.setTo(target.x, target.y, target.width, target.height), this._owner);
+        if (target._parent != this._owner._$container)
+            SpriteUtils.transformRect(target._parent, rect.setTo(target.x, target.y, target.width, target.height), <Sprite>this._owner._$container);
         else
             rect.setTo(target.x, target.y, target.width, target.height);
         return rect;
@@ -1148,7 +1142,7 @@ export class Scroller implements IScroller {
 
         this.refresh2();
 
-        this._owner.event(UIEvent.scroll);
+        this._owner.event(UIEvent.Scroll);
         if (this._needRefresh) //在onScroll事件里开发者可能修改位置，这里再刷新一次，避免闪烁
         {
             this._needRefresh = false;
@@ -1213,28 +1207,27 @@ export class Scroller implements IScroller {
         else
             this._dragged = false;
 
-        let pt: Point = this._owner.globalToLocal(s_Point.copy(evt.touchPos));
+        let pt: Point = this._owner.parent.globalToLocal(s_Point.copy(evt.touchPos));
 
         this._containerPos.setTo(this._container.x, this._container.y);
         this._beginTouchPos.setTo(pt.x, pt.y);
-        this._lastTouchPos.setTo(pt.x, pt.y);
-        this._lastTouchGlobalPos.copy(evt.touchPos);
         this._isHoldAreaDone = false;
-        this._velocity.setTo(0, 0);
-        this._velocityScale = 1;
-        this._lastMoveTime = performance.now() / 1000;
+        this._slidingPoints.length = 0;
+        this._slidingPoints.push(pt.x, pt.y, Browser.now());
     }
 
     private _touchMove(evt: Event): void {
         if (!this._touchEffect || this.owner.destroyed)
             return;
 
-        if (Scroller.draggingInst && Scroller.draggingInst != this || DragSupport.draggingInst) //已经有其他拖动
+        if (Scroller.draggingInst && Scroller.draggingInst != this) //已经有其他拖动
             return;
 
         let sensitivity: number = UIConfig2.touchScrollSensitivity;
 
-        let pt: Point = this._owner.globalToLocal(s_Point.copy(evt.touchPos));
+        let pt: Point = this._owner.parent.globalToLocal(s_Point.copy(evt.touchPos));
+        let offsetX: number = pt.x - this._slidingPoints[this._slidingPoints.length - 3];
+        let offsetY: number = pt.y - this._slidingPoints[this._slidingPoints.length - 2];
 
         let diff: number;
         let sv: boolean, sh: boolean;
@@ -1244,13 +1237,13 @@ export class Scroller implements IScroller {
                 //表示正在监测垂直方向的手势
                 s_gestureFlag |= 1;
 
-                diff = Math.abs(this._beginTouchPos.y - pt.y);
+                diff = Math.abs(offsetY);
                 if (diff < sensitivity)
                     return;
 
                 if ((s_gestureFlag & 2) != 0) //已经有水平方向的手势在监测，那么我们用严格的方式检查是不是按垂直方向移动，避免冲突
                 {
-                    let diff2 = Math.abs(this._beginTouchPos.x - pt.x);
+                    let diff2 = Math.abs(offsetX);
                     if (diff < diff2) //不通过则不允许滚动了
                         return;
                 }
@@ -1262,12 +1255,12 @@ export class Scroller implements IScroller {
             if (!this._isHoldAreaDone) {
                 s_gestureFlag |= 2;
 
-                diff = Math.abs(this._beginTouchPos.x - pt.x);
+                diff = Math.abs(offsetX);
                 if (diff < sensitivity)
                     return;
 
                 if ((s_gestureFlag & 1) != 0) {
-                    let diff2 = Math.abs(this._beginTouchPos.y - pt.y);
+                    let diff2 = Math.abs(offsetY);
                     if (diff < diff2)
                         return;
                 }
@@ -1279,9 +1272,9 @@ export class Scroller implements IScroller {
             s_gestureFlag = 3;
 
             if (!this._isHoldAreaDone) {
-                diff = Math.abs(this._beginTouchPos.y - pt.y);
+                diff = Math.abs(offsetY);
                 if (diff < sensitivity) {
-                    diff = Math.abs(this._beginTouchPos.x - pt.x);
+                    diff = Math.abs(offsetX);
                     if (diff < sensitivity)
                         return;
                 }
@@ -1328,38 +1321,10 @@ export class Scroller implements IScroller {
         }
 
         //更新速度
-        let frameRate: number = 60;
-        let now: number = performance.now() / 1000;
-        let deltaTime: number = Math.max(now - this._lastMoveTime, 1 / frameRate);
-        let deltaPositionX: number = pt.x - this._lastTouchPos.x;
-        let deltaPositionY: number = pt.y - this._lastTouchPos.y;
-        if (!sh)
-            deltaPositionX = 0;
-        if (!sv)
-            deltaPositionY = 0;
-        if (deltaTime != 0) {
-            let elapsed: number = deltaTime * frameRate - 1;
-            if (elapsed > 1) {//速度衰减
-                let factor: number = Math.pow(0.833, elapsed);
-                this._velocity.x = this._velocity.x * factor;
-                this._velocity.y = this._velocity.y * factor;
-            }
-            this._velocity.x = MathUtil.lerp(this._velocity.x, deltaPositionX * 60 / frameRate / deltaTime, deltaTime * 10);
-            this._velocity.y = MathUtil.lerp(this._velocity.y, deltaPositionY * 60 / frameRate / deltaTime, deltaTime * 10);
-        }
-
-        /*速度计算使用的是本地位移，但在后续的惯性滚动判断中需要用到屏幕位移，所以这里要记录一个位移的比例。
-        */
-        let deltaGlobalPositionX: number = this._lastTouchGlobalPos.x - evt.touchPos.x;
-        let deltaGlobalPositionY: number = this._lastTouchGlobalPos.y - evt.touchPos.y;
-        if (deltaPositionX != 0)
-            this._velocityScale = Math.abs(deltaGlobalPositionX / deltaPositionX);
-        else if (deltaPositionY != 0)
-            this._velocityScale = Math.abs(deltaGlobalPositionY / deltaPositionY);
-
-        this._lastTouchPos.setTo(pt.x, pt.y);
-        this._lastTouchGlobalPos.copy(evt.touchPos);
-        this._lastMoveTime = now;
+        let now = Browser.now();
+        while (this._slidingPoints.length > 0 && this._slidingPoints[2] < now - 100)
+            this._slidingPoints.splice(0, 3);
+        this._slidingPoints.push(pt.x, pt.y, now);
 
         //同步更新pos值
         if (this._overlapSize.x > 0)
@@ -1384,7 +1349,7 @@ export class Scroller implements IScroller {
         this.updateScrollBarPos();
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEvent.scroll);
+        this._owner.event(UIEvent.Scroll);
     }
 
     private _touchEnd(): void {
@@ -1424,12 +1389,12 @@ export class Scroller implements IScroller {
             this._tweenChange.setTo(s_endPos.x - this._tweenStart.x, s_endPos.y - this._tweenStart.y);
             if (this._tweenChange.x < -UIConfig2.touchDragSensitivity || this._tweenChange.y < -UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEvent.pull_down_release);
+                this._owner.event(UIEvent.PullDownRelease);
                 this._refreshEventDispatching = false;
             }
             else if (this._tweenChange.x > UIConfig2.touchDragSensitivity || this._tweenChange.y > UIConfig2.touchDragSensitivity) {
                 this._refreshEventDispatching = true;
-                this._owner.event(UIEvent.pull_up_release);
+                this._owner.event(UIEvent.PullUpRelease);
                 this._refreshEventDispatching = false;
             }
 
@@ -1454,15 +1419,9 @@ export class Scroller implements IScroller {
         else {
             //更新速度
             if (!this._inertiaDisabled) {
-                let frameRate: number = 60;
-                let elapsed: number = (performance.now() / 1000 - this._lastMoveTime) * frameRate - 1;
-                if (elapsed > 1) {
-                    let factor: number = Math.pow(0.833, elapsed);
-                    this._velocity.x = this._velocity.x * factor;
-                    this._velocity.y = this._velocity.y * factor;
-                }
-                //根据速度计算目标位置和需要时间
-                this.updateTargetAndDuration(this._tweenStart, s_endPos);
+                let velocity = DragSupport.computeVelocity(this._slidingPoints);
+                this.updateTargetAndDuration(this._tweenStart, velocity, "x", s_endPos, this._tweenDuration);
+                this.updateTargetAndDuration(this._tweenStart, velocity, "y", s_endPos, this._tweenDuration);
             }
             else
                 this._tweenDuration.setTo(TWEEN_TIME_DEFAULT, TWEEN_TIME_DEFAULT);
@@ -1743,58 +1702,35 @@ export class Scroller implements IScroller {
         return pos;
     }
 
-    private updateTargetAndDuration(orignPos: Point, resultPos: Point): void {
-        resultPos.x = this.updateTargetAndDuration2(orignPos.x, "x");
-        resultPos.y = this.updateTargetAndDuration2(orignPos.y, "y");
-    }
-
-    private updateTargetAndDuration2(pos: number, axis: AxisType): number {
-        let v = this._velocity[axis];
-        let duration = 0;
-        if (pos > 0)
-            pos = 0;
-        else if (pos < -this._overlapSize[axis])
-            pos = -this._overlapSize[axis];
-        else {
-            //以屏幕像素为基准
-            let v2 = Math.abs(v) * this._velocityScale;
-            //在移动设备上，需要对不同分辨率做一个适配，我们的速度判断以1136分辨率为基准
-            if (Browser.isTouchDevice)
-                v2 *= 1136 / Math.max(window.screen.width, window.screen.height);
-            //这里有一些阈值的处理，因为在低速内，不希望产生较大的滚动（甚至不滚动）
-            let ratio = 0;
-            if (this._pageMode || !Browser.isTouchDevice) {
-                if (v2 > 500)
-                    ratio = Math.pow((v2 - 500) / 500, 2);
-            }
-            else {
-                if (v2 > 1000)
-                    ratio = Math.pow((v2 - 1000) / 1000, 2);
-            }
-            if (ratio != 0) {
-                if (ratio > 1)
-                    ratio = 1;
-
-                v2 *= ratio;
-                v *= ratio;
-                this._velocity[axis] = v;
-
-                //算法：v*（_decelerationRate的n次幂）= 60，即在n帧后速度降为60（假设每秒60帧）。
-                duration = Math.log(60 / v2) / Math.log(this._decelerationRate) / 60;
-
-                //计算距离要使用本地速度
-                //理论公式貌似滚动的距离不够，改为经验公式
-                //let change:number = (v/ 60 - 1) / (1 - this._decelerationRate);
-                let change = Math.floor(v * duration * 0.4);
-                pos += change;
-            }
+    private updateTargetAndDuration(start: Point, velocity: Point, axis: AxisType, outEnd: Point, outDuration: Point) {
+        let pos = start[axis];
+        let v = velocity[axis];
+        if (pos > 0 || this._overlapSize[axis] == 0) {
+            outEnd[axis] = 0;
+            outDuration[axis] = TWEEN_TIME_DEFAULT;
         }
-
-        if (duration < TWEEN_TIME_DEFAULT)
-            duration = TWEEN_TIME_DEFAULT;
-        this._tweenDuration[axis] = duration;
-
-        return pos;
+        else if (pos < -this._overlapSize[axis]) {
+            outEnd[axis] = -this._overlapSize[axis];
+            outDuration[axis] = TWEEN_TIME_DEFAULT;
+        }
+        else if (v != 0) {
+            let ratio = UIConfig2.defaultScrollDecelerationRate;
+            let tmp = Math.log(ratio);
+            let frames = -Math.log(Math.abs(v)) / tmp; //t = -ln(S)/ln(r)
+            let n = Math.pow(ratio, frames);
+            tmp = ratio * (1 - n) / (1 - ratio);
+            let change = v * tmp; //S = r(1-rⁿ)/(1-r)
+            if (Math.abs(change) <= 1) {
+                change = 0;
+                frames = 0;
+            }
+            outEnd[axis] = pos + change;
+            outDuration[axis] = frames * 0.0166;
+        }
+        else {
+            outEnd[axis] = pos;
+            outDuration[axis] = 0;
+        }
     }
 
     private fixDuration(axis: AxisType, oldChange: number): void {
@@ -1819,7 +1755,7 @@ export class Scroller implements IScroller {
         if (this._tweening == 1) //取消类型为1的tween需立刻设置到终点
         {
             this._container.pos(this._tweenStart.x + this._tweenChange.x, this._tweenStart.y + this._tweenChange.y);
-            this._owner.event(UIEvent.scroll);
+            this._owner.event(UIEvent.Scroll);
         }
 
         this._tweening = 0;
@@ -1827,7 +1763,7 @@ export class Scroller implements IScroller {
 
         this._updateScrollBarVisible();
 
-        this._owner.event(UIEvent.scroll_end);
+        this._owner.event(UIEvent.ScrollEnd);
     }
 
     private checkRefreshBar(): void {
@@ -1900,13 +1836,13 @@ export class Scroller implements IScroller {
             this.updateScrollBarPos();
             this._updateScrollBarVisible();
 
-            this._owner.event(UIEvent.scroll);
-            this._owner.event(UIEvent.scroll_end);
+            this._owner.event(UIEvent.Scroll);
+            this._owner.event(UIEvent.ScrollEnd);
 
         }
         else {
             this.updateScrollBarPos();
-            this._owner.event(UIEvent.scroll);
+            this._owner.event(UIEvent.Scroll);
         }
     }
 

@@ -7,6 +7,7 @@ import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { AtlasResource } from "./AtlasResource";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -90,8 +91,16 @@ export class Texture extends Resource {
      */
     _stateNum?: number;
 
-    /**@internal */
+    /**
+     * @internal 
+     */
     _clipCache: Map<string, Texture>;
+
+    /**
+     * @internal 
+     * 如果是图集中的小图，记录了图集的引用
+     */
+    _atlas: AtlasResource;
 
     /**
      * @en Creates a `Texture` object based on the specified source, coordinates, dimensions, and offsets.
@@ -311,14 +320,18 @@ export class Texture extends Resource {
      */
     _addReference(count: number = 1): void {
         super._addReference(count);
-        this._bitmap && this._bitmap._addReference(count);
+
+        this._bitmap?._addReference(count);
+        this._atlas?._addReference(count);
     }
 
     /**
      * @internal
      */
     _removeReference(count: number = 1): void {
-        this._bitmap && this._bitmap._removeReference(count);
+        this._bitmap?._removeReference(count);
+        this._atlas?._removeReference(count);
+
         super._removeReference(count);
     }
 
@@ -450,7 +463,7 @@ export class Texture extends Resource {
         // 如果无法直接获取，只能先渲染出来
         var ctx = new ILaya.Context();
         ctx.size(width, height);
-        let rt = new RenderTexture2D(width,height,RenderTargetFormat.R8G8B8A8);
+        let rt = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
         ctx.render2D = ctx.render2D.clone(rt)
         var uv: number[] = null;
         if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
@@ -558,6 +571,11 @@ export class Texture extends Resource {
         this._bitmap = null;
         if (bit)
             bit._removeReference(this._referenceCount);
+
+        let atlas = this._atlas;
+        this._atlas = null;
+        if (atlas)
+            atlas._removeReference(this._referenceCount);
     }
 
     /**
@@ -575,6 +593,8 @@ export class Texture extends Resource {
      * @return 一个 `Texture` 对象，表示裁剪后的子纹理，如果裁剪区域越界，则返回 null。
      */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
+        if (this.destroyed)
+            return null;
         let key = `${x}_${y}_${width}_${height}`;
         if (!this._clipCache)
             this._clipCache = new Map();

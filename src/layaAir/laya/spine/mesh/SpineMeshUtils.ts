@@ -3,6 +3,7 @@ import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVer
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -17,9 +18,9 @@ import { MultiRenderData } from "../optimize/MultiRenderData";
 import { SketonDynamicInfo } from "../optimize/SketonOptimise";
 import { VBCreator } from "../optimize/VBCreator";
 
-export class SpineMeshUtils{
+export class SpineMeshUtils {
 
-    static SPINEMESH_COLOR2:number = 11;
+    static SPINEMESH_COLOR2: number = 11;
 
     /**
      * @en Creates a Mesh2D object for Spine rendering
@@ -40,9 +41,9 @@ export class SpineMeshUtils{
     static createMesh(type: ESpineRenderType, vbCreator: VBCreator, ibCreator: IBCreator, isDynamic: boolean = false, uploadBuffer: boolean = true): Mesh2D {
 
         let mesh = new Mesh2D;
-        
-        let vertexBuffers:IVertexBuffer[] = [];
-        
+
+        let vertexBuffers: IVertexBuffer[] = [];
+
         let usage = isDynamic ? BufferUsage.Dynamic : BufferUsage.Static
 
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
@@ -50,11 +51,11 @@ export class SpineMeshUtils{
         let vertexStride = vertexDeclaration.vertexStride;
         vertexBuffer.vertexDeclaration = vertexDeclaration;
 
-        let vbByteLength = vbCreator.maxVertexCount * vertexStride ;
+        let vbByteLength = vbCreator.maxVertexCount * vertexStride;
         let vbUploadLength = vbCreator.vbLength * Float32Array.BYTES_PER_ELEMENT;
         vertexBuffer.setDataLength(vbByteLength);
         if (uploadBuffer) {
-            vertexBuffer.setData(vbCreator.vb.buffer, 0 , 0 , vbUploadLength );
+            vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vbUploadLength);
         }
         vertexBuffers.push(vertexBuffer);
 
@@ -62,16 +63,16 @@ export class SpineMeshUtils{
         mesh._vertexBuffers = vertexBuffers;
 
         let ibByteLength = ibCreator.maxIndexCount * ibCreator.size;
-        let ibUploadLength = ibCreator.ibLength; 
+        let ibUploadLength = ibCreator.ibLength;
         let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
         indexbuffer.indexType = ibCreator.type;
         indexbuffer.indexCount = ibCreator.maxIndexCount;
         indexbuffer._setIndexDataLength(ibByteLength);
 
         if (uploadBuffer) {
-            indexbuffer._setIndexData(ibCreator.ib,0);
+            indexbuffer._setIndexData(ibCreator.ib, 0);
         }
-        
+
         mesh._indexBuffer = indexbuffer;
 
         let state = mesh._bufferState;
@@ -82,28 +83,28 @@ export class SpineMeshUtils{
         //     vb:vbCreator.vb.slice(0,vbCreator.vbLength),
         //     ib:ibCreator.ib.slice(0,ibCreator.ibLength)
         // }
-       
-        let subMeshes:IRenderGeometryElement[] = [];
+
+        let subMeshes: IRenderGeometryElement[] = [];
 
         let multi = ibCreator.outRenderData;
-        for (let i = 0 , len = multi.renderData.length; i < len; i++) {
+        for (let i = 0, len = multi.renderData.length; i < len; i++) {
             let data = multi.renderData[i];
             let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             geometry.bufferState = state;
-            geometry.setDrawElemenParams(data.length , data.offset * ibCreator.size);
+            geometry.setDrawElemenParams(data.length, data.offset * ibCreator.size);
             geometry.indexFormat = ibCreator.type;
             subMeshes.push(geometry);
         }
 
         mesh._setSubMeshes(subMeshes);
 
-		var memorySize: number = vbByteLength + ibByteLength;
+        var memorySize: number = vbByteLength + ibByteLength;
         mesh._setCPUMemory(memorySize);
         mesh._setGPUMemory(memorySize);
 
         return mesh;
     }
-    
+
     /**
      * @en Creates a dynamic mesh based on the given vertex declaration.
      * This method is used to generate a Mesh2D object with dynamic vertex data.
@@ -116,7 +117,7 @@ export class SpineMeshUtils{
      */
     static createMeshDynamic(vertexDeclaration: VertexDeclaration): Mesh2D {
         let mesh = new Mesh2D;
-        let vertexBuffers:IVertexBuffer[] = [];
+        let vertexBuffers: IVertexBuffer[] = [];
         let usage = BufferUsage.Dynamic;
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
@@ -130,7 +131,7 @@ export class SpineMeshUtils{
         return mesh;
     }
 
-    static _updateSpineSubMesh( mesh:Mesh2D , frameData:FrameRenderData ):boolean{
+    static _updateSpineSubMesh(mesh: Mesh2D, frameData: FrameRenderData): boolean {
         let subMeshCount = mesh.subMeshCount;
         let mulitRenderData = frameData.mulitRenderData;
         let renderdata = mulitRenderData.renderData;
@@ -139,7 +140,7 @@ export class SpineMeshUtils{
         let subMeshes = mesh._subMeshes;
 
         if (needUpdate) {
-            let flen = Math.max(rdLength , subMeshCount);
+            let flen = Math.max(rdLength, subMeshCount);
             let state = mesh._bufferState;
 
             for (let i = 0; i < flen; i++) {
@@ -153,19 +154,19 @@ export class SpineMeshUtils{
                     }
                     submesh.indexFormat = frameData.type;
                     submesh.clearRenderParams();
-                    submesh.setDrawElemenParams(data.length , data.offset * frameData.size);
-                }else{
+                    submesh.setDrawElemenParams(data.length, data.offset * frameData.size);
+                } else {
                     submesh.destroy();
                 }
             }
             subMeshes.length = rdLength;
-        }else{
+        } else {
             for (let i = 0; i < subMeshCount; i++) {
                 let submesh = subMeshes[i];
                 let data = renderdata[i];
                 submesh.indexFormat = frameData.type;
                 submesh.clearRenderParams();
-                submesh.setDrawElemenParams(data.length , data.offset * frameData.size);
+                submesh.setDrawElemenParams(data.length, data.offset * frameData.size);
             }
         }
         return needUpdate;
@@ -173,40 +174,40 @@ export class SpineMeshUtils{
 
     private static _vertexDeclarationMap: any = {};
 
-    static getVertexDeclaration( vertexFlag:string ){
+    static getVertexDeclaration(vertexFlag: string) {
         var verDec: VertexDeclaration = SpineMeshUtils._vertexDeclarationMap[vertexFlag];
-		if (!verDec) {
-			var subFlags: any[] = vertexFlag.split(",");
-			var elements: VertexElement[] = [];
+        if (!verDec) {
+            var subFlags: any[] = vertexFlag.split(",");
+            var elements: VertexElement[] = [];
             var offset: number = 0;
 
-			for (var i: number = 0, n: number = subFlags.length; i < n; i++) {
-				var element: VertexElement;
-				switch (subFlags[i]) {
+            for (var i: number = 0, n: number = subFlags.length; i < n; i++) {
+                var element: VertexElement;
+                switch (subFlags[i]) {
                     case "COLOR2":
-						element = new VertexElement(offset, VertexElementFormat.Vector4, SpineMeshUtils.SPINEMESH_COLOR2);
-						offset += 16;
-						break;
-					case "BONE":
-						element = new VertexElement(offset, VertexElementFormat.Single, 3);
-        				elements.push(element);
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, SpineMeshUtils.SPINEMESH_COLOR2);
+                        offset += 16;
+                        break;
+                    case "BONE":
+                        element = new VertexElement(offset, VertexElementFormat.Single, 3);
+                        elements.push(element);
                         offset += 4;
 
                         element = new VertexElement(offset, VertexElementFormat.Single, 4);
-        				elements.push(element);
+                        elements.push(element);
                         offset += 4;
 
                         element = new VertexElement(offset, VertexElementFormat.Vector4, 5);
-        				elements.push(element);
+                        elements.push(element);
                         offset += 16;
 
                         element = new VertexElement(offset, VertexElementFormat.Vector4, 6);
-        				elements.push(element);
+                        elements.push(element);
                         offset += 16;
 
                         element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
                         offset += 16;
-						break;
+                        break;
                     case "RIGIDBODY":
                         element = new VertexElement(offset, VertexElementFormat.Single, 4);
                         offset += 4;
@@ -223,25 +224,25 @@ export class SpineMeshUtils{
                         element = new VertexElement(offset, VertexElementFormat.Vector2, 2);
                         offset += 8
                         break;
-                        
-					default:
-						throw "VertexMesh: unknown vertex flag.";
-				}
-				elements.push(element);
-			}
 
-			verDec = new VertexDeclaration(offset, elements);
-			SpineMeshUtils._vertexDeclarationMap[vertexFlag] = verDec;
-		}
-          
+                    default:
+                        throw "VertexMesh: unknown vertex flag.";
+                }
+                elements.push(element);
+            }
+
+            verDec = new VertexDeclaration(offset, elements);
+            SpineMeshUtils._vertexDeclarationMap[vertexFlag] = verDec;
+        }
+
         return verDec;
     }
 
-    static getIndexFormat(vertexCount:number){
+    static getIndexFormat(vertexCount: number) {
         let type = IndexFormat.UInt32;
-        if (vertexCount < 256) {
+        if (vertexCount < 256 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint8)) {
             type = IndexFormat.UInt8;
-        }else if (vertexCount < 65536) {
+        } else if (vertexCount < 65536) {
             type = IndexFormat.UInt16;
         }
         return type;

@@ -109,7 +109,8 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池
      */
     recover(): void {
-        this.texture._removeReference();
+        this.texture?._removeReference();
+        this.texture = null;
         Pool.recover("Draw9GridTextureCmd", this);
     }
 

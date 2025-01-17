@@ -54,7 +54,7 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
-var _clipResult=new Vector2();
+var _clipResult = new Vector2();
 
 /**
  * @private
@@ -388,8 +388,8 @@ export class Context {
     }
     /**@internal */
     _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
-        if(width<=0)return;
-        if(height<=0) return;
+        if (width <= 0) return;
+        if (height <= 0) return;
         //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
         this.beginPath(true);
         var tPath = this._getPath();
@@ -398,29 +398,29 @@ export class Context {
         } else {
             //左上角
             let st = Math.PI;
-            let ed = 1.5*Math.PI;
-            if(width<lt+rt){
+            let ed = 1.5 * Math.PI;
+            if (width < lt + rt) {
                 //需要裁剪
                 //根据比例分配裁剪
-                let dxlt = lt*(lt+rt-width)/(lt+rt);
+                let dxlt = lt * (lt + rt - width) / (lt + rt);
                 //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lt*lt-dxlt*dxlt);
+                let hity = Math.sqrt(lt * lt - dxlt * dxlt);
                 //根据交点计算角度
-                let ang = Math.atan2(hity,dxlt);
-                let dAng = 0.5*Math.PI-ang;
+                let ang = Math.atan2(hity, dxlt);
+                let dAng = 0.5 * Math.PI - ang;
                 ed -= dAng;
             }
-            if(height<lt+lb){
+            if (height < lt + lb) {
                 //需要裁剪
-                let dylt = lt*(lt+lb-height)/(lt+lb);
-                let hitx = Math.sqrt(lt*lt-dylt*dylt);
-                let ang = Math.atan2(dylt,hitx);
+                let dylt = lt * (lt + lb - height) / (lt + lb);
+                let hitx = Math.sqrt(lt * lt - dylt * dylt);
+                let ang = Math.atan2(dylt, hitx);
                 st += ang;
             }
-            if(st>ed){
+            if (st > ed) {
                 //tPath.addPoint(x, y);
-            }else{
-                this.arc(x + lt, y + lt, lt, lt, st, ed,false,true,5);
+            } else {
+                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, 5);
             }
         }
         let startX = x + width - rt;
@@ -428,30 +428,30 @@ export class Context {
             tPath.addPoint(startX, y);
         } else {
             //右上角
-            let st = 1.5*Math.PI;
-            let ed = 2*Math.PI;
-            if(width<lt+rt){
+            let st = 1.5 * Math.PI;
+            let ed = 2 * Math.PI;
+            if (width < lt + rt) {
                 //需要裁剪
                 //根据比例分配裁剪
-                let dxlt = rt*(lt+rt-width)/(lt+rt);
+                let dxlt = rt * (lt + rt - width) / (lt + rt);
                 //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lt*lt-dxlt*dxlt);
+                let hity = Math.sqrt(lt * lt - dxlt * dxlt);
                 //根据交点计算角度
-                let ang = Math.atan2(hity,dxlt);
-                let dAng = 0.5*Math.PI-ang;
+                let ang = Math.atan2(hity, dxlt);
+                let dAng = 0.5 * Math.PI - ang;
                 st += dAng;
             }
-            if(height<rt+rb){
+            if (height < rt + rb) {
                 //需要裁剪
-                let dyrt = rt*(rt+rb-height)/(rt+rb);
-                let hitx = Math.sqrt(rt*rt-dyrt*dyrt);
-                let ang = Math.atan2(dyrt,hitx);
+                let dyrt = rt * (rt + rb - height) / (rt + rb);
+                let hitx = Math.sqrt(rt * rt - dyrt * dyrt);
+                let ang = Math.atan2(dyrt, hitx);
                 ed -= ang;
             }
-            if(st>ed){
+            if (st > ed) {
                 //tPath.addPoint(startX, y);
-            }else{
-                this.arc(startX, y + rt, rt, rt, st,ed,false,true,5);
+            } else {
+                this.arc(startX, y + rt, rt, rt, st, ed, false, true, 5);
             }
         }
         startX = x + width - rb;
@@ -461,29 +461,29 @@ export class Context {
         } else {
             //右下角
             let st = 0;
-            let ed = 0.5*Math.PI;
-            if(width<lb+rb){
+            let ed = 0.5 * Math.PI;
+            if (width < lb + rb) {
                 //需要裁剪
                 //根据比例分配裁剪
-                let dxlb = rb*(lb+rb-width)/(lb+rb);
+                let dxlb = rb * (lb + rb - width) / (lb + rb);
                 //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lb*lb-dxlb*dxlb);
+                let hity = Math.sqrt(lb * lb - dxlb * dxlb);
                 //根据交点计算角度
-                let ang = Math.atan2(hity,dxlb);
-                let dAng = 0.5*Math.PI-ang;
+                let ang = Math.atan2(hity, dxlb);
+                let dAng = 0.5 * Math.PI - ang;
                 ed -= dAng;
-            }       
-            if(height<rt+rb){
+            }
+            if (height < rt + rb) {
                 //需要裁剪
-                let dyrt = rb*(rt+rb-height)/(rt+rb);
-                let hitx = Math.sqrt(rb*rb-dyrt*dyrt);
-                let ang = Math.atan2(dyrt,hitx);
+                let dyrt = rb * (rt + rb - height) / (rt + rb);
+                let hitx = Math.sqrt(rb * rb - dyrt * dyrt);
+                let ang = Math.atan2(dyrt, hitx);
                 st += ang;
-            }  
-            if(st>ed){
+            }
+            if (st > ed) {
                 //tPath.addPoint(startX, startY);
-            }else{
-                this.arc(startX, startY, rb, rb, st, ed,false,true,5);
+            } else {
+                this.arc(startX, startY, rb, rb, st, ed, false, true, 5);
             }
         }
         startX = x + lb;
@@ -491,30 +491,30 @@ export class Context {
         if (0 >= lb) {
             tPath.addPoint(startX, startY);
         } else {
-            let st = 0.5*Math.PI;
+            let st = 0.5 * Math.PI;
             let ed = Math.PI;
-            if(width<lb+rb){
+            if (width < lb + rb) {
                 //需要裁剪
                 //根据比例分配裁剪
-                let dxlb = rb*(lb+rb-width)/(lb+rb);
+                let dxlb = rb * (lb + rb - width) / (lb + rb);
                 //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lb*lb-dxlb*dxlb);
+                let hity = Math.sqrt(lb * lb - dxlb * dxlb);
                 //根据交点计算角度
-                let ang = Math.atan2(hity,dxlb);
-                let dAng = 0.5*Math.PI-ang;
+                let ang = Math.atan2(hity, dxlb);
+                let dAng = 0.5 * Math.PI - ang;
                 st += dAng;
-            }         
-            if(height<lt+lb){
+            }
+            if (height < lt + lb) {
                 //需要裁剪
-                let dylt = lb*(lt+lb-height)/(lt+lb);
-                let hitx = Math.sqrt(lb*lb-dylt*dylt);
-                let ang = Math.atan2(dylt,hitx);
+                let dylt = lb * (lt + lb - height) / (lt + lb);
+                let hitx = Math.sqrt(lb * lb - dylt * dylt);
+                let ang = Math.atan2(dylt, hitx);
                 ed -= ang;
-            }        
-            if(st>ed){
+            }
+            if (st > ed) {
                 //tPath.addPoint(startX, startY);
-            }else{
-                this.arc(startX, startY, lb, lb, st, ed,false,true,5);
+            } else {
+                this.arc(startX, startY, lb, lb, st, ed, false, true, 5);
             }
         }
         //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
@@ -637,6 +637,9 @@ export class Context {
         if (this.defTexture) {
             this.defTexture.bitmap && this.defTexture.bitmap.destroy();
             this.defTexture.destroy();
+        }
+        for (var i = 0, n = this._shaderValueNeedRelease.length; i < n; i++) {
+            this._shaderValueNeedRelease[i] && this._shaderValueNeedRelease[i].release();
         }
     }
 
@@ -2097,25 +2100,25 @@ export class Context {
         }
     }
 
-    private _gridCut(left:number, right:number, width:number,out:Vector2){
-        let c = (left+right)/2;
-        let d = (left + right - width)/2;
+    private _gridCut(left: number, right: number, width: number, out: Vector2) {
+        let c = (left + right) / 2;
+        let d = (left + right - width) / 2;
         let ll = 0, lr = left;
-        let rl = left, rr = left+right;
-        let cl = c-d, cr=c+d;
+        let rl = left, rr = left + right;
+        let cl = c - d, cr = c + d;
         //扣掉的部分与左右两部分相交
-        let hl = Math.max(ll,cl);
-        let hr = Math.min(lr,cr);
-        if(hr>hl){
-            left -=(hr-hl);
+        let hl = Math.max(ll, cl);
+        let hr = Math.min(lr, cr);
+        if (hr > hl) {
+            left -= (hr - hl);
         }
-        hl = Math.max(rl,cl);
-        hr = Math.min(rr,cr);
-        if(hr>hl){
-            right-=(hr-hl);
+        hl = Math.max(rl, cl);
+        hr = Math.min(rr, cr);
+        if (hr > hl) {
+            right -= (hr - hl);
         }
-        out.x=left;
-        out.y=right;
+        out.x = left;
+        out.y = right;
     }
 
     private static tmpUVRect: any[] = [0, 0, 0, 0];
@@ -2226,7 +2229,7 @@ export class Context {
             }
 
         }
-        if (bottom &&  hasmidx) {
+        if (bottom && hasmidx) {
             uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
             uvr_ = uvr - d_right; uvb_ = uvb;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
@@ -2261,7 +2264,7 @@ export class Context {
             }
         }
         //绘制中间
-        if(hasmidx && hasmidy){
+        if (hasmidx && hasmidy) {
             uvl_ = uvl + d_left; uvt_ = uvt + d_top;
             uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,

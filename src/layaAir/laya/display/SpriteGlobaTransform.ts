@@ -35,6 +35,7 @@ export class SpriteGlobalTransform {
 
     set cache(value: boolean) {
         if (this._cache != value) {
+            this._cache = value;
             if (value) {
                 //缓存全局变量
                 this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);

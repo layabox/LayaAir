@@ -53,6 +53,18 @@ export class InputManager {
     static mouseY: number = 0;
 
     /**
+     * @en The time of the last mouse event.
+     * @zh 上一次鼠标事件的时间。
+     */
+    static lastMouseTime: number = 0;
+
+    /**
+     * @en The ID of the last touch event.
+     * @zh 上一次触摸事件的ID。
+     */
+    static lastTouchId: number = 0;
+
+    /**
      * @en Dispatched before the process of a MOUSE_DOWN event, which can be used to preprocess the MOUSE_DOWN event.
      * @zh 在处理MOUSE_DOWN事件之前调度，可用于提前处理按下事件。
      */
@@ -80,7 +92,6 @@ export class InputManager {
     protected _keyEvent: Event;
 
     private _lastTouchTime: number;
-    private _lastTouchId: number = 0;
 
     /**
      * @ignore
@@ -108,7 +119,7 @@ export class InputManager {
      */
     static getTouchPos(touchId?: number): Readonly<Point> {
         if (touchId == null)
-            touchId = _inst._lastTouchId;
+            touchId = InputManager.lastTouchId;
 
         return _inst.getTouch(touchId)?.pos || _inst._mouseTouch.pos;
     }
@@ -145,7 +156,7 @@ export class InputManager {
      */
     static cancelClick(touchId?: number): void {
         if (touchId == null)
-            touchId = _inst._lastTouchId;
+            touchId = InputManager.lastTouchId;
         let touch = _inst.getTouch(touchId);
         if (touch)
             touch.clickCancelled = true;
@@ -248,7 +259,7 @@ export class InputManager {
     handleMouse(ev: MouseEvent | WheelEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
-        this._lastTouchId = 0;
+        InputManager.lastTouchId = 0;
         let now = Browser.now();
         if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
             return;
@@ -257,8 +268,7 @@ export class InputManager {
         let touch: TouchInfo = this._mouseTouch;
 
         _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
-        if (this._stage._canvasTransform)
-            this._stage._canvasTransform.invertTransformPoint(_tempPoint);
+        this._stage._canvasTransform.invertTransformPoint(_tempPoint);
         InputManager.mouseX = _tempPoint.x;
         InputManager.mouseY = _tempPoint.y;
         let x = _tempPoint.x / this._stage.clientScaleX;
@@ -274,7 +284,7 @@ export class InputManager {
             let iy = Math.round(y);
 
             if (ix != touch.pos.x || iy != touch.pos.y) {
-                this._stage._mouseMoveTime = now;
+                InputManager.lastMouseTime = now;
 
                 touch.pos.setTo(ix, iy);
                 touch.move();
@@ -282,8 +292,12 @@ export class InputManager {
                 if (InputManager.mouseEventsEnabled) {
                     touch.bubble(Event.MOUSE_MOVE);
 
-                    for (let t of touch.downTargets)
+                    for (let t of touch.downTargets) {
+                        touch.event._stopped = false;
                         t.event(Event.MOUSE_DRAG, touch.event);
+                        if (touch.event._stopped)
+                            break;
+                    }
                 }
             }
         }
@@ -381,8 +395,7 @@ export class InputManager {
                 continue;
 
             _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
-            if (this._stage._canvasTransform)
-                this._stage._canvasTransform.invertTransformPoint(_tempPoint);
+            this._stage._canvasTransform.invertTransformPoint(_tempPoint);
             InputManager.mouseX = _tempPoint.x;
             InputManager.mouseY = _tempPoint.y;
             let x = _tempPoint.x / this._stage.clientScaleX;
@@ -394,12 +407,12 @@ export class InputManager {
 
             touch.event.nativeEvent = ev;
             touch.event.touchId = touch.touchId;
-            this._lastTouchId = touch.touchId;
+            InputManager.lastTouchId = touch.touchId;
             if (type == 3 || !InputManager.mouseEventsEnabled)
                 touch.target = this._touchTarget = null;
             else {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
-                this._stage._mouseMoveTime = this._lastTouchTime;
+                InputManager.lastMouseTime = this._lastTouchTime;
 
                 let ix = Math.round(x);
                 let iy = Math.round(y);
@@ -414,8 +427,12 @@ export class InputManager {
 
                             touch.bubble(Event.MOUSE_MOVE);
 
-                            for (let t of touch.downTargets)
+                            for (let t of touch.downTargets) {
+                                touch.event._stopped = false;
                                 t.event(Event.MOUSE_DRAG, touch.event);
+                                if (touch.event._stopped)
+                                    break;
+                            }
                         }
                     }
                 }
@@ -538,15 +555,19 @@ export class InputManager {
         }
 
         this._keyEvent.nativeEvent = ev;
+        this._keyEvent._defaultPrevented = false;
 
         if (InputManager.keyEventsEnabled) {
-            let target = (this._stage.focus && (this._stage.focus.event != null) && this._stage.focus.displayedInStage) ? this._stage.focus : this._stage;
+            let target = (this._stage.focus && this._stage.focus.displayedInStage) ? this._stage.focus : this._stage;
             let ct = target;
             while (ct) {
                 ct.event(type, this._keyEvent.setTo(type, ct, target));
                 ct = ct._parent;
             }
         }
+
+        if (this._keyEvent._defaultPrevented)
+            ev.preventDefault();
 
         this._keyEvent.nativeEvent = null;
     }
@@ -842,8 +863,10 @@ class TouchInfo implements ITouchInfo {
     move() {
         this.moved = true;
 
-        if (Math.abs(this.pos.x - this.downPos.x) > InputManager.clickTestThreshold
-            || Math.abs(this.pos.y - this.downPos.y) > InputManager.clickTestThreshold)
+        let ox = Math.abs(this.pos.x - this.downPos.x) * ILaya.stage._canvasTransform.getScaleX();
+        let oy = Math.abs(this.pos.y - this.downPos.y) * ILaya.stage._canvasTransform.getScaleY();
+
+        if (ox > InputManager.clickTestThreshold || oy > InputManager.clickTestThreshold)
             this.clickCancelled = true;
     }
 

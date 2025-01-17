@@ -171,11 +171,6 @@ export class Stage extends Sprite {
      */
     offset: Point = new Point();
     /**
-     * @en Frame rate types:fast (default, full frame rate),slow (half of the full frame rate),mouse (full frame rate after mouse activity, switches to half frame rate if the mouse is idle for 2 seconds),sleep (1 frame per second)
-     * @zh 帧率类型：fast(默认，满帧)，slow（满帧减半），mouse（鼠标活动后满帧，鼠标不动2秒后满帧减半），sleep（每秒1帧）。
-     */
-    private _frameRate: string = "fast";
-    /**
      * @en Design width (the width set during initialization Laya.init(width,height))
      * @zh 设计宽度（初始化时设置的宽度Laya.init(width,height)）
      */
@@ -207,16 +202,24 @@ export class Stage extends Sprite {
      * @zh 是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变。
      */
     screenAdaptationEnabled: boolean = true;
-    /**@internal */
-    _canvasTransform: Matrix = new Matrix();
-    /**@internal */
-    _mouseMoveTime: number = 0;
-    /**@internal webgl Color*/
-    _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
+    /**
+     * @en The transformation matrix of the canvas.
+     * @zh 画布的变换矩阵。
+     */
+    readonly _canvasTransform: Matrix = new Matrix();
+
+    /**
+     * @en Using physical resolution as the canvas size will improve rendering effects, but it will reduce performance
+     * @zh 使用物理分辨率作为画布大小，会改进渲染效果，但是会降低性能
+     */
+    useRetinalCanvas: boolean = false;
+
     /**@internal */
     _scene3Ds: Scene3D[] = [];
     /**@internal */
     _scene2Ds: Scene[] = [];
+
+    private _frameRate: string = "fast";
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
     private _alignV: string = "top";
@@ -225,17 +228,12 @@ export class Stage extends Sprite {
     private _renderCount: number = 0;
     private _safariOffsetY: number = 0;
     private _frameStartTime: number = 0;
-    private _previousOrientation: number = Browser.window.orientation;
+    private _previousOrientation: number;
     private _isFocused: boolean;
     private _isVisibility: boolean;
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-
-    /**
-     * @en Using physical resolution as the canvas size will improve rendering effects, but it will reduce performance
-     * @zh 使用物理分辨率作为画布大小，会改进渲染效果，但是会降低性能
-     */
-    useRetinalCanvas: boolean = false;
+    private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
     /**
      * @ignore
@@ -253,6 +251,7 @@ export class Stage extends Sprite {
         this._isVisibility = true;
         this._transform = new Matrix();
         this.useRetinalCanvas = LayaEnv.isConch ? true : Config.useRetinalCanvas;
+        this._previousOrientation = Browser.window.orientation;
 
         let window: any = Browser.window;
 
@@ -295,6 +294,7 @@ export class Stage extends Sprite {
             this.renderingEnabled = this._isVisibility;
             this.event(Event.VISIBILITY_CHANGE);
         });
+
         window.addEventListener("resize", () => {
             // 处理屏幕旋转。旋转后收起输入法。
             var orientation: any = Browser.window.orientation;
@@ -941,9 +941,9 @@ export class Stage extends Sprite {
         }
 
         this._renderCount++;
-        var frameMode: string = this._frameRate === Stage.FRAME_MOUSE ? (((this._frameStartTime - this._mouseMoveTime) < 2000) ? Stage.FRAME_FAST : Stage.FRAME_SLOW) : this._frameRate;
-        var isFastMode: boolean = (frameMode !== Stage.FRAME_SLOW);
-        var isDoubleLoop: boolean = (this._renderCount % 2 === 0);
+        let frameMode: string = this._frameRate === Stage.FRAME_MOUSE ? (((this._frameStartTime - InputManager.lastMouseTime) < 2000) ? Stage.FRAME_FAST : Stage.FRAME_SLOW) : this._frameRate;
+        let isFastMode: boolean = (frameMode !== Stage.FRAME_SLOW);
+        let isDoubleLoop: boolean = (this._renderCount % 2 === 0);
 
         Stat.renderSlow = !isFastMode;
         if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染

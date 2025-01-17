@@ -159,7 +159,7 @@ export class Image extends UIComponent {
             else {
                 let sk = this._skin;
                 return ILaya.loader.load(url, { type: Loader.IMAGE, group: this._group }).then(tex => {
-                    if (sk == this._skin)
+                    if (sk == this._skin && !this.destroyed)
                         this.source = tex;
                 });
             }

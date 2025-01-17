@@ -103,15 +103,15 @@ vec4 getScreenPos(vec4 pos){
         vec3 up =u_NMatrix_0;
     #endif
     float x=up.x*pos.x+up.y*pos.y+up.z;
-    float y=down.x*pos.x+down.y*pos.y-down.z;
+    float y= -1.0 * (down.x*pos.x+down.y*pos.y-down.z);
     
     #ifdef CAMERA2D
        vec2 posT= (u_view2D *vec3(x,y,1.0)).xy+u_baseRenderSize2D/2.;
        x = posT.x;
        y = posT.y;
     #endif  
-    v_cliped = getClipedInfo(vec2(x,-y));
-    return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(y/u_baseRenderSize2D.y+0.5)*2.0,pos.z,1.0);
+    v_cliped = getClipedInfo(vec2(x,y));
+    return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(0.5 - y/u_baseRenderSize2D.y)*2.0,pos.z,1.0);
 }
 
 void getVertexInfo(vec4 pos, inout vertexInfo info){
@@ -121,6 +121,11 @@ void getVertexInfo(vec4 pos, inout vertexInfo info){
         info.color = a_color;
     #endif
     info.color *= u_baseRenderColor;
+
+    #ifdef PREMULTIPLYALPHA
+        info.color.rgb = info.color.rgb * info.color.a;
+    #endif
+    
     #ifdef UV
         info.uv = a_uv;
     #endif

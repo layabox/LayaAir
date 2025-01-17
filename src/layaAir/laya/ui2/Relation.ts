@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
+import { Scene } from "../display/Scene";
 import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { RelationType } from "./Const";
@@ -9,7 +10,7 @@ const handlingFlag = Symbol();
 
 export class Relation {
     private _owner: GWidget;
-    private _target: GWidget;
+    private _target: GWidget | Scene;
     private _data: Array<number>;
     private _tx: number;
     private _ty: number;
@@ -38,7 +39,7 @@ export class Relation {
         }
     }
 
-    public set target(value: GWidget) {
+    public set target(value: GWidget | Scene) {
         if (this._target != value) {
             if (this._target)
                 this.unsetTarget();
@@ -48,7 +49,7 @@ export class Relation {
         }
     }
 
-    public get target(): GWidget {
+    public get target(): GWidget | Scene {
         return this._target;
     }
 
@@ -106,14 +107,14 @@ export class Relation {
         t.on(Event.MOVED, this, this.posChanged);
         t.on(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            t.on(UIEvent.instance_reload, this, this.instReload);
+            t.on(UIEvent.InstanceReload, this, this.instReload);
     }
 
     private unsetTarget(): void {
         this._target.off(Event.MOVED, this, this.posChanged);
         this._target.off(Event.RESIZE, this, this.sizeChanged);
         if (!LayaEnv.isPlaying)
-            this._target.off(UIEvent.instance_reload, this, this.instReload);
+            this._target.off(UIEvent.InstanceReload, this, this.instReload);
     }
 
     public applyOnSelfResized(): void {

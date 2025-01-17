@@ -192,7 +192,7 @@ export class ListSelection extends Selection {
                 return;
 
             if (item.mode == ButtonMode.Common) {
-                this._owner.event(UIEvent.click_item, item);
+                this._owner.event(UIEvent.ClickItem, item);
                 return;
             }
 
@@ -256,7 +256,7 @@ export class ListSelection extends Selection {
             if (evt.isDblClick && (evt.target instanceof Input))
                 return;
 
-            this._owner.event(UIEvent.click_item, item);
+            this._owner.event(UIEvent.ClickItem, item);
         }
         else
             super.handleClick(item, evt);

@@ -38,8 +38,7 @@ export class LightOccluder2DCore {
     private _skewY: number = 0; //斜切Y
     private _rotation: number = 0; //旋转
     private _transform: Matrix; //矩阵
-    private _tfChanged: boolean; //矩阵是否发生变化
-
+    private _tfChanged: boolean = true; //矩阵是否发生变化
     private _sceneMatrix: Matrix = new Matrix(); //基于Scene的变换矩阵
 
     /**
@@ -637,7 +636,7 @@ export class LightOccluder2DCore {
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            let m = this._owner ? this._owner.globalTrans.getSceneMatrix(this._sceneMatrix) : this._transform;
+            let m = this._owner ? this._owner.globalTrans.getSceneMatrix(this._sceneMatrix) : this.transform;
             Matrix.mul(ILaya.stage.transform, m, this._sceneMatrix); //加上stage变换
             m = this._sceneMatrix;
             if (m) {
