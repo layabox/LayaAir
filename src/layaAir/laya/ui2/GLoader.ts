@@ -2,11 +2,11 @@
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
-import { Event } from "../events/Event";
+import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
+import { ColorUtils } from "../utils/ColorUtils";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
-import { GImage } from "./GImage";
 import { GWidget } from "./GWidget";
 
 export class GLoader extends GWidget {
@@ -20,16 +20,22 @@ export class GLoader extends GWidget {
     private _srcWidth: number = 0;
     private _srcHeight: number = 0;
     private _color: string;
+    private _tex: Texture;
+    private _drawCmd: DrawTextureCmd;
+    private _loadID: number = 0;
 
     constructor() {
         super();
 
         this._src = "";
-        this._color = "#FFFFFF";
+        this._color = "#ffffff";
         this._fitMode = LoaderFitMode.Contain;
         this._shrinkOnly = false;
         this._align = AlignType.Center;
         this._valign = VAlignType.Middle;
+        this._content = new GWidget();
+        this._content.hideFlags |= HideFlags.HideAndDontSave;
+        this.addChild(this._content);
     }
 
     public get src(): string {
@@ -104,66 +110,66 @@ export class GLoader extends GWidget {
 
     public set color(value: string) {
         this._color = value;
-        if (this._content instanceof GImage)
-            this._content.color = value;
+        if (this._drawCmd)
+            this._drawCmd.color = ColorUtils.create(value).numColor;
     }
 
     public get texture(): Texture {
-        return (<GImage>this._content)?.texture;
+        return this._tex;
     }
 
     public set texture(value: Texture) {
         this._src = "";
-        this.onLoaded(value);
+        this.onLoaded(value, ++this._loadID);
     }
 
     protected async loadContent() {
-        let src = this._src;
-        let res = Loader.getRes(src);
-        if (!res) {
-            res = await ILaya.loader.load(src);
-            if (src != this._src)
-                return;
-        }
-
-        this.onLoaded(res);
+        let loadID = ++this._loadID;
+        let res = Loader.getRes(this._src);
+        if (!res)
+            res = await ILaya.loader.load(this._src);
+        this.onLoaded(res, loadID);
     }
 
-    protected onLoaded(value: any) {
-        if (value instanceof Texture) {
-            let image = <GImage>this._content;
-            if (!image) {
-                this._content = image = new GImage();
-                image.hideFlags |= HideFlags.HideAndDontSave;
-                image.color = this._color;
-                if (!LayaEnv.isPlaying) {
-                    image.on(Event.CHANGED, () => {
-                        this._srcWidth = image.texture.width;
-                        this._srcHeight = image.texture.height;
-                        this.updateLayout();
-                    });
-                }
-            }
-            if (image.texture == value && image.parent)
-                return;
+    protected onLoaded(value: any, loadID: number) {
+        if (this._loadID != loadID)
+            return;
 
+        if (this._tex && !LayaEnv.isPlaying)
+            this._tex.off("reload", this, this._onTextureReload);
+        this._tex = value;
+        if (value) {
+            if (!LayaEnv.isPlaying)
+                value.on("reload", this, this._onTextureReload);
+
+            let cmd = DrawTextureCmd.create(value, 0, 0, 1, 1, null, 1, this._color, null, null, true);
+            this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, cmd, true);
             this._srcWidth = value.width;
             this._srcHeight = value.height;
-            image.texture = value;
-            this.addChild(image);
             ILaya.timer.runCallLater(this, this.updateLayout, true);
         }
-        else
-            this.clearContent();
+        else {
+            this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, null, true);
+            this._srcWidth = 0;
+            this._srcHeight = 0;
+        }
+    }
+
+    private _onTextureReload() {
+        this._srcWidth = this._tex.width;
+        this._srcHeight = this._tex.height;
+        ILaya.timer.runCallLater(this, this.updateLayout, true);
     }
 
     protected clearContent() {
         this._srcWidth = 0;
         this._srcHeight = 0;
-        if (this._content) {
-            (<GImage>this._content).src = null;
-            this._content.removeSelf();
+        this._loadID++;
+        if (this._tex && !LayaEnv.isPlaying) {
+            this._tex.off("reload", this, this._onTextureReload);
+            this._tex = null;
         }
+        this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, null, true);
     }
 
     protected updateLayout(): void {
@@ -232,5 +238,13 @@ export class GLoader extends GWidget {
 
         if (!this._updatingLayout)
             ILaya.timer.callLater(this, this.updateLayout);
+    }
+
+    destroy(): void {
+        super.destroy();
+        if (this._tex && !LayaEnv.isPlaying) {
+            this._tex.off("reload", this, this._onTextureReload);
+            this._tex = null;
+        }
     }
 }
