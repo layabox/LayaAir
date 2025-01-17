@@ -172,6 +172,9 @@ export class AnimationRender {
         //this.mainIb = mainib;
         tempMap.clear();
         tempArray.length = 0;
+        tempArray[0] = 0;
+        tempMap.set(0 , []);
+
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
@@ -272,6 +275,7 @@ export class AnimationRender {
             // }
         }
         tempArray.sort();
+
         if (!hasClip) {
             if (preRender.canCache) {
                 this.cacheBones(preRender);
@@ -537,7 +541,8 @@ export class SkinAniRenderData {
                 }
             }
         }
-        if (tempArray.length == 0) {
+        
+        if (tempArray.length == 1 && !tempMap.get(0).length) {
             //没有修改IB的情况
             if (this.vb) {
                 this.vb.initBoneMat();
