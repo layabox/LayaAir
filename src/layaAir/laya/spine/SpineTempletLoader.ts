@@ -55,7 +55,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
             });
             return new SpineTexture(null);
         });
@@ -68,9 +68,10 @@ class SpineTempletLoader implements IResourceLoader {
                 let tex = res[i];
                 if (tex) tex._addReference();
                 let pages = atlas.pages;
-                premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
                 // 默认长度 = 1
                 let page = pages[i];
+                premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
+                
                 //@ts-ignore
                 page.texture.realTexture = tex;
                 page.texture.setFilters(page.minFilter, page.magFilter);
@@ -112,7 +113,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
@@ -122,8 +123,9 @@ class SpineTempletLoader implements IResourceLoader {
                 for (let i = 0, len = res.length; i < len; i++) {
                     let tex = res[i];
                     if (tex) tex._addReference();
-                    premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
                     let page = pages[i];
+                    
+                    premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
                     textures[page.name] = tex;
                     //@ts-ignore
                     page.setTexture(new SpineTexture(tex));
