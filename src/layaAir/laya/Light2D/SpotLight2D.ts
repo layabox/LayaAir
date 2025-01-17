@@ -11,8 +11,6 @@ import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../resource/Material";
 import { Mesh2D } from "../resource/Mesh2D";
-import { RenderTexture } from "../resource/RenderTexture";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture2D } from "../resource/Texture2D";
 import { Sprite } from "../display/Sprite";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
@@ -20,6 +18,7 @@ import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DC
 import { Set2DRTCMD } from "../display/Scene2DSpecial/RenderCMD2D/Set2DRenderTargetCMD";
 import { BaseLight2D, Light2DType } from "./BaseLight2D";
 import { Light2DManager } from "./Light2DManager";
+import { RenderTexture } from "../resource/RenderTexture";
 
 /**
  * 聚灯光
@@ -226,6 +225,31 @@ export class SpotLight2D extends BaseLight2D {
     }
 
     /**
+     * @en notify this light antiAlias change
+     * @zh 通知此灯的抗锯齿设置发生改变
+     */
+    protected _notifyAntiAliasChange() {
+        const range = this._getLocalRange();
+        this._buildRenderTexture(range.width, range.height);
+        this._needUpdateLight = true;
+    }
+
+    /**
+     * 创建渲染灯光的贴图
+     * @param width 
+     * @param height 
+     */
+    private _buildRenderTexture(width: number, height: number) {
+        if (this._texLight)
+            this._texLight.destroy(); //可能有风险
+        const tex = this._texLight = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.antiAlias ? 4 : 1);
+        tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
+        if (!this._cmdRT)
+            this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, LayaGL.renderEngine._screenInvertY);
+        else this._cmdRT.renderTexture = tex;
+    }
+
+    /**
      * @en Render light texture
      * @zh 渲染灯光贴图
      */
@@ -237,26 +261,12 @@ export class SpotLight2D extends BaseLight2D {
             const width = range.width;
             const height = range.height;
             if (width === 0 || height === 0) return;
-            if (!this._texLight || !(this._texLight instanceof RenderTexture2D)) {
-                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
-                this._texLight.wrapModeU = WrapMode.Clamp;
-                this._texLight.wrapModeV = WrapMode.Clamp;
-                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
-                if (!this._cmdRT)
-                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
-                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
+            if (!this._texLight || !(this._texLight instanceof RenderTexture)) {
+                this._buildRenderTexture(width, height);
                 if (Light2DManager.DEBUG)
                     console.log('create spot light texture', width, height);
-            }
-            else if (this._texLight.width !== width || this._texLight.height !== height) {
-                this._texLight.destroy();
-                this._texLight = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
-                this._texLight.wrapModeU = WrapMode.Clamp;
-                this._texLight.wrapModeV = WrapMode.Clamp;
-                (this._texLight as RenderTexture2D)._invertY = LayaGL.renderEngine._screenInvertY;
-                if (!this._cmdRT)
-                    this._cmdRT = Set2DRTCMD.create(this._texLight as RenderTexture, true, Color.BLACK, LayaGL.renderEngine._screenInvertY);
-                else this._cmdRT.renderTexture = this._texLight as RenderTexture;
+            } else if (this._texLight.width !== width || this._texLight.height !== height) {
+                this._buildRenderTexture(width, height);
                 if (Light2DManager.DEBUG)
                     console.log('update spot light texture', width, height);
             }
@@ -273,7 +283,7 @@ export class SpotLight2D extends BaseLight2D {
             if (Light2DManager.DEBUG) {
                 if (this.showLightTexture)
                     this._printTextureToConsoleAsBase64();
-                console.log('update spot light texture');
+                console.log('update spot light texture contain');
             }
         }
     }

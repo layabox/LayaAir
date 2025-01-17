@@ -1,7 +1,6 @@
 #define SHADER_NAME LightAndShadowGen2D_VS
-#include "Sprite2DVertex.glsl";
 
-varying vec2 v_uv;
+#include "Sprite2DVertex.glsl";
 
 //对UV坐标进行旋转和放缩
 vec2 rotateAndScaleUV(vec2 uv, float rotation, vec2 scale)
@@ -17,9 +16,8 @@ vec2 rotateAndScaleUV(vec2 uv, float rotation, vec2 scale)
 }
 
 void main() {
-    v_uv = a_uv;
     v_texcoord = rotateAndScaleUV(a_uv, u_LightRotation, u_LightScale);
-	v_color = u_LightColor * u_LightIntensity;
+	v_color = u_LightColor * u_LightIntensity * u_PCFIntensity;
 	gl_Position = vec4((a_position.x / u_baseRenderSize2D.x - 0.5) * 2.0, (0.5 - a_position.y / u_baseRenderSize2D.y) * 2.0, 0.0, 1.0);
     #ifdef INVERTY
         gl_Position.y = -gl_Position.y;
