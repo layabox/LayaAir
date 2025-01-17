@@ -6,7 +6,6 @@ import { MathUtil } from "../maths/MathUtil";
 import { Point } from "../maths/Point";
 import { ProgressTitleType } from "./Const";
 import { GWidget } from "./GWidget";
-import { UIEvent } from "./UIEvent";
 
 export class GSlider extends GWidget {
     public changeOnClick: boolean = true;
@@ -121,7 +120,9 @@ export class GSlider extends GWidget {
 
             if (newValue != this._value) {
                 this._value = newValue;
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGED, Event.EMPTY);
+                if (!this.canDrag)
+                    return;
             }
         }
 

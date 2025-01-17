@@ -441,6 +441,8 @@ export class Event {
     /** @internal */
     _stopped: boolean;
     /** @internal */
+    _defaultPrevented: boolean;
+    /** @internal */
     _touches: ReadonlyArray<Readonly<ITouchInfo>>;
 
     constructor() {
@@ -473,6 +475,14 @@ export class Event {
      */
     stopPropagation(): void {
         this._stopped = true;
+    }
+
+    /**
+     * @en Cancels the event's default behavior.
+     * @zh 禁止事件的默认行为
+     */
+    preventDefault(): void {
+        this._defaultPrevented = true;
     }
 
     /**

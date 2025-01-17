@@ -3,7 +3,6 @@ import { Event } from "../../events/Event";
 import { GButton } from "../GButton";
 import { ButtonMode, LayoutType, SelectionMode } from "../Const";
 import type { GPanel } from "../GPanel";
-import { GTextInput } from "../GTextInput";
 import type { GWidget } from "../GWidget";
 import { ISelection } from "./ISelection";
 import { UIEvent } from "../UIEvent";
@@ -155,7 +154,7 @@ export class Selection implements ISelection {
             return;
 
         if (item.mode == ButtonMode.Common) {
-            this._owner.event(UIEvent.click_item, item);
+            this._owner.event(UIEvent.ClickItem, item);
             return;
         }
 
@@ -221,13 +220,13 @@ export class Selection implements ISelection {
         if (evt.isDblClick && (evt.target instanceof Input))
             return;
 
-        this._owner.event(UIEvent.click_item, item);
+        this._owner.event(UIEvent.ClickItem, item);
     }
 
     public enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string) {
         if (enabled) {
             //this._owner.tabStopChildren = true;
-            this._keyEvent = keySelectEvent != null ? keySelectEvent : UIEvent.click_item;
+            this._keyEvent = keySelectEvent != null ? keySelectEvent : UIEvent.ClickItem;
             this._owner.on(Event.KEY_DOWN, this, this._keydown);
         }
         else {

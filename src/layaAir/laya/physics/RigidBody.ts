@@ -6,10 +6,9 @@ import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { RigidBody2DInfo } from "./IPhysiscs2DFactory";
-import { NodeFlags } from "../Const";
-import { TransformKind } from "../display/SpriteConst";
 import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 
+type RigidBody2DType = "static" | "dynamic" | "kinematic";
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
  * Changes in the position of the physics world will be automatically synchronized to the display object, and the displacement and rotation of the display object itself (displacement of the parent object is invalid) will also be automatically synchronized to the physics world.
@@ -32,7 +31,7 @@ export class RigidBody extends Component {
      * dynamic：动态类型，受重力影响。
      * kinematic：运动类型，不受重力影响，可以通过施加速度或者力的方式使其运动。
      */
-    protected _type: string = "dynamic";
+    protected _type: RigidBody2DType;
 
     /** 是否允许休眠，允许休眠能提高性能*/
     protected _allowSleep: boolean = true;
@@ -44,7 +43,7 @@ export class RigidBody extends Component {
     protected _angularDamping: number = 0;
 
     /** 线性运动速度，比如{x:10,y:10}*/
-    protected _linearVelocity: any = { x: 0, y: 0 };
+    protected _linearVelocity: IV2 = { x: 0, y: 0 };
 
     /** 线性速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
     protected _linearDamping: number = 0;
@@ -108,7 +107,6 @@ export class RigidBody extends Component {
      * @zh 原始body对象。
      */
     get body(): any {
-        if (!this._body) this._onAwake();
         return this._body;
     }
 
@@ -122,11 +120,11 @@ export class RigidBody extends Component {
      * - dynamic：动态类型，受重力影响。
      * - kinematic：运动类型，不受重力影响，可以通过施加速度或者力的方式使其运动。
      */
-    get type(): string {
+    get type(): RigidBody2DType {
         return this._type;
     }
 
-    set type(value: string) {
+    set type(value: RigidBody2DType) {
         this._type = value;
         this._updateBodyType()
     }
@@ -225,10 +223,10 @@ export class RigidBody extends Component {
         return this._linearVelocity;
     }
 
-    set linearVelocity(value: any) {
+    set linearVelocity(value: IV2) {
         if (!value) return;
         if (value instanceof Array) {
-            value = { x: value[0], y: value[1] };
+            throw new Error('set linearVelocity: value is not implement IV2');
         }
         this._linearVelocity = value;
         if (this._type == "static") {
@@ -248,6 +246,31 @@ export class RigidBody extends Component {
     set bullet(value: boolean) {
         this._bullet = value;
         if (this._body) Physics2D.I._factory.set_rigidBody_bullet(this._body, value);
+    }
+
+    set position(pos: Point) {
+        if (!this._body) return;
+        var factory = Physics2D.I._factory;
+
+        let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+        factory.set_RigibBody_Transform(this._body, pos.x, pos.y, rotateValue);//重新给个setPos的接口
+        Physics2D.I._addRigidBody(this);
+    }
+
+    set rotator(number: number) {
+        if (!this._body) return;
+        var factory = Physics2D.I._factory;
+        //if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
+            var pos = Vector2.TEMP;
+            factory.get_RigidBody_Position(this.body, pos)
+            factory.set_RigibBody_Transform(this._body, pos.x, pos.y, number);//重新给个setPos的接口
+        //}
+        Physics2D.I._addRigidBody(this);
+    }
+
+    constructor() {
+        super();
+        this._type = "dynamic"
     }
 
     /**@internal*/
@@ -280,7 +303,6 @@ export class RigidBody extends Component {
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         this._needrefeshShape();
-        this._updateBodyType()
     }
 
     /**
@@ -301,19 +323,20 @@ export class RigidBody extends Component {
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (this.type == "static" )
+        if (this.type == "static")
             this._needrefeshShape();
     }
 
     protected _onAwake(): void {
         this._createBody();
-      
+
     }
 
     /** @internal */
     _onEnable(): void {
         this.owner.globalTrans.cache = true;
         Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
+        this._updateBodyType();
         this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
     }
 
@@ -326,6 +349,8 @@ export class RigidBody extends Component {
         Physics2D.I._updataRigidBodyAttribute(this);
     }
 
+
+
     /**
      * @internal
      * @en Synchronize node coordinates and rotation to the physics world. Called by the system.
@@ -335,6 +360,7 @@ export class RigidBody extends Component {
         var factory = Physics2D.I._factory;
         var sp: Sprite = this.owner;
         factory.set_RigibBody_Transform(this._body, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+        //重新更新这么多的组件 明显有点不合理TODO
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -346,7 +372,10 @@ export class RigidBody extends Component {
             factory.set_rigidbody_Awake(this._body, true);
             this.owner.event("shapeChange");
         }
+    }
 
+    getBody() {
+        return this._body;
     }
 
     /**
@@ -369,10 +398,11 @@ export class RigidBody extends Component {
 
     /**@internal */
     _onDisable(): void {
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
-        this.owner.globalTrans.cache = false;
         //添加到物理世界
         Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
+        Physics2D.I._removeRigidBody(this);
+        Physics2D.I._removeRigidBodyAttribute(this);
+        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
     }
 
     /**@internal */
@@ -385,20 +415,6 @@ export class RigidBody extends Component {
         this._body = null;
     }
 
-    /**@internal */
-    _getOriBody(): any {
-        return this._body;
-    }
-
-    /**
-     * @en Get the original body object.
-     * @zh 获得原始 body 对象。
-     */
-    getBody(): any {
-        if (!this._body) this._onAwake();
-        return this._body;
-    }
-
     /**
      * @en Apply force to the rigid body.
      * @param position The point where the force is applied, such as {x: 100, y: 100}, in global coordinates.
@@ -408,7 +424,7 @@ export class RigidBody extends Component {
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
      */
     applyForce(position: IV2, force: IV2): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.rigidBody_applyForce(this._body, force, position);
     }
 
@@ -419,7 +435,7 @@ export class RigidBody extends Component {
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
      */
     applyForceToCenter(force: IV2): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.rigidBody_applyForceToCenter(this._body, force);
     }
 
@@ -432,7 +448,7 @@ export class RigidBody extends Component {
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
      */
     applyLinearImpulse(position: IV2, impulse: IV2): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._body, impulse, position);
     }
 
@@ -443,7 +459,7 @@ export class RigidBody extends Component {
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
      */
     applyLinearImpulseToCenter(impulse: IV2): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._body, impulse);
     }
 
@@ -454,7 +470,7 @@ export class RigidBody extends Component {
      * @param torque 施加的扭矩。
      */
     applyTorque(torque: number): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.rigidbody_applyTorque(this._body, torque);
     }
 
@@ -465,7 +481,7 @@ export class RigidBody extends Component {
      * @param velocity 要设置的速度。
      */
     setVelocity(velocity: IV2): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) return;
         Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, velocity);
     }
 
@@ -475,8 +491,8 @@ export class RigidBody extends Component {
      * @zh 设置角度。
      * @param value 角度值，单位为度。
      */
-    setAngle(value: any): void {
-        if (!this._body) this._onAwake();
+    setAngle(value: number): void {
+        if (!this._body) return;
         var factory = Physics2D.I._factory;
         factory.set_RigibBody_Transform(this._body, this.owner.globalTrans.x, this.owner.globalTrans.y, value);
         factory.set_rigidbody_Awake(this._body, true);
@@ -495,8 +511,7 @@ export class RigidBody extends Component {
      * @zh 获得质心相对于节点 (0, 0) 点的位置偏移。
      */
     getCenter(): IV2 {
-        if (!this._body) this._onAwake();
-        return Physics2D.I._factory.get_rigidBody_Center(this._body);
+        return this._body ? Physics2D.I._factory.get_rigidBody_Center(this._body) : null;
     }
 
     /**
@@ -504,8 +519,7 @@ export class RigidBody extends Component {
      * @zh 获得质心的世界坐标，相对于 Physics2D.I.worldRoot 节点。
      */
     getWorldCenter(): IV2 {
-        if (!this._body) this._onAwake();
-        return Physics2D.I._factory.get_rigidBody_WorldCenter(this._body);
+        return this._body ? Physics2D.I._factory.get_rigidBody_WorldCenter(this._body) : null;
     }
 
     /**

@@ -1,5 +1,4 @@
 import { Config } from "../../Config";
-import { ILaya } from "../../ILaya";
 import { IBufferState } from "../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -13,10 +12,8 @@ import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../layagl/LayaGL";
-import { Loader } from "../net/Loader";
 import { VertexElement } from "../renders/VertexElement";
 import { VertexElementFormat } from "../renders/VertexElementFormat";
-import { Handler } from "../utils/Handler";
 import { Resource } from "./Resource";
 
 /**
@@ -171,18 +168,6 @@ export class Mesh2D extends Resource {
 
         return mesh2d;
     }
-
-
-    /**
-     * 加载网格模板。
-     * @param url 模板地址。
-     * @param complete 完成回调。
-     */
-    static load(url: string, complete: Handler): void {
-        ILaya.loader.load(url, complete, null, Loader.MESH);
-    }
-
-
 
     /** @internal */
     _bufferState: IBufferState;

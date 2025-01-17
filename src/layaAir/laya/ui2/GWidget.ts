@@ -369,7 +369,7 @@ export class GWidget extends Sprite {
     }
 
     protected _controllersChanged() {
-        this.event(UIEvent.controllers_changed);
+        this.event(UIEvent.ControllersChanged);
     }
 
     get gears(): Array<Gear<any>> {
