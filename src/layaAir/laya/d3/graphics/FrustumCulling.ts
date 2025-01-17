@@ -8,22 +8,6 @@ import { Vector3 } from "../../maths/Vector3";
  * @zh `FrustumCulling` 类用于执行视锥体剔除计算，以确定对象是否在相机视图中可见。
  */
 export class FrustumCulling {
-
-	// /**
-	//  * @internal
-	//  */
-	// private static _drawTraversalCullingBound(renderList: SingletonList<ISingletonElement>, debugTool: PixelLineSprite3D): void {
-	// 	var renders: ISingletonElement[] = renderList.elements;
-	// 	for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-	// 		var color: Color = FrustumCulling._tempColor0;
-	// 		color.r = 0;
-	// 		color.g = 1;
-	// 		color.b = 0;
-	// 		color.a = 1;
-	// 		Utils3D._drawBound(debugTool, ((<BaseRender>renders[i])).bounds._getBoundBox(), color);
-	// 	}
-	// }
-
 	/**
 	 * @en Calculates whether the given bounds are culled based on the provided culling information.
 	 * @param bounds The bounds to test for culling.
@@ -61,53 +45,5 @@ export class FrustumCulling {
 		}
 		return pass;
 	}
-
-	// /**
-	//  * caculate Bounds by ShadowCullInfo
-	//  * @param bounds 
-	//  * @param cullInfo 
-	//  * @returns 
-	//  */
-	// static cullingRenderBoundsState(bounds: Bounds, cullInfo: ShadowCullInfo): ContainmentType {
-	// 	var p: Vector3 = FrustumCulling._tempV30, n: Vector3 = FrustumCulling._tempV31;
-	// 	var boxMin: Vector3 = bounds.min;
-	// 	var boxMax: Vector3 = bounds.max;
-	// 	var result: number = ContainmentType.Contains;
-	// 	for (var i = 0, nn = cullInfo.cullPlaneCount; i < nn; i++) {
-	// 		var plane: Plane = cullInfo.cullPlanes[i];
-	// 		var planeNor: Vector3 = plane.normal;
-
-	// 		if (planeNor.x >= 0) {
-	// 			p.x = boxMax.x;
-	// 			n.x = boxMin.x;
-	// 		} else {
-	// 			p.x = boxMin.x;
-	// 			n.x = boxMax.x;
-	// 		}
-	// 		if (planeNor.y >= 0) {
-	// 			p.y = boxMax.y;
-	// 			n.y = boxMin.y;
-	// 		} else {
-	// 			p.y = boxMin.y;
-	// 			n.y = boxMax.y;
-	// 		}
-	// 		if (planeNor.z >= 0) {
-	// 			p.z = boxMax.z;
-	// 			n.z = boxMin.z;
-	// 		} else {
-	// 			p.z = boxMin.z;
-	// 			n.z = boxMax.z;
-	// 		}
-
-	// 		if (CollisionUtils.intersectsPlaneAndPoint(plane, p) === Plane.PlaneIntersectionType_Back)
-	// 			return ContainmentType.Disjoint;
-
-	// 		if (CollisionUtils.intersectsPlaneAndPoint(plane, n) === Plane.PlaneIntersectionType_Back)
-	// 			result = ContainmentType.Intersects;
-	// 	}
-	// 	return result;
-	// }
-
-
 }
 
