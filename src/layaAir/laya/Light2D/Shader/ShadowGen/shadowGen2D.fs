@@ -9,11 +9,6 @@ precision mediump float;
 
 void main()
 {
-    vec2 uv = v_texcoord;
-    vec2 t = step(vec2(0.0), uv) * step(uv, vec2(1.0));
-    vec4 textureColor = texture2D(u_baseRender2DTexture, uv) * t.x * t.y;
-    textureColor = transspaceColor(textureColor);
-    setglColor(textureColor);
-    gl_FragColor.rgb *= v_color.rgb;
-    gl_FragColor.a = 0.0;
+    vec2 t = step(vec2(0.0), v_texcoord) * step(v_texcoord, vec2(1.0));
+    gl_FragColor = texture2D(u_baseRender2DTexture, v_texcoord) * v_color * t.x * t.y;
 }
