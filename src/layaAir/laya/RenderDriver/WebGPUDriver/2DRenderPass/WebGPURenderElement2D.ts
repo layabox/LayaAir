@@ -26,6 +26,7 @@ import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 
 export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineInfo {
+    static _sceneShaderData: WebGPUShaderData = new WebGPUShaderData();
     static _value2DShaderData: WebGPUShaderData = new WebGPUShaderData();
     static _materialShaderData: WebGPUShaderData = new WebGPUShaderData();
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
@@ -528,6 +529,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         //设定当前渲染数据
         this._sceneData = context.sceneData;
+        if (!this._sceneData)
+            this._sceneData = WebGPURenderElement2D._sceneShaderData;
         this._cameraData = context.cameraData;
         if (!this.value2DShaderData)
             this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
