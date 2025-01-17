@@ -7,7 +7,7 @@ import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
-const _premultipliedAlpha = false;
+const _premultipliedAlpha = true;
 
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
@@ -56,7 +56,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
             });
             return new SpineTexture(null);
         });
@@ -68,11 +68,12 @@ class SpineTempletLoader implements IResourceLoader {
             for (var i = 0; i < res.length; i++) {
                 let tex = res[i];
                 if (tex) tex._addReference();
-                premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
 
                 let pages = atlas.pages;
                 // 默认长度 = 1
                 let page = pages[i];
+
+                premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
                 //@ts-ignore
                 page.texture.realTexture = tex;
                 page.texture.setFilters(page.minFilter, page.magFilter);
@@ -114,7 +115,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,true]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
@@ -125,10 +126,11 @@ class SpineTempletLoader implements IResourceLoader {
                 for (let i = 0, len = res.length; i < len; i++) {
                     let tex = res[i];
                     if (tex) tex._addReference();
-                    premultipliedAlpha = tex._premultiplyAlpha && premultipliedAlpha;
-
+                    
                     let page = pages[i];
                     textures[page.name] = tex;
+
+                    premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
                     //@ts-ignore
                     page.setTexture(new SpineTexture(tex));
                 }
