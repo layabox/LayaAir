@@ -29,6 +29,8 @@ import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 
 /**
  * 缓存的绑定组
@@ -179,6 +181,12 @@ export class WebGPUShaderData extends ShaderData {
         this._stateKeyMap.add(Shader3D.BLEND_EQUATION);
         this._stateKeyMap.add(Shader3D.BLEND_SRC);
         this._stateKeyMap.add(Shader3D.BLEND_DST);
+        this._stateKeyMap.add(Shader3D.BLEND_EQUATION_RGB);
+        this._stateKeyMap.add(Shader3D.BLEND_SRC_RGB);
+        this._stateKeyMap.add(Shader3D.BLEND_DST_RGB);
+        this._stateKeyMap.add(Shader3D.BLEND_EQUATION_ALPHA);
+        this._stateKeyMap.add(Shader3D.BLEND_SRC_ALPHA);
+        this._stateKeyMap.add(Shader3D.BLEND_DST_ALPHA);
         this._stateKeyMap.add(Shader3D.DEPTH_WRITE);
         this._stateKeyMap.add(Shader3D.DEPTH_TEST);
         this._stateKeyMap.add(Shader3D.STENCIL_TEST);
@@ -451,11 +459,17 @@ export class WebGPUShaderData extends ShaderData {
                     case WebGPUBindingInfoType.texture:
                         if (item.texture) {
                             let texture = this.getTexture(item.propertyId) ?? WebGPUShaderData._dummyTexture2D;
-                            if (item.texture.viewDimension === 'cube' && texture === WebGPUShaderData._dummyTexture2D)
+                            if (item.texture.viewDimension === 'cube'
+                                && texture === WebGPUShaderData._dummyTexture2D)
                                 texture = WebGPUShaderData._dummyTextureCube;
                             if (texture instanceof WebGPUInternalTex)
                                 internalTex = texture;
-                            else internalTex = texture._texture as WebGPUInternalTex;
+                            else if (texture instanceof RenderTexture2D) {
+                                const tex = texture as RenderTexture2D;
+                                if (tex._renderTarget._texturesResolve) //如果存在，表示多重采样贴图，需要用解析后的贴图
+                                    internalTex = tex._renderTarget._texturesResolve[0] as WebGPUInternalTex;
+                                else internalTex = tex._texture as WebGPUInternalTex;
+                            } else internalTex = texture._texture as WebGPUInternalTex;
                             if (!internalTex) { //保护措施
                                 texture = WebGPUShaderData._dummyTexture2D;
                                 internalTex = texture._texture as WebGPUInternalTex;
@@ -724,9 +738,23 @@ export class WebGPUShaderData extends ShaderData {
         if (WebGPUShaderData._stateKeyMap.has(index)) {
             this.stateKey = '<';
             this.stateKey += (this._data[Shader3D.BLEND] ?? 'x') + '_';
-            this.stateKey += (this._data[Shader3D.BLEND_EQUATION] ?? 'x') + '_';
-            this.stateKey += (this._data[Shader3D.BLEND_SRC] ?? 'x') + '_';
-            this.stateKey += (this._data[Shader3D.BLEND_DST] ?? 'x') + '_';
+            switch (this._data[Shader3D.BLEND]) {
+                case RenderState.BLEND_DISABLE:
+                    break;
+                case RenderState.BLEND_ENABLE_ALL:
+                    this.stateKey += (this._data[Shader3D.BLEND_EQUATION] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_SRC] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_DST] ?? 'x') + '_';
+                    break;
+                case RenderState.BLEND_ENABLE_SEPERATE:
+                    this.stateKey += (this._data[Shader3D.BLEND_EQUATION_RGB] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_SRC_RGB] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_DST_RGB] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_EQUATION_ALPHA] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_SRC_ALPHA] ?? 'x') + '_';
+                    this.stateKey += (this._data[Shader3D.BLEND_DST_ALPHA] ?? 'x') + '_';
+                    break;
+            }
             this.stateKey += (this._data[Shader3D.DEPTH_WRITE] ? 't' : 'f') + '_';
             this.stateKey += (this._data[Shader3D.DEPTH_TEST] ?? 'x') + '_';
             this.stateKey += (this._data[Shader3D.STENCIL_TEST] ?? 'x') + '_';
