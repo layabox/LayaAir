@@ -117,24 +117,13 @@ export class SkinRenderUpdate {
 
     private updateDynamicRender(skindata: SkinAniRenderData, frame: number, lastFrame: number, renderNode: Spine2DRenderNode): boolean {
         let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
-        let needUpload = frame <= 0;
 
         let currentChanges = this.vChanges;
-        this.updateCurrentChanges(currentChanges, lastFrame, frame, skindata);
-        needUpload = this.processCurrentChanges(currentChanges, frame, skindata) || needUpload;
-        if (needUpload) {
-            this.uploadVertexBuffer(skindata.vb, mesh);
-        }
+        
         let frameData = skindata.getFrameData(frame);
-        if (frameData.ib || frame < 0) {
-            this.uploadIndexBuffer(frameData, mesh);
-        }
 
-        let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        return this.handleRender(skindata, frame, renderNode, mesh , needUpdateMesh);
-    }
-
-    private updateCurrentChanges(currentChanges: IVBChange[], lastFrame: number, frame: number, skindata: SkinAniRenderData) {
+        let isFirst = frame < 0;
+        //统计vchange
         for (let f = lastFrame + 1; f <= frame; f++) {
             let frameData = skindata.getFrameData(f);
             let frameChanges = frameData.vChanges;
@@ -146,9 +135,8 @@ export class SkinRenderUpdate {
                 }
             }
         }
-    }
 
-    private processCurrentChanges(currentChanges: IVBChange[], frame: number, skindata: SkinAniRenderData): boolean {
+        //是否有vchange 修改顶点 或者 -1帧初始化状态
         let needUpload = false;
         for (let i = currentChanges.length - 1; i >= 0; i--) {
             let change = currentChanges[i];
@@ -158,18 +146,30 @@ export class SkinRenderUpdate {
                 currentChanges.splice(i, 1);
             }
         }
-        return needUpload;
+
+        if (needUpload || isFirst) {
+            this.uploadVertexBuffer(skindata.vb, mesh);
+        }
+
+        if (frameData.ib || isFirst) {
+            this.uploadIndexBuffer(frameData, mesh);
+        }
+
+        let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
+        return this.handleRender(skindata, frame, renderNode, mesh , needUpdateMesh);
     }
 
     private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D , forceUpdateMesh = false): boolean {
         let frameData = skindata.getFrameData(frame);
-        let mulitRenderData = frameData.mulitRenderData;
-        let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData);
         let needUpdate = false;
-        if (this.currentMaterials !== mats) {
-            renderNode._updateMaterials(mats);
-            needUpdate = true;
-            this.currentMaterials = mats;
+        let mulitRenderData = frameData.mulitRenderData;
+        if (mulitRenderData) {
+            let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData);
+            if (this.currentMaterials !== mats) {
+                renderNode._updateMaterials(mats);
+                needUpdate = true;
+                this.currentMaterials = mats;
+            }
         }
 
         return !renderNode._onMeshChange(mesh , forceUpdateMesh) || needUpdate;
