@@ -339,5 +339,11 @@ export const allBundles = [{
     input: [
         'laya/Line2D/**/*.*'
     ],
+},
+{
+    name:'postProcess',
+    input:[
+        'laya/d3/postProcessEffect/**/*.*'
+    ]
 }
 ];

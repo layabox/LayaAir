@@ -1,6 +1,5 @@
 import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
-import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
@@ -14,7 +13,6 @@ import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/Shurik
 import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
-import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad";
 import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
@@ -39,17 +37,14 @@ import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
-import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
-import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
-import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
-import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
-import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { Config, PlayerConfig } from "./Config";
 import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
+import { PostProcess } from "./laya/d3/core/render/postProcessBase/PostProcess";
+import { ScreenQuad } from "./laya/d3/core/render/command/geometry/ScreenQuad";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -130,11 +125,6 @@ export class Laya3D {
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
-        BloomEffect.init();
-        ScalableAO.init();
-        GaussianDoF.init();
-        ColorGradEffect.init();
-        LensFlareEffect.init();
 
         PrimitiveMesh.__init__();
         Sprite3D.__init__();

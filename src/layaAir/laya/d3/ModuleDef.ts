@@ -68,18 +68,16 @@ import { Animator } from "./component/Animator/Animator";
 import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "./component/Animator/AnimatorState";
 import { AvatarMask } from "./component/Animator/AvatarMask";
-import { PostProcess } from "./component/PostProcess";
-import { PostProcessEffect } from "./core/render/PostProcessEffect";
-import { BloomEffect } from "./core/render/PostEffect/BloomEffect";
-import { GaussianDoF } from "./core/render/PostEffect/GaussianDoF";
-import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
+import { PostProcess } from "./core/render/postProcessBase/PostProcess";
+import { PostProcessEffect } from "./core/render/postProcessBase/PostProcessEffect";
+
 import { AnimatorController } from "./component/Animator/AnimatorController";
 import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
 import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/StaticInstanceBatchRender";
 import { RenderTexture } from "../resource/RenderTexture";
-import { ColorGradEffect } from "./core/render/PostEffect/ColorGradEffect";
+
 import { UI3D } from "./core/UI3D/UI3D";
-import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
+
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/Texture2DArrayLoader";
@@ -185,11 +183,3 @@ c("SkyRenderer", SkyRenderer);
 
 c("PostProcess", PostProcess);
 c("PostProcessEffect", PostProcessEffect);
-c("BloomEffect", BloomEffect);
-c("GaussianDoF", GaussianDoF);
-c("ScalableAO", ScalableAO);
-c("ColorGradEffect", ColorGradEffect);
-
-c("LensFlareEffect", LensFlareEffect);
-c("LensFlareElement", LensFlareElement);
-c("LensFlareData", LensFlareData);

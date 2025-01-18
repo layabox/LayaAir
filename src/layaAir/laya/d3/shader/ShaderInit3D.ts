@@ -38,7 +38,6 @@ import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 import { ParticleShuriKenShaderInit } from "./ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
 import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
-import { ACESShaderLib } from "./postprocess/ACES/ACESShaderLib";
 
 /**
  * @internal
@@ -52,7 +51,7 @@ export class ShaderInit3D {
 
 		// utils
 		Shader3D.addInclude("Utils.glsl", UtilsGLSL);
-		
+
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
 		Shader3D.addInclude("MorphTarget.glsl", MorphTargetGLSL);
 		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
@@ -103,7 +102,6 @@ export class ShaderInit3D {
 
 		// lib
 		PBRShaderLib.init();
-		ACESShaderLib.init();
 
 		// shader init
 		BlitScreenShaderInit.init();

@@ -1,5 +1,3 @@
-import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
-import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import EdgeEffectVS from "./shader/EdgeEffectVS.vs";
 import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
@@ -17,6 +15,8 @@ import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture, DepthTextureMode } from "laya/resource/RenderTexture";
 import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Viewport } from "laya/maths/Viewport";
+import { PostProcessEffect } from "laya/d3/core/render/postProcessBase/PostProcessEffect";
+import { PostProcessRenderContext } from "laya/d3/core/render/postProcessBase/PostProcessRenderContext";
 
 export enum EdgeMode {
     ColorEdge = 0,

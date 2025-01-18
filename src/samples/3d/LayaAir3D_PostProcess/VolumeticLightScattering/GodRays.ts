@@ -1,8 +1,6 @@
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
-import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
-import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import BlitVS from "./FarBlitScreen.vs";
@@ -20,6 +18,8 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 import { ShaderDataType, ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { PostProcessEffect } from "laya/d3/core/render/postProcessBase/PostProcessEffect";
+import { PostProcessRenderContext } from "laya/d3/core/render/postProcessBase/PostProcessRenderContext";
 
 export class GodRay extends PostProcessEffect {
     static init() {

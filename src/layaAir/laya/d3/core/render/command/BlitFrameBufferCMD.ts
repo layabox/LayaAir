@@ -1,6 +1,5 @@
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { RenderContext3D } from "../RenderContext3D";
-import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { RenderElement } from "../RenderElement";
@@ -13,6 +12,7 @@ import { Camera } from "../../Camera";
 import { Transform3D } from "../../Transform3D";
 import { Viewport } from "../../../../maths/Viewport";
 import { Stat } from "../../../../utils/Stat";
+import { ScreenQuad } from "./geometry/ScreenQuad";
 
 
 

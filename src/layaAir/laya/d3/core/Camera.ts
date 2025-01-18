@@ -1,7 +1,6 @@
 import { Config3D } from "../../../Config3D";
 import { Event } from "../../events/Event";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { PostProcess } from "../component/PostProcess";
 import { DepthPass } from "../depthMap/DepthPass";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Ray } from "../math/Ray";
@@ -34,6 +33,7 @@ import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
 import { RenderPassStatisticsInfo } from "../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Config } from "../../../Config";
+import { PostProcess } from "./render/postProcessBase/PostProcess";
 
 /**
  * @en Camera clear flags.

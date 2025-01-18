@@ -20,20 +20,16 @@ import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Vector3 } from "laya/maths/Vector3";
-import { Stat } from "laya/utils/Stat";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
-import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Color } from "laya/maths/Color";
-import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUStatis/WebGPUStatis";
 import { Config3D } from "Config3D";
-import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Loader } from "laya/net/Loader";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
 import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
-import { PostProcess } from "laya/d3/component/PostProcess";
-import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
+import { BloomEffect } from "laya/d3/postProcessEffect/BloomEffect";
 
 export class WebGPUTest {
     useWebGPU: boolean = true;
