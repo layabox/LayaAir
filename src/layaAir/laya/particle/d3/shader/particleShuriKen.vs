@@ -24,10 +24,24 @@ vec2 TransformUV(vec2 texcoord, vec4 tilingOffset)
     return transTexcoord;
 }
 
-#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
+#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
 vec3 computeParticleLifeVelocity(in float normalizedAge)
 {
     vec3 outLifeVelocity;
+    #ifdef VELOCITYOVERLIFETIMECONSTANT
+    	outLifeVelocity = u_VOLVelocityConst;
+    #endif
+    #ifdef VELOCITYOVERLIFETIMECURVE
+    	outLifeVelocity = vec3(getCurValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
+		getCurValueFromGradientFloat(u_VOLVelocityGradientY, normalizedAge),
+		getCurValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge));
+    #endif
+    #ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
+    	outLifeVelocity = mix(u_VOLVelocityConst,
+			u_VOLVelocityConstMax,
+			vec3(a_Random1.y, a_Random1.z, a_Random1.w));
+    #endif
+	#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
     	outLifeVelocity = vec3(
 		mix(getCurValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
 			getCurValueFromGradientFloat(u_VOLVelocityGradientMaxX, normalizedAge),
@@ -38,6 +52,7 @@ vec3 computeParticleLifeVelocity(in float normalizedAge)
 		mix(getCurValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge),
 			getCurValueFromGradientFloat(u_VOLVelocityGradientMaxZ, normalizedAge),
 			a_Random1.w));
+	#endif
 
     return outLifeVelocity;
 }
@@ -56,8 +71,22 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in flo
 {
     vec3 startPosition = getStartPosition(startVelocity, age, dragData);
     vec3 lifePosition;
-#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
-   
+#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+    
+	#ifdef VELOCITYOVERLIFETIMECONSTANT
+    	lifePosition = lifeVelocity * age;
+    #endif
+
+    #ifdef VELOCITYOVERLIFETIMECURVE
+		lifePosition = vec3(getTotalValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
+		getTotalValueFromGradientFloat(u_VOLVelocityGradientY, normalizedAge),
+		getTotalValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge));
+    #endif
+
+    #ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
+    	lifePosition = lifeVelocity * age;
+    #endif
+
     #ifdef VELOCITYOVERLIFETIMERANDOMCURVE
 		lifePosition = vec3(
 		mix(
@@ -124,6 +153,12 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in flo
 
 vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 {
+#ifdef COLOROVERLIFETIME
+    color *= getColorFromGradient(u_ColorOverLifeGradientAlphas,
+	u_ColorOverLifeGradientColors,
+	normalizedAge, u_ColorOverLifeGradientRanges);
+#endif
+
 #ifdef RANDOMCOLOROVERLIFETIME
     color *= mix(getColorFromGradient(u_ColorOverLifeGradientAlphas,
 		     u_ColorOverLifeGradientColors,
@@ -138,13 +173,18 @@ vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 
 vec2 computeParticleSizeBillbard(in vec2 size, in float normalizedAge)
 {
-
+#ifdef SIZEOVERLIFETIMECURVE
+    size *= getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge);
+#endif
 #ifdef SIZEOVERLIFETIMERANDOMCURVES
     size *= mix(getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge),
 	getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
 	a_Random0.z);
 #endif
-
+#ifdef SIZEOVERLIFETIMECURVESEPERATE
+    size *= vec2(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
+	getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge));
+#endif
 #ifdef SIZEOVERLIFETIMERANDOMCURVESSEPERATE
     size *= vec2(mix(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
 		     getCurValueFromGradientFloat(u_SOLSizeGradientMaxX, normalizedAge),
@@ -153,20 +193,25 @@ vec2 computeParticleSizeBillbard(in vec2 size, in float normalizedAge)
 	    getCurValueFromGradientFloat(u_SOLSizeGradientMaxY, normalizedAge),
 	    a_Random0.z));
 #endif
-
     return size;
 }
 
 #ifdef RENDERMODE_MESH
 vec3 computeParticleSizeMesh(in vec3 size, in float normalizedAge)
 {
-
+	#ifdef SIZEOVERLIFETIMECURVE
+    	size *= getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge);
+    #endif
     #ifdef SIZEOVERLIFETIMERANDOMCURVES
     	size *= mix(getCurValueFromGradientFloat(u_SOLSizeGradient, normalizedAge),
 					getCurValueFromGradientFloat(u_SOLSizeGradientMax, normalizedAge),
 					a_Random0.z);
     #endif
-
+ 	#ifdef SIZEOVERLIFETIMECURVESEPERATE
+		size *= vec3(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
+		getCurValueFromGradientFloat(u_SOLSizeGradientY, normalizedAge),
+		getCurValueFromGradientFloat(u_SOLSizeGradientZ, normalizedAge));
+    #endif
     #ifdef SIZEOVERLIFETIMERANDOMCURVESSEPERATE
     	size *= vec3(mix(getCurValueFromGradientFloat(u_SOLSizeGradientX, normalizedAge),
 			     getCurValueFromGradientFloat(u_SOLSizeGradientMaxX, normalizedAge),
@@ -187,20 +232,50 @@ float computeParticleRotationFloat(in float rotation,
     in float age,
     in float normalizedAge)
 {
-	#ifdef ROTATIONOVERLIFETIME
+#ifdef ROTATIONOVERLIFETIME
+    #ifdef ROTATIONOVERLIFETIMECONSTANT
+		float ageRot = u_ROLAngularVelocityConst * age;
+		rotation += ageRot;
+    #endif
+    #ifdef ROTATIONOVERLIFETIMECURVE
+    	rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge);
+    #endif
+    #ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
+		float ageRot = mix(u_ROLAngularVelocityConst, u_ROLAngularVelocityConstMax, a_Random0.w) * age;
+		rotation += ageRot;
+    #endif
+    #ifdef ROTATIONOVERLIFETIMERANDOMCURVES
 		rotation += mix(
-			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
-			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,normalizedAge),
-			a_Random0.w);
-	#endif
-
-	#ifdef ROTATIONOVERLIFETIMESEPERATE
+		getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
+		getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,
+			normalizedAge),
+		a_Random0.w);
+    #endif
+#endif
+#ifdef ROTATIONOVERLIFETIMESEPERATE
+    #ifdef ROTATIONOVERLIFETIMECONSTANT
+		float ageRot = u_ROLAngularVelocityConstSeprarate.z * age;
+		rotation += ageRot;
+    #endif
+    #ifdef ROTATIONOVERLIFETIMECURVE
+		rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
+		normalizedAge);
+    #endif
+    #ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
+		float ageRot = mix(u_ROLAngularVelocityConstSeprarate.z,
+				u_ROLAngularVelocityConstMaxSeprarate.z,
+				a_Random0.w)
+		* age;
+		rotation += ageRot;
+    #endif
+    #ifdef ROTATIONOVERLIFETIMERANDOMCURVES
 		rotation += mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
 				normalizedAge),
 		getTotalValueFromGradientFloat(
 			u_ROLAngularVelocityGradientMaxZ, normalizedAge),
 		a_Random0.w);
-	#endif
+    #endif
+#endif
     return rotation;
 }
 
@@ -210,29 +285,62 @@ vec3 computeParticleRotationVec3(in vec3 rotation,
     in float normalizedAge)
 {
     #ifdef ROTATIONOVERLIFETIME
+		#ifdef ROTATIONOVERLIFETIMECONSTANT
+			float ageRot = u_ROLAngularVelocityConst * age;
+			rotation += ageRot;
+		#endif
+		#ifdef ROTATIONOVERLIFETIMECURVE
+			rotation += getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge);
+		#endif
+		#ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
+			float ageRot = mix(u_ROLAngularVelocityConst, u_ROLAngularVelocityConstMax, a_Random0.w) * age;
+			rotation += ageRot;
+		#endif
+		#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
 			rotation += mix(
 			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradient, normalizedAge),
 			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMax,
 				normalizedAge),
 			a_Random0.w);
+		#endif
     #endif
-    
-	#ifdef ROTATIONOVERLIFETIMESEPERATE
-		rotation += vec3(mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
+    #ifdef ROTATIONOVERLIFETIMESEPERATE
+		#ifdef ROTATIONOVERLIFETIMECONSTANT
+			vec3 ageRot = u_ROLAngularVelocityConstSeprarate * age;
+			rotation += ageRot;
+		#endif
+		#ifdef ROTATIONOVERLIFETIMECURVE
+			rotation += vec3(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
 					normalizedAge),
-				getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxX,
-					normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
+				normalizedAge),
+			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
+				normalizedAge));
+		#endif
+		#ifdef ROTATIONOVERLIFETIMERANDOMCONSTANTS
+			vec3 ageRot = mix(u_ROLAngularVelocityConstSeprarate,
+					u_ROLAngularVelocityConstMaxSeprarate,
+					a_Random0.w)
+			* age;
+			rotation += ageRot;
+		#endif
+		#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
+			rotation += vec3(mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientX,
+						normalizedAge),
+					getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxX,
+						normalizedAge),
+					a_Random0.w),
+			mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
+				normalizedAge),
+				getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxY,
+				normalizedAge),
 				a_Random0.w),
-		mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientY,
-			normalizedAge),
-			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxY,
-			normalizedAge),
-			a_Random0.w),
-		mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
-			normalizedAge),
-			getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,
-			normalizedAge),
-			a_Random0.w));
+			mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,
+				normalizedAge),
+				getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,
+				normalizedAge),
+				a_Random0.w));
+		#endif
     #endif
     return rotation;
 }
@@ -240,7 +348,15 @@ vec3 computeParticleRotationVec3(in vec3 rotation,
 
 vec2 computeParticleUV(in vec2 uv, in float normalizedAge)
 {
-
+#ifdef TEXTURESHEETANIMATIONCURVE
+    float cycleNormalizedAge = normalizedAge * u_TSACycles;
+    float frame = getFrameFromGradient(
+	u_TSAGradientUVs, cycleNormalizedAge - floor(cycleNormalizedAge));
+    float totalULength = frame * u_TSASubUVLength.x;
+    float floorTotalULength = floor(totalULength);
+    uv.x += totalULength - floorTotalULength;
+    uv.y += floorTotalULength * u_TSASubUVLength.y;
+#endif
 #ifdef TEXTURESHEETANIMATIONRANDOMCURVE
     float cycleNormalizedAge = normalizedAge * u_TSACycles;
     float uvNormalizedAge = cycleNormalizedAge - floor(cycleNormalizedAge);
@@ -264,7 +380,7 @@ void main()
 	{
 	    vec3 startVelocity = a_DirectionTime.xyz * a_StartSpeed;
 	
-		#ifdef VELOCITYOVERLIFETIMERANDOMCURVE
+		#if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
 				lifeVelocity = computeParticleLifeVelocity(normalizedAge); //计算粒子生命周期速度
 		#endif
 	
@@ -324,7 +440,7 @@ void main()
 #ifdef STRETCHEDBILLBOARD
 	    vec2 corner = a_CornerTextureCoordinate.xy; // Billboard模式z轴无效
 	    vec3 velocity;
-    #ifdef VELOCITYOVERLIFETIMERANDOMCURVE
+    #if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
 	    if (u_VOLSpaceType == 0)
 		velocity = rotationByQuaternions(u_SizeScale * (startVelocity + lifeVelocity),
 			       worldRotation)
@@ -409,10 +525,14 @@ void main()
 						else
 						{
 							vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
-							if (u_SimulationSpace == 0)
-								center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
-							else if (u_SimulationSpace == 1)
-								center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
+							#ifdef SHAPE
+			    				center += u_SizeScale.xzy * (rotationByQuaternions(rotationByAxis(a_MeshPosition * size, axis, angle), worldRotation));
+	    					#else
+								if (u_SimulationSpace == 0)
+									center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
+								else if (u_SimulationSpace == 1)
+									center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
+							#endif
 						}
 							
 				#endif
@@ -435,29 +555,38 @@ void main()
 		}
 	    else
 		{
-		    if (a_ShapePositionStartLifeTime.x != 0.0 || a_ShapePositionStartLifeTime.y != 0.0)
-			{
+			#ifdef SHAPE
 			    if (u_SimulationSpace == 0)
-					center += rotationByAxis(
-						u_SizeScale * a_MeshPosition * size,
-						normalize(cross(vec3(0.0, 0.0, 1.0),
-						vec3(a_ShapePositionStartLifeTime.xy, 0.0))),
-						a_StartRotation0.x);
+				center += u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x);
 			    else if (u_SimulationSpace == 1)
-					center += (rotationByQuaternions(
-						u_SizeScale * rotationByAxis(a_MeshPosition * size, normalize(cross(vec3(0.0, 0.0, 1.0), vec3(a_ShapePositionStartLifeTime.xy, 0.0))), a_StartRotation0.x),
-						worldRotation)); //已验证
-			}
-		    else
-			{
-				vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
-				if (u_SimulationSpace == 0)
-					center += u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x);
-				else if (u_SimulationSpace == 1)
-					center += rotationByQuaternions(
-					u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x),
-					worldRotation);
-			}
+				center += rotationByQuaternions(
+				    u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x),
+				    worldRotation);
+			#else
+				if (a_ShapePositionStartLifeTime.x != 0.0 || a_ShapePositionStartLifeTime.y != 0.0)
+				{
+					if (u_SimulationSpace == 0)
+						center += rotationByAxis(
+							u_SizeScale * a_MeshPosition * size,
+							normalize(cross(vec3(0.0, 0.0, 1.0),
+							vec3(a_ShapePositionStartLifeTime.xy, 0.0))),
+							a_StartRotation0.x);
+					else if (u_SimulationSpace == 1)
+						center += (rotationByQuaternions(
+							u_SizeScale * rotationByAxis(a_MeshPosition * size, normalize(cross(vec3(0.0, 0.0, 1.0), vec3(a_ShapePositionStartLifeTime.xy, 0.0))), a_StartRotation0.x),
+							worldRotation)); //已验证
+				}
+				else
+				{
+					vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
+					if (u_SimulationSpace == 0)
+						center += u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x);
+					else if (u_SimulationSpace == 1)
+						center += rotationByQuaternions(
+						u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x),
+						worldRotation);
+				}
+			#endif
 		}
     #endif
 	    v_MeshColor = a_MeshColor;
