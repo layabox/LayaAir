@@ -35,7 +35,6 @@ import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
 import { PBRShaderLib } from "./pbr/PBRShaderLib";
 import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
 import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
-import { ParticleShuriKenShaderInit } from "./ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
 import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
 
@@ -109,7 +108,6 @@ export class ShaderInit3D {
 		PBRStandardShaderInit.init();
 		//PBRShaderInit.init();
 		BlinnPhongShaderInit.init();
-		ParticleShuriKenShaderInit.init();
 		SkyBoxShaderInit.init();
 		SkyProceduralShaderInit.init();
 		SkyPanoramicShaderInit.init();

@@ -2,7 +2,6 @@ import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Camera } from "../d3/core/Camera";
 import { MeshSprite3D } from "../d3/core/MeshSprite3D";
-import { ShuriKenParticle3D } from "../d3/core/particleShuriKen/ShuriKenParticle3D";
 import { RenderableSprite3D } from "../d3/core/RenderableSprite3D";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "../d3/core/SkinnedMeshSprite3D";
@@ -17,6 +16,7 @@ import { PointLightCom } from "../d3/core/light/PointLightCom";
 import { SpotLightCom } from "../d3/core/light/SpotLightCom";
 import { TrailRenderer } from "../trail/trail3D/TrailRenderer";
 import { PrefabImpl } from "../resource/PrefabImpl";
+import { ShuriKenParticle3D } from "../particle/d3/ShuriKenParticle3D";
 
 /**
  * @internal

@@ -1,6 +1,6 @@
-import { GradientDataNumber } from "../../d3/core/particleShuriKen/module/GradientDataNumber";
 import { MathUtil } from "../../maths/MathUtil";
 import { IClone } from "../../utils/IClone";
+import { GradientDataNumber } from "../d3/module/GradientDataNumber";
 
 export enum ParticleMinMaxCurveMode {
     Constant = 0,

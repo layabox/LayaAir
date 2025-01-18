@@ -1,6 +1,5 @@
 import { addAfterInitCallback } from "../../../Laya";
 import { LayaEnv } from "../../../LayaEnv";
-import { GradientDataNumber } from "../../d3/core/particleShuriKen/module/GradientDataNumber";
 import { Sprite } from "../../display/Sprite";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Gradient } from "../../maths/Gradient";
@@ -14,12 +13,11 @@ import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDe
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
-import { ClassUtils } from "../../utils/ClassUtils";
 import { Stat } from "../../utils/Stat";
 import { ParticleMinMaxCurveMode } from "../common/ParticleMinMaxCurve";
 import { ParticleMinMaxGradientMode } from "../common/ParticleMinMaxGradient";
+import { GradientDataNumber } from "../d3/module/GradientDataNumber";
 import { Particle2DScalingMode, Particle2DSimulationSpace } from "./module/Main2DModule";
-import { Shape2DModule } from "./module/Shape2DModule";
 import { Velocity2DSimulateSpace } from "./module/Velocity2DOverLifetimeModule";
 import { Particle2DGeomotry } from "./Particle2DGeomotry";
 import { Particle2DShader } from "./Particle2DShader";

@@ -14,6 +14,7 @@ import "laya/particle/ModuleDef";
 import "laya/Light2D/ModuleDef";
 import "laya/Line2D/ModuleDef";
 import "laya/d3/postProcessEffect/ModuleDef";
+import "laya/particle/d3/ModuleDef";
 import "laya/utils/StatUI";
 
 import "laya/legacy/Animator";
