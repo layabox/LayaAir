@@ -47,8 +47,8 @@ const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
 const TempVector2_1: Vector2 = new Vector2();
 const TempVector2_2: Vector2 = new Vector2();
-const TempVector3_0: Vector3 = new Vector3();
-const TempVector3_1: Vector3 = new Vector3();
+// const TempVector3_0: Vector3 = new Vector3();
+// const TempVector3_1: Vector3 = new Vector3();
 
 export class TileMapLayer extends BaseRenderNode2D {
 
@@ -404,12 +404,12 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param py 
      */
     addCMDCall(context: Context, px: number, py: number): void {
-        let mat = this._globalTransfrom();
+        let mat = context._curMat;
         let vec3 = Vector3.TEMP;
-        vec3.setValue(mat.a, mat.c, mat.tx);
+        vec3.setValue(mat.a, mat.c, px * mat.a + py * mat.c + mat.tx);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
 
-        vec3.setValue(mat.b, mat.d, mat.ty);
+        vec3.setValue(mat.b, mat.d, px * mat.b + py * mat.d + mat.ty);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
 
         this._setRenderSize(context.width, context.height)
