@@ -528,11 +528,11 @@ void main()
 							#ifdef SHAPE
 			    				center += u_SizeScale.xzy * (rotationByQuaternions(rotationByAxis(a_MeshPosition * size, axis, angle), worldRotation));
 	    					#else
-							
-							if (u_SimulationSpace == 0)
-								center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
-							else if (u_SimulationSpace == 1)
-								center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
+								if (u_SimulationSpace == 0)
+									center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
+								else if (u_SimulationSpace == 1)
+									center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
+							#endif
 						}
 							
 				#endif

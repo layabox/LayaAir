@@ -44,7 +44,7 @@ uniform int u_SimulationSpace;
 
 #ifdef COLOROVERLIFETIME
     uniform vec4 u_ColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
-    uniform vec2 u_ColorOverLifeGradientAlphas[COLORCOUNT_HALF]; // x为key,y为Alpha,z为key,w为Alpha 
+    uniform vec4 u_ColorOverLifeGradientAlphas[COLORCOUNT_HALF]; // x为key,y为Alpha,z为key,w为Alpha 
     uniform vec4 u_ColorOverLifeGradientRanges;
 #endif
 
