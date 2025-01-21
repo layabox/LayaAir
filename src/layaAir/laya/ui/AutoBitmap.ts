@@ -4,6 +4,7 @@ import { ILaya } from "../../ILaya";
 import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { LayaEnv } from "../../LayaEnv";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * @en The `AutoBitmap` class is a display object that represents bitmap images or graphics.
@@ -96,7 +97,10 @@ export class AutoBitmap extends Graphics {
             this._source.off("reload", this, this._setChanged);
         if (value) {
             this._source = value;
-            ILaya.timer.runCallLater(this, this.changeSource, true);
+            if (SerializeUtil.isDeserializing)
+                this._setChanged();
+            else
+                ILaya.timer.runCallLater(this, this.changeSource, true);
             if (!LayaEnv.isPlaying)
                 value.on("reload", this, this._setChanged);
         } else {

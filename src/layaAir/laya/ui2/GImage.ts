@@ -116,7 +116,10 @@ export class GImage extends GWidget {
             this._tex.off("reload", this, this._onTextureReload);
         this._tex = res;
         if (res) {
-            this._setChanged();
+            if (SerializeUtil.isDeserializing)
+                this._setChanged();
+            else
+                ILaya.timer.runCallLater(this, this.changeSource, true);
             if (!LayaEnv.isPlaying)
                 res.on("reload", this, this._onTextureReload);
         } else {
