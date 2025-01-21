@@ -209,7 +209,7 @@ export class WebGLForwardAddClusterRP {
      */
     private _transparentListRender(context: WebGLRenderContext3D) {
         this.transparent.renderQueue(context);
-        Stat.transDrawCall+=this.transparent.elements.length;
+        Stat.transDrawCall += this.transparent.elements.length;
     }
 
     /**
@@ -219,7 +219,7 @@ export class WebGLForwardAddClusterRP {
      */
     private _opaqueListRender(context: WebGLRenderContext3D) {
         this.opaqueList.renderQueue(context);
-        Stat.opaqueDrawCall+=this.opaqueList.elements.length;
+        Stat.opaqueDrawCall += this.opaqueList.elements.length;
     }
 
     /**
@@ -301,4 +301,15 @@ export class WebGLForwardAddClusterRP {
         context.setRenderTarget(this.destTarget, RenderClearFlag.Nothing);
     }
 
+    destroy() {
+        this.cameraCullInfo = null;
+        this.beforeForwardCmds = null;
+        this.beforeSkyboxCmds = null;
+        this.beforeTransparentCmds = null;
+        this.blitOpaqueBuffer.clear();
+        this.blitOpaqueBuffer = null;
+        this.opaqueList.destroy();
+        this.transparent.destroy();
+
+    }
 }

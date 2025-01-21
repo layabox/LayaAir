@@ -55,7 +55,7 @@ export class VolumetricGI extends Volume {
         this._volumetricProbeID = VolumetricGI.getID();
         this._dataModule.intensity = 1;
     }
-    
+
     protected _onEnable(): void {
         super._onEnable();
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
@@ -106,7 +106,6 @@ export class VolumetricGI extends Volume {
         else {
             this._dataModule.distance = null;
         }
-        this._distance = value;
         this._distance = value;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
@@ -207,7 +206,6 @@ export class VolumetricGI extends Volume {
      * @internal
      */
     _onDestroy() {
-        // todo
         this.irradiance = null;
         this.distance = null;
     }

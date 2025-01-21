@@ -1505,6 +1505,7 @@ export class Camera extends BaseCamera {
         if (this._opaqueTexture) {
             RenderTexture.recoverToPool(this._opaqueTexture);
         }
+        this._Render3DProcess.destroy();
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
         this._cameraEventCommandBuffer = {};

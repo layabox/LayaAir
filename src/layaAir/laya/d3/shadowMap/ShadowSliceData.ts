@@ -148,6 +148,12 @@ export class ShadowSpotData {
         this.cameraCullInfo = new CameraCullInfo();
 
     }
+
+    destroy() {
+        this.cameraShaderValue.destroy();
+        this.cameraShaderValue = null;
+        this.cameraCullInfo = null;
+    }
 }
 
 /**
@@ -239,5 +245,11 @@ export class ShadowSliceData {
             this.cameraShaderValue.createUniformBuffer(BaseCamera.UBONAME_CAMERA, BaseCamera.caemraUBOUnifromMap);
         }
 
+    }
+
+    destroy() {
+        this.cameraShaderValue.destroy();
+        this.cameraShaderValue = null;
+        this.cullPlanes = null;
     }
 }

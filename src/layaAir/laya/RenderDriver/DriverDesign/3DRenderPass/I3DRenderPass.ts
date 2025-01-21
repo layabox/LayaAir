@@ -14,6 +14,7 @@ import { Viewport } from "../../../maths/Viewport";
 import { IRenderCMD } from "../RenderDevice/IRenderCMD";
 export interface IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void;
+    destroy(): void;
 }
 
 export declare type PipelineMode = "Forward" | "ShadowCaster" | "DepthNormal" | string;
