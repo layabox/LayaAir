@@ -15,6 +15,7 @@ import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
 import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
+import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
 
 /**
  * @internal
@@ -260,6 +261,12 @@ export class AnimationClipParser04 {
 					for (j = 0; j < keyframeCount; j++) {
 						let isWeight = 1;
 						switch (type) {
+							case KeyFrameValueType.Boolean:
+								let booleanKeyframe = new BooleanKeyframe();
+								node._setKeyframeByIndex(j, booleanKeyframe);
+								booleanKeyframe.time = startTimeTypes[reader.getUint16()];
+								booleanKeyframe.value = reader.getByte() == 1;
+								break;
 							case KeyFrameValueType.Float:
 								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
 								node._setKeyframeByIndex(j, floatKeyframe);

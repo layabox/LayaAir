@@ -220,7 +220,7 @@ export class Animator extends Component {
             keyframeNodeOwner.type = node.type;
 
             if (property) {//查询成功后赋默认值
-                if (node.type === 0) {
+                if (node.type === KeyFrameValueType.Float || node.type === KeyFrameValueType.Boolean) {
                     keyframeNodeOwner.defaultValue = property;
                 } else {
                     var defaultValue = new property.constructor();
@@ -706,6 +706,9 @@ export class Animator extends Component {
         let lastpro;
         if (pro) {
             switch (nodeOwner.type) {
+                case KeyFrameValueType.Boolean:
+                    console.log("Animator:Boolean not support3");
+                    break;
                 case KeyFrameValueType.Float: //Float
                     var proPat: string[] = nodeOwner.property!;
                     var m: number = proPat.length - 1;
@@ -881,6 +884,19 @@ export class Animator extends Component {
                 let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
+                        case KeyFrameValueType.Boolean:
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            let lastBoolPro = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[lastBoolPro] = realtimeDatas[i])
+                            }
+                            break;
                         case KeyFrameValueType.Float: //Float
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
@@ -1066,6 +1082,9 @@ export class Animator extends Component {
                 let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
+                        case KeyFrameValueType.Boolean:
+                            console.log("Animator:Boolean not support2");
+                            break;
                         case KeyFrameValueType.Float:
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
