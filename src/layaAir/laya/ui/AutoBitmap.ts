@@ -96,7 +96,7 @@ export class AutoBitmap extends Graphics {
             this._source.off("reload", this, this._setChanged);
         if (value) {
             this._source = value;
-            this._setChanged();
+            ILaya.timer.runCallLater(this, this.changeSource, true);
             if (!LayaEnv.isPlaying)
                 value.on("reload", this, this._setChanged);
         } else {
