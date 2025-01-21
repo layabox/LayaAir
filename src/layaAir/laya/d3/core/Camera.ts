@@ -1407,12 +1407,12 @@ export class Camera extends BaseCamera {
      * @param out  输出射线。
      */
     viewportPointToRay(point: Vector2, out: Ray): void {
-        point.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
+        _tempVector20.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
         this._rayViewport.x = this.viewport.x;
         this._rayViewport.y = this.viewport.y;
         this._rayViewport.width = this.viewport.width;
         this._rayViewport.height = this.viewport.height;
-        Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
+        Picker.calculateCursorRay(_tempVector20, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
 
     /**
@@ -1425,10 +1425,8 @@ export class Camera extends BaseCamera {
      */
     normalizedViewportPointToRay(point: Vector2, out: Ray): void {
         var vp: Viewport = this.normalizedViewport;
-        point.x = point.x * Config3D.pixelRatio;
-        point.y = point.y * Config3D.pixelRatio;
-        _tempVector20.x = point.x * vp.width;
-        _tempVector20.y = point.y * vp.height;
+        _tempVector20.x = point.x * Config3D.pixelRatio * vp.width;
+        _tempVector20.y = point.y * Config3D.pixelRatio * vp.height;
 
         Picker.calculateCursorRay(_tempVector20, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
     }
