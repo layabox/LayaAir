@@ -4,7 +4,9 @@ import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { FillTextureCmd } from "../display/cmd/FillTextureCmd";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
+import { ColorUtils } from "../utils/ColorUtils";
 import { GWidget } from "./GWidget";
 
 export class GImage extends GWidget {
@@ -35,8 +37,13 @@ export class GImage extends GWidget {
 
         this._src = value;
         let loadID = ++this._loadID;
-        if (value)
-            ILaya.loader.load(value).then(res => this.onLoad(res, loadID));
+        if (value) {
+            let tex = Loader.getRes(value);
+            if (tex)
+                this.onLoad(tex, loadID);
+            else
+                ILaya.loader.load(value).then(res => this.onLoad(res, loadID));
+        }
         else
             this.onLoad(null, loadID);
     }
@@ -96,7 +103,8 @@ export class GImage extends GWidget {
     set color(value: string) {
         if (this._color != value) {
             this._color = value;
-            this._setChanged();
+            if (this._drawCmd)
+                this._drawCmd.color = ColorUtils.create(value).numColor;
         }
     }
 
@@ -108,7 +116,10 @@ export class GImage extends GWidget {
             this._tex.off("reload", this, this._onTextureReload);
         this._tex = res;
         if (res) {
-            this._setChanged();
+            if (SerializeUtil.isDeserializing)
+                this._setChanged();
+            else
+                ILaya.timer.runCallLater(this, this.changeSource, true);
             if (!LayaEnv.isPlaying)
                 res.on("reload", this, this._onTextureReload);
         } else {

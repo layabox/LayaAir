@@ -3,7 +3,6 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Stat } from "../../../../utils/Stat";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
-import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -13,6 +12,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Transform3D } from "../../Transform3D";
 import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Viewport } from "../../../../maths/Viewport";
+import { ScreenQuad } from "./geometry/ScreenQuad";
 
 /**
  * @en The BlitScreenQuadCMD class is used to create render the source texture to the destination render texture by using the full screen quad command.

@@ -7,8 +7,6 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Material } from "laya/resource/Material";
-import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
-import { ShurikenParticleMaterial } from "laya/d3/core/particleShuriKen/ShurikenParticleMaterial";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { BlurEffect, BlurMaterial } from "../LayaAir3D_PostProcess/BlurShader/BlurEffect";
 import { BaseRender } from "laya/d3/core/render/BaseRender";
@@ -24,9 +22,11 @@ import { Color } from "laya/maths/Color";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
-import { ShurikenParticleRenderer } from "laya/d3/core/particleShuriKen/ShurikenParticleRenderer";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Viewport } from "laya/maths/Viewport";
+import { ShuriKenParticle3D } from "laya/particle/d3/ShuriKenParticle3D";
+import { ShurikenParticleMaterial } from "laya/particle/d3/ShurikenParticleMaterial";
+import { ShurikenParticleRenderer } from "laya/particle/d3/ShurikenParticleRenderer";
 
 export class CommandBuffer_Outline {
     private commandBuffer: CommandBuffer;
@@ -50,7 +50,6 @@ export class CommandBuffer_Outline {
             unlitMaterial.albedoColor = new Color(255, 0, 0, 255);
             var shurikenMaterial: ShurikenParticleMaterial = new ShurikenParticleMaterial();
             shurikenMaterial.color = new Color(255, 0, 0, 255);
-
             Shader3D.debugMode = true;
             //加载场景
             Scene3D.load("res/threeDimen/OutlineEdgeScene/Conventional/OutlineEdgeScene.ls", Handler.create(this, function (scene: Scene3D): void {

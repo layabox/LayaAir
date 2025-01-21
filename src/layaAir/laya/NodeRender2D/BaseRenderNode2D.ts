@@ -69,6 +69,8 @@ export class BaseRenderNode2D extends Component {
      */
     static SHADERDEFINE_LIGHT2D_ENABLE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_EMPTY: ShaderDefine;
+    static SHADERDEFINE_LIGHT2D_ADDMODE: ShaderDefine;
+    static SHADERDEFINE_LIGHT2D_SUBMODE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
 
     /**
@@ -87,6 +89,8 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.SHADERDEFINE_BASERENDER2D = Shader3D.getDefineByName("BASERENDER2D");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE = Shader3D.getDefineByName("LIGHT2D_ENABLE");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY = Shader3D.getDefineByName("LIGHT2D_EMPTY");
+        BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ADDMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_ADD");
+        BaseRenderNode2D.SHADERDEFINE_LIGHT2D_SUBMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_SUB");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");

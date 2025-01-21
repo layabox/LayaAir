@@ -261,9 +261,9 @@ export class RigidBody extends Component {
         if (!this._body) return;
         var factory = Physics2D.I._factory;
         //if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
-            var pos = Vector2.TEMP;
-            factory.get_RigidBody_Position(this.body, pos)
-            factory.set_RigibBody_Transform(this._body, pos.x, pos.y, number);//重新给个setPos的接口
+        var pos = Vector2.TEMP;
+        factory.get_RigidBody_Position(this.body, pos)
+        factory.set_RigibBody_Transform(this._body, pos.x, pos.y, number);//重新给个setPos的接口
         //}
         Physics2D.I._addRigidBody(this);
     }
@@ -328,8 +328,8 @@ export class RigidBody extends Component {
     }
 
     protected _onAwake(): void {
+        this.owner.globalTrans.cache = true;
         this._createBody();
-
     }
 
     /** @internal */

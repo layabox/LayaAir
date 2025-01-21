@@ -29,6 +29,16 @@ export enum Light2DType {
 }
 
 /**
+ * 灯光混合模式
+ */
+export enum Light2DMode {
+    Add, //相加
+    Sub, //相减
+    Mul, //相乘
+    Mix, //AlphaBlend
+}
+
+/**
  * 阴影边缘类型
  */
 export enum ShadowFilterType {
@@ -46,10 +56,12 @@ export class BaseLight2D extends Component {
      * 光影图
      */
     static LIGHTANDSHADOW: number;
+    static LIGHTANDSHADOW_ADDMODE: number;
+    static LIGHTANDSHADOW_SUBMODE: number;
     /**
      * 灯光高度值
      */
-    static LIGHTANDSHADOW_LIGHT_HEIGHT: number;
+    static LIGHTANDSHADOW_LIGHT_DIRECTION: number;
     /**
      * 光影图尺寸和偏移
      */
@@ -68,20 +80,30 @@ export class BaseLight2D extends Component {
      */
     static __init__() {
         BaseLight2D.LIGHTANDSHADOW = Shader3D.propertyNameToID("u_LightAndShadow2D");
-        BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT = Shader3D.propertyNameToID("u_LightHeight");
+        BaseLight2D.LIGHTANDSHADOW_ADDMODE = Shader3D.propertyNameToID("u_LightAndShadow2D_AddMode");
+        BaseLight2D.LIGHTANDSHADOW_SUBMODE = Shader3D.propertyNameToID("u_LightAndShadow2D_SubMode");
+        BaseLight2D.LIGHTANDSHADOW_LIGHT_DIRECTION = Shader3D.propertyNameToID("u_LightDirection");
         BaseLight2D.LIGHTANDSHADOW_PARAM = Shader3D.propertyNameToID("u_LightAndShadow2DParam");
         BaseLight2D.LIGHTANDSHADOW_AMBIENT = Shader3D.propertyNameToID("u_LightAndShadow2DAmbient");
 
         const sceneUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW, "u_LightAndShadow2D", ShaderDataType.Texture2D);
-        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_LIGHT_HEIGHT, "u_LightHeight", ShaderDataType.Float);
+        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_ADDMODE, "u_LightAndShadow2D_AddMode", ShaderDataType.Texture2D);
+        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_SUBMODE, "u_LightAndShadow2D_SubMode", ShaderDataType.Texture2D);
+        sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_LIGHT_DIRECTION, "u_LightDirection", ShaderDataType.Vector3);
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_PARAM, "u_LightAndShadow2DParam", ShaderDataType.Vector4);
         sceneUniform.addShaderUniform(BaseLight2D.LIGHTANDSHADOW_AMBIENT, "u_LightAndShadow2DAmbient", ShaderDataType.Color);
     }
 
     protected _type: Light2DType = Light2DType.Base; //灯光类型
+
+    private _lightMode: Light2DMode = Light2DMode.Add; //灯光之间混合模式
+    private _sceneMode: Light2DMode = Light2DMode.Mul; //灯光场景混合模式
+    private _order: number = 0; //渲染顺序
     private _color: Color = new Color(1, 1, 1, 1); //灯光颜色
     private _intensity: number = 1; //灯光强度
+    private _antiAlias: boolean = false; //是否抗锯齿
+
     private _lightRotation: number = 0; //灯光旋转
     private _lightScale: Vector2 = new Vector2(1, 1); //灯光放缩
 
@@ -141,6 +163,49 @@ export class BaseLight2D extends Component {
     _needUpdateLightWorldRange: boolean = false; //是否需要更新灯光区域（世界坐标）
 
     /**
+     * @en The light render order
+     * @zh 灯光渲染顺序
+     */
+    get order(): number {
+        return this._order;
+    }
+    set order(value: number) {
+        if (this._order !== value) {
+            this._order = value;
+            this._needUpdateLightAndShadow = true;
+            this._notifyLightOrderChange();
+        }
+    }
+
+    /**
+     * @en The light blend mode
+     * @zh 灯光之间混合模式
+     */
+    get lightMode(): Light2DMode {
+        return this._lightMode;
+    }
+    set lightMode(value: Light2DMode) {
+        if (this._lightMode !== value) {
+            this._lightMode = value;
+            this._needUpdateLightAndShadow = true;
+        }
+    }
+
+    /**
+     * @en The scene blend mode
+     * @zh 灯光场景混合模式
+     */
+    get sceneMode(): Light2DMode {
+        return this._sceneMode;
+    }
+    set sceneMode(value: Light2DMode) {
+        if (this._sceneMode !== value) {
+            this._sceneMode = value;
+            this._needUpdateLightAndShadow = true;
+        }
+    }
+
+    /**
      * @en The light color
      * @zh 灯光颜色
      */
@@ -165,6 +230,20 @@ export class BaseLight2D extends Component {
         if (value !== this._intensity) {
             this._intensity = value;
             this._needUpdateLightAndShadow = true;
+        }
+    }
+
+    /**
+     * @en Is antiAlias
+     * @zh 是否抗锯齿
+     */
+    get antiAlias(): boolean {
+        return this._antiAlias;
+    }
+    set antiAlias(value: boolean) {
+        if (value !== this._antiAlias) {
+            this._antiAlias = value;
+            this._notifyAntiAliasChange();
         }
     }
 
@@ -368,6 +447,21 @@ export class BaseLight2D extends Component {
     private _notifyShadowEnableChange() {
         (this.owner?.scene?._light2DManager as Light2DManager)?.lightShadowEnableChange(this);
     }
+
+    /**
+     * @en notify this light render order change
+     * @zh 通知此灯的渲染顺序发生改变
+     */
+    private _notifyLightOrderChange() {
+        if (Light2DManager.SUPPORT_LIGHT_BLEND_MODE)
+            (this.owner?.scene?._light2DManager as Light2DManager)?.lightRenderOrderChange(this);
+    }
+
+    /**
+     * @en notify this light antiAlias change
+     * @zh 通知此灯的抗锯齿设置发生改变
+     */
+    protected _notifyAntiAliasChange() { }
 
     protected _onEnable(): void {
         super._onEnable();

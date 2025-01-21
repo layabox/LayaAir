@@ -1,5 +1,4 @@
 import { Config } from "../../../../Config";
-import { Config3D } from "../../../../Config3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
@@ -9,7 +8,6 @@ import { ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
-import { BoundSphere } from "../../../d3/math/BoundSphere";
 import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
@@ -303,5 +301,17 @@ export class WebGLDirectLightShadowRP {
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
         shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
+    }
+
+    destroy() {
+
+        for (var i = 0; i < this._shadowSliceDatas.length; i++) {
+            this._shadowSliceDatas[i].destroy();
+        }
+        this._renderQueue.destroy();
+        this._cascadesSplitDistance = null;
+        this._frustumPlanes = null;
+        this._shadowMatrices = null;
+        this._splitBoundSpheres = null;
     }
 }

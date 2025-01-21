@@ -1,6 +1,6 @@
 import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
-import { TileMapDirtyFlag, TileShape, TillMap_TerrainMode } from "./TileMapEnum";
+import { TileMapDirtyFlag, TileShape, TileMapTerrainMode } from "./TileMapEnum";
 import { TileMapUtils } from "./TileMapUtils";
 import { TileSetCellData } from "./TileSetCellData";
 import { TileSetCellGroup } from "./TileSetCellGroup";
@@ -25,8 +25,7 @@ export class TileSet extends Resource {
 
     private _physicsLayers: Array<TileSetPhysicsLayer>;
 
-    private _terrainBatchMode: TillMap_TerrainMode;
-    private _terrains: Array<TileSetTerrainLayer>;
+    private _terrainLayers: Array<TileSetTerrainLayer>;
 
     private _navigationLayers: Array<TileMapNavigationLayer>;
 
@@ -314,25 +313,16 @@ export class TileSet extends Resource {
         return null;
     }
 
-    //Terrain  
-    set terrainPatchMode(value: TillMap_TerrainMode) {
-
+    get terrainLayers() {
+        return this._terrainLayers;
     }
 
-    get terrainPatchMode(): TillMap_TerrainMode {
-        return this._terrainBatchMode;
-    }
-
-    get tileTerrains() {
-        return this._terrains;
-    }
-
-    set tileTerrains(value) {
-        this._terrains = value;
+    set terrainLayers(value) {
+        this._terrainLayers = value;
     }
 
     addTileTerrain(layer: TileSetTerrainLayer): void {
-
+        this._terrainLayers;
     }
 
     getTileTerrain(id: number): TileSetTerrainLayer {

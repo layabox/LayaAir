@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -15,11 +14,12 @@ import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import Client from "../../Client";
-import { ScalableAO } from "laya/d3/core/render/PostEffect/ScalableAO";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
+import { ScalableAO } from "laya/d3/postProcessEffect/ScalableAO";
 
 export class ProstProcess_AO {
     scene: Scene3D;

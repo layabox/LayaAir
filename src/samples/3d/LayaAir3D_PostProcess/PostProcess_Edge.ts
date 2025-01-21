@@ -7,7 +7,6 @@ import { Camera } from "laya/d3/core/Camera";
 import { CameraMoveScript } from "../../3d/common/CameraMoveScript";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Loader } from "laya/net/Loader";
 import { HSlider } from "laya/ui/HSlider";
@@ -22,6 +21,7 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { DepthTextureMode } from "laya/resource/RenderTexture";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
 
 export class PostProcess_Edge {
 

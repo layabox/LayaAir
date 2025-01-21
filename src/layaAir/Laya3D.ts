@@ -1,6 +1,5 @@
 import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
-import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
@@ -9,20 +8,15 @@ import { SkyProceduralMaterial } from "./laya/d3/core/material/SkyProceduralMate
 import { UnlitMaterial } from "./laya/d3/core/material/UnlitMaterial";
 import { MeshRenderer } from "./laya/d3/core/MeshRenderer";
 import { MeshSprite3D } from "./laya/d3/core/MeshSprite3D";
-import { ShuriKenParticle3D } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3D";
-import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/ShurikenParticleMaterial";
 import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
-import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad";
 import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTexture } from "./laya/d3/graphics/Vertex/VertexPositionTexture";
-import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
-import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
@@ -32,24 +26,20 @@ import { ShadowCasterPass } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { Camera } from "./laya/d3/core/Camera";
 import { BaseCamera } from "./laya/d3/core/BaseCamera";
-import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
 import { BaseRender } from "./laya/d3/core/render/BaseRender";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
-import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
-import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
-import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
-import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
-import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { Config, PlayerConfig } from "./Config";
 import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
+import { PostProcess } from "./laya/d3/core/render/postProcessBase/PostProcess";
+import { ScreenQuad } from "./laya/d3/core/render/command/geometry/ScreenQuad";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -120,22 +110,14 @@ export class Laya3D {
 
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
-        VertexShurikenParticleBillboard.__init__();
-        VertexShurikenParticleMesh.__init__();
+
         VertexPositionTexture.__init__();
         PixelLineVertex.__init__();
         SubMeshInstanceBatch.__init__();
         ShaderInit3D.__init__();
-        ShuriKenParticle3DShaderDeclaration.__init__();
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
-        BloomEffect.init();
-        ScalableAO.init();
-        GaussianDoF.init();
-        ColorGradEffect.init();
-        LensFlareEffect.init();
-
         PrimitiveMesh.__init__();
         Sprite3D.__init__();
         RenderableSprite3D.__init__();
@@ -143,7 +125,6 @@ export class Laya3D {
         DepthPass.__init__();
         SkinnedMeshSprite3D.__init__();
         SimpleSkinnedMeshSprite3D.__init__();
-        ShuriKenParticle3D.__init__();
         PostProcess.__init__();
         Scene3D.__init__();
         ShadowCasterPass.__init__();
@@ -157,7 +138,6 @@ export class Laya3D {
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
-        ShurikenParticleMaterial.__initDefine__();
         SkyBoxMaterial.__initDefine__();
         Command.__init__();
         BlitFrameBufferCMD.__init__();
@@ -169,7 +149,6 @@ export class Laya3D {
         pixelLineMaterial.lock = true;
         pixelLineMaterial.enableVertexColor = true;
         PixelLineMaterial.defaultMaterial = pixelLineMaterial;
-
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();

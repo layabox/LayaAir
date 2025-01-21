@@ -41,12 +41,7 @@ export class WebGLSpotLightShadowRP {
     private _spotAngle: number;
     /**@internal */
     private _spotRange: number;
-    /**@internal */
-    private _shadowStrength: number;
-    /**@internal */
-    private _shadowDepthBias: number;
-    /**@internal */
-    private _shadowNormalBias: number;
+
     /**@internal */
     private _shadowMode: ShadowMode;
 
@@ -69,7 +64,7 @@ export class WebGLSpotLightShadowRP {
         this._lightPos = this._light.transform.position;
         this._spotAngle = this._light.spotAngle;
         this._spotRange = this._light.spotRange;
-        this._shadowStrength = this._light.shadowStrength;
+        //this._shadowStrength = this._light.shadowStrength;
         // this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
         //this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowResolution, this._shadowResolution, ShadowMapFormat.bit16);
     }
@@ -240,5 +235,9 @@ export class WebGLSpotLightShadowRP {
         }
         sceneData.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices)
         sceneData.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
+    }
+
+    destroy() {
+        this._shadowSpotData.destroy();
     }
 }

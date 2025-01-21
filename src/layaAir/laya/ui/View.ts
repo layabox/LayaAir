@@ -1,6 +1,7 @@
 import { Scene } from "../display/Scene"
 import { UIComponent } from "./UIComponent"
 import { ILaya } from "../../ILaya";
+import { Sprite } from "../display/Sprite";
 
 /**
  * @deprecated
@@ -60,6 +61,36 @@ export class View extends Scene {
             let watcher: any = arr[i];
             watcher.exe(this);
         }
+    }
+
+    /**
+         * @en The actual display area width of the object (in pixels).
+         * @zh 显示对象的实际显示区域宽度（以像素为单位）。
+         */
+    protected measureWidth(): number {
+        var max: number = 0;
+        for (var i: number = this.numChildren - 1; i > -1; i--) {
+            var comp: Sprite = this.getChildAt(i);
+            if (comp._visible) {
+                max = Math.max(comp._x + comp.width * comp.scaleX, max);
+            }
+        }
+        return max;
+    }
+
+    /**
+     * @en The actual display area height of the object (in pixels).
+     * @zh 显示对象的实际显示区域高度（以像素为单位）。
+     */
+    protected measureHeight(): number {
+        let max: number = 0;
+        for (let i: number = this.numChildren - 1; i > -1; i--) {
+            let comp: Sprite = this.getChildAt(i);
+            if (comp._visible) {
+                max = Math.max(comp._y + comp.height * comp.scaleY, max);
+            }
+        }
+        return max;
     }
 
     /**

@@ -313,7 +313,15 @@ export const allBundles = [{
 {
     name: "particle",
     input: [
-        'laya/particle/**/*.*',
+        'laya/particle/d2/**/*.*',
+        'laya/particle/common/**/*.*',
+        'laya/particle/ModuleDef.ts'
+    ]
+},
+{
+    name: "particle3D",
+    input: [
+        'laya/particle/d3/**/*.*'
     ]
 },
 {
@@ -339,5 +347,11 @@ export const allBundles = [{
     input: [
         'laya/Line2D/**/*.*'
     ],
+},
+{
+    name:'postProcess',
+    input:[
+        'laya/d3/postProcessEffect/**/*.*'
+    ]
 }
 ];

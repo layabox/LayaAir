@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
@@ -11,8 +10,9 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect"
 import { Color } from "laya/maths/Color";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
+import { BloomEffect } from "laya/d3/postProcessEffect/BloomEffect";
 
 export class PostProcessBloom {
 	camera: Camera = null;

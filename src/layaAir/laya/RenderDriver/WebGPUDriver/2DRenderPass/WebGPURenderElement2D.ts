@@ -26,7 +26,7 @@ import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 
 export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineInfo {
-    static _sceneData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'scene');
+    static _sceneShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'scene');
     static _value2DShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'value2D');
     static _materialShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'material');
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
@@ -176,7 +176,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.renderStateIsBySprite || !this.materialShaderData)
             stateKey += this.value2DShaderData.stateKey;
         else stateKey += this.materialShaderData.stateKey;
-        stateKey += this.value2DShaderData.stateKey;
         stateKey += this.geometry.bufferState.stateId + '_';
         stateKey += this.geometry.bufferState.updateBufferLayoutFlag;
         return stateKey;
@@ -544,7 +543,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this._sceneData = context.sceneData;
         this._cameraData = context.cameraData;
         if (!this._sceneData)
-            this._sceneData = WebGPURenderElement2D._sceneData;
+            this._sceneData = WebGPURenderElement2D._sceneShaderData;
         if (!this.value2DShaderData)
             this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
         if (!this.materialShaderData)

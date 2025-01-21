@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
@@ -13,6 +12,7 @@ import { BlurEffect } from "./BlurShader/BlurEffect";
 import Client from "../../Client";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
 
 export class PostProcess_Blur {
 	/**实例类型*/

@@ -1,4 +1,4 @@
-export enum TillMap_CellNeighbor {
+export enum TileMapCellNeighbor {
     RIGHT_SIDE = 0,
     RIGHT_CORNER,
     BOTTOM_RIGHT_SIDE,
@@ -18,7 +18,7 @@ export enum TillMap_CellNeighbor {
     MAX,
 }
 
-export enum TillMap_TerrainMode {
+export enum TileMapTerrainMode {
     MATCH_CORNERS_AND_SIDES = 0,
     MATCH_CORNERS,
     MATCH_SIDES,

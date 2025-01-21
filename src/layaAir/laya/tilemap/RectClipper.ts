@@ -177,7 +177,7 @@ export class RectClipper {
      * @param matrix 测试区域转世界矩阵
      * @returns pixel
      */
-    public setClipper(clipperRect: Rectangle, size: Vector2, matrix: Matrix, clipperRot: number=0) {
+    public setClipper(clipperRect: Rectangle, size: Vector2, matrix: Matrix, ofx :number = 0, ofy:number = 0 , clipperRot: number=0) {
         //更新裁切区域数据
         let isDiffClipper = this._updateClipRect(clipperRect);
         //更新测试区域数据
@@ -187,8 +187,8 @@ export class RectClipper {
 
 
         if (isDiffClipper || isDiffMatrix) {
-            if (clipperRot) {
-                this._matrix.setMatrix(0, 0, 1, 1, clipperRot, 0, 0, 0, 0);
+            if (ofx || ofy || clipperRot) {
+                this._matrix.setMatrix(ofx, ofy, 1, 1, clipperRot, 0, 0, 0, 0);
                 this._matrix.invert();
             }else{
                 this._matrix.identity();

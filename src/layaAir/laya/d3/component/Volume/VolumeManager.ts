@@ -228,6 +228,7 @@ export class VolumeManager implements IVolumeManager {
      * @zh 销毁对象
      */
     destroy() {
-
+        this._reflectionProbeManager.destroy();
+        this._volumetricGIManager.destroy();
     }
 }

@@ -7,12 +7,9 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { URL } from "laya/net/URL";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { GodRay } from "./VolumeticLightScattering/GodRays";
-import { Vector4 } from "laya/maths/Vector4";
 import { Loader } from "laya/net/Loader";
-import { Vector2 } from "laya/maths/Vector2";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
 
 export class CustomPostProcess_VolumeticLIghtScattering {
     constructor() {

@@ -28,6 +28,7 @@ const offsetScale = new Vector4();
 
 export class WebGLRender3DProcess implements IRender3DProcess {
 
+
     private renderpass: WebGLForwardAddRP = new WebGLForwardAddRP();
 
     initRenderpass(camera: Camera, context: WebGLRenderContext3D) {
@@ -283,6 +284,10 @@ export class WebGLRender3DProcess implements IRender3DProcess {
      */
     private _renderPostProcess(postprocessCMD: CommandBuffer, context: WebGLRenderContext3D) {
         context.runCMDList(postprocessCMD._renderCMDs);
+    }
+
+    destroy(): void {
+        this.renderpass.destroy();
     }
 
 }

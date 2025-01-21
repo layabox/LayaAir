@@ -9,15 +9,14 @@ import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
-import { PostProcess } from "laya/d3/component/PostProcess";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
-import { LensFlareEffect, LensFlareData, LensFlareElement } from "laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect"
-import { URL } from "laya/net/URL";
 import { Handler } from "laya/utils/Handler";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Vector2 } from "laya/maths/Vector2";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Loader } from "laya/net/Loader";
+import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
+import { LensFlareEffect, LensFlareElement, LensFlareData } from "laya/d3/postProcessEffect/LensFlares/LensFlareEffect";
 export class PostProcess_LensFlare {
 
     constructor() {

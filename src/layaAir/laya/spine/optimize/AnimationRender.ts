@@ -21,7 +21,7 @@ import { IVBChange } from "./interface/IVBChange";
 export type FrameRenderData = {
     ib?: Uint16Array | Uint32Array | Uint8Array;
     vChanges?: IVBChange[];
-    mulitRenderData: MultiRenderData;
+    mulitRenderData?: MultiRenderData;
     type?: IndexFormat,
     size?: number;
 }
@@ -589,17 +589,18 @@ export class SkinAniRenderData {
             this.vb = mainVB.clone();
             this.vb.initBoneMat();
 
-            let creator = tempCreator;
             let tAttachMap = attachMap.slice();
 
             let framesLength = frames.length;
+            let order: number[];
             for (let i = 0; i < framesLength; i++) {
                 let frame = frames[i];
                 let fcs = changeMap.get(frame);
                 if (!fcs) continue;
-                let order: number[];
+
                 let iChanges = fcs.iChanges;
 
+                let data: FrameRenderData = {};
                 if (iChanges) {
                     for (let j = 0, m = iChanges.length; j < m; j++) {
                         let ichange = iChanges[j];
@@ -613,17 +614,15 @@ export class SkinAniRenderData {
                             order = newOrder;
                         }
                     }
-                }
-                //动画部分
-                creator.createIB(tAttachMap, this.vb, order);
 
-                let outRenderData = creator.outRenderData;
-                let data: FrameRenderData = {
-                    ib: creator.ib.slice(0, creator.ibLength),
-                    mulitRenderData: outRenderData,
-                    type: creator.type,
-                    size: creator.size,
+                    //动画部分
+                    tempCreator.createIB(tAttachMap, this.vb, order);
+                    data.ib = tempCreator.ib.slice(0, tempCreator.ibLength);
+                    data.mulitRenderData = tempCreator.outRenderData;
+                    data.type = tempCreator.type;
+                    data.size = tempCreator.size;
                 }
+
                 let vChanges = fcs.vChanges;
                 if (vChanges) {
                     let myChangeVB = [];
@@ -643,11 +642,17 @@ export class SkinAniRenderData {
                 this.renderDatas.push(data);
 
                 if (!frame) {
+                    if (!data.ib) {
+                        data.mulitRenderData = ibCreator.outRenderData;
+                        data.ib = ibCreator.ib.slice(0, this.mainIB.ibLength);
+                        data.type = ibCreator.type;
+                        data.size = ibCreator.size;
+                    }
                     this._defaultFrameData = data;
                 }
             }
 
-            this.maxIndexCount = creator.maxIndexCount;
+            this.maxIndexCount = Math.max(tempCreator.maxIndexCount , this.mainIB.maxIndexCount);
 
         } else {
             this.vb = mainVB;

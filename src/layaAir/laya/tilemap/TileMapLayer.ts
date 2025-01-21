@@ -47,8 +47,8 @@ const TempRectange: Rectangle = new Rectangle();
 const TempMatrix: Matrix = new Matrix();
 const TempVector2_1: Vector2 = new Vector2();
 const TempVector2_2: Vector2 = new Vector2();
-const TempVector3_0: Vector3 = new Vector3();
-const TempVector3_1: Vector3 = new Vector3();
+// const TempVector3_0: Vector3 = new Vector3();
+// const TempVector3_1: Vector3 = new Vector3();
 
 export class TileMapLayer extends BaseRenderNode2D {
 
@@ -404,12 +404,12 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param py 
      */
     addCMDCall(context: Context, px: number, py: number): void {
-        let mat = this._globalTransfrom();
+        let mat = context._curMat;
         let vec3 = Vector3.TEMP;
-        vec3.setValue(mat.a, mat.c, mat.tx);
+        vec3.setValue(mat.a, mat.c, px * mat.a + py * mat.c + mat.tx);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
 
-        vec3.setValue(mat.b, mat.d, mat.ty);
+        vec3.setValue(mat.b, mat.d, px * mat.b + py * mat.d + mat.ty);
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
 
         this._setRenderSize(context.width, context.height)
@@ -434,9 +434,12 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let scene = this.owner.scene;
         let camera = scene._curCamera;
+        let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
             mat.copyTo(clipChuckMat);
+            ofx = renderRect.width / 2; 
+            ofy = renderRect.height / 2;
         } else {
             let rect = camera._rect;
             // lx rx by ty
@@ -455,7 +458,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._chunk._getChunkSize(oneChuckSize);
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
-        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
+        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat , ofx , ofy, 0);
 
         this._renderElements.length = 0;
 
