@@ -152,6 +152,7 @@ export class Config {
 export const PlayerConfig: {
     physics2D?: any,
     physics3D?: any,
+    light2D?: any,
     spineVersion?: string,
     workerLoaderLib?: string,
     UI?: any;
