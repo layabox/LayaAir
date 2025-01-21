@@ -60,7 +60,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         if (this.materialShaderData && Config.matUseUBO) {
             let subShader = this.subShader;
             let materialData = this.materialShaderData;
-            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._uniformMap);
+            let matSubBuffer = materialData.createSubUniformBuffer("Material" + subShader._owner.name, subShader._uniformMap);
             if (matSubBuffer && matSubBuffer.needUpload) {
                 matSubBuffer.bufferBlock.needUpload();
             }

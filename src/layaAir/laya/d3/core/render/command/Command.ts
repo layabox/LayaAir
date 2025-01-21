@@ -1,7 +1,5 @@
 import { IRenderCMD } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderCMD";
-import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderContext3D } from "../RenderContext3D";
 import { CommandBuffer } from "./CommandBuffer";
 
@@ -12,8 +10,6 @@ import { CommandBuffer } from "./CommandBuffer";
  * @zh `Command` 类用于创建指令。
  */
 export class Command {
-	/**@internal */
-	static _screenShaderData: ShaderData;
 	/** @internal */
 	static _screenShader: Shader3D;
 
@@ -37,7 +33,6 @@ export class Command {
 	* @internal
 	*/
 	static __init__(): void {
-		Command._screenShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		Command._screenShader = Shader3D.find("BlitScreen");
 		Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
 		Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：

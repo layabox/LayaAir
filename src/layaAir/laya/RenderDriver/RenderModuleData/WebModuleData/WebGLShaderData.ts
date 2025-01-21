@@ -44,6 +44,8 @@ export class WebGLShaderData extends ShaderData {
 
     private _updateCacheArray: { [key: number]: any } = null;
 
+    private _subUboBufferNumber: number;
+
     /**
      * @internal	
      */
@@ -112,27 +114,38 @@ export class WebGLShaderData extends ShaderData {
         buffer.needUpload && buffer.upload();
     }
 
+
     createSubUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>) {
 
         let subBuffer = this._subUniformBuffers.get(name);
         if (subBuffer) {
-            //update data
-            for (var i in this._updateCacheArray) {
-                let index = parseInt(i);
-                let ubo = this._uniformBuffersPropertyMap.get(index);
-                if (ubo) {
-                    (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+            if (this._subUboBufferNumber < 2) {
+                //update data
+                for (var i in this._updateCacheArray) {
+                    let index = parseInt(i);
+                    let ubo = this._uniformBuffersPropertyMap.get(index);
+                    if (ubo) {
+                        (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+                    }
+                }
+                this._updateCacheArray = {};//clear
+            } else {
+                for (var i in uniformMap) {
+                    let index = parseInt(i);
+                    if (this._updateCacheArray[index]) {
+                        (this._updateCacheArray[index] as Function).call(subBuffer, index, this._data[index]);
+                    }
+
                 }
             }
-            this._updateCacheArray = {};//clear
             return subBuffer;
         }
-
 
         let engine = WebGLEngine.instance;
         let mgr = engine.bufferMgr;
 
         let uniformBuffer = new WebGLSubUniformBuffer(name, uniformMap, mgr, this);
+        this._subUboBufferNumber++;
         this._needCacheData = true;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(name, uniformBuffer);
@@ -217,6 +230,7 @@ export class WebGLShaderData extends ShaderData {
 
         this.clearDefine();
         this._needCacheData = false;
+        this._subUboBufferNumber = 0;
     }
 
 

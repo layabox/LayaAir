@@ -26,7 +26,7 @@ export class GLSLCodeGenerator {
         return res;
     }
 
-    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean) {
+    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean, shaderName: string) {
 
         if (uniformsMap.size == 0) {
             return "";
@@ -34,7 +34,7 @@ export class GLSLCodeGenerator {
 
         if (useUniformBlock) {
             let uniformsStr = "";
-            let blockStr = "uniform Material {\n";
+            let blockStr = "uniform Material"+shaderName+"{\n";
             let blockPropertyCount = 0;
 
             uniformsMap.forEach((uniform, key) => {
@@ -83,7 +83,7 @@ export class GLSLCodeGenerator {
 
     static GLShaderLanguageProcess3D(defineString: string[],
         attributeMap: { [name: string]: [number, ShaderDataType] },
-        uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
+        uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, shaderName: string) {
 
         var clusterSlices = Config3D.lightClusterCount;
         var defMap: any = {};
@@ -95,7 +95,7 @@ export class GLSLCodeGenerator {
         // 拼接 shader attribute
         let useUniformBlock = Config.matUseUBO;
         let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
-        let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
+        let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock, shaderName);
 
         if (LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) > 30) {
             defineString.push("GRAPHICS_API_GLES3");
