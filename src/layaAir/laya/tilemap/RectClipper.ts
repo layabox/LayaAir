@@ -187,7 +187,7 @@ export class RectClipper {
 
 
         if (isDiffClipper || isDiffMatrix) {
-            if (clipperRot) {
+            if (ofx || ofy || clipperRot) {
                 this._matrix.setMatrix(ofx, ofy, 1, 1, clipperRot, 0, 0, 0, 0);
                 this._matrix.invert();
             }else{
