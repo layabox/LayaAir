@@ -91,8 +91,8 @@ export class GWidget extends Sprite {
     center(target?: GWidget): this {
         let r: Sprite = target;
         if (!r) {
-            if (this._parent)
-                r = this._parent;
+            if (this.parent)
+                r = this.parent;
             else
                 r = ILaya.stage;
         }
@@ -106,8 +106,8 @@ export class GWidget extends Sprite {
         if (this._x != x || this._y != y) {
             super.pos(x, y);
 
-            if (this._parent?._nodeType == 2)
-                (<GWidget>this._parent).setLayoutChangedFlag?.(LayoutChangedReason.Pos);
+            if (this.parent?._nodeType == 2)
+                (<GWidget>this.parent).setLayoutChangedFlag?.(LayoutChangedReason.Pos);
             this.event(Event.MOVED);
         }
 
@@ -139,13 +139,13 @@ export class GWidget extends Sprite {
 
         this._sizeChanged(changeByLayout);
 
-        if (this._parent) {
+        if (this.parent) {
             if (this._relations.length > 0) {
                 for (let item of this._relations)
                     item.applyOnSelfResized();
             }
-            if (this._parent?._nodeType == 2)
-                (<GWidget>this._parent).setLayoutChangedFlag(LayoutChangedReason.Size);
+            if (this.parent?._nodeType == 2)
+                (<GWidget>this.parent).setLayoutChangedFlag(LayoutChangedReason.Size);
         }
 
         this.event(Event.RESIZE);
@@ -159,8 +159,8 @@ export class GWidget extends Sprite {
     makeFullSize(target?: GWidget): this {
         let r: Sprite = target;
         if (!r) {
-            if (this._parent)
-                r = this._parent;
+            if (this.parent)
+                r = this.parent;
             else
                 r = ILaya.stage;
         }
@@ -434,8 +434,8 @@ export class GWidget extends Sprite {
      */
     _processVisible(): boolean {
         if (super._processVisible()) {
-            if (this._parent?._nodeType == 2)
-                (<GWidget>this._parent).setLayoutChangedFlag?.(LayoutChangedReason.Visible);
+            if (this.parent?._nodeType == 2)
+                (<GWidget>this.parent).setLayoutChangedFlag?.(LayoutChangedReason.Visible);
             return true;
         }
         else
