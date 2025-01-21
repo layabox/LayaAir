@@ -1,6 +1,6 @@
 import { TileMapUtils } from "./TileMapUtils";
 import { TileAlternativesData } from "./TileAlternativesData";
-import { DirtyFlagType, TileMapDirtyFlag, TillMap_CellNeighbor } from "./TileMapEnum";
+import { DirtyFlagType, TileMapDirtyFlag, TileMapCellNeighbor } from "./TileMapEnum";
 import { TileMapChunkData } from "./TileMapChunkData";
 import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
@@ -63,7 +63,9 @@ export class TileSetCellData {
     private _customDatas: Record<number, any>;
 
     //是否有地形
-    private _terrain_set: boolean;
+    private _terrain_set: number = -1;
+
+    private _terrain: number = -1;
 
     private _terrain_peering_bits: Uint16Array = new Uint16Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
 
@@ -221,12 +223,20 @@ export class TileSetCellData {
         //TODO Flag dirty
     }
 
-    public get terrain_set(): boolean {
+    public get terrain_set(): number {
         return this._terrain_set;
     }
 
-    public set terrain_set(value: boolean) {
+    public set terrain_set(value: number) {
         this._terrain_set = value;
+    }
+
+    public get terrain(): number {
+        return this._terrain;
+    }
+
+    public set terrain(value: number) {
+        this._terrain = value;
     }
 
     public get physicsDatas() {
@@ -273,7 +283,6 @@ export class TileSetCellData {
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
         this._y_sort_origin = 0;
-        this._terrain_set = false;
     }
 
     /**
@@ -329,11 +338,11 @@ export class TileSetCellData {
         return this._lightOccluderDatas[layerIndex];
     }
 
-    set_terrainPeeringBit(index: TillMap_CellNeighbor, terrainIndex: number) {
+    set_terrainPeeringBit(index: TileMapCellNeighbor, terrainIndex: number) {
         this._terrain_peering_bits[index] = terrainIndex;
     }
 
-    get_terrainPeeringBit(index: TillMap_CellNeighbor) {
+    get_terrainPeeringBit(index: TileMapCellNeighbor) {
         return this._terrain_peering_bits[index];
     }
 
@@ -348,7 +357,7 @@ export class TileSetCellData {
     /**
      * @internal
      */
-    _getterrainPeeringBits() {
+    _getTerrainPeeringBits() {
         return this._terrain_peering_bits;
     }
 

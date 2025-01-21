@@ -434,9 +434,12 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let scene = this.owner.scene;
         let camera = scene._curCamera;
+        let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
             mat.copyTo(clipChuckMat);
+            ofx = renderRect.width / 2; 
+            ofy = renderRect.height / 2;
         } else {
             let rect = camera._rect;
             // lx rx by ty
@@ -455,7 +458,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._chunk._getChunkSize(oneChuckSize);
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
-        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, 0);
+        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat , ofx , ofy, 0);
 
         this._renderElements.length = 0;
 
