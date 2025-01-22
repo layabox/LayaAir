@@ -375,6 +375,7 @@ export class RigidBody extends Component {
     }
 
     getBody() {
+        if (!this._body) this._onAwake();
         return this._body;
     }
 
