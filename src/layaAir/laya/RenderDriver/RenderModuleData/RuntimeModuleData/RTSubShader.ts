@@ -8,6 +8,14 @@ export class RTSubShader implements ISubshaderData {
     constructor() {
         this._nativeObj = new (window as any).conchRTSubShader();
     }
+    private _shaderName: string;
+    public get shaderName(): string {
+        return this._shaderName;
+    }
+    public set shaderName(value: string) {
+        this._shaderName = value;
+        this._nativeObj.shaderName = value;
+    }
 
     setUniformMap(_uniformMap: Map<number, UniformProperty>): void {
         _uniformMap.forEach((value, key) => {
