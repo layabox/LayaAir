@@ -129,10 +129,10 @@ export class GLESForwardAddRP {
     destroy() {
         this._nativeObj = null;
         this.directLightShadowPass.destroy();
-        this.directLightShadowPass = null;
+        this._directLightShadowPass = null;
         this.spotLightShadowPass.destroy();
-        this.spotLightShadowPass = null;
+        this._spotLightShadowPass = null;
         this.renderpass.destroy();
-        this.renderpass = null;
+        this._renderpass = null;
     }
 }
