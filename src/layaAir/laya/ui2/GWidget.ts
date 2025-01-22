@@ -207,8 +207,12 @@ export class GWidget extends Sprite {
 
     /** @internal */
     set internalVisible(value: boolean) {
-        this._setBit(NodeFlags.NOT_IN_PAGE, !value);
-        this._processVisible();
+        if (((this._bits & NodeFlags.NOT_IN_PAGE) === 0) !== value) {
+            this._setBit(NodeFlags.NOT_IN_PAGE, !value);
+            this._processVisible();
+            if (this._parent?.activeInHierarchy && this.active)
+                this._processActive(value, true);
+        }
     }
 
     get treeNode(): GTreeNode {

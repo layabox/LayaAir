@@ -2,7 +2,6 @@ import { LayaEnv } from "../../LayaEnv";
 import { Controller } from "./Controller";
 import { UIEvent } from "./UIEvent";
 import type { GWidget } from "./GWidget";
-import { Event } from "../events/Event";
 
 export class ControllerRef {
     private _target: GWidget;
@@ -72,7 +71,7 @@ export class ControllerRef {
             if (!LayaEnv.isPlaying)
                 this._target.off(UIEvent.InstanceReload, this, this._reload);
             if (this._inst) {
-                this._inst.off(Event.CHANGED, this, this._onChanged);
+                this._inst._refs.delete(this);
                 this._inst = null;
             }
         }
@@ -97,16 +96,12 @@ export class ControllerRef {
         let c = this._target.getController(this._name);
         if (c != this._inst) {
             if (this._inst)
-                this._inst.off(Event.CHANGED, this, this._onChanged);
+                this._inst._refs.delete(this);
             this._inst = c;
             if (c)
-                c.on(Event.CHANGED, this, this._onChanged);
+                this._inst._refs.add(this);
             if (!noEmit)
-                this._onChanged();
+                this.onChanged();
         }
-    }
-
-    private _onChanged() {
-        this.onChanged();
     }
 }
