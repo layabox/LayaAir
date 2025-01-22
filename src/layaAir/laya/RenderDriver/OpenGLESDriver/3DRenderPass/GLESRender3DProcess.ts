@@ -29,7 +29,6 @@ export class GLESRender3DProcess implements IRender3DProcess {
         this._nativeObj = new (window as any).conchGLESRender3DProcess();
     }
     destroy(): void {
-        this._nativeObj.destroy();
         this._nativeObj = null;
     }
 

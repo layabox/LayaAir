@@ -34,6 +34,9 @@ export class GLESDirectLightShadowRP {
     constructor() {
         this._nativeObj = new (window as any).conchGLESDirectLightShadowCastRP();
     }
+    destroy() {
+        this._nativeObj = null;
+    }
     private _shadowCasterCommanBuffer: CommandBuffer[];
     public get shadowCasterCommanBuffer(): CommandBuffer[] {
         return this._shadowCasterCommanBuffer;

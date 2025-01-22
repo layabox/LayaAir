@@ -30,4 +30,8 @@ export class GLESSpotLightShadowRP {
     constructor() {
         this._nativeObj = new (window as any).conchGLESSpotLightShadowRP();
     }
+
+    destroy() {
+        this._nativeObj = null;
+    }
 }
