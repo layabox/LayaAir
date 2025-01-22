@@ -14,7 +14,10 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
-
+import { HierarchyLoader } from "laya/loaders/HierarchyLoader";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
+import { LegacyUIParser } from "laya/legacy/LegacyUIParser"
+HierarchyLoader.legacySceneOrPrefab = LegacyUIParser;
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 //Physics2D.I._factory = new physics2DJSFactory();
