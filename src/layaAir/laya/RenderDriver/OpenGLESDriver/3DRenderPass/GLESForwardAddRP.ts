@@ -78,8 +78,8 @@ export class GLESForwardAddRP {
         value._apply(false);
         this._nativeObj.setfinalize(this._getRenderCMDArray(value._renderCMDs));
     }
-  
-   
+
+
 
     _nativeObj: any;
 
@@ -123,5 +123,16 @@ export class GLESForwardAddRP {
         } else {
             this._nativeObj.clearBeforeImageEffectCmds();
         }
+    }
+
+    destroy() {
+        this._nativeObj = null;
+        this.spotLightShadowPass = new GLESSpotLightShadowRP();
+        this.renderpass = new GLESForwardAddClusterRP();
+        this.directLightShadowPass.destroy();
+        this.directLightShadowPass = null;
+        this.spotLightShadowPass.destroy();
+        this.spotLightShadowPass = null;
+        this.renderpass.destroy();
     }
 }

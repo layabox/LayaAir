@@ -210,4 +210,8 @@ export class GLESForwardAddClusterRP {
         this._nativeObj = new (window as any).conchGLESForwardAddClusterRP();
     }
 
+    destroy(){
+        this._nativeObj = null;
+    }
+
 }
