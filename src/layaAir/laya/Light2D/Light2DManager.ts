@@ -56,7 +56,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     lsTargetSub: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相减模式
     occluderAgent: Occluder2DAgent; //遮光器代理，便捷地创建和控制遮光器
 
-    private _config: Light2DConfig = PlayerConfig.light2D; //2D灯光全局配置
+    private _config: Light2DConfig; //2D灯光全局配置
     get config(): Light2DConfig {
         return this._config;
     }
@@ -126,6 +126,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     }
 
     constructor(scene: Scene) {
+        if (PlayerConfig.light2D) {
+            let light2DConfig = PlayerConfig.light2D;
+            this._config = new Light2DConfig();
+            this._config.ambientColor = new Color(light2DConfig.ambientColor.r, light2DConfig.ambientColor.g, light2DConfig.ambientColor.b, light2DConfig.ambientColor.a);
+            this._config.ambientLayerMask = light2DConfig.ambientLayerMask;
+            this._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
+            this._config.multiSamples = light2DConfig.multiSamples;
+        }
         this._scene = scene;
         this._scene._light2DManager = this;
         this._screen = new Rectangle();
