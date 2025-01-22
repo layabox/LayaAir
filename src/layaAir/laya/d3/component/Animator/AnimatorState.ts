@@ -140,6 +140,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
                 this._realtimeDatas.length = count;
                 for (var i: number = 0; i < count; i++) {
                     switch (clipNodes.getNodeByIndex(i).type) {
+                        case KeyFrameValueType.Boolean:
                         case KeyFrameValueType.Float:
                             break;
                         case KeyFrameValueType.Position:

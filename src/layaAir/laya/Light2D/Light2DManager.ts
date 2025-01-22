@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { Laya } from "../../Laya";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
@@ -55,7 +56,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     lsTargetSub: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相减模式
     occluderAgent: Occluder2DAgent; //遮光器代理，便捷地创建和控制遮光器
 
-    private _config: Light2DConfig = new Light2DConfig(); //2D灯光全局配置
+    private _config: Light2DConfig = PlayerConfig.light2D; //2D灯光全局配置
     get config(): Light2DConfig {
         return this._config;
     }

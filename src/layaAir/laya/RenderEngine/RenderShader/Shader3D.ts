@@ -311,6 +311,7 @@ export class Shader3D {
         this._subShaders.push(subShader);
         subShader._owner = this;
         subShader.moduleData.enableInstance = this._enableInstancing;
+        subShader.moduleData.shaderName = this._name;
     }
 
     /**

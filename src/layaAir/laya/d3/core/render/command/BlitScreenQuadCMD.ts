@@ -13,6 +13,7 @@ import { Transform3D } from "../../Transform3D";
 import { BlitQuadCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Viewport } from "../../../../maths/Viewport";
 import { ScreenQuad } from "./geometry/ScreenQuad";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * @en The BlitScreenQuadCMD class is used to create render the source texture to the destination render texture by using the full screen quad command.
@@ -64,8 +65,8 @@ export class BlitScreenQuadCMD extends Command {
 	private _offsetScale: Vector4 = new Vector4();
 	private _shader: Shader3D = null;
 	private _shaderData: ShaderData = null;
+	private _internalShaderData: ShaderData = null;
 	private _subShader: number = 0;
-	private _sourceTexelSize: Vector4 = new Vector4();
 	private _renderElement: RenderElement;
 	private _transform3D: Transform3D;
 	/**@internal */
@@ -114,7 +115,14 @@ export class BlitScreenQuadCMD extends Command {
 	 * @zh 渲染的着色器数据。
 	 */
 	set shaderData(value: ShaderData) {
-		this._shaderData = value || Command._screenShaderData;
+		if (value) {
+			this._shaderData = value
+		} else {
+			if (!this._internalShaderData)
+				this._internalShaderData = LayaGL.renderDeviceFactory.createShaderData();
+			this._internalShaderData.clearData();
+			this._shaderData = this._internalShaderData;
+		}
 		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
 	}
 
@@ -200,6 +208,9 @@ export class BlitScreenQuadCMD extends Command {
 		this._offsetScale = null;
 		this._shader = null;
 		this._shaderData = null;
+		if (this._internalShaderData)
+			this._internalShaderData.destroy();
+		this._internalShaderData = null;
 		this._renderElement.destroy();
 	}
 }

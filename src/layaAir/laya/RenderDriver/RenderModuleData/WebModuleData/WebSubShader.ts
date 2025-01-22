@@ -4,9 +4,10 @@ import { ISubshaderData } from "../Design/ISubShaderData";
 import { WebShaderPass } from "./WebShaderPass";
 
 export class WebSubShader implements ISubshaderData {
+    shaderName: string;
     enableInstance: boolean;
-    setUniformMap(_uniformMap: Map<number, UniformProperty>): void{
-        
+    setUniformMap(_uniformMap: Map<number, UniformProperty>): void {
+
     }
     destroy(): void {
         throw new NotImplementedError();
