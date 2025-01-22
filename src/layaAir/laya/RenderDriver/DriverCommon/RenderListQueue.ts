@@ -65,5 +65,6 @@ export class RenderListQueue {
      */
     destroy() {
         this.clear();
+        this._elements = null;
     }
 }

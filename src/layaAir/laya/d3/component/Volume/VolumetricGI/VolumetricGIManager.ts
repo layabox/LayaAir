@@ -135,5 +135,9 @@ export class VolumetricGIManager implements IVolumeManager {
      * @zh 销毁实例并释放资源。
      */
     destroy(): void {
+        let count = this._GIVolumes.length;
+        for (var i = 0; i < count; i++) {
+            this._GIVolumes.elements[i].destroy();
+        }
     }
 }

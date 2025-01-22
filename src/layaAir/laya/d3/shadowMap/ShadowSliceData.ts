@@ -172,6 +172,12 @@ export class ShadowSpotData {
         this.cameraCullInfo = new CameraCullInfo();
 
     }
+
+    destroy() {
+        this.cameraShaderValue.destroy();
+        this.cameraShaderValue = null;
+        this.cameraCullInfo = null;
+    }
 }
 
 /**
@@ -196,7 +202,7 @@ export class ShadowSliceData {
      * @en Uniform buffer data for the shadow slice camera.
      * @zh 阴影切片摄像机的统一缓冲数据。
      */
-    cameraUBData: UnifromBufferData; 
+    cameraUBData: UnifromBufferData;
 
     /**
      * @en Position of the shadow slice in world space.
@@ -286,5 +292,11 @@ export class ShadowSliceData {
             this.cameraUBData = cameraUBData;
         }
 
+    }
+
+    destroy() {
+        this.cameraShaderValue.destroy();
+        this.cameraShaderValue = null;
+        this.cullPlanes = null;
     }
 }

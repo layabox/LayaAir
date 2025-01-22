@@ -143,6 +143,9 @@ export class WebGLSpotLightShadowRP {
         context.cameraUpdateMask++;
     }
 
+    destroy() {
+        this._shadowSpotData.destroy();
+    }
 
     /** 
     * @internal

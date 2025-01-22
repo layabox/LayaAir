@@ -15,6 +15,7 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Viewport } from "../../../maths/Viewport";
 export interface IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void;
+    destroy(): void;
 }
 
 export declare type PipelineMode = "Forward" | "ShadowCaster" | "DepthNormal" | string;

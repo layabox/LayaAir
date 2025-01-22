@@ -6,6 +6,38 @@ import { WebGLSpotLightShadowRP } from "./WebGLSpotLightShadowRP";
 
 
 export class WebGLForwardAddRP {
+
+    /**是否开启阴影 */
+    shadowCastPass: boolean = false;
+
+    /**directlight shadow */
+    directLightShadowPass: WebGLDirectLightShadowRP;
+
+    /**enable directlight */
+    enableDirectLightShadow: boolean = false;
+
+    /**spot shadow */
+    spotLightShadowPass: WebGLSpotLightShadowRP;
+
+    /**enable spot */
+    enableSpotLightShadowPass: boolean = false;
+
+    shadowParams: Vector4;
+
+    /**Render end commanbuffer */
+    /**@internal */
+    _afterAllRenderCMDS: Array<CommandBuffer>;
+    /**@internal */
+    _beforeImageEffectCMDS: Array<CommandBuffer>;
+
+    enablePostProcess: boolean = true;
+    /**@internal */
+    postProcess: CommandBuffer;
+    /**main pass */
+    renderpass: WebGLForwardAddClusterRP;
+
+    finalize: CommandBuffer;
+
     constructor() {
         this.directLightShadowPass = new WebGLDirectLightShadowRP();
         this.spotLightShadowPass = new WebGLSpotLightShadowRP();
@@ -31,34 +63,14 @@ export class WebGLForwardAddRP {
             });
         }
     }
-    /**是否开启阴影 */
-    shadowCastPass: boolean = false;
 
-    /**directlight shadow */
-    directLightShadowPass: WebGLDirectLightShadowRP;
-
-    /**enable directlight */
-    enableDirectLightShadow: boolean = false;
-
-    /**spot shadow */
-    spotLightShadowPass: WebGLSpotLightShadowRP;
-
-    /**enable spot */
-    enableSpotLightShadowPass: boolean = false;
-
-    shadowParams: Vector4;
-
-    /**Render end commanbuffer */
-    /**@internal */
-    _afterAllRenderCMDS: Array<CommandBuffer>;
-    /**@internal */
-    _beforeImageEffectCMDS: Array<CommandBuffer>;
-    
-    enablePostProcess: boolean = true;
-    /**@internal */
-    postProcess: CommandBuffer;
-    /**main pass */
-    renderpass: WebGLForwardAddClusterRP;
-
-    finalize: CommandBuffer;
+    destroy() {
+        this._afterAllRenderCMDS = null;
+        this._beforeImageEffectCMDS = null;
+        this.renderpass.destroy();
+        this.directLightShadowPass.destroy();
+        this.spotLightShadowPass.destroy();
+        this.finalize.clear();
+        this.finalize = null;
+    }
 }

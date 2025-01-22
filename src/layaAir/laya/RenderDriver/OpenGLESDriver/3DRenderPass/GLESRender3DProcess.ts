@@ -28,6 +28,10 @@ export class GLESRender3DProcess implements IRender3DProcess {
     constructor() {
         this._nativeObj = new (window as any).conchGLESRender3DProcess();
     }
+    destroy(): void {
+        this._nativeObj.destroy();
+        this._nativeObj = null;
+    }
 
     initRenderpass(camera: Camera, context: GLESRenderContext3D) {
         let renderpass = this.renderpass.renderpass;

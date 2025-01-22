@@ -216,7 +216,7 @@ export class VolumeManager implements IVolumeManager {
     clearMotionObjects() {
         this._motionObjects.length = 0;
         //下面是避免this._motionObjects.elements太长，以及避免引用对象
-        if(this._motionObjects.elements.length>100){
+        if (this._motionObjects.elements.length > 100) {
             this._motionObjects.elements.length = 100;
         }
         this._motionObjects.elements.fill(null);
@@ -228,6 +228,7 @@ export class VolumeManager implements IVolumeManager {
      * @zh 销毁对象
      */
     destroy() {
-
+        this._reflectionProbeManager.destroy();
+        this._volumetricGIManager.destroy();
     }
 }

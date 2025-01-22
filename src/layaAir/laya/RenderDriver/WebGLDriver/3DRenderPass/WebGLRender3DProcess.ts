@@ -285,4 +285,8 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         context.runCMDList(postprocessCMD._renderCMDs);
     }
 
+    destroy(): void {
+        this.renderpass.destroy();
+    }
+
 }

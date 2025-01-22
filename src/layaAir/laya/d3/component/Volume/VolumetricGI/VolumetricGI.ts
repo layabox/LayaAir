@@ -91,7 +91,6 @@ export class VolumetricGI extends Volume {
             this._dataModule.irradiance = null;
         }
         this._irradiance = value;
-        this._irradiance = value;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 

@@ -71,6 +71,8 @@ export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
 }
 
 export class NoRenderRender3DProcess implements IRender3DProcess {
+    destroy(): void {
+    }
     fowardRender(context: IRenderContext3D, camera: Camera): void {
     }
 }
