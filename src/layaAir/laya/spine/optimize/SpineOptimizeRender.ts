@@ -756,7 +756,7 @@ class RenderBake implements IRender {
  * @en SkinRender used for rendering Spine skins.
  * @zh SkinRender 类用于渲染 Spine 皮肤。
  */
-class SkinRender implements IVBIBUpdate {
+export class SkinRender implements IVBIBUpdate {
 
     /**
      * @en The owner of this SkinRender.
@@ -921,6 +921,7 @@ class SkinRender implements IVBIBUpdate {
             if (material != this.material) {
                 this.owner._nodeOwner.clear();
                 this.owner._nodeOwner.drawGeo(this.geo, material , ibLength ,  0);
+                this.material = material;
             }
         }
     }
