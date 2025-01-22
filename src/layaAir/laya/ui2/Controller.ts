@@ -1,7 +1,7 @@
 import { EventDispatcher } from "../events/EventDispatcher";
-import { UIEvent } from "./UIEvent";
 import type { GWidget } from "./GWidget";
 import { Event } from "../events/Event";
+import { ControllerRef } from "./ControllerRef";
 
 export class Controller extends EventDispatcher {
     private _selectedIndex: number;
@@ -13,6 +13,11 @@ export class Controller extends EventDispatcher {
 
     public changing: boolean;
 
+    /**
+     * @internal
+     */
+    _refs: Set<ControllerRef>;
+
     constructor() {
         super();
 
@@ -20,6 +25,7 @@ export class Controller extends EventDispatcher {
         this._pages = [];
         this._selectedIndex = -1;
         this._previousIndex = -1;
+        this._refs = new Set();
     }
 
     public get pages(): Array<string> {
@@ -71,6 +77,9 @@ export class Controller extends EventDispatcher {
             this._selectedIndex = value;
 
             this.changing = true;
+            for (let ref of this._refs) {
+                ref.onChanged();
+            }
             this.event(Event.CHANGED);
             this.changing = false;
         }

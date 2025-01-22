@@ -1031,21 +1031,18 @@ export class Node extends EventDispatcher {
     set active(value: boolean) {
         value = !!value;
         if (((this._bits & NodeFlags.ACTIVE) !== 0) !== value) {
-            if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
+            if (this._activeChangeScripts && this._activeChangeScripts.length !== 0)
                 throw new Error("recursive set active");
-            } else {
-                this._setBit(NodeFlags.ACTIVE, value);
-                if (this._parent) {
-                    if (this._parent.activeInHierarchy) {
-                        this._processActive(value, true);
-                    }
-                }
+
+            this._setBit(NodeFlags.ACTIVE, value);
+            if (this._parent?.activeInHierarchy && (this._bits & NodeFlags.NOT_IN_PAGE) == 0) {
+                this._processActive(value, true);
             }
         }
     }
 
     /**
-     * @en Thether this node is active in the hierarchy.
+     * @en Whether this node is active in the hierarchy.
      * @zh 该节点在层级中是否激活。
      */
     get activeInHierarchy(): boolean {
@@ -1198,7 +1195,7 @@ export class Node extends EventDispatcher {
 
         this._onActive();
         for (let child of this._children) {
-            if ((child._bits & NodeFlags.ACTIVE) !== 0)
+            if ((child._bits & NodeFlags.ACTIVE) !== 0 && (child._bits & NodeFlags.NOT_IN_PAGE) === 0)
                 child._activeHierarchy(activeChangeScripts, fromSetter);
         }
         if ((this._bits & NodeFlags.AWAKED) === 0) {
@@ -1246,8 +1243,12 @@ export class Node extends EventDispatcher {
             throw new Error("recursive set active");
         } else {
             let parentScene = this._parent.scene;
-            parentScene && this._setBelongScene(parentScene);
-            (this._parent.activeInHierarchy && this.active) && this._processActive(true);
+            if (parentScene)
+                this._setBelongScene(parentScene);
+            if (this._parent.activeInHierarchy
+                && (this._bits & NodeFlags.ACTIVE) !== 0
+                && (this._bits & NodeFlags.NOT_IN_PAGE) === 0)
+                this._processActive(true);
         }
     }
 
@@ -1261,8 +1262,12 @@ export class Node extends EventDispatcher {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
             throw new Error("recursive set active");
         } else {
-            (this._parent.activeInHierarchy && this.active) && this._processActive(false);
-            this._parent.scene && this._setUnBelongScene();
+            if (this._parent.activeInHierarchy
+                && (this._bits & NodeFlags.ACTIVE) !== 0
+                && (this._bits & NodeFlags.NOT_IN_PAGE) === 0)
+                this._processActive(false);
+            if (this._parent.scene)
+                this._setUnBelongScene();
         }
     }
 
