@@ -30,6 +30,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
     }
     destroy(): void {
         this._nativeObj = null;
+        this.renderpass.destroy();
     }
 
     initRenderpass(camera: Camera, context: GLESRenderContext3D) {
