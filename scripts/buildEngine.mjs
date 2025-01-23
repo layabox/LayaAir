@@ -103,7 +103,7 @@ async function buildBundles() {
                 glsl({
                     include: /.*(.glsl|.vs|.fs)$/,
                     sourceMap: true,
-                    compress: false
+                    compress: true
                 })
             ],
         };

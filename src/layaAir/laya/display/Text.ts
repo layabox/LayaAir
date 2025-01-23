@@ -195,6 +195,10 @@ export class Text extends Sprite {
      * An callback function for wrappers to do something after layout updated.
      */
     _onPostLayout: () => void;
+    /**
+     * An callback to translate the text.
+     */
+    _onTranslate: (text: string, options: any) => string;
 
     /**
      * @en Constructor method of Text.
@@ -820,63 +824,6 @@ export class Text extends Sprite {
     }
 
     /**
-     * @en Parse the template content.
-     * @param template The template content.
-     * @returns The template string with placeholders substituted by their corresponding values from _templateVars.
-     * @zh 解析模板。
-     * @param template 模板内容 
-     * @returns 模板字符串，其中占位符由_templateVars中的相应值替换。
-     */
-    protected parseTemplate(template: string): string {
-        let pos1: number = 0, pos2: number, pos3: number;
-        let tag: string;
-        let value: string;
-        let result: string = "";
-        while ((pos2 = template.indexOf("{", pos1)) != -1) {
-            if (pos2 > 0 && template.charCodeAt(pos2 - 1) == 92)//\
-            {
-                result += template.substring(pos1, pos2 - 1);
-                result += "{";
-                pos1 = pos2 + 1;
-                continue;
-            }
-
-            result += template.substring(pos1, pos2);
-            pos1 = pos2;
-            pos2 = template.indexOf("}", pos1);
-            if (pos2 == -1)
-                break;
-
-            if (pos2 == pos1 + 1) {
-                result += template.substring(pos1, pos1 + 2);
-                pos1 = pos2 + 1;
-                continue;
-            }
-
-            tag = template.substring(pos1 + 1, pos2);
-            pos3 = tag.indexOf("=");
-            if (pos3 != -1) {
-                value = this._templateVars[tag.substring(0, pos3)];
-                if (value == null)
-                    result += tag.substring(pos3 + 1);
-                else
-                    result += value;
-            }
-            else {
-                value = this._templateVars[tag];
-                if (value != null)
-                    result += value;
-            }
-            pos1 = pos2 + 1;
-        }
-
-        if (pos1 < template.length)
-            result += template.substring(pos1);
-
-        return result;
-    }
-
-    /**
      * @en Text Template
      * @zh 文本模板
      */
@@ -1042,6 +989,10 @@ export class Text extends Sprite {
             this._objContainer.removeChildren();
 
         let text = this._text;
+
+        if (this._onTranslate)
+            text = this._onTranslate(text, this._templateVars);
+
         let isPrompt: boolean;
         if (!text && this._prompt) {
             text = this._prompt;
@@ -1067,7 +1018,7 @@ export class Text extends Sprite {
         if (this._parseEscapeChars)
             text = text.replace(escapeCharsPattern, getReplaceStr);
         if (!isPrompt && this._templateVars)
-            text = this.parseTemplate(text);
+            text = Utils.parseTemplate(text, this._templateVars);
 
         if (this._ubb) {
             text = UBBParser.defaultParser.parse(text);

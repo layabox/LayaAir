@@ -254,16 +254,18 @@ export class RigidBody extends Component {
 
         let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
         factory.set_RigibBody_Transform(this._body, pos.x, pos.y, rotateValue);//重新给个setPos的接口
+        factory.set_rigidbody_Awake(this._body, true);
         Physics2D.I._addRigidBody(this);
     }
 
-    set rotator(number: number) {
+    set rotation(number: number) {
         if (!this._body) return;
         var factory = Physics2D.I._factory;
         //if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
         var pos = Vector2.TEMP;
         factory.get_RigidBody_Position(this.body, pos)
         factory.set_RigibBody_Transform(this._body, pos.x, pos.y, number);//重新给个setPos的接口
+        factory.set_rigidbody_Awake(this._body, true);
         //}
         Physics2D.I._addRigidBody(this);
     }

@@ -5,6 +5,7 @@ import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
+import { AssetDb } from "../resource/AssetDb";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "../ui2/GWidget";
 import { ClassUtils } from "../utils/ClassUtils";
@@ -486,10 +487,20 @@ export class HierarchyParser {
                         if (typeof (item) === "object") {
                             checkData(item);
                         }
+                        else if (typeof (item) === "string" && item.startsWith("i18n:")) {
+                            let i = item.indexOf(":", 5);
+                            if (i != -1)
+                                addInnerUrl(AssetDb.inst.getI18nSettingsURL(item.substring(5, i)), null);
+                        }
                     }
                 }
                 else if (typeof (child) === "object") {
                     checkData(child);
+                }
+                else if (typeof (child) === "string" && child.startsWith("i18n:")) {
+                    let i = child.indexOf(":", 5);
+                    if (i != -1)
+                        addInnerUrl(AssetDb.inst.getI18nSettingsURL(child.substring(5, i)), null);
                 }
             }
         }

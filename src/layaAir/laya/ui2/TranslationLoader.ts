@@ -1,5 +1,5 @@
 import { IResourceLoader, ILoadTask } from "../net/Loader";
-import { I18nManager, Translations } from "./Translations";
+import { Translations } from "./Translations";
 
 export class TranslationsLoader implements IResourceLoader {
     async load(task: ILoadTask) {
@@ -9,8 +9,8 @@ export class TranslationsLoader implements IResourceLoader {
             return null;
 
         let files = data.files || {};
-        let jsonFile: string = files[I18nManager.language];
-        if (!jsonFile && I18nManager.language != data.defaultLanguage)
+        let jsonFile: string = files[Translations.provider.language];
+        if (!jsonFile && Translations.provider.language != data.defaultLanguage)
             jsonFile = files[data.fallbackLanguage];
         let content: any;
         if (jsonFile) {
@@ -25,7 +25,7 @@ export class TranslationsLoader implements IResourceLoader {
             inst = <Translations>task.obsoluteInst;
         else
             inst = Translations.create(data.id);
-        inst.setContent(I18nManager.language, content);
+        inst.setContent(Translations.provider.language, content);
         return inst;
     }
 }

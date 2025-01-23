@@ -296,6 +296,65 @@ export class Utils {
             return Promise.resolve(base64String);
         });
     }
+
+    /**
+     * @en Parses a template string and returns a new string by replacing the placeholders with the specified values.
+     * @param template The template string. 
+     * @param vars The specified values. 
+     * @returns The new string.
+     * @zh 解析模板字符串，并返回一个新字符串，替换占位符为指定值。
+     * @param template 模板字符串。
+     * @param vars 指定值。
+     * @return 新字符串。 
+     */
+    static parseTemplate(template: string, vars: Record<string, any>): string {
+        let pos1: number = 0, pos2: number, pos3: number;
+        let tag: string;
+        let value: string;
+        let result: string = "";
+        while ((pos2 = template.indexOf("{", pos1)) != -1) {
+            if (pos2 > 0 && template.charCodeAt(pos2 - 1) == 92)//\
+            {
+                result += template.substring(pos1, pos2 - 1);
+                result += "{";
+                pos1 = pos2 + 1;
+                continue;
+            }
+
+            result += template.substring(pos1, pos2);
+            pos1 = pos2;
+            pos2 = template.indexOf("}", pos1);
+            if (pos2 == -1)
+                break;
+
+            if (pos2 == pos1 + 1) {
+                result += template.substring(pos1, pos1 + 2);
+                pos1 = pos2 + 1;
+                continue;
+            }
+
+            tag = template.substring(pos1 + 1, pos2);
+            pos3 = tag.indexOf("=");
+            if (pos3 != -1) {
+                value = vars[tag.substring(0, pos3)];
+                if (value == null)
+                    result += tag.substring(pos3 + 1);
+                else
+                    result += value;
+            }
+            else {
+                value = vars[tag];
+                if (value != null)
+                    result += value;
+            }
+            pos1 = pos2 + 1;
+        }
+
+        if (pos1 < template.length)
+            result += template.substring(pos1);
+
+        return result;
+    }
 }
 
 const objUidKey = Symbol();

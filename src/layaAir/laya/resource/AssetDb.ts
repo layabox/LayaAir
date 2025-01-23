@@ -29,6 +29,12 @@ export class AssetDb {
     metaMap: Record<string, any> = {};
 
     /**
+     * @en I18n URL map.
+     * @zh I18n URL 映射。
+     */
+    i18nUrlMap: Record<string, string> = {};
+
+    /**
      * @en Gets the URL from the UUID.
      * @param uuid The UUID.
      * @returns The URL corresponding to the UUID.
@@ -147,5 +153,17 @@ export class AssetDb {
             return `${Utils.replaceFileExtension(url, "")}@${subAssetName}.${subAssetExt}`;
         else
             return url;
+    }
+
+    /**
+     * @en Gets the URL for the I18n settings.
+     * @param id The I18n settings ID.
+     * @returns The URL for the I18n settings.
+     * @zh 获取 I18n 设置的 URL。
+     * @param id I18n 设置的 ID。
+     * @returns I18n 设置的 URL。 
+     */
+    getI18nSettingsURL(id: string): string {
+        return this.i18nUrlMap[id];
     }
 }

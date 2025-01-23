@@ -1,12 +1,66 @@
 import { Resource } from "../resource/Resource";
 import { i18n, TFunction } from "i18next";
+import { Utils } from "../utils/Utils";
 
 export type I18nTextInfo = { sid?: string, key?: string, text: string };
 let _tmpInfo: I18nTextInfo = { text: "" };
 
-export class I18nManager {
-    static provider: i18n;
-    static language: string;
+function myT(resources: any, name: string, defaultValue?: string | Record<string, any>, options?: Record<string, any>): string {
+    if (typeof (defaultValue) === "object") {
+        options = defaultValue;
+        defaultValue = "";
+    }
+
+    let ent = resources[name];
+    if (!ent)
+        return defaultValue;
+
+    if (options)
+        return Utils.parseTemplate(ent, options);
+    else
+        return ent;
+}
+
+class SimpleProvider {
+    language: string;
+    _content: Record<string, any>;
+    _t: Function;
+
+    constructor() {
+        this.language = window?.navigator?.language || "en";
+        this._content = {};
+        this._t = myT.bind(null, {});
+    }
+
+    t(name: string, defaultValue?: string | Record<string, any>, options?: Record<string, any>): string {
+        return this._t(name, defaultValue, options);
+    }
+
+    addResourceBundle(lng: string, ns: string, resources: any, deep: boolean, overwrite: boolean) {
+        let col = this._content[lng];
+        if (!col)
+            col = this._content[lng] = {};
+        let func = myT.bind(null, resources);
+        if (lng === this.language)
+            this._t = func;
+        col[ns] = { resources, t: func };
+    }
+
+    removeResourceBundle(lng: string, ns: string) {
+        let col = this._content[lng];
+        if (col)
+            delete col[ns];
+    }
+
+    getFixedT(lng: string, ns: string) {
+        let col = this._content[lng]?.[ns];
+        if (col)
+            return col.t;
+        else
+            return this._t;
+    }
+
+    isInitialized = true;
 }
 
 export class Translations extends Resource {
@@ -14,6 +68,8 @@ export class Translations extends Resource {
     private _t: TFunction;
     private _lngs: Array<string>;
     private _fallbackLng: string;
+
+    static provider: i18n = <any>new SimpleProvider();
 
     static _allInsts: Map<string, Translations> = new Map();
 
@@ -26,12 +82,12 @@ export class Translations extends Resource {
     }
 
     static translate(text: string, options?: Record<string, any>): string {
-        this.decodeI18nText(text, _tmpInfo);
+        Translations.decodeI18nText(text, _tmpInfo);
         let i18n: { t: (name: string, arg0: any, arg1?: any) => any };
         if (_tmpInfo.sid)
             i18n = Translations.getById(_tmpInfo.sid);
         else if (_tmpInfo.key)
-            i18n = I18nManager.provider;
+            i18n = Translations.provider;
         if (i18n)
             text = i18n.t(_tmpInfo.key, _tmpInfo.text, options ?? undefined);
 
@@ -99,21 +155,21 @@ export class Translations extends Resource {
     }
 
     setContent(lng: string, content: any): this {
-        let i18n = I18nManager.provider;
+        let i18n = Translations.provider;
         if (!i18n || !i18n.isInitialized) {
             console.error("no i18n provider or i18 is not initialized");
             return this;
         }
 
         if (!lng)
-            lng = I18nManager.language;
+            lng = i18n.language;
 
-        I18nManager.provider.addResourceBundle(lng, this._id2, content, true, true);
+        Translations.provider.addResourceBundle(lng, this._id2, content, true, true);
         if (this._lngs.indexOf(lng) == -1)
             this._lngs.push(lng);
 
-        if (lng == I18nManager.language)
-            this._t = i18n.getFixedT(I18nManager.language, this._id2);
+        if (lng == i18n.language)
+            this._t = i18n.getFixedT(i18n.language, this._id2);
         else if (!this._t && lng == this._fallbackLng)
             this._t = i18n.getFixedT(this._fallbackLng, this._id2);
 
@@ -137,6 +193,6 @@ export class Translations extends Resource {
 
         Translations._allInsts.delete(this._id2);
         for (let lng of this._lngs)
-            I18nManager.provider.removeResourceBundle(lng, this._id2);
+            Translations.provider.removeResourceBundle(lng, this._id2);
     }
 }
