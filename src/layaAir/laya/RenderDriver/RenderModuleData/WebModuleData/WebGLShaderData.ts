@@ -132,6 +132,7 @@ export class WebGLShaderData extends ShaderData {
             } else {
                 for (var i in uniformMap) {
                     let index = parseInt(i);
+                    if (!this._data[index]) continue;
                     if (this._updateCacheArray[index]) {
                         (this._updateCacheArray[index] as Function).call(subBuffer, index, this._data[index]);
                     }
