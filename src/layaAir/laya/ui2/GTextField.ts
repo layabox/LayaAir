@@ -5,6 +5,7 @@ import { TextFitContent } from "./Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayaEnv } from "../../LayaEnv";
 import { TransformKind } from "../display/SpriteConst";
+import { Translations } from "./Translations";
 
 export class GTextField extends GWidget {
     readonly textIns: Text;
@@ -19,6 +20,7 @@ export class GTextField extends GWidget {
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.padding.fill(2);
         this.textIns._onPostLayout = () => this._onPostLayout();
+        this.textIns._onTranslate = Translations.translate;
         this.addChild(this.textIns);
     }
 
