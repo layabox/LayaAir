@@ -231,6 +231,9 @@ export class Graphics {
             this.onCmdsChanged();
         }
 
+        if (oldCmd && recover)
+            oldCmd.recover();
+
         return newCmd;
     }
 
