@@ -50,6 +50,7 @@ import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/ShaderLoader";
+import "./loaders/GLSLLoader";
 import "./media/webaudio/WebAudioLoader";
 
 let c = ClassUtils.regClass;
