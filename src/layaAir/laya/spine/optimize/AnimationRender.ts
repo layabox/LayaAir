@@ -569,12 +569,7 @@ export class SkinAniRenderData {
                     }
                 }
             }
-            if (n == 1 && tempArray[0] == 0) {
-                //只有一帧
-                //this.vb=mainvb.clone();
-            }
-            //debugger;
-
+           
             let tAttachMap = attachMap.slice();
             let order;
             this.vb.initBoneMat();
