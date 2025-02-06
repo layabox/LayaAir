@@ -39,15 +39,12 @@ export class TileMapOccluder {
    }
 
    /**
-     * @en Set polygon endpoint data
-     * @param poly Polygon data
-     * @zh 设置多边形端点数据
-     * @param poly 多边形数据
-     */
+    * @en polygon endpoint data
+    * @zh 边形端点数据
+    */
    public get polygonPoint(): PolygonPoint2D {
       return this._core.polygonPoint;
    }
-
    public set polygonPoint(value: PolygonPoint2D) {
       this._core.polygonPoint = value;
    }

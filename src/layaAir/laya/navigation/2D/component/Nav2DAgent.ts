@@ -19,9 +19,7 @@ export class Nav2DAgent extends BaseNavAgent {
 
     /**
     * @en The destination for the agent.
-    * @param value The destination vector.
     * @zh 代理的目的地。
-    * @param value 目的地位置向量。
     */
     get destination(): Vector2 {
         return this._destination;

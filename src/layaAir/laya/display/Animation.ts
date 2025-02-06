@@ -253,14 +253,12 @@ export class Animation extends Sprite {
 
     /**
      * @deprecated
-     * @en Creates an animation template. Multiple animations can share the same animation template without having to create a new one each time, thus saving the overhead of creating a Graphics collection.
-     * @param url Atlas path or image path array. If it's an atlas path, the corresponding atlas needs to be preloaded. If it's not preloaded, it will cause creation failure.
-     * @param name The key of the animation template in the animation template cache pool. If it's not empty, the animation template is cached with this as the key, otherwise it's not cached.
-     * @returns Animation template.
-     * @zh 创建动画模板，多个动画可共享同一份动画模板，而不必每次都创建一份新的，从而节省创建Graphics集合的开销。
-     * @param	url	图集路径或者图片路径数组。如果是图集路径，需要相应图集已经被预加载，如果没有预加载，会导致创建失败。
-     * @param	name 动画模板在动画模版缓存池中的key。如果不为空，则以此为key缓存动画模板，否则不缓存。
-     * @return	动画模板。
+     * @en Creates animation frames and loads the associated resources.     
+     * @param urls An array of URLs representing the animation frames.
+     * @param key The key used to store the animation frames in the frames map.
+     * @zh 创建动画帧并加载相关资源。
+     * @param urls 动画帧的 URL 数组。
+     * @param key 用于存储动画帧的键值。
      */
     static createFrames(urls: string[], key: string): void {
         Animation.framesMap[key] = urls;
