@@ -48,6 +48,7 @@ import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/ShaderLoader";
+import "./loaders/GLSLLoader";
 import "./media/webaudio/WebAudioLoader";
 import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
 import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
