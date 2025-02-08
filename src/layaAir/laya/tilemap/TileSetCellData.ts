@@ -63,7 +63,7 @@ export class TileSetCellData {
     private _customDatas: Record<number, any>;
 
     //是否有地形
-    private _terrain_set: number = -1;
+    private _terrainLayer: number = -1;
 
     private _terrain: number = -1;
 
@@ -223,12 +223,12 @@ export class TileSetCellData {
         //TODO Flag dirty
     }
 
-    public get terrain_set(): number {
-        return this._terrain_set;
+    public get terrainLayer(): number {
+        return this._terrainLayer;
     }
 
-    public set terrain_set(value: number) {
-        this._terrain_set = value;
+    public set terrainLayer(value: number) {
+        this._terrainLayer = value;
     }
 
     public get terrain(): number {

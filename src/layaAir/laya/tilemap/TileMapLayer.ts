@@ -365,14 +365,14 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapOccluder._updateManager();
         this._tileMapPhysics.enable && this._tileMapPhysics.enableRigidBodys();
         this._tileMapOccluder.enable && this._tileMapOccluder.enableAllOccluders();
-        this.owner.on(Event.TRANSFORM_CHANGED, this, this._refreshLayer , [[DirtyFlagType.PHYSICS]]);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this._globalChangeHandler);
     }
 
     onDisable(): void {
         super.onDisable();
         this._tileMapPhysics.enable && this._tileMapPhysics.disableRigidBodys();
         this._tileMapOccluder.enable && this._tileMapOccluder._removeAllOccluders();
-        this.owner.off(Event.TRANSFORM_CHANGED, this, this._refreshLayer);
+        this.owner.off(Event.TRANSFORM_CHANGED, this, this._globalChangeHandler);
     }
 
     onDestroy(): void {
@@ -381,10 +381,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._tileMapOccluder.destroy();
     }
 
-    _refreshLayer(layers:number[]) {
-        for (let i = 1 , len = layers.length; i < len; i++) {
-            this._needUpdateDirtys[layers[i]] = true;
-        }
+    _globalChangeHandler() {
+        this._needUpdateDirtys[DirtyFlagType.PHYSICS] = true;
     }
 
     /**
@@ -464,6 +462,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let tileSize = this.tileSet.tileSize;
 
+        let checkPoint = Vector2.TEMP;
         let tempVec3 = Vector3.TEMP;
         this._chunk._getChunkPosByPixel(chuckLocalRect.x - tileSize.x, chuckLocalRect.y - tileSize.y, tempVec3);
         let chuckstartRow = tempVec3.x;
@@ -472,11 +471,28 @@ export class TileMapLayer extends BaseRenderNode2D {
         let chuckendRow = tempVec3.x;
         let chuckendCol = tempVec3.y;
 
-        let checkPoint = Vector2.TEMP;
+        for (let j = chuckstartCol; j <= chuckendCol; j++) {
+            if (!this._chunkDatas[j]) { continue; }
+            let rowData = this._chunkDatas[j];
+            for (let i = chuckstartRow; i <= chuckendRow; i++) {
+                let chunkData = rowData[i];
+                if (!chunkData) { continue; }
+                this._chunk._getChunkLeftTop(i, j, checkPoint);
+                //是否需要渲染
+                if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
+                    chunkData._update();//更新数据
+                    chunkData._mergeToElement(this._renderElements);//更新渲染元素
+                }
+            }
+        }
 
-        let needUpdateDirty = !!this._needUpdateDirtys.length;
+        let needUpdatePhysics = this._tileMapPhysics.enable && this._needUpdateDirtys[DirtyFlagType.PHYSICS];
+        if (needUpdatePhysics) {
+            this._tileMapPhysics._updateTransfrom();
+            this._needUpdateDirtys[DirtyFlagType.PHYSICS] = false;
+        }
 
-
+        // this._needUpdateDirtys.length = 0;
         // let sprite = this._testSprite;
         // if (!sprite) {
         //     sprite = this._testSprite = new Sprite();
@@ -492,26 +508,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         //     chuckLocalRect.z + tileSize.x - chuckLocalRect.x + tileSize.x, 
         //     chuckLocalRect.w + tileSize.y - chuckLocalRect.y + tileSize.y, 
         // "#ff0000");
-
-        for (var j = chuckstartCol; j <= chuckendCol; j++) {
-            if (!this._chunkDatas[j]) { continue; }
-            let rowData = this._chunkDatas[j];
-            for (var i = chuckstartRow; i <= chuckendRow; i++) {
-                let chunkData = rowData[i];
-                if (!chunkData) { continue; }
-                //更新dirty类型
-                needUpdateDirty && chunkData._forceUpdateDrity(this._needUpdateDirtys);
-
-                this._chunk._getChunkLeftTop(i, j, checkPoint);
-                //是否需要渲染
-                if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
-                    chunkData._update();//更新数据
-                    chunkData._mergeToElement(this._renderElements);//更新渲染元素
-                }
-            }
-        }
-
-        this._needUpdateDirtys.length = 0;
     }
 
     /**

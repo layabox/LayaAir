@@ -31,4 +31,6 @@ export class TileSetTerrain{
    name: string;
 
    color: Color;
+
+   id:number;
 }

@@ -321,15 +321,15 @@ export class TileSet extends Resource {
         this._terrainLayers = value;
     }
 
-    addTileTerrain(layer: TileSetTerrainLayer): void {
+    addTerrainLayer(layer: TileSetTerrainLayer): void {
         this._terrainLayers;
     }
 
-    getTileTerrain(id: number): TileSetTerrainLayer {
+    getTerrainLayer(id: number): TileSetTerrainLayer {
         return null;
     }
 
-    removeTileTerrain(id: number): void {
+    removeTerrainLayer(id: number): void {
         return;
     }
 
