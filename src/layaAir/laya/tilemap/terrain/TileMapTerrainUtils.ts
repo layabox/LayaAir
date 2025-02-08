@@ -180,13 +180,6 @@ function initHalfOffset() {//错位矩形与六边形
       links
    });
 }
-
-(function () {
-   initSquare();
-   initIsometric();
-   initHalfOffset();
-})();
-
 export class TileMapTerrainUtil{
 
    static temp_vec2 = new Vector2();
@@ -469,3 +462,9 @@ export class Vector2LikeSet<T extends Vector2Like> {
       return null;
    }
 }
+
+(function () {
+   initSquare();
+   initIsometric();
+   initHalfOffset();
+})();
