@@ -12,7 +12,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { TileMapLayer } from "./TileMapLayer";
 import { Texture2D } from "../resource/Texture2D";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
-import { TileSetTerrainLayer } from "./layers/TileSetTerrainLayer";
+import { TileSetTerrainSet } from "./layers/TileSetTerrainSet";
 import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
 import { TileSetOcclusionLayer } from "./layers/TileSetOcclusionLayer";
 import { TileSetCustomDataLayer } from "./layers/TileSetCustomDataLayer";
@@ -25,7 +25,7 @@ export class TileSet extends Resource {
 
     private _physicsLayers: Array<TileSetPhysicsLayer>;
 
-    private _terrainLayers: Array<TileSetTerrainLayer>;
+    private _terrainSets: Array<TileSetTerrainSet>;
 
     private _navigationLayers: Array<TileMapNavigationLayer>;
 
@@ -143,7 +143,7 @@ export class TileSet extends Resource {
     /**
      * @internal
      */
-    private _notifyTerrainLayerChange() {
+    private _notifyTerrainSetChange() {
 
     }
     /**
@@ -313,23 +313,23 @@ export class TileSet extends Resource {
         return null;
     }
 
-    get terrainLayers() {
-        return this._terrainLayers;
+    get terrainSets() {
+        return this._terrainSets;
     }
 
-    set terrainLayers(value) {
-        this._terrainLayers = value;
+    set terrainSets(value) {
+        this._terrainSets = value;
     }
 
-    addTerrainLayer(layer: TileSetTerrainLayer): void {
-        this._terrainLayers;
+    addTerrainSet(set: TileSetTerrainSet): void {
+        this._terrainSets;
     }
 
-    getTerrainLayer(id: number): TileSetTerrainLayer {
+    getTerrainSet(id: number): TileSetTerrainSet {
         return null;
     }
 
-    removeTerrainLayer(id: number): void {
+    removeTerrainSet(id: number): void {
         return;
     }
 

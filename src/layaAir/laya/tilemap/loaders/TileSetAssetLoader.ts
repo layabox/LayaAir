@@ -45,7 +45,7 @@ class TileSetLoader implements IResourceLoader {
             tileSet.lightInfoLayers = ObjDecoder.decodeObj(data.lightInfoLayers);
             tileSet.customLayers = ObjDecoder.decodeObj(data.customLayers);
             tileSet.navigationLayers = ObjDecoder.decodeObj(data.navigationLayers);
-            tileSet.terrainLayers = ObjDecoder.decodeObj(data.terrainLayers);
+            tileSet.terrainSets = ObjDecoder.decodeObj(data.terrainLayers);
             tileSet._notifyTileSetCellGroupsChange();
             return tileSet;
         });

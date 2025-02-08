@@ -46,13 +46,13 @@ class Vector2Set {
 
 export class TileMapTerrain {
    
-   static fill(tileMapLayer: TileMapLayer, list:{ x:number , y : number }[], layerId: number, terrainIndex: number): void {
+   static fill(tileMapLayer: TileMapLayer, list:{ x:number , y : number }[], terrainSetId: number, terrainId: number): void {
       let tileset = tileMapLayer.tileSet;
-      let terrainLayer = tileset.getTerrainLayer(layerId);
+      let terrainLayer = tileset.getTerrainSet(terrainSetId);
       if (!terrainLayer) return;
 
       let terrains = terrainLayer.terrains;
-      let terrain = terrains[terrainIndex];
+      let terrain = terrains[terrainId];
       if (!terrain) return;
 
       let neighborObject = TileMapTerrainUtil.getNeighbors(tileset.tileShape);
@@ -116,7 +116,7 @@ export class TileMapTerrain {
                   let chunkCellInfo = data.getCell(item.index);
                   if (chunkCellInfo) {
                      let celldata = chunkCellInfo.cell;
-                     if (celldata.terrainLayer == layerId && celldata.terrain == terrainIndex) {
+                     if (celldata.terrainSet == terrainSetId && celldata.terrain == terrainId) {
                         checkSet.add(x, y);
                      }
                   }
@@ -127,7 +127,7 @@ export class TileMapTerrain {
 
       for (let i = 0; i < listLength; i++) {
          let x = list[i].x, y = list[i].y;
-         let rulebase = new TileMapTerrainRule(x , y, terrainIndex , neighborObject);
+         let rulebase = new TileMapTerrainRule(x , y, terrainId , neighborObject);
          for (let k = 0; k < linksLen; k++) {
             let neighbor = links[k];
             let ruleNeighbor = rulebase.clone();

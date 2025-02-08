@@ -1,7 +1,7 @@
 import { Color } from "../../maths/Color";
 import { TileMapTerrainMode } from "../TileMapEnum";
 
-export class TileSetTerrainLayer {
+export class TileSetTerrainSet {
    /** 识别用索引 */
    id:number;
 

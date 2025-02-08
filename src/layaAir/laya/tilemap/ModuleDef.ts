@@ -3,7 +3,7 @@ import { TileSetCustomDataLayer } from "./layers/TileSetCustomDataLayer";
 import { TileMapNavigationLayer } from "./layers/TileSetNavigationLayer";
 import { TileSetOcclusionLayer } from "./layers/TileSetOcclusionLayer";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
-import { TileSetTerrainLayer , TileSetTerrain } from "./layers/TileSetTerrainLayer";
+import { TileSetTerrainSet , TileSetTerrain } from "./layers/TileSetTerrainSet";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TileMapChunkData } from "./TileMapChunkData";
 import { TileMapLayer } from "./TileMapLayer";
@@ -25,7 +25,7 @@ c("TileMapPhysics", TileMapPhysics);
 
 c("TileSetPhysicsLayer", TileSetPhysicsLayer);
 c("TileSetOcclusionLayer", TileSetOcclusionLayer);
-c("TileSetTerrainLayer", TileSetTerrainLayer);
+c("TileSetTerrainLayer", TileSetTerrainSet);
 c("TileSetTerrain", TileSetTerrain);
 c("TileMapNavigationLayer", TileMapNavigationLayer);
 c("TileSetCustomDataLayer", TileSetCustomDataLayer);
