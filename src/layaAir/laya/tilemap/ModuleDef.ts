@@ -25,7 +25,7 @@ c("TileMapPhysics", TileMapPhysics);
 
 c("TileSetPhysicsLayer", TileSetPhysicsLayer);
 c("TileSetOcclusionLayer", TileSetOcclusionLayer);
-c("TileSetTerrainLayer", TileSetTerrainSet);
+c("TileSetTerrainSet", TileSetTerrainSet);
 c("TileSetTerrain", TileSetTerrain);
 c("TileMapNavigationLayer", TileMapNavigationLayer);
 c("TileSetCustomDataLayer", TileSetCustomDataLayer);

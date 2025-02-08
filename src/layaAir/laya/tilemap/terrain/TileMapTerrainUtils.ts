@@ -2,14 +2,14 @@ import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { TileMapCellNeighbor, TileMapTerrainMode, TileShape } from "../TileMapEnum";
 
+type Vector2Like = { x: number, y: number };
+
 type NeighborObject = {
    getNeighborGird: (x: number, y: number, neighbor: TileMapCellNeighbor, out: Vector2Like) => void;
    getRuleInfo: (rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) => void;
    neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]>;
    links:TileMapCellNeighbor[];
 }
-
-type Vector2Like = { x: number, y: number };
 
 export var shape_mode_map: Map<TileShape, NeighborObject> = new Map;
 
@@ -437,5 +437,35 @@ export class TileMapTerrainRule{
       let rule = new TileMapTerrainRule(this.x,this.y,this.terrain , this.neighborObject);
       rule.data = this.data;
       return rule;
+   }
+}
+
+export class Vector2LikeSet<T extends Vector2Like> {
+   list: T[] = [];
+
+   add( one:T ) {
+      this.list.push(one);
+   }
+
+   remove(x: number, y: number): void {
+      let len = this.list.length;
+      for (let i = 0; i < len; i++) {
+         let item = this.list[i];
+         if (item.x == x && item.y == y) {
+            this.list.splice(i, 1);
+            return;
+         }
+      }
+   }
+
+   get(x: number, y: number) {
+      let len = this.list.length;
+      for (let i = 0; i < len; i++) {
+         let item = this.list[i];
+         if (item.x == x && item.y == y) {
+            return item;
+         }
+      }
+      return null;
    }
 }

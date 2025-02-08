@@ -1,8 +1,5 @@
-import { Vector2 } from "../../maths/Vector2";
-import { Vector3 } from "../../maths/Vector3";
-import { TileShape, TileMapTerrainMode, TileMapCellNeighbor } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
-import { TileMapTerrainRule, TileMapTerrainUtil } from "./TileMapTerrainUtils";
+import { TileMapTerrainRule, TileMapTerrainUtil, Vector2LikeSet } from "./TileMapTerrainUtils";
 
 type TTerrainVector2 = {
    x: number;
@@ -10,38 +7,6 @@ type TTerrainVector2 = {
    chunkX?: number;
    chunkY?: number;
    index?: number;
-}
-
-class Vector2Set {
-   list: TTerrainVector2[] = [];
-
-   add(x: number, y: number ) {
-      let data = { x, y , index: -1 };
-      this.list.push(data);
-      return data;
-   }
-
-   remove(x: number, y: number): void {
-      let len = this.list.length;
-      for (let i = 0; i < len; i++) {
-         let item = this.list[i];
-         if (item.x == x && item.y == y) {
-            this.list.splice(i, 1);
-            return;
-         }
-      }
-   }
-
-   get(x: number, y: number) {
-      let len = this.list.length;
-      for (let i = 0; i < len; i++) {
-         let item = this.list[i];
-         if (item.x == x && item.y == y) {
-            return item;
-         }
-      }
-      return null;
-   }
 }
 
 export class TileMapTerrain {
@@ -63,9 +28,9 @@ export class TileMapTerrain {
       let temp_vec2 = TileMapTerrainUtil.temp_vec2;
       let temp_vec3 = TileMapTerrainUtil.temp_vec3;
 
-      let result = new Vector2Set();
-      let allSet = new Vector2Set();
-      let realSet = new Vector2Set();
+      let result = new Vector2LikeSet<TTerrainVector2>();
+      let allSet = new Vector2LikeSet<TTerrainVector2>();
+      let realSet = new Vector2LikeSet<TTerrainVector2>();
       let shadowList = [];
 
       let linksLen = links.length;
@@ -76,9 +41,9 @@ export class TileMapTerrain {
 
          if (!allSet.get(x, y)) {
             shadowList.push({ x, y });
-            allSet.add(x, y);
+            allSet.add({x, y , index : -1});
          }
-         realSet.add(x, y);//实际需要绘制的
+         realSet.add({x, y , index : -1});//实际需要绘制的
 
          //包含边角
          for (let k = 0; k < linksLen; k++) {
@@ -87,19 +52,19 @@ export class TileMapTerrain {
             let nx = temp_vec2.x, ny = temp_vec2.y;
             if (!allSet.get(nx, ny)) {
                shadowList.push({ x: nx, y: ny });
-               allSet.add(nx, ny);
+               allSet.add({ x: nx, y: ny , index : -1 });
             }
          }    
       }
       
-      let checkSet = new Vector2Set();
+      let checkSet = new Vector2LikeSet<TTerrainVector2>();
       let asLength = allSet.list.length;
       for (let i = 0; i < asLength; i++) {
          let item = allSet.list[i];
          let x = item.x, y = item.y;
          let real = realSet.get(x, y);
          if (real) {
-            checkSet.add(x, y);
+            checkSet.add({x, y , index : -1});
          }
          else {
             if (item.index == -1) {
@@ -117,7 +82,7 @@ export class TileMapTerrain {
                   if (chunkCellInfo) {
                      let celldata = chunkCellInfo.cell;
                      if (celldata.terrainSet == terrainSetId && celldata.terrain == terrainId) {
-                        checkSet.add(x, y);
+                        checkSet.add({x, y , index: -1});
                      }
                   }
                }
@@ -125,15 +90,30 @@ export class TileMapTerrain {
          }
       }
 
+      let ruleSet = new Vector2LikeSet<TileMapTerrainRule>();
+
       for (let i = 0; i < listLength; i++) {
          let x = list[i].x, y = list[i].y;
          let rulebase = new TileMapTerrainRule(x , y, terrainId , neighborObject);
+         ruleSet.add(rulebase);
          for (let k = 0; k < linksLen; k++) {
             let neighbor = links[k];
             let ruleNeighbor = rulebase.clone();
             ruleNeighbor.setCellNeighbor(neighbor);
+            if ( neighbor % 2 == 0) {
+               
+               neighborObject.getNeighborGird(x, y, neighbor, temp_vec2);
+
+               if (checkSet.get(temp_vec2.x, temp_vec2.y)) {
+                  ruleSet.add(ruleNeighbor);
+               }
+            }else{
+               
+            }
          }
       }
+
+      
 
    }
 }
