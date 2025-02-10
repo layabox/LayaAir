@@ -6,7 +6,7 @@ import { rimrafSync } from "rimraf";
 import { Project } from "ts-morph";
 import { rollup } from "rollup";
 import rollupSourcemaps from "rollup-plugin-sourcemaps";
-import glsl from "rollup-plugin-glsl";
+import { glsl } from "./rollupPlugins.mjs";
 import { shellExec, onRollupWarn } from "./utils.mjs";
 import { allBundles } from "./config.mjs";
 
