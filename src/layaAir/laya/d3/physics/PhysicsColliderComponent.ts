@@ -351,7 +351,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     protected _onDestroy() {
-        this._collider.destroy();
+        this._collider && this._collider.destroy();
         this._colliderShape && this._colliderShape.destroy();
         this._collider = null;
         this._isColliderInit = false;
