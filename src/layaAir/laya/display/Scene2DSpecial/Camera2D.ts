@@ -135,8 +135,16 @@ export class Camera2D extends Sprite {
         }
     }
 
-    /**@internal TODO*/
-    zoom: Vector2;
+    private _zoom: Vector2;
+
+    public get zoom(): Vector2 {
+        return this._zoom;
+    }
+    public set zoom(value: Vector2) {
+        if (value) {
+            value.cloneTo(this._zoom);
+        }
+    }
     /**@internal */
     _rect: Vector4;
 
@@ -264,6 +272,7 @@ export class Camera2D extends Sprite {
         this.drag_Bottom = 0.2;
         this.positionSmooth = false;
         this._rect = new Vector4();
+        this._zoom = new Vector2(1, 1);
     }
     /**
      * 获得viewPort大小
@@ -351,7 +360,7 @@ export class Camera2D extends Sprite {
         }
 
         this._rect.setValue(this._cameraSmoothPos.x - extendHorizental, this._cameraSmoothPos.x + extendHorizental, this._cameraSmoothPos.y - extendVertical, this._cameraSmoothPos.y + extendVertical)
-        Matrix3x3.createMatrixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, Vector2.ONE, this._cameraMatrix);
+        Matrix3x3.createMatrixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, this._zoom, this._cameraMatrix);
         this._cameraMatrix.invert(this._cameraInvertMatrix);
         return this._cameraInvertMatrix;
     }
