@@ -56,16 +56,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     lsTargetSub: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相减模式
     occluderAgent: Occluder2DAgent; //遮光器代理，便捷地创建和控制遮光器
 
-    private _config: Light2DConfig; //2D灯光全局配置
-    get config(): Light2DConfig {
-        return this._config;
-    }
-    set config(value: Light2DConfig) {
-        this._config = value;
-        for (let i = this._updateMark.length - 1; i > -1; i--)
-            this._updateMark[i]++;
-    }
-
     private _PCF: Vector2[] = []; //PCF系数
     private _scene: Scene; //场景对象
     private _screen: Rectangle; //屏幕偏移和尺寸
@@ -123,17 +113,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENE_INV_1, 'u_LightAndShadow2DSceneInv1', ShaderDataType.Vector3);
         scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_0, 'u_LightAndShadow2DStageMat0', ShaderDataType.Vector3);
         scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_1, 'u_LightAndShadow2DStageMat1', ShaderDataType.Vector3);
+
+        // init config
+        if(PlayerConfig.light2D){
+            Object.assign(Light2DConfig, PlayerConfig.light2D);
+        }
     }
 
     constructor(scene: Scene) {
-        if (PlayerConfig.light2D) {
-            let light2DConfig = PlayerConfig.light2D;
-            this._config = new Light2DConfig();
-            this._config.ambientColor = new Color(light2DConfig.ambientColor.r, light2DConfig.ambientColor.g, light2DConfig.ambientColor.b, light2DConfig.ambientColor.a);
-            this._config.ambientLayerMask = light2DConfig.ambientLayerMask;
-            this._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
-            this._config.multiSamples = light2DConfig.multiSamples;
-        }
         this._scene = scene;
         this._scene._light2DManager = this;
         this._screen = new Rectangle();
@@ -554,7 +541,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param height 
      */
     private _buildRenderTexture(width: number, height: number) {
-        const tex = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.config.multiSamples);
+        const tex = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, Light2DConfig.multiSamples);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
         return tex;
     }
@@ -953,9 +940,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param shaderData 着色器数据
      */
     _updateShaderDataByLayer(layer: number, shaderData: ShaderData) {
-        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_LIGHT_DIRECTION, this.config.lightDirection);
-        if (this.config.ambientLayerMask & (1 << layer))
-            shaderData.setColor(BaseLight2D.LIGHTANDSHADOW_AMBIENT, this.config.ambientColor);
+        shaderData.setVector3(BaseLight2D.LIGHTANDSHADOW_LIGHT_DIRECTION, Light2DConfig.lightDirection);
+        if (Light2DConfig.ambientLayerMask & (1 << layer))
+            shaderData.setColor(BaseLight2D.LIGHTANDSHADOW_AMBIENT, Light2DConfig.ambientColor);
         else shaderData.setColor(BaseLight2D.LIGHTANDSHADOW_AMBIENT, Color.CLEAR);
         if (this.lsTarget[layer]) {
             shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_EMPTY);
