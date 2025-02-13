@@ -28,6 +28,7 @@ export class Camera2DDemo {
     }
 
     private area;
+    static camera: Camera2D;
     private showApe(): void {
 
         var scene = new Scene();
@@ -54,6 +55,7 @@ export class Camera2DDemo {
             camera.isMain = true;
             ape.addComponent(testMove);
             this.area.addChild(ape);
+            Camera2DDemo.camera = camera;
         });
     }
 
@@ -106,6 +108,16 @@ export class testMove extends Script {
                 break;
             case 68://d
                 (this.owner as Sprite).x += speed
+                break;
+            case 90:
+                Camera2DDemo.camera.zoom.x += 0.2;
+                Camera2DDemo.camera.zoom.y += 0.2;
+                Camera2DDemo.camera.zoom = Camera2DDemo.camera.zoom;
+                break;
+            case 88:
+                Camera2DDemo.camera.zoom.y -= 0.2;
+                Camera2DDemo.camera.zoom.x -= 0.2;
+                Camera2DDemo.camera.zoom = Camera2DDemo.camera.zoom;
                 break;
             case 32:
                 (this.owner as Sprite).rotation += Math.PI / 2 / 10;

@@ -20,7 +20,7 @@ const types = {
     "d3_graphics": ["3D", "RenderGraphics"],
     "d3_loaders": ["3D", "Loaders"],
     "d3_math": ["3D", "Math"],
-    "d3_physics": ["3D", "BulletPhysics"],
+    "d3_physics": ["3D", "Physics"],
     "d3_renderobjs": ["3D", "RenderObjs"],
     "d3_resource": ["3D", "Resource"],
     "d3_shader": ["3D", "Shader"],
@@ -28,6 +28,7 @@ const types = {
     "d3_text": ["3D", "RenderGraphics"],
     "d3_utils": ["3D", "Utils"],
     "d3_webxr": ["3D", "WebXR"],
+    "d3_postprocesseffect": ["3D", "PostProcess"],
     "device": ["Core", "device"],
     "display": ["Core", "display"],
     "effect": ["Core", "Effect"],
@@ -37,8 +38,9 @@ const types = {
     "html": ["2D", "HTMLText"],
     "layagl": ["Core", "LayaGL"],
     "loaders": ["Core", "Loaders"],
-    "map": ["2D", "TiledMap"],
+    "tilemap": ["2D", "TileMap"],
     "maths": ["2D", "Math"],
+    "tween": ["2D", "Tween"],
     "media": ["Core", "Media"],
     "net": ["Core", "Net"],
     "particle": ["2D", "Particle"],
@@ -49,9 +51,20 @@ const types = {
     "spine": ["2D", "Spine"],
     "system": ["Core", "System"],
     "ui": ["2D", "UI"],
+    "ui2": ["2D", "New UI"],
     "utils": ["Core", "Utils"],
     "webgl": ["Exclude", ""],
+    "renderdriver": ["Exclude", ""],
+    "renderengine": ["Exclude", ""],
+    "noderender2d": ["Exclude", ""],
+    "physics3d": ["Exclude", ""],
     "const": ["Core", "Const"],
+    "light2d": ["2D", "Light2D"],
+    "line2d": ["2D", "Line2D"],
+    "navigation": ["Core", "Navigation"],
+    "trail": ["Core", "Trail"],
+    "legacy": ["Exclude", ""],
+    "tools": ["Exclude", ""],
 }
 
 main();
@@ -68,7 +81,7 @@ async function main() {
         excludeProtected: true,
         hideGenerator: true,
         theme: "default",
-        exclude: "node",
+        exclude: ["**/node_modules/**", "**/*.d.ts"],
         entryPointStrategy: "Expand",
         blockTags: [...OptionDefaults.blockTags, ...ourTags],
         entryPoints: ["./src/layaAir/"], // 入口文件或目录
@@ -81,11 +94,11 @@ async function main() {
     //解析enums
     let dir = path.join(docDir, "enums");
     let dirs = loaddir(dir);
-    copyHtml(dirs, dir, "enums.");
+    copyHtml(dirs, dir, "enums_");
 
     dir = path.join(docDir, "interfaces");
     dirs = loaddir(dir);
-    copyHtml(dirs, dir, "interfaces.");
+    copyHtml(dirs, dir, "interfaces_");
 
     dir = path.join(docDir, "classes");
     dirs = loaddir(dir);
@@ -114,40 +127,24 @@ function loaddir(dir) {
 }
 
 async function copyHtml(dirs, lasturl, nameHead) {
-    // console.log(dirs);
-    if (dirs) {
-        // if (dirs.indexOf("tsconfig.json")==-1) {
-        for (let index = 0; index < dirs.length; index++) {
-            let url = dirs[index]
-            let from = path.join(lasturl, url);
-            let urlArr = url.split("_");
-            urlArr[urlArr.length - 2] = urlArr[urlArr.length - 1].split(".")[1];
-            let newUrl = nameHead + (urlArr.join("_"));
-            let to = path.join(htmlOutDir, newUrl);
-            let fileStr = fs.readFileSync(from, "utf8");
-            fileStr = fileStr.replace(new RegExp(`${url}`, "g"), newUrl);
-            try {
-                fs.writeFileSync(to, fileStr, "utf8");
-            } catch (err) {
-                console.log(err);
-            }
+    for (let index = 0; index < dirs.length; index++) {
+        let url = dirs[index]
+        let from = path.join(lasturl, url);
+        let urlArr = url.split("_");
+        //urlArr[urlArr.length - 2] = urlArr[urlArr.length - 1].split(".")[1];
+        let newUrl = nameHead + (urlArr.join("_"));
+        let to = path.join(htmlOutDir, newUrl);
+        let fileStr = fs.readFileSync(from, "utf8");
+        fileStr = fileStr.replace(new RegExp(`${url}`, "g"), newUrl);
+        try {
+            fs.writeFileSync(to, fileStr, "utf8");
+        } catch (err) {
+            console.log(err);
         }
     }
 }
 
-const getFullType = function (name) {
-    if (types[name]) {
-        return types[name]
-    } else {
-        return ["", ""]
-    }
-}
-
-function getFirstToUp(name) {
-    return name.slice(0, 1).toUpperCase() + name.slice(1)
-}
 var tmpObj = {};
-//
 var startStr = "<title>";
 var endStr = " | layaair</title>";
 
@@ -160,54 +157,32 @@ function createJS() {
         file = fs.readFileSync(path.join(htmlOutDir, url), "utf8");
         className = file.substring(file.indexOf(startStr) + 7, file.indexOf(endStr));
         // console.log(className);
-        let startIndex = 0;
         let pkg = "";
         let typeName = "";
         let fulltype;
-        if (urlArr[1] != "laya" || urlArr.length <= 3) {
-            startIndex = 1
-            fulltype = getFullType("topLevel");
-            typeName = fulltype[0];
-            pkg = fulltype[1];
+        let isEnum = urlArr[0] == "enums";
+        let isInterface = urlArr[0] == "interfaces";
+        let startIndex = (isEnum || isInterface) ? 1 : 0;
+
+        if (urlArr[startIndex] != "laya" || urlArr.length <= startIndex + 2) {
+            fulltype = types["topLevel"];
         } else {
-            if (urlArr.indexOf("enums.") !== -1) {
-                if (urlArr.indexOf("d3") == -1) {
-                    startIndex = 1;
-                    fulltype = getFullType(urlArr[2]);
-                } else {
-                    startIndex = 1;
-                    fulltype = getFullType("d3_" + urlArr[3]);
-                }
-                typeName = fulltype[0];
-                pkg = "Enums";
-            } else if (urlArr.indexOf("interfaces.") !== -1) {
-                if (urlArr.indexOf("d3") == -1) {
-                    startIndex = 1;
-                    fulltype = getFullType(urlArr[2]);
-                } else {
-                    startIndex = 1;
-                    fulltype = getFullType("d3_" + urlArr[3]);
-                }
-                typeName = fulltype[0];
-                pkg = "Interfaces";
-            } else {
-                if (urlArr.indexOf("d3") == -1) {
-                    startIndex = 1;
-                    fulltype = getFullType(urlArr[2]);
-                } else {
-                    startIndex = 1;
-                    fulltype = getFullType("d3_" + urlArr[3]);
-                }
-                typeName = fulltype[0];
-                pkg = fulltype[1];
+            fulltype = types[urlArr[startIndex + 1].toLowerCase() + "_" + urlArr[startIndex + 2].toLowerCase()];
+            if (!fulltype) {
+                fulltype = types[urlArr[startIndex + 1].toLowerCase()];
+                if (!fulltype)
+                    fulltype = ["", ""];
             }
         }
+
+        typeName = fulltype[0];
+        pkg = isEnum ? "Enums" : isInterface ? "Interfaces" : fulltype[1];
 
         if (typeName == "Exclude") {
             console.log("暂不输出：", url);
         } else if (pkg != "" && typeName != "") {
             let fullName = "";
-            for (let j = startIndex; j < urlArr.length - 2; j++) {
+            for (let j = startIndex; j < urlArr.length - 1; j++) {
                 fullName += urlArr[j] + ".";
             }
             fullName += className;

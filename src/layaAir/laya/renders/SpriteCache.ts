@@ -20,6 +20,7 @@ import { type RenderSprite } from "./RenderSprite";
 import { RenderObject2D, RenderToCache } from "./RenderToCache";
 import { IAutoExpiringResource } from "./ResNeedTouch";
 
+/** @ignore */
 export class Cache_Info {
     //相对所在page的信息.如果本身就是normal则就是自己的cache结果
     page: CachePage = null;
@@ -201,7 +202,10 @@ class RenderPageContext {
     }
 }
 
-//page是在渲染的过程中动态创建的
+/** 
+ * @ignore 
+ * page是在渲染的过程中动态创建的
+*/
 export class CachePage {
     sprite: Sprite = null;     //这个page对应的根sprite，具体挂点信息从parent节点的SpriteInfoInPage中找
     meshes: RenderObject2D[] = null;
@@ -349,6 +353,7 @@ export class CachePage {
 
 var vec21 = new Vector2();
 /**
+ * @ignore
  * 把渲染结果保存成mesh和材质
  */
 export class SpriteCache {

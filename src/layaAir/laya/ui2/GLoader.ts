@@ -131,7 +131,7 @@ export class GLoader extends GWidget {
         this.onLoaded(res, loadID);
     }
 
-    protected onLoaded(value: any, loadID: number) {
+    protected onLoaded(value: Texture, loadID: number) {
         if (this._loadID != loadID)
             return;
 
@@ -144,8 +144,8 @@ export class GLoader extends GWidget {
 
             let cmd = DrawTextureCmd.create(value, 0, 0, 1, 1, null, 1, this._color, null, null, true);
             this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, cmd, true);
-            this._srcWidth = value.width;
-            this._srcHeight = value.height;
+            this._srcWidth = value.sourceWidth;
+            this._srcHeight = value.sourceHeight;
             ILaya.timer.runCallLater(this, this.updateLayout, true);
         }
         else {
@@ -156,8 +156,8 @@ export class GLoader extends GWidget {
     }
 
     private _onTextureReload() {
-        this._srcWidth = this._tex.width;
-        this._srcHeight = this._tex.height;
+        this._srcWidth = this._tex.sourceWidth;
+        this._srcHeight = this._tex.sourceHeight;
         ILaya.timer.runCallLater(this, this.updateLayout, true);
     }
 

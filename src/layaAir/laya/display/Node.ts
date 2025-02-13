@@ -266,11 +266,9 @@ export class Node extends EventDispatcher {
      * @en Bubble an event up the parent chain.
      * @param type The event type.
      * @param data The event data. An Event object can be passed.
-     * @param addChain An additional chain of parent nodes to bubble to.
      * @zh 事件冒泡到父节点链。
      * @param type 事件类型。
      * @param data 事件数据。可以传递一个Event对象。
-     * @param addChain 额外调用的冒泡链。
      */
     bubbleEvent(type: string, data?: any) {
         let arr: Array<Node> = [];
@@ -703,7 +701,7 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @intenal
+     * @internal
      * 当节点成为容器节点后，addChild操作会作用到容器节点上，如果需要添加到自身，可以通过这个方法恢复
      */
     _addChild(node: Node, index?: number): Node {

@@ -128,7 +128,7 @@ export class GImage extends GWidget {
 
         if (this._autoSize) {
             if (res)
-                this.size(res.width, res.height);
+                this.size(res.sourceWidth, res.sourceHeight);
             else
                 this.size(0, 0);
             this._autoSize = true;
@@ -138,7 +138,7 @@ export class GImage extends GWidget {
     private _onTextureReload() {
         if (this._autoSize) {
             let tex = this._tex;
-            this.size(tex.width, tex.height);
+            this.size(tex.sourceWidth, tex.sourceHeight);
             this._autoSize = true;
         }
         this._setChanged();
