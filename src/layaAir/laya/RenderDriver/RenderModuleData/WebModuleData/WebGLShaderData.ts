@@ -44,7 +44,7 @@ export class WebGLShaderData extends ShaderData {
 
     private _updateCacheArray: { [key: number]: any } = null;
 
-    private _subUboBufferNumber: number;
+    private _subUboBufferNumber: number = 0;
 
     /**
      * @internal	
@@ -103,6 +103,11 @@ export class WebGLShaderData extends ShaderData {
             return;
         }
         let buffer = this._uniformBuffers.get(name);
+
+        if (!buffer) {
+            return;
+        }
+
         for (var i in this._updateCacheArray) {
             let index = parseInt(i);
             let ubo = this._uniformBuffersPropertyMap.get(index);
@@ -130,14 +135,11 @@ export class WebGLShaderData extends ShaderData {
                 }
                 this._updateCacheArray = {};//clear
             } else {
-                for (var i in uniformMap) {
-                    let index = parseInt(i);
-                    if (!this._data[index]) continue;
-                    if (this._updateCacheArray[index]) {
+                uniformMap.forEach((uniform, index) => {
+                    if (this._data[index] && this._updateCacheArray[index]) {
                         (this._updateCacheArray[index] as Function).call(subBuffer, index, this._data[index]);
                     }
-
-                }
+                });
             }
             return subBuffer;
         }
