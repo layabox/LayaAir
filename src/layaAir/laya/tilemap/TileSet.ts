@@ -319,8 +319,10 @@ export class TileSet extends Resource {
     }
 
     set terrainSets(value) {
-        for (let i = 0, len = value.length; i < len; i++) {
-            value[i] && value[i].updateShape(this._tileShape);
+        if (value) {
+            for (let i = 0, len = value.length; i < len; i++) {
+                value[i] && value[i].updateShape(this._tileShape);
+            }
         }
         this._terrainSets = value;
     }
