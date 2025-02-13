@@ -388,6 +388,11 @@ export class TileSet extends Resource {
         }
     }
 
+    public _getParamsList(terrainSet:number){
+        this.updateTerrains();
+        return this._paramsLists[terrainSet];
+    }
+
     private _clearTerrainParams() {
         let paramsLists = this._paramsLists;
         for (let i = 0, ilen = paramsLists.length; i < ilen; i++) {
@@ -401,8 +406,6 @@ export class TileSet extends Resource {
             }
         }
     }
-
-
 
     private addTerrainParams(cellData: TileSetCellData) {
         let params: TerrainsParams;

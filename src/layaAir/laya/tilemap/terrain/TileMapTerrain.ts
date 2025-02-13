@@ -1,21 +1,19 @@
-import { TileSetTerrainSet } from "../layers/TileSetTerrainSet";
-import { ChunkCellInfo } from "../TileMapChunkData";
+import { IV2 } from "../../maths/Vector2";
 import { TileMapCellNeighbor } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
-import { TileSet } from "../TileSet";
 import { TileSetCellData } from "../TileSetCellData";
 import { NeighborObject, TerrainRuleSet, TerrainVector2Set, TileMapTerrainRule, TileMapTerrainUtil, TTerrainVector2 } from "./TileMapTerrainUtils";
 
 export class TileMapTerrain {
 
-   static fill(tileMapLayer: TileMapLayer, list: { x: number, y: number }[], terrainSetId: number, terrainId: number, ignoreEmpty = true): void {
+   static fillConnect(tileMapLayer: TileMapLayer, list: IV2[], terrainSetId: number, terrainId: number, ignoreEmpty = true) {
       let tileset = tileMapLayer.tileSet;
       let terrainSet = tileset.getTerrainSet(terrainSetId);
-      if (!terrainSet) return;
+      if (!terrainSet) return null;
 
       let terrains = terrainSet.terrains;
       let terrain = terrains[terrainId];
-      if (!terrain) return;
+      if (!terrain) return null;
 
       let neighborObject = TileMapTerrainUtil.getNeighborObject(tileset.tileShape);
       let links = neighborObject.links;
@@ -29,8 +27,6 @@ export class TileMapTerrain {
       let allSet = new TerrainVector2Set();
       //ready to fill
       let r2fSet = new TerrainVector2Set();
-      // let shadowList = [];
-
 
       let listLength = list.length;
       for (let i = 0; i < listLength; i++) {
@@ -72,7 +68,7 @@ export class TileMapTerrain {
          }
       })
 
-      let ruleSet = new TerrainVector2Set();
+      let ruleSet = new TerrainRuleSet();
       let neighbors = terrainSet._neighbors;
       let nlen = neighbors.length;
 
@@ -81,7 +77,7 @@ export class TileMapTerrain {
          let rulebase = new TileMapTerrainRule(x, y, terrainId, neighborObject);
          rulebase.priority = 10;
          ruleSet.add(rulebase);
-         
+
          for (let k = 0; k < nlen; k++) {
             let neighbor = neighbors[k];
             let ruleNeighbor = rulebase.clone();
@@ -90,7 +86,7 @@ export class TileMapTerrain {
                neighborObject.getNeighborGird(x, y, neighbor, temp_vec2);
                if (
                   checkSet.get(temp_vec2.x, temp_vec2.y)
-                  && ruleSet.get(ruleNeighbor.x, ruleNeighbor.y)
+                  && ruleSet.get(ruleNeighbor.x, ruleNeighbor.y , ruleNeighbor.terrain)
                ) {
                   ruleSet.add(ruleNeighbor);
                }
@@ -113,16 +109,18 @@ export class TileMapTerrain {
       }
 
       //
-      let fillRule = this.getReady2FillRule(tileMapLayer, neighborObject , terrainSetId , neighbors  , r2fSet , vec2Map , ignoreEmpty);
-      fillRule.list.forEach(rule =>{
+      let fillRule = this.getReady2FillRule(tileMapLayer, neighborObject, terrainSetId, neighbors, r2fSet, vec2Map, ignoreEmpty);
+      fillRule.list.forEach(rule => {
          ruleSet.add(rule);
       });
 
+      let out = this._fillRules(tileMapLayer, terrainSetId, neighborObject, allSet, ruleSet);
+      return out;
    }
 
    private static getReady2FillRule(
-      tileMapLayer: TileMapLayer , neighborObject: NeighborObject, terrainSetId: number, neighbors:TileMapCellNeighbor[],
-      r2fSet: TerrainVector2Set, vec2Map: TerrainVector2Set , ignoreEmpty = true
+      tileMapLayer: TileMapLayer, neighborObject: NeighborObject, terrainSetId: number, neighbors: TileMapCellNeighbor[],
+      r2fSet: TerrainVector2Set, vec2Map: TerrainVector2Set, ignoreEmpty = true
    ) {
 
       let nlen = neighbors.length;
@@ -146,7 +144,7 @@ export class TileMapTerrain {
          for (let j = 0, len = outs.length; j < len; j++) {
             let vec2 = outs[j];
             if (!vec2) continue;
-           
+
             let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, vec2);
             if (chunkCellInfo) {
                let cellData = chunkCellInfo.cell;
@@ -179,7 +177,7 @@ export class TileMapTerrain {
       });
 
       r2fSet.list.forEach(vec2 => {
-         let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer , vec2);
+         let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, vec2);
          if (chunkCellInfo) {
             let cellData = chunkCellInfo.cell;
             if (
@@ -189,7 +187,7 @@ export class TileMapTerrain {
                   || cellData.terrain > -1
                )
             ) {
-               let rule = new TileMapTerrainRule(vec2.x , vec2.y , cellData.terrain , neighborObject);
+               let rule = new TileMapTerrainRule(vec2.x, vec2.y, cellData.terrain, neighborObject);
                outSet.add(rule);
             }
          }
@@ -201,67 +199,125 @@ export class TileMapTerrain {
    }
 
    /** @internal */
-   private static _parseRule(tileMapLayer:TileMapLayer, terrainSetId:number , neighborObject:NeighborObject , allSet: TerrainVector2Set , ruleSet:TerrainRuleSet){
+   private static _fillRules(tileMapLayer: TileMapLayer, terrainSetId: number, neighborObject: NeighborObject, allSet: TerrainVector2Set, ruleSet: TerrainRuleSet) {
 
-      allSet.list.forEach(vec2=>{
-         let data = this._getBestTerrain(tileMapLayer, vec2 , terrainSetId , ruleSet);
-      })
+      let out = new Map<TTerrainVector2, TerrainsParams>();
+
+      allSet.list.forEach(vec2 => {
+         let params = this._getBestTerrainParams(tileMapLayer, vec2, terrainSetId, ruleSet);
+         let nRuleSet = this._getRulesByParams(tileMapLayer, params, vec2, terrainSetId, neighborObject);
+         for (let i = 0 , len = nRuleSet.list.length; i < len; i++) {
+            let nRule = nRuleSet.list[i];
+            ruleSet.delete(nRule.x, nRule.y , nRule.terrain);
+            nRule.priority = 5;
+            ruleSet.add(nRule);
+         }
+
+   		out.set(vec2 , params);
+      });
+
+      return out;
    }
 
    /** @internal */
-   private static _getBestTerrain(
-      tileMapLayer:TileMapLayer , pos:TTerrainVector2 ,terrainSetId:number ,
+   private static _getBestTerrainParams(
+      tileMapLayer: TileMapLayer, pos: TTerrainVector2, terrainSetId: number,
       ruleSet: TerrainRuleSet
-   ){
-      let mark = 0;
+   ) {
       let terrainSet = tileMapLayer.tileSet.getTerrainSet(terrainSetId);
-      if (!terrainSet) {
-         return
-      }
+      if (!terrainSet) return null;
 
-      let cTerrainId = -1;
-
-      let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer , pos);
+      let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, pos);
+      let currentParams: TerrainsParams;
       if (chunkCellInfo && chunkCellInfo.cell && chunkCellInfo.cell.terrainSet == terrainSetId) {
-         cTerrainId = chunkCellInfo.cell.terrain;
+         currentParams = chunkCellInfo.cell.getTerrainsParams();
+      } else {
+         currentParams = new TerrainsParams();
+         currentParams.terrainSet = terrainSetId;
       }
 
       let neighbors = terrainSet._neighbors;
       let nLen = neighbors.length;
-      let terrains = terrainSet.terrains;
-      for (const id in terrains) {//这里应该是遍历所有相关地形块
-         let terrain = terrains[id];
-         let rule = ruleSet.get(pos.x , pos.y , 0);
-         if (rule) {
-            if (rule.terrain == terrain.id) {
-               mark += rule.data;
+      let paramsList = tileMapLayer.tileSet._getParamsList(terrainSetId);
+      let sorceMap = new Map<TerrainsParams, number>();
+
+      for (let list of paramsList) {
+         let plen = list.length;
+         for (let index = 0; index < plen; index++) {
+            let score = 0;
+
+            let params = list[index];
+            let rule = ruleSet.get(pos.x, pos.y, params.terrain);
+            if (rule) {
+               if (rule.terrain != params.terrain) {
+                  score += rule.data;
+               }
+            } else if (params.terrain != currentParams.terrain) {
+               continue
             }
-         }else if (terrain.id != cTerrainId) {
-            continue
-         }
 
-         for (let i = 0; i < nLen; i++) {
-            // let rule = new TileMapTerrainRule(pos.x , pos.y ,  ,neighborObject);
-         }
+            let check = false;
+            for (let i = 0; i < nLen; i++) {
+               let neighborTerrain = params.terrain_peering_bits[neighbors[i]];
+               let rule = ruleSet.get(pos.x, pos.y, neighborTerrain);
+               if (rule) {
+                  if (rule.terrain != neighborTerrain) {
+                     score += rule.data;
+                  }
+               } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbors[i]]) {
+                  check = true;
+                  break
+               }
+            }
 
+            if (check) continue
+
+            sorceMap.set(params, score);
+         }
       }
 
+      let minScore = Number.MAX_VALUE;
+      let minParams: TerrainsParams;
+      sorceMap.forEach((value, key) => {
+         if (value < minScore) {
+            minScore = value;
+            minParams = key;
+         }
+      });
 
+      return minParams;
+   }
+
+   /** @internal */
+   private static _getRulesByParams( tileMapLayer: TileMapLayer, params: TerrainsParams, pos: TTerrainVector2, terrainSetId: number , neighborObject: NeighborObject) {
+      let outSet = new TerrainRuleSet();
+      let baseRule = new TileMapTerrainRule(pos.x, pos.y, params.terrain, neighborObject);
+      outSet.add(baseRule);
+      let terrainSet = tileMapLayer.tileSet.getTerrainSet(terrainSetId);
+      let len = terrainSet._neighbors.length;
+      for (let i = 0; i < len; i++) {
+         let rule = baseRule.clone();
+         rule.terrain = params.terrain_peering_bits[terrainSet._neighbors[i]];
+         rule.setCellNeighbor(terrainSet._neighbors[i]);
+         outSet.add(rule);         
+      }
+
+      return outSet;
    }
 }
 
-export class TerrainsParams{
-   terrainSet:number;
-   terrain:number;
+export class TerrainsParams {
+   terrainSet: number;
+   terrain: number = -1;
    terrain_peering_bits = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
-   links:Set<TileSetCellData> = new Set;
+   links: Set<TileSetCellData> = new Set;
 
-   link(cellData:TileSetCellData){
+   link(cellData: TileSetCellData) {
       this.links.add(cellData);
    }
 
-   clearLinks(){
+   clearLinks() {
       this.links.clear();
    }
 }

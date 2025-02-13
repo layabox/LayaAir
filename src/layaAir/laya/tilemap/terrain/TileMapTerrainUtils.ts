@@ -1,12 +1,10 @@
-import { Vector2 } from "../../maths/Vector2";
+import { IV2, Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { TileMapChunk } from "../TileMapChunk";
 import { TileMapCellNeighbor, TileMapTerrainMode, TileShape } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
 import { TileSet } from "../TileSet";
 import { TileSetCellData } from "../TileSetCellData";
-
-type Vector2Like = { x: number, y: number };
 
 export type TTerrainVector2 = {
    x: number;
@@ -17,7 +15,7 @@ export type TTerrainVector2 = {
 }
 
 export type NeighborObject = {
-   getNeighborGird: (x: number, y: number, neighbor: TileMapCellNeighbor, out: Vector2Like) => void;
+   getNeighborGird: (x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2) => void;
    getRuleInfo: (rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) => void;
    getOverlap:(x :number , y:number , data:number , vec2Map:TerrainVector2Set , outs:TTerrainVector2[]) => void;
    neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]>;
@@ -211,7 +209,7 @@ export class TileMapTerrainUtil{
       return this.shape_mode_map.get(shape);
    }
 
-   static getNeighborGird_Isometric(x: number, y: number, neighbor: TileMapCellNeighbor, out: Vector2Like): void {
+   static getNeighborGird_Isometric(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2): void {
       let isOffset = !!(y & 1);
       if (neighbor == TileMapCellNeighbor.TOP_CORNER) {
          out.x = x;
@@ -247,7 +245,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getNeighborGird_Square(x: number, y: number, neighbor: TileMapCellNeighbor, out: Vector2Like ): void {
+   static getNeighborGird_Square(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2 ): void {
       if (neighbor == TileMapCellNeighbor.TOP_SIDE) {
          out.x = x;
          out.y = y - 1;
@@ -282,7 +280,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getNeighborGird_HalfOffset(x: number, y: number, neighbor: TileMapCellNeighbor, out: Vector2Like): void {
+   static getNeighborGird_HalfOffset(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2): void {
       let isOffset = !!(y & 1);
 
       if (neighbor == TileMapCellNeighbor.RIGHT_SIDE) {
@@ -572,7 +570,7 @@ export class TileMapTerrainRule{
 
 }
 
-export abstract class Vector2LikeSet<T extends Vector2Like> {
+export abstract class Vector2LikeSet<T extends IV2> {
    /** 无序表 */
    map: any;
    /** 快速查找 */
@@ -580,9 +578,11 @@ export abstract class Vector2LikeSet<T extends Vector2Like> {
 
    abstract add( ele:T ):T;
    abstract get(...argv: (number | boolean | T)[]):T;
+   abstract delete(...argv: (number | boolean | T)[]):T;
 }
 
 export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule>{
+   
    
    /** 无序表 */
    map: TileMapTerrainRule[][][] = [];
@@ -608,6 +608,15 @@ export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule>{
    
    get(x: number, y: number , data:number): TileMapTerrainRule {
       return this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) :null
+   }
+
+   delete(x: number, y: number , data:number): TileMapTerrainRule {
+      let result = this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) :null;
+      if (result) {
+         delete this.map[y][x][data];
+         this.list.splice(this.list.indexOf(result),1);
+      }
+      return result
    }
 }
 
@@ -638,5 +647,14 @@ export class TerrainVector2Set extends Vector2LikeSet<TTerrainVector2>{
          this.add(result);
       }
       return result;
+   }
+
+   delete(x:number , y:number): TTerrainVector2 {
+      let result = this.map[y] ? this.map[y][x] : null;
+      if (result) {
+         delete this.map[y][x];
+         this.list.splice(this.list.indexOf(result),1);
+      }
+      return result
    }
 }
