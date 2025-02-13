@@ -27,7 +27,7 @@ interface ITileMapRenderElement {
 
 
 //用于存储格子的数据
-class ChunkCellInfo {
+export class ChunkCellInfo {
     //单元格引用贴图的id
     cell: TileSetCellData;
     //按照X轴排序 chuckLocalindex

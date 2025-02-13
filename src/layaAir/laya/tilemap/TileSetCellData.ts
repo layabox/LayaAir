@@ -6,6 +6,7 @@ import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { Material } from "../resource/Material";
+import { TerrainsParams } from "./terrain/TileMapTerrain";
 
 export class TileSetCellOcclusionInfo {
     //根据light功能定义
@@ -67,7 +68,7 @@ export class TileSetCellData {
 
     private _terrain: number = -1;
 
-    private _terrain_peering_bits: Uint16Array = new Uint16Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    private _terrain_peering_bits = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
     private _notiveRenderTile: TileMapChunkData[];
 
@@ -352,6 +353,15 @@ export class TileSetCellData {
 
     get_physicsData(layerIndex: number): TileSetCellPhysicsInfo {
         return this._physicsDatas[layerIndex];
+    }
+
+
+    getTerrainsParams():TerrainsParams{
+        let params = new TerrainsParams;
+        params.terrainSet = this.terrainSet;
+        params.terrain = this.terrain;
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,15);
+        return params;
     }
 
     /**

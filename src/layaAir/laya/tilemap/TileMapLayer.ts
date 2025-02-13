@@ -24,8 +24,7 @@ import { NodeFlags } from "../Const";
 import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag } from "./TileMapEnum";
 import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
 import { Event } from "../events/Event";
-
-
+import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -64,6 +63,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._inited = true;
         TileMapShaderInit.__init__();
         TileMapPhysics.__init__();
+        TileMapTerrainUtil.__init__();
     }
 
     private _tileSet: TileSet;
