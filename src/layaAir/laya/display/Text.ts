@@ -251,6 +251,7 @@ export class Text extends Sprite {
     destroy(destroyChild: boolean = true): void {
         recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
+        this._bgDrawCmd && Pool.lockObject(this._bgDrawCmd, false);
 
         super.destroy(destroyChild);
     }
@@ -1866,11 +1867,9 @@ export class Text extends Sprite {
         let cmd = this._bgDrawCmd;
         if (this._bgColor || this._borderColor) {
             if (!cmd) {
-                cmd = new DrawRectCmd();
-                cmd.x = cmd.y = 0;
-                cmd.width = cmd.height = 1;
-                cmd.percent = true;
+                cmd = DrawRectCmd.create(0, 0, 1, 1, null, null, 0, true);
                 this._bgDrawCmd = cmd;
+                Pool.lockObject(cmd, true);
             }
             cmd.fillColor = this._bgColor;
             cmd.lineColor = this._borderColor;
