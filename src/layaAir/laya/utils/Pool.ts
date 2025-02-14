@@ -6,10 +6,11 @@
  */
 
 export class Pool {
-    private static POOLSIGN: string = "__InPool";
-    private static LOCKSIGN = Symbol();
-
+    /**@private */
     private static _CLSID: number = 0;
+    /**@private */
+    private static POOLSIGN: string = "__InPool";
+    /**@private  对象存放池。*/
     private static _poolDic: any = {};
 
     /**
@@ -43,23 +44,10 @@ export class Pool {
      * @param item 对象。
      */
     static recover(sign: string, item: any): void {
-        if (item[Pool.POOLSIGN] || item[Pool.LOCKSIGN])
+        if (item[Pool.POOLSIGN])
             return;
-
         item[Pool.POOLSIGN] = true;
         Pool.getPoolBySign(sign).push(item);
-    }
-
-    /**
-     * @en Prevent the object from being recovered by the object pool.
-     * @param item The object. 
-     * @param lock Whether to lock the object.
-     * @zh 防止对象被对象池回收。
-     * @param item 对象。
-     * @param lock 是否锁定对象。 
-     */
-    static lockObject(item: any, lock: boolean): void {
-        item[Pool.LOCKSIGN] = lock;
     }
 
     /**
