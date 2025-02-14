@@ -27,7 +27,7 @@ interface ITileMapRenderElement {
 
 
 //用于存储格子的数据
-class ChunkCellInfo {
+export class ChunkCellInfo {
     //单元格引用贴图的id
     cell: TileSetCellData;
     //按照X轴排序 chuckLocalindex
@@ -445,9 +445,9 @@ export class TileMapChunkData {
 
         let layerCount = physicsLayers.length;
         let chunk = this._tileLayer._chunk;
-        let matrix = this._tileLayer._globalTransfrom();
         let pos: Vector2 = Vector2.TEMP;
-
+        let scaleX = this._tileLayer.owner.scaleX;
+        let scaleY = this._tileLayer.owner.scaleY;
         dirtyFlag.forEach((value, key) => {
             //cell posOri extends  
             let cellDataUseArray = this._cellDataRefMap[key];
@@ -487,11 +487,8 @@ export class TileMapChunkData {
                             let nShape: Array<number> = new Array(shapeLength);
     
                             for (let j = 0; j < shapeLength; j += 2) {
-                                let x = shape[j];
-                                let y = shape[j + 1];
-                                TileMapUtils.transfromPointByValue(matrix, x + ofx, y + ofy, pos);
-                                nShape[j] = pos.x;
-                                nShape[j + 1] = pos.y;
+                                nShape[j] = (shape[j] + ofx) * scaleX;
+                                nShape[j + 1] = (shape[j + 1] + ofy) * scaleY;
                             }
     
                             data = physics.createFixture(rigidBody, physicslayer, nShape);
