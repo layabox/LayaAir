@@ -424,7 +424,7 @@ export class Sprite extends Node {
     }
 
     set skewX(value: number) {
-        this.skew(value, this._skewX);
+        this.skew(value, this._skewY);
     }
 
     /**
