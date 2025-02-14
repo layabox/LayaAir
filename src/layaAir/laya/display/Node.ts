@@ -213,7 +213,7 @@ export class Node extends EventDispatcher {
         if ((bit & NodeFlags.DISPLAY) !== 0) {
             let ele: Node = this._parent;
             let stage: Node = ILaya.stage;
-            let displayedInStage: boolean = false;
+            let displayedInStage: boolean = this === stage;
             while (ele) {
                 if ((ele._bits & NodeFlags.DISPLAY) !== 0) {
                     displayedInStage = (ele._bits & NodeFlags.DISPLAYED_INSTAGE) !== 0;
