@@ -390,6 +390,8 @@ export class Input extends Text {
 
         // PC浏览器隐藏文字
         if (!(LayaEnv.isConch && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
+            if (this._bgDrawCmd)
+                this.graphics.removeCmd(this._bgDrawCmd);
             this.graphics.clear(true);
             this.drawBg();
             this._hideText = true;

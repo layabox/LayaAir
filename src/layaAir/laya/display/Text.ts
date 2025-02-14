@@ -1063,6 +1063,8 @@ export class Text extends Sprite {
         }
 
         if (!text) {
+            if (this._bgDrawCmd)
+                this.graphics.removeCmd(this._bgDrawCmd);
             this.graphics.clear(true);
             this.drawBg();
 
@@ -1752,6 +1754,8 @@ export class Text extends Sprite {
      */
     protected renderText(): void {
         let graphics = this.graphics;
+        if (this._bgDrawCmd)
+            this.graphics.removeCmd(this._bgDrawCmd);
         graphics.clear(true);
         this.drawBg();
 
