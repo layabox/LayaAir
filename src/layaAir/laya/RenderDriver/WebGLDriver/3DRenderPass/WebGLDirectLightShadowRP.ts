@@ -206,9 +206,8 @@ export class WebGLDirectLightShadowRP {
                 context.setScissor(Vector4.TEMP);
             }
 
-            if (Config._uniformBlock) {
+            if (Config._uniformBlock) {//TODO:处理shadowmap的ubo
                 shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
-                sliceData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
             }
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);

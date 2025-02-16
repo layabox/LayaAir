@@ -120,9 +120,8 @@ export class WebGLSpotLightShadowRP {
         context.setViewPort(Viewport.TEMP);
         context.setScissor(Vector4.TEMP);
 
-        if (Config._uniformBlock) {
+        if (Config._uniformBlock) {//TODO:
             shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
-            shadowSpotData.cameraShaderValue.updateUBOBuffer(BaseCamera.UBONAME_CAMERA);
         }
 
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
