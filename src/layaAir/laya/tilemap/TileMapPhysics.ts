@@ -1,5 +1,6 @@
 import { Laya } from "../../Laya";
 import { FixtureBox2DDef, PhysicsShape, RigidBody2DInfo } from "../physics/IPhysiscs2DFactory";
+import { Utils } from "../utils/Utils";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
 import { TileMapLayer } from "./TileMapLayer";
 
@@ -52,6 +53,13 @@ export class TileMapPhysics {
         defRigidBodyDef.angularVelocity = 0;
         defRigidBodyDef.linearVelocity.setValue(0, 0);
         let rigidBody = factory.rigidBodyDef_Create(defRigidBodyDef);
+
+        let trans = this._layer.owner.globalTrans;
+        let x = trans.x;
+        let y = trans.y;
+        let angle = Utils.toRadian(trans.rotation);
+        Laya.physics2D.set_RigibBody_Transform(rigidBody, x, y, angle);
+
         this._rigidBodys.push(rigidBody);
         return rigidBody;
     }
@@ -105,7 +113,19 @@ export class TileMapPhysics {
         return fixture;
     }
 
-    
+    /** @internal */
+    _updateTransfrom(){
+        let len = this._rigidBodys.length;
+        if (!len) return;
+
+        let trans = this._layer.owner.globalTrans;
+        let x = trans.x;
+        let y = trans.y;
+        let angle = Utils.toRadian(trans.rotation);
+        for (let i = 0 ; i < len; i++) {
+            Laya.physics2D.set_RigibBody_Transform(this._rigidBodys[i], x, y, angle);
+        }
+    }
 
     /**
      * 移除物理形状

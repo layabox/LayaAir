@@ -6,6 +6,7 @@ import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { Material } from "../resource/Material";
+import { TerrainsParams } from "./terrain/TileMapTerrain";
 
 export class TileSetCellOcclusionInfo {
     //根据light功能定义
@@ -63,11 +64,11 @@ export class TileSetCellData {
     private _customDatas: Record<number, any>;
 
     //是否有地形
-    private _terrain_set: number = -1;
+    private _terrainSet: number = -1;
 
     private _terrain: number = -1;
 
-    private _terrain_peering_bits: Uint16Array = new Uint16Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    private _terrain_peering_bits = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
     private _notiveRenderTile: TileMapChunkData[];
 
@@ -223,12 +224,12 @@ export class TileSetCellData {
         //TODO Flag dirty
     }
 
-    public get terrain_set(): number {
-        return this._terrain_set;
+    public get terrainSet(): number {
+        return this._terrainSet;
     }
 
-    public set terrain_set(value: number) {
-        this._terrain_set = value;
+    public set terrainSet(value: number) {
+        this._terrainSet = value;
     }
 
     public get terrain(): number {
@@ -352,6 +353,15 @@ export class TileSetCellData {
 
     get_physicsData(layerIndex: number): TileSetCellPhysicsInfo {
         return this._physicsDatas[layerIndex];
+    }
+
+
+    getTerrainsParams():TerrainsParams{
+        let params = new TerrainsParams;
+        params.terrainSet = this.terrainSet;
+        params.terrain = this.terrain;
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,15);
+        return params;
     }
 
     /**

@@ -276,13 +276,16 @@ export class CommandBuffer2D {
      * @param cmd 
      */
     addCacheCommand(cmd: Command2D) {
-        if (cmd instanceof Set2DShaderDataCMD) {
-            if (cmd._commandBuffer)
-                cmd.setDest(this._scene._specialManager._shaderData);
-        }
-        if (cmd instanceof Set2DDefineCMD) {
-            if (cmd._commandBuffer)
-                cmd.setDest(this._scene._specialManager._shaderData);
+        //TODO
+        if (this._scene) {
+            if (cmd instanceof Set2DShaderDataCMD) {
+                if (cmd._commandBuffer)
+                    cmd.setDest(this._scene._specialManager._shaderData);
+            }
+            if (cmd instanceof Set2DDefineCMD) {
+                if (cmd._commandBuffer)
+                    cmd.setDest(this._scene._specialManager._shaderData);
+            }
         }
         this._commands.push(cmd);
         cmd._commandBuffer = this;
