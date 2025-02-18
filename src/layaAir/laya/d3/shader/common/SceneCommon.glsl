@@ -2,7 +2,7 @@
     #define SceneCommon_lib
 
     #ifdef ENUNIFORMBLOCK
-uniform SceneUniformBlock
+uniform Scene3D
 {
     // time
     float u_Time;

@@ -99,13 +99,11 @@ export class Scene3D extends Sprite {
     /**@internal scene uniform block */
     static SCENEUNIFORMBLOCK: number;
 
-    static UBONAME_SCENE: string = "SceneUniformBlock";
+    static UBONAME_SCENE: string = "Scene3D";
 
     static UBONAME_SHADOW = "ShadowUniformBlock";
     /**Scene3D UniformMap */
     static sceneUniformMap: CommandUniformMap;
-
-    static sceneUBOUniformMap: CommandUniformMap;//放入sceneUBO的
     //------------------legacy lighting-------------------------------
     /** @internal */
     static LIGHTDIRECTION: number;
@@ -196,23 +194,12 @@ export class Scene3D extends Sprite {
         Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
 
         let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-        if (Config._uniformBlock) {
-            Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(Scene3D.UBONAME_SCENE);
-            sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, Scene3D.UBONAME_SCENE, ShaderDataType.None);
-            let sceneUBOUniformMap = Scene3D.sceneUBOUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(Scene3D.UBONAME_SCENE);
-            sceneUBOUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
-            sceneUBOUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
-            sceneUBOUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
-        } else {
-            sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
-            sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
-            sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
-        }
-
+        sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
+        sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
+        sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
         sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount", ShaderDataType.Int);
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer", ShaderDataType.Texture2D);
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer", ShaderDataType.Texture2D);
-
         sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate", ShaderDataType.Float);
         ReflectionProbe.init();
     }
@@ -753,7 +740,7 @@ export class Scene3D extends Sprite {
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
         if (Config._uniformBlock) {
-            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SCENE, Scene3D.sceneUBOUniformMap);
+            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SCENE, Scene3D.sceneUniformMap);
             //ShadowUniformBlock
             //Scene3D._shadowCasterPass
             this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SHADOW, ShadowCasterPass.shadowCasterUBOUniformMap);
