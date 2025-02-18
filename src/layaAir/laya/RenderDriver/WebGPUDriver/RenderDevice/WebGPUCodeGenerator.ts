@@ -1,8 +1,7 @@
 import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
-import { Graphics } from "../../../display/Graphics";
+import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
@@ -311,7 +310,7 @@ export class WebGPUCodeGenerator {
         //             sprite3DUniformMaps.push(globalUniformMap(nodeCommonMap[i]) as WebGPUCommandUniformMap);
 
         //将u_Bones归类到sprite3D，避免归类到material（因为material是渲染节点共享的，无法单独处理骨骼数据）
-        sprite3DUniformMap.addShaderUniform(SkinnedMeshSprite3D.BONES, 'u_Bones', ShaderDataType.Matrix4x4);
+        sprite3DUniformMap.addShaderUniform(SkinnedMeshRenderer.BONES, 'u_Bones', ShaderDataType.Matrix4x4);
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
         const _have = (group: NameAndType[], name: string) => {

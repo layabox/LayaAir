@@ -41,6 +41,7 @@ import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo"
 import { PostProcess } from "./laya/d3/core/render/postProcessBase/PostProcess";
 import { ScreenQuad } from "./laya/d3/core/render/command/geometry/ScreenQuad";
 import { ReflectionProbe } from "./laya/d3/component/Volume/reflectionProbe/ReflectionProbe";
+import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -123,8 +124,8 @@ export class Laya3D {
         Sprite3D.__init__();
         RenderableSprite3D.__init__();
         MeshSprite3D.__init__();
+        SkinnedMeshRenderer.__init__();
         DepthPass.__init__();
-        SkinnedMeshSprite3D.__init__();
         SimpleSkinnedMeshSprite3D.__init__();
         PostProcess.__init__();
         Scene3D.__init__();

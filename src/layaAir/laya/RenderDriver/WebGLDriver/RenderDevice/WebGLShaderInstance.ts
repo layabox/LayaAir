@@ -24,8 +24,11 @@ import { Config } from "../../../../Config";
 export class WebGLShaderInstance implements IShaderInstance {
     /**@internal */
     private _shaderPass: ShaderPass;
+    /**@internal */
+    _cacheShaerVariable: { [key: number]: ShaderVariable } = {};
 
-    private _renderShaderInstance: GLShaderInstance;
+    /**@internal */
+    _renderShaderInstance: GLShaderInstance;
 
     /**@internal */
     _sceneUniformParamsMap: CommandEncoder;

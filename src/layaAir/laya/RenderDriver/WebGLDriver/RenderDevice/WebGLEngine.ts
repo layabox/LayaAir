@@ -551,13 +551,10 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     /**
      * @internal
      */
-    uploadCustomUniforms(shader: GLShaderInstance, custom: any[], index: number, data: any): number {
+    uploadOneUniforms(shader: GLShaderInstance, shaderVariable: ShaderVariable, data: any): void {
         shader.bind();
-        var shaderCall: number = 0;
-        var one: ShaderVariable = custom[index];
-        if (one && data != null)
-            shaderCall += one.fun.call(one.caller, one, data);
-        return shaderCall;
+        if (shaderVariable && data != null)
+            shaderVariable.fun.call(shaderVariable.caller, shaderVariable, data);
     }
 
     unbindVertexState(): void {
