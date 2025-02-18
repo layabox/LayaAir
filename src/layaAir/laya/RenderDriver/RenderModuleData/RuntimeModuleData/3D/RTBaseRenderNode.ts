@@ -64,9 +64,6 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
-        // //if(this.boundsChange){
-        var aa =this._nativeObj._bounds;//触发get
-        // //}
         return this._bounds as Bounds;
     }
     public set bounds(value: Bounds) {
@@ -135,12 +132,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._probeReflection = value;
         this._nativeObj.setProbeReflection(value._nativeObj);
     }
-    public get probeReflectionUpdateMark(): number {
-        return this._nativeObj.probeReflectionUpdateMark;
-    }
-    public set probeReflectionUpdateMark(value: number) {
-        this._nativeObj.probeReflectionUpdateMark = value;
-    }
+    
     public get reflectionMode(): number {
         return this._nativeObj.reflectionMode;
     }
@@ -210,6 +202,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
+    additionShaderData: Map<string, ShaderData> = new Map();//TODO:
 
     public get renderNodeType(): number {
         return this._nativeObj.renderNodeType;

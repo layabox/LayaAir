@@ -1,6 +1,29 @@
 #if !defined(globalIllumination_lib)
     #define globalIllumination_lib
 
+    #ifdef ENUNIFORMBLOCK
+
+uniform ReflectionProbe
+{
+    vec4 u_AmbientColor;
+    vec3 u_IblSH[9];
+    float u_IBLRoughnessLevel;
+    float u_AmbientIntensity;
+    float u_ReflectionIntensity;
+};
+uniform samplerCube u_IBLTex;
+
+    #else // ENUNIFORMBLOCK
+
+uniform vec4 u_AmbientColor;
+uniform vec3 u_IblSH[9];
+uniform samplerCube u_IBLTex;
+uniform float u_IBLRoughnessLevel;
+uniform float u_AmbientIntensity;
+uniform float u_ReflectionIntensity;
+
+    #endif // ENUNIFORMBLOCK
+
     #ifdef VOLUMETRICGI
 	#include "VolumetricGI.glsl";
     #endif // VOLUMETRICGI
@@ -22,17 +45,10 @@ vec4 rotateByYAixs(in vec4 normal)
     float z = normal.x * si + normal.z * co;
     return vec4(x, normal.y, z, normal.w);
 }
-uniform float u_AmbientIntensity;
-uniform float u_ReflectionIntensity;
 
     #ifdef GI_IBL
 
-uniform vec3 u_IblSH[9];
-
-uniform samplerCube u_IBLTex;
-uniform float u_IBLRoughnessLevel;
-
-//#define IBL_ROUGHNESS_LEVEL u_IBLRoughnessLevel //兼容WGSL
+// #define IBL_ROUGHNESS_LEVEL u_IBLRoughnessLevel //兼容WGSL
 
 // todo 格式
 vec3 diffuseIrradiance(in vec3 normalWS)
@@ -66,7 +82,7 @@ vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
 
 vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
 {
-    float lod = u_IBLRoughnessLevel * perceptualRoughness * (2.0 - perceptualRoughness); //兼容WGSL
+    float lod = u_IBLRoughnessLevel * perceptualRoughness * (2.0 - perceptualRoughness); // 兼容WGSL
 
     // todo 临时转换
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);
@@ -74,12 +90,12 @@ vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
     // todo rotateY SceneConfig
     reflectDir = rotateByYAixs(reflectDir);
 
-    // todo float 编码 ?
-    #ifdef LOD_TEXTURE_SAMPLE
+	// todo float 编码 ?
+	#ifdef LOD_TEXTURE_SAMPLE
     vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
-    #else
-    vec4 reflectSampler = textureLod(u_IBLTex, reflectDir, lod); //兼容WGSL
-    #endif
+	#else
+    vec4 reflectSampler = textureLod(u_IBLTex, reflectDir, lod); // 兼容WGSL
+	#endif
 
 	#ifdef IBL_RGBD
     return decodeRGBD(reflectSampler) * u_ReflectionIntensity;
@@ -175,8 +191,6 @@ vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
     #ifndef GI_IBL
 	#ifndef GI_LEGACYIBL
 
-uniform vec4 u_AmbientColor;
-
 vec3 diffuseIrradiance(in vec3 normalWS)
 {
     return u_AmbientColor.rgb * u_AmbientIntensity;
@@ -212,7 +226,7 @@ vec3 DecodeDirectionalLightmap(in vec2 lightmapUV, in vec3 bakeColor, in vec3 no
 {
     vec4 dirLightmap = texture2D(u_LightMapDirection, lightmapUV);
     vec3 lightdir = normalize(dirLightmap.xyz - vec3(0.5)); // 0-1  => -0.5-0.5
-    //根据法线计算半兰伯特
+    // 根据法线计算半兰伯特
     float halfLambert = clamp(dot(normalWS, lightdir), 0.0, 1.0) * 0.5 + 0.5;
     return bakeColor * halfLambert / max(dirLightmap.w, 0.001);
 }
@@ -222,12 +236,12 @@ vec3 DecodeDirectionalLightmap(in vec2 lightmapUV, in vec3 bakeColor, in vec3 no
 vec3 getBakedLightmapColor(in vec2 lightmapUV, in vec3 normalWS)
 {
     vec4 lightmapSampler = texture2D(u_LightMap, lightmapUV);
-	// todo lightmap rgbm encode color space
-    lightmapSampler.rgb =  decodeRGBM(lightmapSampler,5.0);
+    // todo lightmap rgbm encode color space
+    lightmapSampler.rgb = decodeRGBM(lightmapSampler, 5.0);
 
-	//#ifdef Gamma_u_LightMap
+    // #ifdef Gamma_u_LightMap
     lightmapSampler = gammaToLinear(lightmapSampler);
-	//#endif // Gamma_u_LightMap
+	// #endif // Gamma_u_LightMap
 
 	#ifdef LIGHTMAP_DIRECTIONAL
     lightmapSampler.rgb = DecodeDirectionalLightmap(lightmapUV, lightmapSampler.rgb, normalWS);

@@ -9,8 +9,6 @@ export class Sprite3DRenderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_GI_LEGACYIBL: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_GI_IBL: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_IBL_RGBD: ShaderDefine;
 	/**
 	 * @en Box reflection macro

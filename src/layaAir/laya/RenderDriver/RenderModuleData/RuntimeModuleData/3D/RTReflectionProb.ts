@@ -3,6 +3,7 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
 
 
@@ -98,9 +99,11 @@ export class RTReflectionProb implements IReflectionProbeData {
     constructor() {
         this._nativeObj = new (window as any).conchRTReflectionProb();
     }
+    shaderData: ShaderData;//TODO
 
     destroy(): void {
         this._nativeObj.destroy()
+        this.shaderData = null;
     }
 
 }

@@ -1,4 +1,5 @@
 
+import { ReflectionProbe } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
 import { Sprite3DRenderDeclaration } from "../../../../d3/core/render/Sprite3DRenderDeclaration";
 import { Bounds } from "../../../../d3/math/Bounds";
@@ -54,6 +55,6 @@ export class WebVolumetricGI implements IVolumetricGIData {
         data.setVector(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, this._params);
         data._setInternalTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
         data._setInternalTexture(RenderableSprite3D.VOLUMETRICGI_DISTANCE, this.distance);
-        data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.intensity);
+        data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.intensity);
     }
 }

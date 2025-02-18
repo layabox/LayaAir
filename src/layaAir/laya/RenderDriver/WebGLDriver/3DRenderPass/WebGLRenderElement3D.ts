@@ -60,11 +60,15 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         if (this.materialShaderData && Config.matUseUBO) {
             let subShader = this.subShader;
             let materialData = this.materialShaderData;
-            let matSubBuffer = materialData.createSubUniformBuffer("Material" + subShader._owner.name, subShader._uniformMap);
+            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
             if (matSubBuffer && matSubBuffer.needUpload) {
                 matSubBuffer.bufferBlock.needUpload();
             }
         }
+
+        //Sprite ubo Update
+
+
         this._invertFront = this._getInvertFront();
     }
 
@@ -105,6 +109,22 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                         shaderIns._uploadRender = this.renderShaderData;
                     }
                 }
+
+                //additionShaderData
+                if (this.owner) {
+                    let additionShaderData = this.owner.additionShaderData;
+                    if (additionShaderData) {
+                        for (const [key, shaderData] of additionShaderData) {
+                            let needUpload = shaderIns._additionShaderData.get(key) !== shaderData || switchUpdateMark
+                            if (needUpload || switchShader) {
+                                let encoder = shaderIns._additionUniformParamsMaps.get(key);
+                                encoder && shaderIns.uploadUniforms(encoder, <WebGLShaderData>shaderData, needUpload);
+                                shaderIns._additionShaderData.set(key, shaderData);
+                            }
+                        }
+                    }
+                }
+
                 //camera
                 var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera || switchShader) {
@@ -152,6 +172,20 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             } else {
                 pass.nodeCommonMap = null;
             }
+
+            pass.additionShaderData = null;
+            if (this.owner) {
+                let additionShaderData = this.owner.additionShaderData;
+                if (additionShaderData.size > 0) {
+                    for (let [key, value] of additionShaderData.entries()) {
+                        comDef.addDefineDatas(value.getDefineData());
+                    }
+                }
+                pass.additionShaderData = this.owner._additionShaderDataKeys;
+            }
+
+
+
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;

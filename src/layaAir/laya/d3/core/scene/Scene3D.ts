@@ -214,6 +214,7 @@ export class Scene3D extends Sprite {
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer", ShaderDataType.Texture2D);
 
         sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate", ShaderDataType.Float);
+        ReflectionProbe.init();
     }
 
     /**

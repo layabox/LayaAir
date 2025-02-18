@@ -40,6 +40,7 @@ import { Config, PlayerConfig } from "./Config";
 import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 import { PostProcess } from "./laya/d3/core/render/postProcessBase/PostProcess";
 import { ScreenQuad } from "./laya/d3/core/render/command/geometry/ScreenQuad";
+import { ReflectionProbe } from "./laya/d3/component/Volume/reflectionProbe/ReflectionProbe";
 
 /**
  * @en Laya3D class is used to initialize 3D settings.
@@ -133,6 +134,7 @@ export class Laya3D {
         MeshRenderer.__init__();
         SkyRenderer.__init__();
         Camera.__init__();
+        ReflectionProbe.init();
         ShadowUtils.init();
         RenderContext3D.__init__();
         BlinnPhongMaterial.__initDefine__();

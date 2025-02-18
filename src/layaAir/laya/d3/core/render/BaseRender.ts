@@ -137,7 +137,6 @@ export class BaseRender extends Component {
      */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
-        Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
         Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
 
@@ -486,14 +485,20 @@ export class BaseRender extends Component {
     set probReflection(value: ReflectionProbe) {
         if (this._probReflection == value)
             return;
-        this._baseRenderNode.probeReflectionUpdateMark = -1;//initial update mask
         this._probReflection = value;
         this._baseRenderNode.probeReflection = value._dataModule;
+        if (value) {
+            this._baseRenderNode.additionShaderData.set("ReflectionProbe", value.shaderData);
+        }
+        else {
+            this._baseRenderNode.additionShaderData.delete("ReflectionProbe");
+        }
+        this._baseRenderNode.additionShaderData =  this._baseRenderNode.additionShaderData;
         if (this._baseRenderNode.reflectionMode == ReflectionProbeMode.off) {
             this._baseRenderNode.shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            this._baseRenderNode.shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
-            this._baseRenderNode.shaderData.setTexture(RenderableSprite3D.IBLTEX, TextureCube.blackTexture);
-            this._baseRenderNode.shaderData.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, 0);
+            this._baseRenderNode.shaderData.addDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);
+            //this._baseRenderNode.shaderData.setTexture(RenderableSprite3D.IBLTEX, TextureCube.blackTexture);
+            //this._baseRenderNode.shaderData.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, 0);
         };
         this._getIrradientMode();
     }

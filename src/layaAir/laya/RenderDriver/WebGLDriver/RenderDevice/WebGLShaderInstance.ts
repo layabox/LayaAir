@@ -37,15 +37,15 @@ export class WebGLShaderInstance implements IShaderInstance {
     _materialUniformParamsMap: CommandEncoder;
     /**@internal */
     _sprite2DUniformParamsMap: CommandEncoder;
-    /**@internal */
-    private _customUniformParamsMap: any[] = [];
+
+    _additionUniformParamsMaps: Map<string, CommandEncoder>;
 
     /**@internal */
     _uploadMark: number = -1;
     /**@internal */
     _uploadMaterial: ShaderData;
     /**@internal RenderIDTODO*/
-    _uploadRender: any;
+    _uploadRender: ShaderData;
     /** @internal */
     _uploadRenderType: number = -1;
     /**@internal CamneraTOD*/
@@ -53,10 +53,15 @@ export class WebGLShaderInstance implements IShaderInstance {
     /**@internal SceneIDTODO*/
     _uploadScene: ShaderData;
 
+    /** @internal 缓存数据 用来优化一些*/
+    _additionShaderData: Map<string, ShaderData>;
+
     /**
      * 创建一个 <code>ShaderInstance</code> 实例。
      */
     constructor() {
+        this._additionUniformParamsMaps = new Map();
+        this._additionShaderData = new Map();
     }
     _serializeShader(): ArrayBuffer {
         //TODO
@@ -100,9 +105,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._spriteUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
         const sceneParams = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D") as WebGLCommandUniformMap;
-        //const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");//分开，根据不同的Render
         const cameraParams = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera") as WebGLCommandUniformMap;
-        const customParams = LayaGL.renderDeviceFactory.createGlobalUniformMap("Custom") as WebGLCommandUniformMap;
         let i, n;
         let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
         for (i = 0, n = data.length; i < n; i++) {
@@ -113,9 +116,12 @@ export class WebGLShaderInstance implements IShaderInstance {
                 this._cameraUniformParamsMap.addShaderUniform(one);
             } else if (this.hasSpritePtrID(one.dataOffset)) {
                 this._spriteUniformParamsMap.addShaderUniform(one);
-            } else if (customParams.hasPtrID(one.dataOffset)) {
-                this._customUniformParamsMap || (this._customUniformParamsMap = []);
-                this._customUniformParamsMap[one.dataOffset] = one;
+            } else if (this._hasAdditionShaderData(one.dataOffset)) {
+                if (!this._additionUniformParamsMaps.get(one.name)) {
+                    let commandEncoder = new CommandEncoder();
+                    this._additionUniformParamsMaps.set(one.name, commandEncoder);
+                }
+                this._additionUniformParamsMaps.get(one.name).addShaderUniform(one);
             } else {
                 this._materialUniformParamsMap.addShaderUniform(one);
             }
@@ -137,7 +143,8 @@ export class WebGLShaderInstance implements IShaderInstance {
             let one: ShaderVariable = data[i];
             if (this.hasSpritePtrID(one.dataOffset)) {
                 this._sprite2DUniformParamsMap.addShaderUniform(one);
-            } else if (sceneParms.hasPtrID(one.dataOffset)) {
+            }
+            else if (sceneParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);
             }
             else {
@@ -159,6 +166,19 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
     }
 
+    private _hasAdditionShaderData(dataOffset: number): boolean {
+        let additionShaderData = this._shaderPass.additionShaderData;
+        if (!additionShaderData) {
+            return false;
+        } else {
+            for (let i = 0, n = additionShaderData.length; i < n; i++) {
+                if ((LayaGL.renderDeviceFactory.createGlobalUniformMap(additionShaderData[i]) as WebGLCommandUniformMap).hasPtrID(dataOffset))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @inheritDoc
      * @override
@@ -168,13 +188,14 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._sceneUniformParamsMap = null;
         this._cameraUniformParamsMap = null;
         this._spriteUniformParamsMap = null;
-        this._materialUniformParamsMap = null
-        this._customUniformParamsMap = null;
+        this._materialUniformParamsMap = null;
+        this._sprite2DUniformParamsMap = null;
 
         this._uploadMaterial = null;
         this._uploadRender = null;
         this._uploadCameraShaderValue = null;
         this._uploadScene = null;
+        this._additionShaderData = null;
     }
 
     /**
@@ -397,11 +418,11 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
     }
 
-    /**
-     * @internal
-     */
-    uploadCustomUniform(index: number, data: any): void {
-        WebGLEngine.instance.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
-    }
+    // /**
+    //  * @internal
+    //  */
+    // uploadCustomUniform(index: number, data: any): void {
+    //     WebGLEngine.instance.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
+    // }
 }
 

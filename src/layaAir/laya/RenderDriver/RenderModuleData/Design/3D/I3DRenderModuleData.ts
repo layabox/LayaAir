@@ -40,10 +40,10 @@ export interface IBaseRenderNode {
     boundsChange: boolean;
     staticMask: number;
     shaderData: ShaderData;
+    additionShaderData: Map<string, ShaderData>;
     lightmapIndex: number;
     lightmap: ILightMapData;
     probeReflection: IReflectionProbeData;
-    probeReflectionUpdateMark: number;
     reflectionMode: number;
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
@@ -163,6 +163,8 @@ export interface IReflectionProbeData {
     updateMark: number;
     /**@internal */
     iblTexRGBD: boolean;
+    /**@internal */
+    shaderData: ShaderData;
     /**@internal */
     setProbePosition(value: Vector3): void;
     /**@internal */

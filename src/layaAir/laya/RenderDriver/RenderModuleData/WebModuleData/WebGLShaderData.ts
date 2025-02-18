@@ -120,9 +120,9 @@ export class WebGLShaderData extends ShaderData {
     }
 
 
-    createSubUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>) {
+    createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
 
-        let subBuffer = this._subUniformBuffers.get(name);
+        let subBuffer = this._subUniformBuffers.get(cacheName);
         if (subBuffer) {
             if (this._subUboBufferNumber < 2) {
                 //update data
@@ -151,7 +151,7 @@ export class WebGLShaderData extends ShaderData {
         this._subUboBufferNumber++;
         this._needCacheData = true;
         uniformBuffer.notifyGPUBufferChange();
-        this._subUniformBuffers.set(name, uniformBuffer);
+        this._subUniformBuffers.set(cacheName, uniformBuffer);
 
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uniformBuffer;

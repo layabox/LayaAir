@@ -34,7 +34,7 @@ export class GLSLCodeGenerator {
 
         if (useUniformBlock) {
             let uniformsStr = "";
-            let blockStr = "uniform Material"+shaderName+"{\n";
+            let blockStr = "uniform Material{\n";
             let blockPropertyCount = 0;
 
             uniformsMap.forEach((uniform, key) => {
