@@ -16,10 +16,17 @@ import { VideoTexture } from "../media/VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
+import { CompressedTextureFormat } from '../RenderDriver/DriverDesign/RenderDevice/ITextureContext';
 
 var internalResources: Record<string, Texture2D>;
 
 export class Texture2DLoader implements IResourceLoader {
+
+    protected static readonly CompressedTextureFormatIndex = {
+        [CompressedTextureFormat.ASTC]: 1,
+        [CompressedTextureFormat.S3TC]: 0,
+    } as Record<CompressedTextureFormat, number>;
+
     constructor() {
         if (!internalResources) {
             internalResources = {
@@ -57,8 +64,13 @@ export class Texture2DLoader implements IResourceLoader {
         let ext = task.ext;
         let url = task.url;
         if (meta) {
-            let platform = Browser.platform;
-            let fileIndex = meta.platforms?.[platform] || 0;
+            let flags = LayaGL.textureContext.supportedCompressedTextureFormats || 0;
+            if (!flags) {
+                Loader.warnFailed("Compressed texture is not supported.");
+                return null;
+            }
+            const format = [CompressedTextureFormat.ASTC, CompressedTextureFormat.S3TC].find(format => flags & format);
+            const fileIndex = Texture2DLoader.CompressedTextureFormatIndex[format];
             let fileInfo = meta.files?.[fileIndex] || {};
             if (fileInfo.file) {
                 url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);

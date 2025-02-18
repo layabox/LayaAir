@@ -9,7 +9,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
-import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
+import { CompressedTextureFormat, ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLExtension } from "./WebGLEngine/GLEnum/WebGLExtension";
 import { GLObject } from "./WebGLEngine/GLObject";
@@ -25,8 +25,12 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     protected _compressedTextureS3tc: any;
     protected _compressedTextureETC: any;
     protected _compressedTextureASTC: any;
+    protected _compressedTexturePVRTC: any;
     protected _webgl_depth_texture: any;
     needBitmap: boolean;
+
+    readonly supportedCompressedTextureFormats: number;
+
     constructor(engine: WebGLEngine) {
         super(engine);
         this.needBitmap = false;
@@ -36,9 +40,18 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._compressedTextureEtc1 = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_etc1)
         this._compressedTextureS3tc = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_s3tc)
         this._compressedTextureETC = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_etc)
-        this._compressedTextureASTC = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_astc)
+        this._compressedTextureASTC = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_astc);
+        this._compressedTexturePVRTC = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_pvrtc)
         this._webgl_depth_texture = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_depth_texture);
+
+        let formats = 0;
+        this._compressedTextureASTC && (formats |= CompressedTextureFormat.ASTC);
+        this._compressedTextureS3tc && (formats |= CompressedTextureFormat.S3TC);
+        this._compressedTextureETC && (formats |= CompressedTextureFormat.ETC);
+        this._compressedTexturePVRTC && (formats |= CompressedTextureFormat.PVRTC);
+        this.supportedCompressedTextureFormats = formats;
     }
+
     createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         return null;
     }

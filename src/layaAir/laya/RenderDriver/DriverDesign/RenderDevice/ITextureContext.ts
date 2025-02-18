@@ -8,6 +8,13 @@ import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { InternalRenderTarget } from "./InternalRenderTarget";
 import { InternalTexture } from "./InternalTexture";
 
+/** 压缩纹理格式 */
+export enum CompressedTextureFormat {
+    S3TC = 1,
+    ASTC = 1 << 1,
+    ETC = 1 << 2,
+    PVRTC = 1 << 3,
+};
 
 export interface ITextureContext {
     needBitmap: boolean;
@@ -82,4 +89,10 @@ export interface ITextureContext {
 
     setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void;
 
+    /** 
+     * 当前渲染上下文支持的压缩纹理格式
+     * @see CompressedTextureFormat
+     * @returns CompressedTextureFormat 枚举值的组合
+     */
+    readonly supportedCompressedTextureFormats?: number;
 }
