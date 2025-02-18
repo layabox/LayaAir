@@ -139,9 +139,9 @@ uniform int u_SpotLightMode;
 
 uniform sampler2D u_LightBuffer;
 
-	    #ifdef DIRECTIONLIGHT
-uniform mediump int u_DirationLightCount;
-	    #endif
+//	    #ifdef DIRECTIONLIGHT
+//uniform mediump int u_DirationLightCount;
+//	    #endif
 
 	    #if defined(POINTLIGHT) || defined(SPOTLIGHT)
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT * CLUSTER_Y_COUNT;

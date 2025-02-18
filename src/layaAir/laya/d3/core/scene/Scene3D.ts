@@ -197,10 +197,10 @@ export class Scene3D extends Sprite {
         sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
         sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
         sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
-        sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount", ShaderDataType.Int);
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer", ShaderDataType.Texture2D);
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer", ShaderDataType.Texture2D);
         sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate", ShaderDataType.Float);
+        sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount", ShaderDataType.Int);
         ReflectionProbe.init();
     }
 
