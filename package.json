@@ -47,6 +47,7 @@
     "url": "https://github.com/layabox/LayaAir"
   },
   "dependencies": {
+    "@shipgirl/typedoc-plugin-versions": "^0.3.0",
     "cors": "^2.8.5",
     "i18next": "^23.11.2"
   },
