@@ -88,8 +88,13 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
 
     apply(context: WebglRenderContext2D): void {
         let cacheInvert = context.invertY;
-        if (!this._dest)
-             context.invertY = false;
+        if (!this._dest) {
+            context.invertY = false;
+            this.element.materialShaderData.addDefine(Shader3D.getDefineByName("GAMMACORRECT"));
+        } else {
+            this.element.materialShaderData.removeDefine(Shader3D.getDefineByName("GAMMACORRECT"));
+        }
+
         this.element.materialShaderData._setInternalTexture(WebGLBlit2DQuadCMD.SCREENTEXTURE_ID, this._source);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
