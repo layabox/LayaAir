@@ -398,7 +398,6 @@ export class UI3D extends BaseRender {
             if (camera.orthographic) {
                 scale.setValue(camera.orthographicVerticalSize * camera.aspectRatio, camera.orthographicVerticalSize, 1);
             } else {
-
                 let height = Math.tan(Utils.toRadian(camera.fieldOfView / 2)) * this._cameraPlaneDistance * 2;
                 scale.setValue(height * camera.aspectRatio, height, 1);
             }
@@ -409,7 +408,7 @@ export class UI3D extends BaseRender {
                 let camera = this.owner.scene.cullInfoCamera;
                 Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
             } else if (this._sizeChange) {
-                this._sizeChange = false;
+                this.boundsChange = true;
                 this._transform.worldMatrix.cloneTo(this._matrix);
             }
         }
