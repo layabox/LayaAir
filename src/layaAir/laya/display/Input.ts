@@ -414,6 +414,7 @@ export class Input extends Text {
         (input as any).setFontFace(this._realFont);
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (input as any).setMultiAble && (input as any).setMultiAble(this._multiline);
+            (input as any).setFont(this._realFont);
         }
         cssStyle.lineHeight = (this.leading + this.fontSize) + "px";
         cssStyle.fontStyle = (this.italic ? "italic" : "normal");
