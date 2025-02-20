@@ -767,7 +767,7 @@ export class Utils3D {
     }
 
     /**
-     * @interanl
+     * @internal
      * @param rootSprite parentNode
      * @param invPath PathArray
      * @returns 

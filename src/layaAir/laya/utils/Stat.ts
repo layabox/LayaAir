@@ -160,7 +160,7 @@ export class Stat {
     public static textureMemory: number = 0;
     /**@internal */
     public static renderTextureMemory: number = 0;
-    /**@interanl */
+    /**@internal */
     public static bufferMemory: number = 0;
     /**@internal */
     public static uploadUniform: number = 0;
@@ -211,7 +211,7 @@ export class Stat {
         this.hide();
 
         Stat._show = true;
-        Stat._currentShowArray = views||Stat.AllShow;
+        Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }

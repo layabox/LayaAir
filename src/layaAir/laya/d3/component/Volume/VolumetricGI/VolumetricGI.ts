@@ -178,7 +178,7 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * @interanl
+     * @internal
      * upload volumetric GI data
      * @param shaderData 
      */
@@ -197,7 +197,7 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * @interanl
+     * @internal
      */
     _onDestroy() {
         // todo

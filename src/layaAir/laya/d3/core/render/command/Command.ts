@@ -72,7 +72,6 @@ export class Command {
 
 	/**
 	 * @internal
-	 * @destroy
 	 */
 	destroy(){
 		this._commandBuffer = null;

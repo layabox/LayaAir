@@ -67,7 +67,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 
 	//-------------------deprecated-------------------
 	/**
-	 * @description
+	 * @deprecated
 	 * X轴尺寸。
 	 */
 	get sizeX(): number {
@@ -82,7 +82,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @description
+	 * @deprecated
 	 * Y轴尺寸。
 	 */
 	get sizeY(): number {
@@ -97,7 +97,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @description
+	 * @deprecated
 	 * Z轴尺寸。
 	 */
 	get sizeZ(): number {

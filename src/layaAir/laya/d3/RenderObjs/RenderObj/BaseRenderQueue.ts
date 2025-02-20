@@ -9,7 +9,7 @@ import { RenderElement } from "../../core/render/RenderElement";
 import { RenderElementBatch } from "../../graphics/Batch/RenderElementBatch";
 
 export class BaseRenderQueue implements IRenderQueue {
-    /** @interanl */
+    /** @internal */
     _isTransparent: boolean = false;
     /** @internal */
     elements: FastSinglelist<RenderElement> = new FastSinglelist<RenderElement>();

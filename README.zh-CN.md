@@ -1,6 +1,6 @@
 <p align="center">
-    <a href="https://layaair.layabox.com">
-        <img src="https://github.com/layabox/LayaAir/assets/38777031/5519a795-c050-4612-8ee0-0907a946260b"
+    <a href="https://layaair.com">
+        <img src="./logo.png"
     </a>
 </p>
 
@@ -24,7 +24,7 @@ LayaAir引擎积极拥抱AI，已内置AIGC框架，提供AI创作生成、AI控
 
 从LayaAir官方网站直接下载LayaAirIDE， IDE内包含对应版本的引擎。
 
-[LayaAir Engine Download](https://layaair.layabox.com/#/engineDownload).
+[LayaAir Engine Download](https://layaair.com/#/engineDownload).
 
 ### 从源码编译
 
@@ -36,13 +36,15 @@ LayaAir引擎积极拥抱AI，已内置AIGC框架，提供AI创作生成、AI控
 npm install
 ```
 
-#### 运行示例
+#### 测试引擎
 
 在引擎根目录，用命令行执行`npm run start`命令，如下所示：
 
 ```bash
 npm run start
 ```
+
+然后使用Live Server打开bin/index.html.
 
 #### 编译引擎
 
@@ -70,17 +72,17 @@ npm run build
 
 ## 相关链接
 
-- 官网 https://layaair.layabox.com/
+- 官网 https://layaAir.com/
 
-- 论坛 https://ask.layabox.com/
+- 论坛 https://ask.layaAir.com/
 
-- 示例 https://layaair.layabox.com/3.x/demo/
+- 示例 https://layaAir.com/3.x/demo/
 
-- 开发者文档 https://layaair.layabox.com/3.x/doc/
+- 开发者文档 https://layaAir.com/3.x/doc/
 
-- API参考 https://layaair.layabox.com/3.x/api/
+- API参考 https://layaAir.com/3.x/api/
 
-- 引擎案例 https://layaair.layabox.com/#/enginedemo
+- 引擎案例 https://layaAir.com/#/enginedemo
 
 ## 授权协议
 
