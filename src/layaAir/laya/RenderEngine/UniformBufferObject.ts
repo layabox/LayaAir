@@ -33,7 +33,7 @@ export class UniformBufferObject extends Buffer {
             return null;
         } else {
             let ubo = LayaGL.renderOBJCreate.createUniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
-            if(bufferBase._singgle) bufferBase.add(ubo);
+            if (bufferBase._singgle) bufferBase.add(ubo);
             return ubo;
         }
     }
@@ -50,7 +50,7 @@ export class UniformBufferObject extends Buffer {
         return base._mapArray[index];
     }
 
-    /**@interanl */
+    /**@internal */
     _glPointer: number;
 
     /**@internal */
@@ -66,10 +66,10 @@ export class UniformBufferObject extends Buffer {
     byteLength: number;
 
     /**
-     * @interanl
+     * @internal
      */
     constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
-        super(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
+        super(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
         this._glPointer = glPointer;
         this.byteLength = byteLength;
         this._name = name;
@@ -87,8 +87,8 @@ export class UniformBufferObject extends Buffer {
     _bindUniformBufferBase() {
         // const base = UniformBufferObject._Map.get(this._name);
         // if (base._curUniformBuffer != this) {
-            this._glBuffer.bindBufferBase(this._glPointer);
-            //base._curUniformBuffer = this;
+        this._glBuffer.bindBufferBase(this._glPointer);
+        //base._curUniformBuffer = this;
         // }
     }
 
@@ -98,7 +98,7 @@ export class UniformBufferObject extends Buffer {
      */
     _bindBufferRange(offset: number, byteCount: number) {
         this.bind();
-        this._glBuffer.bindBufferRange(this._glPointer,offset,byteCount);
+        this._glBuffer.bindBufferRange(this._glPointer, offset, byteCount);
         //gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
     }
 
@@ -107,7 +107,7 @@ export class UniformBufferObject extends Buffer {
      * @param bytelength 
      */
     _reset(bytelength: number) {
-        
+
         //destroy
         if (this._glBuffer) {
             this._glBuffer.destroy();
@@ -115,7 +115,7 @@ export class UniformBufferObject extends Buffer {
         }
         //create new
         this._byteLength = this.byteLength = bytelength;
-        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType,this._bufferUsage);
+        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType, this._bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
         this._glBuffer.setDataLength(this.byteLength);
@@ -126,7 +126,7 @@ export class UniformBufferObject extends Buffer {
      * @override
      */
     bind(): boolean {
-       return this._glBuffer.bindBuffer();
+        return this._glBuffer.bindBuffer();
     }
 
     /**
@@ -143,12 +143,12 @@ export class UniformBufferObject extends Buffer {
         if (needSubData) {
             var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, byteCount);
             //bufferSubData(this._bufferType, bufferOffset, subData);
-            this._glBuffer.setData(subData,bufferOffset);
+            this._glBuffer.setData(subData, bufferOffset);
         }
         else {
             // let gl = (LayaGL.instance as WebGL2RenderingContext);                                                 
             // gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, buffer.length);
-            this._glBuffer.setDataEx(buffer,bufferOffset,buffer.length);
+            this._glBuffer.setDataEx(buffer, bufferOffset, buffer.length);
         }
     }
 
@@ -179,13 +179,13 @@ export class UniformBufferObject extends Buffer {
         //let gl = (LayaGL.instance as WebGL2RenderingContext);
         this.bind();
         //gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
-        this._glBuffer.setDataEx(bufferData._buffer,offset * datalength,reallength / 4);
+        this._glBuffer.setDataEx(bufferData._buffer, offset * datalength, reallength / 4);
     }
 
     /**
-	 * @private
-	 */
-	destroy(): void {
-		super.destroy();
-	}
+     * @private
+     */
+    destroy(): void {
+        super.destroy();
+    }
 }

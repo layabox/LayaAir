@@ -95,7 +95,7 @@ export class UnifromBufferData {
     }
 
     /**
-     * @interanl
+     * @internal
      * layout UniformBuffer pitch std140
      */
     protected _addUniformParams(uniformID: number, value: UniformBufferParamsType, offset: number): number {
@@ -189,7 +189,7 @@ export class UnifromBufferData {
     }
 
     /**
-     * @interanl
+     * @internal
      * set upload range
      */
     private _setUpdateFlag(min: number, max: number) {

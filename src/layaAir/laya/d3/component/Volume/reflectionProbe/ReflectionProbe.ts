@@ -26,7 +26,6 @@ export enum ReflectionProbeMode {
 }
 /**
  * <code>ReflectionProbe</code> 类用于实现反射探针组件
- * @miner
  */
 export class ReflectionProbe extends Volume {
 	static reflectionCount: number = 0;
