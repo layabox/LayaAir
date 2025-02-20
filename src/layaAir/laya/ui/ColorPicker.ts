@@ -34,7 +34,7 @@ export class ColorPicker extends UIComponent {
     protected _borderColor: string = "#000000";
     /**
      * @en Represents the color value selected or input in the color sample list panel.
-     * @cn 表示颜色样本列表面板选择或输入的颜色值。
+     * @zh 表示颜色样本列表面板选择或输入的颜色值。
      */
     protected _inputColor: string = "#000000";
     /**
@@ -67,10 +67,10 @@ export class ColorPicker extends UIComponent {
      * @zh 表示点击后显示颜色样本列表面板的按钮控件 `Button`。
      */
     protected _colorButton: Button;
-     /**
-     * @en Represents the list of color values.
-     * @zh 表示颜色值列表。
-     */
+    /**
+    * @en Represents the list of color values.
+    * @zh 表示颜色值列表。
+    */
     protected _colors: any[] = [];
     /**
      * @en Represents the selected color value.  
@@ -337,7 +337,7 @@ export class ColorPicker extends UIComponent {
     /**
      * @en Gets the color value of the corresponding color block based on the mouse position.
      * @zh 通过鼠标位置取对应的颜色块的颜色值。
-     */  
+     */
     protected getColorByMouse(): string {
         var point: Point = this._colorTiles.getMousePoint();
         var x: number = Math.floor(point.x / this._gridSize);

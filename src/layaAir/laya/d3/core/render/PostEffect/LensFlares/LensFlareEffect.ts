@@ -198,7 +198,7 @@ export class LensFlareData extends Resource {
  * @zh 镜头光晕效果
  */
 export class LensFlareEffect extends PostProcessEffect {
-    /**@interal */
+    /**@internal */
     static SHADERDEFINE_AUTOROTATE: ShaderDefine;
 
     /**

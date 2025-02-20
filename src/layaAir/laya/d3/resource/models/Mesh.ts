@@ -52,7 +52,7 @@ export class Mesh extends Resource implements IClone {
 
     /**@internal */
     _convexMesh: any;
-    /**@interanl */
+    /**@internal */
     _triangleMesh: any;
     /**@internal */
     __convexMesh: Mesh;

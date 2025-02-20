@@ -34,7 +34,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     }
     /** @internal */
     _owner: Spine2DRenderNode;
-    /** @ineternal */
+    /** @internal */
     _renerer: ISpineRender;
     /** @internal */
     _skeleton: spine.Skeleton;
