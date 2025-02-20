@@ -111,6 +111,15 @@ export class MaterialParser {
                         case Shader3D.STENCIL_WRITE:
                             mat.stencilWrite = property;
                             break;
+                        case Shader3D.BLEND_EQUATION:
+                            mat.blendEquation = property;
+                            break;
+                        case Shader3D.BLEND_EQUATION_RGB:
+                            mat.blendEquationRGB = property;
+                            break;
+                        case Shader3D.BLEND_EQUATION_ALPHA:
+                            mat.blendEquationAlpha = property;
+                            break;
                         default:
                             if (!property.length) {
                                 if (typeof property == 'boolean')
@@ -336,6 +345,15 @@ export class MaterialParser {
                                     break;
                                 case Shader3D.DEPTH_WRITE:
                                     mat.depthWrite = !!props[key];
+                                    break;
+                                case Shader3D.BLEND_EQUATION:
+                                    mat.blendEquation = props[key];
+                                    break;
+                                case Shader3D.BLEND_EQUATION_ALPHA:
+                                    mat.blendEquationAlpha = props[key];
+                                    break;
+                                case Shader3D.BLEND_EQUATION_RGB:
+                                    mat.blendEquationRGB = props[key];
                                     break;
                                 default:
                                     if (!property.length) {
