@@ -385,7 +385,7 @@ export class Scene3D extends Sprite {
     private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@interanl */
+    /**@internal */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -401,7 +401,7 @@ export class Scene3D extends Sprite {
     _collsionTestList: number[] = [];
     /** @internal */
     _shaderValues: ShaderData;
-    /** @interanl */
+    /** @internal */
     _sceneUniformData: UnifromBufferData;
     /** @internal */
     _sceneUniformObj: UniformBufferObject;

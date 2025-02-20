@@ -487,7 +487,7 @@ export class NavMesh {
 
     /**
      * remove a tile
-     * @internals
+     * @internal
      * @param cellX 
      * @param cellY 
      */
