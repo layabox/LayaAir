@@ -11,7 +11,7 @@ import { FrameOverTime } from "../particle/d3/module/FrameOverTime";
 import { GradientAngularVelocity } from "../particle/d3/module/GradientAngularVelocity";
 import { GradientColor } from "../particle/d3/module/GradientColor";
 import { GradientDataInt } from "../particle/d3/module/GradientDataInt";
-import { GradientDataNumber } from "../particle/d3/module/GradientDataNumber";
+import { GradientDataNumber } from "../particle/common/GradientDataNumber";
 import { GradientSize } from "../particle/d3/module/GradientSize";
 import { GradientVelocity } from "../particle/d3/module/GradientVelocity";
 import { RotationOverLifetime } from "../particle/d3/module/RotationOverLifetime";
