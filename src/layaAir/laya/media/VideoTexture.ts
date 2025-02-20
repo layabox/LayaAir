@@ -28,7 +28,7 @@ export class VideoTexture extends BaseTexture {
      * 是否开发者自己调用Render
      */
     private _frameRender: boolean;
-    /** @inernal 避免重复的加载 */
+    /** @internal 避免重复的加载 */
     _isLoaded: boolean;
     _needUpdate: boolean;
 

@@ -339,7 +339,7 @@ export class ShadowUtils {
     }
 
     /**
-     * @inernal
+     * @internal
      */
     static getMaxTileResolutionInAtlas(atlasWidth: number, atlasHeight: number, tileCount: number): number {
         var resolution: number = Math.min(atlasWidth, atlasHeight);

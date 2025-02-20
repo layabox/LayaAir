@@ -1420,7 +1420,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     /**
-     * @internal5
+     * @internal
      * 增加爆炸粒子数量
      */
     protected _burst(fromTime: number, toTime: number): number {
