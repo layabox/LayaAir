@@ -34,7 +34,7 @@ import { Emission } from "./module/Emission";
 import { FrameOverTime } from "./module/FrameOverTime";
 import { GradientAngularVelocity } from "./module/GradientAngularVelocity";
 import { GradientColor } from "./module/GradientColor";
-import { GradientDataNumber } from "./module/GradientDataNumber";
+import { GradientDataNumber } from "../common/GradientDataNumber";
 import { GradientSize } from "./module/GradientSize";
 import { GradientVelocity } from "./module/GradientVelocity";
 import { RotationOverLifetime } from "./module/RotationOverLifetime";

@@ -7,7 +7,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { FrameOverTime } from "./module/FrameOverTime";
 import { GradientColor } from "./module/GradientColor";
-import { GradientDataNumber } from "./module/GradientDataNumber";
+import { GradientDataNumber } from "../common/GradientDataNumber";
 import { GradientSize } from "./module/GradientSize";
 import { SizeOverLifetime } from "./module/SizeOverLifetime";
 import { StartFrame } from "./module/StartFrame";

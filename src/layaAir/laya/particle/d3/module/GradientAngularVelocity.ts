@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IClone } from "../../../utils/IClone";
-import { GradientDataNumber } from "./GradientDataNumber";
+import { GradientDataNumber } from "../../common/GradientDataNumber";
 
 
 
