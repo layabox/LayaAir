@@ -26,7 +26,6 @@ export enum ReflectionProbeMode {
 }
 /**
  * <code>ReflectionProbe</code> 类用于实现反射探针组件
- * @miner
  */
 export class ReflectionProbe extends Volume {
 	//因为纹理数量问题 暂不支持探针混合

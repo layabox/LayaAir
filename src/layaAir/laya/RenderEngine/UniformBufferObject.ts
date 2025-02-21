@@ -50,7 +50,7 @@ export class UniformBufferObject extends Buffer {
         return base._mapArray[index];
     }
 
-    /**@interanl */
+    /**@internal */
     _glPointer: number;
 
     /**@internal */
@@ -66,7 +66,7 @@ export class UniformBufferObject extends Buffer {
     byteLength: number;
 
     /**
-     * @interanl
+     * @internal
      */
     constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
         super(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
