@@ -92,8 +92,8 @@ export class TileMapChunkData {
      */
     private _cellDataMap: Record<number, ChunkCellInfo> = {};
 
-    /** 用于排序的列表 */
-    private _chuckCellList: ChunkCellInfo[] = [];
+    /** @internal 用于排序的列表 */
+    _chuckCellList: ChunkCellInfo[] = [];
 
     //渲染数据
     private _renderElementArray: ITileMapRenderElement[];
