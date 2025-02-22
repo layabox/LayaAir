@@ -1,5 +1,3 @@
-import { Config } from "../../../../../Config";
-import { Config3D } from "../../../../../Config3D";
 import { ReflectionProbe } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
 import { Sprite3DRenderDeclaration } from "../../../../d3/core/render/Sprite3DRenderDeclaration";
@@ -60,9 +58,6 @@ export class WebReflectionProbe implements IReflectionProbeData {
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        if (Config._uniformBlock) {
-            this.shaderData.createUniformBuffer("ReflectionProbe", ReflectionProbe.CommandMap);
-        }
     }
 
     /**
@@ -133,7 +128,6 @@ export class WebReflectionProbe implements IReflectionProbeData {
         }
         data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(ReflectionProbe.REFLECTIONINTENSITY, this.reflectionIntensity);
-        if (Config._uniformBlock) this.shaderData.updateUBOBuffer(ReflectionProbe.BlockName);
     }
 
 }

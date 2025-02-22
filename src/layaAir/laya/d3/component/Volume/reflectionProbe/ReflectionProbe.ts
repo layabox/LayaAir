@@ -94,7 +94,7 @@ export class ReflectionProbe extends Volume {
 
 		ReflectionProbe.AMBIENTCOLOR = addUniform("u_AmbientColor", ShaderDataType.Vector4);
 
-		ReflectionProbe.AMBIENTSH = addUniform("u_IblSH", ShaderDataType.Vector4, 9);
+		ReflectionProbe.AMBIENTSH = addUniform("u_IblSH", ShaderDataType.Vector3, 9);
 
 		ReflectionProbe.IBLTEX = addUniform("u_IBLTex", ShaderDataType.TextureCube);
 

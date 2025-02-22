@@ -1,14 +1,15 @@
 
 import { Config } from "../../../../Config";
-import { Config3D } from "../../../../Config3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
@@ -67,7 +68,16 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
 
         //Sprite ubo Update
-
+        if (this.owner && Config._uniformBlock) {
+            for (let [key, value] of this.owner.additionShaderData) {
+                let shaderData = <WebGLShaderData>value;
+                let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
+                if (uniformBuffer && uniformBuffer.needUpload) {
+                    uniformBuffer.bufferBlock.needUpload();
+                }
+            }
+        }
 
         this._invertFront = this._getInvertFront();
     }
@@ -148,26 +158,42 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
     }
 
+    protected _getShaderInstanceDefins(context: WebGLRenderContext3D) {
+        let comDef = context._getContextShaderDefines();
+
+        if (this.renderShaderData) {
+            comDef.addDefineDatas(this.renderShaderData.getDefineData());
+        }
+
+        if (this.materialShaderData) {
+            comDef.addDefineDatas(this.materialShaderData._defineDatas);
+        }
+
+        if (this.owner) {
+            let additionShaderData = this.owner.additionShaderData;
+            if (additionShaderData.size > 0) {
+                for (let [key, value] of additionShaderData.entries()) {
+                    comDef.addDefineDatas(value.getDefineData());
+                }
+            }
+        }
+
+
+        return comDef;
+    }
+
     protected _compileShader(context: WebGLRenderContext3D) {
-        var passes: ShaderPass[] = this.subShader._passes;
         this._clearShaderInstance();
+
+        let comDef = this._getShaderInstanceDefins(context);
+
+        var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             var pass: ShaderPass = passes[j];
-            //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef = WebGLRenderElement3D._compileDefine;
-
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
-            } else {
-                context._globalConfigShaderData.cloneTo(comDef);
-            }
-
-            context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
             if (this.renderShaderData) {
-                comDef.addDefineDatas(this.renderShaderData.getDefineData());
                 pass.nodeCommonMap = this.owner._commonUniformMap;
             } else {
                 pass.nodeCommonMap = null;
@@ -175,23 +201,9 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
             pass.additionShaderData = null;
             if (this.owner) {
-                let additionShaderData = this.owner.additionShaderData;
-                if (additionShaderData.size > 0) {
-                    for (let [key, value] of additionShaderData.entries()) {
-                        comDef.addDefineDatas(value.getDefineData());
-                    }
-                }
                 pass.additionShaderData = this.owner._additionShaderDataKeys;
             }
-
-
-
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
-
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
-
-            //get shaderInstance
-            //create ShaderInstance
 
             this._addShaderInstance(shaderIns);
         }

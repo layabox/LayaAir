@@ -24,6 +24,7 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -161,7 +162,7 @@ export class WebGLDirectLightShadowRP {
      * @param count
      */
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
-        var shaderValues: WebGLShaderData = context.sceneData;
+        let shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
         context.setRenderTarget(shadowMap, RenderClearFlag.Depth);
@@ -204,10 +205,6 @@ export class WebGLDirectLightShadowRP {
                 context.setViewPort(Viewport.TEMP);
                 Vector4.TEMP.setValue(offsetX, offsetY, resolution, resolution);
                 context.setScissor(Vector4.TEMP);
-            }
-
-            if (Config._uniformBlock) {//TODO:处理shadowmap的ubo
-                shaderValues.updateUBOBuffer(Scene3D.UBONAME_SHADOW);
             }
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
@@ -295,6 +292,7 @@ export class WebGLDirectLightShadowRP {
     private _setupShadowCasterShaderValues(shaderValues: WebGLShaderData, shadowSliceData: ShadowSliceData, LightParam: Vector3, shadowBias: Vector4): void {
         shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
+
         var cameraSV: WebGLShaderData = shadowSliceData.cameraShaderValue as WebGLShaderData;//TODO:should optimization with shader upload.
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);

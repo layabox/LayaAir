@@ -12,13 +12,13 @@ import { IShaderInstance } from "./IShaderInstance";
 import { IVertexBuffer } from "./IVertexBuffer";
 import { ShaderData } from "./ShaderData";
 
-export interface IRenderDeviceFactory{
+export interface IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance;
-    createIndexBuffer(bufferUsage: BufferUsage):IIndexBuffer;
-    createVertexBuffer(bufferUsageType: BufferUsage):IVertexBuffer;
-    createBufferState():IBufferState;
-    createRenderGeometryElement(mode: MeshTopology, drawType: DrawType):IRenderGeometryElement;
+    createIndexBuffer(bufferUsage: BufferUsage): IIndexBuffer;
+    createVertexBuffer(bufferUsageType: BufferUsage): IVertexBuffer;
+    createBufferState(): IBufferState;
+    createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement;
     createEngine(config: Config, canvas: any): Promise<void>;
     createGlobalUniformMap(blockName: string): CommandUniformMap;
-    createShaderData(ownerResource?: Resource):ShaderData;
+    createShaderData(ownerResource?: Resource): ShaderData;
 }

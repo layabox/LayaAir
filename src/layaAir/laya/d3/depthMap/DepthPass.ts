@@ -23,8 +23,6 @@ export class DepthPass {
     static DEPTHNORMALSTEXTURE: number;
     /**@internal */
     static DEPTHZBUFFERPARAMS: number;
-    /**@internal */
-    static SHADOWUNIFORMBLOCK: number;
 
     private _zBufferParams: Vector4;
 
@@ -34,7 +32,6 @@ export class DepthPass {
         DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
         DepthPass.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-        DepthPass.SHADOWUNIFORMBLOCK = Shader3D.propertyNameToID(Scene3D.UBONAME_SHADOW);
     }
 
     /**@internal */

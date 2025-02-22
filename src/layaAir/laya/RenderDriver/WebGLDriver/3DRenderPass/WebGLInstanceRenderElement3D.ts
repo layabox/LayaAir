@@ -125,33 +125,22 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
 
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
+
+        let comDef = this._getShaderInstanceDefins(context);
+        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
         let passes = this.subShader._passes;
         for (let i = 0; i < passes.length; i++) {
             let pass = passes[i];
             if (pass.pipelineMode != context.pipelineMode)
                 continue;
 
-            let comDef = WebGLRenderElement3D._compileDefine;
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
-            }
-            else {
-                context._globalConfigShaderData.cloneTo(comDef);
-            }
-
-            context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
-
             if (this.renderShaderData) {
-                comDef.addDefineDatas(this.renderShaderData.getDefineData());
                 pass.nodeCommonMap = this.owner._commonUniformMap;
             }
             else {
                 pass.nodeCommonMap = null;
             }
-
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
-
-            comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
             let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
             this._addShaderInstance(shaderIns);

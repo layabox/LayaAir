@@ -1333,9 +1333,6 @@ export class Camera extends BaseCamera {
      * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
-        if (Config._uniformBlock) {
-            scene._shaderValues.updateUBOBuffer(Scene3D.UBONAME_SCENE);
-        }
         // set context
         let context = RenderContext3D._instance;
         context.scene = scene;

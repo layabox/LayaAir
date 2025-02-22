@@ -26,7 +26,7 @@ export class GLSLCodeGenerator {
         return res;
     }
 
-    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean, shaderName: string) {
+    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean) {
 
         if (uniformsMap.size == 0) {
             return "";
@@ -95,7 +95,7 @@ export class GLSLCodeGenerator {
         // 拼接 shader attribute
         let useUniformBlock = Config.matUseUBO;
         let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
-        let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock, shaderName);
+        let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
 
         if (LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) > 30) {
             defineString.push("GRAPHICS_API_GLES3");

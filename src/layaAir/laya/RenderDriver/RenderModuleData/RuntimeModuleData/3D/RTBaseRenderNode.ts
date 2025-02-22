@@ -196,13 +196,14 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj = new (window as any).conchRTBaseRenderNode();
     }
 
+    additionShaderData: Map<string, ShaderData> = new Map();//TODO:
+
     constructor() {
         this._getNativeObj();
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
-    additionShaderData: Map<string, ShaderData> = new Map();//TODO:
 
     public get renderNodeType(): number {
         return this._nativeObj.renderNodeType;

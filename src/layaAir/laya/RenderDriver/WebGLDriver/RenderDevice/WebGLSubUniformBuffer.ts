@@ -12,7 +12,7 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
     uniformMap: Map<number, { id: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number }>;
 
     upload(): void {
-        // sub buffer value alread upload in buffer manager
+        this.bufferBlock.needUpload();
     }
     bind(location: number): void {
         let buffer = <GLBuffer>this.bufferBlock.cluster.buffer;

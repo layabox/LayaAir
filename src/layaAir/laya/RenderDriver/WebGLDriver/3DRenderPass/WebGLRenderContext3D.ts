@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
@@ -19,7 +20,14 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
 export class WebGLRenderContext3D implements IRenderContext3D {
+
+    /**
+     * @internal 
+    */
+    _preDrawUniformMaps: Set<string>;
+
     _globalConfigShaderData: WebDefineDatas;
+
     private _globalShaderData: WebGLShaderData;
     /**@internal */
     private _sceneData: WebGLShaderData;
@@ -60,8 +68,9 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
+        let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
+        this.sceneData.createUniformBuffer("Scene3D", sceneMap);
     }
-
 
     get cameraData(): WebGLShaderData {
         return this._cameraData;
@@ -69,10 +78,9 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
-        if (value) {
-            value.createUniformBuffer("BaseCamera", <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera"));
-            value.updateUBOBuffer("BaseCamera");
-        }
+
+        let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+        this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
     }
 
     get sceneModuleData(): WebSceneNodeData {
@@ -98,6 +106,36 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set globalShaderData(value: WebGLShaderData) {
         this._globalShaderData = value;
+    }
+
+    _getContextShaderDefines(): WebDefineDatas {
+        let contextDef = WebGLRenderElement3D._compileDefine;
+
+        return contextDef;
+    }
+
+    /**
+     * @internal
+     * 1. 更新 context shader defines string
+     * 2. upload context shader data
+     */
+    _prepareContext(): void {
+        let contextDef = WebGLRenderElement3D._compileDefine;
+        if (this.sceneData) {
+            this.sceneData._defineDatas.cloneTo(contextDef);
+
+            for (let key of this._preDrawUniformMaps) {
+                this.sceneData.updateUBOBuffer(key);
+            }
+        }
+        else {
+            this._globalConfigShaderData.cloneTo(contextDef);
+        }
+        if (this.cameraData) {
+            contextDef.addDefineDatas(this.cameraData._defineDatas);
+
+            this.cameraData.updateUBOBuffer("BaseCamera");
+        }
     }
 
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag) {
@@ -162,6 +200,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     constructor() {
         this._clearColor = new Color();
         this._globalConfigShaderData = Shader3D._configDefineValues;
+        this._preDrawUniformMaps = new Set<string>();
         this.cameraUpdateMask = 0;
     }
 
@@ -190,6 +229,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
+        this._prepareContext();
+
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
@@ -212,6 +253,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
+
+        this._prepareContext();
 
         node._preUpdatePre(this);
 

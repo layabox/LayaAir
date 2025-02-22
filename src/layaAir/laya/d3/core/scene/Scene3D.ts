@@ -96,12 +96,6 @@ export class Scene3D extends Sprite {
     /**@internal */
     static GIRotate: number;
 
-    /**@internal scene uniform block */
-    static SCENEUNIFORMBLOCK: number;
-
-    static UBONAME_SCENE: string = "Scene3D";
-
-    static UBONAME_SHADOW = "ShadowUniformBlock";
     /**Scene3D UniformMap */
     static sceneUniformMap: CommandUniformMap;
     //------------------legacy lighting-------------------------------
@@ -740,12 +734,7 @@ export class Scene3D extends Sprite {
 
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
-        if (Config._uniformBlock) {
-            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SCENE, Scene3D.sceneUniformMap);
-            //ShadowUniformBlock
-            //Scene3D._shadowCasterPass
-            this._shaderValues.createUniformBuffer(Scene3D.UBONAME_SHADOW, ShadowCasterPass.shadowCasterUBOUniformMap);
-        }
+
         this._fogParams = new Vector4(300, 1000, 0.01, 0);
         this.enableFog = false;
         this.fogStart = 300;

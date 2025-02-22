@@ -102,7 +102,7 @@ export class WebGLShaderData extends ShaderData {
         if (!Config._uniformBlock) {
             return;
         }
-        let buffer = this._uniformBuffers.get(name);
+        let buffer = this._uniformBuffers.get(name) || this._subUniformBuffers.get(name);
 
         if (!buffer) {
             return;
