@@ -30,42 +30,7 @@ import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
 
-/**在显示对象上按下后调度。
- * @eventType Event.MOUSE_DOWN
- * */
-/*[Event(name = "mousedown", type = "laya.events.Event")]*/
-/**在显示对象抬起后调度。
- * @eventType Event.MOUSE_UP
- * */
-/*[Event(name = "mouseup", type = "laya.events.Event")]*/
-/**鼠标在对象身上进行移动后调度
- * @eventType Event.MOUSE_MOVE
- * */
-/*[Event(name = "mousemove", type = "laya.events.Event")]*/
-/**鼠标经过对象后调度。
- * @eventType Event.MOUSE_OVER
- * */
-/*[Event(name = "mouseover", type = "laya.events.Event")]*/
-/**鼠标离开对象后调度。
- * @eventType Event.MOUSE_OUT
- * */
-/*[Event(name = "mouseout", type = "laya.events.Event")]*/
-/**鼠标点击对象后调度。
- * @eventType Event.CLICK
- * */
-/*[Event(name = "click", type = "laya.events.Event")]*/
-/**开始拖动后调度。
- * @eventType Event.DRAG_START
- * */
-/*[Event(name = "dragstart", type = "laya.events.Event")]*/
-/**拖动中调度。
- * @eventType Event.DRAG_MOVE
- * */
-/*[Event(name = "dragmove", type = "laya.events.Event")]*/
-/**拖动结束后调度。
- * @eventType Event.DRAG_END
- * */
-/*[Event(name = "dragend", type = "laya.events.Event")]*/
+
 export class Sprite extends Node {
     /**@internal */
     _x: number = 0;
@@ -434,7 +399,7 @@ export class Sprite extends Node {
 
     /**
      * 设置对象bounds大小，如果有设置，则不再通过getBounds计算，合理使用能提高性能。
-     * @param	bound bounds矩形区域
+     * @param bound bounds矩形区域
      */
     setSelfBounds(bound: Rectangle): void {
         this._getBoundsStyle().userBounds = bound;
@@ -582,7 +547,7 @@ export class Sprite extends Node {
     /**
      * @private
      * 设置样式。
-     * @param	value 样式。
+     * @param value 样式。
      */
     setStyle(value: SpriteStyle): void {
         this._style = value;
@@ -1019,8 +984,8 @@ export class Sprite extends Node {
     /**
      * <p>设置坐标位置。相当于分别设置x和y属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.pos(...).scale(...);</p>
-     * @param	x			X轴坐标。
-     * @param	y			Y轴坐标。
+     * @param x			X轴坐标。
+     * @param y			Y轴坐标。
      * @param 	speedMode	（可选）是否极速模式，正常是调用this.x=value进行赋值，极速模式直接调用内部函数处理，如果未重写x,y属性，建议设置为急速模式性能更高。
      * @return	返回对象本身。
      */
@@ -1053,8 +1018,8 @@ export class Sprite extends Node {
     /**
      * <p>设置轴心点。相当于分别设置pivotX和pivotY属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.pivot(...).pos(50, 100);</p>
-     * @param	x X轴心点。
-     * @param	y Y轴心点。
+     * @param x X轴心点。
+     * @param y Y轴心点。
      * @return	返回对象本身。
      */
     pivot(x: number, y: number): Sprite {
@@ -1066,8 +1031,8 @@ export class Sprite extends Node {
     /**
      * <p>设置宽高。相当于分别设置width和height属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.size(...).pos(50, 100);</p>
-     * @param	width 宽度值。
-     * @param	hegiht 高度值。
+     * @param width 宽度值。
+     * @param height 高度值。
      * @return	返回对象本身。
      */
     size(width: number, height: number): Sprite {
@@ -1079,8 +1044,8 @@ export class Sprite extends Node {
     /**
      * <p>设置缩放。相当于分别设置scaleX和scaleY属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.scale(...).pos(50, 100);</p>
-     * @param	scaleX		X轴缩放比例。
-     * @param	scaleY		Y轴缩放比例。
+     * @param scaleX		X轴缩放比例。
+     * @param scaleY		Y轴缩放比例。
      * @param 	speedMode	（可选）是否极速模式，正常是调用this.scaleX=value进行赋值，极速模式直接调用内部函数处理，如果未重写scaleX,scaleY属性，建议设置为急速模式性能更高。
      * @return	返回对象本身。
      */
@@ -1104,8 +1069,8 @@ export class Sprite extends Node {
     /**
      * <p>设置倾斜角度。相当于分别设置skewX和skewY属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.skew(...).pos(50, 100);</p>
-     * @param	skewX 水平倾斜角度。
-     * @param	skewY 垂直倾斜角度。
+     * @param skewX 水平倾斜角度。
+     * @param skewY 垂直倾斜角度。
      * @return	返回对象本身
      */
     skew(skewX: number, skewY: number): Sprite {
@@ -1116,9 +1081,9 @@ export class Sprite extends Node {
 
     /**
      * 更新、呈现显示对象。由系统调用。
-     * @param	context 渲染的上下文引用。
-     * @param	x X轴坐标。
-     * @param	y Y轴坐标。
+     * @param ctx 渲染的上下文引用。
+     * @param x X轴坐标。
+     * @param y Y轴坐标。
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
@@ -1139,10 +1104,10 @@ export class Sprite extends Node {
      * var htmlCanvas:HTMLCanvas = sprite.drawToCanvas(100, 100, 0, 0);//把精灵绘制到canvas上面
      * htmlCanvas.toBase64("image/png",0.9);//打印图片base64信息，可以发给服务器或者保存为图片
      *
-     * @param	canvasWidth 画布宽度。
-     * @param	canvasHeight 画布高度。
-     * @param	x 绘制的 X 轴偏移量。
-     * @param	y 绘制的 Y 轴偏移量。
+     * @param canvasWidth 画布宽度。
+     * @param canvasHeight 画布高度。
+     * @param offsetX 绘制的 X 轴偏移量。
+     * @param offsetY 绘制的 Y 轴偏移量。
      * @return  HTMLCanvas 对象。
      */
     drawToCanvas(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
@@ -1269,9 +1234,9 @@ export class Sprite extends Node {
     /**
      * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>
      * <p><b>注意</b>不要在此函数内增加或删除树节点，否则会对树节点遍历造成影响。</p>
-     * @param	context  渲染的上下文引用。
-     * @param	x X轴坐标。
-     * @param	y Y轴坐标。
+     * @param context  渲染的上下文引用。
+     * @param x X轴坐标。
+     * @param y Y轴坐标。
      */
     customRender(context: Context, x: number, y: number): void {
         //_renderType |= SpriteConst.CUSTOM;
@@ -1518,7 +1483,7 @@ export class Sprite extends Node {
 
     /**
      * 根据图片地址创建一个新的 <code>Sprite</code> 对象用于加载并显示此图片。
-     * @param	url 图片地址。
+     * @param url 图片地址。
      * @return	返回新的 <code>Sprite</code> 对象。
      */
     static fromImage(url: string): Sprite {
@@ -1667,8 +1632,8 @@ export class Sprite extends Node {
 
     /**
      * 检测某个点是否在此对象内。
-     * @param	x 全局x坐标。
-     * @param	y 全局y坐标。
+     * @param x 全局x坐标。
+     * @param y 全局y坐标。
      * @return  表示是否在对象内。
      */
     hitTestPoint(x: number, y: number): boolean {
@@ -2135,8 +2100,6 @@ export class Sprite extends Node {
 
     /**
      * @internal
-     * @param flag 
-     * @param value 
      */
     _syncGlobalFlag(flag: number, value: boolean) {
         if (this.cacheGlobal) {

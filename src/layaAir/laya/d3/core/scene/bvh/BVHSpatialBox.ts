@@ -374,7 +374,7 @@ export class BVHSpatialBox<T> {
     /**
      * 获得这个节点包含的所有content
      * @param out 
-     * @param conditionalFun条件函数
+     * @param conditionalFun 条件函数
      */
     traverseBoundsCell(out: SingletonList<IBoundsCell>, conditionalFun: Function = null) {
         if (this.isContentBox()) {
@@ -404,7 +404,7 @@ export class BVHSpatialBox<T> {
     /**
      * 通过CameraCull查找逻辑对象
      * @override
-     * @param frustum 视锥
+     * @param cameraCullInfo 摄像机裁剪信息
      * @param out 输出逻辑对象组
      */
     getItemByCameraCullInfo(cameraCullInfo: ICameraCullInfo, out: SingletonList<IBoundsCell>) {

@@ -49,11 +49,11 @@ export class Sprite3D extends Node {
 
     /**
      * 创建精灵的克隆实例。
-     * @param	original  原始精灵。
-     * @param   parent    父节点。
-     * @param   worldPositionStays 是否保持自身世界变换。
-     * @param	position  世界位置,worldPositionStays为false时生效。
-     * @param	rotation  世界旋转,worldPositionStays为false时生效。
+     * @param original  原始精灵。
+     * @param parent    父节点。
+     * @param worldPositionStays 是否保持自身世界变换。
+     * @param position  世界位置,worldPositionStays为false时生效。
+     * @param rotation  世界旋转,worldPositionStays为false时生效。
      * @return  克隆实例。
      */
     static instantiate(original: Sprite3D, parent: Node = null, worldPositionStays: boolean = true, position: Vector3 = null, rotation: Quaternion = null): Sprite3D {
@@ -248,7 +248,7 @@ export class Sprite3D extends Node {
      * @override
      * @internal
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
         if (this._destroyed)

@@ -14,19 +14,6 @@ import { AssetDb } from "../resource/AssetDb";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * 移动滑块位置时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
- * 移动滑块位置完成（用户鼠标抬起）后调度。
- * @eventType @eventType laya.events.EventD
- *
- */
-/*[Event(name = "changed", type = "laya.events.Event")]*/
-
-/**
  * 使用 <code>Slider</code> 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
  * <p>滑块的当前值由滑块端点（对应于滑块的最小值和最大值）之间滑块的相对位置确定。</p>
  * <p>滑块允许最小值和最大值之间特定间隔内的值。滑块还可以使用数据提示显示其当前值。</p>
@@ -246,7 +233,7 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;

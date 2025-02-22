@@ -9,11 +9,11 @@ export class SpriteUtils {
     /**
      * @private
      * 根据传入的显示对象 <code>Sprite</code> 和此显示对象上的 两个点，返回此对象上的两个点在舞台坐标系上组成的最小的矩形区域对象。
-     * @param	sprite 显示对象 <code>Sprite</code>。
-     * @param	x0	点一的 X 轴坐标点。
-     * @param	y0	点一的 Y 轴坐标点。
-     * @param	x1	点二的 X 轴坐标点。
-     * @param	y1	点二的 Y 轴坐标点。
+     * @param sprite 显示对象 <code>Sprite</code>。
+     * @param x0	点一的 X 轴坐标点。
+     * @param y0	点一的 Y 轴坐标点。
+     * @param x1	点二的 X 轴坐标点。
+     * @param y1	点二的 Y 轴坐标点。
      * @return 两个点在舞台坐标系组成的矩形对象 <code>Rectangle</code>。
      */
     static getGlobalRecByPoints(sprite: Sprite, x0: number, y0: number, x1: number, y1: number): Rectangle {
@@ -31,7 +31,7 @@ export class SpriteUtils {
 
     /**
      * 计算传入的显示对象 <code>Sprite</code> 的全局坐标系的坐标和缩放值，返回 <code>Rectangle</code> 对象存放计算出的坐标X值、Y值、ScaleX值、ScaleY值。
-     * @param	sprite <code>Sprite</code> 对象。
+     * @param sprite <code>Sprite</code> 对象。
      * @return  矩形对象 <code>Rectangle</code>
      */
     static getGlobalPosAndScale(sprite: Sprite): Rectangle {
@@ -40,9 +40,9 @@ export class SpriteUtils {
 
     /**
     * 获取指定区域内相对于窗口左上角的transform。
-    * @param	coordinateSpace	坐标空间，不能是Stage引用
-    * @param	x				相对于coordinateSpace的x坐标
-    * @param	y				相对于coordinateSpace的y坐标
+    * @param coordinateSpace	坐标空间，不能是Stage引用
+    * @param x				相对于coordinateSpace的x坐标
+    * @param y				相对于coordinateSpace的y坐标
     * @return
     */
     static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): any {
@@ -121,12 +121,12 @@ export class SpriteUtils {
 
     /**
      * 使DOM元素使用舞台内的某块区域内。
-     * @param	dom				DOM元素引用
-     * @param	coordinateSpace	坐标空间，不能是Stage引用
-     * @param	x				相对于coordinateSpace的x坐标
-     * @param	y				相对于coordinateSpace的y坐标
-     * @param	width			宽度
-     * @param	height			高度
+     * @param dom				DOM元素引用
+     * @param coordinateSpace	坐标空间，不能是Stage引用
+     * @param x				相对于coordinateSpace的x坐标
+     * @param y				相对于coordinateSpace的y坐标
+     * @param width			宽度
+     * @param height			高度
      */
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {
@@ -149,7 +149,7 @@ export class SpriteUtils {
     /**
      * @private
      * 对传入的数组列表，根据子项的属性 Z 值进行重新排序。返回是否已重新排序的 Boolean 值。
-     * @param	array 子对象数组。
+     * @param array 子对象数组。
      * @return	Boolean 值，表示是否已重新排序。
      */
     static updateOrder(array: any[]): boolean {

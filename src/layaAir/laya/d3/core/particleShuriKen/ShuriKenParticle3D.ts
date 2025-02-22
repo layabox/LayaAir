@@ -365,7 +365,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 
 	/**
 	 * <p>销毁此对象。</p>
-	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+	 * @param destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
 	 * @override
 	 */
 	destroy(destroyChild: boolean = true): void {

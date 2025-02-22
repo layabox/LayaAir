@@ -43,13 +43,13 @@ export class Dragging {
 
     /**
      * 开始拖拽。
-     * @param	target 待拖拽的 <code>Sprite</code> 对象。
-     * @param	area 滑动范围。
-     * @param	hasInertia 拖动是否有惯性。
-     * @param	elasticDistance 橡皮筋最大值。
-     * @param	elasticBackTime 橡皮筋回弹时间，单位为毫秒。
-     * @param	data 事件携带数据。
-     * @param	ratio 惯性阻尼系数
+     * @param target 待拖拽的 <code>Sprite</code> 对象。
+     * @param area 滑动范围。
+     * @param hasInertia 拖动是否有惯性。
+     * @param elasticDistance 橡皮筋最大值。
+     * @param elasticBackTime 橡皮筋回弹时间，单位为毫秒。
+     * @param data 事件携带数据。
+     * @param ratio 惯性阻尼系数
      */
     start(target: Sprite, area: Rectangle, hasInertia: boolean, elasticDistance: number, elasticBackTime: number, data: any, ratio: number = 0.92): void {
         this.clearTimer();
@@ -172,7 +172,7 @@ export class Dragging {
 
     /**
      * 舞台的抬起事件侦听函数。
-     * @param	e Event 对象。
+     * @param e Event 对象。
      */
     private onStageMouseUp(e: Event): void {
         ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);

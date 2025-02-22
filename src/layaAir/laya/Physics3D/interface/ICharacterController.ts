@@ -20,7 +20,6 @@ export interface ICharacterController extends ICollider {
 
   /**
    * set position of characterController
-   * @param v 
    */
   setPosition(value: Vector3): void;
 

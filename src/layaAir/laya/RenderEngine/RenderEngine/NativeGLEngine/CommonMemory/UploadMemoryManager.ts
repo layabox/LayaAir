@@ -22,7 +22,7 @@ export class UploadMemoryManager {
     /**@internal */
     _commandNums: number = 0;
 
-    /**@native C++ */
+    /**@en native C++ */
     _conchUploadMemoryManager:any;
 
     constructor() {

@@ -9,7 +9,7 @@ export class GraphicsAni extends Graphics {
 	/**
 	 * @private
 	 * 画自定义蒙皮动画
-	 * @param	skin
+	 * @param skin
 	 */
 	//TODO:coverage
 	drawSkin(skinA: SkinMeshForGraphic, alpha: number): void {

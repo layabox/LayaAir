@@ -10,32 +10,6 @@ import { SpriteUtils } from "../utils/SpriteUtils";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
- * 用户输入一个或多个文本字符时后调度。
- * @eventType Event.INPUT
- * */
-/*[Event(name = "input", type = "laya.events.Event")]*/
-/**
- * 文本发生变化后调度。
- * @eventType Event.CHANGE
- * */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * 用户在输入框内敲回车键后，将会调度 <code>enter</code> 事件。
- * @eventType Event.ENTER
- * */
-/*[Event(name = "enter", type = "laya.events.Event")]*/
-/**
- * 显示对象获得焦点后调度。
- * @eventType Event.FOCUS
- * */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * 显示对象失去焦点后调度。
- * @eventType Event.BLUR
- * */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-
-/**
  * <p><code>Input</code> 类用于创建显示对象以显示和输入文本。</p>
  * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
  */
@@ -207,8 +181,8 @@ export class Input extends Text {
 
     /**
      * 设置光标位置和选取字符。
-     * @param	startIndex	光标起始位置。
-     * @param	endIndex	光标结束位置。
+     * @param startIndex	光标起始位置。
+     * @param endIndex	光标结束位置。
      */
     setSelection(startIndex: number, endIndex: number): void {
         this.focus = true;

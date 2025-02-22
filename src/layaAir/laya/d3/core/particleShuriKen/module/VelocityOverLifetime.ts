@@ -29,7 +29,7 @@ export class VelocityOverLifetime implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destVelocityOverLifetime: VelocityOverLifetime = (<VelocityOverLifetime>destObject);

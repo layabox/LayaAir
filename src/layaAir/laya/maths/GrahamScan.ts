@@ -18,8 +18,8 @@ export class GrahamScan {
 
     /**
      * 计算两个点的距离。
-     * @param	p1
-     * @param	p2
+     * @param p1
+     * @param p2
      * @return
      */
     static dis(p1: Point, p2: Point): number {
@@ -43,9 +43,9 @@ export class GrahamScan {
 
     /**
      * 将数组 src 从索引0位置 依次取 cout 个项添加至 tst 数组的尾部。
-     * @param	rst 原始数组，用于添加新的子元素。
-     * @param	src 用于取子元素的数组。
-     * @param	count 需要取得子元素个数。
+     * @param rst 原始数组，用于添加新的子元素。
+     * @param src 用于取子元素的数组。
+     * @param count 需要取得子元素个数。
      * @return 添加完子元素的 rst 对象。
      */
     static getFrom(rst: any[], src: any[], count: number): any[] {
@@ -58,9 +58,9 @@ export class GrahamScan {
 
     /**
      * 将数组 src 从末尾索引位置往头部索引位置方向 依次取 cout 个项添加至 tst 数组的尾部。
-     * @param	rst 原始数组，用于添加新的子元素。
-     * @param	src 用于取子元素的数组。
-     * @param	count 需要取得子元素个数。
+     * @param rst 原始数组，用于添加新的子元素。
+     * @param src 用于取子元素的数组。
+     * @param count 需要取得子元素个数。
      * @return 添加完子元素的 rst 对象。
      */
     static getFromR(rst: any[], src: any[], count: number): any[] {

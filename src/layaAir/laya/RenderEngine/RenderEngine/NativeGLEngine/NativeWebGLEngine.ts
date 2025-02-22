@@ -85,7 +85,6 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
   /**
    * GL Context
-   * @member {WebGLRenderingContext}
    */
   get gl() {
     return this._context;

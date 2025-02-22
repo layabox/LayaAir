@@ -77,11 +77,6 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
 
     /**
      * set height field Data
-     * @param numRows 
-     * @param numCols 
-     * @param heightData 
-     * @param flag 
-     * @param scale 
      */
     setHeightFieldData(numRows: number, numCols: number, heightData: Float32Array, flag: Uint8Array, scale: Vector3): void {
         this._numRows = numRows;

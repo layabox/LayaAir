@@ -3,12 +3,6 @@ import { Sprite } from "../display/Sprite"
 import { Radio } from "./Radio"
 
 /**
- * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>RadioGroup</code> 控件定义一组 <code>Radio</code> 控件，这些控件相互排斥；
  * 因此，用户每次只能选择一个 <code>Radio</code> 控件。
  *

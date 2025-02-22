@@ -93,7 +93,7 @@ export class Accelerator extends EventDispatcher {
     private static transformedAcceleration: AccelerationInfo;
     /**
      * 把加速度值转换为视觉上正确的加速度值。依赖于Browser.window.orientation，可能在部分低端机无效。
-     * @param	acceleration
+     * @param acceleration
      * @return
      */
     static getTransformedAcceleration(acceleration: AccelerationInfo): AccelerationInfo {

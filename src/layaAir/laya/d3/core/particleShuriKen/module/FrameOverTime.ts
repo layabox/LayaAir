@@ -8,7 +8,7 @@ import { IClone } from "../../../../utils/IClone"
 export class FrameOverTime implements IClone {
 	/**
 	 * 通过固定帧创建一个 <code>FrameOverTime</code> 实例。
-	 * @param	constant 固定帧。
+	 * @param constant 固定帧。
 	 * @return 时间帧。
 	 */
 	static createByConstant(constant: number = 0): FrameOverTime {
@@ -20,7 +20,7 @@ export class FrameOverTime implements IClone {
 
 	/**
 	 * 通过时间帧创建一个 <code>FrameOverTime</code> 实例。
-	 * @param	overTime 时间帧。
+	 * @param overTime 时间帧。
 	 * @return 时间帧。
 	 */
 	static createByOverTime(overTime: GradientDataInt): FrameOverTime {
@@ -32,8 +32,8 @@ export class FrameOverTime implements IClone {
 
 	/**
 	 * 通过随机双固定帧创建一个 <code>FrameOverTime</code> 实例。
-	 * @param	constantMin 最小固定帧。
-	 * @param	constantMax 最大固定帧。
+	 * @param constantMin 最小固定帧。
+	 * @param constantMax 最大固定帧。
 	 * @return 时间帧。
 	 */
 	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): FrameOverTime {
@@ -46,8 +46,8 @@ export class FrameOverTime implements IClone {
 
 	/**
 	 * 通过随机双时间帧创建一个 <code>FrameOverTime</code> 实例。
-	 * @param	gradientFrameMin 最小时间帧。
-	 * @param	gradientFrameMax 最大时间帧。
+	 * @param gradientFrameMin 最小时间帧。
+	 * @param gradientFrameMax 最大时间帧。
 	 * @return 时间帧。
 	 */
 	static createByRandomTwoOverTime(gradientFrameMin: GradientDataInt, gradientFrameMax: GradientDataInt): FrameOverTime {
@@ -128,7 +128,7 @@ export class FrameOverTime implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destFrameOverTime: FrameOverTime = (<FrameOverTime>destObject);

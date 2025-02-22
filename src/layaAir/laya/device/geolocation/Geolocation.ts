@@ -51,8 +51,8 @@ export class Geolocation {
 
     /**
      * 获取设备当前位置。
-     * @param	onSuccess	带有唯一<code>Position</code>参数的回调处理器。
-     * @param	onError		可选的。带有错误信息的回调处理器。错误代码为Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE和Geolocation.TIMEOUT之一。
+     * @param onSuccess	带有唯一<code>Position</code>参数的回调处理器。
+     * @param onError		可选的。带有错误信息的回调处理器。错误代码为Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE和Geolocation.TIMEOUT之一。
      */
     static getCurrentPosition(onSuccess: Handler, onError: Handler = null): void {
         Geolocation.navigator.geolocation.getCurrentPosition(function (pos: any): void {
@@ -71,8 +71,8 @@ export class Geolocation {
 
     /**
      * 监视设备当前位置。回调处理器在设备位置改变时被执行。
-     * @param	onSuccess	带有唯一<code>Position</code>参数的回调处理器。
-     * @param	onError		可选的。带有错误信息的回调处理器。错误代码为Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE和Geolocation.TIMEOUT之一。
+     * @param onSuccess	带有唯一<code>Position</code>参数的回调处理器。
+     * @param onError		可选的。带有错误信息的回调处理器。错误代码为Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE和Geolocation.TIMEOUT之一。
      */
     static watchPosition(onSuccess: Handler, onError: Handler): number {
         return Geolocation.navigator.geolocation.watchPosition(function (pos: any): void {
@@ -91,7 +91,7 @@ export class Geolocation {
 
     /**
      * 移除<code>watchPosition</code>安装的指定处理器。
-     * @param	id
+     * @param id
      */
     static clearWatch(id: number): void {
         Geolocation.navigator.geolocation.clearWatch(id);

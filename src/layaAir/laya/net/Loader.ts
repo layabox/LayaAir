@@ -224,7 +224,7 @@ export class Loader extends EventDispatcher {
      * @param cache		是否缓存。
      * @param group		分组，方便对资源进行管理。
      * @param ignoreCache	是否忽略缓存。
-     * @param useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
+     * @param useWorkerLoader (default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return Promise对象
      */
     load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
@@ -909,15 +909,15 @@ export class Loader extends EventDispatcher {
 
     /**
      * 载入一个分包
-     * @path 小游戏的分包路径
-     * @onProgress 加载进度回调
+     * @param path 小游戏的分包路径
+     * @param onProgress 加载进度回调
      */
     loadPackage(path: string, onProgress?: ProgressCallback): Promise<void>;
     /**
      * 载入一个分包。
-     * @path 分包路径
-     * @remoteUrl 如果分包是一个远程包，那需要提供远程资源服务器的地址，例如"http://cdn.com/"
-     * @onProgress 加载进度回调
+     * @param path 分包路径
+     * @param remoteUrl 如果分包是一个远程包，那需要提供远程资源服务器的地址，例如"http://cdn.com/"
+     * @param onProgress 加载进度回调
      */
     loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void>;
     loadPackage(path: string, arg2?: string | ProgressCallback, arg3?: ProgressCallback): Promise<void> {

@@ -42,8 +42,8 @@ export class TileTexSet {
 
     /**
      * 加入一个动画显示对象到此动画中
-     * @param	aniName	//显示对象的名字
-     * @param	sprite	//显示对象
+     * @param aniName	//显示对象的名字
+     * @param sprite	//显示对象
      */
     addAniSprite(aniName: string, sprite: TileAniSprite): void {
         if (this.animationTotalTime == 0) {
@@ -106,7 +106,7 @@ export class TileTexSet {
 
     /**
      * 移除不需要更新的SPRITE
-     * @param	_name
+     * @param _name
      */
     removeAniSprite(_name: string): void {
         if (this._aniDic && this._aniDic[_name]) {

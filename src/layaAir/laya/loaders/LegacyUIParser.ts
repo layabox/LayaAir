@@ -373,9 +373,9 @@ export class LegacyUIParser {
      * 		}
      * 	]
      * }
-     * @param	json json字符串或者Object对象。
-     * @param	node node节点，如果为空，则新创建一个。
-     * @param	root 根节点，用来设置var定义。
+     * @param json json字符串或者Object对象。
+     * @param node node节点，如果为空，则新创建一个。
+     * @param root 根节点，用来设置var定义。
      * @return	生成的节点。
      */
     static createByJson(json: any, node: any = null, root: Node = null, customHandler: Handler = null, instanceHandler: Handler = null): any {

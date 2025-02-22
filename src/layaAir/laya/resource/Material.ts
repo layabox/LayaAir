@@ -135,7 +135,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 增加Shader宏定义。
-     * @param value 宏定义。
+     * @param define 宏定义。
      */
     addDefine(define: ShaderDefine): void {
         this._shaderValues.addDefine(define);
@@ -143,7 +143,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 移除Shader宏定义。
-     * @param value 宏定义。
+     * @param define 宏定义。
      */
     removeDefine(define: ShaderDefine): void {
         this._shaderValues.removeDefine(define);
@@ -165,7 +165,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 是否包含Shader宏定义。
-     * @param value 宏定义。
+     * @param define 宏定义。
      */
     hasDefine(define: ShaderDefine): boolean {
         return this._shaderValues.hasDefine(define);
@@ -1054,7 +1054,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var destBaseMaterial: Material = (<Material>destObject);

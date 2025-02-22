@@ -49,7 +49,7 @@ export class AvatarMask {
     }
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var dest: AvatarMask = (<AvatarMask>destObject);

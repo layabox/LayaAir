@@ -19,7 +19,6 @@ export interface IHingeJoint extends IJoint {
 
     /**
      * set limitLower
-     * @param lowerLimit 
      */
     setLowerLimit(lowerLimit: number): void;
 

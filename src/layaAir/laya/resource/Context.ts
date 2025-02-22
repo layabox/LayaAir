@@ -580,7 +580,7 @@ export class Context {
 
     /**
      * 释放占用内存
-     * @param	keepRT  是否保留rendertarget
+     * @param keepRT  是否保留rendertarget
      */
     private _releaseMem(keepRT: boolean = false): void {
         if (!this._submits)
@@ -624,7 +624,7 @@ export class Context {
 
     /**
      * 释放所有资源
-     * @param	keepRT  是否保留rendertarget
+     * @param keepRT  是否保留rendertarget
      */
     destroy(keepRT: boolean = false): void {
         --Context._contextcount;
@@ -700,8 +700,8 @@ export class Context {
 
     /**
      * 设置ctx的size，这个不允许直接设置，必须是canvas调过来的。所以这个函数里也不用考虑canvas相关的东西
-     * @param	w
-     * @param	h
+     * @param w
+     * @param h
      */
     size(w: number, h: number): void {
         if (this._width != w || this._height != h) {
@@ -1062,7 +1062,7 @@ export class Context {
 
     /**
      * 反正只支持一种filter，就不要叫setFilter了，直接叫setColorFilter
-     * @param	value
+     * @param value
      */
     setColorFilter(filter: ColorFilter): void {
         SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
@@ -1158,8 +1158,8 @@ export class Context {
     /**
      * @internal
      * 这个还是会检查是否合并
-     * @param	tex
-     * @param	minVertNum
+     * @param tex
+     * @param minVertNum
      */
     _useNewTex2DSubmit(tex: Texture, minVertNum: number): void {
         //var sameKey:Boolean = tex.bitmap.id >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === tex.bitmap.id ;
@@ -1208,15 +1208,15 @@ export class Context {
 
     /**
      * @internal
-     * @param	tex {Texture | RenderTexture }
-     * @param  imgid 图片id用来比较合并的
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
-     * @param	m
-     * @param	alpha
-     * @param	uv
+     * @param tex {Texture | RenderTexture }
+     * @param imgid 图片id用来比较合并的
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param m
+     * @param alpha
+     * @param uv
      * @return
      */
     _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
@@ -1297,8 +1297,8 @@ export class Context {
 
     /**
      * 转换4个顶点。为了效率这个不做任何检查。需要调用者的配合。
-     * @param	a		输入。8个元素表示4个点
-     * @param	out		输出
+     * @param a		输入。8个元素表示4个点
+     * @param out		输出
      */
     transform4Points(a: any[], m: Matrix, out: any[]): void {
         /*
@@ -1342,7 +1342,7 @@ export class Context {
 
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
-     * @param	pt
+     * @param pt
      * @return
      */
     clipedOff(pt: any[]): boolean {
@@ -1354,11 +1354,11 @@ export class Context {
 
     /**
      * 应用当前矩阵。把转换后的位置放到输出数组中。 
-     * @param	x
-     * @param	y
-     * @param	w
-     * @param	h
-     * @param   italicDeg 倾斜角度，单位是度。0度无，目前是下面不动。以后要做成可调的
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param italicDeg 倾斜角度，单位是度。0度无，目前是下面不动。以后要做成可调的
      */
     transformQuad(x: number, y: number, w: number, h: number, italicDeg: number, m: Matrix, out: any[]): void {
         /*
@@ -1440,7 +1440,7 @@ export class Context {
 
     /**
      * 异步执行rt的restore函数
-     * @param	rt
+     * @param rt
      */
     //TODO:coverage
     RTRestore(rt: RenderTexture2D): void {
@@ -1466,15 +1466,15 @@ export class Context {
 
     /**
      * 
-     * @param	tex
-     * @param	x			
-     * @param	y
-     * @param	width
-     * @param	height
-     * @param	transform	图片本身希望的矩阵
-     * @param	tx			节点的位置
-     * @param	ty
-     * @param	alpha
+     * @param tex
+     * @param x			
+     * @param y
+     * @param width
+     * @param height
+     * @param transform	图片本身希望的矩阵
+     * @param tx			节点的位置
+     * @param ty
+     * @param alpha
      */
     drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: string;
@@ -1514,8 +1514,8 @@ export class Context {
 
     /**
      * * 把ctx中的submits提交。结果渲染到target上
-     * @param	ctx
-     * @param	target
+     * @param ctx
+     * @param target
      */
     private _flushToTarget(context: Context, target: RenderTexture2D): void {
         //if (target._destroy) return;
@@ -1830,8 +1830,8 @@ export class Context {
 
     /**
      * 
-     * @param	start
-     * @param	end
+     * @param start
+     * @param end
      */
     submitElement(start: number, end: number): number {
         var mainCtx: boolean = this.isMain;
@@ -1900,11 +1900,11 @@ export class Context {
 
     /**
      * 添加一个path。
-     * @param	points [x,y,x,y....]	这个会被保存下来，所以调用者需要注意复制。
-     * @param	close	是否闭合
-     * @param   convex 是否是凸多边形。convex的优先级是这个最大。fill的时候的次之。其实fill的时候不应该指定convex，因为可以多个path
-     * @param	dx  需要添加的平移。这个需要在应用矩阵之前应用。
-     * @param	dy
+     * @param points [x,y,x,y....]	这个会被保存下来，所以调用者需要注意复制。
+     * @param close	是否闭合
+     * @param convex 是否是凸多边形。convex的优先级是这个最大。fill的时候的次之。其实fill的时候不应该指定convex，因为可以多个path
+     * @param dx  需要添加的平移。这个需要在应用矩阵之前应用。
+     * @param dy
      */
     addPath(points: any[], close: boolean, convex: boolean, dx: number, dy: number): void {
         let sz = points.length;
@@ -2098,9 +2098,9 @@ export class Context {
 
     /**
      * 
-     * @param	x
-     * @param	y
-     * @param	b 是否应用矩阵
+     * @param x
+     * @param y
+     * @param b 是否应用矩阵
      */
     lineTo(x: number, y: number): void {
         var tPath: Path = this._getPath();
@@ -2439,14 +2439,14 @@ export class Context {
     private static tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
     /**
      * 专用函数。通过循环创建来水平填充
-     * @param	tex
-     * @param	bmpid
-     * @param	uv		希望循环的部分的uv
-     * @param	oriw
-     * @param	orih
-     * @param	x
-     * @param	y
-     * @param	w
+     * @param tex
+     * @param bmpid
+     * @param uv		希望循环的部分的uv
+     * @param oriw
+     * @param orih
+     * @param x
+     * @param y
+     * @param w
      */
     private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
         if (oriw <= 0)
@@ -2472,14 +2472,14 @@ export class Context {
 
     /**
      * 专用函数。通过循环创建来垂直填充
-     * @param	tex
-     * @param	imgid
-     * @param	uv
-     * @param	oriw
-     * @param	orih
-     * @param	x
-     * @param	y
-     * @param	h
+     * @param tex
+     * @param imgid
+     * @param uv
+     * @param oriw
+     * @param orih
+     * @param x
+     * @param y
+     * @param h
      */
     private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
         if (orih <= 0)

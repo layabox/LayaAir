@@ -10,12 +10,6 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 
 /**
- * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>Group</code> 是一个可以自动布局的项集合控件。
  * <p> <code>Group</code> 的默认项对象为 <code>Button</code> 类实例。
  * <code>Group</code> 是 <code>Tab</code> 和 <code>RadioGroup</code> 的基类。</p>
@@ -214,7 +208,7 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -303,7 +297,7 @@ export class UIGroup extends Box {
     }
 
     /**
-     * @copy laya.ui.Button#labelColors()
+     * @see laya.ui.Button#labelColors()
      */
     get labelColors(): string {
         return this._labelColors;

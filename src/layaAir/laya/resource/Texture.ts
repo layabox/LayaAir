@@ -56,15 +56,15 @@ export class Texture extends Resource {
 
     /**
      *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-     * @param	source 绘图资源 Texture2D 或者 Texture对象。
-     * @param	x 起始绝对坐标 x 。
-     * @param	y 起始绝对坐标 y 。
-     * @param	width 宽绝对值。
-     * @param	height 高绝对值。
-     * @param	offsetX X 轴偏移量（可选）。	就是[x,y]相对于原始小图片的位置。一般都是正的，表示裁掉了空白边的大小，如果是负的一般表示加了保护边
-     * @param	offsetY Y 轴偏移量（可选）。
-     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
+     * @param source 绘图资源 Texture2D 或者 Texture对象。
+     * @param x 起始绝对坐标 x 。
+     * @param y 起始绝对坐标 y 。
+     * @param width 宽绝对值。
+     * @param height 高绝对值。
+     * @param offsetX X 轴偏移量（可选）。	就是[x,y]相对于原始小图片的位置。一般都是正的，表示裁掉了空白边的大小，如果是负的一般表示加了保护边
+     * @param offsetY Y 轴偏移量（可选）。
+     * @param sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
+     * @param sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
      * @return  <code>Texture</code> 对象。
      */
     static create(source: Texture | BaseTexture, x: number, y: number, width: number, height: number,
@@ -76,16 +76,16 @@ export class Texture extends Resource {
     /**
      * @internal
      * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-     * @param	source 绘图资源 Texture2D 或者 Texture 对象。
-     * @param	x 起始绝对坐标 x 。
-     * @param	y 起始绝对坐标 y 。
-     * @param	width 宽绝对值。
-     * @param	height 高绝对值。
-     * @param	offsetX X 轴偏移量（可选）。
-     * @param	offsetY Y 轴偏移量（可选）。
-     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-     * @param	outTexture 返回的Texture对象。
+     * @param source 绘图资源 Texture2D 或者 Texture 对象。
+     * @param x 起始绝对坐标 x 。
+     * @param y 起始绝对坐标 y 。
+     * @param width 宽绝对值。
+     * @param height 高绝对值。
+     * @param offsetX X 轴偏移量（可选）。
+     * @param offsetY Y 轴偏移量（可选）。
+     * @param sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
+     * @param sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
+     * @param outTexture 返回的Texture对象。
      * @return  <code>Texture</code> 对象。
      */
     static _create(source: Texture | BaseTexture, x: number, y: number, width: number, height: number,
@@ -143,11 +143,11 @@ export class Texture extends Resource {
 
     /**
      * 截取Texture的一部分区域，生成新的Texture，如果两个区域没有相交，则返回null。
-     * @param	texture	目标Texture。
-     * @param	x		相对于目标Texture的x位置。
-     * @param	y		相对于目标Texture的y位置。
-     * @param	width	截取的宽度。
-     * @param	height	截取的高度。
+     * @param texture	目标Texture。
+     * @param x		相对于目标Texture的x位置。
+     * @param y		相对于目标Texture的y位置。
+     * @param width	截取的宽度。
+     * @param height	截取的高度。
      * @return 返回一个新的Texture。
      */
     static createFromTexture(texture: Texture, x: number, y: number, width: number, height: number): Texture {
@@ -209,16 +209,10 @@ export class Texture extends Resource {
 
     /**
      * 获取位图。
-     * @return 位图。
      */
     get bitmap(): BaseTexture {
         return this._bitmap;
     }
-
-    /**
-     * 设置位图。
-     * @param 位图。
-     */
     set bitmap(value: BaseTexture) {
         if (this._bitmap == value)
             return;
@@ -229,7 +223,7 @@ export class Texture extends Resource {
 
     /**
      * 创建一个 <code>Texture</code> 实例。
-     * @param bitmap 位图资源。
+     * @param source 位图资源。
      * @param uv UV 数据信息。
      */
     constructor(source: Texture | BaseTexture = null, uv: ArrayLike<number> = null,
@@ -267,8 +261,8 @@ export class Texture extends Resource {
 
     /**
      * 设置此对象的位图资源、UV数据信息。
-     * @param	bitmap 位图资源
-     * @param	uv UV数据信息
+     * @param bitmap 位图资源
+     * @param uv UV数据信息
      */
     setTo(bitmap: BaseTexture = null, uv: ArrayLike<number> = null,
         sourceWidth: number = 0, sourceHeight: number = 0): void {
@@ -287,8 +281,8 @@ export class Texture extends Resource {
 
     /**
      * 加载指定地址的图片。
-     * @param	url 图片地址。
-     * @param	complete 加载完成回调
+     * @param url 图片地址。
+     * @param complete 加载完成回调
      */
     load(url: string, complete?: Handler): Promise<void> {
         if (this._destroyed)
@@ -402,10 +396,10 @@ export class Texture extends Resource {
 
     /**
      * 获取Texture上的某个区域的像素点
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
+     * @param x
+     * @param y
+     * @param width
+     * @param height
      * @return  返回像素点集合
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {

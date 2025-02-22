@@ -4,27 +4,6 @@ import { Browser } from "../utils/Browser"
 import { Byte } from "../utils/Byte"
 
 /**
- * 连接建立成功后调度。
- * @eventType Event.OPEN
- * */
-/*[Event(name = "open", type = "laya.events.Event")]*/
-/**
- * 接收到数据后调度。
- * @eventType Event.MESSAGE
- * */
-/*[Event(name = "message", type = "laya.events.Event")]*/
-/**
- * 连接被关闭后调度。
- * @eventType Event.CLOSE
- * */
-/*[Event(name = "close", type = "laya.events.Event")]*/
-/**
- * 出现异常后调度。
- * @eventType Event.ERROR
- * */
-/*[Event(name = "error", type = "laya.events.Event")]*/
-
-/**
  * <p> <code>Socket</code> 封装了 HTML5 WebSocket ，允许服务器端与客户端进行全双工（full-duplex）的实时通信，并且允许跨域通信。在建立连接后，服务器和 Browser/Client Agent 都能主动的向对方发送或接收文本和二进制数据。</p>
  * <p>要使用 <code>Socket</code> 类的方法，请先使用构造函数 <code>new Socket</code> 创建一个 <code>Socket</code> 对象。 <code>Socket</code> 以异步方式传输和接收数据。</p>
  */
@@ -256,7 +235,7 @@ export class Socket extends EventDispatcher {
 
     /**
      * 发送数据到服务器。
-     * @param	data 需要发送的数据，可以是String或者ArrayBuffer。
+     * @param data 需要发送的数据，可以是String或者ArrayBuffer。
      */
     send(data: any): void {
         this._socket.send(data);

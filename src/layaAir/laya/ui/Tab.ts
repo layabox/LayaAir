@@ -4,12 +4,6 @@ import { Styles } from "./Styles";
 import { UIGroup } from "./UIGroup"
 
 /**
- * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>Tab</code> 组件用来定义选项卡按钮组。	 *
  * <p>属性：<code>selectedIndex</code> 的默认值为-1。</p>
  *

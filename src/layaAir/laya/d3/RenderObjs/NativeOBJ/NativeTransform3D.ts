@@ -464,7 +464,7 @@ export class NativeTransform3D  extends Transform3D {
 
 	/**
 	 * 获取向右方向。
-	 * @param 右方向。
+	 * @param right 右方向。
 	 */
 	getRight(right: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;
@@ -475,9 +475,9 @@ export class NativeTransform3D  extends Transform3D {
 
 	/**
 	 * 观察目标位置。
-	 * @param	target 观察目标。
-	 * @param	up 向上向量。
-	 * @param	isLocal 是否局部空间。
+	 * @param target 观察目标。
+	 * @param up 向上向量。
+	 * @param isLocal 是否局部空间。
 	 */
 	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false,isCamera:boolean = true): void {
 		this.float64Array[0] = target.x;

@@ -1458,7 +1458,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * @inheritDoc
      * @override
-     * 删除资源
      */
     destroy(destroyChild: boolean = true): void {
         if (this._destroyed)
@@ -1604,7 +1603,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * 设置全局渲染数据
      * @param name 数据对应着色器名字
-     * @param shaderDataType 渲染数据类型
+     * @param type 渲染数据类型
      * @param value 渲染数据值
      */
     setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {

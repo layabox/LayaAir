@@ -12,12 +12,6 @@ import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 
 /**
- * 选择项改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>ColorPicker</code> 组件将显示包含多个颜色样本的列表，用户可以从中选择颜色。
  *
  * @example <caption>以下示例代码，创建了一个 <code>ColorPicker</code> 实例。</caption>
@@ -392,7 +386,7 @@ export class ColorPicker extends UIComponent {
     }
 
     /**
-     * @copy laya.ui.Button#skin
+     * @see laya.ui.Button#skin
      */
     get skin(): string {
         return this._colorButton.skin;

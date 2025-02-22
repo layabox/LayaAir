@@ -235,8 +235,8 @@ export class URL {
 
     /**
      * 下载时，转换URL的扩展名。
-     * @originalExts 原始扩展名。例如["scene"]。
-     * @targetExt 要转换为的扩展名。例如"json"。
+     * @param originalExts 原始扩展名。例如["scene"]。
+     * @param targetExt 要转换为的扩展名。例如"json"。
      */
     static overrideExtension(originalExts: Array<string>, targetExt: string) {
         for (let ext of originalExts)

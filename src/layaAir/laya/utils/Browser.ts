@@ -310,7 +310,7 @@ export class Browser {
     }
     /**
      * 创建浏览器原生节点。
-     * @param	type 节点类型。
+     * @param type 节点类型。
      * @return	创建的节点对象的引用。
      */
     static createElement(type: string): any {
@@ -320,7 +320,7 @@ export class Browser {
 
     /**
      * 返回 Document 对象中拥有指定 id 的第一个对象的引用。
-     * @param	type 节点id。
+     * @param type 节点id。
      * @return	节点对象。
      */
     static getElementById(type: string): any {
@@ -330,7 +330,7 @@ export class Browser {
 
     /**
      * 移除指定的浏览器原生节点对象。
-     * @param	type 节点对象。
+     * @param ele 节点对象。
      */
     static removeElement(ele: any): void {
         if (ele && ele.parentNode) ele.parentNode.removeChild(ele);
@@ -422,7 +422,7 @@ export class Browser {
 
     /**
      * 获得URL参数值
-     * @param	name 参数名称
+     * @param name 参数名称
      * @return	参数值
      */
     static getQueryString(name: string): string {

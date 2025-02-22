@@ -469,10 +469,10 @@ export class RenderSprite {
     /**
      * @internal
      * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
-     * @param	sprite
-     * @param	context
-     * @param	x
-     * @param	y
+     * @param sprite
+     * @param context
+     * @param x
+     * @param y
      */
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let next = this._next;

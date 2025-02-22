@@ -24,7 +24,7 @@ export class ColorOverLifetime {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destColorOverLifetime: ColorOverLifetime = (<ColorOverLifetime>destObject);

@@ -29,8 +29,6 @@ export class CommandUniformMap {
 	/**
 	 * 增加一个Uniform参数
 	 * @internal
-	 * @param propertyID 
-	 * @param propertyKey 
 	 */
 	addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = null): void {
 		this._idata[propertyID] = { uniformtype: uniformtype, propertyName: propertyKey, block: block };
@@ -38,8 +36,6 @@ export class CommandUniformMap {
 
 	/**
 	 * 增加一个Uniform
-	 * @param propertyID 
-	 * @param propertyKey 
 	 */
 	addShaderBlockUniform(propertyID: number, blockname: string, blockProperty: UniformProperty[]): void {
 		this._idata[propertyID] = { propertyName: blockname, blockProperty: blockProperty }

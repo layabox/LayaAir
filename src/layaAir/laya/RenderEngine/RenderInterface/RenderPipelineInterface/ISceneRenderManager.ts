@@ -30,7 +30,6 @@ export interface ISceneRenderManager {
     addMotionObject(object: BaseRender): void;
     /**
      * 更新运动物体
-     * @param object 
      */
     updateMotionObjects(): void;
     /**

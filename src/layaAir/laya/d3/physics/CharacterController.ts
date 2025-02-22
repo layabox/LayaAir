@@ -238,10 +238,7 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * 创建一个 <code>CharacterController</code> 实例。
-     * @param stepheight 角色脚步高度。
-     * @param upAxis 角色Up轴
-     * @param collisionGroup 所属碰撞组。
-     * @param canCollideWith 可产生碰撞的碰撞组。
+     * @ignore
      */
     constructor() {
         super();
@@ -249,7 +246,6 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * 获得速度
-     * @returns 
      */
     getVerticalVel() {
         return this._collider ? this._collider.getVerticalVel() : 0;
@@ -257,7 +253,7 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * 通过指定移动向量移动角色。
-     * @param	movement 移动向量。
+     * @param movement 移动向量。
      */
     move(movement: Vector3): void {
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Move)) {

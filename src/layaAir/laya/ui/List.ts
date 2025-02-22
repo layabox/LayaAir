@@ -16,18 +16,6 @@ import { UIComponent } from "./UIComponent";
 import { ScrollType } from "./Styles";
 
 /**
- * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
- * 渲染列表的单元项对象时调度。
- * @eventType Event.RENDER
- */
-/*[Event(name = "render", type = "laya.events.Event")]*/
-
-/**
  * <code>List</code> 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
  *
  * @example <caption>以下示例代码，创建了一个 <code>List</code> 实例。</caption>
@@ -423,7 +411,6 @@ export class List extends Box {
      * <li>单元格类对象。</li>
      * <li> UI 的 JSON 描述。</li>
      * </ol></p>
-     * @implements
      */
     get itemRender(): any {
         return this._itemRender;
@@ -980,7 +967,7 @@ export class List extends Box {
 
     /**
      * 更新数据源，不刷新list，只增加滚动长度
-     * @param	array 数据源
+     * @param array 数据源
      */
     updateArray(array: any[]): void {
         this._array = array;

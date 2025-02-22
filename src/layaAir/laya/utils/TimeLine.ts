@@ -8,17 +8,6 @@ import { EventDispatcher } from "../events/EventDispatcher"
 import { ILaya } from "../../ILaya";
 
 /**
- * 整个缓动结束的时候会调度
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-/**
- * 当缓动到达标签时会调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
-
-/**
  * <code>TimeLine</code> 是一个用来创建时间轴动画的类。
  */
 export class TimeLine extends EventDispatcher {
@@ -50,11 +39,11 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 控制一个对象，从当前点移动到目标点。
-     * @param	target		要控制的对象。
-     * @param	props		要控制对象的属性。
-     * @param	duration	对象TWEEN的时间。
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
+     * @param target		要控制的对象。
+     * @param props		要控制对象的属性。
+     * @param duration	对象TWEEN的时间。
+     * @param ease		缓动类型
+     * @param offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
      */
     static to(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
         return (new TimeLine()).to(target, props, duration, ease, offset);
@@ -62,11 +51,11 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 从 props 属性，缓动到当前状态。
-     * @param	target		target 目标对象(即将更改属性值的对象)
-     * @param	props		要控制对象的属性
-     * @param	duration	对象TWEEN的时间
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）
+     * @param target		target 目标对象(即将更改属性值的对象)
+     * @param props		要控制对象的属性
+     * @param duration	对象TWEEN的时间
+     * @param ease		缓动类型
+     * @param offset		相对于上一个对象，偏移多长时间（单位：毫秒）
      */
     static from(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
         return (new TimeLine()).from(target, props, duration, ease, offset);
@@ -74,11 +63,11 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 控制一个对象，从当前点移动到目标点。
-     * @param	target		要控制的对象。
-     * @param	props		要控制对象的属性。
-     * @param	duration	对象TWEEN的时间。
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
+     * @param target		要控制的对象。
+     * @param props		要控制对象的属性。
+     * @param duration	对象TWEEN的时间。
+     * @param ease		缓动类型
+     * @param offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
      */
     to(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
         return this._create(target, props, duration, ease, offset, true);
@@ -86,11 +75,11 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 从 props 属性，缓动到当前状态。
-     * @param	target		target 目标对象(即将更改属性值的对象)
-     * @param	props		要控制对象的属性
-     * @param	duration	对象TWEEN的时间
-     * @param	ease		缓动类型
-     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）
+     * @param target		target 目标对象(即将更改属性值的对象)
+     * @param props		要控制对象的属性
+     * @param duration	对象TWEEN的时间
+     * @param ease		缓动类型
+     * @param offset		相对于上一个对象，偏移多长时间（单位：毫秒）
      */
     from(target: any, props: any, duration: number, ease: Function = null, offset: number = 0): TimeLine {
         return this._create(target, props, duration, ease, offset, false);
@@ -116,8 +105,8 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 在时间队列中加入一个标签。
-     * @param	label	标签名称。
-     * @param	offset	标签相对于上个动画的偏移时间(单位：毫秒)。
+     * @param label	标签名称。
+     * @param offset	标签相对于上个动画的偏移时间(单位：毫秒)。
      */
     addLabel(label: string, offset: number): TimeLine {
         var tTweenData: tweenData = Pool.getItemByClass("tweenData", tweenData);
@@ -132,7 +121,7 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 移除指定的标签
-     * @param	label
+     * @param label
      */
     removeLabel(label: string): void {
         if (this._labelDic && this._labelDic[label]) {
@@ -149,7 +138,7 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 动画从整个动画的某一时间开始。
-     * @param	time(单位：毫秒)。
+     * @param time (单位：毫秒)。
      */
     gotoTime(time: number): void {
         if (this._tweenDataList == null || this._tweenDataList.length == 0) return;
@@ -232,7 +221,7 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 从指定的标签开始播。
-     * @param	Label 标签名。
+     * @param Label 标签名。
      */
     gotoLabel(Label: string): void {
         if (this._labelDic == null) return;
@@ -256,8 +245,8 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 播放动画。
-     * @param	timeOrLabel 开启播放的时间点或标签名。
-     * @param	loop 是否循环播放。
+     * @param timeOrLabel 开启播放的时间点或标签名。
+     * @param loop 是否循环播放。
      */
     play(timeOrLabel: any = 0, loop: boolean = false): void {
         if (!this._tweenDataList) return;
@@ -362,7 +351,7 @@ export class TimeLine extends EventDispatcher {
 
     /**
      * 指定的动画索引处的动画播放完成后，把此动画从列表中删除。
-     * @param	index
+     * @param index
      */
     private _animComplete(index: number): void {
         var tTween: Tween = this._tweenDic[index];

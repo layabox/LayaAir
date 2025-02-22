@@ -212,8 +212,8 @@ export class RigidBody extends Component {
 
     /**
      * 对刚体施加力
-     * @param	position 施加力的点，如{x:100,y:100}，全局坐标
-     * @param	force	施加的力，如{x:0.1,y:0.1}
+     * @param position 施加力的点，如{x:100,y:100}，全局坐标
+     * @param force	施加的力，如{x:0.1,y:0.1}
      */
     applyForce(position: IV2, force: IV2): void {
         if (!this._body) this._onAwake();
@@ -222,7 +222,7 @@ export class RigidBody extends Component {
 
     /**
      * 从中心点对刚体施加力，防止对象旋转
-     * @param	force	施加的力，如{x:0.1,y:0.1}
+     * @param force	施加的力，如{x:0.1,y:0.1}
      */
     applyForceToCenter(force: IV2): void {
         if (!this._body) this._onAwake();
@@ -231,8 +231,8 @@ export class RigidBody extends Component {
 
     /**
      * 施加速度冲量，添加的速度冲量会与刚体原有的速度叠加，产生新的速度
-     * @param	position 施加力的点，如{x:100,y:100}，全局坐标
-     * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
+     * @param position 施加力的点，如{x:100,y:100}，全局坐标
+     * @param impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulse(position: IV2, impulse: IV2): void {
         if (!this._body) this._onAwake();
@@ -241,7 +241,7 @@ export class RigidBody extends Component {
 
     /**
      * 施加速度冲量，添加的速度冲量会与刚体原有的速度叠加，产生新的速度
-     * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
+     * @param impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulseToCenter(impulse: IV2): void {
         if (!this._body) this._onAwake();
@@ -250,7 +250,7 @@ export class RigidBody extends Component {
 
     /**
      * 对刚体施加扭矩，使其旋转
-     * @param	torque	施加的扭矩
+     * @param torque	施加的扭矩
      */
     applyTorque(torque: number): void {
         if (!this._body) this._onAwake();
@@ -259,7 +259,7 @@ export class RigidBody extends Component {
 
     /**
      * 设置速度，比如{x:10,y:10}
-     * @param	velocity
+     * @param velocity
      */
     setVelocity(velocity: IV2): void {
         if (!this._body) this._onAwake();
@@ -268,7 +268,7 @@ export class RigidBody extends Component {
 
     /**
      * 设置角度
-     * @param	value 单位为角度
+     * @param value 单位为角度
      */
     setAngle(value: any): void {
         if (!this._body) this._onAwake();

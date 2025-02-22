@@ -44,9 +44,9 @@ export class NativeVertexBuffer3D extends VertexBuffer3D {
 	}
     /**
      * 创建一个 <code>VertexBuffer3D</code> 实例。
-     * @param	byteLength 字节长度。
-     * @param	bufferUsage VertexBuffer3D用途类型。
-     * @param	canRead 是否可读。
+     * @param byteLength 字节长度。
+     * @param bufferUsage VertexBuffer3D用途类型。
+     * @param canRead 是否可读。
      */
     constructor(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
         super(byteLength, bufferUsage, canRead);

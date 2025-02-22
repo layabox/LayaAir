@@ -25,7 +25,6 @@ export class HLODBatchMesh extends GeometryElement {
     /**
      * 合批后的mesh
      * @param mesh 
-     * @param bounds 
      */
     set batchMesh(mesh: Mesh) {
         if (this._mesh != mesh) {

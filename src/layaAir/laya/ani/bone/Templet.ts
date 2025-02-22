@@ -87,7 +87,7 @@ export class Templet extends AnimationTemplet {
      * 0,使用模板缓冲的数据，模板缓冲的数据，不允许修改					（内存开销小，计算开销小，不支持换装）
      * 1,使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存	（内存开销大，计算开销小，支持换装）
      * 2,使用动态方式，去实时去画										（内存开销小，计算开销大，支持换装,不建议使用）
-     * @param	aniMode 0	动画模式，0:不支持换装,1,2支持换装
+     * @param aniMode 0	动画模式，0:不支持换装,1,2支持换装
      * @return
      */
     buildArmature(aniMode: number = 0): Skeleton {
@@ -503,7 +503,7 @@ export class Templet extends AnimationTemplet {
 
     /**
      * 得到指定的纹理
-     * @param	name	纹理的名字
+     * @param name	纹理的名字
      * @return
      */
     getTexture(name: string): Texture {
@@ -520,9 +520,9 @@ export class Templet extends AnimationTemplet {
     /**
      * @private
      * 显示指定的皮肤
-     * @param	boneSlotDic	插糟字典的引用
-     * @param	skinIndex	皮肤的索引
-     * @param	freshDisplayIndex	是否重置插槽纹理
+     * @param boneSlotDic	插糟字典的引用
+     * @param skinIndex	皮肤的索引
+     * @param freshDisplayIndex	是否重置插槽纹理
      */
     showSkinByIndex(boneSlotDic: any, skinIndex: number, freshDisplayIndex: boolean = true): boolean {
         if (skinIndex < 0 && skinIndex >= this.skinDataArray.length) return false;
@@ -552,7 +552,7 @@ export class Templet extends AnimationTemplet {
 
     /**
      * 通过皮肤名字得到皮肤索引
-     * @param	skinName 皮肤名称
+     * @param skinName 皮肤名称
      * @return
      */
     getSkinIndexByName(skinName: string): number {
@@ -568,8 +568,8 @@ export class Templet extends AnimationTemplet {
     /**
      * @private
      * 得到缓冲数据
-     * @param	aniIndex	动画索引
-     * @param	frameIndex	帧索引
+     * @param aniIndex	动画索引
+     * @param frameIndex	帧索引
      * @return
      */
     getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
@@ -583,9 +583,9 @@ export class Templet extends AnimationTemplet {
     /**
      * @private
      * 保存缓冲grahpics
-     * @param	aniIndex	动画索引
-     * @param	frameIndex	帧索引
-     * @param	graphics	要保存的数据
+     * @param aniIndex	动画索引
+     * @param frameIndex	帧索引
+     * @param graphics	要保存的数据
      */
     setGrahicsDataWithCache(aniIndex: number, frameIndex: number, graphics: Graphics): void {
         this._graphicsCache[aniIndex][frameIndex] = graphics;
@@ -616,7 +616,7 @@ export class Templet extends AnimationTemplet {
     /***********************************下面为一些儿访问接口*****************************************/
     /**
      * 通过索引得动画名称
-     * @param	index
+     * @param index
      * @return
      */
     getAniNameByIndex(index: number): string {

@@ -40,10 +40,10 @@ export class Vector4 implements IClone {
 
     /**
      * 创建一个 <code>Vector4</code> 实例。
-     * @param	x  X轴坐标。
-     * @param	y  Y轴坐标。
-     * @param	z  Z轴坐标。
-     * @param	w  W轴坐标。
+     * @param x  X轴坐标。
+     * @param y  Y轴坐标。
+     * @param z  Z轴坐标。
+     * @param w  W轴坐标。
      */
     constructor(x: number = 0, y: number = 0, z: number = 0, w: number = 0) {
         this.x = x;
@@ -54,10 +54,10 @@ export class Vector4 implements IClone {
 
     /**
      * 设置xyzw值。
-     * @param	x X值。
-     * @param	y Y值。
-     * @param	z Z值。
-     * @param	w W值。
+     * @param x X值。
+     * @param y Y值。
+     * @param z Z值。
+     * @param w W值。
      */
     setValue(x: number, y: number, z: number, w: number): void {
         this.x = x;
@@ -68,8 +68,8 @@ export class Vector4 implements IClone {
 
     /**
      * 从Array数组拷贝值。
-     * @param  arr 数组。
-     * @param  offset 数组偏移。
+     * @param arr 数组。
+     * @param offset 数组偏移。
      */
     fromArray(arr: ArrayLike<number>, offset: number = 0): void {
         this.x = arr[offset + 0];
@@ -100,7 +100,7 @@ export class Vector4 implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var destVector4: Vector4 = (<Vector4>destObject);
@@ -122,10 +122,10 @@ export class Vector4 implements IClone {
 
     /**
      * 插值四维向量。
-     * @param	a left向量。
-     * @param	b right向量。
-     * @param	t 插值比例。
-     * @param	out 输出向量。
+     * @param a left向量。
+     * @param b right向量。
+     * @param t 插值比例。
+     * @param out 输出向量。
      */
     static lerp(a: Vector4, b: Vector4, t: number, out: Vector4): void {
         var ax: number = a.x, ay: number = a.y, az: number = a.z, aw: number = a.w;
@@ -137,9 +137,9 @@ export class Vector4 implements IClone {
 
     /**
      * 通过4x4矩阵把一个四维向量转换为另一个四维向量
-     * @param	vector4 带转换四维向量。
-     * @param	M4x4    4x4矩阵。
-     * @param	out     转换后四维向量。
+     * @param vector4 带转换四维向量。
+     * @param m4x4    4x4矩阵。
+     * @param out     转换后四维向量。
      */
     static transformByM4x4(vector4: Vector4, m4x4: Matrix4x4, out: Vector4): void {
         var vx: number = vector4.x;
@@ -157,8 +157,8 @@ export class Vector4 implements IClone {
 
     /**
      * 判断两个四维向量是否相等。
-     * @param	a 四维向量。
-     * @param	b 四维向量。
+     * @param a 四维向量。
+     * @param b 四维向量。
      * @return  是否相等。
      */
     static equals(a: Vector4, b: Vector4): boolean {
@@ -193,8 +193,8 @@ export class Vector4 implements IClone {
 
     /**
      * 归一化四维向量。
-     * @param	s   源四维向量。
-     * @param	out 输出四维向量。
+     * @param s   源四维向量。
+     * @param out 输出四维向量。
      */
     static normalize(s: Vector4, out: Vector4): void {
         var len: number = s.length();
@@ -209,9 +209,9 @@ export class Vector4 implements IClone {
 
     /**
      * 求两个四维向量的和。
-     * @param	a   四维向量。
-     * @param	b   四维向量。
-     * @param	out 输出向量。
+     * @param a   四维向量。
+     * @param b   四维向量。
+     * @param out 输出向量。
      */
     static add(a: Vector4, b: Vector4, out: Vector4): void {
         out.x = a.x + b.x;
@@ -222,9 +222,9 @@ export class Vector4 implements IClone {
 
     /**
      * 求两个四维向量的差。
-     * @param	a   四维向量。
-     * @param	b   四维向量。
-     * @param	out 输出向量。
+     * @param a   四维向量。
+     * @param b   四维向量。
+     * @param out 输出向量。
      */
     static subtract(a: Vector4, b: Vector4, out: Vector4): void {
         out.x = a.x - b.x;
@@ -235,9 +235,9 @@ export class Vector4 implements IClone {
 
     /**
      * 计算两个四维向量的乘积。
-     * @param	a   四维向量。
-     * @param	b   四维向量。
-     * @param	out 输出向量。
+     * @param a   四维向量。
+     * @param b   四维向量。
+     * @param out 输出向量。
      */
     static multiply(a: Vector4, b: Vector4, out: Vector4): void {
         out.x = a.x * b.x;
@@ -248,9 +248,9 @@ export class Vector4 implements IClone {
 
     /**
      * 缩放四维向量。
-     * @param	a   源四维向量。
-     * @param	b   缩放值。
-     * @param	out 输出四维向量。
+     * @param a   源四维向量。
+     * @param b   缩放值。
+     * @param out 输出四维向量。
      */
     static scale(a: Vector4, b: number, out: Vector4): void {
         out.x = a.x * b;
@@ -261,10 +261,10 @@ export class Vector4 implements IClone {
 
     /**
      * 求一个指定范围的四维向量
-     * @param	value clamp向量
-     * @param	min   最小
-     * @param	max   最大
-     * @param   out   输出向量
+     * @param value clamp向量
+     * @param min   最小
+     * @param max   最大
+     * @param out   输出向量
      */
     static Clamp(value: Vector4, min: Vector4, max: Vector4, out: Vector4): void {
         var x: number = value.x;
@@ -302,8 +302,8 @@ export class Vector4 implements IClone {
 
     /**
      * 两个四维向量距离的平方。
-     * @param	value1 向量1。
-     * @param	value2 向量2。
+     * @param value1 向量1。
+     * @param value2 向量2。
      * @return	距离的平方。
      */
     static distanceSquared(value1: Vector4, value2: Vector4): number {
@@ -317,8 +317,8 @@ export class Vector4 implements IClone {
 
     /**
      * 两个四维向量距离。
-     * @param	value1 向量1。
-     * @param	value2 向量2。
+     * @param value1 向量1。
+     * @param value2 向量2。
      * @return	距离。
      */
     static distance(value1: Vector4, value2: Vector4): number {
@@ -332,8 +332,8 @@ export class Vector4 implements IClone {
 
     /**
      * 求两个四维向量的点积。
-     * @param	a 向量。
-     * @param	b 向量。
+     * @param a 向量。
+     * @param b 向量。
      * @return  点积。
      */
     static dot(a: Vector4, b: Vector4): number {
@@ -342,9 +342,9 @@ export class Vector4 implements IClone {
 
     /**
      * 分别取两个四维向量x、y、z的最小值计算新的四维向量。
-     * @param	a   四维向量。
-     * @param	b   四维向量。
-     * @param	out 结果三维向量。
+     * @param a   四维向量。
+     * @param b   四维向量。
+     * @param out 结果三维向量。
      */
     static min(a: Vector4, b: Vector4, out: Vector4): void {
         out.x = Math.min(a.x, b.x);
@@ -355,9 +355,9 @@ export class Vector4 implements IClone {
 
     /**
      * 分别取两个四维向量x、y、z的最大值计算新的四维向量。
-     * @param	a   四维向量。
-     * @param	b   四维向量。
-     * @param	out 结果三维向量。
+     * @param a   四维向量。
+     * @param b   四维向量。
+     * @param out 结果三维向量。
      */
     static max(a: Vector4, b: Vector4, out: Vector4): void {
         out.x = Math.max(a.x, b.x);

@@ -111,7 +111,7 @@ export class BVHSpatial {
     /**
     * 通过CameraCull查找逻辑对象
     * @override
-    * @param frustum 视锥
+    * @param cameraCullInfo 相机裁剪信息
     * @param out 输出逻辑对象组
     */
     getItemByCameraCullInfo(cameraCullInfo: ICameraCullInfo, out: SingletonList<IBoundsCell>) {

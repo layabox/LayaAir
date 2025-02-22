@@ -50,9 +50,6 @@ export class Graphics {
 
     /**
      * add global Uniform Data Map
-     * @param propertyID 
-     * @param propertyKey 
-     * @param uniformtype 
      */
     static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
         let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
@@ -301,8 +298,8 @@ export class Graphics {
      * @param x			X轴偏移量。
      * @param y			Y轴偏移量。
      * @param vertices  顶点数组。
+     * @param uvs	    UV数据。
      * @param indices	顶点索引。
-     * @param uvData	UV数据。
      * @param matrix	缩放矩阵。
      * @param alpha		alpha
      * @param color		颜色变换
@@ -387,7 +384,7 @@ export class Graphics {
 
     /**
      * 设置透明度。
-     * @param value 透明度。
+     * @param alpha 透明度。
      */
     alpha(alpha: number): AlphaCmd {
         return this.addCmd(AlphaCmd.create(alpha));
@@ -395,7 +392,7 @@ export class Graphics {
 
     /**
      * 替换绘图的当前转换矩阵。
-     * @param mat 矩阵。
+     * @param matrix 矩阵。
      * @param pivotX	（可选）水平方向轴心点坐标。
      * @param pivotY	（可选）垂直方向轴心点坐标。
      */
@@ -426,8 +423,8 @@ export class Graphics {
 
     /**
      * 重新映射画布上的 (0,0) 位置。
-     * @param x 添加到水平坐标（x）上的值。
-     * @param y 添加到垂直坐标（y）上的值。
+     * @param tx 添加到水平坐标（x）上的值。
+     * @param ty 添加到垂直坐标（y）上的值。
      */
     translate(tx: number, ty: number): TranslateCmd {
         return this.addCmd(TranslateCmd.create(tx, ty));
@@ -664,13 +661,13 @@ export class Graphics {
     /**
      * @private
      * 绘制带九宫格的图片
-     * @param	texture
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
-     * @param	sizeGrid
-     * @param	color
+     * @param texture
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param sizeGrid
+     * @param color
      */
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[], color?: string): void {
         this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid, false, color));

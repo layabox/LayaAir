@@ -17,8 +17,8 @@ export class Plane {
 
 	/**
 	 * 创建一个 <code>Plane</code> 实例。
-	 * @param	normal 平面的向量
-	 * @param	d  平面到原点的距离
+	 * @param normal 平面的向量
+	 * @param d  平面到原点的距离
 	 */
 	constructor(normal: Vector3 = new Vector3, d: number = 0) {
 		this.normal = normal;
@@ -27,9 +27,9 @@ export class Plane {
 	
 	/**
 	 * 通过三个点创建一个平面。
-	 * @param	point0 第零个点
-	 * @param	point1 第一个点
-	 * @param	point2 第二个点
+	 * @param point0 第零个点
+	 * @param point1 第一个点
+	 * @param point2 第二个点
 	 */
 	static createPlaneBy3P(point0: Vector3, point1: Vector3, point2: Vector3, out: Plane): void {
 		var x1: number = point1.x - point0.x;
@@ -73,7 +73,7 @@ export class Plane {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var dest: Plane = <Plane>destObject;

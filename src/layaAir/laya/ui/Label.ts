@@ -9,11 +9,6 @@ import { LayaEnv } from "../../LayaEnv";
 
 export type LabelFitContent = "no" | "yes" | "height";
 
-/**
- * 文本内容发生改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
  * <p> <code>Label</code> 类用于创建显示对象以显示文本。</p>
@@ -183,21 +178,21 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#wordWrap
+     * @see laya.display.Text#wordWrap
      */
     get wordWrap(): boolean {
         return this._tf.wordWrap;
     }
 
     /**
-     * @copy laya.display.Text#wordWrap
+     * @see laya.display.Text#wordWrap
      */
     set wordWrap(value: boolean) {
         this._tf.wordWrap = value;
     }
 
     /**
-     * @copy laya.display.Text#color
+     * @see laya.display.Text#color
      */
     get color(): string {
         return this._tf.color;
@@ -208,7 +203,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#font
+     * @see laya.display.Text#font
      */
     get font(): string {
         return this._tf.font;
@@ -219,7 +214,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#align
+     * @see laya.display.Text#align
      */
     get align(): string {
         return this._tf.align;
@@ -230,7 +225,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#valign
+     * @see laya.display.Text#valign
      */
     get valign(): string {
         return this._tf.valign;
@@ -241,7 +236,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#alignItems
+     * @see laya.display.Text#alignItems
      */
     get alignItems(): string {
         return this._tf.alignItems;
@@ -252,7 +247,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#bold
+     * @see laya.display.Text#bold
      */
     get bold(): boolean {
         return this._tf.bold;
@@ -263,7 +258,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#italic
+     * @see laya.display.Text#italic
      */
     get italic(): boolean {
         return this._tf.italic;
@@ -274,7 +269,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#leading
+     * @see laya.display.Text#leading
      */
     get leading(): number {
         return this._tf.leading;
@@ -285,7 +280,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#fontSize
+     * @see laya.display.Text#fontSize
      */
     get fontSize(): number {
         return this._tf.fontSize;
@@ -308,7 +303,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#bgColor
+     * @see laya.display.Text#bgColor
      */
     get bgColor(): string {
         return this._tf.bgColor
@@ -319,7 +314,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#borderColor
+     * @see laya.display.Text#borderColor
      */
     get borderColor(): string {
         return this._tf.borderColor
@@ -330,7 +325,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#stroke
+     * @see laya.display.Text#stroke
      */
     get stroke(): number {
         return this._tf.stroke;
@@ -341,7 +336,7 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#strokeColor
+     * @see laya.display.Text#strokeColor
      */
     get strokeColor(): string {
         return this._tf.strokeColor;
@@ -481,42 +476,42 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @copy laya.display.Text#overflow
+     * @see laya.display.Text#overflow
      */
     get overflow(): string {
         return this._tf.overflow;
     }
 
     /**
-     * @copy laya.display.Text#overflow
+     * @see laya.display.Text#overflow
      */
     set overflow(value: string) {
         this._tf.overflow = value;
     }
 
     /**
-     * @copy laya.display.Text#underline
+     * @see laya.display.Text#underline
      */
     get underline(): boolean {
         return this._tf.underline;
     }
 
     /**
-     * @copy laya.display.Text#underline
+     * @see laya.display.Text#underline
      */
     set underline(value: boolean) {
         this._tf.underline = value;
     }
 
     /**
-     * @copy laya.display.Text#underlineColor
+     * @see laya.display.Text#underlineColor
      */
     get underlineColor(): string {
         return this._tf.underlineColor;
     }
 
     /**
-     * @copy laya.display.Text#underlineColor
+     * @see laya.display.Text#underlineColor
      */
     set underlineColor(value: string) {
         this._tf.underlineColor = value;
@@ -525,7 +520,7 @@ export class Label extends UIComponent {
     /**
      * @en Text decoration style of the text, specifically whether it is underlined.
      * @zh 文本是否显示下划线。
-     * @copy laya.display.Text#underline
+     * @see laya.display.Text#underline
      */
     get strikethrough(): boolean {
         return this._tf.strikethrough;
@@ -538,7 +533,7 @@ export class Label extends UIComponent {
     /**
      * @en Color of the text underline.
      * @zh 文本下划线的颜色。
-     * @copy laya.display.Text#underlineColor
+     * @see laya.display.Text#underlineColor
      */
     get strikethroughColor(): string {
         return this._tf.strikethroughColor;
@@ -549,14 +544,14 @@ export class Label extends UIComponent {
     } 
 
     /**
-     * @copy laya.display.Text#ignoreLang
+     * @see laya.display.Text#ignoreLang
      */
     get ignoreLang(): boolean {
         return this._tf.ignoreLang;
     }
 
     /**
-     * @copy laya.display.Text#ignoreLang
+     * @see laya.display.Text#ignoreLang
      */
     set ignoreLang(value: boolean) {
         this._tf.ignoreLang = value;

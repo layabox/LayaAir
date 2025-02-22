@@ -257,9 +257,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
 
-    /**
-     * {@inheritDoc IDynamicCollider.move }
-     */
     move(positionOrRotation: Vector3 | Quaternion, rotation?: Quaternion): void {
         if (rotation) {
             this._pxActor.setKinematicTarget(positionOrRotation, rotation);

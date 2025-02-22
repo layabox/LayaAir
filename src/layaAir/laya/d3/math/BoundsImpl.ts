@@ -139,8 +139,8 @@ export class BoundsImpl implements IClone {
 
     /**
      * 创建一个 <code>BoundsImp</code> 实例。
-     * @param	min  min 最小坐标
-     * @param	max  max 最大坐标。
+     * @param min  min 最小坐标
+     * @param max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
         min && min.cloneTo(this._boundBox.min);
@@ -250,7 +250,7 @@ export class BoundsImpl implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var destBounds: BoundsImpl = (<BoundsImpl>destObject);

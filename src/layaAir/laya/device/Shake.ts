@@ -12,9 +12,8 @@ import { ILaya } from "../../ILaya";
  * 
  */
 export class Shake extends EventDispatcher {
-    private throushold: number;
+    private threshold: number;
     private shakeInterval: number;
-    private callback: Handler;
 
     private lastX: number;
     private lastY: number;
@@ -36,12 +35,11 @@ export class Shake extends EventDispatcher {
 
     /**
      * 开始响应设备摇晃。
-     * @param	throushold	响应的瞬时速度阈值，轻度摇晃的值约在5~10间。
-     * @param	timeout		设备摇晃的响应间隔时间。
-     * @param	callback	在设备摇晃触发时调用的处理器。
+     * @param threshold	响应的瞬时速度阈值，轻度摇晃的值约在5~10间。
+     * @param interval	设备摇晃的响应间隔时间。
      */
-    start(throushold: number, interval: number): void {
-        this.throushold = throushold;
+    start(threshold: number, interval: number): void {
+        this.threshold = threshold;
         this.shakeInterval = interval;
 
         this.lastX = this.lastY = this.lastZ = NaN;
@@ -91,9 +89,9 @@ export class Shake extends EventDispatcher {
 
     // 通过任意两个分量判断是否满足摇晃设定。
     private isShaked(deltaX: number, deltaY: number, deltaZ: number): boolean {
-        return (deltaX > this.throushold && deltaY > this.throushold) ||
-            (deltaX > this.throushold && deltaZ > this.throushold) ||
-            (deltaY > this.throushold && deltaZ > this.throushold)
+        return (deltaX > this.threshold && deltaY > this.threshold) ||
+            (deltaX > this.threshold && deltaZ > this.threshold) ||
+            (deltaY > this.threshold && deltaZ > this.threshold)
     }
 }
 

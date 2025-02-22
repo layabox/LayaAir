@@ -515,7 +515,7 @@ export class Mesh extends Resource implements IClone {
     /**
      * 拷贝并填充位置数据至数组。
      * @param positions 位置数组。
-     * @remark 该方法为拷贝操作，比较耗费性能。
+     * @zh 该方法为拷贝操作，比较耗费性能。
      */
     getPositions(positions: Vector3[]): void {
         if (this._isReadable)
@@ -541,7 +541,7 @@ export class Mesh extends Resource implements IClone {
     /**
      * 拷贝并填充颜色数据至数组。
      * @param colors 颜色数组。
-     * @remark 该方法为拷贝操作，比较耗费性能。
+     * @zh 该方法为拷贝操作，比较耗费性能。
      */
     getColors(colors: Color[]): void {
         if (this._isReadable)
@@ -565,7 +565,7 @@ export class Mesh extends Resource implements IClone {
      * 拷贝并填充纹理坐标数据至数组。
      * @param uvs 纹理坐标数组。
      * @param channel 纹理坐标通道。
-     * @remark 该方法为拷贝操作，比较耗费性能。
+     * @zh 该方法为拷贝操作，比较耗费性能。
      */
     getUVs(uvs: Vector2[], channel: number = 0): void {
         if (this._isReadable) {
@@ -611,7 +611,7 @@ export class Mesh extends Resource implements IClone {
     /**
      * 拷贝并填充法线数据至数组。
      * @param normals 法线数组。
-     * @remark 该方法为拷贝操作，比较耗费性能。
+     * @zh 该方法为拷贝操作，比较耗费性能。
      */
     getNormals(normals: Vector3[]): void {
         if (this._isReadable)
@@ -688,7 +688,7 @@ export class Mesh extends Resource implements IClone {
 
     /**
     * 拷贝并填充骨骼索引数据至数组。
-    * @param boneWeights 骨骼索引。
+    * @param boneIndices 骨骼索引。
     */
     setBoneIndices(boneIndices: Vector4[]): void {
         if (this._isReadable)

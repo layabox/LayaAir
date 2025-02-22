@@ -63,8 +63,8 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 创建一个新的 <code>CapsuleColliderShape</code> 实例。
-	 * @param 半径。
-	 * @param 高(包含半径)。
+	 * @param radius 半径。
+	 * @param length 高(包含半径)。
 	 * @param orientation 胶囊体方向。
 	 */
 	constructor(radius: number = 0.5, length: number = 2, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {

@@ -93,7 +93,6 @@ export class HingeConstraint extends ConstraintComponent {
 
     /**
      * set limitLower
-     * @param lowerLimit 
      */
     set lowerLimit(value: number) {
         this._lowerLimit = value;
@@ -107,7 +106,6 @@ export class HingeConstraint extends ConstraintComponent {
 
     /**
      * set uperLimit
-     * @param lowerLimit 
      */
     set uperLimit(value: number) {
         this._uperLimit = value;
@@ -119,10 +117,6 @@ export class HingeConstraint extends ConstraintComponent {
         return this._uperLimit;
     }
 
-
-    /**
-     * @param value 
-     */
     set bounceness(value: number) {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         this._bounciness = value;
@@ -133,9 +127,6 @@ export class HingeConstraint extends ConstraintComponent {
         return this._bounciness;
     }
 
-    /**
-     * @param value 
-     */
     set bouncenMinVelocity(value: number) {
         this._bounceMinVelocity = value;
         this._joint && this._joint.setBouncenMinVelocity(value);
@@ -145,9 +136,7 @@ export class HingeConstraint extends ConstraintComponent {
         return this._bounceMinVelocity;
     }
 
-    /**
-     * @param value 
-     */
+
     set contactDistance(value: number) {
         this._contactDistance = value;
         this._joint && this._joint.setContactDistance(value);
@@ -157,9 +146,6 @@ export class HingeConstraint extends ConstraintComponent {
         return this._contactDistance;
     }
 
-    /**
-     * @param value 
-     */
     set limit(value: boolean) {
         this._limit = value;
         this._joint && this._joint.enableLimit(value);
@@ -169,9 +155,6 @@ export class HingeConstraint extends ConstraintComponent {
         return this._limit;
     }
 
-    /**
-     * @param value 
-     */
     set motor(value: boolean) {
         this._motor = value;
         this._motor && this._joint.enableDrive(value);
@@ -181,9 +164,7 @@ export class HingeConstraint extends ConstraintComponent {
         return this._motor;
     }
 
-    /**
-     * @param value 
-     */
+
     set freeSpin(value: boolean) {
         this._freeSpin = value;
         this._joint && this._joint.enableFreeSpin(value);

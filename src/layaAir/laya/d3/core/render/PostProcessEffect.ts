@@ -42,9 +42,6 @@ export class PostProcessEffect {
 
 	/**
 	 * 根据后期处理设置cameraDepthTextureMode
-	 * @inheritDoc
-	 * @override
-	 * @returns 
 	 */
 	getCameraDepthTextureModeFlag() {
 		return 0;
@@ -52,8 +49,6 @@ export class PostProcessEffect {
 
 	/**
 	 * 添加到后期处理栈时,会调用
-	 * @inheritDoc
-	 * @override
 	 */
 	effectInit(postprocess:PostProcess) {
 		return;
@@ -61,8 +56,6 @@ export class PostProcessEffect {
 
 	/**
 	 * 释放Effect
-	 * @inheritDoc
-	 * @override
 	 */
 	release(postprocess:PostProcess){
 		

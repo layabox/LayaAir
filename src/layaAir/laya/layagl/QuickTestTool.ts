@@ -68,9 +68,9 @@ export class QuickTestTool {
     }
     /**
      * 更新、呈现显示对象。由系统调用。
-     * @param	context 渲染的上下文引用。
-     * @param	x X轴坐标。
-     * @param	y Y轴坐标。
+     * @param context 渲染的上下文引用。
+     * @param x X轴坐标。
+     * @param y Y轴坐标。
      */
     //TODO:coverage
     render(context: Context, x: number, y: number): void {

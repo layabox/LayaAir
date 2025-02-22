@@ -5,22 +5,6 @@ import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 
 
-/**开始播放时调度。
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event")]*/
-/**暂停时调度。
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event")]*/
-/**完成一次循环时调度。
- * @eventType Event.COMPLETE
- * */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-/**停止时调度。
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event")]*/
 
 /**
  * <code>AnimationPlayer</code> 类用于动画播放器。
@@ -70,7 +54,6 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 获取动画数据模板
-	 * @param	value 动画数据模板
 	 */
 	get templet(): AnimationTemplet {
 		return this._templet;
@@ -78,7 +61,7 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 设置动画数据模板,注意：修改此值会有计算开销。
-	 * @param	value 动画数据模板
+	 * @param value 动画数据模板
 	 */
 	set templet(value: AnimationTemplet) {
 		if (!(this.state === AnimationState.stopped))
@@ -206,7 +189,7 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 设置当前播放位置
-	 * @param	value 当前时间
+	 * @param value 当前时间
 	 */
 	set currentTime(value: number) {
 		if (this._currentAnimationClipIndex === -1 || !this._templet /*|| !_templet.loaded*/)
@@ -232,7 +215,7 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 设置是否暂停
-	 * @param	value 是否暂停
+	 * @param value 是否暂停
 	 */
 	set paused(value: boolean) {
 		this._paused = value;
@@ -454,11 +437,11 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 播放动画。
-	 * @param	index 动画索引。
-	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-	 * @param	playStart 播放的起始时间位置。
-	 * @param	playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
+	 * @param index 动画索引。
+	 * @param playbackRate 播放速率。
+	 * @param overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param playStart 播放的起始时间位置。
+	 * @param playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
 	 */
 	play(index: number = 0, playbackRate: number = 1.0, overallDuration: number = /*int.MAX_VALUE*/ 2147483647, playStart: number = 0, playEnd: number = 0): void {
 		if (!this._templet)
@@ -493,11 +476,11 @@ export class AnimationPlayer extends EventDispatcher {
 
 	/**
 	 * 播放动画。
-	 * @param	index 动画索引。
-	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-	 * @param	playStartFrame 播放的原始起始帧率位置。
-	 * @param	playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
+	 * @param index 动画索引。
+	 * @param playbackRate 播放速率。
+	 * @param overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param playStartFrame 播放的原始起始帧率位置。
+	 * @param playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
 	 */
 	playByFrame(index: number = 0, playbackRate: number = 1.0, overallDuration: number = /*int.MAX_VALUE*/ 2147483647, playStartFrame: number = 0, playEndFrame: number = 0, fpsIn3DBuilder: number = 30): void {
 		var interval: number = 1000.0 / fpsIn3DBuilder;
@@ -507,7 +490,7 @@ export class AnimationPlayer extends EventDispatcher {
 	/**
 	 * 停止播放当前动画
 	 * 如果不是立即停止就等待动画播放完成后再停止
-	 * @param	immediate 是否立即停止
+	 * @param immediate 是否立即停止
 	 */
 	stop(immediate: boolean = true): void {
 		if (immediate) {

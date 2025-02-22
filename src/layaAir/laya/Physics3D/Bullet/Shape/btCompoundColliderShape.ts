@@ -86,7 +86,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
 	/**
 	 * 添加子碰撞器形状。
-	 * @param	shape 子碰撞器形状。
+	 * @param shape 子碰撞器形状。
 	 */
 	addChildShape(shape: any): void {
 		// if (shape._attatched)
@@ -114,7 +114,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
 	/**
 	 * 移除子碰撞器形状。
-	 * @param	shape 子碰撞器形状。
+	 * @param shape 子碰撞器形状。
 	 */
 	removeChildShape(shape:any): void {
 		// if (shape._compoundParent === this) {

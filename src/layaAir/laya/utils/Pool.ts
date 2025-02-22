@@ -41,7 +41,7 @@ export class Pool {
 
     /**
      * 根据类名进行回收，如果类有类名才进行回收，没有则不回收
-     * @param	instance 类的具体实例
+     * @param instance 类的具体实例
      */
     static recoverByClass(instance: any): void {
         if (instance) {
@@ -64,7 +64,7 @@ export class Pool {
 
     /**
      * 根据类型创建对象
-     * @param	cls 类型
+     * @param cls 类型
      */
     static createByClass<T>(cls: new () => T): T {
         return Pool.getItemByClass(Pool._getClassSign(cls), cls);

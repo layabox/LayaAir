@@ -21,8 +21,8 @@ export class Vector2 implements IClone {
 
     /**
      * 创建一个 <code>Vector2</code> 实例。
-     * @param	x  X轴坐标。
-     * @param	y  Y轴坐标。
+     * @param x  X轴坐标。
+     * @param y  Y轴坐标。
      */
     constructor(x: number = 0, y: number = 0) {
         this.x = x;
@@ -30,8 +30,8 @@ export class Vector2 implements IClone {
     }
     /**
      * 设置xy值。
-     * @param	x X值。
-     * @param	y Y值。
+     * @param x X值。
+     * @param y Y值。
      */
     setValue(x: number, y: number): void {
         this.x = x;
@@ -40,9 +40,9 @@ export class Vector2 implements IClone {
 
     /**
      * 缩放二维向量。
-     * @param	a 源二维向量。
-     * @param	b 缩放值。
-     * @param	out 输出二维向量。
+     * @param a 源二维向量。
+     * @param b 缩放值。
+     * @param out 输出二维向量。
      */
     static scale(a: Vector2, b: number, out: Vector2): void {
         out.x = a.x * b;
@@ -51,8 +51,8 @@ export class Vector2 implements IClone {
 
     /**
      * 判断两个二维向量是否相等。
-     * @param	a 三维向量。
-     * @param	b 三维向量。
+     * @param a 三维向量。
+     * @param b 三维向量。
      * @return  是否相等。
      */
     static equals(a: Vector2, b: Vector2): boolean {
@@ -61,8 +61,8 @@ export class Vector2 implements IClone {
 
     /**
      * 从Array数组拷贝值。
-     * @param  array 数组。
-     * @param  offset 数组偏移。
+     * @param array 数组。
+     * @param offset 数组偏移。
      */
     fromArray(array: ArrayLike<number>, offset: number = 0): void {
         this.x = array[offset + 0];
@@ -89,7 +89,7 @@ export class Vector2 implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var destVector2: Vector2 = (<Vector2>destObject);
@@ -99,8 +99,8 @@ export class Vector2 implements IClone {
 
     /**
      * 求两个二维向量的点积。
-     * @param	a left向量。
-     * @param	b right向量。
+     * @param a left向量。
+     * @param b right向量。
      * @return   点积。
      */
     static dot(a: Vector2, b: Vector2): number {
@@ -109,8 +109,8 @@ export class Vector2 implements IClone {
 
     /**
      * 归一化二维向量。
-     * @param	s 源三维向量。
-     * @param	out 输出三维向量。
+     * @param s 源三维向量。
+     * @param out 输出三维向量。
      */
     static normalize(s: Vector2, out: Vector2): void {
         var x: number = s.x, y: number = s.y;
@@ -124,7 +124,7 @@ export class Vector2 implements IClone {
 
     /**
      * 计算标量长度。
-     * @param	a 源三维向量。
+     * @param a 源三维向量。
      * @return 标量长度。
      */
     static scalarLength(a: Vector2): number {

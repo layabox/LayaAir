@@ -149,13 +149,13 @@ export class TiledMap {
 
     /**
      * 创建地图
-     * @param	mapName 		JSON文件名字
-     * @param	viewRect 		视口区域
-     * @param	completeHandler 地图创建完成的回调函数
-     * @param	viewRectPadding 视口扩充区域，把视口区域上、下、左、右扩充一下，防止视口移动时的穿帮
-     * @param	gridSize 		grid大小
-     * @param	enableLinear 	是否开启线性取样（为false时，可以解决地图黑线的问题，但画质会锐化）
-     * @param	limitRange		把地图限制在显示区域
+     * @param mapName 		JSON文件名字
+     * @param viewRect 		视口区域
+     * @param completeHandler 地图创建完成的回调函数
+     * @param viewRectPadding 视口扩充区域，把视口区域上、下、左、右扩充一下，防止视口移动时的穿帮
+     * @param gridSize 		grid大小
+     * @param enableLinear 	是否开启线性取样（为false时，可以解决地图黑线的问题，但画质会锐化）
+     * @param limitRange		把地图限制在显示区域
      */
     createMap(mapName: string, viewRect: Rectangle, completeHandler: Handler, viewRectPadding: Rectangle = null, gridSize: Point = null, enableLinear: boolean = true, limitRange: boolean = false): void {
         this._enableLinear = enableLinear;
@@ -192,7 +192,7 @@ export class TiledMap {
 
     /**
      * json文件读取成功后，解析里面的纹理数据，进行加载
-     * @param	e JSON数据
+     * @param e JSON数据
      */
     private onJsonComplete(tJsonData: any): void {
         this._mapSprite = new Sprite();
@@ -259,8 +259,8 @@ export class TiledMap {
 
     /**
      * 合并路径
-     * @param	resPath
-     * @param	relativePath
+     * @param resPath
+     * @param relativePath
      * @return
      */
     private mergePath(resPath: string, relativePath: string): string {
@@ -304,7 +304,7 @@ export class TiledMap {
     private _texutreStartDic: any = {};
     /**
      * 纹理加载完成，如果所有的纹理加载，开始初始化地图
-     * @param	tex 纹理数据
+     * @param tex 纹理数据
      */
     private onTextureComplete(tTexture: Texture): void {
         var json: any = this._jsonData;
@@ -515,7 +515,7 @@ export class TiledMap {
     }
     /**
      * 得到一块指定的地图纹理
-     * @param	index 纹理的索引值，默认从1开始
+     * @param index 纹理的索引值，默认从1开始
      * @return
      */
     getTexture(index: number): TileTexSet {
@@ -527,7 +527,7 @@ export class TiledMap {
 
     /**
      * 得到地图的自定义属性
-     * @param	name		属性名称
+     * @param name		属性名称
      * @return
      */
     getMapProperties(name: string): any {
@@ -539,9 +539,9 @@ export class TiledMap {
 
     /**
      * 得到tile自定义属性
-     * @param	index		地图块索引
-     * @param	id			具体的TileSetID
-     * @param	name		属性名称
+     * @param index		地图块索引
+     * @param id			具体的TileSetID
+     * @param name		属性名称
      * @return
      */
     getTileProperties(index: number, id: number, name: string): any {
@@ -553,7 +553,7 @@ export class TiledMap {
 
     /**
      * 通过纹理索引，生成一个可控制物件
-     * @param	index 纹理的索引值，默认从1开始
+     * @param index 纹理的索引值，默认从1开始
      * @return
      */
     getSprite(index: number, width: number, height: number): GridSprite {
@@ -582,8 +582,8 @@ export class TiledMap {
 
     /**
      * 设置视口的缩放中心点（例如：scaleX= scaleY= 0.5,就是以视口中心缩放）
-     * @param	scaleX
-     * @param	scaleY
+     * @param scaleX
+     * @param scaleY
      */
     setViewPortPivotByScale(scaleX: number, scaleY: number): void {
         this._pivotScaleX = scaleX;
@@ -592,7 +592,7 @@ export class TiledMap {
 
     /**
      * 设置地图缩放
-     * @param	scale
+     * @param scale
      */
     set scale(scale: number) {
         if (scale <= 0)
@@ -613,8 +613,8 @@ export class TiledMap {
 
     /**
      * 移动视口
-     * @param	moveX 视口的坐标x
-     * @param	moveY 视口的坐标y
+     * @param moveX 视口的坐标x
+     * @param moveY 视口的坐标y
      */
     moveViewPort(moveX: number, moveY: number): void {
         this._x = -moveX;
@@ -626,10 +626,10 @@ export class TiledMap {
 
     /**
      * 改变视口大小
-     * @param	moveX	视口的坐标x
-     * @param	moveY	视口的坐标y
-     * @param	width	视口的宽
-     * @param	height	视口的高
+     * @param moveX	视口的坐标x
+     * @param moveY	视口的坐标y
+     * @param width	视口的宽
+     * @param height	视口的高
      */
     changeViewPort(moveX: number, moveY: number, width: number, height: number): void {
         if (moveX == this._rect.x && moveY == this._rect.y && width == this._rect.width && height == this._rect.height) return;
@@ -646,9 +646,9 @@ export class TiledMap {
 
     /**
      * 在锚点的基础上计算，通过宽和高，重新计算视口
-     * @param	width		新视口宽
-     * @param	height		新视口高
-     * @param	rect		返回的结果
+     * @param width		新视口宽
+     * @param height		新视口高
+     * @param rect		返回的结果
      * @return
      */
     changeViewPortBySize(width: number, height: number, rect: Rectangle = null): Rectangle {
@@ -829,8 +829,8 @@ export class TiledMap {
 
     /**
      * 显示指定的GRID
-     * @param	gridX
-     * @param	gridY
+     * @param gridX
+     * @param gridY
      */
     private showGrid(gridX: number, gridY: number): void {
         if (gridX < 0 || gridX >= this._gridW || gridY < 0 || gridY >= this._gridH) {
@@ -1100,8 +1100,8 @@ export class TiledMap {
 
     /**
      * 隐藏指定的GRID
-     * @param	gridX
-     * @param	gridY
+     * @param gridX
+     * @param gridY
      */
     private hideGrid(gridX: number, gridY: number): void {
         if (gridX < 0 || gridX >= this._gridW || gridY < 0 || gridY >= this._gridH) {
@@ -1123,8 +1123,8 @@ export class TiledMap {
 
     /**
      * 得到对象层上的某一个物品
-     * @param	layerName   层的名称
-     * @param	objectName	所找物品的名称
+     * @param layerName   层的名称
+     * @param objectName	所找物品的名称
      * @return
      */
     getLayerObject(layerName: string, objectName: string): GridSprite {
@@ -1389,7 +1389,7 @@ export class TiledMap {
 
     /**
      * 通过索引得MapLayer
-     * @param	index 要找的层索引
+     * @param index 要找的层索引
      * @return
      */
     getLayerByIndex(index: number): MapLayer {

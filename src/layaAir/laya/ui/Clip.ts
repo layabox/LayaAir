@@ -11,17 +11,6 @@ import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 
 /**
- * 图片加载完成后调度。
- * @eventType Event.LOADED
- */
-/*[Event(name = "loaded", type = "laya.events.Event")]*/
-/**
- * 当前帧发生变化后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <p> <code>Clip</code> 类是位图切片动画。</p>
  * <p> <code>Clip</code> 可将一张图片，按横向分割数量 <code>clipX</code> 、竖向分割数量 <code>clipY</code> ，
  * 或横向分割每个切片的宽度 <code>clipWidth</code> 、竖向分割每个切片的高度 <code>clipHeight</code> ，
@@ -184,7 +173,7 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -455,8 +444,8 @@ export class Clip extends UIComponent {
 
     /**
      * 播放切片动画。
-     * @param	from	开始索引
-     * @param	to		结束索引，-1为不限制
+     * @param from	开始索引
+     * @param to		结束索引，-1为不限制
      */
     play(from: number = 0, to: number = -1): void {
         this._setClipChanged();

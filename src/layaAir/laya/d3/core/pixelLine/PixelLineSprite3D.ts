@@ -61,10 +61,10 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 
     /**
      * 增加一条线。
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @param startPosition  初始点位置
+     * @param endPosition	   结束点位置
+     * @param startColor	   初始点颜色
+     * @param endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         (this._render as PixelLineRenderer).addLine(startPosition, endPosition, startColor, endColor);
@@ -72,7 +72,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 
     /**
      * 添加多条线段。
-     * @param	lines  线段数据
+     * @param lines  线段数据
      */
     addLines(lines: PixelLineData[]): void {
         (this._render as PixelLineRenderer).addLines(lines);
@@ -88,11 +88,11 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 
     /**
      * 更新线
-     * @param	index  		   索引
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @param index  		   索引
+     * @param startPosition  初始点位置
+     * @param endPosition	   结束点位置
+     * @param startColor	   初始点颜色
+     * @param endColor	   结束点颜色
      */
     setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         (this._render as PixelLineRenderer).setLine(index, startPosition, endPosition, startColor, endColor);

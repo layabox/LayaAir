@@ -25,8 +25,6 @@ export class FloatKeyframe extends Keyframe {
 
 	/**
 	 * 克隆数据
-	 * @inheritDoc
-	 * @override
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);

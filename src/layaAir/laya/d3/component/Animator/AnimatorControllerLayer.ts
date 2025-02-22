@@ -137,7 +137,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 创建一个 <code>AnimatorControllerLayer</code> 实例。
-     * @param 动画层名称
+     * @param name 动画层名称
      */
     constructor(name: string) {
         this.name = name;
@@ -206,8 +206,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 添加动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
      */
     addState(state: AnimatorState): void {
         var stateName: string = state.name;
@@ -229,8 +228,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 移除动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
      */
     removeState(state: AnimatorState): void {
         var states: AnimatorState[] = this._states;
@@ -258,7 +256,7 @@ export class AnimatorControllerLayer implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorControllerLayer = (<AnimatorControllerLayer>destObject);

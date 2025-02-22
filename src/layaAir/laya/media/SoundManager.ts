@@ -396,7 +396,6 @@ export class SoundManager {
 
     /**
      * 停止播放背景音乐（不包括音效）。
-     * @param url  声音文件地址。
      */
     static stopMusic(): void {
         if (SoundManager._musicChannel) SoundManager._musicChannel.stop();

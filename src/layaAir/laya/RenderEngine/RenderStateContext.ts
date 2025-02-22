@@ -99,7 +99,6 @@ export class RenderStateContext {
 
     /**
      * 模板写入开关
-     * @param gl 
      * @param value 
      */
     static setStencilMask(value: boolean): void {

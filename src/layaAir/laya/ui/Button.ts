@@ -12,11 +12,6 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 
-/**
- * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
  * <code>Button</code> 组件用来表示常用的多态按钮。 <code>Button</code> 组件可显示文本标签、图标或同时显示两者。	 *
@@ -442,7 +437,6 @@ export class Button extends UIComponent implements ISelect {
     /**
      * 表示按钮的选中状态。
      * <p>如果值为true，表示该对象处于选中状态。否则该对象处于未选中状态。</p>
-     * @implements
      */
     get selected(): boolean {
         return this._selected;
@@ -626,7 +620,6 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 对象的点击事件处理器函数（无默认参数）。
-     * @implements
      */
     get clickHandler(): Handler {
         return this._clickHandler;

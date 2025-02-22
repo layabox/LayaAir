@@ -87,11 +87,10 @@ export class Submit extends SubmitBase {
 
     /**
      * 创建一个矢量submit
-     * @param	ctx
-     * @param	mesh
-     * @param	numEle		对应drawElement的第二个参数:count
-     * @param	offset		drawElement的时候的ib的偏移。
-     * @param	sv			Value2D
+     * @param ctx
+     * @param mesh
+     * @param numEle		对应drawElement的第二个参数:count
+     * @param sv			Value2D
      * @return
      */
     static createShape(ctx: Context, mesh: Mesh2D, numEle: number, sv: Value2D): Submit {

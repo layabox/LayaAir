@@ -92,9 +92,9 @@ export class CharRender_Canvas extends ICharRender {
 
 	/**
 	 *TODO stroke 
-	 * @param	char
-	 * @param	font
-	 * @param	cri  修改里面的width。
+	 * @param char
+	 * @param font
+	 * @param cri  修改里面的width。
 	 * @return
 	 * @override
 	 */

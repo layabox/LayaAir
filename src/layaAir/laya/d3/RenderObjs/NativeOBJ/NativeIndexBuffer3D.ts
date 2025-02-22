@@ -10,9 +10,10 @@ export class NativeIndexBuffer3D extends IndexBuffer3D {
 
     /**
      * 创建一个 <code>VertexBuffer3D</code> 实例。
-     * @param	byteLength 字节长度。
-     * @param	bufferUsage VertexBuffer3D用途类型。
-     * @param	canRead 是否可读。
+     * @param indexType 索引类型。
+     * @param indexCount 索引个数。
+     * @param bufferUsage VertexBuffer3D用途类型。
+     * @param canRead 是否可读。
      */
     constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
         super(indexType,indexCount,bufferUsage,canRead)

@@ -103,7 +103,7 @@ export class SpineTemplet extends Resource {
 
     /**
      * 通过索引得动画名称
-     * @param	index
+     * @param index
      * @return
      */
     getAniNameByIndex(index: number): string {
@@ -114,7 +114,7 @@ export class SpineTemplet extends Resource {
 
     /**
      * 通过皮肤名字得到皮肤索引
-     * @param	skinName 皮肤名称
+     * @param skinName 皮肤名称
      * @return
      */
     getSkinIndexByName(skinName: string): number {

@@ -58,7 +58,7 @@ export class ColorFilter extends Filter implements IFilter {
 
     /**
      * 设置滤镜色
-     * @param	color 颜色值
+     * @param color 颜色值
      */
     setColor(color: string): ColorFilter {
         var arr: any[] = ColorUtils.create(color).arrColor;

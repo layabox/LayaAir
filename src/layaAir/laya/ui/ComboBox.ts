@@ -13,13 +13,6 @@ import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 
 /**
- * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
- * @eventType laya.events.Event
- * selectedIndex属性变化时调度。
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>ComboBox</code> 组件包含一个下拉列表，用户可以从该列表中选择单个值。
  *
  * @example <caption>以下示例代码，创建了一个 <code>ComboBox</code> 实例。</caption>
@@ -336,7 +329,7 @@ export class ComboBox extends UIComponent {
 
     /**
      * 下拉列表文本的边距Padding
-     * @readme <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     * @zh <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
      */
     get itemPadding(): string {
         return this._itemPadding.join(",");

@@ -514,7 +514,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * create Box2D Body
-     * @param def 
      * @returns 
      */
     createBody(def: any) {
@@ -543,8 +542,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
     * create Box2D Joint
-    * @param def 
-    * @returns 
     */
     createJoint(def: any, cls: any = null): any {
         if (this.world) {
@@ -785,10 +782,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return this.createJoint(def, this.box2d.b2WeldJoint);
     }
 
-    /** 
-     * @param def 
-     * @returns
-     */
+
     create_MouseJoint(defStruct: physics2D_MouseJointJointDef): any {
         let def = this._tempMouseJointDef;
         def.bodyA = defStruct.bodyA;
@@ -895,10 +889,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         joint.SetCorrectionFactor(correctionFactor);
     }
 
-    /** 
-     * @param def 
-     * @returns
-     */
+
     create_PrismaticJoint(def: physics2D_PrismaticJointDef): any {
         let tdef = this._tempPrismaticJointDef;
         let anchorVec = this.createPhyFromLayaVec2(def.anchor.x, def.anchor.y);
@@ -1062,34 +1053,23 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return def;
     }
 
-    /** 
-     * @param def 
-     * @param groupIndex 
-     */
+
     set_fixtureDef_GroupIndex(def: any, groupIndex: number) {
         def.filter.groupIndex = groupIndex;
     }
 
-    /** 
-     * @param def 
-     * @param categoryBits 
-     */
+
     set_fixtureDef_CategoryBits(def: any, categoryBits: number) {
         def.filter.categoryBits = categoryBits;
     }
 
-    /** 
-     * @param def 
-     * @param maskbits 
-     */
+
     set_fixtureDef_maskBits(def: any, maskbits: number) {
         def.filter.maskBits = maskbits;
     }
 
     /**
     * create fixture by body and def
-    * @param body 
-    * @param def 
     */
     createfixture(body: any, fixtureDef: any) {
         let data = body.CreateFixture(fixtureDef);
@@ -1261,7 +1241,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
     * 对刚体施加扭矩，使其旋转
-    * @param	torque	施加的扭矩
+    * @param torque	施加的扭矩
     */
     rigidbody_applyTorque(body: any, torque: number): void {
         body.ApplyTorque(torque);
@@ -1269,7 +1249,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * 设置速度，比如{x:10,y:10}
-     * @param	velocity
+     * @param velocity
      */
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
         this._tempVe21.x = velocity.x;
@@ -1279,7 +1259,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * 设置角度
-     * @param	value 单位为弧度
      */
     set_rigidbody_Awake(body: any, awake: boolean): void {
         body.SetAwake(awake);
@@ -1287,8 +1266,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /** 
      * 获得刚体质量
-     * @param body 
-     * @returns
      */
     get_rigidbody_Mass(body: any): number {
         return body.GetMass();
@@ -1296,8 +1273,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * 获得质心的相对节点0,0点的位置偏移
-     * @param body 
-     * @returns
      */
     get_rigidBody_Center(body: any): IV2 {
         let value = body.GetLocalCenter();
@@ -1307,17 +1282,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return point;
     }
 
-    /** 
-     * @param body 
-     */
     get_rigidBody_IsAwake(body: any) {
         return body.IsAwake();
     }
 
     /**
      * 获得质心的世界坐标，相对于Physics.I.worldRoot节点
-     * @param body 
-     * @returns
      */
     get_rigidBody_WorldCenter(body: any): IV2 {
         let value = body.GetWorldCenter();

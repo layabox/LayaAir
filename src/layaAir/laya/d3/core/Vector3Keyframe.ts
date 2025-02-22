@@ -34,7 +34,7 @@ export class Vector3Keyframe extends Keyframe {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param dest 克隆源。
 	 * @override
 	 */
 	cloneTo(dest: any): void {

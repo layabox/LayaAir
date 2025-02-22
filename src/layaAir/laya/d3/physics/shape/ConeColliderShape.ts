@@ -80,8 +80,6 @@ export class ConeColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 克隆
-	 * @inheritDoc
-	 * @override
 	 * @returns 克隆的ConeColliderShape实例
 	 */
 	clone(): any {
@@ -92,8 +90,6 @@ export class ConeColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 克隆
-	 * @inheritDoc
-	 * @override
 	 * @returns 克隆的ConeColliderShape实例
 	 */
 	cloneTo(destObject: ConeColliderShape): void {

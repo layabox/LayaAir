@@ -26,7 +26,7 @@ export class RotationOverLifetime implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destRotationOverLifetime: RotationOverLifetime = (<RotationOverLifetime>destObject);

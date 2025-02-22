@@ -69,8 +69,8 @@ export class Laya {
     static init(stageConfig?: IStageConfig): Promise<void>;
     /**
      * 初始化引擎。使用引擎需要先初始化引擎。
-     * @param	width 初始化的游戏窗口宽度，又称设计宽度。
-     * @param	height 初始化的游戏窗口高度，又称设计高度。
+     * @param width 初始化的游戏窗口宽度，又称设计宽度。
+     * @param height 初始化的游戏窗口高度，又称设计高度。
      */
     static init(width: number, height: number): Promise<void>;
     static init(...args: any[]): Promise<void> {
@@ -250,7 +250,7 @@ export class Laya {
 
     /**
      * 开启DebugPanel
-     * @param	debugJsPath laya.debugtool.js文件路径
+     * @param debugJsPath laya.debugtool.js文件路径
      */
     static enableDebugPanel(debugJsPath: string = "libs/laya.debugtool.js"): void {
         if (!(window as any)['Laya']["DebugPanel"]) {

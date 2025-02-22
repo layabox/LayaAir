@@ -43,8 +43,8 @@ export class WeakObject {
 
 	/**
 	 * 设置缓存
-	 * @param	key kye对象，可被回收
-	 * @param	value object对象，可被回收
+	 * @param key kye对象，可被回收
+	 * @param value object对象，可被回收
 	 */
     set(key: any, value: any): void {
         if (key == null) return;
@@ -61,7 +61,7 @@ export class WeakObject {
 
 	/**
 	 * 获取缓存
-	 * @param	key kye对象，可被回收
+	 * @param key kye对象，可被回收
 	 */
     get(key: any): any {
         if (key == null) return null;

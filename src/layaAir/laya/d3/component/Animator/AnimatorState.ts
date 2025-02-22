@@ -283,7 +283,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /**
      * 添加脚本。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本。
      *
      */
@@ -296,7 +296,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /**
      * 获取脚本。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本。
      *
      */
@@ -313,7 +313,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /**
      * 获取脚本集合。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本集合。
      */
     getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] | null {
@@ -332,7 +332,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorState = <AnimatorState>destObject;

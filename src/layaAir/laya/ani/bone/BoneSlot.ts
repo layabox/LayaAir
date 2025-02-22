@@ -55,9 +55,8 @@ export class BoneSlot {
 
     /**
      * 设置要显示的插槽数据
-     * @param	slotData
-     * @param	disIndex
-     * @param	freshIndex 是否重置纹理
+     * @param slotData
+     * @param freshIndex 是否重置纹理
      */
     showSlotData(slotData: SlotData, freshIndex: boolean = true): void {
         this.currSlotData = slotData;
@@ -69,7 +68,7 @@ export class BoneSlot {
 
     /**
      * 通过名字显示指定对象
-     * @param	name
+     * @param name
      */
     showDisplayByName(name: string): void {
         if (this.currSlotData) {
@@ -79,8 +78,8 @@ export class BoneSlot {
 
     /**
      * 替换贴图名
-     * @param	tarName 要替换的贴图名
-     * @param	newName 替换后的贴图名
+     * @param tarName 要替换的贴图名
+     * @param newName 替换后的贴图名
      */
     replaceDisplayByName(tarName: string, newName: string): void {
         if (!this.currSlotData) return;
@@ -93,8 +92,8 @@ export class BoneSlot {
 
     /**
      * 替换贴图索引
-     * @param	tarIndex 要替换的索引
-     * @param	newIndex 替换后的索引
+     * @param tarIndex 要替换的索引
+     * @param newIndex 替换后的索引
      */
     replaceDisplayByIndex(tarIndex: number, newIndex: number): void {
         if (!this.currSlotData) return;
@@ -106,7 +105,7 @@ export class BoneSlot {
 
     /**
      * 指定显示对象
-     * @param	index
+     * @param index
      */
     showDisplayByIndex(index: number): void {
         this.originalIndex = index;
@@ -131,7 +130,7 @@ export class BoneSlot {
 
     /**
      * 替换皮肤
-     * @param	_texture
+     * @param _texture
      */
     replaceSkin(_texture: Texture): void {
         this._diyTexture = _texture;
@@ -143,7 +142,7 @@ export class BoneSlot {
 
     /**
      * 保存父矩阵的索引
-     * @param	parentMatrix
+     * @param parentMatrix
      */
     //TODO:coverage
     setParentMatrix(parentMatrix: Matrix): void {
@@ -206,8 +205,8 @@ export class BoneSlot {
     }
     /**
      * 把纹理画到Graphics上
-     * @param	graphics
-     * @param	noUseSave   不使用共享的矩阵对象 _tempResultMatrix，只有实时计算的时候才设置为true
+     * @param graphics
+     * @param noUseSave   不使用共享的矩阵对象 _tempResultMatrix，只有实时计算的时候才设置为true
      */
     draw(graphics: GraphicsAni, boneMatrixArray: any[], noUseSave: boolean = false, alpha: number = 1): void {
         if ((this._diyTexture == null && this.currTexture == null) || this.currDisplayData == null) {
@@ -359,7 +358,7 @@ export class BoneSlot {
     private static _tempVerticleArr: any[] = [];
     /**
      * 显示蒙皮动画
-     * @param	boneMatrixArray 当前帧的骨骼矩阵
+     * @param boneMatrixArray 当前帧的骨骼矩阵
      */
     private skinMesh(boneMatrixArray: any[], skinSprite: any): void {
         var tTexture: Texture = this.currTexture;
@@ -437,7 +436,7 @@ export class BoneSlot {
 
     /**
      * 画骨骼的起始点，方便调试
-     * @param	graphics
+     * @param graphics
      */
     drawBonePoint(graphics: Graphics): void {
         if (graphics && this._parentMatrix) {

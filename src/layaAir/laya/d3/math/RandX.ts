@@ -19,7 +19,7 @@ export class RandX {
 
 	/**
 	 * 创建一个 <code>Rand</code> 实例。
-	 * @param	seed  随机种子。
+	 * @param seed  随机种子。
 	 */
 	constructor(seed: any[]) {
 		if (!(seed instanceof Array) || seed.length !== 4)

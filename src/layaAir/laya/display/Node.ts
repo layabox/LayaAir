@@ -11,27 +11,6 @@ import { ComponentDriver } from "../components/ComponentDriver";
 const ARRAY_EMPTY: any[] = [];
 
 /**
- * 添加到父对象后调度。
- * @eventType Event.ADDED
- */
-/*[Event(name = "added", type = "laya.events.Event")]*/
-/**
- * 被父对象移除后调度。
- * @eventType Event.REMOVED
- */
-/*[Event(name = "removed", type = "laya.events.Event")]*/
-/**
- * 加入节点树时调度。
- * @eventType Event.DISPLAY
- */
-/*[Event(name = "display", type = "laya.events.Event")]*/
-/**
- * 从节点树移除时调度。
- * @eventType Event.UNDISPLAY
- */
-/*[Event(name = "undisplay", type = "laya.events.Event")]*/
-
-/**
  *  <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
  */
 export class Node extends EventDispatcher {
@@ -221,7 +200,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 添加子节点。
-     * @param	node 节点对象
+     * @param node 节点对象
      * @return	返回添加的节点
      */
     addChild<T extends Node>(node: T): T {
@@ -246,7 +225,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 批量增加子节点
-     * @param	...args 无数子节点。
+     * @param args 无数子节点。
      */
     addChildren(...args: any[]): void {
         var i: number = 0, n: number = args.length;
@@ -257,8 +236,8 @@ export class Node extends EventDispatcher {
 
     /**
      * 添加子节点到指定的索引位置。
-     * @param	node 节点对象。
-     * @param	index 索引位置。
+     * @param node 节点对象。
+     * @param index 索引位置。
      * @return	返回添加的节点。
      */
     addChildAt(node: Node, index: number): Node {
@@ -284,7 +263,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 根据子节点对象，获取子节点的索引位置。
-     * @param	node 子节点。
+     * @param node 子节点。
      * @return	子节点所在的索引位置。
      */
     getChildIndex(node: Node): number {
@@ -293,7 +272,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 根据子节点的名字，获取子节点对象。
-     * @param	name 子节点的名字。
+     * @param name 子节点的名字。
      * @return	节点对象。
      */
     getChildByName(name: string): Node {
@@ -306,7 +285,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 根据子节点的索引位置，获取子节点对象。
-     * @param	index 索引位置
+     * @param index 索引位置
      * @return	子节点
      */
     getChildAt(index: number): Node {
@@ -315,8 +294,8 @@ export class Node extends EventDispatcher {
 
     /**
      * 设置子节点的索引位置。
-     * @param	node 子节点。
-     * @param	index 新的索引。
+     * @param node 子节点。
+     * @param index 新的索引。
      * @return	返回子节点本身。
      */
     setChildIndex(node: Node, index: number): Node {
@@ -336,7 +315,7 @@ export class Node extends EventDispatcher {
     /**
      * 子节点发生改变。
      * @private
-     * @param	child 子节点。
+     * @param child 子节点。
      */
     protected _childChanged(child: Node = null): void {
 
@@ -344,7 +323,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 删除子节点。
-     * @param	node 子节点
+     * @param node 子节点
      * @return	被删除的节点
      */
     removeChild(node: Node): Node {
@@ -364,7 +343,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 根据子节点名字删除对应的子节点对象，如果找不到不会抛出异常。
-     * @param	name 对象名字。
+     * @param name 对象名字。
      * @return 查找到的节点（ Node ）对象。
      */
     removeChildByName(name: string): Node {
@@ -375,7 +354,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 根据子节点索引位置，删除对应的子节点对象。
-     * @param	index 节点索引位置。
+     * @param index 节点索引位置。
      * @return	被删除的节点。
      */
     removeChildAt(index: number): Node {
@@ -389,8 +368,8 @@ export class Node extends EventDispatcher {
 
     /**
      * 删除指定索引区间的所有子对象。
-     * @param	beginIndex 开始索引。
-     * @param	endIndex 结束索引。
+     * @param beginIndex 开始索引。
+     * @param endIndex 结束索引。
      * @return 当前节点对象。
      */
     removeChildren(beginIndex: number = 0, endIndex: number = 0x7fffffff): Node {
@@ -412,8 +391,8 @@ export class Node extends EventDispatcher {
     /**
      * 替换子节点。
      * 将传入的新节点对象替换到已有子节点索引位置处。
-     * @param	newNode 新节点。
-     * @param	oldNode 老节点。
+     * @param newNode 新节点。
+     * @param oldNode 老节点。
      * @return	返回新节点。
      */
     replaceChild(newNode: Node, oldNode: Node): Node {
@@ -518,8 +497,8 @@ export class Node extends EventDispatcher {
     /**
      * 设置指定节点对象是否可见(是否在渲染列表中)。
      * @private
-     * @param	node 节点。
-     * @param	display 是否可见。
+     * @param node 节点。
+     * @param display 是否可见。
      */
     private _displayChild(node: Node, display: boolean): void {
         var childs: any[] = node._children;
@@ -540,7 +519,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 当前容器是否包含指定的 <code>Node</code> 节点对象 。
-     * @param	node  指定的 <code>Node</code> 节点对象 。
+     * @param node  指定的 <code>Node</code> 节点对象 。
      * @return	一个布尔值表示是否包含指定的 <code>Node</code> 节点对象 。
      */
     contains(node: Node): boolean {
@@ -554,12 +533,12 @@ export class Node extends EventDispatcher {
 
     /**
      * 定时重复执行某函数。功能同Laya.timer.timerLoop()。
-     * @param	delay		间隔时间(单位毫秒)。
-     * @param	caller		执行域(this)。
-     * @param	method		结束时的回调方法。
-     * @param	args		（可选）回调参数。
-     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
-     * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
+     * @param delay		间隔时间(单位毫秒)。
+     * @param caller		执行域(this)。
+     * @param method		结束时的回调方法。
+     * @param args		（可选）回调参数。
+     * @param coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
+     * @param jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
      */
     timerLoop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true, jumpFrame: boolean = false): void {
         this.timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
@@ -567,11 +546,11 @@ export class Node extends EventDispatcher {
 
     /**
      * 定时执行某函数一次。功能同Laya.timer.timerOnce()。
-     * @param	delay		延迟时间(单位毫秒)。
-     * @param	caller		执行域(this)。
-     * @param	method		结束时的回调方法。
-     * @param	args		（可选）回调参数。
-     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
+     * @param delay		延迟时间(单位毫秒)。
+     * @param caller		执行域(this)。
+     * @param method		结束时的回调方法。
+     * @param args		（可选）回调参数。
+     * @param coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
      */
     timerOnce(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this.timer._create(false, false, delay, caller, method, args, coverBefore);
@@ -579,11 +558,11 @@ export class Node extends EventDispatcher {
 
     /**
      * 定时重复执行某函数(基于帧率)。功能同Laya.timer.frameLoop()。
-     * @param	delay		间隔几帧(单位为帧)。
-     * @param	caller		执行域(this)。
-     * @param	method		结束时的回调方法。
-     * @param	args		（可选）回调参数。
-     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
+     * @param delay		间隔几帧(单位为帧)。
+     * @param caller		执行域(this)。
+     * @param method		结束时的回调方法。
+     * @param args		（可选）回调参数。
+     * @param coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
      */
     frameLoop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this.timer._create(true, true, delay, caller, method, args, coverBefore);
@@ -591,11 +570,11 @@ export class Node extends EventDispatcher {
 
     /**
      * 定时执行一次某函数(基于帧率)。功能同Laya.timer.frameOnce()。
-     * @param	delay		延迟几帧(单位为帧)。
-     * @param	caller		执行域(this)
-     * @param	method		结束时的回调方法
-     * @param	args		（可选）回调参数
-     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
+     * @param delay		延迟几帧(单位为帧)。
+     * @param caller		执行域(this)
+     * @param method		结束时的回调方法
+     * @param args		（可选）回调参数
+     * @param coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
      */
     frameOnce(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
         this.timer._create(true, false, delay, caller, method, args, coverBefore);
@@ -603,8 +582,8 @@ export class Node extends EventDispatcher {
 
     /**
      * 清理定时器。功能同Laya.timer.clearTimer()。
-     * @param	caller 执行域(this)。
-     * @param	method 结束时的回调方法。
+     * @param caller 执行域(this)。
+     * @param method 结束时的回调方法。
      */
     clearTimer(caller: any, method: Function): void {
         this.timer.clear(caller, method);
@@ -658,7 +637,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 设置是否激活。
-     * @param	value 是否激活。
+     * @param value 是否激活。
      */
     set active(value: boolean) {
         value = !!value;
@@ -916,7 +895,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @internal 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
         var destNode: Node = (<Node>destObject);
@@ -931,7 +910,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 添加组件实例。
-     * @param	component 组建实例。
+     * @param component 组建实例。
      * @return	组件。
      */
     addComponentInstance(component: Component): Component {
@@ -946,7 +925,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 添加组件。
-     * @param	componentType 组件类型。
+     * @param componentType 组件类型。
      * @return	组件。
      */
     addComponent<T extends Component>(componentType: new () => T): T {
@@ -964,7 +943,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 获得组件实例，如果没有则返回为null
-     * @param	componentType 组建类型
+     * @param componentType 组建类型
      * @return	返回组件
      */
     getComponent<T extends Component>(componentType: new () => T): T {
@@ -988,7 +967,7 @@ export class Node extends EventDispatcher {
 
     /**
      * 获得组件实例，如果没有则返回为null
-     * @param	componentType 组件类型
+     * @param componentType 组件类型
      * @return	返回组件数组
      */
     getComponents(componentType: typeof Component): Component[] {

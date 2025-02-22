@@ -9,7 +9,7 @@ const currentVersion = "3.1.6";
 
 const configVersions = [
     "3.3.0-beta.2",
-    "3.2.3",
+    "3.2.4",
     "3.1.6",
     "3.0.11",
 ];

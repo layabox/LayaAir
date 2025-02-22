@@ -237,9 +237,9 @@ export class AnimationTemplet extends Resource {
 
     /**
      * 计算当前时间应该对应关键帧的哪一帧
-     * @param	nodeframes	当前骨骼的关键帧数据
-     * @param	nodeid		骨骼id，因为要使用和更新 _boneCurKeyFrm
-     * @param	tm
+     * @param nodeframes	当前骨骼的关键帧数据
+     * @param nodeid		骨骼id，因为要使用和更新 _boneCurKeyFrm
+     * @param tm
      * @return
      * 问题
      * 	最后一帧有问题，例如倒数第二帧时间是0.033ms,则后两帧非常靠近，当实际给最后一帧的时候，根据帧数计算出的时间实际上落在倒数第二帧
@@ -290,11 +290,11 @@ export class AnimationTemplet extends Resource {
 
     /**
      * 获取原始数据
-     * @param	aniIndex
-     * @param	originalData
-     * @param	nodesFrameIndices
-     * @param	frameIndex
-     * @param	playCurTime
+     * @param aniIndex
+     * @param originalData
+     * @param nodesFrameIndices
+     * @param frameIndex
+     * @param playCurTime
      */
     getOriginalData(aniIndex: number, originalData: Float32Array, nodesFrameIndices: any[], frameIndex: number, playCurTime: number): void {
         var oneAni: AnimationContent = this._anis[aniIndex];

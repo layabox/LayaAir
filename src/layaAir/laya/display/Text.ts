@@ -19,11 +19,6 @@ import { HtmlParser } from "../html/HtmlParser";
 import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 
-/**
- * 文本内容发生改变后调度。
- * @eventType Event.CHANGE
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
 
 /**
  * <p> <code>Text</code> 类用于创建显示对象以显示文本。</p>
@@ -220,8 +215,8 @@ export class Text extends Sprite {
 
     /**
      * 注册位图字体。
-     * @param	name		位图字体的名称。
-     * @param	bitmapFont	位图字体文件。
+     * @param name		位图字体的名称。
+     * @param bitmapFont	位图字体文件。
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
         bitmapFont._addReference();
@@ -230,8 +225,8 @@ export class Text extends Sprite {
 
     /**
      * 移除注册的位图字体文件。
-     * @param	name		位图字体的名称。
-     * @param	destroy		是否销毁指定的字体文件。
+     * @param name		位图字体的名称。
+     * @param destroy		是否销毁指定的字体文件。
      */
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
         let font = Text._bitmapFonts[name];
@@ -1493,8 +1488,8 @@ export class Text extends Sprite {
     /**
     * @private
     * 渲染文字。
-    * @param	begin 开始渲染的行索引。
-    * @param	visibleLineCount 渲染的行数。
+    * @param begin 开始渲染的行索引。
+    * @param visibleLineCount 渲染的行数。
     */
     protected renderText(): void {
         let graphics = this.graphics;

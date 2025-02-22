@@ -15,7 +15,7 @@ export class EventDispatcher {
 
     /**
      * 检查 EventDispatcher 对象是否为特定事件类型注册了任何侦听器。
-     * @param	type 事件的类型。
+     * @param type 事件的类型。
      * @return 如果指定类型的侦听器已注册，则值为 true；否则，值为 false。
      */
     hasListener(type: string): boolean {
@@ -53,12 +53,18 @@ export class EventDispatcher {
     /**
      * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知。
      * @param type		事件的类型。
+     * @param listener	事件侦听函数。
+     * @return 此 EventDispatcher 对象。
+     */
+    on(type: string, listener: Function): EventDispatcher;
+    /**
+     * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知。
+     * @param type		事件的类型。
      * @param caller	事件侦听函数的执行域。
      * @param listener	事件侦听函数。
      * @param args		（可选）事件侦听函数的回调参数。
      * @return 此 EventDispatcher 对象。
      */
-    on(type: string, listener: Function): EventDispatcher;
     on(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
     on(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
         if (arguments.length == 2) {
@@ -79,12 +85,18 @@ export class EventDispatcher {
     /**
      * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知，此侦听事件响应一次后自动移除。
      * @param type		事件的类型。
+     * @param listener	事件侦听函数。
+     * @return 此 EventDispatcher 对象。
+     */
+    once(type: string, listener: Function): EventDispatcher;
+    /**
+     * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知，此侦听事件响应一次后自动移除。
+     * @param type		事件的类型。
      * @param caller	事件侦听函数的执行域。
      * @param listener	事件侦听函数。
      * @param args		（可选）事件侦听函数的回调参数。
      * @return 此 EventDispatcher 对象。
      */
-    once(type: string, listener: Function): EventDispatcher;
     once(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
     once(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
         if (arguments.length == 2) {
@@ -105,11 +117,17 @@ export class EventDispatcher {
     /**
      * 从 EventDispatcher 对象中删除侦听器。
      * @param type		事件的类型。
-     * @param caller	事件侦听函数的执行域。
      * @param listener	事件侦听函数。
      * @return 此 EventDispatcher 对象。
      */
     off(type: string, listener: Function): EventDispatcher;
+    /**
+     * 从 EventDispatcher 对象中删除侦听器。
+     * @param type		事件的类型。
+     * @param caller	事件侦听函数的执行域。
+     * @param listener	事件侦听函数。
+     * @return 此 EventDispatcher 对象。
+     */
     off(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher;
     off(type: string, caller: any, listener?: Function): EventDispatcher {
         if (arguments.length == 2) {
@@ -141,7 +159,7 @@ export class EventDispatcher {
 
     /**
      * 移除caller为target的所有事件监听
-     * @param	caller caller对象
+     * @param caller caller对象
      */
     offAllCaller(caller: any): EventDispatcher {
         if (caller && this._events) {

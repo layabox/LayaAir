@@ -171,8 +171,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置整型。
-     * @param	index shader索引。
-     * @param	value 整形。
+     * @param index shader索引。
+     * @param value 整数。
      */
     setInt(index: number, value: number): void {
         if (this._data[index] == value)
@@ -183,8 +183,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置布尔。
-     * @param	index shader索引。
-     * @param	value 布尔。
+     * @param index shader索引。
+     * @param value 布尔。
      */
     setBool(index: number, value: boolean): void {
         if (this._data[index] == value)
@@ -195,8 +195,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置浮点。
-     * @param	index shader索引。
-     * @param	value 浮点。
+     * @param index shader索引。
+     * @param value 浮点。
      */
     setNumber(index: number, value: number): void {
         if (this._data[index] == value)
@@ -207,8 +207,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置Vector2向量。
-     * @param	index shader索引。
-     * @param	value Vector2向量。
+     * @param index shader索引。
+     * @param value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
         let v2 = this._data[index] as Vector2;
@@ -220,8 +220,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置Vector3向量。
-     * @param	index shader索引。
-     * @param	value Vector3向量。
+     * @param index shader索引。
+     * @param value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
         let v3 = this._data[index] as Vector3;
@@ -233,8 +233,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置向量。
-     * @param	index shader索引。
-     * @param	value 向量。
+     * @param index shader索引。
+     * @param value 向量。
      */
     setVector(index: number, value: Vector4): void {
         let v4 = this._data[index] as Vector4;
@@ -259,8 +259,8 @@ export class WGPUShaderData extends ShaderData {
 
     /**
      * 设置矩阵。
-     * @param	index shader索引。
-     * @param	value  矩阵。
+     * @param index shader索引。
+     * @param value  矩阵。
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
         let mat = this._data[index] as Matrix4x4;

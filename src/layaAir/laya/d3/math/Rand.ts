@@ -4,7 +4,7 @@
 export class Rand {
 	/**
 	 * 通过无符号32位整形，获取32位浮点随机数。
-	 * @param 无符号32位整形随机数。
+	 * @param v 无符号32位整形随机数。
 	 * @return 32位浮点随机数。
 	 */
 	static getFloatFromInt(v: number): number {
@@ -14,7 +14,7 @@ export class Rand {
 
 	/**
 	 * 通过无符号32位整形，获取无符号8位字节随机数。
-	 * @param 无符号32位整形随机数。
+	 * @param v 无符号32位整形随机数。
 	 * @return 无符号8位字节随机数。
 	 */
 	static getByteFromInt(v: number): number {//TODO：待验证函数
@@ -38,7 +38,7 @@ export class Rand {
 
 	/**
 	 * 设置随机种子。
-	 * @param	seed 随机种子。
+	 * @param seed 随机种子。
 	 */
 	set seed(seed: number) {
 		this.seeds[0] = seed;
@@ -49,7 +49,7 @@ export class Rand {
 
 	/**
 	 * 创建一个 <code>Rand</code> 实例。
-	 * @param	seed  32位无符号整型随机种子。
+	 * @param seed  32位无符号整型随机种子。
 	 */
 	constructor(seed: number) {
 		this.seeds[0] = seed;

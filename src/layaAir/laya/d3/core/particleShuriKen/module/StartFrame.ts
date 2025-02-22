@@ -6,7 +6,7 @@ import { IClone } from "../../../../utils/IClone"
 export class StartFrame implements IClone {
 	/**
 	 * 通过随机常量旋转创建一个 <code>StartFrame</code> 实例。
-	 * @param	constant  固定帧。
+	 * @param constant  固定帧。
 	 * @return 开始帧。
 	 */
 	static createByConstant(constant: number = 0): StartFrame {
@@ -18,8 +18,8 @@ export class StartFrame implements IClone {
 
 	/**
 	 *  通过随机双常量旋转创建一个 <code>StartFrame</code> 实例。
-	 * @param	constantMin 最小固定帧。
-	 * @param	constantMax 最大固定帧。
+	 * @param constantMin 最小固定帧。
+	 * @param constantMax 最大固定帧。
 	 * @return 开始帧。
 	 */
 	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): StartFrame {
@@ -73,7 +73,7 @@ export class StartFrame implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destStartFrame: StartFrame = (<StartFrame>destObject);

@@ -120,7 +120,7 @@ export class GradientColor implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientColor: GradientColor = (<GradientColor>destObject);

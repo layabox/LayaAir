@@ -4,10 +4,6 @@ import { Event } from "../events/Event";
 import { Ease } from "../utils/Ease";
 import { Handler } from "../utils/Handler";
 
-/**
- * @Script {name:ButtonEffect}
- * @author ww
- */
 export class ButtonEffect {
 
     private _tar: Sprite;

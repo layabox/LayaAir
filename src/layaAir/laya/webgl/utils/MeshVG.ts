@@ -43,9 +43,9 @@ export class MeshVG extends Mesh2D {
 
     /**
      * 往矢量mesh中添加顶点和index。会把rgba和points在mesh中合并。
-     * @param	points	顶点数组，只包含x,y。[x,y,x,y...]
-     * @param	rgba	rgba颜色
-     * @param	ib		index数组。
+     * @param points	顶点数组，只包含x,y。[x,y,x,y...]
+     * @param rgba	rgba颜色
+     * @param ib		index数组。
      */
     addVertAndIBToMesh(ctx: Context, points: any[], rgba: number, ib: any[]): void {
         var startpos: number = this._vb.buffer2D.needSize(points.length / 2 * MeshVG.const_stride);//vb的起点。

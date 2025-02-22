@@ -9,7 +9,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 export class GradientAngularVelocity implements IClone {
 	/**
 	 * 通过固定角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	constant 固定角速度。
+	 * @param constant 固定角速度。
 	 * @return 渐变角速度。
 	 */
 	static createByConstant(constant: number): GradientAngularVelocity {
@@ -22,7 +22,7 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过分轴固定角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	separateConstant 分轴固定角速度。
+	 * @param separateConstant 分轴固定角速度。
 	 * @return 渐变角速度。
 	 */
 	static createByConstantSeparate(separateConstant: Vector3): GradientAngularVelocity {
@@ -35,7 +35,7 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过渐变角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	gradient 渐变角速度。
+	 * @param gradient 渐变角速度。
 	 * @return 渐变角速度。
 	 */
 	static createByGradient(gradient: GradientDataNumber): GradientAngularVelocity {
@@ -48,9 +48,9 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过分轴渐变角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	gradientX X轴渐变角速度。
-	 * @param	gradientY Y轴渐变角速度。
-	 * @param	gradientZ Z轴渐变角速度。
+	 * @param gradientX X轴渐变角速度。
+	 * @param gradientY Y轴渐变角速度。
+	 * @param gradientZ Z轴渐变角速度。
 	 * @return  渐变角速度。
 	 */
 	static createByGradientSeparate(gradientX: GradientDataNumber, gradientY: GradientDataNumber, gradientZ: GradientDataNumber): GradientAngularVelocity {
@@ -65,8 +65,8 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过随机双固定角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	constantMin 最小固定角速度。
-	 * @param	constantMax 最大固定角速度。
+	 * @param constantMin 最小固定角速度。
+	 * @param constantMax 最大固定角速度。
 	 * @return 渐变角速度。
 	 */
 	static createByRandomTwoConstant(constantMin: number, constantMax: number): GradientAngularVelocity {
@@ -80,8 +80,8 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过随机分轴双固定角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	separateConstantMin  最小分轴固定角速度。
-	 * @param	separateConstantMax  最大分轴固定角速度。
+	 * @param separateConstantMin  最小分轴固定角速度。
+	 * @param separateConstantMax  最大分轴固定角速度。
 	 * @return  渐变角速度。
 	 */
 	static createByRandomTwoConstantSeparate(separateConstantMin: Vector3, separateConstantMax: Vector3): GradientAngularVelocity {
@@ -95,8 +95,8 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过随机双渐变角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	gradientMin 最小渐变角速度。
-	 * @param	gradientMax 最大渐变角速度。
+	 * @param gradientMin 最小渐变角速度。
+	 * @param gradientMax 最大渐变角速度。
 	 * @return  渐变角速度。
 	 */
 	static createByRandomTwoGradient(gradientMin: GradientDataNumber, gradientMax: GradientDataNumber): GradientAngularVelocity {
@@ -110,12 +110,12 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 通过分轴随机双渐变角速度创建一个 <code>GradientAngularVelocity</code> 实例。
-	 * @param	gradientXMin  最小X轴渐变角速度。
-	 * @param	gradientXMax  最大X轴渐变角速度。
-	 * @param	gradientYMin  最小Y轴渐变角速度。
-	 * @param	gradientYMax  最大Y轴渐变角速度。
-	 * @param	gradientZMin  最小Z轴渐变角速度。
-	 * @param	gradientZMax  最大Z轴渐变角速度。
+	 * @param gradientXMin  最小X轴渐变角速度。
+	 * @param gradientXMax  最大X轴渐变角速度。
+	 * @param gradientYMin  最小Y轴渐变角速度。
+	 * @param gradientYMax  最大Y轴渐变角速度。
+	 * @param gradientZMin  最小Z轴渐变角速度。
+	 * @param gradientZMax  最大Z轴渐变角速度。
 	 * @return  渐变角速度。
 	 */
 	static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber, gradientWMin: GradientDataNumber, gradientWMax: GradientDataNumber): GradientAngularVelocity {
@@ -331,7 +331,7 @@ export class GradientAngularVelocity implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientAngularVelocity: GradientAngularVelocity = (<GradientAngularVelocity>destObject);

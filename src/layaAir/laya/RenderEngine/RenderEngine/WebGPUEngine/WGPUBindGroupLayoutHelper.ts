@@ -8,11 +8,6 @@ import { WebGPUEngine } from "./WebGPUEngine";
 export class WGPUBindGroupLayoutHelper {
     /**
      * CommandUniformMap生成GPUBindGroupLayout
-     * @param bindStart 
-     * @param map 
-     * @param out 
-     * 
-     * @returns 
      */
     static getBindGroupLayoutByMap(map: CommandUniformMap, out: WGPUShaderVariable[]) {
         let data = map._idata;

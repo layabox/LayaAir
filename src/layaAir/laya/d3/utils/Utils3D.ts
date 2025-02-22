@@ -266,9 +266,11 @@ export class Utils3D {
 
     /**
      * 根据四元数旋转三维向量。
-     * @param	source 源三维向量。
-     * @param	rotation 旋转四元数。
-     * @param	out 输出三维向量。
+     * @param sourceArray 源数组。
+     * @param sourceOffset 源数组偏移。
+     * @param rotation 旋转四元数。
+     * @param outArray 输出数组。
+     * @param outOffset 输出数组偏移。
      */
     static transformVector3ArrayByQuat(sourceArray: Float32Array, sourceOffset: number, rotation: Quaternion, outArray: Float32Array, outOffset: number): void {
         var x: number = sourceArray[sourceOffset], y: number = sourceArray[sourceOffset + 1], z: number = sourceArray[sourceOffset + 2], qx: number = rotation.x, qy: number = rotation.y, qz: number = rotation.z, qw: number = rotation.w, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
@@ -376,10 +378,10 @@ export class Utils3D {
      * @param tX left矩阵数组。
      * @param tY left矩阵数组的偏移。
      * @param tZ right矩阵数组。
-     * @param qX right矩阵数组的偏移。
-     * @param qY 输出矩阵数组。
-     * @param qZ 输出矩阵数组的偏移。
-     * @param qW 输出矩阵数组的偏移。
+     * @param rX right矩阵数组的偏移。
+     * @param rY right矩阵数组的偏移。
+     * @param rZ right矩阵数组的偏移。
+     * @param rW right矩阵数组的偏移。
      * @param sX 输出矩阵数组的偏移。
      * @param sY 输出矩阵数组的偏移。
      * @param sZ 输出矩阵数组的偏移。
@@ -412,11 +414,11 @@ export class Utils3D {
 
     /**
      * 通过矩阵转换一个三维向量数组到另外一个三维向量数组。
-     * @param	source 源三维向量所在数组。
-     * @param	sourceOffset 源三维向量数组偏移。
-     * @param	transform  变换矩阵。
-     * @param	result 输出三维向量所在数组。
-     * @param	resultOffset 输出三维向量数组偏移。
+     * @param source 源三维向量所在数组。
+     * @param sourceOffset 源三维向量数组偏移。
+     * @param transform  变换矩阵。
+     * @param result 输出三维向量所在数组。
+     * @param resultOffset 输出三维向量数组偏移。
      */
     static transformVector3ArrayToVector3ArrayCoordinate(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void {
         var coordinateX: number = source[sourceOffset + 0];
@@ -459,7 +461,7 @@ export class Utils3D {
 
     /**
      * 获取URL版本字符。
-     * @param	url
+     * @param url
      * @return
      */
     static getURLVerion(url: string): string {

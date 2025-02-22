@@ -50,9 +50,9 @@ export class PathConstraint {
 
 	/**
 	 * 计算骨骼在路径上的节点
-	 * @param	boneSlot
-	 * @param	boneMatrixArray
-	 * @param	graphics
+	 * @param boneSlot
+	 * @param boneMatrixArray
+	 * @param graphics
 	 */
 	//TODO:coverage
 	apply(boneList: Bone[], graphics: Graphics): void {
@@ -178,12 +178,12 @@ export class PathConstraint {
 	private static _tempMt: Matrix = new Matrix();
 	/**
 	 * 计算顶点的世界坐标
-	 * @param	boneSlot
-	 * @param	boneList
-	 * @param	start
-	 * @param	count
-	 * @param	worldVertices
-	 * @param	offset
+	 * @param boneSlot
+	 * @param boneList
+	 * @param start
+	 * @param count
+	 * @param worldVertices
+	 * @param offset
 	 */
 	//TODO:coverage
 	computeWorldVertices2(boneSlot: BoneSlot, boneList: Bone[], start: number, count: number, worldVertices: number[], offset: number): void {
@@ -265,13 +265,13 @@ export class PathConstraint {
 
 	/**
 	 * 计算路径上的节点
-	 * @param	boneSlot
-	 * @param	boneList
-	 * @param	graphics
-	 * @param	spacesCount
-	 * @param	tangents
-	 * @param	percentPosition
-	 * @param	percentSpacing
+	 * @param boneSlot
+	 * @param boneList
+	 * @param graphics
+	 * @param spacesCount
+	 * @param tangents
+	 * @param percentPosition
+	 * @param percentSpacing
 	 * @return
 	 */
 	//TODO:coverage

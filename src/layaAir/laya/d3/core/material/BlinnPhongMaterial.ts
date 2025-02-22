@@ -93,7 +93,7 @@ export class BlinnPhongMaterial extends Material {
 
 	/**
 	 * 设置渲染模式。
-	 * @param 渲染模式
+	 * @param value 渲染模式
 	 */
 	set renderMode(value: number) {
 		switch (value) {

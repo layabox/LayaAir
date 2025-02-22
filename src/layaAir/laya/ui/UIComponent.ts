@@ -122,7 +122,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * @implements
      * <p>数据赋值，通过对UI赋值来控制UI显示逻辑。</p>
      * <p>简单赋值会更改组件的默认属性，使用大括号可以指定组件的任意属性进行赋值。</p>
      * @example

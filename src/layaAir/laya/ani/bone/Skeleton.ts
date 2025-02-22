@@ -25,22 +25,7 @@ import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
 
-/**动画开始播放调度
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-/**动画停止播放调度
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-/**动画暂停播放调度
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-/**自定义事件。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
+
 /**
  * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
  */
@@ -123,7 +108,7 @@ export class Skeleton extends Sprite {
     /**
      * 创建一个Skeleton对象
 
-     * @param	aniMode	动画模式，0不支持换装，1、2支持换装
+     * @param aniMode	动画模式，0不支持换装，1、2支持换装
      */
     constructor(aniMode: number = 0) {
         super();
@@ -280,7 +265,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 初始化动画
-     * @param	templet		模板
+     * @param templet		模板
      */
     protected init(templet: Templet): void {
         if (this._templet) {
@@ -353,8 +338,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 通过加载直接创建动画
-     * @param	path		要加载的动画文件路径
-     * @param	complete	加载完成的回调函数
+     * @param path		要加载的动画文件路径
+     * @param complete	加载完成的回调函数
      */
     load(path: string, complete?: Handler): void {
         ILaya.loader.load(path).then((templet: Templet) => {
@@ -461,7 +446,7 @@ export class Skeleton extends Sprite {
     /**
      * 更新动画
      * @internal
-     * @param	autoKey true为正常更新，false为index手动更新
+     * @param autoKey true为正常更新，false为index手动更新
      */
     private _update(autoKey: boolean = true): void {
         if (autoKey && this._pause) return;
@@ -548,7 +533,7 @@ export class Skeleton extends Sprite {
     /**
      * @internal
      * 创建grahics图像. 并且保存到cache中
-     * @param	_clipIndex 第几帧
+     * @param _clipIndex 第几帧
      */
     protected _createGraphics(_clipIndex: number = -1): GraphicsAni {
         if (_clipIndex == -1) _clipIndex = this._clipIndex;
@@ -829,10 +814,10 @@ export class Skeleton extends Sprite {
     /**
      * 设置deform数据
      * @internal
-     * @param	tDeformAniData
-     * @param	tDeformDic
-     * @param	_boneSlotArray
-     * @param	curTime
+     * @param tDeformAniData
+     * @param tDeformDic
+     * @param _boneSlotArray
+     * @param curTime
      */
     private _setDeform(tDeformAniData: DeformAniData, tDeformDic: any, _boneSlotArray: any[], curTime: number): void {
         if (!tDeformAniData) return;
@@ -866,7 +851,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 得到指定动画的名字
-     * @param	index	动画的索引
+     * @param index	动画的索引
      */
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
@@ -874,7 +859,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 通过名字得到插槽的引用
-     * @param	name	动画的名字
+     * @param name	动画的名字
      * @return 插槽的引用
      */
     getSlotByName(name: string): BoneSlot {
@@ -883,8 +868,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 通过名字显示一套皮肤
-     * @param	name	皮肤的名字
-     * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
+     * @param name	皮肤的名字
+     * @param freshSlotIndex	是否将插槽纹理重置到初始化状态
      */
     showSkinByName(name: string, freshSlotIndex: boolean = true): void {
         this.showSkinByIndex(this._templet.getSkinIndexByName(name), freshSlotIndex);
@@ -892,8 +877,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 通过索引显示一套皮肤
-     * @param	skinIndex	皮肤索引
-     * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
+     * @param skinIndex	皮肤索引
+     * @param freshSlotIndex	是否将插槽纹理重置到初始化状态
      */
     showSkinByIndex(skinIndex: number, freshSlotIndex: boolean = true): void {
         for (let i = 0; i < this._boneSlotArray.length; i++) {
@@ -908,8 +893,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 设置某插槽的皮肤
-     * @param	slotName	插槽名称
-     * @param	index	插糟皮肤的索引
+     * @param slotName	插槽名称
+     * @param index	插糟皮肤的索引
      */
     showSlotSkinByIndex(slotName: string, index: number): void {
         if (this._aniMode == 0) return;
@@ -922,8 +907,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 设置某插槽的皮肤
-     * @param	slotName	插槽名称
-     * @param	name	皮肤名称
+     * @param slotName	插槽名称
+     * @param name	皮肤名称
      */
     showSlotSkinByName(slotName: string, name: string): void {
         if (this._aniMode == 0) return;
@@ -936,9 +921,9 @@ export class Skeleton extends Sprite {
 
     /**
      * 替换插槽贴图名
-     * @param	slotName 插槽名称
-     * @param	oldName 要替换的贴图名
-     * @param	newName 替换后的贴图名
+     * @param slotName 插槽名称
+     * @param oldName 要替换的贴图名
+     * @param newName 替换后的贴图名
      */
     replaceSlotSkinName(slotName: string, oldName: string, newName: string): void {
         if (this._aniMode == 0) return;
@@ -951,9 +936,9 @@ export class Skeleton extends Sprite {
 
     /**
      * 替换插槽的贴图索引
-     * @param	slotName 插槽名称
-     * @param	oldIndex 要替换的索引
-     * @param	newIndex 替换后的索引
+     * @param slotName 插槽名称
+     * @param oldIndex 要替换的索引
+     * @param newIndex 替换后的索引
      */
     replaceSlotSkinByIndex(slotName: string, oldIndex: number, newIndex: number): void {
         if (this._aniMode == 0) return;
@@ -966,8 +951,8 @@ export class Skeleton extends Sprite {
 
     /**
      * 设置自定义皮肤
-     * @param	name		插糟的名字
-     * @param	texture		自定义的纹理
+     * @param slotName		插糟的名字
+     * @param texture		自定义的纹理
      */
     setSlotSkin(slotName: string, texture: Texture): void {
         if (this._aniMode == 0) return;
@@ -999,13 +984,13 @@ export class Skeleton extends Sprite {
     /**
      * 播放动画
      *
-     * @param	nameOrIndex	动画名字或者索引
-     * @param	loop		是否循环播放
-     * @param	force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-     * @param	start		起始时间
-     * @param	end			结束时间
-     * @param	freshSkin	是否刷新皮肤数据
-     * @param	playAudio	是否播放音频
+     * @param nameOrIndex	动画名字或者索引
+     * @param loop		是否循环播放
+     * @param force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
+     * @param start		起始时间
+     * @param end			结束时间
+     * @param freshSkin	是否刷新皮肤数据
+     * @param playAudio	是否播放音频
      */
     play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true): void {
         this._playAudio = playAudio;
@@ -1066,7 +1051,7 @@ export class Skeleton extends Sprite {
 
     /**
      * 设置动画播放速率
-     * @param	value	1为标准速率
+     * @param value	1为标准速率
      */
     playbackRate(value: number): void {
         if (this._player) {
@@ -1123,8 +1108,8 @@ export class Skeleton extends Sprite {
     /**
      * @internal
      * 得到缓冲数据
-     * @param	aniIndex
-     * @param	frameIndex
+     * @param aniIndex
+     * @param frameIndex
      * @return
      */
     private _getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
@@ -1134,9 +1119,9 @@ export class Skeleton extends Sprite {
     /**
      * @internal
      * 保存缓冲grahpics
-     * @param	aniIndex
-     * @param	frameIndex
-     * @param	graphics
+     * @param aniIndex
+     * @param frameIndex
+     * @param graphics
      */
     private _setGrahicsDataWithCache(aniIndex: number, frameIndex: number, graphics: Graphics): void {
         this._graphicsCache[aniIndex][frameIndex] = graphics;

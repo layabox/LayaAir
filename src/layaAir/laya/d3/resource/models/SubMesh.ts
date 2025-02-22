@@ -51,7 +51,7 @@ export class SubMesh extends GeometryElement {
 
 	/**
 	 * 创建一个 <code>SubMesh</code> 实例。
-	 * @param	mesh  网格数据模板。
+	 * @param mesh  网格数据模板。
 	 */
 	constructor(mesh: Mesh) {
 		super(MeshTopology.Triangles, DrawType.DrawElement);
@@ -151,7 +151,6 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * {@inheritDoc GeometryElement.destroy}
 	 * @override
 	 */
 	destroy(): void {

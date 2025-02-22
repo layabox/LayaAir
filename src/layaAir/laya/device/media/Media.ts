@@ -21,9 +21,9 @@ export class Media {
 
     /**
      * 获取用户媒体。
-     * @param	options	简单的可选项可以使<code>{ audio:true, video:true }</code>表示同时捕捉两者。详情见<i>https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia</i>。
-     * @param	onSuccess 获取成功的处理器，唯一参数返回媒体的Blob地址，可以将其传给Video。
-     * @param	onError	获取失败的处理器，唯一参数是Error。
+     * @param options	简单的可选项可以使<code>{ audio:true, video:true }</code>表示同时捕捉两者。详情见<i>https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia</i>。
+     * @param onSuccess 获取成功的处理器，唯一参数返回媒体的Blob地址，可以将其传给Video。
+     * @param onError	获取失败的处理器，唯一参数是Error。
      */
     static getMedia(options: any, onSuccess: Handler, onError: Handler): void {
         if (ILaya.Browser.window.navigator.getUserMedia) {

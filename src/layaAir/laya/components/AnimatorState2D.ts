@@ -214,7 +214,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
 
     /**
      * 添加脚本。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本。
      */
     addScript(type: typeof AnimatorState2DScript): AnimatorState2DScript {
@@ -226,7 +226,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
 
     /**
      * 获取脚本。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本。
      */
     getScript(type: typeof AnimatorState2DScript): AnimatorState2DScript | null {
@@ -242,7 +242,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
 
     /**
      * 获取脚本集合。
-     * @param	type  组件类型。
+     * @param type  组件类型。
      * @return 脚本集合。
      */
     getScripts(type: typeof AnimatorState2DScript): AnimatorState2DScript[] | null {

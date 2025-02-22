@@ -216,9 +216,6 @@ export class pxCollider implements ICollider {
         }
     }
 
-    /**
-     * {@inheritDoc ICollider.setWorldTransform }
-     */
     setWorldTransform(focus: boolean): void {
         if (this.owner) {
             if (focus || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {

@@ -401,8 +401,6 @@ export class LensFlareEffect extends PostProcessEffect {
 
     /**
    * 释放Effect
-   * @inheritDoc
-   * @override
    */
     release(postprocess: PostProcess) {
         //TODO

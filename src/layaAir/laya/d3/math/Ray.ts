@@ -11,8 +11,8 @@ export class Ray {
 
 	/**
 	 * 创建一个 <code>Ray</code> 实例。
-	 * @param	origin 射线的起点
-	 * @param	direction  射线的方向
+	 * @param origin 射线的起点
+	 * @param direction  射线的方向
 	 */
 	constructor(origin: Vector3, direction: Vector3) {
 		this.origin = origin;

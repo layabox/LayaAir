@@ -203,8 +203,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置布尔。
-     * @param	index shader索引。
-     * @param	value 布尔。
+     * @param index shader索引。
+     * @param value 布尔。
      */
     setBool(index: number, value: boolean): void {
         super.setBool(index, value);
@@ -213,8 +213,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置整型。
-     * @param	index shader索引。
-     * @param	value 整形。
+     * @param index shader索引。
+     * @param value 整形。
      */
     setInt(index: number, value: number): void {
         //this._data[index] = value;
@@ -224,8 +224,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置浮点。
-     * @param	index shader索引。
-     * @param	value 浮点。
+     * @param index shader索引。
+     * @param value 浮点。
      */
     setNumber(index: number, value: number): void {
         super.setNumber(index, value);
@@ -234,8 +234,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置Vector2向量。
-     * @param	index shader索引。
-     * @param	value Vector2向量。
+     * @param index shader索引。
+     * @param value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
         super.setVector2(index, value);
@@ -244,8 +244,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置Vector3向量。
-     * @param	index shader索引。
-     * @param	value Vector3向量。
+     * @param index shader索引。
+     * @param value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
         super.setVector3(index, value);
@@ -254,8 +254,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置向量。
-     * @param	index shader索引。
-     * @param	value 向量。
+     * @param index shader索引。
+     * @param value 向量。
      */
     setVector(index: number, value: Vector4): void {
         super.setVector(index, value);
@@ -274,8 +274,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置矩阵。
-     * @param	index shader索引。
-     * @param	value  矩阵。
+     * @param index shader索引。
+     * @param value  矩阵。
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
         super.setMatrix4x4(index, value);
@@ -285,8 +285,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置Buffer。
-     * @param	index shader索引。
-     * @param	value  buffer数据。
+     * @param index shader索引。
+     * @param value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
         super.setBuffer(index, value);
@@ -295,8 +295,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     /**
      * 设置纹理。
-     * @param	index shader索引。
-     * @param	value 纹理。
+     * @param index shader索引。
+     * @param value 纹理。
      */
     setTexture(index: number, value: BaseTexture): void {
         super.setTexture(index, value);

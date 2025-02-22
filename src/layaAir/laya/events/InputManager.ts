@@ -87,7 +87,7 @@ export class InputManager {
 
     /**
      * 返回指定键是否被按下。
-     * @param	key 键值。参考：https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+     * @param key 键值。参考：https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
      * @return 是否被按下。
      */
     static hasKeyDown(key: string | number): boolean {

@@ -28,8 +28,8 @@ export class GridSprite extends Sprite {
 
     /**
      * 传入必要的参数，用于裁剪，跟确认此对象类型
-     * @param	map	把地图的引用传进来，参与一些裁剪计算
-     * @param	objectKey true:表示当前GridSprite是个活动对象，可以控制，false:地图层的组成块
+     * @param map	把地图的引用传进来，参与一些裁剪计算
+     * @param objectKey true:表示当前GridSprite是个活动对象，可以控制，false:地图层的组成块
      */
     initData(map: TiledMap, objectKey: boolean = false): void {
         this._map = map;
@@ -38,7 +38,7 @@ export class GridSprite extends Sprite {
 
     /**
      * 把一个动画对象绑定到当前GridSprite
-     * @param	sprite 动画的显示对象
+     * @param sprite 动画的显示对象
      */
     addAniSprite(sprite: TileAniSprite): void {
         if (this.aniSpriteArray == null) {

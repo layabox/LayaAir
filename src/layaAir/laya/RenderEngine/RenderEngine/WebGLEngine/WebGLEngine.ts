@@ -140,7 +140,6 @@ export class WebGLEngine implements IRenderEngine {
 
     /**
      * GL Context
-     * @member {WebGLRenderingContext}
      */
     get gl() {
         return this._context;

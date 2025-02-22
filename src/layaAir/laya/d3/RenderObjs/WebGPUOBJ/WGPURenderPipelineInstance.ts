@@ -288,7 +288,6 @@ export class WGPURenderPipelineInstance {
 
     /**
      * update Uniform Data
-     * @param WGPURenderCommand 
      */
     uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: WGPUShaderData, renderEncoder: WebGPURenderCommandEncoder) {
         var shaderUniforms: WGPUShaderVariable[] = shaderUniform.getArrayData() as WGPUShaderVariable[];

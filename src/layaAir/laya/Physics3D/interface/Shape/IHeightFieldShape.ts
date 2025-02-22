@@ -5,10 +5,6 @@ export interface IHeightFieldShape extends IColliderShape {
 
     /**
      * 设置高度数据
-     * @param numRows 
-     * @param numCols 
-     * @param heightData 
-     * @param _scale 
      */
     setHeightFieldData(numRows: number, numCols: number, heightData: Float32Array, flag: Uint8Array, scale: Vector3): void;
 

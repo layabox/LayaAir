@@ -215,8 +215,7 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**
      * 添加动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
      */
     addState(state: AnimatorState2D): void {
         var stateName = state.name;
@@ -233,8 +232,7 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**
      * 移除动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
      */
     removeState(state: AnimatorState2D): void {
         var states = this._states;
@@ -260,7 +258,7 @@ export class AnimatorControllerLayer2D implements IClone {
     }
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var dest: AnimatorControllerLayer2D = (<AnimatorControllerLayer2D>destObject);

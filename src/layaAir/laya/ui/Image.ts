@@ -10,11 +10,6 @@ import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 
-/**
- * 资源加载完成后调度。
- * @eventType Event.LOADED
- */
-/*[Event(name = "loaded", type = "laya.events.Event")]*/
 
 /**
  * <code>Image</code> 类是用于表示位图图像或绘制图形的显示对象。

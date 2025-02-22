@@ -16,17 +16,6 @@ interface ITreeDataSource {
 }
 
 /**
- * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * 节点打开关闭时触发。
- * @eventType laya.events.Event
- */
-/*[Event(name = "open", type = "laya.events.Event")]*/
-
-/**
  * <code>Tree</code> 控件使用户可以查看排列为可扩展树的层次结构数据。
  *
  * @example
@@ -349,7 +338,6 @@ export class Tree extends Box {
      * <li>单元格类对象。</li>
      * <li> UI 的 JSON 描述。</li>
      * </ol></p>
-     * @implements
      */
     get itemRender(): any {
         return this._list.itemRender;
@@ -642,7 +630,7 @@ export class Tree extends Box {
 
     /**
      * 更新项列表，显示指定键名的数据项。
-     * @param	key 键名。
+     * @param key 键名。
      */
     filter(key: string): void {
         if (Boolean(key)) {

@@ -10,27 +10,6 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 
 /**
- * 输入文本后调度。
- * @eventType Event.INPUT
- */
-/*[Event(name = "input", type = "laya.events.Event")]*/
-/**
- * 在输入框内敲回车键后调度。
- * @eventType Event.ENTER
- */
-/*[Event(name = "enter", type = "laya.events.Event")]*/
-/**
- * 当获得输入焦点后调度。
- * @eventType Event.FOCUS
- */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * 当失去输入焦点后调度。
- * @eventType Event.BLUR
- */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-
-/**
  * <code>TextInput</code> 类用于创建显示对象以显示和输入文本。
  *
  * @example <caption>以下示例代码，创建了一个 <code>TextInput</code> 实例。</caption>
@@ -165,7 +144,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;
@@ -280,7 +259,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.display.Input#prompt
+     * @see laya.display.Input#prompt
      */
     get prompt(): string {
         return this._tf.prompt;
@@ -291,7 +270,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.display.Input#promptColor
+     * @see laya.display.Input#promptColor
      */
     get promptColor(): string {
         return this._tf.promptColor;
@@ -302,7 +281,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.display.Input#maxChars
+     * @see laya.display.Input#maxChars
      */
     get maxChars(): number {
         return this._tf.maxChars;
@@ -313,7 +292,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.display.Input#focus
+     * @see laya.display.Input#focus
      */
     get focus(): boolean {
         return this._tf.focus;
@@ -324,7 +303,7 @@ export class TextInput extends Label {
     }
 
     /**
-     * @copy laya.display.Input#type
+     * @see laya.display.Input#type
      */
     get type(): string {
         return this._tf.type;

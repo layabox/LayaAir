@@ -94,7 +94,6 @@ export class ConstraintComponent extends Component {
 
     /**
      * 设置最大承受力
-     * @param value 最大承受力
      */
     get breakForce(): number {
         return this._breakForce;
@@ -107,7 +106,6 @@ export class ConstraintComponent extends Component {
 
     /**
      * 设置最大承受力矩
-     * @param value 最大承受力矩
      */
     get breakTorque(): number {
         return this._breakTorque;

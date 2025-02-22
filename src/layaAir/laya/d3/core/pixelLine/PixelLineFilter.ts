@@ -76,11 +76,6 @@ export class PixelLineFilter extends GeometryElement {
 		this._bounds = new Bounds(min, max);
 	}
 
-	/**
-	 *	{@inheritDoc PixelLineFilter._getType}
-	 *	@override
-	 *  @internal
-	 */
 	_getType(): number {
 		return PixelLineFilter._type;
 	}
@@ -295,11 +290,6 @@ export class PixelLineFilter extends GeometryElement {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * 删除
-	 */
 	destroy(): void {
 		if (this._destroyed)
 			return;

@@ -10,9 +10,9 @@ import { BoundBox } from "./BoundBox";
 export class Bounds implements IClone {
     /**
      * 合并两个包围盒。
-     * @param	box1 包围盒1。
-     * @param	box2 包围盒2。
-     * @param	out 生成的包围盒。
+     * @param box1 包围盒1。
+     * @param box2 包围盒2。
+     * @param out 生成的包围盒。
      */
     static merge(box1: Bounds, box2: Bounds, out: Bounds): void {
         Vector3.min(box1.min, box2.min, out.min);
@@ -131,8 +131,8 @@ export class Bounds implements IClone {
 
     /**
      * 创建一个 <code>Bounds</code> 实例。
-     * @param	min  min 最小坐标
-     * @param	max  max 最大坐标。
+     * @param min  min 最小坐标
+     * @param max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
         this._imp = Laya3DRender.renderOBJCreate.createBounds(min, max);
@@ -208,7 +208,7 @@ export class Bounds implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         this._imp.cloneTo(destObject._imp);

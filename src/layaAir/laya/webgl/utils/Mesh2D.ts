@@ -22,9 +22,9 @@ export class Mesh2D {
     canReuse = false;	//用完以后，是删除还是回收。
 
     /**
-     * @param	stride
-     * @param	vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
-     * @param	iballoc
+     * @param stride
+     * @param vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
+     * @param iballoc
      */
     constructor(stride: number, vballoc: number, iballoc: number) {
         this._stride = stride;
@@ -43,7 +43,6 @@ export class Mesh2D {
 
     /**
      * 直接创建一个固定的ib。按照固定四边形的索引。
-     * @param	var QuadNum
      */
     createQuadIB(QuadNum: number): void {
         this._quadNum = QuadNum;
@@ -70,7 +69,7 @@ export class Mesh2D {
      * 设置mesh的属性。每3个一组，对应的location分别是0,1,2...
      * 含义是：type,size,offset
      * 不允许多流。因此stride是固定的，offset只是在一个vertex之内。
-     * @param	attribs
+     * @param attribs
      */
     setAttributes(attribs: any[]): void {
         this._attribInfo = attribs;
@@ -81,7 +80,7 @@ export class Mesh2D {
 
     /**
      * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
-     * @param	gl
+     * @param gl
      */
     private configVAO(): void {
         if (this._applied)
@@ -109,7 +108,6 @@ export class Mesh2D {
 
     /**
      * 应用这个mesh
-     * @param	gl
      */
     useMesh(): void {
         if ((this._vao && !this._vao.isbind()) || this._ib.buffer2D._upload || this._vb.buffer2D._upload) {

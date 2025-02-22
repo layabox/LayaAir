@@ -16,7 +16,6 @@ export class WebXRRenderTexture extends RenderTexture {
 
 	/**
 	 * 创建WebXRFrameBuffer
-	 * @param frameBuffer 
 	 */
 	constructor() {
 		super(1, 1, 1, RenderTargetFormat.STENCIL_8, false, 1);

@@ -356,9 +356,8 @@ export class BaseCamera extends Sprite3D {
 
     /**
      * 创建一个 <code>BaseCamera</code> 实例。
-     * @param	fieldOfView 视野。
-     * @param	nearPlane 近裁面。
-     * @param	farPlane 远裁面。
+     * @param nearPlane 近裁面。
+     * @param farPlane 远裁面。
      */
     constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
         super();
@@ -468,8 +467,8 @@ export class BaseCamera extends Sprite3D {
 
     /**
      * 相机渲染。
-     * @param	shader 着色器。
-     * @param   replacementTag 着色器替换标记。
+     * @param shader 着色器。
+     * @param replacementTag 着色器替换标记。
      */
     render(shader: Shader3D = null, replacementTag: string = null): void {
     }
@@ -554,9 +553,6 @@ export class BaseCamera extends Sprite3D {
 
     /**
      * 删除相机
-     * @inheritDoc
-     * @override
-     * @param 是否删除节点
      */
     destroy(destroyChild: boolean = true): void {
         //postProcess = null;

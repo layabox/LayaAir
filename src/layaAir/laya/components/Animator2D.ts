@@ -222,15 +222,6 @@ export class Animator2D extends Component {
         clip!._evaluateClipDatasRealTime(curPlayTime, currentFrameIndices, addtive, frontPlay, animatorState._realtimeDatas);
     }
 
-    /**
-     * @internal
-     * @param animatorState 
-     * @param playState 
-     * @param elapsedTime 
-     * @param loop 
-     * @param layerIndex 
-     * @returns 
-     */
     private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number, loop: number, layerIndex: number): void {
 
         let isReplay = false;
@@ -450,9 +441,6 @@ export class Animator2D extends Component {
 
     /**
      * 启用过渡
-     * @param layerindex 
-     * @param transition 
-     * @returns 
      */
     private _applyTransition(layerindex: number, transition: AnimatorTransition2D) {
         if (!transition)
@@ -669,10 +657,10 @@ export class Animator2D extends Component {
 
     /**
      * 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 目标动画状态。
+     * @param transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
         var controllerLayer = this._controllerLayers[layerIndex];
@@ -738,8 +726,6 @@ export class Animator2D extends Component {
 
     /**
      * 默认状态机
-     * @param layerIndex 
-     * @returns 
      */
     getDefaultState(layerIndex = 0) {
         var controllerLayer = this._controllerLayers[layerIndex];

@@ -19,8 +19,6 @@ export class NativeCommandUniformMap extends CommandUniformMap {
 	/**
 	 * 增加一个UniformMap
 	 * @internal
-	 * @param propertyID 
-	 * @param propertyKey 
 	 */
 	addShaderUniform(propertyID: number, propertyKey: string): void {
 		//this._idata[propertyID] = propertyKey;

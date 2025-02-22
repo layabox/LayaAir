@@ -27,7 +27,6 @@ import { Color } from "../../maths/Color";
 		
 		/**
 		 * 获取字体尺寸。
-		 * @param  value 字体尺寸。
 		 */
 		 get fontSize():number {
 			return this._fontSize;
@@ -51,7 +50,7 @@ import { Color } from "../../maths/Color";
 		
 		/**
 		 * 设置颜色。
-		 * @param 颜色。
+		 * @param value 颜色。
 		 */
 		 set color(value:Color) {
 			this._color = value;

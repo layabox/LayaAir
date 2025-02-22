@@ -24,10 +24,10 @@ export class Viewport {
 
 	/**
 	 * 创建一个 <code>Viewport</code> 实例。
-	 * @param	x x坐标。
-	 * @param	y y坐标。
-	 * @param	width 宽度。
-	 * @param	height 高度。
+	 * @param x x坐标。
+	 * @param y y坐标。
+	 * @param width 宽度。
+	 * @param height 高度。
 	 */
 	constructor(x?: number, y?: number, width?: number, height?: number) {
 		this.minDepth = 0.0;
@@ -41,9 +41,9 @@ export class Viewport {
 
 	/**
 	 * 投影一个三维向量到视口空间。
-	 * @param	source 三维向量。
-	 * @param	matrix 变换矩阵。
-	 * @param	out x、y、z为视口空间坐标,透视投影下w为相对于变换矩阵的z轴坐标。
+	 * @param source 三维向量。
+	 * @param matrix 变换矩阵。
+	 * @param out x、y、z为视口空间坐标,透视投影下w为相对于变换矩阵的z轴坐标。
 	 */
 	project(source: Vector3, matrix: Matrix4x4, out: Vector4): void {
 		Vector3.transformV3ToV4(source, matrix, out);
@@ -61,9 +61,9 @@ export class Viewport {
 
 	/**
 	 * 反变换一个三维向量。
-	 * @param	source 源三维向量。
-	 * @param	matrix 变换矩阵。
-	 * @param	out 输出三维向量。
+	 * @param source 源三维向量。
+	 * @param matrix 变换矩阵。
+	 * @param out 输出三维向量。
 	 */
 	unprojectFromMat(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
 		var matrixEleme: Float32Array = matrix.elements;
@@ -82,11 +82,11 @@ export class Viewport {
 
 	/**
 	 * 反变换一个三维向量。
-	 * @param	source 源三维向量。
-	 * @param	projection  透视投影矩阵。
-	 * @param	view 视图矩阵。
-	 * @param	world 世界矩阵,可设置为null。
-	 * @param   out 输出向量。
+	 * @param source 源三维向量。
+	 * @param projection  透视投影矩阵。
+	 * @param view 视图矩阵。
+	 * @param world 世界矩阵,可设置为null。
+	 * @param out 输出向量。
 	 */
 	unprojectFromWVP(source: Vector3, projection: Matrix4x4, view: Matrix4x4, world: Matrix4x4, out: Vector3): void {
 
@@ -105,7 +105,7 @@ export class Viewport {
 
 	/**
 	 * 克隆
-	 * @param	out
+	 * @param out
 	 */
 	cloneTo(out: Viewport): void {
 		out.x = this.x;

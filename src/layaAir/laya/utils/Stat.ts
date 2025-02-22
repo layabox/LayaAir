@@ -202,8 +202,8 @@ export class Stat {
 
     /**
      * 显示性能统计信息。
-     * @param	x X轴显示位置。
-     * @param	y Y轴显示位置。
+     * @param x X轴显示位置。
+     * @param y Y轴显示位置。
      */
     static show(x?: number, y?: number, views?: Array<StatUIParams>): void {
         if (!Stat.checkUI())

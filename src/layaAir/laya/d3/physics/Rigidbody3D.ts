@@ -294,8 +294,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用作用力。
-     * @param	force 作用力。
-     * @param	localOffset 偏移,如果为null则为中心点
+     * @param force 作用力。
+     * @param localOffset 偏移,如果为null则为中心点
      */
     applyForce(force: Vector3, localOffset: Vector3 = null): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyForce)) {
@@ -305,7 +305,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用扭转力。
-     * @param	torque 扭转力。
+     * @param torque 扭转力。
      */
     applyTorque(torque: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorque)) {
@@ -315,8 +315,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用冲量。
-     * @param	impulse 冲量。
-     * @param   localOffset 偏移,如果为null则为中心点。
+     * @param impulse 冲量。
+     * @param localOffset 偏移,如果为null则为中心点。
      */
     applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyImpulse)) {
@@ -326,7 +326,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * 应用扭转冲量。
-     * @param	torqueImpulse
+     * @param torqueImpulse
      */
     applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {

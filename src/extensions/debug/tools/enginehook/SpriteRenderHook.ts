@@ -46,9 +46,9 @@ import { Browser } from "laya/utils/Browser"
 		}
 		/**
 		 * 更新、呈现显示对象。
-		 * @param	context 渲染的上下文引用。
-		 * @param	x X轴坐标。
-		 * @param	y Y轴坐标。
+		 * @param context 渲染的上下文引用。
+		 * @param x X轴坐标。
+		 * @param y Y轴坐标。
 		 */
 		render(context:Context, x:number, y:number):void {
 			if ((this as any) == Laya.stage)

@@ -8,7 +8,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 export class GradientVelocity implements IClone {
 	/**
 	 * 通过固定速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	constant 固定速度。
+	 * @param constant 固定速度。
 	 * @return 渐变速度。
 	 */
 	static createByConstant(constant: Vector3): GradientVelocity {
@@ -20,9 +20,9 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 * 通过渐变速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	gradientX 渐变速度X。
-	 * @param	gradientY 渐变速度Y。
-	 * @param	gradientZ 渐变速度Z。
+	 * @param gradientX 渐变速度X。
+	 * @param gradientY 渐变速度Y。
+	 * @param gradientZ 渐变速度Z。
 	 * @return  渐变速度。
 	 */
 	static createByGradient(gradientX: GradientDataNumber, gradientY: GradientDataNumber, gradientZ: GradientDataNumber): GradientVelocity {
@@ -36,8 +36,8 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 * 通过随机双固定速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	constantMin 最小固定角速度。
-	 * @param	constantMax 最大固定角速度。
+	 * @param constantMin 最小固定角速度。
+	 * @param constantMax 最大固定角速度。
 	 * @return 渐变速度。
 	 */
 	static createByRandomTwoConstant(constantMin: Vector3, constantMax: Vector3): GradientVelocity {
@@ -50,12 +50,12 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 * 通过随机双渐变速度创建一个 <code>GradientVelocity</code> 实例。
-	 * @param	gradientXMin X轴最小渐变速度。
-	 * @param	gradientXMax X轴最大渐变速度。
-	 * @param	gradientYMin Y轴最小渐变速度。
-	 * @param	gradientYMax Y轴最大渐变速度。
-	 * @param	gradientZMin Z轴最小渐变速度。
-	 * @param	gradientZMax Z轴最大渐变速度。
+	 * @param gradientXMin X轴最小渐变速度。
+	 * @param gradientXMax X轴最大渐变速度。
+	 * @param gradientYMin Y轴最小渐变速度。
+	 * @param gradientYMax Y轴最大渐变速度。
+	 * @param gradientZMin Z轴最小渐变速度。
+	 * @param gradientZMax Z轴最大渐变速度。
 	 * @return  渐变速度。
 	 */
 	static createByRandomTwoGradient(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientVelocity {
@@ -184,7 +184,7 @@ export class GradientVelocity implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientVelocity: GradientVelocity = (<GradientVelocity>destObject);

@@ -14,7 +14,7 @@ export class BlurFilter extends Filter {
 
     /**
      * 模糊滤镜
-     * @param	strength	模糊滤镜的强度值
+     * @param strength	模糊滤镜的强度值
      */
     constructor(strength: number = 4) {
         super();

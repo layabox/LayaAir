@@ -125,8 +125,8 @@ export class Scene extends Sprite {
 
     /**
      * 打开场景。【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-     * @param	closeOther	是否关闭其他场景，默认为true（可选）
-     * @param	param		打开页面的参数，会传递给onOpened方法（可选）
+     * @param closeOther	是否关闭其他场景，默认为true（可选）
+     * @param param 	打开页面的参数，会传递给onOpened方法（可选）
      */
     open(closeOther: boolean = true, param: any = null): void {
         if (closeOther) Scene.closeAll();
@@ -365,9 +365,9 @@ export class Scene extends Sprite {
 
     /**
      * 加载场景及场景使用到的资源
-     * @param	url			场景地址
-     * @param	complete	加载完成回调，返回场景实例（可选）
-     * @param	progress	加载进度回调（可选）
+     * @param url			场景地址
+     * @param complete	加载完成回调，返回场景实例（可选）
+     * @param progress	加载进度回调（可选）
      */
     static load(url: string, complete: Handler = null, progress: Handler = null): Promise<Scene> {
         return ILaya.loader.load(url, null, value => {
@@ -405,11 +405,11 @@ export class Scene extends Sprite {
 
     /**
      * 加载并打开场景
-     * @param	url			场景地址
-     * @param	closeOther	是否关闭其他场景，默认为true（可选），【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-     * @param	param		打开页面的参数，会传递给onOpened方法（可选）
-     * @param	complete	打开完成回调，返回场景实例（可选）
-     * @param	progress	加载进度回调（可选）
+     * @param url			场景地址
+     * @param closeOther	是否关闭其他场景，默认为true（可选），【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
+     * @param param 	打开页面的参数，会传递给onOpened方法（可选）
+     * @param complete	打开完成回调，返回场景实例（可选）
+     * @param progress	加载进度回调（可选）
      */
     static open(url: string, closeOther: boolean = true, param: any = null, complete: Handler = null, progress: Handler = null): Promise<Scene> {
         //兼容处理
@@ -430,8 +430,8 @@ export class Scene extends Sprite {
 
     /**
      * 根据地址，关闭场景（包括对话框）
-     * @param	url		场景地址
-     * @param	name	如果name不为空，name必须相同才能关闭
+     * @param url		场景地址
+     * @param name	如果name不为空，name必须相同才能关闭
      * @return	返回是否关闭成功，如果url找不到，则不成功
      */
     static close(url: string, name?: string): boolean {
@@ -463,8 +463,8 @@ export class Scene extends Sprite {
 
     /**
      * 根据地址，销毁场景（包括对话框）
-     * @param	url		场景地址
-     * @param	name	如果name不为空，name必须相同才能关闭
+     * @param url		场景地址
+     * @param name	如果name不为空，name必须相同才能关闭
      * @return	返回是否销毁成功，如果url找不到，则不成功
      */
     static destroy(url: string, name?: string): boolean {
@@ -488,7 +488,7 @@ export class Scene extends Sprite {
 
     /**
      * 设置loading界面，引擎会在调用open方法后，延迟打开loading界面，在页面添加到舞台之后，关闭loading界面
-     * @param	loadPage 	load界面实例
+     * @param loadPage 	load界面实例
      */
     static setLoadingPage(loadPage: Sprite): void {
         Scene._loadPage = loadPage;
@@ -496,8 +496,8 @@ export class Scene extends Sprite {
 
     /**
      * 显示loading界面
-     * @param	param 打开参数，如果是scene，则会传递给onOpened方法
-     * @param	delay 延迟打开时间，默认500毫秒
+     * @param param 打开参数，如果是scene，则会传递给onOpened方法
+     * @param delay 延迟打开时间，默认500毫秒
      */
     static showLoadingPage(param: any = null, delay: number = 500): void {
         if (Scene._loadPage) {
@@ -522,7 +522,7 @@ export class Scene extends Sprite {
 
     /**
      * 隐藏loading界面
-     * @param	delay 延迟关闭时间，默认500毫秒
+     * @param delay 延迟关闭时间，默认500毫秒
      */
     static hideLoadingPage(delay: number = 500): void {
         if (Scene._loadPage) {

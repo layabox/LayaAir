@@ -320,9 +320,6 @@ export class Animator extends Component {
 
     /**
      * 启用过渡
-     * @param layerindex 
-     * @param transition 
-     * @returns 
      */
     private _applyTransition(state: AnimatorState, layerindex: number, transition: AnimatorTransition) {
         if (!transition || transition == state.curTransition)
@@ -1485,7 +1482,7 @@ export class Animator extends Component {
 
     /**
      * 获取默认动画状态。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 默认动画状态。
      */
     getDefaultState(layerIndex: number = 0): AnimatorState {
@@ -1495,8 +1492,8 @@ export class Animator extends Component {
 
     /**
      * 添加动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
+     * @param layerIndex 层索引。
      */
     addState(state: AnimatorState, layerIndex: number = 0): void {
         var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
@@ -1506,8 +1503,8 @@ export class Animator extends Component {
 
     /**
      * 移除动画状态。
-     * @param	state 动画状态。
-     * @param   layerIndex 层索引。
+     * @param state 动画状态。
+     * @param layerIndex 层索引。
      */
     removeState(state: AnimatorState, layerIndex: number = 0): void {
         var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
@@ -1536,9 +1533,9 @@ export class Animator extends Component {
 
     /**
      * 播放动画。
-     * @param	name 如果为null则播放默认动画，否则按名字播放动画片段。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 如果为null则播放默认动画，否则按名字播放动画片段。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     play(name: string | null = null, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
@@ -1584,10 +1581,10 @@ export class Animator extends Component {
 
     /**
      * 在当前动画状态和目标动画状态之间进行融合过渡播放。
-     * @param	name 目标动画状态。
-     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
-     * @param	layerIndex 层索引。
-     * @param	normalizedTime 归一化的播放起始时间。
+     * @param name 目标动画状态。
+     * @param transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param layerIndex 层索引。
+     * @param normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         var controllerLayer = this._controllerLayers[layerIndex];
@@ -1776,11 +1773,11 @@ export class Animator extends Component {
     /**
      * @deprecated 请使用animator.getControllerLayer(layerIndex).getCurrentPlayState()替换。use animator.getControllerLayer(layerIndex).getCurrentPlayState() instead
      * 获取当前的播放状态。
-     * @param   layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return  动画播放状态。
      */
-    getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-        return this._controllerLayers[layerInex]._playStateInfo!;
+    getCurrentAnimatorPlayState(layerIndex: number = 0): AnimatorPlayState {
+        return this._controllerLayers[layerIndex]._playStateInfo!;
     }
 }
 

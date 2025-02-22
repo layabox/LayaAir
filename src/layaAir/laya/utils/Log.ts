@@ -48,7 +48,7 @@ export class Log {
 
     /**
      * 增加日志内容。
-     * @param	value 需要增加的日志内容。
+     * @param value 需要增加的日志内容。
      */
     static print(value: string): void {
         if (Log._logdiv) {

@@ -15,21 +15,6 @@ import { URL } from "../net/URL";
 import { Utils } from "../utils/Utils";
 import { AssetDb } from "../resource/AssetDb";
 
-/**
- * 滚动条滑块位置发生变化后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-/**
- * 开始滑动。
- * @eventType laya.events.Event
- */
-/*[Event(name = "start", type = "laya.events.Event")]*/
-/**
- * 结束滑动。
- * @eventType laya.events.Event
- */
-/*[Event(name = "end", type = "laya.events.Event")]*/
 
 /**
  * <code>ScrollBar</code> 组件是一个滚动条组件。
@@ -201,7 +186,7 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;

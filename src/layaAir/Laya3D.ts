@@ -88,7 +88,6 @@ export class Laya3D {
 
     /**
      * 是否启用物理。
-     * @param 是否启用物理。
      */
     static get enablePhysics(): any {
         return Laya3D._enablePhysics;

@@ -485,7 +485,6 @@ export class PerforManceNode{
 
     /**
      * 获得一个性能节点
-     * @returns 
      */
     static create(nodeNum:number):PerforManceNode{
         let perNode:PerforManceNode;
@@ -496,7 +495,6 @@ export class PerforManceNode{
     }
     /**
      * 回收一个性能节点
-     * @param node 
      */
     static revert(node:PerforManceNode){
         node.inPool = true;
@@ -514,7 +512,6 @@ export class PerforManceNode{
 
     /**
      * 性能节点
-     * @param index 
      */
     constructor(){
 
@@ -540,7 +537,6 @@ export class PerforManceNode{
 
     /**
      * 记录时间开始
-     * @param index 
      */
     getFunStart(index:number){
         this.applyCount++;
@@ -549,7 +545,6 @@ export class PerforManceNode{
 
     /**
      * 记录时间结束时间
-     * @param index 
      */
     getFunEnd(index:number):number{
         if(this.nodeDelty[index])
@@ -563,8 +558,6 @@ export class PerforManceNode{
 
     /**
      * 记录资源数据
-     * @param index 
-     * @param value 
      */
     setMemory(index:number,value:number){
         this.nodeDelty[index] = value;

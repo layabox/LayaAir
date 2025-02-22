@@ -27,10 +27,10 @@ export class GlowFilter extends Filter {
 
     /**
      * 创建发光滤镜
-     * @param	color	滤镜的颜色
-     * @param	blur	边缘模糊的大小
-     * @param	offX	X轴方向的偏移
-     * @param	offY	Y轴方向的偏移
+     * @param color	滤镜的颜色
+     * @param blur	边缘模糊的大小
+     * @param offX	X轴方向的偏移
+     * @param offY	Y轴方向的偏移
      */
     constructor(color: string, blur: number = 4, offX: number = 6, offY: number = 6) {
         super();

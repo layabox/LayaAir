@@ -65,10 +65,10 @@ export class TextTexture extends Resource {
 
     /**
      * 
-     * @param	data
-     * @param	x			拷贝位置。
-     * @param	y
-     * @param  uv  
+     * @param data
+     * @param x			拷贝位置。
+     * @param y
+     * @param uv  
      * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
      */
     addChar(data: ImageData, x: number, y: number, uv: any[] = null): any[] {
@@ -100,9 +100,9 @@ export class TextTexture extends Resource {
 
     /**
      * 玩一玩不支持 getImageData
-     * @param	canv
-     * @param	x
-     * @param	y
+     * @param canv
+     * @param x
+     * @param y
      */
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
         !this._source && this.recreateResource();

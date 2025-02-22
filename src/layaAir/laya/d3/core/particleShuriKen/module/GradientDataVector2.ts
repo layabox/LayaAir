@@ -23,8 +23,8 @@ export class GradientDataVector2 implements IClone {
 
 	/**
 	 * 增加二维向量渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 二维向量值。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value 二维向量值。
 	 */
 	add(key: number, value: Vector2): void {
 		if (this._currentLength < 8) {
@@ -44,7 +44,7 @@ export class GradientDataVector2 implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataVector2: GradientDataVector2 = <GradientDataVector2>destObject;

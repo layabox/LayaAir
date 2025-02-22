@@ -32,8 +32,6 @@ export class TextAtlas {
     /**
      * 如果返回null，则表示无法加入了
      * 分配的时候优先选择最接近自己高度的节点
-     * @param	w
-     * @param	h
      * @return
      */
     getAEmpty(w: number, h: number, pt: Point): boolean {

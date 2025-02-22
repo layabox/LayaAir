@@ -49,7 +49,7 @@ export class Physics3DColliderShape implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destColliderShape: Physics3DColliderShape = (<Physics3DColliderShape>destObject);

@@ -36,7 +36,7 @@ export class Buffer2D {
 
     /**
      * 在当前的基础上需要多大空间，单位是byte
-     * @param	sz
+     * @param sz
      * @return  增加大小之前的写位置。单位是byte
      */
     needSize(sz: number): number {
@@ -153,8 +153,8 @@ export class Buffer2D {
 
     /**
      * 重新分配buffer大小，如果nsz比原来的小则什么都不做。
-     * @param	nsz		buffer大小，单位是byte。
-     * @param	copy	是否拷贝原来的buffer的数据。
+     * @param nsz		buffer大小，单位是byte。
+     * @param copy	是否拷贝原来的buffer的数据。
      * @return
      */
     _resizeBuffer(nsz: number, copy: boolean): Buffer2D //是否修改了长度
@@ -206,8 +206,8 @@ export class Buffer2D {
 
     /**
      * 附加Uint16Array的数据。数据长度是len。byte的话要*2
-     * @param	data
-     * @param	len
+     * @param data
+     * @param len
      */
     appendU16Array(data: Uint16Array, len: number): void {
         this._resizeBuffer(this.constBuffer._byteLength + len * 2, true);

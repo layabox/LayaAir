@@ -26,8 +26,7 @@ export class KeyframeNodeList {
 
 	/**
 	 * 通过索引获取节点。
-	 * @param	index 索引。
-	 * @return 节点。
+	 * @param index 索引。
 	 */
 	getNodeByIndex(index: number): KeyframeNode {
 		return this._nodes[index];
@@ -35,8 +34,8 @@ export class KeyframeNodeList {
 
 	/**
 	 * 通过索引设置节点。
-	 * @param	index 索引。
-	 * @param 节点。
+	 * @param index 索引。
+	 * @param node 节点。
 	 */
 	setNodeByIndex(index: number, node: KeyframeNode): void {
 		this._nodes[index] = node;

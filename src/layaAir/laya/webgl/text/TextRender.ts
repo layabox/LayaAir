@@ -96,7 +96,7 @@ export class TextRender {
 
     /**
      * 设置当前字体，获得字体的大小信息。
-     * @param	font
+     * @param font
      */
     setFont(font: FontInfo): void {
         if (this.lastFont == font) return;
@@ -122,8 +122,8 @@ export class TextRender {
      * 从string中取出一个完整的char，例如emoji的话要多个
      * 会修改 _curStrPos
      * TODO 由于各种文字中的组合写法，这个需要能扩展，以便支持泰文等
-     * @param	str
-     * @param	start	开始位置
+     * @param str
+     * @param start	开始位置
      */
     getNextChar(str: string): string | null {
         var len = str.length;
@@ -301,8 +301,8 @@ export class TextRender {
 
     /**
      * 画出重新按照贴图顺序分组的文字。
-     * @param	samePagesData
-     * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
+     * @param samePagesData
+     * @param startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
     protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
@@ -342,8 +342,8 @@ export class TextRender {
 
     /**
      * 检查 txts数组中有没有被释放的资源
-     * @param	txts {{ri:CharRenderInfo,...}[][]}
-     * @param	startid
+     * @param txts {{ri:CharRenderInfo,...}[][]}
+     * @param startid
      * @return
      */
     hasFreedText(txts: any[]): boolean {
@@ -468,8 +468,8 @@ export class TextRender {
 
     /**
      * 添加数据到大图集
-     * @param	w
-     * @param	h
+     * @param w
+     * @param h
      * @return
      */
     addBmpData(data: ImageData, ri: CharRenderInfo): TextAtlas {
@@ -604,10 +604,10 @@ export class TextRender {
 
     /**
      * 检查当前线是否存在数据
-     * @param	data
-     * @param	l
-     * @param	sx
-     * @param	ex
+     * @param data
+     * @param l
+     * @param sx
+     * @param ex
      * @return
      */
     private checkBmpLine(data: ImageData, l: number, sx: number, ex: number): boolean {
@@ -624,9 +624,9 @@ export class TextRender {
     /**
      * 根据bmp数据和当前的包围盒，更新包围盒
      * 由于选择的文字是连续的，所以可以用二分法
-     * @param	data
-     * @param	curbbx 	[l,t,r,b]
-     * @param   onlyH 不检查左右
+     * @param data
+     * @param curbbx 	[l,t,r,b]
+     * @param onlyH 不检查左右
      */
     private updateBbx(data: ImageData, curbbx: number[], onlyH: boolean = false): void {
         var w = data.width;

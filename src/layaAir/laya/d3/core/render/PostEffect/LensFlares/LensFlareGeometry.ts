@@ -87,11 +87,6 @@ export class LensFlareElementGeomtry extends GeometryElement {
         return this._instanceVertexBuffer;
     }
 
-    /**
-     *	{@inheritDoc PixelLineFilter._getType}
-     *	@override
-     *  @internal
-     */
     _getType(): number {
         return LensFlareElementGeomtry._type;
     }

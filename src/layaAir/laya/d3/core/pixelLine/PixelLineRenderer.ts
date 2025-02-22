@@ -33,8 +33,7 @@ export class PixelLineRenderer extends BaseRender {
     private _needUpdatelines: boolean = false;
     /**
      * 创建一个PixelLineRenderer实例
-     * @param owner 线渲染精灵
-     */
+     *      */
     constructor() {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
@@ -159,10 +158,10 @@ export class PixelLineRenderer extends BaseRender {
 
     /**
      * 增加一条线。
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @param startPosition  初始点位置
+     * @param endPosition	   结束点位置
+     * @param startColor	   初始点颜色
+     * @param endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount)
@@ -178,7 +177,7 @@ export class PixelLineRenderer extends BaseRender {
 
     /**
      * 添加多条线段。
-     * @param	lines  线段数据
+     * @param lines  线段数据
      */
     addLines(lines: PixelLineData[]): void {
         var lineCount: number = this._pixelLineFilter._lineCount;
@@ -214,11 +213,11 @@ export class PixelLineRenderer extends BaseRender {
 
     /**
      * 更新线
-     * @param	index  		   索引
-     * @param	startPosition  初始点位置
-     * @param	endPosition	   结束点位置
-     * @param	startColor	   初始点颜色
-     * @param	endColor	   结束点颜色
+     * @param index  		   索引
+     * @param startPosition  初始点位置
+     * @param endPosition	   结束点位置
+     * @param startColor	   初始点颜色
+     * @param endColor	   结束点颜色
      */
     setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
         if (index < this._pixelLineFilter._lineCount) {

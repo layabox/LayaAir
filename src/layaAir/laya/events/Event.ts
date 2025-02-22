@@ -156,7 +156,7 @@ export class Event {
     static _Add_Script= "addscript";
     /**
      * 检测指定事件类型是否是鼠标事件。
-     * @param	type 事件的类型。
+     * @param type 事件的类型。
      * @return	如果是鼠标事件，则值为 true;否则，值为 false。
      */
     static isMouseEvent(type: string): boolean {
@@ -202,9 +202,9 @@ export class Event {
 
     /**
      * 设置事件数据。
-     * @param	type 事件类型。
-     * @param	currentTarget 事件目标触发对象。
-     * @param	target 事件当前冒泡对象。
+     * @param type 事件类型。
+     * @param currentTarget 事件目标触发对象。
+     * @param target 事件当前冒泡对象。
      * @return 返回当前 Event 对象。
      */
     setTo(type: string, currentTarget: any, target: any): Event {

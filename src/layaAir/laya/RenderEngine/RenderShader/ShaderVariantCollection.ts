@@ -150,7 +150,7 @@ export class ShaderVariantCollection {
     /**
      * 添加着色器变种。
      * @param variant 着色器变种。
-     * @param 是否添加成功。
+     * @returns 是否添加成功。
      */
     add(variant: ShaderVariant): boolean {
         for (var i: number = 0, n: number = this._variants.length; i < n; i++) {

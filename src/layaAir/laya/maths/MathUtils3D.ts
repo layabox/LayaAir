@@ -20,7 +20,7 @@ export class MathUtils3D {
 
 	/**
 	 * 是否在容差的范围内近似于0
-	 * @param  判断值
+	 * @param v 判断值
 	 * @return  是否近似于0
 	 */
 	static isZero(v: number): boolean {
@@ -29,7 +29,8 @@ export class MathUtils3D {
 
 	/**
 	 * 两个值是否在容差的范围内近似相等Sqr Magnitude
-	 * @param  判断值
+	 * @param n1 第一个值
+	 * @param n2 第二个值
 	 * @return  是否近似于0
 	 */
 	static nearEqual(n1: number, n2: number): boolean {

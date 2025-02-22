@@ -40,7 +40,7 @@ export class TextureSheetAnimation implements IClone {
 	/**
 	 * 创建一个 <code>TextureSheetAnimation</code> 实例。
 	 * @param frame 动画帧。
-	 * @param  startFrame 开始帧。
+	 * @param startFrame 开始帧。
 	 */
 	constructor(frame: FrameOverTime, startFrame: StartFrame) {
 		this.tiles = new Vector2(1, 1);
@@ -55,7 +55,7 @@ export class TextureSheetAnimation implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destTextureSheetAnimation: TextureSheetAnimation = (<TextureSheetAnimation>destObject);

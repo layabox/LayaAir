@@ -30,8 +30,8 @@ export class BoundSphere implements IClone {
 	}
 	/**
 	 * 创建一个 <code>BoundSphere</code> 实例。
-	 * @param	center 包围球的中心。
-	 * @param	radius 包围球的半径。
+	 * @param center 包围球的中心。
+	 * @param radius 包围球的半径。
 	 */
 	constructor(center: Vector3 = new Vector3, radius: number = 0) {
 		this._center = center;
@@ -45,10 +45,10 @@ export class BoundSphere implements IClone {
 
 	/**
 	 * 从顶点的子队列生成包围球。
-	 * @param	points 顶点的队列。
-	 * @param	start 顶点子队列的起始偏移。
-	 * @param	count 顶点子队列的顶点数。
-	 * @param	result 生成的包围球。
+	 * @param points 顶点的队列。
+	 * @param start 顶点子队列的起始偏移。
+	 * @param count 顶点子队列的顶点数。
+	 * @param out 生成的包围球。
 	 */
 	static createFromSubPoints(points: Vector3[], start: number, count: number, out: BoundSphere): void {
 		if (points == null) {
@@ -97,8 +97,8 @@ export class BoundSphere implements IClone {
 
 	/**
 	 * 从顶点队列生成包围球。
-	 * @param	points 顶点的队列。
-	 * @param	result 生成的包围球。
+	 * @param points 顶点的队列。
+	 * @param out 生成的包围球。
 	 */
 	static createfromPoints(points: Vector3[], out: BoundSphere): void {
 		if (points == null) {
@@ -110,7 +110,7 @@ export class BoundSphere implements IClone {
 
 	/**
 	 * 判断射线是否与碰撞球交叉，并返回交叉距离。
-	 * @param	ray 射线。
+	 * @param ray 射线。
 	 * @return 距离交叉点的距离，-1表示不交叉。
 	 */
 	intersectsRayDistance(ray: Ray): number {
@@ -119,8 +119,8 @@ export class BoundSphere implements IClone {
 
 	/**
 	 * 判断射线是否与碰撞球交叉，并返回交叉点。
-	 * @param	ray  射线。
-	 * @param	outPoint 交叉点。
+	 * @param ray  射线。
+	 * @param outPoint 交叉点。
 	 * @return  距离交叉点的距离，-1表示不交叉。
 	 */
 	intersectsRayPoint(ray: Ray, outPoint: Vector3): number {
@@ -129,7 +129,7 @@ export class BoundSphere implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var dest: BoundSphere = (<BoundSphere>destObject);

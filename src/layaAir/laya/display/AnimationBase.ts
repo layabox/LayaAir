@@ -3,17 +3,6 @@ import { Config } from "./../../Config";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 
-/**
- * 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-
-/**
- * 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
 
 /**
  * <p>动画基类，提供了基础的动画播放控制方法和帧标签事件相关功能。</p>
@@ -61,9 +50,9 @@ export class AnimationBase extends Sprite {
     /**
      * <p>开始播放动画。play(...)方法被设计为在创建实例后的任何时候都可以被调用，当相应的资源加载完毕、调用动画帧填充方法(set frames)或者将实例显示在舞台上时，会判断是否正在播放中，如果是，则进行播放。</p>
      * <p>配合wrapMode属性，可设置动画播放顺序类型。</p>
-     * @param	start	（可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
-     * @param	loop	（可选）是否循环播放。
-     * @param	name	（可选）动画名称。
+     * @param start	（可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
+     * @param loop	（可选）是否循环播放。
+     * @param name	（可选）动画名称。
      */
     play(start: any = 0, loop: boolean = true, name: string = ""): void {
         this._isPlaying = true;
@@ -196,8 +185,8 @@ export class AnimationBase extends Sprite {
 
     /**
      * 增加一个帧标签到指定索引的帧上。当动画播放到此索引的帧时会派发Event.LABEL事件，派发事件是在完成当前帧画面更新之后。
-     * @param	label	帧标签名称
-     * @param	index	帧索引
+     * @param label	帧标签名称
+     * @param index	帧索引
      */
     addLabel(label: string, index: number): void {
         if (!this._labels) this._labels = {};
@@ -207,7 +196,7 @@ export class AnimationBase extends Sprite {
 
     /**
      * 删除指定的帧标签。
-     * @param	label 帧标签名称。注意：如果为空，则删除所有帧标签！
+     * @param label 帧标签名称。注意：如果为空，则删除所有帧标签！
      */
     removeLabel(label: string): void {
         if (!label) this._labels = null;
@@ -230,7 +219,7 @@ export class AnimationBase extends Sprite {
 
     /**
      * 将动画切换到指定帧并停在那里。
-     * @param	position 帧索引或帧标签
+     * @param position 帧索引或帧标签
      */
     gotoAndStop(position: any): void {
         this.index = (typeof (position) == 'string') ? this._getFrameByLabel(<string>position) : position;

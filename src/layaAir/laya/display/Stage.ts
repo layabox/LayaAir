@@ -24,36 +24,6 @@ import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 
-/**
- * stage大小经过重新调整时进行调度。
- * @eventType Event.RESIZE
- */
-/*[Event(name = "resize", type = "laya.events.Event")]*/
-/**
- * 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
- * @eventType Event.FOCUS
- */
-/*[Event(name = "focus", type = "laya.events.Event")]*/
-/**
- * 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
- * @eventType Event.BLUR
- */
-/*[Event(name = "blur", type = "laya.events.Event")]*/
-/**
- * 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
- * @eventType Event.FOCUS_CHANGE
- */
-/*[Event(name = "focuschange", type = "laya.events.Event")]*/
-/**
- * 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
- * @eventType Event.VISIBILITY_CHANGE
- */
-/*[Event(name = "visibilitychange", type = "laya.events.Event")]*/
-/**
- * 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
- * @eventType Event.FULL_SCREEN_CHANGE
- */
-/*[Event(name = "fullscreenchange", type = "laya.events.Event")]*/
 
 /**
  * <p> <code>Stage</code> 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。</p>
@@ -340,8 +310,8 @@ export class Stage extends Sprite {
 
     /**
      * 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
-     * @param	screenWidth		屏幕宽度。
-     * @param	screenHeight	屏幕高度。
+     * @param screenWidth		屏幕宽度。
+     * @param screenHeight	屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
         this._needUpdateCanvasSize = false;

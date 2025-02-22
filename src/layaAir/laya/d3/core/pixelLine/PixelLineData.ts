@@ -16,7 +16,7 @@ export class PixelLineData {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: PixelLineData): void {
 		this.startPosition.cloneTo(destObject.startPosition);

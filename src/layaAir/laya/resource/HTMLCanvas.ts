@@ -124,7 +124,7 @@ export class HTMLCanvas extends Resource {
     /**
      * @internal
      * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
-     * @param	context Canvas 渲染上下文。
+     * @param context Canvas 渲染上下文。
      */
     _setContext(context: Context): void {
         this._ctx = context;
@@ -132,8 +132,8 @@ export class HTMLCanvas extends Resource {
 
     /**
      * 获取 Canvas 渲染上下文。
-     * @param	contextID 上下文ID.
-     * @param	other
+     * @param contextID 上下文ID.
+     * @param other
      * @return  Canvas 渲染上下文 Context 对象。
      */
     getContext(contextID: string, other: any = null): Context {
@@ -152,8 +152,8 @@ export class HTMLCanvas extends Resource {
 
     /**
      * 设置宽高。
-     * @param	w 宽度。
-     * @param	h 高度。
+     * @param w 宽度。
+     * @param h 高度。
      */
     size(w: number, h: number): void {
         if (this._width != w || this._height != h || (this._source && (this._source.width != w || this._source.height != h))) {
@@ -186,8 +186,8 @@ export class HTMLCanvas extends Resource {
 
     /**
      * 把图片转换为base64信息
-     * @param	type "image/png"
-     * @param	encoderOptions	质量参数，取值范围为0-1
+     * @param type "image/png"
+     * @param encoderOptions	质量参数，取值范围为0-1
      */
     toBase64(type: string, encoderOptions: number): string | null {
         if (this._source) {

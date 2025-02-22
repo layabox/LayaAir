@@ -28,10 +28,10 @@ export class Rectangle {
 
     /**
      * 创建一个 <code>Rectangle</code> 对象。
-     * @param	x 矩形左上角的 X 轴坐标。
-     * @param	y 矩形左上角的 Y 轴坐标。
-     * @param	width 矩形的宽度。
-     * @param	height 矩形的高度。
+     * @param x 矩形左上角的 X 轴坐标。
+     * @param y 矩形左上角的 Y 轴坐标。
+     * @param width 矩形的宽度。
+     * @param height 矩形的高度。
      */
     constructor(x: number = 0, y: number = 0, width: number = 0, height: number = 0) {
         this.x = x;
@@ -52,10 +52,10 @@ export class Rectangle {
 
     /**
      * 将 Rectangle 的属性设置为指定值。
-     * @param	x	x 矩形左上角的 X 轴坐标。
-     * @param	y	x 矩形左上角的 Y 轴坐标。
-     * @param	width	矩形的宽度。
-     * @param	height	矩形的高。
+     * @param x	x 矩形左上角的 X 轴坐标。
+     * @param y	x 矩形左上角的 Y 轴坐标。
+     * @param width	矩形的宽度。
+     * @param height	矩形的高。
      * @return	返回属性值修改后的矩形对象本身。
      */
     setTo(x: number, y: number, width: number, height: number): Rectangle {
@@ -94,7 +94,7 @@ export class Rectangle {
 
     /**
      * 复制 source 对象的属性值到此矩形对象中。
-     * @param	sourceRect	源 Rectangle 对象。
+     * @param source	源 Rectangle 对象。
      * @return	返回属性值修改后的矩形对象本身。
      */
     copyFrom(source: Rectangle): Rectangle {
@@ -124,7 +124,7 @@ export class Rectangle {
 
     /**
      * 确定在 rect 参数中指定的对象是否与此 Rectangle 对象相交。此方法检查指定的 Rectangle 对象的 x、y、width 和 height 属性，以查看它是否与此 Rectangle 对象相交。
-     * @param	rect Rectangle 对象。
+     * @param rect Rectangle 对象。
      * @return	如果传入的矩形对象与此对象相交，则返回 true 值，否则返回 false。
      */
     intersects(rect: Rectangle): boolean {
@@ -150,8 +150,8 @@ export class Rectangle {
     /**
      * <p>矩形联合，通过填充两个矩形之间的水平和垂直空间，将这两个矩形组合在一起以创建一个新的 Rectangle 对象。</p>
      * <p>注意：union() 方法忽略高度或宽度值为 0 的矩形，如：var rect2:Rectangle = new Rectangle(300,300,50,0);</p>
-     * @param	要添加到此 Rectangle 对象的 Rectangle 对象。
-     * @param	out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
+     * @param source 要添加到此 Rectangle 对象的 Rectangle 对象。
+     * @param out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
      * @return	充当两个矩形的联合的新 Rectangle 对象。
      */
     union(source: Rectangle, out: Rectangle | null = null): Rectangle {
@@ -186,7 +186,7 @@ export class Rectangle {
 
     /**
      * 检测传入的 Rectangle 对象的属性是否与当前 Rectangle 对象的属性 x、y、width、height 属性值都相等。
-     * @param	rect 待比较的 Rectangle 对象。
+     * @param rect 待比较的 Rectangle 对象。
      * @return	如果判断的属性都相等，则返回 true ,否则返回 false。
      */
     equals(rect: Rectangle): boolean {

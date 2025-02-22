@@ -79,7 +79,6 @@ export interface IDynamicCollider extends ICollider {
 
     /**
      * Raises or clears a particular rigid dynamic lock flag.
-     * @param flags - the flag to raise(set) or clear.
      */
     setConstraints(linearFactor: Vector3, angularFactor: Vector3): void;
 

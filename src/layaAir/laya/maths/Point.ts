@@ -34,8 +34,8 @@ export class Point {
 
     /**
      * 将 <code>Point</code> 的成员设置为指定值。
-     * @param	x 水平坐标。
-     * @param	y 垂直坐标。
+     * @param x 水平坐标。
+     * @param y 垂直坐标。
      * @return 当前 Point 对象。
      */
     setTo(x: number, y: number): Point {
@@ -61,8 +61,8 @@ export class Point {
 
     /**
      * 计算当前点和目标点(x，y)的距离。
-     * @param	x 水平坐标。
-     * @param	y 垂直坐标。
+     * @param x 水平坐标。
+     * @param y 垂直坐标。
      * @return	返回当前点和目标点之间的距离。
      */
     distance(x: number, y: number): number {
@@ -88,7 +88,7 @@ export class Point {
 
     /**
      * copy point坐标
-     * @param	point 需要被copy的point
+     * @param point 需要被copy的point
      */
     copy(point: Point): Point {
         return this.setTo(point.x, point.y);

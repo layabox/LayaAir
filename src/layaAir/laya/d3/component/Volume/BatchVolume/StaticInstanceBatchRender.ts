@@ -292,7 +292,6 @@ export class StaticInstanceBatchRender extends BatchRender {
 
     /**
     * 合批队列传入
-    * @param renderNodes
     */
     addList(renderNodes: BaseRender[]) {
         if (!this._batchList) {

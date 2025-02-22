@@ -104,7 +104,6 @@ export class UniformBufferObject extends Buffer {
 
     /**
      * 重置buffer长度
-     * @param bytelength 
      */
     _reset(bytelength: number) {
 

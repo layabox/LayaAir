@@ -104,7 +104,7 @@ export class Camera extends BaseCamera {
      * @param camera 相机
      * @param scene 需要渲染的场景
      * @param shader 着色器
-     * @param replacementTag 替换标记。
+     * @param replaceFlag 替换标记。
      */
     static drawRenderTextureByScene(camera: Camera, scene: Scene3D, renderTexture: RenderTexture, shader: Shader3D = null, replaceFlag: string = null): RenderTexture {
         if (!renderTexture) return null;
@@ -192,10 +192,6 @@ export class Camera extends BaseCamera {
 
     /**
      * 根据场景中的位置
-     * @param position 
-     * @param scene 
-     * @param renderCubeSize 
-     * @param format 
      * @returns bake front left right up down
      */
     static drawTextureCubePixelByScene(camera: Camera, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): ArrayBufferView[] {
@@ -670,9 +666,9 @@ export class Camera extends BaseCamera {
 
     /**
      * 创建一个 <code>Camera</code> 实例。
-     * @param	aspectRatio 横纵比。
-     * @param	nearPlane 近裁面。
-     * @param	farPlane 远裁面。
+     * @param aspectRatio 横纵比。
+     * @param nearPlane 近裁面。
+     * @param farPlane 远裁面。
      */
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
@@ -736,7 +732,7 @@ export class Camera extends BaseCamera {
 
     /**
      *	通过蒙版值获取蒙版是否显示。
-     * 	@param  layer 层。
+     * 	@param layer 层。
      * 	@return 是否显示。
      */
     _isLayerVisible(layer: number): boolean {
@@ -939,9 +935,6 @@ export class Camera extends BaseCamera {
 
     /**
      * 调用渲染命令流
-     * @param event 
-     * @param renderTarget 
-     * @param context 
      */
     _applyCommandBuffer(event: number, context: RenderContext3D) {
         if (!Stat.enableCameraCMD)
@@ -1373,8 +1366,8 @@ export class Camera extends BaseCamera {
 
     /**
      * 转换2D屏幕坐标系统到3D正交投影下的坐标系统，注:只有正交模型下有效。
-     * @param   source 源坐标。
-     * @param   out 输出坐标。
+     * @param source 源坐标。
+     * @param out 输出坐标。
      * @return 是否转换成功。
      */
     convertScreenCoordToOrthographicCoord(source: Vector3, out: Vector3): boolean {//TODO:是否应该使用viewport宽高

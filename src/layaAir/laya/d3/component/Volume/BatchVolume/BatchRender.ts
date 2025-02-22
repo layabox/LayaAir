@@ -155,7 +155,7 @@ export class BatchRender extends BaseRender {
 
     /**
      * 合批队列传入
-     * @param renderNodes 
+     * @param renderNode 
      */
     addList(renderNode: BaseRender[]) {
         for (var i = 0, n = renderNode.length; i < n; i++) {

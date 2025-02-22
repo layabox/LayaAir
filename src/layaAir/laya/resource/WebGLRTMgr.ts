@@ -13,8 +13,8 @@ export class WebGLRTMgr {
 	 * 获得一个renderTarget
 	 * 暂时先按照严格大小判断。
 	 * 
-	 * @param	w
-	 * @param	h
+	 * @param w
+	 * @param h
 	 * @return
 	 */
 	static getRT(w: number, h: number): RenderTexture2D {
@@ -43,7 +43,7 @@ export class WebGLRTMgr {
 
 	/**
 	 * 回收一个renderTarget
-	 * @param	rt
+	 * @param rt
 	 */
 	static releaseRT(rt: RenderTexture2D): void {
 		rt.destroy();

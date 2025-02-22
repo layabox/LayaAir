@@ -36,9 +36,9 @@ export class VertexBuffer3D extends VertexBuffer {
 
 	/**
 	 * 创建一个 <code>VertexBuffer3D</code> 实例。
-	 * @param	byteLength 字节长度。
-	 * @param	bufferUsage VertexBuffer3D用途类型。
-	 * @param	canRead 是否可读。
+	 * @param byteLength 字节长度。
+	 * @param bufferUsage VertexBuffer3D用途类型。
+	 * @param canRead 是否可读。
 	 */
 	constructor(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
 		super(BufferTargetType.ARRAY_BUFFER, bufferUsage);
@@ -62,10 +62,10 @@ export class VertexBuffer3D extends VertexBuffer {
 
 	/**
 	 * 设置数据。
-	 * @param	data 顶点数据。
-	 * @param	bufferOffset 顶点缓冲中的偏移,以字节为单位。
-	 * @param	dataStartIndex 顶点数据的偏移,以字节为单位。
-	 * @param	dataCount 顶点数据的长度,以字节为单位。
+	 * @param buffer 顶点数据。
+	 * @param bufferOffset 顶点缓冲中的偏移,以字节为单位。
+	 * @param dataStartIndex 顶点数据的偏移,以字节为单位。
+	 * @param dataCount 顶点数据的长度,以字节为单位。
 	 */
 	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER): void {
 		this.bind();

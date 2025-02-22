@@ -2,17 +2,7 @@ import { AnimationBase } from "./AnimationBase";
 import { MathUtil } from "../maths/MathUtil"
 import { Ease } from "../utils/Ease"
 
-/**
- * 动画播放完毕后调度。
- * @eventType Event.COMPLETE
- */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
 
-/**
- * 播放到某标签后调度。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event")]*/
 /**
  * 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
  */

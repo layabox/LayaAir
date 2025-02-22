@@ -39,8 +39,6 @@ export class VertexBuffer2D extends VertexBuffer {
 
     /**
      * 在当前位置插入float数组。
-     * @param	data
-     * @param	pos
      */
     appendArray(data: any[]): void {
         var oldoff: number = this._byteLength >> 2;

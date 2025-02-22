@@ -41,7 +41,6 @@ export class RenderElementOBJ implements IRenderElement {
 
     /**
      * render RenderElement
-     * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
         var forceInvertFace: boolean = context.invertY;

@@ -28,7 +28,7 @@ export class ColorUtils {
 
     /**
      * 根据指定的属性值，创建一个 <code>Color</code> 类的实例。
-     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
+     * @param value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
      */
     constructor(value: any) {
         if (value == null || value == 'none') {
@@ -72,7 +72,7 @@ export class ColorUtils {
 
     /**
      * 根据指定的属性值，创建并返回一个 <code>Color</code> 类的实例。
-     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
+     * @param value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
      * @return 一个 <code>Color</code> 类的实例。
      */
     static create(value: any): ColorUtils {

@@ -430,8 +430,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     /**
      * 应用作用力。
-     * @param	force 作用力。
-     * @param	localOffset 偏移,如果为null则为中心点
+     * @param force 作用力。
+     * @param localOffset 偏移,如果为null则为中心点
      */
     private _applyForce(force: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
@@ -451,7 +451,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     /**
    * 应用扭转力。
-   * @param	torque 扭转力。
+   * @param torque 扭转力。
    */
     private _applyTorque(torque: Vector3): void {
         if (this._btCollider == null)
@@ -465,8 +465,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     /**
      * 应用冲量。
-     * @param	impulse 冲量。
-     * @param   localOffset 偏移,如果为null则为中心点。
+     * @param impulse 冲量。
+     * @param localOffset 偏移,如果为null则为中心点。
      */
     private _applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
         if (this._btCollider == null)
@@ -484,7 +484,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     /**
      * 应用扭转冲量。
-     * @param	torqueImpulse
+     * @param torqueImpulse
      */
     private _applyTorqueImpulse(torqueImpulse: Vector3): void {
         if (this._btCollider == null)

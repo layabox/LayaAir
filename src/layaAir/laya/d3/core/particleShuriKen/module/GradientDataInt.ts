@@ -35,8 +35,8 @@ export class GradientDataInt implements IClone {
 
 	/**
 	 * 增加整形渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 整形值。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value 整形值。
 	 */
 	add(key: number, value: number): void {
 		if (this._currentLength < 8) {
@@ -54,7 +54,7 @@ export class GradientDataInt implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataInt: GradientDataInt = <GradientDataInt>destObject;

@@ -10,14 +10,6 @@ import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 
-/**打开任意窗口后调度。
- * @eventType Event.OPEN
- */
-/*[Event(name = "open", type = "laya.events.Event")]*/
-/**关闭任意窗口后调度。
- * @eventType Event.CLOSE
- */
-/*[Event(name = "close", type = "laya.events.Event")]*/
 
 /**
  * <code>DialogManager</code> 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
@@ -186,8 +178,8 @@ export class DialogManager extends Sprite {
 
     /**
      * 根据组获取所有对话框
-     * @param	group 组名称
-     * @return	对话框数组
+     * @param group 组名称
+     * @return 对话框数组
      */
     getDialogsByGroup(group: string): any[] {
         var arr: any[] = [];
@@ -202,7 +194,7 @@ export class DialogManager extends Sprite {
 
     /**
      * 根据组关闭所有弹出框
-     * @param	group 需要关闭的组名称
+     * @param group 需要关闭的组名称
      * @return	需要关闭的对话框数组
      */
     closeByGroup(group: string): any[] {

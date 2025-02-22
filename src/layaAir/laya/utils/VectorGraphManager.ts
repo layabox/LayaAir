@@ -37,8 +37,8 @@ export class VectorGraphManager {
 
     /**
      * 添加一个图形到列表中
-     * @param	id
-     * @param	shape
+     * @param id
+     * @param shape
      */
     addShape(id: number, shape: any): void {
         this.shapeDic[id] = shape;
@@ -49,8 +49,8 @@ export class VectorGraphManager {
 
     /**
      * 添加一个线图形到列表中
-     * @param	id
-     * @param	Line
+     * @param id
+     * @param Line
      */
     addLine(id: number, Line: any): void {
         this.shapeLineDic[id] = Line;
@@ -61,7 +61,7 @@ export class VectorGraphManager {
 
     /**
      * 检测一个对象是否在使用中
-     * @param	id
+     * @param id
      */
     getShape(id: number): void {
         if (this._checkKey) {
@@ -73,7 +73,7 @@ export class VectorGraphManager {
 
     /**
      * 删除一个图形对象
-     * @param	id
+     * @param id
      */
     deleteShape(id: number): void {
         if (this.shapeDic[id]) {

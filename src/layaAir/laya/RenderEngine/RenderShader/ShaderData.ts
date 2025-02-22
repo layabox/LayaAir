@@ -159,7 +159,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 增加Shader宏定义。
-	 * @param value 宏定义。
+	 * @param define 宏定义。
 	 */
 	addDefine(define: ShaderDefine): void {
 		this._defineDatas.add(define);
@@ -167,7 +167,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 移除Shader宏定义。
-	 * @param value 宏定义。
+	 * @param define 宏定义。
 	 */
 	removeDefine(define: ShaderDefine): void {
 		this._defineDatas.remove(define);
@@ -175,7 +175,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 是否包含Shader宏定义。
-	 * @param value 宏定义。
+	 * @param define 宏定义。
 	 */
 	hasDefine(define: ShaderDefine): boolean {
 		return this._defineDatas.has(define);
@@ -190,7 +190,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取布尔。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return  布尔。
 	 */
 	getBool(index: number): boolean {
@@ -199,8 +199,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置布尔。
-	 * @param	index shader索引。
-	 * @param	value 布尔。
+	 * @param index shader索引。
+	 * @param value 布尔。
 	 */
 	setBool(index: number, value: boolean): void {
 		this._data[index] = value;
@@ -208,7 +208,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取整形。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return  整形。
 	 */
 	getInt(index: number): number {
@@ -217,8 +217,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置整型。
-	 * @param	index shader索引。
-	 * @param	value 整形。
+	 * @param index shader索引。
+	 * @param value 整型。
 	 */
 	setInt(index: number, value: number): void {
 		this._data[index] = value;
@@ -230,7 +230,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取浮点。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return	浮点。
 	 */
 	getNumber(index: number): number {
@@ -239,8 +239,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置浮点。
-	 * @param	index shader索引。
-	 * @param	value 浮点。
+	 * @param index shader索引。
+	 * @param value 浮点。
 	 */
 	setNumber(index: number, value: number): void {
 		this._data[index] = value;
@@ -253,7 +253,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取Vector2向量。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return Vector2向量。
 	 */
 	getVector2(index: number): Vector2 {
@@ -262,8 +262,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置Vector2向量。
-	 * @param	index shader索引。
-	 * @param	value Vector2向量。
+	 * @param index shader索引。
+	 * @param value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
 		if (this._data[index]) {
@@ -279,7 +279,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取Vector3向量。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return Vector3向量。
 	 */
 	getVector3(index: number): Vector3 {
@@ -288,8 +288,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置Vector3向量。
-	 * @param	index shader索引。
-	 * @param	value Vector3向量。
+	 * @param index shader索引。
+	 * @param value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
 		if (this._data[index]) {
@@ -314,8 +314,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置向量。
-	 * @param	index shader索引。
-	 * @param	value 向量。
+	 * @param index shader索引。
+	 * @param value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
 		if (this._data[index]) {
@@ -382,7 +382,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取矩阵。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return  矩阵。
 	 */
 	getMatrix4x4(index: number): Matrix4x4 {
@@ -391,8 +391,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置矩阵。
-	 * @param	index shader索引。
-	 * @param	value  矩阵。
+	 * @param index shader索引。
+	 * @param value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
 		if (this._data[index]) {
@@ -437,7 +437,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取Buffer。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return
 	 */
 	getBuffer(index: number): Float32Array {
@@ -446,8 +446,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置Buffer。
-	 * @param	index shader索引。
-	 * @param	value  buffer数据。
+	 * @param index shader索引。
+	 * @param value  buffer数据。
 	 */
 	setBuffer(index: number, value: Float32Array): void {
 		this._data[index] = value;
@@ -455,8 +455,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 设置纹理。
-	 * @param	index shader索引。
-	 * @param	value 纹理。
+	 * @param index shader索引。
+	 * @param value 纹理。
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
@@ -477,7 +477,7 @@ export class ShaderData implements IClone {
 	}
 	/**
 	 * 获取纹理。
-	 * @param	index shader索引。
+	 * @param index shader索引。
 	 * @return  纹理。
 	 */
 	getTexture(index: number): BaseTexture {
@@ -619,7 +619,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: ShaderData): void {
 		var dest: ShaderData = <ShaderData>destObject;

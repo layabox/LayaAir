@@ -49,8 +49,8 @@ export class SphereShape extends BaseShape {
 
 	/**
 	 *  用于生成粒子初始位置和方向。
-	 * @param	position 粒子位置。
-	 * @param	direction 粒子方向。
+	 * @param position 粒子位置。
+	 * @param direction 粒子方向。
 	 * @override
 	 */
 	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {

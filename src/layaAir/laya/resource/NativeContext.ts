@@ -196,7 +196,7 @@ export class NativeContext {
     }
     /**
      * 释放所有资源
-     * @param	keepRT  是否保留rendertarget
+     * @param keepRT  是否保留rendertarget
      */
     destroy(keepRT: boolean = false): void {
         this._nativeObj.flushCommand();

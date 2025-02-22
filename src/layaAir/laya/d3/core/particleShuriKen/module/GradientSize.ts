@@ -8,8 +8,8 @@ import { Vector3 } from "../../../../maths/Vector3";
 export class GradientSize implements IClone {
 	/**
 	 * 通过渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradient 渐变尺寸。
-	 * @return  渐变尺寸。
+	 * @param gradient 渐变尺寸。
+	 * @return 渐变尺寸。
 	 */
 	static createByGradient(gradient: GradientDataNumber): GradientSize {
 		var gradientSize: GradientSize = new GradientSize();
@@ -21,9 +21,9 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 通过分轴渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientX 渐变尺寸X。
-	 * @param	gradientY 渐变尺寸Y。
-	 * @param	gradientZ 渐变尺寸Z。
+	 * @param gradientX 渐变尺寸X。
+	 * @param gradientY 渐变尺寸Y。
+	 * @param gradientZ 渐变尺寸Z。
 	 * @return  渐变尺寸。
 	 */
 	static createByGradientSeparate(gradientX: GradientDataNumber, gradientY: GradientDataNumber, gradientZ: GradientDataNumber): GradientSize {
@@ -38,8 +38,8 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 通过随机双固定尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	constantMin 最小固定尺寸。
-	 * @param	constantMax 最大固定尺寸。
+	 * @param constantMin 最小固定尺寸。
+	 * @param constantMax 最大固定尺寸。
 	 * @return 渐变尺寸。
 	 */
 	static createByRandomTwoConstant(constantMin: number, constantMax: number): GradientSize {
@@ -53,8 +53,8 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 通过分轴随机双固定尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	constantMinSeparate 分轴最小固定尺寸.
-	 * @param	constantMaxSeparate 分轴最大固定尺寸。
+	 * @param constantMinSeparate 分轴最小固定尺寸.
+	 * @param constantMaxSeparate 分轴最大固定尺寸。
 	 * @return   渐变尺寸。
 	 */
 	static createByRandomTwoConstantSeparate(constantMinSeparate: Vector3, constantMaxSeparate: Vector3): GradientSize {
@@ -68,8 +68,8 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 通过随机双渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientMin 最小渐变尺寸。
-	 * @param	gradientMax 最大渐变尺寸。
+	 * @param gradientMin 最小渐变尺寸。
+	 * @param gradientMax 最大渐变尺寸。
 	 * @return 渐变尺寸。
 	 */
 	static createByRandomTwoGradient(gradientMin: GradientDataNumber, gradientMax: GradientDataNumber): GradientSize {
@@ -83,12 +83,12 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 通过分轴随机双渐变尺寸创建一个 <code>GradientSize</code> 实例。
-	 * @param	gradientXMin X轴最小渐变尺寸。
-	 * @param	gradientXMax X轴最大渐变尺寸。
-	 * @param	gradientYMin Y轴最小渐变尺寸。
-	 * @param	gradientYMax Y轴最大渐变尺寸。
-	 * @param	gradientZMin Z轴最小渐变尺寸。
-	 * @param	gradientZMax Z轴最大渐变尺寸。
+	 * @param gradientXMin X轴最小渐变尺寸。
+	 * @param gradientXMax X轴最大渐变尺寸。
+	 * @param gradientYMin Y轴最小渐变尺寸。
+	 * @param gradientYMax Y轴最大渐变尺寸。
+	 * @param gradientZMin Z轴最小渐变尺寸。
+	 * @param gradientZMax Z轴最大渐变尺寸。
 	 * @return  渐变尺寸。
 	 */
 	static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientSize {
@@ -327,7 +327,7 @@ export class GradientSize implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientSize: GradientSize = (<GradientSize>destObject);

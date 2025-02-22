@@ -394,9 +394,6 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**
 	 * 根据后期处理设置cameraDepthTextureMode
-	 * @inheritDoc
-	 * @override
-	 * @returns 
 	 */
 	getCameraDepthTextureModeFlag() {
 		return 0;

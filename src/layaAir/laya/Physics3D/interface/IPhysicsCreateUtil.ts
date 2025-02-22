@@ -5,7 +5,6 @@ import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
 import { IPhysicsManager } from "./IPhysicsManager";
 import { IStaticCollider } from "./IStaticCollider";
-import { ICustomJoint } from "./Joint/ICustomJoint";
 import { ID6Joint } from "./Joint/ID6Joint";
 import { IFixedJoint } from "./Joint/IFixedJoint";
 import { IHingeJoint } from "./Joint/IHingeJoint";
@@ -59,19 +58,16 @@ export interface IPhysicsCreateUtil {
     //joint module
     /**
      * Create fixed joint.
-     * @param collider - Affector of joint
      */
     createFixedJoint(manager: IPhysicsManager): IFixedJoint;
 
     /**
      * Create hinge joint.
-     * @param collider - Affector of joint
      */
     createHingeJoint(manager: IPhysicsManager): IHingeJoint;
 
     /**
      * Create spring joint
-     * @param collider - Affector of joint
      */
     createSpringJoint(manager: IPhysicsManager): ISpringJoint;
 
@@ -83,33 +79,21 @@ export interface IPhysicsCreateUtil {
     //Shape
     /**
      * Create box collider shape.
-     * @param uniqueID - Shape unique id
-     * @param size - Size of the box
-     * @param material - The material of this shape
      */
     createBoxColliderShape(): IBoxColliderShape;
 
     /**
      * Create sphere collider shape.
-     * @param uniqueID - Shape unique id
-     * @param radius - Radius of the sphere
-     * @param material - The material of this shape
      */
     createSphereColliderShape(): ISphereColliderShape;
 
     /**
      * Create plane collider shape.
-     * @param uniqueID - Shape unique id
-     * @param material - The material of this shape
      */
     createPlaneColliderShape(): IPlaneColliderShape;
 
     /**
      * Create capsule collider shape.
-     * @param uniqueID - Shape unique id
-     * @param radius - Radius of capsule
-     * @param height - Height of capsule
-     * @param material - The material of this shape
      */
     createCapsuleColliderShape?(): ICapsuleColliderShape;
 

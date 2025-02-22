@@ -34,8 +34,8 @@ export class GradientDataNumber implements IClone {
 
 	/**
 	 * 增加浮点渐变。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value 浮点值。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value 浮点值。
 	 */
 	add(key: number, value: number): void {
 		if (this._currentLength < 8) {
@@ -54,7 +54,7 @@ export class GradientDataNumber implements IClone {
 
 	/**
 	 * 通过索引获取键。
-	 * @param	index 索引。
+	 * @param index 索引。
 	 * @return	value 键。
 	 */
 	getKeyByIndex(index: number): number {
@@ -63,7 +63,7 @@ export class GradientDataNumber implements IClone {
 
 	/**
 	 * 通过索引获取值。
-	 * @param	index 索引。
+	 * @param index 索引。
 	 * @return	value 值。
 	 */
 	getValueByIndex(index: number): number {
@@ -88,7 +88,7 @@ export class GradientDataNumber implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataNumber: GradientDataNumber = <GradientDataNumber>destObject;

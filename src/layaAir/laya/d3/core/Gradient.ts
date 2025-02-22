@@ -137,8 +137,8 @@ export class Gradient implements IClone {
 
 	/**
 	 * 增加颜色RGB帧。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value RGB值。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value RGB值。
 	 */
 	addColorRGB(key: number, value: Color): void {
 		if (this._colorRGBKeysCount < this._maxColorRGBKeysCount) {
@@ -155,8 +155,8 @@ export class Gradient implements IClone {
 
 	/**
 	 * 增加颜色Alpha帧。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value Alpha值。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value Alpha值。
 	 */
 	addColorAlpha(key: number, value: number): void {
 		if (this._colorAlphaKeysCount < this._maxColorAlphaKeysCount) {
@@ -171,9 +171,9 @@ export class Gradient implements IClone {
 
 	/**
 	 * 更新颜色RGB帧。
-	 * @param   index 索引。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value RGB值。
+	 * @param index 索引。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value RGB值。
 	 */
 	updateColorRGB(index: number, key: number, value: Color): void {//TODO:以key为键自动排序
 		if (index < this._colorRGBKeysCount) {
@@ -189,9 +189,9 @@ export class Gradient implements IClone {
 
 	/**
 	 * 更新颜色Alpha帧。
-	 * @param   index 索引。
-	 * @param	key 生命周期，范围为0到1。
-	 * @param	value Alpha值。
+	 * @param index 索引。
+	 * @param key 生命周期，范围为0到1。
+	 * @param value Alpha值。
 	 */
 	updateColorAlpha(index: number, key: number, value: number): void {
 		if (index < this._colorAlphaKeysCount) {
@@ -205,9 +205,10 @@ export class Gradient implements IClone {
 
 	/**
 	 * 通过插值获取RGB颜色。
-	 * @param  lerpFactor 插值因子。
-	 * @param  out 颜色结果。
-	 * @param  开始查找索引。
+	 * @param lerpFactor 插值因子。
+	 * @param out 颜色结果。
+	 * @param startSearchIndex 开始查找索引。
+	 * @param reverseSearch 是否反向查找。
 	 * @return 结果索引。
 	 */
 	evaluateColorRGB(lerpFactor: number, out: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
@@ -310,9 +311,9 @@ export class Gradient implements IClone {
 
 	/**
 	 * 通过插值获取透明值。
-	 * @param  lerpFactor 插值因子。
-	 * @param  out 颜色结果。
-	 * @param  开始查找索引。
+	 * @param lerpFactor 插值因子。
+	 * @param outColor 颜色结果。
+	 * @param startSearchIndex 开始查找索引。
 	 * @return 结果索引 。
 	 */
 	evaluateColorAlpha(lerpFactor: number, outColor: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
@@ -402,7 +403,7 @@ export class Gradient implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destGradientDataColor: Gradient = (<Gradient>destObject);

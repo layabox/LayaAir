@@ -98,10 +98,10 @@ export class Color implements IClone {
 
     /**
      * 创建一个 <code>Color</code> 实例。
-     * @param	r  颜色的red分量。
-     * @param	g  颜色的green分量。
-     * @param	b  颜色的blue分量。
-     * @param	a  颜色的alpha分量。
+     * @param r  颜色的red分量。
+     * @param g  颜色的green分量。
+     * @param b  颜色的blue分量。
+     * @param a  颜色的alpha分量。
      */
     constructor(r: number = 1, g: number = 1, b: number = 1, a: number = 1) {
         this.r = r;
@@ -121,7 +121,7 @@ export class Color implements IClone {
 
     /**
      * Gamma空间转换到线性空间。
-     * @param	linear 线性空间颜色。
+     * @param out 线性空间颜色。
      */
     toLinear(out: Color): void {
         out.r = Color.gammaToLinearSpace(this.r);
@@ -132,7 +132,7 @@ export class Color implements IClone {
 
     /**
      * 线性空间转换到Gamma空间。
-     * @param	gamma Gamma空间颜色。
+     * @param out Gamma空间颜色。
      */
     toGamma(out: Color): void {
         out.r = Color.linearToGammaSpace(this.r);
@@ -143,7 +143,7 @@ export class Color implements IClone {
 
     /**
      * 克隆。
-     * @param	destObject 克隆源。
+     * @param destObject 克隆源。
      */
     cloneTo(destObject: any): void {
         var destColor: Color = (<Color>destObject);
@@ -169,8 +169,8 @@ export class Color implements IClone {
 
     /**
      * 从Array数组拷贝值。
-     * @param  array 数组。
-     * @param  offset 数组偏移。
+     * @param array 数组。
+     * @param offset 数组偏移。
      */
     fromArray(array: any[], offset: number = 0): void {
         this.r = array[offset + 0];

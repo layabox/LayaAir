@@ -8,12 +8,6 @@ import { Utils } from "../utils/Utils"
 import { AssetDb } from "../resource/AssetDb"
 
 /**
- * 值发生改变后调度。
- * @eventType laya.events.Event
- */
-/*[Event(name = "change", type = "laya.events.Event")]*/
-
-/**
  * <code>ProgressBar</code> 组件显示内容的加载进度。
  * @example <caption>以下示例代码，创建了一个新的 <code>ProgressBar</code> 实例，设置了它的皮肤、位置、宽高、网格等信息，并添加到舞台上。</caption>
  * package
@@ -168,7 +162,7 @@ export class ProgressBar extends UIComponent {
     }
 
     /**
-     * @copy laya.ui.Image#skin
+     * @see laya.ui.Image#skin
      */
     get skin(): string {
         return this._skin;

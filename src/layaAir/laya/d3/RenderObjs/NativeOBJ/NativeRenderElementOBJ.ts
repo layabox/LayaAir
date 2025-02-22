@@ -103,7 +103,6 @@ export class NativeRenderElementOBJ implements IRenderElement {
     }
     /**
      * render RenderElement
-     * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
         UploadMemoryManager.syncRenderMemory();//同步数据

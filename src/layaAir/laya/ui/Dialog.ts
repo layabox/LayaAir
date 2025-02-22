@@ -347,7 +347,7 @@ export class Dialog extends View {
 
     /**
      * 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示
-     * @param	view 锁定界面内容
+     * @param view 锁定界面内容
      */
     static setLockView(view: UIComponent): void {
         Dialog.manager.setLockView(view);
@@ -367,7 +367,7 @@ export class Dialog extends View {
 
     /**
      * 根据组获取对话框集合
-     * @param	group 组名称
+     * @param group 组名称
      * @return	对话框数组
      */
     static getDialogsByGroup(group: string): any[] {
@@ -376,7 +376,7 @@ export class Dialog extends View {
 
     /**
      * 根据组关闭所有弹出框
-     * @param	group 需要关闭的组名称
+     * @param group 需要关闭的组名称
      */
     static closeByGroup(group: string): any[] {
         return Dialog.manager.closeByGroup(group);

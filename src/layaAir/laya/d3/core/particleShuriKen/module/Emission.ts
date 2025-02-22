@@ -20,7 +20,7 @@ export class Emission implements IClone {
 
 	/**
 	 * 设置粒子发射速率。
-	 * @param emissionRate 粒子发射速率 (个/秒)。
+	 * @param value 粒子发射速率 (个/秒)。
 	 */
 	set emissionRate(value: number) {
 		if (value < 0)
@@ -128,7 +128,7 @@ export class Emission implements IClone {
 
 	/**
 	 * 克隆。
-	 * @param	destObject 克隆源。
+	 * @param destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
 		var destEmission: Emission = (<Emission>destObject);

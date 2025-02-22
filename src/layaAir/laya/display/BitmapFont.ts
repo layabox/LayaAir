@@ -27,8 +27,8 @@ export class BitmapFont extends Resource {
 
     /**
      * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
-     * @param	path		位图字体文件的路径。
-     * @param	complete	加载并解析完成的回调。
+     * @param path		位图字体文件的路径。
+     * @param complete	加载并解析完成的回调。
      */
     static loadFont(path: string, complete: Handler): void {
         ILaya.loader.load(path, Loader.FONT).then(font => {
@@ -42,8 +42,8 @@ export class BitmapFont extends Resource {
 
     /**
      * 解析字体文件。
-     * @param	xml			字体文件XML。
-     * @param	texture		字体的纹理。
+     * @param xml			字体文件XML。
+     * @param texture		字体的纹理。
      */
     parseFont(xml: XML, texture: Texture): void {
         if (xml == null || texture == null) return;
@@ -114,7 +114,7 @@ export class BitmapFont extends Resource {
 
     /**
      * 获取指定文本内容的宽度。
-     * @param	text 文本内容。
+     * @param text 文本内容。
      * @return  宽度。
      */
     getTextWidth(text: string, fontSize?: number): number {

@@ -15,16 +15,11 @@ export interface StatToggleUIParams {
     value: string,//Toggle
     color: StatColor,//显示颜色
 }
-
-/**
- * @author laya
- */
 export interface IStatUI {
     /**
      * 显示性能统计信息。
-     * @param	x X轴显示位置。
-     * @param	y Y轴显示位置。
-     * @views
+     * @param x X轴显示位置。
+     * @param y Y轴显示位置。
      */
     show(x?: number, y?: number, views?: Array<StatUIParams>): void;
     showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>): void;

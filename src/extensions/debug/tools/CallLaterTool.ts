@@ -60,9 +60,9 @@ import { Timer } from "laya/utils/Timer"
 		
 		/**
 		 * 延迟执行。
-		 * @param	caller 执行域(this)。
-		 * @param	method 定时器回调函数。
-		 * @param	args 回调参数。
+		 * @param caller 执行域(this)。
+		 * @param method 定时器回调函数。
+		 * @param args 回调参数。
 		 */
 		 callLater(caller:any, method:Function, args:any[] = null):void {
 			if (this._getHandler(caller, method) == null) {

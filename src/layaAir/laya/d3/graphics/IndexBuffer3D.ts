@@ -39,10 +39,10 @@ export class IndexBuffer3D extends IndexBuffer {
 
 	/**
 	 * 创建一个 <code>IndexBuffer3D,不建议开发者使用并用IndexBuffer3D.create()代替</code> 实例。
-	 * @param	indexType 索引类型。
-	 * @param	indexCount 索引个数。
-	 * @param	bufferUsage IndexBuffer3D用途类型。
-	 * @param	canRead 是否可读。
+	 * @param indexType 索引类型。
+	 * @param indexCount 索引个数。
+	 * @param bufferUsage IndexBuffer3D用途类型。
+	 * @param canRead 是否可读。
 	 */
 	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
 		super(BufferTargetType.ELEMENT_ARRAY_BUFFER, bufferUsage);
@@ -84,10 +84,10 @@ export class IndexBuffer3D extends IndexBuffer {
 
 	/**
 	 * 设置数据。
-	 * @param	data 索引数据。
-	 * @param	bufferOffset 索引缓冲中的偏移。
-	 * @param	dataStartIndex 索引数据的偏移。
-	 * @param	dataCount 索引数据的数量。
+	 * @param data 索引数据。
+	 * @param bufferOffset 索引缓冲中的偏移。
+	 * @param dataStartIndex 索引数据的偏移。
+	 * @param dataCount 索引数据的数量。
 	 */
 	setData(data: any, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
 		var byteCount: number = this._indexTypeByteCount;

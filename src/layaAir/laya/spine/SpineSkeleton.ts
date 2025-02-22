@@ -10,22 +10,6 @@ import { ExternalSkin } from "./ExternalSkin";
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 
-/**动画开始播放调度
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-/**动画停止播放调度
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-/**动画暂停播放调度
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-/**自定义事件。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
 /**
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
@@ -159,7 +143,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置当前播放位置
-     * @param	value 当前时间
+     * @param value 当前时间
      */
     set currentTime(value: number) {
         if (!this._currAniName || !this._templet)
@@ -260,13 +244,13 @@ export class SpineSkeleton extends Sprite {
     /**
      * 播放动画
      *
-     * @param	nameOrIndex	动画名字或者索引
-     * @param	loop		是否循环播放
-     * @param	force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-     * @param	start		起始时间
-     * @param	end			结束时间
-     * @param	freshSkin	是否刷新皮肤数据
-     * @param	playAudio	是否播放音频
+     * @param nameOrIndex	动画名字或者索引
+     * @param loop		是否循环播放
+     * @param force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
+     * @param start		起始时间
+     * @param end			结束时间
+     * @param freshSkin	是否刷新皮肤数据
+     * @param playAudio	是否播放音频
      */
     play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
         this._playAudio = playAudio;
@@ -347,7 +331,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 得到指定动画的名字
-     * @param	index	动画的索引
+     * @param index	动画的索引
      */
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
@@ -363,7 +347,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 设置动画播放速率
-     * @param	value	1为标准速率
+     * @param value	1为标准速率
      */
     playbackRate(value: number): void {
         this._playbackRate = value;
@@ -371,7 +355,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 通过名字显示一套皮肤
-     * @param	name	皮肤的名字
+     * @param name	皮肤的名字
      */
     showSkinByName(name: string): void {
         this.showSkinByIndex(this._templet.getSkinIndexByName(name));
@@ -379,7 +363,7 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 通过索引显示一套皮肤
-     * @param	skinIndex	皮肤索引
+     * @param skinIndex	皮肤索引
      */
     showSkinByIndex(skinIndex: number): void {
         let newSkine = this._skeleton.data.skins[skinIndex];
