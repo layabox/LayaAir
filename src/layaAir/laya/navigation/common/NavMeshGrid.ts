@@ -110,14 +110,15 @@ export class NavMeshGrid {
 
     /**
      * @internal
-     * @en Get the tile indices that intersect with the given bounding box.
-     * @param bound The bounding box to check.
+     * @en Get the tile indices that intersect with the given bounding box defined by minimum and maximum coordinates.
+     * @param min The minimum coordinates of the bounding box.
+     * @param max The maximum coordinates of the bounding box.
      * @param isbord Whether to include a border around the bounding box.
      * @returns An array of tile indices.
-     * @zh 获取与给定边界框相交的瓦片索引。
-     * @param min 要检查的包围盒最小点。
-     * @param max 要检查的包围盒最大点。
-     * @param isbord 是否对包围盒进行阔边。
+     * @zh 获取与由最小和最大坐标定义的给定边界框相交的瓦片索引。
+     * @param min 边界框的最小坐标。
+     * @param max 边界框的最大坐标。
+     * @param isbord 是否在边界框周围包含边界。
      * @returns 瓦片索引数组。
      */
     getBoundTileIndex(min: Vector3, max: Vector3, isbord: boolean = false): number[] {
