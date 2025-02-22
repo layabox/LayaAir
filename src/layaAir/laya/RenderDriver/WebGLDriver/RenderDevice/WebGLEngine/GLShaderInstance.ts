@@ -503,8 +503,6 @@ export class GLShaderInstance extends GLObject {
 
     /**
      * @internal
-     * @param one 
-     * @param value 
      * @returns 
      */
     _uniform_UniformBuffer(one: any, value: UniformBufferObject) {

@@ -45,7 +45,6 @@ export class WebGPUForwardAddRP {
 
     /**
      * 设置后处理之前绘制的渲染命令
-     * @param value 
      */
     setBeforeImageEffect(value: CommandBuffer[]): void {
         if (value && value.length > 0) {
@@ -56,7 +55,6 @@ export class WebGPUForwardAddRP {
 
     /**
      * 设置所有渲染都结束后绘制的渲染命令
-     * @param value 
      */
     setAfterEventCmd(value: CommandBuffer[]): void {
         if (value && value.length > 0) {

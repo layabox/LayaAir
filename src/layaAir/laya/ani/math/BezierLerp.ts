@@ -87,6 +87,7 @@ export class BezierLerp {
     /**
     * @internal
     * @en Get or calculate an array of points representing a cubic Bezier curve with fixed start and end points.
+    * - The start point P0 is fixed at (0,0) and the end point P3 is fixed at (1,1) in the implementation.
     * @param px0 X-coordinate of the first control point P1.
     * @param py0 Y-coordinate of the first control point P1.
     * @param px1 X-coordinate of the second control point P2.
@@ -94,8 +95,7 @@ export class BezierLerp {
     * @param key The unique key for caching.
     * @returns An array of numbers representing points on the Bezier curve. The array contains alternating x and y coordinates, 
     *          [x0, y0, x1, y1, ...]. The number of points is determined by the insertion count (100 in this implementation).
-    * @note The start point P0 is fixed at (0,0) and the end point P3 is fixed at (1,1) in the implementation.
-    * @zh 获取或计算表示固定起点和终点的三次贝塞尔曲线的点数组。
+    * @zh 获取或计算表示固定起点和终点的三次贝塞尔曲线的点数组。在实现中，起点 P0 固定在 (0,0)，终点 P3 固定在 (1,1)。
     * @param px0 第一个控制点 P1 的 X 坐标。
     * @param py0 第一个控制点 P1 的 Y 坐标。
     * @param px1 第二个控制点 P2 的 X 坐标。
@@ -103,7 +103,6 @@ export class BezierLerp {
     * @param key 用于缓存的唯一键。
     * @returns 表示贝塞尔曲线上点的数字数组。数组包含交替的 x 和 y 坐标，[x0, y0, x1, y1, ...]。
     *          点的数量由插值数量决定（在此实现中为100）。
-    * @note 在实现中，起点 P0 固定在 (0,0)，终点 P3 固定在 (1,1)。
     */
     private static _getBezierPoints(px0: number, py0: number, px1: number, py1: number, key: number): any[] {
         if (BezierLerp._bezierPointsCache[key]) return BezierLerp._bezierPointsCache[key];

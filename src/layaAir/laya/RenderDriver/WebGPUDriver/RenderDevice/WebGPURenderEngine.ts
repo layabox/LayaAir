@@ -366,8 +366,6 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     /**
      * @internal
-     * @param info 
-     * @param value 
      */
     _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
         this._enableStatistics && this._GPUStatisticsInfo.set(info, this._GPUStatisticsInfo.get(info) + value);

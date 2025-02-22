@@ -2672,8 +2672,6 @@ export class Sprite extends Node {
 
     /**
      * @internal
-     * @param flag 
-     * @param value 
      */
     _syncGlobalFlag(flag: number, value: boolean) {
         if (this.cacheGlobal) {

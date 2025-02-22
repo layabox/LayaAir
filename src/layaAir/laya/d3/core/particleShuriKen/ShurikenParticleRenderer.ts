@@ -43,7 +43,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     /**@internal */
     private _mesh: Mesh = null;
 
-    /**@interanl */
+    /**@internal */
     _particleSystem: ShurikenParticleSystem;
     /**
      * @en Scale of camera speed in stretched billboard mode (currently not supported).

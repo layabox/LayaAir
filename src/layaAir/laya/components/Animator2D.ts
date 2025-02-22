@@ -245,11 +245,6 @@ export class Animator2D extends Component {
 
     /**
      * @internal
-     * @param animatorState 
-     * @param playState 
-     * @param elapsedTime 
-     * @param loop 
-     * @param layerIndex 
      * @returns 
      */
     private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number, loop: number, layerIndex: number): void {
@@ -477,9 +472,6 @@ export class Animator2D extends Component {
 
     /**
      * 启用过渡
-     * @param layerindex 
-     * @param transition 
-     * @returns 
      */
     private _applyTransition(layerindex: number, transition: AnimatorTransition2D) {
         if (!transition)
@@ -535,11 +527,11 @@ export class Animator2D extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @returns The AnimatorControllerLayer at the specified index.
      * @zh 获取控制器层。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 指定索引处的AnimatorControllerLayer。
      */
-    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer2D {
-        return this._controllerLayers[layerInex];
+    getControllerLayer(layerIndex: number = 0): AnimatorControllerLayer2D {
+        return this._controllerLayers[layerIndex];
     }
 
     /**

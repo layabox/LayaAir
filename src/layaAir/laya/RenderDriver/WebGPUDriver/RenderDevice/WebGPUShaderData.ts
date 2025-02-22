@@ -468,7 +468,6 @@ export class WebGPUShaderData extends ShaderData {
 
     /**
      * 增加Shader宏定义
-     * @param value 宏定义
      */
     addDefine(define: ShaderDefine) {
         if (!this._defineDatas.has(define)) {
@@ -517,7 +516,6 @@ export class WebGPUShaderData extends ShaderData {
 
     /**
      * 移除Shader宏定义
-     * @param value 宏定义
      */
     removeDefine(define: ShaderDefine) {
         if (this._defineDatas.has(define)) {
@@ -552,7 +550,6 @@ export class WebGPUShaderData extends ShaderData {
 
     /**
      * 是否包含Shader宏定义
-     * @param value 宏定义
      */
     hasDefine(define: ShaderDefine) {
         return this._defineDatas.has(define);

@@ -761,12 +761,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * @en Set the frequency and damping ratio of a joint.
-     * @param joint The joint.
+     * @param Joint The joint.
      * @param frequency The frequency.
      * @param dampingRatio The damping ratio.
      * @param isdamping True to apply damping, false otherwise.
      * @zh 设置关节的频率和阻尼比。
-     * @param joint 关节。
+     * @param Joint 关节。
      * @param frequency 频率。
      * @param dampingRatio 阻尼比。
      * @param isdamping 是否应用阻尼。
@@ -866,11 +866,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param stiffness 刚度。
      * @param damping 阻尼。
      */
-    set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number) {
+    set_DistanceJointStiffnessDamping(joint: any, stiffness: number, damping: number) {
         let out: any = {};
         let bodyA = joint.GetBodyA();
         let bodyB = joint.GetBodyB();
-        this.box2d.b2LinearStiffness(out, steffness, damping, bodyA, bodyB);
+        this.box2d.b2LinearStiffness(out, stiffness, damping, bodyA, bodyB);
         joint.SetStiffness(out.stiffness);
         joint.SetDamping(out.damping);
     }

@@ -205,7 +205,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     /**
      * GL Context
-     * @member {WebGLRenderingContext}
      */
     get gl() {
         return this._context;
@@ -227,8 +226,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     /**
      * @internal
-     * @param info 
-     * @param value 
      */
     _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
         this._enableStatistics && this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);

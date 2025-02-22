@@ -40,9 +40,6 @@ export class RenderManager2D {
 
     /**
      * 注册渲染节点之间的合批
-     * @param firstRenderElementType 
-     * @param lastRenderElementType 
-     * @param batch 
      */
     static regisBatch(renderElementType: number, batch: IBatch2DRender): void {
         if (RenderManager2D._batchMapManager[renderElementType])

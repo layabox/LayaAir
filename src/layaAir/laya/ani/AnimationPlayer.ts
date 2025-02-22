@@ -469,7 +469,7 @@ export class AnimationPlayer extends EventDispatcher {
 	 * @zh 基于时间来播放动画。
 	 * @param	index 动画索引。
 	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param	overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
 	 * @param	playStart 播放的起始时间位置。
 	 * @param	playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
 	 */
@@ -515,7 +515,7 @@ export class AnimationPlayer extends EventDispatcher {
 	 * @zh 基于帧的参数来播放动画。
 	 * @param	index 动画索引。
 	 * @param	playbackRate 播放速率。
-	 * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
+	 * @param	overallDuration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
 	 * @param	playStartFrame 播放的原始起始帧率位置。
 	 * @param	playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
 	 * @param	fpsIn3DBuilder 3D构建器中的帧率。

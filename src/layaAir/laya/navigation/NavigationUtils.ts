@@ -526,7 +526,7 @@ export class NavigationUtils {
      * @param status 要检查的状态。
      * @returns 如果状态成功则返回 true，否则返回 false。
      */
-    static statusSucceed(data: any): boolean {
+    static statusSucceed(status: any): boolean {
         return this._recast.dtStatusSucceed(status)
     }
 }

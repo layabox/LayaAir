@@ -116,7 +116,6 @@ export class WebGLShaderData extends ShaderData {
 
 	/**
 	 * 增加Shader宏定义。
-	 * @param value 宏定义。
 	 */
 	addDefine(define: ShaderDefine): void {
 		this._defineDatas.add(define);
@@ -128,7 +127,6 @@ export class WebGLShaderData extends ShaderData {
 
 	/**
 	 * 移除Shader宏定义。
-	 * @param value 宏定义。
 	 */
 	removeDefine(define: ShaderDefine): void {
 		this._defineDatas.remove(define);
@@ -136,7 +134,6 @@ export class WebGLShaderData extends ShaderData {
 
 	/**
 	 * 是否包含Shader宏定义。
-	 * @param value 宏定义。
 	 */
 	hasDefine(define: ShaderDefine): boolean {
 		return this._defineDatas.has(define);
@@ -379,8 +376,6 @@ export class WebGLShaderData extends ShaderData {
 
 	/**
 	 * 设置矩阵。
-	 * @param index 
-	 * @param value 
 	 */
 	setMatrix3x3(index: number, value: Matrix3x3): void {
 		if (this._data[index]) {
@@ -472,11 +467,7 @@ export class WebGLShaderData extends ShaderData {
 		return -1;
 	}
 
-	/**
-	 * 
-	 * @param index 
-	 * @param value 
-	 */
+
 	setUniformBuffer(index: number, value: UniformBufferObject) {
 		this._data[index] = value;
 	}

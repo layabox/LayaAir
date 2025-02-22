@@ -150,9 +150,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
 	/**
 	 * 将数据克隆到目标节点
-	 * @param 目标节点
-	 * @inheritDoc
-	 * @override
 	 */
 	cloneTo(destObject: CompoundColliderShape): void {
 		destObject.clearChildShape();
@@ -161,7 +158,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @inheritDoc
 	 * @override
 	 */
 	clone(): any {
@@ -171,7 +167,6 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * @inheritDoc
 	 * @override
 	 */
 	destroy(): void {
