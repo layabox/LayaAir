@@ -152,19 +152,6 @@ export class Mesh2D extends Resource {
         
         indexBuffer.indexType = ibFormat;
 
-        let indexCount = 0;
-        switch (ibFormat) {
-			case IndexFormat.UInt32:
-				indexCount = 4;
-				break;
-			case IndexFormat.UInt16:
-				indexCount = 2;
-				break;
-			case IndexFormat.UInt8:
-				indexCount = 1;
-				break;
-		}
-        indexBuffer.indexCount = indexCount;
         mesh2d._setBuffers(vbArray, indexBuffer);
 
         let geometryArray = [];
