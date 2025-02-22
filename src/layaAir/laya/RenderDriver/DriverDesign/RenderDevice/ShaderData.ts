@@ -104,7 +104,6 @@ export class ShaderData implements IClone {
 
     /**
      * 增加Shader宏定义。
-     * @param value 宏定义。
      */
     addDefine(define: ShaderDefine): void {
         throw new NotImplementedError();
@@ -116,7 +115,6 @@ export class ShaderData implements IClone {
 
     /**
      * 移除Shader宏定义。
-     * @param value 宏定义。
      */
     removeDefine(define: ShaderDefine): void {
         throw new NotImplementedError();
@@ -124,7 +122,6 @@ export class ShaderData implements IClone {
 
     /**
      * 是否包含Shader宏定义。
-     * @param value 宏定义。
      */
     hasDefine(define: ShaderDefine): boolean {
         throw new NotImplementedError();
@@ -292,8 +289,6 @@ export class ShaderData implements IClone {
 
     /**
      * 设置矩阵。
-     * @param index 
-     * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
         throw new NotImplementedError();
@@ -335,11 +330,6 @@ export class ShaderData implements IClone {
         throw new NotImplementedError();
     }
 
-    /**
-     * 
-     * @param index 
-     * @param value 
-     */
     setUniformBuffer(index: number, value: UniformBufferObject) {
         throw new NotImplementedError();
     }

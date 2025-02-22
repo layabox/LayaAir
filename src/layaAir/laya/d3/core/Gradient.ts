@@ -125,12 +125,7 @@ export class Gradient implements IClone {
 	}
 
 	/**
-	 * @en Constructor function.
-	 * @param maxColorRGBKeyCount The maximum count of RGB keys.
-	 * @param maxColorAlphaKeyCount The maximum count of Alpha keys.
-	 * @zh 构造函数。
-	 * @param maxColorRGBKeyCount 最大 RGB 帧个数。
-	 * @param maxColorAlphaKeyCount 最大 Alpha 帧个数。
+	 * @ignore
 	 */
 	constructor() {
 		// 加载 decodeObj 赋值 _rgbElements/ _alphaElements, 初始化buffer
@@ -465,7 +460,6 @@ export class Gradient implements IClone {
 	 * 更新 GPU data array
 	 * @param data GPU data array
 	 * @param elements 原始数据
-	 * @param dateLength GPU data length
 	 */
 	private _updateGpuData(data: Float32Array, elements: Float32Array) {
 		let length = Math.min(data.length, elements.length);

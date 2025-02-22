@@ -103,9 +103,7 @@ export class AnimatorStateCondition {
     /**
      * @internal
      * @en Checks if the state condition is triggered based on the provided value.
-     * @param value The value to check against the condition, can be a number or a boolean.
      * @zh 根据提供的值检查状态条件是否被触发。(未实现，目前只会返回false)
-     * @param value 用于检查条件的值，可以是数字或布尔值。（当前未实现，只会返回false）
      */
     checkState(value: number | boolean): boolean {
         return false;

@@ -135,10 +135,10 @@ export class Rectangle implements IClone {
 
     /**
      * @en Copies the property values from the source Rectangle object to this rectangle object.
-     * @param sourceRect The source Rectangle object.
+     * @param source The source Rectangle object.
      * @returns The rectangle object itself after the property values have been modified.
      * @zh 复制源 Rectangle 对象的属性值到此矩形对象中。
-     * @param sourceRect 源 Rectangle 对象。
+     * @param source 源 Rectangle 对象。
      * @return 返回属性值修改后的矩形对象本身。
      */
     copyFrom(source: Rectangle): Rectangle {

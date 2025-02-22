@@ -455,8 +455,8 @@ export class VideoNode extends Sprite {
      * @zh 销毁内部事件绑定，并可选择是否删除子节点
      * @param destroyChildren 是否删除子节点
      */
-    destroy(detroyChildren: boolean = true): void {
+    destroy(destroyChildren: boolean = true): void {
         this.videoTexture = null;
-        super.destroy(detroyChildren);
+        super.destroy(destroyChildren);
     }
 }

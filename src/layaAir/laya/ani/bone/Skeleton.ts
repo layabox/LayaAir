@@ -1003,7 +1003,7 @@ export class Skeleton extends Sprite {
      * @param slotName The name of the slot.
      * @param texture The custom texture to be applied.
      * @zh 为指定的插槽设置自定义皮肤。
-     * @param name 插糟的名字
+     * @param slotName 插糟的名字
      * @param texture 自定义的纹理
      */
     setSlotSkin(slotName: string, texture: Texture): void {

@@ -74,7 +74,6 @@ export class GLESShaderData extends ShaderData {
 
     /**
      * 增加Shader宏定义。
-     * @param value 宏定义。
      */
     addDefine(define: RTShaderDefine): void {
         this._defineDatas.add(define);
@@ -86,7 +85,6 @@ export class GLESShaderData extends ShaderData {
 
     /**
      * 移除Shader宏定义。
-     * @param value 宏定义。
      */
     removeDefine(define: RTShaderDefine): void {
         this._defineDatas.remove(define);
@@ -94,7 +92,6 @@ export class GLESShaderData extends ShaderData {
 
     /**
      * 是否包含Shader宏定义。
-     * @param value 宏定义。
      */
     hasDefine(define: RTShaderDefine): boolean {
         return this._defineDatas.has(define);
@@ -182,7 +179,6 @@ export class GLESShaderData extends ShaderData {
     /**
      * 设置Vector2向量。
      * @param	index shader索引。
-     * @param	value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
         this._nativeObj.setVector2(index, value);

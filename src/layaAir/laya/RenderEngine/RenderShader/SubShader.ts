@@ -23,9 +23,6 @@ export class SubShader {
     /**
      * 注册glsl所用到的Uniform
      * 会在生成Uniformmap的时候根据包含的Include文件，添加所需要的uniform因素
-     * @param includeName 
-     * @param uniformInfo 
-     * @param defaultUniformData 
      */
     public static regIncludeBindUnifrom(includeName: string, uniformMap: { [name: string]: ShaderDataType }, defaultValue: { [key: string]: any }) {
         let obj: any = {};
@@ -126,7 +123,6 @@ export class SubShader {
      * 添加着色器Pass
      * @param vs 
      * @param ps 
-     * @param stateMap 
      * @param pipelineMode 渲染管线模式。 
      */
     addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward"): ShaderPass {

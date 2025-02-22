@@ -308,10 +308,8 @@ export class Sprite3D extends Node {
     }
 
     /**
-     * @inheritDoc
-     * @override
      * @en destroy
-     * @param dextroychild whether to destroy the child node.
+     * @param destroyChild whether to destroy the child node.
      * @zh 销毁
      * @param destroyChild 是否销毁子节点
      */

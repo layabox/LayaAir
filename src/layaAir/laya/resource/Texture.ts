@@ -298,10 +298,10 @@ export class Texture extends Resource {
 
     /**
      * @en Creates an instance of Texture class.
-     * @param bitmap Bitmap resource.
+     * @param source Bitmap resource.
      * @param uv UV data information.
      * @zh 创建 Texture 类的新实例
-     * @param bitmap 位图资源。
+     * @param source 位图资源。
      * @param uv UV 数据信息。
      */
     constructor(source: Texture | BaseTexture = null, uv: ArrayLike<number> = null,
