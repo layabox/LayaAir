@@ -4,12 +4,12 @@ import { rimrafSync } from "rimraf";
 import { Application, OptionDefaults } from "typedoc";
 
 const outDir = path.join(".", "docs");
-const ourTags = ["@en", "@zh", "@perfTag"];
-const currentVersion = "3.2.3";
+const ourTags = ["@en", "@zh", "@perfTag", "@performanceTool"];
+const currentVersion = "3.2.4";
 
 const configVersions = [
+    "3.2.4",
     "3.3.0-beta.2",
-    "3.2.3",
     "3.1.6",
     "3.0.11",
 ];
@@ -159,7 +159,7 @@ async function main() {
             "**/TextRender.ts",
         ],
         entryPointStrategy: "Expand",
-        blockTags: [...OptionDefaults.blockTags, ...ourTags],
+        blockTags: [...OptionDefaults.blockTags, ...ourTags], // 加入自定义标签
         entryPoints: [path.join(".", "src", "layaAir")], // 入口文件或目录
         tsconfig: path.join(".", "src", "layaAir", "tsconfig.json"),
         plugin: ["@shipgirl/typedoc-plugin-versions"],
@@ -237,7 +237,5 @@ async function main() {
     } catch (err) {
         console.error('❌ 文件操作失败:', err);
     }
-
 }
-
 main();

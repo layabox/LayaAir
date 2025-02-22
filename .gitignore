@@ -6,6 +6,7 @@ node_modules
 /src/platform
 .DS_Store
 build
+docs
 .history
 package-lock.json
 .rpt2_cache
