@@ -2,12 +2,13 @@
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
-import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { Sprite } from "../display/Sprite";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
-import { ColorUtils } from "../utils/ColorUtils";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
 import { GWidget } from "./GWidget";
+import { ImageRenderer } from "./render/ImageRenderer";
+import { IMeshFactory } from "./render/MeshFactory";
 
 export class GLoader extends GWidget {
     private _src: string;
@@ -16,13 +17,14 @@ export class GLoader extends GWidget {
     private _fitMode: LoaderFitMode;
     private _shrinkOnly: boolean;
     private _updatingLayout: boolean;
-    private _content: GWidget;
+    private _content: Sprite;
     private _srcWidth: number = 0;
     private _srcHeight: number = 0;
     private _color: string;
     private _tex: Texture;
-    private _drawCmd: DrawTextureCmd;
     private _loadID: number = 0;
+
+    private _renderer: ImageRenderer;
 
     constructor() {
         super();
@@ -33,8 +35,9 @@ export class GLoader extends GWidget {
         this._shrinkOnly = false;
         this._align = AlignType.Center;
         this._valign = VAlignType.Middle;
-        this._content = new GWidget();
+        this._content = new Sprite();
         this._content.hideFlags |= HideFlags.HideAndDontSave;
+        this._renderer = new ImageRenderer(this._content);
         this.addChild(this._content);
     }
 
@@ -110,8 +113,7 @@ export class GLoader extends GWidget {
 
     public set color(value: string) {
         this._color = value;
-        if (this._drawCmd)
-            this._drawCmd.color = ColorUtils.create(value).numColor;
+        this._renderer.setColor(value);
     }
 
     public get texture(): Texture {
@@ -121,6 +123,18 @@ export class GLoader extends GWidget {
     public set texture(value: Texture) {
         this._src = "";
         this.onLoaded(value, ++this._loadID);
+    }
+
+    public get mesh(): IMeshFactory {
+        return this._renderer._meshFactory;
+    }
+
+    public set mesh(value: IMeshFactory) {
+        this._renderer.setMesh(value);
+    }
+
+    public updateMesh() {
+        this._renderer.updateMesh();
     }
 
     protected async loadContent() {
@@ -138,18 +152,17 @@ export class GLoader extends GWidget {
         if (this._tex && !LayaEnv.isPlaying)
             this._tex.off("reload", this, this._onTextureReload);
         this._tex = value;
+        this._renderer.setTexture(value);
+
         if (value) {
             if (!LayaEnv.isPlaying)
                 value.on("reload", this, this._onTextureReload);
 
-            let cmd = DrawTextureCmd.create(value, 0, 0, 1, 1, null, 1, this._color, null, null, true);
-            this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, cmd, true);
             this._srcWidth = value.sourceWidth;
             this._srcHeight = value.sourceHeight;
             ILaya.timer.runCallLater(this, this.updateLayout, true);
         }
         else {
-            this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, null, true);
             this._srcWidth = 0;
             this._srcHeight = 0;
         }
@@ -169,11 +182,11 @@ export class GLoader extends GWidget {
             this._tex.off("reload", this, this._onTextureReload);
             this._tex = null;
         }
-        this._drawCmd = this._content.graphics.replaceCmd(this._drawCmd, null, true);
+        this._renderer.setTexture(null);
     }
 
     protected updateLayout(): void {
-        if (!this._content)
+        if (!this._tex)
             return;
 
         this._updatingLayout = true;
@@ -214,6 +227,7 @@ export class GLoader extends GWidget {
         }
 
         this._content.size(cw, ch);
+        this._renderer.updateMesh(false);
 
         let nx: number, ny: number;
         if (this._align == AlignType.Center)
@@ -242,9 +256,12 @@ export class GLoader extends GWidget {
 
     destroy(): void {
         super.destroy();
+
         if (this._tex && !LayaEnv.isPlaying) {
             this._tex.off("reload", this, this._onTextureReload);
             this._tex = null;
         }
+
+        this._renderer.destroy();
     }
 }
