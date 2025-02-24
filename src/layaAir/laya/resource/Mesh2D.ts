@@ -88,6 +88,7 @@ export class VertexMesh2D{
  */
 export class Mesh2D extends Resource {
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.MESH)
      * @en Loads a mesh template from the specified URL.
      * @param url The URL address of the mesh template.
      * @param complete A callback function that is executed when the mesh template is loaded.

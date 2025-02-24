@@ -87,6 +87,7 @@ export class Sprite3D extends Node {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.HIERARCHY)
      * @en Load mesh template.
      * @param url The template URL.
      * @param complete The completion callback.

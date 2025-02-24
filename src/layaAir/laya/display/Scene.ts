@@ -445,6 +445,7 @@ export class Scene extends Sprite {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.HIERARCHY)
      * @en Load the scene and resources used by the scene.
      * @param url The scene address.
      * @param complete Callback function when loading is complete, returns the scene instance (optional).

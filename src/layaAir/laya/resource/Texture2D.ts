@@ -268,6 +268,7 @@ export class Texture2D extends BaseTexture {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.TEXTURE2D)
      * @en Loads a texture from the specified URL.
      * @param url The path to the texture file.
      * @param complete The callback function to be called after the texture is loaded.

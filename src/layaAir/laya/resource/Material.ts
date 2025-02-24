@@ -105,6 +105,7 @@ export class Material extends Resource implements IClone {
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.MATERIAL)
      * @en Loads a material from a URL.
      * @param url The URL from which to load the material.
      * @param complete A callback function that is called when the material has been loaded.

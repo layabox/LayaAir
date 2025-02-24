@@ -321,6 +321,7 @@ export class Scene3D extends Sprite {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.HIERARCHY)
      * @en Loads the scene, note: not cached.
      * @param url The template address.
      * @param complete The completion callback.
