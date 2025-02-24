@@ -103,6 +103,44 @@ export class RigidBody extends Component {
     label: string = "RigidBody";
 
     /**
+     * @internal
+     * @en Is the rigid body mass calculated based on the collider
+     * @zh 是否根据碰撞体计算刚体质量
+     */
+    private _useAutoMass: boolean = true;
+
+    /**
+     * @internal
+     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质量（只在未开启自动质量计算时才有效）
+     */
+    private _mass: number = 1;
+
+    /**
+     * @en Is the rigid body mass calculated based on the collider
+     * @zh 是否根据碰撞体计算刚体质量 
+     */
+    public get useAutoMass(): boolean {
+        return this._useAutoMass;
+    }
+    public set useAutoMass(value: boolean) {
+        this._useAutoMass = value;
+        this._needrefeshShape();
+    }
+
+    /**
+     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质量（只在未开启自动质量计算时才有效）
+     */
+    public get mass(): number {
+        return this._mass;
+    }
+    public set mass(value: number) {
+        this._mass = value;
+        this.useAutoMass = false;
+    }
+
+    /**
      * @en The original body object.
      * @zh 原始body对象。
      */
@@ -341,7 +379,12 @@ export class RigidBody extends Component {
                 collider.rigidBody = this;
                 collider._refresh();
             }
-            factory.retSet_rigidBody_MassData(this._body);
+            if (this._useAutoMass) {
+                // auto calc mass
+                factory.retSet_rigidBody_MassData(this._body);
+            } else {
+                factory.set_rigidbody_Mass(this._body, this._mass);
+            }
             factory.set_rigidbody_Awake(this._body, true);
             this.owner.event("shapeChange");
         }

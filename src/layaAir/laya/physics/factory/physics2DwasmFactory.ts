@@ -20,6 +20,7 @@ const b2_maxFloat = 1E+37;
 export class physics2DwasmFactory implements IPhysiscs2DFactory {
     private _tempVe21: any;
     private _tempVe22: any;
+    private _massData: any;
 
     /**@internal box2D Engine */
     _box2d: any;
@@ -357,6 +358,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
         this._tempVe21 = new this.box2d.b2Vec2();
         this._tempVe22 = new this.box2d.b2Vec2();
+        this._massData = new this.box2d.b2MassData();
 
         this._tempPolygonShape = new this.box2d.b2PolygonShape();
         this._tempChainShape = new this.box2d.b2ChainShape();
@@ -394,6 +396,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         if (this._tempVe22) {
             this.destory(this._tempVe22);
             this._tempVe22 = null;
+        }
+
+        if (this._massData) {
+            this.destory(this._massData);
+            this._massData = null;
         }
 
         if (this._tempPolygonShape) {
@@ -1700,6 +1707,24 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     get_rigidbody_Mass(body: any): number {
         return body.GetMass();
+    }
+
+    /**
+     * @en Set the mass of a rigid body.
+     * @param body The rigid body.
+     * @param mass The mass to set.
+     * @zh 设置刚体的质量。
+     * @param body 刚体。
+     * @param mass 要设置的质量。
+     */
+    set_rigidbody_Mass(body: any, massValue: number): void {
+        let center = body.GetLocalCenter();
+        let inertia = body.GetInertia();
+        this._massData.mass = massValue;
+        this._massData.center.x = center.x;
+        this._massData.center.y = center.y;
+        this._massData.I = inertia;
+        body.SetMassData(this._massData);
     }
 
     /**

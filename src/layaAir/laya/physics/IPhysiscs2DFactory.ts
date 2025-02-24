@@ -494,7 +494,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_RigibBody_Enable(body: any, enable:boolean): void;
+    set_RigibBody_Enable(body: any, enable: boolean): void;
 
     /** 
      * @internal
@@ -550,6 +550,11 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     get_rigidbody_Mass(body: any): number;
+
+    /** 
+     * @internal
+     */
+    set_rigidbody_Mass(body: any, massValue: number): void;
 
     /** 
      * @internal
