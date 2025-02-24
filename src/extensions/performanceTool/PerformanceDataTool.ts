@@ -563,8 +563,6 @@ export class PerforManceNode{
 
     /**
      * 记录资源数据
-     * @param index 
-     * @param value 
      */
     setMemory(index:number,value:number){
         this.nodeDelty[index] = value;

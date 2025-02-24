@@ -64,8 +64,6 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
     }
     /**
      * 增加一个Uniform参数
-     * @param propertyID 
-     * @param propertyKey 
      */
     addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = null): void {
 
@@ -82,8 +80,6 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 
     /**
      * 增加一个Uniform
-     * @param propertyID 
-     * @param propertyKey 
      */
     addShaderBlockUniform(propertyID: number, blockname: string, blockProperty: UniformProperty[]): void {
 
@@ -186,7 +182,6 @@ export class NoRenderShaderData extends ShaderData {
 
     /**
      * 增加Shader宏定义。
-     * @param value 宏定义。
      */
     addDefine(define: ShaderDefine): void {
         this._defineDatas.add(define);
@@ -198,7 +193,6 @@ export class NoRenderShaderData extends ShaderData {
 
     /**
      * 移除Shader宏定义。
-     * @param value 宏定义。
      */
     removeDefine(define: ShaderDefine): void {
         this._defineDatas.remove(define);
@@ -206,7 +200,6 @@ export class NoRenderShaderData extends ShaderData {
 
     /**
      * 是否包含Shader宏定义。
-     * @param value 宏定义。
      */
     hasDefine(define: ShaderDefine): boolean {
         return this._defineDatas.has(define);
@@ -374,8 +367,6 @@ export class NoRenderShaderData extends ShaderData {
 
     /**
      * 设置矩阵。
-     * @param index 
-     * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
         this._data[index] = value;

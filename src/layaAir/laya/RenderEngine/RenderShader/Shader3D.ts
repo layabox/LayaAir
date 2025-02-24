@@ -279,7 +279,6 @@ export class Shader3D {
 
     /**
      * 添加子着色器。
-     * @param 子着色器。
      */
     addSubShader(subShader: SubShader): void {
         this._subShaders.push(subShader);

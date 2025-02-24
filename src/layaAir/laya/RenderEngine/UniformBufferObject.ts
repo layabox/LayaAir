@@ -51,7 +51,7 @@ export class UniformBufferObject {
 
 
     _glBuffer: GLBuffer;//TODO
-    /**@interanl */
+    /**@internal */
     _glPointer: number;
 
     /**@internal */

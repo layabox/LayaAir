@@ -228,7 +228,6 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     /**
     * render RenderElement
     * context:GLESRenderContext3D
-    * @param renderqueue 
     */
     _render(context: WebGLRenderContext3D): void {
         for (let i = 0; i < this.updateNums; i++) {

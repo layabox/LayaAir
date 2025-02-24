@@ -173,7 +173,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
 
     /**
      * @internal
-     * @param value 
      */
     setLightmapScaleOffset(value: Vector4) {
         value && value.cloneTo(this.lightmapScaleOffset);

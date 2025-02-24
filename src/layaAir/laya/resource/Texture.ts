@@ -8,6 +8,7 @@ import { Resource } from "./Resource";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { AtlasResource } from "./AtlasResource";
+import { Loader } from "../net/Loader";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -298,10 +299,10 @@ export class Texture extends Resource {
 
     /**
      * @en Creates an instance of Texture class.
-     * @param bitmap Bitmap resource.
+     * @param source Bitmap resource.
      * @param uv UV data information.
      * @zh 创建 Texture 类的新实例
-     * @param bitmap 位图资源。
+     * @param source 位图资源。
      * @param uv UV 数据信息。
      */
     constructor(source: Texture | BaseTexture = null, uv: ArrayLike<number> = null,
@@ -522,7 +523,7 @@ export class Texture extends Resource {
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url).then((tex: Texture) => {
+            ILaya.loader.load(url, Loader.IMAGE).then((tex: Texture) => {
                 this.bitmap = tex.bitmap;
                 callback && callback();
             });

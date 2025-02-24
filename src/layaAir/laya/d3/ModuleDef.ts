@@ -90,7 +90,6 @@ import "./loaders/CubemapLoader";
 import "./loaders/Texture2DArrayLoader";
 import "./loaders/MeshLoader";
 import "./loaders/AvatarMaskLoader";
-import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import "./core/scene/Input3D";
 import { Viewport } from "../maths/Viewport";

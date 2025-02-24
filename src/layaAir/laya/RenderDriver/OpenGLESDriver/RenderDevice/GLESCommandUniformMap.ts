@@ -10,8 +10,6 @@ export class GLESCommandUniformMap extends CommandUniformMap {
     /**
      * 增加一个Uniform参数，如果Uniform属性是Array，请使用addShaderUniformArray
      * @internal
-     * @param propertyID 
-     * @param propertyKey 
      */
     addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = ""): void {
         this._nativeObj.addShaderUniform(propertyID, propertyKey, uniformtype, block);
@@ -30,8 +28,6 @@ export class GLESCommandUniformMap extends CommandUniformMap {
 
     /**
      * 增加一个Uniform
-     * @param propertyID 
-     * @param propertyKey
      */
     addShaderBlockUniform(propertyID: number, blockname: string, blockProperty: UniformProperty[]): void {
         this._nativeObj.addShaderBlockUniform(propertyID, blockname, blockProperty);

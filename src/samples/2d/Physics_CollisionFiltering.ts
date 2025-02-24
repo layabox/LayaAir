@@ -120,7 +120,7 @@ export class Physics_CollisionFiltering {
         this.curTarget = e.target;
         // 方案一，使用 MouseJoint
         let mouseJoint: MouseJoint = this.curTarget.addComponent(MouseJoint);
-        Laya.timer.callLater(mouseJoint, (<any>mouseJoint).onMouseDown);
+        Laya.timer.callLater(mouseJoint, (<any>mouseJoint)._onMouseDown);
         Laya.stage.on(Event.MOUSE_UP, this, this.destoryJoint);
         Laya.stage.on(Event.MOUSE_OUT, this, this.destoryJoint);
         // 方案二，自己实现，可以实现更大程度的控制

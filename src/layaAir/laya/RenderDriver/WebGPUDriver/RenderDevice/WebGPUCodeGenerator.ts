@@ -406,9 +406,6 @@ export class WebGPUCodeGenerator {
 
     /**
      * 生成sampler和texuture字符串
-     * @param textureUniforms 
-     * @param uniformInfo 
-     * @param visibility 
      */
     private static _textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
         let res = '';

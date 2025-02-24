@@ -275,16 +275,7 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en Constructor of the character controller.
-     * @param stepheight The character's step height.
-     * @param upAxis The character's up axis.
-     * @param collisionGroup The collision group to which the character belongs.
-     * @param canCollideWith The collision group that can produce collisions.
-     * @zh 角色控制器的构造函数。
-     * @param stepheight 角色脚步高度。
-     * @param upAxis 角色Up轴
-     * @param collisionGroup 所属碰撞组。
-     * @param canCollideWith 可产生碰撞的碰撞组。
+     * @ignore
      */
     constructor() {
         super();

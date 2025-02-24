@@ -802,11 +802,15 @@ export class SkinRender implements IVBIBUpdate {
      * @zh 皮肤附件的类型。
      */
     skinAttachType: ESpineRenderType;
-    /**
-     * @en The material for rendering.
-     * @zh 用于渲染的材质。
-     */
-    material: Material;
+
+    currentData: {
+        material?: Material;
+        textureName: string;
+        blendMode: number;
+        offset: number;
+        length: number;
+    };
+
     /**
      * @en Array of current materials.
      * @zh 当前材质数组。
@@ -911,17 +915,19 @@ export class SkinRender implements IVBIBUpdate {
             let currentData = mutiRenderData.currentData;
             if (!currentData) {
                 this.owner._nodeOwner.clear();
-                this.material = null;
+                this.currentData = null;
                 return;
             }
+
             let material = currentData.material;
             if (!material) {
                 material = currentData.material = this.getMaterialByName(currentData.textureName, currentData.blendMode);
             }
-            if (material != this.material) {
+
+            if (currentData != this.currentData) {
                 this.owner._nodeOwner.clear();
                 this.owner._nodeOwner.drawGeo(this.geo, material , ibLength ,  0);
-                this.material = material;
+                this.currentData = currentData;
             }
         }
     }

@@ -1,5 +1,5 @@
-import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
-import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
+import { ILoadTask, IResourceLoader, Loader } from "../net/Loader";
+import { ShaderCompile } from "../webgl/utils/ShaderCompile";
 
 /**
  * @ignore

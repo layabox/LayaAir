@@ -1525,11 +1525,11 @@ export class Animator extends Component {
      * @param layerIndex The layer index. Defaults to 0.
      * @returns The AnimatorControllerLayer at the specified index.
      * @zh 获取控制器层。
-     * @param	layerIndex 层索引。
+     * @param layerIndex 层索引。
      * @return 指定索引处的AnimatorControllerLayer。
      */
-    getControllerLayer(layerInex: number = 0): AnimatorControllerLayer {
-        return this._controllerLayers[layerInex];
+    getControllerLayer(layerIndex: number = 0): AnimatorControllerLayer {
+        return this._controllerLayers[layerIndex];
     }
 
     /**
@@ -1798,11 +1798,11 @@ export class Animator extends Component {
     /**
      * @deprecated 请使用animator.getControllerLayer(layerIndex).getCurrentPlayState()替换。use animator.getControllerLayer(layerIndex).getCurrentPlayState() instead
      * 获取当前的播放状态。
-     * @param   layerIndex 层索引。
-     * @return  动画播放状态。
+     * @param layerIndex 层索引。
+     * @return 动画播放状态。
      */
-    getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-        return this._controllerLayers[layerInex]._playStateInfo!;
+    getCurrentAnimatorPlayState(layerIndex: number = 0): AnimatorPlayState {
+        return this._controllerLayers[layerIndex]._playStateInfo!;
     }
 }
 

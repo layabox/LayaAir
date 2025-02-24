@@ -386,7 +386,7 @@ export class Scene3D extends Sprite {
     private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@interanl */
+    /**@internal */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -402,7 +402,7 @@ export class Scene3D extends Sprite {
     _collsionTestList: number[] = [];
     /** @internal */
     _shaderValues: ShaderData;
-    /** @interanl */
+    /** @internal */
     _sceneUniformData: UnifromBufferData;
     /** @internal */
     _sceneUniformObj: UniformBufferObject;
@@ -1342,11 +1342,11 @@ export class Scene3D extends Sprite {
     /**
      * @en Sets a global shader value for rendering.
      * @param name The name corresponding to the shader.
-     * @param shaderDataType The type of the shader data.
+     * @param type The type of the shader data.
      * @param value The value of the rendering data.
      * @zh 设置全局渲染着色器值。
      * @param name 数据对应着色器名字
-     * @param shaderDataType 渲染数据类型
+     * @param type 渲染数据类型
      * @param value 渲染数据值
      */
     setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {

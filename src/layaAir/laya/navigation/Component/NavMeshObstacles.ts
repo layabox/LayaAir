@@ -92,9 +92,7 @@ export class NavMeshObstacles extends NavModifleBase {
 
     /**
      * @en The mesh type of the obstacle.
-     * @param value The mesh type to set.
      * @zh 障碍物的网格类型。
-     * @param value 障碍物的网格类型。
      */
     get meshType() {
         return this._meshType;
@@ -111,9 +109,7 @@ export class NavMeshObstacles extends NavModifleBase {
 
     /**
      * @en The center offset of the obstacle.
-     * @param value The center offset vector to set.
      * @zh 障碍物的中心偏移。
-     * @param value 障碍物的中心偏移向量。
      */
     get center() {
         return this._center;
@@ -125,10 +121,8 @@ export class NavMeshObstacles extends NavModifleBase {
     }
 
     /**
-     * @en The size of the box obstacle.
-     * @param value The size vector to set.
-     * @zh 盒型障碍物的大小。
-     * @param value 盒型障碍物的大小向量。
+     * @en The size of the box obstacle.=
+     * @zh 盒型障碍物的大小。=
      */
     get size() {
         return this._size;
@@ -144,9 +138,7 @@ export class NavMeshObstacles extends NavModifleBase {
 
     /**
      * @en The height of the capsule obstacle.
-     * @param value The height to set.
      * @zh 胶囊障碍物的圆柱高度。
-     * @param value 胶囊障碍物的圆柱高度。
      */
     get height() {
         return this._height;
@@ -161,9 +153,7 @@ export class NavMeshObstacles extends NavModifleBase {
 
     /**
      * @en Set the radius of the capsule obstacle.
-     * @param value The radius to set.
      * @zh 设置胶囊障碍物的圆柱半径。
-     * @param value 胶囊障碍物的圆柱半径。
      */
     get radius() {
         return this._radius;

@@ -231,7 +231,7 @@ export class Matrix3x3 implements IClone {
      * @param out The output matrix.
      * @zh 通过一个二维向量转换 3x3 矩阵。
      * @param trans 转换向量。
-     * @paramh out 输出矩阵。
+     * @param out 输出矩阵。
      */
     translate(trans: Vector2, out: Matrix3x3): void {
         var e: Float32Array = out.elements;

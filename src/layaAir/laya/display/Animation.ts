@@ -155,18 +155,16 @@ export class Animation extends AnimationBase {
     }
 
     /**
-     * @en Animation data source.
+     * @en Animation data source.For example: Atlas: "xx/a1.atlas"; Image collection: "a1.png,a2.png,a3.png"; LayaAir IDE animation: "xx/a1.ani".
      * Types are as follows:
      * 1. LayaAir IDE animation file path: Using this type requires preloading the required atlas resources, otherwise it will fail to create. If you don't want to preload or need a callback when creation is complete, please use the loadAnimation(...) method.
      * 2. Atlas path: Animation templates created using this type will not be cached in the animation template cache pool. If you need caching or a callback when creation is complete, please use the loadAtlas(...) method.
      * 3. Image path collection: Animation templates created using this type will not be cached in the animation template cache pool. If you need caching, please use the loadImages(...) method.
-     * @param value Data source. For example: Atlas: "xx/a1.atlas"; Image collection: "a1.png,a2.png,a3.png"; LayaAir IDE animation: "xx/a1.ani".
-     * @zh 动画数据源。
+     * @zh 动画数据源。例如：图集："xx/a1.atlas"; 图片集合："a1.png,a2.png,a3.png"; LayaAir IDE动画："xx/a1.ani"。
      * 类型如下：
      * 1. LayaAir IDE动画文件路径：使用此类型需要预加载所需的图集资源，否则会创建失败，如果不想预加载或者需要创建完毕的回调，请使用loadAnimation(...)方法；
      * 2. 图集路径：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存或者创建完毕的回调，请使用loadAtlas(...)方法；
      * 3. 图片路径集合：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存，请使用loadImages(...)方法。
-     * @param value 数据源。例如：图集："xx/a1.atlas"; 图片集合："a1.png,a2.png,a3.png"; LayaAir IDE动画："xx/a1.ani"。
      */
     get source(): string {
         return this._source;
@@ -254,10 +252,10 @@ export class Animation extends AnimationBase {
      * 注意：只有指定不为空的cacheName，才能将创建好的动画模版以此为key缓存到动画模版缓存池，否则不进行缓存。
      * 动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。
      * 因为返回值为Animation对象本身，所以可以使用如下语法：loadAtlas(...).loadAtlas(...).play(...);。
-     * @param	url	图集路径。需要创建动画模版时，会以此为数据源。
-     * @param	loaded（可选）使用指定图集初始化动画完毕的回调。
-     * @param	cacheName（可选）动画模板在动画模版缓存池中的key。如果此参数不为空，表示使用动画模版缓存池。如果动画模版缓存池中存在key为cacheName的动画模版，则使用此模版。否则，创建新的动画模版，如果cacheName不为空，则以cacheName为key缓存到动画模版缓存池中，如果cacheName为空，不进行缓存。
-     * @return 	返回动画本身。
+     * @param url 图集路径。需要创建动画模版时，会以此为数据源。
+     * @param loaded （可选）使用指定图集初始化动画完毕的回调。
+     * @param cacheName （可选）动画模板在动画模版缓存池中的key。如果此参数不为空，表示使用动画模版缓存池。如果动画模版缓存池中存在key为cacheName的动画模版，则使用此模版。否则，创建新的动画模版，如果cacheName不为空，则以cacheName为key缓存到动画模版缓存池中，如果cacheName为空，不进行缓存。
+     * @return 返回动画本身。
      */
     loadAtlas(url: string, loaded: Handler = null, cacheName: string = ""): Animation {
         this._url = "";
@@ -296,9 +294,9 @@ export class Animation extends AnimationBase {
      * 注意：如果调用本方法前，还没有预加载动画使用的图集，请将atlas参数指定为对应的图集路径，否则会导致动画创建失败。
      * 动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。
      * 因为返回值为Animation对象本身，所以可以使用如下语法：loadAnimation(...).loadAnimation(...).play(...);。
-     * @param	url 动画文件路径。可由LayaAir IDE创建并发布。
-     * @param	loaded（可选）使用指定动画资源初始化动画完毕的回调。
-     * @param	atlas（可选）动画用到的图集地址（可选）。
+     * @param url 动画文件路径。可由LayaAir IDE创建并发布。
+     * @param loaded （可选）使用指定动画资源初始化动画完毕的回调。
+     * @param atlas （可选）动画用到的图集地址（可选）。
      * @return 	返回动画本身。
      */
     loadAnimation(url: string, loaded: Handler = null, atlas: string = null): Animation {

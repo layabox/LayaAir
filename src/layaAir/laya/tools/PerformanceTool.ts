@@ -115,7 +115,6 @@ export class PerformanceDefine {
 /**
  * 性能统计开始
  * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
- * @constructor
  */
 export function PERF_BEGIN(block: string): void {
     PerfTools.begin(block);
@@ -124,7 +123,6 @@ export function PERF_BEGIN(block: string): void {
 /**
  * 性能统计结束
  * @param block 统计标识（例如：PerformanceDefine.SCENE3D_RENDER）
- * @constructor
  */
 export function PERF_END(block: string): void {
     PerfTools.end(block);
