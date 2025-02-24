@@ -23,11 +23,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _sharedMesh: Mesh2D;
 
-    private _baseRender2DTexture: BaseTexture;
+    private _texture: BaseTexture;
 
-    private _color: Color = new Color();
+    private _color: Color;
 
-    private _normal2DTexture: BaseTexture;
+    private _normalTexture: BaseTexture;
     private _normal2DStrength: number = 0;
 
     /**
@@ -86,28 +86,27 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set texture(value: BaseTexture) {
-        if (!value) {
-            value = Texture2D.whiteTexture;
-        }
-        if (value == this._baseRender2DTexture)
+        if (value == this._texture)
             return;
 
-        if (this._baseRender2DTexture)
-            this._baseRender2DTexture._removeReference(1)
+        if (this._texture)
+            this._texture._removeReference();
 
-        value._addReference();
-        this._baseRender2DTexture = value;
+        this._texture = value;
 
         this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
-        if (value.gammaCorrection != 1) {//预乘纹理特殊处理
-            this._spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
-        } else {
-            this._spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+        if (value) {
+            value._addReference();
+            if (value.gammaCorrection != 1) {//预乘纹理特殊处理
+                this._spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            } else {
+                this._spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+            }
         }
     }
 
     get texture(): BaseTexture {
-        return this._baseRender2DTexture;
+        return this._texture;
     }
 
     /**
@@ -115,24 +114,24 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set normalTexture(value: BaseTexture) {
-        if (value === this._normal2DTexture)
+        if (value === this._normalTexture)
             return;
 
-        if (this._normal2DTexture)
-            this._normal2DTexture._removeReference(1)
+        if (this._normalTexture)
+            this._normalTexture._removeReference(1)
 
         if (value)
             value._addReference();
-        this._normal2DTexture = value;
+        this._normalTexture = value;
 
         this._spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
-        if (this._normal2DStrength > 0 && this._normal2DTexture)
+        if (this._normal2DStrength > 0 && this._normalTexture)
             this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
         else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
 
     get normalTexture(): BaseTexture {
-        return this._normal2DTexture;
+        return this._normalTexture;
     }
 
     /**
@@ -145,7 +144,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
             return
         this._normal2DStrength = value;
         this._spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
-        if (value > 0 && this._normal2DTexture)
+        if (value > 0 && this._normalTexture)
             this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
         else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
@@ -229,6 +228,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         this._renderElements = [];
         this._materials = [];
+        this._color = new Color();
+
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }

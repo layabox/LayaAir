@@ -5,7 +5,7 @@
  * 合理使用对象池可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。
  */
 export interface IPool<T> {
-    take(...argArray: any[]): T;
+    take(...argArray: T extends { init(...args: infer P): any } ? P : []): T;
     recover(element: T | Array<T>): void;
 }
 

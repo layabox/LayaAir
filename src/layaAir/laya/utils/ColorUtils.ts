@@ -1,28 +1,18 @@
 import { Color } from "../maths/Color";
 
-const _COLOR_MAP: Record<string, string> = { "purple": "#800080", "orange": "#ffa500", "white": '#FFFFFF', "red": '#FF0000', "green": '#00FF00', "blue": '#0000FF', "black": '#000000', "yellow": '#FFFF00', 'gray': '#808080' };
-
 /**
- * @private
  * @en The ColorUtils is a class for color value processing.
  * @zh ColorUtils 是一个用于处理颜色值的类。
  */
 export class ColorUtils {
-    /**@private */
-    static _SAVE: any = {};
-    /**@private */
-    static _SAVE_SIZE: number = 0;
-    /**@private */
-
-    /**@private */
-    private static _DEFAULT: any;
+    private static _SAVE: any = {};
+    private static _SAVE_SIZE: number = 0;
 
     /**
      * @en An array representing the color in RGBA format, Value range 0-1
      * @zh 以 RGBA 格式表示颜色的数组，取值范围0-1
      */
-    //TODO:delete？
-    arrColor: any[] = [];
+    arrColor: number[] = [];
     /**
      * @en The string representation of the color value.
      * @zh 字符串型颜色值。
@@ -33,7 +23,10 @@ export class ColorUtils {
      * @zh uint 型颜色值。
      */
     numColor: number;
-    /**@internal TODO:*/
+
+    /**
+     * @internal
+    */
     _drawStyle: any;
 
     /**
@@ -42,9 +35,7 @@ export class ColorUtils {
      * @zh 构造方法
      * @param value 颜色值，可以是字符串（例如 "#ff0000"）或16进制颜色值（例如 0xff0000）。
      */
-    constructor(value: any) {
-        if (!ColorUtils._DEFAULT)
-            ColorUtils._initDefault();
+    constructor(value: string | number) {
         if (value == null || value == 'none') {
             this.strColor = "#00000000";
             this.numColor = 0;
@@ -52,40 +43,23 @@ export class ColorUtils {
             return;
         }
 
-        let color: number;
-        if (typeof (value) == 'string') {
-            color = Color.stringToHex(value);
+        tmpColor.parse(value);
+
+        if (typeof (value) == 'string')
             this.strColor = value;
-        } else {
-            color = value;
-            this.strColor = Color.hexToString(color);
-        }
-
-        if (this.strColor.indexOf("rgba") >= 0 || this.strColor.length === 9) {
-            //color:0xrrggbbaa numColor此时为负数
-            this.arrColor = [((0xFF000000 & color) >>> 24) / 255, ((0xFF0000 & color) >> 16) / 255, ((0xFF00 & color) >> 8) / 255, (0xFF & color) / 255];
-            this.numColor = (0xff000000 & color) >>> 24 | (color & 0xff0000) >> 8 | (color & 0x00ff00) << 8 | ((color & 0xff) << 24);//to 0xffbbggrr
-        } else {
-            this.arrColor = [((0xFF0000 & color) >> 16) / 255, ((0xFF00 & color) >> 8) / 255, (0xFF & color) / 255, 1];
-            this.numColor = 0xff000000 | (color & 0xff0000) >> 16 | (color & 0x00ff00) | (color & 0xff) << 16;//to 0xffbbggrr
-        }
-    }
-
-    /**@private */
-    static _initDefault(): any {
-        ColorUtils._DEFAULT = {};
-        for (var i in _COLOR_MAP) ColorUtils._SAVE[i] = ColorUtils._DEFAULT[i] = new ColorUtils(_COLOR_MAP[i]);
-        return ColorUtils._DEFAULT;
+        else
+            this.strColor = tmpColor.getStyleString();
+        tmpColor.writeTo(this.arrColor);
+        this.numColor = tmpColor.getABGR();
     }
 
     /**
-     * @private
      * @en Clears the cache if it gets too large.
      * @zh 如果缓存太大，则清理缓存。
      */
-    static _initSaveMap(): void {
+    private static _initSaveMap(): void {
         ColorUtils._SAVE_SIZE = 0;
-        ColorUtils._SAVE = Object.assign({}, ColorUtils._DEFAULT);
+        ColorUtils._SAVE = {};
     }
 
     /**
@@ -96,13 +70,17 @@ export class ColorUtils {
      * @param value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
      * @returns Color 类的一个实例。
      */
-    static create(value: any): ColorUtils {
+    static create(value: string | number): ColorUtils {
         let key: string = value + "";
         let color: ColorUtils = ColorUtils._SAVE[key];
-        if (color != null) return color;
-        if (ColorUtils._SAVE_SIZE > 500) ColorUtils._initSaveMap();
+        if (color != null)
+            return color;
+
+        if (ColorUtils._SAVE_SIZE > 500)
+            ColorUtils._initSaveMap();
         ColorUtils._SAVE_SIZE++;
         return ColorUtils._SAVE[key] = new ColorUtils(value);
     }
 }
 
+const tmpColor = new Color();

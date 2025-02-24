@@ -722,7 +722,7 @@ export class Context {
         if (!this._fillStyle.equal(value)) {
             SaveBase.save(this, SaveBase.TYPE_FILESTYLE, this._shader2D, false);
             this._fillStyle = DrawStyle.create(value);
-            this._submitKey.other = -this._fillStyle.toInt();
+            this._submitKey.other = -this._fillStyle._color.numColor;
         }
     }
 
@@ -769,7 +769,7 @@ export class Context {
     }
 
     set strokeStyle(value: any) {
-        this._strokeStyle.equal(value) || (SaveBase.save(this, SaveBase.TYPE_STROKESTYLE, this._shader2D, false), this._strokeStyle = DrawStyle.create(value), this._submitKey.other = -this._strokeStyle.toInt());
+        this._strokeStyle.equal(value) || (SaveBase.save(this, SaveBase.TYPE_STROKESTYLE, this._shader2D, false), this._strokeStyle = DrawStyle.create(value), this._submitKey.other = -this._strokeStyle._color.numColor);
     }
 
     get strokeStyle(): any {
@@ -885,7 +885,7 @@ export class Context {
         //var rgb = drawstyle.toInt() ;
         //由于显卡的格式是 rgba，所以需要处理一下
         //var rgba:uint = ((rgb & 0xff0000) >> 16) | (rgb & 0x00ff00) | ((rgb & 0xff) << 16) | (_shader2D.ALPHA * 255) << 24;
-        var rgba = this.mixRGBandAlpha(drawstyle.toInt());
+        var rgba = this.mixRGBandAlpha(drawstyle._color.numColor);
         this._fillRect(x, y, width, height, rgba);
     }
 

@@ -325,7 +325,7 @@ export class RigidBody extends Component {
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (this.type == "static")
+        if (this.type != "static")
             this._needrefeshShape();
     }
 
