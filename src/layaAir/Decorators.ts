@@ -268,6 +268,12 @@ export interface FPropertyDescriptor {
     colorNullable: boolean;
 
     /**
+     * @en Applicable to color type properties. When storing hexadecimal color values, this property determines the position of each channel. If the color value does not include an alpha channel, the default value is 'rgb'; if it does, the default value is 'argb'.
+     * @zh 对颜色类型属性适用。存储十六进制颜色值时，这个属性决定每个通道的位置。如果颜色值不包含alpha通道，则默认值是'rgb'；如果包含，则默认值是'argb'。
+     */
+    colorFormat?: 'rgb' | 'argb' | 'abgr';
+
+    /**
      * @en Applicable to object type properties. If true, hide the object's title, and the display indentation of the properties under the object will be reduced by one level.
      * @zh 对对象类型属性适用。如果为true，隐藏对象的标题，同时对象下的属性的显示缩进会减少一级。
      */
