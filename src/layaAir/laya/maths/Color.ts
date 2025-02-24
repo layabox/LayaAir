@@ -1,5 +1,17 @@
 import { IClone } from "../utils/IClone";
 
+const ColorMap: Record<string, number> = {
+    "purple": 0x800080,
+    "orange": 0xffa500,
+    "white": 0xFFFFFF,
+    "red": 0xFF0000,
+    "green": 0x00FF00,
+    "blue": 0x0000FF,
+    "black": 0x000000,
+    "yellow": 0xFFFF00,
+    "gray": 0x808080
+};
+
 /**
  * @en The Color class is used to create color instances.
  * @zh Color类用于创建颜色实例。
@@ -65,54 +77,21 @@ export class Color implements IClone {
     * @return 字符串型颜色值。
     */
     static hexToString(color: number): string {
-        if (color < 0 || isNaN(color)) return "#000000";
-        let str = Math.floor(color).toString(16);
-        while (str.length < 6) str = "0" + str;
-        return "#" + str;
+        tmpColor.parse(color);
+        return tmpColor.toString();
     }
 
     /**
      * @en Converts a string color value to a number color.
      * @param value The string color value.
-     * @returns The color value as a number.
+     * @returns The color value as a number, in the format 0xrrggbb.
      * @zh 将字符串型颜色值转换为数字型颜色值。
      * @param value 字符串颜色值
-     * @returns 作为数字的颜色值
+     * @returns 作为数字的颜色值，格式0xrrggbb。
      */
     static stringToHex(value: string): number {
-        if (!value)
-            return 0;
-
-        if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
-            let p1 = value.indexOf("(");
-            let p2 = value.indexOf(")");
-            if (p1 == -1 || p2 == -1)
-                return 0;
-
-            value = value.substring(p1 + 1, p2);
-            let arr: any[] = value.split(",");
-            let len = arr.length;
-            for (let i = 0; i < len; i++) {
-                arr[i] = parseFloat(arr[i]);
-                if (isNaN(arr[i]))
-                    arr[i] = 0;
-            }
-            if (arr.length == 4)
-                return (arr[0] << 24) + (arr[1] << 16) + (arr[2] << 8) + Math.round(arr[3] * 255);
-            else
-                return (arr[0] << 16) + (arr[1] << 8) + arr[2];
-        } else {
-            value.charAt(0) === '#' && (value = value.substring(1));
-            let len = value.length;
-            if (len === 3 || len === 4) {
-                let temp: string = "";
-                for (let i = 0; i < len; i++) {
-                    temp += (value[i] + value[i]);
-                }
-                value = temp;
-            }
-            return parseInt(value, 16);
-        }
+        tmpColor.parse(value);
+        return tmpColor.getRGB();
     }
 
     /**
@@ -220,6 +199,81 @@ export class Color implements IClone {
             return -delta < a - b && a - b < delta;
         }
         return toFIxed(c.r, this.r) && toFIxed(c.g, this.g) && toFIxed(c.b, this.b) && toFIxed(c.a, this.a);
+    }
+
+    /**
+     * @en parse a color string or a hex color value.
+     * @param value The color string or the hex color value. 
+     * @zh 解析颜色值，可以传入一个颜色字符串或十六进制颜色值。
+     * 格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#AARRGGBB"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
+     * @param value 颜色字符串或十六进制颜色值。
+     */
+    parse(value: string | number | null): void {
+        if (value == null)
+            value = 0;
+
+        if (typeof value === 'number') {
+            if (value < 0 || isNaN(value))
+                value = 0;
+            this.setRGB(value);
+        }
+        else if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
+            let p1 = value.indexOf("(");
+            let p2 = value.indexOf(")");
+            if (p1 == -1 || p2 == -1) {
+                this.setValue(0, 0, 0, 1);
+                return;
+            }
+
+            value = value.substring(p1 + 1, p2);
+            let arr: any[] = value.split(",");
+            let len = arr.length;
+            for (let i = 0; i < len; i++) {
+                arr[i] = parseFloat(arr[i]);
+                if (isNaN(arr[i]))
+                    arr[i] = 0;
+            }
+            this.r = arr[0] / 255;
+            this.g = arr[1] / 255;
+            this.b = arr[2] / 255;
+            if (arr.length == 4)
+                this.a = arr[3];
+            else
+                this.a = 1;
+        } else {
+            if (value.charAt(0) === '#')
+                value = value.substring(1);
+            else {
+                let rgb = ColorMap[value];
+                if (rgb) {
+                    this.setRGB(rgb);
+                    return;
+                }
+            }
+            let len = value.length;
+            if (len === 3 || len === 4) {
+                let temp: string = "";
+                for (let i = 0; i < len; i++) {
+                    temp += (value[i] + value[i]);
+                }
+                value = temp;
+            }
+
+            let rgb: number;
+            let a: number = 1;
+            if (len == 8) {
+                rgb = parseInt(value.substring(2), 16);
+                a = parseInt(value.substring(0, 2), 16) / 255;
+            }
+
+            else {
+                rgb = parseInt(value, 16);
+                a = 1;
+            }
+
+            this.setRGB(rgb);
+            this.a = a;
+        }
     }
 
     /**
@@ -347,6 +401,69 @@ export class Color implements IClone {
         this.cloneTo(dest);
         return dest;
     }
+
+    /**
+     * @en Get the hex value of the color.
+     * @returns The hex value of the color in 0xRRGGBB format.
+     * @zh 获取颜色的十六进制值。
+     * @returns 颜色的十六进制值，以 0xRRGGBB 格式表示。
+     */
+    getRGB() {
+        return (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
+    }
+
+    setRGB(value: number) {
+        this.r = ((value >> 16) & 0xFF) / 255;
+        this.g = ((value >> 8) & 0xFF) / 255;
+        this.b = (value & 0xFF) / 255;
+        this.a = 1;
+    }
+
+    /**
+     * @en Get the hex value of the color.
+     * @returns The hex value of the color in 0xAARRGGBB format.
+     * @zh 获取颜色的十六进制值。
+     * @returns 颜色的十六进制值，以 0xAARRGGBB 格式表示。 
+     */
+    getARGB() {
+        return (Math.round(this.a * 255) << 24) + (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
+    }
+
+    /**
+     * @en Get the hex value of the color.
+     * @returns The hex value of the color in 0xAABBGGRR format.
+     * @zh 获取颜色的十六进制值。
+     * @returns 颜色的十六进制值，以 0xAABBGGRR 格式表示。
+     */
+    getABGR() {
+        return (Math.round(this.a * 255) << 24) + (Math.round(this.b * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.r * 255);
+    }
+
+    /**
+     * @en Get the string representation of the color, format "#RRGGBB".
+     * @returns The string representation of the color.
+     * @zh 返回颜色字符串表示, 以"#RRGGBB"格式。
+     * @returns 颜色字符串。 
+     */
+    toString() {
+        let str = this.getRGB().toString(16);
+        while (str.length < 6) str = "0" + str;
+        return "#" + str;
+    }
+
+    /**
+     * @en Get the string representation of the color, if alpha is 1, format "#RRGGBB", else format "rgba(r,g,b,a)".
+     * @returns The string representation of the color.
+     * @zh 返回颜色字符串表示，如果透明度为1，格式为"#RRGGBB"，否则格式为"rgba(r,g,b,a)"。
+     * @returns 颜色字符串。
+     */
+    getStyleString() {
+        if (this.a == 1)
+            return this.toString();
+        else
+            return "rgba(" + Math.round(this.r * 255) + "," + Math.round(this.g * 255) + "," + Math.round(this.b * 255) + "," + this.a + ")";
+    }
 }
 
 
+const tmpColor = new Color();
