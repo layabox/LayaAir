@@ -9,7 +9,7 @@ import { Material } from "../resource/Material";
 import { Sprite } from "../display/Sprite";
 import { Grid } from "./grid/Grid";
 import { TileMapChunk } from "./TileMapChunk";
-import { TileMapChunkData } from "./TileMapChunkData";
+import { ChunkCellInfo, TileMapChunkData } from "./TileMapChunkData";
 import { TileMapShaderInit } from "./shader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
 import { TileMapPhysics } from "./TileMapPhysics";
@@ -539,7 +539,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param y 
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
-    getCellData(x: number, y: number, isPixel = true) {
+    getCellData(x: number, y: number, isPixel = true) : ChunkCellInfo {
         let tempVec3 = Vector3.TEMP;
         if (isPixel) {
             this._chunk._getChunkPosByPixel(x, y, tempVec3);

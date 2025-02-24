@@ -31,6 +31,8 @@ export class TileSetCellNavigationInfo {
  * TileMap中一个Cell的数据结构
  */
 export class TileSetCellData {
+    /** @internal */
+    static _EMPTY: TileSetCellData = new TileSetCellData();
 
     private _index: number = 0;
 
