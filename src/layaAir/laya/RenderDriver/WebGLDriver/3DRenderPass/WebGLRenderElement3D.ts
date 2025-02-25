@@ -159,7 +159,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     protected _getShaderInstanceDefins(context: WebGLRenderContext3D) {
-        let comDef = context._getContextShaderDefines();
+        let comDef = WebGLRenderElement3D._compileDefine;
+
+        const globalShaderDefines = context._getContextShaderDefines();
+
+        globalShaderDefines.cloneTo(comDef);
 
         if (this.renderShaderData) {
             comDef.addDefineDatas(this.renderShaderData.getDefineData());
