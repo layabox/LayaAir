@@ -374,6 +374,7 @@ export class Texture extends Resource {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.IMAGE)
      * @en Loads an image from the specified URL.
      * @param url The URL of the image to load.
      * @param complete An optional callback function that is called when the image is loaded.
