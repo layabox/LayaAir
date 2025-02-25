@@ -103,6 +103,106 @@ export class RigidBody extends Component {
     label: string = "RigidBody";
 
     /**
+     * @internal
+     * @en Is the rigid body mass calculated based on the collider
+     * @zh 是否根据碰撞体计算刚体质量
+     */
+    private _useAutoMass: boolean = true;
+
+    /**
+     * @internal
+     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质量（只在未开启自动质量计算时才有效）
+     */
+    private _mass: number = 1;
+
+    /**
+     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质心位置（只在未开启自动质量计算时才有效）
+     */
+    private _centerofMass: IV2 = { x: 0.5, y: 0.5 };
+
+    /**
+     * @en The rigid body inertia tensor. (Only valid when not using automatic mass calculation)
+     * @zh 刚体惯性张量（只在未开启自动质量计算时才有效）
+     */
+    private _inertia: number = 10;
+
+    /**
+     * @en Is the rigid body mass calculated based on the collider
+     * @zh 是否根据碰撞体计算刚体质量 
+     */
+    public get useAutoMass(): boolean {
+        return this._useAutoMass;
+    }
+    public set useAutoMass(value: boolean) {
+        this._useAutoMass = value;
+        this._needrefeshShape();
+    }
+
+    /**
+     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质量（只在未开启自动质量计算时才有效）
+     */
+    public get mass(): number {
+        let mass;
+        if (this._useAutoMass) {
+            mass = this.getMass();
+        } else {
+            mass = this._mass;
+        }
+        return mass;
+    }
+    public set mass(value: number) {
+        if (!this._useAutoMass) {
+            this._mass = value;
+            this._needrefeshShape();
+        }
+    }
+
+    /**
+     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质心（只在未开启自动质量计算时才有效）
+     */
+    public get centerOfMass(): IV2 {
+        let center;
+        if (this._useAutoMass) {
+            center = this.getCenter();
+        } else {
+            center = this._centerofMass;
+        }
+        return center;
+    }
+
+    public set centerOfMass(value: IV2) {
+        if (!this._useAutoMass) {
+            this._centerofMass = value;
+            this._needrefeshShape();
+        }
+    }
+
+    /**
+     * @en The Rigidbody's resistance to changes in angular velocity (rotation).(Only valid when not using automatic mass calculation)
+     * @zh 刚体惯性张量（只在未开启自动质量计算时才有效）
+     */
+    public get inertia(): number {
+        let inertia;
+        if (this._useAutoMass) {
+            inertia = this.getInertia();
+        } else {
+            inertia = this._inertia;
+        }
+        return inertia;
+    }
+
+    public set inertia(value: number) {
+        if (!this._useAutoMass) {
+            this._inertia = value;
+            this._needrefeshShape();
+        }
+    }
+
+    /**
      * @en The original body object.
      * @zh 原始body对象。
      */
@@ -341,7 +441,12 @@ export class RigidBody extends Component {
                 collider.rigidBody = this;
                 collider._refresh();
             }
-            factory.retSet_rigidBody_MassData(this._body);
+            if (this._useAutoMass) {
+                // auto calc mass
+                factory.retSet_rigidBody_MassData(this._body);
+            } else {
+                factory.set_rigidbody_Mass(this._body, this._mass, this._centerofMass, this._inertia);
+            }
             factory.set_rigidbody_Awake(this._body, true);
             this.owner.event("shapeChange");
         }
@@ -498,6 +603,16 @@ export class RigidBody extends Component {
     getCenter(): IV2 {
         if (!this._body) this._onAwake();
         return Physics2D.I._factory.get_rigidBody_Center(this._body);
+    }
+
+    /**
+     * @en Get the inertia of the rigid body.
+     * @zh 获得刚体的惯性张量。
+     * @returns 
+     */
+    getInertia(): number {
+        if (!this._body) this._onAwake();
+        return Physics2D.I._factory.get_rigidbody_Inertia(this._body);
     }
 
     /**
