@@ -77,9 +77,9 @@ export class Context {
     _material: Material = null;
 
     /**@internal */
-    private _fillStyle = DrawStyle.DEFAULT;
+    private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
     /**@internal */
-    private _strokeStyle = DrawStyle.DEFAULT;
+    private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
 
     private static SEGNUM = 32;
     private static _contextcount = 0;
@@ -1596,7 +1596,7 @@ export class Context {
             this._curSubmit = this.addVGSubmit(this._mesh);
             this.fillShaderValue(this._curSubmit.shaderValue);
         }
-        var rgba = this.mixRGBandAlpha(this.fillStyle.toInt());
+        var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
         var curEleNum = 0;
         var idx: any[];
         //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
