@@ -58,9 +58,11 @@ export class SpineShaderInit {
                 break;
             case 3: //Screen
                 mat.blend = RenderState.BLEND_ENABLE_SEPERATE;
+
                 mat.blendSrcRGB = RenderState.BLENDPARAM_ONE;
-                mat.blendDstRGB = RenderState.BLENDPARAM_ONE_MINUS_SRC_COLOR;
                 mat.blendSrcAlpha = RenderState.BLENDPARAM_ONE;
+                
+                mat.blendDstRGB = RenderState.BLENDPARAM_ONE_MINUS_SRC_COLOR;
                 mat.blendDstAlpha = RenderState.BLENDPARAM_ONE;
                 break;
             case 2://Multiply
