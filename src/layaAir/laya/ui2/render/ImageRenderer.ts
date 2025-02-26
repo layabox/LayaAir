@@ -161,6 +161,7 @@ export class ImageRenderer {
         mesh._indexBuffer._setIndexData(c2, 0);
 
         mesh._setBuffers(mesh._vertexBuffers, mesh._indexBuffer);
+        mesh._subMeshes[0].clearRenderParams();
         mesh._subMeshes[0].setDrawElemenParams(c2.length, 0);
 
         VertexStream.pool.recover(vb);
