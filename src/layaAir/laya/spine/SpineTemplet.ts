@@ -1,4 +1,3 @@
-//@~AXIE:1.2
 import { Resource } from "../resource/Resource";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
@@ -154,8 +153,6 @@ export class SpineTemplet extends Resource {
             }else{
                 mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             }
-            //mat.color = this.owner.spineColor;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
             mat._addReference();
             this.materialMap.set(key, mat);
         }

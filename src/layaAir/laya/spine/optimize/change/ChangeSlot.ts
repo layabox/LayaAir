@@ -43,7 +43,7 @@ export class ChangeSlot implements IChange {
             attachmentParse = map.get(null);
         }
         this.attachmentParse = attachmentParse;
-        return !this.attachmentParse.isclip;
+        return !this.attachmentParse.isClip;
     }
 
     /**

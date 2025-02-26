@@ -1,5 +1,7 @@
 #define SHADER_NAME SpineStandardFS
 
+varying vec4 v_color2;
+
 #include "SpineFragment.glsl";
 
 #ifdef COLOR_FILTER

@@ -358,6 +358,7 @@ export class SkinAttach {
         let attachments = skinData.attachments;
         let vertexCount = 0;
         let indexCount = 0;
+        let twoColorTint = false;
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
             let slot = slots[i];
@@ -385,6 +386,7 @@ export class SkinAttach {
                     }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
+                    twoColorTint = twoColorTint||!!parse.darkColor;
                     map.set(key, parse);
                 }
             }else if (slotAttachName) {
@@ -397,6 +399,7 @@ export class SkinAttach {
                     if (tempType < type) {
                         type = tempType;
                     }
+                    twoColorTint = twoColorTint||!!parse.darkColor;
                 }
             }
 
@@ -413,15 +416,22 @@ export class SkinAttach {
         this.type = type;
         this.vertexBones = vertexBones;
 
+        let flag:string;
         switch (this.type) {
             case ESpineRenderType.normal:
-                this.mainVB = new VBBoneCreator( "UV,COLOR,POSITION,BONE" , vertexCount);
+                flag = "UV,COLOR,POSITION,BONE";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBBoneCreator( flag  , vertexCount);
                 break;
             case ESpineRenderType.boneGPU:
-                this.mainVB = new VBBoneCreator( "UV,COLOR,POSITION,BONE" , vertexCount);
+                flag = "UV,COLOR,POSITION,BONE";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBBoneCreator( flag , vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
-                this.mainVB = new VBRigBodyCreator( "UV,COLOR,POSITION,RIGIDBODY" , vertexCount);
+                flag = "UV,COLOR,POSITION,RIGIDBODY";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBRigBodyCreator( flag , vertexCount);
                 break;
         }
         
@@ -449,7 +459,7 @@ export class SkinAttach {
                 else {
                     attach = this.slotAttachMap.get(index).get(null);
                 }
-                if(attach.isclip) this.isNormalRender=true;
+                if(attach.isClip) this.isNormalRender=true;
                 mainAttachMentOrder.push(attach);
             }
             else {

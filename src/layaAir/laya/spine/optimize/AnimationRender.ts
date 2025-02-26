@@ -125,22 +125,6 @@ export class AnimationRender {
             if (frames[i] > time)
                 return i - 1;
         return n - 1;
-        // let lastFrame = this.frameNumber - 1;
-        // if (frameIndex < -1) {
-        //     frameIndex = 0;
-        // }
-        // else if (frameIndex == lastFrame) {
-        //     if (time < frames[lastFrame]) {
-        //         frameIndex = 0;
-        //     }
-        // }
-        // else if (time >= frames[frameIndex + 1]) {
-        //     frameIndex++;
-        // }
-        // else if (time < frames[frameIndex]) {
-        //     frameIndex = 0;
-        // }
-        // return frameIndex;
     }
 
     /**
@@ -179,10 +163,11 @@ export class AnimationRender {
         let changeMap = this.changeMap;
         let renderFrames = this.frames;
         //this.mainIb = mainib;
-        changeMap.clear();
-        renderFrames.length = 0;
-        let hasClip: boolean;
+        let hasClip: boolean = false;
 
+        renderFrames.push(0);
+        changeMap.set(0, {});
+        
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             let frames = time.frames;

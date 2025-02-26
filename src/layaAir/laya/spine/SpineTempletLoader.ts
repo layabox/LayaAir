@@ -8,6 +8,7 @@ import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
 const _premultipliedAlpha = false;
+const _srgb = true;
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
  * @zh SpineTempletLoader 类用于加载 Spine 骨骼数据和图集。
@@ -55,7 +56,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,_srgb,_premultipliedAlpha]
             });
             return new SpineTexture(null);
         });
@@ -113,7 +114,7 @@ class SpineTempletLoader implements IResourceLoader {
                 propertyParams: {
                     premultiplyAlpha: _premultipliedAlpha
                 },
-                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,true,_premultipliedAlpha]
+                constructParams:[0,0,TextureFormat.R8G8B8A8,false,false,_srgb,_premultipliedAlpha]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {

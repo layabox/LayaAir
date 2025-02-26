@@ -38,11 +38,8 @@ export class ChangeRGBA implements IVBChange {
     }
 
     apply(frame:number , vb: VBCreator, slots: spine.Slot[]): boolean {
-        if (frame >= this.startFrame) {
-            this.updateVB(vb , slots);
-            return true;
-        }else
-            return false;
+        this.updateVB(vb , slots);
+        return frame >= this.startFrame;
     }
 
     /**
@@ -85,7 +82,17 @@ export class ChangeRGBA implements IVBChange {
             let attachment = attachmentPos.attachment;
             let r, g, b, a;
             let attachmentColor = attachment.lightColor;
+            let twoColorTint = vb.twoColorTint;
             
+            let colorElement = vb.vertexDeclaration.getVertexElementByUsage(1);
+            let cOffset = colorElement.offset / 4;
+
+            let c2Offset = 0;
+            if (twoColorTint) {
+                let color2Element = vb.vertexDeclaration.getVertexElementByUsage(11);
+                c2Offset = color2Element.offset / 4;
+            }
+
             if (!attachmentColor) {
                 r = color.r;
                 g = color.g;
@@ -98,13 +105,31 @@ export class ChangeRGBA implements IVBChange {
                 b = color.b * attachmentColor.b;
                 a = color.a * attachmentColor.a;
             }
+            
+            let darkColor = slot.darkColor;
+            let darkColorR = 0, darkColorG = 0 , darkColorB = 0 , darkColorA = 1;
+            if (darkColor) {
+                darkColorR = darkColor.r;
+                darkColorG = darkColor.g;
+                darkColorB = darkColor.b;
+                darkColorA = darkColor.a;
+            }
 
             let n = attachment.vertexCount;
             for (let i = 0; i < n; i++) {
-                vbData[offset + i * vertexSize + 2] = r;
-                vbData[offset + i * vertexSize + 3] = g;
-                vbData[offset + i * vertexSize + 4] = b;
-                vbData[offset + i * vertexSize + 5] = a;
+                let co = offset + i * vertexSize + cOffset;
+                vbData[co] = r;
+                vbData[co + 1] = g;
+                vbData[co + 2] = b;
+                vbData[co + 3] = a;
+
+                if (twoColorTint) {
+                    let c2o = offset + i * vertexSize + c2Offset;
+                    vbData[c2o] = darkColorR;
+                    vbData[c2o + 1] = darkColorG;
+                    vbData[c2o + 2] = darkColorB;
+                    vbData[c2o + 3] = darkColorA;
+                }
             }
         }
         return true;

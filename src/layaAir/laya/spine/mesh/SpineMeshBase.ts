@@ -9,6 +9,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Material } from "../../resource/Material";
+import { SpineShaderInit } from "../material/SpineShaderInit";
 
 /**
  * @en Abstract base class for Spine mesh rendering.
@@ -88,7 +89,6 @@ export abstract class SpineMeshBase {
      * @param material 网格使用的材质。
      */
     constructor(material: Material) {
-
         this.init();
         this.material = material;
     }
@@ -102,9 +102,9 @@ export abstract class SpineMeshBase {
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
         let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = this.vertexDeclarition;
         let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        mesh.applyState([vb], ib)
+        vb.vertexDeclaration = this.vertexDeclarition;
+        mesh.applyState([vb], ib);
         geo.indexFormat = IndexFormat.UInt16;
         this.geo = geo;
         this.vb = vb;
@@ -116,14 +116,15 @@ export abstract class SpineMeshBase {
         this.element.canotPool = true;
         this.element.geometry = geo;
         this.element.renderStateIsBySprite = false;
-
     }
+   
     /**
-     * @en Get the vertex declaration for this mesh.
-     * @zh 获取此网格的顶点声明。
+     * @en The vertex declaration for the mesh.
+     * @zh 网格的顶点声明。
      */
-    abstract get vertexDeclarition(): VertexDeclaration;
-
+    get vertexDeclarition(): VertexDeclaration {
+        return  SpineShaderInit.SpineNormalVertexDeclaration;
+    }
     /**
      * @en Add the mesh to the rendering queue.
      * @zh 添加到渲染队列。
@@ -172,6 +173,18 @@ export abstract class SpineMeshBase {
     clear() {
         this.verticesLength = 0;
         this.indicesLength = 0;
+    }
+
+    /**
+     * @en Destroy the mesh.
+     * @zh 销毁网格。
+     */
+    destroy() {
+        this.clear();
+        this.vb.destroy();
+        this.ib.destroy();
+        this.geo.destroy();
+        this.element.destroy();
     }
 
     /** @internal */
