@@ -346,6 +346,7 @@ export class Mesh extends Resource implements IClone {
             }
             this._minVerticesUpdate = 0;
             this._maxVerticesUpdate = Number.MAX_SAFE_INTEGER;
+            this._vertexBuffer.setData(floatVertices.buffer, 0, 0, floatVertices.byteLength);
         }
         else {
             console.warn("Mesh: the mesh don't have  this VertexElement.");
