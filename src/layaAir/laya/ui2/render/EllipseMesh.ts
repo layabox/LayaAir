@@ -7,15 +7,15 @@ export class EllipseMesh implements IMeshFactory {
     onPopulateMesh(vb: VertexStream) {
         let rect = vb.contentRect;
 
-        const radiusX: number = rect.width / 2;
-        const radiusY: number = rect.height / 2;
-        let sides: number = Math.ceil(Math.PI * (radiusX + radiusY) / 4);
+        const radiusX = rect.width / 2;
+        const radiusY = rect.height / 2;
+        let sides = Math.ceil(Math.PI * (radiusX + radiusY) / 4);
         sides = MathUtil.clamp(sides, 40, 800);
-        const angleDelta: number = 2 * Math.PI / sides;
-        let angle: number = 0;
+        const angleDelta = 2 * Math.PI / sides;
+        let angle = 0;
 
-        const centerX: number = rect.x + radiusX;
-        const centerY: number = rect.y + radiusY;
+        const centerX = rect.x + radiusX;
+        const centerY = rect.y + radiusY;
         vb.addVert(centerX, centerY, 0);
 
         for (let i = 0; i < sides; i++) {

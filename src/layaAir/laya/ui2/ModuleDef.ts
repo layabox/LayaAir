@@ -33,6 +33,8 @@ import { TranslationsLoader } from "./TranslationLoader";
 import { RoundedRectMesh } from "./render/RoundedRectMesh";
 import { ProgressMesh } from "./render/ProgressMesh";
 import { EllipseMesh } from "./render/EllipseMesh";
+import { FlipMesh } from "./render/FlipMesh";
+import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
@@ -71,5 +73,7 @@ r("ItemData", class extends Object { });
 r("RoundedRectMesh", RoundedRectMesh);
 r("ProgressMesh", ProgressMesh);
 r("EllipseMesh", EllipseMesh);
+r("FlipMesh", FlipMesh);
+r("RegularPolygonMesh", RegularPolygonMesh);
 
 Loader.registerLoader(["i18ns"], TranslationsLoader);

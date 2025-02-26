@@ -65,15 +65,17 @@ export class VertexStream {
      * @param y The y coordinate of the vertex. 
      * @param z The z coordinate of the vertex. 
      * @param color The color of the vertex. If not set, the color will be the default color.
-     * @param uv The uv of the vertex. If not set, the uv will be calculated based on the contentRect and uvRect.
+     * @param u The u of the vertex. If not set, the u will be calculated based on the contentRect and uvRect.
+     * @param v The v of the vertex. If not set, the v will be calculated based on the contentRect and uvRect.
      * @zh 添加一个顶点。
      * @param x 顶点的 x 坐标。
      * @param y 顶点的 y 坐标。
      * @param z 顶点的 z 坐标。
      * @param color 顶点的颜色。如果不设置，颜色将会是默认颜色。
-     * @param uv 顶点的 uv。如果不设置，uv 将根据 contentRect 和 uvRect 计算。 
+     * @param u 顶点的 u。如果不设置，u 将根据 contentRect 和 uvRect 计算。
+     * @param v 顶点的 v。如果不设置，v 将根据 contentRect 和 uvRect 计算。
      */
-    addVert(x: number, y: number, z: number, color?: Readonly<Color>, uv?: Readonly<Vector2>): void {
+    addVert(x: number, y: number, z: number, color?: Readonly<Color>, u?: number, v?: number): void {
         this.checkVBuf(this._epv);
 
         let arr = this._vertices;
@@ -84,12 +86,14 @@ export class VertexStream {
         arr[idx + 1] = y;
         arr[idx + 2] = z;
 
-        if (uv)
-            uv.writeTo(arr, idx + 3);
-        else {
+        if (u != null)
+            arr[idx + 3] = u;
+        else
             arr[idx + 3] = MathUtil.lerp(this.uvRect.x, this.uvRect.right, (x - this.contentRect.x) / this.contentRect.width);
+        if (v != null)
+            arr[idx + 4] = v;
+        else
             arr[idx + 4] = MathUtil.lerp(this.uvRect.y, this.uvRect.bottom, (y - this.contentRect.y) / this.contentRect.height);
-        }
 
         if (this._epv === 9)
             (color || this.color).writeTo(arr, idx + 5);
@@ -99,15 +103,25 @@ export class VertexStream {
      * @en Add a quad. A quad is composed of four vertices.
      * @param rect The rectangle of the quad. 
      * @param color The color of the quad. If not set, the color will be the default color.
+     * @param uvRect The uvs of the quad. If not set, the uv will be calculated based on the contentRect and uvRect.
      * @zh 添加一个四边形。四边形由四个顶点组成。
      * @param rect 四边形的矩形区域。
-     * @param color 四边形的颜色。如果不设置，颜色将会是默认颜色。 
+     * @param color 四边形的颜色。如果不设置，颜色将会是默认颜色。
+     * @param uvRect 四边形的 uvs。如果不设置，uv 将根据 contentRect 和 uvRect 计算。
      */
-    addQuad(rect: Readonly<Rectangle>, color?: Readonly<Color>): void {
-        this.addVert(rect.x, rect.bottom, 0, color);
-        this.addVert(rect.x, rect.y, 0, color);
-        this.addVert(rect.right, rect.y, 0, color);
-        this.addVert(rect.right, rect.bottom, 0, color);
+    addQuad(rect: Readonly<Rectangle>, color?: Readonly<Color>, uvRect?: Readonly<Rectangle>): void {
+        if (uvRect) {
+            this.addVert(rect.x, rect.y, 0, color, uvRect.x, uvRect.y);
+            this.addVert(rect.right, rect.y, 0, color, uvRect.right, uvRect.y);
+            this.addVert(rect.right, rect.bottom, 0, color, uvRect.right, uvRect.bottom);
+            this.addVert(rect.x, rect.bottom, 0, color, uvRect.x, uvRect.bottom);
+        }
+        else {
+            this.addVert(rect.x, rect.y, 0, color);
+            this.addVert(rect.right, rect.y, 0, color);
+            this.addVert(rect.right, rect.bottom, 0, color);
+            this.addVert(rect.x, rect.bottom, 0, color);
+        }
     }
 
     /**
