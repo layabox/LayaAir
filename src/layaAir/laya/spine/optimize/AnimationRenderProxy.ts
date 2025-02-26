@@ -41,7 +41,6 @@ export class AnimationRenderProxy {
      */
     constructor(animator: AnimationRender) {
         this.animator = animator;
-        // this.vb = animator.vb;
         this.reset();
     }
     /**
@@ -85,20 +84,12 @@ export class AnimationRenderProxy {
     renderWithOutMat(slots: spine.Slot[], updator: SkinRenderUpdate, curTime: number) {
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
-        let currentSKin = this.currentSKin;
-        // let vb = currentSKin.vb;
-        // let vb = currentSKin.;
-        // if (currentSKin.checkVBChange(slots)) {
-        //     updator.updateVB(vb.vb, vb.vbLength);
-        // }
-        updator.renderUpdate(currentSKin , nowFrame , beforeFrame);
+        
+        updator.renderUpdate(this.currentSKin , nowFrame , beforeFrame);
         
         this.currentTime = curTime;
         this.currentFrameIndex = nowFrame;
 
-        // if (nowFrame != beforeFrame) {
-        //     //TODO
-        // }
     }
 
     /**

@@ -53,6 +53,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleton {
 
     static _pool: IRenderElement2D[] = [];
+    
     static createRenderElement2D() {
         if (this._pool.length > 0) {
             return this._pool.pop();
@@ -91,9 +92,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     protected _stateData: spine.AnimationStateData;
     /**@internal @protected */
     protected _currentPlayTime: number = 0;
-    /**@internal @protected */
-    protected _renerer: SpineSkeletonRenderer;
-
     /** @internal */
     private _pause: boolean = true;
     /** @internal */
@@ -294,6 +292,18 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
 
     get url(): string {
         return this._skin
+    }
+
+    get twoColorTint(): boolean {
+        return this._spriteShaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+    }
+
+    set twoColorTint(value: boolean) {
+        if (value) {
+            this._spriteShaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+        }else{
+            this._spriteShaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+        }
     }
 
     /**
@@ -851,29 +861,19 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                     }
                 }
                 this._renderElements.length = mesh.subMeshCount;
+
+                SpineShaderInit.changeVertexDefine(this._spriteShaderData , mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
                 this._renderElements.length = 0;
             }
+
         }
         this._mesh = mesh;
         return hasChange
     }
 
-    getMaterial(texture: Texture2D, blendMode: number): Material {
-        let mat: Material;
-        if (this._materials.length <= this._renderElements.length) {
-            //默认给一个新的Mateiral
-            mat = this.templet.getMaterial(texture, blendMode);
-            // renderNode._materials.push(mat);
-        } else {
-            mat = this._materials[this._renderElements.length];
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this.templet.premultipliedAlpha);
-            mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
-        }
-        return mat;
-    }
 }
 
 class TimeKeeper {
@@ -900,54 +900,3 @@ class TimeKeeper {
 }
 
 ClassUtils.regClass("Spine2DRenderNode", Spine2DRenderNode);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

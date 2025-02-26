@@ -20,8 +20,6 @@ import { VBCreator } from "../optimize/VBCreator";
 
 export class SpineMeshUtils {
 
-    static SPINEMESH_COLOR2: number = 11;
-
     /**
      * @en Creates a Mesh2D object for Spine rendering
      * @param type The Spine render type
@@ -187,7 +185,7 @@ export class SpineMeshUtils {
                 var element: VertexElement;
                 switch (subFlags[i]) {
                     case "COLOR2":
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, SpineMeshUtils.SPINEMESH_COLOR2);
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 11);
                         offset += 16;
                         break;
                     case "BONE":
@@ -226,7 +224,6 @@ export class SpineMeshUtils {
                         element = new VertexElement(offset, VertexElementFormat.Vector2, 2);
                         offset += 8
                         break;
-
                     default:
                         throw "VertexMesh: unknown vertex flag.";
                 }

@@ -17,7 +17,15 @@ vec4 getColor(){
         #endif
     #endif
     
-    return color*v_color;
+    vec4 final;
+    #ifdef TWOCOLORTINT
+        final.a = color.a * v_color.a;
+        final.xyz = ((color.a - 1.0) * v_color2.a + 1.0 - color.xyz) * v_color2.xyz + color.xyz * v_color.xyz;
+    #else
+        final = color * v_color;
+    #endif
+
+    return final;
 }
 
 #endif //SpineFragment_lib

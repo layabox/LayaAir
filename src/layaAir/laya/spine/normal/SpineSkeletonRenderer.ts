@@ -7,6 +7,7 @@ import { ISpineRender } from "../interface/ISpineRender";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineNormalRenderBase } from "./SpineNormalRenderBase";
 import { SpineMeshBase } from "../mesh/SpineMeshBase";
+import { SpineShaderInit } from "../material/SpineShaderInit";
 
 
 interface Renderable {
@@ -41,17 +42,9 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     private tempColor = new window.spine.Color();
     private tempColor2 = new window.spine.Color();
     private static vertices: ArrayLike<number>;
-    private vertexSize = 2 + 2 + 4;
-    private twoColorTint = false;
     private renderable: Renderable;
     private clipper: spine.SkeletonClipping;
 
-    // private temp = new window.spine.Vector2();
-    // private temp2 = new window.spine.Vector2();
-    // private temp3 = new window.spine.Color();
-    // private temp4 = new window.spine.Color();
-
-    
     /**
      * @en Create a mesh with the given material.
      * @param material The material to be used for the mesh.
@@ -72,11 +65,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
      * @param templet 要使用的 Spine 模板。
      * @param twoColorTint 是否使用双色调色。
      */
-    constructor(templet: SpineTemplet, twoColorTint: boolean = true) {
+    constructor(templet: SpineTemplet) {
         super();
-        this.twoColorTint = twoColorTint;
-        if (twoColorTint)
-            this.vertexSize += 4;
         this.templet = templet;
         if (SpineSkeletonRenderer.vertices == null) {
             SpineSkeletonRenderer.vertices = spine.Utils.newFloatArray(12 * 1024);
@@ -338,7 +328,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let clipper = this.clipper;
         this.clearBatch();
         // let premultipliedAlpha = this.templet.premultipliedAlpha;
-        let twoColorTint = this.twoColorTint;
+        let twoColorTint = true;//renderNode.twoColorTint;
         let blendMode: spine.BlendMode | null = null;
 
         let renderable: Renderable = this.renderable;
@@ -347,11 +337,12 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let drawOrder = skeleton.drawOrder;
         let attachmentColor: spine.Color;
         let skeletonColor = skeleton.color;
-        let vertexSize = twoColorTint ? SpineVirtualMesh.vertexSize_TwoColor : SpineVirtualMesh.vertexSize;
+
+        let vertexSize:number = SpineVirtualMesh.vertexSize_TwoColor;
+       
         let inRange = false;
         if (slotRangeStart == -1) inRange = true;
-        let mesh: SpineVirtualMesh;
-        //mesh.clear();
+        let virtualMesh: SpineVirtualMesh;
         let spineTex;
         let needSlot = this.templet.needSlot;
         let staticVetices = SpineSkeletonRenderer.vertices;
@@ -359,6 +350,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
             let slot = drawOrder[i];
             let boneOrSlot = needSlot ? slot : slot.bone;
+            
             if (!slot.bone.active) {
                 clipper.clipEndWithSlot(slot);
                 continue;
@@ -455,28 +447,28 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 }
 
                 if (needNewMat) {
-                    mesh && mesh.draw();
-                    let mat = renderNode.getMaterial(texture.realTexture, blendMode);
-                    mesh = this.nextBatch(mat, renderNode) as SpineVirtualMesh;
-                    mesh.clear();
+                    virtualMesh && virtualMesh.draw();
+                    let mat = renderNode.templet.getMaterial(texture.realTexture, blendMode);
+                    virtualMesh = this.nextBatch(mat, renderNode) as SpineVirtualMesh;
+                    virtualMesh.clear();
                 }
 
                 if (clipper.isClipping()) {
                     clipper.clipTriangles(renderable.vertices, renderable.numFloats, triangles, triangles.length, uvs, finalColor, darkColor, twoColorTint);
-                    if (!mesh.canAppend(clipper.clippedVertices.length, clipper.clippedTriangles.length)) {
-                        mesh.draw();
-                        mesh = this.nextBatch(mesh.material, renderNode) as SpineVirtualMesh;
-                        mesh.clear();
+                    if (!virtualMesh.canAppend(clipper.clippedVertices.length, clipper.clippedTriangles.length)) {
+                        virtualMesh.draw();
+                        virtualMesh = this.nextBatch(virtualMesh.material, renderNode) as SpineVirtualMesh;
+                        virtualMesh.clear();
                     }
-                    mesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles);
+                    virtualMesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles);
                 } else {
-                    if (!mesh.canAppend(renderable.numFloats, triangles.length)) {
-                        mesh.draw();
-                        mesh = this.nextBatch(mesh.material, renderNode) as SpineVirtualMesh;
-                        mesh.clear();
+                    if (!virtualMesh.canAppend(renderable.numFloats, triangles.length)) {
+                        virtualMesh.draw();
+                        virtualMesh = this.nextBatch(virtualMesh.material, renderNode) as SpineVirtualMesh;
+                        virtualMesh.clear();
                     }
                     if (finalColor.a != 0) {
-                        mesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, uvs);
+                        virtualMesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor , darkColor , uvs);
                     }
                 }
             }
@@ -484,6 +476,6 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         }
         clipper.clipEnd();
         
-        mesh && mesh.draw();
+        virtualMesh && virtualMesh.draw();
     }
 }

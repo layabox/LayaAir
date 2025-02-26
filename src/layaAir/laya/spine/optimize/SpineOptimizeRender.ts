@@ -115,7 +115,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      */
     constructor(spineOptimize: SketonOptimise) {
         this.renderProxyMap = new Map();
-        // this.geoMap = new Map();
         this._dynamicMap = new Map;
         this.animatorMap = new Map();
         this.skinRenderArray = [];
@@ -141,9 +140,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
+        this.skinRenderArray.forEach(skin => skin.destroy());
         this._dynamicMap.forEach(mesh => mesh.destroy());
         this._dynamicMap.clear();
-        //throw new NotImplementedError();
     }
 
     /**
@@ -166,7 +165,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             this._clear();
             this.play(this._curAnimationName);
         }
-        //throw new NotImplementedError();
     }
 
     /**
@@ -371,7 +369,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
 
             if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
-                currentRender.renderUpdate(currentSKin, -1, -1);
+                currentRender.renderUpdate(currentSKin, -1, 0);
             }
             // old.animator.mutiRenderAble
             // let mutiRenderAble = currentSKin.mutiRenderAble;
@@ -491,7 +489,6 @@ class RenderOptimize implements IRender {
      * @zh 离开当前渲染状态时调用。
      */
     leave(): void {
-
     }
 
     /**
@@ -517,7 +514,7 @@ class RenderNormal implements IRender {
     /** @internal */
     _renderNode: Spine2DRenderNode;
     /** @internal */
-    _renerer: ISpineRender;
+    _renderer: ISpineRender;
     /** @internal */
     _skeleton: spine.Skeleton;
 
@@ -539,7 +536,7 @@ class RenderNormal implements IRender {
      * @zh 离开当前渲染状态时调用。
      */
     leave(): void {
-
+        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -551,7 +548,8 @@ class RenderNormal implements IRender {
      * @param currentAnimation 要使用的新动画渲染代理。
      */
     change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this._renerer = currentRender._renderer;
+        this._renderer = currentRender._renderer;
+        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -564,7 +562,7 @@ class RenderNormal implements IRender {
      */
     render(curTime: number, boneMat: Float32Array) {
         this._renderNode.clear();
-        this._renerer.draw(this._skeleton, this._renderNode, -1, -1);
+        this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
     }
 
 }
