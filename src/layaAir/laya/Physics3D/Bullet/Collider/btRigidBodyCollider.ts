@@ -1,5 +1,4 @@
 import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
-import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
@@ -754,10 +753,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param shape 要设置的碰撞器形状。
      */
     setColliderShape(shape: btColliderShape) {
-        if (shape instanceof MeshColliderShape) {
-            console.error("RigidBody3D is not support MeshColliderShape");
-            shape = null;
-        }
         super.setColliderShape(shape);
     }
 

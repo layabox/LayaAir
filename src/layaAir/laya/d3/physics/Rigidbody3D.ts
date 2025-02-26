@@ -7,6 +7,8 @@ import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Event } from "../../events/Event";
+import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
+import { MeshColliderShape } from "./shape/MeshColliderShape";
 
 /**
  * @en Rigidbody3D is a component that creates a rigidbody collider.
@@ -51,6 +53,28 @@ export class Rigidbody3D extends PhysicsColliderComponent {
             this._collider.component = this;
         } else {
             console.error("Rigidbody3D: cant enable Rigidbody3D");
+        }
+    }
+
+    /**
+     * @en The collider shape of the physics collider.
+     * @zh 物理碰撞器的碰撞形状。
+     */
+    get colliderShape(): Physics3DColliderShape {
+        return this._colliderShape;
+    }
+
+    set colliderShape(value: Physics3DColliderShape) {
+        if (value == this._colliderShape) {
+            return;
+        }
+        if (value instanceof MeshColliderShape) {
+            value.convex = true;
+        }
+        this._colliderShape && this._colliderShape.destroy();
+        this._colliderShape = value;
+        if (this._collider && value) {
+            this._collider.setColliderShape(value._shape);
         }
     }
 
