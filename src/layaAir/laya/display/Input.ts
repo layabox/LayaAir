@@ -159,7 +159,7 @@ export class Input extends Text {
             canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
         }
         if (ILaya.Browser.onLayaRuntime && ILaya.Browser.onPC) {
-            Render.canvas.addEventListener("click", Input._popupInputMethod);
+            canvas.addEventListener("click", Input._popupInputMethod);
         }
     }
 
