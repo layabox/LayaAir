@@ -110,7 +110,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 if (uploadScene || switchShader) {
                     if (sceneShaderData) {
                         shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
-                        shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, sceneShaderData, uploadScene);
                     }
 
                     shaderIns._uploadScene = sceneShaderData;
