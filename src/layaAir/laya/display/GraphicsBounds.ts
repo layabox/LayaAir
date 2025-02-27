@@ -42,7 +42,7 @@ export class GraphicsBounds {
     private _temp: number[];
     private _bounds: Rectangle;
     private _rstBoundPoints: number[];
-    private _cacheBoundsType: boolean = false;
+    private _cacheBounds: boolean = null;
     /**@internal */
     _graphics: Graphics;
     /**@internal */
@@ -54,7 +54,7 @@ export class GraphicsBounds {
      */
     destroy(): void {
         this._graphics = null;
-        this._cacheBoundsType = false;
+        this._cacheBounds = null;
         if (this._temp) this._temp.length = 0;
         if (this._rstBoundPoints) this._rstBoundPoints.length = 0;
         if (this._bounds) this._bounds.recover();
@@ -75,7 +75,7 @@ export class GraphicsBounds {
      * @zh 重置数据
      */
     reset(): void {
-        this._temp && (this._temp.length = 0);
+        this._cacheBounds = null;
     }
 
     /**
@@ -87,10 +87,12 @@ export class GraphicsBounds {
      * @returns 位置与宽高组成的一个Rectangle对象。
      */
     getBounds(realSize: boolean = false): Rectangle {
-        if (!this._bounds || !this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType) {
-            this._bounds = Rectangle._getWrapRec(this.getBoundPoints(realSize), this._bounds)
+        realSize = !!realSize;
+        if (realSize !== this._cacheBounds) {
+            this._temp = this._getCmdPoints(realSize);
+            this._bounds = Rectangle._getWrapRec(this._temp, this._bounds);
+            this._cacheBounds = realSize;
         }
-        this._cacheBoundsType = realSize;
         return this._bounds;
     }
 
@@ -103,9 +105,7 @@ export class GraphicsBounds {
      * @returns 边界点的数组。
      */
     getBoundPoints(realSize: boolean = false): any[] {
-        if (!this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType)
-            this._temp = this._getCmdPoints(realSize);
-        this._cacheBoundsType = realSize;
+        this.getBounds(realSize);
         return this._rstBoundPoints = Utils.copyArray(this._rstBoundPoints, this._temp);
     }
 
@@ -183,10 +183,10 @@ export class GraphicsBounds {
                     addPointArrToRst(rst, (<DrawCircleCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
                 case DrawEllipseCmd.ID:
-                    addPointArrToRst(rst,(<DrawEllipseCmd>cmd).getBoundPoints(sp),tMatrix);
+                    addPointArrToRst(rst, (<DrawEllipseCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
                 case DrawRoundRectCmd.ID:
-                    addPointArrToRst(rst,(<DrawRoundRectCmd>cmd).getBoundPoints(sp),tMatrix);
+                    addPointArrToRst(rst, (<DrawRoundRectCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;
                 case DrawLineCmd.ID:
                     addPointArrToRst(rst, (<DrawLineCmd>cmd).getBoundPoints(sp), tMatrix);
@@ -215,7 +215,8 @@ export class GraphicsBounds {
                     break;
                 default:
                     //没有相应功能的取sprite的
-                    addPointArrToRst(rst,Rectangle._getBoundPointS(sp.x, sp.y, sp.width, sp.height, null), tMatrix);
+                    addPointArrToRst(rst, Rectangle._getBoundPointS(sp.x, sp.y, sp.width, sp.height, null), tMatrix);
+                    break;
             }
         }
         if (rst.length > 200) {
