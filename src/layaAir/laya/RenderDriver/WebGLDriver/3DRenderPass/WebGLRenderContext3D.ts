@@ -71,8 +71,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
-        let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-        this.sceneData.createUniformBuffer("Scene3D", sceneMap);
+        if (this.sceneData) {
+            let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
+            this.sceneData.createUniformBuffer("Scene3D", sceneMap);
+        }
     }
 
     get cameraData(): WebGLShaderData {
@@ -82,8 +84,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
 
-        let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
-        this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
+        if (this.cameraData) {
+            let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+            this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
+        }
+
     }
 
     get sceneModuleData(): WebSceneNodeData {

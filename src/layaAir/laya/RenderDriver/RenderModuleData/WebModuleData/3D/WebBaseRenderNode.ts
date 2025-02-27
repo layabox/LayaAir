@@ -108,7 +108,12 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     }
     public set additionShaderData(value: Map<string, ShaderData>) {
         this._additionShaderData = value;
-        this._additionShaderDataKeys = Array.from(this._additionShaderData.keys());
+        if (value) {
+            this._additionShaderDataKeys = Array.from(this._additionShaderData.keys());
+        }
+        else {
+            this._additionShaderDataKeys = [];
+        }
     }
 
     constructor() {

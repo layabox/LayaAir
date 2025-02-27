@@ -15,7 +15,9 @@
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap)	     mediump sampler2DShadow shadowMap
     #endif // NO_NATIVE_SHADOWMAP
 
-    #ifdef ENUNIFORMBLOCK
+    #if defined(SHADOW) || defined(SHADOW_SPOT)
+
+	#ifdef ENUNIFORMBLOCK
 
 uniform Shadow
 {
@@ -31,7 +33,7 @@ uniform Shadow
 TEXTURE2D_SHADOW(u_ShadowMap);
 TEXTURE2D_SHADOW(u_SpotShadowMap);
 
-    #else // ENUNIFORMBLOCK
+	#else // ENUNIFORMBLOCK
 
 uniform vec3 u_ShadowLightDirection;
 uniform vec4 u_ShadowBias;
@@ -45,6 +47,8 @@ uniform mat4 u_SpotViewProjectMatrix;
 TEXTURE2D_SHADOW(u_ShadowMap);
 TEXTURE2D_SHADOW(u_SpotShadowMap);
 
-    #endif // ENUNIFORMBLOCK
+	#endif // ENUNIFORMBLOCK
+
+    #endif // SHADOW || SHADOW_SPOT
 
 #endif // ShadowCommon_lib
