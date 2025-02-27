@@ -26,7 +26,7 @@ export class GLSLCodeGenerator {
         return res;
     }
 
-    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean) {
+    static glslUniformString(uniformsMap: Map<number, UniformProperty>, useUniformBlock: boolean, blockName: string) {
 
         if (uniformsMap.size == 0) {
             return "";
@@ -34,7 +34,7 @@ export class GLSLCodeGenerator {
 
         if (useUniformBlock) {
             let uniformsStr = "";
-            let blockStr = "uniform Material{\n";
+            let blockStr = `uniform ${blockName}{\n`;
             let blockPropertyCount = 0;
 
             uniformsMap.forEach((uniform, key) => {
@@ -95,7 +95,7 @@ export class GLSLCodeGenerator {
         // 拼接 shader attribute
         let useUniformBlock = Config.matUseUBO;
         let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
-        let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
+        let materialUniformGlsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock, "Material");
 
         if (LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) > 30) {
             defineString.push("GRAPHICS_API_GLES3");
@@ -118,7 +118,8 @@ layout(std140, column_major) uniform;
 #define textureCube texture
 #define texture2D texture
 ${attributeglsl}
-${uniformglsl}
+
+${materialUniformGlsl}
 `;
 
             fragmentHead =
@@ -148,7 +149,8 @@ out highp vec4 pc_fragColor;
 #define texture2DGradEXT textureGrad
 #define texture2DProjGradEXT textureProjGrad
 #define textureCubeGradEXT textureGrad
-${uniformglsl}`;
+
+${materialUniformGlsl}`;
         }
         else {
             vertexHead =
@@ -160,7 +162,7 @@ ${uniformglsl}`;
     precision mediump int;
 #endif
 ${attributeglsl}
-${uniformglsl}`;
+${materialUniformGlsl}`;
             fragmentHead =
                 `#ifdef GL_EXT_shader_texture_lod
     #extension GL_EXT_shader_texture_lod : enable
@@ -185,7 +187,7 @@ ${uniformglsl}`;
     #define texture3DLodEXT texture3D
     #define textureCubeLodEXT textureCube
 #endif
-${uniformglsl}`;
+${materialUniformGlsl}`;
         }
 
         // todo 

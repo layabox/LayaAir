@@ -93,27 +93,31 @@ export class WebGLRenderElement3D implements IRenderElement3D {
      * @param context 
      */
     _render(context: WebGLRenderContext3D): void {
-        var forceInvertFace: boolean = context.invertY;
-        var updateMark: number = context.cameraUpdateMask;
-        var sceneShaderData = context.sceneData as WebGLShaderData;
-        var cameraShaderData = context.cameraData as WebGLShaderData;
+        let forceInvertFace: boolean = context.invertY;
+        let updateMark: number = context.cameraUpdateMask;
+        let sceneShaderData = context.sceneData as WebGLShaderData;
+        let cameraShaderData = context.cameraData as WebGLShaderData;
         if (this.isRender) {
-            var passes: WebGLShaderInstance[] = this._shaderInstances.elements;
-            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
+            let passes: WebGLShaderInstance[] = this._shaderInstances.elements;
+            for (let j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
                 const shaderIns: WebGLShaderInstance = passes[j];
                 if (!shaderIns.complete)
                     continue;
-                var switchShader: boolean = shaderIns.bind();
-                var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
-                var uploadScene: boolean = (shaderIns._uploadScene !== sceneShaderData) || switchUpdateMark;
+                let switchShader: boolean = shaderIns.bind();
+                let switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
+                let uploadScene: boolean = (shaderIns._uploadScene !== sceneShaderData) || switchUpdateMark;
                 //Scene
                 if (uploadScene || switchShader) {
-                    sceneShaderData && shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
+                    if (sceneShaderData) {
+                        shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
+                        shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, sceneShaderData, uploadScene);
+                    }
+
                     shaderIns._uploadScene = sceneShaderData;
                 }
                 //render
                 if (this.renderShaderData) {
-                    var uploadSprite3D: boolean = (shaderIns._uploadRender !== this.renderShaderData) || switchUpdateMark;
+                    let uploadSprite3D: boolean = (shaderIns._uploadRender !== this.renderShaderData) || switchUpdateMark;
                     if (uploadSprite3D || switchShader) {
                         shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.renderShaderData, uploadSprite3D);
                         shaderIns._uploadRender = this.renderShaderData;
@@ -136,18 +140,16 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 }
 
                 //camera
-                var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
+                let uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera || switchShader) {
                     cameraShaderData && shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, uploadCamera);
                     shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material
-                var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.materialShaderData) || switchUpdateMark;
+                let uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.materialShaderData) || switchUpdateMark;
                 if (uploadMaterial || switchShader) {
                     shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.materialShaderData, uploadMaterial);
                     shaderIns._uploadMaterial = this.materialShaderData;
-                    //GlobalData
-                    context.globalShaderData && shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, context.globalShaderData, uploadMaterial);
                 }
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
