@@ -35,7 +35,7 @@ export enum PxMeshGeometryFlag {
  * @zh 表示物理引擎中的网格碰撞器形状。
  */
 export class pxMeshColliderShape extends pxColliderShape implements IMeshColliderShape {
-    private _limitvertex = 10;
+    private _limitvertex = 255;
     private _mesh: Mesh;
     private _convex: boolean;
     private _meshScale: any;
@@ -54,6 +54,9 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     private _getMeshPosition(): any {
         let posArray = new Array<Vector3>();
         this._mesh.getPositions(posArray);
+        if (this._convex && posArray.length > this._limitvertex) {
+            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.")
+        }
         let vecpointer = new pxStatics._physX.PxVec3Vector();
         posArray.forEach((vec: Vector3, index: number) => {
             vecpointer.push_back(vec);
