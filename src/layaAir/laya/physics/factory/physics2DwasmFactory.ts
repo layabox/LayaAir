@@ -17,6 +17,7 @@ const b2_maxFloat = 1E+37;
 export class physics2DwasmFactory implements IPhysiscs2DFactory {
     private _tempVe21: any;
     private _tempVe22: any;
+    private _massData: any;
 
     /**@internal box2D Engine */
     _box2d: any;
@@ -354,6 +355,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
         this._tempVe21 = new this.box2d.b2Vec2();
         this._tempVe22 = new this.box2d.b2Vec2();
+        this._massData = new this.box2d.b2MassData();
 
         this._tempPolygonShape = new this.box2d.b2PolygonShape();
         this._tempChainShape = new this.box2d.b2ChainShape();
@@ -391,6 +393,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         if (this._tempVe22) {
             this.destory(this._tempVe22);
             this._tempVe22 = null;
+        }
+
+        if (this._massData) {
+            this.destory(this._massData);
+            this._massData = null;
         }
 
         if (this._tempPolygonShape) {
@@ -1701,6 +1708,26 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
+     * @en Set the mass of a rigid body.
+     * @param body The rigid body.
+     * @param mass The mass to set.
+     * @param centerofMass The center of mass to set.
+     * @param inertia The inertia to set.
+     * @zh 设置刚体的质量。
+     * @param body 刚体。
+     * @param mass 要设置的质量。
+     * @param centerofMass 要设置的质心。
+     * @param inertia 要设置的惯性张量。
+     */
+    set_rigidbody_Mass(body: any, massValue: number, centerofMass: IV2, inertiaValue: number): void {
+        this._massData.mass = massValue;
+        this._massData.center.x = centerofMass.x;
+        this._massData.center.y = centerofMass.y;
+        this._massData.I = inertiaValue;
+        body.SetMassData(this._massData);
+    }
+
+    /**
      * @en Get the offset of the center of mass relative to the node (0, 0) point.
      * @param body The rigid body.
      * @returns The offset of the center of mass.
@@ -1714,6 +1741,18 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         point.x = this.phyToLayaValue(value.x);
         point.y = this.phyToLayaValue(value.y);
         return point;
+    }
+
+    /**
+     * @en Get the inertia tensor of the rigid body.
+     * @param body The rigid body.
+     * @returns The inertia tensor of the rigid body.
+     * @zh 获取刚体的转动张量
+     * @param body 刚体。
+     * @returns 刚体的转动张量。 
+     */
+    get_rigidbody_Inertia(body: any): number {
+        return body.GetInertia();
     }
 
     /**
