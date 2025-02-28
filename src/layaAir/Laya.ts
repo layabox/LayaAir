@@ -37,9 +37,9 @@ import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 
 /**
  * @en Laya is the reference entry for global objects.
- * @en The Laya class refers to some commonly used global objects, such as Laya.stage: stage, Laya.timer: time manager, Laya.loader: loading manager. Pay attention to case when using.
+ * - The Laya class refers to some commonly used global objects, such as Laya.stage: stage, Laya.timer: time manager, Laya.loader: loading manager. Pay attention to case when using.
  * @zh Laya是全局对象的引用入口集。
- * @zh Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
+ * - Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
  */
 export class Laya {
     /**

@@ -20,7 +20,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     /** @internal */
     private _mass = 1.0;
     /** @internal */
-    private _gravity = new Vector3(0, -10, 0);
+    private _gravity = new Vector3(0, -9.8, 0);
     /** @internal */
     private _angularDamping = 0.0;
     /** @internal */
@@ -55,8 +55,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The mass of the rigidbody.
-     * @zh 刚体的质量。
+     * @en The mass of the rigidbody. It affects the size of acceleration and momentum transfer during force application in collisions.
+     * @zh 刚体的质量。影响其受力时的加速度大小和在碰撞中的动量传递。
      */
     get mass(): number {
         return this._mass;
@@ -71,7 +71,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @en Determines if the rigidbody is kinematic. If true, the rigidbody can only be moved by transform property, not by other force-related properties.
-     * @zh 确定刚体是否为运动物体。如果为true仅可通过transform属性移动物体,而非其他力相关属性。
+     * @zh 设置刚体是否为运动学控制模式。如果为true仅可通过transform属性移动物体,而非其他力相关属性。
      */
     get isKinematic(): boolean {
         return this._isKinematic;
@@ -85,8 +85,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The linear damping of the rigidbody.
-     * @zh 刚体的线阻力。
+     * @en The linear damping of the rigidbody. It simulates air resistance and other environmental factors to make the object slow down gradually.
+     * @zh 控制刚体线性运动的阻尼系数，模拟空气阻力等环境因素，使物体逐渐减速。
      */
     get linearDamping(): number {
         return this._linearDamping;
@@ -100,8 +100,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The angular damping of the rigidbody.
-     * @zh 刚体的角阻力。
+     * @en The angular damping of the rigidbody. It simulates angular resistance and other environmental factors to make the object's rotation slow down gradually. 
+     * @zh 刚体的角阻力。控制刚体旋转运动的阻尼系数，使旋转逐渐减速，防止永久旋转。
      */
     get angularDamping(): number {
         return this._angularDamping;
@@ -115,8 +115,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The gravity applied to the rigidbody.
-     * @zh 应用于刚体的重力。
+     * @en Sets the gravity vector applied to the rigidbody, allowing customization of direction and magnitude. 
+     * @zh 设置作用于刚体的重力向量，可自定义方向和大小。
      */
     get gravity(): Vector3 {
         return this._gravity;
@@ -131,7 +131,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @en The linear motion scaling factor for each axis of the rigidbody. If the value of any axis is 0, it means that the linear motion is frozen on that axis.
-     * @zh 刚体每个轴的线性运动缩放因子。如果某一轴的值为0表示冻结在该轴的线性运动。
+     * @zh 限制刚体在特定轴向的线性运动, 如果某一轴的值为0表示冻结在该轴的线性运动。
      */
     get linearFactor(): Vector3 {
         return this._linearFactor;
@@ -165,7 +165,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @en The angular motion scaling factor for each axis of the rigidbody. If the value of any axis is 0, it means that the angular motion is frozen on that axis.
-     * @zh 刚体每个轴的角度运动缩放因子。如果某一轴的值为0表示冻结在该轴的角度运动。
+     * @zh 限制刚体在特定轴向的旋转运动，如果某一轴的值为0表示冻结在该轴的角度运动。
      */
     get angularFactor(): Vector3 {
         return this._angularFactor;
@@ -233,8 +233,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en If the rigidbody is a trigger.
-     * @zh 刚体是否为触发器。
+     * @en Sets whether the rigidbody is a trigger. Triggers can detect collisions but do not produce physical reactions.
+     * @zh 设置刚体是否作为触发器使用。触发器可以检测碰撞但不产生物理反应。
      */
     public get trigger(): boolean {
         return this._trigger;

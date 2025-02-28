@@ -42,8 +42,8 @@ export class PhysicsCollider extends PhysicsColliderComponent {
     }
 
     /**
-     * @en If this collider is a trigger.
-     * @zh 此碰撞器是否为触发器。
+     * @en If this collider is a trigger. A trigger will trigger events but not produce actual physical blocking effects.
+     * @zh 此碰撞器是否为触发器。触发器会触发事件但不会产生实际的物理阻挡效果。
      */
     get isTrigger(): boolean {
         return this._isTrigger;
