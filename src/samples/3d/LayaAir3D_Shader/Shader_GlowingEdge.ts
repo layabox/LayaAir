@@ -1,3 +1,7 @@
+/**
+description
+ 自定义边缘发光着色器，应用于3D模型的材质渲染
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

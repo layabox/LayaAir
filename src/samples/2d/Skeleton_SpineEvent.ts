@@ -1,3 +1,7 @@
+/**
+description
+ Spine骨骼动画事件处理，加载动画并播放，触发事件时显示标签
+ */
 import { Laya } from "Laya";
 import { EventData } from "laya/ani/bone/EventData";
 import { Skeleton } from "laya/ani/bone/Skeleton";

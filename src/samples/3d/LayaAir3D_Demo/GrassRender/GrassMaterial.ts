@@ -1,3 +1,7 @@
+/**
+description
+ 草地材质定义与着色器参数设置类，包含风效果和纹理配置
+ */
 import UnityGrassVS from "./shader/GrassShaderVS.vs";
 import UnityGrassFS from "./shader/GrassShaderFS.fs";
 import { Material } from "laya/resource/Material";

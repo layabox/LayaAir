@@ -1,3 +1,7 @@
+/**
+description
+ Spine骨骼动画加载和播放示例，实现动画资源加载、循环播放和动画索引控制
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";

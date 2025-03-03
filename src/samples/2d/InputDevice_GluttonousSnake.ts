@@ -1,3 +1,7 @@
+/**
+description
+ 基于加速度传感器的贪吃蛇游戏，通过设备倾斜控制蛇的移动
+ */
 import { Laya } from "Laya";
 import { AccelerationInfo } from "laya/device/motion/AccelerationInfo";
 import { Accelerator } from "laya/device/motion/Accelerator";

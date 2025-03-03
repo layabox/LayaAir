@@ -1,3 +1,7 @@
+/**
+description
+ 静态批处理测试，加载3D场景并添加摄像机移动脚本
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";

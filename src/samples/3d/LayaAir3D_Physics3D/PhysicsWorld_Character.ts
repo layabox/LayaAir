@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D物理世界场景,包含角色控制、物理碰撞和键盘交互
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

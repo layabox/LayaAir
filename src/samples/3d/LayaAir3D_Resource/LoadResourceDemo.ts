@@ -1,3 +1,7 @@
+/**
+description
+ Laya 3D资源加载与场景搭建示例，包括预加载资源、创建场景、添加相机和光照
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

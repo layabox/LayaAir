@@ -1,3 +1,7 @@
+/**
+description
+ 图像混合模式演示，展示具有lighter模式的凤凰动画和动态背景
+ */
 import { Laya } from "Laya";
 import { Animation } from "laya/display/Animation";
 import { Stage } from "laya/display/Stage";

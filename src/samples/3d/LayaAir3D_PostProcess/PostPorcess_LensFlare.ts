@@ -1,3 +1,7 @@
+/**
+description
+ 实现镜头光晕特效的后期处理示例，配置多层光晕元素和参数
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";

@@ -1,3 +1,7 @@
+/**
+description
+ 定义草皮块信息，包括位置、大小、渲染等级和草的坐标生成
+ */
 import { BoundBox } from "laya/d3/math/BoundBox";
 import { Vector3 } from "laya/maths/Vector3";
 

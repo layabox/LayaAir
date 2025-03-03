@@ -1,3 +1,7 @@
+/**
+description
+ 基于Laya3D的镜面反射平面渲染脚本,实现镜像摄像机的精确视角转换
+ */
 import { Camera } from "laya/d3/core/Camera";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

@@ -1,3 +1,7 @@
+/**
+description
+ 媒体设备输入功能，调用浏览器摄像头并播放视频
+ */
 import { Media } from "laya/device/media/Media";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";

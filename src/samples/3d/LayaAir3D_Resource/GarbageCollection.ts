@@ -1,3 +1,7 @@
+/**
+description
+ 管理3D场景资源加载和释放的示例代码
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";

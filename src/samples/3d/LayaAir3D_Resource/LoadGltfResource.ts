@@ -1,3 +1,7 @@
+/**
+description
+ 加载和渲染多个GLTF 3D模型资源，配置场景、光照和天空盒
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

@@ -1,3 +1,7 @@
+/**
+description
+ 使用两指触摸实现矩形精灵的旋转交互
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

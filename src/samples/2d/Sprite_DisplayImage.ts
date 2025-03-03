@@ -1,3 +1,7 @@
+/**
+description
+ 在Laya框架中，展示两种加载图片的方式：loadImage和drawTexture
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

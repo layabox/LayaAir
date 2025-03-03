@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎3D场景演示，创建立方体、设置相机、光照和材质
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

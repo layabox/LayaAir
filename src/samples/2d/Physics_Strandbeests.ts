@@ -1,3 +1,7 @@
+/**
+description
+ 物理仿生兽模拟，使用2D物理引擎创建可交互的机械生物
+ */
 
 
 import { Config } from "Config";

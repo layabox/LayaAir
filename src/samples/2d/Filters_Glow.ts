@@ -1,3 +1,7 @@
+/**
+description
+ 实现图像发光特效的滤镜效果示例
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { GlowFilter } from "laya/filters/GlowFilter";

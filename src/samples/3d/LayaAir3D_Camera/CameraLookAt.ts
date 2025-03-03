@@ -1,3 +1,7 @@
+/**
+description
+ 3D相机注视不同3D模型的示例程序
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

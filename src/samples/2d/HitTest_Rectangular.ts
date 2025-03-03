@@ -1,3 +1,7 @@
+/**
+description
+ 实现两个可拖拽矩形的碰撞检测,并根据碰撞状态改变透明度
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Event } from "laya/events/Event";

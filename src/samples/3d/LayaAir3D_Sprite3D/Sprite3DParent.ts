@@ -1,3 +1,7 @@
+/**
+description
+ 演示3D场景中父子精灵的变换操作，包括移动、缩放和旋转
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

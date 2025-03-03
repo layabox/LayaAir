@@ -1,3 +1,7 @@
+/**
+description
+ 三维物理世界复合碰撞体演示，包括桌子和物体的随机生成与物理交互
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个文字自动换行的文本，文本内容为Layabox介绍，宽度300像素，字体大小40，颜色白色
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

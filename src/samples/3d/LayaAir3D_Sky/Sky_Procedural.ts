@@ -1,3 +1,7 @@
+/**
+description
+ LayaAir 3D场景中使用程序化天空盒和平行光的演示代码
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";

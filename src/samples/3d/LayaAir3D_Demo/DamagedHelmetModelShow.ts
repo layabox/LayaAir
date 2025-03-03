@@ -1,3 +1,7 @@
+/**
+description
+ 展示损坏的头盔3D模型，支持鼠标拖拽旋转和自动旋转
+ */
 
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";

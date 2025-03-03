@@ -1,3 +1,7 @@
+/**
+description
+ 使用HTML标签创建富文本样式的文本组件
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

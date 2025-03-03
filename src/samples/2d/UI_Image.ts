@@ -1,3 +1,7 @@
+/**
+description
+ LayaAir引擎图像加载与显示示例,初始化舞台并加载对话框图片
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Image } from "laya/ui/Image";

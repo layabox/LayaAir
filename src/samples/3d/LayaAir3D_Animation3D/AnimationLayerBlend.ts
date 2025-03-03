@@ -1,3 +1,7 @@
+/**
+description
+ 3D动画图层混合演示，展示了动画切换和融合效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

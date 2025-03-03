@@ -1,3 +1,7 @@
+/**
+description
+ 智能缩放与舞台居中对齐控制类，初始化舞台并设置水平垂直居中
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Main } from "../Main";

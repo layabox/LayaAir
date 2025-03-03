@@ -1,3 +1,7 @@
+/**
+description
+ 多通道轮廓渲染着色器示例，加载3D模型并应用自定义轮廓材质
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

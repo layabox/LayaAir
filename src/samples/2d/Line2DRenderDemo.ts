@@ -1,3 +1,7 @@
+/**
+description
+ 二维线段渲染演示,随机生成20条彩色线段
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

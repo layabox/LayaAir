@@ -1,3 +1,7 @@
+/**
+description
+ 地图设备定位与位置信息展示模块
+ */
 import { Laya } from "Laya";
 import { Geolocation } from "laya/device/geolocation/Geolocation";
 import { GeolocationInfo } from "laya/device/geolocation/GeolocationInfo";

@@ -1,3 +1,7 @@
+/**
+description
+ 创建并管理进度条，实现加载资源和动态更新进度值的用户界面组件
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { ProgressBar } from "laya/ui/ProgressBar";

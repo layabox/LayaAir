@@ -1,3 +1,7 @@
+/**
+description
+ 瓦片地图层演示：加载资源、创建瓦片图层并设置不同瓦片单元
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

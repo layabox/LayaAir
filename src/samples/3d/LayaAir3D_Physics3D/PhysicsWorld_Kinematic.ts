@@ -1,3 +1,7 @@
+/**
+description
+ 物理世界中运动学演示，包含平面、方块、胶囊和可控球体
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

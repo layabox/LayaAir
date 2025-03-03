@@ -1,3 +1,7 @@
+/**
+description
+ 实现僵尸3D模型动画切换的示例程序
+ */
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";

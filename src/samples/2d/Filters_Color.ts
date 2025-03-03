@@ -1,3 +1,7 @@
+/**
+description
+ 使用颜色滤镜处理图像,实现图像的标准、红色和灰度效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya引擎并创建一个带提示文字的文本输入框
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

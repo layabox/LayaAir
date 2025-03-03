@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景鼠标交互示例，展示鼠标在物体上的各种事件交互
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";

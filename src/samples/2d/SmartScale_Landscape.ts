@@ -1,3 +1,7 @@
+/**
+description
+ 横屏智能缩放场景布局，调整舞台对齐并显示居中文本
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

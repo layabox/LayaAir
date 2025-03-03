@@ -1,3 +1,7 @@
+/**
+description
+ 多光源场景渲染,包括点光源和聚光灯,并通过脚本实现光源动态移动效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Camera } from "laya/d3/core/Camera";

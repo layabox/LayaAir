@@ -1,3 +1,7 @@
+/**
+description
+ 深度材质类，用于设置深度渲染的着色器和渲染状态
+ */
 import { Material } from "laya/resource/Material";
 import DepthVS from "../DepthNormalShader/DepthTextureTest.vs";
 import DepthFS from "../DepthNormalShader/DepthTextureTest.fs";

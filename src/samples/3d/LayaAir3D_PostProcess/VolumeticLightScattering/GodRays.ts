@@ -1,3 +1,7 @@
+/**
+description
+ 光线散射后期特效,包括光线遮挡、散射和混合处理
+ */
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";

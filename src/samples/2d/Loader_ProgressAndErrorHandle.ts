@@ -1,3 +1,7 @@
+/**
+description
+ 在Laya中实现资源加载的进度监听和错误处理
+ */
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event";
 import { Texture } from "laya/resource/Texture";

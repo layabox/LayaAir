@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎3D点阵动态变换和旋转的可视化演示程序
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

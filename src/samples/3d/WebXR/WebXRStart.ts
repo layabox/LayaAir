@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎WebXR示例,实现VR场景加载和交互
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

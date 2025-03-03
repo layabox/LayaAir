@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D场景，初始化相机和模型，并添加场景和模型
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

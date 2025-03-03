@@ -1,3 +1,7 @@
+/**
+description
+ 演示三维场景中的环境光和天空渲染效果
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";

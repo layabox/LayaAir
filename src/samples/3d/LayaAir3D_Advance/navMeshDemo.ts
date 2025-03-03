@@ -1,3 +1,7 @@
+/**
+description
+ 3D导航网格演示程序，实现场景点击导航和网格调试可视化
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";

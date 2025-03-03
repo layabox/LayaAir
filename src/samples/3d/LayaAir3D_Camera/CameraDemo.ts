@@ -1,3 +1,7 @@
+/**
+description
+ 三维相机演示，展示正交/透视投影切换和场景背景变换
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

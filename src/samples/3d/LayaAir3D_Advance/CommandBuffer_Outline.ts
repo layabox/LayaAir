@@ -1,3 +1,7 @@
+/**
+description
+ Laya3D命令缓冲实现模型描边特效
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";

@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个包含多级目录和文件的树形结构UI组件
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Box } from "laya/ui/Box";

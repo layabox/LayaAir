@@ -1,3 +1,7 @@
+/**
+description
+ 限制输入框的输入内容，分别限制数字、字母和中文字符的输入
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景中创建UI组件，实现血条和交互UI的展示与相机空间切换
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Sprite3D } from "laya/d3/core/Sprite3D";

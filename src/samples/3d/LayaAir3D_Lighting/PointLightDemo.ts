@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D场景，添加点光源，动态旋转光源，渲染地面和猴子模型
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

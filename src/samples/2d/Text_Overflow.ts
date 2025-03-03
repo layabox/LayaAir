@@ -1,3 +1,7 @@
+/**
+description
+ 文本溢出处理示例，展示三种文本溢出模式：可见、滚动和隐藏
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

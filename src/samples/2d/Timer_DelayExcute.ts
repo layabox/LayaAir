@@ -1,3 +1,7 @@
+/**
+description
+ 实现两个按钮延时降低透明度的定时器示例
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 实现陀螺仪罗盘功能,显示设备朝向角度和方位指示器
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Gyroscope } from "laya/device/motion/Gyroscope"

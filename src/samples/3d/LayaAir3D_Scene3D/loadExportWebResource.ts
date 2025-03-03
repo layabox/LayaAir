@@ -1,3 +1,7 @@
+/**
+description
+ 加载Web资源并初始化3D场景的渲染引擎配置模块
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

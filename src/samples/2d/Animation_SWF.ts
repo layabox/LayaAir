@@ -1,3 +1,7 @@
+/**
+description
+ 加载并显示SWF动画文件，居中展示在舞台中心
+ */
 import { Laya } from "Laya";
 import { MovieClip } from "laya/ani/swf/MovieClip";
 import { Stage } from "laya/display/Stage";

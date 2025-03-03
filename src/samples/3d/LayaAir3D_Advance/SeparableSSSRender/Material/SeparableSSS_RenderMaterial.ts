@@ -1,3 +1,7 @@
+/**
+description
+ 定义可分离次表面散射渲染材质的着色器和材质属性
+ */
 import { Material } from "laya/resource/Material";
 import SSSSRenderVS from "./../shader/SeparableSSS_Render.vs";
 import SSSSRenderFS from "./../shader/SeparableSSS_Render.fs";

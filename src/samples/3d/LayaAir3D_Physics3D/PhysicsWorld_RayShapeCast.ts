@@ -1,3 +1,7 @@
+/**
+description
+ 3D物理世界中使用射线和形状投射进行碰撞检测的演示
+ */
 import { Laya } from "Laya";
 import { Stat } from "laya/utils/Stat";
 import { Camera } from "laya/d3/core/Camera";

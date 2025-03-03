@@ -1,3 +1,7 @@
+/**
+description
+ 多重采样抗锯齿(MSAA)演示Demo,创建3D场景并添加几何体,提供开启/关闭MSAA功能
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

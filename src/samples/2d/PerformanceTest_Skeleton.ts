@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试骨骼动画:批量生成网格化骨骼动画,并支持点击切换动作
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";
