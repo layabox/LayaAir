@@ -418,7 +418,8 @@ export class TextRender extends EventDispatcher {
             lineWidth = 0;
         }
         var w1 = Math.ceil((this.charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
-        let needCanvW = Math.min(2048, w1 + margin * 2 * this.fontScaleX);//注意margin要*缩放，否则可能文字放不下
+        //let needCanvW = Math.min(2048, w1 + margin * 2 * this.fontScaleX);//注意margin要*缩放，否则可能文字放不下
+        let needCanvW = w1 + margin * 2 * this.fontScaleX;//注意margin要*缩放，否则可能文字放不下
         if (needCanvW > this.charRender.canvasWidth) {
             this.charRender.canvasWidth = needCanvW;
         }
