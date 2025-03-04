@@ -94,6 +94,7 @@ export class SketonOptimise {
     /** @internal */
     _initSpineRender(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): ISpineOptimizeRender {
         let sp: ISpineOptimizeRender;
+
         if (SketonOptimise.normalRenderSwitch) {
             sp = new SpineNormalRender();
         }
@@ -113,7 +114,7 @@ export class SketonOptimise {
         this._state.update(delta);
         let trackEntry = this._state.getCurrent(0);
         this._state.apply(this.sketon);
-        this.sketon.updateWorldTransform();
+        this.sketon.updateWorldTransform(2);// spine.Physics.update;
         return this.sketon.bones;
     }
     /** @internal */

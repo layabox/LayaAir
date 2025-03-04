@@ -160,7 +160,7 @@ export class TileSet extends Resource {
      * @internal
      */
     private _notifyPhysicsLayerChange() {
-
+        this._terrainsDirty = true;
     }
 
     addTileSetCellGroup(resource: TileSetCellGroup): void {

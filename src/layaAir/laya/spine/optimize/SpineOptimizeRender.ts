@@ -446,6 +446,8 @@ class RenderOptimize implements IRender {
     slots: spine.Slot[];
     /** @internal */
     _renderNode: Spine2DRenderNode;
+    /** @internal */
+    _skeleton: spine.Skeleton;
     /**
      * @en The current skin renderer.
      * @zh 当前皮肤渲染器。
@@ -471,6 +473,7 @@ class RenderOptimize implements IRender {
         this.bones = bones;
         this.slots = slots;
         this._renderNode = renderNode;
+        this._skeleton = renderNode.getSkeleton();
     }
     /**
      * @en Change the current skin renderer and animation.
@@ -500,7 +503,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat , -this._skeleton.x, -this._skeleton.y);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
