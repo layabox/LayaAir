@@ -70,7 +70,7 @@ export class SpineWasmRender extends SpineNormalRenderBase implements ISpineRend
             let mat = renderNode.templet.getMaterial(this.templet.getTexture(texturePath), blendMode.value);
             let mesh = this.nextBatch(mat,renderNode);
             mesh.drawByData(SpineAdapter._vbArray, vbLen, SpineAdapter._ibArray, ibLen);
-        }, skeleton, false, slotRangeStart, slotRangeEnd);
+        }, skeleton, true, slotRangeStart, slotRangeEnd);
 
     }
 }
