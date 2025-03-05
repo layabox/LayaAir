@@ -1,3 +1,7 @@
+/**
+description
+ Laya框架实现的数字裁剪动画和控制器交互组件
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";

@@ -1,3 +1,7 @@
+/**
+description
+ 监听键盘事件，记录按下的按键并实时显示键盘输入状态
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

@@ -1,3 +1,7 @@
+/**
+description
+ 演示LayaAir中精灵对象的轴心点设置及旋转效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

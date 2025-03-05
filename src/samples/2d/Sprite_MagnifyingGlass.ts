@@ -1,3 +1,7 @@
+/**
+description
+ 放大镜效果：鼠标移动时显示背景图片的局部放大细节
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

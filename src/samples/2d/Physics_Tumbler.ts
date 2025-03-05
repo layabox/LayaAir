@@ -1,3 +1,7 @@
+/**
+description
+ 使用物理引擎创建旋转刚体容器,生成小矩形刚体的交互演示
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

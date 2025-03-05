@@ -1,3 +1,7 @@
+/**
+description
+ 鼠标交互事件演示,创建矩形并监听各种鼠标操作
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

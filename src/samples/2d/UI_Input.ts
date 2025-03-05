@@ -1,3 +1,7 @@
+/**
+description
+ 创建并配置不同皮肤的文本输入框,支持自定义样式和提示文字
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { TextInput } from "laya/ui/TextInput";

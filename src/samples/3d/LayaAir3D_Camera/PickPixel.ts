@@ -1,3 +1,7 @@
+/**
+description
+ 三维场景中实现鼠标点击拾取像素颜色的功能演示
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

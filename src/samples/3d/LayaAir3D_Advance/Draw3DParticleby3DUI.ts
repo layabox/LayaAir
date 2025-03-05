@@ -1,3 +1,7 @@
+/**
+description
+ 3D粒子特效绘制与UI交互的界面管理脚本
+ */
 import { Config } from "Config";
 import { Script } from "laya/components/Script";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";

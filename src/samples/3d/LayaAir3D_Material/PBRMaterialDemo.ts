@@ -1,3 +1,7 @@
+/**
+description
+ 演示PBR材质在3D场景中的不同光滑度和金属性效果
+ */
 
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";

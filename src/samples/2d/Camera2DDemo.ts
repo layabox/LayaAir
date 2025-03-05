@@ -1,3 +1,7 @@
+/**
+description
+ 2D摄像机演示demo，包含缩放、拖拽、平滑移动和按键控制角色移动
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

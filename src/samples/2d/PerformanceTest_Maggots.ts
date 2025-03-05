@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试：创建5000个蛆虫并随机移动模拟蛆虫动态效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Rectangle } from "laya/maths/Rectangle";

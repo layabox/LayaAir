@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D模型场景，创建相机、光照并展示带骨骼动画的角色模型
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

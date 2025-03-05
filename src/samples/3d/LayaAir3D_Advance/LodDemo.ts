@@ -1,3 +1,7 @@
+/**
+description
+ LayaAir 3D场景LOD演示，通过垂直滑动条控制相机位置和方向
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

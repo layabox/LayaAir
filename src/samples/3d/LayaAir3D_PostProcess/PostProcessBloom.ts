@@ -1,3 +1,7 @@
+/**
+description
+ 实现后期渲染的泛光特效,并提供HDR开关功能
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

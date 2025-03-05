@@ -1,3 +1,7 @@
+/**
+description
+ 3D物理世界中网格碰撞器的创建与随机添加物理对象
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

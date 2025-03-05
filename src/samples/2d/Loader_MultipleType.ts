@@ -1,3 +1,7 @@
+/**
+description
+ 加载多种类型资源，包括二进制文件和图像，并通过回调处理加载完成的资源
+ */
 import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";

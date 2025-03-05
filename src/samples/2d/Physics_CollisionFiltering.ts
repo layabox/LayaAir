@@ -1,3 +1,7 @@
+/**
+description
+ 实现物理引擎中的碰撞过滤和分组，控制不同形状物体的碰撞规则
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";

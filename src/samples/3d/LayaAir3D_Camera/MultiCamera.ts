@@ -1,3 +1,7 @@
+/**
+description
+ 多相机视角演示，创建两个不同颜色和视口的3D场景相机
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

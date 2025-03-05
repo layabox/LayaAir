@@ -1,3 +1,7 @@
+/**
+description
+ ASTC纹理加载与3D场景渲染示例
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

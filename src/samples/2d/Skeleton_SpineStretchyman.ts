@@ -1,3 +1,7 @@
+/**
+description
+ Spine骨骼动画播放与循环展示的管理类
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";

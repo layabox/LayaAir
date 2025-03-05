@@ -1,3 +1,7 @@
+/**
+description
+ 无边界缩放模式，居中绘制灰色矩形，自适应舞台大小
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

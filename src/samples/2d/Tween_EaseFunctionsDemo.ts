@@ -1,3 +1,7 @@
+/**
+description
+ 展示各种缓动动画效果的交互式演示程序
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Sprite } from "laya/display/Sprite";

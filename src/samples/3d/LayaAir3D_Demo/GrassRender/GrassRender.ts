@@ -1,3 +1,7 @@
+/**
+description
+ 草地渲染器,处理草地实例化绘制和命令缓存管理
+ */
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { DrawMeshInstancedCMD } from "laya/d3/core/render/command/DrawMeshInstancedCMD";

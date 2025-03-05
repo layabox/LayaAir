@@ -1,3 +1,7 @@
+/**
+description
+ Blinn-Phong法线贴图渲染示例，加载蜥蜴模型并应用法线贴图
+ */
 import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";

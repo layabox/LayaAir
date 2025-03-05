@@ -1,3 +1,7 @@
+/**
+description
+ 实现了毛玻璃效果的渲染命令缓存,通过多次模糊处理实现视觉模糊
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

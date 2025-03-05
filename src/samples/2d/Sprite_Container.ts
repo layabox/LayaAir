@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个容器，在圆周上排列4张猩猩图片，并实现容器旋转动画效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

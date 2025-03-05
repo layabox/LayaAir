@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎屏幕适配示例代码，演示不同适配模式和界面元素交互
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Sprite } from "laya/display/Sprite"

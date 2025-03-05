@@ -1,3 +1,7 @@
+/**
+description
+ 可分离次表面散射模糊材质类，用于模拟皮肤渲染效果
+ */
 import { Material } from "laya/resource/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";

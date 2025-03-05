@@ -1,3 +1,7 @@
+/**
+description
+ WebXR控制器演示，展示VR交互和场景操作
+ */
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";

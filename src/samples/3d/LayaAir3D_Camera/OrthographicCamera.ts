@@ -1,3 +1,7 @@
+/**
+description
+ 创建正交摄像机并加载三维场景,设置场景、光源和模型
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

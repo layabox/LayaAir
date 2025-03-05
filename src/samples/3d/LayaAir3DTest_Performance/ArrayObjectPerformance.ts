@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试:比较数组、对象、位运算等不同访问方式的执行效率
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";

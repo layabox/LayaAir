@@ -1,3 +1,7 @@
+/**
+description
+ 使用UBB标签创建彩色文本，展示文字样式和颜色效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

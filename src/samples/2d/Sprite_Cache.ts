@@ -1,3 +1,7 @@
+/**
+description
+ 使用Laya框架创建并随机分布1000个文本，可选择缓存为静态图像
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

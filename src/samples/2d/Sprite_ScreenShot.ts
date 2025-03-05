@@ -1,3 +1,7 @@
+/**
+description
+ 实现Laya引擎中Canvas和Sprite的截图功能，包括截取画布图像和绘制图像到纹理
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Browser } from "laya/utils/Browser";

@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D模型和材质,创建场景、相机和方向光,并实现模型旋转动画
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

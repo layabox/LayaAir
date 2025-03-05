@@ -1,3 +1,7 @@
+/**
+description
+ 实现鼠标点击触发精灵旋转的自定义事件交互
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

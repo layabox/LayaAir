@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试Float32Array和DataView的读写速度，并转换半浮点数
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎3D脚本组件，记录生命周期事件日志
+ */
 
 import { Script } from "laya/components/Script";
 import { Sprite3D } from "laya/d3/core/Sprite3D"

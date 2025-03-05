@@ -1,3 +1,7 @@
+/**
+description
+ 三维场景中实现体积光散射效果的自定义后期处理
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

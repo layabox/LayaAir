@@ -1,3 +1,7 @@
+/**
+description
+ 创建单选按钮组件,加载不同皮肤,设置单选按钮样式和选择事件
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"

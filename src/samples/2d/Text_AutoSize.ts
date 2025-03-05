@@ -1,3 +1,7 @@
+/**
+description
+ 演示文本组件自动尺寸调整和文本溢出处理的示例代码
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

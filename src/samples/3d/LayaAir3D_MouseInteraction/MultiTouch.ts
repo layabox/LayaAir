@@ -1,3 +1,7 @@
+/**
+description
+ 多点触控3D场景交互，支持单指旋转和双指缩放
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"

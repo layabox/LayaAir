@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎3D场景中简单着色器的实现和模型渲染
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

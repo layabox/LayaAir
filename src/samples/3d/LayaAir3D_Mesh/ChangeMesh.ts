@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景中网格形状动态切换的演示程序
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D物理世界，模拟铰链约束门和可移动的运动学球体
+ */
 import { Laya } from "Laya";
 import { Handler } from "laya/utils/Handler";
 import { Stage } from "laya/display/Stage";

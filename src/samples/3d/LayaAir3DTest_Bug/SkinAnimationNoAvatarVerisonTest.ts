@@ -1,3 +1,7 @@
+/**
+description
+ 测试无人形皮肤动画加载和场景配置的三维演示程序
+ */
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
 import { CameraMoveScript } from "../common/CameraMoveScript"

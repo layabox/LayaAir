@@ -1,3 +1,7 @@
+/**
+description
+ 实现次表面散射渲染效果的3D角色渲染演示程序
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎实现的表单创建与布局组件
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

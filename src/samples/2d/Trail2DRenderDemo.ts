@@ -1,3 +1,7 @@
+/**
+description
+ 二维拖尾渲染演示，加载猴子图片并创建带拖尾效果的精灵
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";

@@ -1,3 +1,7 @@
+/**
+description
+ 多通道描边材质，用于创建具有自定义轮廓线效果的着色器材质
+ */
 import { Material } from "laya/resource/Material";
 import { Color } from "laya/maths/Color";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";

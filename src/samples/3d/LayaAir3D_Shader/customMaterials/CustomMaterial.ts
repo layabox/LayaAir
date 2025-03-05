@@ -1,3 +1,7 @@
+/**
+description
+ 自定义材质类，继承材质基类，设置自定义着色器和渲染模式
+ */
 import { Material, MaterialRenderMode } from "laya/resource/Material";
 
 /**

@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个带有边缘发光效果的自定义材质类
+ */
 import { Material } from "laya/resource/Material";
 import { Vector3 } from "laya/maths/Vector3";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";

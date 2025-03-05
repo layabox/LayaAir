@@ -1,3 +1,7 @@
+/**
+description
+ 物理世界积木交互场景，实现鼠标拖拽3D物体移动效果
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

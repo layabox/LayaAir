@@ -1,3 +1,7 @@
+/**
+description
+ 模拟物理桥梁场景，通过点击创建小球并向桥梁发射
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";

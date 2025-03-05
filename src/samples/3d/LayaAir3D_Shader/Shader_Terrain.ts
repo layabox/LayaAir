@@ -1,3 +1,7 @@
+/**
+description
+ Laya3D地形着色器示例，加载地形模型并自定义材质
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

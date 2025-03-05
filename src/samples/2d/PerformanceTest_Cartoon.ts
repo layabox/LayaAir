@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试：加载和移动多个卡通角色，展示动画和布局效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Loader } from "laya/net/Loader";

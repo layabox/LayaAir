@@ -1,3 +1,7 @@
+/**
+description
+ 使用鼠标在画布上绘制动态多边形，并可切换不同颜色
+ */
 import { Laya } from "Laya";
 import { Graphics } from "laya/display/Graphics";
 import { Sprite } from "laya/display/Sprite";

@@ -1,3 +1,7 @@
+/**
+description
+ 演示3D场景中材质切换的示例,通过按钮可以在PBR标准材质和BlinnPhong材质间切换
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

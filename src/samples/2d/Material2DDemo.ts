@@ -1,3 +1,7 @@
+/**
+description
+ 这是一个2D自定义着色器和材质的演示demo，包含图像渲染和着色器效果
+ */
 import { Laya } from "Laya"
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

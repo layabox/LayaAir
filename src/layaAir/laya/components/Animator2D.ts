@@ -867,7 +867,7 @@ export class Animator2D extends Component {
      * @zh 得到参数值
      * @param name 名字
      */
-    getParamsvalue(name: number) {
+    getParamsvalue(name: string) {
         let parm = this._parameters[name];
         if (parm) {
             return parm.value;

@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D场景，展示不同几何体的网格和正常渲染模式
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

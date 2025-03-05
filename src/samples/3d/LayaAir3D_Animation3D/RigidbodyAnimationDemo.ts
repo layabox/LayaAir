@@ -1,3 +1,7 @@
+/**
+description
+ 刚体动画演示demo，加载3D场景并添加摄像机移动脚本
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

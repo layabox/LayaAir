@@ -1,3 +1,7 @@
+/**
+description
+ 创建文本下划线，展示不同对齐方式和样式的文本效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

@@ -1,3 +1,7 @@
+/**
+description
+ LayaAir 3D场景加载GPU纹理压缩示例，支持Android和iOS平台
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";

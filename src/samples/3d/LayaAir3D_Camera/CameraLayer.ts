@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景相机图层管理示例，展示多个猴子模型在不同图层的渲染
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
