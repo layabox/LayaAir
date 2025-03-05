@@ -78,9 +78,19 @@ export abstract class SpineMeshBase {
     protected verticesLength: number = 0;
     /**
      * @en Index array length.
-     * @zh 引数组中索引的数量。
+     * @zh 索引数组中索引的数量。
      */
     protected indicesLength: number = 0;
+    /**
+     * @en Vertex Buffer length.
+     * @zh 顶点缓冲区大小。
+     */
+    protected vertexBufferLength:number = 0;
+    /**
+     * @en Index Buffer length.
+     * @zh 索引缓冲区大小。
+     */
+    protected indexBufferLength:number = 0;
 
     /**
      * @en Create a new instance of SpineMeshBase.
@@ -134,11 +144,20 @@ export abstract class SpineMeshBase {
         let ib = this.ib;
         let vblen = this.verticesLength * 4;
         let iblen = this.indicesLength * 2;
+        //检查长度
+        if (vblen > this.vertexBufferLength) {
+            vb.setDataLength(vblen);
+            this.vertexBufferLength = vblen;
+        }
 
-        vb.setDataLength(vblen);
-        vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen)
-        ib._setIndexDataLength(iblen);
-        ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0)
+        if (iblen > this.indexBufferLength) {
+            ib._setIndexDataLength(iblen);
+            this.indexBufferLength = iblen;
+        }
+
+        vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen);
+        ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0);
+        
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
         this.element.geometry = this.geo;
