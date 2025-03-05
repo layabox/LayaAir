@@ -809,8 +809,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * 当transform改变时，更新骨骼的位置
      */
     onTransformChanged() {
-        this._skeleton.x = this.owner.x;
-        this._skeleton.y = this.owner.y;
+        if (this._skeleton) {
+            let trans = this.owner.globalTrans;
+            this._skeleton.x = trans.x;
+            this._skeleton.y = trans.y;
+        }
     }
     /**
      * 替换插槽皮肤
