@@ -25,7 +25,16 @@ export class TileSetTerrainSet {
       this._neighbors = obj.neighbors.get(this._terrainBatchMode);
    }
 
-   private _terrains:Record<number , TileSetTerrain>;
+   private _terrains:TileSetTerrain[];
+
+   getTerrain(id:number){
+      for (let i = 0 , len = this._terrains.length; i < len ; i++) {
+         if (id == this._terrains[i].id) {
+            return this._terrains[i];
+         }         
+      }
+      return null;
+   }
 
    get terrains(){
       return this._terrains;

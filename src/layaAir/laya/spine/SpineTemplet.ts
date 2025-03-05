@@ -62,6 +62,12 @@ export class SpineTemplet extends Resource {
      * @zh 骨骼优化对象
      */
     sketonOptimise: SketonOptimise;
+    /**
+     * 4.2版本以上支持物理
+     * @en Indicates if physics is needed
+     * @zh 是否需要物理
+     */
+    hasPhysics:boolean = false;
 
     /** @ignore */
     constructor() {
@@ -91,8 +97,6 @@ export class SpineTemplet extends Resource {
      * @zh Spine动画的主纹理
      */
     mainTexture: Texture2D;
-
-    
 
     /**
      * @en The main blend mode of the Spine animation
@@ -191,7 +195,10 @@ export class SpineTemplet extends Resource {
         this.offsetX = this.skeletonData.x;
         this.offsetY = this.skeletonData.y;
         this._premultipliedAlpha = premultipliedAlpha;
-        this.sketonOptimise.checkMainAttach(this.skeletonData );
+        this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
+        //需要无物理环境
+        this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
+        this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 
     /**

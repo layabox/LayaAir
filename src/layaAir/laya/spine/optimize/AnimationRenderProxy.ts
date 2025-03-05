@@ -99,15 +99,19 @@ export class AnimationRenderProxy {
      * @param updator The VB/IB updater.
      * @param curTime The current animation time.
      * @param boneMat The bone matrix.
+     * @param ofx 偏移x。
+     * @param ofy 偏移y。
      * @zh 进行矩阵变换的动画渲染。
      * @param bones 要渲染的骨骼。
      * @param slots 要渲染的插槽。
      * @param updator VB/IB 更新器。
      * @param curTime 当前动画时间。
      * @param boneMat 骨骼矩阵。
+     * @param ofx 偏移x。
+     * @param ofy 偏移y。
      */
-    render(bones: spine.Bone[], slots: spine.Slot[], updator: SkinRenderUpdate, curTime: number, boneMat: Float32Array) {
+    render(bones: spine.Bone[], slots: spine.Slot[], updator: SkinRenderUpdate, curTime: number, boneMat: Float32Array, ofx:number, ofy:number) {
         this.renderWithOutMat(slots, updator, curTime );
-        this.currentSKin.updateBoneMat(curTime, this.animator, bones, this.state, boneMat);
+        this.currentSKin.updateBoneMat(curTime, this.animator, bones, this.state, boneMat , ofx, ofy);
     }
 }

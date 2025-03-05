@@ -123,8 +123,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     _nMatrix_0 = new Vector3;
     _nMatrix_1 = new Vector3;
 
-
     _mesh: Mesh2D;
+
+    /** 
+     * @default spine.Physics.update 
+     * @see spine.Physics
+     * @en The physics update mode. 
+     * @zh 物理更新模式。
+     **/
+    physicsUpdate = 2;
 
     constructor() {
         super();
@@ -158,6 +165,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
     addCMDCall(context: Context, px: number, py: number) {
         let shaderData = this._spriteShaderData;
         let mat = context._curMat;
+        // let ofx = px - this._skeleton.x;
+        // let ofy = py + this._skeleton.y;
+        // this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
+        // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
         this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * px + mat.c * py);
         this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * px + mat.d * py);
         shaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
@@ -166,6 +177,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         Vector2.TEMP.setValue(context.width, context.height);
         shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
 
+        
         if (this._renderAlpha !==  context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
             let a = scolor.a * context.globalAlpha;
@@ -390,6 +402,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         }
     }
 
+    onEnable(): void {
+        this.owner.on(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
+    }
+    
+
+    onDisable(): void {
+        this.owner.off(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
+    }
 
     /**
      * @internal
@@ -550,8 +570,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._state || !this._skeleton) {
             return;
         }
+        
+        this._skeleton.update && this._skeleton.update(delta);
         // 计算骨骼的世界SRT(world SRT)
-        this._skeleton.updateWorldTransform();
+        this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
         this.spineItem.render(currentPlayTime);
         this.owner.repaint();
     }
@@ -656,8 +678,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._needUpdate && this._update();
     }
 
-
-
     /**
      * 暂停动画的播放
      */
@@ -723,7 +743,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         this._skeleton = null;
         this._state.clearListeners();
         this._state = null;
-        //this._renerer = null;
         this._pause = true;
         this._clearUpdate();
         if (this._soundChannelArr.length > 0)
@@ -782,6 +801,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         return this._skeleton;
     }
 
+    physicsTranslate( x:number , y:number){
+        this._templet.hasPhysics && this._skeleton.physicsTranslate( x , y);
+    }
+
+    /**
+     * 当transform改变时，更新骨骼的位置
+     */
+    onTransformChanged() {
+        this._skeleton.x = this.owner.x;
+        this._skeleton.y = this.owner.y;
+    }
     /**
      * 替换插槽皮肤
      * @param slotName 

@@ -11,8 +11,7 @@ export class TileMapTerrain {
       let terrainSet = tileset.getTerrainSet(terrainSetId);
       if (!terrainSet) return null;
 
-      let terrains = terrainSet.terrains;
-      let terrain = terrains[terrainId];
+      let terrain = terrainSet.getTerrain(terrainId);
       if (!terrain) return null;
 
       let neighborObject = TileMapTerrainUtil.getNeighborObject(tileset.tileShape);
@@ -316,9 +315,20 @@ export class TerrainsParams {
    terrain_peering_bits = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
    links: Set<TileSetCellData> = new Set;
+   
+   private _modified = false;
+   private _arr:TileSetCellData[];
 
    link(cellData: TileSetCellData) {
       this.links.add(cellData);
+      this._modified = true;
+   }
+
+   get arr(){
+      if (this._modified) {
+         this._arr = Array.from(this.links);
+      }
+      return this._arr;
    }
 
    clearLinks() {

@@ -206,7 +206,7 @@ export class TileMapTerrainUtil{
    static temp_vec3 = new Vector3();
    
    static getNeighborObject(shape: TileShape): NeighborObject {
-      return this.shape_mode_map.get(shape);
+      return TileMapTerrainUtil.shape_mode_map.get(shape);
    }
 
    static getNeighborGird_Isometric(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2): void {
@@ -316,11 +316,11 @@ export class TileMapTerrainUtil{
       // 左上角 检查左上角
       if (neighbor == TileMapCellNeighbor.TOP_SIDE) {
          rule.data = 3;
-         this.getNeighborGird_Square(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_Square(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_RIGHT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.TOP_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.TOP_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.RIGHT_SIDE) {
          rule.data = 1;
@@ -333,15 +333,15 @@ export class TileMapTerrainUtil{
       }
       else if (neighbor == TileMapCellNeighbor.BOTTOM_LEFT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.LEFT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.LEFT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.LEFT_SIDE) {
          rule.data = 1;
-         this.getNeighborGird_Square(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_Square(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_LEFT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_CORNER, rule);
+         TileMapTerrainUtil.getNeighborGird_Square(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_CORNER, rule);
       }
    }
 
@@ -352,15 +352,15 @@ export class TileMapTerrainUtil{
       // 左角 左上边 检查右上边
       if (neighbor == TileMapCellNeighbor.TOP_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_RIGHT_SIDE) {
          rule.data = 3;
-         this.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.RIGHT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Isometric(rule.x, rule.y, TileMapCellNeighbor.TOP_RIGHT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_Isometric(rule.x, rule.y, TileMapCellNeighbor.TOP_RIGHT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.BOTTOM_RIGHT_SIDE) {
          rule.data = 1;
@@ -373,11 +373,11 @@ export class TileMapTerrainUtil{
       }
       else if (neighbor == TileMapCellNeighbor.LEFT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_Isometric(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_Isometric(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_LEFT_SIDE) {
          rule.data = 1;
-         this.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_Isometric(rule.x, rule.y, neighbor, rule);
       }
    }
 
@@ -399,31 +399,31 @@ export class TileMapTerrainUtil{
       }
       else if (neighbor == TileMapCellNeighbor.BOTTOM_LEFT_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.LEFT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.LEFT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.LEFT_SIDE) {
          rule.data = 1;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_LEFT_CORNER) {
          rule.data = 4;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_LEFT_SIDE) {
          rule.data = 3;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_CORNER) {
          rule.data = 2;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_LEFT_SIDE, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_RIGHT_SIDE) {
          rule.data = 5;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, neighbor, rule);
       }
       else if (neighbor == TileMapCellNeighbor.TOP_RIGHT_CORNER) {
          rule.data = 4;
-         this.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_RIGHT_SIDE, rule);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(rule.x, rule.y, TileMapCellNeighbor.TOP_RIGHT_SIDE, rule);
       }
    }
 
@@ -432,24 +432,24 @@ export class TileMapTerrainUtil{
       if (data == 1) {
          outs[TileMapCellNeighbor.RIGHT_SIDE] = vec2Map.get(x , y , true);
 
-         this.getNeighborGird_Square(x, y, TileMapCellNeighbor.LEFT_SIDE, temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.LEFT_SIDE, temp_vec2);
          outs[TileMapCellNeighbor.LEFT_SIDE] = vec2Map.get(temp_vec2.x, temp_vec2.y , true);
       }else if (data == 2) {
          outs[TileMapCellNeighbor.BOTTOM_RIGHT_CORNER] = vec2Map.get(x , y , true);
          
-         this.getNeighborGird_Square(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
          outs[TileMapCellNeighbor.BOTTOM_LEFT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y , true);
 
-         this.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_CORNER, temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_CORNER, temp_vec2);
          outs[TileMapCellNeighbor.TOP_LEFT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y , true);
          
-         this.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_SIDE, temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_SIDE, temp_vec2);
          outs[TileMapCellNeighbor.TOP_RIGHT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y , true);
 
       }else{
          outs[TileMapCellNeighbor.BOTTOM_SIDE] = vec2Map.get(x , y , true);
 
-         this.getNeighborGird_Square(x , y , TileMapCellNeighbor.BOTTOM_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x , y , TileMapCellNeighbor.BOTTOM_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y , true);
       }
    }
@@ -459,26 +459,26 @@ export class TileMapTerrainUtil{
       if (data == 1) {
          outs[TileMapCellNeighbor.BOTTOM_RIGHT_SIDE] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_LEFT_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true);
       }
 		else if(data == 2){
          outs[TileMapCellNeighbor.BOTTOM_CORNER] = vec2Map.get(x , y ,true);
          
-         this.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.LEFT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true);
          
-         this.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_CORNER , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_CORNER , temp_vec2);
          outs[TileMapCellNeighbor.TOP_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true);
 
-         this.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.RIGHT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true);
 
       }
 		else{
          outs[TileMapCellNeighbor.BOTTOM_LEFT_SIDE] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_RIGHT_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true);
       }
    }
@@ -490,45 +490,45 @@ export class TileMapTerrainUtil{
          
          outs[TileMapCellNeighbor.RIGHT_SIDE] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.LEFT_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
       }else if (data == 2) {
          outs[TileMapCellNeighbor.BOTTOM_RIGHT_CORNER] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.BOTTOM_LEFT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
 
       }else if (data == 3) {
          outs[TileMapCellNeighbor.BOTTOM_RIGHT_SIDE] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_LEFT_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
       }else if (data == 4) {
          outs[TileMapCellNeighbor.BOTTOM_CORNER] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_LEFT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_RIGHT_CORNER] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
          
       }else {
          outs[TileMapCellNeighbor.BOTTOM_LEFT_SIDE] = vec2Map.get(x , y ,true);
 
-         this.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
          outs[TileMapCellNeighbor.TOP_RIGHT_SIDE] = vec2Map.get(temp_vec2.x , temp_vec2.y ,true); 
       }
    }
 
    static getChunkCellInfo(layer:TileMapLayer , vec2:TTerrainVector2){
       if (vec2.index == -1) {
-         layer._chunk._getChunkPosByCell(vec2.x, vec2.y, this.temp_vec3);
-         vec2.chunkX = this.temp_vec3.x;
-         vec2.chunkY = this.temp_vec3.y;
-         vec2.index = this.temp_vec3.z;
+         layer._chunk._getChunkPosByCell(vec2.x, vec2.y, TileMapTerrainUtil.temp_vec3);
+         vec2.chunkX = TileMapTerrainUtil.temp_vec3.x;
+         vec2.chunkY = TileMapTerrainUtil.temp_vec3.y;
+         vec2.index = TileMapTerrainUtil.temp_vec3.z;
       }
 
       let datas = layer.chunkDatas[vec2.chunkY];

@@ -221,22 +221,26 @@ export abstract class VBCreator implements IGetBone {
      * @en Update bone matrices.
      * @param bones Array of bones.
      * @param boneMat Bone matrix array.
+     * @param ofx Offset x.
+     * @param ofy Offset y.
      * @zh 更新骨骼矩阵。
      * @param bones 骨骼数组。
      * @param boneMat 骨骼矩阵数组。
+     * @param ofx 偏移x。
+     * @param ofy 偏移y。
      */
-    updateBone(bones: spine.Bone[], boneMat: Float32Array) {
+    updateBone(bones: spine.Bone[], boneMat: Float32Array , ofx:number = 0, ofy:number = 0) {
         let boneArray = this.boneArray;
         for (let i = 0, n = boneArray.length; i < n; i += 2) {
             let offset = boneArray[i] * 8;
             let bone = bones[boneArray[i + 1]];
             boneMat[offset] = bone.a;
             boneMat[offset + 1] = bone.b;
-            boneMat[offset + 2] = bone.worldX;
+            boneMat[offset + 2] = bone.worldX + ofx;
             boneMat[offset + 3] = 0;
             boneMat[offset + 4] = bone.c;
             boneMat[offset + 5] = bone.d;
-            boneMat[offset + 6] = bone.worldY;
+            boneMat[offset + 6] = bone.worldY + ofy;
             boneMat[offset + 7] = 0;
         }
     }
@@ -251,7 +255,7 @@ export abstract class VBCreator implements IGetBone {
      * @param frames 帧数。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array) {
+    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array, ofx:number = 0, ofy:number = 0) {
         let boneArray = this.boneArray;
         let floor = Math.floor(frames);
         let detal;
