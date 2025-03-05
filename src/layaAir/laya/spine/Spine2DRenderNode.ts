@@ -570,8 +570,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._state || !this._skeleton) {
             return;
         }
-
-        if(this._templet.hasPhysics) this._skeleton.update(delta);
+        
+        this._skeleton.update && this._skeleton.update(delta);
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
         this.spineItem.render(currentPlayTime);
