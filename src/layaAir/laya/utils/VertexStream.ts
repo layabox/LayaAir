@@ -1,7 +1,6 @@
 import { Color } from "../maths/Color";
 import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
-import { Vector2 } from "../maths/Vector2";
 import { Vector3 } from "../maths/Vector3";
 import { Pool } from "./Pool";
 
@@ -52,7 +51,7 @@ export class VertexStream {
         this._vec = new Vector3();
     }
 
-    private init(hasColor?: boolean) {
+    init(hasColor?: boolean) {
         this._epv = hasColor ? 9 : 5;
         this.color.setValue(1, 1, 1, 1);
         this.uvRect.setTo(0, 0, 1, 1);
@@ -89,11 +88,11 @@ export class VertexStream {
         if (u != null)
             arr[idx + 3] = u;
         else
-            arr[idx + 3] = MathUtil.lerp(this.uvRect.x, this.uvRect.right, (x - this.contentRect.x) / this.contentRect.width);
+            arr[idx + 3] = MathUtil.lerp(this.uvRect.x, this.uvRect.right, (x - this.contentRect.x) / (this.contentRect.width || 1));
         if (v != null)
             arr[idx + 4] = v;
         else
-            arr[idx + 4] = MathUtil.lerp(this.uvRect.y, this.uvRect.bottom, (y - this.contentRect.y) / this.contentRect.height);
+            arr[idx + 4] = MathUtil.lerp(this.uvRect.y, this.uvRect.bottom, (y - this.contentRect.y) / (this.contentRect.height || 1));
 
         if (this._epv === 9)
             (color || this.color).writeTo(arr, idx + 5);
@@ -144,26 +143,24 @@ export class VertexStream {
 
     /**
      * @en Add multiple triangles according to the number of vertices.
-     * @param startVertexIndex The index of the first vertex of the first triangle. If it is negative, it will be calculated from the end.
+     * @param baseIndex The index of the first vertex of the first triangle. If it is negative, it will be calculated from the end.
      * @zh 根据顶点数量添加多个三角形。
-     * @param startVertexIndex 第一个三角形的第一个顶点的索引。如果是负数，则会从末尾计算。 
+     * @param baseIndex 第一个三角形的第一个顶点的索引。如果是负数，则会从末尾计算。 
      */
-    addTriangles(startVertexIndex: number): void {
+    triangulate(baseIndex: number): void {
         let cnt = this._vp / this._epv;
-        if (startVertexIndex < 0)
-            startVertexIndex = cnt + startVertexIndex;
+        if (baseIndex < 0)
+            baseIndex = cnt + baseIndex;
+        cnt = cnt - baseIndex;
 
-        let icnt = (cnt - startVertexIndex) / 4 * 6;
+        let icnt = (cnt - 2) * 3;
         this.checkIBuf(icnt);
-        let arr = this._indices;
-        for (let i = startVertexIndex, j = this._ip; i < cnt; i += 4) {
-            arr[j] = i;
-            arr[j + 1] = i + 1;
-            arr[j + 2] = i + 2;
 
-            arr[j + 3] = i + 2;
-            arr[j + 4] = i + 3;
-            arr[j + 5] = i;
+        let arr = this._indices;
+        for (let i = 1, j = this._ip; i < cnt - 1; i++, j += 3) {
+            arr[j] = baseIndex;
+            arr[j + 1] = baseIndex + i;
+            arr[j + 2] = baseIndex + i + 1;
         }
         this._ip += icnt;
     }

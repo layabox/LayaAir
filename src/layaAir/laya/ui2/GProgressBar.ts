@@ -161,8 +161,9 @@ export class GProgressBar extends GWidget {
     }
 
     private setFillAmount(bar: GWidget, amount: number): boolean {
-        if ((<GImage | GLoader>bar).mesh instanceof ProgressMesh) {
-            (<ProgressMesh>(<GImage | GLoader>bar).mesh).amount = amount;
+        let mesh = (<GImage | GLoader>bar).mesh;
+        if (mesh instanceof ProgressMesh) {
+            mesh.amount = amount;
             (<GImage | GLoader>bar).updateMesh();
             return true;
         }

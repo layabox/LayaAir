@@ -35,7 +35,8 @@ export class GImage extends GWidget {
         this._src = value;
         let loadID = ++this._loadID;
         if (value) {
-            let tex = Loader.getRes(value);
+            //在反序列化时，禁止立刻设置texture，因为autoSize值还没反序列化
+            let tex = SerializeUtil.isDeserializing ? null : Loader.getRes(value);
             if (tex)
                 this.onLoad(tex, loadID);
             else

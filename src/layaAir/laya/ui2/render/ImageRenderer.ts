@@ -45,14 +45,17 @@ export class ImageRenderer {
         if (value) {
             if (this._meshFactory) {
                 this._meshRender.texture = value.bitmap;
+                this._meshRender.sharedMesh = this._mesh;
                 this.updateMesh();
             }
             else
                 this.createCmd();
         }
         else {
-            if (this._meshFactory)
+            if (this._meshFactory) {
                 this._meshRender.texture = null;
+                this._meshRender.sharedMesh = null;
+            }
             else if (this._drawCmd)
                 this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, null, true);
         }
@@ -66,7 +69,7 @@ export class ImageRenderer {
         this._meshFactory = value;
         if (value) {
             if (!this._meshRender) {
-                let declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV"], false)[0];
+                let declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV,COLOR"], false)[0];
                 this._mesh = Mesh2D.createMesh2DByPrimitive([defaultVertice], [declaration],
                     defaultIndices, IndexFormat.UInt16,
                     [{ length: defaultIndices.length, start: 0 }]);
@@ -140,14 +143,14 @@ export class ImageRenderer {
 
     private _updateMesh() {
         this._isChanged = false;
-        if (!this._meshFactory || !this._tex)
+        let tex = this._tex;
+        if (!this._meshFactory || !tex)
             return;
 
-        let vb = VertexStream.pool.take();
+        let vb = VertexStream.pool.take(true);
         vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
         let uv = this._tex.uvrect;
         vb.uvRect.setTo(uv[0], uv[1], uv[2], uv[3]);
-
         this._meshFactory.onPopulateMesh(vb);
 
         let mesh = this._mesh;

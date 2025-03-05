@@ -1,8 +1,9 @@
 import { MathUtil } from "../../maths/MathUtil";
+import { Vector2 } from "../../maths/Vector2";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
-export class EllipseMesh implements IMeshFactory {
+export class CircleMesh implements IMeshFactory {
 
     onPopulateMesh(vb: VertexStream) {
         let rect = vb.contentRect;
@@ -32,4 +33,5 @@ export class EllipseMesh implements IMeshFactory {
                 vb.addTriangle(0, i + 1, 1);
         }
     }
+
 }

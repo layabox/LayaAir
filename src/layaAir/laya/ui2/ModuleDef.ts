@@ -32,7 +32,7 @@ import { StretchParam } from "./StretchParam";
 import { TranslationsLoader } from "./TranslationLoader";
 import { RoundedRectMesh } from "./render/RoundedRectMesh";
 import { ProgressMesh } from "./render/ProgressMesh";
-import { EllipseMesh } from "./render/EllipseMesh";
+import { CircleMesh } from "./render/CircleMesh";
 import { FlipMesh } from "./render/FlipMesh";
 import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
 
@@ -72,7 +72,7 @@ r("StretchParam", StretchParam);
 r("ItemData", class extends Object { });
 r("RoundedRectMesh", RoundedRectMesh);
 r("ProgressMesh", ProgressMesh);
-r("EllipseMesh", EllipseMesh);
+r("CircleMesh", CircleMesh);
 r("FlipMesh", FlipMesh);
 r("RegularPolygonMesh", RegularPolygonMesh);
 
