@@ -132,7 +132,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._probeReflection = value;
         this._nativeObj.setProbeReflection(value._nativeObj);
     }
-    
+
     public get reflectionMode(): number {
         return this._nativeObj.reflectionMode;
     }
@@ -222,10 +222,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     _applyLightProb(): void {
         this._nativeObj._applyLightProb();
-     }
-     _applyReflection(): void {
+    }
+    _applyReflection(): void {
         this._nativeObj._applyReflection();
-     }
+    }
     setRenderelements(value: IRenderElement3D[]): void {
         var tempArray: any[] = [];
         this.renderelements.length = 0;
@@ -256,6 +256,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
     destroy(): void {
         this._nativeObj.destroy();
+        for (let i = 0, n = this.renderelements.length; i < n; i++) {
+            this.renderelements[i].destroy();
+        }
+        this.renderelements.length = 0;
+        this._baseGeometryBounds = null;
+        this.transform = null;
+        this._shaderData && this._shaderData.destroy();
     }
 
 }

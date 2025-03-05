@@ -83,7 +83,7 @@ export class GLSLCodeGenerator {
 
     static GLShaderLanguageProcess3D(defineString: string[],
         attributeMap: { [name: string]: [number, ShaderDataType] },
-        uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, shaderName: string) {
+        uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
 
         var clusterSlices = Config3D.lightClusterCount;
         var defMap: any = {};
