@@ -20,14 +20,15 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
 export class WebGLRenderContext3D implements IRenderContext3D {
-
+    //单例
+    static _instance:WebGLRenderContext3D;
     /**
      * @internal 
     */
     _preDrawUniformMaps: Set<string>;
 
     /** @internal */
-    _globalSahderDefines: WebDefineDatas = new WebDefineDatas();
+    _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
 
     _globalConfigShaderData: WebDefineDatas;
 
@@ -120,7 +121,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
      * @returns 
      */
     _getContextShaderDefines(): WebDefineDatas {
-        return this._globalSahderDefines;
+        return this._cacheGlobalDefines;
     }
 
     /**
@@ -129,7 +130,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
      * 2. upload context shader data
      */
     _prepareContext(): void {
-        let contextDef = this._globalSahderDefines;
+        let contextDef = this._cacheGlobalDefines;
 
         if (this.sceneData) {
             this.sceneData._defineDatas.cloneTo(contextDef);
@@ -213,6 +214,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalConfigShaderData = Shader3D._configDefineValues;
         this._preDrawUniformMaps = new Set<string>();
         this.cameraUpdateMask = 0;
+        WebGLRenderContext3D._instance = this;
     }
 
     runOneCMD(cmd: IRenderCMD): void {

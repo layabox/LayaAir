@@ -9,6 +9,7 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
 import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
@@ -194,19 +195,20 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
         var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
-            var pass: ShaderPass = passes[j];
-            if (pass.pipelineMode !== context.pipelineMode)
+            let pass = passes[j];
+            let passdata = <WebShaderPass>pass.moduleData;
+            if (passdata.pipelineMode !== context.pipelineMode)
                 continue;
 
             if (this.renderShaderData) {
-                pass.nodeCommonMap = this.owner._commonUniformMap;
+                passdata.nodeCommonMap = this.owner._commonUniformMap;
             } else {
-                pass.nodeCommonMap = null;
+                passdata.nodeCommonMap = null;
             }
 
-            pass.additionShaderData = null;
+            passdata.additionShaderData = null;
             if (this.owner) {
-                pass.additionShaderData = this.owner._additionShaderDataKeys;
+                passdata.additionShaderData = this.owner._additionShaderDataKeys;
             }
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
 

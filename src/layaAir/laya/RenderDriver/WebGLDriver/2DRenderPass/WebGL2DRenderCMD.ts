@@ -6,6 +6,7 @@ import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../Dri
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
@@ -59,10 +60,12 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
 
     static MAINTEXTURE_TEXELSIZE_ID: number;
 
+    static GammaCorrect: ShaderDefine;
     static _init_() {
         WebGLBlit2DQuadCMD.SCREENTEXTURE_ID = Shader3D.propertyNameToID("u_MainTex");
         WebGLBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID("u_OffsetScale");
         WebGLBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID("u_MainTex_TexelSize");
+        WebGLBlit2DQuadCMD.GammaCorrect = Shader3D.getDefineByName("GAMMACORRECT");
     }
 
     private _sourceTexelSize: Vector4;
@@ -90,9 +93,9 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
         let cacheInvert = context.invertY;
         if (!this._dest) {
             context.invertY = false;
-            this.element.materialShaderData.addDefine(Shader3D.getDefineByName("GAMMACORRECT"));
+            this.element.materialShaderData.addDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         } else {
-            this.element.materialShaderData.removeDefine(Shader3D.getDefineByName("GAMMACORRECT"));
+            this.element.materialShaderData.removeDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         }
 
         this.element.materialShaderData._setInternalTexture(WebGLBlit2DQuadCMD.SCREENTEXTURE_ID, this._source);

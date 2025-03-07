@@ -29,15 +29,6 @@ export class GLESShaderData extends ShaderData {
         this._bufferData = {};
     }
 
-    createUniformBuffer(name: string, uniformMap: GLESCommandUniformMap): void {
-        this._nativeObj.createUniformBuffer(name, uniformMap._nativeObj);
-    }
-
-    updateUBOBuffer(name: string): void {
-        this._nativeObj.updateUBOBuffer(name);
-    }
-
-
     getDefineData(): RTDefineDatas {
         return this._defineDatas;
     }

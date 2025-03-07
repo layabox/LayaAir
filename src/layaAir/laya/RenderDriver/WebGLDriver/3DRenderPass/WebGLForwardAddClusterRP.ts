@@ -107,7 +107,7 @@ export class WebGLForwardAddClusterRP {
         this.depthPipelineMode = "ShadowCaster";
         this.depthNormalPipelineMode = "DepthNormal";
 
-        let context = <WebGLRenderContext3D>RenderContext3D._instance._contextOBJ;
+        let context = WebGLRenderContext3D._instance;
         context._preDrawUniformMaps.add("Scene3D");
         context._preDrawUniformMaps.add("Shadow");
         context._preDrawUniformMaps.add("Global");

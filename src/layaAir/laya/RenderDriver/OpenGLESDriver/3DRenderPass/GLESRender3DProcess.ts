@@ -117,6 +117,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         this.renderpass.shadowCastPass = enableShadow;
         shadowParams.setValue(0, 0, 0, 0);
         if (enableShadow) {
+            let sceneShaderData = context.sceneData;
             // direction light shadow
             let mainDirectionLight = camera.scene._mainDirectionLight;
             let needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode != ShadowMode.None;
@@ -129,7 +130,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
                 let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as GLESInternalRT;
                 shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
+                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
 
             // spot light shadow
@@ -141,9 +142,9 @@ export class GLESRender3DProcess implements IRender3DProcess {
                 let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget as GLESInternalRT;
                 shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
+                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
-            camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
+            sceneShaderData.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
 
             let needBlitOpaque = camera.opaquePass;
             renderpass.enableOpaqueTexture = needBlitOpaque;

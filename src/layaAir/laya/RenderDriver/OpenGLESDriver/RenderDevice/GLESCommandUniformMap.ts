@@ -23,8 +23,8 @@ export class GLESCommandUniformMap extends CommandUniformMap {
      * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number): void {
-        if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
-            throw ('because of align rule, the engine does not support other types as arrays.');
+        //if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
+        //    throw ('because of align rule, the engine does not support other types as arrays.');
         this._nativeObj.addShaderUniformArray(propertyID, propertyName, uniformtype, arrayLength);
     }
 }

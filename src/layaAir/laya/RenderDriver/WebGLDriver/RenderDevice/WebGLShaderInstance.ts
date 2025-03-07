@@ -19,13 +19,14 @@ import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/Render
 import { Config } from "../../../../Config";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { WebGLRenderContext3D } from "../3DRenderPass/WebGLRenderContext3D";
+import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
 export class WebGLShaderInstance implements IShaderInstance {
     /**@internal */
-    private _shaderPass: ShaderPass;
+    private _shaderPass: WebShaderPass;
     /**@internal */
     _cacheShaerVariable: { [key: number]: ShaderVariable } = {};
 
@@ -96,7 +97,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
 
         if (this._renderShaderInstance._complete) {
-            this._shaderPass = shaderPass;
+            this._shaderPass = shaderPass.moduleData as WebShaderPass;
             shaderProcessInfo.is2D ? this._create2D() : this._create3D();
         }
     }
@@ -110,7 +111,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._spriteUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
 
-        let context = <WebGLRenderContext3D>(RenderContext3D._instance._contextOBJ)
+        let context =WebGLRenderContext3D._instance;
 
         let preDrawUniforms = context._preDrawUniformMaps;
         let preDrawParams = [];
@@ -239,7 +240,7 @@ export class WebGLShaderInstance implements IShaderInstance {
      * @param shaderDatas 
      */
     uploadRenderStateBlendDepth(shaderDatas: WebGLShaderData): void {
-        if ((<ShaderPass>this._shaderPass).statefirst)
+        if ((this._shaderPass).statefirst)
             this.uploadRenderStateBlendDepthByShader(shaderDatas);
         else
             this.uploadRenderStateBlendDepthByMaterial(shaderDatas);
@@ -251,7 +252,7 @@ export class WebGLShaderInstance implements IShaderInstance {
      */
     uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
         var datas: any = shaderDatas._data;
-        var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
+        var renderState: RenderState = (this._shaderPass).renderState;
         var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
         RenderStateContext.setDepthMask(depthWrite);
         var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
@@ -399,10 +400,10 @@ export class WebGLShaderInstance implements IShaderInstance {
      * @internal
      */
     uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
-        var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
+        var renderState: RenderState = (this._shaderPass).renderState;
         var datas: any = shaderDatas.getData();
         var cull: any = datas[Shader3D.CULL];
-        if ((<ShaderPass>this._shaderPass).statefirst) {
+        if ((this._shaderPass).statefirst) {
             cull = renderState.cull ?? cull;
         }
         cull = cull ?? RenderState.Default.cull;

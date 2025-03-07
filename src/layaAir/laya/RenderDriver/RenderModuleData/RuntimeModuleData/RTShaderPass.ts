@@ -28,7 +28,7 @@ export class RTShaderPass implements IShaderPassData {
     }
     public set additionShaderData(value: string[]) {
         this._additionShaderData = value;
-        //this._nativeObj.setAdditionShaderData(value);//TODO:
+        this._nativeObj.setAdditionShaderData(value);
     }
     private _nodeCommonMap: string[];
 

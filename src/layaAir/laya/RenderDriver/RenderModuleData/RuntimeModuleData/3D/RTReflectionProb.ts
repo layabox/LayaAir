@@ -1,5 +1,6 @@
 import { AmbientMode } from "../../../../d3/core/scene/AmbientMode";
 import { Bounds } from "../../../../d3/math/Bounds";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
@@ -98,11 +99,23 @@ export class RTReflectionProb implements IReflectionProbeData {
 
     constructor() {
         this._nativeObj = new (window as any).conchRTReflectionProb();
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
     }
-    shaderData: ShaderData;//TODO
+    
+    private _shaderData: ShaderData;
+    
+    public get shaderData(): ShaderData {
+        return this._shaderData;
+    }
+
+    public set shaderData(value: ShaderData) {
+        this._shaderData = value;
+        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
+    }
 
     destroy(): void {
         this._nativeObj.destroy()
+        this.shaderData.destroy();
         this.shaderData = null;
     }
 

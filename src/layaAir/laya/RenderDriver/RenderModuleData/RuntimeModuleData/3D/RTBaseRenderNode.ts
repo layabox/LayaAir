@@ -196,7 +196,18 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj = new (window as any).conchRTBaseRenderNode();
     }
 
-    additionShaderData: Map<string, ShaderData> = new Map();//TODO:
+
+    private _additionShaderData: Map<string, ShaderData> = new Map();//TODO:
+    public get additionShaderData(): Map<string, ShaderData> {
+        return this._additionShaderData;
+    }
+    public set additionShaderData(value: Map<string, ShaderData>) {
+        this._additionShaderData = value;
+        this._nativeObj.clearAdditionalMap();
+        for (let [key, value] of this._additionShaderData) {
+            this._nativeObj.addOneAddiionalData(key,(value as any)._nativeObj);
+        }
+    }
 
     constructor() {
         this._getNativeObj();

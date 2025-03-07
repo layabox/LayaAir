@@ -135,7 +135,6 @@ export class Laya3D {
         MeshRenderer.__init__();
         SkyRenderer.__init__();
         Camera.__init__();
-        ReflectionProbe.init();
         ShadowUtils.init();
         RenderContext3D.__init__();
         BlinnPhongMaterial.__initDefine__();
