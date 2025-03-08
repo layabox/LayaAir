@@ -8,9 +8,8 @@ import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
-
+import { WebGLShaderData } from "../WebGLShaderData";
 
 
 export class WebReflectionProbe implements IReflectionProbeData {
@@ -40,7 +39,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
     /**@internal */
     iblTexRGBD: boolean;
     /**@internal */
-    shaderData: ShaderData;
+    shaderData: WebGLShaderData;
     /**@internal */
     private _reflectionHDRParams: Vector4
     /**@internal */
@@ -57,7 +56,14 @@ export class WebReflectionProbe implements IReflectionProbeData {
         this._shCoefficients = [];
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        this.shaderData = <WebGLShaderData>LayaGL.renderDeviceFactory.createShaderData();
+    }
+
+    /**
+     * @internal
+     */
+    needUpdate(): boolean {
+        return this.updateMark != this._updateMaskFlag;
     }
 
     /**
@@ -97,8 +103,8 @@ export class WebReflectionProbe implements IReflectionProbeData {
     }
     /**@internal */
     applyRenderData(): void {
-        if (this.updateMark == this._updateMaskFlag) return;
         this._updateMaskFlag = this.updateMark;
+
         let data = this.shaderData;
         //boxProjection
         if (!this.boxProjection) {
@@ -109,6 +115,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
             data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
             data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
         }
+
         if (this.ambientMode == AmbientMode.SolidColor) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             data.removeDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);

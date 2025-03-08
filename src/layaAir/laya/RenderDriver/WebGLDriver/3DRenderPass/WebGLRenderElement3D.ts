@@ -127,13 +127,15 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 //additionShaderData
                 if (this.owner) {
                     let additionShaderData = this.owner.additionShaderData;
-                    if (additionShaderData) {
-                        for (const [key, shaderData] of additionShaderData) {
-                            let needUpload = shaderIns._additionShaderData.get(key) !== shaderData || switchUpdateMark
+
+                    for (let [key, encoder] of shaderIns._additionUniformParamsMaps) {
+                        let additionData = additionShaderData.get(key);
+                        if (additionData) {
+                            let needUpload = shaderIns._additionShaderData.get(key) !== additionData || switchUpdateMark;
+
                             if (needUpload || switchShader) {
-                                let encoder = shaderIns._additionUniformParamsMaps.get(key);
-                                encoder && shaderIns.uploadUniforms(encoder, <WebGLShaderData>shaderData, needUpload);
-                                shaderIns._additionShaderData.set(key, shaderData);
+                                shaderIns.uploadUniforms(encoder, <WebGLShaderData>additionData, needUpload);
+                                shaderIns._additionShaderData.set(key, additionData);
                             }
                         }
                     }
@@ -160,7 +162,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
     }
 
-    protected _getShaderInstanceDefins(context: WebGLRenderContext3D) {
+    protected _getShaderInstanceDefines(context: WebGLRenderContext3D) {
         let comDef = WebGLRenderElement3D._compileDefine;
 
         const globalShaderDefines = context._getContextShaderDefines();
@@ -191,7 +193,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
 
-        let comDef = this._getShaderInstanceDefins(context);
+        let comDef = this._getShaderInstanceDefines(context);
 
         var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {

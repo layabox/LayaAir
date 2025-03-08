@@ -9,7 +9,7 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { Stat } from "../../../../utils/Stat";
-import { IRenderElement3D, IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
@@ -263,8 +263,11 @@ export class WebBaseRenderNode implements IBaseRenderNode {
      * @returns 
      */
     _applyReflection() {
-        if (!this.probeReflection || this.reflectionMode == ReflectionProbeMode.off) return;
-        this.probeReflection.applyRenderData();
+        if (!this.probeReflection || this.reflectionMode == ReflectionProbeMode.off)
+            return;
+        if (this.probeReflection.needUpdate()) {
+            this.probeReflection.applyRenderData();
+        }
     }
 
     /**

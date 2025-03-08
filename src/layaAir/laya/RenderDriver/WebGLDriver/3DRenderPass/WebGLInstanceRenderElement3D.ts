@@ -126,7 +126,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
 
-        let comDef = this._getShaderInstanceDefins(context);
+        let comDef = this._getShaderInstanceDefines(context);
         comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
         let passes = this.subShader._passes;

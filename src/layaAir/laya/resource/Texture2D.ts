@@ -235,7 +235,7 @@ export class Texture2D extends BaseTexture {
 
         let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
 
-        let sRGB = constructParams[5];
+        let sRGB = constructParams ? constructParams[5] : false;
 
         let texture = new Texture2D(ddsInfo.width, ddsInfo.height, ddsInfo.format, ddsInfo.mipmapCount > 1, false, sRGB);
 
@@ -285,7 +285,7 @@ export class Texture2D extends BaseTexture {
     /**@internal */
     _pixels: Uint8Array;
     /** @internal */
-    _premultiplyAlpha : boolean = false;
+    _premultiplyAlpha: boolean = false;
 
     /**
      * @en Creates an instance of Texture2D.

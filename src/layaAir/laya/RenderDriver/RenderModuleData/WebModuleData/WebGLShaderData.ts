@@ -195,6 +195,10 @@ export class WebGLShaderData extends ShaderData {
         this._defineDatas.remove(define);
     }
 
+    removeDefines(defines: WebDefineDatas): void {
+        this._defineDatas.removeDefineDatas(defines);
+    }
+
     /**
      * @ignore
      */
