@@ -182,6 +182,7 @@ export interface IVolumetricGIData {
     bound: Bounds;
     intensity: number;
     updateMark: number;
+    shaderData: ShaderData;
     setProbeCounts(value: Vector3): void;
     setProbeStep(value: Vector3): void;
     setParams(value: Vector4): void;

@@ -253,7 +253,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         if (this.lightmapIndex >= 0 || !this.volumetricGI) return;
         if (this.volumetricGI.updateMark != this.lightProbUpdateMark) {
             this.lightProbUpdateMark = this.volumetricGI.updateMark;
-            this.volumetricGI.applyRenderData(this.shaderData);
+            this.volumetricGI.applyRenderData();
         }
     }
 

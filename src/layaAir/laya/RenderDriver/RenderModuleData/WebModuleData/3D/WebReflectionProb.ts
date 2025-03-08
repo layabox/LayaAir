@@ -8,8 +8,8 @@ import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
-import { WebGLShaderData } from "../WebGLShaderData";
 
 
 export class WebReflectionProbe implements IReflectionProbeData {
@@ -39,7 +39,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
     /**@internal */
     iblTexRGBD: boolean;
     /**@internal */
-    shaderData: WebGLShaderData;
+    shaderData: ShaderData;
     /**@internal */
     private _reflectionHDRParams: Vector4
     /**@internal */
@@ -56,7 +56,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
         this._shCoefficients = [];
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
-        this.shaderData = <WebGLShaderData>LayaGL.renderDeviceFactory.createShaderData();
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
     }
 
     /**
@@ -136,5 +136,4 @@ export class WebReflectionProbe implements IReflectionProbeData {
         data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(ReflectionProbe.REFLECTIONINTENSITY, this.reflectionIntensity);
     }
-
 }

@@ -15,10 +15,4 @@ export class Sprite3DRenderDeclaration {
 	 * @zh 盒子反射宏 */
 	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION: ShaderDefine;
 
-	/**
-	 * @en Volumetric Global Illumination macro
-	 * @zh 体积全局光照宏
-	 */
-	static SHADERDEFINE_VOLUMETRICGI: ShaderDefine;
-
 }

@@ -53,6 +53,7 @@ import { IElementComponentManager } from "../../../components/IScenceComponentMa
 import { ILaya3D } from "../../../../ILaya3D";
 import { Config } from "../../../../Config";
 import { Sprite3D } from "../Sprite3D";
+import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -196,6 +197,7 @@ export class Scene3D extends Sprite {
         sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate", ShaderDataType.Float);
         sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount", ShaderDataType.Int);
         ReflectionProbe.init();
+        VolumetricGI.init();
     }
 
     /**
