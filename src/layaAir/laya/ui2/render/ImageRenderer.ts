@@ -150,7 +150,14 @@ export class ImageRenderer {
         let vb = VertexStream.pool.take(true);
         vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
         let uv = this._tex.uvrect;
-        vb.uvRect.setTo(uv[0], uv[1], uv[2], uv[3]);
+        if (tex.width === tex.sourceWidth && tex.height === tex.sourceHeight)
+            vb.uvRect.setTo(uv[0], uv[1], uv[2], uv[3]);
+        else {
+            let sx = uv[2] / tex.width;
+            let sy = uv[3] / tex.height;
+            vb.uvRect.setTo(uv[0] - tex.offsetX * sx, uv[1] - tex.offsetY * sy, tex.sourceWidth * sx, tex.sourceHeight * sy);
+        }
+
         this._meshFactory.onPopulateMesh(vb);
 
         let mesh = this._mesh;

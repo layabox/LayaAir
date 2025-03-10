@@ -1,5 +1,4 @@
 import { MathUtil } from "../../maths/MathUtil";
-import { Vector2 } from "../../maths/Vector2";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
