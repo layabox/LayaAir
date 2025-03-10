@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D场景，管理渲染目标相机并添加交互按钮
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";

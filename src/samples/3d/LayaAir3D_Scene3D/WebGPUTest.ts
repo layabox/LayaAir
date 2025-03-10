@@ -1,3 +1,7 @@
+/**
+description
+ 使用WebGPU渲染引擎创建3D场景,加载纹理并创建多个几何体
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D场景并加载动画事件脚本，实现简单的动画事件处理
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

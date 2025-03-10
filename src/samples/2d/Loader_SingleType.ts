@@ -1,3 +1,7 @@
+/**
+description
+ 单类型资源加载,支持单张或多张图片资源的异步加载
+ */
 import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { Texture } from "laya/resource/Texture";

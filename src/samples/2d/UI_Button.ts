@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya引擎并加载按钮皮肤，在舞台中心网格化布局多个按钮
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";

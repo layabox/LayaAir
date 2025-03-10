@@ -1,3 +1,7 @@
+/**
+description
+ 3D物理世界触发器和碰撞事件演示
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

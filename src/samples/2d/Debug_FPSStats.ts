@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya引擎并在屏幕中心显示性能统计信息
+ */
 import { Laya } from "Laya";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";

@@ -1,3 +1,7 @@
+/**
+description
+ LayaAir框架中创建水平和垂直滑块，并设置滑块属性和事件处理
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"

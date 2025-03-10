@@ -137,11 +137,8 @@ export class BaseRender extends Component {
      */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
-        Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
         Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
-
-        Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI = Shader3D.getDefineByName("VOLUMETRICGI");
     }
 
     /**@internal renderData*/
@@ -486,15 +483,21 @@ export class BaseRender extends Component {
     set probReflection(value: ReflectionProbe) {
         if (this._probReflection == value)
             return;
-        this._baseRenderNode.probeReflectionUpdateMark = -1;//initial update mask
         this._probReflection = value;
-        this._baseRenderNode.probeReflection = value._dataModule;
-        if (this._baseRenderNode.reflectionMode == ReflectionProbeMode.off) {
-            this._baseRenderNode.shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            this._baseRenderNode.shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
-            this._baseRenderNode.shaderData.setTexture(RenderableSprite3D.IBLTEX, TextureCube.blackTexture);
-            this._baseRenderNode.shaderData.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, 0);
-        };
+
+        const ReflectionProbeBlockName = ReflectionProbe.BlockName;
+        if (value) {
+            this._baseRenderNode.probeReflection = value._dataModule;
+
+            this._baseRenderNode.additionShaderData.set(ReflectionProbeBlockName, value.shaderData);
+        }
+        else {
+            this._baseRenderNode.probeReflection = null;
+
+            this._baseRenderNode.additionShaderData.delete(ReflectionProbeBlockName);
+        }
+        this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
+
         this._getIrradientMode();
     }
 
@@ -512,7 +515,19 @@ export class BaseRender extends Component {
         }
         this._baseRenderNode.lightProbUpdateMark = -1;
         this._lightProb = volumetricGI;
-        this._baseRenderNode.volumetricGI = volumetricGI ? volumetricGI._dataModule : null;
+
+        const VolumeGIBlockName = VolumetricGI.BlockName;
+        if (volumetricGI) {
+            this._baseRenderNode.volumetricGI = volumetricGI._dataModule;
+            this._baseRenderNode.additionShaderData.set(VolumeGIBlockName, volumetricGI.shaderData);
+        }
+        else {
+            this._baseRenderNode.volumetricGI = null;
+            this._baseRenderNode.additionShaderData.delete(VolumeGIBlockName);
+        }
+
+        this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
+
         this._getIrradientMode();
     }
 

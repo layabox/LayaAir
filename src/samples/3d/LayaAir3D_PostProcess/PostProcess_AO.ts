@@ -1,3 +1,7 @@
+/**
+description
+ Laya 3D场景的环境遮蔽(AO)后处理效果演示程序
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

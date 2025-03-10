@@ -1,3 +1,7 @@
+/**
+description
+ 创建并播放Spine骨骼动画，循环播放不同动作
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";

@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景中创建相机和二维精灵，通过投影计算精灵位置并动态展示
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

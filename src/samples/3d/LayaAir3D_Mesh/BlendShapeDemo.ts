@@ -1,3 +1,7 @@
+/**
+description
+ 3D模型形变动画演示，通过滑动条控制模型形变效果
+ */
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";

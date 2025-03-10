@@ -1,3 +1,7 @@
+/**
+description
+ 创建两个文本，基于时间和帧频实现定时旋转动画效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

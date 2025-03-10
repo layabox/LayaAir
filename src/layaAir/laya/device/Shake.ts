@@ -2,7 +2,6 @@ import { AccelerationInfo } from "./motion/AccelerationInfo"
 import { Accelerator } from "./motion/Accelerator"
 import { RotationInfo } from "./motion/RotationInfo"
 import { EventDispatcher } from "../events/EventDispatcher";
-import { Handler } from "../utils/Handler";
 import { Event } from "../events/Event";
 import { ILaya } from "../../ILaya";
 
@@ -13,9 +12,8 @@ import { ILaya } from "../../ILaya";
  * 
  */
 export class Shake extends EventDispatcher {
-    private throushold: number;
+    private threshold: number;
     private shakeInterval: number;
-    private callback: Handler;
 
     private lastX: number;
     private lastY: number;
@@ -49,7 +47,7 @@ export class Shake extends EventDispatcher {
      * @param interval 设备摇晃的响应间隔时间。
      */
     start(threshold: number, interval: number): void {
-        this.throushold = threshold;
+        this.threshold = threshold;
         this.shakeInterval = interval;
 
         this.lastX = this.lastY = this.lastZ = NaN;
@@ -98,11 +96,28 @@ export class Shake extends EventDispatcher {
         this.lastZ = accelerationIncludingGravity.z;
     }
 
-    // 通过任意两个分量判断是否满足摇晃设定。
+    /**
+     * @en Determines whether the device is shaken based on the acceleration differences in three directions.
+     *       It checks if at least two of the acceleration differences exceed the set threshold.
+     * @param deltaX The acceleration difference in the X direction.
+     * @param deltaY The acceleration difference in the Y direction.
+     * @param deltaZ The acceleration difference in the Z direction.
+     * @returns Returns true if at least two of the acceleration differences exceed the threshold; otherwise, returns false.
+     * @zh 根据三个方向的加速度差值判断设备是否发生摇晃。
+     *       检查三个方向的加速度差值中是否至少有两个超过了设定的阈值。
+     * @param deltaX X 方向的加速度差值。
+     * @param deltaY Y 方向的加速度差值。
+     * @param deltaZ Z 方向的加速度差值。
+     * @returns 如果至少有两个方向的加速度差值超过阈值，则返回 true；否则返回 false。
+     */
     private isShaked(deltaX: number, deltaY: number, deltaZ: number): boolean {
-        return (deltaX > this.throushold && deltaY > this.throushold) ||
-            (deltaX > this.throushold && deltaZ > this.throushold) ||
-            (deltaY > this.throushold && deltaZ > this.throushold)
+        // 通过位运算，将每个方向的加速度差值是否超过阈值的结果用二进制位表示
+        // 如果 deltaX 超过阈值，mask 的第 0 位为 1；如果 deltaY 超过阈值，mask 的第 1 位为 1；如果 deltaZ 超过阈值，mask 的第 2 位为 1
+        const mask = (deltaX > this.threshold ? 1 : 0) |
+            (deltaY > this.threshold ? 2 : 0) |
+            (deltaZ > this.threshold ? 4 : 0);
+        // 通过 mask & (mask - 1) 操作判断 mask 中是否至少有两个 1， 如果结果不为 0，说明至少有两个方向的加速度差值超过了阈值
+        return (mask & (mask - 1)) !== 0;
     }
 }
 

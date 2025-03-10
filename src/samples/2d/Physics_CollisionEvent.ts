@@ -1,3 +1,7 @@
+/**
+description
+ 演示物理碰撞传感器和刚体交互的2D物理效果
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";

@@ -1,3 +1,7 @@
+/**
+description
+ 使用Tween动画演示两个角色的不同移动效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

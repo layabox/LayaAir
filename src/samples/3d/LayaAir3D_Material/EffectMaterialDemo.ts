@@ -1,3 +1,7 @@
+/**
+description
+ 创建3D场景，加载地球纹理，应用特效材质并实现地球旋转动画
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

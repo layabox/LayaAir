@@ -1,3 +1,7 @@
+/**
+description
+ 鼠标交互3D场景，加载猴子模型并支持点击检测
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";

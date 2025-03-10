@@ -4,6 +4,9 @@ import { ProgressTitleType } from "./Const";
 import { ILaya } from "../../ILaya";
 import { MathUtil } from "../maths/MathUtil";
 import { NodeFlags } from "../Const";
+import { GImage } from "./GImage";
+import { GLoader } from "./GLoader";
+import { ProgressMesh } from "./render/ProgressMesh";
 
 export class GProgressBar extends GWidget {
     private _hBar: GWidget;
@@ -158,7 +161,14 @@ export class GProgressBar extends GWidget {
     }
 
     private setFillAmount(bar: GWidget, amount: number): boolean {
-        return false;
+        let mesh = (<GImage | GLoader>bar).mesh;
+        if (mesh instanceof ProgressMesh) {
+            mesh.amount = amount;
+            (<GImage | GLoader>bar).updateMesh();
+            return true;
+        }
+        else
+            return false;
     }
 
     /** @internal */

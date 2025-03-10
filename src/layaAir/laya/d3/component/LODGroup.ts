@@ -230,6 +230,14 @@ export class LODGroup extends Component {
     }
 
     /**
+     * @en Currently displayed LOD node index
+     * @zh 当前显示的LOD节点下标
+     */
+    get visialIndex() {
+        return this._visialIndex;
+    }
+
+    /**
      * @en The array of LODInfo objects
      * @zh LODInfo数组
      */

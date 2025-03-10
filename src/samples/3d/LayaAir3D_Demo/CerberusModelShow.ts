@@ -1,3 +1,7 @@
+/**
+description
+ 三维场景中展示塞伯拉斯模型,支持通过鼠标拖拽旋转模型
+ */
 
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

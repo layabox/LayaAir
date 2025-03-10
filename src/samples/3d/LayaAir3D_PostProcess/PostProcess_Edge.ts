@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景后处理边缘检测效果，提供颜色、法线、深度边缘模式切换
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

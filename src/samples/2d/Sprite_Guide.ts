@@ -1,3 +1,7 @@
+/**
+description
+ 游戏引导系统，通过遮罩和高亮显示引导用户操作步骤
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

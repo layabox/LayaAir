@@ -1,3 +1,7 @@
+/**
+description
+ 初始化三维场景并根据不同平台加载对应的场景，添加相机移动脚本
+ */
 import { Laya } from "Laya";
 import { CameraMoveScript } from "../common/CameraMoveScript"
 import { Camera } from "laya/d3/core/Camera"

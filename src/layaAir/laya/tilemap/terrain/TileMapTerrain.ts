@@ -11,8 +11,7 @@ export class TileMapTerrain {
       let terrainSet = tileset.getTerrainSet(terrainSetId);
       if (!terrainSet) return null;
 
-      let terrains = terrainSet.terrains;
-      let terrain = terrains[terrainId];
+      let terrain = terrainSet.getTerrain(terrainId);
       if (!terrain) return null;
 
       let neighborObject = TileMapTerrainUtil.getNeighborObject(tileset.tileShape);
@@ -84,10 +83,7 @@ export class TileMapTerrain {
             ruleNeighbor.setCellNeighbor(neighbor);
             if (neighbor % 2 == 0) {
                neighborObject.getNeighborGird(x, y, neighbor, temp_vec2);
-               if (
-                  checkSet.get(temp_vec2.x, temp_vec2.y)
-                  && ruleSet.get(ruleNeighbor.x, ruleNeighbor.y , ruleNeighbor.terrain)
-               ) {
+               if (checkSet.get(temp_vec2.x, temp_vec2.y)) {
                   ruleSet.add(ruleNeighbor);
                }
             } else {
@@ -204,7 +200,7 @@ export class TileMapTerrain {
       let out = new Map<TTerrainVector2, TerrainsParams>();
 
       allSet.list.forEach(vec2 => {
-         let params = this._getBestTerrainParams(tileMapLayer, vec2, terrainSetId, ruleSet);
+         let params = this._getBestTerrainParams(tileMapLayer, vec2, terrainSetId ,neighborObject , ruleSet);
          let nRuleSet = this._getRulesByParams(tileMapLayer, params, vec2, terrainSetId, neighborObject);
          for (let i = 0 , len = nRuleSet.list.length; i < len; i++) {
             let nRule = nRuleSet.list[i];
@@ -219,9 +215,12 @@ export class TileMapTerrain {
       return out;
    }
 
-   /** @internal */
+   /**
+    *  @internal
+    *  按这个块本身是否匹配，这个块周围是否匹配，不匹配就加分，取分值最小的地块
+    */
    private static _getBestTerrainParams(
-      tileMapLayer: TileMapLayer, pos: TTerrainVector2, terrainSetId: number,
+      tileMapLayer: TileMapLayer, pos: TTerrainVector2, terrainSetId: number, terrainObject: NeighborObject,
       ruleSet: TerrainRuleSet
    ) {
       let terrainSet = tileMapLayer.tileSet.getTerrainSet(terrainSetId);
@@ -247,7 +246,8 @@ export class TileMapTerrain {
             let score = 0;
 
             let params = list[index];
-            let rule = ruleSet.get(pos.x, pos.y, params.terrain);
+            let tempRule = new TileMapTerrainRule(pos.x, pos.y, params.terrain, terrainObject);
+            let rule = ruleSet.get(pos.x, pos.y, tempRule.data);
             if (rule) {
                if (rule.terrain != params.terrain) {
                   score += rule.data;
@@ -258,13 +258,16 @@ export class TileMapTerrain {
 
             let check = false;
             for (let i = 0; i < nLen; i++) {
-               let neighborTerrain = params.terrain_peering_bits[neighbors[i]];
-               let rule = ruleSet.get(pos.x, pos.y, neighborTerrain);
+               let neighbor = neighbors[i];
+               let neighborTerrain = params.terrain_peering_bits[neighbor];
+               let tempNeighborRule = new TileMapTerrainRule(pos.x, pos.y, neighborTerrain, terrainObject);
+               tempNeighborRule.setCellNeighbor(neighbor);
+               let rule = ruleSet.get(pos.x, pos.y, tempNeighborRule.data);
                if (rule) {
                   if (rule.terrain != neighborTerrain) {
                      score += rule.data;
                   }
-               } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbors[i]]) {
+               } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbor]) {
                   check = true;
                   break
                }
@@ -312,9 +315,20 @@ export class TerrainsParams {
    terrain_peering_bits = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
    links: Set<TileSetCellData> = new Set;
+   
+   private _modified = false;
+   private _arr:TileSetCellData[];
 
    link(cellData: TileSetCellData) {
       this.links.add(cellData);
+      this._modified = true;
+   }
+
+   get arr(){
+      if (this._modified) {
+         this._arr = Array.from(this.links);
+      }
+      return this._arr;
    }
 
    clearLinks() {

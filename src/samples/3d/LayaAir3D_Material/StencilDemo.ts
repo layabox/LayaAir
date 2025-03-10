@@ -1,3 +1,7 @@
+/**
+description
+ 模板测试示例,实现3D场景中的模板测试和材质渲染控制
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

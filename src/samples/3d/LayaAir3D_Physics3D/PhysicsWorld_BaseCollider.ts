@@ -1,3 +1,7 @@
+/**
+description
+ 物理世界基础碰撞体演示，随机生成不同形状的3D物理对象
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

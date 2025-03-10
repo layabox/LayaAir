@@ -1,3 +1,7 @@
+/**
+description
+ 性能测试：模拟大量虫子动态移动和渲染的Laya引擎示例
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Rectangle } from "laya/maths/Rectangle";

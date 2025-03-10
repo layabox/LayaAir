@@ -1,14 +1,16 @@
 
 import { Config } from "../../../../Config";
-import { Config3D } from "../../../../Config3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
+import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
@@ -60,11 +62,24 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         if (this.materialShaderData && Config.matUseUBO) {
             let subShader = this.subShader;
             let materialData = this.materialShaderData;
-            let matSubBuffer = materialData.createSubUniformBuffer("Material" + subShader._owner.name, subShader._uniformMap);
+            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
             if (matSubBuffer && matSubBuffer.needUpload) {
                 matSubBuffer.bufferBlock.needUpload();
             }
         }
+
+        //Sprite ubo Update
+        if (this.owner && Config._uniformBlock) {
+            for (let [key, value] of this.owner.additionShaderData) {
+                let shaderData = <WebGLShaderData>value;
+                let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
+                if (uniformBuffer && uniformBuffer.needUpload) {
+                    uniformBuffer.bufferBlock.needUpload();
+                }
+            }
+        }
+
         this._invertFront = this._getInvertFront();
     }
 
@@ -79,45 +94,64 @@ export class WebGLRenderElement3D implements IRenderElement3D {
      * @param context 
      */
     _render(context: WebGLRenderContext3D): void {
-        var forceInvertFace: boolean = context.invertY;
-        var updateMark: number = context.cameraUpdateMask;
-        var sceneShaderData = context.sceneData as WebGLShaderData;
-        var cameraShaderData = context.cameraData as WebGLShaderData;
+        let forceInvertFace: boolean = context.invertY;
+        let updateMark: number = context.cameraUpdateMask;
+        let sceneShaderData = context.sceneData as WebGLShaderData;
+        let cameraShaderData = context.cameraData as WebGLShaderData;
         if (this.isRender) {
-            var passes: WebGLShaderInstance[] = this._shaderInstances.elements;
-            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
+            let passes: WebGLShaderInstance[] = this._shaderInstances.elements;
+            for (let j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
                 const shaderIns: WebGLShaderInstance = passes[j];
                 if (!shaderIns.complete)
                     continue;
-                var switchShader: boolean = shaderIns.bind();
-                var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
-                var uploadScene: boolean = (shaderIns._uploadScene !== sceneShaderData) || switchUpdateMark;
+                let switchShader: boolean = shaderIns.bind();
+                let switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
+                let uploadScene: boolean = (shaderIns._uploadScene !== sceneShaderData) || switchUpdateMark;
                 //Scene
                 if (uploadScene || switchShader) {
-                    sceneShaderData && shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
+                    if (sceneShaderData) {
+                        shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
+                    }
+
                     shaderIns._uploadScene = sceneShaderData;
                 }
                 //render
                 if (this.renderShaderData) {
-                    var uploadSprite3D: boolean = (shaderIns._uploadRender !== this.renderShaderData) || switchUpdateMark;
+                    let uploadSprite3D: boolean = (shaderIns._uploadRender !== this.renderShaderData) || switchUpdateMark;
                     if (uploadSprite3D || switchShader) {
                         shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.renderShaderData, uploadSprite3D);
                         shaderIns._uploadRender = this.renderShaderData;
                     }
                 }
+
+                //additionShaderData
+                if (this.owner) {
+                    let additionShaderData = this.owner.additionShaderData;
+
+                    for (let [key, encoder] of shaderIns._additionUniformParamsMaps) {
+                        let additionData = additionShaderData.get(key);
+                        if (additionData) {
+                            let needUpload = shaderIns._additionShaderData.get(key) !== additionData || switchUpdateMark;
+
+                            if (needUpload || switchShader) {
+                                shaderIns.uploadUniforms(encoder, <WebGLShaderData>additionData, needUpload);
+                                shaderIns._additionShaderData.set(key, additionData);
+                            }
+                        }
+                    }
+                }
+
                 //camera
-                var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
+                let uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera || switchShader) {
                     cameraShaderData && shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, uploadCamera);
                     shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material
-                var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.materialShaderData) || switchUpdateMark;
+                let uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.materialShaderData) || switchUpdateMark;
                 if (uploadMaterial || switchShader) {
                     shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.materialShaderData, uploadMaterial);
                     shaderIns._uploadMaterial = this.materialShaderData;
-                    //GlobalData
-                    context.globalShaderData && shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, context.globalShaderData, uploadMaterial);
                 }
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
@@ -128,36 +162,57 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
     }
 
+    protected _getShaderInstanceDefines(context: WebGLRenderContext3D) {
+        let comDef = WebGLRenderElement3D._compileDefine;
+
+        const globalShaderDefines = context._getContextShaderDefines();
+
+        globalShaderDefines.cloneTo(comDef);
+
+        if (this.renderShaderData) {
+            comDef.addDefineDatas(this.renderShaderData.getDefineData());
+        }
+
+        if (this.materialShaderData) {
+            comDef.addDefineDatas(this.materialShaderData._defineDatas);
+        }
+
+        if (this.owner) {
+            let additionShaderData = this.owner.additionShaderData;
+            if (additionShaderData.size > 0) {
+                for (let [key, value] of additionShaderData.entries()) {
+                    comDef.addDefineDatas(value.getDefineData());
+                }
+            }
+        }
+
+
+        return comDef;
+    }
+
     protected _compileShader(context: WebGLRenderContext3D) {
-        var passes: ShaderPass[] = this.subShader._passes;
         this._clearShaderInstance();
+
+        let comDef = this._getShaderInstanceDefines(context);
+
+        var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
-            var pass: ShaderPass = passes[j];
-            //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-            if (pass.pipelineMode !== context.pipelineMode)
+            let pass = passes[j];
+            let passdata = <WebShaderPass>pass.moduleData;
+            if (passdata.pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef = WebGLRenderElement3D._compileDefine;
-
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
-            } else {
-                context._globalConfigShaderData.cloneTo(comDef);
-            }
-
-            context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
             if (this.renderShaderData) {
-                comDef.addDefineDatas(this.renderShaderData.getDefineData());
-                pass.nodeCommonMap = this.owner._commonUniformMap;
+                passdata.nodeCommonMap = this.owner._commonUniformMap;
             } else {
-                pass.nodeCommonMap = null;
+                passdata.nodeCommonMap = null;
             }
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
+            passdata.additionShaderData = null;
+            if (this.owner) {
+                passdata.additionShaderData = this.owner._additionShaderDataKeys;
+            }
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
-
-            //get shaderInstance
-            //create ShaderInstance
 
             this._addShaderInstance(shaderIns);
         }

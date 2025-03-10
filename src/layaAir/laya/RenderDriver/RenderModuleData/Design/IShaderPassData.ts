@@ -8,7 +8,8 @@ export interface IShaderPassData {
     statefirst: boolean;
     validDefine: IDefineDatas;
     renderState: RenderState;
-    nodeCommonMap:string[];
+    nodeCommonMap: string[];
+    additionShaderData: string[];
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void;
     getCacheShader(defines: IDefineDatas): IShaderInstance;
     destroy(): void;

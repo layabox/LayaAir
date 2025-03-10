@@ -1,3 +1,7 @@
+/**
+description
+ 演示Laya 3D引擎中方向光的创建与动态旋转效果
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

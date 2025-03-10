@@ -1,3 +1,7 @@
+/**
+description
+ 展示如何使用Mesh2D创建圆形精灵并渲染图像
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

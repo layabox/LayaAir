@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D场景，配置雾化、相机、光照和天空盒效果
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

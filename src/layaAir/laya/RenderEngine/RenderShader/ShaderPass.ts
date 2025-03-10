@@ -36,6 +36,17 @@ export class ShaderPass extends ShaderCompileDefineBase {
         return this._nodeUniformCommonMap;
     }
 
+    _additionShaderData: Array<string>;
+
+    set additionShaderData(value: Array<string>) {
+        this._additionShaderData = value;
+        this.moduleData.additionShaderData = value;
+    }
+
+    get additionShaderData(): Array<string> {
+        return this._additionShaderData;
+    }
+
     /** 优先 ShaderPass 渲染状态 */
     private _statefirst: boolean = false;
     public get statefirst(): boolean {

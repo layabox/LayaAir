@@ -1,3 +1,7 @@
+/**
+description
+ 加载并播放Spine骨骼动画，循环显示动画序列
+ */
 import { SpineSkeleton } from "laya/spine/SpineSkeleton";
 import { Browser } from "laya/utils/Browser"
 import { Event } from "laya/events/Event";

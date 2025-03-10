@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎绘制多种几何图形，包括线段、曲线、矩形、多边形、三角形、圆形和扇形
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

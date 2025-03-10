@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景中实现鼠标点击生成立方体的射线交互功能
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

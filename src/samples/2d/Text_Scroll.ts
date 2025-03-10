@@ -1,3 +1,7 @@
+/**
+description
+ 实现文本滚动效果，支持鼠标拖动滚动文本内容
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

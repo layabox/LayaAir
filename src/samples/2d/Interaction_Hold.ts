@@ -1,3 +1,7 @@
+/**
+description
+ 实现鼠标长按猩猩图片后缩放效果的交互逻辑
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 3D相机控制脚本，支持鼠标右键旋转视角和WASD、QE按键移动
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { BaseCamera } from "laya/d3/core/BaseCamera";

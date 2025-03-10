@@ -9,18 +9,10 @@ export class Sprite3DRenderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_GI_LEGACYIBL: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_GI_IBL: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_IBL_RGBD: ShaderDefine;
 	/**
 	 * @en Box reflection macro
 	 * @zh 盒子反射宏 */
 	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION: ShaderDefine;
-
-	/**
-	 * @en Volumetric Global Illumination macro
-	 * @zh 体积全局光照宏
-	 */
-	static SHADERDEFINE_VOLUMETRICGI: ShaderDefine;
 
 }

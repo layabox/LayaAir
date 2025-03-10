@@ -17,7 +17,6 @@ export class SpineWasmRender extends SpineNormalRenderBase implements ISpineRend
      * @zh 与此渲染器关联的 Spine 模板。
      */
     templet: SpineTemplet;
-    private twoColorTint = false;
     /**
      * @en Graphics object for rendering.
      * @zh 用于渲染的图形对象。
@@ -31,18 +30,13 @@ export class SpineWasmRender extends SpineNormalRenderBase implements ISpineRend
     /**
      * @en Creates a new SpineWasmRender instance.
      * @param templet The Spine templet to use.
-     * @param twoColorTint Whether to use two-color tinting.
      * @zh 创建 SpineWasmRender 类的新实例。
      * @param templet 要使用的 Spine 模板。
-     * @param twoColorTint 是否使用双色调色。
      */
-    constructor(templet: SpineTemplet, twoColorTint = true) {
+    constructor(templet: SpineTemplet) {
         super();
         this.vmeshs = [];
         this.nextBatchIndex = 0;
-        this.twoColorTint = twoColorTint;
-        // if (twoColorTint)
-        //     this.vertexSize += 4;
         this.templet = templet;
     }
 
@@ -73,10 +67,10 @@ export class SpineWasmRender extends SpineNormalRenderBase implements ISpineRend
     draw(skeleton: spine.Skeleton, renderNode: Spine2DRenderNode, slotRangeStart?: number, slotRangeEnd?: number): void {
         this.nextBatchIndex = 0;
         SpineAdapter.drawSkeleton((vbLen: number, ibLen: number, texturePath: string, blendMode: any) => {
-            let mat = renderNode.getMaterial(this.templet.getTexture(texturePath), blendMode.value);
+            let mat = renderNode.templet.getMaterial(this.templet.getTexture(texturePath), blendMode.value);
             let mesh = this.nextBatch(mat,renderNode);
             mesh.drawByData(SpineAdapter._vbArray, vbLen, SpineAdapter._ibArray, ibLen);
-        }, skeleton, false, slotRangeStart, slotRangeEnd);
+        }, skeleton, true, slotRangeStart, slotRangeEnd);
 
     }
 }

@@ -1,3 +1,7 @@
+/**
+description
+ 创建并定制Tab标签页组件，设置皮肤、标签样式和选择事件处理
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Tab } from "laya/ui/Tab";

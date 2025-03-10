@@ -2,10 +2,6 @@ import { Mesh } from "../resource/models/Mesh";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
-import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * @en The `SkinnedMeshSprite3D` class is used for sprite with skinned mesh and bone nodes.
@@ -15,21 +11,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
     /**@internal */
     static _tempArray0: any[] = [];
 
-    /**
-     * @en Shader variable name for skinned animation.
-     * @zh 着色器变量名，用于蒙皮动画。
-     */
-    static BONES: number;
-    /**
-     * @internal
-     */
-    static __init__(): void {
-        SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
-        SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
-        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Custom");
-        SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
-        commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones", ShaderDataType.Buffer);
-    }
+  
 
     private _meshFilter: MeshFilter;
 

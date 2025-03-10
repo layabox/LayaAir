@@ -1,3 +1,7 @@
+/**
+description
+ 深度和法线材质类，用于渲染场景深度和法线信息
+ */
 import { Material } from "laya/resource/Material";
 import DepthNormalVS from "../DepthNormalShader/DepthNormalsTextureTest.vs";
 import DepthNormalFS from "../DepthNormalShader/DepthNormalsTextureTest.fs";

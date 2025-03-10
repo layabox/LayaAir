@@ -1,3 +1,7 @@
+/**
+description
+ 使用callLater方法实现延迟执行函数,并仅触发一次指定的回调函数
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D场景并添加主摄像机，设置场景缩放和移动脚本
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

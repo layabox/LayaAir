@@ -1,3 +1,7 @@
+/**
+description
+ 聚光灯阴影映射场景渲染和阴影效果配置
+ */
 import { Laya } from "Laya";
 import { Stat } from "laya/utils/Stat";
 import { Stage } from "laya/display/Stage";

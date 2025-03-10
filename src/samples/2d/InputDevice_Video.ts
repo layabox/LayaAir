@@ -1,3 +1,7 @@
+/**
+description
+ 视频播放器组件，包含播放、暂停、音量调节和进度控制功能
+ */
 import { Laya } from "Laya";
 import { VideoNode } from "laya/media/VideoNode";
 import { Sprite } from "laya/display/Sprite";

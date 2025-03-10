@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D场景,创建相机并设置位置和清除方式
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

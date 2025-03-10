@@ -1,6 +1,7 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Camera } from "../../../d3/core/Camera";
+import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
@@ -105,6 +106,12 @@ export class WebGLForwardAddClusterRP {
 
         this.depthPipelineMode = "ShadowCaster";
         this.depthNormalPipelineMode = "DepthNormal";
+
+        let context = WebGLRenderContext3D._instance;
+        context._preDrawUniformMaps.add("Scene3D");
+        context._preDrawUniformMaps.add("Shadow");
+        context._preDrawUniformMaps.add("Global");
+
     }
 
     setCameraCullInfo(value: Camera): void {

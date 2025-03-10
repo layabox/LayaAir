@@ -1,3 +1,7 @@
+/**
+description
+ 网格简化工具，用于降低3D模型顶点数量和复杂度
+ */
 import { BufferUsage } from "laya/RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";

@@ -1,3 +1,7 @@
+/**
+description
+ WebSocket客户端示例，实现基本的连接、发送和接收消息
+ */
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event";
 import { Socket } from "laya/net/Socket";

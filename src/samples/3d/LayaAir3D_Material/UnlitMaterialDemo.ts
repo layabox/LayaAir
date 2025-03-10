@@ -1,3 +1,7 @@
+/**
+description
+ 展示Laya3D引擎中不同材质的球体渲染，包括BlinnPhong和Unlit材质
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

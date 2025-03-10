@@ -1,3 +1,7 @@
+/**
+description
+ 加载3D模型并提供模型显示切换的示例代码
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

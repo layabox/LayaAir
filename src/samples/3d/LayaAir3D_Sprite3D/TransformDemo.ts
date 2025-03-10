@@ -1,3 +1,7 @@
+/**
+description
+ Laya 3D场景中展示精灵克隆、位移、旋转和缩放的示例
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

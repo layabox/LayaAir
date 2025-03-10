@@ -905,8 +905,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     }
 
     onDestroy(): void {
-        this.particleGeometry.destroy();
-        this.particleGeometry = null;
+        if (this.particleGeometry) {
+            this.particleGeometry.destroy();
+            this.particleGeometry = null;
+        }
 
         this.particleSystem.destroy();
     }

@@ -1,3 +1,7 @@
+/**
+description
+ 移动平台GPU压缩纹理ETC2加载与渲染示例
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

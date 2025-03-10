@@ -119,16 +119,6 @@ export class ShaderData implements IClone {
         this._ownerResource = ownerResource;
     }
 
-    createUniformBuffer(name: string, uniformMap: CommandUniformMap): void {
-
-    }
-
-    updateUBOBuffer(name: string): void {
-
-    }
-
-
-
     getDefineData(): IDefineDatas {
         throw new NotImplementedError();
     }

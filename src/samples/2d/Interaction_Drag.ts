@@ -1,3 +1,7 @@
+/**
+description
+ 实现猴子图片在限定区域内的拖拽交互效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -57,4 +57,15 @@ export abstract class SpineNormalRenderBase {
         vmesh.material = material;
         return vmesh;
     }
+
+    /**
+     * @en Destroy the render.
+     * @zh 销毁渲染。
+     */
+    destroy() {
+        for (var i = 0; i < this.vmeshs.length; i++) {
+            this.vmeshs[i].destroy();
+        }
+        this.vmeshs.length = 0;
+    }
 }

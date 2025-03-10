@@ -1,3 +1,7 @@
+/**
+description
+ 物理世界连续碰撞检测，创建3D场景并定期添加球体
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

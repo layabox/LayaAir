@@ -34,27 +34,6 @@ export class RenderableSprite3D extends Sprite3D {
 	static REFLECTIONCUBE_PROBEBOXMAX: number;
 	static REFLECTIONCUBE_PROBEBOXMIN: number;
 
-	/** volumetric GI */
-
-	static VOLUMETRICGI_PROBECOUNTS: number;
-	static VOLUMETRICGI_PROBESTEPS: number;
-	static VOLUMETRICGI_PROBESTARTPOS: number;
-	static VOLUMETRICGI_PROBEPARAMS: number;
-	static VOLUMETRICGI_IRRADIANCE: number;
-	static VOLUMETRICGI_DISTANCE: number;
-
-	/** @internal */
-	static IBLTEX: number;
-	/** @internal */
-	static IBLROUGHNESSLEVEL: number;
-	/** @internal */
-	static AMBIENTSH: number;
-	/** @internal */
-	static AMBIENTCOLOR: number;
-	/** @internal */
-	static AMBIENTINTENSITY: number;
-	/** @internal */
-	static REFLECTIONINTENSITY: number;
 
 	/// Morph target
 
@@ -139,24 +118,6 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX = Shader3D.propertyNameToID("u_SpecCubeBoxMax");
 		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN = Shader3D.propertyNameToID("u_SpecCubeBoxMin");
 
-		// volumestric GI
-		RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS = Shader3D.propertyNameToID("u_VolGIProbeCounts");
-		RenderableSprite3D.VOLUMETRICGI_PROBESTEPS = Shader3D.propertyNameToID("u_VolGIProbeStep");
-		RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS = Shader3D.propertyNameToID("u_VolGIProbeStartPosition");
-		RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS = Shader3D.propertyNameToID("u_VolGIProbeParams");
-		RenderableSprite3D.VOLUMETRICGI_IRRADIANCE = Shader3D.propertyNameToID("u_ProbeIrradiance");
-		RenderableSprite3D.VOLUMETRICGI_DISTANCE = Shader3D.propertyNameToID("u_ProbeDistance");
-
-		//ambient Color
-		RenderableSprite3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
-		// sh 
-		RenderableSprite3D.AMBIENTSH = Shader3D.propertyNameToID("u_IblSH");
-		//GI instance
-		RenderableSprite3D.AMBIENTINTENSITY = Shader3D.propertyNameToID("u_AmbientIntensity");
-		RenderableSprite3D.REFLECTIONINTENSITY = Shader3D.propertyNameToID("u_ReflectionIntensity");
-		RenderableSprite3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
-		RenderableSprite3D.IBLROUGHNESSLEVEL = Shader3D.propertyNameToID("u_IBLRoughnessLevel");
-
 		const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
 
 		/// morph target
@@ -186,18 +147,6 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, "u_SpecCubeProbePosition", ShaderDataType.Vector3);
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax", ShaderDataType.Vector3);
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.IBLTEX, "u_IBLTex", ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.IBLROUGHNESSLEVEL, "u_IBLRoughnessLevel", ShaderDataType.Float);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, "u_VolGIProbeCounts", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, "u_VolGIProbeStep", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, "u_VolGIProbeStartPosition", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, "u_VolGIProbeParams", ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, "u_ProbeIrradiance", ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_DISTANCE, "u_ProbeDistance", ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSH, "u_IblSH", ShaderDataType.Buffer);
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor", ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity", ShaderDataType.Float);
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity", ShaderDataType.Float);
 
 		//Legency Reflectexture
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");

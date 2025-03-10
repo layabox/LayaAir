@@ -1,3 +1,7 @@
+/**
+description
+ GPU纹理2D测试：加载并显示KTX纹理文件
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 竖屏智能缩放的场景设置和文字显示
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

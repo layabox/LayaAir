@@ -1,6 +1,6 @@
 <p align="center">
-    <a href="https://layaair.layabox.com">
-        <img src="https://github.com/layabox/LayaAir/assets/38777031/5519a795-c050-4612-8ee0-0907a946260b"
+    <a href="https://layaair.com">
+        <img src="./logo.png"
     </a>
 </p>
 
@@ -12,7 +12,7 @@
 
 LayaAir引擎已适配众多主流的图形API，如WebGL/WebGPU/OpenGL/Vulkan等，并支持开放式的可编程的渲染管线、次世代PBR渲染流、ClusterLighting多光源技术、Forward+渲染管线等，功能成熟丰富。
 
-LayaAir引擎可一键发布到多个游戏平台，除HTML5 WEB外，还同时支持发布Native APP（安卓、iOS、Windows、Mac、Linux），小游戏（微信小游戏、字节跳动小游戏、支付宝小游戏、OPPO小游戏、vivo小游戏、小米快游戏、淘宝小游戏等）。
+LayaAir引擎可一键发布到多个游戏平台，除HTML5 WEB外，还同时支持发布Native APP（安卓、iOS、鸿蒙NEXT、Windows、Mac、Linux），小游戏（微信小游戏、字节跳动小游戏、支付宝小游戏、OPPO小游戏、vivo小游戏、小米快游戏、淘宝小游戏等）。
 
 LayaAir引擎提供强大的IDE集成环境，包含3D场景编辑器、材质编辑器、粒子编辑器、蓝图编辑器、动画编辑器、物理编辑器、UI编辑器。IDE提供丰富的扩展能力给开发者自定义工作流，开发者更可更上传插件到资源商店分享和销售。
 
@@ -24,7 +24,7 @@ LayaAir引擎积极拥抱AI，已内置AIGC框架，提供AI创作生成、AI控
 
 从LayaAir官方网站直接下载LayaAirIDE， IDE内包含对应版本的引擎。
 
-[LayaAir Engine Download](https://layaair.layabox.com/#/engineDownload).
+[LayaAir Engine Download](https://layaair.com/#/engineDownload).
 
 ### 从源码编译
 
@@ -72,17 +72,17 @@ npm run build
 
 ## 相关链接
 
-- 官网 https://layaair.layabox.com/
+- 官网 https://layaAir.com/
 
-- 论坛 https://ask.layabox.com/
+- 论坛 https://ask.layaAir.com/
 
-- 示例 https://layaair.layabox.com/3.x/demo/
+- 示例 https://layaAir.com/3.x/demo/
 
-- 开发者文档 https://layaair.layabox.com/3.x/doc/
+- 开发者文档 https://layaAir.com/3.x/doc/
 
-- API参考 https://layaair.layabox.com/3.x/api/
+- API参考 https://layaAir.com/3.x/api/
 
-- 引擎案例 https://layaair.layabox.com/#/enginedemo
+- 引擎案例 https://layaAir.com/#/enginedemo
 
 ## 授权协议
 

@@ -1,3 +1,7 @@
+/**
+description
+ 创建垂直列表，显示多张图片，支持选择和滚动
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";

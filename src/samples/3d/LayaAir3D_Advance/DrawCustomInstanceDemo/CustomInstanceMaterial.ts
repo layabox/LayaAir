@@ -1,3 +1,7 @@
+/**
+description
+ 自定义实例化材质，配置顶点属性和渲染状态
+ */
 import { Material } from "laya/resource/Material";
 import CustomInstanceVS from "./customInstance.vs";
 import CustomInstanceFS from "./customInstance.fs";

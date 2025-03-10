@@ -3,6 +3,7 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../Design/3D/I3DRenderModuleData";
 
 export class RTVolumetricGI implements IVolumetricGIData {
@@ -33,7 +34,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
     }
     public set bound(value: Bounds) {
         this._bound = value;
-       this._nativeObj.setBounds(value ? value._imp._nativeObj : null);
+        this._nativeObj.setBounds(value ? value._imp._nativeObj : null);
     }
     public get intensity(): number {
         return this._nativeObj._intensity;
@@ -55,8 +56,15 @@ export class RTVolumetricGI implements IVolumetricGIData {
     /**@internal */
     _defaultBounds: Bounds;
 
+    _shaderData: ShaderData;
+
+    get shaderData(): ShaderData {
+        return this._shaderData;
+    }
+
     constructor() {
         this._nativeObj = new (window as any).conchRTVolumetricGI();
+        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
         this._defaultBounds = new Bounds();
         this.bound = this._defaultBounds;
     }

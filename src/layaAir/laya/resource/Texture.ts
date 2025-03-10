@@ -8,6 +8,7 @@ import { Resource } from "./Resource";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { AtlasResource } from "./AtlasResource";
+import { Loader } from "../net/Loader";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -373,6 +374,7 @@ export class Texture extends Resource {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.IMAGE)
      * @en Loads an image from the specified URL.
      * @param url The URL of the image to load.
      * @param complete An optional callback function that is called when the image is loaded.
@@ -525,7 +527,7 @@ export class Texture extends Resource {
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url).then((tex: Texture) => {
+            ILaya.loader.load(url, Loader.IMAGE).then((tex: Texture) => {
                 this.bitmap = tex.bitmap;
                 callback && callback();
             });

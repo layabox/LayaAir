@@ -1,3 +1,7 @@
+/**
+description
+ 使用Laya框架创建并配置下拉选择框组件，支持自定义皮肤和选项
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { ComboBox } from "laya/ui/ComboBox";

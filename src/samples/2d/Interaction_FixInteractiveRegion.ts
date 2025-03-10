@@ -1,3 +1,7 @@
+/**
+description
+ 调整交互区域，创建不同颜色和大小的矩形，并处理鼠标点击事件
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

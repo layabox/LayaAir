@@ -1,3 +1,7 @@
+/**
+description
+ 动态批处理测试，创建具有多层圆形排列的3D小盒子场景
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

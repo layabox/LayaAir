@@ -1,3 +1,7 @@
+/**
+description
+ 2D渲染命令缓冲区示例,展示纹理绘制、网格渲染和图像混合等功能
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

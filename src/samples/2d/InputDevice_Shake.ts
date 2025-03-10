@@ -1,3 +1,7 @@
+/**
+description
+ 展示设备摇动交互,统计摇动次数并在达到3次后停止
+ */
 import { Laya } from "Laya";
 import { Shake } from "laya/device/Shake";
 import { Sprite } from "laya/display/Sprite";

@@ -24,7 +24,8 @@ export class AttachmentParse {
     color: TColor;
     
     lightColor: TColor;
-    /** @internal TODO 双顶点色 */
+    
+    /** @internal 双顶点色 */
     darkColor: TColor;
     /**
      * @en The blend mode of the attachment.
@@ -65,7 +66,7 @@ export class AttachmentParse {
      * @en Indicates if the attachment is a clipping attachment.
      * @zh 指示附件是否为裁剪附件。
      */
-    isclip: boolean;
+    isClip: boolean;
     /**
      * @en the attachment is a path attachment.
      * @zh 是否为路径解析器
@@ -204,7 +205,7 @@ export class AttachmentParse {
         }
         else if (attachment instanceof spine.ClippingAttachment) {
             this.attachment = null;
-            this.isclip = true;
+            this.isClip = true;
         }
         else if (attachment instanceof spine.PathAttachment) {
             this.attachment = attachment.name;
@@ -223,17 +224,15 @@ export class AttachmentParse {
 
 
         if (attchmentColor) {
-            if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {
-                this.lightColor = attchmentColor;
-            }
+            this.lightColor = attchmentColor;
             color.r = slotColor.r * attchmentColor.r;
             color.g = slotColor.g * attchmentColor.g;
             color.b = slotColor.b * attchmentColor.b;
             color.a = slotColor.a * attchmentColor.a;
-
         }
-        
 
+        this.darkColor = darkColor;
+        
         return true;
     }
 }

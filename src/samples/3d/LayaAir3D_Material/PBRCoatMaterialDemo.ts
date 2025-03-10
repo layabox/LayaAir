@@ -1,3 +1,7 @@
+/**
+description
+ PBR清漆材质球演示Demo，展示不同光泽度和金属度的球体渲染效果
+ */
 import { Laya } from "Laya";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";

@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景工具类，提供模型线框、包围盒绘制和线段渲染等功能
+ */
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";

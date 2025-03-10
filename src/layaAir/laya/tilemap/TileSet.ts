@@ -160,7 +160,7 @@ export class TileSet extends Resource {
      * @internal
      */
     private _notifyPhysicsLayerChange() {
-
+        this._terrainsDirty = true;
     }
 
     addTileSetCellGroup(resource: TileSetCellGroup): void {
@@ -383,9 +383,7 @@ export class TileSet extends Resource {
             });
 
             for (let i = 0, len = this._terrainSets.length; i < len; i++) {
-                let empty = this._addEmptyParams(this._terrainSets[i]);
-
-
+                this._addEmptyParams(this._terrainSets[i]);
             }
         }
     }
@@ -499,6 +497,8 @@ export class TileSet extends Resource {
             list.push(params);
         }
         
+        params.link(TileSetCellData._EMPTY);
+
         return params;
     }
 

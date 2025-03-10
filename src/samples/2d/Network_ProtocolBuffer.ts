@@ -1,3 +1,7 @@
+/**
+description
+ 处理Protobuf协议消息的网络通信工具类
+ */
 import { Laya } from "Laya";
 import { URL } from "laya/net/URL";
 import { Browser } from "laya/utils/Browser";

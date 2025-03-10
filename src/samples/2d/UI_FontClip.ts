@@ -1,3 +1,7 @@
+/**
+description
+ 展示数字和文字字体剪辑控件的使用，可显示不同方向和样式的字体效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { FontClip } from "laya/ui/FontClip";

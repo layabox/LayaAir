@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya3D场景,创建三个Sprite3D并添加脚本组件,设置相互引用
+ */
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
 import { ScriptA } from "./script/ScriptA"

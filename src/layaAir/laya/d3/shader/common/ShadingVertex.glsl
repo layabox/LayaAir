@@ -37,11 +37,11 @@ void shadingPixelParams(inout PixelParams params, in Vertex vertex)
 
     #ifdef TANGENT
     params.tangentWS = normalize((normalMat * vertex.tangentOS.xyz).xyz);
-    params.tangentWS *= u_WroldInvertFront.x;
+    params.tangentWS *= u_WorldInvertFront.x;
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS) * sign(vertex.tangentOS.w));
     #else // TANGENT
     params.tangentWS = vec3(1.0, 0.0, 0.0);
-    params.tangentWS *= u_WroldInvertFront.x;
+    params.tangentWS *= u_WorldInvertFront.x;
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
     #endif // TANGENT
 

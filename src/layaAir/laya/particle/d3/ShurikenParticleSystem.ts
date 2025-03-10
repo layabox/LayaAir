@@ -1,3 +1,4 @@
+import { log } from "console";
 import { GeometryElement } from "../../d3/core/GeometryElement";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
@@ -54,7 +55,7 @@ import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
 
-
+const tempV3 = new Vector3();
 
 /**
  * @en The ShurikenParticleSystem class is used to create 3D particle data templates.
@@ -443,10 +444,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set shape(value: BaseShape) {
         if (this._shape !== value) {
-                if (value && value.enable)
-                    this._ownerRender._baseRenderNode.shaderData.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
-                else
-                    this._ownerRender._baseRenderNode.shaderData.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+            if (value && value.enable)
+                this._ownerRender._baseRenderNode.shaderData.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+            else
+                this._ownerRender._baseRenderNode.shaderData.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             this._shape = value;
         }
     }
@@ -1627,8 +1628,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (this._emission.enable && this._isEmitting && !this._isPaused) {
             this._advanceTime(elapsedTime, this._currentTime);
             if (this.emission.emissionRateOverDistance > 0) {
-                this._advanceDistance(this._currentTime);
+                this._advanceDistance(this._currentTime, elapsedTime);
             }
+
+            let position = this._owner.transform.position;
+            position.cloneTo(this._emissionLastPosition);
         }
     }
 
@@ -1655,8 +1659,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (this._emission.enable) {
             this._advanceTime(time, time);//TODO:如果time，time均为零brust无效
             if (this.emission.emissionRateOverDistance > 0) {
-                this._advanceDistance(this._currentTime);
+                this._advanceDistance(this._currentTime, time);
             }
+
+            let position = this._owner.transform.position;
+            position.cloneTo(this._emissionLastPosition);
         }
     }
 
@@ -1734,7 +1741,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             } else {
                 totalEmitCount = Math.min(this.maxParticles - this.aliveParticleCount, totalEmitCount);
                 for (i = 0; i < totalEmitCount; i++)
-                    this.emit(emitTime);
+                    this.emit(emitTime, elapsedTime);
 
                 this._isPlaying = false;
                 this.stop();
@@ -1746,7 +1753,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         //粒子的增加数量，不能超过maxParticles
         totalEmitCount = Math.min(this.maxParticles - this.aliveParticleCount, totalEmitCount);
         for (i = 0; i < totalEmitCount; i++)
-            this.emit(emitTime);
+            this.emit(emitTime, elapsedTime);
         //粒子发射速率
         var emissionRate: number = this.emission.emissionRate;
         if (emissionRate > 0) {
@@ -1755,8 +1762,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             this._frameRateTime += minEmissionTime;
             this._frameRateTime = this._currentTime - (this._currentTime - this._frameRateTime) % this._maxStartLifetime;//大于最大声明周期的粒子一定会死亡，所以直接略过,TODO:是否更换机制
             while (this._frameRateTime <= emitTime) {
-                if (this.emit(this._frameRateTime))
+                if (this.emit(this._frameRateTime, elapsedTime)) {
                     this._frameRateTime += minEmissionTime;
+                }
                 else
                     break;
             }
@@ -1767,7 +1775,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     /**
      * @internal
      */
-    protected _advanceDistance(emitTime: number): void {
+    protected _advanceDistance(emitTime: number, elapsedTime: number): void {
         let position = this._owner.transform.position;
         let offsetDistance: number = Vector3.distance(position, this._emissionLastPosition);
 
@@ -1781,7 +1789,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             emitCount = Math.floor(emitCount);
             emitCount = Math.min(this.maxParticles - this.aliveParticleCount, emitCount);
             for (let index = 0; index < emitCount; index++) {
-                this.emit(emitTime);
+                this.emit(emitTime, elapsedTime);
             }
             // console.log("emission distance: ", distance, ", count: ", emitCount);
 
@@ -1790,8 +1798,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         else {
             this._emissionDistance = distance;
         }
-
-        position.cloneTo(this._emissionLastPosition);
     }
 
     /**
@@ -1970,7 +1976,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Emits a particle.
      * @zh 发射一个粒子。
      */
-    emit(time: number): boolean {
+    emit(time: number, elapsedTime: number): boolean {
         var position: Vector3 = _tempPosition;
         var direction: Vector3 = _tempDirection;
         if (this._shape && this._shape.enable) {
@@ -1984,7 +1990,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             direction.z = 1;
         }
 
-        return this.addParticle(position, direction, time);//TODO:提前判断优化
+        return this.addParticle(position, direction, time, elapsedTime);//TODO:提前判断优化
     }
 
     /**
@@ -1999,7 +2005,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @param time 当前的模拟时间。
      * @returns 粒子是否成功添加。
      */
-    addParticle(position: Vector3, direction: Vector3, time: number): boolean {//TODO:还需优化
+    addParticle(position: Vector3, direction: Vector3, time: number, elapsedTime: number): boolean {//TODO:还需优化
         Vector3.normalize(direction, direction);
         //下一个粒子
         var nextFreeParticle: number = this._firstFreeElement + 1;
@@ -2016,10 +2022,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (particleAge >= ShurikenParticleData.startLifeTime)//如果时间已大于声明周期，则直接跳过,TODO:提前优化
             return true;
 
-        var pos: Vector3, rot: Quaternion;
+        let pos: Vector3, rot: Quaternion;
         if (this.simulationSpace == 0) {
-            pos = transform.position;
             rot = transform.rotation;
+            pos = tempV3;
+
+            let timeT = (this._currentTime - time) / elapsedTime;
+            timeT = MathUtil.clamp01(timeT);
+            Vector3.lerp(transform.position, this._emissionLastPosition, timeT, pos);
         }
 
         //StartSpeed

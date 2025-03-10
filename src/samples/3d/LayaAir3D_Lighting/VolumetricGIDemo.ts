@@ -1,3 +1,7 @@
+/**
+description
+ 体积全局光照演示demo，初始化Laya场景并加载3D场景
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Scene } from "laya/display/Scene";

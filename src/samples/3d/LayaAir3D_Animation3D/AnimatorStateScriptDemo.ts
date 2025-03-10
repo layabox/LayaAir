@@ -1,3 +1,7 @@
+/**
+description
+ 3D动画状态切换演示，通过按钮循环播放不同动作状态
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

@@ -1,3 +1,7 @@
+/**
+description
+ 无缩放模式下的舞台初始化，居中绘制灰色矩形，适配横屏显示
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

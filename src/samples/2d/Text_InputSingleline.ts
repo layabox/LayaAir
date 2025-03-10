@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个单行文本输入框,位于舞台中心,带有输入提示,灰色背景和白色文字
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

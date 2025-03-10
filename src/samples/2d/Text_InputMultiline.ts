@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个可多行输入的文本框，设置提示文字和样式，居中显示
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

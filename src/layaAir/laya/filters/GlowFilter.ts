@@ -157,7 +157,7 @@ export class GlowFilter extends Filter {
         let u_blurInfo2 = shadersv.u_blurInfo2;
         u_blurInfo2.setValue(srctexture.width, srctexture.height, this._sv_blurInfo2[2], this._sv_blurInfo2[3]);
         shadersv.u_blurInfo2 = u_blurInfo2;
-        let color = this.getColor();
+        let color = this._color.arrColor;
         let svColor = shadersv.color;
         svColor.setValue(color[0], color[1], color[2], color[3]); shadersv.color = svColor;
         //模糊的底
@@ -246,15 +246,6 @@ export class GlowFilter extends Filter {
     set color(value: string) {
         this._color = new ColorUtils(value);
         this.onChange();
-    }
-
-    /**
-     * @private
-     * @en Get the color array from the color utility.
-     * @zh 从颜色工具获取颜色数组。
-     */
-    getColor(): any[] {
-        return this._color.arrColor;
     }
 
     /**

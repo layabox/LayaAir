@@ -1,3 +1,7 @@
+/**
+description
+ 创建橙色矩形,检测鼠标是否在矩形区域内,并根据碰撞结果改变透明度
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Main } from "./../Main";

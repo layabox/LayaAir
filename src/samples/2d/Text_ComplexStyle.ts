@@ -1,3 +1,7 @@
+/**
+description
+ 创建具有复杂样式的文本对象，包括居中对齐、字体大小、颜色、描边等效果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

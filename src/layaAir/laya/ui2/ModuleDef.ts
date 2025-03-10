@@ -30,6 +30,11 @@ import { Relation } from "./Relation";
 import { Scroller } from "./Scroller";
 import { StretchParam } from "./StretchParam";
 import { TranslationsLoader } from "./TranslationLoader";
+import { RoundedRectMesh } from "./render/RoundedRectMesh";
+import { ProgressMesh } from "./render/ProgressMesh";
+import { CircleMesh } from "./render/CircleMesh";
+import { FlipMesh } from "./render/FlipMesh";
+import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
@@ -65,5 +70,10 @@ r("Scroller", Scroller);
 r("Layout", Layout);
 r("StretchParam", StretchParam);
 r("ItemData", class extends Object { });
+r("RoundedRectMesh", RoundedRectMesh);
+r("ProgressMesh", ProgressMesh);
+r("CircleMesh", CircleMesh);
+r("FlipMesh", FlipMesh);
+r("RegularPolygonMesh", RegularPolygonMesh);
 
 Loader.registerLoader(["i18ns"], TranslationsLoader);

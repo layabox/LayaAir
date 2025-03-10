@@ -1,3 +1,7 @@
+/**
+description
+ 使用Laya框架发起GET网络请求并显示响应结果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

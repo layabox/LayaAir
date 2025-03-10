@@ -1,3 +1,7 @@
+/**
+description
+ 复选框UI组件演示：加载多套皮肤,创建网格布局,并实现选中状态切换和标签更新
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { CheckBox } from "laya/ui/CheckBox";

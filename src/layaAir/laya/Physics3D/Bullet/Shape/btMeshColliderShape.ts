@@ -24,7 +24,7 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
     static _btTempVector32: number;
 
 
-    private _limitvertex = 10;
+    private _limitvertex = 255;
 
     private _convex: boolean;
 
@@ -91,7 +91,6 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
      * @param limit 限制值。
      */
     setLimitVertex(limit: number): void {
-
         this._limitvertex = limit;
     }
 
@@ -117,7 +116,9 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 
         let posArray = new Array<Vector3>();
         value.getPositions(posArray);
-
+        if (this._convex && posArray.length > this._limitvertex) {
+            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.");
+        }
         var indices: Uint16Array = value._indexBuffer.getData() as Uint16Array;//TODO:API修改问题
         for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
             var position0: Vector3 = posArray[indices[i]];

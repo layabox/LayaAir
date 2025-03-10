@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个猴子精灵，通过帧循环实现旋转和心跳缩放效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 无抓取材质的玻璃着色器类，用于定义玻璃渲染效果和材质属性
+ */
 import { Material } from "laya/resource/Material";
 import GlassShaderVS from "./GlassShader.vs";
 import GlassShaderFS from "./GlassShader.fs";

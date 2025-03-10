@@ -1,3 +1,7 @@
+/**
+description
+ 初始化3D场景，创建相机和天空盒，加载天空盒材质
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";

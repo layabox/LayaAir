@@ -1,3 +1,7 @@
+/**
+description
+ 实现在Laya画布上创建并定位视频元素，并控制其显示区域
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

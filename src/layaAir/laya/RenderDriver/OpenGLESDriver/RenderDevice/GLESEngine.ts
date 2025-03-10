@@ -55,15 +55,7 @@ export class GLESEngine implements IRenderEngine {
   public set _enableStatistics(value: boolean) {
     this._nativeObj.enableStatistics = value;
   }
-
-  setUseUniformBlock(value: boolean) {
-    this._nativeObj.setUseUniformBlock(value);
-
-  }
-
-  setMatUseUBO(value: boolean) {
-    this._nativeObj.setMatUseUBO(value);
-  }
+  
   resizeOffScreen(width: number, height: number): void {
     this._nativeObj.resizeOffScreen(width, height);
   }

@@ -1,3 +1,7 @@
+/**
+description
+ 演示使用时间线控制精灵动画,支持通过键盘控制动画播放和暂停
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

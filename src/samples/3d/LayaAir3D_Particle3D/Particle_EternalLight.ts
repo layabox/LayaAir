@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景加载永恒之光粒子特效
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

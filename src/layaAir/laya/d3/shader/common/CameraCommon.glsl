@@ -3,34 +3,36 @@
 
     #ifdef ENUNIFORMBLOCK
 
-uniform CameraUniformBlock
+uniform BaseCamera
 {
+    vec3 u_CameraPos;
     mat4 u_View;
     mat4 u_Projection;
     mat4 u_ViewProjection;
-    vec4 u_ProjectionParams; // x: near, y: far, z: invert, w: 1/far
-    vec4 u_Viewport; // x,y,width,height
     vec3 u_CameraDirection;
     vec3 u_CameraUp;
-    vec3 u_CameraPos;
+    vec4 u_Viewport;
+    vec4 u_ProjectionParams;
+    vec4 u_OpaqueTextureParams;
+    vec4 u_ZBufferParams;
 };
     #else
+uniform vec3 u_CameraPos;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
 uniform mat4 u_ViewProjection;
-uniform vec4 u_ProjectionParams; // x: near, y: far, z: invert, w: 1/far
-uniform vec4 u_Viewport; // x, y, width, height
 uniform vec3 u_CameraDirection;
 uniform vec3 u_CameraUp;
-uniform vec3 u_CameraPos;
+uniform vec4 u_Viewport;
+uniform vec4 u_ProjectionParams;
+uniform vec4 u_OpaqueTextureParams;
+uniform vec4 u_ZBufferParams;
     #endif // ENUNIFORMBLOCK
 
-/*Depth or DepthNormal Uniform*/
-uniform highp sampler2D u_CameraDepthTexture;
-uniform vec4 u_ZBufferParams; //(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near)
-uniform mediump sampler2D u_CameraDepthNormalsTexture;
-uniform mediump sampler2D u_CameraOpaqueTexture;
-uniform vec4 u_OpaqueTextureParams;
+uniform sampler2D u_CameraDepthTexture;
+uniform sampler2D u_CameraDepthNormalsTexture;
+uniform sampler2D u_CameraOpaqueTexture;
+
 
 vec4 getPositionCS(in vec3 positionWS)
 {

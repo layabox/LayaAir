@@ -1,3 +1,7 @@
+/**
+description
+ 初始化颜色选择器并加载皮肤,可选择和显示颜色的UI组件
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { ColorPicker } from "laya/ui/ColorPicker";
