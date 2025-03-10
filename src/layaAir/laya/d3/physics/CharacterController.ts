@@ -72,6 +72,7 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
+     * @ignore
      * @en The frame loop.
      * @zh 帧循环
      */
@@ -85,7 +86,7 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * @en The capsule radius.
-     * @zh 胶囊半径。
+     * @zh 胶囊碰撞形状的半径。
      */
     get radius(): number {
         return this._radius;
@@ -101,7 +102,7 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * @en The capsule height.
-     * @zh 胶囊高度。
+     * @zh 胶囊碰撞形状的高度。
      */
     get height(): number {
         return this._height;
@@ -116,9 +117,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The minimum distance
-     * @zh 最小距离。
-     */
+     * @en The minimum step distance when a character moves using `move`. This feature is only effective in the PhysX engine.
+     * @zh 角色移动（通过move）时的单步最小距离。该功能只在PhysX引擎中有效。
+     **/
     get minDistance(): number {
         return this._minDistance;
     }
@@ -132,12 +133,11 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * @en The center offset of the capsule.
-     * @zh 胶囊的本地偏移
+     * @zh 胶囊碰撞形状的本地偏移
      */
     get centerOffset(): Vector3 {
         return this._offset;
     }
-
     set centerOffset(value: Vector3) {
         this._offset = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_offset)) {
@@ -148,13 +148,13 @@ export class CharacterController extends PhysicsColliderComponent {
 
 
     /**
-     * @en gravity.
-     * @zh 重力。
+     * @en gravity.  The gravity will affect the movement of rigidbody, making it accelerate in a certain direction (usually downward, negative Y-axis) and simulate the free fall effect in real world.
+     * The default gravity value is **(0, -9.8, 0)**, which means the object will fall with an acceleration of 9.8 m/s² downward.
+     * @zh 重力。重力会影响刚体的运动，使其向某个方向（通常是向下，即 Y 轴负方向）持续加速，从而模拟真实世界中的自由落体效果。默认的重力值为 **(0, -9.8, 0)**，表示物体会以 9.8 m/s² 的加速度向下坠落
      */
     get gravity(): Vector3 {
         return this._gravity;
     }
-
     set gravity(value: Vector3) {
         this._gravity = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Gravity)) {
@@ -173,7 +173,6 @@ export class CharacterController extends PhysicsColliderComponent {
     get skinWidth(): number {
         return this._contactOffset;
     }
-
     set skinWidth(value: number) {
         this._contactOffset = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Skin)) {
@@ -184,13 +183,12 @@ export class CharacterController extends PhysicsColliderComponent {
     /**
      * @en The maximum slope angle that the character can climb.
      * If the slope angle exceeds the set value, the character will be unable to continue moving upward and may start sliding down or stop at the bottom of the slope.
-     * @zh 角色行走的最大坡度。
+     * @zh 角色行走的最大坡度（角度值）。
      * 如果坡度角度超过设定的值，角色将无法继续向上移动，可能会开始滑落或停在斜坡下方。
      */
     get maxSlope(): number {
         return this._maxSlope;
     }
-
     set maxSlope(value: number) {
         this._maxSlope = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_SlopeLimit)) {
@@ -200,12 +198,11 @@ export class CharacterController extends PhysicsColliderComponent {
 
     /**
      * @en The height of the character's step. It represents the maximum height that the character can step over.
-     * @zh 角色行走的脚步高度，表示可跨越的最大高度。
+     * @zh 角色行走的脚步高度，表示角色能够跨越的最大台阶高度。
      */
     get stepHeight(): number {
         return this._stepHeight;
     }
-
     set stepHeight(value: number) {
         this._stepHeight = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_StepOffset)) {
@@ -214,13 +211,12 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The up axis of the character.
-     * @zh 角色的Up轴。
+     * @deprecated
+     * @zh 角色的向上轴, 由于和其它方法设置存在冲突, 为避免开发者误解, 废弃掉.
      */
     get upAxis(): Vector3 {
         return this._upAxis;
     }
-
     set upAxis(value: Vector3) {
         this._upAxis = value;
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_UpDirection)) {
@@ -239,7 +235,6 @@ export class CharacterController extends PhysicsColliderComponent {
             return null;
         }
     }
-
     set position(v: Vector3) {
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
             this._collider.setPosition(v);
@@ -261,8 +256,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The jump speed.
-     * @zh 起跳速度。
+     * @deprecated
+     * @zh 原本是用于jump没有设置值的时候,用于影响向上轴的跳跃速度与高度.考虑到建议在jump时设置速度,避免开发者的误解,所以废弃了这个属性.
      */
     public get jumpSpeed(): number {
         return this._jumpSpeed;
@@ -282,17 +277,23 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en Gets the velocity.
-     * @zh 获取速度。
+     * @en Gets the vertical speed. 
+     * - When the character performs a jump action, the vertical speed starts from a positive value (rising phase), then decreases to zero and finally becomes negative (falling phase). 
+     * Developers can detect changes in vertical speed to determine whether the character is rising, at the peak or falling.
+     * @zh 获取角色的垂直速度。
+     * - 当角色执行跳跃动作时，垂直速度会从正值开始（上升阶段），然后逐渐减小到零，再变为负值（下落阶段）。
+     * 开发者可以通过检测垂直速度的变化来判断角色处于上升、顶点或下落状态
      */
     getVerticalVel() {
         return this._collider ? this._collider.getVerticalVel() : 0;
     }
 
     /**
-     * @en Moves the character by the specified movement vector.
+     * @en Moves the character by the specified movement vector. By continuously calling the `move` method and passing in a movement vector, the character will move in the specified direction and distance.
+     * When you need to stop, not only stopping calling the move movement vector. But also resetting the move's movement vector to zero vector. Otherwise it will continue moving based on the last set vector
      * @param movement The movement vector.
-     * @zh 通过指定移动向量移动角色。
+     * @zh 通过指定移动向量移动角色。通过不断调用 `move` 方法并传入移动向量，角色会按照指定的方向和距离进行移动。
+     * 当需要停止的时候，不仅仅是停止调用move移动向量。还要将move的移动向量重置为零向量。否则会一直基于最后一次设置的向量移动。
      * @param movement 移动向量。
      */
     move(movement: Vector3): void {
@@ -302,10 +303,11 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * @en Jumps.
-     * @param velocity The jump velocity.
-     * @zh 跳跃。
-     * @param velocity 跳跃速度。
+     * @en The jump vector, direction and height. 
+     * It is usually the opposite direction of gravity (positive Y axis), and the absolute value is larger, the higher the single jump height.
+     * @param velocity The jump vector, each axis's direction and height.
+     * @zh 用于控制角色控制器的跳跃方向和高度，通常是重力相反的方向（Y轴正方向），绝对值越大，单次跳跃的高度越高。
+     * @param velocity 跳跃向量，各轴的方向与高度。
      */
     jump(velocity: Vector3 = null): void {
         if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
