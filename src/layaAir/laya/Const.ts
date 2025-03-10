@@ -35,10 +35,10 @@ export class NodeFlags {
     static EDITING_NODE = 0x10000; //IDE use
     static HIDE_BY_EDITOR = 0x20000; //IDE use
     static LOCK_BY_EDITOR = 0x40000;//IDE use
-    static FORCE_HIDDEN = 0x80000;//IDE use
-    static NOT_IN_PAGE = 0x100000; //FGUI use
-    static ESCAPE_LAYOUT = 0x200000; //FGUI use
-    static EDITING_ROOT_NODE = 0x400000; //IDE use
+    static EDITING_ROOT_NODE = 0x80000; //IDE use
+    static FORCE_HIDDEN = 0x100000;//IDE use
+    static NOT_IN_PAGE = 0x200000; //FGUI use
+    static ESCAPE_LAYOUT = 0x400000; //FGUI use
 }
 
 export class HideFlags {
