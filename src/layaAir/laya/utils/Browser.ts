@@ -285,9 +285,9 @@ export class Browser {
         let platform: string = win.navigator.platform;
         let miniGame: [string, string, string];
 
-        //微信小游戏
-        if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
-            miniGame = ["wxMiniGame", "MiniAdpter", "wx"];
+         //native
+         if (!!(window as any).conch && (window as any).conchConfig.getOS() != "Conch-window") {
+            miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
         }
         //阿里小游戏
         if ("my" in Browser.window) {
@@ -347,7 +347,9 @@ export class Browser {
         if (miniGame != null) {
             Browser.window[miniGame[0]](Laya, Laya);
             Laya[miniGame[1]].enable();
-            Browser.miniGameContext = Browser.window[miniGame[2]];
+            if (!Browser.onLayaRuntime) {
+                Browser.miniGameContext = Browser.window[miniGame[2]];
+            }
         }
 
         //新增trace的支持
