@@ -1742,8 +1742,8 @@ export class Sprite extends Node {
         point.y += this._y;
         var scroll: Rectangle = this._scrollRect;
         if (scroll) {
-            point.x -= scroll.x;
-            point.y -= scroll.y;
+            point.x -= scroll.x * this._scaleX;
+            point.y -= scroll.y * this._scaleY;
         }
         return point;
     }
@@ -1762,8 +1762,8 @@ export class Sprite extends Node {
         point.y -= this._y;
         var scroll: Rectangle = this._scrollRect;
         if (scroll) {
-            point.x += scroll.x;
-            point.y += scroll.y;
+            point.x += scroll.x * this._scaleX;
+            point.y += scroll.y * this._scaleY;
         }
         if (this.transform)
             this._transform.invertTransformPoint(point);
