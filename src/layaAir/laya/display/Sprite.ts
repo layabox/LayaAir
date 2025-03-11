@@ -638,7 +638,7 @@ export class Sprite extends Node {
 
         if (this._renderNode) {
             rec = Rectangle.TEMP;
-            rec.setTo(0, 0, this.width , this.height);
+            rec.setTo(0, 0, this.width, this.height);
             pList.push(...rec._getBoundPoints());
         }
 
@@ -648,7 +648,7 @@ export class Sprite extends Node {
             pList.push(...rec._getBoundPoints());
         }
 
-       
+
         //处理子对象区域
         let chidren = this._children;
         for (let i = 0, n = chidren.length; i < n; i++) {
@@ -1893,8 +1893,8 @@ export class Sprite extends Node {
         point.y -= this._y;
         var scroll: Rectangle = this._style.scrollRect;
         if (scroll) {
-            point.x += scroll.x;
-            point.y += scroll.y;
+            point.x += scroll.x * this._style.scaleX;
+            point.y += scroll.y * this._style.scaleY;
         }
         if (this.transform) {
             //_transform.setTranslate(0,0);
