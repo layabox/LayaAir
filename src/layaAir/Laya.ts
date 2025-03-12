@@ -247,7 +247,7 @@ export class Laya {
         RenderSprite.__init__();
         Material.__initDefine__();
         InputManager.__init__(stage, Render.canvas);
-        if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getOS() != "Conch-window") {
             Input.isAppUseNewInput = true;
         }
         Input.__init__(Render.canvas);

@@ -179,14 +179,15 @@ export class Shader3D {
      * @param defineNames 宏定义名字集合。
      * @param   nodeCommonMap ubo集合名称集合
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): boolean {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], additionMap: string[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
-                pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
+                    pass.nodeCommonMap = nodeCommonMap;
+                    pass.additionShaderData = additionMap;
                     var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (let n of defineNames)
