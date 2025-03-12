@@ -63,10 +63,7 @@ export class AutoBitmap extends Graphics {
     set width(value: number) {
         if (this._width != value) {
             this._width = value;
-            if (SerializeUtil.isDeserializing)
-                this._setChanged();
-            else
-                ILaya.timer.runCallLater(this, this.changeSource, true);
+            this._setChanged();
         }
     }
 
@@ -83,10 +80,7 @@ export class AutoBitmap extends Graphics {
     set height(value: number) {
         if (this._height != value) {
             this._height = value;
-            if (SerializeUtil.isDeserializing)
-                this._setChanged();
-            else
-                ILaya.timer.runCallLater(this, this.changeSource, true);
+            this._setChanged();
         }
     }
 
