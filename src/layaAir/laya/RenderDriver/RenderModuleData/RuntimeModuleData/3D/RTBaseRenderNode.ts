@@ -64,12 +64,16 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
+        if (this.boundsChange) {
+            this._nativeObj._calculateBoundingBox();
+            this.boundsChange = false;
+        }
         return this._bounds as Bounds;
     }
     public set bounds(value: Bounds) {
         this._bounds = value;
         this._nativeObj._bounds = value._imp._nativeObj;
-    }
+    }   
     private _baseGeometryBounds: Bounds;
     public get baseGeometryBounds(): Bounds {
         return this._baseGeometryBounds;
