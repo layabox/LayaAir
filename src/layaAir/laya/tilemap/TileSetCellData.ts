@@ -362,7 +362,7 @@ export class TileSetCellData {
         let params = new TerrainsParams;
         params.terrainSet = this.terrainSet;
         params.terrain = this.terrain;
-        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,15);
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,16);
         return params;
     }
 
