@@ -118,7 +118,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_EventFilter, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, true);
-
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
@@ -353,6 +352,13 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._pxActor.setMassSpaceInertiaTensor(value);
     }
 
+    /**
+     * @en Whether it is sleeping.
+     * @zh 是否处于睡眠状态。
+     */
+    isSleeping(): boolean {
+        return this._pxActor.isSleeping();
+    }
     /**
      * @en Set the sleep threshold of the dynamic collider.
      * @param value The sleep threshold value.

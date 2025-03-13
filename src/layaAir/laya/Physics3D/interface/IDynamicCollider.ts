@@ -77,13 +77,18 @@ export interface IDynamicCollider extends ICollider {
     setInertiaTensor(value: Vector3): void;
 
     /**
-     * @en Sets the mass-normalized kinetic energy threshold below which an actor may go to sleep.
-     * @param value Energy below which an actor may go to sleep.
-     * @zh 设置物体可能进入睡眠状态的质量归一化动能阈值。
-     * @param value 物体可能进入睡眠状态的能量阈值。
+     * @en Set the linear velocity threshold for the rigid body to sleep.
+     * @param value The linear velocity threshold.
+     * @zh 设置刚体进入睡眠状态的线速度阈值。
+     * @param value 线速度睡眠阈值。
      */
     setSleepThreshold(value: number): void;
 
+    /**
+    * @en Whether it is sleeping.
+    * @zh 是否处于睡眠状态。
+    */
+    isSleeping(): boolean;
     /**
      * @en Sets the colliders' collision detection mode.
      * @param value Rigid body flag.

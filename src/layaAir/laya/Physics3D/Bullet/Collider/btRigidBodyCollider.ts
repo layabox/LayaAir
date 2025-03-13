@@ -138,7 +138,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_EventFilter, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
 
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
@@ -149,8 +149,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxAngularVelocity, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxDepenetrationVelocity, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
@@ -239,10 +239,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @en Whether it is sleeping.
      * @zh 是否处于睡眠状态。
      */
-    private isSleeping(): boolean {
+    isSleeping(): boolean {
         let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider)
-            return bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_ISLAND_SLEEPING;
+            return bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_ISLAND_SLEEPING  || bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_DISABLE_DEACTIVATION;
         return false;
     }
 
@@ -442,7 +442,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         throw new NotImplementedError();
     }
 
-    //这里是bug把  类都不对
+    /**
+     * @en Set the linear velocity threshold for the rigid body to sleep.
+     * @param value The linear velocity threshold.
+     * @zh 设置刚体进入睡眠状态的线速度阈值。
+     * @param value 线速度阈值。
+     */
     setSleepThreshold(value: number): void {
         let bt = btPhysicsCreateUtil._bt;
         //btRigidBody_getLinearSleepingThreshold
@@ -457,7 +462,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     setSleepAngularVelocity(value: number) {
         let bt = btPhysicsCreateUtil._bt;
-        bt.btRigidBody_setSleepingThresholds(this._btCollider, bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
+        this._btCollider && bt.btRigidBody_setSleepingThresholds(this._btCollider, bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
 
     /**

@@ -121,7 +121,7 @@ export class btPhysicsManager implements IPhysicsManager {
     /**
      * @internal
      * @en Island sleeping tag for activation state
-     * @zh 休眠岛状态的标签
+     * @zh 休眠状态的标签
      */
     static ACTIVATIONSTATE_ISLAND_SLEEPING = 2;
     /**
