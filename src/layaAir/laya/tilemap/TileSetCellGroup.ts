@@ -6,7 +6,6 @@ import { TileMapUtils } from "./TileMapUtils";
 import { TileSet } from "./TileSet";
 import { TileSetCellData } from "./TileSetCellData";
 
-
 export class TileSetCellGroup {
     //当前最大的alternative 数量
     _maxAlternativesCount: number = 0;
@@ -205,7 +204,6 @@ export class TileSetCellGroup {
             }
         }
 
-
         return alterData;
     }
 
@@ -244,7 +242,6 @@ export class TileSetCellGroup {
         if (tile == null) { return null; }
         return tile.removeCellData(index);
     }
-
 
     release() {
         //删除 TODO

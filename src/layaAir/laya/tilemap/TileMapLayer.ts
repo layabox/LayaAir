@@ -431,7 +431,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         let mat = this._globalTransfrom();
 
         let scene = this.owner.scene;
-        let camera = scene._curCamera;
+        let camera = scene?._curCamera;
         let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);

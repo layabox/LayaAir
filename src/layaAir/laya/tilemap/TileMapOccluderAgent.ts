@@ -38,7 +38,7 @@ export class TileMapOccluderAgent {
     * @zh 更新 Light2D 管理器实例。
     */
    _updateManager() {
-      let manager = this._layer.owner.scene._light2DManager as Light2DManager;
+      let manager = this._layer.owner?.scene?._light2DManager as Light2DManager;
       this._manager = manager;
    }
 

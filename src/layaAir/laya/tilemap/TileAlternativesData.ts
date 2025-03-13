@@ -52,7 +52,7 @@ export class TileAlternativesData {
     private _animatorUpdateMask: number = 0;
 
     /** @private */
-    nativeId:number;
+    nativeId: number;
 
     /**
      * 格子的位置
@@ -60,7 +60,7 @@ export class TileAlternativesData {
     get localPos(): Vector2 {
         return this._localPos;
     }
-    
+
     set localPos(value: Vector2) {
         this._localPos = value;
     }
@@ -194,8 +194,8 @@ export class TileAlternativesData {
 
         this._owner._getTileUVExtends(this._sizeByAtlas, this._regionSize);
         let atlasSize = this._owner.atlasSize;
-        this._uvExtends.x = Math.max(this._regionSize.x - 1 , 0)/ atlasSize.x;
-        this._uvExtends.y = Math.max(this._regionSize.y - 1 , 0) / atlasSize.y;
+        this._uvExtends.x = Math.max(this._regionSize.x - 1, 0) / atlasSize.x;
+        this._uvExtends.y = Math.max(this._regionSize.y - 1, 0) / atlasSize.y;
         this._updateOriginUV(0, 0, TileMapDirtyFlag.CELL_QUAD | TileMapDirtyFlag.CELL_QUADUV);
 
         //update ID
