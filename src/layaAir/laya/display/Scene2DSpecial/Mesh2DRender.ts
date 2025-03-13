@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -24,12 +25,15 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _sharedMesh: Mesh2D;
 
     private _texture: BaseTexture;
+    private _textureRange: Vector4;
 
     private _color: Color;
+    private _setRenderColor: Color;
 
     private _normalTexture: BaseTexture;
     private _normal2DStrength: number = 0;
 
+    private _renderAlpha: number = -1;
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格
@@ -74,8 +78,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
             return
         value = value ? value : Color.BLACK;
         value.cloneTo(this._color);
-        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+        this._renderAlpha = -1;
     }
+
 
     get color() {
         return this._color;
@@ -91,7 +96,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
         if (this._texture)
             this._texture._removeReference();
-
+        value = value ? value : Texture2D.whiteTexture;
         this._texture = value;
 
         this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
@@ -107,6 +112,21 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get texture(): BaseTexture {
         return this._texture;
+    }
+
+    /**
+     * @en Texture range，xy represents texture offset, zw represents scaling
+     * @zh 纹理范围 xy表示纹理偏移 zw表示缩放
+     */
+    set textureRange(value: Vector4) {
+        if (!value)
+            return;
+        this._spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
+        value ? value.cloneTo(this._textureRange) : null;
+    }
+
+    get textureRange(): Vector4 {
+        return this._textureRange;
     }
 
     /**
@@ -208,6 +228,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
+        if (this._renderAlpha !== context.globalAlpha) {
+            let a = context.globalAlpha * this._color.a;
+            this._setRenderColor.setValue(this._color.r * a, this._color.g * a, this._color.b * a, a);
+            this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._setRenderColor);
+            this._renderAlpha = context.globalAlpha;
+        }
         this._lightReceive && this._updateLight();
     }
 
@@ -229,7 +255,10 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this._color = new Color();
-
+        this._setRenderColor = new Color();
+        this._textureRange = new Vector4(0, 0, 1, 1);
+        this.textureRange = this._textureRange;
+        this.texture = Texture2D.whiteTexture;
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }

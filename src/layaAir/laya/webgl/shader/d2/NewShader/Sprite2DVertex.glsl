@@ -214,6 +214,7 @@
         info.color = vec4(1.0,1.0,1.0,1.0);
         #ifdef COLOR
             info.color = a_color;
+            info.color.rgb *=a_color.a;
         #endif
         info.color*= linearToGamma(u_baseRenderColor);
         #ifdef UV

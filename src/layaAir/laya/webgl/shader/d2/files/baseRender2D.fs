@@ -10,7 +10,8 @@ precision mediump float;
 void main()
 {
     clip();
-    vec4 textureColor = texture2D(u_baseRender2DTexture, v_texcoord);
+    vec2 texcoord = fract(v_texcoord.xy) * u_baseRender2DTextureRange.zw + u_baseRender2DTextureRange.xy;
+    vec4 textureColor = texture2D(u_baseRender2DTexture, texcoord);
 
     #ifdef LIGHT2D_ENABLE
         lightAndShadow(textureColor);
