@@ -6,7 +6,7 @@ import { NeighborObject, TerrainRuleSet, TerrainVector2Set, TileMapTerrainRule, 
 
 export class TileMapTerrain {
 
-   static fillConnect(tileMapLayer: TileMapLayer, list: IV2[], terrainSetId: number, terrainId: number, ignoreEmpty = true) {
+   static fillConnect(tileMapLayer: TileMapLayer, list: IV2[], terrainSetId: number, terrainId: number, ignoreEmpty = false) {
       let tileset = tileMapLayer.tileSet;
       let terrainSet = tileset.getTerrainSet(terrainSetId);
       if (!terrainSet) return null;
@@ -20,11 +20,11 @@ export class TileMapTerrain {
 
       let temp_vec2 = TileMapTerrainUtil.temp_vec2;
 
-      //尽可能减少内存开销
+      /** 大vec2池，尽可能减少内存开销 */
       let vec2Map = new TerrainVector2Set();
-
+      /** 所有可能点合集 */
       let allSet = new TerrainVector2Set();
-      //ready to fill
+      /** ready to fill */
       let r2fSet = new TerrainVector2Set();
 
       let listLength = list.length;
@@ -87,16 +87,16 @@ export class TileMapTerrain {
                   ruleSet.add(ruleNeighbor);
                }
             } else {
-               let outs: TTerrainVector2[] = [];
+               let outs : Map<TTerrainVector2 , TileMapCellNeighbor> = new Map;
+               
                neighborObject.getOverlap(ruleNeighbor.x, ruleNeighbor.y, ruleNeighbor.data, vec2Map, outs);
                let need = true;
-               for (let j = 0, outLen = outs.length; j < outLen; j++) {
-                  let vec2 = outs[j];
-                  if (vec2 && !checkSet.get(vec2.x, vec2.y)) {
+               outs.forEach((neighbor , vec2)=>{
+                  if(!checkSet.get(vec2.x, vec2.y)){
                      need = false;
-                     break;
                   }
-               }
+               });
+
                if (need) {
                   ruleSet.add(ruleNeighbor);
                }
@@ -133,14 +133,11 @@ export class TileMapTerrain {
 
       vRuleSet.list.forEach(rule => {
          let mark: number[] = [];
-         let outs: TTerrainVector2[] = [];
+         let outs: Map<TTerrainVector2 , TileMapCellNeighbor> = new Map;
          neighborObject.getOverlap(rule.x, rule.y, rule.data, vec2Map, outs);
 
          let nCell: TileSetCellData;
-         for (let j = 0, len = outs.length; j < len; j++) {
-            let vec2 = outs[j];
-            if (!vec2) continue;
-
+         outs.forEach((neighbor , vec2)=>{
             let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, vec2);
             if (chunkCellInfo) {
                let cellData = chunkCellInfo.cell;
@@ -149,13 +146,14 @@ export class TileMapTerrain {
                }
             }
 
-            if (!ignoreEmpty || (nCell && nCell.terrain > -1)) {
-               if (!mark[nCell.terrain]) {
-                  mark[nCell.terrain] = 0;
+            let nTerrain = nCell ? nCell.terrain : -1;
+            if (!ignoreEmpty || nTerrain > -1) {
+               if (!mark[nTerrain]) {
+                  mark[nTerrain] = 0;
                }
-               mark[nCell.terrain]++;
+               mark[nTerrain]++;
             }
-         }
+         });
 
          let maxCount = 0;
          let maxCountTerrian = -1;
@@ -174,22 +172,18 @@ export class TileMapTerrain {
 
       r2fSet.list.forEach(vec2 => {
          let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, vec2);
-         if (chunkCellInfo) {
+         if (!ignoreEmpty) {
+            let rule = new TileMapTerrainRule(vec2.x, vec2.y, -1 , neighborObject);
+            outSet.add(rule);
+         }
+         else if (chunkCellInfo) {
             let cellData = chunkCellInfo.cell;
-            if (
-               cellData.terrainSet == terrainSetId
-               && (
-                  !ignoreEmpty
-                  || cellData.terrain > -1
-               )
-            ) {
+            if (cellData.terrainSet == terrainSetId && cellData.terrain > -1) {
                let rule = new TileMapTerrainRule(vec2.x, vec2.y, cellData.terrain, neighborObject);
                outSet.add(rule);
             }
          }
       });
-
-      // fill
 
       return outSet;
    }
@@ -204,7 +198,7 @@ export class TileMapTerrain {
          let nRuleSet = this._getRulesByParams(tileMapLayer, params, vec2, terrainSetId, neighborObject);
          for (let i = 0 , len = nRuleSet.list.length; i < len; i++) {
             let nRule = nRuleSet.list[i];
-            ruleSet.delete(nRule.x, nRule.y , nRule.terrain);
+            ruleSet.delete(nRule.x, nRule.y , nRule.data);
             nRule.priority = 5;
             ruleSet.add(nRule);
          }
@@ -240,7 +234,11 @@ export class TileMapTerrain {
       let paramsList = tileMapLayer.tileSet._getParamsList(terrainSetId);
       let sorceMap = new Map<TerrainsParams, number>();
 
-      for (let list of paramsList) {
+      let paramsLength = paramsList.length;
+      for (let i = 0; i < paramsLength; i++) {
+         let list = paramsList[i];
+         if (!list) continue;
+
          let plen = list.length;
          for (let index = 0; index < plen; index++) {
             let score = 0;
@@ -257,15 +255,15 @@ export class TileMapTerrain {
             }
 
             let check = false;
-            for (let i = 0; i < nLen; i++) {
-               let neighbor = neighbors[i];
+            for (let j = 0; j < nLen; j++) {
+               let neighbor = neighbors[j];
                let neighborTerrain = params.terrain_peering_bits[neighbor];
                let tempNeighborRule = new TileMapTerrainRule(pos.x, pos.y, neighborTerrain, terrainObject);
                tempNeighborRule.setCellNeighbor(neighbor);
-               let rule = ruleSet.get(pos.x, pos.y, tempNeighborRule.data);
-               if (rule) {
-                  if (rule.terrain != neighborTerrain) {
-                     score += rule.data;
+               let neighborRule = ruleSet.get(tempNeighborRule.x, tempNeighborRule.y, tempNeighborRule.data);
+               if (neighborRule) {
+                  if (neighborRule.terrain != neighborTerrain) {
+                     score += neighborRule.data;
                   }
                } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbor]) {
                   check = true;
@@ -288,6 +286,9 @@ export class TileMapTerrain {
          }
       });
 
+      if (!minParams) {
+         minParams = paramsList[-1][0];
+      }
       return minParams;
    }
 
@@ -316,6 +317,8 @@ export class TerrainsParams {
 
    links: Set<TileSetCellData> = new Set;
    
+   _debugs:string [] ;
+
    private _modified = false;
    private _arr:TileSetCellData[];
 
@@ -329,6 +332,18 @@ export class TerrainsParams {
          this._arr = Array.from(this.links);
       }
       return this._arr;
+   }
+
+   /**
+    * @internal
+    */
+   _getDebugs(){
+      this._debugs = [];
+      for (let i = 0 , len = this.terrain_peering_bits.length; i < len ; i++) {
+         if (this.terrain_peering_bits[i] > -1) {
+            this._debugs.push(TileMapCellNeighbor[i]);
+         }         
+      }
    }
 
    clearLinks() {

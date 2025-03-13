@@ -151,6 +151,9 @@ export class TileMapChunkData {
      */
     set cellDataRefMap(data: Record<number , number[]>) {
         if (data) {
+            if (!Object.keys(data).length)
+                return
+            
             this._refGids.length = 0;
             let nDdata:number[][] = [];
             for (const key in data) {
