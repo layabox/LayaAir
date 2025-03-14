@@ -34,14 +34,14 @@ export class TileMapTerrainUtil{
    
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
-         TileMapCellNeighbor.TOP_SIDE,
-         TileMapCellNeighbor.TOP_RIGHT_CORNER,
          TileMapCellNeighbor.RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_SIDE,
          TileMapCellNeighbor.BOTTOM_LEFT_CORNER,
          TileMapCellNeighbor.LEFT_SIDE,
          TileMapCellNeighbor.TOP_LEFT_CORNER,
+         TileMapCellNeighbor.TOP_SIDE,
+         TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
       
       let links = arr;
@@ -49,18 +49,18 @@ export class TileMapTerrainUtil{
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
    
       arr = [
-         TileMapCellNeighbor.TOP_SIDE,
          TileMapCellNeighbor.RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_SIDE,
          TileMapCellNeighbor.LEFT_SIDE,
+         TileMapCellNeighbor.TOP_SIDE,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
       
       arr = [
-         TileMapCellNeighbor.TOP_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_LEFT_CORNER,
          TileMapCellNeighbor.TOP_LEFT_CORNER,
+         TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS, arr);
       
@@ -84,14 +84,14 @@ export class TileMapTerrainUtil{
    
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
-         TileMapCellNeighbor.TOP_CORNER,
-         TileMapCellNeighbor.TOP_RIGHT_SIDE,
          TileMapCellNeighbor.RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_CORNER,
          TileMapCellNeighbor.BOTTOM_LEFT_SIDE,
          TileMapCellNeighbor.LEFT_CORNER,
          TileMapCellNeighbor.TOP_LEFT_SIDE,
+         TileMapCellNeighbor.TOP_CORNER,
+         TileMapCellNeighbor.TOP_RIGHT_SIDE,
       ];
    
       let links = arr;
@@ -99,18 +99,18 @@ export class TileMapTerrainUtil{
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
    
       arr = [
-         TileMapCellNeighbor.TOP_RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_LEFT_SIDE,
          TileMapCellNeighbor.TOP_LEFT_SIDE,
+         TileMapCellNeighbor.TOP_RIGHT_SIDE,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
    
       arr = [
-         TileMapCellNeighbor.TOP_CORNER,
          TileMapCellNeighbor.RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_CORNER,
          TileMapCellNeighbor.LEFT_CORNER,
+         TileMapCellNeighbor.TOP_CORNER,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS, arr);
       this.shape_mode_map.set(TileShape.TILE_SHAPE_ISOMETRIC, {
@@ -142,40 +142,40 @@ export class TileMapTerrainUtil{
    
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
-         TileMapCellNeighbor.TOP_CORNER,
-         TileMapCellNeighbor.TOP_RIGHT_SIDE,
-         TileMapCellNeighbor.TOP_RIGHT_CORNER,
          TileMapCellNeighbor.RIGHT_SIDE,
-         TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
+         TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_CORNER,
          TileMapCellNeighbor.BOTTOM_LEFT_SIDE,
          TileMapCellNeighbor.BOTTOM_LEFT_CORNER,
          TileMapCellNeighbor.LEFT_SIDE,
-         TileMapCellNeighbor.TOP_LEFT_CORNER,
          TileMapCellNeighbor.TOP_LEFT_SIDE,
+         TileMapCellNeighbor.TOP_LEFT_CORNER,
+         TileMapCellNeighbor.TOP_CORNER,
+         TileMapCellNeighbor.TOP_RIGHT_SIDE,
+         TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
    
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
    
       arr = [
-         TileMapCellNeighbor.TOP_RIGHT_SIDE,
          TileMapCellNeighbor.RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_LEFT_SIDE,
          TileMapCellNeighbor.LEFT_SIDE,
          TileMapCellNeighbor.TOP_LEFT_SIDE,
+         TileMapCellNeighbor.TOP_RIGHT_SIDE,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
       let links = arr;
    
       arr = [
-         TileMapCellNeighbor.TOP_CORNER,
-         TileMapCellNeighbor.TOP_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_CORNER,
          TileMapCellNeighbor.BOTTOM_LEFT_CORNER,
          TileMapCellNeighbor.TOP_LEFT_CORNER,
+         TileMapCellNeighbor.TOP_CORNER,
+         TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS, arr);
    

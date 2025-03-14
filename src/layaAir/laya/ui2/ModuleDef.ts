@@ -35,10 +35,12 @@ import { ProgressMesh } from "./render/ProgressMesh";
 import { CircleMesh } from "./render/CircleMesh";
 import { FlipMesh } from "./render/FlipMesh";
 import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
+import { GMovieClip } from "./GMovieClip";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
 r("GImage", GImage);
+r("GMovieClip", GMovieClip);
 r("GLoader", GLoader);
 r("GTextField", GTextField);
 r("GTextInput", GTextInput);

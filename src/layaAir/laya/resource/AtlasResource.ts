@@ -1,5 +1,35 @@
+import { AnimationWrapMode } from "../components/FrameAnimation";
 import { Resource } from "./Resource";
 import { Texture } from "./Texture";
+
+
+export interface IAtlasAnimationInfo {
+    /**
+     * @en The interval between frame changes, in milliseconds.
+     * @zh 帧改变之间的间隔时间，单位为毫秒。
+     */
+    interval: number;
+
+    /**
+     * @en The delay between each repeat, in milliseconds.
+     * @zh 每次重复之间的延迟，单位为毫秒。
+     */
+    repeatDelay: number;
+
+    /**
+     * @en Playback order type.
+     * @zh 播放顺序类型。
+     */
+    wrapMode: AnimationWrapMode;
+
+    /**
+     * @en The delay time of each frame, in milliseconds.
+     * @zh 每帧的延迟时间，单位为毫秒。
+     */
+    frameDelays: Array<number>;
+}
+
+
 /**
  * @en Resource class for managing an atlas, which is a collection of textures and their frames.
  * @zh 管理大图合集资源的类，该类包含纹理和它们的帧。
@@ -20,6 +50,11 @@ export class AtlasResource extends Resource {
      * @zh 大图合集中的纹理帧数组，它们是大图中的单个图像。
      */
     readonly frames: Array<Texture>;
+    /**
+     * @en The animation information of the atlas.
+     * @zh 大图合集的动画信息。
+     */
+    animation: IAtlasAnimationInfo;
 
     /**
      * @en Creates a new instance of the AtlasResource class.

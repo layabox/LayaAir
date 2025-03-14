@@ -1,9 +1,10 @@
 
 import { ILaya } from "../../ILaya";
-import { LayaEnv } from "../../LayaEnv";
+import { AnimationStretchMode, FrameAnimation } from "../components/FrameAnimation";
 import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
 import { Loader } from "../net/Loader";
+import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
 import { GWidget } from "./GWidget";
@@ -21,10 +22,10 @@ export class GLoader extends GWidget {
     private _srcWidth: number = 0;
     private _srcHeight: number = 0;
     private _color: string;
-    private _tex: Texture;
     private _loadID: number = 0;
 
     private _renderer: ImageRenderer;
+    private _ani: FrameAnimation;
 
     constructor() {
         super();
@@ -38,6 +39,7 @@ export class GLoader extends GWidget {
         this._content = new Sprite();
         this._content.hideFlags |= HideFlags.HideAndDontSave;
         this._renderer = new ImageRenderer(this._content);
+        this._renderer._onReload = () => this.onTextureReload();
         this.addChild(this._content);
     }
 
@@ -114,10 +116,12 @@ export class GLoader extends GWidget {
     public set color(value: string) {
         this._color = value;
         this._renderer.setColor(value);
+        if (this._ani)
+            this._ani.color = this._ani.color.parse(value);
     }
 
     public get texture(): Texture {
-        return this._tex;
+        return this._renderer._tex;
     }
 
     public set texture(value: Texture) {
@@ -145,32 +149,43 @@ export class GLoader extends GWidget {
         this.onLoaded(res, loadID);
     }
 
-    protected onLoaded(value: Texture, loadID: number) {
+    protected onLoaded(value: Texture | AtlasResource, loadID: number) {
         if (this._loadID != loadID)
             return;
 
-        if (this._tex && !LayaEnv.isPlaying)
-            this._tex.off("reload", this, this._onTextureReload);
-        this._tex = value;
-        this._renderer.setTexture(value);
-
-        if (value) {
-            if (!LayaEnv.isPlaying)
-                value.on("reload", this, this._onTextureReload);
+        if (value instanceof Texture) {
+            if (this._ani)
+                this._ani.setAtlas(null);
+            this._renderer.setTexture(value);
 
             this._srcWidth = value.sourceWidth;
             this._srcHeight = value.sourceHeight;
-            ILaya.timer.runCallLater(this, this.updateLayout, true);
+        }
+        else if (value instanceof AtlasResource) {
+            this._renderer.setTexture(null);
+            if (!this._ani) {
+                this._ani = this._content.addComponent(FrameAnimation);
+                this._ani.stretchMode = AnimationStretchMode.Fill;
+            }
+            this._ani.setAtlas(value);
+            this._srcWidth = this._ani.width;
+            this._srcHeight = this._ani.height;
         }
         else {
+            this._renderer.setTexture(null);
+            if (this._ani)
+                this._ani.setAtlas(null);
             this._srcWidth = 0;
             this._srcHeight = 0;
         }
+
+        ILaya.timer.runCallLater(this, this.updateLayout, true);
     }
 
-    private _onTextureReload() {
-        this._srcWidth = this._tex.sourceWidth;
-        this._srcHeight = this._tex.sourceHeight;
+    private onTextureReload() {
+        let tex = this._renderer._tex;
+        this._srcWidth = tex.sourceWidth;
+        this._srcHeight = tex.sourceHeight;
         ILaya.timer.runCallLater(this, this.updateLayout, true);
     }
 
@@ -178,20 +193,18 @@ export class GLoader extends GWidget {
         this._srcWidth = 0;
         this._srcHeight = 0;
         this._loadID++;
-        if (this._tex && !LayaEnv.isPlaying) {
-            this._tex.off("reload", this, this._onTextureReload);
-            this._tex = null;
-        }
         this._renderer.setTexture(null);
+        if (this._ani)
+            this._ani.source = null;
     }
 
     protected updateLayout(): void {
-        if (!this._tex)
+        let cw = this._srcWidth, ch = this._srcHeight;
+        if (cw == 0 || ch == 0)
             return;
 
         this._updatingLayout = true;
         let sx = 1, sy = 1;
-        let cw = this._srcWidth, ch = this._srcHeight;
         if (this._fitMode != LoaderFitMode.None && cw != 0 && ch != 0) {
             sx = this.width / cw;
             sy = this.height / ch;
@@ -256,12 +269,6 @@ export class GLoader extends GWidget {
 
     destroy(): void {
         super.destroy();
-
-        if (this._tex && !LayaEnv.isPlaying) {
-            this._tex.off("reload", this, this._onTextureReload);
-            this._tex = null;
-        }
-
         this._renderer.destroy();
     }
 }

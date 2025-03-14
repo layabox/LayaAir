@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { LayaEnv } from "../../LayaEnv";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
@@ -10,7 +9,6 @@ import { IMeshFactory } from "./render/MeshFactory";
 export class GImage extends GWidget {
     private _src: string = "";
     private _color: string;
-    private _tex: Texture;
     private _autoSize: boolean;
     private _loadID: number = 0;
 
@@ -22,6 +20,7 @@ export class GImage extends GWidget {
         this._color = "#ffffff";
         this._autoSize = true;
         this._renderer = new ImageRenderer(this);
+        this._renderer._onReload = () => this.onTextureReload();
     }
 
     public get src(): string {
@@ -47,7 +46,7 @@ export class GImage extends GWidget {
     }
 
     public get texture(): Texture {
-        return this._tex;
+        return this._renderer._tex;
     }
 
     public set texture(value: Texture) {
@@ -85,8 +84,8 @@ export class GImage extends GWidget {
 
     set autoSize(value: boolean) {
         if (this._autoSize != value) {
-            if (value && this._tex)
-                this.size(this._tex.sourceWidth, this._tex.sourceHeight);
+            if (value && this._renderer._tex)
+                this.size(this._renderer._tex.sourceWidth, this._renderer._tex.sourceHeight);
             this._autoSize = value; //放最后，因为size会改变autoSize的值
         }
     }
@@ -116,14 +115,6 @@ export class GImage extends GWidget {
         if (this._loadID != loadID)
             return;
 
-        if (this._tex && !LayaEnv.isPlaying)
-            this._tex.off("reload", this, this._onTextureReload);
-        this._tex = tex;
-        if (tex) {
-            if (!LayaEnv.isPlaying)
-                tex.on("reload", this, this._onTextureReload);
-        }
-
         this._renderer.setTexture(tex);
 
         if (this._autoSize) {
@@ -135,13 +126,12 @@ export class GImage extends GWidget {
         }
     }
 
-    private _onTextureReload() {
+    private onTextureReload() {
         if (this._autoSize) {
-            let tex = this._tex;
+            let tex = this._renderer._tex;
             this.size(tex.sourceWidth, tex.sourceHeight);
             this._autoSize = true;
         }
-        this._renderer.setTexture(this._tex);
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {
@@ -155,11 +145,6 @@ export class GImage extends GWidget {
 
     destroy(): void {
         super.destroy();
-
-        if (this._tex && !LayaEnv.isPlaying) {
-            this._tex.off("reload", this, this._onTextureReload);
-            this._tex = null;
-        }
 
         this._renderer.destroy();
     }

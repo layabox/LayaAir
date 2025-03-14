@@ -382,11 +382,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 SketonOptimise.normalRenderSwitch = false;
                 this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
                 SketonOptimise.normalRenderSwitch = before;
-                this.play(this._animationName, this._loop, true, this._currentPlayTime);
             }
         } else {
             this.changeNormal();
         }
+        this.play(this._animationName, this._loop, true, this._currentPlayTime);
     }
 
     get useFastRender() {

@@ -808,9 +808,12 @@ export class Layout implements ILayout {
     }
 
     protected getLayoutChildren(data: TempData) {
-        let i = 0, j = 0;
+        let i = 0, j = 0; 
         data.invisibleCnt = 0;
         for (let child of <GWidget[]>this._owner.children) {
+            if (child._nodeType !== 2)
+                continue;
+
             if (this._foldInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE) || child._getBit(NodeFlags.ESCAPE_LAYOUT))
                 data.invisibles[data.invisibleCnt++] = i;
             else
