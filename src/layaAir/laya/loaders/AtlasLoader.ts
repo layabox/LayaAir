@@ -60,7 +60,9 @@ class AtlasLoader implements IResourceLoader {
                     subTextures.push(tt);
                 }
 
-                return new AtlasResource(directory, pics, subTextures);
+                let res = new AtlasResource(directory, pics, subTextures);
+                res.animation = data.animation;
+                return res;
             });
         });
     }

@@ -718,7 +718,7 @@ export class Scroller implements IScroller {
     public getFirstChildInView(): number {
         let i = 0;
         for (let child of this._owner.children) {
-            if (this.isChildInView(<GWidget>child))
+            if (child._nodeType === 2 && this.isChildInView(<GWidget>child))
                 return i;
             i++;
         }

@@ -208,7 +208,7 @@ export class Color implements IClone {
      * 格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#AARRGGBB"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
      * @param value 颜色字符串或十六进制颜色值。
      */
-    parse(value: string | number | null): void {
+    parse(value: string | number | null): this {
         if (value == null)
             value = 0;
 
@@ -222,7 +222,7 @@ export class Color implements IClone {
             let p2 = value.indexOf(")");
             if (p1 == -1 || p2 == -1) {
                 this.setValue(0, 0, 0, 1);
-                return;
+                return this;
             }
 
             value = value.substring(p1 + 1, p2);
@@ -247,7 +247,7 @@ export class Color implements IClone {
                 let rgb = ColorMap[value];
                 if (rgb) {
                     this.setRGB(rgb);
-                    return;
+                    return this;
                 }
             }
             let len = value.length;
@@ -274,6 +274,8 @@ export class Color implements IClone {
             this.setRGB(rgb);
             this.a = a;
         }
+
+        return this;
     }
 
     /**

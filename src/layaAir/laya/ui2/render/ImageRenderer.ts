@@ -1,4 +1,5 @@
 import { Laya } from "../../../Laya";
+import { LayaEnv } from "../../../LayaEnv";
 import { HideFlags } from "../../Const";
 import { Draw9GridTextureCmd } from "../../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../../display/cmd/DrawTextureCmd";
@@ -19,12 +20,13 @@ export class ImageRenderer {
     _meshFactory: IMeshFactory;
     _color: Color;
     _tile: boolean = false;
+    _tex: Texture;
+    _onReload: Function;
 
     private _owner: Sprite;
     private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd | FillTextureCmd;
     private _meshRender: Mesh2DRender;
     private _mesh: Mesh2D;
-    private _tex: Texture;
     private _isChanged: boolean = false;
 
     constructor(owner: Sprite) {
@@ -37,12 +39,22 @@ export class ImageRenderer {
             this._mesh.destroy();
             this._mesh = null;
         }
-        this._tex = null;
+        if (this._tex) {
+            if (!LayaEnv.isPlaying)
+                this._tex.off("reload", this, this.onTextureReload);
+            this._tex = null;
+        }
     }
 
     setTexture(value: Texture) {
+        if (this._tex && !LayaEnv.isPlaying)
+            this._tex.off("reload", this, this.onTextureReload);
+
         this._tex = value;
         if (value) {
+            if (!LayaEnv.isPlaying)
+                value.on("reload", this, this.onTextureReload);
+
             if (this._meshFactory) {
                 this._meshRender.texture = value.bitmap;
                 this._meshRender.sharedMesh = this._mesh;
@@ -129,6 +141,11 @@ export class ImageRenderer {
             Laya.timer.runCallLater(this, this._updateMesh, true);
     }
 
+    private onTextureReload() {
+        this._onReload?.();
+        this.setTexture(this._tex);
+    }
+
     private createCmd() {
         let cmd: any;
         if (this._tex._sizeGrid)
@@ -158,7 +175,11 @@ export class ImageRenderer {
             vb.uvRect.setTo(uv[0] - tex.offsetX * sx, uv[1] - tex.offsetY * sy, tex.sourceWidth * sx, tex.sourceHeight * sy);
         }
 
-        this._meshFactory.onPopulateMesh(vb);
+        try {
+            this._meshFactory.onPopulateMesh(vb);
+        } catch (e) {
+            console.error(e);
+        }
 
         let mesh = this._mesh;
 

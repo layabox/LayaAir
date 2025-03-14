@@ -3,6 +3,8 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { Sprite } from "../display/Sprite";
+import { Event } from "../events/Event";
+import { Color } from "../maths/Color";
 import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
@@ -80,6 +82,7 @@ export class FrameAnimation extends Component {
     private _offset: Point;
     private _source: string;
     private _images: string[];
+    private _color: Color;
 
     private _playing: boolean = false;
     private _count: number = 0;
@@ -89,6 +92,7 @@ export class FrameAnimation extends Component {
     private _drawCmd: DrawTextureCmd;
     private _drawCmds: DrawTextureCmd[];
     private _loadId: number = 0;
+    private _changingSize: boolean;
 
     declare owner: Sprite;
 
@@ -104,6 +108,7 @@ export class FrameAnimation extends Component {
         this._drawCmds = [];
         this._delays = [];
         this._offset = new Point();
+        this._color = new Color(1, 1, 1, 1);
         this._singleton = false;
         this.runInEditor = true;
     }
@@ -141,7 +146,7 @@ export class FrameAnimation extends Component {
 
         if (value != null && value.length > 0) {
             this._frames.push(...value);
-            let stretch = this._stretchMode == AnimationStretchMode.Fill;
+            let stretch = this._stretchMode === AnimationStretchMode.Fill;
             for (let tex of value) {
                 let cmd = stretch ? DrawTextureCmd.create(tex, 0, 0, 1, 1, null, 1, null, null, null, true)
                     : DrawTextureCmd.create(tex, 0, 0);
@@ -157,8 +162,10 @@ export class FrameAnimation extends Component {
                 this._frame = 0;
             }
 
-            if (this._stretchMode == AnimationStretchMode.ResizeToFit) {
+            if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
+                this._changingSize = true;
                 this.owner.size(this._frames[0].sourceWidth, this._frames[0].sourceHeight);
+                this._changingSize = false;
             }
 
             this.drawFrame();
@@ -247,12 +254,17 @@ export class FrameAnimation extends Component {
     }
 
     set stretchMode(value: AnimationStretchMode) {
+        if (this._changingSize)
+            return;
+
         if (this._stretchMode != value) {
             this._stretchMode = value;
 
             if (this._count > 0) {
-                if (this._stretchMode == AnimationStretchMode.ResizeToFit) {
+                if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
+                    this._changingSize = true;
                     this.owner.size(this._frames[0].sourceWidth, this._frames[0].sourceHeight);
+                    this._changingSize = false;
                 }
 
                 this.applyStretchMode();
@@ -275,8 +287,29 @@ export class FrameAnimation extends Component {
         this.drawFrame();
     }
 
+    /**
+     * @en The color of the object.
+     * @zh 对象的颜色。
+     */
+    get color() {
+        return this._color;
+    }
+
+    set color(value: Color) {
+        this._color = value;
+        this.drawFrame();
+    }
+
+    get width() {
+        return this._count > 0 ? this._frames[0].sourceWidth : 0;
+    }
+
+    get height() {
+        return this._count > 0 ? this._frames[0].sourceHeight : 0;
+    }
+
     private applyStretchMode() {
-        if (this._stretchMode == AnimationStretchMode.Fill) {
+        if (this._stretchMode === AnimationStretchMode.Fill) {
             for (let cmd of this._drawCmds) {
                 cmd.x = cmd.y = 0;
                 cmd.width = cmd.height = 1;
@@ -285,7 +318,7 @@ export class FrameAnimation extends Component {
         }
         else {
             let dx = 0, dy = 0;
-            if (this._stretchMode == AnimationStretchMode.None) {
+            if (this._stretchMode === AnimationStretchMode.None) {
                 dx = this._offset.x;
                 dy = this._offset.y;
             }
@@ -372,20 +405,24 @@ export class FrameAnimation extends Component {
         if (this._elapsed > this.interval)
             this._elapsed = this.interval;
 
+        let emit = false;
+
         if (this._reversed) {
             frame--;
             if (frame < 0) {
                 if (this._loop) {
-                    if (this._wrapMode == AnimationWrapMode.PingPong) {
+                    if (this._wrapMode === AnimationWrapMode.PingPong) {
                         this._reversed = false;
                         frame = 1;
                     }
                     else
                         frame = this._count - 1;
+                    emit = true;
                 }
                 else {
                     frame = 0;
                     this._playing = false;
+                    emit = true;
                 }
             }
         }
@@ -393,16 +430,18 @@ export class FrameAnimation extends Component {
             frame++;
             if (frame > this._count - 1) {
                 if (this._loop) {
-                    if (this._wrapMode == AnimationWrapMode.PingPong) {
+                    if (this._wrapMode === AnimationWrapMode.PingPong) {
                         this._reversed = true;
                         frame = Math.max(0, this._count - 2);
                     }
                     else
                         frame = 0;
+                    emit = true;
                 }
                 else {
                     frame = this._count - 1;
                     this._playing = false;
+                    emit = true;
                 }
             }
         }
@@ -411,12 +450,17 @@ export class FrameAnimation extends Component {
 
         if (this._playing)
             this.drawFrame();
+
+        if (emit)
+            this.owner.event(Event.COMPLETE);
     }
 
     protected drawFrame(): void {
         let cmd = this._drawCmds[this._frame];
         if (cmd != this._drawCmd)
             this._drawCmd = this.owner.graphics.replaceCmd(this._drawCmd, cmd);
+        if (this._drawCmd)
+            this._drawCmd.color = this._color.getABGR();
     }
 
     /**
@@ -482,10 +526,29 @@ export class FrameAnimation extends Component {
         return this;
     }
 
+    /**
+     * @en Set the atlas for the frame animation.
+     * @param res The atlas.
+     * @zh 设置帧动画的图集。
+     * @param res 图集。
+     */
+    setAtlas(res: AtlasResource) {
+        this.onAtlasLoaded(res, ++this._loadId);
+    }
+
     private onAtlasLoaded(atlas: AtlasResource, loadId: number) {
         if (this.destroyed) return;
         if (loadId != this._loadId) return;
 
+        let ani = atlas?.animation;
+        if (ani) {
+            this.interval = ani.interval;
+            this.repeatDelay = ani.repeatDelay ?? 0;
+            this.wrapMode = ani.wrapMode ?? 0;
+            this._delays.length = 0;
+            if (ani.frameDelays)
+                this._delays.push(...ani.frameDelays);
+        }
         this.frames = atlas?.frames;
     }
 }
