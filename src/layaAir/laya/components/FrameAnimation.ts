@@ -117,11 +117,11 @@ export class FrameAnimation extends Component {
      * @en The index of the current frame in the animation.
      * @zh 动画当前帧的索引。
      */
-    get index(): number {
+    get frame(): number {
         return LayaEnv.isPlaying ? this._frame : this._index;
     }
 
-    set index(value: number) {
+    set frame(value: number) {
         this._index = this._frame = value;
         this.drawFrame();
     }
@@ -517,7 +517,7 @@ export class FrameAnimation extends Component {
 
     protected loadAtlas(url: string): this {
         let loadId = ++this._loadId;
-        let atlas: AtlasResource = Loader.getAtlas(url);
+        let atlas: AtlasResource = Loader.getRes(url);
         if (atlas)
             this.onAtlasLoaded(atlas, loadId);
         else

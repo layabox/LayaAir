@@ -17,11 +17,15 @@ export class GLoader extends GWidget {
     private _valign: VAlignType;
     private _fitMode: LoaderFitMode;
     private _shrinkOnly: boolean;
+    private _color: string;
+    private _frame: number = 0;
+    private _autoPlay: boolean = true;
+    private _loop: boolean = true;
+
     private _updatingLayout: boolean;
     private _content: Sprite;
     private _srcWidth: number = 0;
     private _srcHeight: number = 0;
-    private _color: string;
     private _loadID: number = 0;
 
     private _renderer: ImageRenderer;
@@ -120,6 +124,52 @@ export class GLoader extends GWidget {
             this._ani.color = this._ani.color.parse(value);
     }
 
+    get ani() {
+        return this._ani;
+    }
+
+    /**
+     * @en The index of the current frame in the animation.
+     * @zh 动画当前帧的索引。
+     */
+    get frame(): number {
+        return this._frame;
+    }
+
+    set frame(value: number) {
+        this._frame = value;
+        if (this._ani)
+            this._ani.frame = value;
+    }
+
+    /**
+    * @en Whether to auto-play, default is false. If set to true, the animation will automatically play after being created and added to the stage.
+    * @zh 是否自动播放，默认为false。如果设置为true，则动画被创建并添加到舞台后自动播放。
+    */
+    get autoPlay() {
+        return this._autoPlay;
+    }
+
+    set autoPlay(value: boolean) {
+        this._autoPlay = value;
+        if (this._ani)
+            this._ani.autoPlay = value;
+    }
+
+    /**
+     * @en Whether to loop playback. Default is true.
+     * @zh 是否循环播放。默认为 true。
+     */
+    get loop() {
+        return this._loop;
+    }
+
+    set loop(value: boolean) {
+        this._loop = value;
+        if (this._ani)
+            this._ani.loop = value;
+    }
+
     public get texture(): Texture {
         return this._renderer._tex;
     }
@@ -165,7 +215,11 @@ export class GLoader extends GWidget {
             this._renderer.setTexture(null);
             if (!this._ani) {
                 this._ani = this._content.addComponent(FrameAnimation);
+                this._ani.color = this._ani.color.parse(this._color);
                 this._ani.stretchMode = AnimationStretchMode.Fill;
+                this._ani.autoPlay = this._autoPlay;
+                this._ani.loop = this._loop;
+                this._ani.frame = this._frame;
             }
             this._ani.setAtlas(value);
             this._srcWidth = this._ani.width;

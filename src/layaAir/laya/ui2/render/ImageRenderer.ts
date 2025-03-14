@@ -7,6 +7,7 @@ import { FillTextureCmd } from "../../display/cmd/FillTextureCmd";
 import { Mesh2DRender } from "../../display/Scene2DSpecial/Mesh2DRender";
 import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
 import { Texture } from "../../resource/Texture";
@@ -58,6 +59,7 @@ export class ImageRenderer {
             if (this._meshFactory) {
                 this._meshRender.texture = value.bitmap;
                 this._meshRender.sharedMesh = this._mesh;
+                this._meshRender.textureRange = Vector4.TEMP.fromArray(this._tex.uvrect);
                 this.updateMesh();
             }
             else
@@ -89,6 +91,7 @@ export class ImageRenderer {
 
                 this._meshRender = this._owner.addComponent(Mesh2DRender);
                 this._meshRender.hideFlags |= HideFlags.HideAndDontSave;
+                this._meshRender.textureRangeIsClip = true;
             }
 
             this._meshRender.sharedMesh = this._mesh;
@@ -98,6 +101,7 @@ export class ImageRenderer {
                 this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, null, true);
             if (this._tex) {
                 this._meshRender.texture = this._tex.bitmap;
+                this._meshRender.textureRange = Vector4.TEMP.fromArray(this._tex.uv);
                 this.updateMesh();
             }
         }

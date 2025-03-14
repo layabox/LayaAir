@@ -137,9 +137,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
     set textureRangeIsClip(value: boolean) {
         this._textureRangeIsClip = value;
         if (value)
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
         else
-        this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
     }
 
     get textureRangeIsClip(): boolean {

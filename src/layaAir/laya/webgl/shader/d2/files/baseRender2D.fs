@@ -12,14 +12,14 @@ void main()
     clip();
     vec4 textureColor;
 #ifdef CLIPMODE
-    vec2 texcoord = fract(v_texcoord.xy) * u_baseRender2DTextureRange.zw + u_baseRender2DTextureRange.xy;
-    textureColor = texture2D(u_baseRender2DTexture, texcoord);
-#else
     vec2 texcoord = v_texcoord.xy;
     vec2 inRange = step(u_baseRender2DTextureRange.xy, texcoord) * step(texcoord, u_baseRender2DTextureRange.xy + u_baseRender2DTextureRange.zw);
     float useTexture = inRange.x * inRange.y;
     texcoord = fract(texcoord) ;
     textureColor = mix(vec4(0.0,0.0,0.0,0.0), texture2D(u_baseRender2DTexture, texcoord), useTexture);
+#else
+    vec2 texcoord = fract(v_texcoord.xy) * u_baseRender2DTextureRange.zw + u_baseRender2DTextureRange.xy;
+    textureColor = texture2D(u_baseRender2DTexture, texcoord);
 #endif
 
     #ifdef LIGHT2D_ENABLE

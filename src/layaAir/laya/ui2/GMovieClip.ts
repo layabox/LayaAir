@@ -63,24 +63,24 @@ export class GMovieClip extends GWidget {
      * @en The index of the current frame in the animation.
      * @zh 动画当前帧的索引。
      */
-    get index(): number {
-        return this.comp.index;
+    get frame(): number {
+        return this.comp.frame;
     }
 
-    set index(value: number) {
-        this.comp.index = value;
+    set frame(value: number) {
+        this.comp.frame = value;
     }
 
     /**
     * @en Whether to auto-play, default is false. If set to true, the animation will automatically play after being created and added to the stage.
     * @zh 是否自动播放，默认为false。如果设置为true，则动画被创建并添加到舞台后自动播放。
     */
-    set autoPlay(value: boolean) {
-        this.comp.autoPlay = value;
-    }
-
     get autoPlay() {
         return this.comp.autoPlay;
+    }
+
+    set autoPlay(value: boolean) {
+        this.comp.autoPlay = value;
     }
 
     /**
