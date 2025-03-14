@@ -9,7 +9,6 @@ import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
 import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
-import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 import { Event } from "../events/Event";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
@@ -50,7 +49,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 /**
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
  */
-export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleton {
+export class Spine2DRenderNode extends BaseRenderNode2D {
 
     static _pool: IRenderElement2D[] = [];
     
@@ -375,14 +374,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (!this._templet)
             return;
         if (value) {
-
-            if ((this.spineItem instanceof SpineNormalRender)) {
-                this.spineItem.destroy();
-                let before = SketonOptimise.normalRenderSwitch;
-                SketonOptimise.normalRenderSwitch = false;
-                this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
-                SketonOptimise.normalRenderSwitch = before;
-            }
+            this.changeFast();
         } else {
             this.changeNormal();
         }
@@ -582,8 +574,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
         if (null == this._skeleton) return;
         let skins = this._externalSkins;
         if (skins) {
+            let normal = false;
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
+                normal = skins[i].normal || normal;
+            }
+
+            if (normal) {
+                this.useFastRender = false;
             }
         }
     }
@@ -821,7 +819,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
      * @param attachmentName 
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
-        this.changeNormal();
+        this.useFastRender = false;
         this._skeleton.setAttachment(slotName, attachmentName);
     }
 
@@ -831,6 +829,16 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
         super.clear();
+    }
+
+    changeFast(){
+        if ((this.spineItem instanceof SpineNormalRender)) {
+            this.spineItem.destroy();
+            let before = SketonOptimise.normalRenderSwitch;
+            SketonOptimise.normalRenderSwitch = false;
+            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            SketonOptimise.normalRenderSwitch = before;
+        }
     }
 
     changeNormal() {
