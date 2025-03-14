@@ -34,6 +34,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _normal2DStrength: number = 0;
 
     private _renderAlpha: number = -1;
+    private _textureRangeIsClip: boolean = false;
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格
@@ -115,8 +116,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
     }
 
     /**
-     * @en Texture range，xy represents texture offset, zw represents scaling
-     * @zh 纹理范围 xy表示纹理偏移 zw表示缩放
+     * @en Texture range，if textureRangeIsClip is false, xy represents texture offset, zw represents scaling, if textureRangeIsClip is true, xy represents texture min, zw represents texture max
+     * @zh 纹理范围，如果textureRangeIsClip为false，xy表示纹理偏移，zw表示缩放，如果textureRangeIsClip为true，xy表示纹理最小值，zw表示纹理最大值
      */
     set textureRange(value: Vector4) {
         if (!value)
@@ -127,6 +128,22 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get textureRange(): Vector4 {
         return this._textureRange;
+    }
+
+    /**
+     * @en If textureRangeIsClip is true, the texture will be clipped to the textureRange, otherwise the texture will be stretched to the textureRange
+     * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
+     */
+    set textureRangeIsClip(value: boolean) {
+        this._textureRangeIsClip = value;
+        if (value)
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+        else
+        this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+    }
+
+    get textureRangeIsClip(): boolean {
+        return this._textureRangeIsClip;
     }
 
     /**

@@ -76,6 +76,7 @@ export class BaseRenderNode2D extends Component {
     static SHADERDEFINE_LIGHT2D_ADDMODE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_SUBMODE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
+    static SHADERDEFINE_CLIPMODE: ShaderDefine;
 
     /**
      * @internal
@@ -97,7 +98,7 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ADDMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_ADD");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_SUBMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_SUB");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
-
+        BaseRenderNode2D.SHADERDEFINE_CLIPMODE = Shader3D.getDefineByName("CLIPMODE");
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
