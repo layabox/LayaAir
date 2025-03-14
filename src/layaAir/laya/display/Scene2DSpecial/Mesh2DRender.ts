@@ -24,7 +24,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _sharedMesh: Mesh2D;
 
-    private _texture: BaseTexture;
+    private _texture: BaseTexture = Texture2D.whiteTexture;
     private _textureRange: Vector4;
 
     private _color: Color;
@@ -91,14 +91,14 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set texture(value: BaseTexture) {
-        if (value == this._texture)
+        if (this._texture != null && value == this._texture)
             return;
 
         if (this._texture)
             this._texture._removeReference();
-        value = value ? value : Texture2D.whiteTexture;
-        this._texture = value;
 
+        this._texture = value;
+        value = value ? value : Texture2D.whiteTexture;
         this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
         if (value) {
             value._addReference();
@@ -258,7 +258,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._setRenderColor = new Color();
         this._textureRange = new Vector4(0, 0, 1, 1);
         this.textureRange = this._textureRange;
-        this.texture = Texture2D.whiteTexture;
+        this.texture = null;
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }
