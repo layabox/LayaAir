@@ -138,6 +138,33 @@ export class TileMapChunkData {
 
     /** @internal */
     get cellDataRefMap() {
+        return this._cellDataRefMap;
+    }
+
+    /**
+     * @internal 
+     * @deprecated
+     * 危险操作
+     */
+    set cellDataRefMap(data: number[][]) {
+        if (!data || !Object.keys(data).length) 
+            return
+        
+        for (let i = 0, len = data.length; i < len; i++) {
+            if (data[i]) {
+                this._refGids.push(i);
+            } else {
+                delete data[i];
+            }
+        }
+        this._cellDataRefMap = data;
+        this._reCreateRenderData = true;
+    }
+
+    /**
+     * 获取使用得压缩数据
+     */
+    get compressData(): Record<number, number[]> {
         let out: Record<number , number[]> = {};
         this._refGids.forEach(gid =>{
             if(this._cellDataRefMap[gid]) out[gid] = this._cellDataRefMap[gid];
@@ -146,24 +173,20 @@ export class TileMapChunkData {
     }
 
     /**
-     *  @internal 
-     *  危险操作，序列化使用
+     * 危险操作
+     * @internal
      */
-    set cellDataRefMap(data: Record<number , number[]>) {
-        if (data) {
-            if (!Object.keys(data).length)
-                return
-            
-            this._refGids.length = 0;
-            let nDdata:number[][] = [];
-            for (const key in data) {
-                let gid = parseInt(key);
-                nDdata[gid] = data[key];
-                this._refGids.push(gid);
-            }
-            this._cellDataRefMap = nDdata;
-            this._reCreateRenderData = true;
+    set compressData(value: Record<number, number[]>) {
+        if (!value || !Object.keys(value).length)
+            return
+        let nDdata: number[][] = [];
+        for (const key in value) {
+            let gid = parseInt(key);
+            nDdata[gid] = value[key];
+            this._refGids.push(gid);
         }
+        this._cellDataRefMap = nDdata;
+        this._reCreateRenderData = true;
     }
 
     /** @internal */
