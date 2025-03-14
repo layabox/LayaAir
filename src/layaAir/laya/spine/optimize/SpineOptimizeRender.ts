@@ -143,6 +143,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.skinRenderArray.forEach(skin => skin.destroy());
         this._dynamicMap.forEach(mesh => mesh.destroy());
         this._dynamicMap.clear();
+        this._nodeOwner._onMeshChange(null);
     }
 
     /**
