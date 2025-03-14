@@ -173,6 +173,11 @@ export class SpineTemplet extends Resource {
         return this._textures[name];
     }
 
+    setTexture(name:string , tex:Texture2D)
+    {
+        this._textures[name] = tex;
+    }
+
     /** @internal */
     _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D> , premultipliedAlpha = true): void {
 

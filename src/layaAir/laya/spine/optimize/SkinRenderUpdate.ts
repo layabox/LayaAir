@@ -145,7 +145,7 @@ export class SkinRenderUpdate {
         //是否有vchange 修改顶点 或者 -1帧初始化状态
         for (let i = currentChanges.length - 1; i >= 0; i--) {
             let change = currentChanges[i];
-            if (change.apply(frame, skindata.vb, this.owner.slots)) {
+            if (change.apply(frame, skindata.vb, this.owner._skeleton.slots)) {
                 needUpload = true;
             } else {
                 currentChanges.splice(i, 1);
@@ -248,7 +248,7 @@ export class SkinRenderUpdate {
     }
 
     private _resetVertexBuffset(skindata: SkinAniRenderData) {
-        let slots = this.owner.slots;
+        let slots = this.owner._skeleton.slots;
         let map = skindata.vb.slotVBMap;
         let renderDatas = skindata.renderDatas;
         let resetSlots:Set<number> = new Set();
