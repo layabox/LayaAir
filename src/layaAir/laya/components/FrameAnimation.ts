@@ -84,6 +84,7 @@ export class FrameAnimation extends Component {
     private _images: string[];
     private _color: Color;
 
+    private _atlas: AtlasResource;
     private _playing: boolean = false;
     private _count: number = 0;
     private _index: number = 0;
@@ -163,9 +164,12 @@ export class FrameAnimation extends Component {
             }
 
             if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
-                this._changingSize = true;
-                this.owner.size(this._frames[0].sourceWidth, this._frames[0].sourceHeight);
-                this._changingSize = false;
+                let w = this.width, h = this.height;
+                if (w > 0 && h > 0 || LayaEnv.isPlaying) {
+                    this._changingSize = true;
+                    this.owner.size(w, h);
+                    this._changingSize = false;
+                }
             }
 
             this.drawFrame();
@@ -262,9 +266,12 @@ export class FrameAnimation extends Component {
 
             if (this._count > 0) {
                 if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
-                    this._changingSize = true;
-                    this.owner.size(this._frames[0].sourceWidth, this._frames[0].sourceHeight);
-                    this._changingSize = false;
+                    let w = this.width, h = this.height;
+                    if (w > 0 && h > 0 || LayaEnv.isPlaying) {
+                        this._changingSize = true;
+                        this.owner.size(w, h);
+                        this._changingSize = false;
+                    }
                 }
 
                 this.applyStretchMode();
@@ -368,6 +375,11 @@ export class FrameAnimation extends Component {
         super._onDestroy();
 
         this.frames = null;
+        if (this._atlas) {
+            if (!LayaEnv.isPlaying)
+                this._atlas.off("reload", this, this.onAtlasReload);
+            this._atlas = null;
+        }
     }
 
     /**
@@ -490,6 +502,12 @@ export class FrameAnimation extends Component {
     }
 
     private load() {
+        if (this._atlas) {
+            if (!LayaEnv.isPlaying)
+                this._atlas.off("reload", this, this.onAtlasReload);
+            this._atlas = null;
+        }
+
         if (this._source)
             this.loadAtlas(this._source);
         else if (this._images && this._images.length > 0)
@@ -501,14 +519,17 @@ export class FrameAnimation extends Component {
     protected loadImages(urls: string[]): this {
         let loadId = ++this._loadId;
         let textures = urls.map(url => Loader.getRes(url));
-        if (textures.indexOf(null) === -1)
+        if (textures.indexOf(null) === -1) {
             this.frames = textures;
+            this.owner.event(Event.LOADED);
+        }
         else {
             ILaya.loader.load(urls).then((textures: Array<Texture>) => {
-                if (this.destroyed) return;
-                if (loadId != this._loadId) return;
+                if (loadId != this._loadId || this.destroyed)
+                    return;
 
                 this.frames = textures;
+                this.owner.event(Event.LOADED);
             });
         }
 
@@ -519,9 +540,9 @@ export class FrameAnimation extends Component {
         let loadId = ++this._loadId;
         let atlas: AtlasResource = Loader.getRes(url);
         if (atlas)
-            this.onAtlasLoaded(atlas, loadId);
+            this.onLoaded(atlas, loadId);
         else
-            ILaya.loader.load(url, Loader.ATLAS).then(atlas => this.onAtlasLoaded(atlas, loadId));
+            ILaya.loader.load(url, Loader.ATLAS).then(atlas => this.onLoaded(atlas, loadId));
 
         return this;
     }
@@ -533,22 +554,35 @@ export class FrameAnimation extends Component {
      * @param res 图集。
      */
     setAtlas(res: AtlasResource) {
-        this.onAtlasLoaded(res, ++this._loadId);
+        this.onLoaded(res, ++this._loadId);
     }
 
-    private onAtlasLoaded(atlas: AtlasResource, loadId: number) {
-        if (this.destroyed) return;
-        if (loadId != this._loadId) return;
+    private onLoaded(atlas: AtlasResource, loadId: number) {
+        if (loadId != this._loadId || this.destroyed)
+            return;
 
-        let ani = atlas?.animation;
-        if (ani) {
-            this.interval = ani.interval;
-            this.repeatDelay = ani.repeatDelay ?? 0;
-            this.wrapMode = ani.wrapMode ?? 0;
-            this._delays.length = 0;
-            if (ani.frameDelays)
-                this._delays.push(...ani.frameDelays);
+        this._atlas = atlas;
+        if (atlas) {
+            if (!LayaEnv.isPlaying)
+                this._atlas.on("reload", this, this.onAtlasReload);
+
+            let ani = atlas.animation;
+            if (ani) {
+                this.interval = ani.interval;
+                this.repeatDelay = ani.repeatDelay ?? 0;
+                this.wrapMode = ani.wrapMode ?? 0;
+                this._delays.length = 0;
+                if (ani.frameDelays)
+                    this._delays.push(...ani.frameDelays);
+            }
+            this.frames = atlas.frames;
         }
-        this.frames = atlas?.frames;
+        else
+            this.frames = null;
+        this.owner.event(Event.LOADED);
+    }
+
+    private onAtlasReload() {
+        this.onLoaded(this._atlas, this._loadId);
     }
 }

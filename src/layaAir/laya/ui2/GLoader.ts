@@ -3,6 +3,7 @@ import { ILaya } from "../../ILaya";
 import { AnimationStretchMode, FrameAnimation } from "../components/FrameAnimation";
 import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
+import { Event } from "../events/Event";
 import { Loader } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
@@ -26,7 +27,7 @@ export class GLoader extends GWidget {
     private _content: Sprite;
     private _srcWidth: number = 0;
     private _srcHeight: number = 0;
-    private _loadID: number = 0;
+    private _loadId: number = 0;
 
     private _renderer: ImageRenderer;
     private _ani: FrameAnimation;
@@ -176,7 +177,7 @@ export class GLoader extends GWidget {
 
     public set texture(value: Texture) {
         this._src = "";
-        this.onLoaded(value, ++this._loadID);
+        this.onLoaded(value, ++this._loadId);
     }
 
     public get mesh(): IMeshFactory {
@@ -192,7 +193,7 @@ export class GLoader extends GWidget {
     }
 
     protected async loadContent() {
-        let loadID = ++this._loadID;
+        let loadID = ++this._loadId;
         let res = Loader.getRes(this._src);
         if (!res)
             res = await ILaya.loader.load(this._src);
@@ -200,7 +201,7 @@ export class GLoader extends GWidget {
     }
 
     protected onLoaded(value: Texture | AtlasResource, loadID: number) {
-        if (this._loadID != loadID)
+        if (this._loadId != loadID || this.destroyed)
             return;
 
         if (value instanceof Texture) {
@@ -234,6 +235,7 @@ export class GLoader extends GWidget {
         }
 
         ILaya.timer.runCallLater(this, this.updateLayout, true);
+        this.event(Event.LOADED);
     }
 
     private onTextureReload() {
@@ -241,12 +243,13 @@ export class GLoader extends GWidget {
         this._srcWidth = tex.sourceWidth;
         this._srcHeight = tex.sourceHeight;
         ILaya.timer.runCallLater(this, this.updateLayout, true);
+        this.event(Event.LOADED);
     }
 
     protected clearContent() {
         this._srcWidth = 0;
         this._srcHeight = 0;
-        this._loadID++;
+        this._loadId++;
         this._renderer.setTexture(null);
         if (this._ani)
             this._ani.source = null;

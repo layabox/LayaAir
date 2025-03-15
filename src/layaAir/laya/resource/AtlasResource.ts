@@ -39,7 +39,7 @@ export class AtlasResource extends Resource {
      * @en The directory where the atlas resource is stored.
      * @zh 存储大图合集资源的目录。
      */
-    readonly dir: string;
+    dir: string;
     /**
      * @en An array of textures contained within the atlas.
      * @zh 包含在大图合集中的纹理数组。
@@ -72,6 +72,32 @@ export class AtlasResource extends Resource {
         this.dir = dir;
         this.textures = textures;
         this.frames = frames;
+
+        for (let tex of frames) {
+            tex._addReference();
+            tex._atlas = this;
+        }
+        for (let tex of textures) {
+            tex._addReference();
+            tex._atlas = this;
+        }
+    }
+
+    /**
+     * @en Updates the atlas resource with new textures and frames.
+     * @param dir Directory of the atlas. 
+     * @param textures Array of textures to add to the atlas.
+     * @param frames Array of frames corresponding to the textures.
+     * @zh 使用新的纹理和帧更新大图合集资源。
+     * @param dir 大图合集的目录路径。
+     * @param textures 要添加到大图合集的纹理数组。
+     * @param frames 对应纹理的帧数组。 
+     */
+    update(textures: Array<Texture>, frames: Array<Texture>) {
+        this._disposeResource();
+
+        this.textures.push(...textures);
+        this.frames.push(...frames);
 
         for (let tex of frames) {
             tex._addReference();
