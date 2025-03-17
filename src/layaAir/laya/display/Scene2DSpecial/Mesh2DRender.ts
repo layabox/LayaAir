@@ -207,9 +207,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _changeMesh() {
         let submeshNum = this._sharedMesh ? this._sharedMesh.subMeshCount : 0;
-        if (submeshNum > this._renderElements.length) {
+        if (submeshNum < this._renderElements.length) {
             for (var i = this._renderElements.length, n = submeshNum; n < i; i--) {
-                let element = this._renderElements[i];
+                let element = this._renderElements[i - 1];
                 element.destroy();
             }
             this._renderElements.length = submeshNum;
