@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
+import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Loader } from "../net/Loader";
@@ -139,6 +140,13 @@ export class GImage extends GWidget {
             this._autoSize = false;
 
         this._renderer.updateMesh();
+    }
+
+    protected _transChanged(kind: TransformKind): void {
+        super._transChanged(kind);
+
+        if (kind & TransformKind.Anchor)
+            this._renderer.updateMesh();
     }
 
     destroy(): void {

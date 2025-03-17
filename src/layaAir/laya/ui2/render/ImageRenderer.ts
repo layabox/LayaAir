@@ -162,7 +162,7 @@ export class ImageRenderer {
             return;
 
         let vb = VertexStream.pool.take(tex, true);
-        vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
+        vb.contentRect.setTo(-this._owner.pivotX, -this._owner.pivotY, this._owner.width, this._owner.height);
 
         try {
             this._meshFactory.onPopulateMesh(vb);
