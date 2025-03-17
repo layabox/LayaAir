@@ -614,7 +614,7 @@ export class Loader extends EventDispatcher {
                 Loader._cacheRes(formattedUrl, null, typeId, main);
 
             task.onComplete.invoke(null);
-            return null;
+            return <any>null;
         }).then(content => {
             this._loadings.delete(loadingKey);
             task.reset();

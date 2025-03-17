@@ -135,11 +135,13 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
      */
     set textureRangeIsClip(value: boolean) {
-        this._textureRangeIsClip = value;
-        if (value)
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
-        else
-        this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+        if (this._textureRangeIsClip != value) {
+            this._textureRangeIsClip = value;
+            if (value)
+                this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+            else
+                this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+        }
     }
 
     get textureRangeIsClip(): boolean {

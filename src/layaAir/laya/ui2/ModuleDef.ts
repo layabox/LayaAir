@@ -36,6 +36,7 @@ import { CircleMesh } from "./render/CircleMesh";
 import { FlipMesh } from "./render/FlipMesh";
 import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
 import { GMovieClip } from "./GMovieClip";
+import { TileMesh } from "./render/TileMesh";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
@@ -77,5 +78,6 @@ r("ProgressMesh", ProgressMesh);
 r("CircleMesh", CircleMesh);
 r("FlipMesh", FlipMesh);
 r("RegularPolygonMesh", RegularPolygonMesh);
+r("TileMesh", TileMesh);
 
 Loader.registerLoader(["i18ns"], TranslationsLoader);
