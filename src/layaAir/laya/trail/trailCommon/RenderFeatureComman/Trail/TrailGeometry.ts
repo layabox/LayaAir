@@ -63,6 +63,9 @@ export class TrailGeometry {
 
     private tmpColor: Color = new Color();
 
+    
+    /**@internal 拖尾长度 */
+    _totalLength: number = 0;
     /**@internal 顶点开始位置*/
     _activeIndex: number = 0;
     /**@internal 顶点结束位置*/
@@ -375,8 +378,6 @@ export class TrailGeometry {
     }
 
 
-    /**@internal 拖尾长度 */
-    _totalLength: number = 0;
 
     /**
      * @internal
@@ -462,6 +463,7 @@ export class TrailGeometry {
         this._isTempEndVertex = false;
         this._needAddFirstVertex = false;
         this._lastFixedVertexPosition.setValue(0, 0, 0);
+        this._totalLength = 0;
     }
 }
 
