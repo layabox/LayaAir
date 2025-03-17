@@ -25,18 +25,19 @@ export class TileMesh implements IMeshFactory {
         }
         else {
             let contentRect = vb.contentRect;
+            let uv = tex.uvrect;
             let sourceW = tex.sourceWidth;
             let sourceH = tex.sourceHeight;
             let texW = tex.width;
             let texH = tex.height;
             let offsetX = tex.offsetX;
             let offsetY = tex.offsetY;
-            let sx = this.repeatX ? 1 : contentRect.width / tex.sourceWidth;
-            let sy = this.repeatY ? 1 : contentRect.height / tex.sourceHeight;
-            let uv = tex.uvrect;
-
-            let hc = this.repeatX ? (Math.ceil(contentRect.width / sourceW) - 1) : 0;
-            let vc = this.repeatY ? (Math.ceil(contentRect.height / sourceH) - 1) : 0;
+            let repeatX = this.repeatX;
+            let repeatY = this.repeatY;
+            let sx = repeatX ? 1 : contentRect.width / tex.sourceWidth;
+            let sy = repeatY ? 1 : contentRect.height / tex.sourceHeight;
+            let hc = repeatX ? (Math.ceil(contentRect.width / sourceW) - 1) : 0;
+            let vc = repeatY ? (Math.ceil(contentRect.height / sourceH) - 1) : 0;
             let tailWidth = contentRect.width - hc * sourceW;
             let tailHeight = contentRect.height - vc * sourceH;
 
@@ -44,8 +45,8 @@ export class TileMesh implements IMeshFactory {
                 for (let j = 0; j <= vc; j++) {
                     tmpRect.setTo(contentRect.x + i * sourceW + offsetX * sx,
                         contentRect.y + j * sourceH + offsetY * sy,
-                        (i < hc || hc == 0) ? texW * sx : Math.min(texW, tailWidth - offsetX),
-                        (j < vc || vc == 0) ? texH * sy : Math.min(texH, tailHeight - offsetY));
+                        (i < hc || !repeatX) ? texW * sx : Math.min(texW, tailWidth - offsetX),
+                        (j < vc || !repeatY) ? texH * sy : Math.min(texH, tailHeight - offsetY));
 
                     if (tmpRect.width <= 0 || tmpRect.height <= 0)
                         continue;
@@ -53,8 +54,8 @@ export class TileMesh implements IMeshFactory {
                     //不使用vb.uvRect，因为vb.uvRect已经被外扩
                     tmpUV.setTo(uv[0],
                         uv[1],
-                        (i < hc || hc == 0) ? uv[2] : (uv[2] * tmpRect.width / texW),
-                        (j < vc || vc == 0) ? uv[3] : (uv[3] * tmpRect.height / texH));
+                        (i < hc || !repeatX) ? uv[2] : (uv[2] * tmpRect.width / texW),
+                        (j < vc || !repeatY) ? uv[3] : (uv[3] * tmpRect.height / texH));
 
                     vb.addQuad(tmpRect, null, tmpUV);
                 }
