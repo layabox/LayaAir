@@ -92,14 +92,6 @@ export class GImage extends GWidget {
         }
     }
 
-    public get tile(): boolean {
-        return this._renderer._tile;
-    }
-
-    public set tile(value: boolean) {
-        this._renderer.setTile(value);
-    }
-
     /**
      * @en The color of the object.
      * @zh 对象的颜色。

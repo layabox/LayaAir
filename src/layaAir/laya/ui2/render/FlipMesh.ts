@@ -21,7 +21,7 @@ export class FlipMesh implements IMeshFactory {
         }
 
         vb.addQuad(vb.contentRect, null, uvRect);
-        vb.triangulate(0);
+        vb.addTriangles(0);
     }
 }
 

@@ -92,7 +92,7 @@ export class GScrollBar extends GWidget {
     }
 
     private _gripTouchBegin(evt: Event): void {
-        if (!this._bar)
+        if (!this._bar || !this._target)
             return;
 
         evt.stopPropagation();
@@ -106,7 +106,7 @@ export class GScrollBar extends GWidget {
     }
 
     private _gripTouchMove(evt: Event): void {
-        if (!this.displayedInStage)
+        if (!this.displayedInStage || !this._target)
             return;
 
         let pt = this.globalToLocal(s_vec2.copy(evt.touchPos));
@@ -129,12 +129,18 @@ export class GScrollBar extends GWidget {
     }
 
     private _gripTouchEnd(evt: Event): void {
+        if (!this._target)
+            return;
+
         this._gripDragging = false;
         this._target._updateScrollBarVisible();
     }
 
     private _arrowButton1Click(evt: Event): void {
         evt.stopPropagation();
+
+        if (!this._target)
+            return;
 
         if (this._vertical)
             this._target.scrollUp();
@@ -145,6 +151,9 @@ export class GScrollBar extends GWidget {
     private _arrowButton2Click(evt: Event): void {
         evt.stopPropagation();
 
+        if (!this._target)
+            return;
+
         if (this._vertical)
             this._target.scrollDown();
         else
@@ -153,6 +162,9 @@ export class GScrollBar extends GWidget {
 
     private _barTouchBegin(evt: Event): void {
         evt.stopPropagation();
+
+        if (!this._target)
+            return;
 
         let pt = this._gripButton.globalToLocal(s_vec2.copy(evt.touchPos));
         if (this._vertical) {

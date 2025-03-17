@@ -513,7 +513,7 @@ export class FrameAnimation extends Component {
         else if (this._images && this._images.length > 0)
             this.loadImages(this._images);
         else
-            this._loadId++;
+            this.onLoaded(null, ++this._loadId);
     }
 
     protected loadImages(urls: string[]): this {

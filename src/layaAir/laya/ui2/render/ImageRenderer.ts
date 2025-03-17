@@ -20,12 +20,11 @@ const defaultIndices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 export class ImageRenderer {
     _meshFactory: IMeshFactory;
     _color: Color;
-    _tile: boolean = false;
     _tex: Texture;
     _onReload: Function;
 
     private _owner: Sprite;
-    private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd | FillTextureCmd;
+    private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd;
     private _meshRender: Mesh2DRender;
     private _mesh: Mesh2D;
     private _isChanged: boolean = false;
@@ -57,10 +56,8 @@ export class ImageRenderer {
                 value.on("reload", this, this.onTextureReload);
 
             if (this._meshFactory) {
-                this._meshRender.texture = value.bitmap;
                 this._meshRender.sharedMesh = this._mesh;
-                this._meshRender.textureRange = Vector4.TEMP.fromArray(this._tex.uvrect);
-                this.updateMesh();
+                this.changeTexture();
             }
             else
                 this.createCmd();
@@ -91,7 +88,6 @@ export class ImageRenderer {
 
                 this._meshRender = this._owner.addComponent(Mesh2DRender);
                 this._meshRender.hideFlags |= HideFlags.HideAndDontSave;
-                this._meshRender.textureRangeIsClip = true;
             }
 
             this._meshRender.sharedMesh = this._mesh;
@@ -99,11 +95,8 @@ export class ImageRenderer {
 
             if (this._drawCmd)
                 this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, null, true);
-            if (this._tex) {
-                this._meshRender.texture = this._tex.bitmap;
-                this._meshRender.textureRange = Vector4.TEMP.fromArray(this._tex.uv);
-                this.updateMesh();
-            }
+            if (this._tex)
+                this.changeTexture();
         }
         else {
             if (this._meshRender) {
@@ -113,12 +106,6 @@ export class ImageRenderer {
             if (this._tex && !this._drawCmd)
                 this.createCmd();
         }
-    }
-
-    setTile(value: boolean) {
-        this._tile = value;
-        if (this._drawCmd)
-            this.createCmd();
     }
 
     setColor(value: string) {
@@ -154,12 +141,18 @@ export class ImageRenderer {
         let cmd: any;
         if (this._tex._sizeGrid)
             cmd = Draw9GridTextureCmd.create(this._tex, 0, 0, 1, 1, this._tex._sizeGrid, true, null);
-        else if (this._tile)
-            cmd = FillTextureCmd.create(this._tex, 0, 0, 1, 1, "repeat", null, null, true);
         else
             cmd = DrawTextureCmd.create(this._tex, 0, 0, 1, 1, null, 1, null, null, null, true);
         cmd.color = this._color.getABGR();
         this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, cmd, true);
+    }
+
+    private changeTexture() {
+        this._meshRender.texture = this._tex.bitmap;
+        let uv = this._tex.uvrect;
+        this._meshRender.textureRange = Vector4.TEMP.setValue(uv[0], uv[1], uv[0] + uv[2], uv[1] + uv[3]);
+        this._meshRender.textureRangeIsClip = !(uv[0] === 0 && uv[1] === 0 && uv[2] === 1 && uv[3] === 1);
+        this.updateMesh();
     }
 
     private _updateMesh() {
@@ -168,16 +161,8 @@ export class ImageRenderer {
         if (!this._meshFactory || !tex)
             return;
 
-        let vb = VertexStream.pool.take(true);
+        let vb = VertexStream.pool.take(tex, true);
         vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
-        let uv = this._tex.uvrect;
-        if (tex.width === tex.sourceWidth && tex.height === tex.sourceHeight)
-            vb.uvRect.setTo(uv[0], uv[1], uv[2], uv[3]);
-        else {
-            let sx = uv[2] / tex.width;
-            let sy = uv[3] / tex.height;
-            vb.uvRect.setTo(uv[0] - tex.offsetX * sx, uv[1] - tex.offsetY * sy, tex.sourceWidth * sx, tex.sourceHeight * sy);
-        }
 
         try {
             this._meshFactory.onPopulateMesh(vb);

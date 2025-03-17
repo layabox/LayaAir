@@ -2,7 +2,12 @@ import { Color } from "../maths/Color";
 import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector3 } from "../maths/Vector3";
+import { Texture } from "../resource/Texture";
 import { Pool } from "./Pool";
+
+declare type Mutable<T> = {
+    -readonly [P in keyof T]: T[P]
+};
 
 /**
  * @en Vertex stream is a tool for appending vertices and triangles.
@@ -25,6 +30,12 @@ export class VertexStream {
      */
     readonly color: Color;
 
+    /**
+     * @en The main texture.
+     * @zh 主贴图。
+     */
+    readonly mainTex: Texture;
+
     private _vertices: Float32Array;
     private _indices: Uint16Array;
     private _vbuf: ArrayBuffer;
@@ -34,7 +45,7 @@ export class VertexStream {
     private _vec: Vector3;
     private _epv: number = 0;
 
-    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, hasColor: boolean) => e.init(hasColor), e => e.reset());
+    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor), e => e.reset());
 
     constructor() {
         this.contentRect = new Rectangle();
@@ -51,11 +62,23 @@ export class VertexStream {
         this._vec = new Vector3();
     }
 
-    init(hasColor?: boolean) {
+    init(mainTex?: Texture, hasColor?: boolean) {
+        (<Mutable<this>>this).mainTex = mainTex;
+        if (mainTex) {
+            let uv = mainTex.uvrect;
+            if (mainTex.width === mainTex.sourceWidth && mainTex.height === mainTex.sourceHeight)
+                this.uvRect.setTo(uv[0], uv[1], uv[2], uv[3]);
+            else {
+                let sx = uv[2] / mainTex.width;
+                let sy = uv[3] / mainTex.height;
+                this.uvRect.setTo(uv[0] - mainTex.offsetX * sx, uv[1] - mainTex.offsetY * sy, mainTex.sourceWidth * sx, mainTex.sourceHeight * sy);
+            }
+        }
+        else
+            this.uvRect.setTo(0, 0, 1, 1);
+
         this._epv = hasColor ? 9 : 5;
         this.color.setValue(1, 1, 1, 1);
-        this.uvRect.setTo(0, 0, 1, 1);
-        this.contentRect.setTo(0, 0, 100, 100);
     }
 
     /**
@@ -142,25 +165,28 @@ export class VertexStream {
     }
 
     /**
-     * @en Add multiple triangles according to the number of vertices.
+     * @en Add multiple triangles, every four vertices will form a quad.
      * @param baseIndex The index of the first vertex of the first triangle. If it is negative, it will be calculated from the end.
-     * @zh 根据顶点数量添加多个三角形。
+     * @zh 添加多个三角形，每四个顶点会形成一个四边形。
      * @param baseIndex 第一个三角形的第一个顶点的索引。如果是负数，则会从末尾计算。 
      */
-    triangulate(baseIndex: number): void {
+    addTriangles(baseIndex: number): void {
         let cnt = this._vp / this._epv;
         if (baseIndex < 0)
             baseIndex = cnt + baseIndex;
-        cnt = cnt - baseIndex;
 
-        let icnt = (cnt - 2) * 3;
+        let icnt = (cnt - baseIndex) / 4 * 6;
         this.checkIBuf(icnt);
 
         let arr = this._indices;
-        for (let i = 1, j = this._ip; i < cnt - 1; i++, j += 3) {
-            arr[j] = baseIndex;
-            arr[j + 1] = baseIndex + i;
-            arr[j + 2] = baseIndex + i + 1;
+        for (let i = baseIndex, j = this._ip; i < cnt; i += 4, j += 6) {
+            arr[j] = i;
+            arr[j + 1] = i + 1;
+            arr[j + 2] = i + 2;
+
+            arr[j + 3] = i + 2;
+            arr[j + 4] = i + 3;
+            arr[j + 5] = i;
         }
         this._ip += icnt;
     }
