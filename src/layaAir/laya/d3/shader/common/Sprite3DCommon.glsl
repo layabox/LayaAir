@@ -5,8 +5,15 @@ uniform mat4 u_WorldMat;
 
 uniform vec4 u_WorldInvertFront; // x: invert front face
 
-    
+    #ifdef GPU_INSTANCE
 
+	#define WorldInvertFront a_WorldInvertFront.x
+
+    #else // GPU_INSTANCE
+
+	#define WorldInvertFront u_WorldInvertFront.x
+
+    #endif // GPU_INSTANCE
 
 vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
 {

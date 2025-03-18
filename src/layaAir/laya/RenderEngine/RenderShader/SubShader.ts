@@ -46,7 +46,8 @@ export class SubShader {
         'a_BoneIndices': [VertexMesh.MESH_BLENDINDICES0, ShaderDataType.Vector4],
         'a_WorldMat': [VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
         'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector4],
-        'a_LightmapScaleOffset': [VertexMesh.MESH_LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4]
+        'a_LightmapScaleOffset': [VertexMesh.MESH_LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4],
+        "a_WorldInvertFront": [VertexMesh.MESH_CUSTOME2, ShaderDataType.Vector4],
     }
 
 
