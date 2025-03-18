@@ -2,7 +2,6 @@ import "./engine";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { Laya3D } from "Laya3D";
 import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 import { Physics2D } from "laya/physics/Physics2D";

@@ -37,5 +37,5 @@ export class WebGLCommandUniformMap extends CommandUniformMap {
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype: uniformtype, propertyName: propertyName, arrayLength: arrayLength });
-    } //兼容WGSL
+    }
 }
