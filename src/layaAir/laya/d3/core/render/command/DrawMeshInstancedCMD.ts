@@ -112,7 +112,7 @@ export class DrawMeshInstancedCMD extends Command {
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._instanceRenderElementArray = [];
         this._instanceGeometryArray = [];
-        this._instanceWorldMatrixData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * 16);
+        this._instanceWorldMatrixData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * 20);
         this._instanceWorldMatrixBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
         this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         this._instanceWorldMatrixBuffer.instanceBuffer = true;
@@ -217,11 +217,12 @@ export class DrawMeshInstancedCMD extends Command {
         let worldMatrixData: Float32Array = this._instanceWorldMatrixData;
         let count: number = this._drawnums;
         for (let i = 0; i < count; i++) {
-            worldMatrixData.set(this._matrixs[i].elements, i * 16);
+            worldMatrixData.set(this._matrixs[i].elements, i * 20);
+            // todo invert Y data
         }
         let worldBuffer: VertexBuffer3D = this._instanceWorldMatrixBuffer;
         //worldBuffer.setData();
-        worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 64);
+        worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 80);
     }
 
     /**
