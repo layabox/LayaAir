@@ -166,7 +166,7 @@ export class Laya {
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
 
-        steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
+        steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
 
         let laya3D = <typeof Laya3D>(<any>window)["Laya3D"];

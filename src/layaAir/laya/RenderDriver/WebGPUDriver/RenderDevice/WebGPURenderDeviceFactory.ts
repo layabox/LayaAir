@@ -15,8 +15,10 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
+import { WebGPUCodeGenerator } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
+import { WebGPUConfig, WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
@@ -41,8 +43,42 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new WebGPURenderGeometry(mode, drawType);
     }
-    createEngine(config: Config, canvas: any): Promise<void> {
-        return Promise.resolve();
+    async createEngine(config: Config, canvas: any): Promise<void> {
+        const gpuConfig = new WebGPUConfig();
+        gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
+        gpuConfig.colorSpace = "srgb"; //TODO 这里感觉会出问题
+        switch (Config.powerPreference) {
+            case "default":
+                gpuConfig.powerPreference = "high-performance";
+                break;
+            default:
+                gpuConfig.powerPreference = Config.powerPreference;
+                break;
+        }
+        //@ts-ignore
+        // todo add required features
+        gpuConfig.deviceDescriptor.requiredFeatures = [
+            // "texture-compression-astc",
+            // "texture-compression-bc",
+            // "texture-compression-etc2",
+            // "float32-filterable"
+            "depth-clip-control",
+            "depth32float-stencil8",
+            "texture-compression-bc",
+            "texture-compression-etc2",
+            "texture-compression-astc",
+            "timestamp-query",
+            "indirect-first-instance",
+            "shader-f16",
+            "rg11b10ufloat-renderable",
+            "bgra8unorm-storage",
+            "float32-filterable",
+        ];
+        const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
+        LayaGL.renderEngine = engine;
+        await engine.initRenderEngine();
+        LayaGL.textureContext = engine.getTextureContext();
+        await WebGPUCodeGenerator.init();
     }
 
     static globalBlockMap: { [key: string]: WebGPUCommandUniformMap } = {};
