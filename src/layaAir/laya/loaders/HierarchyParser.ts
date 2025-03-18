@@ -299,7 +299,7 @@ export class HierarchyParser {
                         }
                     }
                     else
-                        errors.push(new Error(`missing component type '${compData._$type}' (in ${node.name || 'noname'})`));
+                        errors.push(new Error(`missing component type '${compData._$type}' (in ${dataList[i].name || 'noname'})`));
                 }
 
                 if (comp)
