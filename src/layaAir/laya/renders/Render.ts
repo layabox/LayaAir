@@ -100,7 +100,6 @@ export class Render {
             let frm = Math.floor(stamp / ifps);    // 不能|0 在微信下会变成负的
             // 是否已经跨帧了
             let dfrm = frm - Render.lastFrm;
-            //去掉了 LayaEnv.isConch 。不知道会不会有问题
             if (dfrm > 0 || !Config.fixedFrames) {
                 //不限制
                 Render.lastFrm = frm;
