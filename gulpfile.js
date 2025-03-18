@@ -12,10 +12,9 @@ const rollup = require('rollup');
 const glsl = require('rollup-plugin-glsl');
 const rollupSourcemaps = require('rollup-plugin-sourcemaps');
 const merge = require('merge2');
-const esbuild = require('rollup-plugin-esbuild');
 
 const tscOutPath = "./bin/tsc/";
-const sourcemap = false;
+const sourcemap = true;
 
 //引用插件模块
 const typescript = require('rollup-plugin-typescript2'); //typescript2 plugin
@@ -39,7 +38,7 @@ const packsDef = [{
         './layaAir/laya/filters/**/*.*',
         './layaAir/laya/layagl/**/*.*',
         './layaAir/laya/webgl/**/*.*',
-        
+
         './layaAir/laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
 
         './layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/**/*.*',
@@ -67,6 +66,7 @@ const packsDef = [{
         './layaAir/laya/tools/**/*.*',
         './layaAir/laya/html/**/*.*',
         './layaAir/Config3D.ts',
+        "./layaAir/laya/bt/**/*.*"
     ],
 },
 {
@@ -486,7 +486,7 @@ gulp.task("copyJsLibs", async () => {
         './src/layaAir/jsLibs/*.js',
         './src/layaAir/jsLibs/*.mjs',
         './src/layaAir/jsLibs/*.wasm',
-      
+
         '!./src/layaAir/jsLibs/laya.Box2D.js',
         '!./src/layaAir/jsLibs/laya.Box2D.wasm.js',
         '!./src/layaAir/jsLibs/cannon.js',
@@ -934,20 +934,16 @@ function mySamplesMultiInput(options) {
         },
 
         resolveId(id, importer) { //entry是个特殊字符串，rollup并不识别，所以假装这里解析一下
-            // console.log(id , importer);
             if (id === mentry) {
                 return mentry;
             }
-            // if (mentry == importer)
-            //     return id;
-
+            if (mentry == importer)
+                return;
             var importfile = path.join(path.dirname(importer), id);
             var ext = path.extname(importfile);
-            if (!ext || ext != '.ts' && ext != '.glsl' && ext != '.vs' && ext != '.ps' && ext != '.fs') {
+            if (ext != '.ts' && ext != '.glsl' && ext != '.vs' && ext != '.ps' && ext != '.fs') {
                 importfile += '.ts';
             }
-            // console.log(importfile)
-
             if (importfile.endsWith('.json')) {
                 console.log('import ', importfile);
             }
@@ -956,14 +952,13 @@ function mySamplesMultiInput(options) {
                 // console.log('other pack:',id,'impo   rter=', importer);
                 return 'Laya';
             }
-            return importfile;
         },
         load(id) {
             if (id === mentry) {
                 if (!include.length) {
                     return Promise.resolve('');
                 }
-                // console.log(include)
+
                 var patterns = include.concat(exclude.map(function (pattern) {
                     return '!' + pattern;
                 }));
@@ -971,9 +966,7 @@ function mySamplesMultiInput(options) {
                     realpath: true
                 }).then(function (paths) {
                     curPackFiles = paths; // 记录一下所有的文件
-                    let data = paths.map(exporter).join('\n');
-                    // console.log(data);
-                    return data
+                    return paths.map(exporter).join('\n');
                 });
             } else {
                 // console.log('load ',id);
@@ -983,16 +976,16 @@ function mySamplesMultiInput(options) {
 }
 
 gulp.task('compileSamples', async (cb) => {
-    // let bundleobj = {
-    //     tsconfig: samplesBathURL + '/tsconfig.json',
-    //     check: false, //Set to false to avoid doing any diagnostic checks on the code
-    //     tsconfigOverride: {
-    //         compilerOptions: {
-    //             removeComments: true
-    //         }
-    //     },
-    //     include: samplesBathURL + "/**/*.ts"
-    // }
+    let bundleobj = {
+        tsconfig: samplesBathURL + '/tsconfig.json',
+        check: false, //Set to false to avoid doing any diagnostic checks on the code
+        tsconfigOverride: {
+            compilerOptions: {
+                removeComments: true
+            }
+        },
+        include: samplesBathURL + "/**/*.ts"
+    }
 
     await rollup.rollup({
         input: samplesBathURL + '/index.ts',
@@ -1014,15 +1007,7 @@ gulp.task('compileSamples', async (cb) => {
                 gatherExtFiles: layaFiles,
                 //addLayaExpAt:layaexpreplace,
             }),
-            // typescript(bundleobj),
-            esbuild.default({
-                // Option
-                include: /\.[jt]sx?$/,
-                sourceMap: true, 
-                minify: process.env.NODE_ENV === 'production',
-                target: 'es2017', // default, or 'es20XX', 'esnext'
-                tsconfig:  samplesBathURL + 'tsconfig.json', // default
-            }),
+            typescript(bundleobj),
             glsl({
                 // By default, everything gets included
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -1045,19 +1030,18 @@ gulp.task('compileSamples', async (cb) => {
         });
     });
 
-    // console.time("compile laya");
-    // let layaobj = {
-    //     tsconfig: './src/layaAir/tsconfig.json',
-    //     check: false,
-    //     tsconfigOverride: {
-    //         compilerOptions: {
-    //             removeComments: true
-    //         }
-    //     },
-    //     include: /.*(.ts)$/
-    // }
+    console.time("compile laya");
+    let layaobj = {
+        tsconfig: './src/layaAir/tsconfig.json',
+        check: false,
+        tsconfigOverride: {
+            compilerOptions: {
+                removeComments: true
+            }
+        },
+        include: /.*(.ts)$/
+    }
 
-    // console.log(layaFiles);
     await rollup.rollup({
         input: layaFiles,
         onwarn: (waring, warn) => {
@@ -1073,15 +1057,7 @@ gulp.task('compileSamples', async (cb) => {
             mySamplesMultiInput({
                 path: './src/layaAir'
             }),
-            // typescript(layaobj),
-            esbuild.default({
-                // Option
-                include: /\.[jt]sx?$/,
-                sourceMap: false, 
-                minify: process.env.NODE_ENV === 'production',
-                target: 'es2017', // default, or 'es20XX', 'esnext'
-                tsconfig: './src/layaAir/tsconfig.json', // default
-            }),
+            typescript(layaobj),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
                 sourceMap: false,
@@ -1099,11 +1075,10 @@ gulp.task('compileSamples', async (cb) => {
         });
     }).catch(err => {
         console.log(err);
-    }).then(()=>{
-        console.timeEnd("compile laya");
-        cb();
     });
 
+    console.timeEnd("compile laya");
+    cb();
 });
 
 gulp.task('changeLayaJS', (cb) => {
