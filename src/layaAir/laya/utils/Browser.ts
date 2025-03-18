@@ -285,9 +285,12 @@ export class Browser {
         let platform: string = win.navigator.platform;
         let miniGame: [string, string, string];
 
-         //native
-         if (!!(window as any).conch && (window as any).conchConfig.getOS() != "Conch-window") {
+        //native
+        if (!!(window as any).conch && (window as any).conchConfig.getOS() != "Conch-window") {
             miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
+        }
+        if (!!(window as any).conch) {
+            Config.fixedFrames = false;
         }
         //阿里小游戏
         if ("my" in Browser.window) {
