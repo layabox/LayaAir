@@ -6,14 +6,12 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { EventDispatcher } from "../../../events/EventDispatcher";
 import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
-import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
-import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
@@ -62,7 +60,6 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     //static _offscreenFormat: GPUTextureFormat;
     static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
-    _renderOBJCreateContext: IRenderEngineFactory;
 
     private _canvas: HTMLCanvasElement;
     _config: WebGPUConfig;
@@ -360,10 +357,6 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
     getTextureContext(): ITextureContext {
         return this._textureContext;
-    }
-
-    getCreateRenderOBJContext(): WebGPURenderEngineFactory {
-        return new WebGPURenderEngineFactory()
     }
 
     private _initStatisticsInfo() {

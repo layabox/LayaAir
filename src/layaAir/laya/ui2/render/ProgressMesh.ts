@@ -71,7 +71,7 @@ export class ProgressMesh implements IMeshFactory {
 
             default:
                 vb.addQuad(vb.contentRect);
-                vb.triangulate(0);
+                vb.addTriangles(0);
                 break;
         }
     }
@@ -85,7 +85,7 @@ function fillHorizontal(vb: VertexStream, vertRect: Readonly<Rectangle>, origin:
     rect.width = a;
 
     vb.addQuad(rect);
-    vb.triangulate(0);
+    vb.addTriangles(0);
 }
 
 function fillVertical(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: number, amount: number): void {
@@ -96,7 +96,7 @@ function fillVertical(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: n
     rect.height = a;
 
     vb.addQuad(rect);
-    vb.triangulate(0);
+    vb.addTriangles(0);
 }
 
 function fillRadial90(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: FillOrigin, amount: number, clockwise: boolean): void {
@@ -170,7 +170,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial90(vb, rect, clockwise ? FillOrigin.TopLeft : FillOrigin.TopRight, amount / 0.5, clockwise);
                 let vec = vb.getPos(-4);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.width /= 2;
                 if (!clockwise)
@@ -183,7 +183,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.x -= rect.width;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -196,7 +196,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial90(vb, rect, clockwise ? FillOrigin.BottomRight : FillOrigin.BottomLeft, amount / 0.5, clockwise);
                 let vec = vb.getPos(-4);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.width /= 2;
                 if (clockwise)
@@ -209,7 +209,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.x += rect.width;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -222,7 +222,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial90(vb, rect, clockwise ? FillOrigin.BottomLeft : FillOrigin.TopLeft, amount / 0.5, clockwise);
                 let vec = vb.getPos(-4);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.height /= 2;
                 if (clockwise)
@@ -235,7 +235,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.y += rect.height;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -248,7 +248,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial90(vb, rect, clockwise ? FillOrigin.TopRight : FillOrigin.BottomRight, amount / 0.5, clockwise);
                 let vec = vb.getPos(-4);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.height /= 2;
                 if (!clockwise)
@@ -261,7 +261,7 @@ function fillRadial180(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.y -= rect.height;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
     }
@@ -279,7 +279,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial180(vb, rect, clockwise ? FillOrigin.Left : FillOrigin.Right, amount / 0.5, clockwise);
                 let vec = vb.getPos(-8);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.width /= 2;
                 if (!clockwise)
@@ -292,7 +292,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.x -= rect.width;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -305,7 +305,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial180(vb, rect, clockwise ? FillOrigin.Right : FillOrigin.Left, amount / 0.5, clockwise);
                 let vec = vb.getPos(-8);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.width /= 2;
                 if (clockwise)
@@ -318,7 +318,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.x += rect.width;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -331,7 +331,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial180(vb, rect, clockwise ? FillOrigin.Bottom : FillOrigin.Top, amount / 0.5, clockwise);
                 let vec = vb.getPos(-8);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.height /= 2;
                 if (clockwise)
@@ -344,7 +344,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.y += rect.height;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
 
@@ -357,7 +357,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 fillRadial180(vb, rect, clockwise ? FillOrigin.Top : FillOrigin.Bottom, amount / 0.5, clockwise);
                 let vec = vb.getPos(-8);
                 vb.addQuad(Rectangle.TEMP.setTo(vec.x, vec.y, 0, 0));
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             } else {
                 rect.height /= 2;
                 if (!clockwise)
@@ -370,7 +370,7 @@ function fillRadial360(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: 
                 else
                     rect.y -= rect.height;
                 vb.addQuad(rect);
-                vb.triangulate(-4);
+                vb.addTriangles(-4);
             }
             break;
     }

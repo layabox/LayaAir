@@ -186,6 +186,7 @@ export interface IVolumetricGIData {
     setProbeCounts(value: Vector3): void;
     setProbeStep(value: Vector3): void;
     setParams(value: Vector4): void;
+    destroy(): void;
 }
 
 //global data

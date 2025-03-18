@@ -107,7 +107,6 @@ import { GPUCompression_ETC2 } from "../3d/LayaAir3D_Texture/GPUCompression_ETC2
 import { GPUCompression_ASTC } from "../3d/LayaAir3D_Texture/GPUCompression_ASTC";
 import { SeparableSSS_RenderDemo } from "../3d/LayaAir3D_Advance/SeparableSSS_RenderDemo";
 import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
-import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
 import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
@@ -130,6 +129,7 @@ import BlendShapeDemo from "../3d/LayaAir3D_Mesh/BlendShapeDemo";
 import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_LensFlare";
 import { NavMeshDemo } from "../3d/LayaAir3D_Advance/navMeshDemo";
 import { Config } from "Config";
+import { AvatarMaskDemo } from "../3d/LayaAir3D_Animation3D/AvatarMaskDemo";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -155,7 +155,7 @@ export class IndexView3D extends IndexViewUI {
 
     private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
     private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];
-    private _animationClsArr: any[] = [AnimationEventDemo, AnimatorDemo, BoneLinkSprite3D, AnimationLayerBlend, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];
+    private _animationClsArr: any[] = [AnimationEventDemo, AnimatorDemo, BoneLinkSprite3D, AnimationLayerBlend, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, AvatarMaskDemo];
     private _animationArr: any[] = ["AnimationEventDemo", 'Animator', "BoneLinkSprite3D", "AnimationLayerBlend", "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
 
     private _cameraClsArr: any[] = [CameraDemo, CameraMSAADemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];

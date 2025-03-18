@@ -11,14 +11,12 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
-import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
 import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
 import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGPURenderDeviceFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPU3DRenderPassFactory";
-import { WebGPURenderEngineFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngineFactory";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -44,12 +42,10 @@ export class WebGPUTest {
         Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 
         if (this.useWebGPU) {
-            LayaGL.renderOBJCreate = new WebGPURenderEngineFactory();
             LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
             LayaGL.render2DRenderPassFactory = new WebGPURender2DProcess();
             Laya3DRender.Render3DPassFactory = new WebGPU3DRenderPassFactory();
         } else {
-            LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
             LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
             LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess();
             Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();

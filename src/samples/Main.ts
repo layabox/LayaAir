@@ -15,7 +15,6 @@ import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3D
 import { GLESRender2DProcess } from "laya/RenderDriver/OpenGLESDriver/2DRenderPass/GLESRender2DProcess";
 import { GLES3DRenderPassFactory } from "laya/RenderDriver/OpenGLESDriver/3DRenderPass/GLES3DRenderPassFactory";
 import { GLESRenderDeviceFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderDeviceFactory";
-import { GLESRenderEngineFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderEngineFactory";
 import { RT3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
 import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory";
@@ -23,11 +22,14 @@ import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleDa
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
 import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory";
 import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory";
-import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
+import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPU3DRenderPassFactory";
+import { WebGPURenderDeviceFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderDeviceFactory";
 
 export class Main {
+    static useWebGPU: boolean = false;
     private static _box3D: Sprite;
     public static get box3D(): Sprite {
         return Main._box3D || Laya.stage;
@@ -57,21 +59,27 @@ export class Main {
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
         this._singleDemo = singleDemo;
+        let useWebGPU = false;
         if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
+            if (Main.useWebGPU) {
+                LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
+                LayaGL.render2DRenderPassFactory = new WebGPURender2DProcess();
+                Laya3DRender.Render3DPassFactory = new WebGPU3DRenderPassFactory();
+            } else {
+                LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+                LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess();
+                Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+            }
             LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
-            LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
-            Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-            LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
-            LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
         } else {
             LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
             LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
-            LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
+
             LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
         }
         Laya.init(this._is3D ? 0 : 1280, this._is3D ? 0 : 720).then(() => {

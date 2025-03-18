@@ -442,8 +442,9 @@ export class TileSet extends Resource {
             params = cellData.getTerrainsParams();
             list.push(params);
         }
-
+        
         params.link(cellData);
+
         return params;
     }
 

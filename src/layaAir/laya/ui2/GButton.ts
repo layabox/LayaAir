@@ -6,7 +6,8 @@ import type { GPanel } from "./GPanel";
 import { Event } from "../events/Event";
 import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
-import { UIEvent } from "./UIEvent";
+import { GImage } from "./GImage";
+import { Color } from "../maths/Color";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -236,17 +237,17 @@ export class GButton extends GLabel {
         }
 
         if (this._downEffect == ButtonDownEffect.Dark) {
-            let c: number;
+            let c: string;
             if (page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled) {
-                let p = this._downEffectValue * 255;
-                c = (p << 16) + (p << 8) + p;
+                let p = Math.floor(this._downEffectValue * 255);
+                c = Color.hexToString((p << 16) + (p << 8) + p);
             }
             else {
-                c = 0xFFFFFF;
+                c = "#ffffff";
             }
 
             for (let child of this.children) {
-                if (('color' in child) && (child instanceof Image))
+                if (child instanceof GImage)
                     child.color = c;
             }
         }

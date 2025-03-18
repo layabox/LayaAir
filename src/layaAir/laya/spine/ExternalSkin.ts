@@ -1,9 +1,9 @@
 import { ILaya } from "../../ILaya";
 import { Loader } from "../net/Loader";
 import { ExternalSkinItem } from "./ExternalSkinItem";
+import { Spine2DRenderNode } from "./Spine2DRenderNode";
 import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
-import { ISpineSkeleton } from "./interface/ISpineSkeleton";
 
 /**
  * @en Class representing an external skin for a Spine skeleton.
@@ -20,7 +20,9 @@ export class ExternalSkin {
      * @en The target Spine skeleton.
      * @zh 目标 Spine 骨骼。
      */
-    target: ISpineSkeleton;
+    target: Spine2DRenderNode;
+
+    normal = false;
 
     /**
      * @en The source of the external skin Spine.
@@ -85,8 +87,13 @@ export class ExternalSkin {
      * @zh 替换外部皮肤 Spine。
      */
     flush() {
-        if (this.target && this.target.templet && this._items && this._templet && this._templet.skeletonData) {
-            if (null == (this.target.templet as any)._textures) return;
+        let targetTemplet = this.target?.templet;
+        let skeletonData = this._templet?.skeletonData;
+        if (
+            this._items && skeletonData 
+            && targetTemplet
+            && (targetTemplet as any)._textures) 
+        {
             for (let i = this._items.length - 1; i >= 0; i--) {
                 let o = this._items[i];
                 let attachmentStr = o.attachment;
@@ -95,7 +102,7 @@ export class ExternalSkin {
 
                 if (attachmentStr && slot && skinStr) {
                     let attachment: spine.Attachment = null;
-                    let skins = this._templet.skeletonData.skins;
+                    let skins = skeletonData.skins;
                     for (let j = skins.length - 1; j >= 0; j--) {
                         if (skins[j].name == skinStr) {
                             let skin = skins[j];
@@ -111,16 +118,19 @@ export class ExternalSkin {
                     }
                     if (attachment) {
                         let regionPage = (attachment as any).region.page;
-                        (this.target.templet as any)._textures[regionPage.name] = regionPage.texture;
+                        targetTemplet.setTexture(regionPage.name , regionPage.texture.realTexture);
                         let slotObj = this.target.getSkeleton().findSlot(slot);
                         if (slotObj) {
                             slotObj.setAttachment(attachment);
                         }
-                        this.target.changeNormal();
+
                     }
                 }
 
             }
+            this.normal = this._templet !== targetTemplet;
+        }else{
+            this.normal = false;
         }
 
     }

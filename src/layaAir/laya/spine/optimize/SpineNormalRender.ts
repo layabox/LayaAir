@@ -21,7 +21,9 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @zh 销毁渲染器。
      */
     destroy(): void {
-        //throw new NotImplementedError();
+        this._renderer.destroy();
+        this._renderer = null;
+        this._owner._renderElements.length = 0;
     }
     /**
      * @en Initializes bake data.

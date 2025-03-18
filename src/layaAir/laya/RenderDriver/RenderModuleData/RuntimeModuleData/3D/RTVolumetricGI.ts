@@ -1,5 +1,6 @@
 
 import { Bounds } from "../../../../d3/math/Bounds";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
@@ -58,13 +59,18 @@ export class RTVolumetricGI implements IVolumetricGIData {
 
     _shaderData: ShaderData;
 
+    public set shaderData(value: ShaderData) {
+        this._shaderData = value;
+        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
+    }
+
     get shaderData(): ShaderData {
         return this._shaderData;
     }
 
     constructor() {
         this._nativeObj = new (window as any).conchRTVolumetricGI();
-        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._defaultBounds = new Bounds();
         this.bound = this._defaultBounds;
     }
@@ -78,5 +84,13 @@ export class RTVolumetricGI implements IVolumetricGIData {
 
     setProbeStep(value: Vector3): void {
         this._nativeObj.setProbeStep(value);
+    }
+
+    destroy(): void {
+        this._nativeObj.destroy();
+        this.distance = null;
+        this.irradiance = null;
+        this._shaderData.destroy();
+        this._shaderData = null;
     }
 }

@@ -257,6 +257,8 @@ export class VolumetricGI extends Volume {
     _onDestroy() {
         this.irradiance = null;
         this.distance = null;
+        this._dataModule.destroy();
+        this._dataModule = null;
     }
 
     /**@internal */

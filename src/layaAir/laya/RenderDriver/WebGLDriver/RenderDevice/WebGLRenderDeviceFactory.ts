@@ -60,7 +60,7 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
         return comMap;
     }
 
-    createEngine(config: Config, canvas: any): Promise<void> {
+    createEngine(config: any, canvas: any): Promise<void> {
         let engine: WebGLEngine;
         let glConfig: WebGLConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
 
@@ -68,7 +68,7 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         engine = new WebGLEngine(glConfig, webglMode);
         engine.initRenderEngine(canvas._source);
-        var gl: WebGLRenderingContext = engine._context;//TODO 优化
+        var gl: WebGLRenderingContext = engine._context; //TODO 优化
         if (Config.printWebglOrder)
             this._replaceWebglcall(gl);
 

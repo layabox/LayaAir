@@ -71,11 +71,11 @@ export class Animation extends Sprite {
      * @zh 动画当前帧的索引。
      */
     get index(): number {
-        return this._comp.index;
+        return this._comp.frame;
     }
 
     set index(value: number) {
-        this._comp.index = value;
+        this._comp.frame = value;
     }
 
     /**
@@ -148,7 +148,7 @@ export class Animation extends Sprite {
         if (name)
             this._setFramesFromCache(name, true);
         if (start != null)
-            this._comp.index = (typeof (start) == 'string') ? this.getFrameByLabel(<string>start) : start;
+            this._comp.frame = (typeof (start) == 'string') ? this.getFrameByLabel(<string>start) : start;
         if (loop != null)
             this._comp.loop = loop;
         this._comp.play();

@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -23,13 +24,17 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _sharedMesh: Mesh2D;
 
-    private _texture: BaseTexture;
+    private _texture: BaseTexture = Texture2D.whiteTexture;
+    private _textureRange: Vector4;
 
     private _color: Color;
+    private _setRenderColor: Color;
 
     private _normalTexture: BaseTexture;
     private _normal2DStrength: number = 0;
 
+    private _renderAlpha: number = -1;
+    private _textureRangeIsClip: boolean = false;
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格
@@ -74,8 +79,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
             return
         value = value ? value : Color.BLACK;
         value.cloneTo(this._color);
-        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+        this._renderAlpha = -1;
     }
+
 
     get color() {
         return this._color;
@@ -86,14 +92,14 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set texture(value: BaseTexture) {
-        if (value == this._texture)
+        if (this._texture != null && value == this._texture)
             return;
 
         if (this._texture)
             this._texture._removeReference();
 
         this._texture = value;
-
+        value = value ? value : Texture2D.whiteTexture;
         this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
         if (value) {
             value._addReference();
@@ -107,6 +113,39 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get texture(): BaseTexture {
         return this._texture;
+    }
+
+    /**
+     * @en Texture range，if textureRangeIsClip is false, xy represents texture offset, zw represents scaling, if textureRangeIsClip is true, xy represents texture min, zw represents texture max
+     * @zh 纹理范围，如果textureRangeIsClip为false，xy表示纹理偏移，zw表示缩放，如果textureRangeIsClip为true，xy表示纹理最小值，zw表示纹理最大值
+     */
+    set textureRange(value: Vector4) {
+        if (!value)
+            return;
+        this._spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
+        value ? value.cloneTo(this._textureRange) : null;
+    }
+
+    get textureRange(): Vector4 {
+        return this._textureRange;
+    }
+
+    /**
+     * @en If textureRangeIsClip is true, the texture will be clipped to the textureRange, otherwise the texture will be stretched to the textureRange
+     * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
+     */
+    set textureRangeIsClip(value: boolean) {
+        if (this._textureRangeIsClip != value) {
+            this._textureRangeIsClip = value;
+            if (value)
+                this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+            else
+                this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+        }
+    }
+
+    get textureRangeIsClip(): boolean {
+        return this._textureRangeIsClip;
     }
 
     /**
@@ -168,9 +207,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _changeMesh() {
         let submeshNum = this._sharedMesh ? this._sharedMesh.subMeshCount : 0;
-        if (submeshNum > this._renderElements.length) {
+        if (submeshNum < this._renderElements.length) {
             for (var i = this._renderElements.length, n = submeshNum; n < i; i--) {
-                let element = this._renderElements[i];
+                let element = this._renderElements[i - 1];
                 element.destroy();
             }
             this._renderElements.length = submeshNum;
@@ -208,6 +247,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
         this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
+        if (this._renderAlpha !== context.globalAlpha) {
+            let a = context.globalAlpha * this._color.a;
+            this._setRenderColor.setValue(this._color.r * a, this._color.g * a, this._color.b * a, a);
+            this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._setRenderColor);
+            this._renderAlpha = context.globalAlpha;
+        }
         this._lightReceive && this._updateLight();
     }
 
@@ -229,7 +274,10 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this._color = new Color();
-
+        this._setRenderColor = new Color();
+        this._textureRange = new Vector4(0, 0, 1, 1);
+        this.textureRange = this._textureRange;
+        this.texture = null;
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
     }
