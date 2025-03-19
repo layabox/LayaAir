@@ -20,7 +20,6 @@ export class WebGPUBufferState implements IBufferState {
     _vertexBuffers: WebGPUVertexBuffer[];
 
     globalId: number;
-    objectName: string = 'WebGPUBufferState';
 
     /**
      * 是否需要转换顶点数据格式
@@ -34,6 +33,7 @@ export class WebGPUBufferState implements IBufferState {
                 }
             }
         }
+        //这里完全不需要
         return false;
     }
 

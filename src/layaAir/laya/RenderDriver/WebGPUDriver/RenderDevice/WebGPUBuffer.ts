@@ -12,7 +12,6 @@ export class WebGPUBuffer {
     private _mappedAtCreation = false;
 
     globalId: number;
-    objectName: string = 'WebGPUBuffer';
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
         this._size = roundUp(byteSize, 4);
@@ -23,14 +22,18 @@ export class WebGPUBuffer {
             this._create();
     }
 
+    private _memorychange(bytelength: number) {
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, bytelength);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, bytelength);
+    }
+
     /**
      * @param length 
      */
     setDataLength(length: number): void {
         const size = roundUp(length, 4);
         if (!this._isCreate || this._size != size) {
-            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
-            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
+            this._memorychange(- this._size);
             this._size = size;
             this._create();
         }
@@ -44,8 +47,7 @@ export class WebGPUBuffer {
         });
         this._isCreate = true;
         WebGPUGlobal.action(this, 'allocMemory | buffer', this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, this._size);
+        this._memorychange(this._size);
     }
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
@@ -139,18 +141,25 @@ export class WebGPUBuffer {
         });
     }
 
-    async readFromBuffer(buffer: GPUBuffer, size: number) {
+    async readFromBuffer(buffer: GPUBuffer, offset: number, byteLength: number) {
         await buffer.mapAsync(GPUMapMode.READ);
         const arrayBuffer = buffer.getMappedRange();
-        const data = new Float32Array(arrayBuffer).slice(0, size / 4);  // size / 4 because Float32Array elements are 4 bytes.
+        const data = new Float32Array(arrayBuffer).slice(offset, byteLength / 4);  // size / 4 because Float32Array elements are 4 bytes.
         buffer.unmap();
         return data;
     }
 
+    async writeFromBuffer(srcBuffer: ArrayBuffer, srcOffset: number, byteLength: number, dstOffset: number) {
+        await this._source.mapAsync(GPUMapMode.WRITE);
+        const arrayBuffer = this._source.getMappedRange(dstOffset, byteLength);
+        const data = new Float32Array(arrayBuffer);
+        data.set(new Float32Array(srcBuffer, srcOffset, byteLength / 4));
+        this._source.unmap();
+    }
+
     release() {
         //好像需要延迟删除
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
+        this._memorychange(-this._size);
         WebGPUGlobal.releaseId(this);
         //this._source.destroy(); //WebGPU会自动删除
     }
