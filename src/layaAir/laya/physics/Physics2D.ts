@@ -2,7 +2,7 @@ import { EventDispatcher } from "../events/EventDispatcher"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Physics2DOption } from "./Physics2DOption";
-import { IPhysics2DFactory } from "./Factory/IPhysics2DFactory";
+import { IPhysics2DFactory } from "./factory/IPhysics2DFactory";
 import { SingletonList } from "../utils/SingletonList";
 import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
@@ -44,13 +44,6 @@ export class Physics2D extends EventDispatcher {
      */
     _rigiBodyList: SingletonList<RigidBody>;
 
-    /**
-     * @internal
-     * @en List of bodies that need to synchronize physics data, which will be released in time.
-     * @zh 需要同步物理数据的列表，使用后及时释放。
-     */
-    _updataattributeLists: SingletonList<RigidBody>;
-
     /**@internal */
     _addRigidBody(body: RigidBody) {
         this._rigiBodyList.add(body);
@@ -61,22 +54,7 @@ export class Physics2D extends EventDispatcher {
         this._rigiBodyList.remove(body);
     }
 
-    /**@internal */
-    _updataRigidBodyAttribute(body: RigidBody) {
-        this._updataattributeLists.add(body);
-    }
-
-    /**@internal */
-    _removeRigidBodyAttribute(body: RigidBody) {
-        this._updataattributeLists.remove(body);
-    }
-
     private _update(): void {
-        //同步渲染世界参数到物理世界
-        for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {
-            this._updataattributeLists.elements[i]._updatePhysicsAttribute()
-        }
-        this._updataattributeLists.clear();
         //时间步太长，会导致错误穿透
         var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
 
@@ -89,7 +67,7 @@ export class Physics2D extends EventDispatcher {
     /**@internal */
     _updatePhysicsTransformToRender() {
         for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
-            this._rigiBodyList.elements[i]._updatePhysicsTransformToRender()
+            this._rigiBodyList.elements[i]._updatePhysicsTransformToRender();
         }
     }
 
@@ -123,9 +101,6 @@ export class Physics2D extends EventDispatcher {
         if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
         else this._rigiBodyList.clear();
 
-        if (!this._updataattributeLists) this._updataattributeLists = new SingletonList<RigidBody>();
-        else this._updataattributeLists.clear();
-
         if (!Physics2DOption.customUpdate && LayaEnv.isPlaying)
             ILaya.physicsTimer.frameLoop(1, this, this._update);
     }
@@ -147,7 +122,6 @@ export class Physics2D extends EventDispatcher {
      */
     stop(): void {
         this._rigiBodyList.clear();
-        this._updataattributeLists.clear();
         ILaya.physicsTimer.clear(this, this._update);
     }
 

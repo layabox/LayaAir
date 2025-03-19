@@ -111,7 +111,7 @@ export class Physics2DDebugDraw extends Sprite {
         this._mG.save();
         this._mG.scale(this._physics2DWorld.getPixel_Ratio(), this._physics2DWorld.getPixel_Ratio());
         this._lineWidth = this._physics2DWorld.layaToPhysics2D(1);
-        for (let i = 0; i <= Physics2D.I._factory.worldIndex; i++) {
+        for (let i = 0; i <= Physics2D.I._factory.worldCount; i++) {
             let world = Physics2D.I._factory.worldMap.get(i);
             if (!world) continue;
             if (world && world.enableDebugDraw) {

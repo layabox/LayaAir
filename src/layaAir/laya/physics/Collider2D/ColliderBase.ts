@@ -1,11 +1,12 @@
 import { Component } from "../../components/Component";
 import { Physics2D } from "../Physics2D";
 import { Sprite } from "../../display/Sprite";
-import { Box2DShapeDef, EPhysics2DShape, RigidBody2DInfo, RigidBody2DType } from "../Factory/IPhysics2DFactory";
+import { Box2DShapeDef, EPhysics2DShape, RigidBody2DInfo, RigidBody2DType } from "../factory/IPhysics2DFactory";
 import { IV2, Vector2 } from "../../maths/Vector2";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 import { RigidBody } from "../RigidBody";
 import { Point } from "../../maths/Point";
+import { Utils } from "../../utils/Utils";
 
 /**
  * @en Collider base class
@@ -13,8 +14,16 @@ import { Point } from "../../maths/Point";
  */
 export class ColliderBase extends Component {
 
+    /**
+     * @internal
+     * @zh 碰撞体根据自定义的质量、质心、惯性张量计算质量（只在未开启自动质量计算的时候才使用）
+     */
     protected _massData: any;
 
+    /**
+     * @internal
+     * @zh 是否在激活状态
+     */
     protected _isAwake: boolean = true;
 
     /**
@@ -53,11 +62,28 @@ export class ColliderBase extends Component {
      */
     protected _centerOfMass: Vector2 = new Vector2(0.5, 0.5);
 
+    /**
+     * @internal
+     * @zh 当前碰撞体所属场景的2D物理管理器
+     */
     protected _physics2DManager: Physics2DWorldManager;
 
+    /**
+     * @internal
+     * @zh 碰撞体的结构定义
+     */
     protected _bodyDef: RigidBody2DInfo = new RigidBody2DInfo();
+
+    /**
+     * @internal
+     * @zh 碰撞体box2D的结构定义
+     */
     private _box2DBodyDef: any;
 
+    /**
+     * @internal
+     * @zh 碰撞体box2D的对象
+     */
     protected _box2DBody: any;
 
     /**@internal 相对节点的x轴偏移*/
@@ -90,12 +116,16 @@ export class ColliderBase extends Component {
     }
 
     public set inertia(value: number) {
+        this._inertia = value;
         if (!this._useAutoMass) {
-            this._inertia = value;
             Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
     }
 
+    /**
+     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
+     * @zh 刚体质心（只在未开启自动质量计算时才有效）
+     */
     public get centerOfMass(): IV2 | Vector2 {
         let center;
         if (this._useAutoMass) {
@@ -136,6 +166,7 @@ export class ColliderBase extends Component {
         this._mass = value;
         if (!this._useAutoMass) {
             Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+
         }
     }
 
@@ -151,6 +182,9 @@ export class ColliderBase extends Component {
         Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
     }
 
+    /**
+     * @zh 当前碰撞体在物理世界中是否在激活状态
+     */
     public get isAwake(): boolean {
         this._isAwake = Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody);
         return this.isAwake;
@@ -197,7 +231,7 @@ export class ColliderBase extends Component {
     set x(value: number) {
         if (this._x == value) return;
         this._x = value;
-        this._needupdataShapeAttribute();
+        this._updateTransformFromRender();
     }
 
     /**
@@ -211,7 +245,7 @@ export class ColliderBase extends Component {
     set y(value: number) {
         if (this._y == value) return;
         this._y = value;
-        this._needupdataShapeAttribute();
+        this._updateTransformFromRender();
     }
 
     /**
@@ -223,6 +257,10 @@ export class ColliderBase extends Component {
         this._singleton = false;
     }
 
+    /**
+     * @zh 获取对应box2D的碰撞体
+     * @returns 
+     */
     getBox2DBody(): any {
         if (this._box2DBody) {
             return this._box2DBody;
@@ -241,12 +279,12 @@ export class ColliderBase extends Component {
 
     /**@internal*/
     protected _onEnable(): void {
-        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        this._getPhysicsManager();
         this._box2DBodyDef = Physics2D.I._factory.createBodyDef(this._physics2DManager.box2DWorld, this._bodyDef);
         this._box2DBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, this._box2DBodyDef);
     }
 
-    _getPhysicsManager(): void {
+    protected _getPhysicsManager(): void {
         this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
     }
 
@@ -262,13 +300,12 @@ export class ColliderBase extends Component {
         return this.owner.globalTrans.localToGlobal(x, y);
     }
 
-
     /**
-     * @internal
-     * @en Refresh the physics world collision information after the collision body parameters change.
-     * @zh 碰撞体参数发生变化后，刷新物理世界碰撞信息
+     * @zh 从渲染更新碰撞体的位置
      */
-    _refresh(): void {
+    private _updateTransformFromRender() {
+        var sp: Sprite = this.owner;
+        Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
     }
 
     /**@internal*/
@@ -383,9 +420,12 @@ export class ColliderBase extends Component {
      * @deprecated 兼容方法
      */
     createShape(collider: ColliderBase) {
-
     }
 
+    /**
+     * @deprecated 兼容方法，根据刚体的数据设置def
+     * @param collider 
+     */
     protected _setRigidbodyValue(collider: RigidBody): void {
     }
 

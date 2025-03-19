@@ -8,7 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Main } from "./../Main";
-import { RevoluteJoint } from "laya/physics/Joint/RevoluteJoint";
+import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Stat } from "laya/utils/Stat";
 import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
@@ -17,7 +17,7 @@ import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
 import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
-import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 export class Physics_Tumbler {
     private count = 0;

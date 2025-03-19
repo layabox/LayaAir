@@ -304,6 +304,11 @@ export class physics2D_BaseJointDef {
      * @en Body B
      */
     bodyB: any;
+
+    /**
+     * @zh 刚体之间是否可以互相碰撞
+     */
+    collideConnected: boolean;
 }
 
 /**
@@ -315,7 +320,6 @@ export class physics2D_DistancJointDef extends physics2D_BaseJointDef {
     localAnchorB: Vector2 = new Vector2();
     frequency: number;
     dampingRatio: number;
-    collideConnected: boolean;
     length: number;
     maxLength: number;
     minLength: number;
@@ -326,7 +330,6 @@ export class physics2D_GearJointDef extends physics2D_BaseJointDef {
     joint1: any;
     joint2: any;
     ratio: number;
-    collideConnected: boolean;
 }
 
 
@@ -336,7 +339,6 @@ export class physics2D_MotorJointDef extends physics2D_BaseJointDef {
     maxForce: number;
     maxTorque: number;
     correctionFactor: number;
-    collideConnected: boolean;
 }
 
 export class physics2D_MouseJointJointDef extends physics2D_BaseJointDef {
@@ -355,7 +357,6 @@ export class physics2D_PrismaticJointDef extends physics2D_BaseJointDef {
     enableLimit: boolean;
     lowerTranslation: number;
     upperTranslation: number;
-    collideConnected: boolean;
 }
 
 export class physics2D_PulleyJointDef extends physics2D_BaseJointDef {
@@ -364,7 +365,6 @@ export class physics2D_PulleyJointDef extends physics2D_BaseJointDef {
     localAnchorA: Vector2 = new Vector2();
     localAnchorB: Vector2 = new Vector2();
     ratio: number;
-    collideConnected: boolean;
 }
 
 export class physics2D_RevoluteJointDef extends physics2D_BaseJointDef {
@@ -375,14 +375,12 @@ export class physics2D_RevoluteJointDef extends physics2D_BaseJointDef {
     enableLimit: boolean;
     lowerAngle: number;
     upperAngle: number;
-    collideConnected: boolean;
 }
 
 export class physics2D_WeldJointDef extends physics2D_BaseJointDef {
     anchor: Vector2 = new Vector2();
     frequency: number;
     dampingRatio: number;
-    collideConnected: boolean;
 }
 
 export class physics2D_WheelJointDef extends physics2D_BaseJointDef {
@@ -396,7 +394,6 @@ export class physics2D_WheelJointDef extends physics2D_BaseJointDef {
     upperTranslation: number;
     frequency: number;
     dampingRatio: number;
-    collideConnected: boolean;
 }
 
 
@@ -422,7 +419,7 @@ export enum Ebox2DType {
 
 
 export interface IPhysics2DFactory {
-    worldIndex: number;
+    worldCount: number;
 
     worldMap: Map<number, Physics2DWorldManager>;
 
@@ -522,6 +519,8 @@ export interface IPhysics2DFactory {
 
     isValidJoint(joint: any): boolean;
 
+    setJoint_userData(joint: any, data: any): void;
+
     /** 
      * @internal
      */
@@ -597,22 +596,22 @@ export interface IPhysics2DFactory {
     /** 
      * @internal
      */
-    set_MouseJoint_frequencyAndDampingRatio(Joint: any, frequency: number, dampingRatio: number): void;
+    set_MouseJoint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number): void;
 
     /** 
      * @internal
      */
-    set_MotorJoint_linearOffset(join: any, x: number, y: number): void;
+    set_MotorJoint_linearOffset(joint: any, x: number, y: number): void;
 
     /** 
      * @internal
      */
-    set_MotorJoint_SetAngularOffset(join: any, angular: number): void;
+    set_MotorJoint_SetAngularOffset(joint: any, angular: number): void;
 
     /** 
      * @internal
      */
-    set_MotorJoint_SetMaxForce(join: any, maxForce: number): void;
+    set_MotorJoint_SetMaxForce(joint: any, maxForce: number): void;
 
     /** 
      * @internal
@@ -697,7 +696,7 @@ export interface IPhysics2DFactory {
      */
     get_shape_body(shape: any): any;
 
-    set_shape_sensor(shape: any, sensor: boolean): void;
+    set_shape_isSensor(shape: any, sensor: boolean): void;
 
     get_shape_isSensor(shape: any): boolean;
 
@@ -705,7 +704,7 @@ export interface IPhysics2DFactory {
 
     setfilterData(shape: any, filterData: any): void;
 
-    getfilterData(shape: any): FilterData;
+    getfilterData(shape: any): any;
 
     set_shape_reFilter(shape: any): void;   // 内部调用就好了
 
@@ -740,6 +739,8 @@ export interface IPhysics2DFactory {
     get_rigidBody_fixedRotation(body: any): boolean;
 
     get_rigidBody_next(body: any): any;  //TODO
+
+    set_rigidBody_userData(body: any, data: any): void;
 
     get_rigidBody_userData(body: any): any;
 
