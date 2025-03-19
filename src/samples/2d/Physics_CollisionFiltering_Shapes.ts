@@ -11,18 +11,20 @@ import { MouseJoint } from "laya/physics/Joint/MouseJoint";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
-import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
-import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
-import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
-import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { EPhycis2DBlit, FilterData } from "laya/physics/Factory/IPhysics2DFactory";
+import { StaticCollider } from "laya/physics/StaticCollider";
+import { ChainShape } from "laya/physics/Shape/ChainShape";
+import { BoxShape } from "laya/physics/Shape/BoxShape";
+import { PolygonShape } from "laya/physics/Shape/PolygonShape";
+import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { Physics2DShapeBase } from "laya/physics/Shape/Physics2DShapeBase";
 /**
  * 碰撞过滤器
  */
-export class Physics_CollisionFiltering {
+export class Physics_CollisionFiltering_Shapes {
     Main: typeof Main = null;
     public static k_smallGroup = 1;
     public static k_middleGroup = 0;
@@ -31,8 +33,8 @@ export class Physics_CollisionFiltering {
     public static k_boxCategory = 0x4;
     public static k_circleCategory = 0x8;
     public static k_triangleMask = 0xF;
-    public static k_boxMask = 0xF ^ Physics_CollisionFiltering.k_circleCategory;
-    public static k_circleMask = Physics_CollisionFiltering.k_triangleCategory | Physics_CollisionFiltering.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
+    public static k_boxMask = 0xF ^ Physics_CollisionFiltering_Shapes.k_circleCategory;
+    public static k_circleMask = Physics_CollisionFiltering_Shapes.k_triangleCategory | Physics_CollisionFiltering_Shapes.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
     private curTarget: Sprite;
     private preMovementX: number = 0;
     private preMovementY: number = 0;
@@ -67,12 +69,12 @@ export class Physics_CollisionFiltering {
 
         let house = new Sprite();
         this._scene.addChild(house);
-        let rigidbody: RigidBody = house.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
-        rigidbody.type = "static";
-        let chainCollider: ChainCollider = house.addComponent(ChainCollider);
-        chainCollider.loop = true;
-        chainCollider.datas = [600, 50, 100, 200, 100, 600, 1100, 600, 1100, 200];
+
+        let rigidbody: StaticCollider = house.addComponent(StaticCollider);
+        let chainShape: ChainShape = new ChainShape();
+        chainShape.loop = true;
+        chainShape.datas = [600, 50, 100, 200, 100, 600, 1100, 600, 1100, 200];
+        rigidbody.shapes = [chainShape];
     }
 
     createBox(posx, posy, width, height, ratio) {
@@ -81,13 +83,16 @@ export class Physics_CollisionFiltering {
         this._scene.addChild(box);
         box.pos(posx, posy).size(width * ratio, height * ratio);
         let rigidbody: RigidBody = box.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
-        rigidbody.category = Physics_CollisionFiltering.k_boxCategory;
-        rigidbody.mask = Physics_CollisionFiltering.k_boxMask;
-        let boxCollider: BoxCollider = box.addComponent(BoxCollider);
-        boxCollider.width = width * ratio;
-        boxCollider.height = height * ratio;
-        this.addGroup(rigidbody, ratio);
+
+        let boxShape: BoxShape = new BoxShape();
+        boxShape.width = width * ratio;
+        boxShape.height = height * ratio;
+        let filter = new FilterData();
+        filter.catagory = Physics_CollisionFiltering_Shapes.k_boxCategory;
+        filter.mask = Physics_CollisionFiltering_Shapes.k_boxMask;
+
+        this.addGroup(ratio, boxShape);
+        rigidbody.shapes = [boxShape];
     }
 
     createTriangle(posx, posy, side, ratio) {
@@ -95,13 +100,15 @@ export class Physics_CollisionFiltering {
         triangle.on(Event.MOUSE_DOWN, this, this.mouseDown);
         this._scene.addChild(triangle);
         triangle.pos(posx, posy).size(side * ratio, side * ratio);
+
         let rigidbody: RigidBody = triangle.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
-        rigidbody.category = Physics_CollisionFiltering.k_triangleCategory;
-        rigidbody.mask = Physics_CollisionFiltering.k_triangleMask;
-        let polygonCollider: PolygonCollider = triangle.addComponent(PolygonCollider);
-        polygonCollider.datas = [0, 0, 0, side * ratio, side * ratio, 0];
-        this.addGroup(rigidbody, ratio);
+
+        let polygonShape: PolygonShape = new PolygonShape();
+        polygonShape.datas = [0, 0, 0, side * ratio, side * ratio, 0];
+        polygonShape.filterData.catagory = Physics_CollisionFiltering_Shapes.k_triangleCategory;
+        polygonShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_triangleMask;
+        this.addGroup(ratio, polygonShape);
+        rigidbody.shapes = [polygonShape];
     }
 
     createCircle(posx, posy, radius, ratio) {
@@ -111,24 +118,25 @@ export class Physics_CollisionFiltering {
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
         circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
-        rigidbody.category = Physics_CollisionFiltering.k_circleCategory;
-        rigidbody.mask = Physics_CollisionFiltering.k_circleMask;
-        let circleCollider: CircleCollider = circle.addComponent(CircleCollider);
-        circleCollider.radius = radius * ratio;
-        this.addGroup(rigidbody, ratio);
+
+        let circleShape: CircleShape = new CircleShape();
+        circleShape.radius = radius * ratio;
+        circleShape.filterData.catagory = Physics_CollisionFiltering_Shapes.k_circleCategory;
+        circleShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_circleMask;
+        this.addGroup(ratio, circleShape);
+        rigidbody.shapes = [circleShape];
     }
 
-    addGroup(rigidbody, ratio) {
+    addGroup(ratio: number, shape: Physics2DShapeBase) {
         switch (ratio) {
             case 1:
-                rigidbody.group = Physics_CollisionFiltering.k_smallGroup;
+                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_smallGroup;
                 break;
             case 2:
-                rigidbody.group = Physics_CollisionFiltering.k_middleGroup;
+                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_middleGroup;
                 break;
             case 3:
-                rigidbody.group = Physics_CollisionFiltering.k_largeGroup;
+                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_largeGroup;
                 break;
         }
     }
@@ -161,7 +169,6 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_UP, this, this.mouseUp);
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         let rigidbody: RigidBody = this.curTarget.getComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.type = "dynamic";
         rigidbody.linearVelocity = { x: this.preMovementX, y: this.preMovementY };
         this.curTarget = null;

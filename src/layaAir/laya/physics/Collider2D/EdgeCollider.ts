@@ -1,12 +1,13 @@
-import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "../IPhysiscs2DFactory";
+import { StaticCollider } from "../StaticCollider";
+import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
 
 /**
+ * @deprecated
  * @en 2D edge collider.
  * @zh 2D边缘碰撞体。
  */
-export class EdgeCollider extends ColliderBase {
+export class EdgeCollider extends StaticCollider {
     /**
      * @internal
      * @deprecated
@@ -33,7 +34,7 @@ export class EdgeCollider extends ColliderBase {
         for (var i: number = 0, n: number = length; i < n; i++) {
             this._datas.push(parseInt(arr[i]));
         }
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /**
@@ -47,12 +48,12 @@ export class EdgeCollider extends ColliderBase {
     set datas(value: number[]) {
         if (!value) throw "EdgeCollider points cannot be empty";
         this._datas = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     constructor() {
         super();
-        this._physicShape = PhysicsShape.EdgeShape;
+        this._shapeDef.shapeType = EPhysics2DShape.EdgeShape;
     }
 
     /**
@@ -60,6 +61,7 @@ export class EdgeCollider extends ColliderBase {
      * @override
      */
     protected _setShapeData(shape: any): void {
+        if (!shape) return;
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
         Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
