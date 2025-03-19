@@ -417,7 +417,7 @@ export class Label extends UIComponent {
     }
 
     protected _onPostLayout() {
-        if ((this._fitContent == "yes" || this._fitContent == "height") 
+        if ((this._fitContent == "yes" || this._fitContent == "height")
             && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
             this._fitFlag = true;
             if (this._fitContent == "height")
@@ -465,11 +465,13 @@ export class Label extends UIComponent {
      * @ignore
      */
     size(width: number, height: number): this {
-        if (this._fitContent == "yes" && !this._fitFlag) //锁定了width
-            width = this._width;
+        if (this._fitContent == "yes" && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0))
+            width = this._width;//锁定了width
 
-        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag) //锁定了height
-            height = this._height;
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textHeight > 0))
+            height = this._height;//锁定了height
 
         return super.size(width, height);
     }
