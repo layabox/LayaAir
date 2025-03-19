@@ -335,17 +335,17 @@ export class TileMapChunkData {
             switch (this._tileLayer.sortMode) {
                 case TileLayerSortMode.YSort:
                     this._chuckCellList.sort((a, b) => {
-                        if (a.yOrderValue == b.yOrderValue)
-                            return a.chuckLocalindex - b.chuckLocalindex;
-                        return a.yOrderValue - b.yOrderValue;
+                        if (a.celly == b.celly)
+                            return a.cellx - b.cellx;
+                        return a.celly - b.celly;
                     });
                     break;
                 case TileLayerSortMode.XSort:
                     this._chuckCellList.sort((a, b) => {
-                        if (a.chuckLocalindex - b.chuckLocalindex) {
-                            return a.yOrderValue - b.yOrderValue;
+                        if (a.cellx - b.cellx) {
+                            return a.celly - b.celly;
                         }
-                        return a.chuckLocalindex - b.chuckLocalindex
+                        return a.cellx - b.cellx
                     });
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
