@@ -2,8 +2,6 @@
 description
  物理仿生兽模拟，使用2D物理引擎创建可交互的机械生物
  */
-
-
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
@@ -16,10 +14,6 @@ import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
-import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
-import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
-import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
 import { Vector2 } from "laya/maths/Vector2";
 import { CheckBox } from "laya/ui/CheckBox";
 import { Handler } from "laya/utils/Handler";
@@ -27,7 +21,12 @@ import { Utils } from "laya/utils/Utils";
 import { Physics2DOption } from "laya/physics/Physics2DOption";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
-import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { EPhycis2DBlit, FilterData } from "laya/physics/Factory/IPhysics2DFactory";
+import { StaticCollider } from "laya/physics/StaticCollider";
+import { ChainShape } from "laya/physics/Shape/ChainShape";
+import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { BoxShape } from "laya/physics/Shape/BoxShape";
+import { PolygonShape } from "laya/physics/Shape/PolygonShape";
 
 const dampingRatio: number = 0.5;
 const frequencyHz: number = 10.0;
@@ -35,7 +34,7 @@ const frequencyHz: number = 10.0;
 /**
  * 仿生兽
  */
-export class Physics_Strandbeests {
+export class Physics_Strandbeests_Shapes {
     Main: typeof Main = null;
     private scale = 2.5;
     private pos: Array<number> = [550, 200];
@@ -68,29 +67,31 @@ export class Physics_Strandbeests {
         man.enableDebugDraw(true, EPhycis2DBlit.Shape);
         man.enableDebugDraw(true, EPhycis2DBlit.Joint);
         man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
+        // shapes 模式
+        // Ground
         let ground = new Sprite();
         ground.name = "ground"
         this._scene.addChild(ground);
-        let rigidbody: RigidBody = new RigidBody();
-        rigidbody.applyOwnerColliderComponent = true;
-        rigidbody.type = "static";
+        let rigidbody: StaticCollider = new StaticCollider();
         ground.addComponentInstance(rigidbody);
-        let chainCollider: ChainCollider = new ChainCollider();
-        chainCollider.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
 
-        ground.addComponentInstance(chainCollider);
+
+        let chainShape = new ChainShape();
+        chainShape.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
+
+        rigidbody.shapes = [chainShape]
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();
             small.name = "ground" + i;
             small.pos(i * 30 + 50, 570 - 5 * this.scale);
-            let rig = small.addComponent(RigidBody);
-            rig.applyOwnerColliderComponent = true;
-            // small.graphics.drawCircle(0, 0, 100, "#fa7e7e");
+            small.addComponent(RigidBody);
+            let smRd = small.getComponent(RigidBody);
             this._scene.addChild(small);
 
-            let sCollider: CircleCollider = small.addComponent(CircleCollider);
-            sCollider.radius = 2.5 * this.scale;
+            let circleshape = new CircleShape();
+            circleshape.radius = 2.5 * this.scale;
+            smRd.shapes = [circleshape];
         }
 
         // Chassis
@@ -100,32 +101,28 @@ export class Physics_Strandbeests {
         chassis.pos(this.pos[0], this.pos[1]);
         this._scene.addChild(chassis);
         let chassisBody: RigidBody = chassis.addComponent(RigidBody);
-        chassisBody.applyOwnerColliderComponent = true;
-        chassisBody.group = -1;
 
-        let chassisCollider: BoxCollider = chassis.addComponent(BoxCollider);
-        chassisCollider.density = 1;
-        chassisCollider.width = 50 * this.scale;
-        chassisCollider.height = 20 * this.scale;
-
+        let boxshape = new BoxShape();
+        let filter = new FilterData();
+        filter.group = -1;
+        boxshape.filterData = filter;
+        boxshape.density = 1;
+        boxshape.width = 50 * this.scale;
+        boxshape.height = 20 * this.scale;
+        chassisBody.shapes = [boxshape];
 
         // Circle
         let wheel = this.wheel = new Sprite();
-
         wheel.pos(chassis.x, chassis.y);
         this._scene.addChild(wheel);
         let wheelBody: RigidBody = wheel.addComponent(RigidBody);
-        wheelBody.applyOwnerColliderComponent = true;
-        wheelBody.group = -1;
+        let circleshape = new CircleShape();
+        circleshape.filterData = filter;
+        circleshape.density = 1;
+        circleshape.radius = 16 * this.scale;
+        wheelBody.shapes = [circleshape];
 
-        let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
-        wheelCollider.density = 1;
-        wheelCollider.radius = 16 * this.scale;
-
-
-
-
-        // // 转动关节
+        // 转动关节
         let motorJoint: RevoluteJoint = this.motorJoint = new RevoluteJoint();
         motorJoint.otherBody = chassisBody;
         motorJoint.collideConnected = false;
@@ -195,25 +192,24 @@ export class Physics_Strandbeests {
         this._scene.addChild(leg2);
 
         let legBody1: RigidBody = leg1.addComponent(RigidBody);
-        legBody1.applyOwnerColliderComponent = true;
         legBody1.angularDamping = 10;
-        legBody1.group = -1;
 
-        let legCollider1: PolygonCollider = leg1.addComponent(PolygonCollider);
-        legCollider1.density = 1;
-
+        let polyShape1 = new PolygonShape();
+        let filter = new FilterData();
+        filter.group = -1;
+        polyShape1.filterData = filter;
+        polyShape1.density = 1;
+        polyShape1.datas = p1.concat(p2).concat(p3);
+        legBody1.shapes = [polyShape1];
 
 
         let legBody2: RigidBody = leg2.addComponent(RigidBody);
-        legBody2.applyOwnerColliderComponent = true;
         legBody2.angularDamping = 10;
-        legBody2.group = -1;
-
-        let legCollider2: PolygonCollider = leg2.addComponent(PolygonCollider);
-        legCollider2.density = 1;
-
-        legCollider1.datas = p1.concat(p2).concat(p3);
-        legCollider2.datas = p4.concat(p5).concat(p6);
+        let polyShape2 = new PolygonShape();
+        polyShape2.filterData = filter;
+        polyShape2.density = 1;
+        polyShape2.datas = p4.concat(p5).concat(p6);
+        legBody2.shapes = [polyShape2];
 
         let distance = this.getDistance(legBody1, p2, legBody2, p5);
         this.createDistanceJoint(legBody1, p2, legBody2, p5, distance);
@@ -249,15 +245,10 @@ export class Physics_Strandbeests {
             newBall.name = "bullet" + index;
             index++;
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
-            circleBody.applyOwnerColliderComponent = true;
-            // let circle = new CircleShape();
-            // circle.radius = 3 * this.scale;
-            // circleBody.shapes = [circle];
 
-            let circleCollider: CircleCollider = newBall.addComponent(CircleCollider);
-            circleCollider.radius = 3 * this.scale;
-
-
+            let circle = new CircleShape();
+            circle.radius = 3 * this.scale;
+            circleBody.shapes = [circle];
 
             tempVec.x = this.chassis.x - newBall.x;
             tempVec.y = this.chassis.y - newBall.y;

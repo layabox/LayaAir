@@ -1,12 +1,13 @@
-import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "../IPhysiscs2DFactory";
+import { StaticCollider } from "../StaticCollider";
+import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
 
 /**
+ * @deprecated
  * @en 2D CircleCollider
  * @zh 2D圆形碰撞体
  */
-export class CircleCollider extends ColliderBase {
+export class CircleCollider extends StaticCollider {
 
     /**@internal 圆形半径，必须为正数*/
     private _radius: number = 50;
@@ -23,12 +24,12 @@ export class CircleCollider extends ColliderBase {
         if (value <= 0) throw "CircleCollider radius cannot be less than 0";
         if (this._radius == value) return;
         this._radius = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     constructor() {
         super();
-        this._physicShape = PhysicsShape.CircleShape;
+        this._shapeDef.shapeType = EPhysics2DShape.CircleShape;
     }
 
     /**
@@ -36,6 +37,7 @@ export class CircleCollider extends ColliderBase {
      * @param shape 
      */
     protected _setShapeData(shape: any): void {
+        if (!shape) return;
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);

@@ -13,13 +13,13 @@ import { Stat } from "laya/utils/Stat";
 import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
 import { Config } from "Config";
-import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
 import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { BoxShape } from "laya/physics/Shape/BoxShape";
 
-export class Physics_Tumbler {
+export class Physics_Tumbler_Shapes {
     private count = 0;
     private totalBox = 200;
     private label: Label;
@@ -36,9 +36,7 @@ export class Physics_Tumbler {
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
-
             Physics2D.I.start();
-            // Physics2D.I.drawJoint = false;
             this.createBox();
             this.eventListener();
         });
@@ -51,7 +49,7 @@ export class Physics_Tumbler {
         let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         man.enableDebugDraw(true, EPhycis2DBlit.Shape);
         man.enableDebugDraw(true, EPhycis2DBlit.Joint);
-        // man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
+        man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
 
         const width = 300, height = 20;
         const
@@ -63,36 +61,43 @@ export class Physics_Tumbler {
         box.size(width + height * 2, width + height * 2);
         box.pos(posx, posy);
         this._scene.addChild(box);
+
         let boxBody: RigidBody = box.addComponent(RigidBody);
-        boxBody.applyOwnerColliderComponent = true;
-        let box1Shape: BoxCollider = box.addComponent(BoxCollider);
-        let box2Shape: BoxCollider = box.addComponent(BoxCollider);
-        let box3Shape: BoxCollider = box.addComponent(BoxCollider);
-        let box4Shape: BoxCollider = box.addComponent(BoxCollider);
+        let shapes = [];
+        let box1Shape: BoxShape = new BoxShape();
         box1Shape.width = width + height * 2;
         box1Shape.height = height;
         box1Shape.x = off;
         box1Shape.y = off;
+
+        let box2Shape: BoxShape = new BoxShape();
         box2Shape.width = width + height * 2;
         box2Shape.height = height;
         box2Shape.x = off;
         box2Shape.y = width + height + off;
+
+        let box3Shape: BoxShape = new BoxShape();
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
         box3Shape.x = off;
         box3Shape.y = off;
+
+        let box4Shape: BoxShape = new BoxShape();
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
         box4Shape.x = width + height + off;
         box4Shape.y = off;
 
+        shapes.push(box1Shape);
+        shapes.push(box2Shape);
+        shapes.push(box3Shape);
+        shapes.push(box4Shape);
+        boxBody.shapes = shapes;
         let revoluteJoint = new RevoluteJoint();
         revoluteJoint.motorSpeed = 0.05 * Math.PI;
         revoluteJoint.maxMotorTorque = 1e8;
         revoluteJoint.enableMotor = true;
         box.addComponentInstance(revoluteJoint);
-
-
     }
 
     addMiniBox() {
@@ -105,11 +110,11 @@ export class Physics_Tumbler {
         sp.x = Laya.stage.width / 2;
         sp.y = Laya.stage.height / 2;
         let boxBody = sp.addComponent(RigidBody);
-        boxBody.applyOwnerColliderComponent = true;
-        boxBody.type = "dynamic";
-        let collider = sp.addComponent(BoxCollider);
-        collider.width = 5;
-        collider.height = 5;
+        let boxshape = new BoxShape();
+        boxshape.width = 5;
+        boxshape.height = 5;
+        let shapes = [boxshape];
+        boxBody.shapes = shapes;
         this.count++;
     }
 

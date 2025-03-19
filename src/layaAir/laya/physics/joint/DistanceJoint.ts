@@ -1,8 +1,8 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
-import { Sprite } from "../../display/Sprite";
-import { physics2D_DistancJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_DistancJointDef } from "../Factory/IPhysics2DFactory";
+import { ColliderBase } from "../Collider2D/ColliderBase";
 
 /**
  * @en Distance Joint: A joint that maintains a fixed distance between two points on two bodies.
@@ -32,13 +32,13 @@ export class DistanceJoint extends JointBase {
      * @en The joint's own rigid body, effective only on the first setting.
      * @zh [首次设置有效]关节的自身刚体。
      */
-    selfBody: RigidBody;
+    selfBody: ColliderBase;
 
     /**
      * @en The joint's connected rigid body, which can be unspecified and defaults to an empty rigid body at the top left corner, effective only on the first setting.
      * @zh [首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体。
      */
-    otherBody: RigidBody;
+    otherBody: ColliderBase;
 
     /**
      * @en The self body's anchor point, which is the offset relative to the top left corner of the own rigid body, effective only on the first setting.
@@ -135,7 +135,7 @@ export class DistanceJoint extends JointBase {
      */
     get jointLength(): number {
         if (this._joint) {
-            return this._factory.phyToLayaValue(this.joint.GetLength())
+            return Physics2D.I._factory.get_DistanceJoint_length(this._joint);
         } else {
             return 0;
         }
@@ -152,15 +152,18 @@ export class DistanceJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
             let point = this.getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
-            def.bodyB = this.selfBody.getBody();
+            def.bodyB = this.selfBody.getBox2DBody();
             def.localAnchorB.setValue(point.x, point.y);
             this.selfBody.owner.on("shapeChange", this, this._refeahJoint);
             if (this.otherBody) {
-                def.bodyA = this.otherBody.getBody();
+                def.bodyA = this.otherBody.getBox2DBody();
                 point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
                 def.localAnchorA.setValue(point.x, point.y);
                 this.otherBody.owner.on("shapeChange", this, this._refeahJoint);
             } else {
+                if (!Physics2D.I._emptyBody) {
+                    Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
+                }
                 def.bodyA = Physics2D.I._emptyBody;
                 def.localAnchorA.setValue(this.otherAnchor[0], this.otherAnchor[1]);
             }
@@ -171,7 +174,8 @@ export class DistanceJoint extends JointBase {
             def.length = this._length;
             def.maxLength = this._maxLength;
             def.minLength = this._minLength;
-            this._joint = this._factory.createDistanceJoint(def);
+            this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.DistanceJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.DistanceJoint, this._box2DJointDef);
 
         }
     }

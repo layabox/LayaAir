@@ -1,14 +1,15 @@
-import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "../IPhysiscs2DFactory";
+import { StaticCollider } from "../StaticCollider";
+import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
 
 /**
+ * @deprecated
  * @en 2D polygon collider. Concave polygons are currently not supported. If it is a concave polygon, manually split it into multiple convex polygons first.
  * The maximum number of vertices is `b2_maxPolygonVertices`, which defaults to 8. So it is not recommended to exceed 8 points, and it cannot be less than 3.
  * @zh 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形。
  * 节点个数最多是 `b2_maxPolygonVertices`，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个。
  */
-export class PolygonCollider extends ColliderBase {
+export class PolygonCollider extends StaticCollider {
 
     /**
      * @internal
@@ -37,7 +38,7 @@ export class PolygonCollider extends ColliderBase {
         for (var i: number = 0, n: number = length; i < n; i++) {
             this._datas.push(parseInt(arr[i]))
         }
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /**
@@ -51,18 +52,19 @@ export class PolygonCollider extends ColliderBase {
     set datas(value: number[]) {
         if (!value) throw "PolygonCollider points cannot be empty";
         this._datas = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     constructor() {
         super();
-        this._physicShape = PhysicsShape.PolygonShape;
+        this._shapeDef.shapeType = EPhysics2DShape.PolygonShape;
     }
 
     /**
     * @override
     */
     protected _setShapeData(shape: any): void {
+        if (!shape) return;
         var len: number = this.datas.length;
         if (len < 6) throw "PolygonCollider points must be greater than 3";
         if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";

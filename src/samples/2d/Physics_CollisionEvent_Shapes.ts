@@ -11,19 +11,20 @@ import { MouseJoint } from "laya/physics/Joint/MouseJoint";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
 import { Vector2 } from "laya/maths/Vector2";
-import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { ChainShape } from "laya/physics/Shape/ChainShape";
+import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { StaticCollider } from "laya/physics/StaticCollider";
 
-export class Physics_CollisionEvent {
+export class Physics_CollisionEvent_Shapes {
     Main: typeof Main = null;
     private count: number = 7;
-    private sensorCollider: CircleCollider;
+    private sensorCollider: ColliderBase;
     private bodys: Array<any> = [];
     private touching: Array<boolean> = [];
     _scene: Scene;
@@ -48,62 +49,69 @@ export class Physics_CollisionEvent {
         man.enableDebugDraw(true, EPhycis2DBlit.Shape);
         man.enableDebugDraw(true, EPhycis2DBlit.Joint);
         let ground = new Sprite();
-
+        ground.name = "ground";
         this._scene.addChild(ground);
-        let groundBody: RigidBody = new RigidBody();
-        groundBody.applyOwnerColliderComponent = true;
-        groundBody.type = "static";
+        let groundBody: StaticCollider = new StaticCollider();
         ground.addComponentInstance(groundBody);
-        let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
-        chainCollider.datas = [50, 400, 50, 600, 1050, 600, 1050, 400];
 
-        let sensorCollider: CircleCollider = this.sensorCollider = ground.addComponent(CircleCollider);
-        sensorCollider.isSensor = true;
-        sensorCollider.radius = 100;
-        sensorCollider.x = 450;
-        sensorCollider.y = 300;
+        let chainShape = new ChainShape();
+        chainShape.datas = [50, 400, 50, 600, 1050, 600, 1050, 400];
+        groundBody.shapes = [chainShape];
+
+        let sensor = new Sprite();
+        sensor.pos(450, 300);
+        sensor.name = "sensor";
+        this._scene.addChild(sensor);
+        let sensorCol: StaticCollider = sensor.addComponent(StaticCollider);
+
+        let circleShape = new CircleShape();
+        circleShape.isSensor = true;
+        circleShape.radius = 100;
+        sensorCol.shapes = [circleShape];
+
+        this.sensorCollider = sensorCol;
 
         for (let i = 0, len = this.count; i < len; i++) {
             let sp = new Sprite();
+            sp.name = "ball" + i;
             this._scene.addChild(sp);
             sp.pos(350 + i * 50, 200).size(40, 40);
             let rb: RigidBody = sp.addComponent(RigidBody);
-            rb.applyOwnerColliderComponent = true;
             this.bodys.push(rb);
             this.touching[i] = false;
             rb.getBody().GetUserData().pointer = i;
-            let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
-            circleCollider.radius = 20;
-            circleCollider.x = circleCollider.y = 20;
+            let circleShape = new CircleShape();
+            circleShape.radius = 20;
+            circleShape.x = circleShape.y = 20;
+            rb.shapes = [circleShape];
             sp.addComponent(MouseJoint);
+
+
+            sp.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+            sp.on(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         }
 
-        ground.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
-        ground.on(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         Laya.physicsTimer.frameLoop(1, this, this.onTriggerStay);
     }
 
     onTriggerEnter(colliderB: ColliderBase, colliderA: ColliderBase, contact) {
-        if (colliderA === this.sensorCollider) {
+        if (colliderB === this.sensorCollider) {
             console.log("onTriggerEnter");
-            let bodyB: RigidBody = colliderB.owner.getComponent(RigidBody);
-            bodyB.applyOwnerColliderComponent = true;
-            let index = bodyB.getBody().GetUserData().pointer;
+            let bodyB: RigidBody = colliderA.owner.getComponent(RigidBody);
+            let index = bodyB.getBox2DBody().GetUserData().pointer;
             this.touching[index] = true;
         }
     }
 
     onTriggerStay() {
-        console.log("onTriggerStay");
         // 遍历所有刚体
         let bodys = this.bodys, body: RigidBody;
         for (let i = 0, len = this.count; i < len; i++) {
             body = bodys[i];
-            body.applyOwnerColliderComponent = true;
             if (!this.touching[i]) {
                 continue;
             }
-            let bodyA: RigidBody = this.sensorCollider.owner.getComponent(RigidBody);
+            let bodyA: StaticCollider = this.sensorCollider.owner.getComponent(StaticCollider);
             let bodyB: RigidBody = body.owner.getComponent(RigidBody);
             let position = bodyB.getWorldCenter();
             let center = bodyA.getWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
@@ -123,18 +131,18 @@ export class Physics_CollisionEvent {
     }
 
     onTriggerExit(colliderB: ColliderBase, colliderA: ColliderBase, contact) {
-        console.log("onTriggerExit");
-        if (colliderA === this.sensorCollider) {
-            let bodyB: RigidBody = colliderB.owner.getComponent(RigidBody);
+        if (colliderB === this.sensorCollider) {
+            console.log("onTriggerExit");
+            let bodyB: RigidBody = colliderA.owner.getComponent(RigidBody);
             let index = bodyB.getBody().GetUserData().pointer;
             this.touching[index] = false;
         }
     }
 
     dispose() {
-        let ground = this.sensorCollider.owner;
-        ground.off(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
-        ground.off(Event.TRIGGER_EXIT, this, this.onTriggerExit);
+        let sensor = this.sensorCollider.owner;
+        sensor.off(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+        sensor.off(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         Laya.physicsTimer.clearAll(this);
     }
 }

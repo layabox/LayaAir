@@ -1,13 +1,13 @@
-import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { Sprite } from "../../display/Sprite";
-import { PhysicsShape } from "../IPhysiscs2DFactory";
+import { StaticCollider } from "../StaticCollider";
+import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
 
 /**
+ * @deprecated
  * @en 2D chain collider
  * @zh 2D 链形碰撞体
  */
-export class ChainCollider extends ColliderBase {
+export class ChainCollider extends StaticCollider {
 
     /**
      * @internal
@@ -17,7 +17,7 @@ export class ChainCollider extends ColliderBase {
     private _points: string = "0,0,100,0";
 
     /**@internal 顶点数据*/
-    private _datas: number[] = [];
+    private _datas: number[] = [0, 0, 100, 0];
 
     /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
@@ -40,7 +40,7 @@ export class ChainCollider extends ColliderBase {
         for (var i: number = 0, n: number = length; i < n; i++) {
             this._datas.push(parseInt(arr[i]));
         }
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /**
@@ -54,7 +54,7 @@ export class ChainCollider extends ColliderBase {
     set datas(value: number[]) {
         if (!value) throw "ChainCollider datas cannot be empty";
         this._datas = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /**
@@ -68,12 +68,16 @@ export class ChainCollider extends ColliderBase {
     set loop(value: boolean) {
         if (this._loop == value) return;
         this._loop = value;
-        this._needupdataShapeAttribute();
+        if (this._datas.length <= 4) {
+            console.warn("To loop Chain, the length of points must be greater than 4");
+            return;
+        }
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     constructor() {
         super();
-        this._physicShape = PhysicsShape.ChainShape;
+        this._shapeDef.shapeType = EPhysics2DShape.ChainShape;
     }
 
     /**
@@ -81,6 +85,7 @@ export class ChainCollider extends ColliderBase {
      * @override
      */
     protected _setShapeData(shape: any): void {
+        if (!shape) return;
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
         Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
@@ -92,7 +97,7 @@ export class ChainCollider extends ColliderBase {
      */
     onAdded() {
         super.onAdded();
-        if(this._datas.length == 0){
+        if (this._datas.length == 0) {
             let sp = this.owner;
             this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
         }

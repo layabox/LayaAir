@@ -1,16 +1,16 @@
-import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { PhysicsShape } from "../IPhysiscs2DFactory";
-
+import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
+import { StaticCollider } from "../StaticCollider";
 
 /**
+ * @deprecated
  * @en 2D rectangular collision body
  * @zh 2D矩形碰撞体
  */
-export class BoxCollider extends ColliderBase {
+export class BoxCollider extends StaticCollider {
 
     /**@internal 矩形宽度*/
-    private _width: number = 100;
+    protected _width: number = 100;
     /**@internal 矩形高度*/
     private _height: number = 100;
 
@@ -26,7 +26,7 @@ export class BoxCollider extends ColliderBase {
         if (value <= 0) throw "BoxCollider size cannot be less than 0";
         if (this._width == value) return;
         this._width = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /** 
@@ -41,7 +41,7 @@ export class BoxCollider extends ColliderBase {
         if (value <= 0) throw "BoxCollider size cannot be less than 0";
         if (this._height == value) return;
         this._height = value;
-        this._needupdataShapeAttribute();
+        this._rigidbody && this.createShape(this._rigidbody);
     }
 
     /**
@@ -50,7 +50,7 @@ export class BoxCollider extends ColliderBase {
     */
     constructor() {
         super();
-        this._physicShape = PhysicsShape.BoxShape;
+        this._shapeDef.shapeType = EPhysics2DShape.BoxShape;
     }
 
     /**
@@ -59,6 +59,7 @@ export class BoxCollider extends ColliderBase {
      * @param shape 
      */
     protected _setShapeData(shape: any): void {
+        if (!shape) return;
         let helfW: number = this._width * 0.5;
         let helfH: number = this._height * 0.5;
         var center = {

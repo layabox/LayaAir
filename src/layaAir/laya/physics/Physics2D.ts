@@ -1,11 +1,8 @@
-import { Sprite } from "../display/Sprite"
 import { EventDispatcher } from "../events/EventDispatcher"
-import { Point } from "../maths/Point"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Physics2DOption } from "./Physics2DOption";
-import { Vector2 } from "../maths/Vector2";
-import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
+import { IPhysics2DFactory } from "./Factory/IPhysics2DFactory";
 import { SingletonList } from "../utils/SingletonList";
 import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
@@ -18,6 +15,7 @@ import { PlayerConfig } from "../../Config";
 export class Physics2D extends EventDispatcher {
 
     private static _I: Physics2D;
+    static Physics2D: any;
 
     /**
      * @en Gets the global singleton instance of the Physics2D.
@@ -30,9 +28,6 @@ export class Physics2D extends EventDispatcher {
     /** 是否已经激活*/
     private _enabled: boolean;
 
-    /** 根容器*/
-    private _worldRoot: Sprite;
-
     /**
      * @internal
      * @en An empty body node for joints that do not require a node.
@@ -40,10 +35,7 @@ export class Physics2D extends EventDispatcher {
      */
     _emptyBody: any;
 
-    /**@internal */
-    _eventList: any[] = [];
-
-    _factory: IPhysiscs2DFactory;
+    _factory: IPhysics2DFactory;
 
     /**
      * @internal
@@ -58,154 +50,6 @@ export class Physics2D extends EventDispatcher {
      * @zh 需要同步物理数据的列表，使用后及时释放。
      */
     _updataattributeLists: SingletonList<RigidBody>;
-
-    /**
-     * @en whether to enable 2D phyiscs debug draw.
-     * @zh 是否启用2D物理绘制
-     */
-    set enableDebugDraw(enable: boolean) {
-        if (enable) {
-            this._factory.createDebugDraw(this._factory.drawFlags_shapeBit);
-        } else {
-            this._factory.removeDebugDraw();
-        }
-    }
-
-    /**
-     * @en Whether to draw the shape.
-     * @zh 是否绘制物理对象的形状。
-     */
-    set drawShape(enable: boolean) {
-        let flag = this._factory.drawFlags_shapeBit;
-        if (enable) {
-            this._factory.appendFlags(flag);
-        } else {
-            this._factory.clearFlags(flag);
-        }
-    }
-
-    /**
-     * @en Whether to draw the joints of physics objects.
-     * @zh 是否绘制物理对象的关节。
-     */
-    set drawJoint(enable: boolean) {
-        let flag = this._factory.drawFlags_jointBit;
-        if (enable) {
-            this._factory.appendFlags(flag);
-        } else {
-            this._factory.clearFlags(flag);
-        }
-    }
-
-    /**
-     * @en Whether to draw the AABB of physics objects.
-     * @zh 是否绘制物理对象的包围盒。
-     */
-    set drawAABB(enable: boolean) {
-        let flag = this._factory.drawFlags_aabbBit;
-        if (enable) {
-            this._factory.appendFlags(flag);
-        } else {
-            this._factory.clearFlags(flag);
-        }
-    }
-
-    /**
-    * @en Whether to draw the collision pairs of the physics object.
-    * @zh 是否绘制物理对象碰撞对。
-    */
-    set drawPair(enable: boolean) {
-        let flag = this._factory.drawFlags_pairBit;
-        if (enable) {
-            this._factory.appendFlags(flag);
-        } else {
-            this._factory.clearFlags(flag);
-        }
-    }
-
-    /**
-     * @en Whether to draw the center of mass of physics objects.
-     * @zh  是否绘制物理对象的质心。
-     */
-    set drawCenterOfMass(enable: boolean) {
-        let flag = this._factory.drawFlags_centerOfMassBit;
-        if (enable) {
-            this._factory.appendFlags(flag);
-        } else {
-            this._factory.clearFlags(flag);
-        }
-    }
-
-    /**
-     * @en Whether the engine is allowed to sleep. Allowing the engine to sleep can improve stability and performance, but it usually comes at the cost of accuracy.
-     * @zh 引擎是否允许休眠。允许引擎休眠可以提高稳定性和性能，但通常会牺牲准确性。
-     */
-    get allowSleeping(): boolean {
-        return this._factory.allowSleeping;
-    }
-
-    set allowSleeping(value: boolean) {
-        this._factory.allowSleeping = value;
-    }
-
-    /**
-     * @en The gravity of the physics world. The default value is {x: 0, y: 9.8}.
-     * Modifying the y direction to make the gravity upward can be done by setting `gravity.y` to -9.8 directly.
-     * @zh 物理世界的重力环境。默认值为 {x: 0, y: 9.8}。
-     * 如果要修改y方向使重力方向向上，可以直接设置 `gravity.y` 为 -9.8。
-     */
-    get gravity(): any {
-        return this._factory.gravity;
-    }
-
-    set gravity(value: Vector2) {
-        this._factory.gravity = value;
-    }
-
-    /**
-     * @en The root container of the physics world. It serves as the coordinate system for the physics world and is used for coordinate transformations. The default value is the stage.
-     * Setting a specific container allows for the collective movement of physical objects while keeping the physics world unchanged.
-     * Note that translation will only occur once when setting `worldRoot`. For other situations, use it in conjunction with the `updatePhysicsByWorldRoot` function.
-     * @zh 物理世界的根容器，它作为物理世界的坐标系，用于坐标变换，默认值是舞台（stage）。
-     * 设置特定的容器后，可以整体移动物理对象，同时保持物理世界的坐标不变。
-     * 注意，只有在设置 `worldRoot` 时才会平移一次，在其他情况下，请配合使用 `updatePhysicsByWorldRoot` 函数。
-     */
-    get worldRoot(): Sprite {
-        return this._worldRoot || ILaya.stage;
-    }
-
-    set worldRoot(value: Sprite) {
-        this._worldRoot = value;
-        if (value) {
-            //TODO：
-            var p: Point = value.localToGlobal(Point.TEMP.setTo(0, 0));
-            this._factory.shiftOrigin(-p.x, -p.y);
-        }
-    }
-
-    /**
-     * @en The total number of rigid bodies.
-     * @zh 刚体的总数量。
-     */
-    get bodyCount(): number {
-        return this._factory.bodyCount;
-    }
-
-    /**
-     * @en The total number of contacts.
-     * @zh 碰撞的总数量。
-     */
-    get contactCount(): number {
-        return this._factory.contactCount;
-    }
-
-    /**
-     * @en The total number of joints.
-     * @zh 关节的总数量。
-     */
-    get jointCount(): number {
-        return this._factory.jointCount;
-    }
 
     /**@internal */
     _addRigidBody(body: RigidBody) {
@@ -235,17 +79,11 @@ export class Physics2D extends EventDispatcher {
         this._updataattributeLists.clear();
         //时间步太长，会导致错误穿透
         var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
+
         this._factory.update(delta);
+
         //同步物理坐标到渲染坐标
         this._updatePhysicsTransformToRender();
-        //同步事件
-        var len: number = this._eventList.length;
-        if (len > 0) {
-            for (var i: number = 0; i < len; i += 2) {
-                this._factory.sendEvent(this._eventList[i], this._eventList[i + 1]);
-            }
-            this._eventList.length = 0;
-        }
     }
 
     /**@internal */
@@ -278,23 +116,9 @@ export class Physics2D extends EventDispatcher {
      * @zh 开启物理世界。此方法在物理引擎初始化后被调用。
      */
     start(): void {
+        //这里放到ISceneComponentManager里面init之后再去处理
         if (!this._enabled) {
             this._enabled = true;
-            this._factory.start();
-            this.allowSleeping = Physics2DOption.allowSleeping;
-            this._emptyBody = this._factory.createBody(null);
-        } else {
-            ILaya.physicsTimer.clear(this, this._update);
-        }
-
-        if (Physics2DOption.debugDraw) {
-            this.enableDebugDraw = true;
-            this.drawShape = Physics2DOption.drawShape;
-            this.drawJoint = Physics2DOption.drawJoint;
-            this.drawAABB = Physics2DOption.drawAABB;
-            this.drawCenterOfMass = Physics2DOption.drawCenterOfMass;
-        } else {
-            this.enableDebugDraw = false;
         }
         if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
         else this._rigiBodyList.clear();
@@ -312,7 +136,8 @@ export class Physics2D extends EventDispatcher {
      */
     destroyWorld() {
         this._enabled = false;
-        this._factory.destroyWorld();
+        //这里考虑改成抽象工厂接口，destroyAllWorld来处理，在wasm里面实现的时候直接遍历worldList销毁全部box2DWorld
+        // this._factory.destroyWorld();
         ILaya.physicsTimer.clear(this, this._update);
     }
 
@@ -327,43 +152,17 @@ export class Physics2D extends EventDispatcher {
     }
 
 
-    /**
-     * @deprecated
-     * 获得刚体总数量
-     * use bodyCount instead
-     */
-    getBodyCount(): number {
-        return this._factory.bodyCount;
-    }
-
-    /**
-     * @deprecated 
-     * 获得碰撞总数量
-     * use contactCount instead
-     */
-    getContactCount(): number {
-        return this._factory.contactCount;
-    }
-
-    /**
-     *  @deprecated 
-     *  获得关节总数量
-     *  use jointCount instead
-     */
-    getJointCount(): number {
-        return this._factory.jointCount;
-    }
-
+    // 下面考虑也放到ISceneComponentManager里面去处理，在update里面设置重设根节点之后再更新这个方法
     /**
      * @en Manually triggers an update of the physics world after setting the `worldRoot`.
      * @zh 在设定 `worldRoot` 后，手动触发物理世界的更新。
      */
-    updatePhysicsByWorldRoot() {
-        if (!!this.worldRoot) {
-            var p: Point = this.worldRoot.localToGlobal(Point.TEMP.setTo(0, 0));
-            this._factory.shiftOrigin(-p.x, -p.y);
-        }
-    }
+    // updatePhysicsByWorldRoot() {
+    //     if (!!this.worldRoot) {
+    //         var p: Point = this.worldRoot.localToGlobal(Point.TEMP.setTo(0, 0));
+    //         this._factory.shiftOrigin(-p.x, -p.y);
+    //     }
+    // }
 }
 
 Laya.addInitCallback(() => Physics2D.I.enable());

@@ -1,8 +1,9 @@
 import { JointBase } from "./JointBase";
-import { RigidBody } from "../RigidBody"
 import { RevoluteJoint } from "./RevoluteJoint";
 import { PrismaticJoint } from "./PrismaticJoint";
-import { physics2D_GearJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_GearJointDef } from "../Factory/IPhysics2DFactory";
+import { Physics2D } from "../Physics2D";
+import { ColliderBase } from "../Collider2D/ColliderBase";
 
 /**
  * @en Gear joint: used to simulate the constraint relationship between two gears. When a gear rotates, the momentum generated has two output modes: one is the angular velocity of the gear itself, and the other is the linear velocity on the gear surface
@@ -57,13 +58,14 @@ export class GearJoint extends JointBase {
             if (!this.joint2) throw "Joint2 can not be empty";
 
             var def: physics2D_GearJointDef = GearJoint._temp || (GearJoint._temp = new physics2D_GearJointDef());
-            def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
-            def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
+            def.bodyA = this.joint1.owner.getComponent(ColliderBase).getBox2DBody();
+            def.bodyB = this.joint2.owner.getComponent(ColliderBase).getBox2DBody();
             def.joint1 = this.joint1.joint;
             def.joint2 = this.joint2.joint;
             def.ratio = -this._ratio;
             def.collideConnected = this.collideConnected;
-            this._joint = this._factory.create_GearJoint(def);
+            this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.GearJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.GearJoint, this._box2DJointDef);
         }
     }
 
