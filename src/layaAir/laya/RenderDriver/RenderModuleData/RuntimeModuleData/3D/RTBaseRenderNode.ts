@@ -21,7 +21,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public set transform(value: RTTransform3D) {
-        this._nativeObj.setTransform(value._nativeObj);
+        this._nativeObj.setTransform(value?value._nativeObj:null);
         this._transform = value;
     }
 
