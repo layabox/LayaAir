@@ -8,6 +8,7 @@ import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
 import { GImage } from "./GImage";
 import { Color } from "../maths/Color";
+import { NodeFlags } from "../Const";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -290,10 +291,14 @@ export class GButton extends GLabel {
         if (which == "title") {
             if (this._titleStr)
                 this.title = this._titleStr;
+            else if (this._getBit(NodeFlags.EDITING_NODE))
+                this._titleStr = this._titleWidget?.p.text || "";
         }
         else if (which == "icon") {
             if (this._iconStr)
                 this.icon = this._iconStr;
+            else if (this._getBit(NodeFlags.EDITING_NODE))
+                this._iconStr = this._iconWidget?.p.icon || "";
         }
     }
 

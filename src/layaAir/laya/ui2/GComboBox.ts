@@ -11,8 +11,8 @@ import { Input } from "../display/Input";
 import { GRoot } from "./GRoot";
 import { UIEvent } from "./UIEvent";
 import { Event } from "../events/Event";
-import { LayaEnv } from "../../LayaEnv";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { NodeFlags } from "../Const";
 
 export class GComboBox extends GLabel {
     public popupDirection: PopupDirection = 0;
@@ -152,7 +152,7 @@ export class GComboBox extends GLabel {
 
     public set dropdownRes(value: Prefab) {
         this._dropdownRes = value;
-        if (LayaEnv.isPlaying)
+        if (!this._getBit(NodeFlags.EDITING_NODE))
             this.createDropdown();
     }
 

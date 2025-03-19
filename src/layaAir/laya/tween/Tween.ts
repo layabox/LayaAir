@@ -247,7 +247,7 @@ export class Tween {
      * @return Tween对象。 
      */
     to(propName: string, value: any): this {
-        this.cur(true).go(propName, this._target[propName], value);
+        this.cur(true).go(propName, this._cur.target[propName], value);
         return this;
     }
 
@@ -264,7 +264,7 @@ export class Tween {
      * @return Tween对象。 
      */
     from(propName: string, value: any): this {
-        this.cur(true).go(propName, value, this._target[propName]);
+        this.cur(true).go(propName, value, this._cur.target[propName]);
         return this;
     }
 
