@@ -203,47 +203,6 @@ export class Value2D {
     }
 
     upload(material: Material | null, shaderData: ShaderData): void {
-        //this._size.setValue(RenderState2D.width, RenderState2D.height)
-        //this.size = this._size;
-        //update owner ShaderData
-        //this.updateShaderData();
-        // if (material) {
-        //     //Custom Shader
-        //     var shaderPass = material._shader._subShaders[0]._passes;
-
-        //     var pass;
-        //     for (var j = 0, m = shaderPass.length; j < m; j++) {
-        //         pass = shaderPass[j];
-        //         //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-        //         if (pass.pipelineMode == "Forward")
-        //             break;
-        //     }
-        //     var comDef = Value2D._compileDefine;
-        //     shaderData.getDefineData().cloneTo(Value2D._compileDefine);
-        //     //mateiral Define
-        //     Value2D._compileDefine.addDefineDatas(material._defineDatas);
-        //     //Global Define
-        //     Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
-        //     var shaderIns = pass.withCompile(Value2D._compileDefine, true) as WebGLShaderInstance;
-        //     shaderIns.bind();
-        //     shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, shaderData as any, true);
-        //     shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData as any, true);
-        //     shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, material.shaderData as any, true);
-        // } else {
-        //     //default pass
-        //     var shaderPass = this._defaultShader._subShaders[0]._passes;
-
-        //     if (shaderPass.length >= 1) {
-        //         pass = shaderPass[0];
-        //         //var comDef: DefineDatas = Value2D._compileDefine;
-        //         var shaderIns = pass.withCompile(shaderData.getDefineData(), true) as unknown as WebGLShaderInstance;
-        //         shaderIns.bind();
-        //         shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, shaderData as any, true);
-        //         shaderIns.uploadRenderStateBlendDepth(shaderData)
-        //     } else {
-        //         //TODO 多pass情况
-        //     }
-        // }
     }
 
     //TODO:coverage

@@ -13,28 +13,15 @@ import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
-import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 
-export class NoRenderEngineFactory implements IRenderEngineFactory {
-    createEngine(config: Config, canvas: any): Promise<void> {
-        LayaGL.renderEngine = new NoRenderEngine();
-        LayaGL.textureContext = LayaGL.renderEngine.getTextureContext();
-
-        return Promise.resolve();
-    }
-
-}
-
-
 export class NoRenderEngine implements IRenderEngine {
     _context: any;
     _isShaderDebugMode: boolean;
-    _renderOBJCreateContext: IRenderEngineFactory;
     _enableStatistics: boolean;
     _remapZ: boolean;
     _screenInvertY: boolean;
@@ -107,9 +94,6 @@ export class NoRenderEngine implements IRenderEngine {
     }
     getTextureContext(): ITextureContext {
         return new NoTextureContext();
-    }
-    getCreateRenderOBJContext(): IRenderEngineFactory {
-        return new NoRenderEngineFactory();
     }
     clearStatisticsInfo(): void {
 

@@ -1,7 +1,10 @@
 import { ILaya } from "../../ILaya";
+import { AnimationStretchMode, FrameAnimation } from "../components/FrameAnimation";
 import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
 import { Loader } from "../net/Loader";
+import { AtlasResource } from "../resource/AtlasResource";
+import { Texture } from "../resource/Texture";
 import { HtmlElement } from "./HtmlElement";
 import { IHtmlObject } from "./IHtmlObject";
 
@@ -18,7 +21,10 @@ export class HtmlImage implements IHtmlObject {
 
     private _owner: Text;
     private _element: HtmlElement;
+    private _ani: FrameAnimation;
     private _v: number = 0;
+    private _w: number;
+    private _h: number;
 
     /**
      * @en Creates a new HtmlImage object.
@@ -77,30 +83,61 @@ export class HtmlImage implements IHtmlObject {
             this.obj.width = width;
         if (height != -1)
             this.obj.height = height;
+        this._w = width;
+        this._h = height;
 
-        let tex = Loader.getRes(src);
-        if (tex) {
-            this.obj.texture = tex;
-            if (width == -1)
-                this.obj.width = tex.sourceWidth;
-            if (height == -1)
-                this.obj.height = tex.sourceHeight;
+        let res = Loader.getRes(src);
+        if (res) {
+            this.onLoaded(res, ++this._v);
         }
         else {
-            let ver = this._v;
-            ILaya.loader.load(src, { silent: true }).then(tex => {
-                if (this.obj.destroyed || ver != this._v) return;
-                let w = this.obj.width;
-                let h = this.obj.height;
-                this.obj.texture = tex;
-                if (width == -1)
-                    this.obj.width = tex ? tex.sourceWidth : 0;
-                if (height == -1)
-                    this.obj.height = tex ? tex.sourceHeight : 0;
-                if (this._owner && (w != this.obj.width || h != this.obj.height))
-                    this._owner.refreshLayout();
-            });
+            let ver = ++this._v;
+            ILaya.loader.load(src, { silent: true }).then(res => this.onLoaded(res, ver, true));
         }
+    }
+
+    private onLoaded(res: Texture | AtlasResource, ver: number, delayed?: boolean): void {
+        if (!this._owner || this.obj.destroyed) return;
+        if (ver != this._v) return;
+
+        let obj = this.obj;
+        let ani = this._ani;
+
+        if (res instanceof Texture) {
+            obj.texture = res;
+            if (ani)
+                ani.setAtlas(null);
+            if (this._w == -1)
+                obj.width = res.sourceWidth;
+            if (this._h == -1)
+                obj.height = res.sourceHeight;
+        }
+        else if (res instanceof AtlasResource) {
+            obj.texture = null;
+            if (!ani) {
+                ani = this._ani = obj.addComponent(FrameAnimation);
+                ani.stretchMode = AnimationStretchMode.Fill;
+                ani.autoPlay = true;
+                ani.loop = true;
+            }
+            ani.setAtlas(res);
+            if (this._w == -1)
+                obj.width = ani.width;
+            if (this._h == -1)
+                obj.height = ani.height;
+        }
+        else {
+            obj.texture = null;
+            if (ani)
+                ani.setAtlas(null);
+            if (this._w == -1)
+                obj.width = 0;
+            if (this._h == -1)
+                obj.height = 0;
+        }
+
+        if (delayed)
+            this._owner.refreshLayout();
     }
 
     /**
@@ -123,6 +160,8 @@ export class HtmlImage implements IHtmlObject {
         this.obj.removeSelf();
         this.obj.offAll();
         this.obj.texture = null;
+        if (this._ani)
+            this._ani.setAtlas(null);
         this._owner = null;
         this._element = null;
         this._v++;

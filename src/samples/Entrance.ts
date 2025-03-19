@@ -13,15 +13,11 @@ import { Laya } from "Laya";
 import { Event } from "laya/events/Event";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { Loader } from "laya/net/Loader";
-import { SpineSkeleton } from "laya/spine/SpineSkeleton";
 
 import { SpineTemplet } from "laya/spine/SpineTemplet";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Sprite } from "laya/display/Sprite";
-import { Image } from "laya/ui/Image";
-import { Sprite3DLoad } from "./3d/LayaAir3D_Sprite3D/Sprite3DLoad";
-import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
 import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory";
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory";
@@ -29,32 +25,6 @@ import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRender
 import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
-import { Scene } from "laya/display/Scene";
-import { HttpRequest } from "laya/net/HttpRequest";
-import { Script } from "laya/components/Script";
-import { Vector3 } from "laya/maths/Vector3";
-import { Vector2 } from "laya/maths/Vector2";
-import { Color } from "laya/maths/Color";
-import { Matrix } from "laya/maths/Matrix";
-import { Point } from "laya/maths/Point";
-import { Vector4 } from "laya/maths/Vector4";
-import { Panel } from "laya/ui/Panel";
-import { Mouse } from "laya/utils/Mouse";
-import { Handler } from "laya/utils/Handler";
-import { LocalStorage } from "laya/net/LocalStorage";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { ScrollType } from "laya/ui/Styles";
-import { SoundManager } from "laya/media/SoundManager";
-import { property, regClass } from "Decorators";
-import { Config3D } from "Config3D";
-import { Config } from "Config";
-import { ClassUtils } from "laya/utils/ClassUtils";
-import { WorkerLoader } from "laya/net/WorkerLoader";
-import { BatchProgress } from "laya/net/BatchProgress";
-import { SoundChannel } from "laya/media/SoundChannel";
-import { URL } from "laya/net/URL";
-import { Utils } from "laya/utils/Utils";
 import { SketonOptimise } from "laya/spine/optimize/SketonOptimise";
 import { Spine2DRenderNode } from "laya/spine/Spine2DRenderNode";
 import { SpineBakeScript } from "laya/spine/optimize/SpineBakeScript";
@@ -75,13 +45,11 @@ export class Entrance {
     }
     constructor() {
         //this.Main = maincls;
-        LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
         LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
         LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
         Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
         Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
         Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-        LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
         LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
         SpineTemplet.RuntimeVersion = "4.1";
         // new Sprite3DLoad();

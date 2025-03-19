@@ -30,6 +30,7 @@ export class SpineTemplet extends Resource {
     materialMap: Map<string, Material> = new Map();
 
     private _textures: Record<string, Texture2D>;
+    private _atlas:spine.TextureAtlas;
     private _basePath: string;
     /**
      * @en Base width of spine animation
@@ -173,6 +174,11 @@ export class SpineTemplet extends Resource {
         return this._textures[name];
     }
 
+    setTexture(name:string , tex:Texture2D)
+    {
+        this._textures[name] = tex;
+    }
+
     /** @internal */
     _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D> , premultipliedAlpha = true): void {
 
@@ -188,6 +194,7 @@ export class SpineTemplet extends Resource {
         }
 
         this._textures = textures;
+        this._atlas = atlas;
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
         this.width = this.skeletonData.width;

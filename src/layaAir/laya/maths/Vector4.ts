@@ -101,7 +101,7 @@ export class Vector4 implements IClone {
      * @param z Z值。
      * @param w W值。
      */
-    setValue(x: number, y: number, z: number, w: number): Vector4 {
+    setValue(x: number, y: number, z: number, w: number): this {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -117,11 +117,12 @@ export class Vector4 implements IClone {
      * @param arr 源数组。
      * @param offset 数组偏移。默认值为 0。
      */
-    fromArray(arr: ArrayLike<number>, offset: number = 0): void {
+    fromArray(arr: ArrayLike<number>, offset: number = 0): this {
         this.x = arr[offset + 0];
         this.y = arr[offset + 1];
         this.z = arr[offset + 2];
         this.w = arr[offset + 3];
+        return this;
     }
 
     /**
@@ -142,11 +143,12 @@ export class Vector4 implements IClone {
      * @zh arr 目标数组。
      * @zh offset 数组偏移。默认值为 0。
      */
-    writeTo(arr: { [n: number]: number }, offset: number = 0): void {
+    writeTo(arr: { [n: number]: number }, offset: number = 0): this {
         arr[offset + 0] = this.x;
         arr[offset + 1] = this.y;
         arr[offset + 2] = this.z;
         arr[offset + 3] = this.w;
+        return this;
     }
 
     /**

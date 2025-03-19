@@ -91,7 +91,7 @@ export class WebGLInstanceRenderBatch {
                         list.add(originElement);
                         list.add(element);
                         elementArray[instanceIndex] = instanceRenderElement;
-                        instanceMark.batched = true; 
+                        instanceMark.batched = true;
                     }
                 } else {
                     instanceMark.updateMark = this._updateCountMark;

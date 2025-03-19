@@ -10,7 +10,6 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { ShaderVariable } from "../../../RenderEngine/RenderShader/ShaderVariable";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
-import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLTextureContext } from "./GLTextureContext";
@@ -69,8 +68,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     private _propertyNameMap: any = {};
     private _propertyNameCounter: number = 0;
-    /**@internal */
-    _renderOBJCreateContext: IRenderEngineFactory;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -461,15 +458,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     getDrawContext(): GLRenderDrawContext {
         return this._GLRenderDrawContext;
     }
-
-    getCreateRenderOBJContext(): IRenderEngineFactory {
-        return this._renderOBJCreateContext;
-    }
-
-    // //TODO:
-    // propertyNameToID(name: string): number {
-    //   return this.propertyNameToID(name);
-    // }
 
     /**
    * 通过Shader属性名称获得唯一ID。

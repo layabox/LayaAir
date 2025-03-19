@@ -68,7 +68,6 @@ export class WebVolumetricGI implements IVolumetricGIData {
     destroy(): void {
         this.shaderData.destroy();
         this.shaderData = null;
-
         this.irradiance = null;
         this.distance = null;
         this.bound = null;

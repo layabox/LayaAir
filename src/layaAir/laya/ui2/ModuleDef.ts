@@ -35,10 +35,13 @@ import { ProgressMesh } from "./render/ProgressMesh";
 import { CircleMesh } from "./render/CircleMesh";
 import { FlipMesh } from "./render/FlipMesh";
 import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
+import { GMovieClip } from "./GMovieClip";
+import { TileMesh } from "./render/TileMesh";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
 r("GImage", GImage);
+r("GMovieClip", GMovieClip);
 r("GLoader", GLoader);
 r("GTextField", GTextField);
 r("GTextInput", GTextInput);
@@ -75,5 +78,6 @@ r("ProgressMesh", ProgressMesh);
 r("CircleMesh", CircleMesh);
 r("FlipMesh", FlipMesh);
 r("RegularPolygonMesh", RegularPolygonMesh);
+r("TileMesh", TileMesh);
 
 Loader.registerLoader(["i18ns"], TranslationsLoader);
