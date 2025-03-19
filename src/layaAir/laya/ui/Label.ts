@@ -3,9 +3,8 @@ import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
-import { HideFlags } from "../Const";
+import { HideFlags, NodeFlags } from "../Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { LayaEnv } from "../../LayaEnv";
 
 export type LabelFitContent = "no" | "yes" | "height";
 
@@ -270,7 +269,9 @@ export class Label extends UIComponent {
         if (typeof (value) === "boolean")
             value = value ? "yes" : "no";
         if (this._fitContent != value) {
-            if ((value == "yes" || value == "height") && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+            if ((value == "yes" || value == "height")
+                && !SerializeUtil.isDeserializing
+                && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
                 if (value == "height")
                     this.height = this._tf.textHeight;
                 else
@@ -360,7 +361,7 @@ export class Label extends UIComponent {
 
     set strikethroughColor(value: string) {
         this._tf.strikethroughColor = value;
-    }    
+    }
 
     /**
      * @en Whether the text ignores language localization.
@@ -417,7 +418,8 @@ export class Label extends UIComponent {
     }
 
     protected _onPostLayout() {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+        if ((this._fitContent == "yes" || this._fitContent == "height")
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
             this._fitFlag = true;
             if (this._fitContent == "height")
                 this.height = this._tf.textHeight;
@@ -476,7 +478,8 @@ export class Label extends UIComponent {
      * @param value 新的宽度值。
      */
     set_width(value: number): void {
-        if (this._fitContent == "yes" && !this._fitFlag)
+        if (this._fitContent == "yes" && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0))
             return;
         super.set_width(value);
     }
@@ -493,7 +496,8 @@ export class Label extends UIComponent {
      * @param value 新的高度值。
      */
     set_height(value: number): void {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textHeight > 0))
             return;
         super.set_height(value);
     }
