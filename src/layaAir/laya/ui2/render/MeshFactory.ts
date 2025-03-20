@@ -84,6 +84,7 @@ export function genSliceMesh(vb: VertexStream, contentRect: Readonly<Rectangle>,
     } else {
         const drawRect = Rectangle.create();
         const uvRect = Rectangle.create();
+        let qi = vb.vertCount;
 
         for (let pi = 0; pi < 9; pi++) {
             const col = pi % 3;
@@ -93,15 +94,21 @@ export function genSliceMesh(vb: VertexStream, contentRect: Readonly<Rectangle>,
             Rectangle.minMaxRect(gridTexX[col], gridTexY[row], gridTexX[col + 1], gridTexY[row + 1], uvRect);
 
             if (part !== -1 && (tileGridIndice & (1 << part)) !== 0) {
+                if (qi !== vb.vertCount)
+                    vb.triangulateQuad(qi);
+
                 genTileMesh(vb, drawRect, uvRect,
                     (part === 0 || part === 1 || part === 4) ? gridRect.width : drawRect.width,
                     (part === 2 || part === 3 || part === 4) ? gridRect.height : drawRect.height,
                     true, true);
+
+                qi = vb.vertCount;
             } else {
                 vb.addQuad(drawRect, null, uvRect);
             }
         }
-        vb.triangulateQuad(0);
+        if (qi !== vb.vertCount)
+            vb.triangulateQuad(qi);
 
         drawRect.recover();
         uvRect.recover();
@@ -120,6 +127,7 @@ export function genTileMesh(vb: VertexStream,
 
     const tmpRect = Rectangle.create();
     const tmpUV = Rectangle.create();
+    let qi = vb.vertCount;
 
     for (let i = 0; i <= hc; i++) {
         for (let j = 0; j <= vc; j++) {
@@ -135,7 +143,7 @@ export function genTileMesh(vb: VertexStream,
             vb.addQuad(tmpRect, null, tmpUV);
         }
     }
-    vb.triangulateQuad(0);
+    vb.triangulateQuad(qi);
 
     tmpRect.recover();
     tmpUV.recover();

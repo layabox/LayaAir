@@ -45,7 +45,7 @@ export class VertexStream {
     private _vec: Vector3;
     private _epv: number = 0;
 
-    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor), e => e.reset());
+    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor));
 
     constructor() {
         this.contentRect = new Rectangle();
@@ -79,6 +79,8 @@ export class VertexStream {
 
         this._epv = hasColor ? 9 : 5;
         this.color.setValue(1, 1, 1, 1);
+        this._vp = 0;
+        this._ip = 0;
     }
 
     /**
@@ -268,10 +270,5 @@ export class VertexStream {
             this._indices = new Uint16Array(this._ibuf);
             this._indices.set(tmp);
         }
-    }
-
-    private reset() {
-        this._vp = 0;
-        this._ip = 0;
     }
 }
