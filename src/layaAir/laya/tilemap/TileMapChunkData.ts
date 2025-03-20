@@ -33,7 +33,7 @@ export class ChunkCellInfo {
     //按照X轴排序 chuckLocalindex
     chuckLocalindex: number;
     //
-    yOrderValue: number;
+    // yOrderValue: number;
     //单元格z序列
     zOrderValue: number;
     //单元格在chunk中的位置
@@ -49,9 +49,9 @@ export class ChunkCellInfo {
 
     _cellPosInRenderData: number;//渲染数据中的第几个cell
 
-    constructor(cellx: number, celly: number, chuckLocalindex: number, yOrider: number, zOrider: number = 0, cell: TileSetCellData) {
+    constructor(cellx: number, celly: number, chuckLocalindex: number, zOrider: number = 0, cell: TileSetCellData) {
         this.chuckLocalindex = chuckLocalindex;
-        this.yOrderValue = yOrider;
+        // this.yOrderValue = yOrider;
         this.zOrderValue = zOrider;
         this.cellx = cellx;
         this.celly = celly;
@@ -211,8 +211,8 @@ export class TileMapChunkData {
                     for (let i = 0, len = localIndexs.length; i < len; i++) {
                         let index = localIndexs[i];
                         chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
-                        let yorderValue = chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
-                        let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, yorderValue, cellData.z_index, cellData);
+                        // let yorderValue = chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
+                        let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, cellData.z_index, cellData);
                         this._cellDataMap[index] = chuckCellInfo;
                         this._chuckCellList.push(chuckCellInfo);
                     }
@@ -335,17 +335,17 @@ export class TileMapChunkData {
             switch (this._tileLayer.sortMode) {
                 case TileLayerSortMode.YSort:
                     this._chuckCellList.sort((a, b) => {
-                        if (a.yOrderValue == b.yOrderValue)
-                            return a.chuckLocalindex - b.chuckLocalindex;
-                        return a.yOrderValue - b.yOrderValue;
+                        if (a.celly == b.celly)
+                            return a.cellx - b.cellx;
+                        return a.celly - b.celly;
                     });
                     break;
                 case TileLayerSortMode.XSort:
                     this._chuckCellList.sort((a, b) => {
-                        if (a.chuckLocalindex - b.chuckLocalindex) {
-                            return a.yOrderValue - b.yOrderValue;
+                        if (a.cellx - b.cellx) {
+                            return a.celly - b.celly;
                         }
-                        return a.chuckLocalindex - b.chuckLocalindex
+                        return a.cellx - b.cellx
                     });
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
@@ -824,31 +824,36 @@ export class TileMapChunkData {
             cellData._addNoticeRenderTile(this);
         }
 
-        let chuckCellInfo = this._cellDataMap[index];
-        if (chuckCellInfo == null) {//create one ChunkCellInfo
+        let chunkCellInfo = this._cellDataMap[index];
+        if (chunkCellInfo == null) {//create one ChunkCellInfo
             let chunk = this._tileLayer._chunk;
             let localPos = Vector2.TEMP;
-            let xorderValue = index;
             chunk._getCellPosByChunkPosAndIndex(0, 0, index, localPos);
-            let yorderValue = this._tileLayer._chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
-            let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, xorderValue, yorderValue, cellData.z_index, cellData);
-            this._cellDataRefMap[gid].push(xorderValue);
+            // let xorderValue = index;
+            // let yorderValue = this._tileLayer._chunk._getChunkIndexByCellPos(localPos.y, localPos.x);
+            let chuckCellInfo = new ChunkCellInfo(localPos.x, localPos.y, index, cellData.z_index, cellData);
+            this._cellDataRefMap[gid].push(index);
             this._cellDataMap[index] = chuckCellInfo;
-            this._reCreateRenderData = true;
             this._chuckCellList.push(chuckCellInfo);
-        } else if (chuckCellInfo.cell != cellData) {//change one ChunkCellInfo
-            let oldcell = chuckCellInfo.cell;
+            this._reCreateRenderData = true;
+        } else if (chunkCellInfo.cell != cellData) {//change one ChunkCellInfo
+            let oldcell = chunkCellInfo.cell;
             let oldGid = oldcell.gid;
             let localIndexArray = this._cellDataRefMap[oldGid];
-            localIndexArray.splice(localIndexArray.indexOf(chuckCellInfo.chuckLocalindex), 1);
+            localIndexArray.splice(localIndexArray.indexOf(chunkCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
                 delete this._cellDataRefMap[oldGid];
                 this._refGids.splice(this._refGids.indexOf(gid) , 1);
                 oldcell._removeNoticeRenderTile(this);
             }
-            chuckCellInfo.cell = cellData;
+            chunkCellInfo.cell = cellData;
+            chunkCellInfo.zOrderValue = cellData.z_index;
             localIndexArray = this._cellDataRefMap[gid];
-            localIndexArray.push(chuckCellInfo.chuckLocalindex);
+            localIndexArray.push(chunkCellInfo.chuckLocalindex);
+            
+            if (this._breakBatch(oldcell , cellData)) {
+                this._reCreateRenderData = true;
+            }
         }
         this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);//这里需要改一下,住localIndex的标记
     }

@@ -78,8 +78,14 @@ export class TileMapChunk {
      * @returns 单元格在chunk内部的索引 
      */
     _getChunkIndexByCellPos(cellRow: number, cellCol: number): number {
-        let chunkX = (cellRow + this._chunkWidth) % this._chunkWidth;
-        let chunkY = (cellCol + this._chunkHeight) % this._chunkHeight;
+        let chunkX = cellRow % this._chunkWidth;
+        if (chunkX < 0) {
+            chunkX += this._chunkWidth
+        }
+        let chunkY = cellCol % this._chunkHeight;
+        if (chunkY < 0) {
+            chunkY += this._chunkHeight
+        }
         return chunkX + chunkY * this._chunkWidth;
     }
 
@@ -99,13 +105,13 @@ export class TileMapChunk {
         out.y = chunky * this._chunkHeight + Math.floor(chunklocalindex / this._chunkWidth);
     }
 
-    _getPixelByChunkPosAndIndex(chunkx:number , chunky:number , chunklocalindex:number , out: Vector2){
+    _getPixelByChunkPosAndIndex(chunkx: number, chunky: number, chunklocalindex: number, out: Vector2) {
         chunkx = Math.floor(chunkx);
         chunky = Math.floor(chunky);
         chunklocalindex = chunklocalindex % this._maxCell;
         let gridx = chunkx * this._chunkWidth + chunklocalindex % this._chunkWidth;
         let gridy = chunky * this._chunkHeight + Math.floor(chunklocalindex / this._chunkWidth);
-        this._grid._gridToPixel(gridx, gridy , out);
+        this._grid._gridToPixel(gridx, gridy, out);
     }
 
     /**

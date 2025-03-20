@@ -266,12 +266,11 @@ export class TileMapLayer extends BaseRenderNode2D {
             let chunkDatas = this._chunkDatas[col];
             for (const row in chunkDatas) {
                 let chunkData = chunkDatas[row];
-                chunkData._tileLayer = this;
-                chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
-                chunkData._parseCellDataRefMap();
+                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
+                allDatas.push(chunkData);
             }
         }
-
+        
         let tileSize = this._renderTileSize;
         this._chunk._setChunkSize(tileSize, tileSize);
         if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
