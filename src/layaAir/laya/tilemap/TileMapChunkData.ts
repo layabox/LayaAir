@@ -350,7 +350,7 @@ export class TileMapChunkData {
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
                     this._chuckCellList.sort((a, b) => {
-                        if (a.zOrderValue == b.zOrderValue) { return a.cellx - b.cellx }
+                        if (a.zOrderValue == b.zOrderValue) { return a.chuckLocalindex - b.chuckLocalindex }
                         else { return a.zOrderValue - b.zOrderValue }
                     });
                     break;
@@ -850,7 +850,10 @@ export class TileMapChunkData {
             chunkCellInfo.zOrderValue = cellData.z_index;
             localIndexArray = this._cellDataRefMap[gid];
             localIndexArray.push(chunkCellInfo.chuckLocalindex);
-            //todo 检查重新渲染
+            
+            if (this._breakBatch(oldcell , cellData)) {
+                this._reCreateRenderData = true;
+            }
         }
         this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);//这里需要改一下,住localIndex的标记
     }
