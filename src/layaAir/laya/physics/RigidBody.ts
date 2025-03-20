@@ -4,7 +4,7 @@ import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
-import { RigidBody2DType } from "./Factory/IPhysics2DFactory";
+import { RigidBody2DType } from "./factory/IPhysics2DFactory";
 import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 
@@ -97,9 +97,15 @@ export class RigidBody extends ColliderBase {
 
     declare owner: Sprite;
 
+    /**
+     * @zh 碰撞形状，可以是多个
+     */
     private _shapes: Physics2DShapeBase[] = [];
 
-    private _applyOwnerColliderComponent: boolean = false;
+    /**
+     * @zh 是否兼容Collider组件的方式
+     */
+    private _applyOwnerColliderComponent: boolean = true;
 
     /**
      * @en The original body object.
@@ -250,6 +256,9 @@ export class RigidBody extends ColliderBase {
         if (this._box2DBody) Physics2D.I._factory.set_rigidBody_bullet(this._box2DBody, value);
     }
 
+    /**
+     * @zh 刚体的碰撞形状
+     */
     public get shapes(): Physics2DShapeBase[] {
         return this._shapes;
     }
@@ -262,6 +271,9 @@ export class RigidBody extends ColliderBase {
 
     }
 
+    /**
+     * @zh 是否应用Collider组件的兼容方式
+     */
     public get applyOwnerColliderComponent(): boolean {
         return this._applyOwnerColliderComponent;
     }
@@ -269,20 +281,24 @@ export class RigidBody extends ColliderBase {
         this._applyOwnerColliderComponent = value;
     }
 
+    /**
+     * @zh 强制设置刚体的位置
+     */
     set position(pos: Point) {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-
         let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
         factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, rotateValue);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
 
+    /**
+     * @zh 强制设置刚体的旋转（弧度）
+     */
     set rotation(number: number) {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        //if (Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody)) {
         var pos = Vector2.TEMP;
         factory.get_RigidBody_Position(this._box2DBody, pos);
         pos.setValue(pos.x, pos.y);
@@ -306,7 +322,7 @@ export class RigidBody extends ColliderBase {
     _updateBodyType() {
         if (!this._box2DBody) return;
         Physics2D.I._factory.set_rigidBody_type(this._box2DBody, this._type)
-        if (this.type == "static") {
+        if (this.type != "dynamic") {
             Physics2D.I._removeRigidBody(this)
         } else {
             Physics2D.I._addRigidBody(this)
@@ -315,12 +331,17 @@ export class RigidBody extends ColliderBase {
 
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (this.type != "static")
-            this._needrefeshShape();
+        this._updatePhysicsTransformToRender();
     }
 
     protected _onAwake(): void {
+        this.owner.globalTrans.cache = true;
     }
+
+    /**
+     * @zh 更新刚体结构体的数据
+     * @returns 
+     */
     _setBodyDefValue(): void {
         // 兼容模式
         if (this._type == "static") {
@@ -357,9 +378,6 @@ export class RigidBody extends ColliderBase {
         this._bodyDef.group = this.group;
     }
 
-    protected _onAdded(): void {
-    }
-
     /** @internal */
     _onEnable(): void {
         this.owner.globalTrans.cache = true;
@@ -372,52 +390,16 @@ export class RigidBody extends ColliderBase {
                 collider.createShape(this);
             });
         } else {
+            //更新shapes
             this.shapes = this._shapes;
         }
-        this.allowRotation = !this._allowRotation;
-        this.allowSleep = this._allowSleep;
-        this.angularDamping = this._angularDamping;
-        this.angularVelocity = this._angularVelocity;
-        this.bullet = this._bullet;
-        this.gravityScale = this._gravityScale;
-        this.linearDamping = this._linearDamping;
-        this.linearVelocity = this._linearVelocity;
-    }
-
-    /**
-     * @internal
-     * @en Notify that the object attributes need to be updated in the next frame.
-     * @zh 通知需要更新对象属性；下一帧执行。
-     */
-    _needrefeshShape() {
-        Physics2D.I._updataRigidBodyAttribute(this);
-    }
-
-    /**
-     * @internal
-     * @en Synchronize node coordinates and rotation to the physics world. Called by the system.
-     * @zh 同步节点坐标及旋转到物理世界，由系统调用。
-     */
-    _updatePhysicsAttribute(): void {
-        var factory = Physics2D.I._factory;
-        var sp: Sprite = this.owner;
-        factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
-        //重新更新这么多的组件 明显有点不合理TODO
-        var comps: any[] = this.owner.getComponents(ColliderBase);
-        if (comps) {
-            for (var i: number = 0, n: number = comps.length; i < n; i++) {
-                var collider: ColliderBase = comps[i];
-                collider._refresh();
-            }
-            if (this._useAutoMass) {
-                // auto calc mass
-                factory.retSet_rigidBody_MassData(this._box2DBody);
-            } else {
-                factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
-            }
-            factory.set_rigidBody_Awake(this._box2DBody, true);
-            this.owner.event("shapeChange");
+        if (this._useAutoMass) {
+            // 根据shape自动计算质量
+            Physics2D.I._factory.retSet_rigidBody_MassData(this._box2DBody);
+        } else {
+            Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
+        this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
     }
 
     getBody() {
@@ -448,21 +430,19 @@ export class RigidBody extends ColliderBase {
     _onDisable(): void {
         //添加到物理世界
         Physics2D.I._removeRigidBody(this);
-        Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
         super._onDisable();
+        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler); // 这里的方法要改
     }
 
     /**@internal */
     _onDestroy(): void {
         Physics2D.I._removeRigidBody(this);
-        Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
         //添加到物理世界
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
         super._onDestroy();
         Physics2D.I._factory.destroyData(this._massData);
         this._massData = null;
+        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
     }
 
     getUserData(): any {

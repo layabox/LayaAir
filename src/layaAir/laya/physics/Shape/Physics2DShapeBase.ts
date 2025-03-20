@@ -2,7 +2,7 @@ import { LayaEnv } from "../../../LayaEnv";
 import { Sprite } from "../../display/Sprite";
 import { IClone } from "../../utils/IClone";
 import { ColliderBase } from "../Collider2D/ColliderBase";
-import { Box2DShapeDef, FilterData } from "../Factory/IPhysics2DFactory";
+import { Box2DShapeDef, FilterData } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
@@ -111,7 +111,7 @@ export class Physics2DShapeBase implements IClone {
     public set isSensor(value: boolean) {
         this._isSensor = value;
         this._shapeDef.isSensor = value;
-        this._box2DShape && Physics2D.I._factory.set_shape_sensor(this._box2DShape, value);
+        this._box2DShape && Physics2D.I._factory.set_shape_isSensor(this._box2DShape, value);
     }
 
 

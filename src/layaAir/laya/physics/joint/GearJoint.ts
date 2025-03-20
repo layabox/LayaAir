@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
-import { RevoluteJoint } from "./RevoluteJoint";
 import { PrismaticJoint } from "./PrismaticJoint";
-import { EPhysics2DJoint, physics2D_GearJointDef } from "../Factory/IPhysics2DFactory";
+import { RevoluteJoint } from "./RevoluteJoint";
+import { EPhysics2DJoint, physics2D_GearJointDef } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 

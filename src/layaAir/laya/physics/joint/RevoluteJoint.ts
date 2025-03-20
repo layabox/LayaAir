@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { Utils } from "../../utils/Utils";
-import { EPhysics2DJoint, physics2D_RevoluteJointDef } from "../Factory/IPhysics2DFactory";
+import { EPhysics2DJoint, physics2D_RevoluteJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 
 /**

@@ -7,7 +7,7 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { RevoluteJoint } from "laya/physics/Joint/RevoluteJoint";
+import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
@@ -21,7 +21,7 @@ import { Physics2D } from "laya/physics/Physics2D";
 import { Physics2DOption } from "laya/physics/Physics2DOption";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
-import { EPhycis2DBlit } from "laya/physics/Factory/IPhysics2DFactory";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 export class Physics_Bridge {
     Main: typeof Main = null;

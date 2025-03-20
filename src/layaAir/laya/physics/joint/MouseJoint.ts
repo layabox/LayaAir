@@ -3,7 +3,7 @@ import { Event } from "../../events/Event"
 import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { ILaya } from "../../../ILaya";
-import { EPhysics2DJoint, physics2D_MouseJointJointDef } from "../Factory/IPhysics2DFactory";
+import { EPhysics2DJoint, physics2D_MouseJointJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 
 /**

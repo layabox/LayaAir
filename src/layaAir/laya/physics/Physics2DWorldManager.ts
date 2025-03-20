@@ -1,7 +1,7 @@
 import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
-import { EPhycis2DBlit, Ebox2DType, box2DWorldDef } from "./Factory/IPhysics2DFactory";
+import { EPhycis2DBlit, Ebox2DType, box2DWorldDef } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { Browser } from "../utils/Browser";
@@ -69,9 +69,10 @@ export class Physics2DWorldManager implements IElementComponentManager {
     setRootSprite(scene: Scene | Sprite): void {
         this._scene = scene;
         this._box2DWorld = Physics2D.I._factory.createWorld(this._worldDef);
-        this._box2DWorld._indexInMap = Physics2D.I._factory.worldIndex;
-        Physics2D.I._factory.worldMap.set(Physics2D.I._factory.worldIndex, this);
-        Physics2D.I._factory.worldIndex++;
+        this._box2DWorld._pixelRatio = this._pixelRatio;
+        this._box2DWorld._indexInMap = Physics2D.I._factory.worldCount;
+        Physics2D.I._factory.worldMap.set(Physics2D.I._factory.worldCount, this);
+        Physics2D.I._factory.worldCount++;
         this._contactListener = Physics2D.I._factory.createContactListener();
         this._contactListener = this._worldContactCallback(this._contactListener);
         Physics2D.I._factory.setContactListener(this._box2DWorld, this._contactListener);

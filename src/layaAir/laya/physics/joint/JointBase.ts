@@ -3,7 +3,7 @@ import { Sprite } from "../../display/Sprite";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
 import { ColliderBase } from "../Collider2D/ColliderBase";
-import { IPhysics2DFactory } from "../Factory/IPhysics2DFactory";
+import { IPhysics2DFactory } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D"
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 

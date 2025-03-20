@@ -1,5 +1,5 @@
 import { LayaEnv } from "../../../LayaEnv";
-import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
+import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 

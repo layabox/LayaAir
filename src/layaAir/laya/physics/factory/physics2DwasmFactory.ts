@@ -3,7 +3,6 @@ import { Physics2D } from "../Physics2D";
 import { Laya } from "../../../Laya";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 import { Box2DShapeDef, box2DWorldDef, Ebox2DType, EPhysics2DJoint, EPhysics2DShape, FilterData, IPhysics2DFactory, physics2D_BaseJointDef, physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef, RigidBody2DInfo } from "./IPhysics2DFactory";
-import { Physics2DShapeBase } from "../Shape/Physics2DShapeBase";
 
 const b2_maxFloat = 1E+37;
 
@@ -13,7 +12,7 @@ const b2_maxFloat = 1E+37;
  */
 export class physics2DwasmFactory implements IPhysics2DFactory {
     worldMap: Map<number, Physics2DWorldManager> = new Map();
-    worldIndex: number = 0;
+    worldCount: number = 0;
     private _tempVe21: any;
     private _tempVe22: any;
 
@@ -47,20 +46,14 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     convertLayaValueToPhysics(world: any, value: number): number {
-        let worldIndex = world._indexInMap;
-        if (this.worldMap.has(worldIndex)) {
-            let manager: Physics2DWorldManager = this.worldMap.get(worldIndex);
-            value = manager.layaToPhysics2D(value);
-        }
+        let _rePixelRatio: number = 1 / world._pixelRatio;
+        value = value * _rePixelRatio;
         return value;
     }
 
     convertPhysicsValueToLaya(world: any, value: number): number {
-        let worldIndex = world._indexInMap;
-        if (this.worldMap.has(worldIndex)) {
-            let manager: Physics2DWorldManager = this.worldMap.get(worldIndex);
-            value = manager.physics2DToLaya(value);
-        }
+        let _pixelRatio: number = world._pixelRatio;
+        value = value * _pixelRatio;
         return value;
     }
 
@@ -186,7 +179,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      */
     update(delta: number): void {
         //set Physics Position from Engine TODO
-        for (let i = 0; i <= Physics2D.I._factory.worldIndex; i++) {
+        for (let i = 0; i <= Physics2D.I._factory.worldCount; i++) {
             let world = this.worldMap.get(i);
             if (!world) continue;
             let velocityIterations = world.getVelocityIterations();
@@ -397,6 +390,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.m_userData = {};
         joint.world = world;
         return joint;
+    }
+
+    setJoint_userData(joint: any, data: any): void {
+
     }
 
     /**
@@ -680,16 +677,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
 
     get_joint_recationForce(joint: any): any {
-        let world: any = joint.world;
         let force: any = joint.GetReactionForce(60);
-        force.x = this.convertPhysicsValueToLaya(world, force.x);
-        force.y = this.convertPhysicsValueToLaya(world, force.y);
         return force;
     }
     get_joint_reactionTorque(joint: any): number {
-        let world: any = joint.world;
         let torque: number = joint.GetReactionTorque(60);
-        torque = this.convertPhysicsValueToLaya(world, torque);
         return torque;
     }
     isValidJoint(joint: any): boolean {
@@ -927,7 +919,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return shape.GetBody();
     }
 
-    set_shape_sensor(shape: any, sensor: boolean): void {
+    set_shape_isSensor(shape: any, sensor: boolean): void {
         shape.SetSensor(sensor);
     }
     get_shape_isSensor(shape: any): boolean {
@@ -1356,6 +1348,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     get_rigidBody_next(body: any) {
         return body.GetNext();
     }
+
+    set_rigidBody_userData(body: any, data: any): void {
+
+    }
+
     get_rigidBody_userData(body: any) {
         return body.GetUserData();
     }
@@ -1369,8 +1366,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return body.GetLocalVector(value);
     }
     rigidbody_ApplyAngularImpulse(body: any, impulse: number): void {
-        let world: any = body.wolrd;
-        impulse = this.convertLayaValueToPhysics(world, impulse);
         body.ApplyAngularImpulse(impulse, true);
     }
 

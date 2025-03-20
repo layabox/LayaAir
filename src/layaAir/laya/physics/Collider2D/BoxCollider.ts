@@ -1,5 +1,5 @@
 import { Physics2D } from "../Physics2D";
-import { EPhysics2DShape } from "../Factory/IPhysics2DFactory";
+import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { StaticCollider } from "../StaticCollider";
 
 /**

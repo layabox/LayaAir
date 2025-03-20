@@ -1,7 +1,7 @@
 import { Sprite } from "../display/Sprite";
 import { Utils } from "../utils/Utils";
 import { ColliderBase } from "./Collider2D/ColliderBase";
-import { RigidBody2DType } from "./Factory/IPhysics2DFactory";
+import { RigidBody2DType } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { RigidBody } from "./RigidBody";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";

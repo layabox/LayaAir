@@ -1,6 +1,6 @@
 import { JointBase } from "./JointBase";
 import { Point } from "../../maths/Point"
-import { EPhysics2DJoint, physics2D_WeldJointDef } from "../Factory/IPhysics2DFactory";
+import { EPhysics2DJoint, physics2D_WeldJointDef } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 

@@ -1,5 +1,5 @@
 import { Laya } from "../../Laya";
-import { Box2DShapeDef, EPhysics2DShape, RigidBody2DInfo } from "../physics/Factory/IPhysics2DFactory";
+import { Box2DShapeDef, EPhysics2DShape, RigidBody2DInfo } from "../physics/factory/IPhysics2DFactory";
 import { Physics2DWorldManager } from "../physics/Physics2DWorldManager";
 import { Utils } from "../utils/Utils";
 import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
