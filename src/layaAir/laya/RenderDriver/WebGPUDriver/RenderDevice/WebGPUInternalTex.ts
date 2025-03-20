@@ -243,9 +243,6 @@ export class WebGPUInternalTex implements InternalTexture {
         if (this._statistics_M_TextureA !== GPUEngineStatisticsInfo.M_ALLRenderTexture)
             this._engine._addStatisticsInfo(this._statistics_M_TextureX, -this._gpuMemory + memory);
         this._engine._addStatisticsInfo(this._statistics_M_TextureA, -this._gpuMemory + memory);
-        // if (this._statistics_RC_TextureA !== GPUEngineStatisticsInfo.RC_ALLRenderTexture)
-        //     this._engine._addStatisticsInfo(this._statistics_RC_TextureX, -this._gpuMemory + memory);
-        // this._engine._addStatisticsInfo(this._statistics_RC_TextureA, -this._gpuMemory + memory);
     }
 
     dispose(): void {

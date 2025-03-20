@@ -219,7 +219,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
             || this._screenRT._textures[0].width !== w
             || this._screenRT._textures[0].height !== h) {
             //console.log('canvas resize =', w, h);
-            this.createScreenRT();
+            this._createScreenRT();
         }
     }
 
@@ -262,7 +262,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._initContext();
 
         this._textureContext = new WebGPUTextureContext(this);
-        this.createScreenRT();
+        this._createScreenRT();
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
@@ -397,7 +397,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     /**
      * 创建屏幕渲染目标
      */
-    createScreenRT() {
+    private _createScreenRT() {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
