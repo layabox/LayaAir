@@ -8,13 +8,15 @@ export class RoundedRectMesh implements IMeshFactory {
     rb: number = 6;
 
     onPopulateMesh(vb: VertexStream) {
+        let x = vb.contentRect.x;
+        let y = vb.contentRect.y;
         let w = vb.contentRect.width;
         let h = vb.contentRect.height;
         let radiusX = w / 2;
         let radiusY = h / 2;
         let cornerMaxRadius = Math.min(radiusX, radiusY);
-        let centerX = radiusX;
-        let centerY = radiusY;
+        let centerX = x + radiusX;
+        let centerY = y + radiusY;
 
         vb.addVert(centerX, centerY, 0);
 
@@ -42,6 +44,9 @@ export class RoundedRectMesh implements IMeshFactory {
 
             if (i === 0 || i === 3) offsetX = w - radius * 2;
             if (i === 0 || i === 1) offsetY = h - radius * 2;
+
+            offsetX += x;
+            offsetY += y;
 
             if (radius !== 0) {
                 let partNumSides = Math.max(1, Math.ceil(Math.PI * radius / 8)) + 1;

@@ -342,6 +342,27 @@ export class Rectangle implements IClone {
     }
 
     /**
+     * Creates a rectangle from two corner points.
+     * @param minX The smallest x value.
+     * @param minY The smallest y value.
+     * @param maxX The largest x value. 
+     * @param maxY The largest y value. 
+     * @param out Optional Rectangle object to store the result. 
+     * @returns The resulting rectangle.
+     * @zh 由两个角点创建一个矩形。
+     * @param minX 最小的 x 值。
+     * @param minY 最小的 y 值。
+     * @param maxX 最大的 x 值。
+     * @param maxY 最大的 y 值。
+     * @param out （可选）用于存储结果的矩形对象。
+     * @return 结果矩形。 
+     */
+    static minMaxRect(minX: number, minY: number, maxX: number, maxY: number, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
+        return out.setTo(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    /**
      * @en Determines whether this Rectangle object is empty.
      * @returns True if the width or height of the Rectangle object is less than or equal to 0, false otherwise.
      * @zh 确定此 Rectangle 对象是否为空。
