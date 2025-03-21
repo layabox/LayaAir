@@ -5,6 +5,10 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { NotImplementedError } from "../../../utils/Error";
+import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { LayaGL } from "../../../layagl/LayaGL";
+
+
 
 /**
  * WebGPU着色器实例
@@ -37,13 +41,24 @@ export class WebGPUShaderInstance implements IShaderInstance {
     globalId: number;
     objectName: string = 'WebGPUShaderInstance';
 
+    //根据Sprite，additionnal分别记录资源列表
+    _cacheSpriteBindGroupDescriptor: GPUBindGroupDescriptor;
+    _additionalEntryGroup: Map<string, WebGPUUniformPropertyBindingInfo[]>;
+    _spriteEntryGroup:  WebGPUUniformPropertyBindingInfo[] = [];
+    //global Group Data
+    _globalUnuformCommandMapArray: Array<string> = [];
+
+
+
     constructor(name: string) {
         this.name = name;
         this.globalId = WebGPUGlobal.getId(this);
     }
+
     _serializeShader(): ArrayBuffer {
         throw new NotImplementedError();
     }
+
     _deserialize(buffer: ArrayBuffer): boolean {
         throw new NotImplementedError();
     }
@@ -122,14 +137,93 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this.uniformSetMap[item.set].push(item);
         });
 
+        this._createSpriteChacheData();
+
         this._shaderPass = shaderPass;
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
         this.complete = true;
-        //const dimension = shaderProcessInfo.is2D ? '2d' : '3d';
-        //console.log('create ' + dimension + ' shaderInstance_' + this._id,
-        //    shaderPass._owner._owner.name, this._shaderPass, this.uniformSetMap, { vs: shaderObj.glsl_vs }, { fs: shaderObj.glsl_fs });
+    }
+
+    private _createSpriteChacheData() {
+        //创建Sprite的缓存组
+        let spriteGroupLayout = this._createBindGroupLayout(2, 'spriteBindGroup');
+        if (spriteGroupLayout) {
+            let entries: GPUBindGroupEntry[] = [];
+            this._cacheSpriteBindGroupDescriptor = {
+                label: 'spriteBindGroup',
+                layout: spriteGroupLayout,
+                entries: entries
+            }
+            for (let i = 0; i < this.uniformInfo.length; i++) {
+                const item = this.uniformInfo[i];
+                if (item.set === 2) {
+                  
+                    if (this.hasSpritePtrID(item.propertyId)) {
+                        if(!this._spriteEntryGroup){
+                            this._spriteEntryGroup = [];
+                        }
+                        this._spriteEntryGroup.push(item);
+                    }
+                    if (this._hasAdditionShaderData(item.propertyId)) {
+                        let strKey = this._hasAdditionShaderData(item.propertyId);
+                        if (!strKey) {
+                            if (this._additionalEntryGroup.has(strKey)) {
+                                this._additionalEntryGroup.get(strKey).push(item);
+                            } else {
+                                this._additionalEntryGroup.set(strKey, [item]);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    private _createBindGroupLayout(set: number, name: string) {
+        const data: WebGPUUniformPropertyBindingInfo[] = [];
+        const info = this.uniformInfo;
+        for (let i = 0; i < info.length; i++) {
+            const item = info[i];
+            if (item.set === set)
+                data.push(item);
+        }
+        if (data.length === 0) return null;
+        let entries: GPUBindGroupLayoutEntry[] = [];
+        const desc: GPUBindGroupLayoutDescriptor = {
+            label: name,
+            entries: entries,
+        };
+        for (let i = 0; i < data.length; i++) {
+            switch (data[i].type) {
+                case WebGPUBindingInfoType.buffer:
+                    (desc.entries as any).push({
+                        binding: data[i].binding,
+                        visibility: data[i].visibility,
+                        buffer: data[i].buffer,
+                    });
+                    break;
+                case WebGPUBindingInfoType.sampler:
+                    (desc.entries as any).push({
+                        binding: data[i].binding,
+                        visibility: data[i].visibility,
+                        sampler: data[i].sampler,
+                    });
+                    break;
+                case WebGPUBindingInfoType.texture:
+                    (desc.entries as any).push({
+                        binding: data[i].binding,
+                        visibility: data[i].visibility,
+                        texture: data[i].texture,
+                    });
+                    break;
+            }
+        }
+        return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
     /**
@@ -139,56 +233,38 @@ export class WebGPUShaderInstance implements IShaderInstance {
      * @param entries 
      */
     createPipelineLayout(device: GPUDevice, name: string, entries?: any) {
-        const _createBindGroupLayout = (set: number, name: string,
-            info: WebGPUUniformPropertyBindingInfo[]) => {
-            const data: WebGPUUniformPropertyBindingInfo[] = [];
-            for (let i = 0; i < info.length; i++) {
-                const item = info[i];
-                if (item.set === set)
-                    data.push(item);
-            }
-            if (data.length === 0) return null;
-            const desc: GPUBindGroupLayoutDescriptor = {
-                label: name,
-                entries: entries ? entries[set] : [],
-            };
-            if (!entries) {
-                for (let i = 0; i < data.length; i++) {
-                    switch (data[i].type) {
-                        case WebGPUBindingInfoType.buffer:
-                            (desc.entries as any).push({
-                                binding: data[i].binding,
-                                visibility: data[i].visibility,
-                                buffer: data[i].buffer,
-                            });
-                            break;
-                        case WebGPUBindingInfoType.sampler:
-                            (desc.entries as any).push({
-                                binding: data[i].binding,
-                                visibility: data[i].visibility,
-                                sampler: data[i].sampler,
-                            });
-                            break;
-                        case WebGPUBindingInfoType.texture:
-                            (desc.entries as any).push({
-                                binding: data[i].binding,
-                                visibility: data[i].visibility,
-                                texture: data[i].texture,
-                            });
-                            break;
-                    }
-                }
-            }
-            return device.createBindGroupLayout(desc);
-        }
-
         const bindGroupLayouts: GPUBindGroupLayout[] = [];
         for (let i = 0; i < 4; i++) {
-            const group = _createBindGroupLayout(i, `group${i}`, this.uniformInfo);
+            const group = this._createBindGroupLayout(i, `group${i}`);
             if (group) bindGroupLayouts.push(group);
         }
-
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
+    }
+
+    private hasSpritePtrID(dataOffset: number): boolean {
+        let commap = this._shaderPass.nodeCommonMap;
+        if (!commap) {
+            return false;
+        } else {
+            for (let i = 0, n = commap.length; i < n; i++) {
+                if ((LayaGL.renderDeviceFactory.createGlobalUniformMap(commap[i]) as WebGPUCommandUniformMap).hasPtrID(dataOffset))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    private _hasAdditionShaderData(dataOffset: number): string {
+        let additionShaderData = this._shaderPass.additionShaderData;
+        if (!additionShaderData) {
+            return null;
+        } else {
+            for (let i = 0, n = additionShaderData.length; i < n; i++) {
+                if ((LayaGL.renderDeviceFactory.createGlobalUniformMap(additionShaderData[i]) as WebGPUCommandUniformMap).hasPtrID(dataOffset))
+                    return additionShaderData[i];
+            }
+        }
+        return null;
     }
 
     /**
@@ -201,4 +277,5 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._destroyed = true;
         }
     }
+
 }

@@ -30,8 +30,8 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
     }
 
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number): void {
-        if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
-            throw ('because of align rule, the engine does not support other types as arrays./因为对其规则,引擎不支持除了Matreix4x4和Vector4之外的数据数组');
+        //if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
+        //    throw ('because of align rule, the engine does not support other types as arrays./因为对其规则,引擎不支持除了Matreix4x4和Vector4之外的数据数组');
 
         this._idata.set(propertyID, { id: propertyID, uniformtype, propertyName, arrayLength });
     }

@@ -50,7 +50,7 @@ export class WebGPURenderBundle {
      */
     render(context: WebGPURenderContext3D, element: WebGPURenderElement3D) {
         this._elements.add(element.bundleId);
-        this.renderTriangles += element._render(context, null, this);
+        this.renderTriangles += element._render(context, this);
         this._shotNum++;
         this.renderTimeStamp = Laya.timer.currTimer;
     }

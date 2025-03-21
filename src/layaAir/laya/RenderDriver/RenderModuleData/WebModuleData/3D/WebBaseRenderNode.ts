@@ -56,7 +56,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _additionShaderData: Map<string, ShaderData>;
 
 
-
     /**
     * context3D:GLESRenderContext3D
     * @internal

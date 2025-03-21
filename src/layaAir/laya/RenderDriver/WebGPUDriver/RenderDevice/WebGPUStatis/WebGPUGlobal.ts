@@ -3,10 +3,9 @@ import { WebGPUStatis } from "./WebGPUStatis";
 export class WebGPUGlobal {
     static debug: boolean = false; //是否开启调试信息
     static useCache: boolean = true; //是否启用GPU资源缓存机制，减少资源创建
-    static useBundle: boolean = true; //是否使用RenderBundle，缓存渲染指令
+    //static useBundle: boolean = true; //是否使用RenderBundle，缓存渲染指令
     static useBigBuffer: boolean = true; //是否使用大内存块，减少内存切换
     static useTimeQuery: boolean = false; //是否使用GPU时间戳，性能调试时可打开
-    static useGlobalContext: boolean = true; //是否使用全局上下文，减少重复设置资源
     private static _idCounter: number = 0;
     private static _uniformInfoIdCounter: number = 0;
     private static _uniformBufferIdCounter: number = 0;

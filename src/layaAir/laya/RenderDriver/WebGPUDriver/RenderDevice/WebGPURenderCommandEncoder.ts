@@ -16,7 +16,8 @@ export class WebGPURenderCommandEncoder {
     encoder: GPURenderPassEncoder;
 
     globalId: number;
-    objectName: string = 'WebGPURenderCommandEncoder';
+    
+    //cacheData
 
     constructor() {
         this._engine = WebGPURenderEngine._instance;

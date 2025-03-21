@@ -78,10 +78,10 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      */
     protected _bindGroupEx(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, index: number) {
         const uniformSetMap = shaderInstance.uniformSetMap;
-        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
-        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
-        this.renderShaderDatas[index]?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
-        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
+        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command);
+        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command);
+        this.renderShaderDatas[index]?.bindGroup(2, 'sprite3D', uniformSetMap[2], command);
+        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command);
     }
 
     /**
@@ -104,15 +104,16 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     protected _uploadGeometryEx(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, index: number) {
         let triangles = 0;
         if (command) {
-            if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, index);
-            else triangles += command.applyGeometryPart(this.geometry, index);
+            // if (WebGPUGlobal.useGlobalContext)
+            //     triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, index);
+            // else 
+            triangles += command.applyGeometryPart(this.geometry, index);
         }
-        if (bundle) {
-            if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, index);
-            else triangles += bundle.applyGeometryPart(this.geometry, index);
-        }
+        // if (bundle) {
+        //     if (WebGPUGlobal.useGlobalContext)
+        //         triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, index);
+        //     else triangles += bundle.applyGeometryPart(this.geometry, index);
+        // }
         return triangles;
     }
 
@@ -122,12 +123,12 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
      * @param command 
      * @param bundle 
      */
-    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;
-        if (!this.geometry.checkDataFormat) {
-            this._changeDataFormat(); //转换数据格式
-            this.geometry.checkDataFormat = true;
-        }
+        // if (!this.geometry.checkDataFormat) {
+        //     this._changeDataFormat(); //转换数据格式
+        //     this.geometry.checkDataFormat = true;
+        // }
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         if (this.isRender && this.skinnedData) {
             for (let i = 0; i < this._passNum; i++) {
@@ -142,34 +143,36 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                             pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
                         }
                         if (!pipeline) {
-                            pipeline = this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                            pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
                         } else { //缓存命中
-                            if (command) {
-                                if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setCommandPipeline(command, pipeline);
-                                else command.setPipeline(pipeline);
-                            }
-                            if (bundle) {
-                                if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setBundlePipeline(bundle, pipeline);
-                                else bundle.setPipeline(pipeline);
-                            }
+                            //    if (command) {
+                            //        if (WebGPUGlobal.useGlobalContext)
+                            //            WebGPUContext.setCommandPipeline(command, pipeline);
+                            //        else 
+                            command.setPipeline(pipeline);
+                            //    }
+                            // if (bundle) {
+                            //     if (WebGPUGlobal.useGlobalContext)
+                            //         WebGPUContext.setBundlePipeline(bundle, pipeline);
+                            //     else bundle.setPipeline(pipeline);
+                            // }
                         }
-                    } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制
-                    if (!this.skinnedData || this.skinnedData.length == 0) {
-                        if (command || bundle)
-                            this._bindGroup(shaderInstance, command, bundle); //绑定资源组
-                        this._uploadUniform(); //上传uniform数据
-                        triangles += this._uploadGeometry(command, bundle); //上传几何数据
-                    } else {
-                        for (let j = 0, len = this.skinnedData.length; j < len; j++) {
-                            this.renderShaderDatas[j]?.setBuffer(SkinnedMeshRenderer.BONES, this.skinnedData[j]);
-                            if (command || bundle)
-                                this._bindGroupEx(shaderInstance, command, bundle, j); //绑定资源组
-                            this._uploadUniformEx(j); //上传uniform数据
-                            triangles += this._uploadGeometryEx(command, bundle, j); //上传几何数据
-                        }
-                    }
+                    } else
+                        this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
+                    // if (!this.skinnedData || this.skinnedData.length == 0) {
+                    //     if (command || bundle)
+                    //         this._bindGroup(shaderInstance, command, bundle); //绑定资源组
+                    //     this._uploadUniform(); //上传uniform数据
+                    //     triangles += this._uploadGeometry(command, bundle); //上传几何数据
+                    // } else {
+                    //     for (let j = 0, len = this.skinnedData.length; j < len; j++) {
+                    //         this.renderShaderDatas[j]?.setBuffer(SkinnedMeshRenderer.BONES, this.skinnedData[j]);
+                    //         if (command || bundle)
+                    //             this._bindGroupEx(shaderInstance, command, bundle, j); //绑定资源组
+                    //         this._uploadUniformEx(j); //上传uniform数据
+                    //         triangles += this._uploadGeometryEx(command, bundle, j); //上传几何数据
+                    //     }
+                    // }
                 }
             }
         }

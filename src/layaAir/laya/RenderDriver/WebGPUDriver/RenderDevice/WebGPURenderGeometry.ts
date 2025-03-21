@@ -51,7 +51,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     /**@internal */
     drawType: DrawType;
 
-    checkDataFormat: boolean = false;
+    //checkDataFormat: boolean = false;
 
     gpuIndexFormat: GPUIndexFormat = 'uint16';
     gpuIndexByte: number = 2;

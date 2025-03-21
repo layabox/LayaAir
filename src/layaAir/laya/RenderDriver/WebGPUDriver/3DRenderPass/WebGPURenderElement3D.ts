@@ -3,16 +3,18 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBuffer } from "../RenderDevice/WebGPUBuffer";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
-import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
+import { WebGPUCodeGenerator, WebGPUUniformMapType, WebGPUUniformPropertyBindingInfo } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import {
     IRenderPipelineInfo,
@@ -25,15 +27,19 @@ import {
 import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
-import { WebGPUContext } from "./WebGPUContext";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
+
+interface CacheEntryInfo {
+    bindInfo: WebGPUUniformPropertyBindingInfo;
+    resource: any;
+}
 
 /**
  * 基本渲染单元
  */
 export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineInfo {
-    static _sceneShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element3D, 'scene');
-    static _renderShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element3D, 'sprite');
+    static _sceneShaderData: WebGPUShaderData = new WebGPUShaderData();//TODO??
+    static _renderShaderData: WebGPUShaderData = new WebGPUShaderData();//TODO??
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     static _defineStrings: Array<string> = [];
 
@@ -58,7 +64,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     protected _stateKey: string[] = []; //用于判断渲染状态是否改变
     protected _pipeline: GPURenderPipeline[] = []; //渲染管线缓存
-    protected _shaderInstances: WebGPUShaderInstance[] = []; //着色器缓存
+    protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist();
+    //根据不同的shader，缓存了每个Sprite3D的资源绑定状态
+    //protected _spriteBindGroupInfoCache: Map<number, CacheEntryInfo[]> = new Map();
 
     protected _passNum = 0; //当前渲染通道数量
     protected _passName: string; //当前渲染名称
@@ -121,64 +129,31 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         return { uniformMap, arrayMap };
     }
 
-    /**
-     * 提取当前渲染通道
-     * @param pipelineMode 
-     */
-    private _takeCurrentPass(pipelineMode: string) {
-        this._passNum = 0;
-        this._passName = pipelineMode;
-        const passes = this.subShader._passes;
-        for (let i = 0, len = passes.length; i < len; i++) {
-            if (passes[i].pipelineMode === pipelineMode) {
-                this._passIndex[this._passNum++] = i;
-            }
-        }
-    }
+    // /**
+    //  * 提取当前渲染通道
+    //  * @param pipelineMode 
+    //  */
+    // private _takeCurrentPass(pipelineMode: string) {
+    //     this._passNum = 0;
+    //     this._passName = pipelineMode;
+    //     const passes = this.subShader._passes;
+    //     for (let i = 0, len = passes.length; i < len; i++) {
+    //         if (passes[i].pipelineMode === pipelineMode) {
+    //             this._passIndex[this._passNum++] = i;
+    //         }
+    //     }
+    // }
 
     /**
      * 渲染前更新
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-        this._takeCurrentPass(context.pipelineMode);
-        if (this._passNum === 0) return false;
-
-        //设定当前渲染数据
-        this._sceneData = context.sceneData;
-        this._cameraData = context.cameraData;
-        if (!this._sceneData)
-            this._sceneData = WebGPURenderElement3D._sceneShaderData;
-        if (!this.renderShaderData)
-            this.renderShaderData = WebGPURenderElement3D._renderShaderData;
-        if (this.transform?.owner?.isStatic) {
-            if (this.isStatic !== true)
-                this.staticChange = true;
-            this.isStatic = true;
-            this.renderShaderData.isStatic = true;
-        } else {
-            if (this.isStatic !== false)
-                this.staticChange = true;
-            this.isStatic = false;
-            this.renderShaderData.isStatic = false;
-        }
-
         //编译着色器（只在数据发生变化的时候才重新编译）
-        let compile = false;
-        if (this._isShaderDataChange(context)) {
-            this._compileShader(context);
-            compile = true;
-        } else {
-            const index = this._passIndex[0];
-            if (this._shaderInstances[index]) {
-                this._sceneData?._createUniformBuffer(this._shaderInstances[index].uniformInfo[0], true);
-                this._cameraData?._createUniformBuffer(this._shaderInstances[index].uniformInfo[1], true);
-            }
-        }
-
+        this._compileShader(context);
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
-        return compile;
+        return;
     }
 
     /**
@@ -201,6 +176,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (this.materialShaderData)
             compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
 
+        this._shaderInstances.clear();
         //查找着色器对象缓存
         for (let i = 0; i < this._passNum; i++) {
             const index = this._passIndex[i];
@@ -212,22 +188,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
 
             //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
-            this._shaderInstances[index] = shaderInstance;
-
-            //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
-            if (i === 0) {
-                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], true);
-                this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.renderShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
-                this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
-            }
+            let shaderIns = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
+            this._shaderInstances.add(shaderIns);
         }
-
-        //提取当前渲染通道
-        this._takeCurrentPass(context.pipelineMode);
     }
-
     /**
      * 计算状态值
      * @param shaderInstance 
@@ -515,24 +479,50 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param command 
      * @param bundle 
      */
-    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
-        const uniformSetMap = shaderInstance.uniformSetMap;
-        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
-        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
-        this.renderShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
-        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
+    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+        // const uniformSetMap = shaderInstance.uniformSetMap;
+        // this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command);
+        // this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command);
+        // this.renderShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command);
+        // this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command);
+        if (shaderInstance._globalUnuformCommandMapArray.length > 0) {
+            const bindGroup = this._sceneData.getBindGroupByCommandMapArray(shaderInstance._globalUnuformCommandMapArray);
+            command.setBindGroup(0, bindGroup);
+        }
+        if (!shaderInstance.uniformSetMap[1]) {
+            const bindGroup = this._cameraData.getBindGroupByCommandMapArray(["BaseCamera"]);
+            command.setBindGroup(1, bindGroup);
+        }
+        if (!shaderInstance.uniformSetMap[2]) {
+            //判断是否需要重新创建BindGroup TODO
+            let shaderDataMap = this.owner.additionShaderData;
+            let spritegroup = shaderInstance._additionalEntryGroup;
+            let descriptor = shaderInstance._cacheSpriteBindGroupDescriptor;
+            descriptor.entries = [];
+            if (this.renderShaderData) {
+                this.renderShaderData._getBindGroupEntryByArray(shaderInstance._spriteEntryGroup, descriptor.entries);
+            }
+            for (let [key, entries] of spritegroup) {
+                if (shaderDataMap.has(key)) {
+
+                    const shaderData = shaderDataMap.get(key) as WebGPUShaderData;
+                    // 创建BindGroup的描述符
+                    shaderData._getBindGroupEntryByArray(entries, descriptor.entries);
+                }
+            }
+            let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(descriptor);
+            command.setBindGroup(2, bindGroup);
+        }
+        if (!shaderInstance.uniformSetMap[3]) {
+            const bindGroup = this.materialShaderData.getBindGroupByCommandMapArray(["Material"]);
+        }
+
     }
 
-    /**
-     * 上传uniform数据
-     */
-    protected _uploadUniform() {
-        this._sceneData?.uploadUniform();
-        this._cameraData?.uploadUniform();
-        this.renderShaderData?.uploadUniform();
-        this.materialShaderData?.uploadUniform();
-    }
+    //取不同RenderPass中的ShaderInstance，根据不同的ShaderInstance 创建不同的BindGroup的资源缓存表，用于快速的判断是否要重新创建bindGroup
+    private _createBindGroupCache(shaderInstance: WebGPUShaderInstance) {
 
+    }
     /**
      * 上传模板参考值
      * @param command 
@@ -547,18 +537,16 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param command 
      * @param bundle 
      */
-    protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;
         if (command) {
-            if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyCommandGeometryPart(command, this.geometry, 0);
-            else triangles += command.applyGeometryPart(this.geometry, 0);
+            triangles += command.applyGeometryPart(this.geometry, 0);
         }
-        if (bundle) {
-            if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
-            else triangles += bundle.applyGeometryPart(this.geometry, 0);
-        }
+        // if (bundle) {
+        //     if (WebGPUGlobal.useGlobalContext)
+        //         triangles += WebGPUContext.applyBundleGeometryPart(bundle, this.geometry, 0);
+        //     else triangles += bundle.applyGeometryPart(this.geometry, 0);
+        // }
         return triangles;
     }
 
@@ -572,20 +560,21 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param stateKey 
      */
     protected _createPipeline(index: number, context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance,
-        command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle, stateKey?: string) {
+        command: WebGPURenderCommandEncoder | WebGPURenderBundle, stateKey?: string) {
         const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
         if (bindGroupLayout) {
             const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout, stateKey);
-            if (command) {
-                if (WebGPUGlobal.useGlobalContext)
-                    WebGPUContext.setCommandPipeline(command, pipeline);
-                else command.setPipeline(pipeline);
-            }
-            if (bundle) {
-                if (WebGPUGlobal.useGlobalContext)
-                    WebGPUContext.setBundlePipeline(bundle, pipeline);
-                else bundle.setPipeline(pipeline);
-            }
+            //if (command) {
+            // if (WebGPUGlobal.useGlobalContext)
+            //     WebGPUContext.setCommandPipeline(command, pipeline);
+            //else 
+            command.setPipeline(pipeline);
+            //}
+            // if (bundle) {
+            //     if (WebGPUGlobal.useGlobalContext)
+            //         WebGPUContext.setBundlePipeline(bundle, pipeline);
+            //     else bundle.setPipeline(pipeline);
+            // }
             if (WebGPUGlobal.useCache) {
                 shaderInstance.renderPipelineMap.set(stateKey, pipeline);
                 this._stateKey[index] = stateKey;
@@ -599,112 +588,23 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     /**
-     * 转换数据格式
-     */
-    protected _changeDataFormat() {
-        const bufferState = this.geometry.bufferState;
-        for (let i = 0; i < bufferState._vertexBuffers.length; i++) {
-            const vb = bufferState._vertexBuffers[i];
-            const vs = bufferState.vertexState[i];
-            if (!vb.buffer) continue;
-            let attrOld = [], attrNew = [];
-            const attributes = vs.attributes as [];
-            const attrLen = attributes.length;
-            for (let j = 0; j < attrLen; j++) {
-                const attr = attributes[j] as GPUVertexAttribute;
-                attrOld.push({
-                    offset: attr.offset,
-                    format: attr.format,
-                });
-            }
-            for (let j = 0; j < attrLen; j++) {
-                const attr = attributes[j] as GPUVertexAttribute;
-                if (attr.format === 'uint8x4') {
-                    attr.format = 'float32x4';
-                    for (let k = 0; k < attrLen; k++) {
-                        const attr2 = attributes[k] as GPUVertexAttribute;
-                        if (attr2.offset > attr.offset)
-                            attr2.offset += 12;
-                        attrNew.push({
-                            offset: attr2.offset,
-                            format: attr2.format,
-                        });
-                    }
-                    bufferState.updateBufferLayoutFlag++;
-                    const strideOld = vs.arrayStride;
-                    const vertexCount = vb.buffer.byteLength / vs.arrayStride;
-                    vs.arrayStride += 12;
-
-                    const strideNew = vs.arrayStride;
-                    const buffer = vb.buffer;
-                    const buffer2 = new ArrayBuffer(vs.arrayStride * vertexCount);
-                    const src_ui8 = new Uint8Array(buffer);
-                    const src_f32 = new Float32Array(buffer);
-                    const dst_ui8 = new Uint8Array(buffer2);
-                    const dst_f32 = new Float32Array(buffer2);
-                    let src_ui8_off1 = 0;
-                    let src_f32_off1 = 0;
-                    let dst_ui8_off1 = 0;
-                    let dst_f32_off1 = 0;
-                    let src_ui8_off2 = 0;
-                    let src_f32_off2 = 0;
-                    let dst_ui8_off2 = 0;
-                    let dst_f32_off2 = 0;
-                    //拷贝数据（按照新的数据布局）
-                    for (let k = 0; k < vertexCount; k++) {
-                        src_ui8_off1 = k * strideOld;
-                        src_f32_off1 = k * strideOld / 4;
-                        dst_ui8_off1 = k * strideNew;
-                        dst_f32_off1 = k * strideNew / 4;
-                        for (let l = 0; l < attrLen; l++) {
-                            if (attrOld[l].format === 'uint8x4') {
-                                if (l === j) {
-                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
-                                    dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
-                                    for (let m = 0; m < 4; m++)
-                                        dst_f32[dst_f32_off2 + m] = src_ui8[src_ui8_off2 + m];
-                                } else {
-                                    src_ui8_off2 = src_ui8_off1 + attrOld[l].offset;
-                                    dst_ui8_off2 = dst_ui8_off1 + attrNew[l].offset;
-                                    for (let m = 0; m < 4; m++)
-                                        dst_ui8[dst_ui8_off2 + m] = src_ui8[src_ui8_off2 + m];
-                                }
-                            } else {
-                                src_f32_off2 = src_f32_off1 + attrOld[l].offset / 4;
-                                dst_f32_off2 = dst_f32_off1 + attrNew[l].offset / 4;
-                                for (let m = 0; m < 4; m++)
-                                    dst_f32[dst_f32_off2 + m] = src_f32[src_f32_off2 + m];
-                            }
-                        }
-                    }
-                    vb.source?.release();
-                    vb.source = new WebGPUBuffer(vb.source._usage, vs.arrayStride * vertexCount);
-                    vb.source.setData(buffer2, 0);
-                    attrOld = attrNew;
-                    attrNew = [];
-                }
-            }
-        }
-    }
-
-    /**
      * 渲染
      * @param context 
      * @param command 
      * @param bundle 
      */
-    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         //如果command和bundle都是null，则只上传shaderData数据，不执行bindGroup操作
         let triangles = 0;
-        if (!this.geometry.checkDataFormat) {
-            this._changeDataFormat(); //转换数据格式
-            this.geometry.checkDataFormat = true;
-        }
+        // if (!this.geometry.checkDataFormat) {
+        //     this._changeDataFormat(); //转换数据格式
+        //     this.geometry.checkDataFormat = true;
+        // }
         if (this.isRender) {
             for (let i = 0; i < this._passNum; i++) {
                 const index = this._passIndex[i];
                 let pipeline = this._pipeline[index];
-                const shaderInstance = this._shaderInstances[index];
+                const shaderInstance = this._shaderInstances.elements[index]
                 if (shaderInstance && shaderInstance.complete) {
                     this._getDepthStencilState(shaderInstance, context.destRT); //更新Stencil信息
                     if (WebGPUGlobal.useCache) { //启用缓存机制
@@ -714,26 +614,25 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
                         }
                         if (!pipeline) {
-                            pipeline = this._createPipeline(index, context, shaderInstance, command, bundle, stateKey); //新建渲染管线
+                            pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
                         } else { //缓存命中
-                            if (command) {
-                                if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setCommandPipeline(command, pipeline);
-                                else command.setPipeline(pipeline);
-                            }
-                            if (bundle) {
-                                if (WebGPUGlobal.useGlobalContext)
-                                    WebGPUContext.setBundlePipeline(bundle, pipeline);
-                                else bundle.setPipeline(pipeline);
-                            }
+                            // if (command) {
+                            //     if (WebGPUGlobal.useGlobalContext)
+                            //WebGPUContext.setCommandPipeline(command, pipeline);
+                            command.setPipeline(pipeline);
+                            // }
+                            // if (bundle) {
+                            //     if (WebGPUGlobal.useGlobalContext)
+                            //         WebGPUContext.setBundlePipeline(bundle, pipeline);
+                            //     else bundle.setPipeline(pipeline);
+                            // }
                         }
-                    } else this._createPipeline(index, context, shaderInstance, command, bundle); //不启用缓存机制
-                    if (command || bundle) {
-                        this._bindGroup(shaderInstance, command, bundle); //绑定资源组
-                        this._uploadStencilReference(command); //上传模板参考值，bundle不支持
                     }
+
+                    this._bindGroup(shaderInstance, command); //绑定资源组
+                    //this._uploadStencilReference(command); //上传模板参考值，bundle不支持
                     this._uploadUniform(); //上传uniform数据
-                    triangles += this._uploadGeometry(command, bundle); //上传几何数据
+                    triangles += this._uploadGeometry(command); //上传几何数据
                 }
             }
         }

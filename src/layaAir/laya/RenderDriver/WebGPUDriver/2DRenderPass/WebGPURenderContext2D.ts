@@ -57,8 +57,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         }
 
         //如果使用全局上下文，先清除上下文缓存
-        if (WebGPUGlobal.useGlobalContext)
-            WebGPUContext.startRender();
+        // if (WebGPUGlobal.useGlobalContext)
+        //     WebGPUContext.startRender();
 
         for (let i = 0, n = list.length; i < n; i++) {
             list.elements[i].prepare(this);
@@ -89,11 +89,9 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._start();
             this._needStart = false;
         }
-
         //如果使用全局上下文，先清除上下文缓存
-        if (WebGPUGlobal.useGlobalContext)
-            WebGPUContext.startRender();
-
+        // if (WebGPUGlobal.useGlobalContext)
+        //     WebGPUContext.startRender();
         node.prepare(this);
         node.render(this, this.renderCommand);
         this._submit();

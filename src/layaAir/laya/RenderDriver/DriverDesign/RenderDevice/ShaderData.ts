@@ -24,11 +24,11 @@ export enum ShaderDataType {
     Vector4,
     Color,
     Matrix4x4,
+    Buffer,
+    Matrix3x3,
     Texture2D,
     Texture3D,
     TextureCube,
-    Buffer,
-    Matrix3x3,
     Texture2DArray
 }
 

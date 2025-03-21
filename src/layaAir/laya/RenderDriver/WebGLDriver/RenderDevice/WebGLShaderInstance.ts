@@ -20,6 +20,12 @@ import { Config } from "../../../../Config";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { WebGLRenderContext3D } from "../3DRenderPass/WebGLRenderContext3D";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
+import { WebGPUUniformPropertyBindingInfo } from "../../WebGPUDriver/RenderDevice/WebGPUCodeGenerator";
+
+interface CacheEntryInfo {
+    bindInfo: WebGPUUniformPropertyBindingInfo;
+    resource: any;
+}
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
@@ -111,7 +117,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._spriteUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
 
-        let context =WebGLRenderContext3D._instance;
+        let context = WebGLRenderContext3D._instance;
 
         let preDrawUniforms = context._preDrawUniformMaps;
         let preDrawParams = [];

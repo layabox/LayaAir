@@ -16,7 +16,6 @@ import { WebGLSubUniformBuffer } from "../../WebGLDriver/RenderDevice/WebGLSubUn
 import { WebGLUniformBufferBase } from "../../WebGLDriver/RenderDevice/WebGLUniformBufferBase";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
 import { Config } from "../../../../Config";
 
 /**

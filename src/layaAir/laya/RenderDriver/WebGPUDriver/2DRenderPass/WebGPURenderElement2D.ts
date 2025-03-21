@@ -470,11 +470,12 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder) {
         let triangles = 0;
-        if (command) {
-            if (WebGPUGlobal.useGlobalContext)
-                triangles += WebGPUContext.applyCommandGeometry(command, this.geometry);
-            else triangles += command.applyGeometry(this.geometry);
-        }
+        // if (command) {
+        //     if (WebGPUGlobal.useGlobalContext)
+        //         triangles += WebGPUContext.applyCommandGeometry(command, this.geometry);
+        //     else 
+        triangles += command.applyGeometry(this.geometry);
+        // }
         return triangles;
     }
 
@@ -492,11 +493,12 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
         if (bindGroupLayout) {
             const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout, stateKey);
-            if (command) {
-                if (WebGPUGlobal.useGlobalContext)
-                    WebGPUContext.setCommandPipeline(command, pipeline);
-                else command.setPipeline(pipeline);
-            }
+            // if (command) {
+            //     if (WebGPUGlobal.useGlobalContext)
+            //         WebGPUContext.setCommandPipeline(command, pipeline);
+            //     else
+            command.setPipeline(pipeline);
+            //}
             if (WebGPUGlobal.useCache) {
                 shaderInstance.renderPipelineMap.set(stateKey, pipeline);
                 this._pipeline[index] = pipeline;
@@ -581,14 +583,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                     }
                     if (!pipeline)
                         pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
-                    else if (command) { //缓存命中
-                        if (WebGPUGlobal.useGlobalContext)
-                            WebGPUContext.setCommandPipeline(command, pipeline);
-                        else command.setPipeline(pipeline);
-                    }
-                } else this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
-                if (command)
-                    this._bindGroup(shaderInstance, command); //绑定资源组
+                    //else if (command) { //缓存命中
+                    //   if (WebGPUGlobal.useGlobalContext)
+                    //       WebGPUContext.setCommandPipeline(command, pipeline);
+                    //else 
+                    command.setPipeline(pipeline);
+                }
+                //} else this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
+                //if (command)
+                this._bindGroup(shaderInstance, command); //绑定资源组
                 this._uploadUniform(); //上传uniform数据
                 triangles += this._uploadGeometry(command); //上传几何数据
             }

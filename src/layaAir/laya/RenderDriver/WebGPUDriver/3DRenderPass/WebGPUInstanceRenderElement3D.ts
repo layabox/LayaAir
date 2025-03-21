@@ -243,12 +243,12 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
      * @param command 
      * @param bundle 
      */
-    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder) {
         const uniformSetMap = shaderInstance.uniformSetMap;
-        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
-        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
-        this.renderShaderData?.instShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
-        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
+        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command);
+        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command);
+        this.renderShaderData?.instShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command);
+        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command);
     }
 
     /**
@@ -330,7 +330,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         this.geometry.drawType = DrawType.DrawElementInstance;
         this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, geometry, this.owner.renderNodeType, this.renderShaderData._defineDatas);
         this.geometry.bufferState = this._instanceStateInfo.state;
-        this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
+        //this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
     }
 
     /**
@@ -338,10 +338,10 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
      * @param command 
      * @param bundle 
      */
-    protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         for (let i = 0; i < this.updateNums; i++)
             this._vertexBuffers[i]?.setData(this._updateData[i].buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
-        return super._uploadGeometry(command, bundle);
+        return super._uploadGeometry(command);
     }
 
     /**
