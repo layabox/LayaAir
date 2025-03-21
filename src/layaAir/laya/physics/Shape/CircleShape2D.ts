@@ -3,7 +3,7 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
-export class CircleShape extends Physics2DShapeBase {
+export class CircleShape2D extends Physics2DShapeBase {
     private _radius: number = 50;
 
 
@@ -33,13 +33,13 @@ export class CircleShape extends Physics2DShapeBase {
         Physics2D.I._factory.set_CircleShape_pos(this._box2DShapeDef._shape, this.x, this.y, scale);
     }
 
-    clone(): CircleShape {
-        let dest: CircleShape = new CircleShape();
+    clone(): CircleShape2D {
+        let dest: CircleShape2D = new CircleShape2D();
         this.cloneTo(dest);
         return dest;
     }
 
-    cloneTo(destObject: CircleShape): void {
+    cloneTo(destObject: CircleShape2D): void {
         super.cloneTo(destObject);
         destObject.radius = this.radius;
     }

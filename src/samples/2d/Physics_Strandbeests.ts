@@ -72,7 +72,6 @@ export class Physics_Strandbeests {
         ground.name = "ground"
         this._scene.addChild(ground);
         let rigidbody: RigidBody = new RigidBody();
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.type = "static";
         ground.addComponentInstance(rigidbody);
         let chainCollider: ChainCollider = new ChainCollider();
@@ -85,7 +84,6 @@ export class Physics_Strandbeests {
             small.name = "ground" + i;
             small.pos(i * 30 + 50, 570 - 5 * this.scale);
             let rig = small.addComponent(RigidBody);
-            rig.applyOwnerColliderComponent = true;
             // small.graphics.drawCircle(0, 0, 100, "#fa7e7e");
             this._scene.addChild(small);
 
@@ -100,7 +98,6 @@ export class Physics_Strandbeests {
         chassis.pos(this.pos[0], this.pos[1]);
         this._scene.addChild(chassis);
         let chassisBody: RigidBody = chassis.addComponent(RigidBody);
-        chassisBody.applyOwnerColliderComponent = true;
         chassisBody.group = -1;
 
         let chassisCollider: BoxCollider = chassis.addComponent(BoxCollider);
@@ -115,7 +112,6 @@ export class Physics_Strandbeests {
         wheel.pos(chassis.x, chassis.y);
         this._scene.addChild(wheel);
         let wheelBody: RigidBody = wheel.addComponent(RigidBody);
-        wheelBody.applyOwnerColliderComponent = true;
         wheelBody.group = -1;
 
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
@@ -195,7 +191,6 @@ export class Physics_Strandbeests {
         this._scene.addChild(leg2);
 
         let legBody1: RigidBody = leg1.addComponent(RigidBody);
-        legBody1.applyOwnerColliderComponent = true;
         legBody1.angularDamping = 10;
         legBody1.group = -1;
 
@@ -205,7 +200,6 @@ export class Physics_Strandbeests {
 
 
         let legBody2: RigidBody = leg2.addComponent(RigidBody);
-        legBody2.applyOwnerColliderComponent = true;
         legBody2.angularDamping = 10;
         legBody2.group = -1;
 
@@ -249,7 +243,6 @@ export class Physics_Strandbeests {
             newBall.name = "bullet" + index;
             index++;
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
-            circleBody.applyOwnerColliderComponent = true;
             // let circle = new CircleShape();
             // circle.radius = 3 * this.scale;
             // circleBody.shapes = [circle];

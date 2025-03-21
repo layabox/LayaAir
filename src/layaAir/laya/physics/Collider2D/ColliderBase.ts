@@ -118,7 +118,7 @@ export class ColliderBase extends Component {
     public set inertia(value: number) {
         this._inertia = value;
         if (!this._useAutoMass) {
-            Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
     }
 
@@ -128,7 +128,7 @@ export class ColliderBase extends Component {
      */
     public get centerOfMass(): IV2 | Vector2 {
         let center;
-        if (this._useAutoMass) {
+        if (this._useAutoMass && this._box2DBody) {
             center = Physics2D.I._factory.get_rigidBody_Center(this._box2DBody);
             this._centerOfMass.x = center.x;
             this._centerOfMass.y = center.y;
@@ -145,7 +145,7 @@ export class ColliderBase extends Component {
             this._centerOfMass.y = value.y;
         }
         if (!this._useAutoMass) {
-            Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
     }
 
@@ -155,7 +155,7 @@ export class ColliderBase extends Component {
      */
     public get mass(): number {
         let mass;
-        if (this._useAutoMass) {
+        if (this._useAutoMass && this._box2DBody) {
             mass = Physics2D.I._factory.get_rigidBody_Mass(this._box2DBody);
         } else {
             mass = this._mass;
@@ -165,8 +165,7 @@ export class ColliderBase extends Component {
     public set mass(value: number) {
         this._mass = value;
         if (!this._useAutoMass) {
-            Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
-
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
     }
 
@@ -179,19 +178,21 @@ export class ColliderBase extends Component {
     }
     public set useAutoMass(value: boolean) {
         this._useAutoMass = value;
-        Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+        this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
     }
 
     /**
      * @zh 当前碰撞体在物理世界中是否在激活状态
      */
     public get isAwake(): boolean {
-        this._isAwake = Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody);
+        if (this._box2DBody) {
+            this._isAwake = Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody);
+        }
         return this.isAwake;
     }
     public set isAwake(value: boolean) {
         this._isAwake = value;
-        Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, value);
+        this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, value);
     }
 
     /**
@@ -231,7 +232,7 @@ export class ColliderBase extends Component {
     set x(value: number) {
         if (this._x == value) return;
         this._x = value;
-        this._updateTransformFromRender();
+        this._needupdataShapeAttribute();
     }
 
     /**
@@ -245,7 +246,7 @@ export class ColliderBase extends Component {
     set y(value: number) {
         if (this._y == value) return;
         this._y = value;
-        this._updateTransformFromRender();
+        this._needupdataShapeAttribute();
     }
 
     /**
@@ -300,12 +301,13 @@ export class ColliderBase extends Component {
         return this.owner.globalTrans.localToGlobal(x, y);
     }
 
+
     /**
-     * @zh 从渲染更新碰撞体的位置
+     * @internal
+     * @en Refresh the physics world collision information after the collision body parameters change.
+     * @zh 碰撞体参数发生变化后，刷新物理世界碰撞信息
      */
-    private _updateTransformFromRender() {
-        var sp: Sprite = this.owner;
-        Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+    _refresh(): void {
     }
 
     /**@internal*/
@@ -431,7 +433,15 @@ export class ColliderBase extends Component {
 
     /**@internal @deprecated 通知rigidBody 更新shape 属性值 */
     protected _needupdataShapeAttribute(): void {
-        this._rigidbody && this.createShape(this._rigidbody);
+        //兼容模式下使用，设置类似BoxCollider的偏移方式
+        if (this._rigidbody && this._rigidbody.applyOwnerColliderComponent) {
+            this.createShape(this._rigidbody);
+        }
+        //非dynamic类型下可以直接设置位置
+        if (this._type != "dynamic") {
+            var sp: Sprite = this.owner;
+            this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+        }
     }
 
     // -----------------------  已废弃 deprecated ------------------------

@@ -3,7 +3,7 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
-export class EdgeShape extends Physics2DShapeBase {
+export class EdgeShape2D extends Physics2DShapeBase {
 
     /**@internal 顶点数据*/
     private _datas: number[] = [0, 0, 100, 0];
@@ -41,13 +41,13 @@ export class EdgeShape extends Physics2DShapeBase {
         Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
     }
 
-    clone(): EdgeShape {
-        let dest: EdgeShape = new EdgeShape();
+    clone(): EdgeShape2D {
+        let dest: EdgeShape2D = new EdgeShape2D();
         this.cloneTo(dest);
         return dest;
     }
 
-    cloneTo(destObject: EdgeShape): void {
+    cloneTo(destObject: EdgeShape2D): void {
         super.cloneTo(destObject);
         destObject.datas = this.datas;
     }

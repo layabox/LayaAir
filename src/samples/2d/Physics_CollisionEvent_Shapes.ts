@@ -17,8 +17,8 @@ import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
-import { ChainShape } from "laya/physics/Shape/ChainShape";
-import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { ChainShape2D } from "laya/physics/Shape/ChainShape2D";
+import { CircleShape2D } from "laya/physics/Shape/CircleShape2D";
 import { StaticCollider } from "laya/physics/StaticCollider";
 
 export class Physics_CollisionEvent_Shapes {
@@ -54,7 +54,7 @@ export class Physics_CollisionEvent_Shapes {
         let groundBody: StaticCollider = new StaticCollider();
         ground.addComponentInstance(groundBody);
 
-        let chainShape = new ChainShape();
+        let chainShape = new ChainShape2D();
         chainShape.datas = [50, 400, 50, 600, 1050, 600, 1050, 400];
         groundBody.shapes = [chainShape];
 
@@ -64,7 +64,7 @@ export class Physics_CollisionEvent_Shapes {
         this._scene.addChild(sensor);
         let sensorCol: StaticCollider = sensor.addComponent(StaticCollider);
 
-        let circleShape = new CircleShape();
+        let circleShape = new CircleShape2D();
         circleShape.isSensor = true;
         circleShape.radius = 100;
         sensorCol.shapes = [circleShape];
@@ -80,7 +80,7 @@ export class Physics_CollisionEvent_Shapes {
             this.bodys.push(rb);
             this.touching[i] = false;
             rb.getBody().GetUserData().pointer = i;
-            let circleShape = new CircleShape();
+            let circleShape = new CircleShape2D();
             circleShape.radius = 20;
             circleShape.x = circleShape.y = 20;
             rb.shapes = [circleShape];

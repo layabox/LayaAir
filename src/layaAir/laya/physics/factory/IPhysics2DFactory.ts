@@ -162,7 +162,7 @@ export class FilterData {
      * @zh 碰撞类别
      * @en Collision category
      */
-    catagory: number = 1;
+    category: number = 1;
 
     /**
      * @zh 碰撞掩码
@@ -200,7 +200,10 @@ export class Box2DShapeDef {
      */
     restitution: number = 0;
 
-    restitutionThreshold: number = 0.5;
+    /**
+     * @zh 恢复速度阈值（米/秒），高于此速度的碰撞将应用恢复即反弹
+     */
+    restitutionThreshold: number = 1.0;
 
     /**
      * @zh 形状
@@ -425,6 +428,8 @@ export interface IPhysics2DFactory {
 
     //---------------- world -------------------
     createWorld(worldDef: box2DWorldDef): any;
+
+    allowWorldSleep(world: any, allowSleep: boolean): void;
 
     destroyWorld(world: any): void;
 

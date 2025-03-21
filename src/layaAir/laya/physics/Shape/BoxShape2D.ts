@@ -3,7 +3,7 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
-export class BoxShape extends Physics2DShapeBase {
+export class BoxShape2D extends Physics2DShapeBase {
 
     private _width: number = 100;
 
@@ -51,13 +51,13 @@ export class BoxShape extends Physics2DShapeBase {
 
     }
 
-    clone(): BoxShape {
-        let dest: BoxShape = new BoxShape();
+    clone(): BoxShape2D {
+        let dest: BoxShape2D = new BoxShape2D();
         this.cloneTo(dest);
         return dest;
     }
 
-    cloneTo(destObject: BoxShape): void {
+    cloneTo(destObject: BoxShape2D): void {
         super.cloneTo(destObject);
         destObject.width = this.width;
         destObject.height = this.height;

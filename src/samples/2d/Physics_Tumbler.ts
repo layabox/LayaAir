@@ -64,7 +64,6 @@ export class Physics_Tumbler {
         box.pos(posx, posy);
         this._scene.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
-        boxBody.applyOwnerColliderComponent = true;
         let box1Shape: BoxCollider = box.addComponent(BoxCollider);
         let box2Shape: BoxCollider = box.addComponent(BoxCollider);
         let box3Shape: BoxCollider = box.addComponent(BoxCollider);
@@ -105,7 +104,6 @@ export class Physics_Tumbler {
         sp.x = Laya.stage.width / 2;
         sp.y = Laya.stage.height / 2;
         let boxBody = sp.addComponent(RigidBody);
-        boxBody.applyOwnerColliderComponent = true;
         boxBody.type = "dynamic";
         let collider = sp.addComponent(BoxCollider);
         collider.width = 5;

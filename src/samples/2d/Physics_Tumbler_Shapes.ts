@@ -17,7 +17,7 @@ import { Physics2D } from "laya/physics/Physics2D";
 import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
-import { BoxShape } from "laya/physics/Shape/BoxShape";
+import { BoxShape2D } from "laya/physics/Shape/BoxShape2D";
 
 export class Physics_Tumbler_Shapes {
     private count = 0;
@@ -63,26 +63,27 @@ export class Physics_Tumbler_Shapes {
         this._scene.addChild(box);
 
         let boxBody: RigidBody = box.addComponent(RigidBody);
+        boxBody.applyOwnerColliderComponent = false;
         let shapes = [];
-        let box1Shape: BoxShape = new BoxShape();
+        let box1Shape: BoxShape2D = new BoxShape2D();
         box1Shape.width = width + height * 2;
         box1Shape.height = height;
         box1Shape.x = off;
         box1Shape.y = off;
 
-        let box2Shape: BoxShape = new BoxShape();
+        let box2Shape: BoxShape2D = new BoxShape2D();
         box2Shape.width = width + height * 2;
         box2Shape.height = height;
         box2Shape.x = off;
         box2Shape.y = width + height + off;
 
-        let box3Shape: BoxShape = new BoxShape();
+        let box3Shape: BoxShape2D = new BoxShape2D();
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
         box3Shape.x = off;
         box3Shape.y = off;
 
-        let box4Shape: BoxShape = new BoxShape();
+        let box4Shape: BoxShape2D = new BoxShape2D();
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
         box4Shape.x = width + height + off;
@@ -110,7 +111,8 @@ export class Physics_Tumbler_Shapes {
         sp.x = Laya.stage.width / 2;
         sp.y = Laya.stage.height / 2;
         let boxBody = sp.addComponent(RigidBody);
-        let boxshape = new BoxShape();
+        boxBody.applyOwnerColliderComponent = false;
+        let boxshape = new BoxShape2D();
         boxshape.width = 5;
         boxshape.height = 5;
         let shapes = [boxshape];

@@ -51,7 +51,6 @@ export class Physics_CollisionEvent {
 
         this._scene.addChild(ground);
         let groundBody: RigidBody = new RigidBody();
-        groundBody.applyOwnerColliderComponent = true;
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
@@ -68,7 +67,6 @@ export class Physics_CollisionEvent {
             this._scene.addChild(sp);
             sp.pos(350 + i * 50, 200).size(40, 40);
             let rb: RigidBody = sp.addComponent(RigidBody);
-            rb.applyOwnerColliderComponent = true;
             this.bodys.push(rb);
             this.touching[i] = false;
             rb.getBody().GetUserData().pointer = i;
@@ -87,7 +85,6 @@ export class Physics_CollisionEvent {
         if (colliderA === this.sensorCollider) {
             console.log("onTriggerEnter");
             let bodyB: RigidBody = colliderB.owner.getComponent(RigidBody);
-            bodyB.applyOwnerColliderComponent = true;
             let index = bodyB.getBody().GetUserData().pointer;
             this.touching[index] = true;
         }
@@ -99,7 +96,6 @@ export class Physics_CollisionEvent {
         let bodys = this.bodys, body: RigidBody;
         for (let i = 0, len = this.count; i < len; i++) {
             body = bodys[i];
-            body.applyOwnerColliderComponent = true;
             if (!this.touching[i]) {
                 continue;
             }

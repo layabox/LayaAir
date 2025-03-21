@@ -100,7 +100,7 @@ export class RigidBody extends ColliderBase {
     /**
      * @zh 碰撞形状，可以是多个
      */
-    private _shapes: Physics2DShapeBase[] = [];
+    private _shapes: Physics2DShapeBase[];
 
     /**
      * @zh 是否兼容Collider组件的方式
@@ -264,11 +264,17 @@ export class RigidBody extends ColliderBase {
     }
 
     public set shapes(shapes: Physics2DShapeBase[]) {
+        if (!shapes || shapes.length == 0) return;
+        this._shapes = shapes;
         shapes.forEach((shape) => {
             shape.setCollider(this);
         });
-        this._shapes = shapes;
-
+        if (this._useAutoMass) {
+            // 根据shape自动计算质量
+            this._box2DBody && Physics2D.I._factory.retSet_rigidBody_MassData(this._box2DBody);
+        } else {
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+        }
     }
 
     /**
@@ -364,16 +370,16 @@ export class RigidBody extends ColliderBase {
         let owner: Sprite = this.owner;
         this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
         this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+        this._bodyDef.fixedRotation = !this._allowRotation;
         this._bodyDef.allowSleep = this._allowSleep;
         this._bodyDef.angularVelocity = this._angularVelocity;
         this._bodyDef.angularDamping = this._angularDamping;
         this._bodyDef.linearDamping = this._linearDamping;
-        this._bodyDef.linearVelocity.setValue(this._linearVelocity.x, this._linearVelocity.y);
+        if (this._linearVelocity.x != 0 || this._linearVelocity.y != 0) {
+            this._bodyDef.linearVelocity.setValue(this._linearVelocity.x, this._linearVelocity.y);
+        }
         this._bodyDef.type = this._type;
-
         this._bodyDef.bullet = this._bullet;
-        this._bodyDef.fixedRotation = !this._allowRotation;
-
         this._bodyDef.gravityScale = this._gravityScale;
         this._bodyDef.group = this.group;
     }
@@ -392,12 +398,6 @@ export class RigidBody extends ColliderBase {
         } else {
             //更新shapes
             this.shapes = this._shapes;
-        }
-        if (this._useAutoMass) {
-            // 根据shape自动计算质量
-            Physics2D.I._factory.retSet_rigidBody_MassData(this._box2DBody);
-        } else {
-            Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
         }
         this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
     }
@@ -446,6 +446,7 @@ export class RigidBody extends ColliderBase {
     }
 
     getUserData(): any {
+        if (!this._box2DBody) return;
         return Physics2D.I._factory.get_rigidBody_userData(this._box2DBody);
     }
 

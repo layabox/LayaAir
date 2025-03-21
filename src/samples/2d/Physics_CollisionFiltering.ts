@@ -68,7 +68,6 @@ export class Physics_CollisionFiltering {
         let house = new Sprite();
         this._scene.addChild(house);
         let rigidbody: RigidBody = house.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.type = "static";
         let chainCollider: ChainCollider = house.addComponent(ChainCollider);
         chainCollider.loop = true;
@@ -81,7 +80,6 @@ export class Physics_CollisionFiltering {
         this._scene.addChild(box);
         box.pos(posx, posy).size(width * ratio, height * ratio);
         let rigidbody: RigidBody = box.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.category = Physics_CollisionFiltering.k_boxCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_boxMask;
         let boxCollider: BoxCollider = box.addComponent(BoxCollider);
@@ -96,7 +94,6 @@ export class Physics_CollisionFiltering {
         this._scene.addChild(triangle);
         triangle.pos(posx, posy).size(side * ratio, side * ratio);
         let rigidbody: RigidBody = triangle.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.category = Physics_CollisionFiltering.k_triangleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_triangleMask;
         let polygonCollider: PolygonCollider = triangle.addComponent(PolygonCollider);
@@ -111,7 +108,6 @@ export class Physics_CollisionFiltering {
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
         circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.category = Physics_CollisionFiltering.k_circleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_circleMask;
         let circleCollider: CircleCollider = circle.addComponent(CircleCollider);
@@ -161,7 +157,6 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_UP, this, this.mouseUp);
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         let rigidbody: RigidBody = this.curTarget.getComponent(RigidBody);
-        rigidbody.applyOwnerColliderComponent = true;
         rigidbody.type = "dynamic";
         rigidbody.linearVelocity = { x: this.preMovementX, y: this.preMovementY };
         this.curTarget = null;
