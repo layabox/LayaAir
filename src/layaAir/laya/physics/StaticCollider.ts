@@ -109,6 +109,8 @@ export class StaticCollider extends ColliderBase {
         if (this._box2DShape) {
             Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
             Physics2D.I._factory.destroyData(this._box2DShapeDef);
+            this._box2DShape = null;
+            this._box2DShapeDef = null;
         }
         if (!this._box2DFilter) {
             this._box2DFilter = Physics2D.I._factory.createFilter();
@@ -136,7 +138,7 @@ export class StaticCollider extends ColliderBase {
         this._shapeDef.isSensor = this.isSensor;
         this._shapeDef.restitution = this.restitution;
         this._shapeDef.filter.group = collider.group;
-        this._shapeDef.filter.catagory = collider.category;
+        this._shapeDef.filter.category = collider.category;
         this._shapeDef.filter.mask = collider.mask;
     }
 

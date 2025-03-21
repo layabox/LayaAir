@@ -23,10 +23,10 @@ import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit, FilterData } from "laya/physics/factory/IPhysics2DFactory";
 import { StaticCollider } from "laya/physics/StaticCollider";
-import { ChainShape } from "laya/physics/Shape/ChainShape";
-import { CircleShape } from "laya/physics/Shape/CircleShape";
-import { BoxShape } from "laya/physics/Shape/BoxShape";
-import { PolygonShape } from "laya/physics/Shape/PolygonShape";
+import { ChainShape2D } from "laya/physics/Shape/ChainShape2D";
+import { CircleShape2D } from "laya/physics/Shape/CircleShape2D";
+import { BoxShape2D } from "laya/physics/Shape/BoxShape2D";
+import { PolygonShape2D } from "laya/physics/Shape/PolygonShape2D";
 
 const dampingRatio: number = 0.5;
 const frequencyHz: number = 10.0;
@@ -76,7 +76,7 @@ export class Physics_Strandbeests_Shapes {
         ground.addComponentInstance(rigidbody);
 
 
-        let chainShape = new ChainShape();
+        let chainShape = new ChainShape2D();
         chainShape.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
 
         rigidbody.shapes = [chainShape]
@@ -87,9 +87,10 @@ export class Physics_Strandbeests_Shapes {
             small.pos(i * 30 + 50, 570 - 5 * this.scale);
             small.addComponent(RigidBody);
             let smRd = small.getComponent(RigidBody);
+            smRd.applyOwnerColliderComponent = false;
             this._scene.addChild(small);
 
-            let circleshape = new CircleShape();
+            let circleshape = new CircleShape2D();
             circleshape.radius = 2.5 * this.scale;
             smRd.shapes = [circleshape];
         }
@@ -101,8 +102,8 @@ export class Physics_Strandbeests_Shapes {
         chassis.pos(this.pos[0], this.pos[1]);
         this._scene.addChild(chassis);
         let chassisBody: RigidBody = chassis.addComponent(RigidBody);
-
-        let boxshape = new BoxShape();
+        chassisBody.applyOwnerColliderComponent = false;
+        let boxshape = new BoxShape2D();
         let filter = new FilterData();
         filter.group = -1;
         boxshape.filterData = filter;
@@ -116,7 +117,8 @@ export class Physics_Strandbeests_Shapes {
         wheel.pos(chassis.x, chassis.y);
         this._scene.addChild(wheel);
         let wheelBody: RigidBody = wheel.addComponent(RigidBody);
-        let circleshape = new CircleShape();
+        wheelBody.applyOwnerColliderComponent = false;
+        let circleshape = new CircleShape2D();
         circleshape.filterData = filter;
         circleshape.density = 1;
         circleshape.radius = 16 * this.scale;
@@ -192,9 +194,10 @@ export class Physics_Strandbeests_Shapes {
         this._scene.addChild(leg2);
 
         let legBody1: RigidBody = leg1.addComponent(RigidBody);
+        legBody1.applyOwnerColliderComponent = false;
         legBody1.angularDamping = 10;
 
-        let polyShape1 = new PolygonShape();
+        let polyShape1 = new PolygonShape2D();
         let filter = new FilterData();
         filter.group = -1;
         polyShape1.filterData = filter;
@@ -204,8 +207,9 @@ export class Physics_Strandbeests_Shapes {
 
 
         let legBody2: RigidBody = leg2.addComponent(RigidBody);
+        legBody2.applyOwnerColliderComponent = false;
         legBody2.angularDamping = 10;
-        let polyShape2 = new PolygonShape();
+        let polyShape2 = new PolygonShape2D();
         polyShape2.filterData = filter;
         polyShape2.density = 1;
         polyShape2.datas = p4.concat(p5).concat(p6);
@@ -245,8 +249,8 @@ export class Physics_Strandbeests_Shapes {
             newBall.name = "bullet" + index;
             index++;
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
-
-            let circle = new CircleShape();
+            circleBody.applyOwnerColliderComponent = false;
+            let circle = new CircleShape2D();
             circle.radius = 3 * this.scale;
             circleBody.shapes = [circle];
 

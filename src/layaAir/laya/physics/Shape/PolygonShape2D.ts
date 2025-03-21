@@ -3,7 +3,7 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
-export class PolygonShape extends Physics2DShapeBase {
+export class PolygonShape2D extends Physics2DShapeBase {
 
     /**@internal 顶点数据*/
     private _datas: number[] = [50, 0, 100, 100, 0, 100];
@@ -42,13 +42,13 @@ export class PolygonShape extends Physics2DShapeBase {
         Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
     }
 
-    clone(): PolygonShape {
-        let dest: PolygonShape = new PolygonShape();
+    clone(): PolygonShape2D {
+        let dest: PolygonShape2D = new PolygonShape2D();
         this.cloneTo(dest);
         return dest;
     }
     
-    cloneTo(destObject: PolygonShape): void {
+    cloneTo(destObject: PolygonShape2D): void {
         super.cloneTo(destObject);
         destObject.datas = this.datas;
     }

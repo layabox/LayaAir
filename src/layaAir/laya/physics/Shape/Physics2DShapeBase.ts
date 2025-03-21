@@ -148,7 +148,7 @@ export class Physics2DShapeBase implements IClone {
     _updateFilterData(): void {
         if (!this._box2DShape || !this._box2DFilter) return;
         this._box2DFilter.groupIndex = this._filterData.group;
-        this._box2DFilter.categoryBits = this._filterData.catagory;
+        this._box2DFilter.categoryBits = this._filterData.category;
         this._box2DFilter.maskBits = this._filterData.mask;
         this._shapeDef.filter = this._filterData;
         Physics2D.I._factory.setfilterData(this._box2DShape, this._box2DFilter);

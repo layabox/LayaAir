@@ -58,7 +58,6 @@ export class Physics_Bridge {
         let ground = new Sprite();
 
         let groundBody: RigidBody = new RigidBody();
-        groundBody.applyOwnerColliderComponent = true;
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
@@ -69,7 +68,6 @@ export class Physics_Bridge {
         this._scene.addChild(point1);
         point1.pos(startPosX, startPosY);
         let pointRB1 = new RigidBody();
-        pointRB1.applyOwnerColliderComponent = true;
         pointRB1.type = "static";
         point1.addComponentInstance(pointRB1);
         let preBody = pointRB1;
@@ -80,8 +78,7 @@ export class Physics_Bridge {
             let sp = new Sprite();
             this._scene.addChild(sp);
             sp.pos(startPosX + i * width, startPosY);
-            let rb: RigidBody = sp.addComponent(RigidBody);
-            rb.applyOwnerColliderComponent = true;
+            let rb: RigidBody = sp.addComponent(RigidBody);            
             let bc: BoxCollider = sp.addComponent(BoxCollider);
             bc.width = width;
             bc.height = height;
@@ -97,7 +94,6 @@ export class Physics_Bridge {
         this._scene.addChild(point2);
         point2.pos(startPosX + this.ecount * width, startPosY);
         let pointRB2 = new RigidBody();
-        pointRB2.applyOwnerColliderComponent = true;
         pointRB2.type = "static";
         point2.addComponentInstance(pointRB2);
 
@@ -110,7 +106,7 @@ export class Physics_Bridge {
             this._scene.addChild(sp);
             sp.pos(350 + 100 * i, 300);
             let rb: RigidBody = sp.addComponent(RigidBody);
-            rb.applyOwnerColliderComponent = true;
+            
             rb.bullet = true;
             let pc: PolygonCollider = sp.addComponent(PolygonCollider);
             pc.points = "-10,0,10,0,0,30";
@@ -122,7 +118,7 @@ export class Physics_Bridge {
             this._scene.addChild(sp);
             sp.pos(400 + 150 * i, 350);
             let rb: RigidBody = sp.addComponent(RigidBody);
-            rb.applyOwnerColliderComponent = true;
+            
             rb.bullet = true;
             let pc: CircleCollider = sp.addComponent(CircleCollider);
             pc.radius = 10;
@@ -137,7 +133,6 @@ export class Physics_Bridge {
             let newBall = new Sprite();
             this._scene.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
-            circleBody.applyOwnerColliderComponent = true;
             circleBody.bullet = true;
             circleBody.type = "dynamic";
 

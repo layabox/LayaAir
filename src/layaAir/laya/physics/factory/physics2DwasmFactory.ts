@@ -29,7 +29,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     /** 
-     * @internal
      * @en Create a Vec2 object in the physical system.
      * @param x The x-coordinate (unit: meters).
      * @param y The y-coordinate (unit: meters).
@@ -98,6 +97,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let world: any = new this._box2d.b2World(gravity);
         world.destroyed = false;
         return world;
+    }
+
+    allowWorldSleep(world: any, allowSleep: boolean): void {
+        world.SetAllowSleeping(allowSleep);
     }
 
     clearForces(world: any): void {
@@ -182,6 +185,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         for (let i = 0; i <= Physics2D.I._factory.worldCount; i++) {
             let world = this.worldMap.get(i);
             if (!world) continue;
+            let bodyCount = this.getBodyCount(world.box2DWorld);
+            if (bodyCount <= 0) continue;
             let velocityIterations = world.getVelocityIterations();
             let positionIterations = world.getPositionIterations();
             // preStep 处理
@@ -697,7 +702,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         def.restitution = shapeDef.restitution;
         def.restitutionThreshold = shapeDef.restitutionThreshold;
         filter.groupIndex = shapeDef.filter.group;
-        filter.categoryBits = shapeDef.filter.catagory;
+        filter.categoryBits = shapeDef.filter.category;
         filter.maskBits = shapeDef.filter.mask;
         def.filter = filter;
         switch (shapeDef.shapeType) {
@@ -1706,7 +1711,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     /**
-     * @internal
      * @en Destroy the data.
      * @param data The data to destroy.
      * @zh 销毁数据。

@@ -3,10 +3,10 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
-export class ChainShape extends Physics2DShapeBase {
+export class ChainShape2D extends Physics2DShapeBase {
 
     /**@internal 顶点数据*/
-    private _datas: number[] = [];
+    private _datas: number[] = [0, 0, 100, 0];
 
     /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
@@ -58,13 +58,13 @@ export class ChainShape extends Physics2DShapeBase {
         Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
 
-    clone(): ChainShape {
-        let dest: ChainShape = new ChainShape();
+    clone(): ChainShape2D {
+        let dest: ChainShape2D = new ChainShape2D();
         this.cloneTo(dest);
         return dest;
     }
 
-    cloneTo(destObject: ChainShape): void {
+    cloneTo(destObject: ChainShape2D): void {
         super.cloneTo(destObject);
         destObject.datas = this.datas;
         destObject.loop = this.loop;

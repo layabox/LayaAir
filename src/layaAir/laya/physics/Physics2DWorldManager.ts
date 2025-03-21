@@ -28,6 +28,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _contactListener: any;
     private _JSQuerycallback: any;
     private _JSRayCastcallback: any;
+    private _allowWorldSleep: boolean = false;
 
     get box2DWorld(): any {
         return this._box2DWorld;
@@ -49,6 +50,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         this._worldDef.velocityIterations = this._velocityIterations = Physics2DOption.velocityIterations;
         this._worldDef.positionIterations = this._positionIterations = Physics2DOption.positionIterations;
         this._worldDef.gravity = this._gravity.setValue(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
+        this._allowWorldSleep = Physics2DOption.allowSleeping;
         this._scene = scene;
         this.setRootSprite(this._scene);
     }
@@ -69,6 +71,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     setRootSprite(scene: Scene | Sprite): void {
         this._scene = scene;
         this._box2DWorld = Physics2D.I._factory.createWorld(this._worldDef);
+        Physics2D.I._factory.allowWorldSleep(this._box2DWorld, this._allowWorldSleep);
         this._box2DWorld._pixelRatio = this._pixelRatio;
         this._box2DWorld._indexInMap = Physics2D.I._factory.worldCount;
         Physics2D.I._factory.worldMap.set(Physics2D.I._factory.worldCount, this);

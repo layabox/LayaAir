@@ -16,10 +16,10 @@ import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit, FilterData } from "laya/physics/factory/IPhysics2DFactory";
 import { StaticCollider } from "laya/physics/StaticCollider";
-import { ChainShape } from "laya/physics/Shape/ChainShape";
-import { BoxShape } from "laya/physics/Shape/BoxShape";
-import { PolygonShape } from "laya/physics/Shape/PolygonShape";
-import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { ChainShape2D } from "laya/physics/Shape/ChainShape2D";
+import { BoxShape2D } from "laya/physics/Shape/BoxShape2D";
+import { PolygonShape2D } from "laya/physics/Shape/PolygonShape2D";
+import { CircleShape2D } from "laya/physics/Shape/CircleShape2D";
 import { Physics2DShapeBase } from "laya/physics/Shape/Physics2DShapeBase";
 /**
  * 碰撞过滤器
@@ -71,7 +71,7 @@ export class Physics_CollisionFiltering_Shapes {
         this._scene.addChild(house);
 
         let rigidbody: StaticCollider = house.addComponent(StaticCollider);
-        let chainShape: ChainShape = new ChainShape();
+        let chainShape: ChainShape2D = new ChainShape2D();
         chainShape.loop = true;
         chainShape.datas = [600, 50, 100, 200, 100, 600, 1100, 600, 1100, 200];
         rigidbody.shapes = [chainShape];
@@ -83,12 +83,12 @@ export class Physics_CollisionFiltering_Shapes {
         this._scene.addChild(box);
         box.pos(posx, posy).size(width * ratio, height * ratio);
         let rigidbody: RigidBody = box.addComponent(RigidBody);
-
-        let boxShape: BoxShape = new BoxShape();
+        rigidbody.applyOwnerColliderComponent = false;
+        let boxShape: BoxShape2D = new BoxShape2D();
         boxShape.width = width * ratio;
         boxShape.height = height * ratio;
         let filter = new FilterData();
-        filter.catagory = Physics_CollisionFiltering_Shapes.k_boxCategory;
+        filter.category = Physics_CollisionFiltering_Shapes.k_boxCategory;
         filter.mask = Physics_CollisionFiltering_Shapes.k_boxMask;
 
         this.addGroup(ratio, boxShape);
@@ -102,10 +102,10 @@ export class Physics_CollisionFiltering_Shapes {
         triangle.pos(posx, posy).size(side * ratio, side * ratio);
 
         let rigidbody: RigidBody = triangle.addComponent(RigidBody);
-
-        let polygonShape: PolygonShape = new PolygonShape();
+        rigidbody.applyOwnerColliderComponent = false;
+        let polygonShape: PolygonShape2D = new PolygonShape2D();
         polygonShape.datas = [0, 0, 0, side * ratio, side * ratio, 0];
-        polygonShape.filterData.catagory = Physics_CollisionFiltering_Shapes.k_triangleCategory;
+        polygonShape.filterData.category = Physics_CollisionFiltering_Shapes.k_triangleCategory;
         polygonShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_triangleMask;
         this.addGroup(ratio, polygonShape);
         rigidbody.shapes = [polygonShape];
@@ -118,10 +118,10 @@ export class Physics_CollisionFiltering_Shapes {
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
         circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
-
-        let circleShape: CircleShape = new CircleShape();
+        rigidbody.applyOwnerColliderComponent = false;
+        let circleShape: CircleShape2D = new CircleShape2D();
         circleShape.radius = radius * ratio;
-        circleShape.filterData.catagory = Physics_CollisionFiltering_Shapes.k_circleCategory;
+        circleShape.filterData.category = Physics_CollisionFiltering_Shapes.k_circleCategory;
         circleShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_circleMask;
         this.addGroup(ratio, circleShape);
         rigidbody.shapes = [circleShape];

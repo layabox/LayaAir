@@ -19,10 +19,10 @@ import { Scene } from "laya/display/Scene";
 import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
 import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 import { StaticCollider } from "laya/physics/StaticCollider";
-import { ChainShape } from "laya/physics/Shape/ChainShape";
-import { BoxShape } from "laya/physics/Shape/BoxShape";
-import { PolygonShape } from "laya/physics/Shape/PolygonShape";
-import { CircleShape } from "laya/physics/Shape/CircleShape";
+import { ChainShape2D } from "laya/physics/Shape/ChainShape2D";
+import { BoxShape2D } from "laya/physics/Shape/BoxShape2D";
+import { PolygonShape2D } from "laya/physics/Shape/PolygonShape2D";
+import { CircleShape2D } from "laya/physics/Shape/CircleShape2D";
 import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
 
 export class Physics_Bridge_Shapes {
@@ -62,10 +62,10 @@ export class Physics_Bridge_Shapes {
         let groundBody: StaticCollider = new StaticCollider();
         ground.addComponentInstance(groundBody);
         //形状一
-        let chainShape = new ChainShape();
+        let chainShape = new ChainShape2D();
         chainShape.datas = [50, 600, 1050, 600];
         //形状二
-        let boxShape = new BoxShape();
+        let boxShape = new BoxShape2D();
         boxShape.width = 100;
         boxShape.width = 50;
         let groundShapes = [];
@@ -90,7 +90,8 @@ export class Physics_Bridge_Shapes {
             this._scene.addChild(sp);
             sp.pos(startPosX + i * width, startPosY);
             let rb: RigidBody = sp.addComponent(RigidBody);
-            let boxShape = new BoxShape();
+            rb.applyOwnerColliderComponent = false;
+            let boxShape = new BoxShape2D();
             let shapes = [];
             shapes.push(boxShape);
             boxShape.width = width;
@@ -120,8 +121,9 @@ export class Physics_Bridge_Shapes {
             this._scene.addChild(sp);
             sp.pos(350 + 100 * i, 300);
             let rb: RigidBody = sp.addComponent(RigidBody);
+            rb.applyOwnerColliderComponent = false;
             rb.bullet = true;
-            let polyShape = new PolygonShape();
+            let polyShape = new PolygonShape2D();
             polyShape.datas = [-10, 0, 10, 0, 0, 30];
             polyShape.density = 1.0;
             let shapes = []
@@ -134,8 +136,9 @@ export class Physics_Bridge_Shapes {
             this._scene.addChild(sp);
             sp.pos(400 + 150 * i, 350);
             let rb: RigidBody = sp.addComponent(RigidBody);
+            rb.applyOwnerColliderComponent = false;
             rb.bullet = true;
-            let circleShape = new CircleShape();
+            let circleShape = new CircleShape2D();
             circleShape.radius = 10;
             rb.shapes = [circleShape];
         }
@@ -149,9 +152,10 @@ export class Physics_Bridge_Shapes {
             let newBall = new Sprite();
             this._scene.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
+            circleBody.applyOwnerColliderComponent = false;
             circleBody.bullet = true;
 
-            let circleShape = new CircleShape();
+            let circleShape = new CircleShape2D();
             let shapes = [circleShape];
             circleShape.radius = 5;
             circleShape.x = Laya.stage.mouseX;
