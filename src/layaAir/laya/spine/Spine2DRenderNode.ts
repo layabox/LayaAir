@@ -574,15 +574,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (null == this._skeleton) return;
         let skins = this._externalSkins;
         if (skins) {
-            let normal = false;
+            let normal = false;//todo 需要修改顶点构成?
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
-                normal = skins[i].normal || normal;
+                // normal = skins[i].normal || normal;
             }
 
-            if (normal) {
+            // if (normal) {
                 this.useFastRender = false;
-            }
+            // }
         }
     }
     /**
@@ -653,6 +653,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._clearUpdate();
             //this.timer.clear(this, this._update);
             this._state.update(-this._currentPlayTime);
+            // this._skeleton.setToSetupPose();
             // this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.event(Event.STOPPED);

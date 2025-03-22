@@ -169,6 +169,9 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.renderProxyMap.forEach(render=>{
             render.changeSkeleton(skeleton);
         });
+        //@ts-ignore
+        skeleton.showSkinByIndex(this._skinIndex);
+        this._skeleton.setSlotsToSetupPose();
     }
 
     /**

@@ -402,7 +402,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 attachmentColor = mesh.color;
             } else if (attachment instanceof window.spine.ClippingAttachment) {
                 let clip = <spine.ClippingAttachment>(attachment);
-                clipper.clipStart(slot, clip);
+                // clipper.clipStart(slot, clip);
+                this.clipStart(this.clipper , slot , clip , -skeleton.x, -skeleton.y);
                 continue;
             } else {
                 clipper.clipEndWithSlot(slot);
@@ -481,6 +482,40 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     }
 
     /**
+     * @link spine-ts/.../SkeletonClipping.ts
+     * @param clipper 
+     * @param slot 
+     * @param clip 
+     * @param ofx 
+     * @param ofy 
+     * @returns 
+     */
+    clipStart(clipper:spine.SkeletonClipping , slot : spine.Slot, clip:spine.VertexAttachment ,ofx: number, ofy: number) {
+        //@ts-ignore
+        if (clipper.clipAttachment)
+            return 0;
+        //@ts-ignore
+        clipper.clipAttachment = clip;
+        let n = clip.worldVerticesLength;
+        //@ts-ignore
+        let vertices:spine.NumberArrayLike = spine.Utils.setArraySize(clipper.clippingPolygon, n);
+        // clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
+        this.computeWorldVertices_MeshAttachment(clip , slot , 0 , n , vertices , 0 , 2 , ofx , ofy);
+        //@ts-ignore
+        let clippingPolygon = clipper.clippingPolygon;
+        spine.SkeletonClipping.makeClockwise(clippingPolygon);
+        //@ts-ignore
+        let clippingPolygons = clipper.clippingPolygons = clipper.triangulator.decompose(clippingPolygon, clipper.triangulator.triangulate(clippingPolygon));
+        for (let i = 0, n = clippingPolygons.length; i < n; i++) {
+            let polygon = clippingPolygons[i];
+            spine.SkeletonClipping.makeClockwise(polygon);
+            polygon.push(polygon[0]);
+            polygon.push(polygon[1]);
+        }
+        return clippingPolygons.length;
+    }
+
+    /**
      * @link spine-ts/.../RegionAttachment.ts
      * @param attachment 
      * @param bone 
@@ -537,7 +572,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
      * @param ofy 
      * @returns 
      */
-    private computeWorldVertices_MeshAttachment(attachment: spine.MeshAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
+    private computeWorldVertices_MeshAttachment(attachment: spine.VertexAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
         count = offset + (count >> 1) * stride;
         let skeleton = slot.bone.skeleton;
         let deformArray = slot.deform;
