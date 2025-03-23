@@ -180,7 +180,7 @@ export class Text extends Sprite {
     protected _lines: Array<ITextLine>;
     protected _elements: Array<HtmlElement>
     protected _objContainer: Sprite;
-    protected _maxWidth: number;
+    protected _maxWidth: number = 0;
     protected _hideText: boolean;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
