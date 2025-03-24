@@ -286,7 +286,7 @@ export class Browser {
         let miniGame: [string, string, string];
 
         //native
-        if (!!(window as any).conch && (window as any).conchConfig.getOS() != "Conch-window") {
+        if (!!(window as any).conch) {
             miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
         }
         if (!!(window as any).conch) {
