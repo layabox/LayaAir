@@ -376,7 +376,7 @@ export class GWidget extends Sprite {
         this.event(UIEvent.ControllersChanged);
     }
 
-    get gears(): ReadonlyArray<Gear<any>> {
+    get gears(): Array<Gear<any>> {
         return this._gears;
     }
 
