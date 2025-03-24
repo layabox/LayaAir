@@ -26,17 +26,6 @@ import { Stat } from "../../../utils/Stat";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 
 /**
- * 着色器数据元素类型
- */
-export enum WebGPUShaderDataElementType {
-    Element3D = 0,
-    Element3DSkin = 1,
-    Element3DInstance = 2,
-    Element2D = 3,
-    UNKNOWN = 4,
-}
-
-/**
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
@@ -47,8 +36,8 @@ export class WebGPUShaderData extends ShaderData {
 
 
     /**
- * 全局初始化
- */
+     * 全局初始化
+     */
     static __init__() {
         if (!this._dummyTexture2D) { //创建2D空白贴图（替代丢失的贴图）
             this._dummyTexture2D = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, true, false, false);
@@ -139,6 +128,7 @@ export class WebGPUShaderData extends ShaderData {
 
     createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
         //TODO
+        return null;
     }
 
     /**

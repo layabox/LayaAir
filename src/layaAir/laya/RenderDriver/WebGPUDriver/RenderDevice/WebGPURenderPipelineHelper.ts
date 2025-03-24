@@ -426,10 +426,10 @@ export class WebGPURenderPipeline {
      * @param entries 
      * @param stateKey 
      */
-    static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, stateKey: string) {
+    static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT) {
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         return this._createRenderPipeline(info.blendState.state, info.depthStencilState?.state,
-            primitiveState.state, info.geometry.bufferState.vertexState, shaderInstance, renderTarget, entries, stateKey);
+            primitiveState.state, info.geometry.bufferState.vertexState, shaderInstance, renderTarget);
     }
 
     /**
@@ -445,10 +445,9 @@ export class WebGPURenderPipeline {
      */
     private static _createRenderPipeline(blendState: GPUBlendState, depthState: GPUDepthStencilState,
         primitiveState: GPUPrimitiveState, vertexBuffers: GPUVertexBufferLayout[],
-        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT, entries: any, stateKey: string) {
+        shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT) {
         const device = WebGPURenderEngine._instance.getDevice();
         const descriptor = shaderInstance.getRenderPipelineDescriptor(); //获取渲染管线描述符模板
-        descriptor.label = 'render_' + this.idCounter;
         descriptor.vertex.buffers = vertexBuffers;
         const textureNum = renderTarget._textures.length;
         if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm'
@@ -492,10 +491,9 @@ export class WebGPURenderPipeline {
                 descriptor.depthStencil = depthState;
             else delete descriptor.depthStencil;
         }
-        descriptor.layout = shaderInstance.createPipelineLayout(device, 'pipelineLayout_' + this.idCounter, entries);
+        descriptor.layout = shaderInstance.createPipelineLayout(device);
         descriptor.multisample.count = renderTarget._samples;
         const renderPipeline = device.createRenderPipeline(descriptor);
-        //console.log('create renderPipeline_' + this.idCounter, stateKey, descriptor, renderTarget._samples, shaderInstance);
         this.idCounter++;
         return renderPipeline;
     }

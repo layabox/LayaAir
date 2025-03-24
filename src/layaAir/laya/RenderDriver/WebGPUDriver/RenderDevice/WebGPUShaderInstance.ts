@@ -8,8 +8,6 @@ import { NotImplementedError } from "../../../utils/Error";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { LayaGL } from "../../../layagl/LayaGL";
 
-
-
 /**
  * WebGPU着色器实例
  */
@@ -44,11 +42,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
     //根据Sprite，additionnal分别记录资源列表
     _cacheSpriteBindGroupDescriptor: GPUBindGroupDescriptor;
     _additionalEntryGroup: Map<string, WebGPUUniformPropertyBindingInfo[]>;
-    _spriteEntryGroup:  WebGPUUniformPropertyBindingInfo[] = [];
+    _spriteEntryGroup: WebGPUUniformPropertyBindingInfo[] = [];
     //global Group Data
     _globalUnuformCommandMapArray: Array<string> = [];
-
-
 
     constructor(name: string) {
         this.name = name;
@@ -159,9 +155,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
             for (let i = 0; i < this.uniformInfo.length; i++) {
                 const item = this.uniformInfo[i];
                 if (item.set === 2) {
-                  
+
                     if (this.hasSpritePtrID(item.propertyId)) {
-                        if(!this._spriteEntryGroup){
+                        if (!this._spriteEntryGroup) {
                             this._spriteEntryGroup = [];
                         }
                         this._spriteEntryGroup.push(item);
@@ -232,14 +228,19 @@ export class WebGPUShaderInstance implements IShaderInstance {
      * @param name 
      * @param entries 
      */
-    createPipelineLayout(device: GPUDevice, name: string, entries?: any) {
-        const bindGroupLayouts: GPUBindGroupLayout[] = [];
-        for (let i = 0; i < 4; i++) {
-            const group = this._createBindGroupLayout(i, `group${i}`);
-            if (group) bindGroupLayouts.push(group);
+    createPipelineLayout(device: GPUDevice) {
+        if (!this._gpuPipelineLayout) {
+            const bindGroupLayouts: GPUBindGroupLayout[] = [];
+            for (let i = 0; i < 4; i++) {
+                const group = this._createBindGroupLayout(i, `group${i}`);
+                if (group) bindGroupLayouts.push(group);
+            }
+            this._gpuPipelineLayout = device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
         }
-        return device.createPipelineLayout({ label: name, bindGroupLayouts });
+        return this._gpuPipelineLayout;
     }
+
+    private _gpuPipelineLayout: GPUPipelineLayout;
 
     private hasSpritePtrID(dataOffset: number): boolean {
         let commap = this._shaderPass.nodeCommonMap;

@@ -84,16 +84,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command);
     }
 
-    /**
-     * 上传uniform数据
-     * @param index 
-     */
-    protected _uploadUniformEx(index: number) {
-        this._sceneData?.uploadUniform();
-        this._cameraData?.uploadUniform();
-        this.renderShaderDatas[index]?.uploadUniform();
-        this.materialShaderData?.uploadUniform();
-    }
+   
 
     /**
      * 上传几何数据
