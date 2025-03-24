@@ -14,7 +14,7 @@ import { Texture } from "../../resource/Texture";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
-const defaultVertice = new Float32Array(new Array(20).fill(0));
+const defaultVertice = new Float32Array(new Array(36).fill(0));
 const defaultIndices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
 export class ImageRenderer {
