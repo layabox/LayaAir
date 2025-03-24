@@ -5,13 +5,13 @@ import { Application, OptionDefaults } from "typedoc";
 
 const outDir = path.join(".", "docs");
 const ourTags = ["@en", "@zh", "@perfTag"];
-const currentVersion = "3.3.0-beta.2";
+const currentVersion = "3.3";
 
 const configVersions = [
-    "3.3.0-beta.2",
-    "3.2.4",
-    "3.1.6",
-    "3.0.11",
+    "3.3",
+    "3.2",
+    "3.1",
+    "3.0",
 ];
 
 const packageJson = {
@@ -34,7 +34,7 @@ async function main() {
         excludeProtected: true,
         hideGenerator: true,
         // theme: "default",
-        darkHighlightTheme: "dark-plus",
+        // darkHighlightTheme: "dark-plus",
         exclude: [
             "**/node_modules/**",
             "**/*.d.ts",            
