@@ -10,7 +10,7 @@ import { TileMapLayer } from "./TileMapLayer";
  * 瓦片地图物理
  */
 export class TileMapPhysics {
-    private static _tempDef: any;
+    private static _tempDef: Box2DShapeDef;
 
     static __init__(): void {
         TileMapPhysics._tempDef = new Box2DShapeDef();
@@ -40,21 +40,21 @@ export class TileMapPhysics {
 
     createRigidBody(): any {
         let factory = Laya.physics2D;
-        let physics2DWorld: Physics2DWorldManager = this._layer.owner.scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
-        var defRigidBodyDef = new RigidBody2DInfo();
-        defRigidBodyDef.angle = 0;
-        // defRigidBodyDef.allowSleep = false;
-        defRigidBodyDef.angularDamping = 0;
+        let mgr: Physics2DWorldManager = this._layer.owner.scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        var info = new RigidBody2DInfo();
+        info.angle = 0;
+        info.allowSleep = false;
+        info.angularDamping = 0;
 
-        defRigidBodyDef.bullet = false;
-        defRigidBodyDef.fixedRotation = false;
-        defRigidBodyDef.gravityScale = 1;
-        defRigidBodyDef.linearDamping = 0;
-        defRigidBodyDef.group = 0;
-        defRigidBodyDef.type = "static";
-        defRigidBodyDef.angularVelocity = 0;
-        defRigidBodyDef.linearVelocity.setValue(0, 0);
-        let rigidBody = factory.createBodyDef(physics2DWorld, defRigidBodyDef);
+        info.bullet = false;
+        info.fixedRotation = false;
+        info.gravityScale = 0;
+        info.linearDamping = 0;
+        info.angularVelocity = 0;
+        info.linearVelocity.setValue(0, 0);
+
+        let def = factory.createBodyDef(mgr, info);
+        let rigidBody = factory.createBody(mgr.box2DWorld, def);
 
         let trans = this._layer.owner.globalTrans;
         let x = trans.x;
@@ -99,17 +99,17 @@ export class TileMapPhysics {
     /** 创建Shape */
     createFixture(rigidBody: any, layer: TileSetPhysicsLayer, data: number[]): any {
         let factory = Laya.physics2D;
-        let world: Physics2DWorldManager = this._layer.owner.scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
-        var def: any = TileMapPhysics._tempDef;
+        let mgr: Physics2DWorldManager = this._layer.owner.scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        var def = TileMapPhysics._tempDef;
         def.density = layer.density;
         def.friction = layer.friction;
         def.isSensor = false;
         def.restitution = layer.restitution;
-        def.shape = EPhysics2DShape.PolygonShape;
+        def.shapeType = EPhysics2DShape.PolygonShape;
         let filter: any = factory.createFilter();
-        let fixtureDef = factory.createShapeDef(world.box2DWorld, def, filter);
+        let fixtureDef = factory.createShapeDef(mgr.box2DWorld, def, filter);
         factory.set_PolygonShape_data(fixtureDef._shape, 0, 0, data, 1, 1);
-        let fixture = factory.createShape(world, rigidBody, EPhysics2DShape.PolygonShape, fixtureDef);
+        let fixture = factory.createShape(mgr, rigidBody, EPhysics2DShape.PolygonShape, fixtureDef);
         factory.set_shapeDef_GroupIndex(fixture, layer.group);
         factory.set_shapeDef_CategoryBits(fixture, layer.category);
         factory.set_shapeDef_maskBits(fixture, layer.mask);
