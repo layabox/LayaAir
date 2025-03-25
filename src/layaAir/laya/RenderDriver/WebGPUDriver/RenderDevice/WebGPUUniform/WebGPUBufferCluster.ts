@@ -36,8 +36,8 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
      */
     protected _expandBuffer() {
         const ret = super._expandBuffer();
-        if (ret)
-            this.manager.renderContext.notifyGPUBufferChange();
+        // if (ret)
+        //     this.manager.renderContext.notifyGPUBufferChange();
         return ret;
     }
 
@@ -47,8 +47,8 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
      */
     protected _moveBlock(index: number) {
         const ret = super._moveBlock(index);
-        if (ret)
-            this.manager.renderContext.notifyGPUBufferChange();
+        // if (ret)
+        //     this.manager.renderContext.notifyGPUBufferChange();
         return ret;
     }
 
@@ -57,8 +57,8 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
      */
     optimize() {
         const ret = super.optimize();
-        if (ret)
-            this.manager.renderContext.notifyGPUBufferChange();
+        // if (ret)
+        //     this.manager.renderContext.notifyGPUBufferChange();
         return ret;
     }
 
@@ -67,8 +67,8 @@ export class WebGPUBufferCluster extends UniformBufferCluster {
      */
     removeHole() {
         const ret = super.removeHole();
-        if (ret)
-            this.manager.renderContext.notifyGPUBufferChange();
+        // if (ret)
+        //     this.manager.renderContext.notifyGPUBufferChange();
         return ret;
     }
 

@@ -9,7 +9,7 @@ import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
@@ -34,8 +34,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _sceneData: WebGPUShaderData;
 
     private _sceneModuleData: WebSceneNodeData;
+    _sceneBindGroup: WebGPUBindGroup;
 
     private _cameraModuleData: WebCameraNodeData;
+    _cameraBindGroup: WebGPUBindGroup;
 
     private _cameraData: WebGPUShaderData;
 
@@ -74,8 +76,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _scissorSave: Vector4 = new Vector4();
 
 
-    _globalBindGroupInfo: { bindGroup: GPUBindGroup, createMask: number };
-    _cameraBIndGroupInfo:{bindgroup:GPUBindGroup,createMask:number};
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         WebGPURenderEngine._instance.gpuBufferMgr.renderContext = this;
@@ -87,7 +87,18 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     set sceneData(value: WebGPUShaderData) {
+        if (value == this._sceneData)
+            return;
         this._sceneData = value;
+
+        //重新绑定 scene的BindGroup
+        let preDrawArray = Array.from(this._preDrawUniformMaps);
+        let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(preDrawArray);
+        let groupBindInfoArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray);
+        this._sceneData._setBindGroupCacheInfo(bindCacheKey, groupBindInfoArray);
+        if (this._sceneBindGroup) {
+            this._sceneBindGroup.createMask = 0;
+        }
     }
 
     get cameraData(): WebGPUShaderData {
@@ -95,7 +106,16 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     set cameraData(value: WebGPUShaderData) {
+        if (value == this._cameraData)
+            return;
+        let preDrawArray = ["BaseCaemra"];
+        let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(preDrawArray);
         this._cameraData = value;
+        let groupBindInfoArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, preDrawArray);
+        this._cameraData._setBindGroupCacheInfo(bindCacheKey, groupBindInfoArray);
+        if (this._cameraBindGroup) {
+            this._cameraBindGroup.createMask = 0;
+        }
     }
 
     get sceneModuleData(): WebSceneNodeData {
@@ -161,32 +181,40 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             for (let key of this._preDrawUniformMaps) {
                 this._sceneData.updateUBOBuffer(key);
             }
-            //判断是否需要重新准备Scene的BindGroup
-            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(Array.from(this._preDrawUniformMaps));
-            let recreate: boolean = false;
-            let bindgroupInfo = this._sceneData._cacheBindGroup.get(bindCacheKey);
-            if (bindgroupInfo) {
-                recreate = this._sceneData.getBindGroupIsNeedUpdate(bindCacheKey, bindgroupInfo.createMask);
-            } else
-                recreate = true;
-            recreate && WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, Array.from(this._preDrawUniformMaps), this._sceneData);
-            
+            //判断是否需要重新创建Scene的BindGroup
+            let commandArray = Array.from(this._preDrawUniformMaps);
+            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(commandArray);
+            if (!this._sceneBindGroup) {
+                //直接创建
+                this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this._sceneData);
+            } else {
+                let lastUpdateMask = this._sceneData._getBindGroupLastUpdateMask(bindCacheKey);
+                if (this._sceneBindGroup.isNeedCreate(lastUpdateMask)) {
+                    this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this._sceneData);
+                }
+            }
         } else {
             this._globalConfigShaderData.cloneTo(contextDef)
         }
+
+
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
             this.cameraData.updateUBOBuffer("BaseCamera");
 
             //判断是否需要重新准备Camera的BindGroup
-            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(["BaseCamera"]);
-            let recreate: boolean = false;
-            let bindgroupInfo = this._cameraData._cacheBindGroup.get(bindCacheKey);
-            if (bindgroupInfo) {
-                recreate = this._cameraData.getBindGroupIsNeedUpdate(bindCacheKey, bindgroupInfo.createMask);
-            } else
-                recreate = true;
-            recreate && WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, ["BaseCamera"], this._cameraData);
+            let commandArray = ["BaseCamera"];
+            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(commandArray);
+
+            if (!this._cameraBindGroup) {
+                //直接创建
+                this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._sceneData);
+            } else {
+                let lastUpdateMask = this._cameraData._getBindGroupLastUpdateMask(bindCacheKey);
+                if (this._cameraBindGroup.isNeedCreate(lastUpdateMask)) {
+                    this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._sceneData);
+                }
+            }
         }
     }
 

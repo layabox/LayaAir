@@ -1,4 +1,5 @@
 
+import { stat } from "fs";
 import { RenderPassStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
@@ -15,6 +16,7 @@ import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 
 
 
@@ -47,6 +49,8 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
+    _additionalUpdateMask: number;
+    _driverCacheData: any;//记录渲染底层共用的渲染数据
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
@@ -78,6 +82,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
             return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
         this._updateMark = context3D.cameraUpdateMask;
+        Laya3DRender.Render3DPassFactory.updateRenderNode && Laya3DRender.Render3DPassFactory.updateRenderNode(this, context3D);
     }
 
     _calculateBoundingBox() {
@@ -113,6 +118,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         else {
             this._additionShaderDataKeys = [];
         }
+        this._additionalUpdateMask = Stat.loopCount;
     }
 
     constructor() {

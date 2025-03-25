@@ -6,14 +6,12 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
-import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
-import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
@@ -25,8 +23,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     destRT: WebGPUInternalRT;
     invertY: boolean = false;
     pipelineMode: string = 'Forward';
-    sceneData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'scene');
-    cameraData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'camera');
     _globalConfigShaderData: WebDefineDatas;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
     pipelineCache: any[] = []; //所有的2D渲染管线缓存
@@ -43,6 +39,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         this._clearColor = new Color();
         this._viewport = new Viewport();
     }
+    sceneData: ShaderData;
     getRenderTarget(): InternalRenderTarget {
         return this.destRT;
     }

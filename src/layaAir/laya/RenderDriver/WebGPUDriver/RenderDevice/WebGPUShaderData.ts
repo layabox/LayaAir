@@ -24,6 +24,9 @@ import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Stat } from "../../../utils/Stat";
 import { WebGPUBuffer } from "./WebGPUBuffer";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { WebGPUBindGroup, WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
+import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
 
 /**
  * 着色器数据
@@ -32,7 +35,6 @@ export class WebGPUShaderData extends ShaderData {
     private static _dummyTexture2D: Texture2D; //替代贴图（2D）
     private static _dummyTextureCube: TextureCube; //替代贴图（Cube）
     private static _stateKeyMap: Set<number>;
-    private static _objectCount: number = 0; //对象计数器
 
 
     /**
@@ -81,8 +83,6 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
 
-    _id: number = WebGPUShaderData._objectCount++;
-
     _stateKey: string;
 
     //UBO Buffer Module
@@ -96,15 +96,15 @@ export class WebGPUShaderData extends ShaderData {
 
     private _subUboBufferNumber: number = 0;
 
-
-    //BindGroup Cache module
-    //缓存了基于string为key的GPUBindGroup
-    _cacheBindGroup: Map<string, { bindGroup: GPUBindGroup, createMask: number }> = new Map();
+    //BindGroup缓存数据
     //缓存了纹理改动之后，需要重建的key
-    _textureCacheUpdateMap: Map<number, Set<string>> = new Map();
+    private _textureCacheUpdateMap: Map<number, Set<string>>;
     //根据string来查找某个Uniform组最后数据更新的值 用来快速判断是否需要重新创建bindGroup
-    _isBindGroupLastUpdateMask: Map<string, number> = new Map();
+    private _bindGroupLastUpdateMask: Map<string, number>;
 
+    //BindGroup资源数据 
+    private _cacheBindGroup: Map<string, WebGPUBindGroup>;
+    private _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
 
     /**
      * 不允许直接创建，只能通过对象池
@@ -115,7 +115,11 @@ export class WebGPUShaderData extends ShaderData {
         this._data = {};
         this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
-        WebGPUShaderData._objectCount++;
+
+        this._textureCacheUpdateMap = new Map();
+        this._bindGroupLastUpdateMask = new Map();
+        this._cacheBindGroup = new Map();
+        this._cacheNameBindGroupInfos = new Map();
     }
 
     updateUBOBuffer(key: string) {
@@ -126,21 +130,25 @@ export class WebGPUShaderData extends ShaderData {
         //TODO
     }
 
-    createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
-        //TODO
+    createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): IUniformBufferUser {
         return null;
     }
-
     /**
-     * 传入布局，绑定好资源数据
-     * @param groupId 
-     * @param name 
-     * @param info 
-     * @param command 
-     * @param bundle 
-     */
-    fillBindGroupEntry(entryArray: GPUBindGroupEntry[], infos: WebGPUUniformPropertyBindingInfo[]) {
+   * 传入布局，绑定好资源数据
+   * @param groupId 
+   * @param name 
+   * @param info 
+   * @param command 
+   * @param bundle 
+   */
+    fillBindGroupEntry(commandMap: string, entryArray: GPUBindGroupEntry[], infos: WebGPUUniformPropertyBindingInfo[]) {
+        let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(commandMap) as WebGPUCommandUniformMap)
+        let mapInfos = [];
         for (const item of infos) {
+            if (!map.hasPtrID(item.propertyId)) {
+                continue;
+            }
+            mapInfos.push(item);
             switch (item.type) {
                 case WebGPUBindingInfoType.buffer:
                     //get ubo 
@@ -190,29 +198,71 @@ export class WebGPUShaderData extends ShaderData {
             }
         }
 
+        if (!this._bindGroupLastUpdateMask.has(commandMap)) {
+            this._setBindGroupCacheInfo(commandMap, mapInfos);
+        }
     }
 
-    //设置bindGroup缓存
-    setBindGroupCache(key: string, gpuBindGroup: GPUBindGroup, infos: WebGPUUniformPropertyBindingInfo[]) {
-        this._setBindGroupInfoCache(key, infos);
-        this._cacheBindGroup.set(key, { bindGroup: gpuBindGroup, createMask: Stat.loopCount });
-    }
-
-    //查看关于CommandUniform的bindgroup是否需要更新，如果bindgroup的创建，大于CommandUniform的最后更新(纹理最后改变的帧数)，便不需要重新创建
-    getBindGroupIsNeedUpdate(key: string, bindGroupCreateMask: number) {
-        return (this._isBindGroupLastUpdateMask.has(key)) && this._isBindGroupLastUpdateMask.get(key) <= bindGroupCreateMask;
-    }
-
-    //设置纹理和CommandUniform的关联
-    _setBindGroupInfoCache(key: string, infos: WebGPUUniformPropertyBindingInfo[]) {
-        if (!this._isBindGroupLastUpdateMask.has(key)) {
-            for (const item of infos) {
-                if (item.type == WebGPUBindingInfoType.texture) {
+    /**
+     * 设置某个key 对应的需要统计资源更新列表，组织TextureCacheUpdateMap和_bindGroupLastUpdateMask
+     * @param key 
+     * @param infos 
+     */
+    _setBindGroupCacheInfo(key: string, infos: WebGPUUniformPropertyBindingInfo[]) {
+        for (const item of infos) {
+            if (item.type == WebGPUBindingInfoType.texture) {
+                if (this._textureCacheUpdateMap.has(item.propertyId)) {
                     this._textureCacheUpdateMap.get(item.propertyId).add(key);
+                } else {
+                    this._textureCacheUpdateMap.set(item.propertyId, new Set<string>([key]));
                 }
             }
         }
+        this._bindGroupLastUpdateMask.set(key, 0);//重新开始记录更新最后一帧
     }
+
+    /**
+     * 活得资源更新的mask数据
+     * @param key 
+     * @returns 
+     */
+    _getBindGroupLastUpdateMask(key: string) {
+        return this._bindGroupLastUpdateMask.has(key) ? this._bindGroupLastUpdateMask.get(key) : Number.MAX_VALUE;
+    }
+
+
+    _createOrGetBindGroup(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup {
+        let needRecreate = false;
+        //判断是否已经缓存了相应的BindGroup
+        needRecreate = this._cacheBindGroup.has(cacheName) &&
+            this._cacheBindGroup.get(cacheName).isNeedCreate(this._getBindGroupLastUpdateMask(cacheName));
+        if (needRecreate) {//重新创建BindGroup
+            if (!this._cacheNameBindGroupInfos.has(`${bindGroup}` + cacheName)) {
+                this._cacheNameBindGroupInfos.set(`${bindGroup}` + cacheName, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(bindGroup, name, uniformMap));
+            }
+
+            let bindGroupInfos = this._cacheNameBindGroupInfos.get(`${bindGroup}` + cacheName);
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos)
+            let bindgroupEntriys: GPUBindGroupEntry[] = [];
+            let bindGroupDescriptor: GPUBindGroupDescriptor = {
+                label: "GPUBindGroupDescriptor",
+                layout: groupLayout,
+                entries: bindgroupEntriys
+            };
+            //填充bindgroupEntriys
+            this.fillBindGroupEntry(cacheName, bindgroupEntriys, bindGroupInfos);
+            let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
+            let returns = new WebGPUBindGroup();
+            returns.gpuRS = bindGroupGPU;
+            returns.createMask = Stat.loopCount;
+            this._cacheBindGroup.set(cacheName, returns);
+            return returns;
+        } else {
+            return this._cacheBindGroup.get(cacheName);
+        }
+
+    }
+
 
     /**
      * 获取数据对象
@@ -578,7 +628,7 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             let arra = this._textureCacheUpdateMap.get(index);
             for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
-                this._isBindGroupLastUpdateMask.set(item, Stat.loopCount);
+                this._bindGroupLastUpdateMask.set(item, Stat.loopCount);
             }
         }
     }
@@ -674,8 +724,11 @@ export class WebGPUShaderData extends ShaderData {
 
         //bindGroup Cache
         this._cacheBindGroup.clear();
-        this._isBindGroupLastUpdateMask.clear();
+        this._bindGroupLastUpdateMask.clear();
         this._textureCacheUpdateMap.clear();
+
+        this._cacheBindGroup.clear();
+        this._cacheNameBindGroupInfos.clear();
 
         this._data = {};
         this._gammaColorMap.clear();

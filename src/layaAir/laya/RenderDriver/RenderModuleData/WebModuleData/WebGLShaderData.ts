@@ -120,7 +120,6 @@ export class WebGLShaderData extends ShaderData {
 
 
     createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
-
         let subBuffer = this._subUniformBuffers.get(cacheName);
         if (subBuffer) {
             if (this._subUboBufferNumber < 2) {

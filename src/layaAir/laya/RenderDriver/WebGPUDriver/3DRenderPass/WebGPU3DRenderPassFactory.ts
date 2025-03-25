@@ -19,11 +19,81 @@ import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
+import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
+import { Stat } from "../../../utils/Stat";
+
+export class WebGPUDriverRenderNodeCacheData {
+    bindGroup: WebGPUBindGroup;
+    commandUniformMapArray: string[];
+}
 
 /**
  * WebGPU渲染工厂类
  */
 export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
+    updateRenderNode(node: WebBaseRenderNode, context: WebGPURenderContext3D): void {//一帧调用一次
+        let cacheData = node._driverCacheData as WebGPUDriverRenderNodeCacheData;
+        let recreateBindGroup: boolean = false;
+        //处理BindGroup
+        //判断是否要重新创建BindGroup
+        if (cacheData.bindGroup.isNeedCreate(node._additionalUpdateMask)) {//Additional 是否改变 即ShaderData是否改变了
+            let strArray = cacheData.commandUniformMapArray;
+            strArray.length = 0;
+            for (var com in node._commonUniformMap) {
+                strArray.push(com);
+            }
+            for (var addition in node._additionShaderDataKeys) {
+                strArray.push(addition);
+            }
+            recreateBindGroup = true;
+        } else {//ShaderData中的纹理资源是否改变了
+            //判断SpriteShaderData
+            for (var com in node._commonUniformMap) {
+                if (cacheData.bindGroup.isNeedCreate((node.shaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(com))) {
+                    recreateBindGroup = true;
+                    break;
+                }
+            }
+            //判断AdditionalShaderData 是否要更新BindGroup
+            if (!recreateBindGroup) {
+                for (var addition in node._additionShaderDataKeys) {
+                    if (cacheData.bindGroup.isNeedCreate((node.additionShaderData.get(addition) as WebGPUShaderData)._getBindGroupLastUpdateMask(addition))) {
+                        recreateBindGroup = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (recreateBindGroup) {//创建BindGroup
+            //creat BindGroup
+            let bindGroupArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, cacheData.commandUniformMapArray);
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray)
+            let bindgroupEntriys: GPUBindGroupEntry[] = [];
+            let bindGroupDescriptor: GPUBindGroupDescriptor = {
+                label: "GPUBindGroupDescriptor",
+                layout: groupLayout,
+                entries: bindgroupEntriys
+            };
+            //填充bindgroupEntriys
+            let shaderData = node.shaderData as WebGPUShaderData;
+            for (var com in node._commonUniformMap) {
+                shaderData.fillBindGroupEntry(com, bindgroupEntriys, bindGroupArray);
+            }
+            for (var addition in node._additionShaderDataKeys) {
+                (node.additionShaderData.get(addition) as WebGPUShaderData).fillBindGroupEntry(addition, bindgroupEntriys, bindGroupArray);
+            }
+            let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
+            let returns = new WebGPUBindGroup();
+            returns.gpuRS = bindGroup;
+            returns.createMask = Stat.loopCount;
+            cacheData.bindGroup = returns;
+        }
+    }
+
     createInstanceBatch(): IInstanceRenderBatch {
         return new WebGPUInstanceRenderBatch();
     }

@@ -42,13 +42,14 @@ export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     materialRenderQueue: number;
+    materialId: number;
     renderShaderData: ShaderData;
     transform: Transform3D;
     canDynamicBatch: boolean;
     isRender: boolean;
     owner: IBaseRenderNode;
     subShader: SubShader;
-    materialId: number;
+
     destroy(): void;
 }
 

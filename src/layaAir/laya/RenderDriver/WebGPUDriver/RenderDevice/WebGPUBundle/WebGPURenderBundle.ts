@@ -1,6 +1,5 @@
 import { Laya } from "../../../../../Laya";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPURenderContext3D } from "../../3DRenderPass/WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../../3DRenderPass/WebGPURenderElement3D";
@@ -10,6 +9,7 @@ import { WebGPURenderGeometry } from "../WebGPURenderGeometry";
 import { WebGPURenderPassHelper } from "../WebGPURenderPassHelper";
 
 /**
+ * TODO 重构
  * 渲染指令缓存
  * 用于缓存渲染指令，提高渲染效率
  * 一个渲染指令缓存对象缓存了若干个渲染节点的渲染指令
@@ -19,28 +19,7 @@ import { WebGPURenderPassHelper } from "../WebGPURenderPassHelper";
 export class WebGPURenderBundle {
     private _engine: WebGPURenderEngine;
     private _encoder: GPURenderBundleEncoder; //渲染命令编码器
-    private _elements: Set<number>; //包含渲染节点id集合
-    private _shotNum: number = 0; //命中渲染节点数量
-    private _shotCount: number = 0; //检查命中率的次数
-    private _shotRateSet: number = 0.7; //命中率设置
-    private _shotEstimate: number = 0; //命中率评估次数
-    renderBundle: GPURenderBundle; //渲染命令缓存对象
-    renderTimeStamp: number = 0; //渲染时间戳
-    renderTriangles: number = 0; //渲染三角形数量
-
-    id: number; //缓存对象id
-    static idCounter: number = 0; //缓存对象id计数器
-
     constructor(device: GPUDevice, dest: WebGPUInternalRT, shotRateSet: number) {
-        this.renderBundle = null;
-        this._elements = new Set();
-        const desc: GPURenderBundleEncoderDescriptor
-            = WebGPURenderPassHelper.getBundleDescriptor(dest);
-        this.id = WebGPURenderBundle.idCounter++;
-        desc.label = `BundleEncoder_${this.id}`;
-        this._engine = WebGPURenderEngine._instance;
-        this._encoder = device.createRenderBundleEncoder(desc);
-        this._shotRateSet = shotRateSet;
     }
 
     /**
@@ -49,82 +28,15 @@ export class WebGPURenderBundle {
      * @param element 
      */
     render(context: WebGPURenderContext3D, element: WebGPURenderElement3D) {
-        this._elements.add(element.bundleId);
-        this.renderTriangles += element._render(context, this);
-        this._shotNum++;
-        this.renderTimeStamp = Laya.timer.currTimer;
     }
 
     /**
      * 结束渲染指令的编码，生成渲染命令缓存对象
      */
     finish() {
-        this.renderBundle = this._encoder.finish();
-        this.renderBundle.label = `RenderBundle_${this.id}`;
     }
 
-    /**
-     * 判断是否包含某个渲染节点
-     * @param elementId 
-     */
-    hasElement(elementId: number) {
-        const has = this._elements.has(elementId);
-        if (has)
-            this._shotNum++;
-        return has;
-    }
 
-    /**
-     * 增加命中的渲染节点数量
-     */
-    addShot() {
-        this._shotNum++;
-    }
-
-    /**
-     * 把本缓存对象的所有渲染节点从总体渲染节点集合中移除
-     * @param elements 总体渲染节点集合
-     */
-    removeMyIds(elements: Map<number, WebGPURenderBundle>) {
-        this._elements.forEach(id => elements.delete(id));
-    }
-
-    /**
-     * 清除命中的渲染节点数量
-     */
-    clearShotNum() {
-        this._shotNum = 0;
-    }
-
-    /**
-     * 判断是否是低命中率
-     */
-    isLowShotRate() {
-        const shotRate = this._elements.size > 0 ? this._shotNum / this._elements.size : 1;
-        if (shotRate === 1) { //100%命中
-            this._shotEstimate = 0;
-            this._shotCount = 0;
-            return false;
-        }
-        if (this._shotRateSet === 1) { //对于动态节点，立即判断为true
-            this._shotEstimate = 0;
-            this._shotCount = 0;
-            return true;
-        }
-        if (shotRate < this._shotRateSet) {
-            if (this._shotEstimate++ > 10) { //对于静态节点，评估次数大于10，判断为true
-                this._shotEstimate = 0;
-                this._shotCount = 0;
-                return true;
-            }
-        }
-        if (this._shotCount++ > 500) { //每500帧强制清除一次缓存
-            this._shotEstimate = 0;
-            this._shotCount = 0;
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 设置渲染管线
@@ -292,8 +204,5 @@ export class WebGPURenderBundle {
      */
     destroy() {
         this._encoder = null;
-        this._elements.clear();
-        this._elements = null;
-        this.renderBundle = null;
     }
 }

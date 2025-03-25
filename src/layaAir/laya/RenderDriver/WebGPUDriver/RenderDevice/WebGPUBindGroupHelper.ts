@@ -1,10 +1,24 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Stat } from "../../../utils/Stat";
+import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
+
+export class WebGPUBindGroup {
+    gpuRS: GPUBindGroup;
+    createMask: number;//创建的时候生成的帧数
+    constructor() {
+        this.createMask = Stat.loopCount;
+    }
+
+    isNeedCreate(resourceUpdateMask: number): boolean {
+        return resourceUpdateMask >= this.createMask;
+    }
+}
 
 export class WebGPUBindGroupHelper {
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
@@ -52,7 +66,7 @@ export class WebGPUBindGroupHelper {
      */
     static createBindPropertyInfoArrayByCommandMap(groupID: number, unifromCommandMapArray: string[]): WebGPUUniformPropertyBindingInfo[] {
         // 根据groupID和命令映射数组生成唯一的绑定组键值
-        const bindGroupKey = `${groupID}_${this._getBindGroupID(unifromCommandMapArray)}`;
+        const bindGroupKey = this._getBindGroupID(unifromCommandMapArray);
         if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
             return WebGPUBindGroupHelper.BindGroupPropertyInfoMap.get(bindGroupKey);
         }
@@ -60,7 +74,7 @@ export class WebGPUBindGroupHelper {
         //create
         //  if (WebGPUShaderData.getBindGroup(bindGroupKey)) {
         // 创建一个空数组用于存储绑定信息
-        const bindingInfos: WebGPUUniformPropertyBindingInfo[] = [];
+        let bindingInfos: WebGPUUniformPropertyBindingInfo[] = [];
         let bindingIndex = 0;
 
         // 遍历命令映射数组
@@ -130,7 +144,7 @@ export class WebGPUBindGroupHelper {
     }
 
     //根据同一组的绑定信息，创建绑定组布局
-    static createBindGroupEntryLayout(groupID: number, infoArray: WebGPUUniformPropertyBindingInfo[]): GPUBindGroupLayout {
+    static createBindGroupEntryLayout(infoArray: WebGPUUniformPropertyBindingInfo[]): GPUBindGroupLayout {
         let entries: GPUBindGroupLayoutEntry[] = [];
         const desc: GPUBindGroupLayoutDescriptor = {
             label: "GPUBindGroupLayoutDescriptor",
@@ -164,14 +178,16 @@ export class WebGPUBindGroupHelper {
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
-    static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): GPUBindGroup {
+
+    //传入Command的string Array，生成BindGroup
+    static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup {
         let infoArray: WebGPUUniformPropertyBindingInfo[] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray);
-        const bindGroupKey = `${groupID}_${this._getBindGroupID(unifromCommandMapArray)}`;
+        const bindGroupKey = this._getBindGroupID(unifromCommandMapArray);
         let groupLayout: GPUBindGroupLayout;
         if (WebGPUBindGroupHelper.BindGroupLayoutMap.has(bindGroupKey)) {
             groupLayout = WebGPUBindGroupHelper.BindGroupLayoutMap.get(bindGroupKey);
         } else {
-            groupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(groupID, infoArray);
+            groupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(infoArray);
             WebGPUBindGroupHelper.BindGroupLayoutMap.set(bindGroupKey, groupLayout);
         }
         let bindgroupEntriys: GPUBindGroupEntry[] = [];
@@ -181,10 +197,73 @@ export class WebGPUBindGroupHelper {
             entries: bindgroupEntriys
         };
         //填充bindgroupEntriys
-        shaderData.fillBindGroupEntry(bindgroupEntriys, infoArray);
+        shaderData.fillBindGroupEntry(bindGroupKey, bindgroupEntriys, infoArray);
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         //设置缓存  
-        shaderData.setBindGroupCache(bindGroupKey, bindGroup, infoArray);
-        return bindGroup;
+        let returns = new WebGPUBindGroup();
+        returns.gpuRS = bindGroup;
+        returns.createMask = Stat.loopCount;
+        return returns;
+    }
+
+    //传入UniformMap，创建WebGPUUniformPropertyBindingInfo数组
+    static createBindGroupInfosByUniformMap(groupID: number, name: string, uniformMap: Map<number, UniformProperty>) {
+        // 遍历uniform映射中的所有属性,添加纹理set和sampler的绑定信息
+        let bindingIndex = 0;
+        const propertyId = Shader3D.propertyNameToID(name);
+        let bindingInfos: WebGPUUniformPropertyBindingInfo[] = [];
+        // 创建绑定信息对象
+        const bindingInfo: WebGPUUniformPropertyBindingInfo = {
+            id: 0,
+            name: name,
+            set: groupID,
+            binding: bindingIndex++,
+            propertyId: propertyId,
+            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
+            type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
+            buffer: {
+                type: 'uniform'
+            }
+        };
+        // 将绑定信息添加到数组中
+        bindingInfos.push(bindingInfo);
+        for (let [propertyID, uniformProperty] of uniformMap) {
+            // 检查是否为纹理类型
+            if (uniformProperty.uniformtype >= ShaderDataType.Texture2D) {
+                let textureBindInfo: WebGPUUniformPropertyBindingInfo = {
+                    id: 0,
+                    set: groupID,
+                    binding: bindingIndex++,
+                    name: uniformProperty.propertyName,
+                    propertyId: propertyID,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    type: WebGPUBindingInfoType.texture,
+                    texture: {
+                        sampleType: 'float',
+                        viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
+                        multisampled: false
+                    }
+                }
+                bindingInfos.push(textureBindInfo);
+                // 修改当前绑定信息为纹理类型
+                let samplerBindInfo: WebGPUUniformPropertyBindingInfo = {
+                    id: 0,
+                    set: groupID,
+                    binding: bindingIndex++,
+                    name: uniformProperty.propertyName + "Sampler",
+                    propertyId: propertyID,//TODO
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    type: WebGPUBindingInfoType.sampler,
+                    sampler: {
+                        type: 'filtering'
+                    }
+
+                }
+                bindingInfos.push(samplerBindInfo);
+            }
+        }
+
+        return bindingInfos;
+
     }
 }

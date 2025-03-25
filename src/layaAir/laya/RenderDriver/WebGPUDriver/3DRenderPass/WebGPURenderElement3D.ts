@@ -14,51 +14,54 @@ import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBun
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
+import { WebGPUDriverRenderNodeCacheData } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 /**
  * 基本渲染单元
  */
 export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineInfo {
-    static _sceneShaderData: WebGPUShaderData = new WebGPUShaderData();//TODO??
-    static _renderShaderData: WebGPUShaderData = new WebGPUShaderData();//TODO??
+
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
-    static _defineStrings: Array<string> = [];
 
-    protected _sceneData: WebGPUShaderData;
-    protected _cameraData: WebGPUShaderData;
-    renderShaderData: WebGPUShaderData;
-    materialShaderData: WebGPUShaderData;
-    materialRenderQueue: number;
-    materialId: number;
-    transform: Transform3D;
-    canDynamicBatch: boolean;
-    isRender: boolean;
-    owner: WebBaseRenderNode;
-    subShader: SubShader;
     geometry: WebGPURenderGeometry;
+    //override
+    materialShaderData: WebGPUShaderData;
+
+    materialRenderQueue: number;
+
+    materialId: number;
+
+    renderShaderData: WebGPUShaderData;
+
+    transform: Transform3D;
+
+    canDynamicBatch: boolean;
+
+    isRender: boolean;
+
+    owner: WebBaseRenderNode;
+
+    subShader: SubShader;
+
+    //@renderPipeline Interface TODO
     blendState: WebGPUBlendStateCache;
+    //@renderPipeline Interface
     depthStencilState: WebGPUDepthStencilStateCache;
+    //@renderPipeline Interface
     cullMode: CullMode;
+    //@renderPipeline Interface
     frontFace: FrontFace;
+
     protected _invertFrontFace: boolean;
+
     protected _stencilParam: { [key: string]: any } = {}; //模板参数
-
-    protected _stateKey: string[] = []; //用于判断渲染状态是否改变
-    protected _pipeline: GPURenderPipeline[] = []; //渲染管线缓存
+    /**渲染Shader */
     protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist();
-
-    protected _passNum = 0; //当前渲染通道数量
-    protected _passName: string; //当前渲染名称
-    protected _passIndex: number[] = []; //当前渲染通道索引
-
-    //着色器数据状态，如果状态改变了，说明需要重建资源，否则直接使用缓存
-    protected _shaderDataState: { [key: string]: number[] } = {};
     constructor() {
     }
 
@@ -166,7 +169,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 }
             }
         }
-
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
         return;
@@ -189,7 +191,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             let shaderInstance = shaders[j];
             //TODO 先创建RenderPipeline  后续讨论如何Cache RenderPipeline的方案
             command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
-            this._bindGroup(shaderInstance, command); //绑定资源组
+            this._bindGroup(context, shaderInstance, command); //绑定资源组
             this._uploadGeometry(command); //上传几何数据 draw
         }
 
@@ -403,38 +405,19 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param command 
      * @param bundle 
      */
-    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (!shaderInstance.uniformSetMap[0]) {
-            command.setBindGroup(0, this._sceneData.);
+            command.setBindGroup(0, context._sceneBindGroup.gpuRS);
         }
         if (!shaderInstance.uniformSetMap[1]) {
-            const bindGroup = this._cameraData._get(["BaseCamera"]);
-            command.setBindGroup(1, bindGroup);
+            command.setBindGroup(1, context._cameraBindGroup.gpuRS);
         }
-        if (!shaderInstance.uniformSetMap[2]) {
-            //判断是否需要重新创建BindGroup TODO
-            let shaderDataMap = this.owner.additionShaderData;
-            let spritegroup = shaderInstance._additionalEntryGroup;
-            let descriptor = shaderInstance._cacheSpriteBindGroupDescriptor;
-            descriptor.entries = [];
-            if (this.renderShaderData) {
-                this.renderShaderData._getBindGroupEntryByArray(shaderInstance._spriteEntryGroup, descriptor.entries);
-            }
-            for (let [key, entries] of spritegroup) {
-                if (shaderDataMap.has(key)) {
-
-                    const shaderData = shaderDataMap.get(key) as WebGPUShaderData;
-                    // 创建BindGroup的描述符
-                    shaderData._getBindGroupEntryByArray(entries, descriptor.entries);
-                }
-            }
-            let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(descriptor);
-            command.setBindGroup(2, bindGroup);
+        if (!shaderInstance.uniformSetMap[2]) {//additional & Sprite3D NodeModule
+            command.setBindGroup(2, (this.owner._driverCacheData as WebGPUDriverRenderNodeCacheData).bindGroup.gpuRS);
         }
         if (!shaderInstance.uniformSetMap[3]) {
-            const bindGroup = this.materialShaderData.getBindGroupByCommandMapArray(["Material"]);
+            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroup("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
         }
-
     }
 
     /**
@@ -456,7 +439,5 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     destroy() {
         //WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
-        this._pipeline.length = 0;
-        this._stateKey.length = 0;
     }
 }

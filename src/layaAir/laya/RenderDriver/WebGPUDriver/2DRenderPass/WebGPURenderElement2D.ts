@@ -6,7 +6,6 @@ import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
 import { WebGPUCodeGenerator, WebGPUUniformMapType } from "../RenderDevice/WebGPUCodeGenerator";
 import { NameNumberMap } from "../RenderDevice/WebGPUCommon";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -20,15 +19,12 @@ import {
     WebGPUDepthStencilStateCache,
     WebGPURenderPipeline
 } from "../RenderDevice/WebGPURenderPipelineHelper";
-import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 
 export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineInfo {
-    static _sceneShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'scene');
-    static _value2DShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'value2D');
-    static _materialShaderData: WebGPUShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element2D, 'material');
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     static _defineStrings: Array<string> = [];
 
@@ -150,36 +146,19 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             this._shaderInstances[index] = shaderInstance;
 
             //创建uniform缓冲区，各pass共享shaderData，因此只需要创建一份
-            if (i === 0) {
-                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], false);
-                this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.value2DShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
-                this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
-            }
+            // if (i === 0) {
+            //     this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], false);
+            //     this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
+            //     this.value2DShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
+            //     this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
+            // }
         }
 
         //提取当前渲染通道
         this._takeCurPass(context.pipelineMode);
     }
 
-    /**
-     * 计算状态值
-     * @param shaderInstance 
-     * @param dest 
-     * @param context 
-     */
-    protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext2D) {
-        let stateKey = '';
-        stateKey += dest.formatId + '_';
-        stateKey += dest._samples + '_';
-        stateKey += shaderInstance._id + '_';
-        if (this.renderStateIsBySprite || !this.materialShaderData)
-            stateKey += this.value2DShaderData.stateKey;
-        else stateKey += this.materialShaderData.stateKey;
-        stateKey += this.geometry.bufferState.stateId + '_';
-        stateKey += this.geometry.bufferState.updateBufferLayoutFlag;
-        return stateKey;
-    }
+
 
     /**
      * 获取渲染管线
@@ -195,7 +174,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.renderStateIsBySprite || !this.materialShaderData)
             this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
         else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
-        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest, entries, stateKey);
+        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
     }
 
     /**
@@ -361,61 +340,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
 
     /**
-     * 着色器数据是否改变
-     * @param context
-     */
-    protected _isShaderDataChange(context: WebGPURenderContext2D) {
-        let change = false;
-        let shaderDataState = this._shaderDataState[context.pipelineMode];
-        let shaderDataObject = this._shaderDataObject[context.pipelineMode];
-        if (!shaderDataState)
-            shaderDataState = this._shaderDataState[context.pipelineMode] = [];
-        if (!shaderDataObject)
-            shaderDataObject = this._shaderDataObject[context.pipelineMode] = [];
-        if (this._sceneData) {
-            if (shaderDataState[0] != this._sceneData.changeMark) {
-                shaderDataState[0] = this._sceneData.changeMark;
-                change = true;
-            }
-            if (shaderDataObject[0] != this._sceneData.globalId) {
-                shaderDataObject[0] = this._sceneData.globalId;
-                change = true;
-            }
-        }
-        if (this._cameraData) {
-            if (shaderDataState[1] != this._cameraData.changeMark) {
-                shaderDataState[1] = this._cameraData.changeMark;
-                change = true;
-            }
-            if (shaderDataObject[1] != this._cameraData.globalId) {
-                shaderDataObject[1] = this._cameraData.globalId;
-                change = true;
-            }
-        }
-        if (this.value2DShaderData) {
-            if (shaderDataState[2] != this.value2DShaderData.changeMark) {
-                shaderDataState[2] = this.value2DShaderData.changeMark;
-                change = true;
-            }
-            if (shaderDataObject[2] != this.value2DShaderData.globalId) {
-                shaderDataObject[2] = this.value2DShaderData.globalId;
-                change = true;
-            }
-        }
-        if (this.materialShaderData) {
-            if (shaderDataState[3] != this.materialShaderData.changeMark) {
-                shaderDataState[3] = this.materialShaderData.changeMark;
-                change = true;
-            }
-            if (shaderDataObject[3] != this.materialShaderData.globalId) {
-                shaderDataObject[3] = this.materialShaderData.globalId;
-                change = true;
-            }
-        }
-        return change;
-    }
-
-    /**
      * 创建绑定组布局
      * @param shaderInstance 
      */
@@ -447,21 +371,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param command 
      */
     protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder) {
-        const uniformSetMap = shaderInstance.uniformSetMap;
-        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command);
-        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command);
-        this.value2DShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command);
-        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command);
-    }
 
-    /**
-     * 上传uniform数据
-     */
-    protected _uploadUniform() {
-        this._sceneData?.uploadUniform();
-        this._cameraData?.uploadUniform();
-        this.value2DShaderData?.uploadUniform();
-        this.materialShaderData?.uploadUniform();
     }
 
     /**
@@ -470,12 +380,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder) {
         let triangles = 0;
-        // if (command) {
-        //     if (WebGPUGlobal.useGlobalContext)
-        //         triangles += WebGPUContext.applyCommandGeometry(command, this.geometry);
-        //     else 
         triangles += command.applyGeometry(this.geometry);
-        // }
         return triangles;
     }
 
@@ -488,33 +393,33 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param stateKey 
      */
     protected _createPipeline(index: number, context: WebGPURenderContext2D, shaderInstance: WebGPUShaderInstance,
-        command: WebGPURenderCommandEncoder, stateKey?: string) {
-        this.value2DShaderData.isShare = false;
-        const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
-        if (bindGroupLayout) {
-            const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout, stateKey);
-            // if (command) {
-            //     if (WebGPUGlobal.useGlobalContext)
-            //         WebGPUContext.setCommandPipeline(command, pipeline);
-            //     else
-            command.setPipeline(pipeline);
-            //}
-            if (WebGPUGlobal.useCache) {
-                shaderInstance.renderPipelineMap.set(stateKey, pipeline);
-                this._pipeline[index] = pipeline;
-                this._stateKey[index] = stateKey;
-            }
-            context.pipelineCache.push({
-                shaderId: shaderInstance._id,
-                name: shaderInstance.name,
-                pipeline,
-                shaderInstance,
-                samples: context.destRT._samples,
-                stateKey
-            });
-            //console.log('pipelineCache2d =', context.pipelineCache);
-            return pipeline;
-        }
+        command: WebGPURenderCommandEncoder, stateKey?: string): GPURenderPipeline {
+        // this.value2DShaderData.isShare = false;
+        // const bindGroupLayout = this._createBindGroupLayout(shaderInstance);
+        // if (bindGroupLayout) {
+        //     const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context, bindGroupLayout, stateKey);
+        //     // if (command) {
+        //     //     if (WebGPUGlobal.useGlobalContext)
+        //     //         WebGPUContext.setCommandPipeline(command, pipeline);
+        //     //     else
+        //     command.setPipeline(pipeline);
+        //     //}
+        //     if (WebGPUGlobal.useCache) {
+        //         shaderInstance.renderPipelineMap.set(stateKey, pipeline);
+        //         this._pipeline[index] = pipeline;
+        //         this._stateKey[index] = stateKey;
+        //     }
+        //     context.pipelineCache.push({
+        //         shaderId: shaderInstance._id,
+        //         name: shaderInstance.name,
+        //         pipeline,
+        //         shaderInstance,
+        //         samples: context.destRT._samples,
+        //         stateKey
+        //     });
+        //     //console.log('pipelineCache2d =', context.pipelineCache);
+        //     return pipeline;
+        // }
         return null;
     }
 
@@ -538,27 +443,27 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param context 
      */
     prepare(context: WebGPURenderContext2D) {
-        this._takeCurPass(context.pipelineMode);
-        if (this._passNum === 0) return false;
+        // this._takeCurPass(context.pipelineMode);
+        // if (this._passNum === 0) return false;
 
-        //设定当前渲染数据
-        this._sceneData = context.sceneData;
-        this._cameraData = context.cameraData;
-        if (!this._sceneData)
-            this._sceneData = WebGPURenderElement2D._sceneShaderData;
-        if (!this.value2DShaderData)
-            this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
-        if (!this.materialShaderData)
-            this.materialShaderData = WebGPURenderElement2D._materialShaderData;
+        // //设定当前渲染数据
+        // this._sceneData = context.sceneData;
+        // this._cameraData = context.cameraData;
+        // if (!this._sceneData)
+        //     this._sceneData = WebGPURenderElement2D._sceneShaderData;
+        // if (!this.value2DShaderData)
+        //     this.value2DShaderData = WebGPURenderElement2D._value2DShaderData;
+        // if (!this.materialShaderData)
+        //     this.materialShaderData = WebGPURenderElement2D._materialShaderData;
 
-        //编译着色器（只在数据发生变化的时候才重新编译）
-        let compile = false;
-        if (this._isShaderDataChange(context)) {
-            this._compileShader(context);
-            compile = true;
-        }
+        // //编译着色器（只在数据发生变化的时候才重新编译）
+        // let compile = false;
+        // if (this._isShaderDataChange(context)) {
+        //     this._compileShader(context);
+        //     compile = true;
+        // }
 
-        return compile;
+        // return compile;
     }
 
     /**
@@ -567,36 +472,36 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param command 
      */
     render(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder) {
-        //如果command是null，则只上传shaderData数据，不执行bindGroup操作
-        let triangles = 0;
-        for (let i = 0; i < this._passNum; i++) {
-            const index = this._passIndex[i];
-            let pipeline = this._pipeline[index];
-            const shaderInstance = this._shaderInstances[index];
-            if (shaderInstance && shaderInstance.complete) {
-                this._getDepthStencilState(shaderInstance, context.destRT); //更新Stencil信息
-                if (WebGPUGlobal.useCache) { //启用缓存机制
-                    const stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
-                    if (this._stateKey[index] !== stateKey || pipeline) { //缓存未命中
-                        this._stateKey[index] = stateKey;
-                        pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
-                    }
-                    if (!pipeline)
-                        pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
-                    //else if (command) { //缓存命中
-                    //   if (WebGPUGlobal.useGlobalContext)
-                    //       WebGPUContext.setCommandPipeline(command, pipeline);
-                    //else 
-                    command.setPipeline(pipeline);
-                }
-                //} else this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
-                //if (command)
-                this._bindGroup(shaderInstance, command); //绑定资源组
-                this._uploadUniform(); //上传uniform数据
-                triangles += this._uploadGeometry(command); //上传几何数据
-            }
-        }
-        return triangles;
+        // //如果command是null，则只上传shaderData数据，不执行bindGroup操作
+        // let triangles = 0;
+        // for (let i = 0; i < this._passNum; i++) {
+        //     const index = this._passIndex[i];
+        //     let pipeline = this._pipeline[index];
+        //     const shaderInstance = this._shaderInstances[index];
+        //     if (shaderInstance && shaderInstance.complete) {
+        //         this._getDepthStencilState(shaderInstance, context.destRT); //更新Stencil信息
+        //         if (WebGPUGlobal.useCache) { //启用缓存机制
+        //             const stateKey = this._calcStateKey(shaderInstance, context.destRT, context);
+        //             if (this._stateKey[index] !== stateKey || pipeline) { //缓存未命中
+        //                 this._stateKey[index] = stateKey;
+        //                 pipeline = this._pipeline[index] = shaderInstance.renderPipelineMap.get(stateKey);
+        //             }
+        //             if (!pipeline)
+        //                 pipeline = this._createPipeline(index, context, shaderInstance, command, stateKey); //新建渲染管线
+        //             //else if (command) { //缓存命中
+        //             //   if (WebGPUGlobal.useGlobalContext)
+        //             //       WebGPUContext.setCommandPipeline(command, pipeline);
+        //             //else 
+        //             command.setPipeline(pipeline);
+        //         }
+        //         //} else this._createPipeline(index, context, shaderInstance, command); //不启用缓存机制
+        //         //if (command)
+        //         this._bindGroup(shaderInstance, command); //绑定资源组
+        //         this._uploadUniform(); //上传uniform数据
+        //         triangles += this._uploadGeometry(command); //上传几何数据
+        //     }
+        // }
+        return 0;
     }
 
     /**

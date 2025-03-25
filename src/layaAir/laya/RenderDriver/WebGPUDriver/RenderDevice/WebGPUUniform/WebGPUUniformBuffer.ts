@@ -71,7 +71,7 @@ export class WebGPUUniformBuffer extends UniformBufferUser {
                 size: this.bufferBlock.size,
             },
         };
-        this.data.notifyGPUBufferChange(this, info);
+        //this.data.notifyGPUBufferChange(this, info);
     }
 
     /**
