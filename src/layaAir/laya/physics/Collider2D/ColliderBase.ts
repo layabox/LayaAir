@@ -7,10 +7,11 @@ import { Physics2DWorldManager } from "../Physics2DWorldManager";
 import { RigidBody } from "../RigidBody";
 import { Point } from "../../maths/Point";
 import { Utils } from "../../utils/Utils";
+import { SpriteGlobalTransform } from "../../display/SpriteGlobaTransform";
 
 /**
- * @en Collider base class
- * @zh 碰撞体基类
+ * @en 2DPhysics Collider base class
+ * @zh 2D物理碰撞体基类
  */
 export class ColliderBase extends Component {
 
@@ -100,6 +101,19 @@ export class ColliderBase extends Component {
 
     declare owner: Sprite;
 
+    private _isConnectedJoint: boolean = false;
+
+    /**
+     * @zh 是否连接到关节
+     * @en weather connect to joint
+     */
+    public get isConnectedJoint(): boolean {
+        return this._isConnectedJoint;
+    }
+    public set isConnectedJoint(value: boolean) {
+        this._isConnectedJoint = value;
+    }
+
     /**
      * @en The Rigidbody's resistance to changes in angular velocity (rotation).(Only valid when not using automatic mass calculation)
      * @zh 刚体惯性张量（只在未开启自动质量计算时才有效）
@@ -111,7 +125,6 @@ export class ColliderBase extends Component {
         } else {
             inertia = this._inertia;
         }
-        this._bodyDef
         return inertia;
     }
 
@@ -222,6 +235,7 @@ export class ColliderBase extends Component {
     }
 
     /**
+     * @deprecated
      * @en The x-axis offset relative to the node.
      * @zh 相对于节点的 x 轴偏移。
      */
@@ -236,6 +250,7 @@ export class ColliderBase extends Component {
     }
 
     /**
+     * @deprecated
      * @en The y-axis offset relative to the node.
      * @zh 相对于节点的 y 轴偏移。
      */
@@ -274,7 +289,7 @@ export class ColliderBase extends Component {
      * @returns 
      */
     getInertia(): number {
-        if (!this._box2DBody) this._onAwake();
+        if (!this._box2DBody) return this._inertia;
         return Physics2D.I._factory.get_rigidBody_Inertia(this._box2DBody);
     }
 
@@ -283,6 +298,7 @@ export class ColliderBase extends Component {
         this._getPhysicsManager();
         this._box2DBodyDef = Physics2D.I._factory.createBodyDef(this._physics2DManager.box2DWorld, this._bodyDef);
         this._box2DBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, this._box2DBodyDef);
+        this.owner.on(SpriteGlobalTransform.CHANGED, this, this._needupdataShapeAttribute);
     }
 
     protected _getPhysicsManager(): void {
@@ -301,13 +317,19 @@ export class ColliderBase extends Component {
         return this.owner.globalTrans.localToGlobal(x, y);
     }
 
-
-    /**
-     * @internal
-     * @en Refresh the physics world collision information after the collision body parameters change.
-     * @zh 碰撞体参数发生变化后，刷新物理世界碰撞信息
-     */
-    _refresh(): void {
+    /**@internal 通知rigidBody 更新shape 属性值 */
+    protected _needupdataShapeAttribute(): void {
+        //兼容模式下使用，设置类似BoxCollider的偏移方式
+        if (this._rigidbody && this._rigidbody.applyOwnerColliderComponent) {
+            this.createShape(this._rigidbody);
+        }
+        //非dynamic类型下可以直接设置位置
+        if (this._type != "dynamic") {
+            var sp: Sprite = this.owner;
+            this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
+        }
+        this.owner.event("shapeChange");
     }
 
     /**@internal*/
@@ -315,6 +337,7 @@ export class ColliderBase extends Component {
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
         this._box2DBody = null;
         this._box2DBodyDef = null;
+        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._needupdataShapeAttribute);
     }
 
     protected _onDestroy(): void {
@@ -419,6 +442,7 @@ export class ColliderBase extends Component {
     }
 
     /**
+     * @internal
      * @deprecated 兼容方法
      */
     createShape(collider: ColliderBase) {
@@ -429,19 +453,6 @@ export class ColliderBase extends Component {
      * @param collider 
      */
     protected _setRigidbodyValue(collider: RigidBody): void {
-    }
-
-    /**@internal @deprecated 通知rigidBody 更新shape 属性值 */
-    protected _needupdataShapeAttribute(): void {
-        //兼容模式下使用，设置类似BoxCollider的偏移方式
-        if (this._rigidbody && this._rigidbody.applyOwnerColliderComponent) {
-            this.createShape(this._rigidbody);
-        }
-        //非dynamic类型下可以直接设置位置
-        if (this._type != "dynamic") {
-            var sp: Sprite = this.owner;
-            this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
-        }
     }
 
     // -----------------------  已废弃 deprecated ------------------------

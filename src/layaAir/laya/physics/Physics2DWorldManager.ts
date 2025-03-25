@@ -1,15 +1,25 @@
 import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
-import { EPhycis2DBlit, Ebox2DType, box2DWorldDef } from "./factory/IPhysics2DFactory";
+import { EPhycis2DBlit, Ebox2DType, Physics2DHitResult, box2DWorldDef } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { Browser } from "../utils/Browser";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { Physics2DOption } from "./Physics2DOption";
 import { Laya } from "../../Laya";
+import { ColliderBase } from "./Collider2D/ColliderBase";
+import { LayaEnv } from "../../LayaEnv";
 
+/**
+ * @en 2D physics world manager class for the scene
+ * @zh 场景对应的2D物理管理类
+ */
 export class Physics2DWorldManager implements IElementComponentManager {
+    /**
+     * @en 2Dphysics manager class name
+     * @zh 2D物理管理类类名
+     */
     static __managerName: string = "Physics2DWorldManager";
 
     private _box2DWorld: any;
@@ -30,19 +40,31 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _JSRayCastcallback: any;
     private _allowWorldSleep: boolean = false;
 
+    /**
+     * @en Get the box2D world corresponding to the current scene
+     * @zh 获取当前场景对应的box2D世界
+     */
     get box2DWorld(): any {
         return this._box2DWorld;
     }
 
+    /**
+     * @en Get the current gravity value of the physical world
+     * @zh 获取当前物理世界的重力值
+     */
     get gravity(): Vector2 {
         return this._gravity;
     }
 
     Init(data: any): void {
-        debugger;
         this.setRootSprite(this._scene);
     }
 
+    /**
+     * @en constructor method
+     * @zh 构造方法
+     * @param scene 
+     */
     constructor(scene: Scene | Sprite) {
         this._worldDef.pixelRatio = this._pixelRatio = Physics2DOption.pixelRatio;
         this._RePixelRatio = 1 / this._pixelRatio;
@@ -57,9 +79,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     name: string;
 
     update(dt: number): void {
-        // console.log("getBody Count", this.getBodyCount());
-        // console.log("getJoint Count", this.getJointCount());
-        // console.log("getContact Count", this.getContactCount());
+
     }
 
     /**
@@ -81,6 +101,14 @@ export class Physics2DWorldManager implements IElementComponentManager {
         Physics2D.I._factory.setContactListener(this._box2DWorld, this._contactListener);
         this._JSRayCastcallback = Physics2D.I._factory.createJSRayCastCallback();
         this._JSQuerycallback = Physics2D.I._factory.createJSQueryCallback();
+        //debug draw
+        if (Physics2DOption.debugDraw && LayaEnv.isPlaying) {
+            this.enableDebugDraw(Physics2DOption.drawShape, EPhycis2DBlit.Shape);
+            this.enableDebugDraw(Physics2DOption.drawJoint, EPhycis2DBlit.Joint);
+            this.enableDebugDraw(Physics2DOption.drawAABB, EPhycis2DBlit.AABB);
+            this.enableDebugDraw(Physics2DOption.drawCenterOfMass, EPhycis2DBlit.CenterOfMass);
+        }
+
     }
 
     /**
@@ -173,6 +201,10 @@ export class Physics2DWorldManager implements IElementComponentManager {
         return this._subStep;
     }
 
+    /**
+     * @zh 派发物理世界的事件
+     * @en dispath the events of the physics2d world
+     */
     sendEvent(): void {
         let length: number = this._eventList.length;
         if (length > 0) {
@@ -279,17 +311,66 @@ export class Physics2DWorldManager implements IElementComponentManager {
 
     /**
      * @zh 清除场景中所有的力
+     * @en Clear all forces in the scene
      */
     clearAllForces(): void {
         this._box2DWorld && Physics2D.I._factory.clearForces(this._box2DWorld);
     }
 
-    QueryAABB(callback: Function, bounds: any): void {
-        this._JSQuerycallback.ReportFixture = callback.bind(this);
+    /**
+     * @zh 查询物理世界中所有可能与提供的AABB重叠的内容
+     * @param res 返回的ColliderBase数组
+     * @param bounds 要查询的AABB包围盒
+     * @en Query the physical world for all possible overlaps with the provided AABB
+     * @param res Returned ColliderBase array
+     * @param bounds The AABB bounding box to query
+     */
+    QueryAABB(res: ColliderBase[], bounds: any): void {
+        this._JSQuerycallback.ReportFixture = function _callback(warp: any) {
+            let fixture = Physics2D.I._factory.warpPoint(warp, Ebox2DType.b2Fixture);
+            if (fixture) {
+                let collider = fixture.collider;
+                collider && res.push(collider);
+                return true;
+            } else {
+                return false;
+            }
+        }
         Physics2D.I._factory.QueryAABB(this._box2DWorld, this._JSQuerycallback, bounds);
     }
 
-    RayCast(callback: Function, startPos: Vector2, endPos: Vector2): void {
+    /**
+     * @zh 查询物理世界中对射线路径上的所有形状，可以获取最近点、任意点、还是 n 点。射线投射会忽略包含起点的形状。
+     * @param 
+     * @param startPos 射线开始位置
+     * @param endPos 射线结束位置
+     * @en Query the physical world for all shapes on a ray path, either the closest point, any point, or n points. Ray casting ignores shapes that contain the starting point.
+     * @param 
+     * @param startPos ray start position
+     * @param endPos ray end position
+     */
+    RayCast(res: Physics2DHitResult[], startPos: Vector2, endPos: Vector2): void {
+        let callback = (warp: any, point: any, normal: any, fraction: number) => {
+            let fixture = Physics2D.I._factory.warpPoint(warp, Ebox2DType.b2Fixture);
+            point = Physics2D.I._factory.warpPoint(point, Ebox2DType.b2Vec2);
+            normal = Physics2D.I._factory.warpPoint(normal, Ebox2DType.b2Vec2);
+            if (!fixture) return 1;
+            let hitRes = new Physics2DHitResult();
+            let collider = fixture.collider;
+            hitRes.collider = collider;
+            hitRes.hitPoint.x = this.physics2DToLaya(point.x);
+            hitRes.hitPoint.y = this.physics2DToLaya(point.y);
+            hitRes.hitNormal.x = this.physics2DToLaya(normal.x);
+            hitRes.hitNormal.y = this.physics2DToLaya(normal.y);
+            hitRes.fraction = fraction;
+            res.push(hitRes);
+
+            if (collider) {
+                return 1;
+            } else {
+                return 0;
+            }
+        };
         this._JSRayCastcallback.ReportFixture = callback.bind(this);
         Physics2D.I._factory.RayCast(this._box2DWorld, this._JSRayCastcallback, startPos, endPos);
     }
@@ -304,8 +385,12 @@ export class Physics2DWorldManager implements IElementComponentManager {
         Laya.timer.callLater(this, () => {
             Physics2D.I._factory.destroyWorld(this._box2DWorld);
         })
+        if (this._enableDraw || this._debugDraw) {
+            this._debugDraw.removeSelf();
+            this._debugDraw.destroy();
+            this._debugDraw = null;
+        }
         Physics2D.I._factory.worldMap.delete(this._box2DWorld._indexInMap);
-        console.log("Physics2DWorldManager destroy", this._box2DWorld.ptr);
         this._box2DWorld = null;
         this._eventList = null;
     }

@@ -6,6 +6,10 @@ import { Box2DShapeDef, FilterData } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
+/**
+ * @zh 2D物理碰撞形状基类
+ * @en Base class of 2D physics collision shapes
+ */
 export class Physics2DShapeBase implements IClone {
     protected _shapeDef: Box2DShapeDef = new Box2DShapeDef();
     private _filterData: FilterData = new FilterData();
@@ -13,7 +17,7 @@ export class Physics2DShapeBase implements IClone {
 
     private _isSensor: boolean = false;
 
-    private _density: number = 1;
+    private _density: number = 10;
     private _friction: number = 0.2;
 
     private _restitution: number = 0;
@@ -21,7 +25,7 @@ export class Physics2DShapeBase implements IClone {
     protected _box2DBody: any;
     protected _body: ColliderBase;
 
-    private _restitutionThreshold: number;
+    private _restitutionThreshold: number = 1.0;
 
     protected _box2DShapeDef: any;
     protected _box2DShape: any;
@@ -62,6 +66,10 @@ export class Physics2DShapeBase implements IClone {
         this._updateShapeData();
     }
 
+    /**
+     * @zh 碰撞分组数据，用来设置当前形状碰撞时候的分组数据
+     * @en Collision grouping data, used to set the grouping data when the current shape collides
+     */
     public get filterData(): FilterData {
         return this._filterData;
     }
@@ -70,6 +78,10 @@ export class Physics2DShapeBase implements IClone {
         this._updateFilterData();
     }
 
+    /**
+     * @en The density value. The value can be zero or a positive number. It is recommended to use similar densities to improve stacking stability. The default value is 10.
+     * @zh 密度值。值可以为零或者是正数，建议使用相似的密度以改善堆叠稳定性。默认值为 10。
+     */
     public get density(): number {
         return this._density;
     }
@@ -79,6 +91,10 @@ export class Physics2DShapeBase implements IClone {
         this._box2DShape && Physics2D.I._factory.set_shape_density(this._box2DShape, value);
     }
 
+    /**
+     * @en The restitution coefficient. The value ranges from 0 to 1, the larger the value, the greater the elasticity. The default value is 0.
+     * @zh 弹性系数。取值范围0-1，值越大，弹性越大。默认值为0。
+     */
     public get restitution(): number {
         return this._restitution;
     }
@@ -88,6 +104,10 @@ export class Physics2DShapeBase implements IClone {
         this._box2DShape && Physics2D.I._factory.set_shape_restitution(this._box2DShape, value);
     }
 
+    /**
+     * @en Restitution velocity threshold, usually in meters per second. Collisions above this velocity will have restitution applied (will bounce).
+     * @zh 恢复速度阈值，通常以米/秒为单位。高于此速度的碰撞将应用恢复（将反弹）。
+     */
     public get restitutionThreshold(): number {
         return this._restitutionThreshold;
     }
@@ -97,6 +117,10 @@ export class Physics2DShapeBase implements IClone {
         this._box2DShape && Physics2D.I._factory.set_shape_restitutionThreshold(this._box2DShape, value);
     }
 
+    /**
+     * @en The friction coefficient. The value ranges from 0 to 1, the larger the value, the greater the friction. The default value is 0.2.
+     * @zh 摩擦力。取值范围0-1，值越大，摩擦越大。默认值为0.2。
+     */
     public get friction(): number {
         return this._friction;
     }
@@ -105,6 +129,11 @@ export class Physics2DShapeBase implements IClone {
         this._shapeDef.friction = value;
         this._box2DShape && Physics2D.I._factory.set_shape_friction(this._box2DShape, value);
     }
+
+    /**
+     * @en Whether the object is a sensor. A sensor can trigger collision events but does not produce collision responses.
+     * @zh 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应
+     */
     public get isSensor(): boolean {
         return this._isSensor;
     }
@@ -113,7 +142,6 @@ export class Physics2DShapeBase implements IClone {
         this._shapeDef.isSensor = value;
         this._box2DShape && Physics2D.I._factory.set_shape_isSensor(this._box2DShape, value);
     }
-
 
     /**
      * @internal
@@ -141,11 +169,19 @@ export class Physics2DShapeBase implements IClone {
         return this._y - (<Sprite>this._body.owner).pivotY;
     }
 
+    /**
+     * @en constructor method
+     * @zh 构造方法
+     */
     constructor() {
         this._box2DFilter = Physics2D.I._factory.createFilter();
     }
 
-    _updateFilterData(): void {
+    /**
+     * @zh 更新碰撞分组数据
+     * @en Update collision group data
+     */
+    private _updateFilterData(): void {
         if (!this._box2DShape || !this._box2DFilter) return;
         this._box2DFilter.groupIndex = this._filterData.group;
         this._box2DFilter.categoryBits = this._filterData.category;
@@ -155,6 +191,13 @@ export class Physics2DShapeBase implements IClone {
         Physics2D.I._factory.set_shape_reFilter(this._box2DShape);
     }
 
+    /**
+     * @internal
+     * @en Set the collision volume to which the shape belongs and initialize the content 
+     * @param body The collision body
+     * @zh 设置形状所属的碰撞体并初始化内容
+     * @param body 所属的碰撞体  
+     */
     setCollider(body: ColliderBase): void {
         this._body = body;
         this._box2DBody = body.getBox2DBody();
@@ -190,9 +233,15 @@ export class Physics2DShapeBase implements IClone {
     /**
      * @override
      */
-    protected _updateShapeData() {
+    protected _updateShapeData(): void {
     }
 
+    /**
+     * @en Get the axis-aligned bounding box corresponding to the shape
+     * @returns box2D's AABB bounding box
+     * @zh 获取形状对应的轴对齐包围盒
+     * @returns box2D的AABB包围盒
+     */
     getAABB(): any {
         return Physics2D.I._factory.get_shape_AABB(this._box2DShape);
     }
@@ -200,12 +249,19 @@ export class Physics2DShapeBase implements IClone {
     /**
      * @zh 检测射线是否与形状相交
      * @param index index通常用于ChainShape与PolygonShape等多形状的对象，CircleShape、EdgeShape等默认为0
-     * @returns 
+     * @returns 是否相交
+     * @en Check if a ray intersects a shape
+     * @param index Index is usually used for objects with multiple shapes such as ChainShape and PolygonShape. The default value for CircleShape, EdgeShape, etc. is 0.
+     * @returns Whether it intersects
      */
     rayCast(index: number = 0): boolean {
         return Physics2D.I._factory.shape_rayCast(this._box2DShape, null, null, index)
     }
 
+    /**
+     * @en Destroy shape
+     * @zh 销毁形状
+     */
     destroy(): void {
         Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
         Physics2D.I._factory.destroyData(this._box2DFilter);
@@ -216,7 +272,6 @@ export class Physics2DShapeBase implements IClone {
     }
 
     clone() {
-
     }
 
     cloneTo(destObject: Physics2DShapeBase): void {

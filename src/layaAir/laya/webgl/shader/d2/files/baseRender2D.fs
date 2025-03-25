@@ -13,12 +13,16 @@ void main()
     vec4 textureColor;
 #ifdef CLIPMODE
     vec2 texcoord = v_texcoord.xy;
-    vec2 inRange = step(u_baseRender2DTextureRange.xy, texcoord) * step(texcoord, u_baseRender2DTextureRange.xy + u_baseRender2DTextureRange.zw);
+    // 限制u_baseRender2DTextureRange的xy范围大于0，zw范围小于1
+    vec4 clampedRange = u_baseRender2DTextureRange;
+    clampedRange.xy = max(u_baseRender2DTextureRange.xy, vec2(0.0, 0.0));
+    clampedRange.zw = min(u_baseRender2DTextureRange.xy+u_baseRender2DTextureRange.zw, vec2(1.0, 1.0));
+    vec2 inRange = step(clampedRange.xy, texcoord) * step(texcoord, clampedRange.zw);
     float useTexture = inRange.x * inRange.y;
     texcoord = fract(texcoord) ;
     textureColor = mix(vec4(0.0,0.0,0.0,0.0), texture2D(u_baseRender2DTexture, texcoord), useTexture);
 #else
-    vec2 texcoord = fract(v_texcoord.xy) * u_baseRender2DTextureRange.zw + u_baseRender2DTextureRange.xy;
+    vec2 texcoord = v_texcoord.xy * u_baseRender2DTextureRange.zw + u_baseRender2DTextureRange.xy;
     textureColor = texture2D(u_baseRender2DTexture, texcoord);
 #endif
 

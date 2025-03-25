@@ -1,24 +1,30 @@
 /**
  * @en Interface for the overall management of a type of component within a 3D scene.
- * @zh ÓÃÓÚ3D³¡¾°ÖĞÄ³ÀàĞÍ×é¼şµÄÈ«Ãæ¹ÜÀíµÄ½Ó¿Ú¡£
+ * @zh 3D åœºæ™¯ä¸­æŸç§ç±»å‹ç»„ä»¶çš„å…¨é¢ç®¡ç†æ¥å£
  */
 export interface IElementComponentManager {
 
     /**
      * @en An internal identifier used to find the manager by Scene3D.
-     * @zh ÓÉScene3DÓÃÀ´²éÕÒ¹ÜÀíÆ÷µÄÄÚ²¿Ãû³Æ¡£
+     * @zh ç”¨äºé€šè¿‡ Scene3D æŸ¥æ‰¾ç®¡ç†å™¨çš„å†…éƒ¨æ ‡è¯†ç¬¦
      */
     name: string;
 
     /**
      * @en Initialization method called during Scene3D initialization.
-     * @zh ÔÚScene3D³õÊ¼»¯ÆÚ¼äµ÷ÓÃµÄ·½·¨¡£
+     * @zh åœ¨ Scene3D åˆå§‹åŒ–è¿‡ç¨‹ä¸­è°ƒç”¨çš„åˆå§‹åŒ–æ–¹æ³•
      */
     Init(data: any): void;
 
     /**
      * @en Update method called every frame in the render loop.
-     * @zh ÔÚäÖÈ¾Ñ­»·ÖĞÃ¿Ö¡µ÷ÓÃµÄ¸üĞÂ·½·¨¡£
+     * @zh æ¸²æŸ“å¾ªç¯ä¸­æ¯ä¸€å¸§è°ƒç”¨çš„æ›´æ–°æ–¹æ³•
      */
     update(dt: number): void;
+
+    /**
+     * @en This method is called to clean up resources and perform any necessary destruction tasks for the manager.
+     * @zh è¯¥æ–¹æ³•ç”¨äºæ¸…ç†èµ„æºå¹¶æ‰§è¡Œç®¡ç†å™¨æ‰€éœ€çš„é”€æ¯ä»»åŠ¡ã€‚
+     */
+    destroy(): void;
 }

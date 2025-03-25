@@ -3,6 +3,7 @@ import { Utils } from "../../utils/Utils";
 import { EPhysics2DJoint, physics2D_MotorJointDef } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Motor Joint: Allows specifying the relative position and angle between two rigid bodies, and then attempts to achieve these targets by applying forces and torques, striving to maintain this configuration.
@@ -115,6 +116,7 @@ export class MotorJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.otherBody) throw "otherBody can not be empty";
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
@@ -122,7 +124,17 @@ export class MotorJoint extends JointBase {
 
             var def: physics2D_MotorJointDef = MotorJoint._temp || (MotorJoint._temp = new physics2D_MotorJointDef());
             def.bodyA = this.selfBody.getBox2DBody();
+            if (!def.bodyA) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.bodyB = this.otherBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.linearOffset.setValue(this._linearOffset[0], this._linearOffset[1]);
             def.angularOffset = Utils.toRadian(-this._angularOffset);
             def.maxForce = this._maxForce;
@@ -131,6 +143,8 @@ export class MotorJoint extends JointBase {
             def.collideConnected = this.collideConnected;
             this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.MotorJoint, def);
             this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.MotorJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
+            this.otherBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 
