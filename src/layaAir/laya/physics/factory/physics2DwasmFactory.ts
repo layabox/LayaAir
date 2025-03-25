@@ -116,7 +116,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         this._tempVe21.y = this.convertLayaValueToPhysics(world, startPoint.y);
 
         this._tempVe22.x = this.convertLayaValueToPhysics(world, endPoint.x);
-        this._tempVe22.x = this.convertLayaValueToPhysics(world, endPoint.x);
+        this._tempVe22.y = this.convertLayaValueToPhysics(world, endPoint.y);
         world.RayCast(jsraycastcallback, this._tempVe21, this._tempVe22);
 
     }
@@ -748,7 +748,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         shapdeDef.shapeType = shapeType;
         data = this.castObject(data, this.box2d.b2Fixture);
         data.world = world;
-        data.shape = this.get_fixtureshape(shapdeDef.shape, shapeType);
+        data.shape = this.get_fixtureshape(data.GetShape(), shapeType);
+        data.shape.world = world;
         data.filter = data.GetFilterData();
         return data;
     }

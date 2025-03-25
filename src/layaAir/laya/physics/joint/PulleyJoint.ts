@@ -3,6 +3,7 @@ import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { EPhysics2DJoint, physics2D_PulleyJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en PulleyJoint class, which connects two bodies to the ground and to each other, when one body rises, the other descends, simulating the behavior of a pulley system.
@@ -63,6 +64,7 @@ export class PulleyJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.otherBody) throw "otherBody can not be empty";
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
@@ -70,7 +72,17 @@ export class PulleyJoint extends JointBase {
 
             var def: physics2D_PulleyJointDef = PulleyJoint._temp || (PulleyJoint._temp = new physics2D_PulleyJointDef);
             def.bodyA = this.otherBody.getBox2DBody();
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             var posA: Point = this.otherBody.getWorldPoint(this.otherAnchor[0], this.otherAnchor[1]);
             def.localAnchorA.setValue(posA.x, posA.y);
             var posB: Point = this.selfBody.getWorldPoint(this.selfAnchor[0], this.selfAnchor[1]);
@@ -83,6 +95,8 @@ export class PulleyJoint extends JointBase {
             def.collideConnected = this.collideConnected;
             this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.PulleyJoint, def);
             this._joint = Physics2D.I._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.PulleyJoint, this._box2DJointDef);
+            this.otherBody.owner.off("bodyCreated", this, this._createJoint);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 }

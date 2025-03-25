@@ -218,6 +218,10 @@ export class Scene extends Sprite {
 
         this._idMap = null;
         Scene.unDestroyedScenes.delete(this);
+
+        this._specialManager.componentElementMap.forEach(element => {
+            element.destroy();
+        });
     }
 
 

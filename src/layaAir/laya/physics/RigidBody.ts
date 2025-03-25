@@ -258,6 +258,7 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 刚体的碰撞形状
+     * @en Collision shape of the rigid body
      */
     public get shapes(): Physics2DShapeBase[] {
         return this._shapes;
@@ -278,7 +279,8 @@ export class RigidBody extends ColliderBase {
     }
 
     /**
-     * @zh 是否应用Collider组件的兼容方式
+     * @zh 是否应用旧版的Collider组件的兼容方式
+     * @en Whether to use the old version of the Collider component compatibility method
      */
     public get applyOwnerColliderComponent(): boolean {
         return this._applyOwnerColliderComponent;
@@ -289,6 +291,7 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 强制设置刚体的位置
+     * @en Enforce the position of a rigid body
      */
     set position(pos: Point) {
         if (!this._box2DBody) return;
@@ -301,6 +304,7 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 强制设置刚体的旋转（弧度）
+     * @en Force the rotation of the rigidbody (in radians)
      */
     set rotation(number: number) {
         if (!this._box2DBody) return;
@@ -328,10 +332,10 @@ export class RigidBody extends ColliderBase {
     _updateBodyType() {
         if (!this._box2DBody) return;
         Physics2D.I._factory.set_rigidBody_type(this._box2DBody, this._type)
-        if (this.type != "dynamic") {
-            Physics2D.I._removeRigidBody(this)
+        if (this.type == "static") {
+            Physics2D.I._removeRigidBody(this);
         } else {
-            Physics2D.I._addRigidBody(this)
+            Physics2D.I._addRigidBody(this);
         }
     }
 
@@ -348,7 +352,7 @@ export class RigidBody extends ColliderBase {
      * @zh 更新刚体结构体的数据
      * @returns 
      */
-    _setBodyDefValue(): void {
+    private _setBodyDefValue(): void {
         // 兼容模式
         if (this._type == "static") {
             // 静态刚体这样设置
@@ -399,9 +403,18 @@ export class RigidBody extends ColliderBase {
             //更新shapes
             this.shapes = this._shapes;
         }
-        this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
+        if (this.isConnectedJoint) {
+            this.owner.event("bodyCreated");
+            this.isConnectedJoint = false;
+        }
     }
 
+    /**
+     * @en Get the box2DBody of the rigid body 
+     * @returns box2DBody
+     * @zh 获取刚体的box2DBody
+     * @returns box2DBody
+     */
     getBody() {
         if (!this._box2DBody) this._onAwake();
         return this._box2DBody;
@@ -431,7 +444,6 @@ export class RigidBody extends ColliderBase {
         //添加到物理世界
         Physics2D.I._removeRigidBody(this);
         super._onDisable();
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler); // 这里的方法要改
     }
 
     /**@internal */
@@ -445,6 +457,12 @@ export class RigidBody extends ColliderBase {
         this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
     }
 
+    /**
+     * @zh 获取刚体的自定义数据
+     * @returns 自定义数据
+     * @en Get custom data of rigid body
+     * @returns custom data
+     */
     getUserData(): any {
         if (!this._box2DBody) return;
         return Physics2D.I._factory.get_rigidBody_userData(this._box2DBody);
@@ -452,6 +470,9 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 获取刚体在世界坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a rigid body at a certain point in the world coordinate system, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
      */
     getLinearVelocityFromWorldPoint(worldPoint: Vector2): Vector2 {
         if (!this._box2DBody) return _tempV0;
@@ -463,6 +484,9 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 获取刚体在局部坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a point on a rigid body in local coordinates, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
      */
     getLinearVelocityFromLocalPoint(localPoint: Vector2): Vector2 {
         if (!this._box2DBody) return _tempV0;
@@ -520,6 +544,12 @@ export class RigidBody extends ColliderBase {
         Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._box2DBody, impulse);
     }
 
+    /**
+     * @zh 施加角速度冲量
+     * @param impulse 角速度冲量
+     * @en Apply angular velocity impulse
+     * @param impulse angular impulse
+     */
     applyAngularImpulse(impulse: number): void {
         if (!this._box2DBody) return;
         Physics2D.I._factory.rigidbody_ApplyAngularImpulse(this._box2DBody, impulse);
@@ -585,7 +615,7 @@ export class RigidBody extends ColliderBase {
      * @returns 
      */
     getInertia(): number {
-        if (!this._box2DBody) this._onAwake();
+        if (!this._box2DBody) return this._inertia;
         return Physics2D.I._factory.get_rigidBody_Inertia(this._box2DBody);
     }
 

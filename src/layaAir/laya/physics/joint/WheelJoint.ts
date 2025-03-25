@@ -3,6 +3,7 @@ import { Point } from "../../maths/Point"
 import { Utils } from "../../utils/Utils";
 import { EPhysics2DJoint, physics2D_WheelJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en WheelJoint: Allows an object to rotate around a fixed axis relative to another object, while also providing spring-like resistance along the axis for bouncing back.
@@ -195,6 +196,7 @@ export class WheelJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.otherBody) throw "otherBody can not be empty";
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
@@ -206,7 +208,17 @@ export class WheelJoint extends JointBase {
             let radian = Utils.toRadian(this.angle);
             def.axis.setValue(Math.cos(radian), Math.sin(radian));
             def.bodyA = this.otherBody.getBox2DBody();
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.bodyB = this.selfBody.getBox2DBody();;
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
@@ -218,6 +230,8 @@ export class WheelJoint extends JointBase {
             def.dampingRatio = this._dampingRatio;
             this._box2DJointDef = this._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.WheelJoint, def);
             this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.WheelJoint, this._box2DJointDef);
+            this.otherBody.owner.off("bodyCreated", this, this._createJoint);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 }
