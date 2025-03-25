@@ -87,6 +87,9 @@ export class BaseNavigationManager implements IElementComponentManager {
         this._deflatAllMask = new AreaMask();
         this._init();
     }
+    destroy(): void {
+        // throw new Error("Method not implemented.");
+    }
 
     /**
      * 初始化默认配置

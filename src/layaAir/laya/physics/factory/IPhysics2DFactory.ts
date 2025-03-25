@@ -1,4 +1,5 @@
 import { IV2, Vector2 } from "../../maths/Vector2";
+import { ColliderBase } from "../Collider2D/ColliderBase";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 export type RigidBody2DType = "static" | "dynamic" | "kinematic";
@@ -147,31 +148,75 @@ export enum EPhysics2DShape {
     EdgeShape,
 }
 
+export class Physics2DHitResult {
+
+    /**
+     * @zh 所属物理组件
+     * @en The physical component to which it belongs
+     */
+    collider: ColliderBase;
+
+    /**
+     * @zh 碰撞点
+     * @en collision point
+     */
+    hitPoint: Vector2 = new Vector2();
+
+    /**
+     * @zh 碰撞法线
+     * @en collision normal
+     */
+    hitNormal: Vector2 = new Vector2();
+
+    /**
+     * @zh 碰撞点沿射线的比例（0 到 1 之间）
+     * @en The ratio of collision points along the ray (between 0 and 1)
+     */
+    fraction: number = 0;
+}
+
 /**
  * @zh 碰撞过滤数据
  * @en Collision filtering data
  */
 export class FilterData {
     /**
-     * @zh 碰撞组
-     * @en Collision group
+     * @zh 指定了该主体所属的碰撞组，默认为0，碰撞规则如下：
+     * 1. 如果两个对象 group 相等：
+     *    - group 值大于零，它们将始终发生碰撞。
+     *    - group 值小于零，它们将永远不会发生碰撞。
+     *    - group 值等于0，则使用规则3。
+     * 2. 如果 group 值不相等，则使用规则3。
+     * 3. 每个刚体都有一个 category 类别，此属性接收位字段，范围为 [1,2^31] 范围内的2的幂。
+     * 每个刚体也都有一个 mask 类别，指定与其碰撞的类别值之和（值是所有 category 按位 AND 的值）。
+     * @en Specifies the collision group to which the body belongs, default is 0, the collision rules are as follows:
+     * 1. If the group values of two objects are equal:
+     *    - If the group value is greater than zero, they will always collide.
+     *    - If the group value is less than zero, they will never collide.
+     *    - If the group value is equal to 0, then rule 3 is used.
+     * 2. If the group values are not equal, then rule 3 is used.
+     * 3. Each rigidbody has a category, this property receives a bit field, the range is the power of 2 in the range of [1,2^31].
+     * Each rigidbody also has a mask category, which specifies the sum of the category values it collides with (the value is the result of bitwise AND of all categories).
      */
     group: number = 0;
 
     /**
-     * @zh 碰撞类别
-     * @en Collision category
+     * @zh 碰撞类别，使用2的幂次方值指定，有32种不同的碰撞类别可用。
+     * @en Collision category, specified using powers of 2, with 32 different collision categories available.
      */
     category: number = 1;
 
     /**
-     * @zh 碰撞掩码
-     * @en Collision mask
+     * @zh 指定冲突位掩码碰撞的类别，category 位操作的结果。
+     * 每个刚体也都有一个 mask 类别，指定与其碰撞的类别值之和（值是所有 category 按位 AND 的值）。
+     * @en Specifies the category of collision bit mask, the result of category bitwise operation.
+     * Each rigidbody also has a mask category, which specifies the sum of the category values it collides with (the value is the result of bitwise AND of all categories).
      */
     mask: number = -1;
 }
 
 /**
+ * @internal
  * @zh 形状定义
  * @en Shape definition
  */
@@ -219,6 +264,7 @@ export class Box2DShapeDef {
 }
 
 /**
+ * @internal
  * @zh 刚体2D定义
  * @en The information of the rigid body in 2D physics.
  */
@@ -292,6 +338,7 @@ export class RigidBody2DInfo {
 }
 
 /**
+ * @internal
  * @zh 2D物理joint定义
  * @en 2D physics joint definition
  */
@@ -315,6 +362,7 @@ export class physics2D_BaseJointDef {
 }
 
 /**
+ * @internal
  * @zh Box2D 距离关节定义结构
  * @en Box2D distance Joint def Struct
  */
@@ -329,13 +377,18 @@ export class physics2D_DistancJointDef extends physics2D_BaseJointDef {
     isLocalAnchor: boolean
 }
 
+/**
+ * @internal
+ */
 export class physics2D_GearJointDef extends physics2D_BaseJointDef {
     joint1: any;
     joint2: any;
     ratio: number;
 }
 
-
+/**
+ * @internal
+ */
 export class physics2D_MotorJointDef extends physics2D_BaseJointDef {
     linearOffset: Vector2 = new Vector2();
     angularOffset: number;
@@ -343,7 +396,9 @@ export class physics2D_MotorJointDef extends physics2D_BaseJointDef {
     maxTorque: number;
     correctionFactor: number;
 }
-
+/**
+ * @internal
+ */
 export class physics2D_MouseJointJointDef extends physics2D_BaseJointDef {
     maxForce: number;
     frequency: number;
@@ -351,6 +406,9 @@ export class physics2D_MouseJointJointDef extends physics2D_BaseJointDef {
     target: Vector2 = new Vector2();
 }
 
+/**
+ * @internal
+ */
 export class physics2D_PrismaticJointDef extends physics2D_BaseJointDef {
     anchor: Vector2 = new Vector2();
     axis: Vector2 = new Vector2();
@@ -362,6 +420,9 @@ export class physics2D_PrismaticJointDef extends physics2D_BaseJointDef {
     upperTranslation: number;
 }
 
+/**
+ * @internal
+ */
 export class physics2D_PulleyJointDef extends physics2D_BaseJointDef {
     groundAnchorA: Vector2 = new Vector2();
     groundAnchorB: Vector2 = new Vector2();
@@ -370,6 +431,9 @@ export class physics2D_PulleyJointDef extends physics2D_BaseJointDef {
     ratio: number;
 }
 
+/**
+ * @internal
+ */
 export class physics2D_RevoluteJointDef extends physics2D_BaseJointDef {
     anchor: Vector2 = new Vector2();
     enableMotor: boolean;
@@ -380,12 +444,18 @@ export class physics2D_RevoluteJointDef extends physics2D_BaseJointDef {
     upperAngle: number;
 }
 
+/**
+ * @internal
+ */
 export class physics2D_WeldJointDef extends physics2D_BaseJointDef {
     anchor: Vector2 = new Vector2();
     frequency: number;
     dampingRatio: number;
 }
 
+/**
+ * @internal
+ */
 export class physics2D_WheelJointDef extends physics2D_BaseJointDef {
     anchor: Vector2 = new Vector2();
     axis: Vector2 = new Vector2();
@@ -399,7 +469,9 @@ export class physics2D_WheelJointDef extends physics2D_BaseJointDef {
     dampingRatio: number;
 }
 
-
+/**
+ * @internal
+ */
 export class box2DWorldDef {
     gravity: Vector2 = new Vector2(0, -9.8);
     pixelRatio: number = 50;

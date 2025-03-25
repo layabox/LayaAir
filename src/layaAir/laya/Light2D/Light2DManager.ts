@@ -159,6 +159,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             new Vector2(2, 2),
         ];
     }
+    destroy(): void {
+        // throw new Error("Method not implemented.");
+    }
 
     /**
      * 响应屏幕尺寸改变

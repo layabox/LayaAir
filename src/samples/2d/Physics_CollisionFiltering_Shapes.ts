@@ -90,8 +90,8 @@ export class Physics_CollisionFiltering_Shapes {
         let filter = new FilterData();
         filter.category = Physics_CollisionFiltering_Shapes.k_boxCategory;
         filter.mask = Physics_CollisionFiltering_Shapes.k_boxMask;
-
-        this.addGroup(ratio, boxShape);
+        this.addGroup(ratio, filter);
+        boxShape.filterData = filter;
         rigidbody.shapes = [boxShape];
     }
 
@@ -104,10 +104,12 @@ export class Physics_CollisionFiltering_Shapes {
         let rigidbody: RigidBody = triangle.addComponent(RigidBody);
         rigidbody.applyOwnerColliderComponent = false;
         let polygonShape: PolygonShape2D = new PolygonShape2D();
+        let filterdata = new FilterData();
         polygonShape.datas = [0, 0, 0, side * ratio, side * ratio, 0];
-        polygonShape.filterData.category = Physics_CollisionFiltering_Shapes.k_triangleCategory;
-        polygonShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_triangleMask;
-        this.addGroup(ratio, polygonShape);
+        filterdata.category = Physics_CollisionFiltering_Shapes.k_triangleCategory;
+        filterdata.mask = Physics_CollisionFiltering_Shapes.k_triangleMask;
+        this.addGroup(ratio, filterdata);
+        polygonShape.filterData = filterdata;
         rigidbody.shapes = [polygonShape];
     }
 
@@ -121,22 +123,24 @@ export class Physics_CollisionFiltering_Shapes {
         rigidbody.applyOwnerColliderComponent = false;
         let circleShape: CircleShape2D = new CircleShape2D();
         circleShape.radius = radius * ratio;
-        circleShape.filterData.category = Physics_CollisionFiltering_Shapes.k_circleCategory;
-        circleShape.filterData.mask = Physics_CollisionFiltering_Shapes.k_circleMask;
-        this.addGroup(ratio, circleShape);
+        let filterdata = new FilterData();
+        filterdata.category = Physics_CollisionFiltering_Shapes.k_circleCategory;
+        filterdata.mask = Physics_CollisionFiltering_Shapes.k_circleMask;
+        this.addGroup(ratio, filterdata);
+        circleShape.filterData = filterdata;
         rigidbody.shapes = [circleShape];
     }
 
-    addGroup(ratio: number, shape: Physics2DShapeBase) {
+    addGroup(ratio: number, filterdata: FilterData) {
         switch (ratio) {
             case 1:
-                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_smallGroup;
+                filterdata.group = Physics_CollisionFiltering_Shapes.k_smallGroup;
                 break;
             case 2:
-                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_middleGroup;
+                filterdata.group = Physics_CollisionFiltering_Shapes.k_middleGroup;
                 break;
             case 3:
-                shape.filterData.group = Physics_CollisionFiltering_Shapes.k_largeGroup;
+                filterdata.group = Physics_CollisionFiltering_Shapes.k_largeGroup;
                 break;
         }
     }

@@ -3,6 +3,7 @@ import { Physics2D } from "../Physics2D"
 import { Utils } from "../../utils/Utils";
 import { EPhysics2DJoint, physics2D_PrismaticJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Translation joint: A movement joint allows two objects to move relative to each other along a specified axis, but it prevents relative rotation
@@ -163,6 +164,7 @@ export class PrismaticJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
 
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
@@ -170,10 +172,20 @@ export class PrismaticJoint extends JointBase {
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
             def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             if (!Physics2D.I._emptyBody) {
                 Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
             }
             def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : Physics2D.I._emptyBody;
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             let p = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(p.x, p.y);
             let radian = Utils.toRadian(this.angle);
@@ -187,6 +199,8 @@ export class PrismaticJoint extends JointBase {
             def.collideConnected = this.collideConnected;
             this._box2DJointDef = this._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.PrismaticJoint, def);
             this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.PrismaticJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
+            this.otherBody && this.otherBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 

@@ -3,6 +3,10 @@ import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
+/**
+ * @en 2Dphysics edge shape.
+ * @zh 2D物理边缘碰撞形状。
+ */
 export class EdgeShape2D extends Physics2DShapeBase {
 
     /**@internal 顶点数据*/
@@ -37,7 +41,7 @@ export class EdgeShape2D extends Physics2DShapeBase {
 
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
-        let shape: any = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        let shape: any = this._box2DShape ? this._box2DShape.shape : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
     }
 
