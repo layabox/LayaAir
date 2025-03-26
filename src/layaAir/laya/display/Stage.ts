@@ -53,12 +53,13 @@ export class Stage extends Sprite {
     static SCALE_NOSCALE: string = "noscale";
 
     /**
-     * @en The stage is scaled to fit the screen while maintaining the aspect ratio, ensuring the entire stage content is visible. The actual width and height of the canvas are calculated based on the design width and height multiplied by the minimum scale factor. While this prevents content from being cut off, it may result in blank borders at the top/bottom or sides.
-     * @zh 保持纵横比的情况下，将舞台缩放以适应屏幕，确保整个舞台内容可见。画布的实际宽度和高度根据设计宽度和高度乘以最小缩放因子计算。虽然避免了内容被裁切，但可能会出现上下或左右的空白边缘。
+     * @en Scale the stage to fit the screen while maintaining the aspect ratio, ensuring that the entire design width and height remain visible. The canvas size remains equal to the design width and height, while the stage dimensions are calculated based on the design width and height multiplied by the minimum scaling factor of the physical resolution. Although this prevents content from being cropped, it may result in blank margins at the top and bottom or on the sides.
+     * @zh 保持纵横比的情况下，将舞台缩放以适应屏幕，确保整个舞台内容可见。画布的的宽高等于设计宽高，舞台的宽高根据设计宽度和高度乘以物理分辨率的最小缩放因子计算。虽然避免了内容被裁切，但可能会出现上下或左右的空白边缘。
      */
     static SCALE_SHOWALL: string = "showall";
 
     /**
+     * @deprecated 不推荐使用
      * @en The stage is scaled to fill the screen, with the actual width and height of the canvas calculated based on the design width and height multiplied by the maximum scale factor. This mode ensures that content fully covers the display area, but it may result in some content being cut off.
      * @zh 将舞台缩放以填满屏幕，画布的实际宽度和高度根据设计宽度和高度乘以最大缩放因子计算。这种模式保证内容完全覆盖屏幕，但可能会导致部分设计内容被裁切。
      */
@@ -487,8 +488,8 @@ export class Stage extends Sprite {
                 break;
             case Stage.SCALE_SHOWALL:
                 scaleX = scaleY = Math.min(scaleX, scaleY);
-                canvasWidth = realWidth = Math.round(this.designWidth * scaleX);
-                canvasHeight = realHeight = Math.round(this.designHeight * scaleY);
+                realWidth = Math.round(this.designWidth * scaleX);
+                realHeight = Math.round(this.designHeight * scaleY);
                 break;
             case Stage.SCALE_NOBORDER:
                 scaleX = scaleY = Math.max(scaleX, scaleY);
@@ -496,11 +497,9 @@ export class Stage extends Sprite {
                 realHeight = Math.round(this.designHeight * scaleY);
                 break;
             case Stage.SCALE_FULL:
-                scaleX = scaleY = pixelRatio;
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
-                this._width = screenWidth / pixelRatio;
-                this._height = screenHeight / pixelRatio;
+                scaleX = scaleY = 1;
+                this._width = canvasWidth = screenWidth;
+                this._height = canvasHeight = screenHeight;
                 break;
             case Stage.SCALE_FIXED_WIDTH:
                 scaleY = scaleX;
@@ -522,8 +521,14 @@ export class Stage extends Sprite {
         }
 
         if (this.useRetinalCanvas) {
-            realWidth = canvasWidth = screenWidth;
-            realHeight = canvasHeight = screenHeight;
+            //对于会漏出画布的非全屏适配模式，没必要按设备物理分辨率统一处理
+            if (scaleMode === Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOSCALE) {
+                canvasWidth = realWidth;
+                canvasHeight = realHeight;
+            } else {
+                canvasWidth = realWidth = screenWidth;
+                canvasHeight = realHeight = screenHeight;
+            }
         }
 
         //根据不同尺寸缩放stage画面
@@ -656,8 +661,8 @@ export class Stage extends Sprite {
                 break;
             case Stage.SCALE_SHOWALL:
                 scaleX = scaleY = Math.min(scaleX, scaleY);
-                canvasWidth = realWidth = Math.round(this.designWidth * scaleX);
-                canvasHeight = realHeight = Math.round(this.designHeight * scaleY);
+                realWidth = Math.round(this.designWidth * scaleX);
+                realHeight = Math.round(this.designHeight * scaleY);
                 break;
             case Stage.SCALE_NOBORDER:
                 scaleX = scaleY = Math.max(scaleX, scaleY);
@@ -689,8 +694,14 @@ export class Stage extends Sprite {
         }
 
         if (this.useRetinalCanvas) {
-            realWidth = canvasWidth = screenWidth;
-            realHeight = canvasHeight = screenHeight;
+            //对于会漏出画布的非全屏适配模式，没必要按设备物理分辨率统一处理
+            if (scaleMode === Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOSCALE) {
+                canvasWidth = realWidth;
+                canvasHeight = realHeight;
+            } else {
+                canvasWidth = realWidth = screenWidth;
+                canvasHeight = realHeight = screenHeight;
+            }
         }
 
         return {
@@ -714,8 +725,7 @@ export class Stage extends Sprite {
      * @en The scale mode. Default value is "noscale".
      * Available values:
      * - "noscale": No scaling.
-     * - "showall": Scale with the minimum ratio to fit the screen.
-     * - "noborder": Scale with the maximum ratio to fit the screen.
+     * - "showall": The canvas matches the design width and height, and the stage is scaled proportionally to the maximum size while ensuring the design content remains fully visible.
      * - "full": No scaling, the stage width and height equal to the screen width and height.
      * - "fixedwidth": Fixed width, height scales according to the screen ratio.
      * - "fixedheight": Fixed height, width scales according to the screen ratio.
@@ -723,8 +733,7 @@ export class Stage extends Sprite {
      * @zh 缩放模式。默认值为 "noscale"。
      * 取值范围：
      * - "noscale"：不缩放，舞台与画布采用设计宽高。
-     * - "showall"：舞台与画布按最小比例缩放。
-     * - "noborder"：舞台与画布按最大比例缩放。
+     * - "showall"：画布等于设计宽高，在保障设计内容可见的前提下，按设计宽高对舞台等比缩放至最大。
      * - "full"：不缩放，舞台与画布的宽高等于屏幕宽高。
      * - "fixedwidth"：宽度不变，高度根据屏幕比缩放。
      * - "fixedheight"：高度不变，宽度根据屏幕比缩放。
