@@ -1,8 +1,10 @@
 import { JointBase } from "./JointBase";
-import { RigidBody } from "../RigidBody"
-import { RevoluteJoint } from "./RevoluteJoint";
 import { PrismaticJoint } from "./PrismaticJoint";
-import { physics2D_GearJointDef } from "../IPhysiscs2DFactory";
+import { RevoluteJoint } from "./RevoluteJoint";
+import { EPhysics2DJoint, physics2D_GearJointDef } from "../factory/IPhysics2DFactory";
+import { Physics2D } from "../Physics2D";
+import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Gear joint: used to simulate the constraint relationship between two gears. When a gear rotates, the momentum generated has two output modes: one is the angular velocity of the gear itself, and the other is the linear velocity on the gear surface
@@ -52,18 +54,32 @@ export class GearJoint extends JointBase {
      * @override
      */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.joint1) throw "Joint1 can not be empty";
             if (!this.joint2) throw "Joint2 can not be empty";
 
             var def: physics2D_GearJointDef = GearJoint._temp || (GearJoint._temp = new physics2D_GearJointDef());
-            def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
-            def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
+            def.bodyA = this.joint1.owner.getComponent(ColliderBase).getBox2DBody();
+            if (!def.bodyA) {
+                this.joint1.owner.getComponent(ColliderBase).isConnectedJoint = true;
+                this.joint1.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
+            def.bodyB = this.joint2.owner.getComponent(ColliderBase).getBox2DBody();
+            if (!def.bodyB) {
+                this.joint2.owner.getComponent(ColliderBase).isConnectedJoint = true;
+                this.joint2.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.joint1 = this.joint1.joint;
             def.joint2 = this.joint2.joint;
             def.ratio = -this._ratio;
             def.collideConnected = this.collideConnected;
-            this._joint = this._factory.create_GearJoint(def);
+            this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.GearJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.GearJoint, this._box2DJointDef);
+            this.joint1.owner.off("bodyCreated", this, this._createJoint);
+            this.joint2.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 

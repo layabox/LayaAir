@@ -101,16 +101,16 @@ export class RTReflectionProb implements IReflectionProbeData {
         this._nativeObj = new (window as any).conchRTReflectionProb();
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
     }
-    
+
     private _shaderData: ShaderData;
-    
+
     public get shaderData(): ShaderData {
         return this._shaderData;
     }
 
     public set shaderData(value: ShaderData) {
         this._shaderData = value;
-        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
+        this._nativeObj.shaderData = value ? (this._shaderData as any)._nativeObj : null;
     }
 
     destroy(): void {

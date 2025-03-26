@@ -14,7 +14,7 @@ export class GSlider extends GWidget {
     private _hBar: GWidget;
     private _vBar: GWidget;
     private _gripButton: GWidget;
-    private _titleGWidget: GWidget;
+    private _titleWidget: GWidget;
 
     private _min: number = 0;
     private _max: number = 0;
@@ -35,7 +35,7 @@ export class GSlider extends GWidget {
     constructor() {
         super();
 
-        this._value = 50;
+        this._value = 100;
         this._max = 100;
         this._clickPos = new Point();
 
@@ -47,15 +47,10 @@ export class GSlider extends GWidget {
     }
 
     public set titleType(value: ProgressTitleType) {
-        this._titleType = value;
-    }
-
-    public get reverse(): boolean {
-        return this._reverse;
-    }
-
-    public set reverse(value: boolean) {
-        this._reverse = value;
+        if (this._titleType != value) {
+            this._titleType = value;
+            ILaya.timer.callLater(this, this.update);
+        }
     }
 
     public get wholeNumbers(): boolean {
@@ -103,9 +98,6 @@ export class GSlider extends GWidget {
     }
 
     public update(): void {
-        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
-            return;
-
         this.updateWithPercent((this._value - this._min) / (this._max - this._min), false);
     }
 
@@ -126,7 +118,7 @@ export class GSlider extends GWidget {
             }
         }
 
-        let obj = this._titleGWidget;
+        let obj = this._titleWidget;
         if (obj) {
             switch (this._titleType) {
                 case ProgressTitleType.Percent:
@@ -146,6 +138,9 @@ export class GSlider extends GWidget {
                     break;
             }
         }
+
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
+            return;
 
         let fullWidth = this.width - this._barMaxWidthDelta;
         let fullHeight = this.height - this._barMaxHeightDelta;
@@ -186,6 +181,16 @@ export class GSlider extends GWidget {
         this.update();
 
         super._onConstruct(inPrefab);
+    }
+
+    _setup(hBar: GWidget, vBar: GWidget, grip: GWidget, title: GWidget, reverse: boolean): void {
+        this._hBar = hBar;
+        this._vBar = vBar;
+        this._gripButton = grip;
+        this._titleWidget = title;
+        this._reverse = reverse;
+
+        this._onConstruct();
     }
 
     protected _sizeChanged(): void {

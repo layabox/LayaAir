@@ -404,14 +404,17 @@ export class GWidget extends Sprite {
         value.forEach(g => g.owner = this);
     }
 
-    addGear(controller: Controller, propPath: string, props?: Record<number, any>) {
-        let gear = new Gear();
-        gear.propPath = propPath;
-        if (props)
-            gear.values = props;
-        gear.controller = new ControllerRef(controller);
-        gear.owner = this;
-        this._gears.push(gear);
+    addGear(value: Gear<any>) {
+        this._gears.push(value);
+        value.owner = this;
+    }
+
+    removeGear(value: Gear<any>) {
+        let i = this._gears.indexOf(value);
+        if (i != -1) {
+            this._gears.splice(i, 1);
+            value.owner = null;
+        }
     }
 
     destroy(): void {

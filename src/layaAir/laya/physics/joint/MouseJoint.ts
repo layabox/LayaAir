@@ -1,11 +1,11 @@
 import { JointBase } from "./JointBase";
-import { Sprite } from "../../display/Sprite"
 import { Event } from "../../events/Event"
 import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
-import { RigidBody } from "../RigidBody"
 import { ILaya } from "../../../ILaya";
-import { physics2D_MouseJointJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_MouseJointJointDef } from "../factory/IPhysics2DFactory";
+import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Mouse joint: A physics constraint used to simulate the user dragging an object with the mouse. It typically allows a rigid body to follow the mouse cursor's movement while also being influenced by other physics effects such as collisions and gravity.
@@ -29,7 +29,7 @@ export class MouseJoint extends JointBase {
      * @en The self rigid body of a joint, effective only on the first setting.
      * @zh [首次设置有效]关节的自身刚体。
      */
-    selfBody: RigidBody;
+    selfBody: ColliderBase;
 
     /**
      * @en The connection point of a joint is offset from the position of the upper left corner of its own rigid body. If not set, it is used as the connection point based on the mouse click point. Effective only on the first setting.
@@ -87,25 +87,33 @@ export class MouseJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_MouseJointJointDef = MouseJoint._temp || (MouseJoint._temp = new physics2D_MouseJointJointDef());
             if (this.anchor) {
-                var anchorPos: Point = this.selfBody.owner.localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics2D.I.worldRoot);
+                var anchorPos: Point = this.selfBody.owner.localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, this._physics2DManager.getRootSprite());
             } else {
-                anchorPos = Physics2D.I.worldRoot.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
+                anchorPos = this._physics2DManager.getRootSprite().globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
             }
-
+            if (!Physics2D.I._emptyBody) Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
             def.bodyA = Physics2D.I._emptyBody;
-            def.bodyB = this.selfBody.getBody();
+            def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.target.setValue(anchorPos.x, anchorPos.y);
             def.maxForce = this._maxForce;
             def.dampingRatio = this._dampingRatio;
             def.frequency = this._frequency;
-            this._factory.set_rigidbody_Awake(def.bodyB, true);
-            this._joint = this._factory.create_MouseJoint(def);
+            this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.MouseJoint, def);
+            this._factory.set_rigidBody_Awake(def.bodyB, true);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.MouseJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 
@@ -122,13 +130,13 @@ export class MouseJoint extends JointBase {
         ILaya.stage.off(Event.MOUSE_MOVE, this, this._onMouseMove);
         ILaya.stage.off(Event.MOUSE_UP, this, this._onStageMouseUp);
         ILaya.stage.off(Event.MOUSE_OUT, this, this._onStageMouseUp);
-        this._factory.removeJoint(this._joint);
+        this._factory.removeJoint(this._physics2DManager.box2DWorld, this._joint);
         this._joint = null;
     }
 
     /**@internal */
     private _onMouseMove(): void {
-        if (this._joint) this._factory.set_MouseJoint_target(this._joint, Physics2D.I.worldRoot.mouseX, Physics2D.I.worldRoot.mouseY)
+        if (this._joint) this._factory.set_MouseJoint_target(this._joint, this._physics2DManager.getRootSprite().mouseX, this._physics2DManager.getRootSprite().mouseY)
     }
 
     /**@internal */

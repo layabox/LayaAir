@@ -190,10 +190,16 @@ export interface FPropertyDescriptor {
     reverseBool: boolean;
 
     /**
-     * @en Whether to allow null values. Default is true.
-     * @zh 是否允许null值。默认为true。
+     * @en Whether null values are allowed. Default is true. Sometimes it is necessary to explicitly set it to true, e.g. to display a checkbox for a color/vec2/vec3/vec4 inspector to determine whether the property value is null.
+     * @zh 是否允许null值。默认为true。有时需要显式设置为true，例如为了显示一个color/vec2/vec3/vec4检查器的checkbox，决定属性值是否为null。
      */
     nullable: boolean;
+
+    /**
+     * @en For a property that can switch between null and non-null, when switching from a null value to a non-null value, the value here will be used.
+     * @zh 对于可以在null和非null之间切换的属性，从null值切换到非null值时，会使用这里的值。
+     */
+    nonNullDefault?: any;
 
     /**
      * @en Minimum value for numbers
@@ -268,14 +274,12 @@ export interface FPropertyDescriptor {
     showAlpha: boolean;
 
     /**
-     * @en Applicable to color type properties. It differs from the default value in that when default is null, defaultColor can define a non-null default value.
-     * @zh 对颜色类型属性适用。它与default值不同的是，当default是null时，可以用defaultColor定义一个非null时的默认值。
+     * @deprecated Use 'nonNullDefault' instead.
      */
     defaultColor: any;
 
     /**
-     * @en Applicable to color type properties. Allows displaying a checkbox to determine whether the color is null.
-     * @zh 对颜色类型属性适用。允许显示一个checkbox决定颜色是否为null。
+     * @deprecated Explicitly set 'nullable' to true to display a checkbox.
      */
     colorNullable: boolean;
 

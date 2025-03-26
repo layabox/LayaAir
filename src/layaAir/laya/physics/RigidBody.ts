@@ -1,14 +1,15 @@
 import { ColliderBase } from "./Collider2D/ColliderBase";
-import { Component } from "../components/Component"
 import { Sprite } from "..//display/Sprite"
 import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
-import { RigidBody2DInfo } from "./IPhysiscs2DFactory";
+import { RigidBody2DType } from "./factory/IPhysics2DFactory";
 import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
+import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 
-type RigidBody2DType = "static" | "dynamic" | "kinematic";
+const _tempV0: Vector2 = new Vector2();
+
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
  * Changes in the position of the physics world will be automatically synchronized to the display object, and the displacement and rotation of the display object itself (displacement of the parent object is invalid) will also be automatically synchronized to the physics world.
@@ -19,19 +20,7 @@ type RigidBody2DType = "static" | "dynamic" | "kinematic";
  * 如果想整体位移物理世界，可以设置 Physics2D.I.worldRoot = 场景，然后移动场景即可。
  * 可以通过IDE-"项目设置"-"2D物理"-"是否开启2D物理绘制" 开启物理辅助线显示，或者通过代码 Physics2D.I.enableDebugDraw = true。
  */
-export class RigidBody extends Component {
-
-    /**
-     * @en The type of rigidbody, supports three types: static, dynamic and kinematic, default is dynamic.
-     * static: Static type, motionless, not affected by gravity, mass is infinitely large, can be controlled by node movement, rotation, and scaling.
-     * dynamic: Dynamic type, affected by gravity.
-     * kinematic: Kinematic type, not affected by gravity, can be moved by applying acceleration or force.
-     * @zh 刚体类型，支持三种类型：static，dynamic 和 kinematic，默认为 dynamic 类型。
-     * static：静态类型，静止不动，不受重力影响，质量无限大，可以通过节点移动，旋转，缩放进行控制。
-     * dynamic：动态类型，受重力影响。
-     * kinematic：运动类型，不受重力影响，可以通过施加速度或者力的方式使其运动。
-     */
-    protected _type: RigidBody2DType;
+export class RigidBody extends ColliderBase {
 
     /** 是否允许休眠，允许休眠能提高性能*/
     protected _allowSleep: boolean = true;
@@ -57,10 +46,11 @@ export class RigidBody extends Component {
     /** 重力缩放系数，设置为0为没有重力*/
     protected _gravityScale: number = 1;
 
-    /** 原始刚体*/
-    protected _body: any;
+    /**@deprecated 兼容模式下获取owner的其他collider碰撞形状 */
+    private _colliders: ColliderBase[] = [];
 
     /**
+     * @deprecated is deprecated, use shape's filter instead.
      * @en [Read-only] Specifies the collision group to which the body belongs, default is 0, the collision rules are as follows:
      * 1. If the group values of two objects are equal:
      *    - If the group value is greater than zero, they will always collide.
@@ -69,6 +59,7 @@ export class RigidBody extends Component {
      * 2. If the group values are not equal, then rule 3 is used.
      * 3. Each rigidbody has a category, this property receives a bit field, the range is the power of 2 in the range of [1,2^31].
      * Each rigidbody also has a mask category, which specifies the sum of the category values it collides with (the value is the result of bitwise AND of all categories).
+     * @deprecated 已废弃，通过设置刚体shape的filter来设置这个参数.
      * @zh [只读] 指定了该主体所属的碰撞组，默认为0，碰撞规则如下：
      * 1. 如果两个对象 group 相等：
      *    - group 值大于零，它们将始终发生碰撞。
@@ -81,14 +72,18 @@ export class RigidBody extends Component {
     group: number = 0;
 
     /**
+     * @deprecated is deprecated, please use shape's catalogy instead.
      * @en [Read-only] Collision category, specified using powers of 2, with 32 different collision categories available.
+     * @deprecated 已废弃，通过设置刚体shape的filter来设置
      * @zh [只读] 碰撞类别，使用2的幂次方值指定，有32种不同的碰撞类别可用。
      */
     category: number = 1;
 
     /**
+     * @deprecated is deprecated, use shape's filter instead.
      * @en [Read-only] Specifies the category of collision bit mask, the result of category bitwise operation.
      * Each rigidbody also has a mask category, which specifies the sum of the category values it collides with (the value is the result of bitwise AND of all categories).
+     * @deprecated 已废弃，通过设置刚体shape的filter来设置
      * @zh [只读] 指定冲突位掩码碰撞的类别，category 位操作的结果。
      * 每个刚体也都有一个 mask 类别，指定与其碰撞的类别值之和（值是所有 category 按位 AND 的值）。
      */
@@ -103,120 +98,28 @@ export class RigidBody extends Component {
     declare owner: Sprite;
 
     /**
-     * @internal
-     * @en Is the rigid body mass calculated based on the collider
-     * @zh 是否根据碰撞体计算刚体质量
+     * @zh 碰撞形状，可以是多个
      */
-    private _useAutoMass: boolean = true;
+    private _shapes: Physics2DShapeBase[];
 
     /**
-     * @internal
-     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
-     * @zh 刚体质量（只在未开启自动质量计算时才有效）
+     * @zh 是否兼容Collider组件的方式
      */
-    private _mass: number = 1;
-
-    /**
-     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
-     * @zh 刚体质心位置（只在未开启自动质量计算时才有效）
-     */
-    private _centerofMass: IV2 = { x: 0.5, y: 0.5 };
-
-    /**
-     * @en The rigid body inertia tensor. (Only valid when not using automatic mass calculation)
-     * @zh 刚体惯性张量（只在未开启自动质量计算时才有效）
-     */
-    private _inertia: number = 10;
-
-    /**
-     * @en Is the rigid body mass calculated based on the collider
-     * @zh 是否根据碰撞体计算刚体质量 
-     */
-    public get useAutoMass(): boolean {
-        return this._useAutoMass;
-    }
-    public set useAutoMass(value: boolean) {
-        this._useAutoMass = value;
-        this._needrefeshShape();
-    }
-
-    /**
-     * @en The rigid body mass. (Only valid when not using automatic mass calculation)
-     * @zh 刚体质量（只在未开启自动质量计算时才有效）
-     */
-    public get mass(): number {
-        let mass;
-        if (this._useAutoMass) {
-            mass = this.getMass();
-        } else {
-            mass = this._mass;
-        }
-        return mass;
-    }
-    public set mass(value: number) {
-        this._mass = value;
-        if (!this._useAutoMass) {
-            this._needrefeshShape();
-        }
-    }
-
-    /**
-     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
-     * @zh 刚体质心（只在未开启自动质量计算时才有效）
-     */
-    public get centerOfMass(): IV2 {
-        let center;
-        if (this._useAutoMass) {
-            center = this.getCenter();
-        } else {
-            center = this._centerofMass;
-        }
-        return center;
-    }
-
-    public set centerOfMass(value: IV2) {
-        if (!this._useAutoMass) {
-            this._centerofMass = value;
-            this._needrefeshShape();
-        }
-    }
-
-    /**
-     * @en The Rigidbody's resistance to changes in angular velocity (rotation).(Only valid when not using automatic mass calculation)
-     * @zh 刚体惯性张量（只在未开启自动质量计算时才有效）
-     */
-    public get inertia(): number {
-        let inertia;
-        if (this._useAutoMass) {
-            inertia = this.getInertia();
-        } else {
-            inertia = this._inertia;
-        }
-        return inertia;
-    }
-
-    public set inertia(value: number) {
-        if (!this._useAutoMass) {
-            this._inertia = value;
-            this._needrefeshShape();
-        }
-    }
+    private _applyOwnerColliderComponent: boolean = true;
 
     /**
      * @en The original body object.
      * @zh 原始body对象。
      */
     get body(): any {
-        return this._body;
+        return this._box2DBody;
     }
 
     /**
-     * @en The type of the rigid body. Supports three types: static, dynamic, and kinematic.
-     * - static: Static type, stays still, not affected by gravity, has infinite mass, can be controlled by moving, rotating, and scaling the node.
+     * @en The type of the rigid body. Supports two types: dynamic, and kinematic.
      * - dynamic: Dynamic type, affected by gravity.
      * - kinematic: Kinematic type, not affected by gravity, can be moved by applying velocity or force.
-     * @zh 刚体类型，支持三种类型：static、dynamic 和 kinematic。
-     * - static：静态类型，静止不动，不受重力影响，质量无限大，可以通过节点移动、旋转、缩放进行控制。
+     * @zh 刚体类型，支持两种类型：dynamic 和 kinematic。
      * - dynamic：动态类型，受重力影响。
      * - kinematic：运动类型，不受重力影响，可以通过施加速度或者力的方式使其运动。
      */
@@ -225,6 +128,9 @@ export class RigidBody extends Component {
     }
 
     set type(value: RigidBody2DType) {
+        if (value !== "dynamic" && value !== "kinematic") {
+            console.warn("Rigidbody only can set as dynamic or kinematic.");
+        }
         this._type = value;
         this._updateBodyType()
     }
@@ -239,7 +145,7 @@ export class RigidBody extends Component {
 
     set gravityScale(value: number) {
         this._gravityScale = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_gravityScale(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_gravityScale(this._box2DBody, value);
     }
 
     /**
@@ -252,7 +158,7 @@ export class RigidBody extends Component {
 
     set allowRotation(value: boolean) {
         this._allowRotation = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_allowRotation(this._body, !value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, !value);
     }
 
     /**
@@ -265,7 +171,7 @@ export class RigidBody extends Component {
 
     set allowSleep(value: boolean) {
         this._allowSleep = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_allowSleep(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowSleep(this._box2DBody, value);
     }
 
     /**
@@ -278,7 +184,7 @@ export class RigidBody extends Component {
 
     set angularDamping(value: number) {
         this._angularDamping = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_angularDamping(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_angularDamping(this._box2DBody, value);
     }
 
     /**
@@ -286,7 +192,7 @@ export class RigidBody extends Component {
      * @zh 角速度，设置会导致旋转。
      */
     get angularVelocity(): number {
-        if (this._body) return Physics2D.I._factory.get_rigidBody_angularVelocity(this._body);
+        if (this._box2DBody) return Physics2D.I._factory.get_rigidBody_angularVelocity(this._box2DBody);
         return this._angularVelocity;
     }
 
@@ -295,7 +201,7 @@ export class RigidBody extends Component {
         if (this._type == "static") {
             return;
         }
-        if (this._body) Physics2D.I._factory.set_rigidBody_angularVelocity(this.body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_angularVelocity(this._box2DBody, value);
     }
 
     /**
@@ -308,7 +214,7 @@ export class RigidBody extends Component {
 
     set linearDamping(value: number) {
         this._linearDamping = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_linearDamping(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_linearDamping(this._box2DBody, value);
     }
 
     /**
@@ -316,8 +222,10 @@ export class RigidBody extends Component {
      * @zh 线性运动速度，例如 {x: 5, y: 5}。
      */
     get linearVelocity(): IV2 {
-        if (this._body) {
-            var vec: IV2 = Physics2D.I._factory.get_rigidBody_linearVelocity(this._body);
+        if (this._box2DBody) {
+            var vec: IV2 = Physics2D.I._factory.get_rigidBody_linearVelocity(this._box2DBody);
+            vec.x = vec.x;
+            vec.y = vec.y;
             return { x: vec.x, y: vec.y };
         }
         return this._linearVelocity;
@@ -332,7 +240,7 @@ export class RigidBody extends Component {
         if (this._type == "static") {
             return;
         }
-        if (this._body) Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_linearVelocity(this._box2DBody, value);
     }
 
     /**
@@ -345,66 +253,75 @@ export class RigidBody extends Component {
 
     set bullet(value: boolean) {
         this._bullet = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_bullet(this._body, value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_bullet(this._box2DBody, value);
     }
 
-    set position(pos: Point) {
-        if (!this._body) return;
-        var factory = Physics2D.I._factory;
+    /**
+     * @zh 刚体的碰撞形状
+     * @en Collision shape of the rigid body
+     */
+    public get shapes(): Physics2DShapeBase[] {
+        return this._shapes;
+    }
 
-        let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
-        factory.set_RigibBody_Transform(this._body, pos.x, pos.y, rotateValue);//重新给个setPos的接口
-        factory.set_rigidbody_Awake(this._body, true);
+    public set shapes(shapes: Physics2DShapeBase[]) {
+        if (!shapes || shapes.length == 0) return;
+        this._shapes = shapes;
+        shapes.forEach((shape) => {
+            shape.setCollider(this);
+        });
+        if (this._useAutoMass) {
+            // 根据shape自动计算质量
+            this._box2DBody && Physics2D.I._factory.retSet_rigidBody_MassData(this._box2DBody);
+        } else {
+            this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+        }
+    }
+
+    /**
+     * @zh 是否应用旧版的Collider组件的兼容方式
+     * @en Whether to use the old version of the Collider component compatibility method
+     */
+    public get applyOwnerColliderComponent(): boolean {
+        return this._applyOwnerColliderComponent;
+    }
+    public set applyOwnerColliderComponent(value: boolean) {
+        this._applyOwnerColliderComponent = value;
+    }
+
+    /**
+     * @zh 强制设置刚体的位置
+     * @en Enforce the position of a rigid body
+     */
+    set position(pos: Point) {
+        if (!this._box2DBody) return;
+        var factory = Physics2D.I._factory;
+        let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
+        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, rotateValue);//重新给个setPos的接口
+        factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
 
+    /**
+     * @zh 强制设置刚体的旋转（弧度）
+     * @en Force the rotation of the rigidbody (in radians)
+     */
     set rotation(number: number) {
-        if (!this._body) return;
+        if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        //if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
         var pos = Vector2.TEMP;
-        factory.get_RigidBody_Position(this.body, pos)
-        factory.set_RigibBody_Transform(this._body, pos.x, pos.y, number);//重新给个setPos的接口
-        factory.set_rigidbody_Awake(this._body, true);
+        factory.get_RigidBody_Position(this._box2DBody, pos);
+        pos.setValue(pos.x, pos.y);
+        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, number);//重新给个setPos的接口
+        factory.set_rigidBody_Awake(this._box2DBody, true);
         //}
         Physics2D.I._addRigidBody(this);
     }
 
     constructor() {
         super();
-        this._type = "dynamic"
-    }
-
-    /**@internal*/
-    _createBody(): void {
-        if (this._body || !this.owner) return;
-        let factory = Physics2D.I._factory;
-        var sp: Sprite = this.owner;
-        var defRigidBodyDef = new RigidBody2DInfo();
-        defRigidBodyDef.position.setValue(sp.globalTrans.x, sp.globalTrans.y);
-        defRigidBodyDef.angle = Utils.toRadian(sp.globalTrans.rotation);
-        defRigidBodyDef.allowSleep = this._allowSleep;
-        defRigidBodyDef.angularDamping = this._angularDamping;
-
-        defRigidBodyDef.bullet = this._bullet;
-        defRigidBodyDef.fixedRotation = !this._allowRotation;
-        defRigidBodyDef.gravityScale = this._gravityScale;
-        defRigidBodyDef.linearDamping = this._linearDamping;
-        defRigidBodyDef.group = this.group;
-        var obj: any = this._linearVelocity;
-        defRigidBodyDef.type = this._type;
-        if (this._type == "static") {
-            defRigidBodyDef.angularVelocity = 0;
-            defRigidBodyDef.linearVelocity.setValue(0, 0);
-        } else {
-            defRigidBodyDef.angularVelocity = this._angularVelocity;
-            if (obj && obj.x != 0 || obj.y != 0) {
-                defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
-            }
-        }
-
-        this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
-        this._needrefeshShape();
+        this._type = "dynamic";
+        this._massData = Physics2D.I._factory.createMassData();
     }
 
     /**
@@ -413,77 +330,94 @@ export class RigidBody extends Component {
      * @zh 同步刚体类型。
      */
     _updateBodyType() {
-        if (!this._body) return;
-        Physics2D.I._factory.set_rigidBody_type(this.body, this._type)
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.set_rigidBody_type(this._box2DBody, this._type)
         if (this.type == "static") {
-            Physics2D.I._removeRigidBody(this)
+            Physics2D.I._removeRigidBody(this);
         } else {
-            Physics2D.I._addRigidBody(this)
+            Physics2D.I._addRigidBody(this);
         }
     }
 
-
     /** @internal */
     _globalChangeHandler(flag: number) {
-        if (this.type != "static")
-            this._needrefeshShape();
+        this._updatePhysicsTransformToRender();
     }
 
     protected _onAwake(): void {
         this.owner.globalTrans.cache = true;
-        this._createBody();
+    }
+
+    /**
+     * @zh 更新刚体结构体的数据
+     * @returns 
+     */
+    private _setBodyDefValue(): void {
+        // 兼容模式
+        if (this._type == "static") {
+            // 静态刚体这样设置
+            let owner: Sprite = this.owner;
+            this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
+            this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+            this._bodyDef.allowSleep = false;
+            this._bodyDef.angularVelocity = 0;
+            this._bodyDef.angularDamping = 0;
+            this._bodyDef.linearDamping = 0;
+            this._bodyDef.linearVelocity.setValue(0, 0);
+
+            this._bodyDef.bullet = false;
+            this._bodyDef.fixedRotation = false;
+            this._bodyDef.gravityScale = 0;
+            return;
+        }
+
+        let owner: Sprite = this.owner;
+        this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
+        this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+        this._bodyDef.fixedRotation = !this._allowRotation;
+        this._bodyDef.allowSleep = this._allowSleep;
+        this._bodyDef.angularVelocity = this._angularVelocity;
+        this._bodyDef.angularDamping = this._angularDamping;
+        this._bodyDef.linearDamping = this._linearDamping;
+        if (this._linearVelocity.x != 0 || this._linearVelocity.y != 0) {
+            this._bodyDef.linearVelocity.setValue(this._linearVelocity.x, this._linearVelocity.y);
+        }
+        this._bodyDef.type = this._type;
+        this._bodyDef.bullet = this._bullet;
+        this._bodyDef.gravityScale = this._gravityScale;
+        this._bodyDef.group = this.group;
     }
 
     /** @internal */
     _onEnable(): void {
         this.owner.globalTrans.cache = true;
-        Physics2D.I._factory.set_RigibBody_Enable(this._body, true);
+        this._setBodyDefValue();
+        super._onEnable();
         this._updateBodyType();
-        this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
-    }
-
-    /**
-     * @internal
-     * @en Notify that the object attributes need to be updated in the next frame.
-     * @zh 通知需要更新对象属性；下一帧执行。
-     */
-    _needrefeshShape() {
-        Physics2D.I._updataRigidBodyAttribute(this);
-    }
-
-
-
-    /**
-     * @internal
-     * @en Synchronize node coordinates and rotation to the physics world. Called by the system.
-     * @zh 同步节点坐标及旋转到物理世界，由系统调用。
-     */
-    _updatePhysicsAttribute(): void {
-        var factory = Physics2D.I._factory;
-        var sp: Sprite = this.owner;
-        factory.set_RigibBody_Transform(this._body, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
-        //重新更新这么多的组件 明显有点不合理TODO
-        var comps: any[] = this.owner.getComponents(ColliderBase);
-        if (comps) {
-            for (var i: number = 0, n: number = comps.length; i < n; i++) {
-                var collider: ColliderBase = comps[i];
-                collider.rigidBody = this;
-                collider._refresh();
-            }
-            if (this._useAutoMass) {
-                // auto calc mass
-                factory.retSet_rigidBody_MassData(this._body);
-            } else {
-                factory.set_rigidbody_Mass(this._body, this._mass, this._centerofMass, this._inertia);
-            }
-            factory.set_rigidbody_Awake(this._body, true);
-            this.owner.event("shapeChange");
+        if (this.applyOwnerColliderComponent) {
+            this._colliders = this.owner.getComponents(ColliderBase) as ColliderBase[];
+            this._colliders.forEach((collider) => {
+                collider.createShape(this);
+            });
+        } else {
+            //更新shapes
+            this.shapes = this._shapes;
+        }
+        if (this.isConnectedJoint) {
+            this.owner.event("bodyCreated");
+            this.isConnectedJoint = false;
         }
     }
 
+    /**
+     * @en Get the box2DBody of the rigid body 
+     * @returns box2DBody
+     * @zh 获取刚体的box2DBody
+     * @returns box2DBody
+     */
     getBody() {
-        if (!this._body) this._onAwake();
-        return this._body;
+        if (!this._box2DBody) this._onAwake();
+        return this._box2DBody;
     }
 
     /**
@@ -496,31 +430,70 @@ export class RigidBody extends Component {
             return;
         }
         var factory = Physics2D.I._factory;
-        if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
+        if (Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody)) {
             var pos = Vector2.TEMP;
-            factory.get_RigidBody_Position(this.body, pos)
+            factory.get_RigidBody_Position(this._box2DBody, pos);
+            pos.setValue(pos.x, pos.y);
             this.owner.globalTrans.setPos(pos.x, pos.y);
-            this.owner.globalTrans.rotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+            this.owner.globalTrans.rotation = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
         }
     }
 
     /**@internal */
     _onDisable(): void {
         //添加到物理世界
-        Physics2D.I._factory.set_RigibBody_Enable(this._body, false);
         Physics2D.I._removeRigidBody(this);
-        Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
+        super._onDisable();
     }
 
     /**@internal */
     _onDestroy(): void {
         Physics2D.I._removeRigidBody(this);
-        Physics2D.I._removeRigidBodyAttribute(this);
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
         //添加到物理世界
-        this._body && Physics2D.I._factory.removeBody(this._body);
-        this._body = null;
+        this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
+        super._onDestroy();
+        Physics2D.I._factory.destroyData(this._massData);
+        this._massData = null;
+        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
+    }
+
+    /**
+     * @zh 获取刚体的自定义数据
+     * @returns 自定义数据
+     * @en Get custom data of rigid body
+     * @returns custom data
+     */
+    getUserData(): any {
+        if (!this._box2DBody) return;
+        return Physics2D.I._factory.get_rigidBody_userData(this._box2DBody);
+    }
+
+    /**
+     * @zh 获取刚体在世界坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a rigid body at a certain point in the world coordinate system, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
+     */
+    getLinearVelocityFromWorldPoint(worldPoint: Vector2): Vector2 {
+        if (!this._box2DBody) return _tempV0;
+        let velocity: any = Physics2D.I._factory.get_rigidBody_linearVelocityFromWorldPoint(this._box2DBody, worldPoint);
+        _tempV0.x = velocity.x;
+        _tempV0.y = velocity.y;
+        return _tempV0;
+    }
+
+    /**
+     * @zh 获取刚体在局部坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a point on a rigid body in local coordinates, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
+     */
+    getLinearVelocityFromLocalPoint(localPoint: Vector2): Vector2 {
+        if (!this._box2DBody) return _tempV0;
+        let velocity: any = Physics2D.I._factory.get_rigidBody_linearVelocityFromLocalPoint(this._box2DBody, localPoint);
+        _tempV0.x = velocity.x;
+        _tempV0.y = velocity.y;
+        return _tempV0;
     }
 
     /**
@@ -532,8 +505,8 @@ export class RigidBody extends Component {
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
      */
     applyForce(position: IV2, force: IV2): void {
-        if (!this._body) return;
-        Physics2D.I._factory.rigidBody_applyForce(this._body, force, position);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidBody_applyForce(this._box2DBody, force, position);
     }
 
     /**
@@ -543,8 +516,8 @@ export class RigidBody extends Component {
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
      */
     applyForceToCenter(force: IV2): void {
-        if (!this._body) return;
-        Physics2D.I._factory.rigidBody_applyForceToCenter(this._body, force);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidBody_applyForceToCenter(this._box2DBody, force);
     }
 
     /**
@@ -556,8 +529,8 @@ export class RigidBody extends Component {
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
      */
     applyLinearImpulse(position: IV2, impulse: IV2): void {
-        if (!this._body) return;
-        Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._body, impulse, position);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._box2DBody, impulse, position);
     }
 
     /**
@@ -567,8 +540,19 @@ export class RigidBody extends Component {
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
      */
     applyLinearImpulseToCenter(impulse: IV2): void {
-        if (!this._body) return;
-        Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._body, impulse);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._box2DBody, impulse);
+    }
+
+    /**
+     * @zh 施加角速度冲量
+     * @param impulse 角速度冲量
+     * @en Apply angular velocity impulse
+     * @param impulse angular impulse
+     */
+    applyAngularImpulse(impulse: number): void {
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidbody_ApplyAngularImpulse(this._box2DBody, impulse);
     }
 
     /**
@@ -578,8 +562,8 @@ export class RigidBody extends Component {
      * @param torque 施加的扭矩。
      */
     applyTorque(torque: number): void {
-        if (!this._body) return;
-        Physics2D.I._factory.rigidbody_applyTorque(this._body, torque);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.rigidbody_applyTorque(this._box2DBody, torque);
     }
 
     /**
@@ -589,8 +573,8 @@ export class RigidBody extends Component {
      * @param velocity 要设置的速度。
      */
     setVelocity(velocity: IV2): void {
-        if (!this._body) return;
-        Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, velocity);
+        if (!this._box2DBody) return;
+        Physics2D.I._factory.set_rigidBody_linearVelocity(this._box2DBody, velocity);
     }
 
     /**
@@ -600,10 +584,10 @@ export class RigidBody extends Component {
      * @param value 角度值，单位为度。
      */
     setAngle(value: number): void {
-        if (!this._body) return;
+        if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        factory.set_RigibBody_Transform(this._body, this.owner.globalTrans.x, this.owner.globalTrans.y, value);
-        factory.set_rigidbody_Awake(this._body, true);
+        factory.set_RigibBody_Transform(this._box2DBody, this.owner.globalTrans.x, this.owner.globalTrans.y, value);
+        factory.set_rigidBody_Awake(this._box2DBody, true);
     }
 
     /**
@@ -611,7 +595,7 @@ export class RigidBody extends Component {
      * @zh 获得刚体质量。
      */
     getMass(): number {
-        return this._body ? Physics2D.I._factory.get_rigidbody_Mass(this._body) : 0;
+        return this._box2DBody ? Physics2D.I._factory.get_rigidBody_Mass(this._box2DBody) : 0;
     }
 
     /**
@@ -619,7 +603,10 @@ export class RigidBody extends Component {
      * @zh 获得质心相对于节点 (0, 0) 点的位置偏移。
      */
     getCenter(): IV2 {
-        return this._body ? Physics2D.I._factory.get_rigidBody_Center(this._body) : null;
+        let center = this._box2DBody ? Physics2D.I._factory.get_rigidBody_Center(this._box2DBody) : null;
+        center.x = center.x;
+        center.y = center.y;
+        return center;
     }
 
     /**
@@ -628,8 +615,8 @@ export class RigidBody extends Component {
      * @returns 
      */
     getInertia(): number {
-        if (!this._body) this._onAwake();
-        return Physics2D.I._factory.get_rigidbody_Inertia(this._body);
+        if (!this._box2DBody) return this._inertia;
+        return Physics2D.I._factory.get_rigidBody_Inertia(this._box2DBody);
     }
 
     /**
@@ -637,7 +624,10 @@ export class RigidBody extends Component {
      * @zh 获得质心的世界坐标，相对于 Physics2D.I.worldRoot 节点。
      */
     getWorldCenter(): IV2 {
-        return this._body ? Physics2D.I._factory.get_rigidBody_WorldCenter(this._body) : null;
+        let center = this._box2DBody ? Physics2D.I._factory.get_rigidBody_WorldCenter(this._box2DBody) : null;
+        center.x = center.x;
+        center.y = center.y;
+        return center;
     }
 
     /**

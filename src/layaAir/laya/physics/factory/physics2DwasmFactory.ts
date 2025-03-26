@@ -1,12 +1,8 @@
-
-import { ILaya } from "../../../ILaya";
 import { IV2, Vector2 } from "../../maths/Vector2";
-import { FixtureBox2DDef, IPhysiscs2DFactory, physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef, PhysicsShape, RigidBody2DInfo } from "../IPhysiscs2DFactory";
 import { Physics2D } from "../Physics2D";
-import { Physics2DOption } from "../Physics2DOption";
-import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
-import { Browser } from "../../utils/Browser";
 import { Laya } from "../../../Laya";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
+import { Box2DShapeDef, box2DWorldDef, Ebox2DType, EPhysics2DJoint, EPhysics2DShape, FilterData, IPhysics2DFactory, physics2D_BaseJointDef, physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef, RigidBody2DInfo } from "./IPhysics2DFactory";
 
 const b2_maxFloat = 1E+37;
 
@@ -14,154 +10,14 @@ const b2_maxFloat = 1E+37;
  * @en Implements Box2D c++ version 2.4.1
  * @zh 实现Box2D c++ 2.4.1 版本
  */
-export class physics2DwasmFactory implements IPhysiscs2DFactory {
+export class physics2DwasmFactory implements IPhysics2DFactory {
+    worldMap: Map<number, Physics2DWorldManager> = new Map();
+    worldCount: number = 0;
     private _tempVe21: any;
     private _tempVe22: any;
-    private _massData: any;
 
     /**@internal box2D Engine */
     _box2d: any;
-
-    /**@internal box2D world */
-    _world: any;
-
-    /**@internal  */
-    _debugDraw: Physics2DDebugDraw;
-
-    /**@internal  */
-    private _jsDraw: any;
-
-    /**
-     * @internal
-     * @en Velocity iterations, increasing the number will improve accuracy but reduce performance.
-     * @zh 速度迭代次数，增大数字会提高精度，但是会降低性能。
-     */
-    _velocityIterations: number = 8;
-
-    /**
-     * @internal
-     * @en Position iterations, increasing the number will improve accuracy but reduce performance.
-     * @zh 位置迭代次数，增大数字会提高精度，但是会降低性能。
-     */
-    _positionIterations: number = 3;
-
-    /**
-     * @internal
-     * @en Conversion ratio from pixels to meters
-     * @zh 像素转换米的转换比率
-     */
-    _PIXEL_RATIO: number;
-
-    /**
-     * @internal
-     * @en Conversion ratio from meters to pixels
-     * @zh 米转换像素的转换比率
-     */
-    _Re_PIXEL_RATIO: number;
-
-
-    /**@internal  */
-    protected _tempDistanceJointDef: any;
-
-    /**@internal  */
-    protected _tempGearJoinDef: any;
-
-    /**@internal  */
-    protected _tempPulleyJointDef: any;
-
-    /**@internal  */
-    protected _tempWheelJointDef: any;
-
-    /**@internal  */
-    protected _tempWeldJointDef: any;
-
-    /**@internal  */
-    protected _tempMouseJointDef: any;
-
-    /**@internal  */
-    protected _tempRevoluteJointDef: any;
-
-    /**@internal  */
-    protected _tempMotorJointDef: any;
-
-    /**@internal  */
-    protected _tempPrismaticJointDef: any;
-
-    /**@internal  */
-    protected _tempPolygonShape: any;
-    /**@internal  */
-    protected _tempChainShape: any;
-    /**@internal  */
-    protected _tempCircleShape: any;
-    /**@internal  */
-    protected _tempEdgeShape: any;
-    /**@internal  */
-    protected _tempWorldManifold: any;
-
-
-
-    /** 
-     * @internal
-     * @en The flag for drawing nothing.
-     * @zh 不绘制任何内容的标志。
-     */
-    get drawFlags_none(): number {
-        return 0;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing shapes.
-     * @zh 绘制形状的标志。
-     */
-    get drawFlags_shapeBit(): number {
-        return this._box2d.b2Draw.e_shapeBit;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing joints.
-     * @zh 绘制关节的标志。
-     */
-    get drawFlags_jointBit(): number {
-        return this._box2d.b2Draw.e_jointBit;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing AABBs.
-     * @zh 绘制包围盒的标志。
-     */
-    get drawFlags_aabbBit(): number {
-        return this._box2d.b2Draw.e_aabbBit;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing pairs.
-     * @zh 绘制碰撞对的标志。
-     */
-    get drawFlags_pairBit(): number {
-        return this._box2d.b2Draw.e_pairBit;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing the center of mass.
-     * @zh 绘制质心的标志。
-     */
-    get drawFlags_centerOfMassBit(): number {
-        return this._box2d.b2Draw.e_centerOfMassBit;
-    }
-
-    /** 
-     * @internal
-     * @en The flag for drawing all debug information.
-     * @zh 绘制所有调试信息的标志。
-     */
-    get drawFlags_all(): number {
-        return 63;
-    }
 
     /** 
      * @internal
@@ -173,136 +29,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @internal
-     * @en The box2d world instance.
-     * @zh box2d世界实例。
-     */
-    get world(): any {
-        return this._world;
-    }
-
-    /** 
-     * @internal
-     * @en The debug draw instance.
-     * @zh 调试绘制实例。
-     */
-    get debugDraw(): Physics2DDebugDraw {
-        return this._debugDraw;
-    }
-
-    /** 
-     * @internal
-     * @en The ratio for converting physical length to pixel length.
-     * @zh 物理长度转换为像素长度的比率。
-     */
-    get PIXEL_RATIO(): number {
-        return this._PIXEL_RATIO;
-    }
-
-    /** 
-     * @internal
-     * @en The velocity iterations.
-     * @zh 速度迭代次数。
-     */
-    get velocityIterations(): number {
-        return this._velocityIterations;
-    }
-
-    /** 
-     * @internal
-     * @en The position iterations.
-     * @zh 位置迭代次数。
-     */
-    get positionIterations(): number {
-        return this._positionIterations;
-    }
-
-    /** 
-     * @internal
-     * @en The gravity environment of the physical world, default value is {x:0, y:1}.
-     * If you modify the gravity direction to be upward on the y-axis, you can directly set gravity.y = -1.
-     * @zh 物理世界重力环境，默认值为{x:0, y:1}。
-     * 如果修改y方向重力方向向上，可以直接设置gravity.y = -1。
-     */
-    get gravity(): any {
-        return this.world.GetGravity();
-    }
-
-    set gravity(value: Vector2) {
-        var gravity: any = this.createPhyVec2(value.x, value.y);//TODO 全局设置，不必New
-        this.world.SetGravity(gravity);
-    }
-
-    /**
-     * @internal
-     * @en Whether to allow sleeping. Sleeping can improve stability and performance, but usually sacrifices accuracy.
-     * @zh 是否允许休眠。休眠可以提高稳定性和性能，但通常会牺牲准确性。
-     */
-    get allowSleeping(): boolean {
-        return this.world.GetAllowSleeping();
-    }
-
-    set allowSleeping(value: boolean) {
-        this.world.SetAllowSleeping(value);
-    }
-
-
-    /**
-     * @internal
-     * @en The total number of rigid bodies.
-     * @zh 刚体总数量。
-     */
-    get bodyCount(): number {
-        return this.world.GetBodyCount();
-    }
-
-    /**
-     * @internal
-     * @en The total number of contacts.
-     * @zh 碰撞总数量。
-     */
-    get contactCount(): number {
-        return this.world.GetContactCount();
-    }
-
-    /**
-     * @internal
-     * @en The total number of joints.
-     * @zh 关节总数量。
-     */
-    get jointCount(): number {
-        return this.world.GetJointCount();
-    }
-
-
-    /**
-     * @internal
-     * @en Convert render system data to physical system data.
-     * @param value The value to convert (unit: pixels).
-     * @returns The converted value (unit: meters).
-     * @zh 渲染系统数据转换为物理系统数据。
-     * @param value 要转换的值（单位：像素）。
-     * @returns 转换后的值（单位：米）。
-     */
-    layaToPhyValue(value: number): number {
-        return value * this._Re_PIXEL_RATIO;
-    }
-
-    /**
-     * @internal
-     * @en Convert physical system data to render system data.
-     * @param value The value to convert (unit: meters).
-     * @returns The converted value (unit: pixels).
-     * @zh 物理系统数据转换为渲染系统数据。
-     * @param value 要转换的值（单位：米）。
-     * @returns 转换后的值（单位：像素）。
-     */
-    phyToLayaValue(value: number): number {
-        return value * this.PIXEL_RATIO;
-    }
-
-    /** 
-     * @internal
      * @en Create a Vec2 object in the physical system.
      * @param x The x-coordinate (unit: meters).
      * @param y The y-coordinate (unit: meters).
@@ -314,17 +40,40 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return new this.box2d.b2Vec2(x, y);
     }
 
-    /** 
-     * @internal
-     * @en Create a Vec2 object in the physical system from Laya coordinates.
-     * @param x The x-coordinate (unit: pixels).
-     * @param y The y-coordinate (unit: pixels).
-     * @zh 从Laya坐标创建物理系统的Vec2对象。
-     * @param x x坐标（单位：像素）。
-     * @param y y坐标（单位：像素）。
-     */
-    createPhyFromLayaVec2(x: number, y: number): any {
-        return new this.box2d.b2Vec2(this.layaToPhyValue(x), this.layaToPhyValue(y));
+    createPhyFromLayaVec2(world: any, x: number, y: number): any {
+        return new this.box2d.b2Vec2(this.convertLayaValueToPhysics(world, x), this.convertLayaValueToPhysics(world, y));
+    }
+
+    convertLayaValueToPhysics(world: any, value: number): number {
+        let _rePixelRatio: number = 1 / world._pixelRatio;
+        value = value * _rePixelRatio;
+        return value;
+    }
+
+    convertPhysicsValueToLaya(world: any, value: number): number {
+        let _pixelRatio: number = world._pixelRatio;
+        value = value * _pixelRatio;
+        return value;
+    }
+
+    createBox2DDraw(world: any, flag: number): any {
+        let jsDraw = new this.box2d.JSDraw();
+        jsDraw.SetFlags(flag);
+        world.SetDebugDraw(jsDraw);
+        return jsDraw;
+    }
+
+    shiftOrigin(world: any, newOrigin: Vector2): void {
+        if (!world) console.warn("shiftOrigin world is null");
+        world.ShiftOrigin({ x: newOrigin.x, y: newOrigin.y });
+    }
+
+    appendFlags(jsDraw: any, flags: number): void {
+        if (jsDraw) jsDraw.AppendFlags(flags);
+    }
+
+    clearFlags(jsDraw: any, flags: number): void {
+        if (jsDraw) jsDraw.ClearFlags(flags);
     }
 
     /**
@@ -337,8 +86,70 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return (window as any).Box2D().then((box2d: any) => {
             this._box2d = box2d;
             this._box2d.b2LinearStiffness = this.b2LinearStiffness;
+            this._tempVe21 = new this.box2d.b2Vec2();
+            this._tempVe22 = new this.box2d.b2Vec2();
             return Promise.resolve();
         });
+    }
+
+    createWorld(worldDef: box2DWorldDef): any {
+        let gravity = this.createPhyVec2(worldDef.gravity.x, worldDef.gravity.y)
+        let world: any = new this._box2d.b2World(gravity);
+        world.destroyed = false;
+        return world;
+    }
+
+    allowWorldSleep(world: any, allowSleep: boolean): void {
+        world.SetAllowSleeping(allowSleep);
+    }
+
+    clearForces(world: any): void {
+        world.ClearForces();
+    }
+
+    QueryAABB(world: any, jsquerycallback: any, bounds: any): void {
+        world.QueryAABB(jsquerycallback, bounds);
+    }
+
+    RayCast(world: any, jsraycastcallback: any, startPoint: Vector2, endPoint: Vector2): void {
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, startPoint.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, startPoint.y);
+
+        this._tempVe22.x = this.convertLayaValueToPhysics(world, endPoint.x);
+        this._tempVe22.y = this.convertLayaValueToPhysics(world, endPoint.y);
+        world.RayCast(jsraycastcallback, this._tempVe21, this._tempVe22);
+
+    }
+
+    shapeCast(): void {
+        //TODO
+    }
+
+    getBodyList(world: any): any[] {
+        let bodyList: any = world.GetBodyList();
+        return bodyList;
+    }
+
+    getBodyCount(world: any): number {
+        return world.GetBodyCount();
+    }
+
+    getJointList(world: any): any[] {
+        let jointList: any = world.GetJointList();
+        return jointList;
+    }
+
+    getJointCount(world: any): number {
+        return world.GetJointCount();
+    }
+
+    getContactList(world: any): any[] {
+        let contactList: any = world.GetContactList();
+        return contactList;
+    }
+
+    getContactCount(world: any): number {
+        return world.GetContactCount();
     }
 
     /**
@@ -346,128 +157,20 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @zh 创建Box2D世界。
      */
     start() {
-        if (this._world) return;
-        this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;
-        this._Re_PIXEL_RATIO = 1 / this._PIXEL_RATIO;
-        var gravity: any = this.createPhyVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
-        this._world = new this.box2d.b2World(gravity);
-        this._world.destroyed = false;
-
-        this._tempVe21 = new this.box2d.b2Vec2();
-        this._tempVe22 = new this.box2d.b2Vec2();
-        this._massData = new this.box2d.b2MassData();
-
-        this._tempPolygonShape = new this.box2d.b2PolygonShape();
-        this._tempChainShape = new this.box2d.b2ChainShape();
-        this._tempCircleShape = new this.box2d.b2CircleShape();
-        this._tempEdgeShape = new this.box2d.b2EdgeShape();
-
-        this._tempDistanceJointDef = new this.box2d.b2DistanceJointDef();
-        this._tempGearJoinDef = new this.box2d.b2GearJointDef();
-        this._tempPulleyJointDef = new this.box2d.b2PulleyJointDef();
-        this._tempWheelJointDef = new this.box2d.b2WheelJointDef();
-        this._tempWeldJointDef = new this.box2d.b2WeldJointDef();
-        this._tempMouseJointDef = new this.box2d.b2MouseJointDef();
-        this._tempRevoluteJointDef = new this.box2d.b2RevoluteJointDef();
-        this._tempMotorJointDef = new this.box2d.b2MotorJointDef();
-        this._tempPrismaticJointDef = new this.box2d.b2PrismaticJointDef();
-        this._tempWorldManifold = new this.box2d.b2WorldManifold();
-
-        this.world.SetDestructionListener(this.getDestructionListener());
-        this.world.SetContactListener(this.getContactListener());
-        this.allowSleeping = Physics2DOption.allowSleeping == null ? true : Physics2DOption.allowSleeping;
-        this._velocityIterations = Physics2DOption.velocityIterations;
-        this._positionIterations = Physics2DOption.positionIterations;
     }
 
-    /**
-     * @internal
-     * @en Destroy the Box2D world.
-     * @zh 销毁Box2D世界。
-     */
-    destroyWorld() {
-        if (this._tempVe21) {
-            this.destory(this._tempVe21);
-            this._tempVe21 = null;
-        }
-        if (this._tempVe22) {
-            this.destory(this._tempVe22);
-            this._tempVe22 = null;
-        }
-
-        if (this._massData) {
-            this.destory(this._massData);
-            this._massData = null;
-        }
-
-        if (this._tempPolygonShape) {
-            this.destory(this._tempPolygonShape);
-            this._tempPolygonShape = null;
-        }
-        if (this._tempChainShape) {
-            this.destory(this._tempChainShape);
-            this._tempChainShape = null;
-        }
-        if (this._tempCircleShape) {
-            this.destory(this._tempCircleShape);
-            this._tempCircleShape = null;
-        }
-        if (this._tempEdgeShape) {
-            this.destory(this._tempEdgeShape);
-            this._tempEdgeShape = null;
-        }
-
-        if (this._tempDistanceJointDef) {
-            this.destory(this._tempDistanceJointDef);
-            this._tempDistanceJointDef = null;
-        }
-        if (this._tempGearJoinDef) {
-            this.destory(this._tempGearJoinDef);
-            this._tempGearJoinDef = null;
-        }
-        if (this._tempPulleyJointDef) {
-            this.destory(this._tempPulleyJointDef);
-            this._tempPulleyJointDef = null;
-        }
-        if (this._tempWheelJointDef) {
-            this.destory(this._tempWheelJointDef);
-            this._tempWheelJointDef = null;
-        }
-        if (this._tempWeldJointDef) {
-            this.destory(this._tempWeldJointDef);
-            this._tempWeldJointDef = null;
-        }
-        if (this._tempMouseJointDef) {
-            this.destory(this._tempMouseJointDef);
-            this._tempMouseJointDef = null;
-        }
-        if (this._tempRevoluteJointDef) {
-            this.destory(this._tempRevoluteJointDef);
-            this._tempRevoluteJointDef = null;
-        }
-        if (this._tempMotorJointDef) {
-            this.destory(this._tempMotorJointDef);
-            this._tempMotorJointDef = null;
-        }
-        if (this._tempPrismaticJointDef) {
-            this.destory(this._tempPrismaticJointDef);
-            this._tempPrismaticJointDef = null;
-        }
-
-        if (this._tempWorldManifold) {
-            this.destory(this._tempWorldManifold);
-            this._tempWorldManifold = null;
-        }
-
-        if (this._world) {
-            this.box2d.destroy(this._world)
-            this._world.destroyed = true;
-            this._world = null;
-        }
-        this._jsDraw = null;
-        if (this._debugDraw) {
-            this._debugDraw.removeSelf()
-            this._debugDraw = null
+    destroyWorld(world: any) {
+        if (world) {
+            if (this.getBodyCount(world) != 0) {
+                console.warn("There's still have body in box2DWorld, can not destroy");
+                return;
+            }
+            if (this.getJointCount(world) != 0) {
+                console.warn("There's still have joint in box2DWorld, can not destroy");
+                return;
+            }
+            this.box2d.destroy(world);
+            world.destroyed = true;
         }
     }
 
@@ -478,203 +181,224 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param delta 时间步长。
      */
     update(delta: number): void {
-
         //set Physics Position from Engine TODO
-        this._world & this._world.Step(delta, this.velocityIterations, this.positionIterations, 3);
+        for (let i = 0; i <= Physics2D.I._factory.worldCount; i++) {
+            let world = this.worldMap.get(i);
+            if (!world) continue;
+            let bodyCount = this.getBodyCount(world.box2DWorld);
+            if (bodyCount <= 0) continue;
+            let velocityIterations = world.getVelocityIterations();
+            let positionIterations = world.getPositionIterations();
+            // preStep 处理
 
+            //2.4
+            world.box2DWorld.Step(delta, velocityIterations, positionIterations);
+
+            // afterStep 处理
+            world.sendEvent();
+
+        }
+        // this._world & this._world.Step(delta, this.velocityIterations, this.positionIterations, 3);
         //set engine Position from Phyiscs TODO
     }
 
-    /**
-     * @en Send physics event.
-     * @param type The event type.
-     * @param contact The contact object.
-     * @zh 发送物理事件。
-     * @param type 事件类型。
-     * @param contact 碰撞对象。
-     */
-    sendEvent(type: string, contact: any): void {
-        if (contact.GetFixtureA() == null || contact.GetFixtureB() == null) {
-            return;
+
+    createJointDef(world: any, type: EPhysics2DJoint, def: physics2D_BaseJointDef): any {
+        if (!world) console.warn("createJointDef world is null");
+        var jointDef: any;
+        switch (type) {
+            case EPhysics2DJoint.DistanceJoint:
+                jointDef = new this.box2d.b2DistanceJointDef();
+                jointDef.bodyA = def.bodyA;
+                jointDef.bodyB = def.bodyB;
+                jointDef.localAnchorA.Set(this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).localAnchorA.x), this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).localAnchorA.y));
+                jointDef.localAnchorB.Set(this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).localAnchorB.x), this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).localAnchorB.y));
+
+                this.b2LinearStiffness(jointDef, (def as physics2D_DistancJointDef).frequency, (def as physics2D_DistancJointDef).dampingRatio, jointDef.bodyA, jointDef.bodyB);
+                jointDef.set_collideConnected((def as physics2D_DistancJointDef).collideConnected);
+
+                if ((def as physics2D_DistancJointDef).length > 0) {
+                    jointDef.length = this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).length);
+                } else {
+                    var p1: any = jointDef.bodyA.GetWorldPoint(jointDef.localAnchorA);
+                    let data = { x: p1.x, y: p1.y };
+                    var p2: any = jointDef.bodyB.GetWorldPoint(jointDef.localAnchorB);
+                    jointDef.length = this.getVec2Length(data, p2);
+                }
+
+                if ((def as physics2D_DistancJointDef).maxLength > 0)
+                    jointDef.maxLength = this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).maxLength);
+                else
+                    jointDef.maxLength = b2_maxFloat;
+
+                if ((def as physics2D_DistancJointDef).minLength > 0)
+                    jointDef.minLength = this.convertLayaValueToPhysics(world, (def as physics2D_DistancJointDef).minLength);
+                else
+                    jointDef.minLength = 0;
+
+                break;
+            case EPhysics2DJoint.RevoluteJoint:
+                jointDef = new this.box2d.b2RevoluteJointDef();
+                let revoluteAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_RevoluteJointDef).anchor.x, (def as physics2D_RevoluteJointDef).anchor.y);
+                jointDef.Initialize((def as physics2D_RevoluteJointDef).bodyA, (def as physics2D_RevoluteJointDef).bodyB, revoluteAnchorVec);
+                jointDef.enableMotor = (def as physics2D_RevoluteJointDef).enableMotor;
+                jointDef.motorSpeed = (def as physics2D_RevoluteJointDef).motorSpeed;
+                jointDef.maxMotorTorque = (def as physics2D_RevoluteJointDef).maxMotorTorque;
+                jointDef.enableLimit = (def as physics2D_RevoluteJointDef).enableLimit;
+                jointDef.lowerAngle = (def as physics2D_RevoluteJointDef).lowerAngle;
+                jointDef.upperAngle = (def as physics2D_RevoluteJointDef).upperAngle;
+                jointDef.collideConnected = (def as physics2D_RevoluteJointDef).collideConnected;
+                break;
+            case EPhysics2DJoint.GearJoint:
+                jointDef = new this.box2d.b2GearJointDef();
+                jointDef.bodyA = (def as physics2D_GearJointDef).bodyA;
+                jointDef.bodyB = (def as physics2D_GearJointDef).bodyB;
+                jointDef.joint1 = (def as physics2D_GearJointDef).joint1;
+                jointDef.joint2 = (def as physics2D_GearJointDef).joint2;
+                jointDef.ratio = (def as physics2D_GearJointDef).ratio;
+                jointDef.collideConnected = (def as physics2D_GearJointDef).collideConnected;
+                break;
+
+            case EPhysics2DJoint.PulleyJoint:
+                jointDef = new this.box2d.b2PulleyJointDef();
+                let groundVecA = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).groundAnchorA.x, (def as physics2D_PulleyJointDef).groundAnchorA.y);
+                let groundVecB = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).groundAnchorB.x, (def as physics2D_PulleyJointDef).groundAnchorB.y);
+                let anchorVecA = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).localAnchorA.x, (def as physics2D_PulleyJointDef).localAnchorA.y);
+                let anchorVecB = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).localAnchorB.x, (def as physics2D_PulleyJointDef).localAnchorB.y);
+                jointDef.Initialize((def as physics2D_PulleyJointDef).bodyA, (def as physics2D_PulleyJointDef).bodyB, groundVecA, groundVecB, anchorVecA, anchorVecB, (def as physics2D_PulleyJointDef).ratio);
+                jointDef.collideConnected = (def as physics2D_PulleyJointDef).collideConnected;
+                break;
+
+            case EPhysics2DJoint.WheelJoint:
+                jointDef = new this.box2d.b2WheelJointDef();
+                let anchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_WheelJointDef).anchor.x, (def as physics2D_WheelJointDef).anchor.y);
+                let wheelAxis = this.createPhyVec2((def as physics2D_WheelJointDef).axis.x, (def as physics2D_WheelJointDef).axis.y);
+                jointDef.Initialize((def as physics2D_WheelJointDef).bodyA, (def as physics2D_WheelJointDef).bodyB, anchorVec, wheelAxis);
+                jointDef.enableMotor = (def as physics2D_WheelJointDef).enableMotor;
+                jointDef.motorSpeed = (def as physics2D_WheelJointDef).motorSpeed;
+                jointDef.maxMotorTorque = (def as physics2D_WheelJointDef).maxMotorTorque;
+                this.b2LinearStiffness(jointDef, (def as physics2D_WheelJointDef).frequency, (def as physics2D_WheelJointDef).dampingRatio, jointDef.bodyA, jointDef.bodyB);
+                jointDef.collideConnected = (def as physics2D_WheelJointDef).collideConnected;
+                jointDef.enableLimit = (def as physics2D_WheelJointDef).enableLimit;
+                jointDef.lowerTranslation = this.convertLayaValueToPhysics(world, (def as physics2D_WheelJointDef).lowerTranslation);
+                jointDef.upperTranslation = this.convertLayaValueToPhysics(world, (def as physics2D_WheelJointDef).upperTranslation);
+                break;
+
+            case EPhysics2DJoint.WeldJoint:
+                jointDef = new this.box2d.b2WeldJointDef();
+                let weldAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_WeldJointDef).anchor.x, (def as physics2D_WeldJointDef).anchor.y);
+                jointDef.Initialize((def as physics2D_WeldJointDef).bodyA, (def as physics2D_WeldJointDef).bodyB, weldAnchorVec);
+                this.b2AngularStiffness(jointDef, (def as physics2D_WeldJointDef).frequency, (def as physics2D_WeldJointDef).dampingRatio, (def as physics2D_WeldJointDef).bodyA, (def as physics2D_WeldJointDef).bodyB);
+                jointDef.collideConnected = (def as physics2D_WeldJointDef).collideConnected;
+                break;
+
+            case EPhysics2DJoint.MouseJoint:
+                jointDef = new this.box2d.b2MouseJointDef();
+                jointDef.bodyA = (def as physics2D_MouseJointJointDef).bodyA;
+                jointDef.bodyB = (def as physics2D_MouseJointJointDef).bodyB;
+                jointDef.target = this.createPhyFromLayaVec2(world, (def as physics2D_MouseJointJointDef).target.x, (def as physics2D_MouseJointJointDef).target.y);
+                jointDef.maxForce = (def as physics2D_MouseJointJointDef).maxForce * (def as physics2D_MouseJointJointDef).bodyB.GetMass();
+                jointDef.collideConnected = true;
+                this.b2LinearStiffness(jointDef, (def as physics2D_MouseJointJointDef).frequency, (def as physics2D_MouseJointJointDef).dampingRatio, (def as physics2D_MouseJointJointDef).bodyA, (def as physics2D_MouseJointJointDef).bodyB)
+                break;
+
+            case EPhysics2DJoint.MotorJoint:
+                jointDef = new this.box2d.b2MotorJointDef();
+                jointDef.Initialize((def as physics2D_MotorJointDef).bodyA, (def as physics2D_MotorJointDef).bodyB);
+                jointDef.linearOffset = this.createPhyFromLayaVec2(world, (def as physics2D_MotorJointDef).linearOffset.x, (def as physics2D_MotorJointDef).linearOffset.y);
+                jointDef.angularOffset = (def as physics2D_MotorJointDef).angularOffset;
+                jointDef.maxForce = (def as physics2D_MotorJointDef).maxForce;
+                jointDef.maxTorque = (def as physics2D_MotorJointDef).maxTorque;
+                jointDef.correctionFactor = (def as physics2D_MotorJointDef).correctionFactor;
+                jointDef.collideConnected = (def as physics2D_MotorJointDef).collideConnected;
+                break;
+
+            case EPhysics2DJoint.PrismaticJoint:
+                jointDef = new this.box2d.b2PrismaticJointDef();
+                let prismaticAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_PrismaticJointDef).anchor.x, (def as physics2D_PrismaticJointDef).anchor.y);
+                let axis = this.createPhyVec2((def as physics2D_PrismaticJointDef).axis.x, (def as physics2D_PrismaticJointDef).axis.y);
+                jointDef.Initialize((def as physics2D_PrismaticJointDef).bodyA, (def as physics2D_PrismaticJointDef).bodyB, prismaticAnchorVec, axis);
+                jointDef.enableMotor = (def as physics2D_PrismaticJointDef).enableMotor;
+                jointDef.motorSpeed = (def as physics2D_PrismaticJointDef).motorSpeed;
+                jointDef.maxMotorForce = (def as physics2D_PrismaticJointDef).maxMotorForce;
+                jointDef.enableLimit = (def as physics2D_PrismaticJointDef).enableLimit;
+                jointDef.lowerTranslation = this.convertLayaValueToPhysics(world, (def as physics2D_PrismaticJointDef).lowerTranslation);
+                jointDef.upperTranslation = this.convertLayaValueToPhysics(world, (def as physics2D_PrismaticJointDef).upperTranslation);
+                jointDef.collideConnected = (def as physics2D_PrismaticJointDef).collideConnected;
+                break;
+            default:
+                break;
         }
-        let colliderA: any = contact.GetFixtureA().collider;
-        let colliderB: any = contact.GetFixtureB().collider;
-        if (colliderA == null || colliderB == null) {
-            return;
-        }
-        if (colliderA.destroyed || colliderB.destroyed) {
-            return;
-        }
-        let ownerA: any = colliderA.owner;
-        let ownerB: any = colliderB.owner;
-        let __this = this;
-        contact.getHitInfo = function (): any {
-            var manifold: any = __this._tempWorldManifold;
-            this.GetWorldManifold(manifold);
-            //第一点？
-            let p: any = manifold.points;
-            p.x = __this.phyToLayaValue(p.x);
-            p.y = __this.phyToLayaValue(p.y);
-            return manifold;
-        }
-        if (ownerA) {
-            var args: any[] = [colliderB, colliderA, contact];
-            ownerA.event(type, args);
-        }
-        if (ownerB) {
-            args = [colliderA, colliderB, contact];
-            ownerB.event(type, args);
-        }
+
+        return jointDef;
     }
 
-    /**
-     * @internal
-     * @en Create physics draw.
-     * @zh 创建物理绘制。
-     */
-    createDebugDraw(flags: number) {
-        if (this._debugDraw) return;
-        this._debugDraw = new Physics2DDebugDraw(this);
-        ILaya.stage.addChild(this._debugDraw);
-        this._debugDraw.zOrder = 1000;
+    createJoint(world: any, type: EPhysics2DJoint, def: any): any {
+        if (!world) console.warn("createJoint world is null");
+        let joint: any;
+        switch (type) {
+            case EPhysics2DJoint.DistanceJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2DistanceJoint);
+                break;
 
-        if (this._jsDraw == null) {
-            var jsDraw = this._jsDraw = new this.box2d.JSDraw();
-            jsDraw.SetFlags(flags);
-            jsDraw.DrawSegment = this.DrawSegment.bind(this);
-            jsDraw.DrawPolygon = this.DrawPolygon.bind(this);
-            jsDraw.DrawSolidPolygon = this.DrawSolidPolygon.bind(this);
-            jsDraw.DrawCircle = this.DrawCircle.bind(this);
-            jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
-            jsDraw.DrawTransform = this.DrawTransform.bind(this);
-            jsDraw.DrawPoint = this.DrawPoint.bind(this);
-            jsDraw.DrawAABB = this.DrawAABB.bind(this);
+            case EPhysics2DJoint.RevoluteJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2RevoluteJoint);
+                break;
+
+            case EPhysics2DJoint.GearJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2GearJoint);
+                break;
+
+            case EPhysics2DJoint.PulleyJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2PulleyJoint);
+                break;
+
+            case EPhysics2DJoint.WheelJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2WheelJoint);
+                break;
+
+            case EPhysics2DJoint.WeldJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2WeldJoint);
+                break;
+
+            case EPhysics2DJoint.MouseJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2MouseJoint);
+                break;
+
+            case EPhysics2DJoint.MotorJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2MotorJoint);
+                break;
+
+            case EPhysics2DJoint.PrismaticJoint:
+                joint = this._createBox2DJoint(world, def, this._box2d.b2PrismaticJoint);
+                break;
+
+            default:
+                break;
         }
-
-        this.world.SetDebugDraw(this._jsDraw);
+        joint.bodyA = def.bodyA;
+        joint.bodyB = def.bodyB;
+        return joint;
     }
 
-    /**
-     * @internal
-     * @en Remove physics debug draw.
-     * @zh 删除物理绘制。
-     */
-    removeDebugDraw() {
-        if (!this._debugDraw) return;
-        this.world.SetDebugDraw(null);
-        this._debugDraw.removeSelf()
-        this._debugDraw.destroy()
-        this._debugDraw = null;
+    removeJoint(world: any, joint: any): void {
+        if (joint && world && !world.destroyed && !joint.bodyA.destroyed && !joint.bodyB.destroyed)
+            world.DestroyJoint(joint);
     }
 
-    /**
-     * @internal
-     * @en Update display data.
-     * @zh 更新显示数据。
-     */
-    setDebugFlag(flags: number): void {
-        if (this._jsDraw) this._jsDraw.SetFlags(flags);
-    }
-
-    /**
-     * @internal
-     * @en Show marks
-     * @zh 显示标记
-     */
-    appendFlags(flags: number): void {
-        if (this._jsDraw) this._jsDraw.AppendFlags(flags);
-    }
-
-    /**
-     * @internal
-     * @en Clear marks
-     * @zh 清除标记
-     */
-    clearFlags(flags: number): void {
-        if (this._jsDraw) this._jsDraw.ClearFlags(flags);
-    }
-
-    /**
-     * @internal
-     * @en Shift the physics world origin.
-     * @param x The x-coordinate shift (unit: pixels).
-     * @param y The y-coordinate shift (unit: pixels).
-     * @zh 移动物理世界原点。
-     * @param x x轴偏移量（单位：像素）。
-     * @param y y轴偏移量（单位：像素）。
-     */
-    shiftOrigin(x: number, y: number) {
-        this._world & this.world.ShiftOrigin({ x: x, y: y });
-    }
-
-    /**
-     * @en Create a Box2D body.
-     * @param def The body definition.
-     * @returns The created Box2D body.
-     * @zh 创建一个Box2D刚体。
-     * @param def 刚体定义。
-     * @returns 创建的Box2D刚体。
-     */
-    createBody(def: any) {
-        if (!def) {
-            def = new this.box2d.b2BodyDef()
+    _createBox2DJoint(world: any, def: any, cls: any): any {
+        if (!world) console.warn("createJoint world is null");
+        let joint = world.CreateJoint(def);
+        if (cls != null) {
+            joint = this.castObject(joint, cls);
         }
-        def.userData = { pointer: 0 };
-        if (this.world) {
-            let body = this.world.CreateBody(def);
-            body.world = this.world;
-            return body;
-        } else {
-            console.error('The physical engine should be initialized first.use "Physics.enable()"');
-            return null;
-        }
+        joint.m_userData = {};
+        joint.world = world;
+        return joint;
     }
 
-    /**
-     * @en Remove a Box2D body.
-     * @param body The Box2D body to remove.
-     * @zh 移除一个Box2D刚体。
-     * @param body 要移除的Box2D刚体。
-     */
-    removeBody(body: any): void {
-        let world = body.world;
-        if (!world.destroyed) world.DestroyBody(body);
-    }
+    setJoint_userData(joint: any, data: any): void {
 
-    /**
-     * @en Create a Box2D joint.
-     * @param def The joint definition.
-     * @param cls The joint class (optional).
-     * @returns The created Box2D joint.
-     * @zh 创建一个Box2D关节。
-     * @param def 关节定义。
-     * @param cls 关节类（可选）。
-     * @returns 创建的Box2D关节。
-     */
-    createJoint(def: any, cls: any = null): any {
-        if (this.world) {
-            let joint = this.world.CreateJoint(def);
-            if (cls != null) {
-                joint = this.castObject(joint, cls)
-            }
-            joint.m_userData = {};
-            joint.world = this._world;
-            return joint;
-        } else {
-            console.error('The physical engine should be initialized first.use "Physics.enable()"');
-            return null;
-        }
-    }
-
-    /**
-     * @en Remove a Box2D joint.
-     * @param joint The Box2D joint to remove.
-     * @zh 移除一个Box2D关节。
-     * @param joint 要移除的Box2D关节。
-     */
-    removeJoint(joint: any): void {
-        if (joint && joint.world && !joint.world.destroyed)
-            joint.world.DestroyJoint(joint);
     }
 
     /**
@@ -784,45 +508,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         joint.SetDamping(out.damping);
     }
 
-    /**
-     * @en Create a distance joint.
-     * @param defStruct The distance joint definition.
-     * @returns The created distance joint.
-     * @zh 创建一个距离关节。
-     * @param defStruct 距离关节定义。
-     * @returns 创建的距离关节。
-     */
-    createDistanceJoint(defStruct: physics2D_DistancJointDef) {
-        const def = this._tempDistanceJointDef;
-        def.bodyA = defStruct.bodyA;
-        def.bodyB = defStruct.bodyB;
-        def.localAnchorA.Set(this.layaToPhyValue(defStruct.localAnchorA.x), this.layaToPhyValue(defStruct.localAnchorA.y));
-        def.localAnchorB.Set(this.layaToPhyValue(defStruct.localAnchorB.x), this.layaToPhyValue(defStruct.localAnchorB.y));
-
-        this.b2LinearStiffness(def, defStruct.frequency, defStruct.dampingRatio, def.bodyA, def.bodyB);
-        def.set_collideConnected(defStruct.collideConnected);
-
-        if (defStruct.length > 0) {
-            def.length = this.layaToPhyValue(defStruct.length);
-        } else {
-            var p1: any = def.bodyA.GetWorldPoint(def.localAnchorA);
-            let data = { x: p1.x, y: p1.y };
-            var p2: any = def.bodyB.GetWorldPoint(def.localAnchorB);
-            def.length = this.getVec2Length(data, p2);
-        }
-
-        if (defStruct.maxLength > 0)
-            def.maxLength = this.layaToPhyValue(defStruct.maxLength);
-        else
-            def.maxLength = b2_maxFloat;
-
-        if (defStruct.minLength > 0)
-            def.minLength = this.layaToPhyValue(defStruct.minLength);
-        else
-            def.minLength = 0;
-
-        return this.createJoint(def, this.box2d.b2DistanceJoint);
-    }
 
     /**
      * @en Set the length of a distance joint.
@@ -833,7 +518,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param length 长度。
      */
     set_DistanceJoint_length(joint: any, length: number) {
-        joint.SetLength(this.layaToPhyValue(length));
+        let world: any = joint.world;
+        joint.SetLength(this.convertLayaValueToPhysics(world, (length)));
+    }
+
+    get_DistanceJoint_length(joint: any): number {
+        let world: any = joint.world;
+        let len = joint.GetLength();
+        this.convertPhysicsValueToLaya(world, len);
+        return len;
     }
 
     /**
@@ -845,7 +538,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param length 最大长度。
      */
     set_DistanceJoint_MaxLength(joint: any, length: number) {
-        joint.SetMaxLength(this.layaToPhyValue(length));
+        let world: any = joint.world;
+        joint.SetMaxLength(this.convertLayaValueToPhysics(world, (length)));
     }
 
     /**
@@ -857,7 +551,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param length 最小长度。
      */
     set_DistanceJoint_MinLength(joint: any, length: number) {
-        joint.SetMinLength(this.layaToPhyValue(length));
+        let world: any = joint.world;
+        joint.SetMinLength(this.convertLayaValueToPhysics(world, length));
     }
 
     /**
@@ -880,25 +575,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @en Create a gear joint.
-     * @param defStruct The definition of the gear joint.
-     * @returns The created gear joint.
-     * @zh 创建齿轮关节。
-     * @param defStruct 齿轮关节定义。
-     * @returns 创建的齿轮关节。
-     */
-    create_GearJoint(defStruct: physics2D_GearJointDef): void {
-        let def = this._tempGearJoinDef;
-        def.bodyA = defStruct.bodyA;
-        def.bodyB = defStruct.bodyB;
-        def.joint1 = defStruct.joint1;
-        def.joint2 = defStruct.joint2;
-        def.ratio = defStruct.ratio;
-        def.collideConnected = defStruct.collideConnected;
-        return this.createJoint(def, this.box2d.b2GearJoint);
-    }
-
-    /** 
      * @en Set the ratio of a gear joint.
      * @param joint The gear joint.
      * @param radio The ratio to set.
@@ -908,85 +584,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_GearJoint_SetRatio(joint: any, radio: number): void {
         joint.SetRatio(radio);
-    }
-
-    /** 
-     * @en Create a pulley joint.
-     * @param defStruct The definition of the pulley joint.
-     * @returns The created pulley joint.
-     * @zh 创建滑轮关节。
-     * @param defStruct 滑轮关节定义。
-     * @returns 创建的滑轮关节。
-     */
-    create_PulleyJoint(defStruct: physics2D_PulleyJointDef): void {
-        let def = this._tempPulleyJointDef;
-        let groundVecA = this.createPhyFromLayaVec2(defStruct.groundAnchorA.x, defStruct.groundAnchorA.y);
-        let groundVecB = this.createPhyFromLayaVec2(defStruct.groundAnchorB.x, defStruct.groundAnchorB.y);
-        let anchorVecA = this.createPhyFromLayaVec2(defStruct.localAnchorA.x, defStruct.localAnchorA.y);
-        let anchorVecB = this.createPhyFromLayaVec2(defStruct.localAnchorB.x, defStruct.localAnchorB.y);
-        def.Initialize(defStruct.bodyA, defStruct.bodyB, groundVecA, groundVecB, anchorVecA, anchorVecB, defStruct.ratio);
-        def.collideConnected = defStruct.collideConnected;
-        return this.createJoint(def, this.box2d.b2PulleyJoint);
-    }
-
-    /** 
-     * @en Create a wheel joint.
-     * @param defStruct The definition of the wheel joint.
-     * @returns The created wheel joint.
-     * @zh 创建轮子关节。
-     * @param defStruct 轮子关节定义。
-     * @returns 创建的轮子关节。
-     */
-    create_WheelJoint(defStruct: physics2D_WheelJointDef) {
-        let def = this._tempWheelJointDef;
-        let anchorVec = this.createPhyFromLayaVec2(defStruct.anchor.x, defStruct.anchor.y);
-        let axis = this.createPhyVec2(defStruct.axis.x, defStruct.axis.y);
-        def.Initialize(defStruct.bodyA, defStruct.bodyB, anchorVec, axis);
-        def.enableMotor = defStruct.enableMotor;
-        def.motorSpeed = defStruct.motorSpeed;
-        def.maxMotorTorque = defStruct.maxMotorTorque;
-        this.b2LinearStiffness(def, defStruct.frequency, defStruct.dampingRatio, def.bodyA, def.bodyB);
-        def.collideConnected = defStruct.collideConnected;
-        def.enableLimit = defStruct.enableLimit;
-        def.lowerTranslation = this.layaToPhyValue(defStruct.lowerTranslation);
-        def.upperTranslation = this.layaToPhyValue(defStruct.upperTranslation);
-        return this.createJoint(def, this.box2d.b2WheelJoint);
-    }
-
-    /** 
-     * @en Create a weld joint.
-     * @param defStruct The definition of the weld joint.
-     * @returns The created weld joint.
-     * @zh 创建焊接关节。
-     * @param defStruct 焊接关节定义。
-     * @returns 创建的焊接关节。
-     */
-    create_WeldJoint(defStruct: physics2D_WeldJointDef) {
-        let def = this._tempWeldJointDef;
-        let anchorVec = this.createPhyFromLayaVec2(defStruct.anchor.x, defStruct.anchor.y);
-        def.Initialize(defStruct.bodyA, defStruct.bodyB, anchorVec);
-        this.b2AngularStiffness(def, defStruct.frequency, defStruct.dampingRatio, defStruct.bodyA, defStruct.bodyB);
-        def.collideConnected = defStruct.collideConnected;
-        return this.createJoint(def, this.box2d.b2WeldJoint);
-    }
-
-    /** 
-     * @en Create a mouse joint.
-     * @param defStruct The definition of the mouse joint.
-     * @returns The created mouse joint.
-     * @zh 创建鼠标关节。
-     * @param defStruct 鼠标关节定义。
-     * @returns 创建的鼠标关节。
-     */
-    create_MouseJoint(defStruct: physics2D_MouseJointJointDef): any {
-        let def = this._tempMouseJointDef;
-        def.bodyA = defStruct.bodyA;
-        def.bodyB = defStruct.bodyB;
-        def.target = this.createPhyFromLayaVec2(defStruct.target.x, defStruct.target.y);
-        def.maxForce = defStruct.maxForce * defStruct.bodyB.GetMass();
-        def.collideConnected = true;
-        this.b2LinearStiffness(def, defStruct.frequency, defStruct.dampingRatio, defStruct.bodyA, defStruct.bodyB)
-        return this.createJoint(def, this.box2d.b2MouseJoint);
     }
 
     /** 
@@ -1000,8 +597,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param y 目标位置的y坐标。
      */
     set_MouseJoint_target(joint: any, x: number, y: number) {
-        this._tempVe21.x = this.layaToPhyValue(x);
-        this._tempVe21.y = this.layaToPhyValue(y);
+        let world: any = joint.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, y);
         joint.SetTarget(this._tempVe21)
     }
 
@@ -1020,48 +618,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @en Create a revolute joint.
-     * @param defStruct The definition of the revolute joint.
-     * @returns The created revolute joint.
-     * @zh 创建旋转关节。
-     * @param defStruct 旋转关节定义。
-     * @returns 创建的旋转关节。
-     */
-    create_RevoluteJoint(defStruct: physics2D_RevoluteJointDef): any {
-        let def = this._tempRevoluteJointDef;
-        var anchorVec = this.createPhyFromLayaVec2(defStruct.anchor.x, defStruct.anchor.y);
-        def.Initialize(defStruct.bodyA, defStruct.bodyB, anchorVec);
-        def.enableMotor = defStruct.enableMotor;
-        def.motorSpeed = defStruct.motorSpeed;
-        def.maxMotorTorque = defStruct.maxMotorTorque;
-        def.enableLimit = defStruct.enableLimit;
-        def.lowerAngle = defStruct.lowerAngle;
-        def.upperAngle = defStruct.upperAngle;
-        def.collideConnected = defStruct.collideConnected;
-        return this.createJoint(def, this.box2d.b2RevoluteJoint);
-    }
-
-    /** 
-     * @en Create a motor joint.
-     * @param defStruct The definition of the motor joint.
-     * @returns The created motor joint.
-     * @zh 创建马达关节。
-     * @param defStruct 马达关节定义。
-     * @returns 创建的马达关节。
-     */
-    create_MotorJoint(defStruct: physics2D_MotorJointDef): any {
-        let def = this._tempMotorJointDef;
-        def.Initialize(defStruct.bodyA, defStruct.bodyB);
-        def.linearOffset = this.createPhyFromLayaVec2(defStruct.linearOffset.x, defStruct.linearOffset.y);
-        def.angularOffset = defStruct.angularOffset;
-        def.maxForce = defStruct.maxForce;
-        def.maxTorque = defStruct.maxTorque;
-        def.correctionFactor = defStruct.correctionFactor;
-        def.collideConnected = defStruct.collideConnected;
-        return this.createJoint(def, this.box2d.b2MotorJoint);
-    }
-
-    /** 
      * @en Set the linear offset of a motor joint.
      * @param joint The motor joint.
      * @param x The x-coordinate of the linear offset.
@@ -1072,7 +628,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param y 线性偏移量的y坐标。
      */
     set_MotorJoint_linearOffset(joint: any, x: number, y: number): void {
-        joint.SetLinearOffset(this.createPhyFromLayaVec2(x, y));
+        let world: any = joint.world;
+        joint.SetLinearOffset(this.createPhyFromLayaVec2(world, x, y));
     }
 
     /** 
@@ -1123,37 +680,78 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         joint.SetCorrectionFactor(correctionFactor);
     }
 
-    /** 
-     * @en Create a prismatic joint.
-     * @param def The definition of the prismatic joint.
-     * @returns The created prismatic joint.
-     * @zh 创建平移关节。
-     * @param def 平移关节定义。
-     * @returns 创建的平移关节。
-     */
-    create_PrismaticJoint(def: physics2D_PrismaticJointDef): any {
-        let tdef = this._tempPrismaticJointDef;
-        let anchorVec = this.createPhyFromLayaVec2(def.anchor.x, def.anchor.y);
-        let axis = this.createPhyVec2(def.axis.x, def.axis.y);
-        tdef.Initialize(def.bodyA, def.bodyB, anchorVec, axis);
-        tdef.enableMotor = def.enableMotor;
-        tdef.motorSpeed = def.motorSpeed;
-        tdef.maxMotorForce = def.maxMotorForce;
-        tdef.enableLimit = def.enableLimit;
-        tdef.lowerTranslation = this.layaToPhyValue(def.lowerTranslation);
-        tdef.upperTranslation = this.layaToPhyValue(def.upperTranslation);
-        tdef.collideConnected = def.collideConnected;
-        return this.createJoint(tdef, this.box2d.b2PrismaticJoint);
+
+    get_joint_recationForce(joint: any): any {
+        let force: any = joint.GetReactionForce(60);
+        return force;
+    }
+    get_joint_reactionTorque(joint: any): number {
+        let torque: number = joint.GetReactionTorque(60);
+        return torque;
+    }
+    isValidJoint(joint: any): boolean {
+        let isConnected: boolean = joint.GetCollideConnected();
+        return isConnected;
     }
 
-    /** 
-     * @en Create a box collider shape.
-     * @returns The created box collider shape.
-     * @zh 创建盒子碰撞器形状。
-     * @returns 创建的盒子碰撞器形状。
-     */
-    create_boxColliderShape() {
-        return this._tempPolygonShape;
+    createShapeDef(world: any, shapeDef: Box2DShapeDef, filter: any) {
+        let def: any = new this.box2d.b2FixtureDef();
+        def.density = shapeDef.density;
+        def.friction = shapeDef.friction;
+        def.isSensor = shapeDef.isSensor;
+        def.restitution = shapeDef.restitution;
+        def.restitutionThreshold = shapeDef.restitutionThreshold;
+        filter.groupIndex = shapeDef.filter.group;
+        filter.categoryBits = shapeDef.filter.category;
+        filter.maskBits = shapeDef.filter.mask;
+        def.filter = filter;
+        switch (shapeDef.shapeType) {
+            case EPhysics2DShape.BoxShape:
+            case EPhysics2DShape.PolygonShape:
+                let polygonShape: any = new this.box2d.b2PolygonShape();
+                def.set_shape(polygonShape);
+                break;
+            case EPhysics2DShape.ChainShape:
+                let chainShape: any = new this.box2d.b2ChainShape();
+                def.set_shape(chainShape);
+                break;
+            case EPhysics2DShape.CircleShape:
+                let circleShape: any = new this.box2d.b2CircleShape();
+                def.set_shape(circleShape);
+                break;
+            case EPhysics2DShape.EdgeShape:
+                let edgeShape: any = new this.box2d.b2EdgeShape();
+                def.set_shape(edgeShape);
+                break;
+        }
+        // 这里是要根据夹具形状转换到对应的形状指针
+        def._shape = this.get_fixtureshape(def.shape, shapeDef.shapeType);
+        def._shape.world = world;
+        def.world = world;
+        return def;
+    }
+
+    getShapeByDef(shapeDef: any, shapeType: EPhysics2DShape): any {
+        let world: any = shapeDef.world;
+        let shape = this.get_fixtureshape(shapeDef.shape, shapeType);
+        shape.world = world;
+        return shape;
+    }
+
+    createFilter() {
+        return new this._box2d.b2Filter();
+    }
+
+    createShape(world: any, body: any, shapeType: EPhysics2DShape, shapdeDef: any) {
+        let data = body.CreateFixture(shapdeDef);
+        shapdeDef.world = world;
+        shapdeDef.shapeType = shapeType;
+        data = this.castObject(data, this.box2d.b2Fixture);
+        data.world = world;
+        data.shape = this.get_fixtureshape(data.GetShape(), shapeType);
+        data.shape.world = world;
+        data.filter = data.GetFilterData();
+        return data;
     }
 
     /** 
@@ -1173,22 +771,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scaleY 盒子的垂直缩放。
      */
     set_collider_SetAsBox(shape: any, width: number, height: number, pos: IV2, scaleX: number, scaleY: number) {
-        width = this.layaToPhyValue(width * scaleX);
-        height = this.layaToPhyValue(height * scaleY);
+        let world: any = shape.world;
+        width = this.convertLayaValueToPhysics(world, width * scaleX);
+        height = this.convertLayaValueToPhysics(world, height * scaleY);
         let centroid = shape.m_centroid;
-        centroid.x = this.layaToPhyValue(pos.x * scaleX);
-        centroid.y = this.layaToPhyValue(pos.y * scaleY);
+        centroid.x = this.convertLayaValueToPhysics(world, pos.x * scaleX);
+        centroid.y = this.convertLayaValueToPhysics(world, pos.y * scaleY);
         shape.SetAsBox(width, height, centroid, 0);
-    }
-
-    /**
-     * @en Create a chain shape.
-     * @returns The created chain shape.
-     * @zh 创建链条形状。
-     * @returns 创建的链条形状。
-     */
-    create_ChainShape() {
-        return this._tempChainShape;
     }
 
     /**
@@ -1210,25 +799,16 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scaleY 链条形状的垂直缩放。
      */
     set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number) {
+        let world: any = shape.world;
         let len = arr.length;
         shape.Clear();
-        var ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
+        var ptr_wrapped = this.createVec2Pointer(world, arr, x, y, scaleX, scaleY);
         if (loop) {
             shape.CreateLoop(ptr_wrapped, len >> 1);
         } else {
             shape.CreateChain(ptr_wrapped, len >> 1);
         }
         this._box2d._free(ptr_wrapped.ptr);
-    }
-
-    /**
-     * @en Create a circle shape.
-     * @returns The created circle shape.
-     * @zh 创建圆形形状。
-     * @returns 创建的圆形形状。
-     */
-    create_CircleShape() {
-        return this._tempCircleShape;
     }
 
 
@@ -1243,7 +823,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scale 圆形形状的缩放。
      */
     set_CircleShape_radius(shape: any, radius: number, scale: number) {
-        shape.m_radius = this.layaToPhyValue(radius * scale);
+        let world: any = shape.world;
+        shape.m_radius = this.convertLayaValueToPhysics(world, radius * scale);
     }
 
     /**
@@ -1259,17 +840,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scale 圆形形状的缩放。
      */
     set_CircleShape_pos(shape: any, x: number, y: number, scale: number) {
-        shape.m_p.Set(this.layaToPhyValue(x * scale), this.layaToPhyValue(y * scale));
-    }
-
-    /**
-     * @en Create an edge shape.
-     * @returns The created edge shape.
-     * @zh 创建边缘形状。
-     * @returns 创建的边缘形状。
-     */
-    create_EdgeShape() {
-        return this._tempEdgeShape;
+        let world: any = shape.world;
+        shape.m_p.Set(this.convertLayaValueToPhysics(world, x * scale), this.convertLayaValueToPhysics(world, y * scale));
     }
 
     /**
@@ -1289,24 +861,14 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scaleY 边缘形状的垂直缩放。
      */
     set_EdgeShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
+        let world: any = shape.world;
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2((x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleX));
+            ps.push(this.createPhyFromLayaVec2(world, (x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleY));
         }
         shape.SetTwoSided(ps[0], ps[1])
     }
-
-    /**
-     * @en Create a polygon shape.
-     * @returns The created polygon shape.
-     * @zh 创建多边形形状。
-     * @returns 创建的多边形形状。
-     */
-    create_PolygonShape() {
-        return this._tempPolygonShape;
-    }
-
 
     /**
      * @en Set the data of a polygon shape.
@@ -1325,163 +887,131 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scaleY 多边形形状的垂直缩放。
      */
     set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
-        let ptr_wrapped = this.createVec2Pointer(arr, x, y, scaleX, scaleY);
+        let world: any = shape.world;
+        let ptr_wrapped = this.createVec2Pointer(world, arr, x, y, scaleX, scaleY);
         shape.Set(ptr_wrapped, arr.length / 2);
         this._box2d._free(ptr_wrapped.ptr);
     }
 
-    /**
-     * @en Create a fixture definition.
-     * @param fixtureDef The fixture definition.
-     * @returns The created fixture definition.
-     * @zh 创建夹具定义。
-     * @param fixtureDef 夹具定义。
-     * @returns 创建的夹具定义。
-     */
-    createFixtureDef(fixtureDef: FixtureBox2DDef) {
-        var def: any = new this.box2d.b2FixtureDef();
-        def.density = fixtureDef.density;
-        def.friction = fixtureDef.friction;
-        def.isSensor = fixtureDef.isSensor;
-        def.restitution = fixtureDef.restitution;
-        switch (fixtureDef.shape) {
-            case PhysicsShape.BoxShape:
-            case PhysicsShape.PolygonShape:
-                def.set_shape(this._tempPolygonShape);
-                break;
-            case PhysicsShape.ChainShape:
-                def.set_shape(this._tempChainShape);
-                break;
-            case PhysicsShape.CircleShape:
-                def.set_shape(this._tempCircleShape)
-                break;
-            case PhysicsShape.EdgeShape:
-                def.set_shape(this._tempEdgeShape);
-                break;
-        }
-        def.world = this._world;
-        def.shapeType = fixtureDef.shape;
-        def._shape = this.get_fixtureshape(def.shape, fixtureDef.shape);
-        return def;
+    destroyShape(world: any, body: any, shape: any): void {
+        if (!world) console.warn("destroyShape: world is null");
+        body.DestroyFixture(shape);
     }
 
-    /**
-     * @en Set the group index of a fixture definition.
-     * @param def The fixture definition.
-     * @param groupIndex The group index.
-     * @zh 设置夹具定义的组索引。
-     * @param def 夹具定义。
-     * @param groupIndex 组索引。
-     */
-    set_fixtureDef_GroupIndex(def: any, groupIndex: number) {
+    set_shapeDef_GroupIndex(def: any, groupIndex: number) {
         def.filter.groupIndex = groupIndex;
     }
 
-    /**
-     * @en Set the category bits of a fixture definition.
-     * @param def The fixture definition.
-     * @param categoryBits The category bits.
-     * @zh 设置夹具定义的类别位。
-     * @param def 夹具定义。
-     * @param categoryBits 类别位。
-     */
-    set_fixtureDef_CategoryBits(def: any, categoryBits: number) {
+    set_shapeDef_CategoryBits(def: any, categoryBits: number) {
         def.filter.categoryBits = categoryBits;
     }
 
-    /**
-     * @en Set the mask bits of a fixture definition.
-     * @param def The fixture definition.
-     * @param maskbits The mask bits.
-     * @zh 设置夹具定义的掩码位。
-     * @param def 夹具定义。
-     * @param maskbits 掩码位。
-     */
-    set_fixtureDef_maskBits(def: any, maskbits: number) {
+    set_shapeDef_maskBits(def: any, maskbits: number) {
         def.filter.maskBits = maskbits;
     }
 
-    /**
-     * @en Create a fixture by body and definition.
-     * @param body The body.
-     * @param fixtureDef The fixture definition.
-     * @zh 通过物体和定义创建夹具。
-     * @param body 物体。
-     * @param fixtureDef 夹具定义。
-     */
-    createfixture(body: any, fixtureDef: any) {
-        let data = body.CreateFixture(fixtureDef);
-        data = this.castObject(data, this.box2d.b2Fixture);
-        data.world = this._world;
-        data.shape = this.get_fixtureshape(data.GetShape(), fixtureDef.shapeType);
-        data.filter = data.GetFilterData();
-        return data;
+    resetShapeData(shape: any, shapeDef: any): void {
+        shape.SetDensity(shapeDef.density);
+        shape.SetFriction(shapeDef.friction);
+        shape.SetSensor(shapeDef.isSensor);
+        shape.SetRestitution(shapeDef.restitution);
     }
 
-    /**
-     * @internal
-     * @en Reset the fixture data.
-     * @param fixture The fixture.
-     * @param fixtureDef The fixture definition.
-     * @zh 重置夹具数据。
-     * @param fixture 夹具。
-     * @param fixtureDef 夹具定义。
-     */
-    resetFixtureData(fixture: any, fixtureDef: FixtureBox2DDef): void {
-        fixture.SetDensity(fixtureDef.density);
-        fixture.SetFriction(fixtureDef.friction);
-        fixture.SetSensor(fixtureDef.isSensor);
-        fixture.SetRestitution(fixtureDef.restitution);
+    set_shape_collider(shape: any, instance: any) {
+        shape.collider = instance;
     }
 
-    /**
-     * @en Set the collider of a fixture.
-     * @param fixture The fixture.
-     * @param instance The collider instance.
-     * @zh 设置夹具的碰撞器。
-     * @param fixture 夹具。
-     * @param instance 碰撞器实例。
-     */
-    set_fixture_collider(fixture: any, instance: any) {
-        fixture.collider = instance;
+    get_shape_body(shape: any): any {
+        return shape.GetBody();
     }
 
+    set_shape_isSensor(shape: any, sensor: boolean): void {
+        shape.SetSensor(sensor);
+    }
+    get_shape_isSensor(shape: any): boolean {
+        let isSensor: boolean = shape.IsSensor();
+        return isSensor;
+    }
     /**
-     * @en Get the body of a fixture.
-     * @param fixture The fixture.
-     * @returns The body of the fixture.
-     * @zh 获取夹具的物体。
-     * @param fixture 夹具。
-     * @returns 夹具的物体。
+     * @zh 获取夹具fixture的shape，这里为了兼容
+     * @param shape 夹具
+     * @returns 夹具的形状
+     * @en get fixture's shape, for compatibility
+     * @param shape fixture
+     * @returns shape
      */
-    get_fixture_body(fixture: any): any {
-        return fixture.GetBody()
+    getShape(shape: any): any {
+        let fixtureShape: any = shape.GetShape();
+        return fixtureShape;
+    }
+
+    setfilterData(shape: any, filterData: any): void {
+        shape.SetFilterData(filterData);
+    }
+
+    getfilterData(shape: any): FilterData {
+        let shapeFilterData: any = shape.GetFilterData();
+        return shapeFilterData;
     }
 
 
-    /**
-     * @en Destroy a fixture of a rigid body.
-     * @param body The rigid body.
-     * @param fixture The fixture to destroy.
-     * @zh 销毁刚体的一个夹具。
-     * @param body 刚体。
-     * @param fixture 要销毁的夹具。
-     */
-    rigidBody_DestroyFixture(body: any, fixture: any) {
-        if (body.world && !body.world.destroyed) body.DestroyFixture(fixture);
+    set_shape_reFilter(shape: any): void {
+        shape.Refilter();
+    }
+    shape_rayCast(shape: any, output: any, input: any, childIndex: number): boolean {
+        //TODO
+        return false;
+    }
+    get_shape_massData(shape: any, massData: any) {
+        massData = shape.GetMassData(massData);
+        return massData;
+    }
+    set_shape_density(shape: any, density: number): void {
+        shape.SetDensity(density);
+    }
+    set_shape_friction(shape: any, friction: number): void {
+        shape.SetFriction(friction);
+    }
+    set_shape_restitution(shape: any, restitution: number): void {
+        shape.SetRestitution(restitution);
+    }
+    set_shape_restitutionThreshold(shape: any, restitutionThreshold: number): void {
+        shape.SetRestitutionThreshold(restitutionThreshold);
+    }
+    get_shape_AABB(shape: any) {
+        let AABB: any = shape.GetAABB(0);
+        return AABB;
     }
 
-    /**
-     * @en Create a rigid body definition.
-     * @param rigidbodyDef The rigid body definition.
-     * @returns The created rigid body.
-     * @zh 创建刚体定义。
-     * @param rigidbodyDef 刚体定义。
-     * @returns 创建的刚体。
-     */
-    rigidBodyDef_Create(rigidbodyDef: RigidBody2DInfo): any {
+    createMassData(): any {
+        let massData = new this.box2d.b2MassData();
+        return massData;
+    }
+    createBody(world: any, def: any) {
+        if (!def) {
+            def = new this.box2d.b2BodyDef();
+        }
+        if (!world) return;
+        def.userData = { pointer: 0 };
+        let body: any = world.CreateBody(def);
+        body.world = world;
+        body.destroyed = false;
+        return body;
+    }
+
+    removeBody(world: any, body: any): void {
+        if (!body || !world) return;
+        if (!world.destroyed) world.DestroyBody(body);
+        body.destroyed = true;
+    }
+
+    rigidBody_DestroyShape(body: any, shape: any) {
+        if (body.world && !body.world.destroyed) body.DestroyFixture(shape);
+    }
+
+    createBodyDef(world: any, rigidbodyDef: RigidBody2DInfo): any {
         var def: any = new this.box2d.b2BodyDef();
-        def.position.Set(this.layaToPhyValue(rigidbodyDef.position.x), this.layaToPhyValue(rigidbodyDef.position.y));
+        def.position.Set(this.convertLayaValueToPhysics(world, rigidbodyDef.position.x), this.convertLayaValueToPhysics(world, rigidbodyDef.position.y));
         def.angle = rigidbodyDef.angle;
         def.allowSleep = rigidbodyDef.allowSleep;
         def.angularDamping = rigidbodyDef.angularDamping;
@@ -1490,133 +1020,60 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         def.fixedRotation = rigidbodyDef.fixedRotation;
         def.gravityScale = rigidbodyDef.gravityScale;
         def.linearDamping = rigidbodyDef.linearDamping;
-        def.linearVelocity = new this.box2d.b2Vec2(this.layaToPhyValue(rigidbodyDef.linearVelocity.x), this.layaToPhyValue(rigidbodyDef.linearVelocity.y));
+        def.linearVelocity = new this.box2d.b2Vec2(this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.x), this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.y));
         def.type = this.getbodyType(rigidbodyDef.type);
-        return this.createBody(def);
+        return def;
     }
 
-    /**
-     * @en Get the position of a rigid body.
-     * @param body The rigid body.
-     * @param v2 The vector to store the position.
-     * @zh 获取刚体的位置。
-     * @param body 刚体。
-     * @param v2 用于存储位置的向量。
-     */
     get_RigidBody_Position(body: any, v2: Vector2) {
+        let world: any = body.world;
         var pos: any = body.GetPosition();
-        v2.setValue(this.phyToLayaValue(pos.x), this.phyToLayaValue(pos.y));
+        v2.setValue(this.convertPhysicsValueToLaya(world, pos.x), this.convertPhysicsValueToLaya(world, pos.y));
     }
 
-
-    /**
-     * @en Get the angle of a rigid body.
-     * @param body The rigid body.
-     * @returns The angle of the rigid body.
-     * @zh 获取刚体的角度。
-     * @param body 刚体。
-     * @returns 刚体的角度。
-     */
     get_RigidBody_Angle(body: any): number {
         return body.GetAngle();
     }
 
-    /**
-     * @en Set the enable of a rigid body.
-     * @param body The rigid body.
-     * @zh 设置刚体是否激活。
-     * @param body 刚体。
-     */
     set_RigibBody_Enable(body: any, enable: boolean): void {
         body.SetEnabled(enable);
     }
 
-    /**
-     * @en Set the transform of a rigid body.
-     * @param body The rigid body.
-     * @param x The x-coordinate of the position.
-     * @param y The y-coordinate of the position.
-     * @param angle The angle of the rigid body.
-     * @zh 设置刚体的变换。
-     * @param body 刚体。
-     * @param x 位置的x坐标。
-     * @param y 位置的y坐标。
-     * @param angle 刚体的角度。
-     */
     set_RigibBody_Transform(body: any, x: number, y: number, angle: any) {
         let pos = body.GetPosition();
-        pos.x = this.layaToPhyValue(x);
-        pos.y = this.layaToPhyValue(y);
+        let world: any = body.world;
+        pos.x = this.convertLayaValueToPhysics(world, x);
+        pos.y = this.convertLayaValueToPhysics(world, y);
         body.SetTransform(pos, angle);
     }
 
-    /**
-     * @en Get the world point of a rigid body.
-     * @param body The rigid body.
-     * @param x The x-coordinate of the local point.
-     * @param y The y-coordinate of the local point.
-     * @returns The world point.
-     * @zh 获取刚体的世界坐标点。
-     * @param body 刚体。
-     * @param x 局部坐标的x坐标。
-     * @param y 局部坐标的y坐标。
-     * @returns 世界坐标点。
-     */
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2 {
-        let data = body.GetWorldPoint(this.createPhyFromLayaVec2(x, y))
+        let world: any = body.world;
+        let data = body.GetWorldPoint(this.createPhyFromLayaVec2(world, x, y));
         return {
-            x: this.phyToLayaValue(data.x),
-            y: this.phyToLayaValue(data.y)
+            x: this.convertPhysicsValueToLaya(world, data.x),
+            y: this.convertPhysicsValueToLaya(world, data.y)
         };
     }
 
-    /**
-     * @en Get the local point of a rigid body.
-     * @param body The rigid body.
-     * @param x The x-coordinate of the world point.
-     * @param y The y-coordinate of the world point.
-     * @returns The local point.
-     * @zh 获取刚体的本地坐标点。
-     * @param body 刚体。
-     * @param x 世界坐标的x坐标。
-     * @param y 世界坐标的y坐标。
-     * @returns 本地坐标点。
-     */
     get_rigidBody_LocalPoint(body: any, x: number, y: number): IV2 {
-        let data = body.GetLocalPoint(this.createPhyFromLayaVec2(x, y))
-
+        let world: any = body.world;
+        let data = body.GetLocalPoint(this.createPhyFromLayaVec2(world, x, y));
         return {
-            x: this.phyToLayaValue(data.x),
-            y: this.phyToLayaValue(data.y)
+            x: this.convertPhysicsValueToLaya(world, data.x),
+            y: this.convertPhysicsValueToLaya(world, data.y)
         };
     }
 
-    /**
-     * @en Apply a force to a rigid body.
-     * @param body The rigid body.
-     * @param force The force to apply.
-     * @param position The position to apply the force.
-     * @zh 对刚体施加力。
-     * @param body 刚体。
-     * @param force 施加的力。
-     * @param position 施加力的位置。
-     */
     rigidBody_applyForce(body: any, force: IV2, position: IV2) {
-        this._tempVe21.x = this.layaToPhyValue(position.x);
-        this._tempVe21.y = this.layaToPhyValue(position.y);
+        let world: any = body.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, position.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, position.y);
         this._tempVe22.x = force.x;
         this._tempVe22.y = force.y;
         body.ApplyForce(this._tempVe22, this._tempVe21, false);
     }
 
-    /**
-     * @en Apply a force to the center of a rigid body.
-     * @param body The rigid body.
-     * @param force The force to apply.
-     * @zh 对刚体的中心施加力。
-     * @param body 刚体。
-     * @param force 施加的力。
-     */
     rigidBody_applyForceToCenter(body: any, force: IV2) {
         this._tempVe21.x = force.x;
         this._tempVe21.y = force.y;
@@ -1624,85 +1081,36 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
 
-    /**
-     * @en Apply a linear impulse to a rigid body.
-     * @param body The rigid body.
-     * @param impulse The linear impulse to apply.
-     * @param position The position to apply the impulse.
-     * @zh 对刚体施加线性冲量。
-     * @param body 刚体。
-     * @param impulse 施加的线性冲量。
-     * @param position 施加线性冲量的位置。
-     */
     rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2) {
+        let world: any = body.world;
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
-        this._tempVe22.x = this.layaToPhyValue(position.x);
-        this._tempVe22.y = this.layaToPhyValue(position.y);
+        this._tempVe22.x = this.convertLayaValueToPhysics(world, position.x);
+        this._tempVe22.y = this.convertLayaValueToPhysics(world, position.y);
         body.ApplyLinearImpulse(this._tempVe21, this._tempVe22);
     }
 
-    /**
-     * @en Apply a linear impulse to the center of a rigid body.
-     * @param body The rigid body.
-     * @param impulse The linear impulse to apply.
-     * @zh 对刚体的中心施加线性冲量。
-     * @param body 刚体。
-     * @param impulse 施加的线性冲量。
-     */
     rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2) {
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
         body.ApplyLinearImpulseToCenter(this._tempVe21);
     }
 
-
-    /**
-     * @en Apply torque to a rigid body to make it rotate.
-     * @param body The rigid body.
-     * @param torque The torque to apply.
-     * @zh 对刚体施加扭矩，使其旋转。
-     * @param body 刚体。
-     * @param torque 施加的扭矩。
-     */
     rigidbody_applyTorque(body: any, torque: number): void {
         body.ApplyTorque(torque);
     }
 
-    /**
-     * @en The velocity to set, e.g., {x: 10, y: 10}.
-     * @param body The rigid body.
-     * @param velocity The velocity to set.
-     * @zh 设置速度，比如{x:10,y:10}
-     * @param body 刚体。
-     * @param velocity 速度。
-     */
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
-        this._tempVe21.x = this.layaToPhyValue(velocity.x);
-        this._tempVe21.y = this.layaToPhyValue(velocity.y);
+        let world: any = body.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, velocity.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, velocity.y);
         body.SetLinearVelocity(this._tempVe21);
     }
 
-    /**
-     * @en Set the awake state of a rigid body.
-     * @param body The rigid body.
-     * @param awake The awake state.
-     * @zh 设置刚体的唤醒状态。
-     * @param body 刚体。
-     * @param awake 唤醒状态。
-     */
     set_rigidbody_Awake(body: any, awake: boolean): void {
         body.SetAwake(awake);
     }
 
-    /**
-     * @en Get the mass of a rigid body.
-     * @param body The rigid body.
-     * @returns The mass of the rigid body.
-     * @zh 获取刚体的质量。
-     * @param body 刚体。
-     * @returns 刚体的质量。
-     */
     get_rigidbody_Mass(body: any): number {
         return body.GetMass();
     }
@@ -1719,12 +1127,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param centerofMass 要设置的质心。
      * @param inertia 要设置的惯性张量。
      */
-    set_rigidbody_Mass(body: any, massValue: number, centerofMass: IV2, inertiaValue: number): void {
-        this._massData.mass = massValue;
-        this._massData.center.x = centerofMass.x;
-        this._massData.center.y = centerofMass.y;
-        this._massData.I = inertiaValue;
-        body.SetMassData(this._massData);
+    set_rigidBody_Mass(body: any, massValue: number, centerofMass: IV2, inertiaValue: number, massData: any): void {
+        massData.mass = massValue;
+        massData.center.x = centerofMass.x;
+        massData.center.y = centerofMass.y;
+        massData.I = inertiaValue;
+        body.SetMassData(massData);
     }
 
     /**
@@ -1736,10 +1144,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @returns 质心相对于节点 (0, 0) 点的位置偏移。
      */
     get_rigidBody_Center(body: any): IV2 {
+        let world: any = body.world;
         let value = body.GetLocalCenter();
         let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(value.x);
-        point.y = this.phyToLayaValue(value.y);
+        point.x = this.convertPhysicsValueToLaya(world, value.x);
+        point.y = this.convertPhysicsValueToLaya(world, value.y);
         return point;
     }
 
@@ -1776,10 +1185,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @returns 质心相对于 Physics.I.worldRoot 节点的世界坐标。
      */
     get_rigidBody_WorldCenter(body: any): IV2 {
+        let world: any = body.world;
         let value = body.GetWorldCenter();
         let point: IV2 = { x: 0, y: 0 }
-        point.x = this.phyToLayaValue(value.x);
-        point.y = this.phyToLayaValue(value.y);
+        point.x = this.convertPhysicsValueToLaya(world, value.x);
+        point.y = this.convertPhysicsValueToLaya(world, value.y);
         return point;
     }
 
@@ -1888,9 +1298,10 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @returns 线性速度。
      */
     get_rigidBody_linearVelocity(body: any): IV2 {
+        let world: any = body.world;
         let value: IV2 = body.GetLinearVelocity();
-        this._tempVe21.x = this.phyToLayaValue(value.x);
-        this._tempVe21.y = this.phyToLayaValue(value.y);
+        this._tempVe21.x = this.convertPhysicsValueToLaya(world, value.x);
+        this._tempVe21.y = this.convertPhysicsValueToLaya(world, value.y);
         return this._tempVe21;
     }
 
@@ -1903,8 +1314,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param value 线性速度。
      */
     set_rigidBody_linearVelocity(body: any, value: IV2) {
-        this._tempVe21.x = this.layaToPhyValue(value.x);
-        this._tempVe21.y = this.layaToPhyValue(value.y);
+        let world: any = body.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, value.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, value.y);
         body.SetLinearVelocity(this._tempVe21);
     }
 
@@ -1930,6 +1342,100 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         body.ResetMassData()
     }
 
+
+    get_rigidBody_isEnable(body: any): boolean {
+        let isBodyEnable: boolean = body.IsEnabled();
+        return isBodyEnable;
+    }
+    get_rigidBody_fixedRotation(body: any): boolean {
+        let isFixedRotation: boolean = body.IsFixedRotation();
+        return isFixedRotation;
+    }
+    get_rigidBody_next(body: any) {
+        return body.GetNext();
+    }
+
+    set_rigidBody_userData(body: any, data: any): void {
+
+    }
+
+    get_rigidBody_userData(body: any) {
+        return body.GetUserData();
+    }
+    get_RigibBody_Transform(body: any) {
+        return body.GetTransform();
+    }
+    get_rigidBody_WorldVector(body: any, value: Vector2): Vector2 {
+        return body.GetWorldVector(value);
+    }
+    get_rigidBody_LocalVector(body: any, value: Vector2): Vector2 {
+        return body.GetLocalVector(value);
+    }
+    rigidbody_ApplyAngularImpulse(body: any, impulse: number): void {
+        body.ApplyAngularImpulse(impulse, true);
+    }
+
+    set_rigidBody_Awake(body: any, awake: boolean): void {
+        body.SetAwake(awake);
+    }
+    get_rigidBody_Mass(body: any): number {
+        return body.GetMass();
+    }
+    get_rigidBody_Inertia(body: any): number {
+        return body.GetInertia();
+    }
+    get_rigidBody_type(body: any): string {
+        let type: string = body.GetType();
+        switch (type) {
+            case "b2_staticBody":
+                type = "static";
+                break;
+            case "b2_kinematicBody":
+                type = "kinematic";
+                break;
+            case "b2_dynamicBody":
+                type = "dynamic";
+                break;
+            default:
+                break;
+        }
+        return type;
+    }
+    get_rigidBody_gravityScale(body: any): number {
+        return body.GetGravityScale();
+    }
+    get_rigidBody_allowSleep(body: any): boolean {
+        return body.IsSleepingAllowed();
+    }
+    get_rigidBody_angularDamping(body: any): number {
+        return body.GetAngularDamping();
+    }
+    get_rigidBody_linearDamping(body: any): number {
+        return body.GetLinearDamping();
+    }
+    get_rigidBody_linearVelocityFromWorldPoint(body: any, worldPoint: Vector2): Vector2 {
+        let world: any = body.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, worldPoint.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, worldPoint.y);
+        let velocity = body.GetLinearVelocityFromWorldPoint(worldPoint);
+        velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
+        velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
+        return velocity;
+    }
+
+    get_rigidBody_linearVelocityFromLocalPoint(body: any, localPoint: Vector2): Vector2 {
+        let world: any = body.world;
+        this._tempVe21.x = this.convertLayaValueToPhysics(world, localPoint.x);
+        this._tempVe21.y = this.convertLayaValueToPhysics(world, localPoint.y);
+        let velocity = body.GetLinearVelocityFromLocalPoint(localPoint);
+        velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
+        velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
+        return velocity;
+    }
+    get_rigidBody_bullet(body: any): boolean {
+        return body.IsBullet();
+    }
+
     /**
      * @internal
      * @en Get the body type based on the string representation.
@@ -1949,250 +1455,77 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         }
     }
 
-    /**
-     * @internal
-     * @en Create a style string for drawing.
-     * @param color The color.
-     * @param alpha The alpha value. Default is -1.
-     * @returns The style string.
-     * @zh 创建用于绘制的样式字符串。
-     * @param color 颜色。
-     * @param alpha 透明度。默认值为-1。
-     * @returns 样式字符串。
-     */
-    makeStyleString(color: any, alpha: number = -1) {
-        let colorData = this.box2d.wrapPointer(color, this.box2d.b2Color);
-        let r = (colorData.r * 255).toFixed(1);
-        let g = (colorData.g * 255).toFixed(1);
-        let b = (colorData.b * 255).toFixed(1);
+    setDestructionListener(world: any, destroyFun: Function): void {
+        // TODO
+    }
+    setContactListener(world: any, listener: Function): void {
+        if (!world) console.warn("setContactListener world is null");
+        world.SetContactListener(listener);
+    }
 
-        let cv: string;
-        if (alpha > 0) {
-            cv = `rgba(${r},${g},${b},${alpha})`;
+    warpPoint(ins: any, type: Ebox2DType): any {
+        let res: any;
+        switch (type) {
+            case Ebox2DType.b2Color:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Color);
+                break;
+
+            case Ebox2DType.b2Contact:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Contact);
+                break;
+
+            case Ebox2DType.b2Fixture:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Fixture);
+                break;
+
+            case Ebox2DType.b2Joint:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Joint);
+                break;
+
+            case Ebox2DType.b2Transform:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Transform);
+                res.x = res.p.x;
+                res.y = res.p.y;
+                res.angle = res.q.GetAngle();
+                break;
+
+            case Ebox2DType.b2Vec2:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Vec2);
+                res.x = res.get_x();
+                res.y = res.get_y();
+                break;
+
+            case Ebox2DType.b2Filter:
+                res = this._box2d.wrapPointer(ins, this._box2d.b2Filter);
+                break;
+
+            default:
+                break;
         }
-        else {
-            cv = `rgb(${r},${g},${b})`;
-        }
-        return cv;
+        return res;
     }
 
-    /**@internal */
-    private getBox2DPoints(vertices: any, vertexCount: any) {
-        let i: number, len: number;
-        len = vertices.length;
-        let points: any[] = [];
-        for (i = 0; i < vertexCount; i++) {
-            let vert = this.box2d.wrapPointer(vertices + (i * 8), this.box2d.b2Vec2);
-            points.push(vert.get_x(), vert.get_y());
-        }
-        return points;
+    getContactShapeA(contact: any): any {
+        return contact.GetFixtureA();
     }
 
-    /**
-     * @internal
-     * @en Draw a polygon.
-     * @param vertices The vertices.
-     * @param vertexCount The vertex count.
-     * @param color The color.
-     * @zh 绘制多边形。
-     * @param vertices 顶点数组。
-     * @param vertexCount 顶点数量。
-     * @param color 颜色。
-     */
-    DrawPolygon(vertices: any, vertexCount: any, color: any): void {
-        let points: any[] = this.getBox2DPoints(vertices, vertexCount);
-        this._debugDraw.mG.drawPoly(0, 0, points, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    getContactShapeB(contact: any) {
+        return contact.GetFixtureB();
     }
 
-    /**
-     * @internal
-     * @en Draw a solid polygon.
-     * @param vertices The vertices.
-     * @param vertexCount The vertex count.
-     * @param color The color.
-     * @zh 绘制实心多边形。
-     * @param vertices 顶点数组。
-     * @param vertexCount 顶点数量。
-     * @param color 颜色。
-     */
-    DrawSolidPolygon(vertices: any, vertexCount: any, color: any): void {
-        let points: any[] = this.getBox2DPoints(vertices, vertexCount);
-        this._debugDraw.mG.drawPoly(0, 0, points, this.makeStyleString(color, 0.5), this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    createContactListener(): any {
+        let listener: any = new this._box2d.JSContactListener();
+        return listener;
     }
 
-    /**
-     * @internal
-     * @en Draw a circle.
-     * @param center The center point.
-     * @param radius The radius.
-     * @param color The color.
-     * @zh 绘制圆形。
-     * @param center 圆心。
-     * @param radius 半径。
-     * @param color 颜色。
-     */
-    DrawCircle(center: any, radius: any, color: any): void {
-        let centerV = this.box2d.wrapPointer(center, this.box2d.b2Vec2);
-        this._debugDraw.mG.drawCircle(centerV.x, centerV.y, radius, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    createJSQueryCallback() {
+        let jsQuerycallback: any = new this._box2d.JSQueryCallback();
+        return jsQuerycallback;
     }
 
-    /**
-     * @internal
-     * @en Draw a solid circle.
-     * @param center The center point.
-     * @param radius The radius.
-     * @param axis The axis.
-     * @param color The color.
-     * @zh 绘制实心圆形。
-     * @param center 圆心。
-     * @param radius 半径。
-     * @param axis 轴。
-     * @param color 颜色。
-     */
-    DrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
-        center = this.box2d.wrapPointer(center, this.box2d.b2Vec2);
-        axis = this.box2d.wrapPointer(axis, this.box2d.b2Vec2);
-        let cx: any = center.x;
-        let cy: any = center.y;
-        this._debugDraw.mG.drawCircle(cx, cy, radius, this.makeStyleString(color, 0.5), this.makeStyleString(color, 1), this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(cx, cy, (cx + axis.x * radius), (cy + axis.y * radius), this.makeStyleString(color, 1), this._debugDraw.lineWidth);
-    }
-
-    /**
-     * @internal
-     * @en Draw a segment.
-     * @param p1 The start point.
-     * @param p2 The end point.
-     * @param color The color.
-     * @zh 绘制线段。
-     * @param p1 起点。
-     * @param p2 终点。
-     * @param color 颜色。
-     */
-    DrawSegment(p1: any, p2: any, color: any): void {
-        p1 = this.box2d.wrapPointer(p1, this.box2d.b2Vec2);
-        p2 = this.box2d.wrapPointer(p2, this.box2d.b2Vec2);
-        this._debugDraw.mG.drawLine(p1.x, p1.y, p2.x, p2.y, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
-    }
-
-    /**
-     * @internal
-     * @en Draw a transform.
-     * @param xf The transform.
-     * @zh 绘制变换。
-     * @param xf 变换。
-     */
-    DrawTransform(xf: any): void {
-        xf = this.box2d.wrapPointer(xf, this.box2d.b2Transform);
-        this._debugDraw.PushTransform(xf.p.x, xf.p.y, xf.q.GetAngle());
-        const length = 1 / Browser.pixelRatio;
-        this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
-        this._debugDraw.PopTransform();
-    }
-
-    /**
-     * @internal
-     * @en Draw a point.
-     * @param p The point.
-     * @param size The size.
-     * @param color The color.
-     * @zh 绘制点。
-     * @param p 点。
-     * @param size 大小。
-     * @param color 颜色。
-     */
-    DrawPoint(p: any, size: any, color: any): void {
-        p = this.box2d.wrapPointer(p, this.box2d.b2Vec2);
-        size *= this._debugDraw.camera.m_zoom;
-        size /= this._debugDraw.camera.m_extent;
-        var hsize: any = size / 2;
-        this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
-    }
-
-    /**
-     * @internal
-     * @en Draw a string.
-     * @param x The x-coordinate.
-     * @param y The y-coordinate.
-     * @param message The message.
-     * @zh 绘制字符串。
-     * @param x x坐标。
-     * @param y y坐标。
-     * @param message 字符串。
-     */
-    DrawString(x: any, y: any, message: any): void {
-        this._debugDraw.textG.fillText(message, x, y, "15px DroidSans", this._debugDraw.DrawString_color, "left");
-    }
-
-    /**
-     * @internal
-     * @en Draw a string in the world coordinate system.
-     * @param x The x-coordinate.
-     * @param y The y-coordinate.
-     * @param message The message.
-     * @zh 在世界坐标系中绘制字符串。
-     * @param x x坐标。
-     * @param y y坐标。
-     * @param message 字符串。
-     */
-    DrawStringWorld(x: any, y: any, message: any): void {
-        this.DrawString(x, y, message);
-    }
-
-    /**
-     * @internal
-     * @en Draw an AABB (axis-aligned bounding box).
-     * @param min The minimum point.
-     * @param max The maximum point.
-     * @param color The color.
-     * @zh 绘制 AABB（轴对齐包围盒）。
-     * @param min 最小点。
-     * @param max 最大点。
-     * @param color 颜色。
-     */
-    DrawAABB(min: any, max: any, color: any): void {
-        min = this.box2d.wrapPointer(min, this.box2d.b2Vec2);
-        max = this.box2d.wrapPointer(max, this.box2d.b2Vec2);
-        var cx: number = (max.x + min.x) * 0.5;
-        var cy: number = (max.y + min.y) * 0.5;
-        var hw: number = (max.x - min.x) * 0.5;
-        var hh: number = (max.y - min.y) * 0.5;
-        const cs: string = this.makeStyleString(color, 1);
-        const linew: number = this._debugDraw.lineWidth;
-        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
-    }
-
-    /**
-     * @internal
-     * @en Get the contact listener.
-     * @returns The contact listener.
-     * @zh 获取接触监听器。
-     * @returns 接触监听器。
-     */
-    getContactListener() {
-        let box2d = this.box2d;
-        let _this = this;
-        var listner = new this.box2d.JSContactListener();
-        listner.BeginContact = function (contact: any): void {
-            Physics2D.I._eventList.push("triggerenter", box2d.wrapPointer(contact, box2d.b2Contact));
-        }
-
-        listner.EndContact = function (contact: any): void {
-            Physics2D.I._eventList.push("triggerexit", box2d.wrapPointer(contact, box2d.b2Contact));
-        }
-
-        listner.PreSolve = function (contact: any, oldManifold: any): void {
-            Physics2D.I._eventList.push("triggerstay", box2d.wrapPointer(contact, box2d.b2Contact));
-        }
-
-        listner.PostSolve = function (contact: any, impulse: any): void {
-            //console.log("PostSolve", contact);
-        }
-        return listner;
+    createJSRayCastCallback() {
+        let jsRayCastcallback: any = new this._box2d.JSRayCastCallback();
+        return jsRayCastcallback;
     }
 
     /**
@@ -2225,7 +1558,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param cls 类。
      * @returns 转换后的对象。
      */
-    castObject(pointer: any, cls: any) {
+    castObject(pointer: any, cls: any): any {
         return this.box2d.castObject(pointer, cls)
     }
 
@@ -2238,12 +1571,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param points 点。
      * @returns 包装的指针。
      */
-    createWrapPointer(points: number[]): any {
+    createWrapPointer(world: any, points: number[]): any {
         var len: number = points.length;
         var buffer = this.box2d._malloc(len * 4);
         var offset = 0;
         for (var i: number = 0; i < len; i++) {
-            this.box2d.HEAPF32[buffer + offset >> 2] = this.layaToPhyValue(points[i]);
+            //TODO value convert
+            this.box2d.HEAPF32[buffer + offset >> 2] = this.convertLayaValueToPhysics(world, points[i]);
             offset += 4;
         }
         return buffer;
@@ -2266,13 +1600,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param scaleY 垂直缩放。
      * @returns Vec2 指针。
      */
-    createVec2Pointer(points: number[], x: number, y: number, scaleX: number, scaleY: number): any {
+    createVec2Pointer(world: any, points: number[], x: number, y: number, scaleX: number, scaleY: number): any {
         var len: number = points.length >> 1;
         var buffer = this.box2d._malloc(len * 8);
         var offset = 0;
         for (var i = 0; i < len; i++) {
-            this.box2d.HEAPF32[buffer + offset >> 2] = this.layaToPhyValue((points[2 * i] + x) * scaleX);
-            this.box2d.HEAPF32[buffer + (offset + 4) >> 2] = this.layaToPhyValue((points[2 * i + 1] + y) * scaleY);
+            this.box2d.HEAPF32[buffer + offset >> 2] = this.convertLayaValueToPhysics(world, (points[2 * i] + x) * scaleX);
+            this.box2d.HEAPF32[buffer + (offset + 4) >> 2] = this.convertLayaValueToPhysics(world, (points[2 * i + 1] + y) * scaleY);
             offset += 8;
         }
         return this.box2d.wrapPointer(buffer, this.box2d.b2Vec2);
@@ -2378,14 +1712,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
-     * @internal
      * @en Destroy the data.
      * @param data The data to destroy.
      * @zh 销毁数据。
      * @param data 要销毁的数据。
      */
-    destory(data: any) {
-        data.__destroy__();
+    destroyData(data: any): void {
+        data && data.__destroy__();
     }
 
     /**
@@ -2399,22 +1732,27 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param physicShape 物理形状。
      * @returns 夹具形状。
      */
-    get_fixtureshape(shape: any, physicShape: PhysicsShape): any {
+    get_fixtureshape(shape: any, physicShape: EPhysics2DShape): any {
+        let obj: any;
         switch (physicShape) {
-            case PhysicsShape.BoxShape:
-            case PhysicsShape.PolygonShape:
-                return this.castObject(shape, this.box2d.b2PolygonShape);
+            case EPhysics2DShape.BoxShape:
+            case EPhysics2DShape.PolygonShape:
+                obj = this.castObject(shape, this.box2d.b2PolygonShape);
                 break;
-            case PhysicsShape.ChainShape:
-                return this.castObject(shape, this.box2d.b2ChainShape);
+            case EPhysics2DShape.ChainShape:
+                obj = this.castObject(shape, this.box2d.b2ChainShape);
                 break;
-            case PhysicsShape.CircleShape:
-                return this.castObject(shape, this.box2d.b2CircleShape);
+            case EPhysics2DShape.CircleShape:
+                obj = this.castObject(shape, this.box2d.b2CircleShape);
                 break;
-            case PhysicsShape.EdgeShape:
-                return this.castObject(shape, this.box2d.b2EdgeShape);
+            case EPhysics2DShape.EdgeShape:
+                obj = this.castObject(shape, this.box2d.b2EdgeShape);
+                break;
+            default:
+                obj = null;
                 break;
         }
+        return obj;
     }
 }
 

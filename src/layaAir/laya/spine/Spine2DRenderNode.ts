@@ -28,6 +28,7 @@ import { Vector4 } from "../maths/Vector4";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Color } from "../maths/Color";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 
 
 /**动画开始播放调度
@@ -574,15 +575,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (null == this._skeleton) return;
         let skins = this._externalSkins;
         if (skins) {
-            let normal = false;
+            let normal = false;//todo 需要修改顶点构成?
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
-                normal = skins[i].normal || normal;
+                // normal = skins[i].normal || normal;
             }
 
-            if (normal) {
+            // if (normal) {
                 this.useFastRender = false;
-            }
+            // }
         }
     }
     /**
@@ -653,6 +654,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._clearUpdate();
             //this.timer.clear(this, this._update);
             this._state.update(-this._currentPlayTime);
+            // this._skeleton.setToSetupPose();
             // this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.event(Event.STOPPED);
@@ -832,11 +834,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     changeFast(){
-        if ((this.spineItem instanceof SpineNormalRender)) {
+        if (!(this.spineItem instanceof SpineOptimizeRender)) {
             this.spineItem.destroy();
             let before = SketonOptimise.normalRenderSwitch;
             SketonOptimise.normalRenderSwitch = false;
             this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            this.spineItem.setSkinIndex(this._templet.getSkinIndexByName(this._skinName));
             SketonOptimise.normalRenderSwitch = before;
         }
     }
@@ -847,6 +850,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let before = SketonOptimise.normalRenderSwitch;
             SketonOptimise.normalRenderSwitch = true;
             this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+            this.spineItem.setSkinIndex(this._templet.getSkinIndexByName(this._skinName));
             SketonOptimise.normalRenderSwitch = before;
         }
     }

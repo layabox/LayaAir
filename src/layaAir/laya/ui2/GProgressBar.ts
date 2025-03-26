@@ -31,7 +31,7 @@ export class GProgressBar extends GWidget {
     constructor() {
         super();
 
-        this._value = 50;
+        this._value = 100;
         this._max = 100;
     }
 
@@ -104,9 +104,6 @@ export class GProgressBar extends GWidget {
     }
 
     public update(newValue: number): void {
-        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
-            return;
-
         if (newValue == null)
             newValue = this._value;
         let percent = MathUtil.clamp01((newValue - this._min) / (this._max - this._min));
@@ -130,6 +127,9 @@ export class GProgressBar extends GWidget {
                     break;
             }
         }
+
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
+            return;
 
         let fullWidth = this.width - this._barMaxWidthDelta;
         let fullHeight = this.height - this._barMaxHeightDelta;
@@ -186,6 +186,15 @@ export class GProgressBar extends GWidget {
         ILaya.timer.runCallLater(this, this.update);
 
         super._onConstruct(inPrefab);
+    }
+
+    _setup(hBar: GWidget, vBar: GWidget, titleWidget: GWidget, reverse: boolean): void {
+        this._hBar = hBar;
+        this._vBar = vBar;
+        this._titleWidget = titleWidget;
+        this._reverse = reverse;
+
+        this._onConstruct();
     }
 
     protected _sizeChanged(): void {

@@ -91,6 +91,15 @@ export class GScrollBar extends GWidget {
         super._onConstruct(inPrefab);
     }
 
+    _setup(arrowButton1: GWidget, arrowButton2: GWidget, bar: GWidget, grip: GWidget): void {
+        this._arrowButton1 = arrowButton1;
+        this._arrowButton2 = arrowButton2;
+        this._bar = bar;
+        this._gripButton = grip;
+
+        this._onConstruct();
+    }
+
     private _gripTouchBegin(evt: Event): void {
         if (!this._bar || !this._target)
             return;

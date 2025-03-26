@@ -42,7 +42,8 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     _skeleton: spine.Skeleton;
     /**@internal */
     _spineColor: Color
-
+    /** @internal */
+    _skinIndex: number = 0;
     /**
      * @en Initializes the renderer.
      * @param skeleton The spine skeleton.
@@ -91,7 +92,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param index 要设置的皮肤索引。
      */
     setSkinIndex(index: number): void {
-        //throw new NotImplementedError();
+        this._skinIndex = index;
     }
 
 
@@ -103,6 +104,9 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      */
     changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
+        //@ts-ignore
+        skeleton.showSkinByIndex(this._skinIndex);
+        this._skeleton.setSlotsToSetupPose();
     }
 
     /**

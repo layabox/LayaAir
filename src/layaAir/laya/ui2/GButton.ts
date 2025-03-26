@@ -8,6 +8,7 @@ import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
 import { GImage } from "./GImage";
 import { Color } from "../maths/Color";
+import { NodeFlags } from "../Const";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -15,6 +16,11 @@ export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Disabled]: ButtonStatus.Up,
     [ButtonStatus.SelectedDisabled]: ButtonStatus.Down,
 };
+
+const SaveColorSymbol = Symbol();
+var tmpColor: Color;
+const downEffectValueC = 0.8;
+const downEffectValueS = 0.9;
 
 export class GButton extends GLabel {
     private _mode: ButtonMode;
@@ -31,8 +37,7 @@ export class GButton extends GLabel {
     private _selectedPage: number = 0;
     private _changeStateOnClick: boolean;
     private _downEffect: ButtonDownEffect = 0;
-    private _downEffectValue: number = 0;
-    private _downScaled: boolean = false;
+    private _scaleEffect: boolean = false;
     private _down: boolean;
     private _over: boolean;
 
@@ -42,7 +47,6 @@ export class GButton extends GLabel {
         this._mode = ButtonMode.Common;
         this._soundVolumeScale = 1;
         this._changeStateOnClick = true;
-        this._downEffectValue = 0.8;
 
         this.on(Event.ROLL_OVER, this, this._rollover);
         this.on(Event.ROLL_OUT, this, this._rollout);
@@ -101,12 +105,6 @@ export class GButton extends GLabel {
     }
     public set downEffect(value: ButtonDownEffect) {
         this._downEffect = value;
-    }
-    public get downEffectValue(): number {
-        return this._downEffectValue;
-    }
-    public set downEffectValue(value: number) {
-        this._downEffectValue = value;
     }
 
     public get sound(): string {
@@ -237,33 +235,36 @@ export class GButton extends GLabel {
         }
 
         if (this._downEffect == ButtonDownEffect.Dark) {
-            let c: string;
-            if (page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled) {
-                let p = Math.floor(this._downEffectValue * 255);
-                c = Color.hexToString((p << 16) + (p << 8) + p);
-            }
-            else {
-                c = "#ffffff";
-            }
+            let isDown = page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled;
 
+            if (!tmpColor) tmpColor = new Color();
             for (let child of this.children) {
-                if (child instanceof GImage)
-                    child.color = c;
+                if (child instanceof GImage) {
+                    if (isDown) {
+                        (<any>child)[SaveColorSymbol] = child.color;
+                        tmpColor.parse(child.color);
+                        tmpColor.r *= downEffectValueC;
+                        tmpColor.g *= downEffectValueC;
+                        tmpColor.b *= downEffectValueC;
+                        child.color = tmpColor.toString();
+                    }
+                    else if ((<any>child)[SaveColorSymbol])
+                        child.color = (<any>child)[SaveColorSymbol];
+                }
             }
         }
-        else if (this._downEffect == ButtonDownEffect.Scale) {
+        else if (this._downEffect == ButtonDownEffect.UpScale || this._downEffect == ButtonDownEffect.DownScale) {
+            let rate = this._downEffect == ButtonDownEffect.DownScale ? downEffectValueS : 1 / downEffectValueS;
             if (page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled) {
-                if (!this._downScaled) {
-                    this.scaleX *= this._downEffectValue;
-                    this.scaleY *= this._downEffectValue;
-                    this._downScaled = true;
+                if (!this._scaleEffect) {
+                    this.scale(this.scaleX * rate, this.scaleY * rate);
+                    this._scaleEffect = true;
                 }
             }
             else {
-                if (this._downScaled) {
-                    this.scaleX /= this._downEffectValue;
-                    this.scaleY /= this._downEffectValue;
-                    this._downScaled = false;
+                if (this._scaleEffect) {
+                    this.scale(this.scaleX / rate, this.scaleY / rate);
+                    this._scaleEffect = false;
                 }
             }
         }
@@ -290,10 +291,14 @@ export class GButton extends GLabel {
         if (which == "title") {
             if (this._titleStr)
                 this.title = this._titleStr;
+            else if (this._getBit(NodeFlags.EDITING_NODE))
+                this._titleStr = this._titleWidget?.p.text || "";
         }
         else if (which == "icon") {
             if (this._iconStr)
                 this.icon = this._iconStr;
+            else if (this._getBit(NodeFlags.EDITING_NODE))
+                this._iconStr = this._iconWidget?.p.icon || "";
         }
     }
 

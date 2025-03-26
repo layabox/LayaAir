@@ -1,10 +1,10 @@
-
 import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite"
 import { Vector2 } from "../maths/Vector2";
 import { Context } from "../renders/Context"
-import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
+import { Physics2D } from "./Physics2D";
+import { Physics2DWorldManager } from "./Physics2DWorldManager";
 /**
  * @en Physical auxiliary line
  * @zh 物理辅助线
@@ -15,6 +15,9 @@ export class Physics2DDebugDraw extends Sprite {
     protected _camera: any;
 
     /**@internal */
+    protected _physics2DWorld: Physics2DWorldManager;
+
+    /**@internal */
     protected _mG: Graphics;
 
     /**@internal */
@@ -23,11 +26,8 @@ export class Physics2DDebugDraw extends Sprite {
     /**@internal */
     protected _textG: Graphics;
 
-    /**@internal */
-    protected _factory: IPhysiscs2DFactory;
-
     /**@protected */
-    protected _lineWidth: number;
+    protected _lineWidth: number = 1;
 
     /**
      * @en The color string used for drawing text.
@@ -79,9 +79,12 @@ export class Physics2DDebugDraw extends Sprite {
         return this._camera;
     }
 
-    constructor(factory: IPhysiscs2DFactory) {
+    set physics2DWorld(world: Physics2DWorldManager) {
+        this._physics2DWorld = world;
+    }
+
+    constructor() {
         super();
-        this._factory = factory;
         this.DrawString_color = "#E69999";
         this.Red = "#ff0000";
         this.Green = "#00ff00"
@@ -102,18 +105,22 @@ export class Physics2DDebugDraw extends Sprite {
 
     /**@internal */
     private _renderToGraphic(): void {
-        if (this._factory.world) {
-            this._textG.clear();
-            this._mG.clear();
-            this._mG.save();
-            this._mG.scale(this._factory.PIXEL_RATIO, this._factory.PIXEL_RATIO);
-            this._lineWidth = this._factory.layaToPhyValue(1);
-            if (this._factory.world.DebugDraw) // ts源码版box2d
-                this._factory.world.DebugDraw();
-            else
-                this._factory.world.DrawDebugData();
-            this._mG.restore();
+        if (!this._physics2DWorld) return;
+        this._textG.clear();
+        this._mG.clear();
+        this._mG.save();
+        this._mG.scale(this._physics2DWorld.getPixel_Ratio(), this._physics2DWorld.getPixel_Ratio());
+        this._lineWidth = this._physics2DWorld.layaToPhysics2D(1);
+        for (let i = 0; i <= Physics2D.I._factory.worldCount; i++) {
+            let world = Physics2D.I._factory.worldMap.get(i);
+            if (!world) continue;
+            if (world && world.enableDebugDraw) {
+                world.box2DWorld.DebugDraw();
+            } else {
+                world.box2DWorld.DrawDebugData();
+            }
         }
+        this._mG.restore();
     }
 
     /**
@@ -122,7 +129,7 @@ export class Physics2DDebugDraw extends Sprite {
      * @zh 使用给定的上下文和位置渲染对象。
      */
     render(ctx: Context, x: number, y: number): void {
-        if(!LayaEnv.isPlaying) return;
+        if (!LayaEnv.isPlaying) return;
         this._renderToGraphic();
         super.render(ctx, x, y);
     }

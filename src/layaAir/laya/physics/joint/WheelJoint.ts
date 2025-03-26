@@ -1,8 +1,9 @@
 import { JointBase } from "./JointBase";
 import { Point } from "../../maths/Point"
-import { RigidBody } from "../RigidBody"
 import { Utils } from "../../utils/Utils";
-import { physics2D_WheelJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_WheelJointDef } from "../factory/IPhysics2DFactory";
+import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en WheelJoint: Allows an object to rotate around a fixed axis relative to another object, while also providing spring-like resistance along the axis for bouncing back.
@@ -42,13 +43,13 @@ export class WheelJoint extends JointBase {
      * @en The rigid body that is locally attached to the joint. This setting is effective only on the first assignment.
      * @zh [首次设置有效]与关节直接相连的自身刚体。
      */
-    selfBody: RigidBody;
+    selfBody: ColliderBase;
 
     /**
      * @en The connected rigid body. This setting is effective only on the first assignment.
      * @zh [首次设置有效]与关节连接的另一个刚体。
      */
-    otherBody: RigidBody;
+    otherBody: ColliderBase;
 
     /**
      * @en Link points of joints, it is offset from the position of the upper left corner of its own rigid body. This setting is effective only on the first assignment.
@@ -195,9 +196,10 @@ export class WheelJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.otherBody) throw "otherBody can not be empty";
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_WheelJointDef = WheelJoint._temp || (WheelJoint._temp = new physics2D_WheelJointDef());
@@ -205,8 +207,18 @@ export class WheelJoint extends JointBase {
             def.anchor.setValue(anchorPos.x, anchorPos.y);
             let radian = Utils.toRadian(this.angle);
             def.axis.setValue(Math.cos(radian), Math.sin(radian));
-            def.bodyA = this.otherBody.getBody();
-            def.bodyB = this.selfBody.getBody();;
+            def.bodyA = this.otherBody.getBox2DBody();
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
+            def.bodyB = this.selfBody.getBox2DBody();;
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
@@ -216,7 +228,10 @@ export class WheelJoint extends JointBase {
             def.upperTranslation = this._upperTranslation;
             def.frequency = this._frequency;
             def.dampingRatio = this._dampingRatio;
-            this._joint = this._factory.create_WheelJoint(def);
+            this._box2DJointDef = this._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.WheelJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.WheelJoint, this._box2DJointDef);
+            this.otherBody.owner.off("bodyCreated", this, this._createJoint);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 }

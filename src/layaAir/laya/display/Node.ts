@@ -55,7 +55,6 @@ export class Node extends EventDispatcher {
     /**@internal */
     _componentDriver: ComponentDriver;
     /** 
-     * @internal
      * 0-2D节点，1-3D节点，2-New UI节点
      */
     _nodeType: number = 0;
