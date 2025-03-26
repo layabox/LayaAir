@@ -55,6 +55,7 @@ export class BoxShape2D extends Physics2DShapeBase {
      */
     protected _createShape(): void {
         this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.BoxShape, this._box2DShapeDef);
+        this._updateShapeData();
     }
 
     /**
@@ -68,7 +69,7 @@ export class BoxShape2D extends Physics2DShapeBase {
             x: helfW + this.pivotoffx,
             y: helfH + this.pivotoffy
         }
-        let shape: any = this._box2DShape ? this._box2DShape.shape : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
 
     }

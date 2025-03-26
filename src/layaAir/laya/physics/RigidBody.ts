@@ -9,6 +9,7 @@ import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 
 const _tempV0: Vector2 = new Vector2();
+const _tempP0: Point = new Point();
 
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
@@ -297,9 +298,32 @@ export class RigidBody extends ColliderBase {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
         let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
-        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, rotateValue);//重新给个setPos的接口
+        _tempP0.x = pos.x;
+        _tempP0.y = pos.y;
+        let globalPos = this.owner.parent.localToGlobal(_tempP0);
+        factory.set_RigibBody_Transform(this._box2DBody, globalPos.x, globalPos.y, rotateValue);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
+    }
+
+    /**
+     * @zh 获取当前刚体的位置
+     * @en Get the position of the current rigid body
+     */
+    get position(): Point {
+        if (!this._box2DBody) {
+            _tempP0.x = this.owner.globalTrans.x;
+            _tempP0.y = this.owner.globalTrans.y;
+            return _tempP0;
+        }
+        var pos = Vector2.TEMP;
+        Physics2D.I._factory.get_RigidBody_Position(this._box2DBody, pos);
+        _tempP0.x = pos.x;
+        _tempP0.y = pos.y;
+        let localPos = this.owner.parent.globalToLocal(_tempP0);
+        _tempP0.x = localPos.x;
+        _tempP0.y = localPos.y;
+        return _tempP0;
     }
 
     /**
@@ -314,8 +338,16 @@ export class RigidBody extends ColliderBase {
         pos.setValue(pos.x, pos.y);
         factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, number);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
-        //}
         Physics2D.I._addRigidBody(this);
+    }
+
+    /**
+     * @zh 获取当前刚体的角度
+     * @en Get the angle of the current rigid body
+     */
+    get rotation(): number {
+        if (!this._box2DBody) return this.owner.rotation;
+        return Utils.toAngle(Physics2D.I._factory.get_RigidBody_Angle(this._box2DBody));
     }
 
     constructor() {
@@ -454,7 +486,6 @@ export class RigidBody extends ColliderBase {
         super._onDestroy();
         Physics2D.I._factory.destroyData(this._massData);
         this._massData = null;
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
     }
 
     /**
