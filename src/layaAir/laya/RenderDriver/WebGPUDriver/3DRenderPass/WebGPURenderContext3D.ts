@@ -75,11 +75,13 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _viewPortSave: Viewport = new Viewport();
     private _scissorSave: Vector4 = new Vector4();
 
+    static _instance: WebGPURenderContext3D;
 
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         WebGPURenderEngine._instance.gpuBufferMgr.renderContext = this;
         this._preDrawUniformMaps = new Set<string>();
+        WebGPURenderContext3D._instance = this;
     }
 
     get sceneData(): WebGPUShaderData {

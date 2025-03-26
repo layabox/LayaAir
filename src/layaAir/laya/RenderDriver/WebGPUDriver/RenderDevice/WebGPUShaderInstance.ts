@@ -5,9 +5,8 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { NotImplementedError } from "../../../utils/Error";
-import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
+import { WebGPURenderContext3D } from "../3DRenderPass/WebGPURenderContext3D";
 
 /**
  * WebGPU着色器实例
@@ -34,22 +33,11 @@ export class WebGPUShaderInstance implements IShaderInstance {
     name: string;
     complete: boolean = false;
 
-    uniformInfo: WebGPUUniformPropertyBindingInfo[];
+    uniformInfo: WebGPUUniformPropertyBindingInfo[];//TODO
     uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
-
-    globalId: number;
-
-    //根据Sprite，additionnal分别记录资源列表
-    _cacheSpriteBindGroupDescriptor: GPUBindGroupDescriptor;
-    _additionalEntryGroup: Map<string, WebGPUUniformPropertyBindingInfo[]>;
-    _spriteEntryGroup: WebGPUUniformPropertyBindingInfo[] = [];
-
-    _nodeUniformMaps: string[];
-    _nodeBindGroupKey: string;
 
     constructor(name: string) {
         this.name = name;
-        this.globalId = WebGPUGlobal.getId(this);
     }
 
     _serializeShader(): ArrayBuffer {
@@ -122,73 +110,46 @@ export class WebGPUShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         const engine = WebGPURenderEngine._instance;
         const device = engine.getDevice();
+        if (!shaderProcessInfo.is2D) {
+            //global
+            let context = WebGPURenderContext3D._instance;
+            let preDrawUniforms = context._preDrawUniformMaps;
+            this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms));
+            //camera
+            this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]);
+            //sprite+additional
+            let strArray = [];
+            for (var com in shaderPass._nodeUniformCommonMap) {
+                strArray.push(com);
+            }
+            for (var addition in shaderPass.additionShaderData) {
+                strArray.push(addition);
+            }
+            this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, strArray);
+            //material
+            this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, [shaderPass.name]);
+        }
+
         const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
             shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
             shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
             shaderProcessInfo.is2D);
 
         this.uniformInfo = shaderObj.uniformInfo;
-        this.uniformInfo.forEach(item => {
-            if (!this.uniformSetMap[item.set])
-                this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
-            this.uniformSetMap[item.set].push(item);
-        });
+        // this.uniformInfo.forEach(item => {
+        //     if (!this.uniformSetMap[item.set])
+        //         this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
+        //     this.uniformSetMap[item.set].push(item);
+        // });
 
-        //
-        let commap = this._shaderPass.nodeCommonMap;
-        let additional = this._shaderPass.additionShaderData;
-        for (var com in commap) {
-            this._nodeUniformMaps.push(com);
-        }
-        for (var addition in additional) {
-            this._nodeUniformMaps.push(addition);
-        }
-        this._nodeBindGroupKey = WebGPUBindGroupHelper._getBindGroupID(this._nodeUniformMaps);
-        
+
+
         this._shaderPass = shaderPass;
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
         this.complete = true;
     }
-
-    // private _createSpriteChacheData() {
-    //     //创建Sprite的缓存组
-    //     let spriteGroupLayout = this._createBindGroupLayout(2, 'spriteBindGroup');
-    //     if (spriteGroupLayout) {
-    //         let entries: GPUBindGroupEntry[] = [];
-    //         this._cacheSpriteBindGroupDescriptor = {
-    //             label: 'spriteBindGroup',
-    //             layout: spriteGroupLayout,
-    //             entries: entries
-    //         }
-    //         for (let i = 0; i < this.uniformInfo.length; i++) {
-    //             const item = this.uniformInfo[i];
-    //             if (item.set === 2) {
-
-    //                 if (this.hasSpritePtrID(item.propertyId)) {
-    //                     if (!this._spriteEntryGroup) {
-    //                         this._spriteEntryGroup = [];
-    //                     }
-    //                     this._spriteEntryGroup.push(item);
-    //                 }
-    //                 if (this._hasAdditionShaderData(item.propertyId)) {
-    //                     let strKey = this._hasAdditionShaderData(item.propertyId);
-    //                     if (!strKey) {
-    //                         if (this._additionalEntryGroup.has(strKey)) {
-    //                             this._additionalEntryGroup.get(strKey).push(item);
-    //                         } else {
-    //                             this._additionalEntryGroup.set(strKey, [item]);
-    //                         }
-    //                     }
-
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    // }
-
 
     private _createBindGroupLayout(set: number, name: string) {
         const data: WebGPUUniformPropertyBindingInfo[] = [];
@@ -250,34 +211,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         return this._gpuPipelineLayout;
     }
 
-
-
-    // private hasSpritePtrID(dataOffset: number): boolean {
-    //     let commap = this._shaderPass.nodeCommonMap;
-    //     if (!commap) {
-    //         return false;
-    //     } else {
-    //         for (let i = 0, n = commap.length; i < n; i++) {
-    //             if ((LayaGL.renderDeviceFactory.createGlobalUniformMap(commap[i]) as WebGPUCommandUniformMap).hasPtrID(dataOffset))
-    //                 return true;
-    //         }
-    //         return false;
-    //     }
-    // }
-
-    // private _hasAdditionShaderData(dataOffset: number): string {
-    //     let additionShaderData = this._shaderPass.additionShaderData;
-    //     if (!additionShaderData) {
-    //         return null;
-    //     } else {
-    //         for (let i = 0, n = additionShaderData.length; i < n; i++) {
-    //             if ((LayaGL.renderDeviceFactory.createGlobalUniformMap(additionShaderData[i]) as WebGPUCommandUniformMap).hasPtrID(dataOffset))
-    //                 return additionShaderData[i];
-    //         }
-    //     }
-    //     return null;
-    // }
-
     /**
      * 销毁
      */
@@ -287,5 +220,4 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._destroyed = true;
         }
     }
-
 }

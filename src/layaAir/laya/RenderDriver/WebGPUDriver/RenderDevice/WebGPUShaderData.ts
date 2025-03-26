@@ -238,7 +238,7 @@ export class WebGPUShaderData extends ShaderData {
             this._cacheBindGroup.get(cacheName).isNeedCreate(this._getBindGroupLastUpdateMask(cacheName));
         if (needRecreate) {//重新创建BindGroup
             if (!this._cacheNameBindGroupInfos.has(`${bindGroup}` + cacheName)) {
-                this._cacheNameBindGroupInfos.set(`${bindGroup}` + cacheName, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(bindGroup, name, uniformMap));
+                this._cacheNameBindGroupInfos.set(`${bindGroup}` + cacheName, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(bindGroup, name, cacheName, uniformMap));
             }
 
             let bindGroupInfos = this._cacheNameBindGroupInfos.get(`${bindGroup}` + cacheName);
@@ -260,7 +260,6 @@ export class WebGPUShaderData extends ShaderData {
         } else {
             return this._cacheBindGroup.get(cacheName);
         }
-
     }
 
 

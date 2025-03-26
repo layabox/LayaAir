@@ -36,6 +36,10 @@ export class WebGPUBindGroupHelper {
         return sortedArray.join("_");
     }
 
+    static _getBindGroupPropertyID(bindGroupID: number, array: string[]) {
+        return `${bindGroupID}` + this._getBindGroupID(array);
+    }
+
     /**
      * 获取纹理类型
      * @param uniformType 
@@ -66,7 +70,7 @@ export class WebGPUBindGroupHelper {
      */
     static createBindPropertyInfoArrayByCommandMap(groupID: number, unifromCommandMapArray: string[]): WebGPUUniformPropertyBindingInfo[] {
         // 根据groupID和命令映射数组生成唯一的绑定组键值
-        const bindGroupKey = this._getBindGroupID(unifromCommandMapArray);
+        const bindGroupKey = this._getBindGroupPropertyID(groupID, unifromCommandMapArray);
         if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
             return WebGPUBindGroupHelper.BindGroupPropertyInfoMap.get(bindGroupKey);
         }
@@ -207,7 +211,11 @@ export class WebGPUBindGroupHelper {
     }
 
     //传入UniformMap，创建WebGPUUniformPropertyBindingInfo数组
-    static createBindGroupInfosByUniformMap(groupID: number, name: string, uniformMap: Map<number, UniformProperty>) {
+    static createBindGroupInfosByUniformMap(groupID: number, name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
+        const bindGroupKey = this._getBindGroupPropertyID(groupID, [cacheName]);
+        if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
+            return WebGPUBindGroupHelper.BindGroupPropertyInfoMap.get(bindGroupKey);
+        }
         // 遍历uniform映射中的所有属性,添加纹理set和sampler的绑定信息
         let bindingIndex = 0;
         const propertyId = Shader3D.propertyNameToID(name);
@@ -262,7 +270,7 @@ export class WebGPUBindGroupHelper {
                 bindingInfos.push(samplerBindInfo);
             }
         }
-
+        WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);
         return bindingInfos;
 
     }
