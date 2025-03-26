@@ -1112,6 +1112,7 @@ export class Scene3D extends Sprite {
      */
     _addRenderObject(render: BaseRender): void {
         this._sceneRenderManager.addRenderObject(render);
+        render._inRenderList = true;
         render._addReflectionProbeUpdate();
     }
 
@@ -1119,6 +1120,7 @@ export class Scene3D extends Sprite {
      * @internal
      */
     _removeRenderObject(render: BaseRender): void {
+        render._inRenderList = false;
         this._sceneRenderManager.removeRenderObject(render);
     }
 
