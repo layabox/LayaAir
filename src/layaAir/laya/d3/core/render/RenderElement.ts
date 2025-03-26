@@ -57,7 +57,7 @@ export class RenderElement {
 
         if (value) {
             this._material = value;
-            this.material._setOwnerElement(this._renderElementOBJ);
+            this.material._setOwner3DElement(this._renderElementOBJ);
         }
         else {
             this._material = null;
