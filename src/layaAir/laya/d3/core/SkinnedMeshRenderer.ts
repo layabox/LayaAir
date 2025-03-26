@@ -225,6 +225,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     */
     _onMeshChange(value: Mesh): void {
         this._onSkinMeshChange(value);
+        this._setRenderElements();
         if (!value)
             return;
         this._cacheMesh = (<Mesh>value);
@@ -241,7 +242,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             (this._renderElements[i] as SkinRenderElement).setSkinData(subData);
         }
         this._isISkinRenderNode() && this._ownerSkinRenderNode.setSkinnedData(this._skinnedData);
-        this._setRenderElements();
     }
 
     /**
