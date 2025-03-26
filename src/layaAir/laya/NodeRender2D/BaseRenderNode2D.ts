@@ -120,7 +120,7 @@ export class BaseRenderNode2D extends Component {
     */
     static _setRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
         element.subShader = material._shader.getSubShaderAt(0);
-        //element.materialId = material.id;
+        material._setOwner2DElement(element);
         element.materialShaderData = material._shaderValues;
     }
 
