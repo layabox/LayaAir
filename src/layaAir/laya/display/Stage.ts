@@ -74,8 +74,10 @@ export class Stage extends Sprite {
      */
     static SCALE_FULL: string = "full";
     /**
-     * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
-     * @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
+     * @en Similar to SCALE_FULL, this mode sets the stage and canvas directly to the screen width and height. However, the difference is that it scales according to DPR (pixelRatio), making it suitable for high-DPR devices. 
+     * Advantages of this mode: evelopers do not need to manually scale UI elements based on DPR in their logic.  
+     * Important considerations: The design width and height should not use the physical resolution of the target device. Instead, they must use the logical resolution; otherwise, content exceeding the logical resolution may be cropped.
+     *  @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
      * 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
      * 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率，这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
      */
