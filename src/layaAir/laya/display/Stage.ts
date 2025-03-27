@@ -468,11 +468,9 @@ export class Stage extends Sprite {
                 realHeight = Math.round(this.designHeight * scaleY);
                 break;
             case Stage.SCALE_FULL:
-                scaleX = scaleY = pixelRatio;
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
-                this._width = screenWidth / pixelRatio;
-                this._height = screenHeight / pixelRatio;
+                scaleX = scaleY = 1;
+                this._width = canvasWidth = screenWidth;
+                this._height = canvasHeight = screenHeight;
                 break;
             case Stage.SCALE_FIXED_WIDTH:
                 scaleY = scaleX;
