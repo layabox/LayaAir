@@ -933,15 +933,18 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return isSensor;
     }
     /**
-     * @zh 获取夹具fixture的shape，这里为了兼容
+     * @zh 获取夹具fixture的shape
      * @param shape 夹具
      * @returns 夹具的形状
      * @en get fixture's shape, for compatibility
      * @param shape fixture
      * @returns shape
      */
-    getShape(shape: any): any {
+    getShape(shape: any, type: EPhysics2DShape): any {
+        let world = shape.world;
         let fixtureShape: any = shape.GetShape();
+        fixtureShape = this.get_fixtureshape(fixtureShape, type);
+        fixtureShape.world = world;
         return fixtureShape;
     }
 
