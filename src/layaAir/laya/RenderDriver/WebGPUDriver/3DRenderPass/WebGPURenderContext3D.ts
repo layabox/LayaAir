@@ -79,7 +79,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
-        WebGPURenderEngine._instance.gpuBufferMgr.renderContext = this;
         this._preDrawUniformMaps = new Set<string>();
         WebGPURenderContext3D._instance = this;
     }

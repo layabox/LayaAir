@@ -129,20 +129,13 @@ export class WebGPUShaderInstance implements IShaderInstance {
             //material
             this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, [shaderPass.name]);
         }
-
+        //return TODO
         const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
             shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
             shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
             shaderProcessInfo.is2D);
 
         this.uniformInfo = shaderObj.uniformInfo;
-        // this.uniformInfo.forEach(item => {
-        //     if (!this.uniformSetMap[item.set])
-        //         this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
-        //     this.uniformSetMap[item.set].push(item);
-        // });
-
-
 
         this._shaderPass = shaderPass;
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });

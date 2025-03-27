@@ -27,6 +27,7 @@ import { WebGPUBuffer } from "./WebGPUBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUBindGroup, WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
 import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
+import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
 /**
  * 着色器数据
@@ -152,7 +153,7 @@ export class WebGPUShaderData extends ShaderData {
             switch (item.type) {
                 case WebGPUBindingInfoType.buffer:
                     //get ubo 
-                    entryArray.push((this._data[item.propertyId] as WebGPUUniformBuffer).getGPUBindEntry());
+                    entryArray.push((this._data[item.propertyId] as WebGPUUniformBufferBase).getBindGroupEntry());
                     break;
                 case WebGPUBindingInfoType.texture:
                     if (item.texture) {

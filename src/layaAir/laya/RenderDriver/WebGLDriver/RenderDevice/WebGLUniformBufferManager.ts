@@ -19,6 +19,7 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
     }
 
     createGPUBuffer(size: number, name?: string): GLBuffer {
+        
         let buffer = this.engine.createBuffer(BufferTargetType.UNIFORM_BUFFER, BufferUsage.Dynamic);
         buffer.bindBuffer();
         buffer.setDataLength(size);
@@ -26,7 +27,6 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
     }
 
     writeBuffer(buffer: GLBuffer, data: ArrayBuffer, offset: number, size: number): void {
-        // buffer.setDataEx(new Float32Array(data), offset, size / 4);
         buffer.bindBuffer();
         let gl = <WebGL2RenderingContext>this.engine.gl;
         gl.bufferSubData(buffer._glTarget, offset, new Float32Array(data, offset, size / 4));

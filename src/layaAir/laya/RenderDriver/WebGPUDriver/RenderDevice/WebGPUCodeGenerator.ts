@@ -16,7 +16,6 @@ import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { NameAndType, NameBooleanMap, NameNumberMap, NameStringMap } from "./WebGPUCommon";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
-import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
 /**
  * attribute列表
@@ -59,7 +58,7 @@ export interface WebGPUUniformPropertyBindingInfo {
     propertyId: number; //uniform内容的id
     visibility: GPUShaderStageFlags; //GPU中的可见性
     type: WebGPUBindingInfoType; //绑定类型
-    uniform?: WebGPUUniformBlockInfo; //uniform详细内容
+    uniform?: any; //uniform详细内容
     buffer?: GPUBufferBindingLayout;
     texture?: GPUTextureBindingLayout;
     sampler?: GPUSamplerBindingLayout;
@@ -684,7 +683,7 @@ mat4 transpose(mat4 m)
      * @param uniforms 
      * @param arrayMap 
      */
-    private static _genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap) {
+    private static _genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap): any {
         if (uniforms.length === 0) return undefined;
         const _getUniformAlign = (type: string) => {
             switch (type) {
@@ -784,12 +783,12 @@ mat4 transpose(mat4 m)
         };
 
         const size = _calcUniformBufferSize(uniforms, arrayMap);
-        const uniformBlockInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
-        for (let i = 0, len = size.layout.length; i < len; i++) {
-            const uniform = size.layout[i];
-            uniformBlockInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
-        }
-        return uniformBlockInfo;
+        //  const uniformBlockInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
+        //  for (let i = 0, len = size.layout.length; i < len; i++) {
+        //      const uniform = size.layout[i];
+        //      uniformBlockInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+        //  }
+        return null;
     }
 
     /**
