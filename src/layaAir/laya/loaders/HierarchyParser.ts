@@ -371,7 +371,7 @@ export class HierarchyParser {
         let type: string;
         function checkData(data: any) {
             if (data._$uuid != null) {
-                data._$uuid = addInnerUrl(data._$uuid, SerializeUtil.getLoadTypeByEngineType(data._$type));
+                data._$uuid = addInnerUrl(data._$uuid, Loader.assetTypeToLoadType[data._$type]);
                 return;
             }
 
@@ -413,8 +413,15 @@ export class HierarchyParser {
         check(data);
 
         if (data._$preloads) {
-            for (let url of data._$preloads)
-                innerUrls.push(url);
+            let types = data._$preloadTypes;
+            let pi = 0;
+            for (let url of data._$preloads) {
+                if (types && types[pi])
+                    addInnerUrl(url, Loader.assetTypeToLoadType[types[pi]]);
+                else
+                    innerUrls.push(url);
+                pi++;
+            }
         }
 
         return innerUrls;
