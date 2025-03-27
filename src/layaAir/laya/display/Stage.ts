@@ -72,6 +72,16 @@ export class Stage extends Sprite {
     static SCALE_FULL: string = "full";
 
     /**
+     * @en Similar to SCALE_FULL, this mode sets the stage and canvas directly to the screen width and height. However, the difference is that it scales according to DPR (pixelRatio), making it suitable for high-DPR devices. 
+     * Advantages of this mode: evelopers do not need to manually scale UI elements based on DPR in their logic.  
+     * Important considerations: The design width and height should not use the physical resolution of the target device. Instead, they must use the logical resolution; otherwise, content exceeding the logical resolution may be cropped.
+     *  @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
+     * 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
+     * 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率，这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
+     */
+    static SCALE_FULLSCREEN: string = "fullscreen";
+
+    /**
      * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
      * @zh 保持舞台的宽度固定，根据屏幕高度进行缩放。画布的高度根据屏幕高度和缩放因子计算，并设置舞台的高度。这种模式确保宽度一致，但在不同设备上可能会改变高度比例。
      */
@@ -500,6 +510,13 @@ export class Stage extends Sprite {
                 scaleX = scaleY = 1;
                 this._width = canvasWidth = screenWidth;
                 this._height = canvasHeight = screenHeight;
+                break;
+            case Stage.SCALE_FULLSCREEN:
+                scaleX = scaleY = pixelRatio;
+                canvasWidth = screenWidth;
+                canvasHeight = screenHeight;
+                this._width = screenWidth / pixelRatio;
+                this._height = screenHeight / pixelRatio;
                 break;
             case Stage.SCALE_FIXED_WIDTH:
                 scaleY = scaleX;
