@@ -70,8 +70,16 @@ export class Stage extends Sprite {
     /**
      * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
      * @zh 将舞台与画布直接设置为屏幕宽度和高度，其它方面与SCALE_NOSCALE模式一样，不对设计内容本身进行缩放。这种模式适用于希望完全利用屏幕空间，自行对屏幕动态排版的需求。
+     * 需要注意的是，在这种模式下，由于UI设计内容本身没有根据 DPR 缩放，所以需要开发者在项目逻辑里对 UI 根据 DPR(pixelRatio) 进行缩放处理。
      */
     static SCALE_FULL: string = "full";
+    /**
+     * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
+     * @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
+     * 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
+     * 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率，这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
+     */
+    static SCALE_FULLSCREEN: string = "fullscreen";
 
     /**
      * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
@@ -471,6 +479,13 @@ export class Stage extends Sprite {
                 scaleX = scaleY = 1;
                 this._width = canvasWidth = screenWidth;
                 this._height = canvasHeight = screenHeight;
+                break;
+            case Stage.SCALE_FULLSCREEN:
+                scaleX = scaleY = pixelRatio;
+                canvasWidth = screenWidth;
+                canvasHeight = screenHeight;
+                this._width = screenWidth / pixelRatio;
+                this._height = screenHeight / pixelRatio;
                 break;
             case Stage.SCALE_FIXED_WIDTH:
                 scaleY = scaleX;
