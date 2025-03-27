@@ -234,6 +234,22 @@ export class Loader extends EventDispatcher {
      * @zh 热重载标识。
      */
     static readonly hotReloadableFlags: Record<number, boolean> = {};
+
+    /**
+     * @en If an extension corresponds to multiple loading types, you can define a mapping here, which can be used to obtain the correct loading type through the resource type recorded in the file during deserialization.
+     * @zh 如果一个扩展名对应多种加载类型时，那么在可以在这里定义一个映射，用于在反序列化时，通过文件中记录的资源类型获得正确的加载类型。
+     */
+    static readonly assetTypeToLoadType: Record<string, string> = {
+        "Image": Loader.IMAGE,
+        "Texture2D": Loader.TEXTURE2D,
+        "RenderTexture": Loader.TEXTURE2D,
+        "TextureCube": Loader.TEXTURECUBE,
+        "Prefab": Loader.HIERARCHY,
+        "Material": Loader.MATERIAL,
+        "Mesh": Loader.MESH,
+        "Spine": Loader.SPINE,
+    };
+
     /**
      * @en The downloader used to download resources.
      * @zh 下载器，用来下载资源。
@@ -489,7 +505,7 @@ export class Loader extends EventDispatcher {
     _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warnFailed(url, undefined, options.initiator?.url);
+            !options.silent && Loader.warnFailed(url, type ? `unsupported load type:${type}` : `unsupported suffix`, options.initiator?.url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
