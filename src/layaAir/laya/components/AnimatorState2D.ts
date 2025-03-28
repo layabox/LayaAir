@@ -13,28 +13,24 @@ import { AnimatorTransition2D } from "./AnimatorTransition2D";
  */
 export class AnimatorState2D extends EventDispatcher implements IClone {
     /**
-     * @internal
      * @en Event triggered when entering the state
      * @zh 进入状态时触发的事件
      */
     static EVENT_OnStateEnter = "OnStartEnter";
 
     /**
-     * @internal
      * @en Event triggered during state update
      * @zh 状态更新时触发的事件
      */
     static EVENT_OnStateUpdate = "OnStateUpdate";
 
     /**
-     * @internal
      * @en Event triggered when exiting the state
      * @zh 退出状态时触发的事件
      */
     static EVENT_OnStateExit = "OnStateExit";
 
     /**
-     * @internal
      * @en Event triggered when the state loops
      * @zh 状态循环时触发的事件
      */
