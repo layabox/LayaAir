@@ -4,10 +4,15 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { WebGLUniform } from "../../../WebGLDriver/RenderDevice/WebGLUniformBufferDescriptor";
+import { UniformProperty } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
+import { wgsl } from "./StructBuffer";
+import { UniformMapType } from "../../../../RenderEngine/RenderShader/SubShader";
+import { info } from "console";
 type DataViewType = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
 
 type DataView = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;
+
+type uniformInfo = { offset: number, size: number };
 
 export type WebGPUUnifrom = {
     index: number;
@@ -18,16 +23,16 @@ export type WebGPUUnifrom = {
 
     dataView: DataViewType;
 
-    view: DataView;
+    view: DataView;//实际数据位置
 
     /**
      * element size (eg: vec2: 2, vec4: 4, mat4: 16)
      */
     size: number;
 
-    alignStride: number;
+    alignStride: number;//一个元素实际的占用size
 
-    viewByteLength: number;
+    viewByteLength: number;//总长(字节)
 
     /**
      * 0: not array
@@ -36,45 +41,155 @@ export type WebGPUUnifrom = {
 };
 
 export class WebGPUUniformBufferDescriptor {
-    name: string;
+    lable: string;
     private _byteLength: number;
+
+    constructor(lable: string) {
+        this.lable = lable;
+    }
     get byteLength() {
         return this._byteLength;
     }
-    uniforms: Map<number, WebGLUniform>;
+    uniforms: Map<number, WebGPUUnifrom>;
 
-    addUniform(index: number, type: ShaderDataType, arraySize: number = 0) {
+    private _getPrimitive(type: ShaderDataType): wgsl.Primitive {
+        switch (type) {
+            case ShaderDataType.Int:
+            case ShaderDataType.Bool:
+                return "i32"
+            case ShaderDataType.Float:
+                return "f32"
+            case ShaderDataType.Vector2:
+                return "vec2f"
+            case ShaderDataType.Vector3:
+                return "vec3f"
+            case ShaderDataType.Vector4:
+            case ShaderDataType.Color:
+                return "vec4f"
+            case ShaderDataType.Matrix3x3:
+                return "mat3x3f"
+            case ShaderDataType.Matrix4x4:
+                return "mat4x4f"
+            case ShaderDataType.Buffer:
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.Texture3D:
+            case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.None:
+            default:
+                return null;
+                break;
+        }
+    }
+
+    private _getsize(type: ShaderDataType) {
+        switch (type) {
+            case ShaderDataType.Int:
+            case ShaderDataType.Bool:
+            case ShaderDataType.Float:
+                return 1;
+            case ShaderDataType.Vector2:
+                return 2;
+            case ShaderDataType.Vector3:
+                return 3;
+            case ShaderDataType.Vector4:
+            case ShaderDataType.Color:
+                return 4;
+            case ShaderDataType.Matrix3x3:
+                return 9
+            case ShaderDataType.Matrix4x4:
+                return 16
+            case ShaderDataType.Buffer:
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.Texture3D:
+            case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.None:
+            default:
+                return null;
+                break;
+        }
+    }
+
+    setUniforms(uniforms: Map<number, UniformProperty>) {
         //生成string
-    }
+        let bufferStruct: wgsl.Struct = {};
+        for (const [key, value] of uniforms) {
+            let structKey = value.propertyName;
+            let primitive: wgsl.Primitive;
+            primitive = this._getPrimitive(value.uniformtype);
+            if (!primitive)
+                continue;
+            if (value.arrayLength < 1) {
+                bufferStruct[structKey] = primitive;
+            } else {
+                let arraystruct: wgsl.Array = [
+                    {
+                        structKey: primitive
+                    },
+                    value.arrayLength
+                ]
+                bufferStruct[structKey] = arraystruct;
+            }
+        }
+        let strucbuffer = new wgsl.StructBuffer(bufferStruct, true, true);
+        //console.log(strucbuffer);
+        let infos = strucbuffer.info;
+        this._byteLength = strucbuffer.buffer.length;
+        for (const [key, value] of uniforms) {
+            let offset, viewByteLength, size, alignStride;
+            size = this._getsize(value.uniformtype);
+            if (!size) continue;
+            let tsc: DataViewType = Float32Array;
+            if (value.uniformtype == ShaderDataType.Int || value.uniformtype == ShaderDataType.Bool)
+                tsc = Int32Array;
 
-    finish() {
-        //根据string，得到组织，根据组织，重新填充Uniforms
-    }
+            if (value.arrayLength > 1) {
+                let info: Array<uniformInfo> = infos[value.propertyName];
+                //第一个的offset  最后一个的offset+size
+                offset = info[0].offset;
+                viewByteLength = info[0].size * info.length;
+                alignStride = info[0].size / tsc.BYTES_PER_ELEMENT;
 
+            } else {
+                let info: uniformInfo = infos[value.propertyName];
+                offset = info.offset;
+                viewByteLength = info.size;
+                alignStride = info.size / tsc.BYTES_PER_ELEMENT;
+            }
+
+            let uniform: WebGPUUnifrom = {
+                index: key,
+                view: null,
+                size: size,
+                alignStride: alignStride,
+                offset: offset,
+                dataView: tsc,
+                viewByteLength: viewByteLength,
+                arrayLength: value.arrayLength,
+            }
+            this.uniforms.set(key, uniform)
+        }
+    }
     destroy() {
         this.uniforms.clear();
     }
 }
 export abstract class WebGPUUniformBufferBase {
+    static device: GPUDevice;
     descriptor: WebGPUUniformBufferDescriptor;
-
+    bytelength: number;
     needUpload: boolean;
 
     protected _GPUBindGroupEntry: GPUBindGroupEntry;
 
     protected _gpuBuffer: GPUBuffer;
 
-
+    abstract getBindGroupEntry(binding: number): GPUBindGroupEntry;
 
     abstract upload(): void;
 
-    abstract bind(location: number): void;
-
     abstract destroy(): void;
-
-    getBindGroupEntry(): GPUBindGroupEntry {
-        return this._GPUBindGroupEntry;
-    }
 
     setInt(index: number, value: number) {
         let uniform = this.descriptor.uniforms.get(index);

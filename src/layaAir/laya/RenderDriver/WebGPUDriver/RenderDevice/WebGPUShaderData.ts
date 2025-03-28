@@ -27,7 +27,8 @@ import { WebGPUBuffer } from "./WebGPUBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUBindGroup, WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
 import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
-import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBlockInfo";
+import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
+import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 
 /**
  * 着色器数据
@@ -89,9 +90,9 @@ export class WebGPUShaderData extends ShaderData {
     //UBO Buffer Module
     private _uniformBuffers: Map<string, WebGPUUniformBuffer>;
 
-    private _subUniformBuffers: Map<string, WebGPUUniformBuffer>;//TODO
+    private _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
 
-    private _uniformBuffersPropertyMap: Map<number, WebGPUBuffer>;
+    private _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
 
     private _updateCacheArray: { [key: number]: any } = null;
 
@@ -124,15 +125,81 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     updateUBOBuffer(key: string) {
-        //TODO
+        let buffer = this._uniformBuffers.get(key) || this._subUniformBuffers.get(key);
+        if (!buffer) {
+            return;
+        }
+        for (var i in this._updateCacheArray) {
+            let index = parseInt(i);
+            let ubo = this._uniformBuffersPropertyMap.get(index);
+            if (ubo) {
+                (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+            }
+        }
+        this._updateCacheArray = {};
+        buffer.needUpload && buffer.upload();
     }
 
-    createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap) {
-        //TODO
+    createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap): WebGPUUniformBuffer {
+        if (this._uniformBuffers.has(name)) {
+            return null;
+        }
+        let uboBuffer = new WebGPUUniformBuffer(name, uniformMap._idata);
+        this._uniformBuffers.set(name, uboBuffer);
+        let id = Shader3D.propertyNameToID(name);
+        this._data[id] = uboBuffer;
+        uniformMap._idata.forEach(uniform => {
+            let uniformId = uniform.id;
+            let data = this._data[uniformId];
+            if (data != null) {
+                uboBuffer.setUniformData(uniformId, uniform.uniformtype, data);
+            }
+            this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
+        });
+        return uboBuffer;
     }
 
-    createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): IUniformBufferUser {
-        return null;
+    createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): WebGPUSubUniformBuffer {
+        let subBuffer = this._subUniformBuffers.get(cacheName);
+        if (subBuffer) {
+            if (this._subUboBufferNumber < 2) {
+                //update data
+                for (var i in this._updateCacheArray) {
+                    let index = parseInt(i);
+                    let ubo = this._uniformBuffersPropertyMap.get(index);
+                    if (ubo) {
+                        (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+                    }
+                }
+                this._updateCacheArray = {};//clear
+            } else {
+                uniformMap.forEach((uniform, index) => {
+                    if (this._data[index] && this._updateCacheArray[index]) {
+                        (this._updateCacheArray[index] as Function).call(subBuffer, index, this._data[index]);
+                    }
+                });
+            }
+            return subBuffer;
+        }
+
+        //create WebGPUSubUniform
+        let uniformBuffer = new WebGPUSubUniformBuffer(name, uniformMap);
+        this._subUboBufferNumber++;
+        uniformBuffer.notifyGPUBufferChange();
+        this._subUniformBuffers.set(cacheName, uniformBuffer);
+
+        let id = Shader3D.propertyNameToID(name);
+        this._data[id] = uniformBuffer;
+
+        uniformMap.forEach(uniform => {
+            let uniformId = uniform.id;
+            let data = this._data[uniformId];
+            if (data != null) {
+                uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
+            }
+            this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
+        });
+        return uniformBuffer;
     }
     /**
    * 传入布局，绑定好资源数据
@@ -153,7 +220,7 @@ export class WebGPUShaderData extends ShaderData {
             switch (item.type) {
                 case WebGPUBindingInfoType.buffer:
                     //get ubo 
-                    entryArray.push((this._data[item.propertyId] as WebGPUUniformBufferBase).getBindGroupEntry());
+                    entryArray.push((this._data[item.propertyId] as WebGPUUniformBufferBase).getBindGroupEntry(item.binding));
                     break;
                 case WebGPUBindingInfoType.texture:
                     if (item.texture) {
@@ -385,7 +452,7 @@ export class WebGPUShaderData extends ShaderData {
             this._stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '>_';
         }
         else {
-            //TODO
+            this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setInt;
         }
     }
 
@@ -405,7 +472,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setNumber(index: number, value: number) {
         this._data[index] = value;
-        //TODO
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setFloat;
     }
 
     /**
@@ -427,7 +494,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        //TODO
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector2;
     }
 
     /**
@@ -449,8 +516,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-
-        //TODO
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector3;
     }
 
     /**
@@ -472,8 +538,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        //TODO
-        //console.log('setVector');
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector4;
     }
 
     /**
@@ -510,7 +575,7 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = linearColor;
             this._gammaColorMap.set(index, value.clone());
         }
-        //TODO
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector4;
     }
 
     /**
@@ -542,8 +607,7 @@ export class WebGPUShaderData extends ShaderData {
         else {
             this._data[index] = value.clone();
         }
-
-        //TODO
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setMatrix3x3;
     }
 
     /**
@@ -566,7 +630,7 @@ export class WebGPUShaderData extends ShaderData {
         } else {
             this._data[index] = value.clone();
         }
-
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setMatrix4x4;
         //TODO
     }
 
@@ -586,6 +650,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array) {
         this._data[index] = value;
+        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setArrayBuffer;
     }
 
     _textureData: { [key: number]: BaseTexture };
