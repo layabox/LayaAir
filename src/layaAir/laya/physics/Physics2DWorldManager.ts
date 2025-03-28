@@ -11,6 +11,7 @@ import { Laya } from "../../Laya";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { LayaEnv } from "../../LayaEnv";
 import { Color } from "../maths/Color";
+import { ILaya } from "../../ILaya";
 
 /**
  * @en 2D physics world manager class for the scene
@@ -471,13 +472,25 @@ export class Physics2DWorldManager implements IElementComponentManager {
         }
     }
 
+    private _scaleSizeXByScaleMode(x: number) {
+        let value = x;
+        value *= ILaya.stage.clientScaleX;
+        return value;
+    }
+
+    private _scaleSizeYByScaleMode(y: number) {
+        let value = y;
+        value *= ILaya.stage.clientScaleY;
+        return value;
+    }
+
     private _debugDrawSegment(p1: any, p2: any, color: any): void {
         p1 = Physics2D.I._factory.warpPoint(p1, Ebox2DType.b2Vec2);
         p2 = Physics2D.I._factory.warpPoint(p2, Ebox2DType.b2Vec2);
-        let p1x = this.physics2DToLaya(p1.x);
-        let p1y = this.physics2DToLaya(p1.y);
-        let p2x = this.physics2DToLaya(p2.x);
-        let p2y = this.physics2DToLaya(p2.y);
+        let p1x = this.physics2DToLaya(this._scaleSizeXByScaleMode(p1.x));
+        let p1y = this.physics2DToLaya(this._scaleSizeYByScaleMode(p1.y));
+        let p2x = this.physics2DToLaya(this._scaleSizeXByScaleMode(p2.x));
+        let p2y = this.physics2DToLaya(this._scaleSizeYByScaleMode(p2.y));
         let points: any[] = [];
         points.push(p1x);
         points.push(p1y);
@@ -492,8 +505,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let points: any[] = [];
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
-            vert.x = this.physics2DToLaya(vert.x);
-            vert.y = this.physics2DToLaya(vert.y);
+            vert.x = this.physics2DToLaya(this._scaleSizeXByScaleMode(vert.x));
+            vert.y = this.physics2DToLaya(this._scaleSizeYByScaleMode(vert.y));
             points.push(vert.x, vert.y);
         }
         let outColor = this._makeStyleString(color, 1);
@@ -506,8 +519,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let points: any[] = [];
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
-            vert.x = this.physics2DToLaya(vert.x);
-            vert.y = this.physics2DToLaya(vert.y);
+            vert.x = this.physics2DToLaya(this._scaleSizeXByScaleMode(vert.x));
+            vert.y = this.physics2DToLaya(this._scaleSizeYByScaleMode(vert.y));
             points.push(vert.x, vert.y);
         }
         let outColor = this._makeStyleString(color, 0.5);
@@ -517,8 +530,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
 
     private _debugDrawCircle(center: any, radius: any, color: any): void {
         let centerV = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
-        let x = this.physics2DToLaya(centerV.x);
-        let y = this.physics2DToLaya(centerV.y);
+        let x = this.physics2DToLaya(this._scaleSizeXByScaleMode(centerV.x));
+        let y = this.physics2DToLaya(this._scaleSizeYByScaleMode(centerV.y));
         radius = this.physics2DToLaya(radius);
         let outColor = this._makeStyleString(color, 1);
         let mesh2D = this._debugDraw.createCircleMeshByVertices({ x: x, y: y }, radius, 100);
@@ -528,8 +541,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _debugDrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
         center = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
         axis = Physics2D.I._factory.warpPoint(axis, Ebox2DType.b2Vec2);
-        let cx: any = this.physics2DToLaya(center.x);
-        let cy: any = this.physics2DToLaya(center.y);
+        let cx: any = this.physics2DToLaya(this._scaleSizeXByScaleMode(center.x));
+        let cy: any = this.physics2DToLaya(this._scaleSizeYByScaleMode(center.y));
         radius = this.physics2DToLaya(radius);
         let outColor = this._makeStyleString(color, 0.5);
         let mesh2d = this._debugDraw.createCircleMeshByVertices({ x: cx, y: cy }, radius, 100);
@@ -542,8 +555,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
         xf = Physics2D.I._factory.warpPoint(xf, Ebox2DType.b2Transform);
         this._debugDraw.PushTransform(xf.x, xf.y, xf.angle);
         const length = 1 / Browser.pixelRatio;
-        let x = this.physics2DToLaya(xf.x);
-        let y = this.physics2DToLaya(xf.y);
+        let x = this.physics2DToLaya(this._scaleSizeXByScaleMode(xf.x));
+        let y = this.physics2DToLaya(this._scaleSizeYByScaleMode(xf.y));
 
         let point0: any[] = [];
         point0.push(x);
@@ -572,14 +585,14 @@ export class Physics2DWorldManager implements IElementComponentManager {
         var hsize: any = size / 2;
         let outColor = this._makeStyleString(color, 1)
         let point: any[] = [];
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
+        point.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(p.x - hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(p.y - hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(p.x + hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(p.y - hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(p.x + hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(p.y + hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(p.x - hsize)));
+        point.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(p.y + hsize)));
         this._debugDraw.addLineDebugDrawCMD(point, outColor, this._debugDraw.lineWidth);
 
 
@@ -598,31 +611,31 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let outColor = this._makeStyleString(color, 1);
         let linew: number = this._debugDraw.lineWidth;
         let point0: any[] = [];
-        point0.push(this.physics2DToLaya(cx - hw));
-        point0.push(this.physics2DToLaya(cy - hh));
-        point0.push(this.physics2DToLaya(cx + hw));
-        point0.push(this.physics2DToLaya(cy - hh));
+        point0.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx - hw)));
+        point0.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy - hh)));
+        point0.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx + hw)));
+        point0.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy - hh)));
         this._debugDraw.addLineDebugDrawCMD(point0, outColor, this._debugDraw.lineWidth);
 
         let point1: any[] = [];
-        point1.push(this.physics2DToLaya(cx - hw));
-        point1.push(this.physics2DToLaya(cy + hh));
-        point1.push(this.physics2DToLaya(cx + hw));
-        point1.push(this.physics2DToLaya(cy + hh));
+        point1.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx - hw)));
+        point1.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy + hh)));
+        point1.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx + hw)));
+        point1.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy + hh)));
         this._debugDraw.addLineDebugDrawCMD(point1, outColor, this._debugDraw.lineWidth);
 
         let point2: any[] = [];
-        point2.push(this.physics2DToLaya(cx - hw));
-        point2.push(this.physics2DToLaya(cy - hh));
-        point2.push(this.physics2DToLaya(cx - hw));
-        point2.push(this.physics2DToLaya(cy + hh));
+        point2.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx - hw)));
+        point2.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy - hh)));
+        point2.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx - hw)));
+        point2.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy + hh)));
         this._debugDraw.addLineDebugDrawCMD(point2, outColor, this._debugDraw.lineWidth);
 
         let point3: any[] = [];
-        point3.push(this.physics2DToLaya(cx + hw));
-        point3.push(this.physics2DToLaya(cy - hh));
-        point3.push(this.physics2DToLaya(cx + hw));
-        point3.push(this.physics2DToLaya(cy + hh));
+        point3.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx + hw)));
+        point3.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy - hh)));
+        point3.push(this.physics2DToLaya(this._scaleSizeXByScaleMode(cx + hw)));
+        point3.push(this.physics2DToLaya(this._scaleSizeYByScaleMode(cy + hh)));
         this._debugDraw.addLineDebugDrawCMD(point3, outColor, this._debugDraw.lineWidth);
 
         // this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
