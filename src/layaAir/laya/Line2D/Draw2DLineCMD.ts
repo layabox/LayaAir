@@ -1,11 +1,11 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Line2DRender } from "../../../Line2D/Line2DRender";
-import { Color } from "../../../maths/Color";
-import { Matrix } from "../../../maths/Matrix";
-import { Vector3 } from "../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
-import { Draw2DElementCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
-import { Command2D } from "./Command2D";
+import { LayaGL } from "../layagl/LayaGL";
+import { Line2DRender } from "./Line2DRender";
+import { Color } from "../maths/Color";
+import { Matrix } from "../maths/Matrix";
+import { Vector3 } from "../maths/Vector3";
+import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
+import { Draw2DElementCMD } from "../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
+import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
 
 export class Draw2DLineCMD extends Command2D {
     private static _pool: Draw2DLineCMD[] = [];

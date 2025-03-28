@@ -532,7 +532,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let centerV = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
         let x = this.physics2DToLaya(this._scaleSizeXByScaleMode(centerV.x));
         let y = this.physics2DToLaya(this._scaleSizeYByScaleMode(centerV.y));
-        radius = this.physics2DToLaya(radius);
+        radius = this.physics2DToLaya(this._scaleSizeYByScaleMode(radius));
         let outColor = this._makeStyleString(color, 1);
         let mesh2D = this._debugDraw.createCircleMeshByVertices({ x: x, y: y }, radius, 100);
         this._debugDraw.addMeshDebugDrawCMD(mesh2D, outColor);
@@ -543,7 +543,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         axis = Physics2D.I._factory.warpPoint(axis, Ebox2DType.b2Vec2);
         let cx: any = this.physics2DToLaya(this._scaleSizeXByScaleMode(center.x));
         let cy: any = this.physics2DToLaya(this._scaleSizeYByScaleMode(center.y));
-        radius = this.physics2DToLaya(radius);
+        radius = this.physics2DToLaya(this._scaleSizeYByScaleMode(radius));
         let outColor = this._makeStyleString(color, 0.5);
         let mesh2d = this._debugDraw.createCircleMeshByVertices({ x: cx, y: cy }, radius, 100);
         this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
