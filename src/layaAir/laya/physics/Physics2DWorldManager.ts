@@ -10,6 +10,7 @@ import { Physics2DOption } from "./Physics2DOption";
 import { Laya } from "../../Laya";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { LayaEnv } from "../../LayaEnv";
+import { Color } from "../maths/Color";
 
 /**
  * @en 2D physics world manager class for the scene
@@ -57,7 +58,6 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     Init(data: any): void {
-        this.setRootSprite(this._scene);
     }
 
     /**
@@ -438,20 +438,18 @@ export class Physics2DWorldManager implements IElementComponentManager {
         return contactListener;
     }
 
-    private _makeStyleString(color: any, alpha: number = -1): any {
+    private _makeStyleString(color: any, alpha: number = -1): Color {
+        let outColor = new Color();
         let colorData = Physics2D.I._factory.warpPoint(color, Ebox2DType.b2Color);
-        let r = (colorData.r * 255).toFixed(1);
-        let g = (colorData.g * 255).toFixed(1);
-        let b = (colorData.b * 255).toFixed(1);
+        let r = colorData.r;
+        let g = colorData.g;
+        let b = colorData.b;
 
-        let cv: string;
-        if (alpha > 0) {
-            cv = `rgba(${r},${g},${b},${alpha})`;
-        }
-        else {
-            cv = `rgb(${r},${g},${b})`;
-        }
-        return cv;
+        outColor.r = r;
+        outColor.g = g;
+        outColor.b = b;
+        outColor.a = alpha;
+        return outColor;
     }
 
     private _enableBox2DDraw(flag: EPhycis2DBlit): void {
@@ -476,47 +474,94 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _debugDrawSegment(p1: any, p2: any, color: any): void {
         p1 = Physics2D.I._factory.warpPoint(p1, Ebox2DType.b2Vec2);
         p2 = Physics2D.I._factory.warpPoint(p2, Ebox2DType.b2Vec2);
-        this._debugDraw.mG.drawLine(p1.x, p1.y, p2.x, p2.y, this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        let p1x = this.physics2DToLaya(p1.x);
+        let p1y = this.physics2DToLaya(p1.y);
+        let p2x = this.physics2DToLaya(p2.x);
+        let p2y = this.physics2DToLaya(p2.y);
+        let points: any[] = [];
+        points.push(p1x);
+        points.push(p1y);
+        points.push(p2x);
+        points.push(p2y);
+        let outColor = this._makeStyleString(color, 1);
+        this._debugDraw.addLineDebugDrawCMD(points, outColor, this._debugDraw.lineWidth);
+        // this._debugDraw.mG.drawLine(p1.x, p1.y, p2.x, p2.y, this._makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
     private _debugDrawPolygon(vertices: any, vertexCount: any, color: any): void {
         let points: any[] = [];
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
+            vert.x = this.physics2DToLaya(vert.x);
+            vert.y = this.physics2DToLaya(vert.y);
             points.push(vert.x, vert.y);
         }
-        this._debugDraw.mG.drawPoly(0, 0, points, null, this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        let outColor = this._makeStyleString(color, 1);
+        let mesh2d = this._debugDraw.createMesh2DByVertices(points);
+        this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
     }
+
 
     private _debugDrawSolidPolygon(vertices: any, vertexCount: any, color: any): void {
         let points: any[] = [];
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
+            vert.x = this.physics2DToLaya(vert.x);
+            vert.y = this.physics2DToLaya(vert.y);
             points.push(vert.x, vert.y);
         }
-        this._debugDraw.mG.drawPoly(0, 0, points, this._makeStyleString(color, 0.5), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        let outColor = this._makeStyleString(color, 0.5);
+        let mesh2D = this._debugDraw.createMesh2DByVertices(points);
+        this._debugDraw.addMeshDebugDrawCMD(mesh2D, outColor);
     }
 
     private _debugDrawCircle(center: any, radius: any, color: any): void {
         let centerV = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
-        this._debugDraw.mG.drawCircle(centerV.x, centerV.y, radius, null, this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        let x = this.physics2DToLaya(centerV.x);
+        let y = this.physics2DToLaya(centerV.y);
+        radius = this.physics2DToLaya(radius);
+        let outColor = this._makeStyleString(color, 1);
+        let mesh2D = this._debugDraw.createCircleMeshByVertices({ x: x, y: y }, radius, 100);
+        this._debugDraw.addMeshDebugDrawCMD(mesh2D, outColor);
     }
 
     private _debugDrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
         center = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
         axis = Physics2D.I._factory.warpPoint(axis, Ebox2DType.b2Vec2);
-        let cx: any = center.x;
-        let cy: any = center.y;
-        this._debugDraw.mG.drawCircle(cx, cy, radius, this._makeStyleString(color, 0.5), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(cx, cy, (cx + axis.x * radius), (cy + axis.y * radius), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        let cx: any = this.physics2DToLaya(center.x);
+        let cy: any = this.physics2DToLaya(center.y);
+        radius = this.physics2DToLaya(radius);
+        let outColor = this._makeStyleString(color, 0.5);
+        let mesh2d = this._debugDraw.createCircleMeshByVertices({ x: cx, y: cy }, radius, 100);
+        this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
+        // this._debugDraw.mG.drawCircle(cx, cy, radius, this._makeStyleString(color, 0.5), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
+        // this._debugDraw.mG.drawLine(cx, cy, (cx + axis.x * radius), (cy + axis.y * radius), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
     private _debugDrawTransform(xf: any): void {
         xf = Physics2D.I._factory.warpPoint(xf, Ebox2DType.b2Transform);
         this._debugDraw.PushTransform(xf.x, xf.y, xf.angle);
         const length = 1 / Browser.pixelRatio;
-        this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
+        let x = this.physics2DToLaya(xf.x);
+        let y = this.physics2DToLaya(xf.y);
+
+        let point0: any[] = [];
+        point0.push(x);
+        point0.push(y);
+        point0.push(x + this.physics2DToLaya(length));
+        point0.push(y);
+        this._debugDraw.addLineDebugDrawCMD(point0, Color.RED, this._debugDraw.lineWidth);
+
+        let point1: any[] = [];
+        point1.push(x);
+        point1.push(y);
+        point1.push(x);
+        point1.push(y + this.physics2DToLaya(length));
+        this._debugDraw.addLineDebugDrawCMD(point1, Color.GREEN, this._debugDraw.lineWidth);
+
+        // this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
+        // this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
+
         this._debugDraw.PopTransform();
     }
 
@@ -525,7 +570,22 @@ export class Physics2DWorldManager implements IElementComponentManager {
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
         var hsize: any = size / 2;
-        this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this._makeStyleString(color, 1), null);
+        let outColor = this._makeStyleString(color, 1)
+        let point: any[] = [];
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
+        this._debugDraw.addLineDebugDrawCMD(point, outColor, this._debugDraw.lineWidth);
+
+
+
+
+        // this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this._makeStyleString(color, 1), null);
     }
 
     private _debugDrawAABB(min: any, max: any, color: any): void {
@@ -535,12 +595,40 @@ export class Physics2DWorldManager implements IElementComponentManager {
         var cy: number = (max.y + min.y) * 0.5;
         var hw: number = (max.x - min.x) * 0.5;
         var hh: number = (max.y - min.y) * 0.5;
-        const cs: string = this._makeStyleString(color, 1);
-        const linew: number = this._debugDraw.lineWidth;
-        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
-        this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
+        let outColor = this._makeStyleString(color, 1);
+        let linew: number = this._debugDraw.lineWidth;
+        let point0: any[] = [];
+        point0.push(this.physics2DToLaya(cx - hw));
+        point0.push(this.physics2DToLaya(cy - hh));
+        point0.push(this.physics2DToLaya(cx + hw));
+        point0.push(this.physics2DToLaya(cy - hh));
+        this._debugDraw.addLineDebugDrawCMD(point0, outColor, this._debugDraw.lineWidth);
+
+        let point1: any[] = [];
+        point1.push(this.physics2DToLaya(cx - hw));
+        point1.push(this.physics2DToLaya(cy + hh));
+        point1.push(this.physics2DToLaya(cx + hw));
+        point1.push(this.physics2DToLaya(cy + hh));
+        this._debugDraw.addLineDebugDrawCMD(point1, outColor, this._debugDraw.lineWidth);
+
+        let point2: any[] = [];
+        point2.push(this.physics2DToLaya(cx - hw));
+        point2.push(this.physics2DToLaya(cy - hh));
+        point2.push(this.physics2DToLaya(cx - hw));
+        point2.push(this.physics2DToLaya(cy + hh));
+        this._debugDraw.addLineDebugDrawCMD(point2, outColor, this._debugDraw.lineWidth);
+
+        let point3: any[] = [];
+        point3.push(this.physics2DToLaya(cx + hw));
+        point3.push(this.physics2DToLaya(cy - hh));
+        point3.push(this.physics2DToLaya(cx + hw));
+        point3.push(this.physics2DToLaya(cy + hh));
+        this._debugDraw.addLineDebugDrawCMD(point3, outColor, this._debugDraw.lineWidth);
+
+        // this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
+        // this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
+        // this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
+        // this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
     }
 
 
