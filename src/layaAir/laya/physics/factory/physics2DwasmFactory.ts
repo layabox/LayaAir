@@ -193,7 +193,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
             //2.4
             world.box2DWorld.Step(delta, velocityIterations, positionIterations);
-
+            if (world.enableDebugDraw) {
+                world.box2DWorld.DebugDraw();
+            }
             // afterStep 处理
             world.sendEvent();
 
