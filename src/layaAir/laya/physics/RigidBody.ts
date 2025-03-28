@@ -471,15 +471,31 @@ export class RigidBody extends ColliderBase {
         }
     }
 
+    private _destroyAllShape() {
+        if (this.applyOwnerColliderComponent && this._colliders.length != 0) {
+            this._colliders.forEach((collider) => {
+                collider.destroy();
+            });
+        } else {
+            if (!this._shapes) return;
+            for (let i = 0; i < this._shapes.length; i++) {
+                let shape = this._shapes[i];
+                shape.destroy();
+            }
+        }
+    }
+
     /**@internal */
     _onDisable(): void {
         //添加到物理世界
         Physics2D.I._removeRigidBody(this);
+        this._destroyAllShape();
         super._onDisable();
     }
 
     /**@internal */
     _onDestroy(): void {
+        this._destroyAllShape();
         Physics2D.I._removeRigidBody(this);
         //添加到物理世界
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
