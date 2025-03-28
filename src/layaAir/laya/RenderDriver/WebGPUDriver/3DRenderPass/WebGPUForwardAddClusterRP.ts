@@ -8,6 +8,13 @@ import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
  * WebGPU前向渲染流程
  */
 export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
+    constructor() {
+        super();
+        let context = WebGPURenderContext3D._instance;
+        context._preDrawUniformMaps.add("Scene3D");
+        context._preDrawUniformMaps.add("Shadow");
+        context._preDrawUniformMaps.add("Global");
+    }
     /**
      * 主渲染流程
      * @param context 

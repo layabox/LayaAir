@@ -18,6 +18,7 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
+import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPUForwardAddRP } from "./WebGPUForwardAddRP";
@@ -27,13 +28,8 @@ const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private _renderPass: WebGPUForwardAddRP;
-
-    globalId: number;
-    objectName: string = 'WebGPU3DRenderPass';
-
     constructor() {
         this._renderPass = new WebGPUForwardAddRP();
-        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -153,6 +149,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
             offsetScale.setValue(camera.normalizedViewport.x, camera.normalizedViewport.y, renderRT.width / dst.width, renderRT.height / dst.height);
             this._renderPass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+        }
+
+        if (this._renderPass.enableDirectLightShadow || this._renderPass.enableSpotLightShadowPass) {
+            let sceneShaderData = context.sceneData;
+            let shadowUniformMap = <WebGPUCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
+            sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
         }
     }
 
