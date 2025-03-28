@@ -896,7 +896,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     destroyShape(world: any, body: any, shape: any): void {
-        if (!world) console.warn("destroyShape: world is null");
         body.DestroyFixture(shape);
     }
 

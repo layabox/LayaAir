@@ -86,6 +86,13 @@ export class StaticCollider extends ColliderBase {
     }
 
     _removeShapeAndDestroyData() {
+        if (!this._rigidbody) {
+            if (!this._shapes) return;
+            for (let i = 0; i < this.shapes.length; i++) {
+                let shape = this._shapes[i];
+                shape.destroy();
+            }
+        }
         this._rigidbody && (this._box2DBody = this._rigidbody.getBox2DBody());
         this._box2DBody && (Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody));
         this._box2DFilter && Physics2D.I._factory.destroyData(this._box2DFilter);

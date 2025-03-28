@@ -3,7 +3,7 @@ import { Graphics } from "../display/Graphics"
 import { Scene } from "../display/Scene";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { Draw2DLineCMD } from "../display/Scene2DSpecial/RenderCMD2D/Draw2DLineCMD";
+import { Draw2DLineCMD } from "../Line2D/Draw2DLineCMD";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
 import { Sprite } from "../display/Sprite"
 import { Color } from "../maths/Color";
