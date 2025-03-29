@@ -105,47 +105,42 @@ export class AnimatorTransition2D {
      * @param isReplay 是否重复播放
      */
     check(normalizeTime: number, paramsMap: Record<string, Animation2DParm>, isReplay: boolean): boolean {
-        if (this.mute) {
-            return false;
-        }
-        if (this.exitByTime && (normalizeTime < this.exitTime && !isReplay)) {
-            return false;
-        }
-        if (null == this.conditions || 0 == this.conditions.length) {
-            return true;
-        }
+        if (this.mute) return false;
+        if (this.exitByTime && (normalizeTime < this.exitTime && !isReplay)) return false;// 检查退出时间条件
+        if (!this.conditions || this.conditions.length === 0) return true;
+
+        // 处理AND逻辑的条件检查
         if (this.isAndOperEnabled) {
-            let triggerCatch: string[];
-            for (var i = 0; i < this.conditions.length; i++) {
-                let con = this.conditions[i];
-                let out = con.checkState(paramsMap[con.name].value);
-                if (!out) {
-                    return false;
-                }
-                if (con.type == AniStateConditionType.Trigger) {
-                    if (triggerCatch) triggerCatch = [];
+            let triggerCatch: string[] = [];
+
+            for (let i = 0; i < this.conditions.length; i++) {
+                const con = this.conditions[i];
+                const out = con.checkState(paramsMap[con.name].value);
+                if (!out) return false;
+                // 如果是触发类型条件，记录下来
+                if (con.type === AniStateConditionType.Trigger) {
                     triggerCatch.push(con.name);
                 }
             }
             if (triggerCatch) {
-                for (let id of triggerCatch) {
+                for (const id of triggerCatch) {
                     paramsMap[id].value = false;
                 }
             }
             return true;
         } else {
-            for (var i = 0; i < this.conditions.length; i++) {
-                let con = this.conditions[i];
-                let out = con.checkState(paramsMap[con.name].value);
+            for (let i = 0; i < this.conditions.length; i++) {
+                const con = this.conditions[i];
+                const out = con.checkState(paramsMap[con.name].value);
                 if (out) {
-                    if (con.type == AniStateConditionType.Trigger) {
+                    // 如果是触发类型条件，重置它
+                    if (con.type === AniStateConditionType.Trigger) {
                         paramsMap[con.name].value = false;
                     }
                     return true;
                 }
             }
         }
-
         return false;
     }
 }
