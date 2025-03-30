@@ -505,7 +505,7 @@ export class Loader extends EventDispatcher {
     _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warnFailed(url, type ? `unsupported load type:${type}` : `unsupported suffix`, options.initiator?.url);
+            !options.silent && Loader.warnFailed(url, type ? `unsupported load type:${type}` : !url.startsWith("res://") ? `unsupported suffix` : "", options.initiator?.url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
