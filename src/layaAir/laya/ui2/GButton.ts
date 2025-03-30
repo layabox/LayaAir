@@ -8,7 +8,6 @@ import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
 import { GImage } from "./GImage";
 import { Color } from "../maths/Color";
-import { NodeFlags } from "../Const";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -27,9 +26,9 @@ export class GButton extends GLabel {
     private _selected: boolean = false;
 
     private _titleStr: string = "";
-    private _iconStr: string;
-    private _selectedTitleStr: string;
-    private _selectedIconStr: string;
+    private _iconStr: string = "";
+    private _selectedTitleStr: string = "";
+    private _selectedIconStr: string = "";
     private _sound: string;
     private _soundVolumeScale: number = 0;
     private _buttonController: Controller;
@@ -69,6 +68,8 @@ export class GButton extends GLabel {
     }
 
     public set title(value: string) {
+        if (value == null)
+            value = "";
         this._titleStr = value;
         super.title = (this._selected && this._selectedTitleStr) ? this._selectedTitleStr : value;
     }
@@ -78,8 +79,10 @@ export class GButton extends GLabel {
     }
 
     public set selectedTitle(value: string) {
+        if (value == null)
+            value = "";
         this._selectedTitleStr = value;
-        super.title = (this._selected && this._selectedTitleStr) ? this._selectedTitleStr : this._titleStr;
+        super.title = (this._selected && this._selectedTitleStr) ? value : this._titleStr;
     }
 
     public get icon(): string {
@@ -87,6 +90,8 @@ export class GButton extends GLabel {
     }
 
     public set icon(value: string) {
+        if (value == null)
+            value = "";
         this._iconStr = value;
         super.icon = (this._selected && this._selectedIconStr) ? this._selectedIconStr : value;
     }
@@ -96,8 +101,10 @@ export class GButton extends GLabel {
     }
 
     public set selectedIcon(value: string) {
+        if (value == null)
+            value = "";
         this._selectedIconStr = value;
-        super.icon = (this._selected && this._selectedIconStr) ? this._selectedIconStr : this._iconStr;
+        super.icon = (this._selected && this._selectedIconStr) ? value : this._iconStr;
     }
 
     public get downEffect(): ButtonDownEffect {
@@ -291,14 +298,10 @@ export class GButton extends GLabel {
         if (which == "title") {
             if (this._titleStr)
                 this.title = this._titleStr;
-            else if (this._getBit(NodeFlags.EDITING_NODE))
-                this._titleStr = this._titleWidget?.p.text || "";
         }
         else if (which == "icon") {
             if (this._iconStr)
                 this.icon = this._iconStr;
-            else if (this._getBit(NodeFlags.EDITING_NODE))
-                this._iconStr = this._iconWidget?.p.icon || "";
         }
     }
 

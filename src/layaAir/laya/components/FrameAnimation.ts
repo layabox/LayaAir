@@ -80,7 +80,7 @@ export class FrameAnimation extends Component {
     private _autoPlay: boolean = true;
     private _stretchMode: AnimationStretchMode = 0;
     private _offset: Point;
-    private _source: string;
+    private _source: string = "";
     private _images: string[];
     private _color: Color;
 
@@ -484,6 +484,8 @@ export class FrameAnimation extends Component {
     }
 
     set source(value: string) {
+        if (value == null)
+            value = "";
         this._source = value;
         this.load();
     }

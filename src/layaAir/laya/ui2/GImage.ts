@@ -31,6 +31,8 @@ export class GImage extends GWidget {
     }
 
     public set src(value: string) {
+        if (value == null)
+            value = "";
         if (this._src == value)
             return;
 
@@ -53,7 +55,7 @@ export class GImage extends GWidget {
     }
 
     public set texture(value: Texture) {
-        this._src = "";
+        this._src = "instance-0";
         this.onLoaded(value, ++this._loadId);
     }
 
