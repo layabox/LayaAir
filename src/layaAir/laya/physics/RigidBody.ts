@@ -9,6 +9,7 @@ import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 
 const _tempV0: Vector2 = new Vector2();
+const _tempP0: Point = new Point();
 
 /**
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
@@ -258,6 +259,7 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 刚体的碰撞形状
+     * @en Collision shape of the rigid body
      */
     public get shapes(): Physics2DShapeBase[] {
         return this._shapes;
@@ -278,7 +280,8 @@ export class RigidBody extends ColliderBase {
     }
 
     /**
-     * @zh 是否应用Collider组件的兼容方式
+     * @zh 是否应用旧版的Collider组件的兼容方式
+     * @en Whether to use the old version of the Collider component compatibility method
      */
     public get applyOwnerColliderComponent(): boolean {
         return this._applyOwnerColliderComponent;
@@ -289,18 +292,43 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 强制设置刚体的位置
+     * @en Enforce the position of a rigid body
      */
     set position(pos: Point) {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
         let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
-        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, rotateValue);//重新给个setPos的接口
+        _tempP0.x = pos.x;
+        _tempP0.y = pos.y;
+        let globalPos = this.owner.parent.localToGlobal(_tempP0);
+        factory.set_RigibBody_Transform(this._box2DBody, globalPos.x, globalPos.y, rotateValue);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
 
     /**
+     * @zh 获取当前刚体的位置
+     * @en Get the position of the current rigid body
+     */
+    get position(): Point {
+        if (!this._box2DBody) {
+            _tempP0.x = this.owner.globalTrans.x;
+            _tempP0.y = this.owner.globalTrans.y;
+            return _tempP0;
+        }
+        var pos = Vector2.TEMP;
+        Physics2D.I._factory.get_RigidBody_Position(this._box2DBody, pos);
+        _tempP0.x = pos.x;
+        _tempP0.y = pos.y;
+        let localPos = this.owner.parent.globalToLocal(_tempP0);
+        _tempP0.x = localPos.x;
+        _tempP0.y = localPos.y;
+        return _tempP0;
+    }
+
+    /**
      * @zh 强制设置刚体的旋转（弧度）
+     * @en Force the rotation of the rigidbody (in radians)
      */
     set rotation(number: number) {
         if (!this._box2DBody) return;
@@ -310,8 +338,16 @@ export class RigidBody extends ColliderBase {
         pos.setValue(pos.x, pos.y);
         factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, number);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
-        //}
         Physics2D.I._addRigidBody(this);
+    }
+
+    /**
+     * @zh 获取当前刚体的角度
+     * @en Get the angle of the current rigid body
+     */
+    get rotation(): number {
+        if (!this._box2DBody) return this.owner.rotation;
+        return Utils.toAngle(Physics2D.I._factory.get_RigidBody_Angle(this._box2DBody));
     }
 
     constructor() {
@@ -328,10 +364,10 @@ export class RigidBody extends ColliderBase {
     _updateBodyType() {
         if (!this._box2DBody) return;
         Physics2D.I._factory.set_rigidBody_type(this._box2DBody, this._type)
-        if (this.type != "dynamic") {
-            Physics2D.I._removeRigidBody(this)
+        if (this.type == "static") {
+            Physics2D.I._removeRigidBody(this);
         } else {
-            Physics2D.I._addRigidBody(this)
+            Physics2D.I._addRigidBody(this);
         }
     }
 
@@ -348,7 +384,7 @@ export class RigidBody extends ColliderBase {
      * @zh 更新刚体结构体的数据
      * @returns 
      */
-    _setBodyDefValue(): void {
+    private _setBodyDefValue(): void {
         // 兼容模式
         if (this._type == "static") {
             // 静态刚体这样设置
@@ -399,9 +435,18 @@ export class RigidBody extends ColliderBase {
             //更新shapes
             this.shapes = this._shapes;
         }
-        this.owner.on(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler);
+        if (this.isConnectedJoint) {
+            this.owner.event("bodyCreated");
+            this.isConnectedJoint = false;
+        }
     }
 
+    /**
+     * @en Get the box2DBody of the rigid body 
+     * @returns box2DBody
+     * @zh 获取刚体的box2DBody
+     * @returns box2DBody
+     */
     getBody() {
         if (!this._box2DBody) this._onAwake();
         return this._box2DBody;
@@ -426,25 +471,45 @@ export class RigidBody extends ColliderBase {
         }
     }
 
+    private _destroyAllShape() {
+        if (this.applyOwnerColliderComponent && this._colliders.length != 0) {
+            this._colliders.forEach((collider) => {
+                collider.destroy();
+            });
+        } else {
+            if (!this._shapes) return;
+            for (let i = 0; i < this._shapes.length; i++) {
+                let shape = this._shapes[i];
+                shape.destroy();
+            }
+        }
+    }
+
     /**@internal */
     _onDisable(): void {
         //添加到物理世界
         Physics2D.I._removeRigidBody(this);
+        this._destroyAllShape();
         super._onDisable();
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler); // 这里的方法要改
     }
 
     /**@internal */
     _onDestroy(): void {
+        this._destroyAllShape();
         Physics2D.I._removeRigidBody(this);
         //添加到物理世界
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
         super._onDestroy();
         Physics2D.I._factory.destroyData(this._massData);
         this._massData = null;
-        this.owner.off(SpriteGlobalTransform.CHANGED, this, this._globalChangeHandler)
     }
 
+    /**
+     * @zh 获取刚体的自定义数据
+     * @returns 自定义数据
+     * @en Get custom data of rigid body
+     * @returns custom data
+     */
     getUserData(): any {
         if (!this._box2DBody) return;
         return Physics2D.I._factory.get_rigidBody_userData(this._box2DBody);
@@ -452,6 +517,9 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 获取刚体在世界坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a rigid body at a certain point in the world coordinate system, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
      */
     getLinearVelocityFromWorldPoint(worldPoint: Vector2): Vector2 {
         if (!this._box2DBody) return _tempV0;
@@ -463,6 +531,9 @@ export class RigidBody extends ColliderBase {
 
     /**
      * @zh 获取刚体在局部坐标下某一点的线速度，比如刚体边缘的线速度(考虑旋转的影响)
+     * @returns 线速度
+     * @en Get the linear velocity of a point on a rigid body in local coordinates, such as the linear velocity of the edge of the rigid body (considering the influence of rotation)
+     * @returns linearVelocity
      */
     getLinearVelocityFromLocalPoint(localPoint: Vector2): Vector2 {
         if (!this._box2DBody) return _tempV0;
@@ -520,6 +591,12 @@ export class RigidBody extends ColliderBase {
         Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._box2DBody, impulse);
     }
 
+    /**
+     * @zh 施加角速度冲量
+     * @param impulse 角速度冲量
+     * @en Apply angular velocity impulse
+     * @param impulse angular impulse
+     */
     applyAngularImpulse(impulse: number): void {
         if (!this._box2DBody) return;
         Physics2D.I._factory.rigidbody_ApplyAngularImpulse(this._box2DBody, impulse);
@@ -585,7 +662,7 @@ export class RigidBody extends ColliderBase {
      * @returns 
      */
     getInertia(): number {
-        if (!this._box2DBody) this._onAwake();
+        if (!this._box2DBody) return this._inertia;
         return Physics2D.I._factory.get_rigidBody_Inertia(this._box2DBody);
     }
 

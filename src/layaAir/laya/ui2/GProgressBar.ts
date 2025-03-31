@@ -31,7 +31,7 @@ export class GProgressBar extends GWidget {
     constructor() {
         super();
 
-        this._value = 100;
+        this._value = 50;
         this._max = 100;
     }
 
@@ -104,32 +104,16 @@ export class GProgressBar extends GWidget {
     }
 
     public update(newValue: number): void {
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE)) {
+            this.updateTitle(this._max, this._max, 1);
+            return;
+        }
+
         if (newValue == null)
             newValue = this._value;
         let percent = MathUtil.clamp01((newValue - this._min) / (this._max - this._min));
-        let obj = this._titleWidget;
-        if (obj) {
-            switch (this._titleType) {
-                case ProgressTitleType.Percent:
-                    obj.text = Math.floor(percent * 100) + "%";
-                    break;
 
-                case ProgressTitleType.ValueAndMax:
-                    obj.text = Math.floor(newValue) + "/" + Math.floor(this._max);
-                    break;
-
-                case ProgressTitleType.Value:
-                    obj.text = "" + Math.floor(newValue);
-                    break;
-
-                case ProgressTitleType.Max:
-                    obj.text = "" + Math.floor(this._max);
-                    break;
-            }
-        }
-
-        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
-            return;
+        this.updateTitle(newValue, this._max, percent);
 
         let fullWidth = this.width - this._barMaxWidthDelta;
         let fullHeight = this.height - this._barMaxHeightDelta;
@@ -157,6 +141,30 @@ export class GProgressBar extends GWidget {
                     this._vBar.y = this._barStartY + (fullHeight - this._vBar.height);
                 }
             }
+        }
+    }
+
+    private updateTitle(value: number, max: number, percent: number) {
+        let obj = this._titleWidget;
+        if (!obj)
+            return;
+
+        switch (this._titleType) {
+            case ProgressTitleType.Percent:
+                obj.text = Math.floor(percent * 100) + "%";
+                break;
+
+            case ProgressTitleType.ValueAndMax:
+                obj.text = Math.floor(value) + "/" + Math.floor(max);
+                break;
+
+            case ProgressTitleType.Value:
+                obj.text = "" + Math.floor(value);
+                break;
+
+            case ProgressTitleType.Max:
+                obj.text = "" + Math.floor(max);
+                break;
         }
     }
 
@@ -193,6 +201,7 @@ export class GProgressBar extends GWidget {
         this._vBar = vBar;
         this._titleWidget = titleWidget;
         this._reverse = reverse;
+        this._value = this._max;
 
         this._onConstruct();
     }

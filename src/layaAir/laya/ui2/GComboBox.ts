@@ -70,7 +70,7 @@ export class GComboBox extends GLabel {
                 this._selectedIndex = 0;
 
             this.title = arr[this._selectedIndex];
-            if (this._icons && this._selectedIndex < this._icons.length)
+            if (this._selectedIndex < this._icons.length)
                 this.icon = this._icons[this._selectedIndex];
         }
         else {
@@ -95,7 +95,7 @@ export class GComboBox extends GLabel {
         if (SerializeUtil.isDeserializing)
             return;
 
-        if (arr && this._selectedIndex != -1 && this._selectedIndex < arr.length)
+        if (this._selectedIndex != -1 && this._selectedIndex < arr.length)
             this.icon = arr[this._selectedIndex];
     }
 
@@ -121,13 +121,13 @@ export class GComboBox extends GLabel {
         this._selectedIndex = val;
         if (val >= 0 && val < this._items.length) {
             this.title = this._items[val];
-            if (this._icons && val < this._icons.length)
+            if (val < this._icons.length)
                 this.icon = this._icons[val];
         }
         else {
             this.title = "";
             if (this._icons)
-                this.icon = null;
+                this.icon = "";
         }
 
         let cc = this._selectedController?.inst;
@@ -285,7 +285,7 @@ export class GComboBox extends GLabel {
             let item = this._list.addItemFromPool();
             item.name = i < this._values.length ? this._values[i] : "";
             item.text = this._items[i];
-            item.icon = (this._icons && i < this._icons.length) ? this._icons[i] : null;
+            item.icon = i < this._icons.length ? this._icons[i] : "";
         }
         this._list.resizeToFit(this.visibleItemCount > 0 ? this.visibleItemCount : UIConfig2.defaultComboBoxVisibleItemCount);
     }

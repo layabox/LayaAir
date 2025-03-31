@@ -1,14 +1,22 @@
 import { LayaEnv } from "../../../LayaEnv";
-import { EPhysics2DShape } from "../factory/IPhysics2DFactory";
+import { Ebox2DType, EPhysics2DShape } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DShapeBase } from "./Physics2DShapeBase";
 
+/**
+ * @zh 2D物理矩形碰撞形状
+ * @en 2D physics box collision shape
+ */
 export class BoxShape2D extends Physics2DShapeBase {
 
     private _width: number = 100;
 
     private _height: number = 100;
 
+    /** 
+     * @en Rectangle height of collision body
+     * @zh 2D物理矩形碰撞形状高度
+     */
     public get height(): number {
         return this._height;
     }
@@ -19,6 +27,10 @@ export class BoxShape2D extends Physics2DShapeBase {
         this._updateShapeData();
     }
 
+    /** 
+     * @en Rectangle width of collision body
+     * @zh 2D物理矩形碰撞形状宽度
+     */
     public get width(): number {
         return this._width;
     }
@@ -29,16 +41,26 @@ export class BoxShape2D extends Physics2DShapeBase {
         this._updateShapeData();
     }
 
+    /**
+    * @en Constructor method
+    * @zh 构造方法
+    */
     constructor() {
         super();
         this._shapeDef.shapeType = EPhysics2DShape.BoxShape;
     }
 
+    /**
+     * @internal
+     */
     protected _createShape(): void {
         this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.BoxShape, this._box2DShapeDef);
+        this._updateShapeData();
     }
 
-
+    /**
+     * @internal
+     */
     protected _updateShapeData(): void {
         if (!LayaEnv.isPlaying || !this._body) return;
         let helfW: number = this._width * 0.5;
@@ -47,7 +69,8 @@ export class BoxShape2D extends Physics2DShapeBase {
             x: helfW + this.pivotoffx,
             y: helfH + this.pivotoffy
         }
-        Physics2D.I._factory.set_collider_SetAsBox(this._box2DShapeDef._shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
+        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
 
     }
 

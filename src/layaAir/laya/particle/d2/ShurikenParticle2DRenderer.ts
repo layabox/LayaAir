@@ -16,7 +16,7 @@ import { Material } from "../../resource/Material";
 import { Stat } from "../../utils/Stat";
 import { ParticleMinMaxCurveMode } from "../common/ParticleMinMaxCurve";
 import { ParticleMinMaxGradientMode } from "../common/ParticleMinMaxGradient";
-import { GradientDataNumber } from "../d3/module/GradientDataNumber";
+import { GradientDataNumber } from "../common/GradientDataNumber";
 import { Particle2DScalingMode, Particle2DSimulationSpace } from "./module/Main2DModule";
 import { Velocity2DSimulateSpace } from "./module/Velocity2DOverLifetimeModule";
 import { Particle2DGeomotry } from "./Particle2DGeomotry";

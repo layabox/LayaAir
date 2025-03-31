@@ -178,6 +178,9 @@ export class BaseRender extends Component {
 
     /**@interface */
     _receiveShadow: boolean;
+
+    /**@internal */
+    _inRenderList: boolean;
     protected _bounds: Bounds;
     protected _transform: Transform3D;
 
@@ -595,10 +598,16 @@ export class BaseRender extends Component {
      */
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
+        if (this._renderElements.length == 0 && this._inRenderList) {
+            this.owner?.scene._removeRenderObject(this);
+        }
+        if (this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
+            this.owner.scene._addRenderObject(this);
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);
         });
-        this._baseRenderNode.setRenderelements(arrayElement)
+        this._baseRenderNode.setRenderelements(arrayElement);
+
     }
 
     /**

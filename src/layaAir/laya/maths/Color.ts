@@ -204,8 +204,9 @@ export class Color implements IClone {
     /**
      * @en parse a color string or a hex color value.
      * @param value The color string or the hex color value. 
+     * Formats can be "#RRGGBB", "#RRGGBBAA", "rgb(r,g,b)", "rgba(r,g,b,a)".
      * @zh 解析颜色值，可以传入一个颜色字符串或十六进制颜色值。
-     * 格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#AARRGGBB"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
+     * 格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#RRGGBBAA"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
      * @param value 颜色字符串或十六进制颜色值。
      */
     parse(value: string | number | null): this {
@@ -262,8 +263,8 @@ export class Color implements IClone {
             let rgb: number;
             let a: number = 1;
             if (len == 8) {
-                rgb = parseInt(value.substring(2), 16);
-                a = parseInt(value.substring(0, 2), 16) / 255;
+                rgb = parseInt(value.substring(0, 6), 16);
+                a = parseInt(value.substring(6, 8), 16) / 255;
             }
 
             else {

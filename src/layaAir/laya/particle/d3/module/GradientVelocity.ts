@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IClone } from "../../../utils/IClone";
-import { GradientDataNumber } from "./GradientDataNumber";
+import { GradientDataNumber } from "../../common/GradientDataNumber";
 
 /**
  * @en The `GradientVelocity` class is used to create gradient velocities.

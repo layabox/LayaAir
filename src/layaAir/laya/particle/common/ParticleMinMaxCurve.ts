@@ -1,6 +1,6 @@
 import { MathUtil } from "../../maths/MathUtil";
 import { IClone } from "../../utils/IClone";
-import { GradientDataNumber } from "../d3/module/GradientDataNumber";
+import { GradientDataNumber } from "./GradientDataNumber";
 
 export enum ParticleMinMaxCurveMode {
     Constant = 0,

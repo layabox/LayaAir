@@ -3,6 +3,7 @@ import { Point } from "../../maths/Point"
 import { EPhysics2DJoint, physics2D_WeldJointDef } from "../factory/IPhysics2DFactory";
 import { Physics2D } from "../Physics2D";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en WeldJoint class, used to constrain two bodies together so they cannot move relative to each other. The relative position and angle between the two bodies are fixed, making them appear as a single rigid body.
@@ -75,6 +76,7 @@ export class WeldJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             if (!this.otherBody) throw "otherBody can not be empty";
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
@@ -83,13 +85,25 @@ export class WeldJoint extends JointBase {
             var def: physics2D_WeldJointDef = WeldJoint._temp || (WeldJoint._temp = new physics2D_WeldJointDef());
             var anchorPos: Point = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.bodyA = this.otherBody.getBox2DBody();
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.anchor.setValue(anchorPos.x, anchorPos.y);
             def.frequency = this._frequency;
             def.dampingRatio = this._dampingRatio;
             def.collideConnected = this.collideConnected;
             this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.WeldJoint, def);
             this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.WeldJoint, this._box2DJointDef);
+            this.otherBody.owner.off("bodyCreated", this, this._createJoint);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 }

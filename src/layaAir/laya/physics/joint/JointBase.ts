@@ -89,14 +89,11 @@ export class JointBase extends Component {
 
     /**@internal */
     protected _onEnable(): void {
-        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         this._createJoint();
     }
 
     /**@internal */
     protected _onAwake(): void {
-        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
-        this._createJoint();
     }
 
     /**@internal */

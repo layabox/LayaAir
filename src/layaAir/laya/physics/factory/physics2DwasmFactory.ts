@@ -116,7 +116,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         this._tempVe21.y = this.convertLayaValueToPhysics(world, startPoint.y);
 
         this._tempVe22.x = this.convertLayaValueToPhysics(world, endPoint.x);
-        this._tempVe22.x = this.convertLayaValueToPhysics(world, endPoint.x);
+        this._tempVe22.y = this.convertLayaValueToPhysics(world, endPoint.y);
         world.RayCast(jsraycastcallback, this._tempVe21, this._tempVe22);
 
     }
@@ -193,7 +193,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
             //2.4
             world.box2DWorld.Step(delta, velocityIterations, positionIterations);
-
+            if (world.enableDebugDraw) {
+                world.box2DWorld.DebugDraw();
+            }
             // afterStep 处理
             world.sendEvent();
 
@@ -748,7 +750,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         shapdeDef.shapeType = shapeType;
         data = this.castObject(data, this.box2d.b2Fixture);
         data.world = world;
-        data.shape = this.get_fixtureshape(shapdeDef.shape, shapeType);
+        data.shape = this.get_fixtureshape(data.GetShape(), shapeType);
+        data.shape.world = world;
         data.filter = data.GetFilterData();
         return data;
     }
@@ -893,7 +896,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     destroyShape(world: any, body: any, shape: any): void {
-        if (!world) console.warn("destroyShape: world is null");
         body.DestroyFixture(shape);
     }
 
@@ -932,15 +934,18 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return isSensor;
     }
     /**
-     * @zh 获取夹具fixture的shape，这里为了兼容
+     * @zh 获取夹具fixture的shape
      * @param shape 夹具
      * @returns 夹具的形状
      * @en get fixture's shape, for compatibility
      * @param shape fixture
      * @returns shape
      */
-    getShape(shape: any): any {
+    getShape(shape: any, type: EPhysics2DShape): any {
+        let world = shape.world;
         let fixtureShape: any = shape.GetShape();
+        fixtureShape = this.get_fixtureshape(fixtureShape, type);
+        fixtureShape.world = world;
         return fixtureShape;
     }
 

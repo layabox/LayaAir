@@ -5,6 +5,7 @@ import { Physics2D } from "../Physics2D"
 import { ILaya } from "../../../ILaya";
 import { EPhysics2DJoint, physics2D_MouseJointJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Mouse joint: A physics constraint used to simulate the user dragging an object with the mouse. It typically allows a rigid body to follow the mouse cursor's movement while also being influenced by other physics effects such as collisions and gravity.
@@ -86,6 +87,7 @@ export class MouseJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
             this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
             if (!this.selfBody) throw "selfBody can not be empty";
@@ -99,6 +101,11 @@ export class MouseJoint extends JointBase {
             if (!Physics2D.I._emptyBody) Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
             def.bodyA = Physics2D.I._emptyBody;
             def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             def.target.setValue(anchorPos.x, anchorPos.y);
             def.maxForce = this._maxForce;
             def.dampingRatio = this._dampingRatio;
@@ -106,6 +113,7 @@ export class MouseJoint extends JointBase {
             this._box2DJointDef = Physics2D.I._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.MouseJoint, def);
             this._factory.set_rigidBody_Awake(def.bodyB, true);
             this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.MouseJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 

@@ -48,6 +48,10 @@ export class CharacterController extends PhysicsColliderComponent {
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
             this._physicsManager = this.owner._scene._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+            if (this.colliderShape) {
+                //需要销毁重新创建，否则无法绑定到collider上
+                this.colliderShape.destroy();
+            }
             this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
             this._collider.component = this;
         } else {
@@ -91,9 +95,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set radius(value: number) {
         this._radius = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).radius = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Radius)) {
             this._collider.setRadius(this._radius);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).radius = value);
         }
     }
 
@@ -107,9 +111,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set height(value: number) {
         this._height = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).length = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Height)) {
             this._collider.setHeight(this._height);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).length = value);
         }
     }
 
@@ -277,6 +281,7 @@ export class CharacterController extends PhysicsColliderComponent {
      */
     constructor() {
         super();
+        this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
     }
 
     /**
