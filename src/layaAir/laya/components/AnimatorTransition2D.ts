@@ -111,20 +111,13 @@ export class AnimatorTransition2D {
 
         // 处理AND逻辑的条件检查
         if (this.isAndOperEnabled) {
-            let triggerCatch: string[] = [];
-
             for (let i = 0; i < this.conditions.length; i++) {
                 const con = this.conditions[i];
                 const out = con.checkState(paramsMap[con.name].value);
                 if (!out) return false;
                 // 如果是触发类型条件，记录下来
                 if (con.type === AniStateConditionType.Trigger) {
-                    triggerCatch.push(con.name);
-                }
-            }
-            if (triggerCatch) {
-                for (const id of triggerCatch) {
-                    paramsMap[id].value = false;
+                    paramsMap[con.name].value = false;
                 }
             }
             return true;
