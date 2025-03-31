@@ -224,7 +224,6 @@ export class AnimatorTransition {
                 return false;
             }
             if (this._isAndOperEnabled) {
-                let triggerCatch: number[];
                 for (var i = 0; i < this._conditions.length; i++) {
                     let con = this._conditions[i];
                     let out = con.checkState(paramsMap[con.id]);
@@ -232,13 +231,7 @@ export class AnimatorTransition {
                         return false;
                     }
                     if (con.type == AniStateConditionType.Trigger) {
-                        if (!triggerCatch) triggerCatch = [];
-                        triggerCatch.push(con.id);
-                    }
-                }
-                if (triggerCatch) {
-                    for (let id of triggerCatch) {
-                        paramsMap[id] = false;
+                        paramsMap[con.id] = false;
                     }
                 }
                 return true;
