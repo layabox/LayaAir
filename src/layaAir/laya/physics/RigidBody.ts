@@ -472,16 +472,10 @@ export class RigidBody extends ColliderBase {
     }
 
     private _destroyAllShape() {
-        if (this.applyOwnerColliderComponent && this._colliders.length != 0) {
-            this._colliders.forEach((collider) => {
-                collider.destroy();
-            });
-        } else {
-            if (!this._shapes) return;
-            for (let i = 0; i < this._shapes.length; i++) {
-                let shape = this._shapes[i];
-                shape.destroy();
-            }
+        if (!this._shapes) return;
+        for (let i = 0; i < this._shapes.length; i++) {
+            let shape = this._shapes[i];
+            shape.destroy();
         }
     }
 

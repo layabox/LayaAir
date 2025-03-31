@@ -1005,6 +1005,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     removeBody(world: any, body: any): void {
         if (!body || !world) return;
+        // 兼容两个场景嵌套情况下，销毁默认场景时候world错误问题
+        if (body.world._indexInMap != world._indexInMap) return;
         if (!world.destroyed) world.DestroyBody(body);
         body.destroyed = true;
     }
