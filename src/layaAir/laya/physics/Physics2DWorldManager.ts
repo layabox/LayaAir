@@ -12,6 +12,7 @@ import { ColliderBase } from "./Collider2D/ColliderBase";
 import { LayaEnv } from "../../LayaEnv";
 import { Color } from "../maths/Color";
 import { ILaya } from "../../ILaya";
+import { PlayerConfig } from "../../Config";
 
 /**
  * @en 2D physics world manager class for the scene
@@ -59,6 +60,27 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     Init(data: any): void {
+        let layerIndex = parseInt(data as string);
+        let configlayer = PlayerConfig.physics2D?.addConfig[layerIndex];
+        if (!configlayer) return;
+        this._worldDef.pixelRatio = this._pixelRatio = configlayer.pixelRatio ? configlayer.pixelRatio : Physics2DOption.pixelRatio;
+        this._RePixelRatio = 1 / this._pixelRatio;
+        this._worldDef.subStep = this._subStep = configlayer.subStep ? configlayer.subStep : Physics2DOption.subStep;
+        this._worldDef.velocityIterations = this._velocityIterations = configlayer.velocityIterations ? configlayer.velocityIterations : Physics2DOption.velocityIterations;
+        this._worldDef.positionIterations = this._positionIterations = configlayer.positionIterations ? configlayer.positionIterations : Physics2DOption.positionIterations;
+        this._worldDef.gravity = this._gravity.setValue(configlayer.gravity.x ? configlayer.gravity.x : Physics2DOption.gravity.x, configlayer.gravity.y ? configlayer.gravity.y : Physics2DOption.gravity.x);
+        this._allowWorldSleep = configlayer.allowSleeping;
+        if (this._box2DWorld) {
+            this.destroy();
+            this._eventList = [];
+        }
+        this.setRootSprite(this._scene);
+        if (configlayer.debugDraw && LayaEnv.isPlaying) {
+            this.enableDebugDraw(configlayer.drawShape, EPhycis2DBlit.Shape);
+            this.enableDebugDraw(configlayer.drawJoint, EPhycis2DBlit.Joint);
+            this.enableDebugDraw(configlayer.drawAABB, EPhycis2DBlit.AABB);
+            this.enableDebugDraw(configlayer.drawCenterOfMass, EPhycis2DBlit.CenterOfMass);
+        }
     }
 
     /**
