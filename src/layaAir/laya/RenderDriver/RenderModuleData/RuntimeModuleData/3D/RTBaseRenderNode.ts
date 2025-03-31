@@ -4,7 +4,7 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { RTTransform3D } from "./RTTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
@@ -73,7 +73,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public set bounds(value: Bounds) {
         this._bounds = value;
         this._nativeObj._bounds = value._imp._nativeObj;
-    }   
+    }
     private _baseGeometryBounds: Bounds;
     public get baseGeometryBounds(): Bounds {
         return this._baseGeometryBounds;
@@ -209,7 +209,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._additionShaderData = value;
         this._nativeObj.clearAdditionalMap();
         for (let [key, value] of this._additionShaderData) {
-            this._nativeObj.addOneAddiionalData(key,(value as any)._nativeObj);
+            this._nativeObj.addOneAddiionalData(key, (value as any)._nativeObj);
         }
     }
 
@@ -218,6 +218,22 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
+    }
+
+    private _worldParams: Vector4 = new Vector4();
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
+        switch (dataSlot) {
+            case 0:
+                this._worldParams.y = data;
+                break;
+            case 1:
+                this._worldParams.z = data;
+                break;
+            case 2:
+                this._worldParams.w = data;
+                break;
+        }
+        this._nativeObj.worldParams = this._worldParams;
     }
 
     public get renderNodeType(): number {
