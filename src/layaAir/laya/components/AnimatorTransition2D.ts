@@ -122,10 +122,8 @@ export class AnimatorTransition2D {
                     triggerCatch.push(con.name);
                 }
             }
-            if (triggerCatch) {
-                for (const id of triggerCatch) {
-                    paramsMap[id].value = false;
-                }
+            for (const id of triggerCatch) {
+                paramsMap[id].value = false;
             }
             return true;
         } else {
