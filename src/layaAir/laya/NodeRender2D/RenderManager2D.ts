@@ -1,3 +1,4 @@
+import { Vector4 } from "../maths/Vector4";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Render2DSimple } from "../renders/Render2D";
@@ -74,6 +75,30 @@ export class RenderManager2D {
      * 渲染结束标签
      */
     _renderEnd: boolean = true;
+
+    /**
+     * 渲染层掩码，用于裁剪规则一
+     */
+    private _renderLayerMask: number = 0xFFFFFFFF;
+
+    /**
+     * 裁剪矩形，用于裁剪规则二
+     */
+    private _cullRect: Vector4 = new Vector4();
+
+    /**
+     * 设置渲染层掩码
+     */
+    set renderLayerMask(value: number) {
+        this._renderLayerMask = value;
+    }
+
+    /**
+     * 设置裁剪矩形
+     */
+    set cullRect(value: Vector4) {
+        this._cullRect = value;
+    }
 
     /**
     * RenderList
@@ -155,27 +180,37 @@ export class RenderManager2D {
     }
 
     private _cull(renderNode: BaseRenderNode2D, context: IRenderContext2D) {
-        if (false) {
-            //没有camera和layer的代码 暂时先保留
-            //Cull TODO
-            return;
+        // 裁剪规则一：检查渲染层掩码
+        // if ((renderNode.renderLayer & this._renderLayerMask) === 0) {
+        //     return;
+        // }
+
+        // // 裁剪规则二：检查矩形相交
+        // const nodeRect = renderNode.rect;
+        // if (!this._isRectIntersect(nodeRect, this._cullRect)) {
+        //     return;
+        // }
+
+        if (renderNode.preRenderUpdate)
+            renderNode.preRenderUpdate(context);
+        let n = renderNode._renderElements.length;
+        if (n == 1) {
+            this._batchStart(renderNode._renderType, 1);
+            this._renderElementList.add(renderNode._renderElements[0]);
         } else {
-            //cull 通过
-            if (renderNode.preRenderUpdate)
-                renderNode.preRenderUpdate(context);
-            let n = renderNode._renderElements.length;
-            if (n == 1) {
-                this._batchStart(renderNode._renderType, 1);
-                this._renderElementList.add(renderNode._renderElements[0]);
-            } else {
-                this._batchStart(renderNode._renderType, n);
-                for (var i = 0; i < n; i++) {
-                    this._renderElementList.add(renderNode._renderElements[i]);
-                }
+            this._batchStart(renderNode._renderType, n);
+            for (var i = 0; i < n; i++) {
+                this._renderElementList.add(renderNode._renderElements[i]);
             }
         }
     }
 
+    /**
+     * 检查两个矩形是否相交
+     */
+    private _isRectIntersect(rect1: Vector4, rect2: Vector4): boolean {
+        return !(rect1.x > rect2.z || rect1.z < rect2.x || rect1.y > rect2.w || rect1.w < rect2.y);
+    }
 
     /**
      * 合批总循环

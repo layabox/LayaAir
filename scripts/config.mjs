@@ -315,11 +315,15 @@ export const allBundles = [{
     ],
 },
 {
+    name: "particleCommon",
+    input: [
+        'laya/particle/common/**/*.*',
+    ]
+},
+{
     name: "particle",
     input: [
         'laya/particle/d2/**/*.*',
-        'laya/particle/common/**/*.*',
-        'laya/particle/ModuleDef.ts'
     ]
 },
 {

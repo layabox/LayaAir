@@ -111,9 +111,9 @@ export class WebReflectionProbe implements IReflectionProbeData {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
         } else {
             data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probePosition);
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEPOSITION, this._probePosition);
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
         }
 
         if (this.ambientMode == AmbientMode.SolidColor) {

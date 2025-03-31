@@ -189,13 +189,51 @@ export class BaseRenderNode2D extends Component {
     declare owner: Sprite;
 
     /**
+     * 渲染层掩码，用于裁剪规则一
+     */
+    private _renderLayer: number = 1;
+
+    /**
+     * 渲染范围，用于裁剪规则二
+     */
+    private _rect: Vector4 = new Vector4();
+
+    /**
+     * 获取渲染层掩码
+     */
+    get renderLayer(): number {
+        return this._renderLayer;
+    }
+
+    /**
+     * 设置渲染层掩码
+     */
+    set renderLayer(value: number) {
+        this._renderLayer = value;
+    }
+
+    /**
+     * 获取渲染范围
+     */
+    get rect(): Vector4 {
+        return this._rect;
+    }
+
+    /**
+     * 设置渲染范围
+     */
+    set rect(value: Vector4) {
+        this._rect = value;
+    }
+
+    /**
      * 基于不同BaseRender的uniform集合
      */
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D"];
     }
     protected _getRect(): Vector4 {
-        return null;//get sprite ?
+        return this._rect;
     }
 
     protected _transformChange() {
