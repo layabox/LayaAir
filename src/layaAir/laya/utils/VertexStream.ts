@@ -235,6 +235,14 @@ export class VertexStream {
     }
 
     /**
+     * @en Get the number of Float32 elements per vertex.
+     * @zh 获得每个顶点的Float32元素数量。
+     */
+    get vertexStride(): number {
+        return this._epv;
+    }
+
+    /**
      * @en Get the vertices typed array.
      * @returns The vertices typed array.
      * @zh 获取顶点的类型化数组。
