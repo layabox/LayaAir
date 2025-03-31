@@ -181,15 +181,15 @@ export class RenderManager2D {
 
     private _cull(renderNode: BaseRenderNode2D, context: IRenderContext2D) {
         // 裁剪规则一：检查渲染层掩码
-        if ((renderNode.renderLayer & this._renderLayerMask) === 0) {
-            return;
-        }
+        // if ((renderNode.renderLayer & this._renderLayerMask) === 0) {
+        //     return;
+        // }
 
-        // 裁剪规则二：检查矩形相交
-        const nodeRect = renderNode.rect;
-        if (!this._isRectIntersect(nodeRect, this._cullRect)) {
-            return;
-        }
+        // // 裁剪规则二：检查矩形相交
+        // const nodeRect = renderNode.rect;
+        // if (!this._isRectIntersect(nodeRect, this._cullRect)) {
+        //     return;
+        // }
 
         if (renderNode.preRenderUpdate)
             renderNode.preRenderUpdate(context);
