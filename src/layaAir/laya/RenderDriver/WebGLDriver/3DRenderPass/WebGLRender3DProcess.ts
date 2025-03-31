@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { ILaya3D } from "../../../../ILaya3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -176,7 +177,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         if (this.renderpass.enableDirectLightShadow || this.renderpass.enableSpotLightShadowPass) {
             let sceneShaderData = context.sceneData;
             let shadowUniformMap = <WebGLCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
-            let shadowBuffer = sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+            if (Config._uniformBlock) {
+                let shadowBuffer = sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+            }
         }
 
     }

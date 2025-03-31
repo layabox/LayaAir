@@ -601,8 +601,9 @@ export class BaseRender extends Component {
         if (this._renderElements.length == 0 && this._inRenderList) {
             this.owner?.scene._removeRenderObject(this);
         }
-        if (this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
+        if (this.owner?.activeInHierarchy && this.enabled && this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
             this.owner.scene._addRenderObject(this);
+
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);
         });
