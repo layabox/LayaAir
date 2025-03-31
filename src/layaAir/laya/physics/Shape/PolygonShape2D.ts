@@ -44,7 +44,7 @@ export class PolygonShape2D extends Physics2DShapeBase {
         var len: number = this.datas.length;
         if (len < 6) throw "PolygonCollider points must be greater than 3";
         if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
-        let shape: any = this._box2DShape ? this._box2DShape.shape : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
     }
 

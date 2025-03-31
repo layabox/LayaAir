@@ -114,7 +114,7 @@ export class Scene extends Sprite {
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this._specialManager.componentElementMap.forEach((value, key) => {
-            value.Init(this._componentElementDatasMap[key])
+            this._componentElementDatasMap[key] && value.Init(this._componentElementDatasMap[key])
         });
     }
 

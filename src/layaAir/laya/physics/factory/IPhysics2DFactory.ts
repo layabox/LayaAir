@@ -777,7 +777,7 @@ export interface IPhysics2DFactory {
 
     get_shape_isSensor(shape: any): boolean;
 
-    getShape(shape: any): any;
+    getShape(shape: any, type: EPhysics2DShape): any;
 
     setfilterData(shape: any, filterData: any): void;
 

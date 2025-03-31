@@ -590,9 +590,9 @@ export class BaseRender extends Component {
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
         if (this._renderElements.length == 0 && this._inRenderList) {
-            this.owner.scene._removeRenderObject(this);
+            this.owner?.scene._removeRenderObject(this);
         }
-        if (this.owner.scene && this._renderElements.length > 0 && !this._inRenderList)
+        if (this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
             this.owner.scene._addRenderObject(this);
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);

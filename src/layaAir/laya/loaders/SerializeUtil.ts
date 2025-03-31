@@ -30,23 +30,8 @@ export class SerializeUtil {
     }
 
     static getLoadTypeByEngineType(type: string) {
-        switch (type) {
-            case "Texture2D":
-            case "RenderTexture":
-                return Loader.TEXTURE2D;
-            case "TextureCube":
-                return Loader.TEXTURECUBE;
-            case "Prefab":
-                return Loader.HIERARCHY;
-            case "Material":
-                return Loader.MATERIAL;
-            case "Mesh":
-                return Loader.MESH;
-            default:
-                return null;
-        }
+        return Loader.assetTypeToLoadType[type];
     }
-
 
     static bakeOverrideData(overrideData: any) {
         let dataMap: Record<string, Array<any>> = null;

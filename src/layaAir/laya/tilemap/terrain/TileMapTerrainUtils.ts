@@ -553,7 +553,7 @@ export class TileMapTerrainRule{
    y:number = 0;
    terrain:number = 0;
    neighborObject:NeighborObject;
-   priority = -1;
+   priority = 1;
 
    constructor(x:number , y:number , terrain:number , neighborObject:NeighborObject){
       this.x = x;
@@ -609,7 +609,7 @@ export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule>{
       this.list.push(ele);
       return ele;
    }
-   
+
    get(x: number, y: number , data:number): TileMapTerrainRule {
       return this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) :null
    }

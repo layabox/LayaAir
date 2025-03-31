@@ -110,6 +110,9 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
+        //兼容 COlOLR FILTER
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORALPHA, "u_colorAlpha", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORMAT, "u_colorMat", ShaderDataType.Matrix4x4);
     }
 
     /**
@@ -117,7 +120,7 @@ export class BaseRenderNode2D extends Component {
     */
     static _setRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
         element.subShader = material._shader.getSubShaderAt(0);
-        //element.materialId = material.id;
+        material._setOwner2DElement(element);
         element.materialShaderData = material._shaderValues;
     }
 

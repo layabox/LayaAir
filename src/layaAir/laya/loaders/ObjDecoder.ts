@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
+import { Loader } from "../net/Loader";
 import { URL } from "../net/URL";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { GWidget } from "../ui2/GWidget";
@@ -85,7 +86,7 @@ export class ObjDecoder {
         else if (typeof (data) === "object") {
             if (data._$uuid != null) {
                 let url = URL.getResURLByUUID(data._$uuid);
-                return ILaya.loader.getRes(url, SerializeUtil.getLoadTypeByEngineType(data._$type));
+                return ILaya.loader.getRes(url, Loader.assetTypeToLoadType[data._$type]);
             }
 
             if (data._$ref != null) {

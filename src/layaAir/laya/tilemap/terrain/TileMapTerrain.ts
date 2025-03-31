@@ -28,7 +28,8 @@ export class TileMapTerrain {
       let r2fSet = new TerrainVector2Set();
 
       let listLength = list.length;
-      for (let i = 0; i < listLength; i++) {
+
+      for (let i = listLength - 1; i > -1 ; i--) {
          let x = list[i].x, y = list[i].y;
          let iv2 = vec2Map.get(x, y, true);
 
@@ -36,7 +37,10 @@ export class TileMapTerrain {
             allSet.add(iv2);
          }
          r2fSet.add(iv2);//实际需要绘制的
+      }
 
+      for (let i = 0; i < listLength; i++) {
+         let x = list[i].x, y = list[i].y;
          //包含边角
          for (let k = 0; k < linksLen; k++) {
             let neighbor = links[k];
@@ -235,7 +239,7 @@ export class TileMapTerrain {
       let sorceMap = new Map<TerrainsParams, number>();
 
       let paramsLength = paramsList.length;
-      for (let i = 0; i < paramsLength; i++) {
+      for (let i = -1; i < paramsLength; i++) {
          let list = paramsList[i];
          if (!list) continue;
 
@@ -248,7 +252,7 @@ export class TileMapTerrain {
             let rule = ruleSet.get(pos.x, pos.y, tempRule.data);
             if (rule) {
                if (rule.terrain != params.terrain) {
-                  score += rule.data;
+                  score += rule.priority;
                }
             } else if (params.terrain != currentParams.terrain) {
                continue
@@ -263,7 +267,7 @@ export class TileMapTerrain {
                let neighborRule = ruleSet.get(tempNeighborRule.x, tempNeighborRule.y, tempNeighborRule.data);
                if (neighborRule) {
                   if (neighborRule.terrain != neighborTerrain) {
-                     score += neighborRule.data;
+                     score += neighborRule.priority;
                   }
                } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbor]) {
                   check = true;

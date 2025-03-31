@@ -35,7 +35,7 @@ export class GSlider extends GWidget {
     constructor() {
         super();
 
-        this._value = 100;
+        this._value = 50;
         this._max = 100;
         this._clickPos = new Point();
 
@@ -102,6 +102,11 @@ export class GSlider extends GWidget {
     }
 
     private updateWithPercent(percent: number, manual?: boolean): void {
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE)) {
+            this.updateTitle(this._max, this._max, 1);
+            return;
+        }
+
         percent = MathUtil.clamp01(percent);
         if (manual) {
             let newValue = MathUtil.clamp(this._min + (this._max - this._min) * percent, this._min, this._max);
@@ -118,29 +123,7 @@ export class GSlider extends GWidget {
             }
         }
 
-        let obj = this._titleWidget;
-        if (obj) {
-            switch (this._titleType) {
-                case ProgressTitleType.Percent:
-                    obj.text = Math.floor(percent * 100) + "%";
-                    break;
-
-                case ProgressTitleType.ValueAndMax:
-                    obj.text = this._value + "/" + this._max;
-                    break;
-
-                case ProgressTitleType.Value:
-                    obj.text = "" + this._value;
-                    break;
-
-                case ProgressTitleType.Max:
-                    obj.text = "" + this._max;
-                    break;
-            }
-        }
-
-        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
-            return;
+        this.updateTitle(this._value, this._max, percent);
 
         let fullWidth = this.width - this._barMaxWidthDelta;
         let fullHeight = this.height - this._barMaxHeightDelta;
@@ -159,6 +142,30 @@ export class GSlider extends GWidget {
                 this._vBar.height = Math.round(fullHeight * percent);
                 this._vBar.y = this._barStartY + (fullHeight - this._vBar.height);
             }
+        }
+    }
+
+    private updateTitle(value: number, max: number, percent: number) {
+        let obj = this._titleWidget;
+        if (!obj)
+            return;
+
+        switch (this._titleType) {
+            case ProgressTitleType.Percent:
+                obj.text = Math.floor(percent * 100) + "%";
+                break;
+
+            case ProgressTitleType.ValueAndMax:
+                obj.text = Math.floor(value) + "/" + Math.floor(max);
+                break;
+
+            case ProgressTitleType.Value:
+                obj.text = "" + Math.floor(value);
+                break;
+
+            case ProgressTitleType.Max:
+                obj.text = "" + Math.floor(max);
+                break;
         }
     }
 
@@ -189,6 +196,7 @@ export class GSlider extends GWidget {
         this._gripButton = grip;
         this._titleWidget = title;
         this._reverse = reverse;
+        this._value = this._max;
 
         this._onConstruct();
     }

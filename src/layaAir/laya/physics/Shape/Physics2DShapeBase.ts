@@ -202,6 +202,15 @@ export class Physics2DShapeBase implements IClone {
         this._body = body;
         this._box2DBody = body.getBox2DBody();
         if (!this._box2DBody) return;
+        if (this._box2DShape) {
+            Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
+            Physics2D.I._factory.destroyData(this._box2DShapeDef);
+            this._box2DShape = null;
+            this._box2DShapeDef = null;
+        }
+        if (!this._box2DFilter) {
+            this._box2DFilter = Physics2D.I._factory.createFilter();
+        }
         this._physics2DManager = this._body.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         this.filterData = this._filterData;
         this._box2DShapeDef = Physics2D.I._factory.createShapeDef(this._physics2DManager.box2DWorld, this._shapeDef, this._box2DFilter);
