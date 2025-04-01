@@ -45,9 +45,9 @@ export class CharRender_Canvas extends ICharRender {
 		if (CharRender_Canvas.canvas.width == w)
 			return;
 		CharRender_Canvas.canvas.width = w;
-		if (w > 2048) {
-			console.warn("画文字设置的宽度太大，超过2048了");
-		}
+		// if (w > 2048) {
+		// 	console.warn("画文字设置的宽度太大，超过2048了");
+		// }
 		// 重新恢复一下缩放
 		this.ctx.setTransform(1, 0, 0, 1, 0, 0);	// 强制清理缩放			
 		this.ctx.scale(this.lastScaleX, this.lastScaleY);
