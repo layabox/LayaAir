@@ -1,3 +1,7 @@
+/**
+description
+ 骨骼动画换装示例，实现动画播放和皮肤切换
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";

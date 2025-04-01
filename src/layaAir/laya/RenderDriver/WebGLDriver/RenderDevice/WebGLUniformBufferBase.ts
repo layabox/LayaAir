@@ -100,7 +100,7 @@ export abstract class WebGLUniformBufferBase {
         }
     }
 
-    private setArrayBuffer(index: number, value: Float32Array) {
+    setArrayBuffer(index: number, value: Float32Array) {
         let uniform = this.descriptor.uniforms.get(index);
         if (uniform) {
 

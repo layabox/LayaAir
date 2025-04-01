@@ -1,3 +1,7 @@
+/**
+description
+ 测试内存分配和性能，点击舞台时动态创建大量Sprite3D对象
+ */
 import { Laya } from "Laya";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";

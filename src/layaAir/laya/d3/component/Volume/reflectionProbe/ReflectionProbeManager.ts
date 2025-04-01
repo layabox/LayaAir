@@ -59,20 +59,23 @@ export class ReflectionProbeManager implements IVolumeManager {
         var renderBounds: Bounds = baseRender.bounds;
         var overlop;
         for (var i: number = 0, n: number = this._reflectionProbes.length; i < n; i++) {
-            var renflectProbe = elements[i];
+            let probe = elements[i];
+
             if (!mainProbe) {
-                overlop = renderBounds.calculateBoundsintersection(renflectProbe.bounds);
+                overlop = renderBounds.calculateBoundsintersection(probe.bounds);
                 if (overlop < maxOverlap) continue;
             } else {
-                if (mainProbe.importance > renflectProbe.importance) continue;//重要性判断
-                overlop = renderBounds.calculateBoundsintersection(renflectProbe.bounds);
-                if (overlop < maxOverlap && mainProbe.importance == renflectProbe.importance) continue;
+                if (mainProbe.importance > probe.importance) continue;//重要性判断
+                overlop = renderBounds.calculateBoundsintersection(probe.bounds);
+                if (overlop < maxOverlap && mainProbe.importance == probe.importance) continue;
             }
-            mainProbe = renflectProbe;
+            mainProbe = probe;
             maxOverlap = overlop;
         }
+
         if (!mainProbe && this._sceneReflectionProbe)//如果没有相交 传场景反射球
             mainProbe = this._sceneReflectionProbe;
+
         baseRender.probReflection = mainProbe;
     }
 

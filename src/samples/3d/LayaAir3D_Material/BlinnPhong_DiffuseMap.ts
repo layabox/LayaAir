@@ -1,3 +1,7 @@
+/**
+description
+ 使用Blinn-Phong着色模型创建并渲染两个带纹理的3D球体模型
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

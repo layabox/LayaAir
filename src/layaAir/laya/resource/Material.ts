@@ -20,6 +20,7 @@ import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 
 
 /**
@@ -103,6 +104,7 @@ export class Material extends Resource implements IClone {
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.MATERIAL)
      * @en Loads a material from a URL.
      * @param url The URL from which to load the material.
      * @param complete A callback function that is called when the material has been loaded.
@@ -163,25 +165,31 @@ export class Material extends Resource implements IClone {
      * @en Owner element.
      * @zh 所属元素
      */
-    ownerElements: Set<IRenderElement3D> = new Set();
+    ownerElements: Set<IRenderElement3D | IRenderElement2D> = new Set();
 
     /**
      * @internal
      * @param element 
      */
-    _setOwnerElement(element: IRenderElement3D) {
+    _setOwner3DElement(element: IRenderElement3D) {
         this.ownerElements.add(element);
-        element.materialShaderData = this.shaderData;
+        element.materialShaderData = this._shaderValues;
         element.materialRenderQueue = this.renderQueue;
         element.subShader = this._shader.getSubShaderAt(0);
         element.materialId = this.id;
+    }
+
+    _setOwner2DElement(element: IRenderElement2D) {
+        this.ownerElements.add(element);
+        element.materialShaderData = this._shaderValues;
+        element.subShader = this._shader.getSubShaderAt(0);
     }
 
     /**
      * @internal
      * @param element 
      */
-    _removeOwnerElement(element: IRenderElement3D) {
+    _removeOwnerElement(element: IRenderElement3D | IRenderElement2D) {
         this.ownerElements.delete(element);
     }
 
@@ -191,7 +199,7 @@ export class Material extends Resource implements IClone {
      */
     _notifyOwnerElements() {
         this.ownerElements.forEach(element => {
-            this._setOwnerElement(element);
+            (element as IRenderElement3D).materialId ? this._setOwner3DElement(element as IRenderElement3D) : this._setOwner2DElement(element as IRenderElement2D);
         });
     }
 

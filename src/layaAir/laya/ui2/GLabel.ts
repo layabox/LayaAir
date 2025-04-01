@@ -31,7 +31,7 @@ export class GLabel extends GWidget {
         if (this._iconWidget)
             return this._iconWidget.p.icon;
         else
-            return null;
+            return "";
     }
 
     public set icon(value: string) {

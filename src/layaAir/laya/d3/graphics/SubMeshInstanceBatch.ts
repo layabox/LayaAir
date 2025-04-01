@@ -28,7 +28,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	}
 
 	/** @internal */
-	instanceWorldMatrixData: Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 16);
+	instanceWorldMatrixData: Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 20);
 	/** @internal */
 	instanceWorldMatrixBuffer: VertexBuffer3D;
 	/**SimpleAnimator */

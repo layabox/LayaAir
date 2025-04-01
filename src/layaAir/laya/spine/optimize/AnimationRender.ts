@@ -125,22 +125,6 @@ export class AnimationRender {
             if (frames[i] > time)
                 return i - 1;
         return n - 1;
-        // let lastFrame = this.frameNumber - 1;
-        // if (frameIndex < -1) {
-        //     frameIndex = 0;
-        // }
-        // else if (frameIndex == lastFrame) {
-        //     if (time < frames[lastFrame]) {
-        //         frameIndex = 0;
-        //     }
-        // }
-        // else if (time >= frames[frameIndex + 1]) {
-        //     frameIndex++;
-        // }
-        // else if (time < frames[frameIndex]) {
-        //     frameIndex = 0;
-        // }
-        // return frameIndex;
     }
 
     /**
@@ -179,10 +163,11 @@ export class AnimationRender {
         let changeMap = this.changeMap;
         let renderFrames = this.frames;
         //this.mainIb = mainib;
-        changeMap.clear();
-        renderFrames.length = 0;
-        let hasClip: boolean;
+        let hasClip: boolean = false;
 
+        renderFrames.push(0);
+        changeMap.set(0, {});
+        
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             let frames = time.frames;
@@ -448,8 +433,7 @@ export class SkinAniRenderData {
      * @en Function to update bone matrices.
      * @zh 更新骨骼矩阵的函数。
      */
-    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array) => void;
-    // changeVB: IVBChange[];
+    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number, ofy:number ) => void;
 
     /** @ignore */
     constructor() {
@@ -482,8 +466,8 @@ export class SkinAniRenderData {
      * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
-        this.vb.updateBoneCache(animation.boneFrames, delta / step, boneMat);
+    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number = 0, ofy:number = 0): void {
+        this.vb.updateBoneCache(animation.boneFrames, delta / step, boneMat, ofx, ofy);
     }
 
     /**
@@ -553,8 +537,8 @@ export class SkinAniRenderData {
      * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
-        this.vb.updateBone(bones, boneMat);
+    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number = 0, ofy:number = 0): void {
+        this.vb.updateBone(bones, boneMat, ofx, ofy);
     }
 
     /**

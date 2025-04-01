@@ -1,4 +1,4 @@
-import { LayaEnv } from "../../../LayaEnv";
+import { NodeFlags } from "../../Const";
 import { Color } from "../../maths/Color";
 import { Ease } from "../../tween/Ease";
 import { Tween } from "../../tween/Tween";
@@ -145,7 +145,7 @@ export class Gear<T> {
             || disableTween
             || !this._tweenCfg || !this._tweenCfg.enabled
             || Gear.disableAllTweenEffect
-            || !LayaEnv.isPlaying) {
+            || this._owner._getBit(NodeFlags.EDITING_NODE)) {
             obj[key] = newValue;
             return;
         }

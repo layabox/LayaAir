@@ -1,3 +1,7 @@
+/**
+description
+ 初始化3D场景，加载场景并添加摄像机移动脚本
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

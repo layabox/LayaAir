@@ -1,8 +1,9 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
-import { RigidBody } from "../RigidBody"
 import { Utils } from "../../utils/Utils";
-import { physics2D_PrismaticJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_PrismaticJointDef } from "../factory/IPhysics2DFactory";
+import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Translation joint: A movement joint allows two objects to move relative to each other along a specified axis, but it prevents relative rotation
@@ -43,13 +44,13 @@ export class PrismaticJoint extends JointBase {
      * @en The rigid body to which the joint is attached. This setting is effective only on the first assignment.
      * @zh [首次设置有效]关节的自身刚体。
      */
-    selfBody: RigidBody;
+    selfBody: ColliderBase;
 
     /**
      * @en The connected rigid body of the joint. It can be left unspecified, in which case it defaults to an empty rigid body at the top left corner. This setting is effective only on the first assignment.
      * @zh [首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体。
      */
-    otherBody: RigidBody;
+    otherBody: ColliderBase;
 
     /**
      * @en The anchor point of the joint, which is the offset relative to the top-left corner of the own rigid body. This setting is effective only on the first assignment.
@@ -163,14 +164,28 @@ export class PrismaticJoint extends JointBase {
 
     /**@internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
 
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
-            def.bodyB = this.selfBody.getBody();
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
+            if (!Physics2D.I._emptyBody) {
+                Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
+            }
+            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : Physics2D.I._emptyBody;
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             let p = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(p.x, p.y);
             let radian = Utils.toRadian(this.angle);
@@ -182,8 +197,10 @@ export class PrismaticJoint extends JointBase {
             def.lowerTranslation = this._lowerTranslation;
             def.upperTranslation = this._upperTranslation;
             def.collideConnected = this.collideConnected;
-
-            this._joint = this._factory.create_PrismaticJoint(def);
+            this._box2DJointDef = this._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.PrismaticJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.PrismaticJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
+            this.otherBody && this.otherBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 

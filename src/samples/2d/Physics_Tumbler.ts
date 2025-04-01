@@ -1,3 +1,7 @@
+/**
+description
+ 使用物理引擎创建旋转刚体容器,生成小矩形刚体的交互演示
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -11,12 +15,16 @@ import { Event } from "laya/events/Event";
 import { Config } from "Config";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
 import { Physics2D } from "laya/physics/Physics2D";
+import { Scene } from "laya/display/Scene";
+import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 export class Physics_Tumbler {
     private count = 0;
     private totalBox = 200;
     private label: Label;
     Main: typeof Main = null;
+    _scene: Scene;
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
@@ -28,27 +36,34 @@ export class Physics_Tumbler {
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
-            
+
             Physics2D.I.start();
-            Physics2D.I.drawJoint = false;
+            // Physics2D.I.drawJoint = false;
             this.createBox();
             this.eventListener();
         });
     }
 
     createBox() {
+        this._scene = new Scene();
+        this.Main.box2D.addChild(this._scene);
+
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        man.enableDebugDraw(true, EPhycis2DBlit.Shape);
+        man.enableDebugDraw(true, EPhycis2DBlit.Joint);
+        // man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
+
         const width = 300, height = 20;
         const
             posx = Laya.stage.width / 2,
             posy = Laya.stage.height / 2;
 
-        let off = -width / 2  - height ;
+        let off = -width / 2 - height;
         let box = new Sprite();
         box.size(width + height * 2, width + height * 2);
         box.pos(posx, posy);
-        this.Main.box2D.addChild(box);
+        this._scene.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
-
         let box1Shape: BoxCollider = box.addComponent(BoxCollider);
         let box2Shape: BoxCollider = box.addComponent(BoxCollider);
         let box3Shape: BoxCollider = box.addComponent(BoxCollider);
@@ -60,14 +75,14 @@ export class Physics_Tumbler {
         box2Shape.width = width + height * 2;
         box2Shape.height = height;
         box2Shape.x = off;
-        box2Shape.y = width + height+off;
+        box2Shape.y = width + height + off;
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
         box3Shape.x = off;
         box3Shape.y = off;
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
-        box4Shape.x = width + height+off;
+        box4Shape.x = width + height + off;
         box4Shape.y = off;
 
         let revoluteJoint = new RevoluteJoint();
@@ -80,13 +95,12 @@ export class Physics_Tumbler {
     }
 
     addMiniBox() {
-       
         if (this.count >= this.totalBox) {
             return;
         }
 
         let sp = new Sprite();
-        this.Main.box2D.addChild(sp);
+        this._scene.addChild(sp);
         sp.x = Laya.stage.width / 2;
         sp.y = Laya.stage.height / 2;
         let boxBody = sp.addComponent(RigidBody);
@@ -106,7 +120,7 @@ export class Physics_Tumbler {
         Laya.stage.on(Event.DOUBLE_CLICK, this, () => {
             this.totalBox += 100;
         });
-         Laya.timer.frameLoop(1, this, this.addMiniBox);
+        Laya.timer.frameLoop(1, this, this.addMiniBox);
     }
 
     dispose() {

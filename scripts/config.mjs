@@ -196,12 +196,16 @@ export const allBundles = [{
     name: 'physics2D',
     input: [
         'laya/physics/Collider2D/*.*',
+        'laya/physics/factory/*.*',
+        'laya/physics/Shape/*.*',
         'laya/physics/joint/*.*',
 
         'laya/physics/ModuleDef.ts',
         'laya/physics/Physics2D.ts',
         'laya/physics/Physics2DOption.ts',
         'laya/physics/RigidBody.ts',
+        'laya/physics/StaticCollider.ts',
+        'laya/physics/Physics2DWorldManager.ts',
         'laya/physics/RigidBody2DInfo.ts',
         'laya/physics/Physics2DDebugDraw.ts',
     ],
@@ -311,10 +315,15 @@ export const allBundles = [{
     ],
 },
 {
+    name: "particleCommon",
+    input: [
+        'laya/particle/common/**/*.*',
+    ]
+},
+{
     name: "particle",
     input: [
         'laya/particle/d2/**/*.*',
-        'laya/particle/common/**/*.*',
         'laya/particle/ModuleDef.ts'
     ]
 },
@@ -349,8 +358,8 @@ export const allBundles = [{
     ],
 },
 {
-    name:'postProcess',
-    input:[
+    name: 'postProcess',
+    input: [
         'laya/d3/postProcessEffect/**/*.*'
     ]
 }

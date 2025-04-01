@@ -4,7 +4,7 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { RTTransform3D } from "./RTTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
@@ -21,7 +21,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public set transform(value: RTTransform3D) {
-        this._nativeObj.setTransform(value._nativeObj);
+        this._nativeObj.setTransform(value?value._nativeObj:null);
         this._transform = value;
     }
 
@@ -64,9 +64,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
-        // //if(this.boundsChange){
-        var aa =this._nativeObj._bounds;//触发get
-        // //}
+        if (this.boundsChange) {
+            this._nativeObj._calculateBoundingBox();
+            this.boundsChange = false;
+        }
         return this._bounds as Bounds;
     }
     public set bounds(value: Bounds) {
@@ -135,12 +136,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._probeReflection = value;
         this._nativeObj.setProbeReflection(value._nativeObj);
     }
-    public get probeReflectionUpdateMark(): number {
-        return this._nativeObj.probeReflectionUpdateMark;
-    }
-    public set probeReflectionUpdateMark(value: number) {
-        this._nativeObj.probeReflectionUpdateMark = value;
-    }
+
     public get reflectionMode(): number {
         return this._nativeObj.reflectionMode;
     }
@@ -204,11 +200,40 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj = new (window as any).conchRTBaseRenderNode();
     }
 
+
+    private _additionShaderData: Map<string, ShaderData> = new Map();//TODO:
+    public get additionShaderData(): Map<string, ShaderData> {
+        return this._additionShaderData;
+    }
+    public set additionShaderData(value: Map<string, ShaderData>) {
+        this._additionShaderData = value;
+        this._nativeObj.clearAdditionalMap();
+        for (let [key, value] of this._additionShaderData) {
+            this._nativeObj.addOneAddiionalData(key, (value as any)._nativeObj);
+        }
+    }
+
     constructor() {
         this._getNativeObj();
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
+    }
+
+    private _worldParams: Vector4 = new Vector4();
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
+        switch (dataSlot) {
+            case 0:
+                this._worldParams.y = data;
+                break;
+            case 1:
+                this._worldParams.z = data;
+                break;
+            case 2:
+                this._worldParams.w = data;
+                break;
+        }
+        this._nativeObj.worldParams = this._worldParams;
     }
 
     public get renderNodeType(): number {
@@ -228,10 +253,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     _applyLightProb(): void {
         this._nativeObj._applyLightProb();
-     }
-     _applyReflection(): void {
+    }
+    _applyReflection(): void {
         this._nativeObj._applyReflection();
-     }
+    }
     setRenderelements(value: IRenderElement3D[]): void {
         var tempArray: any[] = [];
         this.renderelements.length = 0;
@@ -262,6 +287,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
     destroy(): void {
         this._nativeObj.destroy();
+        for (let i = 0, n = this.renderelements.length; i < n; i++) {
+            this.renderelements[i].destroy();
+        }
+        this.renderelements.length = 0;
+        this._baseGeometryBounds = null;
+        this.transform = null;
+        this._shaderData && this._shaderData.destroy();
     }
 
 }

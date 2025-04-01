@@ -1,3 +1,7 @@
+/**
+description
+ 加载和播放精灵图集动画，并在舞台中心显示动画
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Animation } from "laya/display/Animation"

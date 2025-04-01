@@ -201,13 +201,22 @@
         #endif
     }
 
+    vec4 linearToGamma(in vec4 value)
+    {
+        return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))),value.a);
+
+        // return pow(value, vec3(1.0 / 2.2));
+        // return pow(value, vec3(0.455));
+    }
+
     void getVertexInfo(inout vertexInfo info){
         info.pos = a_position.xy;
         info.color = vec4(1.0,1.0,1.0,1.0);
         #ifdef COLOR
             info.color = a_color;
+            info.color.rgb *=a_color.a;
         #endif
-        info.color*=u_baseRenderColor;
+        info.color*= linearToGamma(u_baseRenderColor);
         #ifdef UV
             info.uv = a_uv;
         #endif

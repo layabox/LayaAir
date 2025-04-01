@@ -6,10 +6,30 @@
     #include "Oct.glsl";
     #include "GridHelpers.glsl";
 
+    #ifdef ENUNIFORMBLOCK
+
+uniform VolumetricGIProbe
+{
+    vec3 u_VolGIProbeCounts;
+    vec3 u_VolGIProbeStep;
+    vec3 u_VolGIProbeStartPosition;
+    vec4 u_VolGIProbeParams;
+};
+
+uniform sampler2D u_ProbeIrradiance;
+uniform sampler2D u_ProbeDistance;
+
+    #else // ENUNIFORMBLOCK
+
 uniform vec3 u_VolGIProbeCounts;
 uniform vec3 u_VolGIProbeStep;
 uniform vec3 u_VolGIProbeStartPosition;
 uniform vec4 u_VolGIProbeParams;
+
+uniform sampler2D u_ProbeIrradiance;
+uniform sampler2D u_ProbeDistance;
+
+    #endif // ENUNIFORMBLOCK
 
 struct VolumetricGI {
     vec3 probeCounts;
@@ -17,9 +37,6 @@ struct VolumetricGI {
     vec3 probeStartPosition;
     vec4 probeParams; // x: irradianceTexels, y: distanceTexels, z: normalBias, w: viewBias
 };
-
-uniform sampler2D u_ProbeIrradiance;
-uniform sampler2D u_ProbeDistance;
 
 vec2 porbeGridCoordToTextureGridCoord(in ivec3 porbeGridCoord,
     in ivec3 probeCounts,
@@ -80,7 +97,7 @@ vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 	    // the offsets from the bits of the loop index: x = bit 0, y = bit 1, z =
 	    // bit 2
 	    // ivec3 adjacentProbeOffset = ivec3(probeIndex, probeIndex >> 1, probeIndex >> 2) & ivec3(1, 1, 1);
-		ivec3 adjacentProbeOffset = ivec3(imod(probeIndex, 2), imod((probeIndex / 2), 2),imod( (probeIndex / 4), 2));
+	    ivec3 adjacentProbeOffset = ivec3(imod(probeIndex, 2), imod((probeIndex / 2), 2), imod((probeIndex / 4), 2));
 
 	    // Get the 3D grid coordinates of the adjacent probe by adding the offset to
 	    // the base probe and clamping to the grid boundaries

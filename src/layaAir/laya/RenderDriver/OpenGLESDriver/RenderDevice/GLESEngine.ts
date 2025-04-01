@@ -4,7 +4,6 @@ import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
-import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
@@ -29,7 +28,6 @@ export enum GLESMode {
 export class GLESEngine implements IRenderEngine {
   _context: any;
   _isShaderDebugMode: boolean;
-  _renderOBJCreateContext: IRenderEngineFactory;
   _nativeObj: any;
   private _GLTextureContext: GLESTextureContext;
   constructor(config: WebGLConfig, webglMode: GLESMode = GLESMode.Auto) {
@@ -56,14 +54,6 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj.enableStatistics = value;
   }
 
-  setUseUniformBlock(value: boolean) {
-    this._nativeObj.setUseUniformBlock(value);
-
-  }
-
-  setMatUseUBO(value: boolean) {
-    this._nativeObj.setMatUseUBO(value);
-  }
   resizeOffScreen(width: number, height: number): void {
     this._nativeObj.resizeOffScreen(width, height);
   }
@@ -106,9 +96,6 @@ export class GLESEngine implements IRenderEngine {
   }
   getTextureContext(): ITextureContext {
     return this._GLTextureContext;
-  }
-  getCreateRenderOBJContext(): IRenderEngineFactory {
-    throw new NotImplementedError();
   }
   clearStatisticsInfo(): void {
     this._nativeObj.clearStatisticsInfo();

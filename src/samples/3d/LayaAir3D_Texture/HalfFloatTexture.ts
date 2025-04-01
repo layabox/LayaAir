@@ -1,3 +1,7 @@
+/**
+description
+ 创建并设置半浮点数纹理，生成64x64像素的高精度纹理贴图
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

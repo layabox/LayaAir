@@ -8,26 +8,25 @@ export class HierarchyLoader implements IResourceLoader {
 
     load(task: ILoadTask) {
         let url = task.url;
-        let isModel = task.ext == "gltf" || task.ext == "fbx" || task.ext == "glb" || task.ext == "obj";
-        if (isModel)
+        let fromDCC = task.ext == "gltf" || task.ext == "fbx" || task.ext == "glb" || task.ext == "obj";
+        if (fromDCC)
             url = AssetDb.inst.getSubAssetURL(url, task.uuid, "0", "lh");
         return task.loader.fetch(url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
 
             if (data._$ver != null)
-                return this._load(PrefabImpl.v3, task, data, 3);
+                return this._load(PrefabImpl.v3, task, data, fromDCC);
             else if (task.ext == "ls" || task.ext == "lh")
-                return this._load(PrefabImpl.v2, task, data, 2);
+                return this._load(PrefabImpl.v2, task, data, fromDCC);
             else if (task.ext == "scene" || task.ext == "prefab")
-                return this._load(PrefabImpl.legacySceneOrPrefab, task, data, 2);
+                return this._load(PrefabImpl.legacySceneOrPrefab, task, data, fromDCC);
             else
                 return null;
         });
     }
 
-    //@internal
-    private _load(api: IHierarchyParserAPI, task: ILoadTask, data: any, version: number): Promise<Prefab> {
+    protected _load(api: IHierarchyParserAPI, task: ILoadTask, data: any, fromDCC: boolean): Promise<Prefab> {
         let basePath = URL.getPath(task.url);
         let links = api.collectResourceLinks(data, basePath);
         let options: ILoadOptions = Object.assign({}, task.options);
@@ -36,6 +35,7 @@ export class HierarchyLoader implements IResourceLoader {
         delete options.ignoreCache;
         return task.loader.load(links, options, task.progress.createCallback()).then((resArray: any[]) => {
             let res = new PrefabImpl(api, data);
+            res.fromDCC = fromDCC;
             res.onLoad();
             res.addDeps(resArray);
             return res;

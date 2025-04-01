@@ -1,3 +1,7 @@
+/**
+description
+ 演示LayaAir 3D物理世界中可配置关节的多种约束模式
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";

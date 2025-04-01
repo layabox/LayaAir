@@ -4,7 +4,6 @@ import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
-import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { Bounds } from "../../math/Bounds";
@@ -26,7 +25,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ENodeCustomData, IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
 
@@ -137,11 +136,8 @@ export class BaseRender extends Component {
      */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
-        Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
         Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
-
-        Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI = Shader3D.getDefineByName("VOLUMETRICGI");
     }
 
     /**@internal renderData*/
@@ -182,6 +178,9 @@ export class BaseRender extends Component {
 
     /**@interface */
     _receiveShadow: boolean;
+
+    /**@internal */
+    _inRenderList: boolean;
     protected _bounds: Bounds;
     protected _transform: Transform3D;
 
@@ -486,15 +485,21 @@ export class BaseRender extends Component {
     set probReflection(value: ReflectionProbe) {
         if (this._probReflection == value)
             return;
-        this._baseRenderNode.probeReflectionUpdateMark = -1;//initial update mask
         this._probReflection = value;
-        this._baseRenderNode.probeReflection = value._dataModule;
-        if (this._baseRenderNode.reflectionMode == ReflectionProbeMode.off) {
-            this._baseRenderNode.shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            this._baseRenderNode.shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
-            this._baseRenderNode.shaderData.setTexture(RenderableSprite3D.IBLTEX, TextureCube.blackTexture);
-            this._baseRenderNode.shaderData.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, 0);
-        };
+
+        const ReflectionProbeBlockName = ReflectionProbe.BlockName;
+        if (value) {
+            this._baseRenderNode.probeReflection = value._dataModule;
+
+            this._baseRenderNode.additionShaderData.set(ReflectionProbeBlockName, value.shaderData);
+        }
+        else {
+            this._baseRenderNode.probeReflection = null;
+
+            this._baseRenderNode.additionShaderData.delete(ReflectionProbeBlockName);
+        }
+        this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
+
         this._getIrradientMode();
     }
 
@@ -512,8 +517,30 @@ export class BaseRender extends Component {
         }
         this._baseRenderNode.lightProbUpdateMark = -1;
         this._lightProb = volumetricGI;
-        this._baseRenderNode.volumetricGI = volumetricGI ? volumetricGI._dataModule : null;
+
+        const VolumeGIBlockName = VolumetricGI.BlockName;
+        if (volumetricGI) {
+            this._baseRenderNode.volumetricGI = volumetricGI._dataModule;
+            this._baseRenderNode.additionShaderData.set(VolumeGIBlockName, volumetricGI.shaderData);
+        }
+        else {
+            this._baseRenderNode.volumetricGI = null;
+            this._baseRenderNode.additionShaderData.delete(VolumeGIBlockName);
+        }
+
+        this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
+
         this._getIrradientMode();
+    }
+
+
+    /**
+     * 设置自定义的渲染数据
+     * @param dataSlot 
+     * @param data 
+     */
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number) {
+        this.renderNode.setNodeCustomData(dataSlot, data);
     }
 
     /**
@@ -571,10 +598,17 @@ export class BaseRender extends Component {
      */
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
+        if (this._renderElements.length == 0 && this._inRenderList) {
+            this.owner?.scene._removeRenderObject(this);
+        }
+        if (this.owner?.activeInHierarchy && this.enabled && this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
+            this.owner.scene._addRenderObject(this);
+
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);
         });
-        this._baseRenderNode.setRenderelements(arrayElement)
+        this._baseRenderNode.setRenderelements(arrayElement);
+
     }
 
     /**

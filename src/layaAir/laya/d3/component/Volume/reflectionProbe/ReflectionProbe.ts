@@ -1,4 +1,3 @@
-import { Sprite3D } from "../../../core/Sprite3D";
 import { Bounds } from "../../../math/Bounds";
 import { TextureCube } from "../../../../resource/TextureCube";
 import { Volume } from "../Volume";
@@ -10,6 +9,11 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { IReflectionProbeData } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { CommandUniformMap } from "../../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 
 /**
@@ -32,6 +36,41 @@ export enum ReflectionProbeMode {
  * @zh 用于实现反射探针组件
  */
 export class ReflectionProbe extends Volume {
+
+	static CommandMap: CommandUniformMap;
+
+	static BlockName: string = "ReflectionProbe";
+	/** @internal */
+	static SHADERDEFINE_GI_IBL: ShaderDefine;
+
+	/** @internal */
+	static IBLTEX: number;
+
+	/** @internal */
+	static IBLROUGHNESSLEVEL: number;
+
+	/** @internal */
+	static AMBIENTSH: number;
+
+	/** @internal */
+	static AMBIENTCOLOR: number;
+
+	/** @internal */
+	static AMBIENTINTENSITY: number;
+
+	/** @internal */
+	static REFLECTIONINTENSITY: number;
+
+
+	/** 反射探针位置 最大、最小值*/
+	/** @internal */
+	static REFLECTIONCUBE_PROBEPOSITION: number;
+	/** @internal */
+	static REFLECTIONCUBE_PROBEBOXMAX: number;
+	/** @internal */
+	static REFLECTIONCUBE_PROBEBOXMIN: number;
+
+
 	/**
 	 * @en Number of reflection probes
 	 * @zh 反射探针数量
@@ -44,6 +83,43 @@ export class ReflectionProbe extends Volume {
 	static getID(): number {
 		return ReflectionProbe.reflectionCount++;
 	}
+
+	static init() {
+
+		ReflectionProbe.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
+
+		let unifomrMap = ReflectionProbe.CommandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(ReflectionProbe.BlockName);
+
+		const addUniform = (name: string, type: number, arrayLength: number = 0) => {
+			let unifomrIndex = Shader3D.propertyNameToID(name);
+			if (arrayLength > 0) {
+				unifomrMap.addShaderUniformArray(unifomrIndex, name, type, arrayLength);
+			}
+			else {
+				unifomrMap.addShaderUniform(unifomrIndex, name, type);
+			}
+			return unifomrIndex;
+		};
+
+		ReflectionProbe.AMBIENTCOLOR = addUniform("u_AmbientColor", ShaderDataType.Vector4);
+
+		ReflectionProbe.AMBIENTSH = addUniform("u_IblSH", ShaderDataType.Vector3, 9);
+
+		ReflectionProbe.IBLTEX = addUniform("u_IBLTex", ShaderDataType.TextureCube);
+
+		ReflectionProbe.IBLROUGHNESSLEVEL = addUniform("u_IBLRoughnessLevel", ShaderDataType.Float);
+
+		ReflectionProbe.AMBIENTINTENSITY = addUniform("u_AmbientIntensity", ShaderDataType.Float);
+
+		ReflectionProbe.REFLECTIONINTENSITY = addUniform("u_ReflectionIntensity", ShaderDataType.Float);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEPOSITION = addUniform("u_SpecCubeProbePosition", ShaderDataType.Vector3);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEBOXMAX = addUniform("u_SpecCubeBoxMax", ShaderDataType.Vector3);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEBOXMIN = addUniform("u_SpecCubeBoxMin", ShaderDataType.Vector3);
+	}
+
 
 	/**
 	 * @en Default HDR decode values
@@ -82,6 +158,14 @@ export class ReflectionProbe extends Volume {
 		this.ambientMode = AmbientMode.SolidColor;
 
 		this._dataModule.updateMark = -1;
+	}
+
+	/**
+	 * @en The shader data of the reflection probe
+	 * @zh 反射探针的着色器数据
+	 */
+	get shaderData(): ShaderData {
+		return this._dataModule.shaderData;
 	}
 
 

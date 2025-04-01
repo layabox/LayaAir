@@ -34,7 +34,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
             let oriBufferState = geometry.bufferState;
             let vertexArray = oriBufferState._vertexBuffers.slice();
             let worldMatVertex = new WebGLVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-            worldMatVertex.setDataLength(WebGLInstanceRenderElement3D.MaxInstanceCount * 16 * 4)
+            worldMatVertex.setDataLength(WebGLInstanceRenderElement3D.MaxInstanceCount * 20 * 4)
             worldMatVertex.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
             worldMatVertex.instanceBuffer = true;
             vertexArray.push(worldMatVertex);
@@ -125,33 +125,27 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
 
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
+
+        let comDef = this._getShaderInstanceDefines(context);
+        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
         let passes = this.subShader._passes;
         for (let i = 0; i < passes.length; i++) {
             let pass = passes[i];
             if (pass.pipelineMode != context.pipelineMode)
                 continue;
 
-            let comDef = WebGLRenderElement3D._compileDefine;
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
-            }
-            else {
-                context._globalConfigShaderData.cloneTo(comDef);
-            }
-
-            context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
-
             if (this.renderShaderData) {
-                comDef.addDefineDatas(this.renderShaderData.getDefineData());
                 pass.nodeCommonMap = this.owner._commonUniformMap;
             }
             else {
                 pass.nodeCommonMap = null;
             }
 
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
-
-            comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+            pass.additionShaderData = null;
+            if (this.owner) {
+                pass.additionShaderData = this.owner._additionShaderDataKeys;
+            }
 
             let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
             this._addShaderInstance(shaderIns);
@@ -162,14 +156,16 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     private _updateInstanceData() {
         switch (this.owner.renderNodeType) {
             case BaseRenderType.MeshRender: {
-                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 16, WebGLInstanceRenderElement3D.MaxInstanceCount);
+                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 20, WebGLInstanceRenderElement3D.MaxInstanceCount);
                 var insBatches = this.instanceElementList;
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
                 this.geometry.instanceCount = this.drawCount;
-                for (var i: number = 0; i < count; i++)
-                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+                for (var i: number = 0; i < count; i++) {
+                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 20);
+                    elements[i].owner._worldParams.writeTo(worldMatrixData, i * 20 + 16);
+                }
 
                 let haveLightMap: boolean = this.renderShaderData.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP) && this.renderShaderData.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
                 if (haveLightMap) {
@@ -187,14 +183,16 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
             }
             case BaseRenderType.SimpleSkinRender: {
                 //worldMatrix
-                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 16, WebGLInstanceRenderElement3D.MaxInstanceCount);
+                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 20, WebGLInstanceRenderElement3D.MaxInstanceCount);
                 var insBatches = this.instanceElementList;
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
                 this.geometry.instanceCount = this.drawCount;
-                for (var i: number = 0; i < count; i++)
-                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+                for (var i: number = 0; i < count; i++) {
+                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 20);
+                    elements[i].owner._worldParams.writeTo(worldMatrixData, i * 20 + 16);
+                }
                 //simpleAnimationData
                 let simpleAnimatorData = this.addUpdateData(this._instanceStateInfo.simpleAnimatorVB, 4, WebGLInstanceRenderElement3D.MaxInstanceCount);
                 for (var i: number = 0; i < count; i++) {

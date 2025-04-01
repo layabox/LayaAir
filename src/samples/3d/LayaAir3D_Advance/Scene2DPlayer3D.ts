@@ -1,3 +1,7 @@
+/**
+description
+ 在2D场景中加载3D猴子模型,并支持键盘WASD控制模型移动
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

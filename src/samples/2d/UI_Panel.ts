@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya引擎并创建一个带水平滚动条的面板，在面板中添加4张图片
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Image } from "laya/ui/Image";

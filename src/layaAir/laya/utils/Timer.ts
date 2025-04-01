@@ -8,9 +8,9 @@ export class Timer {
     /**@internal */
     static gSysTimer: Timer = null;
     /**@internal */
-    static callLaters: Timer = new Timer(false);
+    static readonly callLaters: Timer = new Timer(false, true);
     /**@internal */
-    static _pool: TimerHandler[] = [];
+    static readonly _pool: TimerHandler[] = [];
 
     /**
      * @en Scale of the clock hand.
@@ -39,27 +39,34 @@ export class Timer {
     unscaledDelta: number = 0;
 
     private _lastTimer: number;
-    private _map: { [key: string]: TimerHandler } = {};
+    private _map: Record<string, TimerHandler> = {};
     private _handlers: TimerHandler[] = [];
-    private _temp: any[] = [];
-    private _count: number = 0;
+    private _greedy: boolean;
 
     /**
      * @en Constructor method
+     * @param autoActive Whether to automatically activate the timer. If not, you need to call `_update` manually. Default is true.
+     * @param greedyMode Whether to use the greedy mode. In the greedy mode, the timer will try to execute the new added handler within `_update`. Default is false.
      * @zh 构造方法
+     * @param autoActive 是否自动激活时钟，否则需要手动调用 `_update`。默认为 true。
+     * @param greedyMode 是否使用贪婪模式，在贪婪模式下时钟会尝试在 `_update` 内执行新添加的 handler。默认为 false。
      */
-    constructor(autoActive: boolean = true) {
-        autoActive && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
+    constructor(autoActive?: boolean, greedyMode?: boolean) {
+        (autoActive || autoActive == null) && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
         this.currTimer = Date.now();
         this._lastTimer = Date.now();
+        this._greedy = !!greedyMode;
     }
 
+    /**
+     * @en The time since last frame (unit: milliseconds).
+     * @zh 获取最后一帧的时间（单位：毫秒）。
+     */
     get totalTime(): number {
         return this._lastTimer;
     }
 
     /**
-     * @internal
      * @en The frame update handling function.
      * @zh 帧循环处理函数。
      */
@@ -79,47 +86,52 @@ export class Timer {
         this._lastTimer = now;
 
         let handlers = this._handlers;
-        this._count = 0;
-        for (let i: number = 0, n: number = handlers.length; i < n; i++) {
+        let killed = 0;
+        for (let i: number = 0, n: number = handlers.length - 1; i <= n; i++) {
             let handler = handlers[i];
-            if (!handler.method) {
-                this._count++;
-                continue;
-            }
-
-            let t: number = handler.userFrame ? frame : timer;
-            if (t >= handler.exeTime) {
-                if (handler.repeat) {
-                    if (!handler.jumpFrame || awake) {
-                        handler.exeTime += handler.delay;
-                        handler.run(false);
-                        if (t > handler.exeTime) {
-                            //如果执行一次后还能再执行，做跳出处理，如果想用多次执行，需要设置jumpFrame=true
-                            handler.exeTime += Math.ceil((t - handler.exeTime) / handler.delay) * handler.delay;
-                        }
-                    } else {
-                        while (t >= handler.exeTime) {
+            if (handler.method) {
+                let t: number = handler.userFrame ? frame : timer;
+                if (t >= handler.exeTime) {
+                    if (handler.repeat) {
+                        if (!handler.jumpFrame || awake) {
                             handler.exeTime += handler.delay;
                             handler.run(false);
+                            if (t > handler.exeTime) {
+                                //如果执行一次后还能再执行，做跳出处理，如果想用多次执行，需要设置jumpFrame=true
+                                handler.exeTime += Math.ceil((t - handler.exeTime) / handler.delay) * handler.delay;
+                            }
+                        } else {
+                            while (t >= handler.exeTime) {
+                                handler.exeTime += handler.delay;
+                                handler.run(false);
+                            }
                         }
+                    } else {
+                        handler.run(true);
                     }
-                } else {
-                    handler.run(true);
                 }
             }
+            else
+                killed++;
+
+            i === n && this._greedy && (n = handlers.length - 1);
         }
 
-        if (this._count > 30 || frame % 200 === 0)
+        if (killed > 30 || frame % 200 === 0)
             this._clearHandlers();
     }
 
-    /** @private */
     private _clearHandlers(): void {
         let handlers = this._handlers;
+        let j = 0;
         for (let i: number = 0, n: number = handlers.length; i < n; i++) {
             let handler: TimerHandler = handlers[i];
-            if (handler.method !== null)
-                this._temp.push(handler);
+            if (handler.method !== null) {
+                if (j !== i)
+                    handlers[j++] = handler;
+                else
+                    j++;
+            }
             else {
                 if (this._map[handler.key] == handler)
                     delete this._map[handler.key];
@@ -127,9 +139,7 @@ export class Timer {
                 Timer._pool.push(handler);
             }
         }
-        this._handlers = this._temp;
-        handlers.length = 0;
-        this._temp = handlers;
+        handlers.length = j;
     }
 
     /** @internal */
@@ -298,7 +308,7 @@ export class Timer {
      * @param args 回调参数。
      */
     callLater(caller: any, method: Function, args?: any[]): void {
-        Timer.callLaters.once(0, caller, method, args);
+        Timer.callLaters._create(false, false, 0, caller, method, args, true).exeTime = 0;
     }
 
     /**
@@ -375,8 +385,6 @@ export class Timer {
             handler.clear();
         }
         this._handlers.length = 0;
-        this._map = {};
-        this._temp.length = 0;
     }
 }
 

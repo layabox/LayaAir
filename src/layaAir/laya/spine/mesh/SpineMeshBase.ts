@@ -9,6 +9,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Material } from "../../resource/Material";
+import { SpineShaderInit } from "../material/SpineShaderInit";
 
 /**
  * @en Abstract base class for Spine mesh rendering.
@@ -77,9 +78,19 @@ export abstract class SpineMeshBase {
     protected verticesLength: number = 0;
     /**
      * @en Index array length.
-     * @zh 引数组中索引的数量。
+     * @zh 索引数组中索引的数量。
      */
     protected indicesLength: number = 0;
+    /**
+     * @en Vertex Buffer length.
+     * @zh 顶点缓冲区大小。
+     */
+    protected vertexBufferLength:number = 0;
+    /**
+     * @en Index Buffer length.
+     * @zh 索引缓冲区大小。
+     */
+    protected indexBufferLength:number = 0;
 
     /**
      * @en Create a new instance of SpineMeshBase.
@@ -88,7 +99,6 @@ export abstract class SpineMeshBase {
      * @param material 网格使用的材质。
      */
     constructor(material: Material) {
-
         this.init();
         this.material = material;
     }
@@ -102,9 +112,9 @@ export abstract class SpineMeshBase {
         let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
         let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = this.vertexDeclarition;
         let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        mesh.applyState([vb], ib)
+        vb.vertexDeclaration = this.vertexDeclarition;
+        mesh.applyState([vb], ib);
         geo.indexFormat = IndexFormat.UInt16;
         this.geo = geo;
         this.vb = vb;
@@ -116,14 +126,15 @@ export abstract class SpineMeshBase {
         this.element.canotPool = true;
         this.element.geometry = geo;
         this.element.renderStateIsBySprite = false;
-
     }
+   
     /**
-     * @en Get the vertex declaration for this mesh.
-     * @zh 获取此网格的顶点声明。
+     * @en The vertex declaration for the mesh.
+     * @zh 网格的顶点声明。
      */
-    abstract get vertexDeclarition(): VertexDeclaration;
-
+    get vertexDeclarition(): VertexDeclaration {
+        return  SpineShaderInit.SpineNormalVertexDeclaration;
+    }
     /**
      * @en Add the mesh to the rendering queue.
      * @zh 添加到渲染队列。
@@ -133,11 +144,20 @@ export abstract class SpineMeshBase {
         let ib = this.ib;
         let vblen = this.verticesLength * 4;
         let iblen = this.indicesLength * 2;
+        //检查长度
+        if (vblen > this.vertexBufferLength) {
+            vb.setDataLength(vblen);
+            this.vertexBufferLength = vblen;
+        }
 
-        vb.setDataLength(vblen);
-        vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen)
-        ib._setIndexDataLength(iblen);
-        ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0)
+        if (iblen > this.indexBufferLength) {
+            ib._setIndexDataLength(iblen);
+            this.indexBufferLength = iblen;
+        }
+
+        vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen);
+        ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0);
+        
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
         this.element.geometry = this.geo;
@@ -172,6 +192,18 @@ export abstract class SpineMeshBase {
     clear() {
         this.verticesLength = 0;
         this.indicesLength = 0;
+    }
+
+    /**
+     * @en Destroy the mesh.
+     * @zh 销毁网格。
+     */
+    destroy() {
+        this.clear();
+        this.vb.destroy();
+        this.ib.destroy();
+        this.geo.destroy();
+        this.element.destroy();
     }
 
     /** @internal */

@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎精灵节点控制示例，展示两只猴子精灵的层级嵌套和旋转动画
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

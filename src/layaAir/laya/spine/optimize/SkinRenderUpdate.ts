@@ -1,4 +1,3 @@
-
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "../interface/ISpineRender";
@@ -123,6 +122,13 @@ export class SkinRenderUpdate {
         let frameData = skindata.getFrameData(frame);
 
         let isFirst = frame < 0;
+        let needUpload = false;
+
+        if (isFirst) {
+            this._resetVertexBuffset(skindata);
+            currentChanges.length = 0;
+        }
+       
         //统计vchange
         for (let f = lastFrame + 1; f <= frame; f++) {
             let frameData = skindata.getFrameData(f);
@@ -137,10 +143,9 @@ export class SkinRenderUpdate {
         }
 
         //是否有vchange 修改顶点 或者 -1帧初始化状态
-        let needUpload = false;
         for (let i = currentChanges.length - 1; i >= 0; i--) {
             let change = currentChanges[i];
-            if (change.apply(frame, skindata.vb, this.owner.slots)) {
+            if (change.apply(frame, skindata.vb, this.owner._skeleton.slots)) {
                 needUpload = true;
             } else {
                 currentChanges.splice(i, 1);
@@ -228,7 +233,7 @@ export class SkinRenderUpdate {
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode) {
         this.templet = templet;
         if (this.hasNormalRender) {
-            this._renderer = SpineAdapter.createNormalRender(templet, false);
+            this._renderer = SpineAdapter.createNormalRender(templet);
         }
     }
 
@@ -240,5 +245,40 @@ export class SkinRenderUpdate {
      */
     render(time: number) {
 
+    }
+
+    private _resetVertexBuffset(skindata: SkinAniRenderData) {
+        let slots = this.owner._skeleton.slots;
+        let map = skindata.vb.slotVBMap;
+        let renderDatas = skindata.renderDatas;
+        let resetSlots:Set<number> = new Set();
+
+        renderDatas.forEach(data => {
+            if (data.vChanges) {
+                for (const change of data.vChanges) {
+                    resetSlots.add(change.slotId);
+                }
+            }
+        });
+
+        resetSlots.forEach(slotId => {
+            let slot = slots[slotId];
+            if (slot && slot.attachment) {
+                let attach = map.get(slotId)?.get(slot.attachment.name);
+                if (attach) {
+                    skindata.vb.resetVB(attach.attachment);
+                }
+            }
+        });
+    }
+
+    /**
+     * @en Destroy the SkinRenderUpdate instance.
+     * @zh 销毁 SkinRenderUpdate 实例。
+     */
+    destroy() {
+        if (this.hasNormalRender) {
+            this._renderer.destroy();
+        }
     }
 }

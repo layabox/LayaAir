@@ -3,9 +3,8 @@ import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
-import { HideFlags } from "../Const";
+import { HideFlags, NodeFlags } from "../Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { LayaEnv } from "../../LayaEnv";
 import { TransformKind } from "../display/SpriteConst";
 
 export type LabelFitContent = "no" | "yes" | "height";
@@ -269,7 +268,9 @@ export class Label extends UIComponent {
         if (typeof (value) === "boolean") //兼容旧版本
             value = value ? "yes" : "no";
         if (this._fitContent != value) {
-            if ((value == "yes" || value == "height") && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+            if ((value == "yes" || value == "height")
+                && !SerializeUtil.isDeserializing
+                && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
                 if (value == "height")
                     this.height = this._tf.textHeight;
                 else
@@ -416,7 +417,8 @@ export class Label extends UIComponent {
     }
 
     protected _onPostLayout() {
-        if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+        if ((this._fitContent == "yes" || this._fitContent == "height")
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
             this._fitFlag = true;
             if (this._fitContent == "height")
                 this.height = this._tf.textHeight;
@@ -463,11 +465,13 @@ export class Label extends UIComponent {
      * @ignore
      */
     size(width: number, height: number): this {
-        if (this._fitContent == "yes" && !this._fitFlag) //锁定了width
-            width = this._width;
+        if (this._fitContent == "yes" && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textWidth > 0))
+            width = this._width;//锁定了width
 
-        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag) //锁定了height
-            height = this._height;
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this._tf.textHeight > 0))
+            height = this._height;//锁定了height
 
         return super.size(width, height);
     }

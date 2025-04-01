@@ -1,3 +1,4 @@
+import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -162,7 +163,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                         triangles += this._uploadGeometry(command, bundle); //上传几何数据
                     } else {
                         for (let j = 0, len = this.skinnedData.length; j < len; j++) {
-                            this.renderShaderDatas[j]?.setBuffer(SkinnedMeshSprite3D.BONES, this.skinnedData[j]);
+                            this.renderShaderDatas[j]?.setBuffer(SkinnedMeshRenderer.BONES, this.skinnedData[j]);
                             if (command || bundle)
                                 this._bindGroupEx(shaderInstance, command, bundle, j); //绑定资源组
                             this._uploadUniformEx(j); //上传uniform数据

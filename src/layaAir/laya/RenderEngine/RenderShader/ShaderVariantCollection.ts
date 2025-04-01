@@ -129,6 +129,7 @@ export interface IShaderVariant {
     passIndex: number;
     defines: string[];
     nodeCommonMap: string[];
+    additionMap: string[];
 }
 
 /**
@@ -148,6 +149,7 @@ export class ShaderVariantCollection {
         let subShaderIndex = shader._subShaders.indexOf(shaderPass._owner);
         let passIndex = shaderPass._owner._passes.indexOf(shaderPass);
         let nodeCommonMap = shaderPass.nodeCommonMap;
+        let additionMap = shaderPass.additionShaderData ?? [];
         if (!nodeCommonMap) return; //兼容WGSL
         defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)));
 
@@ -165,7 +167,9 @@ export class ShaderVariantCollection {
                 v.defines.length === defines.length &&
                 v.defines.every((name, index) => name === defines[index]) &&
                 v.nodeCommonMap.length === nodeCommonMap.length &&
-                v.nodeCommonMap.every((name, index) => name === nodeCommonMap[index])
+                v.nodeCommonMap.every((name, index) => name === nodeCommonMap[index]) &&
+                v.additionMap.length === additionMap.length &&
+                v.additionMap.every((name, index) => name === additionMap[index])
             );
         }))
             return;
@@ -175,10 +179,11 @@ export class ShaderVariantCollection {
             subShaderIndex: subShaderIndex,
             passIndex: passIndex,
             defines: <any>defines,
-            nodeCommonMap: nodeCommonMap.concat()
+            nodeCommonMap: nodeCommonMap.concat(),
+            additionMap: additionMap.concat()
         });
 
-        console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}`);
+        console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}/${additionMap ? additionMap.join(",") : ""}`);
     }
 
     compileAll() {
@@ -186,8 +191,8 @@ export class ShaderVariantCollection {
         for (let shaderName in items) {
             let variants = items[shaderName];
             for (let variant of variants) {
-                let suc = Shader3D.compileShaderByDefineNames(shaderName, variant.subShaderIndex, variant.passIndex, variant.defines, variant.nodeCommonMap);
-                let msg = `${shaderName}/${variant.subShaderIndex}/${variant.passIndex}/${variant.defines.join(",")}/${variant.nodeCommonMap ? variant.nodeCommonMap.join(",") : ""}`;
+                let suc = Shader3D.compileShaderByDefineNames(shaderName, variant.subShaderIndex, variant.passIndex, variant.defines, variant.nodeCommonMap, variant.additionMap);
+                let msg = `${shaderName}/${variant.subShaderIndex}/${variant.passIndex}/${variant.defines.join(",")}/${variant.nodeCommonMap ? variant.nodeCommonMap.join(",") : ""}/${variant.additionMap ? variant.additionMap.join(",") : ""}`;
                 if (suc)
                     console.debug("Warm up", msg);
                 else

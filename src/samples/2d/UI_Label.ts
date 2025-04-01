@@ -1,3 +1,7 @@
+/**
+description
+ 创建不同颜色和描边效果的标签文本实例
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Label } from "laya/ui/Label";

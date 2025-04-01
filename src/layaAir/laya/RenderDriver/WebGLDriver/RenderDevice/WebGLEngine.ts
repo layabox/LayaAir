@@ -10,7 +10,6 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { ShaderVariable } from "../../../RenderEngine/RenderShader/ShaderVariable";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
-import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLTextureContext } from "./GLTextureContext";
@@ -69,8 +68,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     private _propertyNameMap: any = {};
     private _propertyNameCounter: number = 0;
-    /**@internal */
-    _renderOBJCreateContext: IRenderEngineFactory;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -462,15 +459,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         return this._GLRenderDrawContext;
     }
 
-    getCreateRenderOBJContext(): IRenderEngineFactory {
-        return this._renderOBJCreateContext;
-    }
-
-    // //TODO:
-    // propertyNameToID(name: string): number {
-    //   return this.propertyNameToID(name);
-    // }
-
     /**
    * 通过Shader属性名称获得唯一ID。
    * @param name Shader属性名称。
@@ -551,13 +539,10 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     /**
      * @internal
      */
-    uploadCustomUniforms(shader: GLShaderInstance, custom: any[], index: number, data: any): number {
+    uploadOneUniforms(shader: GLShaderInstance, shaderVariable: ShaderVariable, data: any): void {
         shader.bind();
-        var shaderCall: number = 0;
-        var one: ShaderVariable = custom[index];
-        if (one && data != null)
-            shaderCall += one.fun.call(one.caller, one, data);
-        return shaderCall;
+        if (shaderVariable && data != null)
+            shaderVariable.fun.call(shaderVariable.caller, shaderVariable, data);
     }
 
     unbindVertexState(): void {

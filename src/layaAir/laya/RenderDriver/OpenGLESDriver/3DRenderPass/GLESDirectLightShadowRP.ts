@@ -7,6 +7,10 @@ import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 
 export class GLESDirectLightShadowRP {
     private _light: RTDirectLight;
+    private _camera: RTCameraNodeData;
+    private _destTarget: GLESInternalRT;
+    private _shadowCasterCommanBuffer: CommandBuffer[];
+    _nativeObj: any;
     public get light(): RTDirectLight {
         return this._light;
     }
@@ -14,7 +18,7 @@ export class GLESDirectLightShadowRP {
         this._light = value;
         this._nativeObj.setLight(value._nativeObj);
     }
-    private _camera: RTCameraNodeData;
+
     public get camera(): RTCameraNodeData {
         return this._camera;
     }
@@ -22,7 +26,7 @@ export class GLESDirectLightShadowRP {
         this._camera = value;
         this._nativeObj.setCameraNodeData(value._nativeObj);
     }
-    private _destTarget: GLESInternalRT;
+
     public get destTarget(): GLESInternalRT {
         return this._destTarget;
     }
@@ -30,14 +34,20 @@ export class GLESDirectLightShadowRP {
         this._destTarget = value;
         this._nativeObj.setRenderTarget(value._nativeObj, RenderClearFlag.Nothing);
     }
-    _nativeObj: any;
+
     constructor() {
         this._nativeObj = new (window as any).conchGLESDirectLightShadowCastRP();
     }
+
     destroy() {
         this._nativeObj = null;
+        this._shadowCasterCommanBuffer && (this._shadowCasterCommanBuffer.length = 0);
+        this._shadowCasterCommanBuffer = null;
+        this._destTarget = null;
+        this._camera = null;
+        this._light = null;
     }
-    private _shadowCasterCommanBuffer: CommandBuffer[];
+
     public get shadowCasterCommanBuffer(): CommandBuffer[] {
         return this._shadowCasterCommanBuffer;
     }

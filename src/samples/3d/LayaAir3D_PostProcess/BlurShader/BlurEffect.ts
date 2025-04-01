@@ -1,3 +1,7 @@
+/**
+description
+ 实现图像模糊效果的后处理特效类，支持高斯模糊和简单模糊
+ */
 
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import BlurVS from "./Blur.vs";

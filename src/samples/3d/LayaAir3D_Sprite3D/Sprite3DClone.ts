@@ -1,3 +1,7 @@
+/**
+description
+ Laya 3D精灵克隆示例，加载并克隆猴子模型到场景中
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

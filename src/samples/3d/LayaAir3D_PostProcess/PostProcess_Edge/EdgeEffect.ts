@@ -1,3 +1,7 @@
+/**
+description
+ 实现图像边缘检测效果的后期处理着色器特效类
+ */
 import EdgeEffectVS from "./shader/EdgeEffectVS.vs";
 import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";

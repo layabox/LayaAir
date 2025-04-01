@@ -1,3 +1,7 @@
+/**
+description
+ LayaEngine 3D场景与HTML元素混合渲染的示例代码
+ */
 import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"
 import { Scene3D } from "laya/d3/core/scene/Scene3D"

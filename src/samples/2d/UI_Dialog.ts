@@ -1,3 +1,7 @@
+/**
+description
+ 创建并显示一个可拖动的对话框，包含背景图和关闭按钮
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";

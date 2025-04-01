@@ -1,3 +1,7 @@
+/**
+description
+ 演示相机深度和深度法线纹理的3D场景加载和渲染
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

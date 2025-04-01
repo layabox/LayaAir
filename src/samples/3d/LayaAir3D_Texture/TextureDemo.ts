@@ -1,3 +1,7 @@
+/**
+description
+ 三维纹理演示，加载箱子贴图并设置纹理属性
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

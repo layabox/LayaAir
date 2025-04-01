@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景加载并添加拖尾特效与摄像机移动脚本
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

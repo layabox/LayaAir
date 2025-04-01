@@ -1,3 +1,7 @@
+/**
+description
+ 3D物理世界碰撞过滤与不同形状刚体的创建示例
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

@@ -1,3 +1,7 @@
+/**
+description
+ 使用Laya引擎绘制五角星形状的精灵图形
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

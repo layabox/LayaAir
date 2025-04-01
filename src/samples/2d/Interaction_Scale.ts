@@ -1,3 +1,7 @@
+/**
+description
+ 实现两指触摸缩放精灵对象的交互功能，通过计算触摸点距离变化实现缩放
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

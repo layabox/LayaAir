@@ -1,3 +1,7 @@
+/**
+description
+ 测试3D动画事件，加载角色模型并播放动画
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Animator } from "laya/d3/component/Animator/Animator";

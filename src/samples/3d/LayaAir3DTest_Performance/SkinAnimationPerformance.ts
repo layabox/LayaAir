@@ -1,3 +1,7 @@
+/**
+description
+ 3D僵尸模型批量加载和动画性能测试
+ */
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";

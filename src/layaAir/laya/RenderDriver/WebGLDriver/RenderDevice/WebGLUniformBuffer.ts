@@ -27,10 +27,9 @@ export class WebGLUniformBuffer extends WebGLUniformBufferBase {
         const buffer = new Uint8Array(descriptor.byteLength).buffer;
         this._data = new Float32Array(buffer);
 
-        descriptor.uniforms.forEach((uniform) => {
+        for (const [key, uniform] of descriptor.uniforms) {
             uniform.view = new uniform.dataView(buffer, uniform.offset, uniform.viewByteLength / uniform.dataView.BYTES_PER_ELEMENT);
-        });
-
+        }
         this._buffer = LayaGL.renderEngine.createBuffer(BufferTargetType.UNIFORM_BUFFER, BufferUsage.Dynamic);
         this._buffer.bindBuffer();
         this._buffer.setDataLength(descriptor.byteLength);

@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景像素线渲染演示，包括创建球体、添加相机和光源
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

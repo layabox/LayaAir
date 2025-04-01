@@ -1,3 +1,7 @@
+/**
+description
+ 在3D场景中播放视频，通过鼠标点击加载视频纹理
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

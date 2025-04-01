@@ -30,7 +30,7 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
-import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
+import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import type { Laya3D } from "./Laya3D";
 
@@ -80,7 +80,7 @@ export class Laya {
      * @en Reference to the Render class.
      * @zh physics2D类的引用。
      */
-    static physics2D: IPhysiscs2DFactory;
+    static physics2D: IPhysics2DFactory;
 
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
@@ -166,7 +166,7 @@ export class Laya {
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
 
-        steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
+        steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
         steps.push(() => Laya.initRender2D(stageConfig));
 
         let laya3D = <typeof Laya3D>(<any>window)["Laya3D"];
@@ -246,9 +246,8 @@ export class Laya {
         RenderStateContext.__init__();
         RenderSprite.__init__();
         Material.__initDefine__();
-        DrawStyle._Defaultinit();
         InputManager.__init__(stage, Render.canvas);
-        if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getOS() != "Conch-window") {
             Input.isAppUseNewInput = true;
         }
         Input.__init__(Render.canvas);

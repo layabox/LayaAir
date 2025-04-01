@@ -119,16 +119,6 @@ export class ShaderData implements IClone {
         this._ownerResource = ownerResource;
     }
 
-    createUniformBuffer(name: string, uniformMap: CommandUniformMap): void {
-
-    }
-
-    updateUBOBuffer(name: string): void {
-
-    }
-
-
-
     getDefineData(): IDefineDatas {
         throw new NotImplementedError();
     }
@@ -438,8 +428,6 @@ export class ShaderData implements IClone {
                 return this.getVector(uniformIndex);
             case ShaderDataType.Color:
                 return this.getColor(uniformIndex);
-            case ShaderDataType.Matrix4x4:
-                return this.getMatrix4x4(uniformIndex);
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
                 return this.getTexture(uniformIndex);

@@ -18,17 +18,26 @@ import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { PolygonCollider } from "./Collider2D/PolygonCollider";
 import { RigidBody } from "./RigidBody";
+import { StaticCollider } from "./StaticCollider";
+import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
+import { BoxShape2D } from "./Shape/BoxShape2D";
+import { ChainShape2D } from "./Shape/ChainShape2D";
+import { EdgeShape2D } from "./Shape/EdgeShape2D";
+import { PolygonShape2D } from "./Shape/PolygonShape2D";
+import { Physics2DWorldManager } from "./Physics2DWorldManager";
+import { CircleShape2D } from "./Shape/CircleShape2D";
+import { FilterData } from "./factory/IPhysics2DFactory";
 
 let c = ClassUtils.regClass;
 c("Physics2D", Physics2D);
 c("Physics2DDebugDraw", Physics2DDebugDraw);
+c("Physics2DWorldManager", Physics2DWorldManager);
+c("FilterData", FilterData);
+
 c("ColliderBase", ColliderBase);
-c("BoxCollider", BoxCollider);
-c("ChainCollider", ChainCollider);
-c("CircleCollider", CircleCollider);
-c("EdgeCollider", EdgeCollider);
-c("PolygonCollider", PolygonCollider);
 c("RigidBody", RigidBody);
+c("StaticCollider", StaticCollider);
+
 c("JointBase", JointBase);
 c("DistanceJoint", DistanceJoint);
 c("GearJoint", GearJoint);
@@ -39,3 +48,16 @@ c("PulleyJoint", PulleyJoint);
 c("RevoluteJoint", RevoluteJoint);
 c("WeldJoint", WeldJoint);
 c("WheelJoint", WheelJoint);
+
+c("BoxCollider", BoxCollider);
+c("ChainCollider", ChainCollider);
+c("CircleCollider", CircleCollider);
+c("EdgeCollider", EdgeCollider);
+c("PolygonCollider", PolygonCollider);
+
+c("Physics2DShapeBase", Physics2DShapeBase);
+c("BoxShape2D", BoxShape2D);
+c("CircleShape2D", CircleShape2D);
+c("ChainShape2D", ChainShape2D);
+c("EdgeShape2D", EdgeShape2D);
+c("PolygonShape2D", PolygonShape2D);

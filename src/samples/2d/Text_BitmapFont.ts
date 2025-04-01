@@ -1,3 +1,7 @@
+/**
+description
+ 加载并使用位图字体显示文本
+ */
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { BitmapFont } from "laya/display/BitmapFont";

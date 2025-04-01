@@ -1,3 +1,7 @@
+/**
+description
+ Laya引擎多行文本区域组件的UI实现，包含自定义样式和位置设置
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { TextArea } from "laya/ui/TextArea";

@@ -251,6 +251,10 @@ export class Trail2DRender extends BaseRenderNode2D {
         trailGeometry._updateRenderParams();
     }
 
+    clear(): void {
+        this._trailFilter.clear();
+    }
+
     constructor() {
         super();
         this._renderElements = [];

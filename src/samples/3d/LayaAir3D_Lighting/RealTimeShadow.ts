@@ -1,3 +1,7 @@
+/**
+description
+ 实时阴影渲染示例，包括光源、场景对象和阴影效果控制
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";

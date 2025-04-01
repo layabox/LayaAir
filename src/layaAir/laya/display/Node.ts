@@ -55,7 +55,6 @@ export class Node extends EventDispatcher {
     /**@internal */
     _componentDriver: ComponentDriver;
     /** 
-     * @internal
      * 0-2D节点，1-3D节点，2-New UI节点
      */
     _nodeType: number = 0;
@@ -1276,8 +1275,10 @@ export class Node extends EventDispatcher {
      * @param comp 组件实例。
      */
     protected _addComponentInstance(comp: Component): void {
-        if (comp._singleton && this.getComponent((<any>comp).constructor))
+        if (comp._singleton && this.getComponent((<any>comp).constructor)) {
             console.warn("the component is singleton, can't add the second one.", comp);
+            return;
+        }
 
         if (!this._components)
             this._components = [];

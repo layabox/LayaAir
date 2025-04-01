@@ -1,3 +1,7 @@
+/**
+description
+ 测试动画状态脚本，实现动画开始、更新和退出时的文本显示和日志输出
+ */
 import { AnimatorStateScript } from "laya/d3/animation/AnimatorStateScript";
 import { Text } from "laya/display/Text";
 /**

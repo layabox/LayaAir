@@ -114,7 +114,7 @@ export class Scene extends Sprite {
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this._specialManager.componentElementMap.forEach((value, key) => {
-            value.Init(this._componentElementDatasMap[key])
+            this._componentElementDatasMap[key] && value.Init(this._componentElementDatasMap[key])
         });
     }
 
@@ -218,6 +218,10 @@ export class Scene extends Sprite {
 
         this._idMap = null;
         Scene.unDestroyedScenes.delete(this);
+
+        this._specialManager.componentElementMap.forEach(element => {
+            element.destroy();
+        });
     }
 
 
@@ -439,6 +443,7 @@ export class Scene extends Sprite {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.HIERARCHY)
      * @en Load the scene and resources used by the scene.
      * @param url The scene address.
      * @param complete Callback function when loading is complete, returns the scene instance (optional).

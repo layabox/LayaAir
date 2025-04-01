@@ -1,3 +1,7 @@
+/**
+description
+ 演示了精灵图片纹理动态切换功能,通过点击可交替显示两张图片
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

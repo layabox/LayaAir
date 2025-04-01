@@ -1,3 +1,7 @@
+/**
+description
+ 渲染草地场景的3D演示程序，包括相机、光照和草地渲染管理
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

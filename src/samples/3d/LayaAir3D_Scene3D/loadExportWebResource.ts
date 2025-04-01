@@ -1,3 +1,7 @@
+/**
+description
+ 加载Web资源并初始化3D场景的渲染引擎配置模块
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -11,14 +15,12 @@ import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRender
 import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
 import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
-import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess"
 import { URL } from "laya/net/URL";
 import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
 import { GLESRenderDeviceFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderDeviceFactory";
 import { RT3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
 import { GLES3DRenderPassFactory } from "laya/RenderDriver/OpenGLESDriver/3DRenderPass/GLES3DRenderPassFactory";
-import { GLESRenderEngineFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderEngineFactory";
 import { GLESRender2DProcess } from "laya/RenderDriver/OpenGLESDriver/2DRenderPass/GLESRender2DProcess";
 import { LayaEnv } from "LayaEnv";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
@@ -34,7 +36,6 @@ export class loadExportWebResource {
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-            LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
             LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
         } else {
             LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
@@ -42,7 +43,6 @@ export class loadExportWebResource {
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
-            LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
             LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
         }
 

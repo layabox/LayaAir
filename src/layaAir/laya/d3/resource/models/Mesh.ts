@@ -58,6 +58,7 @@ export class Mesh extends Resource implements IClone {
     __convexMesh: Mesh;
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.MESH)
      * @en Loads a mesh template from the specified URL and calls the complete callback upon completion.
      * @param url The URL of the mesh template.
      * @param complete The callback function to call when the mesh is loaded.
@@ -327,6 +328,7 @@ export class Mesh extends Resource implements IClone {
             }
             this._minVerticesUpdate = 0;
             this._maxVerticesUpdate = Number.MAX_SAFE_INTEGER;
+            this._vertexBuffer.setData(floatVertices.buffer, 0, 0, floatVertices.byteLength);
         }
         else {
             console.warn("Mesh: the mesh don't have  this VertexElement.");

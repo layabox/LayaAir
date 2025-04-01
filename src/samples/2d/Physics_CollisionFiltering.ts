@@ -1,11 +1,13 @@
+/**
+description
+ 实现物理引擎中的碰撞过滤和分组，控制不同形状物体的碰撞规则
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
-
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
@@ -14,6 +16,9 @@ import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { Physics2D } from "laya/physics/Physics2D";
+import { Scene } from "laya/display/Scene";
+import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 /**
  * 碰撞过滤器
  */
@@ -31,6 +36,7 @@ export class Physics_CollisionFiltering {
     private curTarget: Sprite;
     private preMovementX: number = 0;
     private preMovementY: number = 0;
+    _scene: Scene;
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
@@ -52,8 +58,15 @@ export class Physics_CollisionFiltering {
     }
 
     createHouse() {
+        this._scene = new Scene();
+        this.Main.box2D.addChild(this._scene);
+
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        man.enableDebugDraw(true, EPhycis2DBlit.Shape);
+        man.enableDebugDraw(true, EPhycis2DBlit.Joint);
+
         let house = new Sprite();
-        this.Main.box2D.addChild(house);
+        this._scene.addChild(house);
         let rigidbody: RigidBody = house.addComponent(RigidBody);
         rigidbody.type = "static";
         let chainCollider: ChainCollider = house.addComponent(ChainCollider);
@@ -64,7 +77,7 @@ export class Physics_CollisionFiltering {
     createBox(posx, posy, width, height, ratio) {
         let box = new Sprite();
         box.on(Event.MOUSE_DOWN, this, this.mouseDown);
-        this.Main.box2D.addChild(box);
+        this._scene.addChild(box);
         box.pos(posx, posy).size(width * ratio, height * ratio);
         let rigidbody: RigidBody = box.addComponent(RigidBody);
         rigidbody.category = Physics_CollisionFiltering.k_boxCategory;
@@ -78,7 +91,7 @@ export class Physics_CollisionFiltering {
     createTriangle(posx, posy, side, ratio) {
         let triangle = new Sprite();
         triangle.on(Event.MOUSE_DOWN, this, this.mouseDown);
-        this.Main.box2D.addChild(triangle);
+        this._scene.addChild(triangle);
         triangle.pos(posx, posy).size(side * ratio, side * ratio);
         let rigidbody: RigidBody = triangle.addComponent(RigidBody);
         rigidbody.category = Physics_CollisionFiltering.k_triangleCategory;
@@ -91,7 +104,7 @@ export class Physics_CollisionFiltering {
     createCircle(posx, posy, radius, ratio) {
         let circle = new Sprite();
         circle.on(Event.MOUSE_DOWN, this, this.mouseDown);
-        this.Main.box2D.addChild(circle);
+        this._scene.addChild(circle);
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
         circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
@@ -120,7 +133,7 @@ export class Physics_CollisionFiltering {
         this.curTarget = e.target;
         // 方案一，使用 MouseJoint
         let mouseJoint: MouseJoint = this.curTarget.addComponent(MouseJoint);
-        Laya.timer.callLater(mouseJoint, (<any>mouseJoint).onMouseDown);
+        Laya.timer.callLater(mouseJoint, (<any>mouseJoint)._onMouseDown);
         Laya.stage.on(Event.MOUSE_UP, this, this.destoryJoint);
         Laya.stage.on(Event.MOUSE_OUT, this, this.destoryJoint);
         // 方案二，自己实现，可以实现更大程度的控制

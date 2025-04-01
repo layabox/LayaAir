@@ -1,3 +1,7 @@
+/**
+description
+ LayaEngine 3D场景景深后处理效果的实现
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

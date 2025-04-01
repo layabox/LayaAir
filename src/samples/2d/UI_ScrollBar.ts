@@ -1,3 +1,7 @@
+/**
+description
+ 实现水平和垂直滚动条的UI组件初始化和交互功能
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { HScrollBar } from "laya/ui/HScrollBar";

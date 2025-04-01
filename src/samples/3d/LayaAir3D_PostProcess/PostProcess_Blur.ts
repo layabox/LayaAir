@@ -1,3 +1,7 @@
+/**
+description
+ 实现3D场景中的高斯模糊后期处理效果
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

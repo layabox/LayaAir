@@ -58,6 +58,7 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
+	 * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.ANIMATIONCLIP)
 	 * @en Load animation clip.
 	 * @param url The URL of the animation clip.
 	 * @param complete Callback function when loading is complete.

@@ -1,3 +1,7 @@
+/**
+description
+ LayaBox音频播放示例，实现音效和背景音乐播放功能
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

@@ -1,3 +1,7 @@
+/**
+description
+ 物理世界中创建两个盒子并使用固定约束连接它们
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

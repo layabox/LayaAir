@@ -1,3 +1,7 @@
+/**
+description
+ 骨骼动画多纹理加载与播放示例
+ */
 import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";

@@ -8,7 +8,6 @@ import { Sprite3D } from "./Sprite3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { SkinRenderElement } from "./render/SkinRenderElement";
-import { Material } from "../../resource/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";
@@ -19,12 +18,32 @@ import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
 import { BaseRenderType, IBaseRenderNode, ISkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderElement } from "./render/RenderElement";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
 /**
  * @en The `SkinnedMeshRenderer` class is used for skinned mesh rendering.
  * @zh `SkinnedMeshRenderer` 类用于蒙皮网格渲染。
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
+    /**
+      * @en Shader variable name for skinned animation.
+      * @zh 着色器变量名，用于蒙皮动画。
+      */
+    static BONES: number;
+    /**
+     * @internal
+     */
+    static __init__(): void {
+        SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
+        SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkinSprite3D");
+        SkinnedMeshRenderer.BONES = Shader3D.propertyNameToID("u_Bones");
+        commandUniform.addShaderUniform(SkinnedMeshRenderer.BONES, "u_Bones", ShaderDataType.Buffer);
+    }
+
     protected _cacheMesh: Mesh;
+
     protected __bones: Sprite3D[] = [];
 
     /**@internal 不可删  IDE数据在这里*/
@@ -102,6 +121,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._baseRenderNode.transform = this.rootBone ? this.rootBone.transform : this.owner.transform;
     }
 
+
+
     /**
      * @en The bones used for skinning.
      * @zh 用于蒙皮的骨骼。
@@ -132,6 +153,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _createBaseRenderNode(): IBaseRenderNode {
         this._ownerSkinRenderNode = Laya3DRender.Render3DModuleDataFactory.createSkinRenderNode();
         return this._ownerSkinRenderNode;
+    }
+
+    protected _getcommonUniformMap(): Array<string> {
+        return ["Sprite3D", "SkinSprite3D"];
     }
 
     /**
@@ -200,6 +225,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     */
     _onMeshChange(value: Mesh): void {
         this._onSkinMeshChange(value);
+        this._setRenderElements();
         if (!value)
             return;
         this._cacheMesh = (<Mesh>value);
@@ -216,7 +242,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             (this._renderElements[i] as SkinRenderElement).setSkinData(subData);
         }
         this._isISkinRenderNode() && this._ownerSkinRenderNode.setSkinnedData(this._skinnedData);
-        this._setRenderElements();
     }
 
     /**

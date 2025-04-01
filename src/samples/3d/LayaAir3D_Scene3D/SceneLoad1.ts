@@ -1,3 +1,7 @@
+/**
+description
+ 初始化Laya引擎,加载3D场景,设置相机位置和属性
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

@@ -417,6 +417,7 @@ export class MovieClip extends Sprite {
     }
 
     /**
+     * @deprecated 请使用Loader.load(url:string, type: ILaya.Loader.BUFFER)
      * @en Loads resources for the MovieClip.
      * @param url The URL of the SWF resource.
      * @param atlas Whether to use atlas resources.

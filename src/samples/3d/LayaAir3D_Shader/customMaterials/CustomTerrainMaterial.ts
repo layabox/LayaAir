@@ -1,3 +1,7 @@
+/**
+description
+ 自定义地形材质，支持多层纹理混合和细节层级设置
+ */
 import { Material } from "laya/resource/Material";
 import { Vector2 } from "laya/maths/Vector2";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";

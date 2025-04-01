@@ -1,3 +1,7 @@
+/**
+description
+ 卡通角色性能测试，批量生成并移动多个动画角色
+ */
 import { Laya } from "Laya";
 import { Animation } from "laya/display/Animation";
 import { Sprite } from "laya/display/Sprite";

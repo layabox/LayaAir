@@ -1,3 +1,7 @@
+/**
+description
+ 使用SCALE_SHOWALL缩放模式，初始化舞台并在中心绘制灰色矩形
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

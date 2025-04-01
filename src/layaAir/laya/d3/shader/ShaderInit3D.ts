@@ -18,6 +18,7 @@ import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
 import DepthNormalUtilGLSL from "./depth/DepthNormalUtil.glsl";
 import DepthNormalFragGLSL from "./depth/DepthNormalFrag.glsl";
+import ShadowCommonGLSL from "./lighting/ShadowCommon.glsl";
 import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
 import SceneFogGLSL from "./utils/SceneFog.glsl";
@@ -84,6 +85,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("SceneFog.glsl", SceneFogGLSL);
 		Shader3D.addInclude("SceneFogInput.glsl", SceneFogInputGLSL);
 		// shadow sampler
+		Shader3D.addInclude("ShadowCommon.glsl", ShadowCommonGLSL);
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("ShadowSampler.glsl", ShadowSamplerGLSL);
 

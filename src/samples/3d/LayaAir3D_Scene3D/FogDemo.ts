@@ -1,3 +1,7 @@
+/**
+description
+ 这是一个Laya引擎的3D场景雾效演示，可通过垂直滑动条控制相机位置和雾效
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

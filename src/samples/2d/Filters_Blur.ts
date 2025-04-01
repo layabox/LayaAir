@@ -1,3 +1,7 @@
+/**
+description
+ 展示使用模糊滤镜处理图像的效果
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

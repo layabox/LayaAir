@@ -1,3 +1,7 @@
+/**
+description
+ 使用PBR材质和环境反射实现茶壶3D渲染和天空盒效果
+ */
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Material } from "laya/resource/Material";

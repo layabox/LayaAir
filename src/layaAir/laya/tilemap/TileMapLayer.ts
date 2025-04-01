@@ -9,7 +9,7 @@ import { Material } from "../resource/Material";
 import { Sprite } from "../display/Sprite";
 import { Grid } from "./grid/Grid";
 import { TileMapChunk } from "./TileMapChunk";
-import { TileMapChunkData } from "./TileMapChunkData";
+import { ChunkCellInfo, TileMapChunkData } from "./TileMapChunkData";
 import { TileMapShaderInit } from "./shader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
 import { TileMapPhysics } from "./TileMapPhysics";
@@ -266,12 +266,11 @@ export class TileMapLayer extends BaseRenderNode2D {
             let chunkDatas = this._chunkDatas[col];
             for (const row in chunkDatas) {
                 let chunkData = chunkDatas[row];
-                chunkData._tileLayer = this;
-                chunkData._updateChunkData(chunkData.chunkX, chunkData.chunkY);
-                chunkData._parseCellDataRefMap();
+                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
+                allDatas.push(chunkData);
             }
         }
-
+        
         let tileSize = this._renderTileSize;
         this._chunk._setChunkSize(tileSize, tileSize);
         if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
@@ -431,7 +430,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         let mat = this._globalTransfrom();
 
         let scene = this.owner.scene;
-        let camera = scene._curCamera;
+        let camera = scene?._curCamera;
         let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
@@ -539,7 +538,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param y 
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
-    getCellData(x: number, y: number, isPixel = true) {
+    getCellData(x: number, y: number, isPixel = true) : ChunkCellInfo {
         let tempVec3 = Vector3.TEMP;
         if (isPixel) {
             this._chunk._getChunkPosByPixel(x, y, tempVec3);

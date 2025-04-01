@@ -1,3 +1,7 @@
+/**
+description
+ Laya 3D动画演示，包含多个动作状态的播放、暂停和切换
+ */
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";

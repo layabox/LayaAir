@@ -1,3 +1,7 @@
+/**
+description
+ 演示物理碰撞传感器和刚体交互的2D物理效果
+ */
 import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
@@ -12,6 +16,9 @@ import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
 import { Vector2 } from "laya/maths/Vector2";
 import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { Physics2D } from "laya/physics/Physics2D";
+import { Scene } from "laya/display/Scene";
+import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 export class Physics_CollisionEvent {
     Main: typeof Main = null;
@@ -19,7 +26,7 @@ export class Physics_CollisionEvent {
     private sensorCollider: CircleCollider;
     private bodys: Array<any> = [];
     private touching: Array<boolean> = [];
-
+    _scene: Scene;
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
@@ -35,9 +42,14 @@ export class Physics_CollisionEvent {
     }
 
     createSensor() {
+        this._scene = new Scene();
+        this.Main.box2D.addChild(this._scene);
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        man.enableDebugDraw(true, EPhycis2DBlit.Shape);
+        man.enableDebugDraw(true, EPhycis2DBlit.Joint);
         let ground = new Sprite();
 
-        this.Main.box2D.addChild(ground);
+        this._scene.addChild(ground);
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
@@ -52,7 +64,7 @@ export class Physics_CollisionEvent {
 
         for (let i = 0, len = this.count; i < len; i++) {
             let sp = new Sprite();
-            this.Main.box2D.addChild(sp);
+            this._scene.addChild(sp);
             sp.pos(350 + i * 50, 200).size(40, 40);
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
@@ -71,6 +83,7 @@ export class Physics_CollisionEvent {
 
     onTriggerEnter(colliderB: ColliderBase, colliderA: ColliderBase, contact) {
         if (colliderA === this.sensorCollider) {
+            console.log("onTriggerEnter");
             let bodyB: RigidBody = colliderB.owner.getComponent(RigidBody);
             let index = bodyB.getBody().GetUserData().pointer;
             this.touching[index] = true;
@@ -78,6 +91,7 @@ export class Physics_CollisionEvent {
     }
 
     onTriggerStay() {
+        console.log("onTriggerStay");
         // 遍历所有刚体
         let bodys = this.bodys, body: RigidBody;
         for (let i = 0, len = this.count; i < len; i++) {
@@ -105,6 +119,7 @@ export class Physics_CollisionEvent {
     }
 
     onTriggerExit(colliderB: ColliderBase, colliderA: ColliderBase, contact) {
+        console.log("onTriggerExit");
         if (colliderA === this.sensorCollider) {
             let bodyB: RigidBody = colliderB.owner.getComponent(RigidBody);
             let index = bodyB.getBody().GetUserData().pointer;

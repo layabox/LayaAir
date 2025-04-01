@@ -1,3 +1,7 @@
+/**
+description
+ 草皮渲染管理器，处理草地渲染、裁剪和分级优化
+ */
 import { Camera } from "laya/d3/core/Camera";
 import { Vector3 } from "laya/maths/Vector3";
 import { GrassCellInfo } from "./GrassCellInfo";

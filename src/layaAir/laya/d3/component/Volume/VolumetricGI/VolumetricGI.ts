@@ -1,5 +1,9 @@
 import { ILaya3D } from "../../../../../ILaya3D";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Texture2D } from "../../../../resource/Texture2D";
@@ -12,6 +16,47 @@ import { VolumeManager } from "../VolumeManager";
  * @zh VolumetricGI 类表示场景中的体积全局光照。
  */
 export class VolumetricGI extends Volume {
+
+    /** @internal */
+    static BlockName: string = "VolumetricGIProbe";
+
+    /** @internal */
+    static SHADERDEFINE_VOLUMETRICGI: ShaderDefine;
+
+    /** @internal */
+    static VOLUMETRICGI_PROBECOUNTS: number;
+    /** @internal */
+    static VOLUMETRICGI_PROBESTEPS: number;
+    /** @internal */
+    static VOLUMETRICGI_PROBESTARTPOS: number;
+    /** @internal */
+    static VOLUMETRICGI_PROBEPARAMS: number;
+    /** @internal */
+    static VOLUMETRICGI_IRRADIANCE: number;
+    /** @internal */
+    static VOLUMETRICGI_DISTANCE: number;
+
+    static init() {
+
+        VolumetricGI.SHADERDEFINE_VOLUMETRICGI = Shader3D.getDefineByName("VOLUMETRICGI");
+
+        VolumetricGI.VOLUMETRICGI_PROBECOUNTS = Shader3D.propertyNameToID("u_VolGIProbeCounts");
+        VolumetricGI.VOLUMETRICGI_PROBESTEPS = Shader3D.propertyNameToID("u_VolGIProbeStep");
+        VolumetricGI.VOLUMETRICGI_PROBESTARTPOS = Shader3D.propertyNameToID("u_VolGIProbeStartPosition");
+        VolumetricGI.VOLUMETRICGI_PROBEPARAMS = Shader3D.propertyNameToID("u_VolGIProbeParams");
+        VolumetricGI.VOLUMETRICGI_IRRADIANCE = Shader3D.propertyNameToID("u_ProbeIrradiance");
+        VolumetricGI.VOLUMETRICGI_DISTANCE = Shader3D.propertyNameToID("u_ProbeDistance");
+
+        let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(VolumetricGI.BlockName);
+
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_PROBECOUNTS, "u_VolGIProbeCounts", ShaderDataType.Vector3);
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_PROBESTEPS, "u_VolGIProbeStep", ShaderDataType.Vector3);
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_PROBESTARTPOS, "u_VolGIProbeStartPosition", ShaderDataType.Vector3);
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_PROBEPARAMS, "u_VolGIProbeParams", ShaderDataType.Vector4);
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_IRRADIANCE, "u_ProbeIrradiance", ShaderDataType.Texture2D);
+        uniformMap.addShaderUniform(VolumetricGI.VOLUMETRICGI_DISTANCE, "u_ProbeDistance", ShaderDataType.Texture2D);
+    }
+
     /**
      * @en The count of volumetric global illumination probes.
      * @zh 体积全局光照探针的数量。
@@ -39,6 +84,10 @@ export class VolumetricGI extends Volume {
     _volumetricProbeID: number
     /**@internal */
     _dataModule: IVolumetricGIData;
+
+    get shaderData(): ShaderData {
+        return this._dataModule.shaderData;
+    }
 
     /**
      * @en construct method, initialize VolumetricGI object.
@@ -208,6 +257,8 @@ export class VolumetricGI extends Volume {
     _onDestroy() {
         this.irradiance = null;
         this.distance = null;
+        this._dataModule.destroy();
+        this._dataModule = null;
     }
 
     /**@internal */

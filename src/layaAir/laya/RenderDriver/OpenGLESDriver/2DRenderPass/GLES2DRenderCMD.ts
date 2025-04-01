@@ -53,7 +53,7 @@ export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value._nativeObj);
+        this._nativeObj.setRT(value ? value._nativeObj : null);
     }
 
     /**

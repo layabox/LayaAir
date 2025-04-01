@@ -1,3 +1,7 @@
+/**
+description
+ 3D空间坐标转换为2D空间坐标的示例代码
+ */
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";

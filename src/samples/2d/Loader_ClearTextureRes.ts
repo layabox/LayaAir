@@ -1,3 +1,7 @@
+/**
+description
+ 演示了如何清除和恢复纹理资源，通过切换可见性和清理加载器中的纹理
+ */
 import { Laya } from "Laya";
 import { Animation } from "laya/display/Animation";
 import { Sprite } from "laya/display/Sprite";

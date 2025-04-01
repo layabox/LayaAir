@@ -21,7 +21,9 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @zh 销毁渲染器。
      */
     destroy(): void {
-        //throw new NotImplementedError();
+        this._renderer.destroy();
+        this._renderer = null;
+        this._owner._renderElements.length = 0;
     }
     /**
      * @en Initializes bake data.
@@ -35,12 +37,13 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     /** @internal */
     _owner: Spine2DRenderNode;
     /** @internal */
-    _renerer: ISpineRender;
+    _renderer: ISpineRender;
     /** @internal */
     _skeleton: spine.Skeleton;
     /**@internal */
     _spineColor: Color
-
+    /** @internal */
+    _skinIndex: number = 0;
     /**
      * @en Initializes the renderer.
      * @param skeleton The spine skeleton.
@@ -54,7 +57,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param state Spine 动画状态。
      */
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): void {
-        this._renerer = SpineAdapter.createNormalRender(templet, false);
+        this._renderer = SpineAdapter.createNormalRender(templet);
         this._skeleton = skeleton;
         this._owner = renderNode;
         let scolor = skeleton.color;
@@ -70,6 +73,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
 
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
+        renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -88,7 +92,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param index 要设置的皮肤索引。
      */
     setSkinIndex(index: number): void {
-        //throw new NotImplementedError();
+        this._skinIndex = index;
     }
 
 
@@ -100,6 +104,9 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      */
     changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
+        //@ts-ignore
+        skeleton.showSkinByIndex(this._skinIndex);
+        this._skeleton.setSlotsToSetupPose();
     }
 
     /**
@@ -110,6 +117,6 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      */
     render(time: number) {
         this._owner.clear();
-        this._renerer.draw(this._skeleton, this._owner, -1, -1);
+        this._renderer.draw(this._skeleton, this._owner, -1, -1);
     }
 }

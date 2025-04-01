@@ -96,6 +96,11 @@ export class DrawMesh2DCMD extends Command2D {
 
     set color(value: Color) {
         this._mesh2DRender.color = value;
+        let a = value.a;
+        //@ts-ignore
+        let renderColor:Color = this._mesh2DRender._setRenderColor;
+        renderColor.setValue(value.r * a, value.g * a, value.b * a, a);
+        this._mesh2DRender._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, renderColor);
     }
     get color(): Color {
         return this._mesh2DRender.color;
@@ -119,6 +124,7 @@ export class DrawMesh2DCMD extends Command2D {
             this._drawElementData.setRenderelements(this._mesh2DRender._renderElements)
             this._needUpdateElement = false;
         }
+        // this._mesh2DRender.addCMDCall()
         this._mesh2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
     }
 

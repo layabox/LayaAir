@@ -1,3 +1,7 @@
+/**
+description
+ 3D场景中使用弹簧约束连接两个物理刚体
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";

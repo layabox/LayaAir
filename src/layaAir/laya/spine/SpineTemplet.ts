@@ -1,4 +1,3 @@
-//@~AXIE:1.2
 import { Resource } from "../resource/Resource";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
@@ -31,6 +30,7 @@ export class SpineTemplet extends Resource {
     materialMap: Map<string, Material> = new Map();
 
     private _textures: Record<string, Texture2D>;
+    private _atlas:spine.TextureAtlas;
     private _basePath: string;
     /**
      * @en Base width of spine animation
@@ -63,6 +63,12 @@ export class SpineTemplet extends Resource {
      * @zh 骨骼优化对象
      */
     sketonOptimise: SketonOptimise;
+    /**
+     * 4.2版本以上支持物理
+     * @en Indicates if physics is needed
+     * @zh 是否需要物理
+     */
+    hasPhysics:boolean = false;
 
     /** @ignore */
     constructor() {
@@ -92,8 +98,6 @@ export class SpineTemplet extends Resource {
      * @zh Spine动画的主纹理
      */
     mainTexture: Texture2D;
-
-    
 
     /**
      * @en The main blend mode of the Spine animation
@@ -154,8 +158,6 @@ export class SpineTemplet extends Resource {
             }else{
                 mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             }
-            //mat.color = this.owner.spineColor;
-            //mat.setVector2("u_size",new Vector2(Laya.stage.width,Laya.stage.height));
             mat._addReference();
             this.materialMap.set(key, mat);
         }
@@ -170,6 +172,11 @@ export class SpineTemplet extends Resource {
      */
     getTexture(name: string): Texture2D {
         return this._textures[name];
+    }
+
+    setTexture(name:string , tex:Texture2D)
+    {
+        this._textures[name] = tex;
     }
 
     /** @internal */
@@ -187,6 +194,7 @@ export class SpineTemplet extends Resource {
         }
 
         this._textures = textures;
+        this._atlas = atlas;
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
         this.width = this.skeletonData.width;
@@ -194,7 +202,10 @@ export class SpineTemplet extends Resource {
         this.offsetX = this.skeletonData.x;
         this.offsetY = this.skeletonData.y;
         this._premultipliedAlpha = premultipliedAlpha;
-        this.sketonOptimise.checkMainAttach(this.skeletonData );
+        this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
+        //需要无物理环境
+        this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
+        this.sketonOptimise.checkMainAttach(this.skeletonData);
     }
 
     /**

@@ -1,3 +1,7 @@
+/**
+description
+ 文本输入框最大字符限制为5个字符的Laya引擎示例代码
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

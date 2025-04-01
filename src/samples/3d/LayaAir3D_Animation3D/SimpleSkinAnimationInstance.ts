@@ -1,3 +1,7 @@
+/**
+description
+ 简单的3D角色皮肤动画实例，包含多种动作和场景构建
+ */
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";

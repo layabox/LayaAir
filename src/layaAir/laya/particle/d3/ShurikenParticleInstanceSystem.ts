@@ -19,6 +19,8 @@ import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
 
+const tempV3 = new Vector3(0, 0, 0);
+
 /**
  * @en ShurikenParticleInstanceSystem class is used to implement instanced particle rendering.
  * @zh ShurikenParticleInstanceSystem 类用于实现实例化粒子渲染。
@@ -273,7 +275,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      * @param time 当前的模拟时间。
      * @returns 粒子是否成功添加。
      */
-    addParticle(position: Vector3, direction: Vector3, time: number): boolean {
+    addParticle(position: Vector3, direction: Vector3, time: number, elapsedTime: number): boolean {
         Vector3.normalize(direction, direction);
 
         //下一个粒子
@@ -297,8 +299,12 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
         let pos: Vector3, rot: Quaternion;
         if (this.simulationSpace == 0) {
-            pos = transform.position;
+
             rot = transform.rotation;
+            pos = tempV3;
+            let timeT = (this._currentTime - time) / elapsedTime;
+            timeT = MathUtil.clamp01(timeT);
+            Vector3.lerp(transform.position, this._emissionLastPosition, timeT, pos);
         }
 
         //StartSpeed

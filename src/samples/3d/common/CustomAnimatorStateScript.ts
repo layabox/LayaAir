@@ -1,3 +1,7 @@
+/**
+description
+ 自定义动画状态脚本,监听动画开始、更新和结束事件
+ */
 import { AnimatorStateScript } from "laya/d3/animation/AnimatorStateScript";
 /**
  * 继承自AnimatorStateScript(动画状态脚本)

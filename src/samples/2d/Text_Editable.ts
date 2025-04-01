@@ -1,3 +1,7 @@
+/**
+description
+ 创建一个不可编辑但可复制的文本输入框，位于屏幕中心
+ */
 import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";

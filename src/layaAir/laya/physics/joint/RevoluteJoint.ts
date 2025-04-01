@@ -1,8 +1,9 @@
 import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
-import { RigidBody } from "../RigidBody"
 import { Utils } from "../../utils/Utils";
-import { physics2D_RevoluteJointDef } from "../IPhysiscs2DFactory";
+import { EPhysics2DJoint, physics2D_RevoluteJointDef } from "../factory/IPhysics2DFactory";
+import { ColliderBase } from "../Collider2D/ColliderBase";
+import { Physics2DWorldManager } from "../Physics2DWorldManager";
 
 /**
  * @en Rotating joint forces two objects to share an anchor point, and the two objects rotate relative to each other
@@ -35,13 +36,13 @@ export class RevoluteJoint extends JointBase {
      * @en The rigid body that is locally attached to the joint. This setting is effective only on the first assignment.
      * @zh [首次设置有效]与关节直接相连的自身刚体。
      */
-    selfBody: RigidBody;
+    selfBody: ColliderBase;
 
     /**
      * @en The connected rigid body. It can be optionally not set. This setting is effective only on the first assignment.
      * @zh [首次设置有效]与关节连接的另一个刚体，可以不设置。
      */
-    otherBody: RigidBody;
+    otherBody: ColliderBase;
 
     /**
      * @en Link points of joints, it is offset from the position of the upper left corner of its own rigid body. This setting is effective only on the first assignment.
@@ -135,13 +136,26 @@ export class RevoluteJoint extends JointBase {
 
     /** @internal */
     protected _createJoint(): void {
+        this._physics2DManager = this.owner?.scene?.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         if (!this._joint) {
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            this.selfBody = this.selfBody || this.owner.getComponent(ColliderBase);
             if (!this.selfBody) throw "selfBody can not be empty";
             var def: physics2D_RevoluteJointDef = RevoluteJoint._temp || (RevoluteJoint._temp = new physics2D_RevoluteJointDef());
-            def.bodyB = this.selfBody.getBody();
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-
+            def.bodyB = this.selfBody.getBox2DBody();
+            if (!def.bodyB) {
+                this.selfBody.isConnectedJoint = true;
+                this.selfBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
+            if (!Physics2D.I._emptyBody) {
+                Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
+            }
+            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : Physics2D.I._emptyBody;
+            if (!def.bodyA) {
+                this.otherBody.isConnectedJoint = true;
+                this.otherBody.owner.on("bodyCreated", this, this._createJoint);
+                return;
+            }
             let global = this.selfBody.getWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(global.x, global.y);
             def.enableMotor = this._enableMotor;
@@ -151,8 +165,10 @@ export class RevoluteJoint extends JointBase {
             def.lowerAngle = Utils.toRadian(this._lowerAngle);
             def.upperAngle = Utils.toRadian(this._upperAngle);
             def.collideConnected = this.collideConnected;
-
-            this._joint = this._factory.create_RevoluteJoint(def);
+            this._box2DJointDef = this._factory.createJointDef(this._physics2DManager.box2DWorld, EPhysics2DJoint.RevoluteJoint, def);
+            this._joint = this._factory.createJoint(this._physics2DManager.box2DWorld, EPhysics2DJoint.RevoluteJoint, this._box2DJointDef);
+            this.selfBody.owner.off("bodyCreated", this, this._createJoint);
+            this.otherBody && this.otherBody.owner.off("bodyCreated", this, this._createJoint);
         }
     }
 

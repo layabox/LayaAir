@@ -1,3 +1,7 @@
+/**
+description
+ 2D光照演示Demo，展示不同类型灯光效果和阴影渲染
+ */
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Scene } from "laya/display/Scene";

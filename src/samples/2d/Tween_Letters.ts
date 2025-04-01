@@ -1,3 +1,7 @@
+/**
+description
+ 实现字母弹性动画效果的文字展示程序，逐个字母从不同起始位置弹性滑动到指定位置
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

@@ -38,7 +38,8 @@ export enum ButtonMode {
 export enum ButtonDownEffect {
     None,
     Dark,
-    Scale
+    UpScale,
+    DownScale
 }
 
 export enum TextFitContent {

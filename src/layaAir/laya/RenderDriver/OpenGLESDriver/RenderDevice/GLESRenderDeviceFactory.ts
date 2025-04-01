@@ -22,6 +22,9 @@ import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { NotImplementedError } from "../../../utils/Error";
+import { GLESEngine, GLESMode } from "./GLESEngine";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -51,9 +54,39 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new GLESRenderGeometryElement(mode, drawType);
     }
+    
     createEngine(config: Config, canvas: any): Promise<void> {
-        throw new NotImplementedError();
+        let engine: GLESEngine;
+        let glConfig: any = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
+
+        //TODO  other engine
+        const webglMode: GLESMode = Config.useWebGL2 ? GLESMode.Auto : GLESMode.WebGL1;
+        engine = new GLESEngine(glConfig, webglMode);
+        engine.initRenderEngine(canvas._source);
+
+        new LayaGL();
+
+        LayaGL.renderEngine = engine;
+        LayaGL.textureContext = engine.getTextureContext();
+
+
+        Laya.addAfterInitCallback(this.afterInit)
+        return Promise.resolve();
     }
+
+    afterInit(): void {
+        GLESRenderDeviceFactory._setVertexDec(VertexMesh.instanceWorldMatrixDeclaration, "instanceWorldMatrixDeclaration");
+        GLESRenderDeviceFactory._setVertexDec(VertexMesh.instanceLightMapScaleOffsetDeclaration, "instanceLightMapScaleOffsetDeclaration");
+        GLESRenderDeviceFactory._setVertexDec(VertexMesh.instanceSimpleAnimatorDeclaration, "instanceSimpleAnimatorDeclaration");
+    }
+
+    private static _setVertexDec(value: VertexDeclaration, regName: string) {
+        let shaderValues = value._shaderValues;
+        for (var k in shaderValues) {
+            (LayaGL.renderEngine as GLESEngine)._nativeObj.regGlobalVertexDeclaration(regName, parseInt(k), shaderValues[k]);
+        }
+    }
+
 
 }
 

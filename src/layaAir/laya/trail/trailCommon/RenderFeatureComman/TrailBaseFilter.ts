@@ -23,8 +23,6 @@ export class TrailBaseFilter {
     protected _textureMode: TrailTextureMode = TrailTextureMode.Stretch;
     /**@internal */
     _trialGeometry: TrailGeometry;
-    /**@internal 拖尾总长度*/
-    _totalLength: number = 0;
 
     /**@internal */
     _lastPosition: Vector3 = new Vector3();
@@ -183,6 +181,5 @@ export class TrailBaseFilter {
         this._trialGeometry.clear();
         this._lastPosition.setValue(0, 0, 0);
         this._curtime = 0;
-        this._totalLength = 0;
     }
 }

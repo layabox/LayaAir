@@ -16,7 +16,7 @@ import { IGraphicsBoundsAssembler } from "./IGraphics"
 export class GraphicsBounds {
     private _bounds: Rectangle;
     private _bound2: number[];
-    private _cacheType: boolean = false;
+    private _cacheType: boolean = null;
     _affectBySize: boolean;
 
     /**
@@ -24,7 +24,7 @@ export class GraphicsBounds {
      * @zh 销毁
      */
     destroy(): void {
-        this._cacheType = false;
+        this._cacheType = null;
         this._affectBySize = false;
         this._bounds = null;
         this._bound2 = null;
@@ -44,7 +44,7 @@ export class GraphicsBounds {
      * @zh 重置数据
      */
     reset(): void {
-        this._bound2 && (this._bound2.length = 0);
+        this._cacheType = null;
     }
 
     /**
@@ -56,10 +56,12 @@ export class GraphicsBounds {
      * @returns 位置与宽高组成的一个Rectangle对象。
      */
     getBounds(g: Graphics, realSize?: boolean): Readonly<Rectangle> {
-        if (!this._bounds || !this._bound2 || this._bound2.length == 0 || realSize != this._cacheType) {
-            this._bounds = Rectangle._getWrapRec(this.getBoundPoints(g, realSize), this._bounds);
+        realSize = !!realSize;
+        if (realSize !== this._cacheType) {
+            this._bound2 = this._getCmdPoints(g, realSize);
+            this._bounds = Rectangle._getWrapRec(this._bound2, this._bounds);
+            this._cacheType = realSize;
         }
-        this._cacheType = realSize;
         return this._bounds;
     }
 
@@ -72,9 +74,7 @@ export class GraphicsBounds {
      * @returns 边界点的数组。
      */
     getBoundPoints(g: Graphics, realSize?: boolean): ReadonlyArray<number> {
-        if (!this._bound2 || this._bound2.length < 1 || realSize != this._cacheType)
-            this._bound2 = this._getCmdPoints(g, realSize);
-        this._cacheType = realSize;
+        this.getBounds(g, realSize);
         return this._bound2;
     }
 

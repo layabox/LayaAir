@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { ILaya3D } from "../../../../ILaya3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
@@ -19,6 +20,7 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
+import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
@@ -117,6 +119,8 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             shadowParams.setValue(0, 0, 0, 0);
 
             // direction light shadow
+            let sceneShaderData = context.sceneData;
+
             let mainDirectionLight = camera.scene._mainDirectionLight;
             let needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode != ShadowMode.None;
             this.renderpass.enableDirectLightShadow = needDirectionShadow;
@@ -127,7 +131,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as WebGLInternalRT;
                 shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
 
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
+                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
 
             // spot light shadow
@@ -140,9 +144,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
 
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
+                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
-            camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this.renderpass.shadowParams);
+            sceneShaderData.setVector(ShadowCasterPass.SHADOW_PARAMS, this.renderpass.shadowParams);
         }
 
         renderpass.blitOpaqueBuffer.clear();
@@ -168,6 +172,14 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
             offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
             this.renderpass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+        }
+
+        if (this.renderpass.enableDirectLightShadow || this.renderpass.enableSpotLightShadowPass) {
+            let sceneShaderData = context.sceneData;
+            let shadowUniformMap = <WebGLCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
+            if (Config._uniformBlock) {
+                let shadowBuffer = sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+            }
         }
 
     }

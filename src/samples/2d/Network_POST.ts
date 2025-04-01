@@ -1,3 +1,7 @@
+/**
+description
+ 使用Laya框架发送POST请求到指定URL，并处理响应结果
+ */
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";

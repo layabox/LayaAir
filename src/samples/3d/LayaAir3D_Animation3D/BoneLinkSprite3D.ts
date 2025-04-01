@@ -1,3 +1,7 @@
+/**
+description
+ 3D骨骼动画与角色挂载坐骑的交互示例
+ */
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";

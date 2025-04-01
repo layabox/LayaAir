@@ -1,3 +1,7 @@
+/**
+description
+ 加载不同平台的3D场景并添加相机移动脚本
+ */
 import { Laya } from "Laya";
 import { CameraMoveScript } from "../common/CameraMoveScript"
 import { Camera } from "laya/d3/core/Camera"

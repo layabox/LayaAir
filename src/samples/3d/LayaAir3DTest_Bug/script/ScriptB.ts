@@ -1,3 +1,7 @@
+/**
+description
+ 管理3D精灵生命周期的脚本组件，包括启动、启用、禁用和销毁阶段
+ */
 import { Script } from "laya/components/Script";
 import { Sprite3D } from "laya/d3/core/Sprite3D"
 import { Stat } from "laya/utils/Stat"

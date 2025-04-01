@@ -1,3 +1,7 @@
+/**
+description
+ 实现一个可以滑动的按钮，支持在指定轨道范围内拖动和自动吸附
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";

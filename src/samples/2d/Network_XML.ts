@@ -1,3 +1,7 @@
+/**
+description
+ 处理XML文档的解析和节点遍历示例
+ */
 import { XML } from "laya/html/XML";
 
 export class Network_XML {

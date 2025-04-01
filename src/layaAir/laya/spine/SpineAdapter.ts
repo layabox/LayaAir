@@ -52,13 +52,11 @@ export class SpineAdapter {
     /**
      * @en Create a normal render object for Spine animation.
      * @param templet The Spine template.
-     * @param twoColorTint Whether to use two-color tinting.
      * @zh 为 Spine 动画创建一个普通渲染对象。
      * @param templet Spine 模板。
-     * @param twoColorTint 是否使用两色染色。
      */
-    static createNormalRender(templet: SpineTemplet, twoColorTint: boolean) {
-        return SpineAdapter.isWasm ? new SpineWasmRender(templet, twoColorTint) : new SpineSkeletonRenderer(templet, twoColorTint);
+    static createNormalRender(templet: SpineTemplet) {
+        return SpineAdapter.isWasm ? new SpineWasmRender(templet) : new SpineSkeletonRenderer(templet);
     }
 
     /**

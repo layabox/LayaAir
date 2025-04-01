@@ -1,14 +1,15 @@
+import { ReflectionProbe } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
 import { Sprite3DRenderDeclaration } from "../../../../d3/core/render/Sprite3DRenderDeclaration";
 import { AmbientMode } from "../../../../d3/core/scene/AmbientMode";
 import { Bounds } from "../../../../d3/math/Bounds";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
-
 
 
 export class WebReflectionProbe implements IReflectionProbeData {
@@ -38,6 +39,8 @@ export class WebReflectionProbe implements IReflectionProbeData {
     /**@internal */
     iblTexRGBD: boolean;
     /**@internal */
+    shaderData: ShaderData;
+    /**@internal */
     private _reflectionHDRParams: Vector4
     /**@internal */
     private _shCoefficients: Vector4[];
@@ -47,11 +50,20 @@ export class WebReflectionProbe implements IReflectionProbeData {
     private _ambientColor: Color;
     /**@internal */
     private _ambientSH: Float32Array;
+    private _updateMaskFlag = -1;
     /**@internal */
     constructor() {
         this._shCoefficients = [];
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+    }
+
+    /**
+     * @internal
+     */
+    needUpdate(): boolean {
+        return this.updateMark != this._updateMaskFlag;
     }
 
     /**
@@ -61,7 +73,8 @@ export class WebReflectionProbe implements IReflectionProbeData {
         this.bound = null;
         delete this._shCoefficients;
         delete this._ambientSH;
-
+        this.shaderData.destroy();
+        this.shaderData = null;
     }
     /**@internal */
     setAmbientSH(value: Float32Array): void {
@@ -89,35 +102,38 @@ export class WebReflectionProbe implements IReflectionProbeData {
         value && value.cloneTo(this._ambientColor);
     }
     /**@internal */
-    applyRenderData(data: ShaderData): void {
+    applyRenderData(): void {
+        this._updateMaskFlag = this.updateMark;
+
+        let data = this.shaderData;
         //boxProjection
         if (!this.boxProjection) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
         } else {
             data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probePosition);
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
-            data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEPOSITION, this._probePosition);
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
+            data.setVector3(ReflectionProbe.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
         }
+
         if (this.ambientMode == AmbientMode.SolidColor) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-            data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
-            data.setColor(RenderableSprite3D.AMBIENTCOLOR, this._ambientColor);
+            data.removeDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);
+            data.setColor(ReflectionProbe.AMBIENTCOLOR, this._ambientColor);
         } else if (this.iblTex && this._ambientSH) {
-            data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+            data.addDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             if (this.iblTex) {
-                data._setInternalTexture(RenderableSprite3D.IBLTEX, this.iblTex);
-                data.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, this.iblTex.maxMipmapLevel);
+                data._setInternalTexture(ReflectionProbe.IBLTEX, this.iblTex);
+                data.setNumber(ReflectionProbe.IBLROUGHNESSLEVEL, this.iblTex.maxMipmapLevel);
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
-            this._ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH, this._ambientSH);
+            this._ambientSH && data.setBuffer(ReflectionProbe.AMBIENTSH, this._ambientSH);
         } else {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-            data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+            data.removeDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);
         }
-        data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
-        data.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);
+        data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.ambientIntensity);
+        data.setNumber(ReflectionProbe.REFLECTIONINTENSITY, this.reflectionIntensity);
     }
-
 }

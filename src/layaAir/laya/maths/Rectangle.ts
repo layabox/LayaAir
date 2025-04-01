@@ -185,48 +185,58 @@ export class Rectangle implements IClone {
      * @param rect Rectangle 对象。
      * @return	如果传入的矩形对象与此对象相交，则返回 true 值，否则返回 false。
      */
-    intersects(rect: Rectangle): boolean {
+    intersects(rect: Readonly<Rectangle>): boolean {
         return !(rect.x > (this.x + this.width) || (rect.x + rect.width) < this.x || rect.y > (this.y + this.height) || (rect.y + rect.height) < this.y);
     }
 
     /**
      * @en If the Rectangle object specified in the rect parameter intersects with this Rectangle object, returns the area of intersection as a Rectangle object. If the rectangles do not intersect, this method returns null.
      * @param rect The rectangle to compare against.
-     * @param out (Optional) The rectangle object for storing the output. If null, a new one will be created. Recommendation: Reuse objects as much as possible to reduce object creation overhead.
+     * @param out (Optional) The rectangle object for storing the output. If null, a new one will be created. It is allowed to be the same as rect or this.
      * @returns The intersection area as a Rectangle object, or null if there's no intersection.
      * @zh 如果在 rect 参数中指定的 Rectangle 对象与此 Rectangle 对象相交，则返回交集区域作为 Rectangle 对象。如果矩形不相交，则此方法返回null。
-     * @param rect	待比较的矩形区域。
-     * @param out	（可选）待输出的矩形区域。如果为空则创建一个新的。建议：尽量复用对象，减少对象创建消耗。
+     * @param rect 待比较的矩形区域。
+     * @param out （可选）待输出的矩形区域。如果为空则创建一个新的。允许out与rect或者this相同。
      * @return	返回相交的矩形区域对象。
      */
     intersection(rect: Rectangle, out?: Rectangle): Rectangle {
-        if (!this.intersects(rect)) return null;
+        if (!this.intersects(rect))
+            return null;
+
+        let x = Math.max(this.x, rect.x);
+        let y = Math.max(this.y, rect.y);
+        let width = Math.min(this.right, rect.right) - x;
+        let height = Math.min(this.bottom, rect.bottom) - y;
+
         out || (out = new Rectangle());
-        out.x = Math.max(this.x, rect.x);
-        out.y = Math.max(this.y, rect.y);
-        out.width = Math.min(this.right, rect.right) - out.x;
-        out.height = Math.min(this.bottom, rect.bottom) - out.y;
-        return out;
+        return out.setTo(x, y, width, height);
     }
 
     /**
      * @en Adds two rectangles together to create a new Rectangle object, by filling in the horizontal and vertical space between the two rectangles.
      * Note: The union() method ignores rectangles with a height or width of 0, such as: var rect2:Rectangle = new Rectangle(300,300,50,0);
      * @param source The Rectangle object to add to this Rectangle object.
-     * @param out The Rectangle object to store the output. If null, a new one will be created. Recommendation: Reuse objects as much as possible to reduce object creation overhead. The Rectangle.TEMP object can be used for object reuse.
+     * @param out The Rectangle object to store the output. If null, a new one will be created. It is allowed to be the same as rect or this.
      * @returns A new Rectangle object that is the union of the two rectangles.
      * @zh 矩形联合，通过填充两个矩形之间的水平和垂直空间，将这两个矩形组合在一起以创建一个新的 Rectangle 对象。
      * 注意：union() 方法忽略高度或宽度值为 0 的矩形，如：var rect2:Rectangle = new Rectangle(300,300,50,0);
      * @param source 要添加到此 Rectangle 对象的 Rectangle 对象。
-     * @param out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
+     * @param out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。允许out与rect或者this相同。
      * @return	充当两个矩形的联合的新 Rectangle 对象。
      */
     union(source: Rectangle, out?: Rectangle): Rectangle {
+        let x = source.x;
+        let y = source.y;
+        let width = source.width;
+        let height = source.height;
+
         out || (out = new Rectangle());
         this.cloneTo(out);
-        if (source.width <= 0 || source.height <= 0) return out;
-        out.addPoint(source.x, source.y);
-        out.addPoint(source.right, source.bottom);
+        if (width <= 0 || height <= 0) return out;
+
+        out.addPoint(x, y);
+        out.addPoint(x + width, y + height);
+
         return out;
     }
 
@@ -328,6 +338,27 @@ export class Rectangle implements IClone {
             maxX = maxX > tx ? maxX : tx;
             maxY = maxY > ty ? maxY : ty;
         }
+        return out.setTo(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    /**
+     * Creates a rectangle from two corner points.
+     * @param minX The smallest x value.
+     * @param minY The smallest y value.
+     * @param maxX The largest x value. 
+     * @param maxY The largest y value. 
+     * @param out Optional Rectangle object to store the result. 
+     * @returns The resulting rectangle.
+     * @zh 由两个角点创建一个矩形。
+     * @param minX 最小的 x 值。
+     * @param minY 最小的 y 值。
+     * @param maxX 最大的 x 值。
+     * @param maxY 最大的 y 值。
+     * @param out （可选）用于存储结果的矩形对象。
+     * @return 结果矩形。 
+     */
+    static minMaxRect(minX: number, minY: number, maxX: number, maxY: number, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
         return out.setTo(minX, minY, maxX - minX, maxY - minY);
     }
 

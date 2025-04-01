@@ -1,3 +1,7 @@
+/**
+description
+ 创建2500个星星精灵，点击屏幕时随机调整星星移动速度
+ */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Text } from "laya/display/Text";

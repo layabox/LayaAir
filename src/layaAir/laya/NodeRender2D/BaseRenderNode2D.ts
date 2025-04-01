@@ -49,6 +49,10 @@ export class BaseRenderNode2D extends Component {
      */
     static BASERENDER2DTEXTURE: number;
     /**
+     * 渲染节点纹理范围ID
+     */
+    static BASERENDER2DTEXTURERANGE: number;
+    /**
      * 渲染节点size ID
      */
     static BASERENDERSIZE: number;
@@ -72,6 +76,7 @@ export class BaseRenderNode2D extends Component {
     static SHADERDEFINE_LIGHT2D_ADDMODE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_SUBMODE: ShaderDefine;
     static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
+    static SHADERDEFINE_CLIPMODE: ShaderDefine;
 
     /**
      * @internal
@@ -81,6 +86,7 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.NMATRIX_1 = Shader3D.propertyNameToID("u_NMatrix_1");
         BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_baseRenderColor");
         BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_baseRender2DTexture");
+        BaseRenderNode2D.BASERENDER2DTEXTURERANGE = Shader3D.propertyNameToID("u_baseRender2DTextureRange");
         BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
 
         BaseRenderNode2D.NORMAL2DTEXTURE = Shader3D.propertyNameToID("u_normal2DTexture");
@@ -92,17 +98,21 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ADDMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_ADD");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_SUBMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_SUB");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
-
+        BaseRenderNode2D.SHADERDEFINE_CLIPMODE = Shader3D.getDefineByName("CLIPMODE");
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
+        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, "u_baseRender2DTextureRange", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
+        //兼容 COlOLR FILTER
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORALPHA, "u_colorAlpha", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORMAT, "u_colorMat", ShaderDataType.Matrix4x4);
     }
 
     /**
@@ -110,7 +120,7 @@ export class BaseRenderNode2D extends Component {
     */
     static _setRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
         element.subShader = material._shader.getSubShaderAt(0);
-        //element.materialId = material.id;
+        material._setOwner2DElement(element);
         element.materialShaderData = material._shaderValues;
     }
 
@@ -179,13 +189,51 @@ export class BaseRenderNode2D extends Component {
     declare owner: Sprite;
 
     /**
+     * 渲染层掩码，用于裁剪规则一
+     */
+    private _renderLayer: number = 1;
+
+    /**
+     * 渲染范围，用于裁剪规则二
+     */
+    private _rect: Vector4 = new Vector4();
+
+    /**
+     * 获取渲染层掩码
+     */
+    get renderLayer(): number {
+        return this._renderLayer;
+    }
+
+    /**
+     * 设置渲染层掩码
+     */
+    set renderLayer(value: number) {
+        this._renderLayer = value;
+    }
+
+    /**
+     * 获取渲染范围
+     */
+    get rect(): Vector4 {
+        return this._rect;
+    }
+
+    /**
+     * 设置渲染范围
+     */
+    set rect(value: Vector4) {
+        this._rect = value;
+    }
+
+    /**
      * 基于不同BaseRender的uniform集合
      */
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D"];
     }
     protected _getRect(): Vector4 {
-        return null;//get sprite ?
+        return this._rect;
     }
 
     protected _transformChange() {
@@ -376,4 +424,5 @@ export class BaseRenderNode2D extends Component {
     clear(): void {
         this._renderElements.length = 0;
     }
+
 }

@@ -1,3 +1,7 @@
+/**
+description
+ 使用命令缓冲区实现自定义实例渲染，支持动态改变颜色和位置
+ */
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";

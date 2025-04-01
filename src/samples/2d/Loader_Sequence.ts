@@ -1,3 +1,7 @@
+/**
+description
+ 按顺序加载三张不同的猴子图片，并控制加载并发数
+ */
 import { Laya } from "Laya";
 import { Texture } from "laya/resource/Texture";
 import { Handler } from "laya/utils/Handler";

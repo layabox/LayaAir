@@ -6,7 +6,8 @@ import type { GPanel } from "./GPanel";
 import { Event } from "../events/Event";
 import { SoundManager } from "../media/SoundManager";
 import { Laya } from "../../Laya";
-import { UIEvent } from "./UIEvent";
+import { GImage } from "./GImage";
+import { Color } from "../maths/Color";
 
 export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.Over]: ButtonStatus.Up,
@@ -15,14 +16,19 @@ export const ButtonPageAlternatives: Record<number, ButtonStatus> = {
     [ButtonStatus.SelectedDisabled]: ButtonStatus.Down,
 };
 
+const SaveColorSymbol = Symbol();
+var tmpColor: Color;
+const downEffectValueC = 0.8;
+const downEffectValueS = 0.9;
+
 export class GButton extends GLabel {
     private _mode: ButtonMode;
     private _selected: boolean = false;
 
     private _titleStr: string = "";
-    private _iconStr: string;
-    private _selectedTitleStr: string;
-    private _selectedIconStr: string;
+    private _iconStr: string = "";
+    private _selectedTitleStr: string = "";
+    private _selectedIconStr: string = "";
     private _sound: string;
     private _soundVolumeScale: number = 0;
     private _buttonController: Controller;
@@ -30,8 +36,7 @@ export class GButton extends GLabel {
     private _selectedPage: number = 0;
     private _changeStateOnClick: boolean;
     private _downEffect: ButtonDownEffect = 0;
-    private _downEffectValue: number = 0;
-    private _downScaled: boolean = false;
+    private _scaleEffect: boolean = false;
     private _down: boolean;
     private _over: boolean;
 
@@ -41,7 +46,6 @@ export class GButton extends GLabel {
         this._mode = ButtonMode.Common;
         this._soundVolumeScale = 1;
         this._changeStateOnClick = true;
-        this._downEffectValue = 0.8;
 
         this.on(Event.ROLL_OVER, this, this._rollover);
         this.on(Event.ROLL_OUT, this, this._rollout);
@@ -64,6 +68,8 @@ export class GButton extends GLabel {
     }
 
     public set title(value: string) {
+        if (value == null)
+            value = "";
         this._titleStr = value;
         super.title = (this._selected && this._selectedTitleStr) ? this._selectedTitleStr : value;
     }
@@ -73,8 +79,10 @@ export class GButton extends GLabel {
     }
 
     public set selectedTitle(value: string) {
+        if (value == null)
+            value = "";
         this._selectedTitleStr = value;
-        super.title = (this._selected && this._selectedTitleStr) ? this._selectedTitleStr : this._titleStr;
+        super.title = (this._selected && this._selectedTitleStr) ? value : this._titleStr;
     }
 
     public get icon(): string {
@@ -82,6 +90,8 @@ export class GButton extends GLabel {
     }
 
     public set icon(value: string) {
+        if (value == null)
+            value = "";
         this._iconStr = value;
         super.icon = (this._selected && this._selectedIconStr) ? this._selectedIconStr : value;
     }
@@ -91,8 +101,10 @@ export class GButton extends GLabel {
     }
 
     public set selectedIcon(value: string) {
+        if (value == null)
+            value = "";
         this._selectedIconStr = value;
-        super.icon = (this._selected && this._selectedIconStr) ? this._selectedIconStr : this._iconStr;
+        super.icon = (this._selected && this._selectedIconStr) ? value : this._iconStr;
     }
 
     public get downEffect(): ButtonDownEffect {
@@ -100,12 +112,6 @@ export class GButton extends GLabel {
     }
     public set downEffect(value: ButtonDownEffect) {
         this._downEffect = value;
-    }
-    public get downEffectValue(): number {
-        return this._downEffectValue;
-    }
-    public set downEffectValue(value: number) {
-        this._downEffectValue = value;
     }
 
     public get sound(): string {
@@ -236,33 +242,36 @@ export class GButton extends GLabel {
         }
 
         if (this._downEffect == ButtonDownEffect.Dark) {
-            let c: number;
-            if (page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled) {
-                let p = this._downEffectValue * 255;
-                c = (p << 16) + (p << 8) + p;
-            }
-            else {
-                c = 0xFFFFFF;
-            }
+            let isDown = page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled;
 
+            if (!tmpColor) tmpColor = new Color();
             for (let child of this.children) {
-                if (('color' in child) && (child instanceof Image))
-                    child.color = c;
+                if (child instanceof GImage) {
+                    if (isDown) {
+                        (<any>child)[SaveColorSymbol] = child.color;
+                        tmpColor.parse(child.color);
+                        tmpColor.r *= downEffectValueC;
+                        tmpColor.g *= downEffectValueC;
+                        tmpColor.b *= downEffectValueC;
+                        child.color = tmpColor.toString();
+                    }
+                    else if ((<any>child)[SaveColorSymbol])
+                        child.color = (<any>child)[SaveColorSymbol];
+                }
             }
         }
-        else if (this._downEffect == ButtonDownEffect.Scale) {
+        else if (this._downEffect == ButtonDownEffect.UpScale || this._downEffect == ButtonDownEffect.DownScale) {
+            let rate = this._downEffect == ButtonDownEffect.DownScale ? downEffectValueS : 1 / downEffectValueS;
             if (page == ButtonStatus.Down || page == ButtonStatus.SelectedOver || page == ButtonStatus.SelectedDisabled) {
-                if (!this._downScaled) {
-                    this.scaleX *= this._downEffectValue;
-                    this.scaleY *= this._downEffectValue;
-                    this._downScaled = true;
+                if (!this._scaleEffect) {
+                    this.scale(this.scaleX * rate, this.scaleY * rate);
+                    this._scaleEffect = true;
                 }
             }
             else {
-                if (this._downScaled) {
-                    this.scaleX /= this._downEffectValue;
-                    this.scaleY /= this._downEffectValue;
-                    this._downScaled = false;
+                if (this._scaleEffect) {
+                    this.scale(this.scaleX / rate, this.scaleY / rate);
+                    this._scaleEffect = false;
                 }
             }
         }
