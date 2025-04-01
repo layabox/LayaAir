@@ -19,6 +19,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
@@ -29,7 +30,7 @@ const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
 
 export class WebGLRender3DProcess implements IRender3DProcess {
-
+    render3DManager: WebSceneRenderManager;
 
     private renderpass: WebGLForwardAddRP = new WebGLForwardAddRP();
 
@@ -219,8 +220,8 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
         this.renderDepth(camera);
 
-        let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
-        let count = camera.scene.sceneRenderableManager.renderBaselist.length;
+        let renderList = this.render3DManager.baseRenderList.elements;
+        let count = this.render3DManager.baseRenderList.length;
 
         this.renderFowarAddCameraPass(context, this.renderpass, renderList, count);
 

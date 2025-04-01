@@ -11,7 +11,7 @@ import { RenderContext3D } from "../render/RenderContext3D";
  */
 export class SceneRenderManager {
     /**@internal */
-    protected _sceneManagerOBJ: ISceneRenderManager;
+    _sceneManagerOBJ: ISceneRenderManager;
 
     /**
      * @ignore
@@ -21,6 +21,8 @@ export class SceneRenderManager {
     constructor() {
         this._sceneManagerOBJ = Laya3DRender.Render3DPassFactory.createSceneRenderManager();
     }
+
+
 
     /**
      * @en The render list.
@@ -32,14 +34,6 @@ export class SceneRenderManager {
 
     set list(value: SingletonList<BaseRender>) {
         this._sceneManagerOBJ.list = value;
-    }
-
-    /**
-     * @en The base render list.
-     * @zh 基础渲染节点列表。
-     */
-    get renderBaselist(): SingletonList<IBaseRenderNode> {
-        return this._sceneManagerOBJ.baseRenderList;
     }
 
     /**

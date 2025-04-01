@@ -285,10 +285,10 @@ export class Browser {
         let platform: string = win.navigator.platform;
         let miniGame: [string, string, string];
 
-        //native
-        if (!!(window as any).conch) {
-            miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
-        }
+        // //native
+        // if (!!(window as any).conch) {
+        //     miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
+        // }
         if (!!(window as any).conch) {
             Config.fixedFrames = false;
         }
