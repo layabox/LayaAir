@@ -10,6 +10,7 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGPUShaderCompiler } from "./ShaderCompiler/WebGPUShaderCompiler";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUShaderData } from "./WebGPUShaderData";
@@ -98,6 +99,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     globalId: number;
     objectName: string = 'WebGPURenderEngine';
 
+    shaderCompiler: WebGPUShaderCompiler;
+
     /**
      * 实例化一个webgpuEngine
      */
@@ -113,6 +116,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
         this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
+
+        this.shaderCompiler = new WebGPUShaderCompiler();
     }
 
     /**
@@ -191,19 +196,19 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
      * 初始化WebGPU
      */
     async _initAsync(): Promise<void> {
-        return await this._getAdapter()
-            .then((adapter: GPUAdapter | null) => {
-                this._initAdapter(adapter);
-                return this._getGPUdevice(this._config.deviceDescriptor);
-            })
-            .then((device: GPUDevice) => {
-                this._initDevice(device);
-                console.log('WebGPU start');
-                return Promise.resolve();
-            }, (e) => {
-                console.log(e);
-                throw 'Could not get WebGPU device';
-            })
+        return this._getAdapter().then((adapter: GPUAdapter | null) => {
+            this._initAdapter(adapter);
+            return this._getGPUdevice(this._config.deviceDescriptor);
+        }).then((device: GPUDevice) => {
+            this._initDevice(device);
+            console.log('WebGPU start');
+            return Promise.resolve();
+        }, (e) => {
+            console.log(e);
+            throw 'Could not get WebGPU device';
+        }).then(() => {
+            return this.shaderCompiler.init().then();
+        });
     }
 
     /**

@@ -2,11 +2,12 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
+import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { NotImplementedError } from "../../../utils/Error";
 import { WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
 import { WebGPURenderContext3D } from "../3DRenderPass/WebGPURenderContext3D";
+import { GLSLForVulkanGenerator } from "./GLSLForVulkanGenerator";
 
 /**
  * WebGPU着色器实例
@@ -129,17 +130,39 @@ export class WebGPUShaderInstance implements IShaderInstance {
             //material
             this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, [shaderPass.name]);
         }
-        //return TODO
-        const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
-            shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
-            shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
-            shaderProcessInfo.is2D);
-
-        this.uniformInfo = shaderObj.uniformInfo;
 
         this._shaderPass = shaderPass;
-        this._vsShader = device.createShaderModule({ code: shaderObj.vs });
-        this._fsShader = device.createShaderModule({ code: shaderObj.fs });
+
+        // //return TODO
+        // const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
+        //     shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
+        //     shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
+        //     shaderProcessInfo.is2D);
+        // this.uniformInfo = shaderObj.uniformInfo;
+
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderPass.nodeCommonMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+
+        {
+            let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
+            if (!vertexSpvRes.success) {
+                console.error(vertexSpvRes.info_log);
+            }
+            let vertexSpv = new Uint8Array(vertexSpvRes.spirv.buffer, vertexSpvRes.spirv.byteOffset, vertexSpvRes.spirv.byteLength);
+            let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(vertexSpv, false);
+
+            let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
+            if (!fragmentSpvRes.success) {
+                console.error(fragmentSpvRes.info_log);
+            }
+            let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);
+            let fragmentWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
+
+            this._vsShader = device.createShaderModule({ code: vertexWgsl });
+            this._fsShader = device.createShaderModule({ code: fragmentWgsl });
+        }
+
+        // this._vsShader = device.createShaderModule({ code: shaderObj.vs });
+        // this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
         this.complete = true;
     }

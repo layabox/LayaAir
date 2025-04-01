@@ -15,7 +15,6 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
-import { WebGPUCodeGenerator } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
 import { WebGPUConfig, WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -78,7 +77,6 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
         LayaGL.textureContext = engine.getTextureContext();
-        await WebGPUCodeGenerator.init();
     }
 
     static globalBlockMap: { [key: string]: WebGPUCommandUniformMap } = {};
