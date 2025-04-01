@@ -800,6 +800,13 @@ export class Scene3D extends Sprite {
                 this._physicsStepTime = 0;
             }
         }
+
+        this._componentDriver.callStart();
+        this._componentDriver.callUpdate();
+
+        this._componentDriver.callLateUpdate();
+        this._componentDriver.callDestroy();
+
         if (this._volumeManager.needreCaculateAllRenderObjects())
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
@@ -808,12 +815,6 @@ export class Scene3D extends Sprite {
         this.componentElementMap.forEach((value) => {
             value.update(delta);
         });
-        this._componentDriver.callStart();
-        this._componentDriver.callUpdate();
-
-        this._componentDriver.callLateUpdate();
-        this._componentDriver.callDestroy();
-
         //this._sceneRenderManager.updateMotionObjects();
         this._sceneRenderManager.renderUpdate();
         this.skyRenderer.renderUpdate(RenderContext3D._instance);
