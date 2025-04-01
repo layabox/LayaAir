@@ -12,7 +12,9 @@ import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Viewport } from "../../../maths/Viewport";
 import { IRenderCMD } from "../RenderDevice/IRenderCMD";
+import { ISceneRenderManager } from "./ISceneRenderManager";
 export interface IRender3DProcess {
+    render3DManager: ISceneRenderManager;
     fowardRender(context: IRenderContext3D, camera: Camera): void;
     destroy(): void;
 }

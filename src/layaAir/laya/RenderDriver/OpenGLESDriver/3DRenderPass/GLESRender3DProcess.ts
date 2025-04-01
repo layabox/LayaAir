@@ -4,7 +4,6 @@ import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Cam
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
-import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { Vector4 } from "../../../maths/Vector4";
@@ -15,6 +14,7 @@ import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
+import { RTScene3DRenderManager } from "../../RenderModuleData/RuntimeModuleData/3D/RTScene3DRenderManager";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 import { GLESRenderContext3D } from "./GLESRenderContext3D";
@@ -27,6 +27,14 @@ export class GLESRender3DProcess implements IRender3DProcess {
     private renderpass: GLESForwardAddRP = new GLESForwardAddRP();
     constructor() {
         this._nativeObj = new (window as any).conchGLESRender3DProcess();
+    }
+    private _render3DManager: RTScene3DRenderManager;
+    public get render3DManager(): RTScene3DRenderManager {
+        return this._render3DManager;
+    }
+    public set render3DManager(value: RTScene3DRenderManager) {
+        this._render3DManager = value;
+        this._nativeObj.renderManager = value._nativeObj;
     }
     destroy(): void {
         this._nativeObj = null;
@@ -212,20 +220,13 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         this.renderDepth(camera);
 
-        let renderList = camera.scene.sceneRenderableManager.renderBaselist;
-
-        this.renderFowarAddCameraPass(context, this.renderpass, <RTBaseRenderNode[]>renderList.elements, renderList.length);
+        this.renderFowarAddCameraPass(context, this.renderpass);
         Camera.depthPass.cleanUp();
     }
 
-    renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {
+    renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP): void {
         this._tempList.length = 0;
-        list.forEach((element) => {
-            if (element) {
-                this._tempList.push((element as any)._nativeObj);
-            }
-        });
-        this._nativeObj.renderFowarAddCameraPass(context._nativeObj, renderpass._nativeObj, this._tempList, count);
+        this._nativeObj.renderFowarAddCameraPass(context._nativeObj, renderpass._nativeObj);
     }
 
 }

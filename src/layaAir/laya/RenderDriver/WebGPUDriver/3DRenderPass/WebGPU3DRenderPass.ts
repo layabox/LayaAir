@@ -14,9 +14,11 @@ import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
 import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
@@ -35,6 +37,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         this._renderPass = new WebGPUForwardAddRP();
         this.globalId = WebGPUGlobal.getId(this);
     }
+    render3DManager: WebSceneRenderManager;
 
     /**
      * 初始化渲染流程
@@ -255,8 +258,8 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         WebGPUStatis.startFrame();
         this._initRenderPass(camera, context);
         this._renderDepth(camera);
-        const renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
-        const count = camera.scene.sceneRenderableManager.renderBaselist.length;
+        let renderList = this.render3DManager.baseRenderList.elements;
+        let count = this.render3DManager.baseRenderList.length;
         this._renderForwardAddCameraPass(context, this._renderPass, renderList, count);
         Camera.depthPass.cleanUp();
     }
