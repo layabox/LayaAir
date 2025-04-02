@@ -153,8 +153,11 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
 
         if (this._renderPass.enableDirectLightShadow || this._renderPass.enableSpotLightShadowPass) {
             let sceneShaderData = context.sceneData;
+            context._preDrawUniformMaps.add("Shadow");
             let shadowUniformMap = <WebGPUCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
             sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+        } else {
+            context._preDrawUniformMaps.delete("Shadow");
         }
     }
 

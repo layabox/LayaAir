@@ -12,7 +12,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         super();
         let context = WebGPURenderContext3D._instance;
         context._preDrawUniformMaps.add("Scene3D");
-        context._preDrawUniformMaps.add("Shadow");
+      
         context._preDrawUniformMaps.add("Global");
     }
     /**

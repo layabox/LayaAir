@@ -119,7 +119,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             return;
         if (value) {
             //camera bindGroup
-            let preDrawArray = ["BaseCaemra"];
+            let preDrawArray = ["BaseCamera"];
             let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(preDrawArray);
             this._cameraData = value;
             let groupBindInfoArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, preDrawArray);

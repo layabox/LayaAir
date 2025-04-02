@@ -90,6 +90,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
                 shaderdata.createSubUniformBuffer(addition, addition, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(addition) as WebGPUCommandUniformMap)._idata));
                 shaderdata.fillBindGroupEntry(addition, bindgroupEntriys, bindGroupArray);
             }
+            console.log(bindGroupDescriptor);
             let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroup;

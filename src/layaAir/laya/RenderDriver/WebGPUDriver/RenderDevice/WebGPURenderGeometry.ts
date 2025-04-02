@@ -30,11 +30,9 @@ interface WebGPUDrawInstanceInfo {
 }
 
 export class WebGPURenderGeometry implements IRenderGeometryElement {
-    /**@internal */
-    _drawArrayInfo: WebGPUDrawArrayInfo[];
+    private static _geometryConterMap: Map<string, number> = new Map();
+    private static _geometryIDConter: number = 0;
 
-    /**@internal */
-    _drawElementInfo: WebGPUDrawElementInfo[];
 
     /**@internal */
     private _indexFormat: IndexFormat;
@@ -46,18 +44,25 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     private _instanceCount: number;
 
     /**@internal */
-    bufferState: WebGPUBufferState;
+    private _bufferState: WebGPUBufferState;
+
+    /**@internal */
+    _drawArrayInfo: WebGPUDrawArrayInfo[];
+
+    /**@internal */
+    _drawElementInfo: WebGPUDrawElementInfo[];
 
     /**@internal */
     drawType: DrawType;
 
-    //checkDataFormat: boolean = false;
-
     gpuIndexFormat: GPUIndexFormat = 'uint16';
+
     gpuIndexByte: number = 2;
 
-    _id: number;
-    static _idCounter: number = 0;
+    //缓存信息
+    stateCacheKey: string = '';
+    //缓存ID
+    stateCacheID: number;
 
     get instanceCount(): number {
         return this._instanceCount;
@@ -71,6 +76,15 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
     set mode(value: MeshTopology) {
         this._mode = value;
+        this._getCacheInfo();
+    }
+
+    public get bufferState(): WebGPUBufferState {
+        return this._bufferState;
+    }
+    public set bufferState(value: WebGPUBufferState) {
+        this._bufferState = value;
+        this._getCacheInfo();
     }
 
     get indexFormat(): IndexFormat {
@@ -82,9 +96,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this.gpuIndexByte = (value === IndexFormat.UInt16) ? 2 : 4;
     }
 
-    globalId: number;
-    objectName: string = 'WebGPURenderGeometry';
-
     /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
         this.mode = mode;
@@ -93,11 +104,33 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._drawArrayInfo = [];
         this._drawElementInfo = [];
         this._instanceCount = 1;
-        this._id = WebGPURenderGeometry._idCounter++;
-
-        this.globalId = WebGPUGlobal.getId(this);
     }
-    
+
+    private _getCacheInfo(): void {
+
+        // 构建缓存键
+        this.stateCacheKey = '';
+
+        // 添加模式信息到缓存键
+        this.stateCacheKey += `mode_${this._mode}_`;
+
+        // 添加缓冲状态信息到缓存键
+        if (this._bufferState) {
+            this.stateCacheKey += `bufferState_${this._bufferState.stateCacheID}`;
+        }
+
+        // 检查是否已存在相同配置的几何体
+        if (WebGPURenderGeometry._geometryConterMap.has(this.stateCacheKey)) {
+            // 如果存在，使用已有的ID
+            this.stateCacheID = WebGPURenderGeometry._geometryConterMap.get(this.stateCacheKey);
+        } else {
+            // 如果不存在，创建新ID并存储
+            this.stateCacheID = WebGPURenderGeometry._geometryIDConter;
+            WebGPURenderGeometry._geometryConterMap.set(this.stateCacheKey, this.stateCacheID);
+            WebGPURenderGeometry._geometryIDConter++;
+        }
+    }
+
     getDrawDataParams(out: FastSinglelist<number>): void {
         out.length = 0;
         if (this.drawType == DrawType.DrawArray || this.drawType == DrawType.DrawArrayInstance) {

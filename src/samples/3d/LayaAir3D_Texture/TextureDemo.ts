@@ -34,7 +34,7 @@ export class TextureDemo {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			Stat.show();
+			//Stat.show();
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));

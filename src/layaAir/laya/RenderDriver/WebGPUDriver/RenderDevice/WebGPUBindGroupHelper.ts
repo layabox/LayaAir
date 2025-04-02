@@ -86,24 +86,28 @@ export class WebGPUBindGroupHelper {
             const commandName = unifromCommandMapArray[i];
             const propertyId = Shader3D.propertyNameToID(commandName);
 
-            // 创建绑定信息对象
-            const bindingInfo: WebGPUUniformPropertyBindingInfo = {
-                id: 0,
-                name: commandName,
-                set: groupID,
-                binding: bindingIndex++,
-                propertyId: propertyId,
-                visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
-                type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
-                buffer: {
-                    type: 'uniform'
-                }
-            };
-            // 将绑定信息添加到数组中
-            bindingInfos.push(bindingInfo);
-
             // 从WebGPUCommandUniformMap中获取uniform信息
             const uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(commandName) as WebGPUCommandUniformMap;
+            if (uniformMap._ishasBuffer) {
+                // 创建绑定信息对象
+                const bindingInfo: WebGPUUniformPropertyBindingInfo = {
+                    id: 0,
+                    name: commandName,
+                    set: groupID,
+                    binding: bindingIndex++,
+                    propertyId: propertyId,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
+                    type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
+                    buffer: {
+                        type: 'uniform'
+                    }
+                };
+                // 将绑定信息添加到数组中
+                bindingInfos.push(bindingInfo);
+            }
+
+
+
             if (uniformMap && uniformMap._idata) {
                 // 遍历uniform映射中的所有属性,添加纹理set和sampler的绑定信息
                 for (let [propertyID, uniformProperty] of uniformMap._idata) {
@@ -184,6 +188,7 @@ export class WebGPUBindGroupHelper {
                     break;
             }
         }
+        console.log(desc);
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
@@ -206,7 +211,11 @@ export class WebGPUBindGroupHelper {
             entries: bindgroupEntriys
         };
         //填充bindgroupEntriys
-        shaderData.fillBindGroupEntry(bindGroupKey, bindgroupEntriys, infoArray);
+        for (var i = 0; i < unifromCommandMapArray.length; i++) {
+            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], bindgroupEntriys, infoArray);
+        }
+
+        console.log(bindGroupDescriptor);
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         //设置缓存  
         let returns = new WebGPUBindGroup();
@@ -269,8 +278,12 @@ export class WebGPUBindGroupHelper {
                     type: WebGPUBindingInfoType.sampler,
                     sampler: {
                         type: 'filtering'
+                    },
+                    texture: {
+                        sampleType: 'float',
+                        viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
+                        multisampled: false
                     }
-
                 }
                 bindingInfos.push(samplerBindInfo);
             }

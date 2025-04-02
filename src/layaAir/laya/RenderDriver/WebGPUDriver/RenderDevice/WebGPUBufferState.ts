@@ -1,6 +1,5 @@
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
-import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
@@ -11,132 +10,73 @@ export enum WebGPUVertexStepMode {
 }
 
 export class WebGPUBufferState implements IBufferState {
-    static idCounter: number = 0;
-    id: number;
-    stateId: string; //能够描述状态id
-    updateBufferLayoutFlag: number = 0;
+    private static _bufferStatetConterMap: Map<string, number> = new Map();
+    private static _bufferStateIDConter: number = 0;
+
+    stateCacheKey: string = '';
+
+    stateCacheID: number;
+
     vertexState: GPUVertexBufferLayout[] = [];
+
     _bindedIndexBuffer: WebGPUIndexBuffer;
+
     _vertexBuffers: WebGPUVertexBuffer[];
 
-    globalId: number;
-
-    // /**
-    //  * 是否需要转换顶点数据格式
-    //  */
-    // isNeedChangeFormat() {
-    //     for (let i = this._vertexBuffers.length - 1; i > -1; i--) {
-    //         const attributes = this.vertexState[i].attributes as GPUVertexAttribute[];
-    //         for (let j = attributes.length - 1; j > -1; j--) {
-    //             if (attributes[j].format === 'uint8x4') {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     //这里完全不需要
-    //     return false;
-    // }
-
+    // attribute location Array,shader中需要排除没有用的Attribute
+    _attriLocArray: Set<number> = new Set();
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
-        this._vertexBuffers = vertexBuffers.slice(); //因为vertexBuffers是共享的，必须slice
+        this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
-        this._getVertexBufferLayoutArray();
-        this.updateBufferLayoutFlag++;
+        this._getCacheInfo();
     }
 
     constructor() {
-        this.id = WebGPUBufferState.idCounter++;
-        this.stateId = 'x';
-        this.globalId = WebGPUGlobal.getId(this);
     }
 
-    private _getVertexBufferLayoutArray() {
-        this.stateId = '';
-        this.vertexState.length = 0;
-        this._vertexBuffers.forEach(element => {
-            const vertexDec = element.vertexDeclaration
-            const vertexAttribute: GPUVertexAttribute[] = new Array<GPUVertexAttribute>();
-            for (let i in vertexDec._shaderValues) {
-                const vertexState = vertexDec._shaderValues[i];
-                const format = this._getvertexAttributeFormat(vertexState.elementString);
-                const ss = this._getvertexAttributeSymbol(vertexState.elementString);
-                vertexAttribute.push({
-                    format,
-                    offset: vertexState.elementOffset,
-                    shaderLocation: parseInt(i) as GPUIndex32
-                });
-                this.stateId += ss;
+    private _getCacheInfo() {
+        // 清空当前的顶点状态数组
+        this.vertexState = [];
+
+        // 构建缓存键
+        let cacheKey = '';
+        this._attriLocArray.clear();
+        // 添加所有顶点缓冲区的ID到缓存键
+        if (this._vertexBuffers && this._vertexBuffers.length > 0) {
+            for (let i = 0; i < this._vertexBuffers.length; i++) {
+                if (this._vertexBuffers[i]) {
+                    cacheKey += `vb${i}_${this._vertexBuffers[i].stateCacheID}_`;
+                }
+                let bufferLayout = this._vertexBuffers[i].verteBufferLayout;
+                this.vertexState.push(bufferLayout);
+
+                let attriArray = this._vertexBuffers[i].vertexDeclaration._VAElements;
+                for (var j = 0; j < attriArray.length; j++) {
+                    this._attriLocArray.add(attriArray[j].shaderLocation)
+                }
             }
-            const verteBufferLayout: GPUVertexBufferLayout = {
-                arrayStride: vertexDec.vertexStride,
-                stepMode: element.instanceBuffer ? WebGPUVertexStepMode.instance : WebGPUVertexStepMode.vertex,
-                attributes: vertexAttribute
-            };
-            this.vertexState.push(verteBufferLayout);
-        });
-    }
 
-    private _getvertexAttributeFormat(elementFormat: string): GPUVertexFormat {
-        switch (elementFormat) {
-            case VertexElementFormat.Single:
-                return "float32";
-            case VertexElementFormat.Vector2:
-                return "float32x2";
-            case VertexElementFormat.Vector3:
-                return "float32x3";
-            case VertexElementFormat.Vector4:
-                return "float32x4";
-            case VertexElementFormat.Color:
-                return "float32x4";
-            case VertexElementFormat.Byte4:
-                return "uint8x4";
-            case VertexElementFormat.Byte2:
-                return "uint8x2";
-            case VertexElementFormat.Short2:
-                return "float16x2";
-            case VertexElementFormat.Short4:
-                return "float16x4";
-            case VertexElementFormat.NormalizedShort2:
-                return "unorm16x2";
-            case VertexElementFormat.NormalizedShort4:
-                return "unorm16x4";
-            case VertexElementFormat.NorByte4:
-                return "unorm8x4";
-            default:
-                throw 'no cache has vertex mode';
+        }
+
+        // 添加索引缓冲区信息到缓存键
+        if (this._bindedIndexBuffer) {
+            cacheKey += `ib_${this._bindedIndexBuffer.indexType}`;
+        }
+
+        this.stateCacheKey = cacheKey;
+
+        // 检查是否已存在相同配置的缓冲状态
+        if (WebGPUBufferState._bufferStatetConterMap.has(cacheKey)) {
+            // 如果存在，使用已有的ID
+            this.stateCacheID = WebGPUBufferState._bufferStatetConterMap.get(cacheKey);
+        } else {
+            // 如果不存在，创建新ID并存储
+            this.stateCacheID = WebGPUBufferState._bufferStateIDConter++;
+            WebGPUBufferState._bufferStatetConterMap.set(cacheKey, this.stateCacheID);
         }
     }
 
-    private _getvertexAttributeSymbol(elementFormat: string): string {
-        switch (elementFormat) {
-            case VertexElementFormat.Single:
-                return '0';
-            case VertexElementFormat.Vector2:
-                return '1';
-            case VertexElementFormat.Vector3:
-                return '2';
-            case VertexElementFormat.Vector4:
-                return '3';
-            case VertexElementFormat.Color:
-                return '4';
-            case VertexElementFormat.Byte4:
-                return '5';
-            case VertexElementFormat.Byte2:
-                return '6';
-            case VertexElementFormat.Short2:
-                return '7';
-            case VertexElementFormat.Short4:
-                return '8';
-            case VertexElementFormat.NormalizedShort2:
-                return '9';
-            case VertexElementFormat.NormalizedShort4:
-                return 'a';
-            case VertexElementFormat.NorByte4:
-                return 'b';
-            default:
-                throw 'no cache has vertex mode';
-        }
-    }
+
 
     destroy(): void {
         WebGPUGlobal.releaseId(this);

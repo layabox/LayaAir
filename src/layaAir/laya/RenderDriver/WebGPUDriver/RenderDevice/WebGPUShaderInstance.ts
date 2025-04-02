@@ -8,6 +8,11 @@ import { NotImplementedError } from "../../../utils/Error";
 import { WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
 import { WebGPURenderContext3D } from "../3DRenderPass/WebGPURenderContext3D";
 import { GLSLForVulkanGenerator } from "./GLSLForVulkanGenerator";
+import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
+import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * WebGPU着色器实例
@@ -34,7 +39,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
     name: string;
     complete: boolean = false;
 
-    uniformInfo: WebGPUUniformPropertyBindingInfo[];//TODO
     uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
 
     constructor(name: string) {
@@ -123,13 +127,33 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
             strArray = strArray.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
             this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, strArray);
+
+            let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(shaderPass.name) as WebGPUCommandUniformMap);
+            if (map._idata.size == 0) {
+                //组织一下
+                for (const [key, value] of shaderPass._owner._uniformMap) {
+                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength > 1 ? value.arrayLength : 0);
+                }
+                map._stateID = LayaGL.renderEngine.propertyNameToID("Material");
+
+            }
+
             //material
-            this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, [shaderPass.name]);
+            this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap);
         }
 
         this._shaderPass = shaderPass;
+        let attriLocArray = ((shaderPass.moduleData as any).geo as WebGPURenderGeometry).bufferState._attriLocArray;
 
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, strArray, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+        let filteredAttributeMap: Record<string, [number, ShaderDataType]> = {};
+        for (const [key, value] of Object.entries(shaderProcessInfo.attributeMap)) {
+            if (attriLocArray.has(value[0])) {
+                filteredAttributeMap[key] = value;
+            }
+        }
+
+
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, strArray, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
@@ -151,21 +175,11 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._fsShader = device.createShaderModule({ code: fragmentWgsl });
         }
 
-        // this._vsShader = device.createShaderModule({ code: shaderObj.vs });
-        // this._fsShader = device.createShaderModule({ code: shaderObj.fs });
-
         this.complete = true;
     }
 
     private _createBindGroupLayout(set: number, name: string) {
-        const data: WebGPUUniformPropertyBindingInfo[] = [];
-        const info = this.uniformInfo;
-        for (let i = 0; i < info.length; i++) {
-            const item = info[i];
-            if (item.set === set)
-                data.push(item);
-        }
-        if (data.length === 0) return null;
+        const data: WebGPUUniformPropertyBindingInfo[] = this.uniformSetMap[set];
         let entries: GPUBindGroupLayoutEntry[] = [];
         const desc: GPUBindGroupLayoutDescriptor = {
             label: name,
@@ -196,6 +210,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
                     break;
             }
         }
+        console.log(desc);
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
@@ -210,7 +225,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             const bindGroupLayouts: GPUBindGroupLayout[] = [];
             for (let i = 0; i < 4; i++) {
                 const group = this._createBindGroupLayout(i, `group${i}`);
-                if (group) bindGroupLayouts.push(group);
+                bindGroupLayouts.push(group);
             }
             this._gpuPipelineLayout = device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
         }

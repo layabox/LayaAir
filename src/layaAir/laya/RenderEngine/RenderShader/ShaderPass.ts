@@ -64,9 +64,10 @@ export class ShaderPass extends ShaderCompileDefineBase {
     }
 
     constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
-        super(owner, null, compiledObj);
+        super(owner, owner._owner.name, compiledObj);
         this.moduleData = LayaGL.unitRenderModuleDataFactory.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
+        this.moduleData.name = this.name;
     }
 
     /**

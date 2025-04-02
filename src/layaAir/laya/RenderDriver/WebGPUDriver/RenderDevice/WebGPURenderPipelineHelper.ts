@@ -408,28 +408,79 @@ export class WebGPUPrimitiveState {
     }
 }
 
-export interface IRenderPipelineInfo {
-    geometry: WebGPURenderGeometry,
-    blendState: WebGPUBlendStateCache,
-    depthStencilState: WebGPUDepthStencilStateCache,
-    cullMode: CullMode,
-    frontFace: FrontFace
+export class IRenderPipelineInfo {
+    geometry: WebGPURenderGeometry;
+    blendState: WebGPUBlendStateCache;
+    depthStencilState: WebGPUDepthStencilStateCache;
+    cullMode: CullMode;
+    frontFace: FrontFace;
 }
 
 export class WebGPURenderPipeline {
     static idCounter: number = 0;
+    private static _pipelineCache: Map<number, GPURenderPipeline> = new Map();
+    
+    // 用于生成唯一ID的计数器
+    private static _keyCounter: number = 0;
+    
+    // 用于存储已生成的键值对
+    private static _keyMap: Map<string, number> = new Map();
+
     /**
      * 获取渲染管线，如果缓存中存在，直接取出，否则创建一个，放入缓存
      * @param info 
      * @param shaderInstance 
      * @param renderTarget 
-     * @param entries 
-     * @param stateKey 
      */
     static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT) {
+        // 生成缓存key
+        const cacheKey = this._getCacheKey(info, shaderInstance, renderTarget);
+        
+        // 检查缓存
+        const cachedPipeline = this._pipelineCache.get(cacheKey);
+        if (cachedPipeline) {
+            return cachedPipeline;
+        }
+
+        // 创建新的渲染管线
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
-        return this._createRenderPipeline(info.blendState.state, info.depthStencilState?.state,
+        const pipeline = this._createRenderPipeline(info.blendState.state, info.depthStencilState?.state,
             primitiveState.state, info.geometry.bufferState.vertexState, shaderInstance, renderTarget);
+            
+        // 存入缓存
+        this._pipelineCache.set(cacheKey, pipeline);
+        
+        return pipeline;
+    }
+
+    /**
+     * 获取缓存键 - 使用数字ID作为键
+     * @param info 
+     * @param shaderInstance 
+     * @param renderTarget 
+     */
+    private static _getCacheKey(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT): number {
+        // 生成描述性键
+        const descKey = `${info.blendState.id}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${shaderInstance._id}_${renderTarget.stateCacheID}`;
+        
+        // 检查是否已经有对应的数字ID
+        let numericKey = this._keyMap.get(descKey);
+        if (numericKey === undefined) {
+            // 如果没有，分配一个新的数字ID
+            numericKey = ++this._keyCounter;
+            this._keyMap.set(descKey, numericKey);
+        }
+        
+        return numericKey;
+    }
+
+    /**
+     * 清除缓存
+     */
+    static clearCache() {
+        this._pipelineCache.clear();
+        this._keyMap.clear();
+        this._keyCounter = 0;
     }
 
     /**

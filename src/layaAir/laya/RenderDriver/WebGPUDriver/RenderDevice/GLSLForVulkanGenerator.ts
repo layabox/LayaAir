@@ -152,17 +152,18 @@ function attributeString(attributeMap: WebGPUAttributeMapType) {
 
     for (const key in attributeMap) {
         let type = getTypeString(attributeMap[key][1]);
+        location = attributeMap[key][0];
         if (type != "") {
             if (type == "mat4") {
                 res = `${res}layout(location = ${location++}) in vec4 ${key}_0;\n`;
                 res = `${res}layout(location = ${location++}) in vec4 ${key}_1;\n`;
                 res = `${res}layout(location = ${location++}) in vec4 ${key}_2;\n`;
-                res = `${res}layout(location = ${location++}) in vec4 ${key}_3;\n`;
+                res = `${res}layout(location = ${location}) in vec4 ${key}_3;\n`;
 
                 attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3)\n`;
             }
             else {
-                res = `${res}layout(location = ${location++}) in ${type} ${key};\n`;
+                res = `${res}layout(location = ${location}) in ${type} ${key};\n`;
             }
 
         }
@@ -215,13 +216,13 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
 
             switch (uniform.uniformtype) {
                 case ShaderDataType.Texture2D:
-                    res = `${res}layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}_Sampler;
-layout(set=${set}, binding=${binding++}) uniform texture2D ${uniform.propertyName}_Texture;
+                    res = `${res}layout(set=${set}, binding=${binding++}) uniform texture2D ${uniform.propertyName}_Texture;
+ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}_Sampler;
 `;
                     break;
                 case ShaderDataType.TextureCube:
-                    res = `${res}layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}_Sampler;
-layout(set=${set}, binding=${binding++}) uniform texture2D ${uniform.propertyName}_Texture;
+                    res = `${res}layout(set=${set}, binding=${binding++}) uniform texture2D ${uniform.propertyName}_Texture;
+layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}_Sampler;
 `;
                     break;
                 // todo

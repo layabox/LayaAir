@@ -32,6 +32,7 @@ export class WebShaderPass implements IShaderPassData {
         this._renderState = new RenderState();
         this._renderState.setNull();
     }
+    name: string;
     additionShaderData: string[];
     nodeCommonMap: string[];
     /**

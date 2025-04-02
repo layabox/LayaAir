@@ -22,6 +22,7 @@ export class RTShaderPass implements IShaderPassData {
         this.renderState.setNull();
         this._pass = pass;
     }
+    name: string;
     private _additionShaderData: string[];
     public get additionShaderData(): string[] {
         return this._additionShaderData;

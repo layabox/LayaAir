@@ -307,7 +307,7 @@ export class WebGPUShaderData extends ShaderData {
     _createOrGetBindGroup(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup {
         let needRecreate = false;
         //判断是否已经缓存了相应的BindGroup
-        needRecreate = this._cacheBindGroup.has(cacheName) &&
+        needRecreate = !this._cacheBindGroup.has(cacheName) ||
             this._cacheBindGroup.get(cacheName).isNeedCreate(this._getBindGroupLastUpdateMask(cacheName));
         if (needRecreate) {//重新创建BindGroup
             if (!this._cacheNameBindGroupInfos.has(`${bindGroup}` + cacheName)) {
@@ -324,6 +324,7 @@ export class WebGPUShaderData extends ShaderData {
             };
             //填充bindgroupEntriys
             this.fillBindGroupEntry(cacheName, bindgroupEntriys, bindGroupInfos);
+            console.log(bindGroupDescriptor);
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroupGPU;
