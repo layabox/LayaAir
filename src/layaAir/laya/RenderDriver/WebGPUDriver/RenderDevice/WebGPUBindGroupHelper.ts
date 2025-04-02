@@ -10,7 +10,7 @@ import { WebGPUShaderData } from "./WebGPUShaderData";
 
 export class WebGPUBindGroup {
     gpuRS: GPUBindGroup;
-    createMask: number;//创建的时候生成的帧数
+    createMask: number = -1;//创建的时候生成的帧数
     constructor() {
         this.createMask = Stat.loopCount;
     }
@@ -135,6 +135,11 @@ export class WebGPUBindGroupHelper {
                             type: WebGPUBindingInfoType.sampler,
                             sampler: {
                                 type: 'filtering'
+                            },
+                            texture: {
+                                sampleType: 'float',
+                                viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
+                                multisampled: false
                             }
 
                         }

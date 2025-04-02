@@ -94,7 +94,7 @@ export class WebGPUShaderData extends ShaderData {
 
     private _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
 
-    private _updateCacheArray: { [key: number]: any } = null;
+    private _updateCacheArray: { [key: number]: any } = {};
 
     private _subUboBufferNumber: number = 0;
 
@@ -108,6 +108,7 @@ export class WebGPUShaderData extends ShaderData {
     private _cacheBindGroup: Map<string, WebGPUBindGroup>;
     private _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
 
+    _textureData: { [key: number]: BaseTexture } = {};
     /**
      * 不允许直接创建，只能通过对象池
      * @param ownerResource 
@@ -122,6 +123,10 @@ export class WebGPUShaderData extends ShaderData {
         this._bindGroupLastUpdateMask = new Map();
         this._cacheBindGroup = new Map();
         this._cacheNameBindGroupInfos = new Map();
+
+        this._uniformBuffers = new Map();
+        this._subUniformBuffers = new Map();
+        this._uniformBuffersPropertyMap = new Map();
     }
 
     updateUBOBuffer(key: string) {
@@ -653,7 +658,6 @@ export class WebGPUShaderData extends ShaderData {
         this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setArrayBuffer;
     }
 
-    _textureData: { [key: number]: BaseTexture };
     /**
      * 设置纹理
      * @param index shader索引
@@ -692,9 +696,12 @@ export class WebGPUShaderData extends ShaderData {
             }
             this._data[index] = value;
             let arra = this._textureCacheUpdateMap.get(index);
-            for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
-                this._bindGroupLastUpdateMask.set(item, Stat.loopCount);
+            if(arra){
+                for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
+                    this._bindGroupLastUpdateMask.set(item, Stat.loopCount);
+                }
             }
+         
         }
     }
 

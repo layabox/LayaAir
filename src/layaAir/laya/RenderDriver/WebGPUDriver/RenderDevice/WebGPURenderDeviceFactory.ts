@@ -21,6 +21,7 @@ import { WebGPUConfig, WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
+import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
@@ -77,6 +78,8 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
         LayaGL.textureContext = engine.getTextureContext();
+        WebGPUShaderData.__init__();
+        WebGPUUniformBufferBase.device = engine.getDevice();
     }
 
     static globalBlockMap: { [key: string]: WebGPUCommandUniformMap } = {};

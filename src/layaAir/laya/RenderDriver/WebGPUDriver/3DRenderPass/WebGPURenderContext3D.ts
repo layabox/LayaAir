@@ -224,11 +224,11 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
             if (!this._cameraBindGroup) {
                 //直接创建
-                this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._sceneData);
+                this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._cameraData);
             } else {
                 let lastUpdateMask = this._cameraData._getBindGroupLastUpdateMask(bindCacheKey);
                 if (this._cameraBindGroup.isNeedCreate(lastUpdateMask)) {
-                    this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._sceneData);
+                    this._cameraBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(1, commandArray, this._cameraData);
                 }
             }
         }

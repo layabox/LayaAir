@@ -42,15 +42,17 @@ export type WebGPUUnifrom = {
 
 export class WebGPUUniformBufferDescriptor {
     lable: string;
+    uniforms: Map<number, WebGPUUnifrom>;
+
     private _byteLength: number;
 
     constructor(lable: string) {
         this.lable = lable;
+        this.uniforms = new Map();
     }
     get byteLength() {
         return this._byteLength;
     }
-    uniforms: Map<number, WebGPUUnifrom>;
 
     private _getPrimitive(type: ShaderDataType): wgsl.Primitive {
         switch (type) {

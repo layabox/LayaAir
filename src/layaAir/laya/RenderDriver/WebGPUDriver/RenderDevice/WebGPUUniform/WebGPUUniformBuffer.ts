@@ -5,12 +5,12 @@ export class WebGPUUniformBuffer extends WebGPUUniformBufferBase {
 
     lable: string;
     private _data: Float32Array;
-   
+
     constructor(lable: string, uniformMap: Map<number, UniformProperty>) {
         super();
-        let descriptor = new WebGPUUniformBufferDescriptor(lable);
+        let descriptor = this.descriptor = new WebGPUUniformBufferDescriptor(lable);
         descriptor.setUniforms(uniformMap);
-        let _data = new Float32Array(descriptor.byteLength);
+        let _data = this._data = new Float32Array(descriptor.byteLength);
         let buffer = _data.buffer;
         for (const [key, uniform] of descriptor.uniforms) {
             uniform.view = new uniform.dataView(buffer, uniform.offset, uniform.viewByteLength / uniform.dataView.BYTES_PER_ELEMENT);
@@ -41,7 +41,7 @@ export class WebGPUUniformBuffer extends WebGPUUniformBufferBase {
 
     upload(): void {
         if (this.needUpload) {
-            WebGPUUniformBufferBase.device.queue.writeBuffer(this._gpuBuffer, 0, this._data, 0, this._data.byteLength);
+            WebGPUUniformBufferBase.device.queue.writeBuffer(this._gpuBuffer, 0, this._data, 0, this._data.length);
             this.needUpload = false;
         }
     }

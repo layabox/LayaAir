@@ -18,11 +18,12 @@ export class WebGPUSubUniformBuffer extends WebGPUUniformBufferBase implements I
 
     constructor(lable: string, uniformMap: Map<number, UniformProperty>) {
         super();
-        let descriptor = new WebGPUUniformBufferDescriptor(lable);
+        let descriptor = this.descriptor = new WebGPUUniformBufferDescriptor(lable);
         descriptor.setUniforms(uniformMap);
         this.bytelength = descriptor.byteLength;
         let uboManager = this.manager = WebGPURenderEngine._instance.gpuBufferMgr;
         this.bufferBlock = uboManager.getBlock(this.bytelength, this);
+        this._gpuBuffer = this.bufferBlock.cluster.buffer
         this._GPUBindGroupEntry = {
             binding: 0,//后续自己改
             resource: {

@@ -111,6 +111,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         const engine = WebGPURenderEngine._instance;
         const device = engine.getDevice();
+        let strArray: string[] = [];
         if (!shaderProcessInfo.is2D) {
             //global
             let context = WebGPURenderContext3D._instance;
@@ -119,13 +120,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
             //camera
             this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]);
             //sprite+additional
-            let strArray = [];
-            for (var com in shaderPass._nodeUniformCommonMap) {
-                strArray.push(com);
-            }
-            for (var addition in shaderPass.additionShaderData) {
-                strArray.push(addition);
-            }
+
+            strArray = strArray.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
             this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, strArray);
             //material
             this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(3, [shaderPass.name]);
@@ -133,14 +129,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         this._shaderPass = shaderPass;
 
-        // //return TODO
-        // const shaderObj = WebGPUCodeGenerator.shaderLanguageProcess(
-        //     shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, //@ts-ignore
-        //     shaderPass.uniformMap, shaderPass.arrayMap, shaderPass.nodeCommonMap, shaderProcessInfo.vs, shaderProcessInfo.ps,
-        //     shaderProcessInfo.is2D);
-        // this.uniformInfo = shaderObj.uniformInfo;
-
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderPass.nodeCommonMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, strArray, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
