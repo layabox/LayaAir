@@ -1,5 +1,3 @@
-import { initSync } from "../../../../../pkg/nagabind";
-
 declare const ShaderCompiler: () => Promise<any>;
 
 declare const wasm_bindgen: any;
