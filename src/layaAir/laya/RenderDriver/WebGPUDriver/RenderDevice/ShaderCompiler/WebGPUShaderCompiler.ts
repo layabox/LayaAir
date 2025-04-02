@@ -1,6 +1,8 @@
+import { initSync } from "../../../../../pkg/nagabind";
+
 declare const ShaderCompiler: () => Promise<any>;
 
-declare const wasm_bindgen: () => Promise<any>;
+declare const wasm_bindgen: any;
 
 const Nagabind = wasm_bindgen;
 
@@ -30,10 +32,14 @@ export class WebGPUShaderCompiler {
     async init() {
         const glslInit = ShaderCompiler().then(module => {
             this.glslang = module;
+        }, reason => {
+            console.error("glslang init failed", reason);
         });
 
-        const nagaInit = Nagabind().then(module => {
-            this.naga = module;
+        const nagaInit = Nagabind.initSync().then(() => {
+            this.naga = {
+                spirv_to_wgsl: wasm_bindgen.spirv_to_wgsl
+            };
         });
 
         return Promise.all([glslInit, nagaInit]);

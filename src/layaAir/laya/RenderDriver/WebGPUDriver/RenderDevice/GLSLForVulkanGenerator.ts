@@ -36,6 +36,9 @@ export class GLSLForVulkanGenerator {
             defMap[define] = true;
         }
 
+        // todo 
+        defMap["GRAPHICS_API_GLES3"] = true;
+
         let vs = VS.toscript(defMap, []);
         let fs = FS.toscript(defMap, []);
 
@@ -52,7 +55,7 @@ export class GLSLForVulkanGenerator {
         let vertexCode = vs.join('\n');
         let fragmentCode = fs.join('\n');
 
-        const defineStrs = defineString(defines);
+        const defineStrs = defineString(defMap);
 
         const additionDefineStrs = additionDefineString();
 
@@ -128,11 +131,13 @@ ${fragmentCode}
 
 }
 
-function defineString(defines: string[]) {
+function defineString(defines: { [key: string]: boolean }) {
     let res = "";
 
-    for (let i = 0; i < defines.length; i++) {
-        res += `#define ${defines[i]}\n`;
+    for (const key in defines) {
+        if (defines[key]) {
+            res += `#define ${key}\n`;
+        }
     }
 
     return res;
@@ -246,10 +251,10 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
 
     let cameraSet = uniformBlockString("BaseCamera", 1, 0);
 
-    let spriteSet = uniformBlockString("Sprite3D", 2, 0);
+    // let spriteSet = uniformBlockString("Sprite3D", 2, 0);
 
     // addition map
-    let commonMapSet = { code: "", binding: spriteSet.binding };
+    let commonMapSet = { code: "", binding: 0 };
     for (let common of commonMap) {
         let set = uniformBlockString(common, 2, commonMapSet.binding);
         commonMapSet.code += set.code;
@@ -258,7 +263,7 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
 
     let materialSet = uniformMapString(materialUniforms, "Material", 3, 0);
 
-    return `${sceneSet.code}${cameraSet.code}${spriteSet.code}${materialSet.code}`;
+    return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
 }
 
 

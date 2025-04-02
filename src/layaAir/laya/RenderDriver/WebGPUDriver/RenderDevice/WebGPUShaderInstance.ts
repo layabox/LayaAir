@@ -136,8 +136,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
             if (!vertexSpvRes.success) {
                 console.error(vertexSpvRes.info_log);
             }
-            let vertexSpv = new Uint8Array(vertexSpvRes.spirv.buffer, vertexSpvRes.spirv.byteOffset, vertexSpvRes.spirv.byteLength);
-            let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(vertexSpv, false);
+            let vertexSpirv = vertexSpvRes.spirv;
+
+            let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(vertexSpirv.buffer, vertexSpirv.byteOffset, vertexSpirv.byteLength), false);
 
             let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
             if (!fragmentSpvRes.success) {
