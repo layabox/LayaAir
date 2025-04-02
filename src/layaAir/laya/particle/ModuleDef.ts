@@ -1,9 +1,11 @@
 import { ClassUtils } from "../utils/ClassUtils";
+import { GradientDataNumber } from "./common/GradientDataNumber";
 import { ColorOverLifetimeModule } from "./common/module/ColorOverLifetimeModule";
 import { EmissionBurst, EmissionModule } from "./common/module/EmissionModule";
 import { TextureSheetAnimationModule } from "./common/module/TextureSheetAnimationModule";
 import { ParticleMinMaxCurve } from "./common/ParticleMinMaxCurve";
 import { ParticleMinMaxGradient } from "./common/ParticleMinMaxGradient";
+
 import { Main2DModule } from "./d2/module/Main2DModule";
 import { Rotation2DOverLifetimeModule } from "./d2/module/Rotation2DOverLifetimeModule";
 import { Shape2DModule } from "./d2/module/Shape2DModule";
@@ -17,6 +19,8 @@ import { Velocity2DOverLifetimeModule } from "./d2/module/Velocity2DOverLifetime
 import { ShurikenParticle2DRenderer } from "./d2/ShurikenParticle2DRenderer";
 import { ShurikenParticle2DSystem } from "./d2/ShurikenParticle2DSystem";
 
+
+ClassUtils.regClass("GradientDataNumber", GradientDataNumber);
 
 ClassUtils.regClass("ParticleMinMaxGradient", ParticleMinMaxGradient);
 
