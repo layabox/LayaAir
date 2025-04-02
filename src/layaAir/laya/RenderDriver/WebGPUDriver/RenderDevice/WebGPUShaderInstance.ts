@@ -210,7 +210,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
                     break;
             }
         }
-        console.log(desc);
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 

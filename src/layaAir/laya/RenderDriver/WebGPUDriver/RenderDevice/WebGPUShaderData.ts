@@ -324,7 +324,6 @@ export class WebGPUShaderData extends ShaderData {
             };
             //填充bindgroupEntriys
             this.fillBindGroupEntry(cacheName, bindgroupEntriys, bindGroupInfos);
-            console.log(bindGroupDescriptor);
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroupGPU;

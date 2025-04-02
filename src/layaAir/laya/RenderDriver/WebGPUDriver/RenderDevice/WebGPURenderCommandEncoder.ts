@@ -16,7 +16,7 @@ export class WebGPURenderCommandEncoder {
     encoder: GPURenderPassEncoder;
 
     globalId: number;
-    
+
     //cacheData
 
     constructor() {
@@ -54,7 +54,7 @@ export class WebGPURenderCommandEncoder {
     }
 
     setBindGroup(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        this.encoder.setBindGroup(index, bindGroup, dynamicOffsets);
+        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup);
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {

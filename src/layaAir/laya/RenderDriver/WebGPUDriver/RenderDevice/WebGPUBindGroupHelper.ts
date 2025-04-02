@@ -188,7 +188,6 @@ export class WebGPUBindGroupHelper {
                     break;
             }
         }
-        console.log(desc);
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
@@ -215,7 +214,6 @@ export class WebGPUBindGroupHelper {
             shaderData.fillBindGroupEntry(unifromCommandMapArray[i], bindgroupEntriys, infoArray);
         }
 
-        console.log(bindGroupDescriptor);
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         //设置缓存  
         let returns = new WebGPUBindGroup();
