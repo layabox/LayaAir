@@ -337,8 +337,15 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     }
 
     /**
-     * @en Get the vertical velocity of the character.
-     * @zh 获取角色的垂直速度。
+     * @en Get the vertical velocity of the character. 
+     * The vertical velocity of the character is particularly useful for determining whether a character is falling or rising. Here are some key points about its value:
+     *  - **0** means the character is on the ground.
+     *  - **Positive values** indicate the character is rising (e.g., jumping).
+     *  - **Negative values** indicate the character is falling.
+     * @zh 获取角色的垂直速度。主要用于获取角色在垂直方向（通常是 Y 轴）的当前速度。这个值反映了角色受重力、跳跃或其他垂直运动影响时的状态。
+     *  - **值为 0**，表示角色位于地面；
+     *  - **为正值**，表示角色正在上升（如跳跃）；
+     *  - **为负值**，表示角色在下落。
      */
     getVerticalVel(): number {
         var bt = btPhysicsCreateUtil._bt;
