@@ -3,6 +3,12 @@ import { type Context } from "../renders/Context";
 
 export interface IGraphicsCmd {
     /**
+     * @en If true, do not automatically recycle.
+     * @zh 如果为true，则不自动回收
+     */
+    lock?: boolean;
+
+    /**
      * 
      * @param context 
      * @param gx 

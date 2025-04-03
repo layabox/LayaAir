@@ -138,11 +138,12 @@ export class ImageRenderer {
     }
 
     private createCmd() {
-        let cmd: any;
+        let cmd: DrawTextureCmd | Draw9GridTextureCmd;
         if (this._tex._sizeGrid)
             cmd = Draw9GridTextureCmd.create(this._tex, 0, 0, 1, 1, this._tex._sizeGrid, true, null);
         else
             cmd = DrawTextureCmd.create(this._tex, 0, 0, 1, 1, null, 1, null, null, null, true);
+        cmd.lock = true;
         cmd.color = this._color.getABGR();
         this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, cmd, true);
     }

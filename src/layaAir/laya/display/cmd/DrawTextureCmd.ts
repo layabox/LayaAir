@@ -76,6 +76,11 @@ export class DrawTextureCmd implements IGraphicsCmd {
     uv: number[] | null = null;
 
     /**
+     * @inheritdoc
+     */
+    lock: boolean;
+
+    /**
      * @en Create a DrawTextureCmd instance
      * @param texture The texture to be drawn
      * @param x X-axis offset

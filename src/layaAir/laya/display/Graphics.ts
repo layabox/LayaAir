@@ -116,10 +116,10 @@ export class Graphics {
      * @param recoverCmds 是否回收绘图指令数组。设置为true，则对指令数组进行回收以节省内存开销。建议设置为true进行回收，但如果手动引用了数组，不建议回收。
      */
     clear(recoverCmds: boolean = true): void {
-        //TODO:内存回收all
         if (recoverCmds) {
-            for (let i = 0, len = this._cmds.length; i < len; i++) {
-                this._cmds[i].recover();
+            for (let cmd of this._cmds) {
+                if (!cmd.lock)
+                    cmd.recover();
             }
         }
 

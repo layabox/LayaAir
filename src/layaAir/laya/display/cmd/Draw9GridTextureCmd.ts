@@ -68,6 +68,11 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     percent: boolean = true;
 
     /**
+     * @inheritdoc
+     */
+    lock: boolean;
+
+    /**
      * @private
      * @en Creates or retrieves a Draw9GridTextureCmd instance from the object pool and initializes it with the specified parameters.
      * @param texture The texture to be drawn
