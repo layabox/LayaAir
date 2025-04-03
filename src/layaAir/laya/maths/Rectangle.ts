@@ -226,6 +226,7 @@ export class Rectangle implements IClone {
         out || (out = new Rectangle());
         this.cloneTo(out);
         if (width <= 0 || height <= 0) return out;
+        if (this.width <= 0 || this.height <= 0) return out.setTo(x, y, width, height);
 
         out.addPoint(x, y);
         out.addPoint(x + width, y + height);
