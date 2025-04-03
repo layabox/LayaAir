@@ -174,6 +174,15 @@ export class Tweener implements ITweener {
         return this._ended == 1;
     }
 
+    get remainTime(): number {
+        if (this.breakpoint >= 0)
+            return this.delay + this.breakpoint - this._elapsedTime;
+        else if (this.repeat >= 0)
+            return this.delay + this.duration * (this.repeat + 1) - this._elapsedTime;
+        else
+            return this.delay + this.duration * 2 - this._elapsedTime;
+    }
+
     activate() {
         this._active = true;
         this._startFrame = ILaya.timer.currFrame;
@@ -200,12 +209,8 @@ export class Tweener implements ITweener {
 
         if (complete) {
             if (this._ended == 0) {
-                if (this.breakpoint >= 0)
-                    this._elapsedTime = this.delay + this.breakpoint;
-                else if (this.repeat >= 0)
-                    this._elapsedTime = this.delay + this.duration * (this.repeat + 1);
-                else
-                    this._elapsedTime = this.delay + this.duration * 2;
+                this._elapsedTime = 0;
+                this._elapsedTime = this.remainTime;
                 this.update2();
             }
 
