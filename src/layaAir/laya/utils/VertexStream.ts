@@ -1,13 +1,10 @@
+import { Mutable } from "../../ILaya";
 import { Color } from "../maths/Color";
 import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector3 } from "../maths/Vector3";
 import { Texture } from "../resource/Texture";
 import { Pool } from "./Pool";
-
-declare type Mutable<T> = {
-    -readonly [P in keyof T]: T[P]
-};
 
 /**
  * @en Vertex stream is a tool for appending vertices and triangles.

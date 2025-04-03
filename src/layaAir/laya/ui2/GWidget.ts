@@ -4,7 +4,6 @@ import { ColorFilter } from "../filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayoutChangedReason, RelationType } from "./Const";
 import { Controller } from "./Controller";
-import { ControllerRef } from "./ControllerRef";
 import { Relation } from "./Relation";
 import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
@@ -30,7 +29,7 @@ export class GWidget extends Sprite {
 
     private _controllers: Record<string, Controller>;
     private _controllerCount: number;
-    private _gears: Array<Gear<any>>;
+    private _gears: Array<Gear>;
     private _relations: Array<Relation>;
     private _forceSizeFlag: boolean;
 
@@ -175,6 +174,12 @@ export class GWidget extends Sprite {
     set grayed(value: boolean) {
         if (this._grayed != value) {
             this._grayed = value;
+
+            let cc = this.getController("grayed");
+            if (cc != null) {
+                cc.selectedIndex = value ? 1 : 0;
+                return;
+            }
 
             let filters: any[] = this.filters || [];
             let i = filters.indexOf(grayFilter);
@@ -376,12 +381,12 @@ export class GWidget extends Sprite {
         this.event(UIEvent.ControllersChanged);
     }
 
-    get gears(): Array<Gear<any>> {
+    get gears(): Array<Gear> {
         return this._gears;
     }
 
     /** @internal */
-    set gears(value: Array<Gear<any>>) {
+    set gears(value: Array<Gear>) {
         let visChanged: boolean;
         if (this._gears.length > 0) {
 
@@ -395,21 +400,21 @@ export class GWidget extends Sprite {
         value.forEach(g => g.owner = this);
 
         if (visChanged)
-            this.internalVisible = GearDisplay.check(this);
+            GearDisplay.check(this);
     }
 
     /** @internal */
-    _addGears(value: Array<Gear<any>>) {
+    _addGears(value: Array<Gear>) {
         this._gears.push(...value);
         value.forEach(g => g.owner = this);
     }
 
-    addGear(value: Gear<any>) {
+    addGear(value: Gear) {
         this._gears.push(value);
         value.owner = this;
     }
 
-    removeGear(value: Gear<any>) {
+    removeGear(value: Gear) {
         let i = this._gears.indexOf(value);
         if (i != -1) {
             this._gears.splice(i, 1);

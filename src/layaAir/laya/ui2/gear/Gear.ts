@@ -1,23 +1,23 @@
 import { NodeFlags } from "../../Const";
-import { Color } from "../../maths/Color";
 import { Ease } from "../../tween/Ease";
 import { Tween } from "../../tween/Tween";
 import { IClone } from "../../utils/IClone";
+import { Controller } from "../Controller";
 import { ControllerRef } from "../ControllerRef";
 import type { GWidget } from "../GWidget";
 import { GearTweenConfig } from "./GearTweenConfig";
 
-export class Gear<T> {
+export class Gear {
     protected _owner: GWidget;
     protected _controller: ControllerRef;
     protected _propPath: string;
     protected _tweenCfg: GearTweenConfig;
-    protected _tween: Tween;
-
+    /** @internal */
+    _tween: Tween;
     /** @internal */
     _propPathArr: string[];
 
-    values: Record<number, T>;
+    values: Record<number, any>;
 
     public static disableAllTweenEffect = false;
 
@@ -33,7 +33,7 @@ export class Gear<T> {
         this._owner = value;
         if (value) {
             this._controller?.validate();
-            this.onChanged(true);
+            this.onChanged(null);
         }
         else {
             this._controller?.release();
@@ -50,7 +50,7 @@ export class Gear<T> {
             this._controller.release();
         this._controller = value;
         if (value) {
-            value.onChanged = () => this.onChanged();
+            value.onChanged = sender => this.onChanged(sender);
             if (this._owner)
                 value.validate();
         }
@@ -63,7 +63,7 @@ export class Gear<T> {
     public set propPath(value: string) {
         this._propPath = value;
         this._propPathArr = value ? value.split(".") : null;
-        this.onChanged(true);
+        this.onChanged(null);
     }
 
     public get tween(): GearTweenConfig {
@@ -74,9 +74,9 @@ export class Gear<T> {
         this._tweenCfg = value;
     }
 
-    protected onChanged(disableTween?: boolean) {
+    protected onChanged(initiator: Controller) {
         if (this._owner && this._controller)
-            this.runGear(disableTween);
+            this.runGear(initiator);
     }
 
     protected getValue(page: number) {
@@ -90,21 +90,29 @@ export class Gear<T> {
         return value;
     }
 
-    protected doTween(obj: any, key: string, oldValue: T, newValue: T) {
+    protected compareValue(value: any, value2: any): boolean {
+        if (value != null && typeof (value) === "object" && typeof (<any>value).equal === "function") {
+            if ((<any>value).equal(value2))
+                return true;
+        }
+        else if (value == value2)
+            return true;
+
+        return false;
+    }
+
+    protected doTween(obj: any, key: string, oldValue: any, newValue: any) {
         if (this._tween) {
             let tweener = this._tween.findTweener(null);
-            if (tweener) {
-                if (typeof (newValue) === "object" && typeof (<any>newValue).equal === "function") {
-                    if ((<any>newValue).equal(tweener.endValue.getAt(0)))
-                        return;
-                }
-                else if (newValue == tweener.endValue.getAt(0))
-                    return;
-            }
+            if (tweener && this.compareValue(newValue, tweener.endValue.getAt(0)))
+                return;
 
             this._tween.kill();
             this._tween.recover();
         }
+
+        if (this.compareValue(oldValue, newValue))
+            return;
 
         let tc = this._tweenCfg;
         this._tween = Tween.create(obj)
@@ -118,7 +126,7 @@ export class Gear<T> {
             });
     }
 
-    private runGear(disableTween: boolean) {
+    protected runGear(initiator: Controller) {
         let arr = this._propPathArr;
         if (!arr)
             return;
@@ -142,8 +150,8 @@ export class Gear<T> {
         let oldValue = obj[key];
 
         if (oldValue == null
-            || disableTween
             || !this._tweenCfg || !this._tweenCfg.enabled
+            || !initiator || !initiator.changing
             || Gear.disableAllTweenEffect
             || this._owner._getBit(NodeFlags.EDITING_NODE)) {
             obj[key] = newValue;
@@ -154,19 +162,19 @@ export class Gear<T> {
     }
 }
 
-export class GearNumber extends Gear<Number> { }
-export class GearString extends Gear<string> { }
-export class GearBool extends Gear<boolean> { }
-export class GearColor extends Gear<Color> { }
+export class GearNumber extends Gear { }
+export class GearString extends Gear { }
+export class GearBool extends Gear { }
+export class GearColor extends Gear { }
 
-export class GearStrColor extends Gear<string> {
+export class GearStrColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: string, newValue: string): void {
         super.doTween(obj, key, oldValue, newValue);
         this._tween.interp(Tween.seperateChannel);
     }
 }
 
-export class GearHexColor extends Gear<Number> {
+export class GearHexColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: number, newValue: number): void {
         super.doTween(obj, key, oldValue, newValue);
         this._tween.interp(Tween.seperateChannel, 4);

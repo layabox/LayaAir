@@ -250,7 +250,7 @@ export class GComboBox extends GLabel {
     }
 
     protected setCurrentState() {
-        let p = (this._dropdown && this._dropdown.parent) ? ButtonStatus.Down : (this._over ? ButtonStatus.Over : ButtonStatus.Up);
+        let p = (this._dropdown && this._dropdown.displayedInStage) ? ButtonStatus.Down : (this._over ? ButtonStatus.Over : ButtonStatus.Up);
         this.setState(this.grayed ? ButtonStatus.Disabled : p);
     }
 

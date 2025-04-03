@@ -22,3 +22,7 @@ export class ILaya {
     static physicsTimer: Timer = null;
     static stage: Stage = null;
 }
+
+export declare type Mutable<T> = {
+    -readonly [P in keyof T]: T[P]
+};
