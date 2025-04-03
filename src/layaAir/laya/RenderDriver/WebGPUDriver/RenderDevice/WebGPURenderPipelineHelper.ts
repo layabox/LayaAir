@@ -398,10 +398,10 @@ export class WebGPUPrimitiveState {
         }
         switch (frontFace) {
             case FrontFace.CCW:
-                state.frontFace = "cw"; //由于WebGPU和WebGL的坐标系不同，这里需要反转
+                state.frontFace = "ccw"; //由于WebGPU和WebGL的坐标系不同，这里需要反转
                 break;
             case FrontFace.CW:
-                state.frontFace = "ccw";
+                state.frontFace = "cw";
                 break;
         }
         return state;

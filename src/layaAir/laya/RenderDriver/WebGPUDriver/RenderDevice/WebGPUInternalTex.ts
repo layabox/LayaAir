@@ -13,7 +13,15 @@ import { WebGPUStatis } from "./WebGPUStatis/WebGPUStatis";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
-    resource: GPUTexture;
+    private _resource: GPUTexture;
+    public get resource(): GPUTexture {
+        return this._resource;
+    }
+    public set resource(value: GPUTexture) {
+        this._resource = value;
+        this._gpuView = null;
+        this.getTextureView();
+    }
     dimension: TextureDimension;
     width: number;
     height: number;
@@ -206,7 +214,11 @@ export class WebGPUInternalTex implements InternalTexture {
         this._statistics_RC_TextureA = GPUEngineStatisticsInfo.RC_ALLRenderTexture;
     }
 
-    getTextureView(): GPUTextureView {
+    _gpuView: GPUTextureView;
+    getTextureView() {
+        if (this._gpuView) {
+            return this._gpuView;
+        }
         let dimension: GPUTextureViewDimension;
         switch (this.dimension) {
             case TextureDimension.Tex2D:
@@ -235,7 +247,8 @@ export class WebGPUInternalTex implements InternalTexture {
             baseMipLevel: this.baseMipmapLevel,
             mipLevelCount: this.maxMipmapLevel - this.baseMipmapLevel + 1,
         }
-        return this.resource.createView(descriptor);
+        this._gpuView = this.resource.createView(descriptor);
+        return this._gpuView;
     }
 
     private _changeTexMemory(memory: number) {

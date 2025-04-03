@@ -134,12 +134,12 @@ export class WebGPUUniformBufferDescriptor {
                 bufferStruct[structKey] = arraystruct;
             }
         }
-        let strucbuffer = new wgsl.StructBuffer(bufferStruct, true, true);
+        let strucbuffer = new wgsl.StructBuffer(bufferStruct, false, true);
         //console.log(strucbuffer);
         let infos = strucbuffer.info;
         this._byteLength = strucbuffer.buffer.length;
         //
-        this._byteLength = (Math.ceil(this._byteLength / 16) + 2) * 16;//ubo最小16的倍数
+        this._byteLength = (Math.ceil(this._byteLength / 16)) * 16;//ubo最小16的倍数
         for (const [key, value] of uniforms) {
             let offset, viewByteLength, size, alignStride;
             size = this._getsize(value.uniformtype);
