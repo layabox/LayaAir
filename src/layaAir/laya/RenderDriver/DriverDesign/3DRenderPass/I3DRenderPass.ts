@@ -13,7 +13,9 @@ import { IRenderCMD } from "./IRendderCMD";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Viewport } from "../../../maths/Viewport";
+import { ISceneRenderManager } from "./ISceneRenderManager";
 export interface IRender3DProcess {
+    render3DManager: ISceneRenderManager;
     fowardRender(context: IRenderContext3D, camera: Camera): void;
     destroy(): void;
 }

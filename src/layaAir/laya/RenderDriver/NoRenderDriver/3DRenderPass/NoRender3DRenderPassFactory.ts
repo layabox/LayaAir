@@ -2,7 +2,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Camera } from "../../../d3/core/Camera";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
+import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
@@ -45,7 +45,7 @@ export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
         return new NoRenderSkinRenderElement3D();
     }
     createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManagerOBJ();
+        return new NoRenderSceneRenderManager();
     }
     createDrawNodeCMDData(): DrawNodeCMDData {
         return new NoRenderDrawNodeCMDData();
@@ -71,12 +71,37 @@ export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
 }
 
 export class NoRenderRender3DProcess implements IRender3DProcess {
+    render3DManager: NoRenderSceneRenderManager;
     destroy(): void {
     }
     fowardRender(context: IRenderContext3D, camera: Camera): void {
     }
 }
+export class NoRenderSceneRenderManager implements ISceneRenderManager {
+    addRenderObject(object: BaseRender): void {
 
+    }
+    removeRenderObject(object: BaseRender): void {
+
+    }
+    removeMotionObject(object: BaseRender): void {
+
+    }
+    addMotionObject(object: BaseRender): void {
+
+    }
+    updateMotionObjects(): void {
+
+    }
+    destroy(): void {
+        this.list.clear();
+        this.baseRenderList.clear();
+        this.list = null;
+        this.baseRenderList = null;
+    }
+    list: FastSinglelist<BaseRender> = new SingletonList();
+    baseRenderList: FastSinglelist<IBaseRenderNode> = new SingletonList();
+}
 export class NoRenderRenderContext3D implements IRenderContext3D {
     globalShaderData: ShaderData;
     sceneData: ShaderData;

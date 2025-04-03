@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
-import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
 import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
@@ -18,6 +17,7 @@ import { WebGPUSetViewportCMD } from "./WebGPURenderCMD/WebGPUSetViewportCMD";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
+import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 
 /**
  * WebGPU渲染工厂类
@@ -43,8 +43,8 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGPUSkinRenderElement3D();
     }
-    createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManagerOBJ();
+    createSceneRenderManager(): WebSceneRenderManager {
+        return new WebSceneRenderManager();
     }
     createDrawNodeCMDData(): DrawNodeCMDData {
         return new WebGPUDrawNodeCMDData();

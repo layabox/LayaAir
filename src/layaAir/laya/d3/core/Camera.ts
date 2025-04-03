@@ -1370,7 +1370,7 @@ export class Camera extends BaseCamera {
         context.scene = scene;
         context.camera = this;
         scene._setCullCamera(this);
-
+        this._Render3DProcess.render3DManager = scene.sceneRenderableManager._sceneManagerOBJ;
         let viewport = this.viewport;
         let needInternalRT = this._needInternalRenderTexture();
 

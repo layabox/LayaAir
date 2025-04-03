@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
-import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { NotImplementedError } from "../../../utils/Error";
 import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
@@ -15,6 +14,7 @@ import { GLESRenderContext3D } from "./GLESRenderContext3D";
 import { GLESRenderElement3D } from "./GLESRenderElement3D";
 import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
+import { RTScene3DRenderManager } from "../../RenderModuleData/RuntimeModuleData/3D/RTScene3DRenderManager";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
     createInstanceBatch(): IInstanceRenderBatch {
@@ -62,7 +62,7 @@ export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
     }
 
     createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManagerOBJ();
+        return new RTScene3DRenderManager();
     }
     createSkinRenderElement(): GLESSkinRenderElement3D {
         return new GLESSkinRenderElement3D();
