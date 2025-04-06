@@ -1,17 +1,21 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
+import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
@@ -19,29 +23,81 @@ import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
  * WebGPU渲染上下文（2D）
  */
 export class WebGPURenderContext2D implements IRenderContext2D {
+    static _instance: WebGPURenderContext2D;
+    static _globalConfigShaderData: WebDefineDatas;
+
+
     device: GPUDevice; //GPU设备
-    destRT: WebGPUInternalRT;
+
+    sceneData: WebGPUShaderData;
+
     invertY: boolean = false;
+
     pipelineMode: string = 'Forward';
-    _globalConfigShaderData: WebDefineDatas;
+
+    _sceneBindGroup: WebGPUBindGroup;
+
+    _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
+
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
-    pipelineCache: any[] = []; //所有的2D渲染管线缓存
+
+    _destRT: WebGPUInternalRT;
 
     private _offscreenWidth: number;
+
     private _offscreenHeight: number;
+
     private _needClearColor: boolean;
+
     private _needStart: boolean = true;
+
     private _viewport: Viewport;
+
     private _clearColor: Color;
 
     constructor() {
-        this._globalConfigShaderData = Shader3D._configDefineValues;
+        WebGPURenderContext2D._instance = this;
+        WebGPURenderContext2D._globalConfigShaderData = Shader3D._configDefineValues;
+        this.device = WebGPURenderEngine._instance.getDevice();
         this._clearColor = new Color();
         this._viewport = new Viewport();
     }
-    sceneData: ShaderData;
+
+
+    /**@internal */
+    _needGlobalData() {
+        return !!this.sceneData;
+    }
+
+    private _prepareContext() {
+        //shaderDefine
+        let comDef = this._cacheGlobalDefines;
+        if (this.sceneData) {
+            this.sceneData._defineDatas.cloneTo(comDef);
+        } else {
+            WebGPURenderContext2D._globalConfigShaderData.cloneTo(comDef);
+        }
+        let returnGamma: boolean = !(this._destRT) || ((this._destRT)._textures[0].gammaCorrection != 1);
+        if (returnGamma) {
+            comDef.add(ShaderDefines2D.GAMMASPACE);
+        } else {
+            comDef.remove(ShaderDefines2D.GAMMASPACE);
+        }
+
+        if (this.invertY) {
+            comDef.add(ShaderDefines2D.INVERTY);
+        } else {
+            comDef.remove(ShaderDefines2D.INVERTY);
+        }
+
+        if (this.sceneData) {
+            let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
+            this.sceneData._createOrGetBindGroup("Sprite2DGlobal", "Sprite2DGlobal", 0, unifcom._idata);
+        }
+    }
+
     getRenderTarget(): InternalRenderTarget {
-        return this.destRT;
+        return this._destRT;
     }
 
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement2D>): number {
@@ -52,14 +108,15 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._start();
             this._needStart = false;
         }
+        this._prepareContext();
 
-        //如果使用全局上下文，先清除上下文缓存
-        // if (WebGPUGlobal.useGlobalContext)
-        //     WebGPUContext.startRender();
-
+        const elements = list.elements;
         for (let i = 0, n = list.length; i < n; i++) {
-            list.elements[i].prepare(this);
-            list.elements[i].render(this, this.renderCommand);
+            elements[i]._prepare(this);
+        }
+        WebGPURenderEngine._instance.gpuBufferMgr.upload();
+        for (let i = 0, n = list.length; i < n; i++) {
+            elements[i]._render(this, this.renderCommand);
         }
         this._submit();
         return 0;
@@ -73,8 +130,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     setRenderTarget(value: WebGPUInternalRT, clear: boolean, clearColor: Color): void {
         this._needClearColor = clear;
         clearColor && clearColor.cloneTo(this._clearColor);
-        if (this.destRT !== value) {
-            this.destRT = value;
+        if (this._destRT !== value) {
+            this._destRT = value;
             this._needStart = true;
         }
         if (value)
@@ -86,11 +143,12 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._start();
             this._needStart = false;
         }
+        this._prepareContext();
         //如果使用全局上下文，先清除上下文缓存
         // if (WebGPUGlobal.useGlobalContext)
         //     WebGPUContext.startRender();
-        node.prepare(this);
-        node.render(this, this.renderCommand);
+        node._prepare(this);
+        node._render(this, this.renderCommand);
         this._submit();
     }
 
@@ -118,7 +176,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
      * 设置屏幕渲染目标
      */
     private _setScreenRT() {
-        if (!this.destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
+        if (!this._destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
             WebGPURenderEngine._instance._screenRT._textures[0].resource = WebGPURenderEngine._instance._context.getCurrentTexture();
             WebGPURenderEngine._instance._screenRT._textures[0].multiSamplers = 1;
             this.setRenderTarget(WebGPURenderEngine._instance._screenRT, this._needClearColor, this._clearColor);
@@ -130,9 +188,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
      */
     private _start() {
         this._setScreenRT();
-        this.device = WebGPURenderEngine._instance.getDevice();
         const renderPassDesc: GPURenderPassDescriptor
-            = WebGPURenderPassHelper.getDescriptor(this.destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
+            = WebGPURenderPassHelper.getDescriptor(this._destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
         this.renderCommand.startRender(renderPassDesc);
         this.renderCommand.setViewport(this._viewport.x, this._viewport.y, this._viewport.width, this._viewport.height, 0, 1);
         this._needClearColor = false;

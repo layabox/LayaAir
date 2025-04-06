@@ -100,8 +100,6 @@ export class Shader3D {
     static SHADERDEFINE_FLOATTEXTURE: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR: ShaderDefine;
-    /**@internal WebGPU等平台坐标系Y翻转 */
-    static SHADERDEFINE_BLITSCREEN_INVERTY: ShaderDefine;
     /**@internal opengl webgl 需要重新映射深度值 */
     static SHADERDEFINE_REMAP_POSITIONZ: ShaderDefine;
     /**@internal 是否支持指定LOD的贴图采样 */

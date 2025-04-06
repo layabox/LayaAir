@@ -2,9 +2,6 @@
 varying vec2 v_Texcoord0;
 vec4 remapPositionZ(vec4 position)
 {
-    #ifdef BLITSCREEN_INVERTY
-    position.y = -position.y;
-    #endif
     return position;
 }
 void main() {

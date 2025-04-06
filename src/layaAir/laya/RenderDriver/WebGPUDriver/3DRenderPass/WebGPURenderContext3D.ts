@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -24,6 +23,7 @@ import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
  * WebGPU渲染上下文
  */
 export class WebGPURenderContext3D implements IRenderContext3D {
+    static _instance: WebGPURenderContext3D;
     /**@internal */
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
     /**@internal */
@@ -68,16 +68,21 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     private _blitFrameCount: number = 0; //渲染到屏幕时的帧序号,如果是帧刚开始，便清处上一帧数据
 
     private _blitScreen: boolean = false; //正在渲染到屏幕
+
+    private _viewScissorSaved: boolean = false;
+
+    private _viewPortSave: Viewport = new Viewport();
+
+    private _scissorSave: Vector4 = new Vector4();
+
     device: GPUDevice; //GPU设备
+
     destRT: WebGPUInternalRT; //渲染目标
 
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
 
-    private _viewScissorSaved: boolean = false;
-    private _viewPortSave: Viewport = new Viewport();
-    private _scissorSave: Vector4 = new Vector4();
 
-    static _instance: WebGPURenderContext3D;
+
 
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();

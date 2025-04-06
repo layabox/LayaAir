@@ -12,7 +12,7 @@ import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { WebGPURenderContext2D } from "../2DRenderPass/WebGPURenderContext2D";
 
 /**
  * WebGPU着色器实例
@@ -20,23 +20,28 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 export class WebGPUShaderInstance implements IShaderInstance {
     static idCounter: number = 0;
 
-    /**
-     * @internal
-     */
-    _id: number = WebGPUShaderInstance.idCounter++;
-    /**
-     * @internal
-     */
-    _shaderPass: ShaderPass;
-
     private _vsShader: GPUShaderModule;
+
     private _fsShader: GPUShaderModule;
 
     private _destroyed: boolean = false;
 
     private _gpuPipelineLayout: GPUPipelineLayout;
 
+    private _commanMap: string[] = [];
+
+    /**
+     * @internal
+     */
+    _id: number = WebGPUShaderInstance.idCounter++;
+
+    /**
+     * @internal
+     */
+    _shaderPass: ShaderPass;
+
     name: string;
+
     complete: boolean = false;
 
     uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
@@ -115,34 +120,14 @@ export class WebGPUShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         const engine = WebGPURenderEngine._instance;
         const device = engine.getDevice();
-        let strArray: string[] = [];
+        this._shaderPass = shaderPass;
+
         if (!shaderProcessInfo.is2D) {
-            //global
-            let context = WebGPURenderContext3D._instance;
-            let preDrawUniforms = context._preDrawUniformMaps;
-            this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms));
-            //camera
-            this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]);
-            //sprite+additional
-
-            strArray = strArray.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
-            this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, strArray);
-
-            let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(shaderPass.name) as WebGPUCommandUniformMap);
-            if (map._idata.size == 0) {
-                //组织一下
-                for (const [key, value] of shaderPass._owner._uniformMap) {
-                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength > 1 ? value.arrayLength : 0);
-                }
-                map._stateID = LayaGL.renderEngine.propertyNameToID("Material");
-
-            }
-
-            //material
-            this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap);
+            this._create3D();
+        } else {
+            this._create2D();
         }
 
-        this._shaderPass = shaderPass;
         let attriLocArray = ((shaderPass.moduleData as any).geo as WebGPURenderGeometry).bufferState._attriLocArray;
 
         let filteredAttributeMap: Record<string, [number, ShaderDataType]> = {};
@@ -152,9 +137,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             }
         }
 
-
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, strArray, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
-
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this._commanMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
@@ -176,6 +159,55 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
 
         this.complete = true;
+    }
+
+    private _generateMaterialCommandMap() {
+        let shaderpass = this._shaderPass;
+        let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(shaderpass.name) as WebGPUCommandUniformMap);
+        if (map._idata.size == 0) {
+            //组织一下
+            for (const [key, value] of shaderpass._owner._uniformMap) {
+                map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength > 1 ? value.arrayLength : 0);
+            }
+            map._stateID = LayaGL.renderEngine.propertyNameToID("Material");
+        }
+    }
+
+
+    private _create2D(): void {
+        let shaderpass = this._shaderPass;
+        let context = WebGPURenderContext2D._instance;
+        //sprite2DGlobal
+        if (context._needGlobalData())
+            this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, ["Sprite2DGlobal"]);
+        else
+            this.uniformSetMap[0] = [];
+        this._commanMap = shaderpass.nodeCommonMap.slice();
+        this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap);
+        if (shaderpass._owner._uniformMap.size > 0) {
+            this._generateMaterialCommandMap();
+            this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderpass.name, shaderpass._owner._uniformMap);
+        } else
+            this.uniformSetMap[2] = [];
+
+        this.uniformSetMap[3] = [];
+    }
+
+    private _create3D(): void {
+        let shaderPass = this._shaderPass;
+        //global
+        let context = WebGPURenderContext3D._instance;
+        let preDrawUniforms = context._preDrawUniformMaps;
+        this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms));
+        //camera
+        this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]);
+        //sprite+additional
+        this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
+        this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap);
+
+        this._generateMaterialCommandMap();
+        //material
+        this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap);
     }
 
     private _createBindGroupLayout(set: number, name: string) {

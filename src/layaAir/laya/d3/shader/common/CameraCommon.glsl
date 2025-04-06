@@ -47,9 +47,6 @@ vec3 getViewDirection(in vec3 positionWS)
 // 根据投影矩阵重映射深度
 vec4 remapPositionZ(vec4 position)
 {
-    #ifdef BLITSCREEN_INVERTY
-    position.y = -position.y;
-    #endif
 
     #ifdef REMAP_Z
     position.z = position.z * 2.0 - position.w;
