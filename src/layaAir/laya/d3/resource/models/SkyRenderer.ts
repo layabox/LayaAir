@@ -147,6 +147,7 @@ export class SkyRenderer {
             skyRenderElement.material = this._material;
             skyRenderElement.render = this._renderData;
             skyRenderElement._renderElementOBJ.isRender = this._renderGeometry;
+            this._baseRenderNode.shaderData = this._renderData._baseRenderNode.shaderData;
             this._baseRenderNode.setRenderelements([skyRenderElement._renderElementOBJ]);
             this._baseRenderNode.setCommonUniformMap([
                 "Sprite3D",

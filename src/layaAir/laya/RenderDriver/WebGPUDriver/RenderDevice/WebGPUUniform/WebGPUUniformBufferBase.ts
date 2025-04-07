@@ -149,11 +149,12 @@ export class WebGPUUniformBufferDescriptor {
                 tsc = Int32Array;
 
             if (value.arrayLength > 1) {
-                let info: Array<uniformInfo> = infos[value.propertyName];
+                let info: Array<{ structKey: uniformInfo }> = infos[value.propertyName];
                 //第一个的offset  最后一个的offset+size
-                offset = info[0].offset;
-                viewByteLength = info[0].size * info.length;
-                alignStride = info[0].size / tsc.BYTES_PER_ELEMENT;
+                offset = info[0].structKey.offset;
+                let oneElementbyte = info[1].structKey.offset - offset;
+                viewByteLength = oneElementbyte * info.length;
+                alignStride = info[0].structKey.size / tsc.BYTES_PER_ELEMENT;
 
             } else {
                 let info: uniformInfo = infos[value.propertyName];

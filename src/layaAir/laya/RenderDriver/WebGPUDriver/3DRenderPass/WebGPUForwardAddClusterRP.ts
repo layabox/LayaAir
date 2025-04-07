@@ -1,3 +1,4 @@
+import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { ForwardAddClusterRP } from "../../DriverCommon/ForwardAddClusterRP";
 import { RenderPassUtil } from "../../DriverCommon/RenderPassUtil";
@@ -12,7 +13,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         super();
         let context = WebGPURenderContext3D._instance;
         context._preDrawUniformMaps.add("Scene3D");
-      
+
         context._preDrawUniformMaps.add("Global");
     }
     /**
@@ -33,8 +34,11 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         if (this.skyRenderNode) {
             context.setClearData(RenderClearFlag.Depth, this.clearColor, 1, 0);
             const skyRenderElement = this.skyRenderNode.renderelements[0] as IRenderElement3D;
-            if (skyRenderElement.subShader)
+            if (skyRenderElement.subShader) {
+                Laya3DRender.Render3DPassFactory.updateRenderNode(this.skyRenderNode, context);
                 context.drawRenderElementOne(skyRenderElement);
+            }
+
         }
         this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 

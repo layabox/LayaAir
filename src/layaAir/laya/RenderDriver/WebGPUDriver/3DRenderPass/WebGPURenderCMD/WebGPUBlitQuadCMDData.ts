@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Command } from "../../../../d3/core/render/command/Command";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
@@ -79,6 +80,9 @@ export class WebGPUBlitQuadCMDData extends BlitQuadCMDData {
         context.setViewPort(this._viewport);
         context.setScissor(this._scissor);
         context.setRenderTarget(this.dest, RenderClearFlag.Nothing);
+        if (this.element.owner) {
+            Laya3DRender.Render3DPassFactory.updateRenderNode(this.element.owner, context)
+        }
         context.drawRenderElementOne(this.element);
     }
 }
