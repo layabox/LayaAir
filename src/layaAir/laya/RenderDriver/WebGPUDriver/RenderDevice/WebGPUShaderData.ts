@@ -669,8 +669,10 @@ export class WebGPUShaderData extends ShaderData {
         if (value && (value as any).bitmap) value = (value as any).bitmap;
         //维护Reference
         this._textureData[index] = value;
-        if (value && value._texture) {
+        if (value) {
             this._setInternalTexture(index, (value._texture as WebGPUInternalTex));
+        } else {
+            this._setInternalTexture(index, null);
         }
         lastValue && lastValue._removeReference();
         value && value._addReference();
@@ -696,12 +698,19 @@ export class WebGPUShaderData extends ShaderData {
             }
             this._data[index] = value;
             let arra = this._textureCacheUpdateMap.get(index);
-            if(arra){
+            if (arra) {
                 for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
-                    this._bindGroupLastUpdateMask.set(item, Stat.loopCount);
+                    let oldMask = this._bindGroupLastUpdateMask.get(item)
+                    let mask: number;
+                    if (oldMask >= Stat.loopCount) {
+                        mask = Stat.loopCount++;
+                    } else {
+                        mask = Stat.loopCount;
+                    }
+                    this._bindGroupLastUpdateMask.set(item, mask);
                 }
             }
-         
+
         }
     }
 
