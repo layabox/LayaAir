@@ -44,7 +44,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     complete: boolean = false;
 
-    uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
+    uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
 
     constructor(name: string) {
         this.name = name;
@@ -137,7 +137,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             }
         }
 
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this._commanMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
@@ -179,18 +179,20 @@ export class WebGPUShaderInstance implements IShaderInstance {
         let context = WebGPURenderContext2D._instance;
         //sprite2DGlobal
         if (context._needGlobalData())
-            this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, ["Sprite2DGlobal"]);
+            this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, ["Sprite2DGlobal"]));
         else
-            this.uniformSetMap[0] = [];
+            this.uniformSetMap.set(0, []);
+
         this._commanMap = shaderpass.nodeCommonMap.slice();
-        this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap);
+
+        this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap));
         if (shaderpass._owner._uniformMap.size > 0) {
             this._generateMaterialCommandMap();
-            this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderpass.name, shaderpass._owner._uniformMap);
+            this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderpass.name, shaderpass._owner._uniformMap));
         } else
-            this.uniformSetMap[2] = [];
+            this.uniformSetMap.set(2, []);
 
-        this.uniformSetMap[3] = [];
+        this.uniformSetMap.set(3, []);
     }
 
     private _create3D(): void {
@@ -198,20 +200,20 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //global
         let context = WebGPURenderContext3D._instance;
         let preDrawUniforms = context._preDrawUniformMaps;
-        this.uniformSetMap[0] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms));
+        this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms)));
         //camera
-        this.uniformSetMap[1] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]);
+        this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
         //sprite+additional
         this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
-        this.uniformSetMap[2] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap);
+        this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
 
         this._generateMaterialCommandMap();
         //material
-        this.uniformSetMap[3] = WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap);
+        this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
     }
 
     private _createBindGroupLayout(set: number, name: string) {
-        const data: WebGPUUniformPropertyBindingInfo[] = this.uniformSetMap[set];
+        const data: WebGPUUniformPropertyBindingInfo[] = this.uniformSetMap.get(set);
         let entries: GPUBindGroupLayoutEntry[] = [];
         const desc: GPUBindGroupLayoutDescriptor = {
             label: name,

@@ -407,16 +407,16 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (shaderInstance.uniformSetMap[0].length > 0) {
+        if (shaderInstance.uniformSetMap.get(0).length > 0) {
             command.setBindGroup(0, context._sceneBindGroup.gpuRS);
         }
-        if (shaderInstance.uniformSetMap[1].length > 0) {
+        if (shaderInstance.uniformSetMap.get(1).length > 0) {
             command.setBindGroup(1, context._cameraBindGroup.gpuRS);
         }
-        if (shaderInstance.uniformSetMap[2].length > 0) {//additional & Sprite3D NodeModule
+        if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
             command.setBindGroup(2, (this.owner._driverCacheData as WebGPUDriverRenderNodeCacheData).bindGroup.gpuRS);
         }
-        if (shaderInstance.uniformSetMap[3].length > 0) {
+        if (shaderInstance.uniformSetMap.get(3).length > 0) {
             command.setBindGroup(3, this.materialShaderData._createOrGetBindGroup("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
         }
     }

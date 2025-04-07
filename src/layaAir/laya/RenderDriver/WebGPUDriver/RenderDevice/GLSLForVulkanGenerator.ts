@@ -5,6 +5,7 @@ import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
+import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 
 
@@ -29,7 +30,7 @@ type WebGPUAttributeMapType = {
  */
 export class GLSLForVulkanGenerator {
 
-    static process(defines: string[], attributeMap: WebGPUAttributeMapType, commanMap: string[], uniformMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
+    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
 
         let defMap: { [key: string]: boolean } = {};
         for (const define of defines) {
@@ -61,7 +62,8 @@ export class GLSLForVulkanGenerator {
 
         const attributeStrs = attributeString(attributeMap);
 
-        const uniformStrs = uniformString(commanMap, uniformMap);
+        // const uniformStrs = uniformString(commanMap, uniformMap);
+        const uniformStrs = uniformString2(uniformMap, materialMap);
 
         const varyings = executeVaryings(fragmentCode, vertexCode);
 
@@ -174,7 +176,7 @@ ${attributeDefines}
 `;
 }
 
-function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number) {
+function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number, skipTexture: boolean) {
     let textureUniforms: UniformProperty[] = [];
     let blockUniforms: UniformProperty[] = [];
 
@@ -211,7 +213,7 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
 `
     }
 
-    if (textureUniforms.length > 0) {
+    if (!skipTexture && textureUniforms.length > 0) {
         for (let uniform of textureUniforms) {
 
             switch (uniform.uniformtype) {
@@ -243,7 +245,7 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
 
 function uniformBlockString(name: string, set: number, bindOffset: number) {
     let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
-    return uniformMapString(uniformMap._idata, name, set, bindOffset);
+    return uniformMapString(uniformMap._idata, name, set, bindOffset, false);
 }
 
 function uniformString(commonMap: string[], materialUniforms: Map<number, UniformProperty>) {
@@ -262,9 +264,40 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
         commonMapSet.binding = set.binding;
     }
 
-    let materialSet = uniformMapString(materialUniforms, "Material", 3, 0);
+    let materialSet = uniformMapString(materialUniforms, "Material", 3, 0, false);
 
     return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
+}
+
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>) {
+    let res = "";
+    uniformSetMap.forEach((value, key) => {
+        if (value.length > 0) {
+            for (let uniform of value) {
+                switch (uniform.type) {
+                    case WebGPUBindingInfoType.buffer:
+                        {
+                            let uniformMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as WebGPUCommandUniformMap)._idata;
+                            if (key == 3) {
+                                uniformMap = materialMap;
+                            }
+
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true).code}\n`;
+                            break;
+                        }
+                    case WebGPUBindingInfoType.texture:
+                        res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform texture2D ${uniform.name};\n`
+                        break;
+                    case WebGPUBindingInfoType.sampler:
+                        res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    });
+    return res;
 }
 
 
