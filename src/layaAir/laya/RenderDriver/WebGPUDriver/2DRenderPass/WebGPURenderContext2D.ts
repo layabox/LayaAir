@@ -78,16 +78,16 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             WebGPURenderContext2D._globalConfigShaderData.cloneTo(comDef);
         }
         let returnGamma: boolean = !(this._destRT) || ((this._destRT)._textures[0].gammaCorrection != 1);
-        if (returnGamma) {
-            comDef.add(ShaderDefines2D.GAMMASPACE);
-        } else {
+        if (returnGamma) {//这里为啥是反的？
             comDef.remove(ShaderDefines2D.GAMMASPACE);
+        } else {
+            comDef.add(ShaderDefines2D.GAMMASPACE);
         }
 
-        if (this.invertY) {
-            comDef.add(ShaderDefines2D.INVERTY);
-        } else {
+        if (this.invertY) {//这里为啥是反的？
             comDef.remove(ShaderDefines2D.INVERTY);
+        } else {
+            comDef.add(ShaderDefines2D.INVERTY);
         }
 
         if (this.sceneData) {
