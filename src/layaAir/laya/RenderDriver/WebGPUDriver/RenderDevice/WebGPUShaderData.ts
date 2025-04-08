@@ -189,7 +189,7 @@ export class WebGPUShaderData extends ShaderData {
         }
 
         //create WebGPUSubUniform
-        let uniformBuffer = new WebGPUSubUniformBuffer(name, uniformMap);
+        let uniformBuffer = new WebGPUSubUniformBuffer(cacheName, uniformMap, this);
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
@@ -284,7 +284,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     _setBindGroupCacheInfo(key: string, infos: WebGPUUniformPropertyBindingInfo[]) {
         for (const item of infos) {
-            if (item.type == WebGPUBindingInfoType.texture) {
+            if (item.type != WebGPUBindingInfoType.sampler) {
                 if (this._textureCacheUpdateMap.has(item.propertyId)) {
                     this._textureCacheUpdateMap.get(item.propertyId).add(key);
                 } else {
@@ -725,20 +725,24 @@ export class WebGPUShaderData extends ShaderData {
                 }
             }
             this._data[index] = value;
-            let arra = this._textureCacheUpdateMap.get(index);
-            if (arra) {
-                for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
-                    let oldMask = this._bindGroupLastUpdateMask.get(item)
-                    let mask: number;
-                    if (oldMask >= Stat.loopCount) {
-                        mask = Stat.loopCount++;
-                    } else {
-                        mask = Stat.loopCount;
-                    }
-                    this._bindGroupLastUpdateMask.set(item, mask);
-                }
-            }
+            this._notifyBindGroupMask(index);
 
+        }
+    }
+
+    _notifyBindGroupMask(index: number) {
+        let arra = this._textureCacheUpdateMap.get(index);
+        if (arra) {
+            for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
+                let oldMask = this._bindGroupLastUpdateMask.get(item)
+                let mask: number;
+                if (oldMask >= Stat.loopCount) {
+                    mask = Stat.loopCount++;
+                } else {
+                    mask = Stat.loopCount;
+                }
+                this._bindGroupLastUpdateMask.set(item, mask);
+            }
         }
     }
 
