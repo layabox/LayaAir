@@ -82,7 +82,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
             return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
         this._updateMark = context3D.cameraUpdateMask;
-        Laya3DRender.Render3DPassFactory.updateRenderNode && Laya3DRender.Render3DPassFactory.updateRenderNode(this, context3D);
     }
 
     _calculateBoundingBox() {

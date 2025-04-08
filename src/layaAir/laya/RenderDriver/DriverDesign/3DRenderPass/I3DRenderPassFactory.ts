@@ -6,8 +6,6 @@ import { ISceneRenderManager } from "./ISceneRenderManager";
 
 export interface I3DRenderPassFactory {
 
-    updateRenderNode?(node: IBaseRenderNode, context: IRenderContext3D): void;
-
     createRender3DProcess(): IRender3DProcess;
 
     createRenderContext3D(): IRenderContext3D;

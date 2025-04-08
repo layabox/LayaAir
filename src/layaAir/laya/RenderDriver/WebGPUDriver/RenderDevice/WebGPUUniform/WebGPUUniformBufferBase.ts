@@ -154,7 +154,7 @@ export class WebGPUUniformBufferDescriptor {
                 offset = info[0].structKey.offset;
                 let oneElementbyte = info[1].structKey.offset - offset;
                 viewByteLength = oneElementbyte * info.length;
-                alignStride = info[0].structKey.size / tsc.BYTES_PER_ELEMENT;
+                alignStride = oneElementbyte / tsc.BYTES_PER_ELEMENT;
 
             } else {
                 let info: uniformInfo = infos[value.propertyName];

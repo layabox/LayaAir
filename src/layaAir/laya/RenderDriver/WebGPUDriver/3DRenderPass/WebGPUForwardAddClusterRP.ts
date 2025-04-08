@@ -3,6 +3,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { ForwardAddClusterRP } from "../../DriverCommon/ForwardAddClusterRP";
 import { RenderPassUtil } from "../../DriverCommon/RenderPassUtil";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebGPU3DRenderPassFactory } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 /**
@@ -31,15 +32,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 
-        if (this.skyRenderNode) {
-            context.setClearData(RenderClearFlag.Depth, this.clearColor, 1, 0);
-            const skyRenderElement = this.skyRenderNode.renderelements[0] as IRenderElement3D;
-            if (skyRenderElement.subShader) {
-                Laya3DRender.Render3DPassFactory.updateRenderNode(this.skyRenderNode, context);
-                context.drawRenderElementOne(skyRenderElement);
-            }
-
-        }
+       
         this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
@@ -47,6 +40,14 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
             this._opaqueList.renderQueue(context);
             this._opaqueTexturePass();
         }
+
+        if (this.skyRenderNode) {
+            const skyRenderElement = this.skyRenderNode.renderelements[0] as IRenderElement3D;
+            if (skyRenderElement.subShader) {
+                context.drawRenderElementOne(skyRenderElement);
+            }
+        }
+        this.enableOpaque&&this._opaqueTexturePass();
         RenderPassUtil.renderCmd(this.beforeTransparentCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 

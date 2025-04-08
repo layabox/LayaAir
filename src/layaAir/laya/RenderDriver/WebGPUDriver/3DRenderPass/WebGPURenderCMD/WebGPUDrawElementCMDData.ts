@@ -22,9 +22,6 @@ export class WebGPUDrawElementCMDData extends DrawElementCMDData {
             context.drawRenderElementOne(this._elemets[0]);
         } else {
             this._elemets.forEach(element => {
-                if (element.owner) {
-                    Laya3DRender.Render3DPassFactory.updateRenderNode(element.owner, context)
-                }
                 context.drawRenderElementOne(element);
             });
         }

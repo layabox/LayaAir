@@ -2,6 +2,7 @@ import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -18,7 +19,7 @@ import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
-import { WebGPUDriverRenderNodeCacheData } from "./WebGPU3DRenderPassFactory";
+import { WebGPU3DRenderPassFactory, WebGPUDriverRenderNodeCacheData } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 /**
@@ -414,10 +415,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             command.setBindGroup(1, context._cameraBindGroup.gpuRS);
         }
         if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
-            command.setBindGroup(2, (this.owner._driverCacheData as WebGPUDriverRenderNodeCacheData).bindGroup.gpuRS);
+            let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
+            command.setBindGroup(2, bindgroup.gpuRS);
         }
         if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroup("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
+            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)).gpuRS);
         }
     }
 

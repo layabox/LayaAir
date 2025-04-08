@@ -29,6 +29,7 @@ import { WebGPUBindGroup, WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper"
 import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
+import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 
 /**
  * 着色器数据
@@ -214,7 +215,7 @@ export class WebGPUShaderData extends ShaderData {
    * @param command 
    * @param bundle 
    */
-    fillBindGroupEntry(commandMap: string, entryArray: GPUBindGroupEntry[], infos: WebGPUUniformPropertyBindingInfo[]) {
+    fillBindGroupEntry(commandMap: string, cacheName: string, entryArray: GPUBindGroupEntry[], infos: WebGPUUniformPropertyBindingInfo[]) {
         let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(commandMap) as WebGPUCommandUniformMap)
         let mapInfos = [];
         for (const item of infos) {
@@ -271,8 +272,8 @@ export class WebGPUShaderData extends ShaderData {
             }
         }
 
-        if (!this._bindGroupLastUpdateMask.has(commandMap)) {
-            this._setBindGroupCacheInfo(commandMap, mapInfos);
+        if (!this._bindGroupLastUpdateMask.has(cacheName)) {
+            this._setBindGroupCacheInfo(cacheName, mapInfos);
         }
     }
 
@@ -304,7 +305,7 @@ export class WebGPUShaderData extends ShaderData {
     }
 
 
-    _createOrGetBindGroup(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup {
+    _createOrGetBindGroupbyUniformMap(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup {
         let needRecreate = false;
         //判断是否已经缓存了相应的BindGroup
         needRecreate = !this._cacheBindGroup.has(cacheName) ||
@@ -323,7 +324,7 @@ export class WebGPUShaderData extends ShaderData {
                 entries: bindgroupEntriys
             };
             //填充bindgroupEntriys
-            this.fillBindGroupEntry(cacheName, bindgroupEntriys, bindGroupInfos);
+            this.fillBindGroupEntry(cacheName, cacheName, bindgroupEntriys, bindGroupInfos);
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroupGPU;
@@ -333,6 +334,33 @@ export class WebGPUShaderData extends ShaderData {
         } else {
             return this._cacheBindGroup.get(cacheName);
         }
+    }
+
+    _createOrGetBindGroupByBindInfoArray(name: string, cacheName: string, shaderinstance: WebGPUShaderInstance, bindGroup: number, bindInfoArray: WebGPUUniformPropertyBindingInfo[]): WebGPUBindGroup {
+        let needRecreate = false;
+        let cacheBindgroupKey = `${cacheName}_${bindGroup}_${shaderinstance._id}`;
+        needRecreate = !this._cacheBindGroup.has(cacheBindgroupKey) ||
+            this._cacheBindGroup.get(cacheBindgroupKey).isNeedCreate(this._getBindGroupLastUpdateMask(cacheBindgroupKey));
+        if (needRecreate) {
+            let bindGroupInfos = bindInfoArray;
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos);
+            let bindgroupEntriys: GPUBindGroupEntry[] = [];
+            let bindGroupDescriptor: GPUBindGroupDescriptor = {
+                label: "cacheBindgroupKey",
+                layout: groupLayout,
+                entries: bindgroupEntriys
+            };
+            this.fillBindGroupEntry(cacheName, cacheBindgroupKey, bindgroupEntriys, bindGroupInfos);
+            let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
+            let returns = new WebGPUBindGroup();
+            returns.gpuRS = bindGroupGPU;
+            returns.createMask = Stat.loopCount;
+            this._cacheBindGroup.set(cacheBindgroupKey, returns);
+            return returns;
+        } else {
+            return this._cacheBindGroup.get(cacheBindgroupKey);
+        }
+
     }
 
 

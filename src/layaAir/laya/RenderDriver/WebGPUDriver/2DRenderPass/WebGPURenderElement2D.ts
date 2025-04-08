@@ -294,7 +294,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             let shaderData = this.value2DShaderData;
             for (var com of this._nodeCommonMap) {
                 //shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
-                shaderData.fillBindGroupEntry(com, bindgroupEntriys, bindGroupArray);
+                shaderData.fillBindGroupEntry(com, com, bindgroupEntriys, bindGroupArray);
             }
 
             let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
@@ -317,7 +317,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             command.setBindGroup(1, this._value2DgpuRS.gpuRS);
         }
         if (this.materialShaderData) {
-            command.setBindGroup(2, this.materialShaderData._createOrGetBindGroup("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
+            command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
         }
     }
 

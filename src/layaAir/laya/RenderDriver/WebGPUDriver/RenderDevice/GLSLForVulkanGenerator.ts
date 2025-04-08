@@ -30,7 +30,7 @@ type WebGPUAttributeMapType = {
  */
 export class GLSLForVulkanGenerator {
 
-    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode) {
+    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number) {
 
         let defMap: { [key: string]: boolean } = {};
         for (const define of defines) {
@@ -84,12 +84,12 @@ export class GLSLForVulkanGenerator {
         // replace texture samplers function
 
 
-        let usedTexSet = new Set<string>();
 
-        vertexCode = replaceTextureSampler(vertexCode, usedTexSet);
-        fragmentCode = replaceTextureSampler(fragmentCode, usedTexSet);
 
-        const uniformStrs = uniformString2(uniformMap, materialMap, usedTexSet);
+        vertexCode = replaceTextureSampler(vertexCode, useTexArray);
+        fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
+
+        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, checkSetNumber);
 
 
 
@@ -276,7 +276,7 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
     return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
 }
 
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>) {
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, checkSetNumber: number) {
     let res = "";
     uniformSetMap.forEach((value, key) => {
         if (value.length > 0) {
@@ -293,7 +293,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                             break;
                         }
                     case WebGPUBindingInfoType.texture:
-                        if (usedTexSet.has(uniform.name) || true) {
+                        if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
 
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
@@ -301,7 +301,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                         }
                         break;
                     case WebGPUBindingInfoType.sampler:
-                        if (usedTexSet.has(uniform.name) || true) {
+                        if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                             let sampler = "sampler";
 
                             // todo

@@ -80,9 +80,6 @@ export class WebGPUBlitQuadCMDData extends BlitQuadCMDData {
         context.setViewPort(this._viewport);
         context.setScissor(this._scissor);
         context.setRenderTarget(this.dest, RenderClearFlag.Nothing);
-        if (this.element.owner) {
-            Laya3DRender.Render3DPassFactory.updateRenderNode(this.element.owner, context)
-        }
         context.drawRenderElementOne(this.element);
     }
 }

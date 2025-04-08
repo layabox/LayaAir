@@ -137,7 +137,45 @@ export class WebGPUShaderInstance implements IShaderInstance {
             }
         }
 
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+        let useTexSet = new Set<string>();
+        //如果是3D  只对set2（Node） 和set3（Material）的纹理进行剔除   如果剔除scene和camera 会产生大量的bindGroup
+        //如果是2D  TODO  暂时先不做剔出
+        let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer);
+
+        //去除无用的TextureBinding
+        let textureIndices: number[] = [];
+        for (const texName of useTexSet) {
+            let propertyIDName = texName;
+            // 去掉_texture和_Sample前缀
+            if (propertyIDName.endsWith("_Texture")) {
+                textureIndices.push(WebGPURenderEngine._instance.propertyNameToID(propertyIDName.substring(0, propertyIDName.length - 8)));
+            }
+        }
+        // 遍历uniformSetMap，移除不在textureIndices中的纹理
+        for (const [setIndex, bindInfoArray] of this.uniformSetMap) {
+            if (setIndex < cullTextureSetLayer) {
+                continue;
+            }
+            // 创建一个新数组来存储过滤后的绑定信息
+            let filteredBindInfoArray: WebGPUUniformPropertyBindingInfo[] = [];
+
+            for (const bindInfo of bindInfoArray) {
+                // 检查是否为纹理类型
+                if (bindInfo.sampler || bindInfo.texture) {
+                    // 检查该纹理是否在textureIndices中
+                    if (textureIndices.includes(bindInfo.propertyId)) {
+                        filteredBindInfoArray.push(bindInfo);
+                    }
+                } else {
+                    // 非纹理类型直接保留
+                    filteredBindInfoArray.push(bindInfo);
+                }
+            }
+            // 用过滤后的数组替换原数组
+            this.uniformSetMap.set(setIndex, filteredBindInfoArray);
+        }
+
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
@@ -244,6 +282,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
                     break;
             }
         }
+        console.log(desc);
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 

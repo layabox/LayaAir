@@ -192,7 +192,7 @@ export class WebGPUBindGroupHelper {
     }
 
 
-    //传入Command的string Array，生成BindGroup
+    //传入Command的string Array 生成Scene和Camera用这个
     static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup {
         let infoArray: WebGPUUniformPropertyBindingInfo[] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray);
         const bindGroupKey = this._getBindGroupID(unifromCommandMapArray);
@@ -211,7 +211,7 @@ export class WebGPUBindGroupHelper {
         };
         //填充bindgroupEntriys
         for (var i = 0; i < unifromCommandMapArray.length; i++) {
-            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], bindgroupEntriys, infoArray);
+            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], unifromCommandMapArray[i], bindgroupEntriys, infoArray);
         }
 
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
