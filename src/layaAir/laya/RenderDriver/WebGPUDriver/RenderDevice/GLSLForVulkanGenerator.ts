@@ -63,7 +63,7 @@ export class GLSLForVulkanGenerator {
         const attributeStrs = attributeString(attributeMap);
 
         // const uniformStrs = uniformString(commanMap, uniformMap);
-        const uniformStrs = uniformString2(uniformMap, materialMap);
+
 
         const varyings = executeVaryings(fragmentCode, vertexCode);
 
@@ -82,8 +82,15 @@ export class GLSLForVulkanGenerator {
         vertexCode = vertexCode.replace(varyingRegex, '\n');
         fragmentCode = fragmentCode.replace(varyingRegex, '\n');
         // replace texture samplers function
-        vertexCode = replaceTextureSampler(vertexCode);
-        fragmentCode = replaceTextureSampler(fragmentCode);
+
+
+        let usedTexSet = new Set<string>();
+
+        vertexCode = replaceTextureSampler(vertexCode, usedTexSet);
+        fragmentCode = replaceTextureSampler(fragmentCode, usedTexSet);
+
+        const uniformStrs = uniformString2(uniformMap, materialMap, usedTexSet);
+
 
 
         // replace fragment out put
@@ -269,7 +276,7 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
     return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
 }
 
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>) {
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>) {
     let res = "";
     uniformSetMap.forEach((value, key) => {
         if (value.length > 0) {
@@ -286,10 +293,24 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                             break;
                         }
                     case WebGPUBindingInfoType.texture:
-                        res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform texture2D ${uniform.name};\n`
+                        if (usedTexSet.has(uniform.name) || true) {
+
+                            let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
+
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
+                        }
                         break;
                     case WebGPUBindingInfoType.sampler:
-                        res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`
+                        if (usedTexSet.has(uniform.name) || true) {
+                            let sampler = "sampler";
+
+                            // todo
+                            if (uniform.name == "u_ShadowMap_Sampler") {
+                                sampler = "samplerShadow";
+                            }
+
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`
+                        }
                         break;
                     default:
                         break;
@@ -341,50 +362,75 @@ function fragmentOutString(source: string) {
     return "layout(location = 0) out vec4 pc_fragColor;"
 }
 
-function replaceTextureSampler(source: string) {
+/**
+ * 
+ * @param source 
+ * @out usedTexSet 
+ * @returns 
+ */
+function replaceTextureSampler(source: string, usedTexSet: Set<string>) {
+
     const texture2DRegex = /texture2D\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
     let newSource = source.replace(texture2DRegex, (match, textureName, uvName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `texture(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
     });
 
     const textureCubeRegex = /textureCube\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(textureCubeRegex, (match, textureName, uvName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `texture(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
     });
 
     const texture2DProjRegex = /texture2DProj\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(texture2DProjRegex, (match, textureName, uvName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureProj(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
     });
 
     const texture2DLodEXTRegex = /texture2DLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(texture2DLodEXTRegex, (match, textureName, uvName, lodName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureLod(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
     });
 
     const texture2DProjLodEXTRegex = /texture2DProjLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(texture2DProjLodEXTRegex, (match, textureName, uvName, lodName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureProjLod(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
     });
 
     const textureCubeLodEXTRegex = /textureCubeLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(textureCubeLodEXTRegex, (match, textureName, uvName, lodName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureLod(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
     });
 
 
     const texture2DGradEXTRegex = /texture2DGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(texture2DGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureGrad(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
     });
 
     const texture2DProjGradEXTRegex = /texture2DProjGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(texture2DProjGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureProjGrad(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
     });
 
     const textureCubeGradEXTRegex = /textureCubeGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
     newSource = newSource.replace(textureCubeGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
+        usedTexSet.add(`${textureName}_Texture`);
+        usedTexSet.add(`${textureName}_Sampler`);
         return `textureGrad(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
     });
 
@@ -403,4 +449,37 @@ function additionDefineString() {
 #define SHADER_CAPAILITY_LEVEL ${LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL)}
 `
 
+}
+
+// todo
+function getSamplerTextureType(type: GPUTextureSampleType) {
+    switch (type) {
+        case "depth":
+            return "samplerShadow";
+        case "float":
+        case "unfilterable-float":
+        case "sint":
+        case "uint":
+        default:
+            return "sampler";
+    }
+}
+
+function getDimensionTextureType(type: GPUTextureViewDimension) {
+    switch (type) {
+        case "1d":
+            return "texture1D";
+        case "2d":
+            return "texture2D";
+        case "2d-array":
+            return "texture2DArray";
+        case "cube":
+            return "textureCube";
+        case "cube-array":
+            return "textureCubeArray";
+        case "3d":
+            return "texture3D";
+        default:
+            return "texture2D";
+    }
 }
