@@ -7,7 +7,6 @@ import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
-import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 import { Event } from "../events/Event";
@@ -31,29 +30,22 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 
 
-/**动画开始播放调度
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-/**动画停止播放调度
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-/**动画暂停播放调度
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-/**自定义事件。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
 /**
- * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
+ * @zh Spine动画渲染节点。
+ * - Event.PLAYED:动画开始播放调度。
+ * - Event.STOPPED:动画停止播放调度。
+ * - Event.PAUSED:动画暂停播放调度。
+ * - Event.LABEL:自定义事件。
+ * @en spine render node.
+ * - Event.PLAYED:Animation start play dispatch.
+ * - Event.STOPPED:Animation stop play dispatch.
+ * - Event.PAUSED:Animation pause play dispatch.
+ * - Event.LABEL:Custom event.
  */
 export class Spine2DRenderNode extends BaseRenderNode2D {
 
     static _pool: IRenderElement2D[] = [];
-    
+
     static createRenderElement2D() {
         if (this._pool.length > 0) {
             return this._pool.pop();
@@ -128,11 +120,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** 
      * @default spine.Physics.update 
      * @see spine.Physics
-     * @en The physics update mode. 
      * @zh 物理更新模式。
+     * @en The physics update mode. 
      **/
     physicsUpdate = 2;
-
+    /** @ignore */
     constructor() {
         super();
         this._renderElements = [];
@@ -148,7 +140,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 外部皮肤
+     * @zh 外部皮肤，用于根据不同皮肤，替换对应插槽的附件。
+     * @en External skins, used to replace the attachments of corresponding slots according to different skins.
      */
     get externalSkins() {
         return this._externalSkins;
@@ -162,6 +155,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._externalSkins = value;
     }
 
+    /**
+     * @zh 添加渲染命令到上下文，处理坐标变换、着色器参数及颜色滤镜
+     * @zh 添加渲染命令到上下文，处理坐标变换、着色器参数及颜色滤镜
+     * @param context 渲染上下文
+     * @param px 父级坐标系x坐标
+     * @param py 父级坐标系y坐标
+     * @en Adds rendering command to context, handles coordinate transformation, shader parameters and color filters
+     * @param context Render context
+     * @param px Parent x coordinate
+     * @param py Parent y coordinate
+     */
     addCMDCall(context: Context, px: number, py: number) {
         let shaderData = this._spriteShaderData;
         let mat = context._curMat;
@@ -177,16 +181,16 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         Vector2.TEMP.setValue(context.width, context.height);
         shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
 
-        
-        if (this._renderAlpha !==  context.globalAlpha) {
+
+        if (this._renderAlpha !== context.globalAlpha) {
             let scolor = this.spineItem.getSpineColor();
             let a = scolor.a * context.globalAlpha;
             let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-            color.setValue(scolor.r , scolor.g , scolor.b , a);
+            color.setValue(scolor.r, scolor.g, scolor.b, a);
             shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
-            this._renderAlpha =  context.globalAlpha;
+            this._renderAlpha = context.globalAlpha;
         }
-        
+
         // 兼容 colorfilter
         let filter = context._colorFiler;
         if (filter) {
@@ -195,7 +199,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
             Vector4.TEMP.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
             shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-        }else{
+        } else {
             this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
         }
 
@@ -205,7 +209,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 重置外部加载的皮肤的样式
+     * @zh 重置外部加载的皮肤数据。更换附件或皮肤数据后，需要调用此方法，否则不会生效。
+     * @en Resets the external loaded skin data. After replacing attachments or skin data, this method needs to be called, otherwise it will not take effect.
      */
     resetExternalSkin() {
         if (this._skeleton) {
@@ -216,7 +221,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 动画源
+     * @zh 动画源文件路径
+     * @en Spine source file path.
      */
     get source(): string {
         return this._source;
@@ -244,7 +250,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 皮肤名
+     * @zh 当前的Spine动画皮肤名称。
+     * @en The current spine animation skin name.
      */
     get skinName(): string {
         return this._skinName;
@@ -257,7 +264,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 动画名
+     * @zh 当前的Spine动画名称
+     * @en The current spine animation name.
      */
     get animationName(): string {
         return this._animationName;
@@ -270,7 +278,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 最大播放间隔
+     * @zh 最大播放间隔
+     * @en The current spine animation state.
      */
     get maxDetlaTime(): number {
         return this._timeKeeper.maxDelta;
@@ -281,7 +290,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 是否循环
+     * @zh 是否循环播放Spine动画
+     * @en Whether to loop spine animation.
      */
     get loop(): boolean {
         return this._loop;
@@ -293,6 +303,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this.play(this._animationName, this._loop, true);
     }
 
+
+    /** @deprecated */
+    get url(): string {
+        return this._skin
+    }
+    /** @deprecated */
     set url(value: string) {
         if (this._skin != value) {
             this._skin = value;
@@ -301,11 +317,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             });
         }
     }
-
-    get url(): string {
-        return this._skin
-    }
-
+    /**
+     * @zh 是否启用双色着色（Two-Color Tinting）的渲染效果
+     * @en Whether to use two color tint.
+     */
     get twoColorTint(): boolean {
         return this._spriteShaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
     }
@@ -313,29 +328,28 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     set twoColorTint(value: boolean) {
         if (value) {
             this._spriteShaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
-        }else{
+        } else {
             this._spriteShaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
         }
     }
 
     /**
-     * 得到动画模板的引用
-     * @return templet
+     * @zh Spine动画模板的引用
+     * @en The Spine template reference.
      */
     get templet(): SpineTemplet {
         return this._templet;
     }
 
-    /**
-     * 设置动画模板的引用
-     */
     set templet(value: SpineTemplet) {
         this.init(value);
     }
 
     /**
-     * 设置当前播放位置
+     * @zh 设置当前播放位置
      * @param value 当前时间
+     * @en Set the current play time.
+     * @param value The current play time.
      */
     set currentTime(value: number) {
         if (!this._templet)
@@ -350,8 +364,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 获取当前播放状态
-     * @return	当前播放状态
+     * @zh 获取当前播放状态
+     * @en Get the current play time.
      */
     get playState(): number {
         if (this._pause)
@@ -363,11 +377,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _useFastRender: boolean = true;
     /**
-     * @en Whether to use fast rendering. It is enabled by default. When some complex spines are enabled, this value will render errors. For example, the number of bone controls of a vertex in the spine resource is greater than 4
-     * @returns Whether to use the state of fast rendering currently.
      * @zh 是否使用快速渲染，默认开启，某些复杂的Spine开启此值会渲染错误，比如spine资源中某个顶点的骨骼控制数大于4
-     * @returns 当前是否使用快速渲染的状态。
+     * @en Whether to use fast rendering. It is enabled by default. When some complex spines are enabled, this value will render errors. For example, the number of bone controls of a vertex in the spine resource is greater than 4.
      */
+    get useFastRender() {
+        return this._useFastRender;
+    }
     set useFastRender(value: boolean) {
         if (this._useFastRender === value)
             return;
@@ -381,34 +396,31 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this.play(this._animationName, this._loop, true, this._currentPlayTime);
     }
-
-    get useFastRender() {
-        return this._useFastRender;
-    }
-
+    /** @ignore */
     spineItem: ISpineOptimizeRender;
 
+    /** @ignore */
     onAwake(): void {
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
     }
-
+    /** @ignore */
     onEnable(): void {
-        this.owner.on(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
     }
-    
 
+    /** @ignore */
     onDisable(): void {
-        this.owner.off(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
+        this.owner.off(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
     }
 
     /**
-     * @internal
-     * @protected
-     * @param templet 模板
-     * @returns 
+     * @zh 初始化渲染器。
+     * @param templet Spine 模板
+     * @en Initializes the renderer.
+     * @param templet The Spine template.
      */
     protected init(templet: SpineTemplet): void {
         if (this.destroyed) return;
@@ -494,15 +506,22 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 播放动画
-     *
-     * @param nameOrIndex	动画名字或者索引
-     * @param loop		是否循环播放
-     * @param force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-     * @param start		起始时间
+     * @zh 播放动画
+     * @param nameOrIndex	Spine动画名字或者索引
+     * @param loop		    是否循环播放
+     * @param force		    false,如果要播的动画跟上一个相同就不生效,true,强制生效
+     * @param start		    起始时间
      * @param end			结束时间
-     * @param freshSkin	是否刷新皮肤数据
-     * @param playAudio	是否播放音频
+     * @param freshSkin	    是否刷新皮肤数据
+     * @param playAudio	    是否播放音频
+     * @en Play Spine animation.
+     * @param nameOrIndex	Spine animation name or index.
+     * @param loop			Whether to loop play.
+     * @param force			false, if the animation to play is the same as the last one then it won't be played again. true, force playing even if the animation is the same.
+     * @param start			Start time.
+     * @param end			End time.
+     * @param freshSkin		Whether to refresh skin data.
+     * @param playAudio		Whether to play audio.
      */
     play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
         this._playAudio = playAudio;
@@ -563,7 +582,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._state || !this._skeleton) {
             return;
         }
-        
+
         this._skeleton.update && this._skeleton.update(delta);
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
@@ -582,13 +601,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             }
 
             // if (normal) {
-                this.useFastRender = false;
+            this.useFastRender = false;
             // }
         }
     }
     /**
-     * 得到当前动画的数量
-     * @return 当前动画的数量
+     * @zh 得到当前动画的数量
+     * @en Get the number of current animations.
      */
     getAnimNum(): number {
         // return this._templet.skeletonData.animations.length;
@@ -597,40 +616,50 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 得到指定动画的名字
+     * @zh 得到指定动画的名字
      * @param index	动画的索引
+     * @en Get the name of the specified animation.
+     * @param index The index of the animation.
      */
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
     }
     /**
 
-     * 通过名字得到插槽的引用
-     * @param slotName 
+     * @zh 通过名字得到插槽的引用
+     * @param slotName 插槽的名字
+     * @en Get the reference to the slot by name.
+     * @param slotName The name of the slot.
      */
     getSlotByName(slotName: string) {
         return this._skeleton.findSlot(slotName)
     }
 
     /**
-     * 设置动画播放速率
-     * @param value	1为标准速率
+     * @zh 设置动画播放速率
+     * @param value	速率值，1为标准速率
+     * @en Set the animation playback rate.
+     * @param value The playback rate.
      */
     playbackRate(value: number): void {
         this._playbackRate = value;
     }
 
     /**
-     * 通过名字显示一套皮肤
+     * @zh 通过名字显示一套皮肤
      * @param name	皮肤的名字
+     * @en Show a set of skins by name.
+     * @param name The name of the skin.
      */
     showSkinByName(name: string): void {
         this.showSkinByIndex(this._templet.getSkinIndexByName(name));
     }
 
     /**
-     * 通过索引显示一套皮肤
+     * @zh 通过索引显示一套皮肤
      * @param skinIndex	皮肤索引
+     * @en Show a set of skins by index.
+     * @param skinIndex The index of the skin.
      */
     showSkinByIndex(skinIndex: number): void {
         this.spineItem.setSkinIndex(skinIndex);
@@ -646,7 +675,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 停止动画
+     * @zh 停止动画
+     * @en Stop the animation.
      */
     stop(): void {
         if (!this._pause) {
@@ -679,7 +709,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 暂停动画的播放
+     * @zh 暂停动画的播放
+     * @en Pause the animation playback.
      */
     paused(): void {
         if (!this._pause) {
@@ -692,14 +723,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                     if (!channel.isStopped) {
                         channel.pause();
                     }
-
                 }
             }
         }
     }
 
     /**
-     * 恢复动画的播放
+     * @zh 恢复动画的播放
+     * @en Resume the animation playback.
      */
     resume(): void {
         if (this._pause) {
@@ -717,9 +748,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @internal
-     * 清掉播放完成的音频
+     * @zh 清掉播放完成的音频
      * @param force 是否强制删掉所有的声音channel
+     * @en Clear the finished audio.
+     * @param force Whether to force delete all audio channels.
      */
     private _onAniSoundStoped(force: boolean): void {
         for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
@@ -733,9 +765,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     reset() {
         this._templet._removeReference(1);
         this._templet = null;
@@ -751,10 +781,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     // ------------------------------------新增加的接口----------------------------------------------------
     /**
-     * 添加一个动画
+     * @zh 添加一个动画
      * @param nameOrIndex   动画名字或者索引
      * @param loop          是否循环播放
      * @param delay         延迟调用，可以为负数
+     * @en Add an animation
+     * @param nameOrIndex   Animation name or index
+     * @param loop          Whether to play in a loop
+     * @param delay         Delay call, can be negative
      */
     addAnimation(nameOrIndex: string | number, loop: boolean = false, delay: number = 0) {
         delay /= 1000;
@@ -767,10 +801,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 设置当动画被改变时，存储混合(交叉淡出)的持续时间
-     * @param fromNameOrIndex 
-     * @param toNameOrIndex 
-     * @param duration
+     * @zh 设置当动画被改变时，存储混合(交叉淡出)的持续时间
+     * @param fromNameOrIndex 原来的动画名字或者索引 
+     * @param toNameOrIndex   目标的动画名字或者索引
+     * @param duration 混合(交叉淡出)的持续时间
+     * @en Set the duration of mixing (cross-fade) when an animation is changed.
+     * @param fromNameOrIndex The name or index of the original animation.
+     * @param toNameOrIndex The name or index of the target animation.
+     * @param duration The duration of mixing (cross-fade).
      */
     setMix(fromNameOrIndex: any, toNameOrIndex: any, duration: number) {
         duration /= 1000;
@@ -786,27 +824,40 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * 获取骨骼信息(spine.Bone)
-     * 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
-     * @param boneName 
+     * @zh 获取骨骼信息(spine.Bone)
+     * - 注意: 获取到的是spine运行时的骨骼信息(spine.Bone)，不适用引擎的方法
+     * @param boneName  骨骼名称
+     * @en Get the bone information (spine.Bone)
+     * - Note: Get the spine runtime bone information (spine.Bone), not the engine method.
+     * @param boneName The name of the bone.
      */
     getBoneByName(boneName: string) {
         return this._skeleton.findBone(boneName);
     }
 
     /**
-     * 获取Skeleton(spine.Skeleton)
+     * @zh 获取骨骼(spine.Skeleton)
+     * @en Get the Skeleton(spine.Skeleton)
      */
     getSkeleton() {
         return this._skeleton;
     }
 
-    physicsTranslate( x:number , y:number){
-        this._templet.hasPhysics && this._skeleton.physicsTranslate( x , y);
+    /**
+     * @zh 根据给定的坐标移动物体,支持Spine物理时有效（不能低于Spine4.2版本）
+     * @param x X轴坐标
+     * @param y Y轴坐标
+     * @en Move the object according to the given coordinates, effective when Spine physics is enabled (cannot be lower than version 4.2 of Spine)
+     * @param x X-axis coordinate
+     * @param y Y-axis coordinate
+     */
+    physicsTranslate(x: number, y: number) {
+        this._templet.hasPhysics && this._skeleton.physicsTranslate(x, y);
     }
 
     /**
-     * 当transform改变时，更新骨骼的位置
+     * @zh 当transform改变时，更新骨骼的位置
+     * @en Transform changed, update the skeleton position.
      */
     onTransformChanged() {
         if (this._skeleton) {
@@ -816,15 +867,22 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
     /**
-     * 替换插槽皮肤
-     * @param slotName 
-     * @param attachmentName 
+     * @zh 替换插槽皮肤
+     * @param slotName 插槽名称
+     * @param attachmentName 附件名称
+     * @en Replace the slot skin.
+     * @param slotName Slot name.
+     * @param attachmentName Attachment name.
      */
     setSlotAttachment(slotName: string, attachmentName: string) {
         this.useFastRender = false;
         this._skeleton.setAttachment(slotName, attachmentName);
     }
 
+    /**
+     * @zh 清除方法，用于释放和重置相关资源。
+     * @en Clear method, used to release and reset related resources.
+     */
     clear(): void {
         this._mesh = null;
         this._renderElements.forEach(element => {
@@ -833,7 +891,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         super.clear();
     }
 
-    changeFast(){
+    /**
+     * @zh 切换至快速渲染模式，开启后可以大幅度提升渲染性能，但是有骨骼顶点限制，比如spine资源中某个顶点的骨骼控制数不能大于4
+     * @en Use fast rendering mode, which can greatly improve rendering performance but has limitations on bone vertices. For example, the number of bones controlling a vertex in spine resources cannot be greater than 4
+     */
+    changeFast() {
         if (!(this.spineItem instanceof SpineOptimizeRender)) {
             this.spineItem.destroy();
             let before = SketonOptimise.normalRenderSwitch;
@@ -844,6 +906,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    /**
+     * @zh 切换至普通渲染模式，采用未优化过的Spine运行时，性能不如快速渲染模式，但没有骨骼顶点限制
+     * @en Switch to normal rendering mode, which uses the unoptimized Spine runtime and has no bone vertex limitations. Performance is not as good as fast rendering mode.
+     */
     changeNormal() {
         if (!(this.spineItem instanceof SpineNormalRender)) {
             this.spineItem.destroy();
@@ -855,6 +921,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    /**
+     * @ignore
+     * @zh 销毁当前对象
+     * @en Destroy the current object.
+     */
     onDestroy(): void {
         if (this._templet) {
             this.reset();
@@ -862,12 +933,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.spineItem.destroy();
     }
 
+    /** @internal */
     _updateMaterials(elements: Material[]) {
         for (let i = 0, len = elements.length; i < len; i++) {
             this._materials[i] = elements[i];
         }
     }
-
+    /** @internal */
     _updateRenderElements() {
         let elementLength = this._renderElements.length
         for (let i = 0; i < elementLength; i++) {
@@ -878,7 +950,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             element.value2DShaderData = this._spriteShaderData;
         }
     }
-
+    /** @internal */
     _onMeshChange(mesh: Mesh2D, force: boolean = false) {
         let hasChange = false;
         if (this._mesh != mesh || force) {
@@ -907,7 +979,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 }
                 this._renderElements.length = mesh.subMeshCount;
 
-                SpineShaderInit.changeVertexDefine(this._spriteShaderData , mesh);
+                SpineShaderInit.changeVertexDefine(this._spriteShaderData, mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
@@ -931,11 +1003,12 @@ class TimeKeeper {
     frameTime: number;
 
     timer: Timer;
-
+    /**@ignore */
     constructor(timer: Timer) {
         this.maxDelta = 0.064;
         this.timer = timer;
     }
+    /**@ignore */
     update() {
         // this.delta =1 / 30;
         this.delta = this.timer.delta / 1000;
