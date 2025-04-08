@@ -10206,3 +10206,5 @@ var spine;
     }
     spine.Triangulator = Triangulator;
 })(spine || (spine = {}));
+// LayaBox_Modify
+window.spine = spine;
