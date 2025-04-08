@@ -5,7 +5,6 @@ import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { RigidBody2DType } from "./factory/IPhysics2DFactory";
-import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 
 const _tempV0: Vector2 = new Vector2();
@@ -15,11 +14,9 @@ const _tempP0: Point = new Point();
  * @en 2D rigidbody, display objects are bound to the physics world through RigidBody to keep the positions of physics and display objects synchronized.
  * Changes in the position of the physics world will be automatically synchronized to the display object, and the displacement and rotation of the display object itself (displacement of the parent object is invalid) will also be automatically synchronized to the physics world.
  * If you want to move the physics world as a whole, you can set Physics2D.I.worldRoot = scene, and then move the scene.
- * You can enable the display of physics auxiliary lines by enabling "Project Settings" - "2D Physics" - "Enable 2D Physics Drawing" in the IDE, or through the code Physics2D.I.enableDebugDraw = true.
  * @zh 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步。
  * 物理世界的位置变化会自动同步到显示对象，显示对象本身的位移，旋转（父对象位移无效）也会自动同步到物理世界。
  * 如果想整体位移物理世界，可以设置 Physics2D.I.worldRoot = 场景，然后移动场景即可。
- * 可以通过IDE-"项目设置"-"2D物理"-"是否开启2D物理绘制" 开启物理辅助线显示，或者通过代码 Physics2D.I.enableDebugDraw = true。
  */
 export class RigidBody extends ColliderBase {
 
@@ -381,8 +378,8 @@ export class RigidBody extends ColliderBase {
     }
 
     /**
+     * @en Update the body structure data.
      * @zh 更新刚体结构体的数据
-     * @returns 
      */
     private _setBodyDefValue(): void {
         // 兼容模式
