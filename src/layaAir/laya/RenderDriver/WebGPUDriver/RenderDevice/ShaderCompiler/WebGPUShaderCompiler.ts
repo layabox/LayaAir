@@ -6,7 +6,7 @@ const Nagabind = wasm_bindgen;
 
 
 export interface GlslangCompiler {
-    glsl450_to_spirv(glslSource: string, stage: "vertex" | "fragment"): {
+    glsl450_to_spirv(glslSource: string, stage: "vertex" | "fragment" | "compute"): {
         spirv: Uint32Array,
         info_log: string,
         success: boolean
