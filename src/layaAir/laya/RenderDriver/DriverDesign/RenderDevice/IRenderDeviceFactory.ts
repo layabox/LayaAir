@@ -5,12 +5,16 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { Resource } from "../../../resource/Resource";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap } from "./CommandUniformMap";
+import { IComputeContext } from "./ComputeShader/IComputeContext.ts";
+import { ComputeShaderProcessInfo, IComputeShader } from "./ComputeShader/IComputeShader";
 import { IBufferState } from "./IBufferState";
 import { IIndexBuffer } from "./IIndexBuffer";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { IShaderInstance } from "./IShaderInstance";
+import { IStorageBuffer } from "./IStorageBuffer";
 import { IVertexBuffer } from "./IVertexBuffer";
 import { ShaderData } from "./ShaderData";
+
 
 export interface IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance;
@@ -21,4 +25,7 @@ export interface IRenderDeviceFactory {
     createEngine(config: Config, canvas: any): Promise<void>;
     createGlobalUniformMap(blockName: string): CommandUniformMap;
     createShaderData(ownerResource?: Resource): ShaderData;
+    createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
+    createComputeContext?(): IComputeContext;
+    createStorageBuffer?(): IStorageBuffer;
 }

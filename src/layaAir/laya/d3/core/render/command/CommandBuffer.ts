@@ -135,7 +135,6 @@ export class CommandBuffer {
 		let cmd = SetShaderDataCMD.create(shaderData, nameID, source, ShaderDataType.Texture2D, this);
 		this._commands.push(cmd);
 		cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
-
 	}
 
 	/**

@@ -118,7 +118,18 @@ export class WebGPUBuffer {
         }
     }
 
-    readDataFromBuffer(): Promise<Uint8Array> {
+    private copyArrayBuffer(source: ArrayBuffer, destination: ArrayBuffer,
+        sourceOffset = 0, destOffset = 0, length?: number): void {
+        const sourceView = new Uint8Array(source, sourceOffset);
+        const destView = new Uint8Array(destination, destOffset);
+
+        // 如果length未指定，则复制尽可能多的数据（考虑源和目标的大小限制）
+
+        // 使用 TypedArray.set 方法进行拷贝
+        destView.set(sourceView.subarray(0, length), 0);
+    }
+
+    readDataFromBuffer(dest: ArrayBuffer, destOffset: number, srcOffset: number, byteLength: number): Promise<void> {
         //TODO
         //mapAsync
         //getMappedRange
@@ -128,11 +139,11 @@ export class WebGPUBuffer {
             this._source.mapAsync(GPUMapMode.READ)
                 .then(() => {
                     //成功映射后获取 ArrayBuffer
-                    const arrayBuffer = this._source.getMappedRange();
-                    const data = new Uint8Array(arrayBuffer).slice();
+                    const arrayBuffer = this._source.getMappedRange(srcOffset, byteLength);
+                    this.copyArrayBuffer(arrayBuffer, dest, 0, destOffset, byteLength);
                     this._source.unmap();
                     //返回读取的数据
-                    resolve(data);
+                    resolve();
                 })
                 .catch(error => { //处理映射失败的情况
                     this._source.unmap(); //确保即使出错也取消映射
@@ -143,8 +154,8 @@ export class WebGPUBuffer {
 
     async readFromBuffer(buffer: GPUBuffer, offset: number, byteLength: number) {
         await buffer.mapAsync(GPUMapMode.READ);
-        const arrayBuffer = buffer.getMappedRange();
-        const data = new Float32Array(arrayBuffer).slice(offset, byteLength / 4);  // size / 4 because Float32Array elements are 4 bytes.
+        const arrayBuffer = buffer.getMappedRange(offset, byteLength);
+        const data = new Float32Array(arrayBuffer).slice(byteLength / 4);  // size / 4 because Float32Array elements are 4 bytes.
         buffer.unmap();
         return data;
     }

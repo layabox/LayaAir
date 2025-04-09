@@ -13,6 +13,7 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
 import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
+import { IStorageBuffer } from "./IStorageBuffer";
 
 export enum ShaderDataType {
     None,
@@ -26,13 +27,14 @@ export enum ShaderDataType {
     Matrix4x4,
     Buffer,
     Matrix3x3,
+    StorageBuffer,
     Texture2D,
     Texture3D,
     TextureCube,
     Texture2DArray
 }
 
-export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3 | IStorageBuffer;
 
 export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {
     let legal = false;
@@ -350,6 +352,14 @@ export class ShaderData implements IClone {
      * @param value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
+        throw new NotImplementedError();
+    }
+
+    setStorageBuffer(index: number, value: IStorageBuffer): void {
+        throw new NotImplementedError();
+    }
+
+    getStorageBuffer(index: number): IStorageBuffer {
         throw new NotImplementedError();
     }
 

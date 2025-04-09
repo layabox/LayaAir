@@ -1,21 +1,36 @@
+import { error } from "console";
 import { NotImplementedError } from "../../../../utils/Error";
 import { WebGPUUniformPropertyBindingInfo } from "../WebGPUCodeGenerator";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
+import { ComputeShaderProcessInfo, IComputeShader } from "../../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 
-export interface ComputeShaderProcessInfo {
-    code: string;
-}
 
-export class WebGPUComputeShader {
+
+export class WebGPUComputeShader implements IComputeShader {
+    static idCounter: number = 0;
+    static computeShaderNameMap: Set<string>;
     private device;
     private shaderModule: GPUShaderModule | null = null;
     private pipelineCache: Map<string, GPUComputePipeline> = new Map();
     private bindGroupLayouts: GPUBindGroupLayout[] = [];
     private entryPoints: string[] = [];
+    _id: number = WebGPUComputeShader.idCounter++;
+    name: string;
     uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
-    constructor() {
+    compilete: boolean = false;
+    constructor(name: string) {
+        if (WebGPUComputeShader.computeShaderNameMap.has(name)) {
+            throw error`重复的ComputeShader名字${name}`;
+        } else {
+            WebGPUComputeShader.computeShaderNameMap.add(name);
+        }
         this.device = WebGPURenderEngine._instance.getDevice();
+        this.name = name;
     }
+    HasKernel(kernel: string): boolean {
+        throw new Error("Method not implemented.");
+    }
+
 
     /**
      * 序列化着色器
@@ -33,9 +48,10 @@ export class WebGPUComputeShader {
     _deserialize(buffer: ArrayBuffer): boolean {
         throw new NotImplementedError();
     }
+
     /**
      * 编译计算着色器
-     * @param code 着色器代码
+     * @param info 着色器编译信息
      */
     public compile(info: ComputeShaderProcessInfo): void {
         let code = info.code;
@@ -46,14 +62,15 @@ export class WebGPUComputeShader {
         this.shaderModule = this.device.createShaderModule({
             code: code
         });
+        this.compilete = true;
     }
 
     /**
-     * 创建计算管线
+     * 获取或创建计算管线
      * @param entryPoint 入口函数名
      * @returns 计算管线
      */
-    public createPipeline(entryPoint: string): GPUComputePipeline {
+    public getOrcreatePipeline(entryPoint: string): GPUComputePipeline {
         if (!this.entryPoints.includes(entryPoint)) {
             throw new Error('Entry point not found');
         }

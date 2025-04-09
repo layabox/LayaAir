@@ -1,12 +1,13 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { IGPUBuffer } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUVertexStepMode } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
-export class WebGPUVertexBuffer implements IVertexBuffer {
+export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
     private static _bufferLayoutConterMap: Map<string, number> = new Map();
     private static _bufferLayoutIDConter: number = 0;
 
@@ -25,8 +26,14 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     stateCacheID: number;
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        const usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
+        let usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
+        if (targetType & BufferTargetType.TRANSFORM_FEEDBACK_BUFFER) {
+            usage |= GPUBufferUsage.STORAGE;
+        }
         this.source = new WebGPUBuffer(usage, 0);
+    }
+    getNativeBuffer() {
+        return this.source;
     }
 
     public get vertexDeclaration(): VertexDeclaration {

@@ -7,11 +7,13 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ComputeShaderProcessInfo } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
+import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
@@ -23,6 +25,9 @@ import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
+import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
+import { WebGPUComputeShader } from "./compute/WebGPUComputeShader";
+import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
@@ -37,6 +42,11 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createVertexBuffer(bufferUsageType: BufferUsage): IVertexBuffer {
         return new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, bufferUsageType);
     }
+
+    createStorageBuffer(): IStorageBuffer {
+        return new WebGPUStorageBuffer();
+    }
+
     createBufferState(): IBufferState {
         return new WebGPUBufferState();
     }
@@ -92,6 +102,16 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
 
     createShaderData(ownerResource?: Resource): ShaderData {
         return new WebGPUShaderData();
+    }
+
+    createComputeContext(): WebGPUComputeContext {
+        return new WebGPUComputeContext();
+    }
+
+    createComputeShader(info: ComputeShaderProcessInfo): WebGPUComputeShader {
+        let shader = new WebGPUComputeShader(info.name);
+        shader.compile(info);
+        return shader;
     }
 }
 
