@@ -53,14 +53,6 @@ export class GPanel extends GBox {
         return this._selection;
     }
 
-    get selectionMode(): SelectionMode {
-        return this._selection.mode;
-    }
-
-    set selectionMode(value: SelectionMode) {
-        this._selection.mode = value;
-    }
-
     get selectedIndex(): number {
         return this._selection.index;
     }
@@ -147,6 +139,8 @@ export class GPanel extends GBox {
     destroy(): void {
         if (this._scroller)
             this._scroller.destroy();
+        if (this._selection)
+            this._selection.destroy();
 
         super.destroy();
     }

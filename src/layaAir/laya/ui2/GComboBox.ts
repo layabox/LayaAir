@@ -170,8 +170,8 @@ export class GComboBox extends GLabel {
         this._selectedController = value;
         if (value) {
             value.validate();
-            value.onChanged = this._selectChanged.bind(this);
-            this._selectChanged();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
         }
     }
 
@@ -234,7 +234,7 @@ export class GComboBox extends GLabel {
         }
     }
 
-    private _selectChanged() {
+    private selectChanged() {
         this.selectedIndex = this._selectedController.selectedIndex;
     }
 

@@ -148,7 +148,7 @@ export class GButton extends GLabel {
             if (this._selectedIconStr && this._iconWidget)
                 this._iconWidget.p.icon = this._selected ? this._selectedIconStr : this._iconStr;
 
-            if (this._selectedController && this._selectedPage != null) {
+            if (this._selectedController) {
                 if (this._selected) {
                     this._selectedController.selectedIndex = this._selectedPage;
                 }
@@ -180,8 +180,8 @@ export class GButton extends GLabel {
         this._selectedController = value;
         if (value) {
             value.validate();
-            value.onChanged = this._selectChanged.bind(this);
-            this._selectChanged();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
         }
     }
 
@@ -305,9 +305,8 @@ export class GButton extends GLabel {
         }
     }
 
-    private _selectChanged() {
-        if (this._selectedPage != null)
-            this.selected = this._selectedPage == this._selectedController.selectedIndex;
+    private selectChanged() {
+        this.selected = this._selectedPage == this._selectedController.selectedIndex;
     }
 
     private _rollover(): void {
@@ -390,7 +389,7 @@ export class GButton extends GLabel {
             }
         }
         else {
-            if (this._selectedController && this._selectedPage != null)
+            if (this._selectedController)
                 this._selectedController.selectedIndex = this._selectedPage;
         }
     }
