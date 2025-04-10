@@ -1,9 +1,7 @@
 import { Laya } from "../../../Laya";
-import { LayaEnv } from "../../../LayaEnv";
-import { HideFlags } from "../../Const";
+import { HideFlags, NodeFlags } from "../../Const";
 import { Draw9GridTextureCmd } from "../../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../../display/cmd/DrawTextureCmd";
-import { FillTextureCmd } from "../../display/cmd/FillTextureCmd";
 import { Mesh2DRender } from "../../display/Scene2DSpecial/Mesh2DRender";
 import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
@@ -40,19 +38,19 @@ export class ImageRenderer {
             this._mesh = null;
         }
         if (this._tex) {
-            if (!LayaEnv.isPlaying)
+            if (this._owner._getBit(NodeFlags.EDITING_NODE))
                 this._tex.off("reload", this, this.onTextureReload);
             this._tex = null;
         }
     }
 
     setTexture(value: Texture) {
-        if (this._tex && !LayaEnv.isPlaying)
+        if (this._tex && this._owner._getBit(NodeFlags.EDITING_NODE))
             this._tex.off("reload", this, this.onTextureReload);
 
         this._tex = value;
         if (value) {
-            if (!LayaEnv.isPlaying)
+            if (this._owner._getBit(NodeFlags.EDITING_NODE))
                 value.on("reload", this, this.onTextureReload);
 
             if (this._meshFactory) {

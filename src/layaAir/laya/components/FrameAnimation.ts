@@ -1,6 +1,7 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
+import { NodeFlags } from "../Const";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
@@ -377,7 +378,7 @@ export class FrameAnimation extends Component {
 
         this.frames = null;
         if (this._atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.off("reload", this, this.onAtlasReload);
             this._atlas = null;
         }
@@ -506,7 +507,7 @@ export class FrameAnimation extends Component {
 
     private load() {
         if (this._atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.off("reload", this, this.onAtlasReload);
             this._atlas = null;
         }
@@ -566,7 +567,7 @@ export class FrameAnimation extends Component {
 
         this._atlas = atlas;
         if (atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.on("reload", this, this.onAtlasReload);
 
             let ani = atlas.animation;
