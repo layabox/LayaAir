@@ -1,4 +1,3 @@
-import { error } from "console";
 import { NotImplementedError } from "../../../../utils/Error";
 import { WebGPUUniformPropertyBindingInfo } from "../WebGPUCodeGenerator";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
@@ -20,7 +19,7 @@ export class WebGPUComputeShader implements IComputeShader {
     compilete: boolean = false;
     constructor(name: string) {
         if (WebGPUComputeShader.computeShaderNameMap.has(name)) {
-            throw error`重复的ComputeShader名字${name}`;
+            throw console.error`重复的ComputeShader名字${name}`;
         } else {
             WebGPUComputeShader.computeShaderNameMap.add(name);
         }

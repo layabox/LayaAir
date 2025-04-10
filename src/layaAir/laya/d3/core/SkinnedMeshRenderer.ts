@@ -39,7 +39,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkinSprite3D");
         SkinnedMeshRenderer.BONES = Shader3D.propertyNameToID("u_Bones");
-        commandUniform.addShaderUniform(SkinnedMeshRenderer.BONES, "u_Bones", ShaderDataType.Buffer);
+
+        // commandUniform.addShaderUniform(SkinnedMeshRenderer.BONES, "u_Bones", ShaderDataType.Buffer);
+        commandUniform.addShaderUniformArray(SkinnedMeshRenderer.BONES, "u_Bones", ShaderDataType.Matrix4x4, 24);
     }
 
     protected _cacheMesh: Mesh;

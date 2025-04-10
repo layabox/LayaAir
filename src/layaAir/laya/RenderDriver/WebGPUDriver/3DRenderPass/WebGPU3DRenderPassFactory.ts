@@ -27,6 +27,7 @@ import { Stat } from "../../../utils/Stat";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
+import { WebGPUUniformPropertyBindingInfo } from "../RenderDevice/WebGPUCodeGenerator";
 
 export class WebGPUDriverRenderNodeCacheData {
     bindGroup: Map<number, WebGPUBindGroup> = new Map();
@@ -44,7 +45,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
             cacheData = node._driverCacheData = new WebGPUDriverRenderNodeCacheData();
         }
         let bindgroup = cacheData.bindGroup.get(shaderInstance._id);
-        let shaderIsntanceID = shaderInstance._id;
+        let shaderInstanceID = shaderInstance._id;
         //处理BindGroup
         //判断是否要重新创建BindGroup
         if (!bindgroup) {
@@ -56,7 +57,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
             recreateBindGroup = true;
         } else {
             for (var com of node._commonUniformMap) {
-                if (bindgroup.isNeedCreate((node.shaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderIsntanceID}`))) {
+                if (bindgroup.isNeedCreate((node.shaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderInstanceID}`))) {
                     recreateBindGroup = true;
                     break;
                 }
@@ -64,7 +65,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
             //判断AdditionalShaderData 是否要更新BindGroup
             if (!recreateBindGroup) {
                 for (var addition of node._additionShaderDataKeys) {
-                    if (bindgroup.isNeedCreate((node.additionShaderData.get(addition) as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderIsntanceID}`))) {
+                    if (bindgroup.isNeedCreate((node.additionShaderData.get(addition) as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderInstanceID}`))) {
                         recreateBindGroup = true;
                         break;
                     }
@@ -86,18 +87,18 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
             let shaderData = node.shaderData as WebGPUShaderData;
             for (var com of node._commonUniformMap) {
                 shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
-                shaderData.fillBindGroupEntry(com, `${com}_${shaderIsntanceID}`, bindgroupEntriys, bindGroupArray);
+                shaderData.fillBindGroupEntry(com, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
             }
             for (var addition of node._additionShaderDataKeys) {
                 let shaderdata = (node.additionShaderData.get(addition) as WebGPUShaderData);
                 shaderdata.createSubUniformBuffer(addition, addition, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(addition) as WebGPUCommandUniformMap)._idata));
-                shaderdata.fillBindGroupEntry(addition, `${com}_${shaderIsntanceID}`, bindgroupEntriys, bindGroupArray);
+                shaderdata.fillBindGroupEntry(addition, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
             }
             let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             bindgroup = new WebGPUBindGroup();
             bindgroup.gpuRS = bindGroupgpu;
             bindgroup.createMask = Stat.loopCount;
-            cacheData.bindGroup.set(shaderIsntanceID, bindgroup);
+            cacheData.bindGroup.set(shaderInstanceID, bindgroup);
         }
         return bindgroup;
     }
