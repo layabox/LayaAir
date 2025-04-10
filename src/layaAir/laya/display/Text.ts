@@ -264,7 +264,7 @@ export class Text extends Sprite {
      * @ignore
      */
     protected _getBoundPointsM(ifRotate?: boolean, out?: number[]): number[] {
-        return Rectangle.TEMP.setTo(0, 0, this.width, this.height).getBoundPoints(out);
+        return Rectangle.TEMP.setTo(0, 0, this._isWidthSet ? this._width : this._textWidth, this._isHeightSet ? this._height : this._textHeight).getBoundPoints(out);
     }
 
     /**
