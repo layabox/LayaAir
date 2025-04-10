@@ -33,6 +33,10 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     private static _geometryConterMap: Map<string, number> = new Map();
     private static _geometryIDConter: number = 0;
 
+    private static _idCounter: number = 0;
+
+    /** @internal */
+    _id: number = ++WebGPURenderGeometry._idCounter;
 
     /**@internal */
     private _indexFormat: IndexFormat;

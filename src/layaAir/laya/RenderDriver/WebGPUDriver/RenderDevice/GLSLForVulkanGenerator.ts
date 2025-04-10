@@ -161,6 +161,12 @@ function attributeString(attributeMap: WebGPUAttributeMapType) {
 
     for (const key in attributeMap) {
         let type = getTypeString(attributeMap[key][1]);
+
+        // todo
+        if (key == "a_BoneIndices") {
+            type = "uvec4";
+        }
+
         location = attributeMap[key][0];
         if (type != "") {
             if (type == "mat4") {

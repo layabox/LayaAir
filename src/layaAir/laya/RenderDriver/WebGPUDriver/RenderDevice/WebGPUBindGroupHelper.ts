@@ -148,6 +148,11 @@ export class WebGPUBindGroupHelper {
                         type: 'uniform'
                     }
                 };
+
+                if (commandName == "SkinSprite3D") {
+                    bindingInfo.buffer.hasDynamicOffset = true;
+                }
+
                 // 将绑定信息添加到数组中
                 bindingInfos.push(bindingInfo);
             }
