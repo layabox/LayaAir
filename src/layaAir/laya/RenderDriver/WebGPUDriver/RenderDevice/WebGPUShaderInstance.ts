@@ -250,41 +250,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
     }
 
-    private _createBindGroupLayout(set: number, name: string) {
-        const data: WebGPUUniformPropertyBindingInfo[] = this.uniformSetMap.get(set);
-        let entries: GPUBindGroupLayoutEntry[] = [];
-        const desc: GPUBindGroupLayoutDescriptor = {
-            label: name,
-            entries: entries,
-        };
-        for (let i = 0; i < data.length; i++) {
-            switch (data[i].type) {
-                case WebGPUBindingInfoType.buffer:
-                    (desc.entries as any).push({
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        buffer: data[i].buffer,
-                    });
-                    break;
-                case WebGPUBindingInfoType.sampler:
-                    (desc.entries as any).push({
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        sampler: data[i].sampler,
-                    });
-                    break;
-                case WebGPUBindingInfoType.texture:
-                    (desc.entries as any).push({
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        texture: data[i].texture,
-                    });
-                    break;
-            }
-        }
-        console.log(desc);
-        return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
-    }
 
     /**
      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
@@ -296,7 +261,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         if (!this._gpuPipelineLayout) {
             const bindGroupLayouts: GPUBindGroupLayout[] = [];
             for (let i = 0; i < 4; i++) {
-                const group = this._createBindGroupLayout(i, `group${i}`);
+                const group = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
                 bindGroupLayouts.push(group);
             }
             this._gpuPipelineLayout = device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });

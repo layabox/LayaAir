@@ -40,6 +40,8 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.Texture_HalfFloatLinearFiltering, true);
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_R32G32B32A32, true);
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_R16G16B16A16, true);
+        this._capabilityMap.set(RenderCapable.ComputeShader, true);
+        this._capabilityMap.set(RenderCapable.StorageBuffer, true);
 
         let features = descriptor.requiredFeatures;
 
@@ -56,7 +58,7 @@ export class WebGPUCapable {
                     this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC1, true);
                     this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ETC, true);
                     break;
-                    //@ts-ignore
+                //@ts-ignore
                 case "float32-filterable":
                     this._capabilityMap.set(RenderCapable.Texture_FloatLinearFiltering, true);
                     break;

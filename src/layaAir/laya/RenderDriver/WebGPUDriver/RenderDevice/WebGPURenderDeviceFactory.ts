@@ -26,7 +26,7 @@ import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
-import { WebGPUComputeShader } from "./compute/WebGPUComputeShader";
+import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstance";
 import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
@@ -43,8 +43,8 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         return new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, bufferUsageType);
     }
 
-    createStorageBuffer(): IStorageBuffer {
-        return new WebGPUStorageBuffer();
+    createStorageBuffer(type: number): IStorageBuffer {
+        return new WebGPUStorageBuffer(type);
     }
 
     createBufferState(): IBufferState {
@@ -108,8 +108,8 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         return new WebGPUComputeContext();
     }
 
-    createComputeShader(info: ComputeShaderProcessInfo): WebGPUComputeShader {
-        let shader = new WebGPUComputeShader(info.name);
+    createComputeShader(info: ComputeShaderProcessInfo): WebGPUComputeShaderInstance {
+        let shader = new WebGPUComputeShaderInstance(info.name);
         shader.compile(info);
         return shader;
     }

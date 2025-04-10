@@ -90,6 +90,8 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.MSAA, value);
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, value);
         this._capabilityMap.set(RenderCapable.Texture3D, value);
+        this._capabilityMap.set(RenderCapable.ComputeShader, false);
+        this._capabilityMap.set(RenderCapable.StorageBuffer, false);
     }
 
     private initExtension(isWebgl2: boolean) {

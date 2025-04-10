@@ -10,7 +10,7 @@ import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../Driv
 import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData.js';
 import { WebGPURenderEngine } from '../WebGPURenderEngine.js';
 import { WebGPUShaderData } from '../WebGPUShaderData.js';
-import { WebGPUComputeShader } from './WebGPUComputeShader.js';
+import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance.js';
 import { WebGPUStorageBuffer } from './WebGPUStorageBuffer.js';
 
 /**
@@ -98,6 +98,7 @@ export class WebGPUComputeContext implements IComputeContext {
     private commands: Array<ICommand> = [];
     private _computeEncoder: GPUComputePassEncoder;
     private _commandEncoder: GPUCommandEncoder;
+    private _cacheShader: WebGPUComputeShaderInstance;
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
     }
@@ -213,7 +214,7 @@ export class WebGPUComputeContext implements IComputeContext {
 
 
 
-    private _bindGroup(computeShader: WebGPUComputeShader, webgpuShaderData: WebGPUShaderData[]) {
+    private _bindGroup(computeShader: WebGPUComputeShaderInstance, webgpuShaderData: WebGPUShaderData[]) {
         for (let i = 0, n = webgpuShaderData.length; i < n; i++) {
             let propertyBindArray = computeShader.uniformSetMap.get(i);
             let bindgroup = webgpuShaderData[i]._createOrGetBindGroupByBindInfoArray(computeShader.name, computeShader.name, computeShader as any, i, propertyBindArray).gpuRS;
@@ -231,6 +232,7 @@ export class WebGPUComputeContext implements IComputeContext {
         if (this._computeEncoder) {
             this._computeEncoder.end();
             this._computeEncoder = null;
+            this._cacheShader = null;
         }
     }
 
@@ -242,7 +244,7 @@ export class WebGPUComputeContext implements IComputeContext {
             return;
         }
         // 创建命令编码器
-        const commandEncoder = this.device.createCommandEncoder();
+        this._commandEncoder = this.device.createCommandEncoder();
         // 处理计算调度命令
         for (const cmd of this.commands) {
             switch (cmd.type) {
@@ -251,9 +253,14 @@ export class WebGPUComputeContext implements IComputeContext {
                     // 如果没有创建计算通道，则创建一个
                     this._startComputePass();
 
-                    let shader = dispatchInfo.shader as WebGPUComputeShader;
-                    this._computeEncoder.setPipeline(shader.getOrcreatePipeline(dispatchInfo.Kernel));
-                    this._bindGroup(shader, dispatchInfo.webgpuShaderData as WebGPUShaderData[]);
+                    let shader = dispatchInfo.shader as WebGPUComputeShaderInstance;
+
+                    if (this._cacheShader != shader) {
+                        this._computeEncoder.setPipeline(shader.getOrcreatePipeline(dispatchInfo.Kernel));
+                    }
+
+
+                    this._bindGroup(shader, dispatchInfo.shaderData as WebGPUShaderData[]);
 
 
                     let dispatchParams = dispatchInfo.dispatchParams;
@@ -311,10 +318,10 @@ export class WebGPUComputeContext implements IComputeContext {
                 case CommandType.BufferToBuffer:
                     const btbCmd = cmd as IBufferToBufferCommand;
                     this._endComputePass();
-                    commandEncoder.copyBufferToBuffer(
-                        btbCmd.src.getNativeBuffer(),
+                    this._commandEncoder.copyBufferToBuffer(
+                        btbCmd.src.getNativeBuffer()._source,
                         btbCmd.sourceOffset,
-                        btbCmd.src.getNativeBuffer(),
+                        btbCmd.dest.getNativeBuffer()._source,
                         btbCmd.destinationOffset,
                         btbCmd.size
                     );
@@ -335,12 +342,11 @@ export class WebGPUComputeContext implements IComputeContext {
             }
         }
 
+        this._endComputePass();
         // 提交命令缓冲区
-        const commandBuffer = commandEncoder.finish();
+        const commandBuffer = this._commandEncoder.finish();
         this.device.queue.submit([commandBuffer]);
 
-        // 清空命令列表
-        this.clearCMDs();
     }
 
     /**

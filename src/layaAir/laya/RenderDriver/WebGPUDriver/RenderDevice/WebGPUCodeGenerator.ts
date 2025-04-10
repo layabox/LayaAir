@@ -45,6 +45,7 @@ export enum WebGPUBindingInfoType {
     buffer, //uniformBlock
     texture, //texture
     sampler, //sampler
+    storageBuffer
 };
 
 /**

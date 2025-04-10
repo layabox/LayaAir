@@ -62,12 +62,13 @@ export class ComputeShader {
         var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
         var shader: IComputeShader = cacheShaders[cacheKey];
         if (!shader) {
-            LayaGL.renderDeviceFactory.createComputeShader({
+            shader = LayaGL.renderDeviceFactory.createComputeShader({
                 name: this.name,
                 code: this.code,
                 other: this.other,//临时支持  等编译流程完备  会去掉
                 defineData: compileDefine//是否需要宏来做shader的功能裁剪
-            })
+            });
+            this.setCacheShader(compileDefine, shader);
         }
         return shader;
     }

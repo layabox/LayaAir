@@ -27,5 +27,5 @@ export interface IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData;
     createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
     createComputeContext?(): IComputeContext;
-    createStorageBuffer?(): IStorageBuffer;
+    createStorageBuffer?(type: number): IStorageBuffer;
 }

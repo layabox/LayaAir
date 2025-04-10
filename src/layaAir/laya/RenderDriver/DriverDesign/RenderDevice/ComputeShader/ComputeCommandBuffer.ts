@@ -3,6 +3,9 @@ import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext.ts.js";
 import { IStorageBuffer } from "../IStorageBuffer.js";
 import { IVertexBuffer } from "../IVertexBuffer.js";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData.js";
+import { ComputeShader } from "./ComputeShader.js";
+import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas.js";
+import { Vector3 } from "../../../../maths/Vector3.js";
 
 export class ComputeCommandBuffer {
     private _context: IComputeContext;
@@ -22,7 +25,13 @@ export class ComputeCommandBuffer {
      * 添加运行ComputeShader的命令
      * @param cmd 计算着色器调度命令
      */
-    addDispatchCommand(cmd: IComputeCMD_Dispatch): void {
+    addDispatchCommand(computeshader: ComputeShader, kernel: string, shaderDefine: IDefineDatas, datas: ShaderData[], dispatchParams: Vector3): void {
+        let cmd: IComputeCMD_Dispatch = {
+            shader: computeshader.getCacheShader(shaderDefine),
+            Kernel: kernel,
+            shaderData: datas,
+            dispatchParams: dispatchParams.clone()
+        }
         this._context.addDispatchCommand(cmd);
     };
 

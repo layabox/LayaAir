@@ -33,7 +33,7 @@ export enum EComputeCMDMemoryOperate {
 export interface IComputeCMD_Dispatch {
     shader: IComputeShader;
     Kernel: string
-    webgpuShaderData: ShaderData[];
+    shaderData: ShaderData[];
     dispatchParams: Vector3;
 }
 

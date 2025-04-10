@@ -60,7 +60,49 @@ export class WebGPUBindGroupHelper {
         }
     }
 
+    static _createBindGroupLayout(name: string, data: WebGPUUniformPropertyBindingInfo[]) {
 
+        let entries: GPUBindGroupLayoutEntry[] = [];
+        const desc: GPUBindGroupLayoutDescriptor = {
+            label: name,
+            entries: entries,
+        };
+        if (data) {
+            for (let i = 0; i < data.length; i++) {
+                switch (data[i].type) {
+                    case WebGPUBindingInfoType.buffer:
+                        (desc.entries as any).push({
+                            binding: data[i].binding,
+                            visibility: data[i].visibility,
+                            buffer: data[i].buffer,
+                        });
+                        break;
+                    case WebGPUBindingInfoType.sampler:
+                        (desc.entries as any).push({
+                            binding: data[i].binding,
+                            visibility: data[i].visibility,
+                            sampler: data[i].sampler,
+                        });
+                        break;
+                    case WebGPUBindingInfoType.texture:
+                        (desc.entries as any).push({
+                            binding: data[i].binding,
+                            visibility: data[i].visibility,
+                            texture: data[i].texture,
+                        });
+                        break;
+                    case WebGPUBindingInfoType.storageBuffer:
+                        (desc.entries as any).push({
+                            binding: data[i].binding,
+                            visibility: data[i].visibility,
+                            buffer: data[i].buffer,
+                        })
+                }
+            }
+
+        }
+        return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
+    }
 
     /**
      * 根据unfiformCommandMapArray获得绑定信息
@@ -68,7 +110,7 @@ export class WebGPUBindGroupHelper {
      * @param unifromCommandMapArray 
      * @returns 
      */
-    static createBindPropertyInfoArrayByCommandMap(groupID: number, unifromCommandMapArray: string[]): WebGPUUniformPropertyBindingInfo[] {
+    static createBindPropertyInfoArrayByCommandMap(groupID: number, unifromCommandMapArray: string[], isComputeShader: boolean = false): WebGPUUniformPropertyBindingInfo[] {
         // 根据groupID和命令映射数组生成唯一的绑定组键值
         const bindGroupKey = this._getBindGroupPropertyID(groupID, unifromCommandMapArray);
         if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
@@ -81,6 +123,10 @@ export class WebGPUBindGroupHelper {
         let bindingInfos: WebGPUUniformPropertyBindingInfo[] = [];
         let bindingIndex = 0;
 
+        let visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
+        if (isComputeShader) {
+            visibility = GPUShaderStage.COMPUTE;
+        }
         // 遍历命令映射数组
         for (let i = 0; i < unifromCommandMapArray.length; i++) {
             const commandName = unifromCommandMapArray[i];
@@ -96,7 +142,7 @@ export class WebGPUBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propertyId,
-                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
+                    visibility: visibility, // 默认在顶点和片元着色器中可见
                     type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
                     buffer: {
                         type: 'uniform'
@@ -119,7 +165,7 @@ export class WebGPUBindGroupHelper {
                             binding: bindingIndex++,
                             name: uniformProperty.propertyName + "_Texture",
                             propertyId: propertyID,
-                            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                            visibility: visibility,
                             type: WebGPUBindingInfoType.texture,
                             texture: {
                                 sampleType: 'float',
@@ -135,7 +181,7 @@ export class WebGPUBindGroupHelper {
                             binding: bindingIndex++,
                             name: uniformProperty.propertyName + "_Sampler",
                             propertyId: propertyID,//TODO
-                            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                            visibility: visibility,
                             type: WebGPUBindingInfoType.sampler,
                             sampler: {
                                 type: 'filtering'
@@ -148,6 +194,21 @@ export class WebGPUBindGroupHelper {
 
                         }
                         bindingInfos.push(samplerBindInfo);
+                    }
+                    if (uniformProperty.uniformtype == ShaderDataType.StorageBuffer) {
+                        let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
+                            id: 0,
+                            set: groupID,
+                            binding: bindingIndex++,
+                            name: uniformProperty.propertyName,
+                            propertyId: propertyID,
+                            visibility: visibility,
+                            type: WebGPUBindingInfoType.storageBuffer,
+                            buffer: {
+                                type: "storage"
+                            }
+                        }
+                        bindingInfos.push(storageBufferBindInfo);
                     }
                 }
             }
@@ -166,6 +227,13 @@ export class WebGPUBindGroupHelper {
         for (let i = 0; i < infoArray.length; i++) {
             switch (infoArray[i].type) {
                 case WebGPUBindingInfoType.buffer:
+                    (desc.entries as any).push({
+                        binding: infoArray[i].binding,
+                        visibility: infoArray[i].visibility,
+                        buffer: infoArray[i].buffer,
+                    });
+                    break;
+                case WebGPUBindingInfoType.storageBuffer:
                     (desc.entries as any).push({
                         binding: infoArray[i].binding,
                         visibility: infoArray[i].visibility,
@@ -284,6 +352,22 @@ export class WebGPUBindGroupHelper {
                     }
                 }
                 bindingInfos.push(samplerBindInfo);
+            }
+
+            if (uniformProperty.uniformtype == ShaderDataType.StorageBuffer) {
+                let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
+                    id: 0,
+                    set: groupID,
+                    binding: bindingIndex++,
+                    name: uniformProperty.propertyName,
+                    propertyId: propertyID,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    type: WebGPUBindingInfoType.storageBuffer,
+                    buffer: {
+                        type: "storage"
+                    }
+                }
+                bindingInfos.push(storageBufferBindInfo);
             }
         }
         WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);

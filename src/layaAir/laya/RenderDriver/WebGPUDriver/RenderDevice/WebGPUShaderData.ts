@@ -30,6 +30,8 @@ import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBuffe
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
+import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
 
 /**
  * 着色器数据
@@ -227,6 +229,9 @@ export class WebGPUShaderData extends ShaderData {
                 case WebGPUBindingInfoType.buffer:
                     //get ubo 
                     entryArray.push((this._data[item.propertyId] as WebGPUUniformBufferBase).getBindGroupEntry(item.binding));
+                    break;
+                case WebGPUBindingInfoType.storageBuffer:
+                    entryArray.push((this._data[item.propertyId] as WebGPUStorageBuffer).getBindGroupEntry(item.binding));
                     break;
                 case WebGPUBindingInfoType.texture:
                     if (item.texture) {
@@ -730,6 +735,20 @@ export class WebGPUShaderData extends ShaderData {
         }
     }
 
+    setStorageBuffer(index: number, value: WebGPUStorageBuffer): void {
+        let lastBuffer = this._data[index] as WebGPUStorageBuffer;
+        if (this._data[index] != value) {
+            if (lastBuffer) {
+                lastBuffer._removeCacheShaderData(this);
+            }
+            this._data[index] = value;
+            if (value) {
+                value._addCacheShaderData(this, index);
+            }
+            this._notifyBindGroupMask(index);
+        }
+    }
+
     _notifyBindGroupMask(index: number) {
         let arra = this._textureCacheUpdateMap.get(index);
         if (arra) {
@@ -819,9 +838,12 @@ export class WebGPUShaderData extends ShaderData {
      * 清理数据
      */
     clearData() {
-        for (const index in this._data)
+        for (const index in this._data) {
             if (this._data[index] instanceof Resource)
                 this._data[index]._removeReference();
+            if (this._data[index] instanceof WebGPUStorageBuffer)
+                this._data[index]._removeCacheShaderData(this);
+        }
 
         this._uniformBuffersPropertyMap.clear();
 
