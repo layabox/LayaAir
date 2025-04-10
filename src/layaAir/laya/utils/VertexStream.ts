@@ -45,7 +45,7 @@ export class VertexStream {
     private _vec: Vector3;
     private _epv: number = 0;
 
-    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor), e => e.reset());
+    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor));
 
     constructor() {
         this.contentRect = new Rectangle();
@@ -79,6 +79,8 @@ export class VertexStream {
 
         this._epv = hasColor ? 9 : 5;
         this.color.setValue(1, 1, 1, 1);
+        this._vp = 0;
+        this._ip = 0;
     }
 
     /**
@@ -165,12 +167,29 @@ export class VertexStream {
     }
 
     /**
-     * @en Add multiple triangles, every four vertices will form a quad.
-     * @param baseIndex The index of the first vertex of the first triangle. If it is negative, it will be calculated from the end.
-     * @zh 添加多个三角形，每四个顶点会形成一个四边形。
-     * @param baseIndex 第一个三角形的第一个顶点的索引。如果是负数，则会从末尾计算。 
+     * @en Add triangles. The triangles are composed of indices.
+     * @param indices The indices of the triangles.
+     * @zh 添加三角形。三角形由索引组成。
+     * @param indices 三角形的索引。 
      */
-    addTriangles(baseIndex: number): void {
+    addTriangles(indices: ReadonlyArray<number>): void {
+        this.checkIBuf(indices.length);
+
+        let arr = this._indices;
+        let idx = this._ip;
+        let n = indices.length;
+        this._ip += n;
+        for (let i = 0; i < n; i++)
+            arr[idx + i] = indices[i];
+    }
+
+    /**
+     * @en Triangulate the quads.
+     * @param baseIndex The index of the first vertex of the first quad. If it is negative, it will be calculated from the end.
+     * @zh 将四边形分割成三角形。
+     * @param baseIndex 第一个四边形的第一个顶点的索引。如果是负数，则会从末尾计算。 
+     */
+    triangulateQuad(baseIndex: number): void {
         let cnt = this._vp / this._epv;
         if (baseIndex < 0)
             baseIndex = cnt + baseIndex;
@@ -216,6 +235,14 @@ export class VertexStream {
     }
 
     /**
+     * @en Get the number of Float32 elements per vertex.
+     * @zh 获得每个顶点的Float32元素数量。
+     */
+    get vertexStride(): number {
+        return this._epv;
+    }
+
+    /**
      * @en Get the vertices typed array.
      * @returns The vertices typed array.
      * @zh 获取顶点的类型化数组。
@@ -251,10 +278,5 @@ export class VertexStream {
             this._indices = new Uint16Array(this._ibuf);
             this._indices.set(tmp);
         }
-    }
-
-    private reset() {
-        this._vp = 0;
-        this._ip = 0;
     }
 }

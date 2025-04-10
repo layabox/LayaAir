@@ -104,32 +104,16 @@ export class GProgressBar extends GWidget {
     }
 
     public update(newValue: number): void {
-        if (this._getBit(NodeFlags.EDITING_ROOT_NODE))
+        if (this._getBit(NodeFlags.EDITING_ROOT_NODE)) {
+            this.updateTitle(this._max, this._max, 1);
             return;
+        }
 
         if (newValue == null)
             newValue = this._value;
         let percent = MathUtil.clamp01((newValue - this._min) / (this._max - this._min));
-        let obj = this._titleWidget;
-        if (obj) {
-            switch (this._titleType) {
-                case ProgressTitleType.Percent:
-                    obj.text = Math.floor(percent * 100) + "%";
-                    break;
 
-                case ProgressTitleType.ValueAndMax:
-                    obj.text = Math.floor(newValue) + "/" + Math.floor(this._max);
-                    break;
-
-                case ProgressTitleType.Value:
-                    obj.text = "" + Math.floor(newValue);
-                    break;
-
-                case ProgressTitleType.Max:
-                    obj.text = "" + Math.floor(this._max);
-                    break;
-            }
-        }
+        this.updateTitle(newValue, this._max, percent);
 
         let fullWidth = this.width - this._barMaxWidthDelta;
         let fullHeight = this.height - this._barMaxHeightDelta;
@@ -160,6 +144,30 @@ export class GProgressBar extends GWidget {
         }
     }
 
+    private updateTitle(value: number, max: number, percent: number) {
+        let obj = this._titleWidget;
+        if (!obj)
+            return;
+
+        switch (this._titleType) {
+            case ProgressTitleType.Percent:
+                obj.text = Math.floor(percent * 100) + "%";
+                break;
+
+            case ProgressTitleType.ValueAndMax:
+                obj.text = Math.floor(value) + "/" + Math.floor(max);
+                break;
+
+            case ProgressTitleType.Value:
+                obj.text = "" + Math.floor(value);
+                break;
+
+            case ProgressTitleType.Max:
+                obj.text = "" + Math.floor(max);
+                break;
+        }
+    }
+
     private setFillAmount(bar: GWidget, amount: number): boolean {
         let mesh = (<GImage | GLoader>bar).mesh;
         if (mesh instanceof ProgressMesh) {
@@ -186,6 +194,16 @@ export class GProgressBar extends GWidget {
         ILaya.timer.runCallLater(this, this.update);
 
         super._onConstruct(inPrefab);
+    }
+
+    _setup(hBar: GWidget, vBar: GWidget, titleWidget: GWidget, reverse: boolean): void {
+        this._hBar = hBar;
+        this._vBar = vBar;
+        this._titleWidget = titleWidget;
+        this._reverse = reverse;
+        this._value = this._max;
+
+        this._onConstruct();
     }
 
     protected _sizeChanged(): void {

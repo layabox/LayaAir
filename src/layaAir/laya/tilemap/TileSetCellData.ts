@@ -108,7 +108,7 @@ export class TileSetCellData {
     }
 
     /**
-     *  是否垂直翻转
+     *  是否水平翻转
      */
     public get flip_h(): boolean {
         return this._flip_h;
@@ -118,11 +118,10 @@ export class TileSetCellData {
         this._flip_h = value;
         this._updateTrans = true;
         this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
-
     }
 
     /**
-     * 是否水平翻转
+     * 是否垂直翻转
      */
     public get flip_v(): boolean {
         return this._flip_v;
@@ -316,7 +315,7 @@ export class TileSetCellData {
     private _updateTransData() {
         this._updateTrans = false;
         let tileshape = this.cellowner.owner._owner.tileShape;
-        let out = TileMapUtils.getUvRotate(tileshape, this._flip_v, this._flip_h, this._transpose, this._rotateCount);
+        let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v,this._transpose, this._rotateCount);
         out.cloneTo(this._transData);
     }
 

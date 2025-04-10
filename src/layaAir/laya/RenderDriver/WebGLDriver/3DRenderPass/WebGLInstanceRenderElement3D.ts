@@ -183,14 +183,16 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
             }
             case BaseRenderType.SimpleSkinRender: {
                 //worldMatrix
-                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 16, WebGLInstanceRenderElement3D.MaxInstanceCount);
+                let worldMatrixData = this.addUpdateData(this._instanceStateInfo.worldInstanceVB, 20, WebGLInstanceRenderElement3D.MaxInstanceCount);
                 var insBatches = this.instanceElementList;
                 var elements: WebGLRenderElement3D[] = insBatches.elements;
                 var count: number = insBatches.length;
                 this.drawCount = count;
                 this.geometry.instanceCount = this.drawCount;
-                for (var i: number = 0; i < count; i++)
-                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+                for (var i: number = 0; i < count; i++) {
+                    worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 20);
+                    elements[i].owner._worldParams.writeTo(worldMatrixData, i * 20 + 16);
+                }
                 //simpleAnimationData
                 let simpleAnimatorData = this.addUpdateData(this._instanceStateInfo.simpleAnimatorVB, 4, WebGLInstanceRenderElement3D.MaxInstanceCount);
                 for (var i: number = 0; i < count; i++) {

@@ -9,7 +9,6 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-
 import { DistanceJoint } from "laya/physics/joint/DistanceJoint";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Physics2D } from "laya/physics/Physics2D";
@@ -26,6 +25,9 @@ import { CheckBox } from "laya/ui/CheckBox";
 import { Handler } from "laya/utils/Handler";
 import { Utils } from "laya/utils/Utils";
 import { Physics2DOption } from "laya/physics/Physics2DOption";
+import { Scene } from "laya/display/Scene";
+import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 const dampingRatio: number = 0.5;
 const frequencyHz: number = 10.0;
@@ -42,7 +44,7 @@ export class Physics_Strandbeests {
     private motorJoint: RevoluteJoint;
     private label: Label;
     private TempVec: Vector2 = new Vector2();
-
+    private _scene: Scene;
     private drawFlags: string[] = ["Shape", "Joint", "AABB", "Pair", "CenterOfMass"]
     constructor(maincls: typeof Main) {
         this.Main = maincls;
@@ -60,10 +62,15 @@ export class Physics_Strandbeests {
     }
 
     Construct() {
-        // Ground
+        this._scene = new Scene();
+        this.Main.box2D.addChild(this._scene);
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        man.enableDebugDraw(true, EPhycis2DBlit.Shape);
+        man.enableDebugDraw(true, EPhycis2DBlit.Joint);
+        man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
         let ground = new Sprite();
         ground.name = "ground"
-        this.Main.box2D.addChild(ground);
+        this._scene.addChild(ground);
         let rigidbody: RigidBody = new RigidBody();
         rigidbody.type = "static";
         ground.addComponentInstance(rigidbody);
@@ -71,17 +78,17 @@ export class Physics_Strandbeests {
         chainCollider.datas = [50, 200, 50, 570, 1050, 570, 1050, 200];
 
         ground.addComponentInstance(chainCollider);
-
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();
             small.name = "ground" + i;
             small.pos(i * 30 + 50, 570 - 5 * this.scale);
-            this.Main.box2D.addChild(small);
+            let rig = small.addComponent(RigidBody);
+            // small.graphics.drawCircle(0, 0, 100, "#fa7e7e");
+            this._scene.addChild(small);
 
             let sCollider: CircleCollider = small.addComponent(CircleCollider);
             sCollider.radius = 2.5 * this.scale;
-            small.addComponent(RigidBody);
         }
 
         // Chassis
@@ -89,7 +96,7 @@ export class Physics_Strandbeests {
         chassis.size(50 * this.scale, 20 * this.scale);
         chassis.anchorX = chassis.anchorY = 0.5;
         chassis.pos(this.pos[0], this.pos[1]);
-        this.Main.box2D.addChild(chassis);
+        this._scene.addChild(chassis);
         let chassisBody: RigidBody = chassis.addComponent(RigidBody);
         chassisBody.group = -1;
 
@@ -103,7 +110,7 @@ export class Physics_Strandbeests {
         let wheel = this.wheel = new Sprite();
 
         wheel.pos(chassis.x, chassis.y);
-        this.Main.box2D.addChild(wheel);
+        this._scene.addChild(wheel);
         let wheelBody: RigidBody = wheel.addComponent(RigidBody);
         wheelBody.group = -1;
 
@@ -176,12 +183,12 @@ export class Physics_Strandbeests {
         let leg1 = new Sprite();
         leg1.pos(this.chassis.x, this.chassis.y + 16 * this.scale); // TODO 这里的数值待优化
         leg1.scale(s * this.scale, -this.scale);
-        this.Main.box2D.addChild(leg1);
+        this._scene.addChild(leg1);
 
         let leg2 = new Sprite();
         leg2.scale(s * this.scale, -this.scale);
         leg2.pos(this.chassis.x, this.chassis.y);
-        this.Main.box2D.addChild(leg2);
+        this._scene.addChild(leg2);
 
         let legBody1: RigidBody = leg1.addComponent(RigidBody);
         legBody1.angularDamping = 10;
@@ -226,16 +233,25 @@ export class Physics_Strandbeests {
         Laya.stage.on(Event.DOUBLE_CLICK, this, () => {
             this.motorJoint.motorSpeed = -this.motorJoint.motorSpeed;
         });
-
+        let index = 0;
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
             let tempVec = this.TempVec;
             let newBall = new Sprite();
             newBall.pos(Laya.stage.mouseX, Laya.stage.mouseY);
-            this.Main.box2D.addChild(newBall);
+            this._scene.addChild(newBall);
+            newBall.name = "bullet" + index;
+            index++;
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
+            // let circle = new CircleShape();
+            // circle.radius = 3 * this.scale;
+            // circleBody.shapes = [circle];
+
             let circleCollider: CircleCollider = newBall.addComponent(CircleCollider);
             circleCollider.radius = 3 * this.scale;
+
+
+
             tempVec.x = this.chassis.x - newBall.x;
             tempVec.y = this.chassis.y - newBall.y;
             Vector2.normalize(tempVec, tempVec);
@@ -260,7 +276,7 @@ export class Physics_Strandbeests {
 
     private createCheckBox(lable: string, isselect: boolean, x: number, y: number) {
         var cb: CheckBox = new CheckBox("res/ui/checkbox (1).png");
-        this.Main.box2D.addChild(cb);
+        this._scene.addChild(cb);
 
         cb.labelColors = "white";
         cb.labelSize = 20;
@@ -275,21 +291,22 @@ export class Physics_Strandbeests {
 
     private updateSelect(checkBox: CheckBox) {
         let isselect = checkBox.selected;
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
         switch (checkBox.label) {
             case "Shape":
-                Physics2D.I.drawShape = isselect;
+                man.enableDebugDraw(true, EPhycis2DBlit.Shape);
                 break;
             case "Joint":
-                Physics2D.I.drawJoint = isselect;
+                man.enableDebugDraw(true, EPhycis2DBlit.Joint);
                 break;
             case "AABB":
-                Physics2D.I.drawAABB = isselect;
+                man.enableDebugDraw(true, EPhycis2DBlit.AABB);
                 break;
             case "Pair":
-                Physics2D.I.drawPair = isselect;
+                man.enableDebugDraw(true, EPhycis2DBlit.Pair);
                 break;
             case "CenterOfMass":
-                Physics2D.I.drawCenterOfMass = isselect;
+                man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
                 break;
         }
     }

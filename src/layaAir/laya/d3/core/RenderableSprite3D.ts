@@ -28,13 +28,6 @@ export class RenderableSprite3D extends Sprite3D {
 	/**拾取颜色。*/
 	static PICKCOLOR: number;
 
-
-	/** 反射探针位置 最大、最小值*/
-	static REFLECTIONCUBE_PROBEPOSITION: number;
-	static REFLECTIONCUBE_PROBEBOXMAX: number;
-	static REFLECTIONCUBE_PROBEBOXMIN: number;
-
-
 	/// Morph target
 
 	static SHADERDEFINE_MORPHTARGET: ShaderDefine;
@@ -114,10 +107,6 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.LIGHTMAP_DIRECTION = Shader3D.propertyNameToID("u_LightMapDirection");
 		RenderableSprite3D.PICKCOLOR = Shader3D.propertyNameToID("u_PickColor");
 
-		RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION = Shader3D.propertyNameToID("u_SpecCubeProbePosition");
-		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX = Shader3D.propertyNameToID("u_SpecCubeBoxMax");
-		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN = Shader3D.propertyNameToID("u_SpecCubeBoxMin");
-
 		const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
 
 		/// morph target
@@ -143,10 +132,6 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP, "u_LightMap", ShaderDataType.Texture2D);
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP_DIRECTION, "u_LightMapDirection", ShaderDataType.Texture2D);
 		commandUniform.addShaderUniform(RenderableSprite3D.PICKCOLOR, "u_PickColor", ShaderDataType.Vector3);
-
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, "u_SpecCubeProbePosition", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax", ShaderDataType.Vector3);
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin", ShaderDataType.Vector3);
 
 		//Legency Reflectexture
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");

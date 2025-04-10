@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { LayaEnv } from "../../LayaEnv";
+import { NodeFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
@@ -31,6 +31,8 @@ export class GImage extends GWidget {
     }
 
     public set src(value: string) {
+        if (value == null)
+            value = "";
         if (this._src == value)
             return;
 
@@ -53,7 +55,7 @@ export class GImage extends GWidget {
     }
 
     public set texture(value: Texture) {
-        this._src = "";
+        this._src = "instance-0";
         this.onLoaded(value, ++this._loadId);
     }
 
@@ -115,7 +117,7 @@ export class GImage extends GWidget {
         if (this._autoSize) {
             if (tex)
                 this.size(tex.sourceWidth, tex.sourceHeight);
-            else if (LayaEnv.isPlaying)
+            else if (!this._getBit(NodeFlags.EDITING_NODE))
                 this.size(0, 0);
             this._autoSize = true;
         }

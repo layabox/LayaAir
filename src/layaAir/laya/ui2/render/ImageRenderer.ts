@@ -14,7 +14,7 @@ import { Texture } from "../../resource/Texture";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
-const defaultVertice = new Float32Array(new Array(20).fill(0));
+const defaultVertice = new Float32Array(new Array(36).fill(0));
 const defaultIndices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
 export class ImageRenderer {
@@ -162,7 +162,7 @@ export class ImageRenderer {
             return;
 
         let vb = VertexStream.pool.take(tex, true);
-        vb.contentRect.setTo(-this._owner.pivotX, -this._owner.pivotY, this._owner.width, this._owner.height);
+        vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
 
         try {
             this._meshFactory.onPopulateMesh(vb);
@@ -173,6 +173,14 @@ export class ImageRenderer {
         let mesh = this._mesh;
 
         let c = vb.getVertices();
+        let offsetX = -this._owner.pivotX;
+        let offsetY = -this._owner.pivotY;
+        if (offsetX != 0 || offsetY != 0) {
+            for (let i = 0, n = c.length, step = vb.vertexStride; i < n; i += step) {
+                c[i] += offsetX;
+                c[i + 1] += offsetY;
+            }
+        }
         mesh._vertexBuffers[0].setDataLength(c.byteLength);
         mesh._vertexBuffers[0].setData(<ArrayBuffer>c.buffer, 0, 0, c.byteLength);
 

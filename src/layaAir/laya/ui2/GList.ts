@@ -22,6 +22,8 @@ export class GList extends GPanel {
     private _itemData: Array<IListItemData>;
     private _isDemo: boolean;
 
+    _templateNode: GWidget;
+
     constructor() {
         super(ListLayout, ListSelection);
 

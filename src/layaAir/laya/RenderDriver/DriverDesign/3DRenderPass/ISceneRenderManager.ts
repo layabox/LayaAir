@@ -8,7 +8,6 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 export interface ISceneRenderManager {
 
     list: FastSinglelist<BaseRender>;
-    baseRenderList: FastSinglelist<IBaseRenderNode>
 
     /**
      * add one BaseRender

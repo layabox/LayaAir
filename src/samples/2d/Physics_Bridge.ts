@@ -19,9 +19,13 @@ import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { Vector2 } from "laya/maths/Vector2";
 import { Physics2D } from "laya/physics/Physics2D";
 import { Physics2DOption } from "laya/physics/Physics2DOption";
+import { Scene } from "laya/display/Scene";
+import { Physics2DWorldManager } from "laya/physics/Physics2DWorldManager";
+import { EPhycis2DBlit } from "laya/physics/factory/IPhysics2DFactory";
 
 export class Physics_Bridge {
     Main: typeof Main = null;
+    _scene: Scene;
     private ecount = 30;
     private label: Label;
     private TempVec: Vector2 = new Vector2();
@@ -42,6 +46,13 @@ export class Physics_Bridge {
     }
 
     createBridge() {
+        this._scene = new Scene();
+        this.Main.box2D.addChild(this._scene);
+        let man: Physics2DWorldManager = this._scene.getComponentElementManager(Physics2DWorldManager.__managerName) as Physics2DWorldManager;
+        man.enableDebugDraw(true, EPhycis2DBlit.Shape);
+        man.enableDebugDraw(true, EPhycis2DBlit.Joint);
+        man.enableDebugDraw(true, EPhycis2DBlit.CenterOfMass);
+
         const startPosX = 250, startPosY = 450;
 
         let ground = new Sprite();
@@ -51,10 +62,10 @@ export class Physics_Bridge {
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
         chainCollider.datas = [50, 600, 1050, 600];
-        this.Main.box2D.addChild(ground);
+        this._scene.addChild(ground);
 
         let point1 = new Sprite();
-        this.Main.box2D.addChild(point1);
+        this._scene.addChild(point1);
         point1.pos(startPosX, startPosY);
         let pointRB1 = new RigidBody();
         pointRB1.type = "static";
@@ -65,9 +76,9 @@ export class Physics_Bridge {
         let width = 20, height = 2.5;
         for (let i = 0; i < this.ecount; i++) {
             let sp = new Sprite();
-            this.Main.box2D.addChild(sp);
+            this._scene.addChild(sp);
             sp.pos(startPosX + i * width, startPosY);
-            let rb: RigidBody = sp.addComponent(RigidBody);
+            let rb: RigidBody = sp.addComponent(RigidBody);            
             let bc: BoxCollider = sp.addComponent(BoxCollider);
             bc.width = width;
             bc.height = height;
@@ -80,7 +91,7 @@ export class Physics_Bridge {
             preBody = rb;
         }
         let point2 = new Sprite();
-        this.Main.box2D.addChild(point2);
+        this._scene.addChild(point2);
         point2.pos(startPosX + this.ecount * width, startPosY);
         let pointRB2 = new RigidBody();
         pointRB2.type = "static";
@@ -92,9 +103,10 @@ export class Physics_Bridge {
 
         for (let i = 0; i < 2; i++) {
             let sp = new Sprite();
-            this.Main.box2D.addChild(sp);
+            this._scene.addChild(sp);
             sp.pos(350 + 100 * i, 300);
             let rb: RigidBody = sp.addComponent(RigidBody);
+            
             rb.bullet = true;
             let pc: PolygonCollider = sp.addComponent(PolygonCollider);
             pc.points = "-10,0,10,0,0,30";
@@ -103,9 +115,10 @@ export class Physics_Bridge {
 
         for (let i = 0; i < 2; i++) {
             let sp = new Sprite();
-            this.Main.box2D.addChild(sp);
+            this._scene.addChild(sp);
             sp.pos(400 + 150 * i, 350);
             let rb: RigidBody = sp.addComponent(RigidBody);
+            
             rb.bullet = true;
             let pc: CircleCollider = sp.addComponent(CircleCollider);
             pc.radius = 10;
@@ -118,7 +131,7 @@ export class Physics_Bridge {
             let tempVec = this.TempVec;
             let targetX = 300 + Math.random() * 400, targetY = 500;
             let newBall = new Sprite();
-            this.Main.box2D.addChild(newBall);
+            this._scene.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
             circleBody.bullet = true;
             circleBody.type = "dynamic";

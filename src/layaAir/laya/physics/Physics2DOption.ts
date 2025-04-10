@@ -69,4 +69,6 @@ export class Physics2DOption {
      * @zh 是否绘制质心。默认为否。
      */
     static drawCenterOfMass: boolean = false;
+
+    static subStep: number = 1;
 }

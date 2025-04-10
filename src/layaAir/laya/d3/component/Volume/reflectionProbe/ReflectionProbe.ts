@@ -62,6 +62,15 @@ export class ReflectionProbe extends Volume {
 	static REFLECTIONINTENSITY: number;
 
 
+	/** 反射探针位置 最大、最小值*/
+	/** @internal */
+	static REFLECTIONCUBE_PROBEPOSITION: number;
+	/** @internal */
+	static REFLECTIONCUBE_PROBEBOXMAX: number;
+	/** @internal */
+	static REFLECTIONCUBE_PROBEBOXMIN: number;
+
+
 	/**
 	 * @en Number of reflection probes
 	 * @zh 反射探针数量
@@ -103,6 +112,12 @@ export class ReflectionProbe extends Volume {
 		ReflectionProbe.AMBIENTINTENSITY = addUniform("u_AmbientIntensity", ShaderDataType.Float);
 
 		ReflectionProbe.REFLECTIONINTENSITY = addUniform("u_ReflectionIntensity", ShaderDataType.Float);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEPOSITION = addUniform("u_SpecCubeProbePosition", ShaderDataType.Vector3);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEBOXMAX = addUniform("u_SpecCubeBoxMax", ShaderDataType.Vector3);
+
+		ReflectionProbe.REFLECTIONCUBE_PROBEBOXMIN = addUniform("u_SpecCubeBoxMin", ShaderDataType.Vector3);
 	}
 
 

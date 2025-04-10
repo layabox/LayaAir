@@ -135,6 +135,11 @@ import { Trail2DRenderDemo } from "../2d/Trail2DRenderDemo";
 import { TileMapLayerDemo } from "../2d/TileMapLayerDemo";
 import { RenderCMD2DDemo } from "../2d/RenderCMD2DDemo";
 import { Material2DDemo } from "../2d/Material2DDemo";
+import { Physics_Tumbler_Shapes } from "../2d/Physics_Tumbler_Shapes";
+import { Physics_CollisionFiltering_Shapes } from "../2d/Physics_CollisionFiltering_Shapes";
+import { Physics_CollisionEvent_Shapes } from "../2d/Physics_CollisionEvent_Shapes";
+import { Physics_Bridge_Shapes } from "../2d/Physics_Bridge_Shapes";
+import { Physics_Strandbeests_Shapes } from "../2d/Physics_Strandbeests_Shapes";
 
 /**
  * 首页View 
@@ -232,8 +237,8 @@ export class IndexView2D extends IndexViewUI {
     /************************PerformanceTest-end***************************/
 
     /************************Particle-start***************************/
-    private _comboBoxPhysicsClsArr: any[] = [Physics_Tumbler, Physics_CollisionFiltering, Physics_CollisionEvent, Physics_Bridge, Physics_Strandbeests];
-    private _comboBoxPhysicsArr: any[] = ['复合碰撞器', '碰撞过滤器', '碰撞事件与传感器', '桥', '仿生机器人'];
+    private _comboBoxPhysicsClsArr: any[] = [Physics_Tumbler, Physics_Tumbler_Shapes, Physics_CollisionFiltering, Physics_CollisionFiltering_Shapes, Physics_CollisionEvent, Physics_CollisionEvent_Shapes, Physics_Bridge, Physics_Bridge_Shapes, Physics_Strandbeests, Physics_Strandbeests_Shapes];
+    private _comboBoxPhysicsArr: any[] = ['复合碰撞器', 'Shapes模式_复合碰撞器', '碰撞过滤器', 'Shapes模式_碰撞过滤器', '碰撞事件与传感器', 'Shapes模式_碰撞事件与传感器', '桥', 'Shapes模式_桥', '仿生机器人', 'Shapes模式_仿生机器人'];
     /************************Particle-end***************************/
 
     /************************Dom-start***************************/

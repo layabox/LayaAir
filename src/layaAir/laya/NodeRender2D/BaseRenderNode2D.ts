@@ -110,6 +110,9 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
+        //兼容 COlOLR FILTER
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORALPHA, "u_colorAlpha", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_COLORMAT, "u_colorMat", ShaderDataType.Matrix4x4);
     }
 
     /**
@@ -117,7 +120,7 @@ export class BaseRenderNode2D extends Component {
     */
     static _setRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
         element.subShader = material._shader.getSubShaderAt(0);
-        //element.materialId = material.id;
+        material._setOwner2DElement(element);
         element.materialShaderData = material._shaderValues;
     }
 
@@ -186,13 +189,51 @@ export class BaseRenderNode2D extends Component {
     declare owner: Sprite;
 
     /**
+     * 渲染层掩码，用于裁剪规则一
+     */
+    private _renderLayer: number = 1;
+
+    /**
+     * 渲染范围，用于裁剪规则二
+     */
+    private _rect: Vector4 = new Vector4();
+
+    /**
+     * 获取渲染层掩码
+     */
+    get renderLayer(): number {
+        return this._renderLayer;
+    }
+
+    /**
+     * 设置渲染层掩码
+     */
+    set renderLayer(value: number) {
+        this._renderLayer = value;
+    }
+
+    /**
+     * 获取渲染范围
+     */
+    get rect(): Vector4 {
+        return this._rect;
+    }
+
+    /**
+     * 设置渲染范围
+     */
+    set rect(value: Vector4) {
+        this._rect = value;
+    }
+
+    /**
      * 基于不同BaseRender的uniform集合
      */
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D"];
     }
     protected _getRect(): Vector4 {
-        return null;//get sprite ?
+        return this._rect;
     }
 
     protected _transformChange() {

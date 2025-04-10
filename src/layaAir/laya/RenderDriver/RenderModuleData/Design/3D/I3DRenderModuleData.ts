@@ -24,6 +24,12 @@ export enum BaseRenderType {
     SimpleSkinRender = 8,
     SkinnedMeshRender = 9,
 }
+
+export enum ENodeCustomData {
+    custom_0,
+    custom_1,
+    custom_2
+}
 //3D Render Node
 export interface IBaseRenderNode {
     renderNodeType: number;//Flag
@@ -65,6 +71,13 @@ export interface IBaseRenderNode {
      * @param value 
      */
     setCommonUniformMap(value: string[]): void;
+
+    /**
+     * 设置基于RenderNode的渲染数据
+     * @param dataSlot 
+     * @param data 
+     */
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number): void;
     /**
      * @override
      * @internal

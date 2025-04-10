@@ -4,7 +4,6 @@ import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
-import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { Bounds } from "../../math/Bounds";
@@ -26,7 +25,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ENodeCustomData, IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
 
@@ -179,6 +178,9 @@ export class BaseRender extends Component {
 
     /**@interface */
     _receiveShadow: boolean;
+
+    /**@internal */
+    _inRenderList: boolean;
     protected _bounds: Bounds;
     protected _transform: Transform3D;
 
@@ -531,6 +533,16 @@ export class BaseRender extends Component {
         this._getIrradientMode();
     }
 
+
+    /**
+     * 设置自定义的渲染数据
+     * @param dataSlot 
+     * @param data 
+     */
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number) {
+        this.renderNode.setNodeCustomData(dataSlot, data);
+    }
+
     /**
      * @ignore
      * @en consructor of BaseRender.
@@ -586,10 +598,17 @@ export class BaseRender extends Component {
      */
     protected _setRenderElements() {
         let arrayElement: IRenderElement3D[] = [];
+        if (this._renderElements.length == 0 && this._inRenderList) {
+            this.owner?.scene._removeRenderObject(this);
+        }
+        if (this.owner?.activeInHierarchy && this.enabled && this.owner?.scene && this._renderElements.length > 0 && !this._inRenderList)
+            this.owner.scene._addRenderObject(this);
+
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);
         });
-        this._baseRenderNode.setRenderelements(arrayElement)
+        this._baseRenderNode.setRenderelements(arrayElement);
+
     }
 
     /**

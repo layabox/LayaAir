@@ -500,7 +500,7 @@ export class WebGLShaderData extends ShaderData {
         this._data[index] = value;
 
         if (this._needCacheData) {
-            this._updateCacheArray[index] = WebGLUniformBufferBase.prototype.setBuffer;
+            this._updateCacheArray[index] = WebGLUniformBufferBase.prototype.setArrayBuffer;
         }
     }
 

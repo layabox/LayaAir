@@ -1,9 +1,8 @@
 import { GWidget } from "./GWidget";
 import { Text } from "../display/Text";
-import { HideFlags } from "../Const";
+import { HideFlags, NodeFlags } from "../Const";
 import { TextFitContent } from "./Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { LayaEnv } from "../../LayaEnv";
 import { TransformKind } from "../display/SpriteConst";
 import { Translations } from "./Translations";
 
@@ -196,7 +195,9 @@ export class GTextField extends GWidget {
 
     set fitContent(value: TextFitContent) {
         if (this._fitContent != value) {
-            if ((value == TextFitContent.Both || value == TextFitContent.Height) && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this.textIns.textWidth > 0 && this.textIns.textHeight > 0)) {
+            if ((value == TextFitContent.Both || value == TextFitContent.Height)
+                && !SerializeUtil.isDeserializing
+                && (!this._getBit(NodeFlags.EDITING_NODE) || this.textIns.textWidth > 0 && this.textIns.textHeight > 0)) {
                 if (value == TextFitContent.Height)
                     this.height = this.textIns.textHeight;
                 else
@@ -402,11 +403,13 @@ export class GTextField extends GWidget {
      * @ignore
      */
     size(width: number, height: number): this {
-        if (this._fitContent == TextFitContent.Both && !this._fitFlag) //锁定了width
-            width = this._width;
+        if (this._fitContent == TextFitContent.Both && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this.textIns.textWidth > 0))
+            width = this._width; //锁定了width
 
-        if ((this._fitContent == TextFitContent.Both || this._fitContent == TextFitContent.Height) && !this._fitFlag) //锁定了height
-            height = this._height;
+        if ((this._fitContent == TextFitContent.Both || this._fitContent == TextFitContent.Height) && !this._fitFlag
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this.textIns.textHeight > 0))
+            height = this._height; //锁定了height
 
         return super.size(width, height);
     }
@@ -424,7 +427,8 @@ export class GTextField extends GWidget {
     }
 
     protected _onPostLayout() {
-        if ((this._fitContent == TextFitContent.Both || this._fitContent == TextFitContent.Height) && (LayaEnv.isPlaying || this.textIns.textWidth > 0 && this.textIns.textHeight > 0)) {
+        if ((this._fitContent == TextFitContent.Both || this._fitContent == TextFitContent.Height)
+            && (!this._getBit(NodeFlags.EDITING_NODE) || this.textIns.textWidth > 0 && this.textIns.textHeight > 0)) {
             this._fitFlag = true;
             if (this._fitContent == TextFitContent.Height)
                 this.height = this.textIns.textHeight;

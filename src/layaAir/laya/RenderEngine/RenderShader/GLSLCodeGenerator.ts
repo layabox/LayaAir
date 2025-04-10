@@ -271,7 +271,6 @@ function getAttributeType(type: ShaderDataType) {
 function supportUniformBlock(type: ShaderDataType) {
     switch (type) {
         case ShaderDataType.Int:
-        case ShaderDataType.Bool:
         case ShaderDataType.Float:
         case ShaderDataType.Vector2:
         case ShaderDataType.Vector3:
@@ -280,6 +279,7 @@ function supportUniformBlock(type: ShaderDataType) {
         case ShaderDataType.Matrix4x4:
         case ShaderDataType.Matrix3x3:
             return true;
+        case ShaderDataType.Bool:
         default:
             return false;
     }

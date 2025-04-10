@@ -30,7 +30,7 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
-import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
+import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import type { Laya3D } from "./Laya3D";
 
@@ -80,7 +80,7 @@ export class Laya {
      * @en Reference to the Render class.
      * @zh physics2D类的引用。
      */
-    static physics2D: IPhysiscs2DFactory;
+    static physics2D: IPhysics2DFactory;
 
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];

@@ -12,7 +12,7 @@ import { Material } from "../../../../resource/Material";
 import { Stat } from "../../../../utils/Stat";
 import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
@@ -128,6 +128,20 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
         this.additionShaderData = new Map();
+    }
+
+    setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
+        switch (dataSlot) {
+            case 0:
+                this._worldParams.y = data;
+                break;
+            case 1:
+                this._worldParams.z = data;
+                break;
+            case 2:
+                this._worldParams.w = data;
+                break;
+        }
     }
 
 
