@@ -1,9 +1,8 @@
 declare const ShaderCompiler: () => Promise<any>;
 
-declare const wasm_bindgen: any;
+declare const wasm_bindgen: () => Promise<any>;
 
 const Nagabind = wasm_bindgen;
-
 
 export interface GlslangCompiler {
     glsl450_to_spirv(glslSource: string, stage: "vertex" | "fragment" | "compute"): {
@@ -34,10 +33,8 @@ export class WebGPUShaderCompiler {
             console.error("glslang init failed", reason);
         });
 
-        const nagaInit = Nagabind.initSync().then(() => {
-            this.naga = {
-                spirv_to_wgsl: wasm_bindgen.spirv_to_wgsl
-            };
+        const nagaInit = Nagabind().then(() => {
+            this.naga = (Nagabind as unknown as NagaCompiler);
         });
 
         return Promise.all([glslInit, nagaInit]);
