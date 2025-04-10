@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
-import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
 import { IInstanceRenderBatch, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
@@ -28,6 +27,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUUniformPropertyBindingInfo } from "../RenderDevice/WebGPUCodeGenerator";
+import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 
 export class WebGPUDriverRenderNodeCacheData {
     bindGroup: Map<number, WebGPUBindGroup> = new Map();
@@ -124,7 +124,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGPUSkinRenderElement3D();
     }
     createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManagerOBJ();
+        return new WebSceneRenderManager();
     }
     createDrawNodeCMDData(): DrawNodeCMDData {
         return new WebGPUDrawNodeCMDData();
