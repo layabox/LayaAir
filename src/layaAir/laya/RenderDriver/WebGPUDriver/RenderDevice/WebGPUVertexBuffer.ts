@@ -26,7 +26,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
     stateCacheID: number;
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        let usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST;
+        let usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC;
         if (targetType & BufferTargetType.TRANSFORM_FEEDBACK_BUFFER) {
             usage |= GPUBufferUsage.STORAGE;
         }

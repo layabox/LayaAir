@@ -6,6 +6,7 @@ import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData.js";
 import { ComputeShader } from "./ComputeShader.js";
 import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas.js";
 import { Vector3 } from "../../../../maths/Vector3.js";
+import { IIndexBuffer } from "../IIndexBuffer.js";
 
 export class ComputeCommandBuffer {
     private _context: IComputeContext;
@@ -53,7 +54,7 @@ export class ComputeCommandBuffer {
      * @param destinationOffset 目标偏移量（字节）
      * @param size 拷贝大小（字节）
      */
-    addBufferToBufferCommand(src: IStorageBuffer | IVertexBuffer, dest: IStorageBuffer | IVertexBuffer, sourceOffset?: number, destinationOffset?: number, size?: number): void {
+    addBufferToBufferCommand(src: IStorageBuffer | IVertexBuffer | IIndexBuffer, dest: IStorageBuffer | IVertexBuffer | IIndexBuffer, sourceOffset?: number, destinationOffset?: number, size?: number): void {
         this._context.addBufferToBufferCommand(src as any, dest as any, sourceOffset, destinationOffset, size);
     };
 
