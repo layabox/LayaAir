@@ -621,7 +621,7 @@ export class Sprite extends Node {
         if (!this._boundStyle) this._getBoundsStyle();
         let rst = this._boundStyle.temBM;
         if (!rst) rst = this._boundStyle.temBM = [];
-        if (this._style.scrollRect) {
+        if (this._style.scrollRect && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             rst.length = 0;
             var rec: Rectangle = Rectangle.TEMP;
             rec.copyFrom(this._style.scrollRect);
