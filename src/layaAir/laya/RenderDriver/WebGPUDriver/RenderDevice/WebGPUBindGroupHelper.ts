@@ -23,6 +23,21 @@ export class WebGPUBindGroup {
 export class WebGPUBindGroupHelper {
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
     static BindGroupLayoutMap: Map<string, GPUBindGroupLayout> = new Map();
+    static emptyBindgoup: GPUBindGroup;
+    static createEmptyBindGroup() {
+        if (WebGPUBindGroupHelper.emptyBindgoup)
+            return WebGPUBindGroupHelper.emptyBindgoup;
+        let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout([]);
+        let bindgroupEntriys: GPUBindGroupEntry[] = [];
+        let bindGroupDescriptor: GPUBindGroupDescriptor = {
+            label: "cacheBindgroupKey",
+            layout: groupLayout,
+            entries: bindgroupEntriys
+        };
+        WebGPUBindGroupHelper.emptyBindgoup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
+        return WebGPUBindGroupHelper.emptyBindgoup;
+    }
+
     static _getBindGroupID(array: string[]): string {
         // 将数组中的字符串拼接成一个唯一标识符
         if (!array || array.length === 0) {

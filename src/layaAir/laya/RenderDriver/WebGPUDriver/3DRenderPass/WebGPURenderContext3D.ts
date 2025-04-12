@@ -314,12 +314,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement3D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
-        this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
-        if (this._needStart) {
-            this._start(); //为录制渲染命令做准备
-            this._needStart = false;
-        }
+
         this._prepareContext();
+
         const elements = list.elements;
         let element: WebGPURenderElement3D;
         for (let i = 0; i < len; i++) {
@@ -327,7 +324,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             element._preUpdatePre(this); //渲染前准备，如有必要，编译着色器
 
         }
+    
         WebGPURenderEngine._instance.gpuBufferMgr.upload();
+
+        this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
+        if (this._needStart) {
+            this._start(); //为录制渲染命令做准备
+            this._needStart = false;
+        }
+        
         for (let i = 0; i < len; i++)
             elements[i]._render(this, this.renderCommand);
 
@@ -341,15 +346,16 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param node 
      */
     drawRenderElementOne(node: WebGPURenderElement3D): number {
+        this._prepareContext();
+        node._preUpdatePre(this);
+        //数据更新
+        WebGPURenderEngine._instance.gpuBufferMgr.upload();
+
         this._setScreenRT();
         if (this._needStart) {
             this._start();
             this._needStart = false;
         }
-        this._prepareContext();
-        node._preUpdatePre(this);
-        //数据更新
-        WebGPURenderEngine._instance.gpuBufferMgr.upload();
         node._render(this, this.renderCommand);
         this._submit();
         //TODO 统计

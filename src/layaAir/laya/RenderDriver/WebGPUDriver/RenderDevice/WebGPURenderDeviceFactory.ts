@@ -87,6 +87,10 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
+        engine.useSPRIV = Config.useSPRIV;
+        if (engine.useSPRIV) {
+            console.log("shader is spri-v mode");
+        }
         LayaGL.textureContext = engine.getTextureContext();
         WebGPUShaderData.__init__();
         WebGPUUniformBufferBase.device = engine.getDevice();

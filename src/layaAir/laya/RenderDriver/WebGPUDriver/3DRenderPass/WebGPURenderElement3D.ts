@@ -11,10 +11,12 @@ import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
+import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
@@ -414,9 +416,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
             command.setBindGroup(1, context._cameraBindGroup.gpuRS);
         }
-        if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
+        //if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
+        if (this.owner) {
             let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
             command.setBindGroup(2, bindgroup.gpuRS);
+        } else {
+
+            command.setBindGroup(2, WebGPUBindGroupHelper.createEmptyBindGroup());
         }
         if (shaderInstance.uniformSetMap.get(3).length > 0) {
             command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)).gpuRS);

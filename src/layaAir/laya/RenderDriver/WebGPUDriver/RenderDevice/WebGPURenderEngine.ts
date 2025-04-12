@@ -96,6 +96,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     gpuBufferMgr: WebGPUBufferManager; //GPU大内存管理器
     timingManager: WebGPUTimingManager; //获取GPU执行时间
 
+    useSPRIV: boolean = false;
+
     globalId: number;
     objectName: string = 'WebGPURenderEngine';
 
@@ -195,7 +197,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     /**
      * 初始化WebGPU
      */
-    async _initAsync(): Promise<void> {
+    async _initAsync(): Promise<any> {
         return this._getAdapter().then((adapter: GPUAdapter | null) => {
             this._initAdapter(adapter);
             return this._getGPUdevice(this._config.deviceDescriptor);
@@ -207,7 +209,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
             console.log(e);
             throw 'Could not get WebGPU device';
         }).then(() => {
-            return this.shaderCompiler.init().then();
+            return this.shaderCompiler.init();
         });
     }
 
