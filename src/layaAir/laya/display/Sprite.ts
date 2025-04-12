@@ -1624,7 +1624,7 @@ export class Sprite extends Node {
         if (this._userBounds != null)
             return this._userBounds.getBoundPoints(out);
 
-        if (this._scrollRect != null)
+        if (this._scrollRect != null && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING))
             return this._scrollRect.getBoundPoints(out);
 
         if (this._graphics != null)
