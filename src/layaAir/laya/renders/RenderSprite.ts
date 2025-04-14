@@ -336,6 +336,8 @@ export class RenderSprite {
             ctx.size(w, h);
             ctx.clearBG(0, 0, 0, 0);
             ctx.render2D = new Render2DSimple(rt);
+            let tempY = Render2DSimple.rendercontext2D.invertY;
+            Render2DSimple.rendercontext2D.invertY = true;
             ctx.startRender();
             /*
                 由于tRec与rt的原点并不重合：
@@ -348,6 +350,7 @@ export class RenderSprite {
             tRec.y -= marginTop;
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
+            Render2DSimple.rendercontext2D.invertY = tempY;
             //临时，恢复
             ctx.render2D.setRenderTarget(context.render2D.out);
             ctx.destroy();
