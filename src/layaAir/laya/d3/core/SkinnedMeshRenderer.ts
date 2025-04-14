@@ -72,6 +72,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     set localBounds(value: Bounds) {
         this._localBounds = value;
+        this.boundsChange = true;
         this.geometryBounds = this._localBounds;
     }
 
