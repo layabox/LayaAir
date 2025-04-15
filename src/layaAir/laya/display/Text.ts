@@ -1388,7 +1388,7 @@ export class Text extends Sprite {
                 tw = getTextWidth(cc);
                 wordWidth += tw;
 
-                if (wordWidth < remainWidth || j === startIndex && lineX === 0) { //一行如果连一个字符都放不下，强制放一个
+                if (wordWidth <= remainWidth || j === startIndex && lineX === 0) { //一行如果连一个字符都放不下，强制放一个
                     if (cc.length > 1) //emoji
                         j++;
                     continue;
