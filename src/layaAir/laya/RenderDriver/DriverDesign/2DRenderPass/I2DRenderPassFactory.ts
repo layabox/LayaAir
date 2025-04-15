@@ -2,6 +2,8 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../RenderDevice/IRenderCMD
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "./IRender2DCMD";
 import { IRenderContext2D } from "./IRenderContext2D";
 import { IRenderElement2D } from "./IRenderElement2D";
+import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -16,4 +18,8 @@ export interface I2DRenderPassFactory {
 
     createSetRenderDataCMD(): SetRenderDataCMD;
     createSetShaderDefineCMD(): SetShaderDefineCMD ;
+
+    createRender2DPass():IRender2DPass;
+
+    createRenderStruct2D():IRenderStruct2D;
 }

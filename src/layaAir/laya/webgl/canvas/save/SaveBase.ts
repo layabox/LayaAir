@@ -1,6 +1,7 @@
 import { ISaveData } from "./ISaveData";
 import { Context } from "../../../renders/Context"
 import { SubmitBase } from "../../submit/SubmitBase"
+import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
 export class SaveBase implements ISaveData {
     static TYPE_ALPHA = 0x1;
@@ -60,21 +61,21 @@ export class SaveBase implements ISaveData {
 
     isSaveMark(): boolean { return false; }
 
-    restore(context: Context): void {
+    restore(runner: GraphicsRunner): void {
         this._dataObj[this._valueName] = this._value;
         SaveBase.POOL[SaveBase.POOL._length++] = this;
-        this._newSubmit && (context.stopMerge = true);
+        this._newSubmit && (runner.stopMerge = true);
     }
 
-    static save(context: Context, type: number, dataObj: any, newSubmit: boolean): void {
-        if ((context._saveMark._saveuse & type) !== type) {
-            context._saveMark._saveuse |= type;
+    static save(runner: GraphicsRunner, type: number, dataObj: any, newSubmit: boolean): void {
+        if ((runner._saveMark._saveuse & type) !== type) {
+            runner._saveMark._saveuse |= type;
             var cache: any = SaveBase.POOL;
             var o: any = cache._length > 0 ? cache[--cache._length] : (new SaveBase());
             o._value = dataObj[o._valueName = SaveBase._namemap[type]];
             o._dataObj = dataObj;
             o._newSubmit = newSubmit;
-            var _save: any = context._save;
+            var _save: any = runner._save;
             _save[_save._length++] = o;
         }
     }

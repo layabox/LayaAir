@@ -59,7 +59,7 @@ export class Render2DSimple extends Render2D {
     //private geo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
     private _lastRT:RenderTexture2D=null;
- private static _geoMap:{[key:number]:IRenderGeometryElement}={}
+    private static _geoMap:{[key:number]:IRenderGeometryElement}={}
     constructor(out: RenderTexture2D = null) {
         super(out);
         if (!Render2DSimple.rendercontext2D) {

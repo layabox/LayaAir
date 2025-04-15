@@ -26,6 +26,10 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
+import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { WebRender2DPass } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
+import { Render2DSimple } from "../renders/Render2D";
+import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -246,6 +250,7 @@ export class Stage extends Sprite {
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
     private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
+    private passManager: Render2DPassManager = new Render2DPassManager();
     /**
      * @ignore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
@@ -336,6 +341,9 @@ export class Stage extends Sprite {
         });
 
         this._componentDriver = new ComponentDriver();
+
+        this.passManager.basePass.root = this._struct;
+        this._struct.pass = this.passManager.basePass;
     }
 
     /**
@@ -887,7 +895,7 @@ export class Stage extends Sprite {
     _loop(): boolean {
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
-        this.render(Render._context, 0, 0);
+        this.render(Render._context);
         return true;
     }
 
@@ -944,7 +952,7 @@ export class Stage extends Sprite {
      * @param x 横轴坐标
      * @param y 纵轴坐标
      */
-    render(context2D: Context, x: number, y: number): void {
+    render(context2D: Context): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)
@@ -991,15 +999,14 @@ export class Stage extends Sprite {
             this._componentDriver.callPreRender();
 
             //仅仅是clear
-            context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
-            //context2D.render2D.renderEnd();
-
+            // context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
+            // context2D.render2D.renderEnd();
             //Stage.clear(this._bgColor);
             //先渲染3d
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
             //再渲染2d
-            this._render2d(context2D, x, y);
+            this._render2d();
 
             this._componentDriver.callPostRender();
         }
@@ -1011,18 +1018,22 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
+
     /**
-     * @param context2D The rendering context
      * @param x The x-axis coordinate
      * @param y The y-axis coordinate
      * @perfTag PerformanceDefine.T_UIRender
     */
-    private _render2d(context2D: Context, x: number, y: number) {
+    private _render2d() {
         Stat.draw2D = 0;
-        context2D.startRender();
-        super.render(context2D, x, y);
-        Stat.render(context2D, x, y);
-        context2D.endRender();
+        // context2D.render2dmgr.runProcess([])
+        this.passManager.apply( Render2DSimple.rendercontext2D);
+        // mainProcess.root = this._struct as any;
+        // mainProcess.render( context2D , Render2DSimple.rendercontext2D );
+        // context2D.startRender();
+        // super.render(context2D, x, y);
+        // Stat.render(context2D, x, y);
+        // context2D.endRender();
     }
 
     private _runComponents() {

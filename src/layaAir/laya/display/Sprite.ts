@@ -27,6 +27,9 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { LayaGL } from "../layagl/LayaGL";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -176,6 +179,8 @@ export class Sprite extends Node {
     _graphics: Graphics;
     /**@internal */
     _renderNode: BaseRenderNode2D;
+    /**@internal */
+    _struct: IRenderStruct2D;
 
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
@@ -226,6 +231,7 @@ export class Sprite extends Node {
     /** @ignore */
     constructor() {
         super();
+        this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
     }
 
     /**
@@ -242,6 +248,7 @@ export class Sprite extends Node {
         this._texture = null;
         this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
+        this._struct = null;
     }
 
     /**
@@ -975,9 +982,12 @@ export class Sprite extends Node {
 
     set renderNode2D(value: BaseRenderNode2D) {
         this._renderNode = value;
+        
         if (value) {
+            this._struct.set_renderNodeUpdateCall(value , value.renderUpdate , value.preRenderUpdate , value._getRenderElements);
             this._renderType |= SpriteConst.RENDERNODE2D;
         } else {
+            this._struct.set_renderNodeUpdateCall(null , null , null , null);
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
     }
@@ -1225,6 +1235,7 @@ export class Sprite extends Node {
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
+        //todo 这里需要生成内部的rendernode2d
         this._repaint = 0;
     }
 
@@ -2010,6 +2021,16 @@ export class Sprite extends Node {
      * @ignore
      */
     protected _setParent(value: Node): void {
+        
+        if (this._struct.parent) {
+            this._struct.parent.removeChild(this._struct);
+            this._struct.parent = null;
+        }
+
+        if (value && (value as Sprite)._struct) {
+            (value as Sprite)._struct.addChild(this._struct);
+        }
+
         super._setParent(value);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
@@ -2019,8 +2040,6 @@ export class Sprite extends Node {
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
-
-
     }
 
     /**
@@ -2064,7 +2083,7 @@ const tmpPoints: Array<number> = [];
 
 function notifyTransChanged(sp: Sprite) {
     sp.event(Event.TRANSFORM_CHANGED);
-
+    
     for (let child of sp._children) {
         if (child._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             notifyTransChanged(child as Sprite);

@@ -158,8 +158,8 @@ export class Render {
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
-        Camera2D.shaderValueInit();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
+        Camera2D.shaderValueInit();
 
 
         return true;

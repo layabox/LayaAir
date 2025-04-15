@@ -278,6 +278,7 @@ export class LayaGLQuickRunner {
             right = rect.right;
             bottom = rect.bottom;
         }
+        // context._render2DManager.cullRect
 
         for (let i = 0, n = childs.length; i < n; ++i) {
             let ele = childs[i];

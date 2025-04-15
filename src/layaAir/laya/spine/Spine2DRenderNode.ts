@@ -29,6 +29,7 @@ import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Color } from "../maths/Color";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
+import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 
 
 /**动画开始播放调度
@@ -162,44 +163,46 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._externalSkins = value;
     }
 
-    addCMDCall(context: Context, px: number, py: number) {
+    renderUpdate(context:IRenderContext2D) {
         let shaderData = this._spriteShaderData;
-        let mat = context._curMat;
+        let trans = this.owner._globalTrans;
+        let mat = trans.getMatrix();
+        // let mat = context._curMat;
         // let ofx = px - this._skeleton.x;
         // let ofy = py + this._skeleton.y;
         // this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
         // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * px + mat.c * py);
-        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * px + mat.d * py);
+        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx );
+        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty );
         shaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
 
-        Vector2.TEMP.setValue(context.width, context.height);
-        shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
+        // Vector2.TEMP.setValue(context.width, context.height);
+        // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
 
         
-        if (this._renderAlpha !==  context.globalAlpha) {
-            let scolor = this.spineItem.getSpineColor();
-            let a = scolor.a * context.globalAlpha;
-            let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-            color.setValue(scolor.r , scolor.g , scolor.b , a);
-            shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
-            this._renderAlpha =  context.globalAlpha;
-        }
+        // if (this._renderAlpha !==  context.globalAlpha) {
+        //     let scolor = this.spineItem.getSpineColor();
+        //     let a = scolor.a * context.globalAlpha;
+        //     let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
+        //     color.setValue(scolor.r , scolor.g , scolor.b , a);
+        //     shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+        //     this._renderAlpha =  context.globalAlpha;
+        // }
         
         // 兼容 colorfilter
-        let filter = context._colorFiler;
-        if (filter) {
-            this._spriteShaderData.addDefine(ShaderDefines2D.FILTERCOLOR);
-            Matrix4x4.TEMP.cloneByArray(filter._mat);
-            shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
-            Vector4.TEMP.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
-            shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-        }else{
-            this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
-        }
+        // let filter = context._colorFiler;
+        // if (filter) {
+        //     this._spriteShaderData.addDefine(ShaderDefines2D.FILTERCOLOR);
+        //     Matrix4x4.TEMP.cloneByArray(filter._mat);
+        //     shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
+        //     Vector4.TEMP.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
+        //     shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
+        // }else{
+        //     this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
+        // }
 
-        context._copyClipInfoToShaderData(shaderData);
+        // context._copyClipInfoToShaderData(shaderData);
 
         this._lightReceive && this._updateLight();
     }

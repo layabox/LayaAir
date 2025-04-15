@@ -31,7 +31,7 @@ const INIT = 0x11111;
 export class RenderSprite {
     static cacheNormalEnable = true;
     static renders: RenderSprite[] = [];
-    protected static NORENDER = new RenderSprite(0, null);
+    protected static NORENDER:RenderSprite;// = new RenderSprite(0, null);
 
     _next: RenderSprite;
     _fun: (sp: Sprite, ctx: Context, x: number, y: number) => void;
@@ -45,7 +45,7 @@ export class RenderSprite {
         for (let i = 0; i < len; i++)
             RenderSprite.renders[i] = initRender;
 
-        RenderSprite.renders[0] = new RenderSprite(0, null);
+        RenderSprite.NORENDER = RenderSprite.renders[0] = new RenderSprite(0, null);
     }
 
     //初始化，这个函数是一个引导函数，主要是用来构建每个type对应的函数链
@@ -59,15 +59,17 @@ export class RenderSprite {
         if (LayaGLQuickRunner.map[type] && LayaEnv.isPlaying) return new RenderSprite(type, null);
         var rst: RenderSprite | null = null;
         var tType = SpriteConst.CHILDS;
+
         while (tType > 0) {
-            if (tType & type)
+            if (tType & type){
                 rst = new RenderSprite(tType, rst);
+            }
             tType = tType >> 1;
         }
         return rst;
     }
 
-    constructor(type: number, next: RenderSprite | null) {
+    constructor(type: number, next: RenderSprite | null ) {
         if (LayaGLQuickRunner.map[type] && LayaEnv.isPlaying) {
             this._fun = LayaGLQuickRunner.map[type];
             this._next = RenderSprite.NORENDER;

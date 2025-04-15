@@ -39,6 +39,14 @@ import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { MeshTexture } from "../webgl/utils/MeshTexture";
+import { MeshVG } from "../webgl/utils/MeshVG";
+import { Sprite2DGeometry } from "../webgl/utils/Sprite2DGeometry";
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { FastSinglelist } from "../utils/SingletonList";
+import { SubmitBase } from "../webgl/submit/SubmitBase";
 
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
@@ -66,10 +74,11 @@ export class Graphics {
     _sp: Sprite | null = null;
 
     /**@internal */
-    _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
+    _render: (sprite: Sprite, runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
 
     private _cmds: IGraphicsCmd[] = [];
     protected _vectorgraphArray: any[] | null = null;
+    private _renderElements: any[] = null;
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
 
@@ -239,10 +248,22 @@ export class Graphics {
 
     private onCmdsChanged() {
         let len = this._cmds.length;
-        if (this._sp && len > 0)
-            this._sp._renderType |= SpriteConst.GRAPHICS;
         this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+
+        if (this._sp && len > 0){
+            this._sp._renderType |= SpriteConst.GRAPHICS;
+            this._sp._struct.set_grapicsUpdateCall(this, this._render, this._sp._renderNode._getRenderElements);
+        }else{
+            this._sp._struct.set_grapicsUpdateCall(null, null, null);
+        }
         this._repaint();
+    }
+
+    private _getRenderElements(): any[] {
+        if (this._render === this._renderEmpty) {
+            return [];
+        }
+        return this._renderElements;
     }
 
     /**
@@ -635,30 +656,30 @@ export class Graphics {
     /**
      * @internal
      */
-    _renderEmpty(sprite: Sprite, context: Context, x: number, y: number): void {
+    _renderEmpty(sprite: Sprite, runner: GraphicsRunner, x: number, y: number): void {
     }
 
     /**
      * @internal
      */
-    _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
+    _renderAll(sprite: Sprite, runner: GraphicsRunner, x: number, y: number): void {
+        // context.sprite = sprite;
+        runner._material = this._material;
         var cmds = this._cmds!;
         for (let i = 0, n = cmds.length; i < n; i++) {
-            cmds[i].run(context, x, y);
+            cmds[i].run(runner, x, y);
         }
-        context._material = null;
+        runner._material = null;
     }
 
     /**
      * @internal
      */
-    _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        this._cmds[0].run(context, x, y);
-        context._material = null;
+    _renderOne(sprite: Sprite, runner: GraphicsRunner, x: number, y: number): void {
+        // context.sprite = sprite;
+        // context._material = this._material;
+        // this._cmds[0].run(context, x, y);
+        // context._material = null;
     }
 
     /**
@@ -903,4 +924,88 @@ export class Graphics {
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[], color?: string): void {
         this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid, false, color));
     }
+}
+
+
+export class GraphicsRenderData{
+    /**@internal */
+    // private _mesh: Sprite2DGeometry;			
+    //用Mesh2D代替_vb,_ib. 当前使用的mesh
+    _meshQuatTex = new MeshQuadTexture();
+    _meshVG = new MeshVG();
+    _meshTex = new MeshTexture();
+
+    meshlist: Sprite2DGeometry[] = [];	//本runner用到的mesh
+
+    _renderElements: IRenderElement2D[] = [];	//渲染元素列表
+
+    /**@internal */
+    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
+    
+    clear(): void {
+        
+        this._meshQuatTex.clearMesh();
+        this._meshVG.clearMesh();
+        this._meshTex.clearMesh();
+
+        let len = this._submits.length;
+        for (let i = 0; i < len; i++) {
+            this._submits.elements[i].destroy();
+        }
+        this._submits.length = 0;
+
+        len = this.meshlist.length;
+        for (let i = 0; i < len; i++) {
+            let mesh = this.meshlist[i];
+            mesh.needRelease ? mesh.clearMesh() : mesh.destroy();                
+        }
+
+        this.meshlist.length = 0;
+        this._renderElements.length = 0;
+    }
+
+    destroy(): void {
+        this._meshQuatTex.destroy();
+    }
+
+    /**
+     * 提交所有mesh的数据
+     */
+    flush(): void {
+        this.meshlist.push(this._meshQuatTex, this._meshVG, this._meshTex);
+
+        let meshLength = this.meshlist.length;
+        for (let i = 0; i < meshLength; i++) {
+            let mesh = this.meshlist[i];
+            if (mesh.indexNum <= 0)
+                continue
+            mesh.createBuffer();
+            mesh.uploadBuffer();
+        }
+    }
+
+    createSubmit(runner: GraphicsRunner, mesh: Sprite2DGeometry , material:Material): SubmitBase {
+        let submit = SubmitBase.create(runner , mesh , material);
+        this._submits.add(submit);
+        return submit;
+    }
+
+    createMesh(type:"vg"|"quat"|"tex"): Sprite2DGeometry {
+        let mesh: Sprite2DGeometry = null;
+        if (type === "vg") {
+            this._meshVG.needRelease = false;
+            this.meshlist.push(this._meshVG);
+            mesh = this._meshVG = new MeshVG();
+        }else if (type === "quat") {
+            this._meshQuatTex.needRelease = false;
+            this.meshlist.push(this._meshQuatTex);
+            mesh = this._meshQuatTex = new MeshQuadTexture();
+        }else if (type === "tex") {
+            this._meshTex.needRelease = false;
+            this.meshlist.push(this._meshTex);
+            mesh = this._meshTex = new MeshTexture();
+        }
+        return mesh;
+    }
+
 }

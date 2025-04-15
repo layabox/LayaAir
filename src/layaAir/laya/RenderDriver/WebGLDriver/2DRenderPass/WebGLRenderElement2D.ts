@@ -40,6 +40,11 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }
+
+            if (context.passData) {
+                context.passData._defineDatas.cloneTo(comDef);
+            }
+
             let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
             if (returnGamma) {
                 comDef.add(ShaderDefines2D.GAMMASPACE);
@@ -85,6 +90,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         shader.bind();
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
         context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
+        context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
         if (this.renderStateIsBySprite || !this.materialShaderData) {

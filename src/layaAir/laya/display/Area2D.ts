@@ -6,7 +6,9 @@ import { Node } from "./Node";
 import { Point } from "../maths/Point";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { NodeFlags } from "../Const";
+import { Vector4 } from "../maths/Vector4";
 
+const TEMP_Vector4 = new Vector4(0, 0, 0, 0);
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
     declare _scene: Scene;
@@ -49,7 +51,16 @@ export class Area2D extends Sprite {
      */
     render(ctx: Context, x: number, y: number): void {
         this._preRenderUpdate(ctx);
-        this._scene._curCamera = this.mainCamera;
+        this._scene._curCamera = this._mainCamera;
+        let mgr = ctx._render2DManager;
+        let restoreMask = mgr.renderLayerMask;
+        mgr.renderLayerMask = this._mainCamera.visiableLayer;
+        
+        mgr.cullRect.cloneTo(TEMP_Vector4);
+
+        let rect = this._mainCamera._rect;
+        mgr.cullRect = Vector4.TEMP.setValue(rect.x , rect.z , rect.y , rect.w);
+        
         super.render(ctx, x, y);
         if (this._mainCamera) {
             let shaderData = this._scene.sceneShaderData;
@@ -58,9 +69,11 @@ export class Area2D extends Sprite {
                 shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
             }
         }
+        
         this._scene._curCamera = null;
-
-    }
+        mgr.cullRect = TEMP_Vector4;
+        mgr.renderLayerMask = restoreMask;
+    }   
 
     _setBelongScene(scene: Node): void {
         super._setBelongScene(scene);

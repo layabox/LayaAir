@@ -1,8 +1,8 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw circle command
@@ -94,23 +94,23 @@ export class DrawCircleCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the draw circle command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制圆形命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
-        if (this.percent && context.sprite) {
-            let w = context.sprite.width;
-            let h = context.sprite.height;
-            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * Math.min(w, h) - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
+        if (this.percent && runner.sprite) {
+            let w = runner.sprite.width;
+            let h = runner.sprite.height;
+            runner._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * Math.min(w, h) - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
         }
         else
-            context._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
+            runner._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**

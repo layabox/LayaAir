@@ -97,7 +97,8 @@ export class RenderManager2D {
      * 设置裁剪矩形
      */
     set cullRect(value: Vector4) {
-        this._cullRect = value;
+        value.cloneTo(this._cullRect);
+        // this._cullRect = value;
     }
 
     /**
@@ -181,9 +182,9 @@ export class RenderManager2D {
 
     private _cull(renderNode: BaseRenderNode2D, context: IRenderContext2D) {
         // 裁剪规则一：检查渲染层掩码
-        // if ((renderNode.renderLayer & this._renderLayerMask) === 0) {
-        //     return;
-        // }
+        if ((renderNode.renderLayer & this._renderLayerMask) === 0) {
+            return;
+        }
 
         // // 裁剪规则二：检查矩形相交
         // const nodeRect = renderNode.rect;

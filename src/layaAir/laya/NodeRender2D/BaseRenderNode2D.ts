@@ -105,7 +105,7 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, "u_baseRender2DTextureRange", ShaderDataType.Vector4);
-        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
+        // commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
@@ -216,15 +216,27 @@ export class BaseRenderNode2D extends Component {
      * 获取渲染范围
      */
     get rect(): Vector4 {
+        if (this._boundsChange) {
+            //todo 计算渲染范围
+            this._boundsChange = false;
+        }
         return this._rect;
     }
 
-    /**
-     * 设置渲染范围
-     */
-    set rect(value: Vector4) {
-        this._rect = value;
+    private _boundsChange: boolean = false;
+
+    public get boundsChange(): boolean {
+        return this._boundsChange;
     }
+    public set boundsChange(value: boolean) {
+        this._boundsChange = value;
+    }
+    // /**
+    //  * 设置渲染范围
+    //  */
+    // set rect(value: Vector4) {
+    //     this._rect = value;
+    // }
 
     /**
      * 基于不同BaseRender的uniform集合
@@ -232,12 +244,15 @@ export class BaseRenderNode2D extends Component {
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D"];
     }
-    protected _getRect(): Vector4 {
-        return this._rect;
-    }
 
-    protected _transformChange() {
+    // protected _getRect(): Vector4 {
+    //     return this._rect;
+    // }
+
+    /** @internal */
+    _transformChange() {
         //TODO
+        this.boundsChange = true;
     }
 
     private _changeMaterialReference(lastValue: Material, value: Material): void {
@@ -407,6 +422,11 @@ export class BaseRenderNode2D extends Component {
             this._changeMaterialReference(lastValue, value);
             this._renderElements[0] && BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], value);
         }
+    }
+
+    /** @internal */
+    _getRenderElements(): IRenderElement2D[] {
+        return this._renderElements;
     }
 
     /**
