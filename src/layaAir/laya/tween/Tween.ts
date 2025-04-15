@@ -639,15 +639,26 @@ export class Tween {
         if (this._queue.length == 0)
             return;
 
-        let arr = this._queue.concat();
+        let arr: Array<Tweener>;
+        for (let e of this._queue) {
+            if (e > 0) {
+                let tweener = Tweener.getTween(e);
+                if (tweener) {
+                    if (!tweener._killed) {
+                        if (!arr) arr = [];
+                        arr.push(tweener);
+                    }
+                    tweener.owner = null;
+                }
+            }
+        }
+
         this._head = -1;
         this._cur = null;
         this._queue.length = 0;
 
-        forEach(arr, tween => {
-            tween.kill(complete);
-            tween.owner = null;
-        });
+        if (arr != null)
+            arr.forEach(t => t.kill(complete));
     }
 
     /**
