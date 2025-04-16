@@ -627,13 +627,13 @@ export class WebGLShaderData extends ShaderData {
     }
 
     destroy(): void {
+        if ((this as any).destroyed) {
+            return;
+        }
         this.clearData();
-
         this._defineDatas.destroy();
         this._defineDatas = null;
-
-        this._gammaColorMap.clear();
-        this._gammaColorMap = null;
+        (this as any).destroyed = true;
     }
 }
 
