@@ -564,7 +564,7 @@ export class TextRender extends EventDispatcher {
             // 可能同时会有多个图集被回收
             dt = curloop - curatlas.texture.lastTouchTm;
             if (dt > destroyDt) {
-                TextRender.showLog && console.log('TextRender GC delete atlas ' + tex ? curatlas.texture.id : 'unk');
+                TextRender.showLog && console.log('TextRender GC delete atlas ' + (tex ? curatlas.texture.id : 'unk'));
                 curatlas.destroy();
                 this.textAtlases[i] = this.textAtlases[sz - 1];	// 把最后的拿过来冲掉
                 sz--;
