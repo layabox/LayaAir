@@ -15,5 +15,6 @@ export interface I2DRenderPassFactory {
     createSetRendertarget2DCMD(): SetRendertarget2DCMD;
 
     createSetRenderDataCMD(): SetRenderDataCMD;
-    createSetShaderDefineCMD(): SetShaderDefineCMD ;
+
+    createSetShaderDefineCMD(): SetShaderDefineCMD;
 }

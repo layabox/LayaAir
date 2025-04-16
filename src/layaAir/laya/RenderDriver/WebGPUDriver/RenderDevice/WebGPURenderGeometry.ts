@@ -3,6 +3,8 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
 import { WebGPUBufferState } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
@@ -24,9 +26,9 @@ interface WebGPUDrawElementInfo {
     elementCount?: number;
 }
 
-interface WebGPUDrawInstanceInfo {
-    instanceCount?: number;
-    instanceOffset?: number;
+interface WebGPUDrawIndirectInfo {
+    buffer: WebGPUStorageBuffer;
+    offset: number;
 }
 
 export class WebGPURenderGeometry implements IRenderGeometryElement {
@@ -35,19 +37,18 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
 
     private static _idCounter: number = 0;
 
-    /** @internal */
     _id: number = ++WebGPURenderGeometry._idCounter;
 
-    /**@internal */
+
     private _indexFormat: IndexFormat;
 
-    /**@internal */
+
     private _mode: MeshTopology;
 
-    /**@internal */
+
     private _instanceCount: number;
 
-    /**@internal */
+
     private _bufferState: WebGPUBufferState;
 
     /**@internal */
@@ -57,6 +58,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     _drawElementInfo: WebGPUDrawElementInfo[];
 
     /**@internal */
+    _drawIndirectInfo: WebGPUDrawIndirectInfo[];
+
     drawType: DrawType;
 
     gpuIndexFormat: GPUIndexFormat = 'uint16';
@@ -105,8 +108,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this.mode = mode;
         this.drawType = drawType;
         this.indexFormat = IndexFormat.UInt16;
-        this._drawArrayInfo = [];
-        this._drawElementInfo = [];
         this._instanceCount = 1;
     }
 
@@ -152,6 +153,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
 
     setDrawArrayParams(first: number, count: number): void {
+        (!this._drawArrayInfo) && (this._drawArrayInfo = []);
+        this._drawElementInfo = [];
         this._drawArrayInfo.push({
             start: first,
             count: count
@@ -159,6 +162,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
 
     setDrawElemenParams(count: number, offset: number): void {
+        (!this._drawElementInfo) && (this._drawElementInfo = []);
         this._drawElementInfo.push({
             elementStart: offset,
             elementCount: count
@@ -166,12 +170,24 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
 
     setInstanceRenderOffset(offset: number, instanceCount: number) {
+
         //TODO
     }
 
+    setIndirectDrawBuffer(buffer: WebGPUStorageBuffer, offset: number): void {
+        (!this._drawIndirectInfo) && (this._drawIndirectInfo = []);
+        let buf = buffer;
+        this._drawIndirectInfo.push({
+            buffer: buf,
+            offset: offset
+        }
+        )
+    }
+
     clearRenderParams(): void {
-        this._drawElementInfo.length = 0;
-        this._drawArrayInfo.length = 0;
+        this._drawElementInfo && (this._drawElementInfo.length = 0);
+        this._drawElementInfo && (this._drawArrayInfo.length = 0);
+        this._drawIndirectInfo && (this._drawIndirectInfo.length = 0);
     }
 
     cloneTo(obj: WebGPURenderGeometry) {
@@ -179,8 +195,9 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         obj.drawType = this.drawType;
         obj.indexFormat = this.indexFormat;
         obj.instanceCount = this.instanceCount;
-        obj._drawArrayInfo = this._drawArrayInfo.slice();
-        obj._drawElementInfo = this._drawElementInfo.slice();
+        obj._drawArrayInfo = this._drawArrayInfo?.slice();
+        obj._drawElementInfo = this._drawElementInfo?.slice();
+        obj._drawIndirectInfo = this._drawIndirectInfo?.slice();
     }
 
     destroy(): void {

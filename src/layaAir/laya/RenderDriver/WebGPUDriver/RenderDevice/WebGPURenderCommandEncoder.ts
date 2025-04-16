@@ -94,19 +94,19 @@ export class WebGPURenderCommandEncoder {
      * @param geometry 
      * @param setBuffer 
      */
-    applyGeometry(geometry: WebGPURenderGeometry, setBuffer: boolean = true) {
+    applyGeometry(geometry: WebGPURenderGeometry) {
         //解构geometry中的属性，减少代码重复
-        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
+        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo, _drawIndirectInfo } = geometry;
         const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
 
         let indexByte = 2; //index的字节数
-        if (setBuffer) {
-            vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
-            if (indexBuffer) {
-                indexByte = geometry.gpuIndexByte;
-                this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
-            }
+
+        vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+        if (indexBuffer) {
+            indexByte = geometry.gpuIndexByte;
+            this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
         }
+
 
         //绘制的三角形数量
         let triangles = 0;
@@ -148,62 +148,17 @@ export class WebGPURenderCommandEncoder {
                     this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 }
                 break;
-        }
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
-        return triangles;
-    }
-
-    /**
-     * 上传几何数据
-     * @param geometry 
-     * @param part 
-     * @param setBuffer 
-     */
-    applyGeometryPart(geometry: WebGPURenderGeometry, part: number, setBuffer: boolean = true) {
-        //解构geometry中的属性，减少代码重复
-        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo } = geometry;
-        const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
-
-        let indexByte = 2; //index的字节数
-        if (setBuffer) {
-            vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
-            if (indexBuffer) {
-                indexByte = geometry.gpuIndexByte;
-                this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
-            }
-        }
-
-        //绘制的三角形数量
-        let triangles = 0;
-
-        //根据不同的数据类型绘制
-        let count = 0, start = 0;
-        switch (drawType) {
-            case DrawType.DrawArray:
-                count = _drawArrayInfo[part].count;
-                start = _drawArrayInfo[part].start;
-                triangles = count - 2;
-                this.encoder.draw(count, 1, start, 0);
+            case DrawType.DrawArrayIndirect:
+                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                    this.encoder.drawIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
+                }
+                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
                 break;
-            case DrawType.DrawElement:
-                count = _drawElementInfo[part].elementCount;
-                start = _drawElementInfo[part].elementStart;
-                triangles = count / 3;
-                this.encoder.drawIndexed(count, 1, start / indexByte, 0);
-                break;
-            case DrawType.DrawArrayInstance:
-                count = _drawArrayInfo[part].count;
-                start = _drawArrayInfo[part].start;
-                triangles = (count - 2) * instanceCount;
-                this.encoder.draw(count, instanceCount, start, 0);
-                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
-                break;
-            case DrawType.DrawElementInstance:
-                count = _drawElementInfo[part].elementCount;
-                start = _drawElementInfo[part].elementStart;
-                triangles = count / 3 * instanceCount;
-                this.encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
-                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+            case DrawType.DrawElementIndirect:
+                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                    this.encoder.drawIndexedIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
+                }
+                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
                 break;
         }
         this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);

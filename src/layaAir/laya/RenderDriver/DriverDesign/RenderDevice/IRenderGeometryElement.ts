@@ -3,25 +3,33 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "./IBufferState";
+import { IStorageBuffer } from "./IStorageBuffer";
 
 export interface IRenderGeometryElement {
-    /**@internal */
     bufferState: IBufferState;
-    /**@internal */
     mode: MeshTopology;
-    /**@internal */
     drawType: DrawType;
-    /**@internal */
     instanceCount: number;
-    /**@internal */
     indexFormat: IndexFormat;
-    /**@internal */
+    /**
+     * 设置顶点的渲染初始开始位置和长度，参数会累加。此参数只在DrawArray为DrawElement和 DrawArrayInstance中有用
+     * @param first 
+     * @param count 
+     */
     setDrawArrayParams(first: number, count: number): void;
-    /**@internal */
+    /**
+     * 设置索引渲染数量和偏移，参数会累加，此参数只在DrawType为DrawElement和DrawElementInstance中有用
+     * @param first 
+     * @param count 
+     */
     setDrawElemenParams(count: number, offset: number): void;
-    /**@internal */
+    /**
+     * 设置间接渲染的Buffer和偏移,此参数只在DrawType为DrawArrayIndirect和DrawElementIndirect中有用
+     * @param buffer 
+     * @param offset 
+     */
+    setIndirectDrawBuffer?(buffer: IStorageBuffer, offset: number): void;
     clearRenderParams(): void;
-    /**@internal */
     destroy(): void;
     /**
      * @en get render params Array

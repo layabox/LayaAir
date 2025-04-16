@@ -42,6 +42,7 @@ export class WebGPUCapable {
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_R16G16B16A16, true);
         this._capabilityMap.set(RenderCapable.ComputeShader, true);
         this._capabilityMap.set(RenderCapable.StorageBuffer, true);
+        this._capabilityMap.set(RenderCapable.IndirectDraw, true);
 
         let features = descriptor.requiredFeatures;
 

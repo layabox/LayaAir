@@ -16,12 +16,11 @@ import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBun
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
-import { WebGPU3DRenderPassFactory, WebGPUDriverRenderNodeCacheData } from "./WebGPU3DRenderPassFactory";
+import { WebGPU3DRenderPassFactory } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 /**
@@ -437,7 +436,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;
         if (command) {
-            triangles += command.applyGeometryPart(this.geometry, 0);
+            triangles += command.applyGeometry(this.geometry);
         }
         return triangles;
     }
