@@ -763,7 +763,7 @@ export class WebGPUShaderData extends ShaderData {
                 let oldMask = this._bindGroupLastUpdateMask.get(item)
                 let mask: number;
                 if (oldMask >= Stat.loopCount) {
-                    mask = Stat.loopCount++;
+                    mask = Stat.loopCount + 1;
                 } else {
                     mask = Stat.loopCount;
                 }

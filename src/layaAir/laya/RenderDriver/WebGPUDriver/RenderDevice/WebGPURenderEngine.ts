@@ -147,6 +147,9 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
                 for (const extension of requestedExtensions)
                     if (this._adapterSupportedExtensions.indexOf(extension) !== -1)
                         validExtensions.push(extension);
+                    else {
+                        console.warn(`WebGPU: ${extension} is not supported by the adapter.`);
+                    }
                 deviceDescriptor.requiredFeatures = validExtensions;
             }
         }
