@@ -1,9 +1,8 @@
 import { NotImplementedError } from "../../../../utils/Error";
-import { WebGPUUniformPropertyBindingInfo } from "../WebGPUCodeGenerator";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { ComputeShaderProcessInfo, IComputeShader } from "../../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 import { WebGPUCommandUniformMap } from "../WebGPUCommandUniformMap";
-import { WebGPUBindGroupHelper } from "../WebGPUBindGroupHelper";
+import { WebGPUBindGroupHelper, WebGPUUniformPropertyBindingInfo } from "../WebGPUBindGroupHelper";
 
 
 

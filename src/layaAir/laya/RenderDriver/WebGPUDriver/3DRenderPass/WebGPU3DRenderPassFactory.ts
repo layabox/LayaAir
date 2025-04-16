@@ -26,7 +26,6 @@ import { Stat } from "../../../utils/Stat";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
-import { WebGPUUniformPropertyBindingInfo } from "../RenderDevice/WebGPUCodeGenerator";
 import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 
 export class WebGPUDriverRenderNodeCacheData {
@@ -76,15 +75,11 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         if (recreateBindGroup) {//创建BindGroup
             //creat BindGroup
             let bindGroupArray = shaderInstance.uniformSetMap.get(2);
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray)
-            let bindgroupEntriys: GPUBindGroupEntry[] = [];
-            let bindGroupDescriptor: GPUBindGroupDescriptor = {
-                label: "GPUBindGroupDescriptor",
-                layout: groupLayout,
-                entries: bindgroupEntriys
-            };
+
+
             //填充bindgroupEntriys
             let shaderData = node.shaderData as WebGPUShaderData;
+            let bindgroupEntriys: GPUBindGroupEntry[] = [];
             for (var com of node._commonUniformMap) {
                 shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
                 shaderData.fillBindGroupEntry(com, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
@@ -94,6 +89,12 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
                 shaderdata.createSubUniformBuffer(addition, addition, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(addition) as WebGPUCommandUniformMap)._idata));
                 shaderdata.fillBindGroupEntry(addition, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
             }
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
+            let bindGroupDescriptor: GPUBindGroupDescriptor = {
+                label: "GPUBindGroupDescriptor",
+                layout: groupLayout,
+                entries: bindgroupEntriys
+            };
             let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             bindgroup = new WebGPUBindGroup();
             bindgroup.gpuRS = bindGroupgpu;

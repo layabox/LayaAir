@@ -283,20 +283,19 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         }
         if (recreateBindGroup) {//创建BindGroup
             let bindGroupArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._nodeCommonMap);
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
+            //填充bindgroupEntriys
+            let shaderData = this.value2DShaderData;
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
+            for (var com of this._nodeCommonMap) {
+                //shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
+                shaderData.fillBindGroupEntry(com, com, bindgroupEntriys, bindGroupArray);
+            }
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
             let bindGroupDescriptor: GPUBindGroupDescriptor = {
                 label: "GPUBindGroupDescriptor",
                 layout: groupLayout,
                 entries: bindgroupEntriys
             };
-            //填充bindgroupEntriys
-            let shaderData = this.value2DShaderData;
-            for (var com of this._nodeCommonMap) {
-                //shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
-                shaderData.fillBindGroupEntry(com, com, bindgroupEntriys, bindGroupArray);
-            }
-
             let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
 
             this._value2DgpuRS.gpuRS = bindGroup;

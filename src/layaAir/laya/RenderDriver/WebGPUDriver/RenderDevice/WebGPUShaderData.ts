@@ -15,7 +15,6 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
@@ -25,7 +24,7 @@ import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformM
 import { Stat } from "../../../utils/Stat";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGPUBindGroup, WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
+import { WebGPUBindGroup, WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
@@ -209,6 +208,7 @@ export class WebGPUShaderData extends ShaderData {
         });
         return uniformBuffer;
     }
+
     /**
    * 传入布局，绑定好资源数据
    * @param groupId 
@@ -246,6 +246,8 @@ export class WebGPUShaderData extends ShaderData {
                                     texture = WebGPUShaderData._dummyTexture2D._texture;
                                     break;
                             }
+                        } else {
+                            (texture as WebGPUInternalTex)._getGPUTextureBindingLayout(item.texture);
                         }
 
                         entryArray.push({
@@ -267,6 +269,8 @@ export class WebGPUShaderData extends ShaderData {
                                     texture = WebGPUShaderData._dummyTexture2D._texture;
                                     break;
                             }
+                        } else {
+                            (texture as WebGPUInternalTex)._getSampleBindingLayout(item.sampler);
                         }
                         entryArray.push({
                             binding: item.binding,
@@ -321,15 +325,16 @@ export class WebGPUShaderData extends ShaderData {
             }
 
             let bindGroupInfos = this._cacheNameBindGroupInfos.get(`${bindGroup}` + cacheName);
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos)
+
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
+            //填充bindgroupEntriys
+            this.fillBindGroupEntry(cacheName, cacheName, bindgroupEntriys, bindGroupInfos);
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos)
             let bindGroupDescriptor: GPUBindGroupDescriptor = {
                 label: "GPUBindGroupDescriptor",
                 layout: groupLayout,
                 entries: bindgroupEntriys
             };
-            //填充bindgroupEntriys
-            this.fillBindGroupEntry(cacheName, cacheName, bindgroupEntriys, bindGroupInfos);
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroupGPU;
@@ -348,14 +353,16 @@ export class WebGPUShaderData extends ShaderData {
             this._cacheBindGroup.get(cacheBindgroupKey).isNeedCreate(this._getBindGroupLastUpdateMask(cacheBindgroupKey));
         if (needRecreate) {
             let bindGroupInfos = bindInfoArray;
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos);
+
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
+
+            this.fillBindGroupEntry(cacheName, cacheBindgroupKey, bindgroupEntriys, bindGroupInfos);
+            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos);
             let bindGroupDescriptor: GPUBindGroupDescriptor = {
                 label: "cacheBindgroupKey",
                 layout: groupLayout,
                 entries: bindgroupEntriys
             };
-            this.fillBindGroupEntry(cacheName, cacheBindgroupKey, bindgroupEntriys, bindGroupInfos);
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
             let returns = new WebGPUBindGroup();
             returns.gpuRS = bindGroupGPU;

@@ -1,4 +1,7 @@
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
@@ -207,6 +210,49 @@ export class WebGPUInternalTex implements InternalTexture {
 
         this.globalId = WebGPUGlobal.getId(this);
         WebGPUStatis.addTexture(this);
+    }
+
+    _getGPUTextureBindingLayout(layout: GPUTextureBindingLayout) {
+        if (this.compareMode > 0)
+            layout.sampleType = 'depth';
+        else if (this._webGPUFormat === WebGPUTextureFormat.depth16unorm
+            || this._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
+            || this._webGPUFormat === WebGPUTextureFormat.depth32float) {
+            layout.sampleType = 'unfilterable-float';
+        }
+        else {
+            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32)
+                layout.sampleType = 'unfilterable-float';
+            else
+                layout.sampleType = 'float';
+        }
+    }
+
+    _getSampleBindingLayout(layout: GPUSamplerBindingLayout) {
+        if (this.compareMode > 0)
+            layout.type = 'comparison';
+        else if (this._webGPUFormat === WebGPUTextureFormat.depth16unorm
+            || this._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
+            || this._webGPUFormat === WebGPUTextureFormat.depth32float) {
+            if (layout.type !== 'non-filtering') {
+                layout.type = 'non-filtering';
+                this.filterMode = FilterMode.Point;
+            }
+        }
+        else {
+            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32) {
+                if (layout.type !== 'non-filtering') {
+                    layout.type = 'non-filtering';
+                    this.filterMode = FilterMode.Point;
+                }
+            }
+            else if (layout.type !== 'filtering') {
+                layout.type = 'filtering';
+                this.filterMode = FilterMode.Bilinear;
+            }
+        }
     }
 
     statisAsRenderTexture() {

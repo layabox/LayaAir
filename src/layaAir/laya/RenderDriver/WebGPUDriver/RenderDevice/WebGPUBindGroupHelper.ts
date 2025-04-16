@@ -3,10 +3,39 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
+
+
+/**
+ * 绑定类型（uniformBlock，texture或sampler）
+ */
+export enum WebGPUBindingInfoType {
+    buffer, //uniformBlock
+    texture, //texture
+    sampler, //sampler
+    storageBuffer
+};
+
+/**
+ * uniform详细内容（可能是uniformBlock，texture或sampler）
+ */
+export interface WebGPUUniformPropertyBindingInfo {
+    id: number; //唯一编码
+    set: number; //分组编号
+    binding: number; //绑定编号
+    name: string; //名称
+    propertyId: number; //uniform内容的id
+    visibility: GPUShaderStageFlags; //GPU中的可见性
+    type: WebGPUBindingInfoType; //绑定类型
+    uniform?: any; //uniform详细内容
+    buffer?: GPUBufferBindingLayout;
+    texture?: GPUTextureBindingLayout;
+    sampler?: GPUSamplerBindingLayout;
+};
+
+
 
 export class WebGPUBindGroup {
     gpuRS: GPUBindGroup;
@@ -22,7 +51,6 @@ export class WebGPUBindGroup {
 
 export class WebGPUBindGroupHelper {
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
-    static BindGroupLayoutMap: Map<string, GPUBindGroupLayout> = new Map();
     static emptyBindgoup: GPUBindGroup;
     static createEmptyBindGroup() {
         if (WebGPUBindGroupHelper.emptyBindgoup)
@@ -172,8 +200,6 @@ export class WebGPUBindGroupHelper {
                 bindingInfos.push(bindingInfo);
             }
 
-
-
             if (uniformMap && uniformMap._idata) {
                 // 遍历uniform映射中的所有属性,添加纹理set和sampler的绑定信息
                 for (let [propertyID, uniformProperty] of uniformMap._idata) {
@@ -238,7 +264,7 @@ export class WebGPUBindGroupHelper {
     }
 
     //根据同一组的绑定信息，创建绑定组布局
-    static createBindGroupEntryLayout(infoArray: WebGPUUniformPropertyBindingInfo[]): GPUBindGroupLayout {
+    static createBindGroupEntryLayout(infoArray: WebGPUUniformPropertyBindingInfo[]) {
         let entries: GPUBindGroupLayoutEntry[] = [];
         const desc: GPUBindGroupLayoutDescriptor = {
             label: "GPUBindGroupLayoutDescriptor",
@@ -283,24 +309,17 @@ export class WebGPUBindGroupHelper {
     //传入Command的string Array 生成Scene和Camera用这个
     static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup {
         let infoArray: WebGPUUniformPropertyBindingInfo[] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray);
-        const bindGroupKey = this._getBindGroupID(unifromCommandMapArray);
-        let groupLayout: GPUBindGroupLayout;
-        if (WebGPUBindGroupHelper.BindGroupLayoutMap.has(bindGroupKey)) {
-            groupLayout = WebGPUBindGroupHelper.BindGroupLayoutMap.get(bindGroupKey);
-        } else {
-            groupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(infoArray);
-            WebGPUBindGroupHelper.BindGroupLayoutMap.set(bindGroupKey, groupLayout);
-        }
         let bindgroupEntriys: GPUBindGroupEntry[] = [];
+        //填充bindgroupEntriys
+        for (var i = 0; i < unifromCommandMapArray.length; i++) {
+            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], unifromCommandMapArray[i], bindgroupEntriys, infoArray);
+        }
+        let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(infoArray);
         let bindGroupDescriptor: GPUBindGroupDescriptor = {
             label: "GPUBindGroupDescriptor",
             layout: groupLayout,
             entries: bindgroupEntriys
         };
-        //填充bindgroupEntriys
-        for (var i = 0; i < unifromCommandMapArray.length; i++) {
-            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], unifromCommandMapArray[i], bindgroupEntriys, infoArray);
-        }
 
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         //设置缓存  

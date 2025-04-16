@@ -17,15 +17,8 @@ import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Config } from "../../../../Config";
-import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { WebGLRenderContext3D } from "../3DRenderPass/WebGLRenderContext3D";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
-import { WebGPUUniformPropertyBindingInfo } from "../../WebGPUDriver/RenderDevice/WebGPUCodeGenerator";
-
-interface CacheEntryInfo {
-    bindInfo: WebGPUUniformPropertyBindingInfo;
-    resource: any;
-}
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。

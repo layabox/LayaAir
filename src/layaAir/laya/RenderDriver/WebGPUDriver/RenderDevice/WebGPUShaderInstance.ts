@@ -2,10 +2,9 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { NotImplementedError } from "../../../utils/Error";
-import { WebGPUBindGroupHelper } from "./WebGPUBindGroupHelper";
+import { WebGPUBindGroupHelper, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPURenderContext3D } from "../3DRenderPass/WebGPURenderContext3D";
 import { GLSLForVulkanGenerator } from "./GLSLForVulkanGenerator";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
@@ -13,6 +12,7 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderContext2D } from "../2DRenderPass/WebGPURenderContext2D";
+
 
 /**
  * WebGPU着色器实例
