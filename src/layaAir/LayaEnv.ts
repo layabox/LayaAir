@@ -3,7 +3,7 @@ export class LayaEnv {
      * @en The version of the engine.
      * @zh 引擎的版本。
      */
-    static version: string = "3.2.4";
+    static version: string = "3.2.5";
 
     /**
      * @en Whether the engine is running in the editor. If it is false, it indicates that the engine is running in the scene view of the IDE, otherwise it is true.
