@@ -7,6 +7,7 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { WebGPURenderEngine } from "./WebGPURenderEngine";
 
 
 const uniformRegex = /\buniform\s+(?:(lowp|mediump|highp)\s+)?(\w+)\s+(\w+)(\s*\[\s*(\d+)\s*\])?\s*;/gm;
@@ -31,6 +32,8 @@ type WebGPUAttributeMapType = {
 export class GLSLForVulkanGenerator {
 
     static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number) {
+
+        const engine = WebGPURenderEngine._instance;
 
         let defMap: { [key: string]: boolean } = {};
         for (const define of defines) {
@@ -60,6 +63,56 @@ export class GLSLForVulkanGenerator {
 
         const additionDefineStrs = additionDefineString();
 
+        const precision = `precision highp float;
+        precision highp int;`;
+
+        {
+            let vs = `layout(std140, column_major) uniform;
+#define attribute in
+#define varying out
+#define textureCube texture
+#define texture2D texture
+
+${defineStrs}
+
+${additionDefineStrs}
+
+${vertexCode}
+`;
+            let resVS = engine.shaderCompiler.glslang.glsl300es_preprocess(vs, "vertex");
+            if (!resVS.success) {
+                console.error("vertex shader preprocess error", resVS.info_log);
+            }
+            vertexCode = resVS.preprocessed_code;
+
+            let fs = `layout(std140, column_major) uniform;
+#define varying in
+out highp vec4 pc_fragColor;
+#define gl_FragColor pc_fragColor
+#define gl_FragDepthEXT gl_FragDepth
+#define texture2D texture
+#define textureCube texture
+#define texture2DProj textureProj
+#define texture2DLodEXT textureLod
+#define texture2DProjLodEXT textureProjLod
+#define textureCubeLodEXT textureLod
+#define texture2DGradEXT textureGrad
+#define texture2DProjGradEXT textureProjGrad
+#define textureCubeGradEXT textureGrad
+
+${defineStrs}
+
+${additionDefineStrs}
+
+${fragmentCode}
+`;
+            let resFS = engine.shaderCompiler.glslang.glsl300es_preprocess(fs, "fragment");
+            if (!resFS.success) {
+                console.error("fragment shader preprocess error", resFS.info_log);
+            }
+            fragmentCode = resFS.preprocessed_code;
+        }
+
         const attributeStrs = attributeString(attributeMap);
 
         // const uniformStrs = uniformString(commanMap, uniformMap);
@@ -79,28 +132,19 @@ export class GLSLForVulkanGenerator {
         vertexCode = vertexCode.replace(uniformBlockRegex, '\n');
         fragmentCode = fragmentCode.replace(uniformBlockRegex, '\n');
         // remove original varyings
-        vertexCode = vertexCode.replace(varyingRegex, '\n');
-        fragmentCode = fragmentCode.replace(varyingRegex, '\n');
+        vertexCode = vertexCode.replace(vertexVaryingRegex, '\n');
+        fragmentCode = fragmentCode.replace(fragmentVaryingRegex, '\n');
         // replace texture samplers function
 
-
-
+        // fragment out 
+        fragmentCode = fragmentCode.replace(vertexVaryingRegex, "");
 
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
         const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, checkSetNumber);
 
-
-
-        // replace fragment out put
-        // todo mrt
-        fragmentCode = fragmentCode.replace(glFragColorRegex, 'pc_fragColor');
-
         const glslVersion = "#version 450\n";
-
-        const precision = `precision highp float;
-precision highp int;`;
 
         let vertex = `${glslVersion}
 ${precision}
@@ -118,6 +162,7 @@ ${vertexCode}
 
         let fragment = `${glslVersion}
 ${precision}
+
 ${fragmentOutStrs}
 
 ${additionDefineStrs}
@@ -284,6 +329,9 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
 
 function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, checkSetNumber: number) {
     let res = "";
+
+    let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
+
     uniformSetMap.forEach((value, key) => {
         if (value.length > 0) {
             for (let uniform of value) {
@@ -304,18 +352,16 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
+
+                            let samplerName = uniform.name.replace("_Texture", "");
+
+                            samplerMap.set(samplerName, uniform);
+
                         }
                         break;
                     case WebGPUBindingInfoType.sampler:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
-                            let sampler = "sampler";
-
-                            // todo
-                            if (uniform.name == "u_ShadowMap_Sampler") {
-                                sampler = "samplerShadow";
-                            }
-
-                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`;
                         }
                         break;
                     default:
@@ -324,19 +370,36 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
             }
         }
     });
-    return res;
+
+    let samplerDefStrs = "\n";
+    samplerMap.forEach((uniform, key) => {
+        let sampler = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
+        samplerDefStrs += `#define ${key} ${sampler}(${uniform.name}, ${key}_Sampler)\n`;
+    });
+
+
+    return res + samplerDefStrs;
 }
 
 
-const varyingRegex = /varying\s+(\w+)\s+(\w+)\s*;/g;
-function findVaryings(source: string) {
+function getVaryingRegex(ioType: string): RegExp {
+    return new RegExp(`${ioType}\\s+(lowp|mediump|highp)?\\s*(\\w+)\\s+(\\w+)\\s*;`, 'g');
+}
+
+const vertexVaryingRegex = getVaryingRegex("out");
+const fragmentVaryingRegex = getVaryingRegex("in");
+
+function findVaryings(source: string, regex: RegExp): string[] {
     let varyings: string[] = [];
     let result;
-    while ((result = varyingRegex.exec(source)) !== null) {
-        let type = result[1].trim();
-        let name = result[2].trim();
 
-        varyings.push(`${type} ${name};`);
+    while ((result = regex.exec(source)) !== null) {
+        // 判断是否有精度限定符
+        const precision = result[1] ? `${result[1]} ` : '';
+        const type = result[2].trim();
+        const name = result[3].trim();
+
+        varyings.push(`${precision}${type} ${name};`);
     }
 
     return varyings;
@@ -354,8 +417,8 @@ function varyingString(varyings: string[], io: string) {
 
 function executeVaryings(fsSource: string, vsSource: string) {
 
-    let vertexVaryings = findVaryings(vsSource);
-    let fragmentVaryings = findVaryings(fsSource);
+    let vertexVaryings = findVaryings(vsSource, vertexVaryingRegex);
+    let fragmentVaryings = findVaryings(fsSource, fragmentVaryingRegex);
 
     let varyings = vertexVaryings.filter(item => fragmentVaryings.includes(item));
 
@@ -376,70 +439,53 @@ function fragmentOutString(source: string) {
  */
 function replaceTextureSampler(source: string, usedTexSet: Set<string>) {
 
-    const texture2DRegex = /texture2D\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
-    let newSource = source.replace(texture2DRegex, (match, textureName, uvName) => {
+    const textureRegx = /texture\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
+    let newSource = source.replace(textureRegx, (match, textureName, uvName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `texture(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
     });
 
-    const textureCubeRegex = /textureCube\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(textureCubeRegex, (match, textureName, uvName) => {
+    const textureProjRegx = /textureProj\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
+    newSource = newSource.replace(textureProjRegx, (match, textureName, uvName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
-        return `texture(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
-    });
-
-    const texture2DProjRegex = /texture2DProj\s*\(\s*([\w_]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(texture2DProjRegex, (match, textureName, uvName) => {
-        usedTexSet.add(`${textureName}_Texture`);
-        usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `textureProj(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName})`;
     });
 
-    const texture2DLodEXTRegex = /texture2DLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(texture2DLodEXTRegex, (match, textureName, uvName, lodName) => {
+    const textureLodRegx = /textureLod\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
+    newSource = newSource.replace(textureLodRegx, (match, textureName, uvName, lodName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `textureLod(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
     });
 
-    const texture2DProjLodEXTRegex = /texture2DProjLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(texture2DProjLodEXTRegex, (match, textureName, uvName, lodName) => {
+    const textureProjLodRegx = /textureProjLod\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
+    newSource = newSource.replace(textureProjLodRegx, (match, textureName, uvName, lodName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `textureProjLod(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
     });
 
-    const textureCubeLodEXTRegex = /textureCubeLodEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(textureCubeLodEXTRegex, (match, textureName, uvName, lodName) => {
+    const textureGradRegx = /textureGrad\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
+    newSource = newSource.replace(textureGradRegx, (match, textureName, uvName, ddxName, ddyName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
-        return `textureLod(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${lodName})`;
-    });
-
-
-    const texture2DGradEXTRegex = /texture2DGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(texture2DGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
-        usedTexSet.add(`${textureName}_Texture`);
-        usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `textureGrad(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
     });
 
-    const texture2DProjGradEXTRegex = /texture2DProjGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(texture2DProjGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
+    const textureProjGradRegx = /textureProjGrad\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
+    newSource = newSource.replace(textureProjGradRegx, (match, textureName, uvName, ddxName, ddyName) => {
         usedTexSet.add(`${textureName}_Texture`);
         usedTexSet.add(`${textureName}_Sampler`);
+        return match;
         return `textureProjGrad(sampler2D(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
     });
-
-    const textureCubeGradEXTRegex = /textureCubeGradEXT\s*\(\s*([\w_]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]*)\s*\)/g;
-    newSource = newSource.replace(textureCubeGradEXTRegex, (match, textureName, uvName, ddxName, ddyName) => {
-        usedTexSet.add(`${textureName}_Texture`);
-        usedTexSet.add(`${textureName}_Sampler`);
-        return `textureGrad(samplerCube(${textureName}_Texture, ${textureName}_Sampler), ${uvName}, ${ddxName}, ${ddyName})`;
-    });
-
     return newSource;
 }
 
@@ -458,16 +504,61 @@ function additionDefineString() {
 }
 
 // todo
-function getSamplerTextureType(type: GPUTextureSampleType) {
-    switch (type) {
-        case "depth":
-            return "samplerShadow";
-        case "float":
-        case "unfilterable-float":
-        case "sint":
-        case "uint":
-        default:
-            return "sampler";
+function getSamplerTextureType(type: GPUTextureSampleType, dimension: GPUTextureViewDimension) {
+    if (dimension == "2d") {
+        switch (type) {
+            case "depth":
+                return "sampler2DShadow";
+            case "float":
+            case "unfilterable-float":
+            case "sint":
+            case "uint":
+            default:
+                return "sampler2D";
+        }
+    }
+    else if (dimension == "cube") {
+        switch (type) {
+            case "depth":
+                return "samplerCubeShadow";
+            default:
+                return "samplerCube";
+        }
+    }
+    else if (dimension == "2d-array") {
+        switch (type) {
+            case "depth":
+                return "sampler2DArrayShadow";
+            default:
+                return "sampler2DArray";
+        }
+    }
+    else if (dimension == "3d") {
+        switch (type) {
+            case "depth":
+                return "sampler3DShadow";
+            default:
+                return "sampler3D";
+        }
+    }
+    else if (dimension == "cube-array") {
+        switch (type) {
+            case "depth":
+                return "samplerCubeArrayShadow";
+            default:
+                return "samplerCubeArray";
+        }
+    }
+    else if (dimension == "1d") {
+        switch (type) {
+            case "depth":
+                return "sampler1DShadow";
+            default:
+                return "sampler1D";
+        }
+    }
+    else {
+        return "sampler2D";
     }
 }
 

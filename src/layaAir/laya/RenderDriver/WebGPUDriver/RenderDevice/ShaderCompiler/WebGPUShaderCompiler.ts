@@ -8,6 +8,12 @@ export interface GlslangCompiler {
         info_log: string,
         success: boolean
     };
+
+    glsl300es_preprocess(glslSource: string, stage: "vertex" | "fragment" | "compute"): {
+        preprocessed_code: string,
+        info_log: string,
+        success: boolean
+    };
 };
 
 export interface NagaCompiler {
