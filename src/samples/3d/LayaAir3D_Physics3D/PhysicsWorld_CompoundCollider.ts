@@ -19,14 +19,16 @@ import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Event } from "laya/events/Event";
 
 export class PhysicsWorld_CompoundCollider {
 	private scene: Scene3D;
 	private camera: Camera;
+
+	private allCollider: Rigidbody3D[] = [];
 	constructor() {
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -42,7 +44,7 @@ export class PhysicsWorld_CompoundCollider {
 			let directionLight = new Sprite3D();
 			let dircom = directionLight.addComponent(DirectionLightCom);
 			this.scene.addChild(directionLight);
-	
+
 			dircom.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
@@ -59,16 +61,37 @@ export class PhysicsWorld_CompoundCollider {
 			plane.meshRenderer.material = planeMat;
 			plane.meshRenderer.receiveShadow = true;
 			var staticCollider: PhysicsCollider = <PhysicsCollider>plane.addComponent(PhysicsCollider);
-			var planeShape: BoxColliderShape = new BoxColliderShape(13, 0, 13);
+			var planeShape: BoxColliderShape = new BoxColliderShape(13, 0.1, 13);
 			staticCollider.colliderShape = planeShape;
 			staticCollider.friction = 2;
 
 			this.randomAddPhysicsSprite();
+
+			Laya.stage.on(Event.CLICK, this, () => {
+
+				for (let i = 0; i < this.allCollider.length; i++) {
+					let rig = this.allCollider[i];
+					rig.wakeUp();
+					let shape = (rig.colliderShape as CompoundColliderShape).shapes[0];
+					shape && (rig.colliderShape as CompoundColliderShape).removeChildShape(shape);
+				}
+
+
+
+				Laya.timer.once(5000, this, () => {
+					console.log("清理所有子形状");
+					for (let i = 0; i < this.allCollider.length; i++) {
+						let rig: Rigidbody3D = this.allCollider[i];
+						rig.wakeUp();
+						(rig.colliderShape as CompoundColliderShape).clearChildShape();
+					}
+				});
+			})
 		});
 	}
 
 	randomAddPhysicsSprite(): void {
-		Laya.timer.loop(1000, this, function (): void {
+		Laya.timer.loop(1000, this, () => {
 			var random: number = Math.floor(Math.random() * 2) % 2;
 			switch (random) {
 				case 0:
@@ -85,13 +108,16 @@ export class PhysicsWorld_CompoundCollider {
 
 	addTable(): void {
 		var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, (tex: Texture2D) => {
 			mat.albedoTexture = tex;
 		}));
 		mat.shininess = 1;
 
-		Mesh.load("res/threeDimen/Physics/table.lm", Handler.create(this, function (mesh: Mesh): void {
+		Mesh.load("res/threeDimen/Physics/table.lm", Handler.create(this, (mesh: Mesh) => {
 			var table: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(mesh)));
+
+
+
 			table.meshRenderer.material = mat;
 			var transform: Transform3D = table.transform;
 			var pos: Vector3 = transform.position;
@@ -136,19 +162,24 @@ export class PhysicsWorld_CompoundCollider {
 			var boxShape4: BoxColliderShape = new BoxColliderShape(0.1, 0.1, 0.3);
 			var localOffset4: Vector3 = boxShape4.localOffset;
 			localOffset4.setValue(0.2, 0.153, -0.048);
-			boxShape4.localOffset = localOffset3;
+			boxShape4.localOffset = localOffset4;
 			compoundShape.addChildShape(boxShape4);
 
 			rigidBody.colliderShape = compoundShape;
+
+			this.allCollider.push(rigidBody);
+
+
+
 		}));
 	}
 
 	addObject(): void {
 		var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
+		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, (tex: Texture2D) => {
 			mat.albedoTexture = tex;
 		}));
-		Mesh.load("res/threeDimen/Physics/object.lm", Handler.create(this, function (mesh: Mesh): void {
+		Mesh.load("res/threeDimen/Physics/object.lm", Handler.create(this, (mesh: Mesh) => {
 
 			var object: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(mesh)));
 			var transform: Transform3D = object.transform;
@@ -182,10 +213,10 @@ export class PhysicsWorld_CompoundCollider {
 			compoundShape.addChildShape(sphereShape);
 
 			rigidBody.colliderShape = compoundShape;
+
+			this.allCollider.push(rigidBody);
 		}));
 
 	}
 
 }
-
-

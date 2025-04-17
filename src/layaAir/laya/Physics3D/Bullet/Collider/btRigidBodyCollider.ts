@@ -242,7 +242,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     isSleeping(): boolean {
         let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider)
-            return bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_ISLAND_SLEEPING  || bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_DISABLE_DEACTIVATION;
+            return bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_ISLAND_SLEEPING || bt.btCollisionObject_getActivationState(this._btCollider) === btPhysicsManager.ACTIVATIONSTATE_DISABLE_DEACTIVATION;
         return false;
     }
 
@@ -749,6 +749,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btTransform_equal(transform, oriTransform);
         this._innerDerivePhysicsTransformation(transform, force);
         bt.btRigidBody_setCenterOfMassTransform(btColliderObject, transform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
+    }
+
+    protected _onScaleChange(scale: Vector3): void {
+        super._onScaleChange(scale);
+        this.setMass(this._isKinematic ? 0 : this._mass);
     }
 
     /**

@@ -9,6 +9,7 @@ import { NotImplementedError } from "../../utils/Error";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
 import { ID6Joint } from "../interface/Joint/ID6Joint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
+import { ICompoundColliderShape } from "../interface/Shape/ICompoundColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
@@ -21,6 +22,7 @@ import { btHingeJoint } from "./Joint/btHingeJoint";
 import { btSpringJoint } from "./Joint/btSpringJoint";
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
+import { btCompoundColliderShape } from "./Shape/btCompoundColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
 import { btCylinderColliderShape } from "./Shape/btCylinderColliderShape";
 import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
@@ -43,7 +45,6 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
      * @zh 初始化物理引擎的功能，设置支持的功能项。
      */
     initPhysicsCapable(): void {
-
         this._physicsEngineCapableMap = new Map();
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
@@ -55,7 +56,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
@@ -264,6 +265,16 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
      */
     createConeColliderShape(): btConeColliderShape {
         return new btConeColliderShape();
+    }
+
+    /**
+     * @en Create a compound collider shape.
+     * @returns A btCompoundColliderShape instance.
+     * @zh 创建组合碰撞器形状。
+     * @returns btCompoundColliderShape 实例。
+     */
+    createCompoundShape(): ICompoundColliderShape {
+        return new btCompoundColliderShape();
     }
 
     /**

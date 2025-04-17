@@ -77,12 +77,16 @@ export class pxColliderShape implements IColliderShape {
             true,
             new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags)
         );
-        this._pxShape.setUUID(this._id);
+        this._pxShape && this._pxShape.setUUID(this._id);
         pxColliderShape._shapePool.set(this._id, this);
     }
 
     private _modifyFlag(flag: ShapeFlag, value: boolean): void {
         this._shapeFlags = value ? this._shapeFlags | flag : this._shapeFlags & ~flag;
+    }
+
+    getPhysicsShape() {
+        return this._pxShape;
     }
 
     /**
@@ -128,6 +132,10 @@ export class pxColliderShape implements IColliderShape {
                 Vector3.multiply(position, this._scale, transform.translation);
             this._pxShape.setLocalPose(transform);
         }
+    }
+
+    getOffset(): Vector3 {
+        return this._offset;
     }
 
     /**
@@ -185,7 +193,7 @@ export class pxColliderShape implements IColliderShape {
 
     }
 
-    
+
     /**
      * @en Destroys the collider shape and releases resources.
      * @zh 销毁碰撞器形状并释放资源。

@@ -917,13 +917,6 @@ export class btPhysicsManager implements IPhysicsManager {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
     }
 
     /**

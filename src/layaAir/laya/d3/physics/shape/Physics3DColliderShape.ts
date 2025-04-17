@@ -1,6 +1,7 @@
 import { IClone } from "../../../utils/IClone";
 import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../../Physics3D/interface/Shape/IColliderShape";
+import { PhysicsColliderComponent } from "../PhysicsColliderComponent";
 
 /**
  * @en The Physics3DColliderShape class serves as the base class for creating collider shapes and is an abstract class.
@@ -28,6 +29,12 @@ export class Physics3DColliderShape implements IClone {
 	_shape: IColliderShape;
 
 	/**
+	 * @en The physics component of the collider.
+	 * @zh 碰撞器的物理组件。
+	 */
+	private _physicsComponent: PhysicsColliderComponent;
+
+	/**
 	 * @en The shape of the collider.
 	 * @zh 碰撞器的形状。
 	 */
@@ -50,6 +57,19 @@ export class Physics3DColliderShape implements IClone {
 		this._localOffset = value;
 		this._shape.setOffset(value);
 	}
+
+	/**
+	 * @en The physics component of the collider.
+	 * @zh 碰撞器的物理组件。
+	 */
+	get physicsComponent(): PhysicsColliderComponent {
+		return this._physicsComponent;
+	}
+
+	set physicsComponent(value: PhysicsColliderComponent) {
+		this._physicsComponent = value;
+	}
+
 	/**@ignore */
 	constructor() {
 		this._createShape();

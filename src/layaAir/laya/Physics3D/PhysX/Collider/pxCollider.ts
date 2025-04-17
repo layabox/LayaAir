@@ -8,6 +8,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
 import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
+import { pxCompoundShape } from "../Shape/pxCompoundShape";
 import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
 /**
  * @en Enumeration of collider types.
@@ -187,6 +188,10 @@ export class pxCollider implements ICollider {
     setColliderShape(shape: pxColliderShape): void {
         if (shape == this._shape)
             return;
+        if (shape instanceof pxCompoundShape) {
+            shape._pxCollider = this;
+            shape.refreshShapes();
+        }
         var lastColliderShape: pxColliderShape = this._shape;
         this._shape = shape;
         //shape._pxCollider = this;
