@@ -1024,6 +1024,7 @@ export class Context {
 
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue, submit.material);
         this.stopMerge = false;
+        this._curSubmit = SubmitBase.RENDERBASE;
         this._drawCount++;
     }
 

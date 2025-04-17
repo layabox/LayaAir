@@ -66,6 +66,16 @@ export class btColliderShape implements IColliderShape {
     }
 
     /**
+     * @en Gets the physics shape.
+     * @returns The physics shape.
+     * @zh 获取物理形状。
+     * @returns 物理形状。
+     */
+    getPhysicsShape() {
+        return this._btShape;
+    }
+
+    /**
      * @override
      */
     protected _createShape() {
@@ -87,6 +97,16 @@ export class btColliderShape implements IColliderShape {
      */
     setOffset(value: Vector3): void {
         value.cloneTo(this._localOffset);
+    }
+
+    /**
+     * @en Gets the local offset of the shape.
+     * @returns The local offset of the shape.
+     * @zh 获取形状的局部偏移。
+     * @returns 局部偏移量。
+     */
+    getOffset(): Vector3 {
+        return this._localOffset;
     }
 
     /**
