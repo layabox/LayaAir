@@ -1,19 +1,20 @@
 import { Const } from "../../Const";
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
-import { ColorFilter } from "../../filters/ColorFilter";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
-import { Value2D } from "../shader/d2/value/Value2D";
+import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
+import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
+import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
 import { Sprite2DGeometry } from "../utils/Sprite2DGeometry";
 import { SubmitKey } from "./SubmitKey";
 
@@ -48,26 +49,16 @@ export class SubmitBase {
         this._mesh = value;
     }
 
-    private _material: Material;
-    public get material(): Material {
-        return this._material;
-    }
-    public set material(value: Material) {
-        if (value) {
-            this._renderElement.materialShaderData = value.shaderData;
-            this._renderElement.subShader = value._shader.getSubShaderAt(0);
-        }
-        this._material = value;
-    }
+    material: Material;
 
     // 从VB中什么地方开始画，画到哪
     /**@internal */
     _startIdx = 0;		//indexbuffer 的偏移，单位是byte
     /**@internal */
     _numEle = 0;
-
+    /** @internal */
+    _internalInfo: GraphicsShaderInfo = null;
     // _colorFiler: ColorFilter = null;
-    shaderValue: ShaderData = null;
 
     _renderElement:IRenderElement2D;
 
@@ -77,10 +68,17 @@ export class SubmitBase {
 
     constructor() {
         this._id = ++SubmitBase.ID;
+    }
+    
+    protected initialize() {
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        this.shaderValue = LayaGL.renderDeviceFactory.createShaderData();
         let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let bufferState = LayaGL.renderDeviceFactory.createBufferState();
+
+        this._renderElement.geometry = geometry;
+        this._renderElement.nodeCommonMap = ["Sprite2D"];
+        this._renderElement.renderStateIsBySprite = false;
+        this._internalInfo = new GraphicsShaderInfo;
         geometry.bufferState = bufferState;
         geometry.indexFormat = IndexFormat.UInt16;
         this._geometry = geometry;
@@ -88,25 +86,27 @@ export class SubmitBase {
     }
 
     clear() {
-        this.shaderValue.clearData();
+        this._internalInfo.clear();
         this._mesh = null;
-        this._material = null;
+        this.material = null;
     }
 
     destroy() {
+        this.clear();
+        
         this._geometry.destroy();
         this._bufferState.destroy();
-        this.shaderValue.destroy();
+        this._internalInfo.destroy();
         this._renderElement.destroy();
 
+        this._internalInfo = null;
         this._renderElement = null;
         this._bufferState = null;
-        this.shaderValue = null;
         this._geometry = null;
         
     }
 
-    updateGeometry() {
+    updateRenderElement() {
         if (!this._mesh)
             return
 
@@ -116,6 +116,14 @@ export class SubmitBase {
 
         this._geometry.clearRenderParams();
         this._geometry.setDrawElemenParams(this._numEle , this._startIdx );
+
+        if (this.material) {
+            this._renderElement.materialShaderData = this.material.shaderData;
+            this._renderElement.subShader = this.material._shader.getSubShaderAt(0);
+        }else {
+            this._renderElement.materialShaderData = this._internalInfo.shaderData;
+            this._renderElement.subShader = this._internalInfo._defaultShader.getSubShaderAt(0);
+        }
     }
 
     /*
@@ -123,14 +131,55 @@ export class SubmitBase {
      */
     static create(runner: GraphicsRunner, mesh: Sprite2DGeometry , material:Material): SubmitBase {
         var o = new SubmitBase();
+        o.initialize();
         o.mesh = mesh;
         o.material = material;
+        let vertexDeclaration = mesh.vertexDeclarition;
+
+        //vg的顶点格式是x ,y,rgba
+        let data = RenderSpriteData.Zero;
+        if (vertexDeclaration.vertexStride === 24) {
+            data = RenderSpriteData.Primitive;
+        }else if (vertexDeclaration.vertexStride === 48) {
+            data = RenderSpriteData.Texture2D;
+        }
+
+        o._internalInfo.data = data;
         o._key.clear();
         o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
         o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = runner._nBlendType;
         o._key.blendShader = blendType;
+        let shaderdata = o._internalInfo.shaderData;
+
+        switch (blendType) {
+            case 1://add
+            case 3://screen
+            case 5://light
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
+            case 2://BlendMultiply
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            case 6://mask
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+                break;
+            case 7://destination
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                break;
+            case 9:// not premul alpha
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            default:// premul alpha
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        }
         //sv.setValue(context._shader2D);
         // o._colorFiler = runner._colorFiler;
         return o;

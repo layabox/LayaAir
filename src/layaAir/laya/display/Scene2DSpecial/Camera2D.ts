@@ -24,7 +24,7 @@ export class Camera2D extends Sprite {
         let scene2DUniformMap = Scene.scene2DUniformMap;
         Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
         scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
-        scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
+        // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
 
     }

@@ -63,7 +63,7 @@ export class Render2DPassManager {
         }
 
         for (const pass of this._passes) {
-            if (pass.repeat || this._needsUpdate(pass)) {
+            if (pass.repaint || this._needsUpdate(pass)) {
                 pass.render(context2D);
             }
         }

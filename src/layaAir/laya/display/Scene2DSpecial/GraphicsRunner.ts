@@ -45,6 +45,7 @@ import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
 import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { TextureSV } from "../../webgl/shader/d2/value/TextureSV";
 import { Value2D, RenderSpriteData } from "../../webgl/shader/d2/value/Value2D";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
@@ -104,7 +105,7 @@ export class GraphicsRunner {
 
     private _renderCount = 0;
     /**@internal */
-    stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
+    // stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
 
     /**@internal */
     _curSubmit:SubmitBase = null;
@@ -641,7 +642,7 @@ export class GraphicsRunner {
      * @return
      */
     getMatScaleX(): number {
-        if (this._lastMat_a == this._curMat.a && this._lastMat_b == this._curMat.b)
+        if (this._lastMat_a === this._curMat.a && this._lastMat_b === this._curMat.b)
             return this._lastMatScaleX;
         this._lastMatScaleX = this._curMat.getScaleX();
         this._lastMat_a = this._curMat.a;
@@ -650,7 +651,7 @@ export class GraphicsRunner {
     }
 
     getMatScaleY(): number {
-        if (this._lastMat_c == this._curMat.c && this._lastMat_d == this._curMat.d)
+        if (this._lastMat_c === this._curMat.c && this._lastMat_d === this._curMat.d)
             return this._lastMatScaleY;
         this._lastMatScaleY = this._curMat.getScaleY();
         this._lastMat_c = this._curMat.c;
@@ -762,7 +763,8 @@ export class GraphicsRunner {
         }
         if (lastBlend != this._nBlendType) {
             //阻止合并
-            this.stopMerge = true;
+            // this.stopMerge = true;
+            this.breakNextMerge();
         }
     }
 
@@ -792,29 +794,31 @@ export class GraphicsRunner {
         var sameKey =
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
-                submit._key.blendShader === this._nBlendType &&
-                !this.isStopMerge(submit)) 
-                && this._curSubmit.material == this._material
+                submit._key.blendShader === this._nBlendType) 
+                // && this._curSubmit.material == this._material
 
-        if (mesh.vertexNum + 4 < GraphicsRunner._MAXVERTNUM) {
+        if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
             mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
             sameKey = false;
         }
+
+        //clipinfo
+        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
         
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = this._graphicsData.createSubmit(this, mesh , this._material);
-                // this._graphicsData._submits.add(submit);
-                this.fillShaderValue(submit.shaderValue);
-                this._copyClipInfo(submit.shaderValue);
+                submit = this._curSubmit = this.createSubmit( mesh );
+                let material = submit._internalInfo;
+                // this.fillShaderValue(submit.shaderValue);
+                this._copyClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    submit.shaderValue.textureHost = this.defTexture;
+                    material.textureHost = this.defTexture;
                 } else {
-                    submit.shaderValue.textureHost = this._lastTex;
+                    material.textureHost = this._lastTex;
                 }
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
@@ -905,20 +909,19 @@ export class GraphicsRunner {
             //tex2d.wrapModeV = BaseTexture.WRAPMODE_REPEAT;
             //var rgba:int = mixRGBandAlpha(0xffffffff);
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-
-            var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
+            submit = this._curSubmit = this.createSubmit(mesh);
+            let material = submit._internalInfo;
+            // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            sv.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+            material.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
-            sv.u_TexRange = Vector4.TEMP;
-            
-            submit = this._curSubmit = this._graphicsData.createSubmit(this, mesh , this._material);
-            this._graphicsData._submits.add(submit);
-            this.fillShaderValue(sv);
+            material.u_TexRange = Vector4.TEMP;
+
+            this.fillShaderValue(material);
             submit.clipInfoID = this._clipInfoID;
-            submit.shaderValue.textureHost = texture;
+            submit._internalInfo.textureHost = texture;
 
             var rgba = this._mixRGBandAlpha(color, this._alpha);
             mesh.addQuad(this._transedPoints, uv, rgba, true);
@@ -926,6 +929,10 @@ export class GraphicsRunner {
             this._curSubmit._numEle += 6;
         }
         this.breakNextMerge();	//暂不合并
+    }
+
+    createSubmit(mesh:Sprite2DGeometry ): SubmitBase {
+        return this._graphicsData.createSubmit(this, mesh , this._material);
     }
 
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color = 0xffffffff): void {
@@ -964,15 +971,16 @@ export class GraphicsRunner {
     }
 
     /**@internal */
-    _copyClipInfo(shaderValue: Value2D): void {
+    _copyClipInfo(material: GraphicsShaderInfo): void {
         let clipInfo = this._globalClipMatrix;
-        var cm = shaderValue.clipMatDir;
+        var cm = material.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
-        shaderValue.clipMatDir = cm;
-        var cmp = shaderValue.clipMatPos;
+        material.clipMatDir = cm;
+        var cmp = material.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
-        shaderValue.clipMatPos = cmp;
+        material.clipMatPos = cmp;
     }
+
     /**@internal */
     _copyClipInfoToShaderData(shaderData: ShaderData) {
         let clipInfo = this._globalClipMatrix;
@@ -983,8 +991,8 @@ export class GraphicsRunner {
     }
 
     //通用的部分的比较
-    private isStopMerge(submit: SubmitBase) {
-        return this.stopMerge || (submit.clipInfoID !== this._clipInfoID);
+    private isSameClipInfo(submit: SubmitBase) {
+        return submit.clipInfoID !== this._clipInfoID;
     }
 
     /**
@@ -1049,11 +1057,11 @@ export class GraphicsRunner {
 
         //this._drawCount++;
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
-            !this.isStopMerge(this._curSubmit) &&
-            this._curSubmit.material == this._material
+            !this.isSameClipInfo(this._curSubmit) 
+            // && this._curSubmit.material == this._material
 
         let mesh = this._graphicsData._meshQuatTex;
-        if (mesh.vertexNum + 4 < GraphicsRunner._MAXVERTNUM) {
+        if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
             // this._drawToRender2D(this._curSubmit);
             mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
             sameKey = false;
@@ -1063,11 +1071,11 @@ export class GraphicsRunner {
 
         if (!sameKey) {
             // todo
-            let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
-            this.fillShaderValue(shaderValue);
-            shaderValue.textureHost = tex;
-            this._curSubmit = submit = this._graphicsData.createSubmit(this, mesh , this._material);
-            this._graphicsData._submits.add(submit);
+            this._curSubmit = submit = this.createSubmit(mesh);
+            let material = submit._internalInfo;
+            // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
+            this.fillShaderValue(material);
+            material.textureHost = tex;
             submit._key.other = imgid;
             // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
@@ -1077,9 +1085,9 @@ export class GraphicsRunner {
         return true;
     }
 
-    private fillShaderValue(shaderValue: Value2D) {
+    private fillShaderValue(material: GraphicsShaderInfo) {
         // shaderValue.size = new Vector2(this._width, this._height);
-        this._copyClipInfo(shaderValue);
+        this._copyClipInfo(material);
     }
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
@@ -1153,7 +1161,8 @@ export class GraphicsRunner {
      * 例如切换rt的时候
      */
     breakNextMerge(): void {
-        this.stopMerge = true;
+        // this.stopMerge = true;
+        this._curSubmit = SubmitBase.RENDERBASE;
     }
 
     private _repaintSprite(): void {
@@ -1235,8 +1244,8 @@ export class GraphicsRunner {
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === webGLImg.id &&
-            preKey.blendShader == this._nBlendType &&
-            this._curSubmit.material == this._material;
+            preKey.blendShader === this._nBlendType 
+            // && this._curSubmit.material == this._material;
         
         let mesh = this._graphicsData._meshTex;
 
@@ -1249,14 +1258,12 @@ export class GraphicsRunner {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = this._graphicsData.createSubmit(this, mesh , this._material);
-            this._graphicsData._submits.add(submit);
-            
-            submit.shaderValue.textureHost = tex;
-            this.fillShaderValue(submit.shaderValue);
+            var submit = this._curSubmit = this.createSubmit( mesh );
+            submit._internalInfo.textureHost = tex;
+            this.fillShaderValue(submit._internalInfo);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit.shaderValue);
+            // this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
 
@@ -1300,7 +1307,7 @@ export class GraphicsRunner {
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
-        if (this._clipRect == GraphicsRunner.MAXCLIPRECT) {
+        if (this._clipRect === GraphicsRunner.MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
             this._clipRect.width = width;
@@ -1410,8 +1417,8 @@ export class GraphicsRunner {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isStopMerge(submit) &&
-            this._curSubmit.material == this._material;
+            !this.isSameClipInfo(submit) 
+            // && this._curSubmit.material == this._material;
 
         let mesh = this._graphicsData._meshVG;
         if (!sameKey) {
@@ -1427,7 +1434,7 @@ export class GraphicsRunner {
         for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
             var p = tPath.paths[i];
             var vertNum = p.path.length / 2;
-            if (vertNum < 3 || (vertNum == 3 && !p.convex))
+            if (vertNum < 3 || (vertNum === 3 && !p.convex))
                 continue;
             var cpath: any[] = p.path.concat();
             // 应用矩阵转换顶点
@@ -1495,14 +1502,12 @@ export class GraphicsRunner {
 
     private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
-        var submit: SubmitBase = this._graphicsData.createSubmit(this, mesh, this._material);
-        this._graphicsData._submits.add(submit);
-
-        this.fillShaderValue(submit.shaderValue);
+        var submit: SubmitBase = this.createSubmit(mesh);
+        this.fillShaderValue(submit._internalInfo);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit.shaderValue);
+        // this._copyClipInfo(submit._internalShaderData);
         submit.clipInfoID = this._clipInfoID;
         return submit;
     }
@@ -1514,8 +1519,8 @@ export class GraphicsRunner {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isStopMerge(submit) &&
-            this._curSubmit.material == this._material
+            !this.isSameClipInfo(submit) 
+            // && this._curSubmit.material == this._material
 
         let mesh = this._graphicsData._meshVG;
         if (!sameKey) {
@@ -1956,10 +1961,10 @@ export class GraphicsRunner {
         var bottom = sizeGrid[2];
         var repeat = sizeGrid[4];
 
-        if (width == tex.width) {
+        if (width === tex.width) {
             left = right = 0;
         }
-        if (height == tex.height) {
+        if (height === tex.height) {
             top = bottom = 0;
         }
 

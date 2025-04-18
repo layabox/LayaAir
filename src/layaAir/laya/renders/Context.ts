@@ -863,13 +863,13 @@ export class Context {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
                 submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
-                this.fillShaderValue(submit.shaderValue);
-                this._copyClipInfo(submit.shaderValue);
+                this.fillShaderValue(submit._internalShaderData);
+                this._copyClipInfo(submit._internalShaderData);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    submit.shaderValue.textureHost = this.defTexture;
+                    submit._internalShaderData.textureHost = this.defTexture;
                 } else {
-                    submit.shaderValue.textureHost = this._lastTex;
+                    submit._internalShaderData.textureHost = this._lastTex;
                 }
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
@@ -965,7 +965,7 @@ export class Context {
             submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
             submit.clipInfoID = this._clipInfoID;
-            submit.shaderValue.textureHost = texture;
+            submit._internalShaderData.textureHost = texture;
             var rgba = this._mixRGBandAlpha(color, this._alpha);
             (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
 
@@ -1060,7 +1060,7 @@ export class Context {
         let mesh = this._mesh;
         if (mesh.indexNum <= 0)
             return;
-        let shaderValue = submit.shaderValue;
+        let shaderValue = submit._internalShaderData;
         let shaderdata = shaderValue.shaderData;
         switch (submit._key.blendShader) {
             case 1://add
@@ -1099,7 +1099,7 @@ export class Context {
             shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
         }
 
-        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue, submit.material);
+        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit._internalShaderData, submit.material);
         this.stopMerge = false;
         this._drawCount++;
     }
@@ -1205,7 +1205,7 @@ export class Context {
             shaderValue.textureHost = tex;
             this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
             submit._key.other = imgid;
-            this._copyClipInfo(submit.shaderValue);
+            this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
@@ -1385,11 +1385,11 @@ export class Context {
             //添加一个新的submit
             var submit = this._curSubmit = SubmitBase.create(this, this._mesh,
                 Value2D.create(RenderSpriteData.Texture2D));
-            submit.shaderValue.textureHost = tex;
-            this.fillShaderValue(submit.shaderValue);
+            submit._internalShaderData.textureHost = tex;
+            this.fillShaderValue(submit._internalShaderData);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit.shaderValue);
+            this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
 
@@ -1594,7 +1594,7 @@ export class Context {
             this._drawToRender2D(submit);
             this._mesh = this._meshVG;
             this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit.shaderValue);
+            this.fillShaderValue(this._curSubmit._internalShaderData);
         }
         var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
         var curEleNum = 0;
@@ -1639,7 +1639,7 @@ export class Context {
                 //然后用新的mesh，和新的submit。
                 this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
                 this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit.shaderValue);
+                this.fillShaderValue(this._curSubmit._internalShaderData);
             }
 
             var curvert = this._mesh.vertexNum;
@@ -1673,11 +1673,11 @@ export class Context {
     private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
         var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
-        this.fillShaderValue(submit.shaderValue);
+        this.fillShaderValue(submit._internalShaderData);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit.shaderValue);
+        this._copyClipInfo(submit._internalShaderData);
         submit.clipInfoID = this._clipInfoID;
         return submit;
     }
@@ -1696,7 +1696,7 @@ export class Context {
             this._drawToRender2D(this._curSubmit);
             this._mesh = this._meshVG;
             this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit.shaderValue);
+            this.fillShaderValue(this._curSubmit._internalShaderData);
         }
         var curEleNum = 0;
         //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
@@ -1719,7 +1719,7 @@ export class Context {
                 //然后用新的mesh，和新的submit。
                 this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
                 this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit.shaderValue);
+                this.fillShaderValue(this._curSubmit._internalShaderData);
             }
             //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
             BasePoly.createLine2(p.path, idx, this.lineWidth, this._mesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的

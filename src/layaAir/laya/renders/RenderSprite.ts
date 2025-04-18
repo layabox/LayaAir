@@ -210,9 +210,9 @@ export class RenderSprite {
             let g = (<HitArea>sprite.hitArea)._hit;
             let temp = context.globalAlpha;
             context.globalAlpha *= 0.5;
-            g && g._render(sprite, context, x - sprite._pivotX, y - sprite._pivotY);
+            g && g._render( context, x - sprite._pivotX, y - sprite._pivotY);
             g = (<HitArea>sprite.hitArea)._unHit;
-            g && g._render(sprite, context, x - sprite._pivotX, y - sprite._pivotY);
+            g && g._render( context, x - sprite._pivotX, y - sprite._pivotY);
             context.globalAlpha = temp;
         }
         if (this._next != RenderSprite.NORENDER)

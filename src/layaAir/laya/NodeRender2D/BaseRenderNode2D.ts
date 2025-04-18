@@ -33,14 +33,6 @@ export class BaseRenderNode2D extends Component {
     private static _uniqueIDCounter: number = 0;
 
     /**
-     * 渲染矩阵第一个vector3属性ID
-     */
-    static NMATRIX_0: number;
-    /**
-     * 渲染矩阵第二个vector3属性ID
-     */
-    static NMATRIX_1: number;
-    /**
      * 渲染节点颜色ID
      */
     static BASERENDER2DCOLOR: number;
@@ -82,12 +74,10 @@ export class BaseRenderNode2D extends Component {
      * @internal
      */
     static initBaseRender2DCommandEncoder() {
-        BaseRenderNode2D.NMATRIX_0 = Shader3D.propertyNameToID("u_NMatrix_0");
-        BaseRenderNode2D.NMATRIX_1 = Shader3D.propertyNameToID("u_NMatrix_1");
         BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_baseRenderColor");
         BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_baseRender2DTexture");
         BaseRenderNode2D.BASERENDER2DTEXTURERANGE = Shader3D.propertyNameToID("u_baseRender2DTextureRange");
-        BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
+        // BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
 
         BaseRenderNode2D.NORMAL2DTEXTURE = Shader3D.propertyNameToID("u_normal2DTexture");
         BaseRenderNode2D.NORMAL2DSTRENGTH = Shader3D.propertyNameToID("u_normal2DStrength");
@@ -100,8 +90,10 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
         BaseRenderNode2D.SHADERDEFINE_CLIPMODE = Shader3D.getDefineByName("CLIPMODE");
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
-        commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
-        commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
+        // commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
+        // commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, "u_baseRender2DTextureRange", ShaderDataType.Vector4);
@@ -152,7 +144,7 @@ export class BaseRenderNode2D extends Component {
      * @internal
      * sprite ShaderData,可以为null
      */
-    _spriteShaderData: ShaderData;
+    // _spriteShaderData: ShaderData;
 
     /**
      * 唯一ID
@@ -263,19 +255,19 @@ export class BaseRenderNode2D extends Component {
     /**
      * @override
      */
-    _setRenderSize(x: number, y: number) {
-        if (x == this._rtsize.x && y == this._rtsize.y)
-            return;
-        this._rtsize.setValue(x, y);
-        this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._rtsize);
-    }
+    // _setRenderSize(x: number, y: number) {
+    //     if (x == this._rtsize.x && y == this._rtsize.y)
+    //         return;
+    //     this._rtsize.setValue(x, y);
+    //     this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._rtsize);
+    // }
 
     /**@ignore */
     constructor() {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
-        this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE));
+        // this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        // this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE));
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
     }
@@ -303,7 +295,7 @@ export class BaseRenderNode2D extends Component {
 
     protected _onEnable(): void {
         super._onEnable();
-
+        this.owner._initShaderData();
         this.owner.renderNode2D = this;
         if (this._lightReceive)
             this._addRenderToLightManager();
@@ -325,7 +317,7 @@ export class BaseRenderNode2D extends Component {
             let m = this._materials[i];
             m && !m.destroyed && m._removeReference();
         }
-        this._spriteShaderData.destroy();
+        // this._spriteShaderData.destroy();
     }
 
     /**
@@ -355,11 +347,12 @@ export class BaseRenderNode2D extends Component {
         this._lightReceive = value;
         if (value) {
             this._addRenderToLightManager();
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
+            // this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         } else {
             this._removeRenderFromLightManager();
-            this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
+            // this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
+        this.owner._struct.lightReceive = value;
         this._resetUpdateMark();
     }
 
@@ -377,7 +370,7 @@ export class BaseRenderNode2D extends Component {
         const updateMark = light2DManager._getLayerUpdateMark(this.layer);
         if (this._lightUpdateMark !== updateMark) {
             this._lightUpdateMark = updateMark;
-            light2DManager._updateShaderDataByLayer(this.layer, this._spriteShaderData);
+            light2DManager._updateShaderDataByLayer(this.layer, this.owner._struct.spriteShaderData);
         }
     }
 

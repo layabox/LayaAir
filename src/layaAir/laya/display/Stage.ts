@@ -248,9 +248,10 @@ export class Stage extends Sprite {
     private _isVisibility: boolean;
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-    private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
+    // private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
-    private passManager: Render2DPassManager = new Render2DPassManager();
+    passManager: Render2DPassManager = new Render2DPassManager();
+    
     /**
      * @ignore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
@@ -804,10 +805,11 @@ export class Stage extends Sprite {
         this._bgColor = value;
         if (value) {
             let colorArr = ColorUtils.create(value).arrColor;
-            this._wgColor.setValue(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
+            this._struct.pass.setClearColor(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
         }
         else
-            this._wgColor = null;
+            this._struct.pass.setClearColor(0, 0, 0 , 0);
+            // this._wgColor = null;
 
         Stage._setStyleBgColor(value);
     }

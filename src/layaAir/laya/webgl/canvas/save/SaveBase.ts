@@ -64,7 +64,7 @@ export class SaveBase implements ISaveData {
     restore(runner: GraphicsRunner): void {
         this._dataObj[this._valueName] = this._value;
         SaveBase.POOL[SaveBase.POOL._length++] = this;
-        this._newSubmit && (runner.stopMerge = true);
+        this._newSubmit && runner.breakNextMerge();
     }
 
     static save(runner: GraphicsRunner, type: number, dataObj: any, newSubmit: boolean): void {

@@ -13,6 +13,9 @@ import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { Vector2 } from "../../../../maths/Vector2";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import { Const } from "../../../../Const";
+import { Matrix } from "../../../../maths/Matrix";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -43,12 +46,16 @@ export class Batch2DInfo {
    }
 }
 
+/**
+ * 合批管理
+ * TODO 需要挪出去
+ */
 export class BatchManager {
    /**
     * @internal
     * 根据不同的RenderNode注册合批方式，来优化性能
     */
-    static _batchMapManager: { [key: number]: IBatch2DRender } = {};
+   static _batchMapManager: { [key: number]: IBatch2DRender } = {};
 
    /**
     * 注册渲染节点之间的合批
@@ -68,7 +75,6 @@ export class WebRender2DPass implements IRender2DPass {
    /** @internal */
    static curRenderTexture: RenderTexture2D = null;
 
-
    /** @internal */
    _lists: PassRenderList[] = [];
 
@@ -78,9 +84,13 @@ export class WebRender2DPass implements IRender2DPass {
    //todo: 2D process
    postProcess: boolean = false;
 
-   repeat: boolean = true;
+   repaint: boolean = true;
 
    _clearColor = new Color;
+
+   setClearColor(r: number, g: number, b: number, a: number): void {
+      this._clearColor.setValue(r, g, b, a);
+   }
 
    private _rtsize: Vector2 = new Vector2;
 
@@ -138,32 +148,32 @@ export class WebRender2DPass implements IRender2DPass {
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
 
+      if (struct._renderUpdateMask !== Stat.loopCount) {
+         struct._renderUpdateMask = Stat.loopCount;
+         // 裁剪规则一：检查渲染层掩码
+         // if ((struct.renderLayer & this._renderLayerMask) === 0) {
+         //    return;
+         // }
+
+         // // 裁剪规则二：检查矩形相交
+         // const nodeRect = renderNode.rect;
+         // if (!this._isRectIntersect(nodeRect, this._cullRect)) {
+         //     return;
+         // }
+
+         struct.renderUpdate(context2D);
+         //todo 排序
+         struct.preRenderUpdate(context2D);
+
+         this.addStruct(struct);
+      }
+
       //需要处理全局透明的问题，统计并且生成新的 process。
       for (let i = 0; i < struct.children.length; i++) {
          const child = struct.children[i];
          this.cullAndSort(context2D, child);
       }
 
-      if (struct._renderUpdateMask == Stat.loopCount)
-         return;
-
-      struct._renderUpdateMask = Stat.loopCount;
-      // 裁剪规则一：检查渲染层掩码
-      // if ((struct.renderLayer & this._renderLayerMask) === 0) {
-      //    return;
-      // }
-
-      // // 裁剪规则二：检查矩形相交
-      // const nodeRect = renderNode.rect;
-      // if (!this._isRectIntersect(nodeRect, this._cullRect)) {
-      //     return;
-      // }
-
-      struct.renderUpdate(context2D);
-      //todo 排序
-      struct.preRenderUpdate(context2D);
-
-      this.addStruct(struct);
    }
 
    /**
@@ -180,19 +190,28 @@ export class WebRender2DPass implements IRender2DPass {
 
    render(context: IRenderContext2D) {
       this._initRenderProcess(context);
-
       let lists = this._lists;
       // 清理zOrder相关队列
-      for (let i = 0, len = lists.length; i < len; i++)
-         lists[i]?.reset();
+      
+      if (this.repaint) {
+         for (let i = 0, len = lists.length; i < len; i++)
+            lists[i]?.reset();
 
-      this.updateRenderQueue(context);
+         this.updateRenderQueue(context);
+         for (let i = 0, len = lists.length; i < len; i++) {
+            let list = lists[i];
+            if (!list || !list.renderElements.length) continue;
+            list.batch();
+            context.drawRenderElementList(list.renderElements);
+         }
 
-      for (let i = 0, len = lists.length; i < len; i++){
-         let list =lists[i];
-         if (!list || !list.renderElements.length) continue;
-         list.batch();
-         context.drawRenderElementList(list.renderElements);
+         this.repaint = false;
+      } else {
+         for (let i = 0, len = lists.length; i < len; i++) {
+            let list = lists[i];
+            if (!list || !list.renderElements.length) continue;
+            context.drawRenderElementList(list.renderElements);
+         }
       }
 
       this.endRenderProcess(context);
@@ -217,7 +236,9 @@ export class WebRender2DPass implements IRender2DPass {
             context.setRenderTarget(null, true, this._clearColor);
          }
       }
+
       context.passData = this.shaderData;
+      // this._setClipInfo(this.clipMatrix);
       this._setRenderSize(sizeX, sizeY);
    }
 
@@ -233,6 +254,12 @@ export class WebRender2DPass implements IRender2DPass {
       this.recover(context);
    }
 
+   // _setClipInfo(matrix:Matrix){
+   //    this._clipMatrixDir.setValue(matrix.a, matrix.b, matrix.c, matrix.d);
+   //    this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, this._clipMatrixDir);
+   //    this._clipMatrixPos.setValue(matrix.tx, matrix.ty);
+   //    this.shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, this._clipMatrixPos);
+   // }
    /**
      * @override
      */
@@ -240,12 +267,12 @@ export class WebRender2DPass implements IRender2DPass {
       if (x == this._rtsize.x && y == this._rtsize.y)
          return;
       this._rtsize.setValue(x, y);
-      this.shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._rtsize);
+      this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
    }
 
    recover(context: IRenderContext2D): void {
       if (this.renderTexture) {
-         context.setRenderTarget(null, this.repeat, this.repeat ? null : this._clearColor);
+         context.setRenderTarget(null, this.repaint, this.repaint ? null : this._clearColor);
       }
    }
 }
@@ -294,8 +321,8 @@ class PassRenderList {
          this._currentBatch.batch = !!(this._currentBatch.batchFun);
          this._currentBatch.elementLenth += elementLength;
          return;
-      } 
-      
+      }
+
       if (this._currentBatch) {
          this._batchInfoList.add(this._currentBatch);
       }
@@ -317,7 +344,7 @@ class PassRenderList {
       }
 
       this.renderElements.length = 0;
-      
+
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
@@ -336,6 +363,10 @@ class PassRenderList {
 
    clear(): void {
       this.structs.clear();
+      this.clearRenderElements();
+   }
+
+   clearRenderElements(): void {
       this.renderElements.clear();
       this._batchInfoList.clear();
    }

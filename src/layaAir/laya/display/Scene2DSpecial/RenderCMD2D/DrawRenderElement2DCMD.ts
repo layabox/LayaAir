@@ -6,6 +6,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { Draw2DElementCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Command2D } from "./Command2D";
 
 export class DrawRenderElement2DCMD extends Command2D {
@@ -67,7 +68,7 @@ export class DrawRenderElement2DCMD extends Command2D {
         if (Vector2.equals(this._renderSize, this._commandBuffer._renderSize))
             return;
         this._renderSize.setValue(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
-        this._renderElement.value2DShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._renderSize);
+        this._renderElement.value2DShaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._renderSize);
     }
 
     /**

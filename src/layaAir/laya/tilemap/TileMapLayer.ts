@@ -235,7 +235,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        // this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     private _initialTileSet() {

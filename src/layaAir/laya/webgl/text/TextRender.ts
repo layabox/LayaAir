@@ -12,6 +12,7 @@ import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { IFontMeasure } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
+import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
 
 /** @ignore */
 export class TextRender extends EventDispatcher {
@@ -186,7 +187,7 @@ export class TextRender extends EventDispatcher {
         return str.substring(start, i);
     }
 
-    filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
+    filltext(runner: GraphicsRunner, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
         if (data.length <= 0)
             return;
         //以后保存到wordtext中
@@ -201,17 +202,17 @@ export class TextRender extends EventDispatcher {
                 nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
         }
-        this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
+        this._fast_filltext(runner, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
     }
 
-    _fast_filltext(ctx: Context, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
+    _fast_filltext(runner: GraphicsRunner, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
         if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
         if (TextRender.scaleFontWithCtx) {
-            let sx = ctx.getMatScaleX();
-            let sy = ctx.getMatScaleY();
+            let sx = runner.getMatScaleX();
+            let sy = runner.getMatScaleY();
 
             if (sx < 1e-4 || sy < 1e-1)
                 return;
@@ -220,7 +221,7 @@ export class TextRender extends EventDispatcher {
             if (sy > 1) this.fontScaleY = Math.min(TextRender.maxFontScale, sy);
         }
 
-        font._italic && (ctx._italicDeg = 13);
+        font._italic && (runner._italicDeg = 13);
         //准备bmp
         //拷贝到texture上,得到一个gltexture和uv
         let wt = <WordText>data;
@@ -258,7 +259,7 @@ export class TextRender extends EventDispatcher {
         //检查保存的数据是否有的已经被释放了
         if (isWT) {	// TODO 能利用lastGCCnt么
             //wt.lastGCCnt = _curPage.gcCnt;
-            if (this.hasFreedText(sameTexData) || wt.pagecharsCtx != ctx) {
+            if (this.hasFreedText(sameTexData) || wt.pagecharsCtx != runner) {
                 sameTexData = wt.pageChars = [];
             }
             // if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
@@ -316,12 +317,12 @@ export class TextRender extends EventDispatcher {
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ri.texture.genID, tex: ri.texture, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
-            isWT && (wt.pagecharsCtx = ctx);
+            isWT && (wt.pagecharsCtx = runner);
             //TODO getbmp 考虑margin 字体与标准字体的关系
         }
 
-        this._drawResortedWords(ctx, x, y, sameTexData);
-        ctx._italicDeg = 0;
+        this._drawResortedWords(runner, x, y, sameTexData);
+        runner._italicDeg = 0;
     }
 
     /**
@@ -330,9 +331,10 @@ export class TextRender extends EventDispatcher {
      * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
-    protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: { [key: number]: any }): void {
-        var isLastRender = ctx._charSubmitCache ? ctx._charSubmitCache._enable : false;
-        var mat = ctx._curMat;
+    protected _drawResortedWords(runner: GraphicsRunner, startx: number, starty: number, samePagesData: { [key: number]: any }): void {
+        var isLastRender = false;
+        // var isLastRender = runner._charSubmitCache ? runner._charSubmitCache._enable : false;
+        var mat = runner._curMat;
         //samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt; 所以不要用普通for循环
         for (var id in samePagesData) {
             var dt = samePagesData[id];
@@ -344,10 +346,10 @@ export class TextRender extends EventDispatcher {
                 var riSaved: any = pri[j];
                 var ri: CharRenderInfo = riSaved.ri;
                 if (ri.isSpace) continue;
-                ctx.touchRes(ri);
-                ctx.drawTexAlign = true;
+                runner.touchRes(ri);
+                runner.drawTexAlign = true;
 
-                ctx._inner_drawTexture(tex, tex.id,
+                runner._inner_drawTexture(tex, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
                     mat, ri.uv, 1.0, isLastRender, 0xffffffff);
             }
