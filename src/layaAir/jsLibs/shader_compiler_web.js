@@ -19,3 +19,5 @@ if (typeof exports === 'object' && typeof module === 'object') {
   module.exports.default = ShaderCompiler;
 } else if (typeof define === 'function' && define['amd'])
   define([], () => ShaderCompiler);
+
+window["ShaderCompiler"] = Laya.WasmAdapter.create(ShaderCompiler, "shader_compiler_web.wasm");

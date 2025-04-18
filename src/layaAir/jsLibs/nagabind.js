@@ -2,7 +2,7 @@ let wasm_bindgen;
 (function () {
     const __exports = {};
     let script_src;
-    if (typeof document !== 'undefined' && document.currentScript !== null) {
+    if (typeof document !== 'undefined' && document.currentScript != null) {
         script_src = new URL(document.currentScript.src, location.href).toString();
     }
     let wasm = undefined;
@@ -312,7 +312,7 @@ let wasm_bindgen;
         if (!qg.instantiate) {
             console.warn("不支持wasm加载使用");
         }
-        return qg.instantiate(url, imp);
+        return qg.instantiate("libs/nagabind_bg.wasm", imp);
     }
     if (window.qg) {
         __wbg_load = myWasmLoad;
