@@ -143,7 +143,7 @@ export const allBundles = [{
         'laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
     ],
-    copy: ['jsLibs/nagabind_bg.wasm', 'jsLibs/nagabind.mjs', 'jsLibs/shader_compiler_web.wasm', 'jsLibs/shader_compiler_web.js']
+    copy: ['jsLibs/nagabind_bg.wasm', 'jsLibs/nagabind.js', 'jsLibs/shader_compiler_web.wasm', 'jsLibs/shader_compiler_web.js']
 },
 {
     name: 'webgpu_3D',
