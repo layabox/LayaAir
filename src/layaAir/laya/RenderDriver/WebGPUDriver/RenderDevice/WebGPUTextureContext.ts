@@ -15,7 +15,6 @@ import { doPremultiplyAlpha } from "./Utils/PreMultiplyAlpha";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPURenderPassHelper } from "./WebGPURenderPassHelper";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 const WebGPUCubeMap = [4, 5, 0, 1, 2, 3];
@@ -1395,8 +1394,6 @@ export class WebGPUTextureContext implements ITextureContext {
             WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', internalRT._depthTexture.gpuMemory);
         }
 
-        WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT, true);
-        WebGPURenderPassHelper.setDepthAttachments(internalRT._renderPassDescriptor, internalRT, true);
         return internalRT;
     }
 

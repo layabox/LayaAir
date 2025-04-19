@@ -13,7 +13,7 @@ import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
-import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
@@ -27,7 +27,7 @@ import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
 import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstance";
-import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
+import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
@@ -43,8 +43,8 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         return new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, bufferUsageType);
     }
 
-    createStorageBuffer(type: number): IStorageBuffer {
-        return new WebGPUStorageBuffer(type);
+    createStorageBuffer(type: number): IDeviceBuffer {
+        return new WebGPUDeviceBuffer(type);
     }
 
     createBufferState(): IBufferState {

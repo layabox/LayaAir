@@ -410,21 +410,21 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup.gpuRS);
+            command.setBindGroup(0, context._sceneBindGroup);
         }
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
-            command.setBindGroup(1, context._cameraBindGroup.gpuRS);
+            command.setBindGroup(1, context._cameraBindGroup);
         }
         //if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
         if (this.owner) {
             let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
-            command.setBindGroup(2, bindgroup.gpuRS);
+            command.setBindGroup(2, bindgroup);
         } else {
 
             command.setBindGroup(2, WebGPUBindGroupHelper.createEmptyBindGroup());
         }
         if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)).gpuRS);
+            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
         }
     }
 

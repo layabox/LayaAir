@@ -1,99 +1,42 @@
 import { Laya } from "../../../../Laya";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { WebGPUBindGroup } from "./WebGPUBindGroupHelper";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
-/**
- * GPU渲染指令编码器
- */
-export class WebGPURenderCommandEncoder {
-    private _commandEncoder: GPUCommandEncoder;
-    private _engine: WebGPURenderEngine;
-    private _device: GPUDevice;
+export interface IGPURenderEncoder extends GPUObjectBase,
+    GPUCommandsMixin,
+    GPUDebugCommandsMixin,
+    GPUBindingCommandsMixin,
+    GPURenderCommandsMixin {
 
-    encoder: GPURenderPassEncoder;
-
-    globalId: number;
-
-    //cacheData
-
-    constructor() {
-        this._engine = WebGPURenderEngine._instance;
-        this._device = this._engine.getDevice();
-
-        this.globalId = WebGPUGlobal.getId(this);
-    }
-
-    startRender(renderPassDesc: GPURenderPassDescriptor) {
-        this._commandEncoder = this._device.createCommandEncoder();
-        this.encoder = WebGPUGlobal.useTimeQuery ?
-            this._engine.timingManager.getTimingHelper(Laya.timer.currFrame).beginRenderPass(this._commandEncoder, renderPassDesc) :
-            this._commandEncoder.beginRenderPass(renderPassDesc);
-    }
-
+}
+export abstract class WebGPURenderEncoder {
+    encoder: IGPURenderEncoder;
+    /**
+    * 设置渲染管线
+    * @param pipeline 
+    */
     setPipeline(pipeline: GPURenderPipeline) {
         this.encoder.setPipeline(pipeline);
     }
 
-    setIndexBuffer(buffer: GPUBuffer, indexFormat: GPUIndexFormat, byteSize: number, offset: number = 0) {
-        this.encoder.setIndexBuffer(buffer, indexFormat, offset, byteSize);
-    }
-
-    setVertexBuffer(slot: number, buffer: GPUBuffer, offset: number = 0, size: number = 0) {
-        this.encoder.setVertexBuffer(slot, buffer, offset, size);
-    }
-
-    drawIndirect(indirectBuffer: GPUBuffer, indirectOffset: GPUSize64) {
-        //TODO
-    }
-
-    drawIndexedIndirect(indirectBuffer: GPUBuffer, indirectOffset: GPUSize64) {
-        //TODO
-    }
-
-    setBindGroup(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup);
+    /**
+    * 设置绑定组
+    * @param index 
+    * @param bindGroup 
+    * @param dynamicOffsets 
+    */
+    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
+        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS) : this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets);
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
         this.encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
     }
 
-    setViewport(x: number, y: number, width: number, height: number, minDepth: number, maxDepth: number) {
-        this.encoder.setViewport(x, y, width, height, minDepth, maxDepth);
-    }
-
-    setScissorRect(x: GPUIntegerCoordinate, y: GPUIntegerCoordinate, width: GPUIntegerCoordinate, height: GPUIntegerCoordinate) {
-        this.encoder.setScissorRect(x, y, width, height);
-    }
-
-    setStencilReference(ref: number) {
-        this.encoder.setStencilReference(ref);
-    }
-
-    end() {
-        this.encoder.end();
-    }
-
-    finish() {
-        return this._commandEncoder.finish();
-    }
-
-    /**
-     * 执行缓存绘图指令
-     * @param bundles 
-     */
-    playBundle(bundles: GPURenderBundle[]) {
-        this.encoder.executeBundles(bundles);
-    }
-
-    /**
-     * 上传几何数据
-     * @param geometry 
-     * @param setBuffer 
-     */
     applyGeometry(geometry: WebGPURenderGeometry) {
         //解构geometry中的属性，减少代码重复
         const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo, _drawIndirectInfo } = geometry;
@@ -101,12 +44,11 @@ export class WebGPURenderCommandEncoder {
 
         let indexByte = 2; //index的字节数
 
-        vertexBuffers.forEach((vb, i) => this.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+        vertexBuffers.forEach((vb, i) => this.encoder.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
         if (indexBuffer) {
             indexByte = geometry.gpuIndexByte;
-            this.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, indexBuffer.source._size, 0);
+            this.encoder.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, 0, indexBuffer.source._size);
         }
-
 
         //绘制的三角形数量
         let triangles = 0;
@@ -136,7 +78,7 @@ export class WebGPURenderCommandEncoder {
                     start = _drawArrayInfo[i].start;
                     triangles += (count - 2) * instanceCount;
                     this.encoder.draw(count, instanceCount, start, 0);
-                    this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 }
                 break;
             case DrawType.DrawElementInstance:
@@ -145,24 +87,74 @@ export class WebGPURenderCommandEncoder {
                     start = _drawElementInfo[i].elementStart;
                     triangles += count / 3 * instanceCount;
                     this.encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
-                    this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
                 }
                 break;
             case DrawType.DrawArrayIndirect:
                 for (let i = _drawElementInfo.length - 1; i > -1; i--) {
                     this.encoder.drawIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
                 }
-                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
+                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
                 break;
             case DrawType.DrawElementIndirect:
                 for (let i = _drawElementInfo.length - 1; i > -1; i--) {
                     this.encoder.drawIndexedIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
                 }
-                this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
+                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
                 break;
         }
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
         return triangles;
+    }
+
+    abstract finish(lable: string): any;
+}
+
+/**
+ * GPU渲染指令编码器
+ */
+export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
+    private _engine: WebGPURenderEngine;
+    private _device: GPUDevice;
+    encoder: GPURenderPassEncoder;//渲染通道编码器
+    private _commandEncoder: GPUCommandEncoder;
+    constructor() {
+        super();
+        this._engine = WebGPURenderEngine._instance;
+        this._device = this._engine.getDevice();
+    }
+
+    startRender(renderPassDesc: GPURenderPassDescriptor) {
+        this._commandEncoder = this._device.createCommandEncoder();
+        this.encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
+    }
+
+    setViewport(x: number, y: number, width: number, height: number, minDepth: number, maxDepth: number) {
+        this.encoder.setViewport(x, y, width, height, minDepth, maxDepth);
+    }
+
+    setScissorRect(x: GPUIntegerCoordinate, y: GPUIntegerCoordinate, width: GPUIntegerCoordinate, height: GPUIntegerCoordinate) {
+        this.encoder.setScissorRect(x, y, width, height);
+    }
+
+    setStencilReference(ref: number) {
+        this.encoder.setStencilReference(ref);
+    }
+
+    end() {
+        this.encoder.end();
+    }
+
+    finish() {
+        return this._commandEncoder.finish();
+    }
+
+    /**
+     * 执行缓存绘图指令
+     * @param bundles 
+     */
+    excuteBundle(bundles: GPURenderBundle[]) {
+        this.encoder.executeBundles(bundles);
     }
 
     /**

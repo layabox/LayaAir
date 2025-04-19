@@ -123,17 +123,17 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
 
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup.gpuRS);
+            command.setBindGroup(0, context._sceneBindGroup);
         }
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
-            command.setBindGroup(1, context._cameraBindGroup.gpuRS);
+            command.setBindGroup(1, context._cameraBindGroup);
         }
         // if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
         //     let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
         //     command.setBindGroup(2, bindgroup.gpuRS);
         // }
         if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)).gpuRS);
+            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
         }
     }
 
@@ -156,18 +156,15 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             if (!shaderInstance.complete) {
                 continue;
             }
-
             command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));
-
             this._bindGroup(context, shaderInstance, command);
-
             {
                 let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
 
 
                 let skinDataOffset = [0];
                 for (let i = 0; i < this.skinnedData.length; i++) {
-                    command.setBindGroup(2, bindgroup.gpuRS, skinDataOffset);
+                    command.setBindGroup(2, bindgroup, skinDataOffset);
 
                     this._uploadGeometry(command);
 

@@ -310,13 +310,13 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      */
     protected _bindGroup(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (context.sceneData) {
-            command.setBindGroup(0, context._sceneBindGroup.gpuRS);
+            command.setBindGroup(0, context._sceneBindGroup);
         }
         if (this.value2DShaderData) {
-            command.setBindGroup(1, this._value2DgpuRS.gpuRS);
+            command.setBindGroup(1, this._value2DgpuRS);
         }
         if (this.materialShaderData) {
-            command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap).gpuRS);
+            command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap));
         }
     }
 

@@ -3,8 +3,8 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
-import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 import { WebGPUBufferState } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
@@ -27,7 +27,7 @@ interface WebGPUDrawElementInfo {
 }
 
 interface WebGPUDrawIndirectInfo {
-    buffer: WebGPUStorageBuffer;
+    buffer: WebGPUDeviceBuffer;
     offset: number;
 }
 
@@ -174,7 +174,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         //TODO
     }
 
-    setIndirectDrawBuffer(buffer: WebGPUStorageBuffer, offset: number): void {
+    setIndirectDrawBuffer(buffer: WebGPUDeviceBuffer, offset: number): void {
         (!this._drawIndirectInfo) && (this._drawIndirectInfo = []);
         let buf = buffer;
         this._drawIndirectInfo.push({
@@ -186,7 +186,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
 
     clearRenderParams(): void {
         this._drawElementInfo && (this._drawElementInfo.length = 0);
-        this._drawElementInfo && (this._drawArrayInfo.length = 0);
+        this._drawArrayInfo && (this._drawArrayInfo.length = 0);
         this._drawIndirectInfo && (this._drawIndirectInfo.length = 0);
     }
 

@@ -1,31 +1,29 @@
 import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { IStorageBuffer } from '../../../DriverDesign/RenderDevice/IStorageBuffer';
+import { IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IStorageBuffer';
 import { WebGPUBuffer } from '../WebGPUBuffer';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
 import { WebGPUShaderData } from '../WebGPUShaderData.js';
 import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer.js';
 
-export interface IStorageBufferCacheData {
+export interface IDeviceBufferCacheData {
     gpudata: WebGPUShaderData;
     propertyID: number;
 }
 
-export class WebGPUStorageBuffer implements IStorageBuffer, IGPUBuffer {
+export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     private _buffer: WebGPUBuffer;
     private _GPUBindGroupEntry: GPUBindGroupEntry;
     private _cacheShaderData: Map<WebGPUShaderData, number> = new Map();
     _destroyed: boolean = false;
     constructor(type: number) {
-        if(type == 0){
+        if (type == 0) {
             this._buffer = new WebGPUBuffer(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST);
-        }else{
+        } else if (type == 1) {
             this._buffer = new WebGPUBuffer(GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST);
+        } else {
+            GPUBufferUsage.INDIRECT | GPUBufferUsage.COPY_DST
         }
-        
-
     }
-
-
 
     private _reSetBindGroupEntry() {
         this._GPUBindGroupEntry = {
@@ -79,7 +77,7 @@ export class WebGPUStorageBuffer implements IStorageBuffer, IGPUBuffer {
 
     }
 
-    copyToBuffer(buffer: WebGPUVertexBuffer | WebGPUStorageBuffer, sourceOffset: number, destoffset: number, bytelength: number): void {
+    copyToBuffer(buffer: WebGPUVertexBuffer | WebGPUDeviceBuffer, sourceOffset: number, destoffset: number, bytelength: number): void {
         const device = WebGPURenderEngine._instance.getDevice();
         const encoder = device.createCommandEncoder();
         encoder.copyBufferToBuffer(

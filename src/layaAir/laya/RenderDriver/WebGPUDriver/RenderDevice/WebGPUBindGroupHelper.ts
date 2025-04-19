@@ -51,7 +51,7 @@ export class WebGPUBindGroup {
 
 export class WebGPUBindGroupHelper {
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
-    static emptyBindgoup: GPUBindGroup;
+    static emptyBindgoup: WebGPUBindGroup;
     static createEmptyBindGroup() {
         if (WebGPUBindGroupHelper.emptyBindgoup)
             return WebGPUBindGroupHelper.emptyBindgoup;
@@ -62,7 +62,8 @@ export class WebGPUBindGroupHelper {
             layout: groupLayout,
             entries: bindgroupEntriys
         };
-        WebGPUBindGroupHelper.emptyBindgoup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
+        WebGPUBindGroupHelper.emptyBindgoup = new WebGPUBindGroup();
+        WebGPUBindGroupHelper.emptyBindgoup.gpuRS = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         return WebGPUBindGroupHelper.emptyBindgoup;
     }
 

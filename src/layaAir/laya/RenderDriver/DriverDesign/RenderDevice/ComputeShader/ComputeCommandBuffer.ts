@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../../layagl/LayaGL.js";
 import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext.ts.js";
-import { IStorageBuffer } from "../IStorageBuffer.js";
+import { IDeviceBuffer } from "../IStorageBuffer.js";
 import { IVertexBuffer } from "../IVertexBuffer.js";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData.js";
 import { ComputeShader } from "./ComputeShader.js";
@@ -54,7 +54,7 @@ export class ComputeCommandBuffer {
      * @param destinationOffset 目标偏移量（字节）
      * @param size 拷贝大小（字节）
      */
-    addBufferToBufferCommand(src: IStorageBuffer | IVertexBuffer | IIndexBuffer, dest: IStorageBuffer | IVertexBuffer | IIndexBuffer, sourceOffset?: number, destinationOffset?: number, size?: number): void {
+    addBufferToBufferCommand(src: IDeviceBuffer | IVertexBuffer | IIndexBuffer, dest: IDeviceBuffer | IVertexBuffer | IIndexBuffer, sourceOffset?: number, destinationOffset?: number, size?: number): void {
         this._context.addBufferToBufferCommand(src as any, dest as any, sourceOffset, destinationOffset, size);
     };
 
@@ -65,7 +65,7 @@ export class ComputeCommandBuffer {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */
-    addBufferToTextureCommand(src: IStorageBuffer | IVertexBuffer, srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
+    addBufferToTextureCommand(src: IDeviceBuffer | IVertexBuffer, srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
         //TODO
     };
 
@@ -76,7 +76,7 @@ export class ComputeCommandBuffer {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */
-    addTextureToBufferCommand(srcTextureInfo: any, rc: IStorageBuffer | IVertexBuffer, destTextureInfo: any, copySize: any): void {
+    addTextureToBufferCommand(srcTextureInfo: any, rc: IDeviceBuffer | IVertexBuffer, destTextureInfo: any, copySize: any): void {
         //TODO
     };
 

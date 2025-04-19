@@ -1,5 +1,5 @@
 import { Vector3 } from "../../../../maths/Vector3";
-import { IStorageBuffer } from "../IStorageBuffer";
+import { IDeviceBuffer } from "../IStorageBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
 import { IComputeShader } from "./IComputeShader";
 
@@ -39,8 +39,8 @@ export interface IComputeCMD_Dispatch {
 
 export interface IComputeCMD_MemoryOperate {
     type: EComputeCMDMemoryOperate;
-    src: IStorageBuffer,
-    dest?: IStorageBuffer,
+    src: IDeviceBuffer,
+    dest?: IDeviceBuffer,
     sourceOffset?: number,
     destinationOffset?: number,
     size?: number

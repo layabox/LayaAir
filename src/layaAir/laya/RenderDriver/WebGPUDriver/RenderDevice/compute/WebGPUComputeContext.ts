@@ -11,7 +11,7 @@ import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesig
 import { WebGPURenderEngine } from '../WebGPURenderEngine.js';
 import { WebGPUShaderData } from '../WebGPUShaderData.js';
 import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance.js';
-import { WebGPUStorageBuffer } from './WebGPUStorageBuffer.js';
+import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer.js';
 
 /**
  * 命令类型枚举
@@ -308,7 +308,7 @@ export class WebGPUComputeContext implements IComputeContext {
                             setDataCMD.shaderData.setBuffer(setDataCMD.propertyID, setDataCMD.value as Float32Array);
                             break;
                         case ShaderDataType.StorageBuffer:
-                            setDataCMD.shaderData.setStorageBuffer(setDataCMD.propertyID, setDataCMD.value as WebGPUStorageBuffer)
+                            setDataCMD.shaderData.setStorageBuffer(setDataCMD.propertyID, setDataCMD.value as WebGPUDeviceBuffer)
                             break;
                         default:
                             //TODO shaderDefine

@@ -29,8 +29,8 @@ import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBuffe
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
-import { IStorageBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
-import { WebGPUStorageBuffer } from "./compute/WebGPUStorageBuffer";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 
 /**
  * 着色器数据
@@ -231,7 +231,7 @@ export class WebGPUShaderData extends ShaderData {
                     entryArray.push((this._data[item.propertyId] as WebGPUUniformBufferBase).getBindGroupEntry(item.binding));
                     break;
                 case WebGPUBindingInfoType.storageBuffer:
-                    entryArray.push((this._data[item.propertyId] as WebGPUStorageBuffer).getBindGroupEntry(item.binding));
+                    entryArray.push((this._data[item.propertyId] as WebGPUDeviceBuffer).getBindGroupEntry(item.binding));
                     break;
                 case WebGPUBindingInfoType.texture:
                     if (item.texture) {
@@ -742,8 +742,8 @@ export class WebGPUShaderData extends ShaderData {
         }
     }
 
-    setStorageBuffer(index: number, value: WebGPUStorageBuffer): void {
-        let lastBuffer = this._data[index] as WebGPUStorageBuffer;
+    setStorageBuffer(index: number, value: WebGPUDeviceBuffer): void {
+        let lastBuffer = this._data[index] as WebGPUDeviceBuffer;
         if (this._data[index] != value) {
             if (lastBuffer) {
                 lastBuffer._removeCacheShaderData(this);
@@ -848,7 +848,7 @@ export class WebGPUShaderData extends ShaderData {
         for (const index in this._data) {
             if (this._data[index] instanceof Resource)
                 this._data[index]._removeReference();
-            if (this._data[index] instanceof WebGPUStorageBuffer)
+            if (this._data[index] instanceof WebGPUDeviceBuffer)
                 this._data[index]._removeCacheShaderData(this);
         }
 

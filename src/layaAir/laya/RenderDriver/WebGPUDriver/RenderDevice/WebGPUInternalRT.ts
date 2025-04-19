@@ -28,8 +28,6 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     _depthState: GPUColorTargetState;
 
     _renderPassDescriptor: GPURenderPassDescriptor;
-    _renderBundleDescriptor: GPURenderBundleEncoderDescriptor;
-
 
     constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat,
         isCube: boolean, generateMipmap: boolean, samples: number, sRGB: boolean) {
@@ -43,9 +41,8 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         if (samples > 1)
             this._texturesResolve = [];
         this._colorStates = [];
-        this._renderPassDescriptor = { colorAttachments: [] };
-        this._renderBundleDescriptor = { colorFormats: [] };
         this._getCacheInfo();
+        this._renderPassDescriptor = { colorAttachments: [] };
     }
 
     /**
