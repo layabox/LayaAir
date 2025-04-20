@@ -220,7 +220,7 @@ async function buildDeclarations() {
             } else if (node.kind == SyntaxKind.TypeReference) {
                 let code = declarationFile.text.slice(node.pos, node.end);
                 code = code.substring(1);
-                if (!inNamespace && code.indexOf(".") == -1 && !code.startsWith("Promise"))
+                if (!inNamespace && code.indexOf(".") == -1 && !code.startsWith("Promise") && code.length > 1)
                     return " Laya." + code;
                 else if (code.startsWith("glTF."))
                     return " " + code.substring(5);
