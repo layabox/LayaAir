@@ -27,7 +27,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
     _halfHeight: number = 0.5;
 
     /**@internal in Physx capsule's height is X Axis, need to rotate*/
-    _rotation: Quaternion = new Quaternion(0, 0, 0.7071068, 0.7071068);
+    _rotation: Quaternion = new Quaternion(0, 0, 0, 1);
 
     private _upAxis: ColliderShapeUpAxis = ColliderShapeUpAxis.Y;
 

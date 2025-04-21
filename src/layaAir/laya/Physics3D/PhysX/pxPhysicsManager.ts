@@ -238,7 +238,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
     private _removeCharactorCollider(charactorCollider: pxCharactorCollider): void {
-        charactorCollider._createController();
+        charactorCollider._releaseController();
         this._dynamicUpdateList.remove(charactorCollider);
     }
 

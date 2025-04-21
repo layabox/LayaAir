@@ -57,7 +57,8 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
 		var btScale: number = bt.btCollisionShape_getLocalScaling(this._btShape);
 		bt.btCollisionShape_setLocalScaling(this._btShape, this._btVector3One);
-		bt.btCompoundShape_addChildShape(this._btShape, this._btTransform, shape.getPhysicsShape());
+		let childShape = shape.getPhysicsShape();
+		childShape && bt.btCompoundShape_addChildShape(this._btShape, this._btTransform, childShape);
 		bt.btCollisionShape_setLocalScaling(this._btShape, btScale);
 
 	}

@@ -38,6 +38,9 @@ export class PhysicsCollider extends PhysicsColliderComponent {
 
     _onAdded(): void {
         super._onAdded();
+        this.restitution = this._restitution;
+        this.friction = this._friction;
+        this.rollingFriction = this._rollingFriction;
         this.isTrigger = this._isTrigger;
     }
 
