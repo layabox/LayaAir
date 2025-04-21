@@ -154,46 +154,6 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         // throw new NotImplementedError;
     }
     /**
-     * @en Set the dynamic friction of the character collider.
-     * @param value The dynamic friction value.
-     * @zh 设置角色碰撞器的动态摩擦力。
-     * @param value 动态摩擦力值。
-     */
-    setDynamicFriction?(value: number): void {
-        // bullet no dynamicFriction
-        // throw new NotImplementedError;
-    }
-    /**
-     * @en Set the static friction of the character collider.
-     * @param value The static friction value.
-     * @zh 设置角色碰撞器的静态摩擦力。
-     * @param value 静态摩擦力值。
-     */
-    setStaticFriction?(value: number): void {
-        // bullet no staticFriction
-        // throw new NotImplementedError;
-    }
-    /**
-     * @en Set the friction combine mode of the character collider.
-     * @param value The friction combine mode.
-     * @zh 设置角色碰撞器的摩擦力合并模式。
-     * @param value 摩擦力合并模式。
-     */
-    setFrictionCombine?(value: PhysicsCombineMode): void {
-        // bullet no frictionCombine
-        // throw new NotImplementedError;
-    }
-    /**
-     * @en Set the bounce combine mode of the character collider.
-     * @param value The bounce combine mode.
-     * @zh 设置角色碰撞器的弹力合并模式。
-     * @param value 弹力合并模式。
-     */
-    setBounceCombine?(value: PhysicsCombineMode): void {
-        // bullet no bounceCombine
-        // throw new NotImplementedError;
-    }
-    /**
      * @en Get the character capability status.
      * @param value The character capability to check.
      * @zh 获取角色能力状态。

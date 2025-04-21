@@ -284,6 +284,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onAdded(): void {
         super._onAdded();
+        this.restitution = this._restitution;
+        this.friction = this._friction;
+        this.rollingFriction = this._rollingFriction;
         this.gravity = this._gravity;
         this.trigger = this._trigger;
         this.isKinematic = this._isKinematic;

@@ -201,18 +201,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this.setCollisionDetectionMode(this._collisionDetectionMode);
         this.setSolverIterations(this._solverIterations);
         this.setSleepThreshold(this._sleepThreshold);
-    }
-
-    /**
-     * @en Set the world position of the dynamic collider.
-     * @param value The new world position.
-     * @zh 设置动态碰撞体的世界位置。
-     * @param value 新的世界位置。
-     */
-    setWorldPosition(value: Vector3): void {
-        const transform = this._pxActor.getGlobalPose();
-        _tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this._pxActor.setGlobalPose(this._transformTo(value, _tempRotation), true);
+        this.setWorldPosition(this.owner.transform.position);
     }
 
     /**
@@ -224,7 +213,21 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     setWorldRotation(value: Quaternion): void {
         const transform = this._pxActor.getGlobalPose();
         _tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
-        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, value), true);
+        _tempRotation.setValue(value.x, value.y, value.z, value.w);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, _tempRotation), true);
+    }
+
+    /**
+     * @en Set the world position of the dynamic collider.
+     * @param value The new world position.
+     * @zh 设置动态碰撞体的世界位置。
+     * @param value 新的世界位置。
+     */
+    setWorldPosition(value: Vector3): void {
+        const transform = this._pxActor.getGlobalPose();
+        _tempTranslation.setValue(value.x, value.y, value.z);
+        _tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, _tempRotation), true);
     }
 
     /**

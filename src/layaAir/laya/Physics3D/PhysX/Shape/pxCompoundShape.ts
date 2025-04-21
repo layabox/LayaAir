@@ -31,7 +31,7 @@ export class pxCompoundShape extends pxColliderShape implements ICompoundCollide
             trigger = (this._physicsComponent as PhysicsCollider).isTrigger;
         }
         shape.setIsTrigger(trigger);
-        shape.setSimulationFilterData(this._physicsComponent ? this._physicsComponent.collisionGroup : Physics3DUtils.PHYSXDEFAULTMASKVALUE, this._physicsComponent ? this._physicsComponent.canCollideWith : Physics3DUtils.PHYSXDEFAULTMASKVALUE);
+        shape.setSimulationFilterData((this._physicsComponent && this._physicsComponent.collisionGroup != Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) ? this._physicsComponent.collisionGroup : Physics3DUtils.PHYSXDEFAULTMASKVALUE, (this._physicsComponent && this._physicsComponent.canCollideWith != Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) ? this._physicsComponent.canCollideWith : Physics3DUtils.PHYSXDEFAULTMASKVALUE);
         this._pxCollider && this._pxCollider.setColliderShape(shape);
     }
     removeChildShape(shape: pxColliderShape, index: number): void {
@@ -53,7 +53,7 @@ export class pxCompoundShape extends pxColliderShape implements ICompoundCollide
                 trigger = (this._physicsComponent as PhysicsCollider).isTrigger;
             }
             shape.setIsTrigger(trigger);
-            shape.setSimulationFilterData(this._physicsComponent ? this._physicsComponent.collisionGroup : Physics3DUtils.PHYSXDEFAULTMASKVALUE, this._physicsComponent ? this._physicsComponent.canCollideWith : Physics3DUtils.PHYSXDEFAULTMASKVALUE);
+            shape.setSimulationFilterData((this._physicsComponent && this._physicsComponent.collisionGroup != Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) ? this._physicsComponent.collisionGroup : Physics3DUtils.PHYSXDEFAULTMASKVALUE, (this._physicsComponent && this._physicsComponent.canCollideWith != Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) ? this._physicsComponent.canCollideWith : Physics3DUtils.PHYSXDEFAULTMASKVALUE);
             this._pxCollider && shape.addToActor(this._pxCollider);
         });
     }

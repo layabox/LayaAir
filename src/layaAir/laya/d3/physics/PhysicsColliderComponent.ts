@@ -334,9 +334,6 @@ export class PhysicsColliderComponent extends Component {
         }
         this.owner.off(Event._Add_Script, this, this._setEventFilter);
         this.owner.on(Event._Add_Script, this, this._setEventFilter);
-        this.restitution = this._restitution;
-        this.friction = this._friction;
-        this.rollingFriction = this._rollingFriction;
     }
 
     /**
