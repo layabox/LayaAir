@@ -338,7 +338,7 @@ export class btCollider implements ICollider {
                 let simulate = this._isSimulate;
                 simulate && this._physicsManager.removeCollider(this);//修改shape必须把Collison从物理世界中移除再重新添加
                 this._onShapeChange();//修改shape会计算惯性
-                if ((simulate || !lastColliderShape) && this.componentEnable) {
+                if ((simulate || !lastColliderShape || (lastColliderShape && lastColliderShape._destroyed)) && this.componentEnable) {
                     this._derivePhysicsTransformation(true);
                     this._physicsManager.addCollider(this);
                 }

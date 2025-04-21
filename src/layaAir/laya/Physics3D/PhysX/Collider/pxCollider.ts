@@ -200,8 +200,10 @@ export class pxCollider implements ICollider {
                 if (lastColliderShape)
                     lastColliderShape.removeFromActor(this);
                 this._shape.addToActor(this);
+                let simulate = this._isSimulate;
+                simulate && this._physicsManager.removeCollider(this);
                 this._initColliderShapeByCollider();
-                if (!lastColliderShape && this.componentEnable) {
+                if ((simulate || !lastColliderShape || (lastColliderShape && lastColliderShape._destroyed)) && this.componentEnable) {
                     this._physicsManager.addCollider(this);
                 }
             } else {
