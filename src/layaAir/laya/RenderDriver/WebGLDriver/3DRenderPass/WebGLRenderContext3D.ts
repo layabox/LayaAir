@@ -1,4 +1,3 @@
-import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";

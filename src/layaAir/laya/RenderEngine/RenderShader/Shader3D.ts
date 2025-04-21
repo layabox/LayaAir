@@ -107,6 +107,9 @@ export class Shader3D {
     /**@internal 是否支持动态中断贴图采样 */
     static SHADERDEFINE_BREAK_TEXTURE_SAMPLE: ShaderDefine;
 
+    /**@internal 是否支持动态中断贴图采样 */
+    static SHADERDEFINE_STORAGEBUFFER: ShaderDefine;
+
     /**@internal */
     static _propertyNameMap: any = {};
 
@@ -122,6 +125,8 @@ export class Shader3D {
         Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
         Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
         Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
+        
+
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
         if (LayaGL.renderEngine._lodTextureSample)
