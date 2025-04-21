@@ -53,6 +53,8 @@ export class pxColliderShape implements IColliderShape {
     /** @internal */
     _pxMaterials: pxPhysicsMaterial[] = new Array(1);
 
+    _destroyed: boolean = false;
+
     _id: number;
 
     /**
@@ -200,6 +202,7 @@ export class pxColliderShape implements IColliderShape {
      */
     destroy(): void {
         if (this._pxShape) {
+            this._pxCollider && this._pxCollider._physicsManager.removeCollider(this._pxCollider);
             this._pxShape.release();
             this._pxShape = undefined;
         }
@@ -208,5 +211,6 @@ export class pxColliderShape implements IColliderShape {
             element.destroy();
         });
         this._pxMaterials.length = 0;
+        this._destroyed = true;
     }
 }

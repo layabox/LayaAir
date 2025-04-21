@@ -309,7 +309,6 @@ export class pxPhysicsManager implements IPhysicsManager {
                     !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
-                    this._dynamicUpdateList.add(collider);
                     Stat.physics_dynamicRigidBodyCount--;
                 } else {
                     Stat.phyiscs_KinematicRigidBodyCount--;
