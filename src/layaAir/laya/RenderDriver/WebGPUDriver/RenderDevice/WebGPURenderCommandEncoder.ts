@@ -30,7 +30,7 @@ export abstract class WebGPURenderEncoder {
     * @param dynamicOffsets 
     */
     setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS) : this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets);
+        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup.gpuRS);
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
