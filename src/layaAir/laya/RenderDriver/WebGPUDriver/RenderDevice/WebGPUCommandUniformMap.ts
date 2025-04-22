@@ -27,14 +27,14 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
      */
     addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype, propertyName, arrayLength: 0 });
-        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.StorageBuffer) {
+        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
             this._ishasBuffer = true;
         }
     }
 
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype, propertyName, arrayLength });
-        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.StorageBuffer) {
+        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
             this._ishasBuffer = true;
         }
     }

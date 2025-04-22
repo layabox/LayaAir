@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../../layagl/LayaGL.js";
 import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext.ts.js";
-import { IDeviceBuffer } from "../IStorageBuffer.js";
+import { IDeviceBuffer } from "../IDeviceBuffer.js";
 import { IVertexBuffer } from "../IVertexBuffer.js";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData.js";
 import { ComputeShader } from "./ComputeShader.js";
@@ -57,6 +57,16 @@ export class ComputeCommandBuffer {
     addBufferToBufferCommand(src: IDeviceBuffer | IVertexBuffer | IIndexBuffer, dest: IDeviceBuffer | IVertexBuffer | IIndexBuffer, sourceOffset?: number, destinationOffset?: number, size?: number): void {
         this._context.addBufferToBufferCommand(src as any, dest as any, sourceOffset, destinationOffset, size);
     };
+
+    /**
+        * 清理buffer数据
+        * @param dest 清理数据的buffer
+        * @param destoffset 位置
+        * @param destCount 长度
+        */
+    addClearBufferCommand(dest: IDeviceBuffer, destoffset: number, destCount: number): void {
+        this._context.addClearBufferCommand(dest, destoffset, destCount);
+    }
 
     /**
      * 添加Buffer拷贝到Texture的命令

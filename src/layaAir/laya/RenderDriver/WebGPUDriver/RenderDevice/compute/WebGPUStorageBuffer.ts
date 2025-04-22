@@ -1,5 +1,5 @@
 import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IStorageBuffer';
+import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IDeviceBuffer.js';
 import { WebGPUBuffer } from '../WebGPUBuffer';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
 import { WebGPUShaderData } from '../WebGPUShaderData.js';
@@ -16,13 +16,14 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     private _cacheShaderData: Map<WebGPUShaderData, number> = new Map();
     _destroyed: boolean = false;
     constructor(type: number) {
-        if (type == 0) {
-            this._buffer = new WebGPUBuffer(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST);
-        } else if (type == 1) {
-            this._buffer = new WebGPUBuffer(GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST);
-        } else {
-            GPUBufferUsage.INDIRECT | GPUBufferUsage.COPY_DST
-        }
+        let usage = 0;
+        usage |= (type & EDeviceBufferUsage.MAP_READ) ? GPUBufferUsage.MAP_READ : 0;
+        usage |= (type & EDeviceBufferUsage.MAP_WRITE) ? GPUBufferUsage.MAP_WRITE : 0;
+        usage |= (type & EDeviceBufferUsage.COPY_SRC) ? GPUBufferUsage.COPY_SRC : 0;
+        usage |= (type & EDeviceBufferUsage.COPY_DST) ? GPUBufferUsage.COPY_DST : 0;
+        usage |= (type & EDeviceBufferUsage.STORAGE) ? GPUBufferUsage.STORAGE : 0;
+        usage |= (type & EDeviceBufferUsage.INDIRECT) ? GPUBufferUsage.INDIRECT : 0;
+        this._buffer = new WebGPUBuffer(usage);
     }
 
     private _reSetBindGroupEntry() {

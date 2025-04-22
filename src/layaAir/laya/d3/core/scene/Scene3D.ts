@@ -272,7 +272,8 @@ export class Scene3D extends Sprite {
             configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR);
         }
         let supportStorageBuffer = LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer);
-        configShaderValue.add(Shader3D.SHADERDEFINE_STORAGEBUFFER)
+        if (supportStorageBuffer)
+            configShaderValue.add(Shader3D.SHADERDEFINE_STORAGEBUFFER)
     }
 
     /**

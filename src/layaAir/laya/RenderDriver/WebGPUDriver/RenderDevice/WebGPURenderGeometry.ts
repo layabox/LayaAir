@@ -3,7 +3,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 import { WebGPUBufferState } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";

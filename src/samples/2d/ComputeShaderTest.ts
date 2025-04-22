@@ -73,21 +73,21 @@ export class Sprite_DisplayImage {
 
         let uniformCommandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("changeArray");
         let propertyID = Shader3D.propertyNameToID("data");
-        uniformCommandMap.addShaderUniform(propertyID, "data", ShaderDataType.StorageBuffer);
+        uniformCommandMap.addShaderUniform(propertyID, "data", ShaderDataType.DeviceBuffer);
 
         let computeshader = ComputeShader.createComputeShader("changeArray", code, [uniformCommandMap]);
         let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
 
         //创建ShaderData和StorageBuffer
         let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        let strotageBuffer = LayaGL.renderDeviceFactory.createStorageBuffer(0);
+        let strotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(0);
 
         let array = new Float32Array([1, 3, 5]);
         strotageBuffer.setDataLength(array.byteLength);
         strotageBuffer.setData(array, 0, 0, array.byteLength);
-        shaderData.setStorageBuffer(propertyID, strotageBuffer);
+        shaderData.setDeviceBuffer(propertyID, strotageBuffer);
 
-        let readStrotageBuffer = LayaGL.renderDeviceFactory.createStorageBuffer(1);
+        let readStrotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(1);
         readStrotageBuffer.setDataLength(array.byteLength);
 
         //创建ComputeCommandBuffer

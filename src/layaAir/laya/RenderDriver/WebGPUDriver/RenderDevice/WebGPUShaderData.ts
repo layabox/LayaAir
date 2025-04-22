@@ -29,7 +29,7 @@ import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBuffe
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
-import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IStorageBuffer";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 
 /**
@@ -742,7 +742,7 @@ export class WebGPUShaderData extends ShaderData {
         }
     }
 
-    setStorageBuffer(index: number, value: WebGPUDeviceBuffer): void {
+    setDeviceBuffer(index: number, value: WebGPUDeviceBuffer): void {
         let lastBuffer = this._data[index] as WebGPUDeviceBuffer;
         if (this._data[index] != value) {
             if (lastBuffer) {

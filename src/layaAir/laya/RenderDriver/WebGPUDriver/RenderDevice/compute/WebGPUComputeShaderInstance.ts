@@ -24,7 +24,7 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
     name: string;
 
     uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
-
+    uniformCommandMap: WebGPUCommandUniformMap[];
     compilete: boolean = false;
 
     constructor(name: string) {
@@ -68,7 +68,7 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
         for (let i = 0, n = other.length; i < n; i++) {
             this.uniformSetMap.set(i, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(i, [other[i]._stateName], true));
         }
-
+        this.uniformCommandMap = other;
 
         //创建BindGroupLayouts
         this._shaderModule = this._device.createShaderModule({

@@ -30,7 +30,7 @@ export abstract class WebGPURenderEncoder {
     * @param dynamicOffsets 
     */
     setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS) : this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets);
+        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup.gpuRS);
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
@@ -91,16 +91,16 @@ export abstract class WebGPURenderEncoder {
                 }
                 break;
             case DrawType.DrawArrayIndirect:
-                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                for (let i = _drawIndirectInfo.length - 1; i > -1; i--) {
                     this.encoder.drawIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
                 }
-                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
+                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawIndirectInfo.length);
                 break;
             case DrawType.DrawElementIndirect:
-                for (let i = _drawElementInfo.length - 1; i > -1; i--) {
+                for (let i = _drawIndirectInfo.length - 1; i > -1; i--) {
                     this.encoder.drawIndexedIndirect(_drawIndirectInfo[i].buffer.getNativeBuffer()._source, _drawIndirectInfo[i].offset);
                 }
-                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawElementInfo.length);
+                WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, _drawIndirectInfo.length);
                 break;
         }
         WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);

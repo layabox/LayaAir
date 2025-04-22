@@ -19,6 +19,7 @@ import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer.js';
 enum CommandType {
     Dispatch,
     SetShaderData,
+    ClearBuffer,
     BufferToBuffer,
     BufferToTexture,
     TextureToBuffer,
@@ -68,6 +69,12 @@ interface IBufferToTextureCommand extends ICommand {
     srcTextureInfo: any;
     destTextureInfo: any;
     copySize: GPUExtent3D;
+}
+
+interface IBufferClearCommand extends ICommand {
+    dest: IGPUBuffer;
+    destinationOffset: number;
+    size: number;
 }
 
 /**
@@ -212,14 +219,38 @@ export class WebGPUComputeContext implements IComputeContext {
         this.commands.push(cmdInfo);
     }
 
-
+    /**
+    * 清理buffer数据
+    * @param dest 清理数据的buffer
+    * @param destoffset 位置
+    * @param destCount 长度
+    */
+    addClearBufferCommand(dest: WebGPUDeviceBuffer, destoffset: number, destCount: number): void {
+        let cmdInfo: IBufferClearCommand = {
+            type: CommandType.ClearBuffer,
+            dest: dest,
+            destinationOffset: destoffset,
+            size: destCount
+        }
+        this.commands.push(cmdInfo);
+    }
 
     private _bindGroup(computeShader: WebGPUComputeShaderInstance, webgpuShaderData: WebGPUShaderData[]) {
         for (let i = 0, n = webgpuShaderData.length; i < n; i++) {
             let propertyBindArray = computeShader.uniformSetMap.get(i);
-            let bindgroup = webgpuShaderData[i]._createOrGetBindGroupByBindInfoArray(computeShader.name, computeShader.name, computeShader as any, i, propertyBindArray).gpuRS;
+            let shaderdata = webgpuShaderData[i];
+            let uniformCommandMap = computeShader.uniformCommandMap[i];
+            if (uniformCommandMap._ishasBuffer) {
+                let uniform = shaderdata.createSubUniformBuffer(uniformCommandMap._stateName, uniformCommandMap._stateName, uniformCommandMap._idata);
+                if (uniform && uniform.needUpload) {
+                    uniform.bufferBlock.needUpload();
+                }
+            }
+
+            let bindgroup = webgpuShaderData[i]._createOrGetBindGroupByBindInfoArray(computeShader.name, uniformCommandMap._stateName, computeShader as any, i, propertyBindArray).gpuRS;
             this._computeEncoder.setBindGroup(i, bindgroup);
         }
+        WebGPURenderEngine._instance.gpuBufferMgr.upload();
     }
 
     private _startComputePass() {
@@ -307,8 +338,9 @@ export class WebGPUComputeContext implements IComputeContext {
                         case ShaderDataType.Buffer:
                             setDataCMD.shaderData.setBuffer(setDataCMD.propertyID, setDataCMD.value as Float32Array);
                             break;
-                        case ShaderDataType.StorageBuffer:
-                            setDataCMD.shaderData.setStorageBuffer(setDataCMD.propertyID, setDataCMD.value as WebGPUDeviceBuffer)
+                        case ShaderDataType.DeviceBuffer:
+                        case ShaderDataType.ReadOnlyDeviceBuffer:
+                            setDataCMD.shaderData.setDeviceBuffer(setDataCMD.propertyID, setDataCMD.value as WebGPUDeviceBuffer)
                             break;
                         default:
                             //TODO shaderDefine
@@ -326,7 +358,15 @@ export class WebGPUComputeContext implements IComputeContext {
                         btbCmd.size
                     );
                     break;
-
+                case CommandType.ClearBuffer:
+                    const clearBufferCmd = cmd as IBufferClearCommand;
+                    this._endComputePass();
+                    this._commandEncoder.clearBuffer(
+                        clearBufferCmd.dest.getNativeBuffer()._source,
+                        clearBufferCmd.destinationOffset,
+                        clearBufferCmd.size
+                    );
+                    break;
                 case CommandType.BufferToTexture:
                     //TODO
                     break;

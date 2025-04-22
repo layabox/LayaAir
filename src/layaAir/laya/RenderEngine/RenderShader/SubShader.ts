@@ -75,6 +75,11 @@ export class SubShader {
     /**@internal */
     _passes: ShaderPass[] = [];
 
+    get owner() {
+        return this._owner;
+    }
+    
+
     /**
      * 创建一个 <code>SubShader</code> 实例。
      * @param attributeMap  顶点属性表。

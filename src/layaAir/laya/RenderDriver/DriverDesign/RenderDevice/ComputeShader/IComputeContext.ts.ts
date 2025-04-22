@@ -1,5 +1,5 @@
 import { Vector3 } from "../../../../maths/Vector3";
-import { IDeviceBuffer } from "../IStorageBuffer";
+import { IDeviceBuffer } from "../IDeviceBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
 import { IComputeShader } from "./IComputeShader";
 
@@ -24,6 +24,7 @@ export enum ComputeCommandType {
  * 内存操作枚举
  */
 export enum EComputeCMDMemoryOperate {
+    ClearBuffer,
     BufferToBuffer,
     BufferToTexture,//TODO
     TextureToBuffer,//TODO
@@ -105,6 +106,13 @@ export interface IComputeContext {
      */
     addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: any): void;
 
+    /**
+     * 清理buffer数据
+     * @param dest 清理数据的buffer
+     * @param destoffset 位置
+     * @param destCount 长度
+     */
+    addClearBufferCommand(dest: IDeviceBuffer, destoffset: number, destCount: number): void;
     /**
      * 执行所有命令
      */

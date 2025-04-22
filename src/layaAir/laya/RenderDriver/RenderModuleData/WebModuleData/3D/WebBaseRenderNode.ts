@@ -182,7 +182,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
 
 
     /**
-     * @internal
      * @param value :RenderElementObj
      */
     setRenderelements(value: IRenderElement3D[]): void {

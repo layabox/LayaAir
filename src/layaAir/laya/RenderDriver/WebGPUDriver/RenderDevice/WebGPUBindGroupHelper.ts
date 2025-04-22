@@ -242,7 +242,22 @@ export class WebGPUBindGroupHelper {
                         }
                         bindingInfos.push(samplerBindInfo);
                     }
-                    if (uniformProperty.uniformtype == ShaderDataType.StorageBuffer) {
+                    if (uniformProperty.uniformtype == ShaderDataType.ReadOnlyDeviceBuffer) {
+                        let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
+                            id: 0,
+                            set: groupID,
+                            binding: bindingIndex++,
+                            name: uniformProperty.propertyName,
+                            propertyId: propertyID,
+                            visibility: visibility,
+                            type: WebGPUBindingInfoType.storageBuffer,
+                            buffer: {
+                                type: "read-only-storage"
+                            }
+                        }
+                        bindingInfos.push(storageBufferBindInfo);
+                    }
+                    if (uniformProperty.uniformtype == ShaderDataType.DeviceBuffer) {
                         let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
                             id: 0,
                             set: groupID,
@@ -394,7 +409,22 @@ export class WebGPUBindGroupHelper {
                 bindingInfos.push(samplerBindInfo);
             }
 
-            if (uniformProperty.uniformtype == ShaderDataType.StorageBuffer) {
+            if (uniformProperty.uniformtype == ShaderDataType.ReadOnlyDeviceBuffer) {
+                let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
+                    id: 0,
+                    set: groupID,
+                    binding: bindingIndex++,
+                    name: uniformProperty.propertyName,
+                    propertyId: propertyID,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    type: WebGPUBindingInfoType.storageBuffer,
+                    buffer: {
+                        type: "read-only-storage"
+                    }
+                }
+                bindingInfos.push(storageBufferBindInfo);
+            }
+            if (uniformProperty.uniformtype == ShaderDataType.DeviceBuffer) {
                 let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
                     id: 0,
                     set: groupID,

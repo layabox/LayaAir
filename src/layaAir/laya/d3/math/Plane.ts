@@ -22,14 +22,12 @@ export class Plane {
 	static PlaneIntersectionType_Intersecting: number = 2;
 
     /**
-	 * @internal
      * @en The normal vector of the plane.
      * @zh 平面的法线向量。
      */
 	normal: Vector3;
 
     /**
-	 * @internal
      * @en The distance from the plane to the origin of the coordinate system.
      * @zh 平面到坐标系原点的距离。
      */

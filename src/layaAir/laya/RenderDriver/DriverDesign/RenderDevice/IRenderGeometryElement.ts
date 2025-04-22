@@ -3,7 +3,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "./IBufferState";
-import { IDeviceBuffer } from "./IStorageBuffer";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 
 export interface IRenderGeometryElement {
     bufferState: IBufferState;
@@ -29,7 +29,9 @@ export interface IRenderGeometryElement {
      * @param offset 
      */
     setIndirectDrawBuffer?(buffer: IDeviceBuffer, offset: number): void;
+
     clearRenderParams(): void;
+
     destroy(): void;
     /**
      * @en get render params Array

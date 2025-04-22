@@ -11,7 +11,7 @@ import { IBufferState } from "./IBufferState";
 import { IIndexBuffer } from "./IIndexBuffer";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { IShaderInstance } from "./IShaderInstance";
-import { IDeviceBuffer } from "./IStorageBuffer";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 import { IVertexBuffer } from "./IVertexBuffer";
 import { ShaderData } from "./ShaderData";
 
@@ -27,5 +27,5 @@ export interface IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData;
     createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
     createComputeContext?(): IComputeContext;
-    createStorageBuffer?(type: number): IDeviceBuffer;
+    createDeviceBuffer?(type: number): IDeviceBuffer;
 }

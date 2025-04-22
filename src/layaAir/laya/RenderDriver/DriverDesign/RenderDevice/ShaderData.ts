@@ -13,7 +13,7 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
 import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
-import { IDeviceBuffer } from "./IStorageBuffer";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 
 export enum ShaderDataType {
     None,
@@ -27,7 +27,8 @@ export enum ShaderDataType {
     Matrix4x4,
     Buffer,
     Matrix3x3,
-    StorageBuffer,
+    ReadOnlyDeviceBuffer,
+    DeviceBuffer,
     Texture2D,
     Texture3D,
     TextureCube,
@@ -355,7 +356,7 @@ export class ShaderData implements IClone {
         throw new NotImplementedError();
     }
 
-    setStorageBuffer(index: number, value: IDeviceBuffer): void {
+    setDeviceBuffer(index: number, value: IDeviceBuffer): void {
         throw new NotImplementedError();
     }
 
