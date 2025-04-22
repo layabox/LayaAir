@@ -217,14 +217,6 @@ let wasm_bindgen;
             console.log(arg0, arg1);
         };
         imports.wbg.__wbindgen_init_externref_table = function () {
-            const table = wasm.__wbindgen_export_0;
-            const offset = table.grow(4);
-            table.set(0, undefined);
-            table.set(offset + 0, undefined);
-            table.set(offset + 1, null);
-            table.set(offset + 2, true);
-            table.set(offset + 3, false);
-            ;
         };
         imports.wbg.__wbindgen_string_new = function (arg0, arg1) {
             const ret = getStringFromWasm0(arg0, arg1);
@@ -321,4 +313,3 @@ let wasm_bindgen;
     }
 
 })();
-
