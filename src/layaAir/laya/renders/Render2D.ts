@@ -14,6 +14,7 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Stat } from "../utils/Stat";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { GraphicsRunner } from "../display/Scene2DSpecial/GraphicsRunner";
 
 export interface ISprite2DGeometry {
     readonly vertexDeclarition: VertexDeclaration;
@@ -56,15 +57,17 @@ export abstract class Render2D {
  */
 export class Render2DSimple extends Render2D {
     static rendercontext2D: IRenderContext2D;
+    static runner:GraphicsRunner = null;
+    static __init__() {
+        Render2DSimple.runner = new GraphicsRunner();
+        Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
+    }
     //private geo: IRenderGeometryElement;
     private _renderElement: IRenderElement2D;
     private _lastRT:RenderTexture2D=null;
- private static _geoMap:{[key:number]:IRenderGeometryElement}={}
+    private static _geoMap:{[key:number]:IRenderGeometryElement}={}
     constructor(out: RenderTexture2D = null) {
         super(out);
-        if (!Render2DSimple.rendercontext2D) {
-            Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
-        }
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._renderElement.nodeCommonMap = ["Sprite2D"];
     }

@@ -1,4 +1,3 @@
-import { Context } from "../../renders/Context";
 import { FontInfo } from "../../utils/FontInfo";
 import { Pool } from "../../utils/Pool";
 import { WordText } from "../../utils/WordText";
@@ -8,6 +7,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 import { Rectangle } from "../../maths/Rectangle";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw text command
@@ -150,15 +150,15 @@ export class FillTextCmd implements IGraphicsCmd {
     /**
      * @private
      * @en Execute the drawing text command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制文本命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         if (ILaya.stage.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
         }
@@ -170,7 +170,7 @@ export class FillTextCmd implements IGraphicsCmd {
             this._color = '#ffffff';
         }
 
-        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
+        runner._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
     }
 
     /**

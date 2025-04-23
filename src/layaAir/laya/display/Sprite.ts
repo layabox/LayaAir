@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags } from "../Const";
+import { Const, NodeFlags } from "../Const";
 import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
@@ -11,7 +11,7 @@ import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { CacheStyle } from "./css/CacheStyle";
-import { Graphics } from "./Graphics";
+import { Graphics, GraphicsRenderData, SubStructRender } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -27,6 +27,19 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { LayaGL } from "../layagl/LayaGL";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Vector3 } from "../maths/Vector3";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
+import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { BlendMode } from "../webgl/canvas/BlendMode";
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -176,6 +189,8 @@ export class Sprite extends Node {
     _graphics: Graphics;
     /**@internal */
     _renderNode: BaseRenderNode2D;
+    /**@internal */
+    _struct: IRenderStruct2D;
 
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
@@ -217,15 +232,82 @@ export class Sprite extends Node {
     private _userBounds: Rectangle;
     private _ownGraphics: boolean;
     private _tmpBounds: Array<number>;
+    /** @internal */
+    shaderData: ShaderData;
 
     declare _children: Sprite[];
     declare _$children: Sprite[];
     declare _parent: Sprite;
     declare _scene: Sprite;
+    
+    private _nMatrix_0 = new Vector3;
+    private _nMatrix_1 = new Vector3;
+
+    private _pivotPos: Vector2 = new Vector2;
+
+    private _subStructRender: SubStructRender = null;
+    /** @internal */
+    private _subRenderPass: IRender2DPass = null;
+    /** @internal */
+    private _subStruct: IRenderStruct2D = null;
+    /** @internal */
+    protected _postProcess: PostProcess2D = null;
 
     /** @ignore */
     constructor() {
         super();
+        this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
+        this._struct.transform = this.globalTrans;
+        this._struct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
+    }
+
+    /** @internal */
+    _initShaderData() {
+        if (this.shaderData)
+            return
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        this._struct.spriteShaderData = this.shaderData;
+    }
+
+    _renderUpdate() {
+        //需要修改 是否需要挪到struct里面去？
+        let mat = this._globalTrans.getMatrix();
+        let rect = this._scrollRect;
+        let info = this._struct.getClipInfo();
+
+        if (rect) {
+            let cm = info.clipMatrix;
+            let { x, y, width, height } = rect;
+            cm.tx = x * mat.a + y * mat.c + mat.tx;
+            cm.ty = x * mat.b + y * mat.d + mat.ty;
+            cm.a = width * mat.a;
+            cm.b = width * mat.b;
+            cm.c = height * mat.c;
+            cm.d = height * mat.d;
+
+            info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
+            info.clipMatPos.setValue(cm.tx, cm.ty , mat.tx , mat.ty);
+        }
+
+        let shaderData = this.shaderData;
+        if (!shaderData) {
+            return
+        }
+
+        this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+        this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+
+        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+
+        // global alpha
+        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._struct.globalAlpha);
+        
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+
+        this._pivotPos.setValue(this._pivotX, this._pivotY);
+        shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
     }
 
     /**
@@ -242,6 +324,7 @@ export class Sprite extends Node {
         this._texture = null;
         this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
+        this._struct = null;
     }
 
     /**
@@ -480,9 +563,16 @@ export class Sprite extends Node {
         if (value !== m)
             value.copyTo(m);
         if (value) { //设置transform时重置x,y
-            this._x = m.tx;
-            this._y = m.ty;
+            let out = Matrix.extractTransformInfo(value);
+            this._x = out.x;
+            this._y = out.y;
+            this._scaleX = out.scaleX;
+            this._scaleY = out.scaleY;
+            this._skewX = out.skewX;
+            this._skewY = out.skewY;
+            this._rotation = out.rotation;
             m.tx = m.ty = 0;
+            this._transChanged(TransformKind.TRS);
         }
         this._renderType |= SpriteConst.TRANSFORM;
         this.parentRepaint();
@@ -556,9 +646,10 @@ export class Sprite extends Node {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         if (this._alpha !== value) {
             this._alpha = value;
+            this._struct.alpha = value;
             if (value !== 1) this._renderType |= SpriteConst.ALPHA;
             else this._renderType &= ~SpriteConst.ALPHA;
-            this.parentRepaint();
+            this.repaint();
         }
     }
 
@@ -573,6 +664,7 @@ export class Sprite extends Node {
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
+            this._struct.enable = value;
             this._processVisible();
         }
     }
@@ -588,10 +680,13 @@ export class Sprite extends Node {
     set blendMode(value: string) {
         if (this._blendMode != value) {
             this._blendMode = value;
+            this._initShaderData();
+            BlendMode.setShaderData(value , this.shaderData);
             if (value && value != "source-over")
                 this._renderType |= SpriteConst.BLEND;
             else
                 this._renderType &= ~SpriteConst.BLEND;
+            this._struct.blendMode = value;
             this.parentRepaint();
         }
     }
@@ -622,6 +717,7 @@ export class Sprite extends Node {
      */
     setGraphics(value: Graphics, transferOwnership: boolean) {
         if (this._graphics) {
+            this._graphics._setDisplay(false);
             this._graphics._sp = null;
             if (this._ownGraphics)
                 this._graphics.destroy();
@@ -629,8 +725,9 @@ export class Sprite extends Node {
         this._ownGraphics = transferOwnership;
         this._graphics = value;
         if (value) {
-            this._renderType |= SpriteConst.GRAPHICS;
+            // this._renderType |= SpriteConst.GRAPHICS;
             value._sp = this;
+            value._checkDisplay();
         } else {
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
@@ -740,9 +837,12 @@ export class Sprite extends Node {
         if (value) {
             value._getCacheStyle().maskParent = this;
             this._renderType |= SpriteConst.MASK;
+            this.setSubRenderPassState(true);
         }
-        else
+        else{
+            this.updateSubRenderPassState();
             this._renderType &= ~SpriteConst.MASK;
+        }
         this.repaint();
     }
 
@@ -767,8 +867,10 @@ export class Sprite extends Node {
         this._scrollRect = value;
         if (value) {
             this._renderType |= SpriteConst.CLIP;
+            this._struct.setClipRect(value);
         } else {
             this._renderType &= ~SpriteConst.CLIP;
+            this._struct.setClipRect(null);
         }
         this.repaint();
     }
@@ -850,6 +952,13 @@ export class Sprite extends Node {
 
             p = p._parent;
         }
+    }
+
+    getPostProcess(){
+        if (!this._postProcess) {
+            this._postProcess = new PostProcess2D();
+        }
+        return this._postProcess;
     }
 
     /**
@@ -944,9 +1053,12 @@ export class Sprite extends Node {
         if (value) {
             value._addReference();
             this._renderType |= SpriteConst.TEXTURE;
+            this.graphics._setDisplay(true);
         }
-        else
+        else {
             this._renderType &= ~SpriteConst.TEXTURE;
+            this._graphics?._checkDisplay();
+        }
         this.repaint();
     }
 
@@ -975,9 +1087,12 @@ export class Sprite extends Node {
 
     set renderNode2D(value: BaseRenderNode2D) {
         this._renderNode = value;
+
         if (value) {
+            this._struct.set_renderNodeUpdateCall(value, value.renderUpdate, value.preRenderUpdate, value._getRenderElements);
             this._renderType |= SpriteConst.RENDERNODE2D;
         } else {
+            this._struct.set_renderNodeUpdateCall(null, null, null, null);
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
     }
@@ -1188,7 +1303,6 @@ export class Sprite extends Node {
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
             this._renderType |= SpriteConst.TRANSFORM;
-
             if ((kind & TransformKind.Size) != 0)
                 this._graphics?._clearBoundsCache(true);
         }
@@ -1225,10 +1339,12 @@ export class Sprite extends Node {
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
+        //todo 这里需要生成内部的rendernode2d
         this._repaint = 0;
     }
 
     /**
+     * @deprecated
      * @en Custom update and render display objects. Generally used to extend rendering modes. Please use it reasonably as it may cause inability to render on accelerators.
      * Note: Do not add or remove tree nodes in this function, otherwise it will affect the traversal of tree nodes.
      * @param context The rendering context reference.
@@ -1858,13 +1974,23 @@ export class Sprite extends Node {
     repaint(type: number = SpriteConst.REPAINT_CACHE): void {
         if (!(this._repaint & type)) {
             this._repaint |= type;
+            this._struct.setRepaint();
             this.parentRepaint(type);
         }
+
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
             if (this._cacheStyle.maskParent)
                 this._cacheStyle.maskParent.repaint(type);
         }
+    }
+
+    /**
+     * @en Clear the repaint flag.
+     * @zh 清除重绘标志。
+     */
+    clearRepaint(){
+        this._repaint = 0;
     }
 
     /**
@@ -1889,6 +2015,7 @@ export class Sprite extends Node {
         var p: Sprite = this._parent;
         if (p && !(p._repaint & type)) {
             p._repaint |= type;
+            p._struct.setRepaint();
             p.parentRepaint(type);
         }
     }
@@ -2006,10 +2133,98 @@ export class Sprite extends Node {
             return false;
     }
 
+    protected _setStructParent(value:Node){
+        let struct = this._subRenderPass?.enable ?  this._subStruct : this._struct;            
+        if (this._struct.parent) {
+            this._struct.parent.removeChild(struct);
+            this._struct.parent = null;
+        }
+
+        if (value && (value as Sprite)._struct) {
+            (value as Sprite)._struct.addChild(struct);
+        }
+    }
+
+    private createSubRenderPass() {
+        let rtPass = ILaya.stage.passManager;
+        let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+        rtPass.addPass(subPass);
+        subPass.root = this._struct;
+        subPass.enable = false;
+        let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
+        subStruct.pass = subPass;
+        
+        this._subStructRender = new SubStructRender();
+        this._subStructRender.bind(this , subPass , subStruct);
+        this._subStruct = subStruct;
+        this._subRenderPass = subPass;
+
+        subStruct.transform = this.globalTrans;
+        subStruct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
+
+        this._subRenderPass.postProcess = this.getPostProcess();
+        this.updateRenderTexture();
+    }
+
+    //TODO
+    private updateRenderTexture(){
+        //计算方式调整
+        let rect = this.getSelfBounds();
+        
+        if (rect.width === 0 || rect.height === 0)
+            return;
+
+        let oldRT = this._subRenderPass.renderTexture;
+        //判断待考虑
+        if (oldRT && oldRT.width === rect.width && oldRT.height === rect.height)
+            return;
+        
+        // let tRect = new Rectangle;
+        // SpriteUtils.getMaskRect(this, tRect);
+        oldRT && oldRT.destroy();
+        let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
+        renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
+        this._subRenderPass.renderTexture = renderTexture;
+    }
+
+    private updateSubRenderPassState() {
+        this.setSubRenderPassState((this._renderType & SpriteConst.POSTPROCESS) !== 0);
+    }
+    
+    /**
+     * @en Set the state of the sub-render pass.
+     * @param enable Whether to enable the sub-render pass.
+     * @zh 设置子渲染通道的状态。
+     * @param enable 是否启用子渲染通道。
+     */
+    private setSubRenderPassState(enable: boolean) {
+        if (!this._subRenderPass) {
+            this.createSubRenderPass();
+        }
+        
+        if (enable && !this._subRenderPass.enable) {
+            let parent = this._struct.parent;
+            this._struct.pass = this._subRenderPass;
+            if (parent) {
+                parent.removeChild(this._struct);
+                parent.addChild(this._subStruct);
+            }
+        } else if (!enable && this._subRenderPass.enable) {
+            let parent = this._subStruct.parent;
+            this._struct.pass = null;
+            if (parent) {
+                parent.removeChild(this._subStruct);
+                parent.addChild(this._struct);
+            }
+        }
+        this._subRenderPass.enable = enable;
+    }
+
     /**
      * @ignore
      */
     protected _setParent(value: Node): void {
+        this._setStructParent(value);
         super._setParent(value);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
@@ -2019,8 +2234,6 @@ export class Sprite extends Node {
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
-
-
     }
 
     /**

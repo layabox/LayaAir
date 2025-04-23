@@ -1,8 +1,8 @@
 import { Bezier } from "../../maths/Bezier";
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw curves command
@@ -80,17 +80,17 @@ export class DrawCurvesCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the draw curves command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制曲线命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         if (this.points)
-            context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
+            runner.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
     }
 
     /**

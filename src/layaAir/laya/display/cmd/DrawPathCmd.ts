@@ -1,7 +1,7 @@
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw vector graphics based on the path
@@ -79,16 +79,16 @@ export class DrawPathCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the drawing command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局 X 偏移
      * @param gy 全局 Y 偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        this.paths && context._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        this.paths && runner._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
     }
 
     /**

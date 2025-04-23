@@ -1,55 +1,67 @@
-import { ILaya } from "../../ILaya";
-import { Const } from "../Const";
-import { RenderManager2D } from "../NodeRender2D/RenderManager2D";
-import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
-import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { type Sprite } from "../display/Sprite";
-import { ColorFilter } from "../filters/ColorFilter";
-import { Bezier } from "../maths/Bezier";
-import { Color } from "../maths/Color";
-import { Matrix } from "../maths/Matrix";
-import { Matrix4x4 } from "../maths/Matrix4x4";
-import { Point } from "../maths/Point";
-import { Rectangle } from "../maths/Rectangle";
-import { Vector2 } from "../maths/Vector2";
-import { Vector4 } from "../maths/Vector4";
-import { BaseTexture } from "../resource/BaseTexture";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
-import { Material } from "../resource/Material";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
-import { Texture } from "../resource/Texture";
-import { Texture2D } from "../resource/Texture2D";
-import { FontInfo } from "../utils/FontInfo";
-import { WordText } from "../utils/WordText";
-import { BlendMode } from "../webgl/canvas/BlendMode";
-import { DrawStyle } from "../webgl/canvas/DrawStyle";
-import { Path } from "../webgl/canvas/Path";
-import { ISaveData } from "../webgl/canvas/save/ISaveData";
-import { SaveBase } from "../webgl/canvas/save/SaveBase";
-import { SaveClipRect } from "../webgl/canvas/save/SaveClipRect";
-import { SaveMark } from "../webgl/canvas/save/SaveMark";
-import { SaveTransform } from "../webgl/canvas/save/SaveTransform";
-import { SaveTranslate } from "../webgl/canvas/save/SaveTranslate";
-import { Shader2D } from "../webgl/shader/d2/Shader2D";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
-import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
-import { BasePoly } from "../webgl/shapes/BasePoly";
-import { Earcut } from "../webgl/shapes/Earcut";
-import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { SubmitKey } from "../webgl/submit/SubmitKey";
-import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
-import { MeasureFont } from "../webgl/text/MeasureFont";
-import { TextRender } from "../webgl/text/TextRender";
-import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "../webgl/utils/MeshTexture";
-import { MeshVG } from "../webgl/utils/MeshVG";
-import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { Sprite2DGeometry } from "../webgl/utils/Sprite2DGeometry";
-import { Render2D, Render2DSimple } from "./Render2D";
-import { IAutoExpiringResource } from "./ResNeedTouch";
+import { ILaya } from "../../../ILaya";
+import { Const } from "../../Const";
+import { ColorFilter } from "../../filters/ColorFilter";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Bezier } from "../../maths/Bezier";
+import { Color } from "../../maths/Color";
+import { Matrix } from "../../maths/Matrix";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Point } from "../../maths/Point";
+import { Rectangle } from "../../maths/Rectangle";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector4 } from "../../maths/Vector4";
+import { RenderManager2D } from "../../NodeRender2D/RenderManager2D";
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { Context } from "../../renders/Context";
+import { Render2D, Render2DSimple } from "../../renders/Render2D";
+import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { HTMLCanvas } from "../../resource/HTMLCanvas";
+import { Material } from "../../resource/Material";
+import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { Texture } from "../../resource/Texture";
+import { Texture2D } from "../../resource/Texture2D";
+import { FontInfo } from "../../utils/FontInfo";
+import { FastSinglelist } from "../../utils/SingletonList";
+import { WordText } from "../../utils/WordText";
+import { BlendMode } from "../../webgl/canvas/BlendMode";
+import { DrawStyle } from "../../webgl/canvas/DrawStyle";
+import { Path } from "../../webgl/canvas/Path";
+import { ISaveData } from "../../webgl/canvas/save/ISaveData";
+import { SaveBase } from "../../webgl/canvas/save/SaveBase";
+import { SaveClipRect } from "../../webgl/canvas/save/SaveClipRect";
+import { SaveMark } from "../../webgl/canvas/save/SaveMark";
+import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
+import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
+import { Shader2D } from "../../webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
+import { TextureSV } from "../../webgl/shader/d2/value/TextureSV";
+import { Value2D, RenderSpriteData } from "../../webgl/shader/d2/value/Value2D";
+import { BasePoly } from "../../webgl/shapes/BasePoly";
+import { Earcut } from "../../webgl/shapes/Earcut";
+import { SubmitBase } from "../../webgl/submit/SubmitBase";
+import { SubmitKey } from "../../webgl/submit/SubmitKey";
+import { CharSubmitCache } from "../../webgl/text/CharSubmitCache";
+import { MeasureFont } from "../../webgl/text/MeasureFont";
+import { TextRender } from "../../webgl/text/TextRender";
+import { MeshQuadTexture } from "../../webgl/utils/MeshQuadTexture";
+import { MeshTexture } from "../../webgl/utils/MeshTexture";
+import { MeshVG } from "../../webgl/utils/MeshVG";
+import { RenderState2D } from "../../webgl/utils/RenderState2D";
+import { Sprite2DGeometry } from "../../webgl/utils/Sprite2DGeometry";
+import { GraphicsRenderData } from "../Graphics";
+import { Sprite } from "../Sprite";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -59,11 +71,7 @@ var _clipResult = new Vector2();
 /**
  * @private
  */
-export class Context {
-
-    /**@internal */
-    private _canvas: HTMLCanvas;
-
+export class GraphicsRunner {
     /**@internal */
     _drawingToTexture: boolean;
 
@@ -94,28 +102,23 @@ export class Context {
     private _path: Path | null = null;
     /**@internal */
     _drawCount = 1;
-    private _width = Const.MAX_CLIP_SIZE;
-    private _height = Const.MAX_CLIP_SIZE;
+
     private _renderCount = 0;
     /**@internal */
-    stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
+    // stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
+
     /**@internal */
-    _curSubmit = SubmitBase.RENDERBASE;
+    _curSubmit:SubmitBase = null;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
-    /**@internal */
-    private _mesh: Sprite2DGeometry;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
-    private _meshQuatTex = new MeshQuadTexture();
-    private _meshVG = new MeshVG();
-    private _meshTex = new MeshTexture();
-
+    _graphicsData: GraphicsRenderData = null;	//保存当前的渲染数据。用来给shader使用。    
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
     /**@internal */
-    _clipRect = Context.MAXCLIPRECT;
+    _clipRect = GraphicsRunner.MAXCLIPRECT;
     /**@internal */
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
@@ -140,7 +143,7 @@ export class Context {
     /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
     /**@internal */
-    _charSubmitCache: CharSubmitCache | null = null;
+    // _charSubmitCache: CharSubmitCache | null = null;
     /**@internal */
     _saveMark: SaveMark | null = null;
     /**@internal */
@@ -164,37 +167,30 @@ export class Context {
     private _flushCnt = 0;
 
     private defTexture: Texture | null = null;	//给fillrect用
-    /**@internal */
-    _colorFiler: ColorFilter | null = null;
 
     drawTexAlign = false;		// 按照像素对齐
     /**@internal */
     _incache = false;			// 正处在cacheas normal过程中
-
-    private _isMain = false;				// 是否是主context
-
-    private _render2D: Render2D = null;
 
     private _clearColor = new Color(0, 0, 0, 0);
     private _clear = false;
 
     private _shaderValueNeedRelease: Value2D[] = [];
 
-    _render2DManager: RenderManager2D;
+    // _render2DManager: RenderManager2D;
 
     static __init__(): void {
-        Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
+        GraphicsRunner.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
         ContextParams.DEFAULT = new ContextParams();
-        if (!Context._textRender) {
-            let textRender = Context._textRender = new TextRender();
+        if (!GraphicsRunner._textRender) {
+            let textRender = GraphicsRunner._textRender = new TextRender();
             textRender.fontMeasure = new MeasureFont(textRender.charRender);
         }
     }
 
     constructor() {
         //默认值。可以外面设置
-        this.render2D = new Render2DSimple();
-        Context._contextcount++;
+        GraphicsRunner._contextcount++;
         //_ib = IndexBuffer2D.QuadrangleIB;
         if (!this.defTexture) {
             var defTex2d = new Texture2D(2, 2, TextureFormat.R8G8B8A8, true, false, false);
@@ -205,41 +201,20 @@ export class Context {
         this._lastTex = this.defTexture;
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
-        this._charSubmitCache = new CharSubmitCache(this);
+        // this._charSubmitCache = new CharSubmitCache(this);
         //_vb = _vbs[0] = VertexBuffer2D.create( -1);
-        this._mesh = this._meshQuatTex;
-        this._mesh.clearMesh();
+        // this._mesh = this._meshQuatTex;
+        // this._mesh.clearMesh();
         this._save = [SaveMark.Create(this)];
         this._save.length = 10;
         this.clear();
-
-        this._render2DManager = new RenderManager2D();
+        // this._render2DManager = new RenderManager2D();
     }
 
     //从ctx继承渲染参数
     copyState(ctx: Context) {
         ///TODO
     }
-
-    set isMain(v: boolean) {
-        this._isMain = v;
-        if (v) {
-            //TODO 分配mesh
-        }
-    }
-
-    get isMain() {
-        return this._isMain;
-    }
-
-    set render2D(render: Render2D) {
-        this._render2D = render;
-    }
-
-    get render2D() {
-        return this._render2D;
-    }
-
 
     /**@private */
     get lineJoin(): string {
@@ -281,19 +256,19 @@ export class Context {
     }
 
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void {
-        var ctx: any = this;
+        var runner = this;
 
         //填充矩形
         if (fillColor != null) {
-            ctx.fillStyle = fillColor;
-            ctx.fillRect(x, y, width, height);
+            runner.fillStyle = fillColor;
+            runner.fillRect(x, y, width, height);
         }
 
         //绘制矩形边框
         if (lineColor != null) {
-            ctx.strokeStyle = lineColor;
-            ctx.lineWidth = lineWidth;
-            ctx.strokeRect(x, y, width, height);
+            runner.strokeStyle = lineColor;
+            runner.lineWidth = lineWidth;
+            runner.strokeRect(x, y, width, height);
         }
     }
 
@@ -603,7 +578,7 @@ export class Context {
     }
 
     clearBG(r: number, g: number, b: number, a: number): void {
-        // var gl: WebGLRenderingContext = RenderStateContext.mainContext;
+        // var gl: WebGLRenderingContext = RenderStateGraphicsRunner.mainContext;
         if (r == null || r == undefined) {
             this._clear = false;
         } else {
@@ -621,7 +596,7 @@ export class Context {
         this._curMat = null;
         this._shader2D.destroy();
         this._shader2D = null;
-        this._charSubmitCache.clear();
+        // this._charSubmitCache.clear();
         this._path = null;
         this._save = null;
         this.sprite = null;
@@ -631,9 +606,9 @@ export class Context {
      * 释放所有资源
      */
     destroy(): void {
-        --Context._contextcount;
+        --GraphicsRunner._contextcount;
         this.sprite = null;
-        this._charSubmitCache && this._charSubmitCache.destroy();
+        // this._charSubmitCache && this._charSubmitCache.destroy();
         if (this.defTexture) {
             this.defTexture.bitmap && this.defTexture.bitmap.destroy();
             this.defTexture.destroy();
@@ -649,46 +624,16 @@ export class Context {
         this._other = ContextParams.DEFAULT;
         this._alpha = 1.0;
         this._nBlendType = 0;
-        this._clipRect = Context.MAXCLIPRECT;
+        this._clipRect = GraphicsRunner.MAXCLIPRECT;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
 
         this._curMat.identity();
         this._other.clear();
 
+        this._curSubmit = SubmitBase.RENDERBASE;
+
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
-    }
-
-    /**
-     * 设置ctx的size，这个不允许直接设置，必须是canvas调过来的。所以这个函数里也不用考虑canvas相关的东西
-     * @param w
-     * @param h
-     */
-    size(w: number, h: number): void {
-        if (this._width != w || this._height != h) {
-            this._width = w;
-            this._height = h;
-            //如果是主画布，要记录窗口大小
-            //如果不是 TODO
-            if (this.isMain) {
-                RenderState2D.width = w;
-                RenderState2D.height = h;
-            }
-        }
-        if (w === 0 && h === 0) this._releaseMem();
-    }
-
-    get width() {
-        return this._width;
-    }
-    set width(w: number) {
-        this.size(w, this._height);
-    }
-    get height() {
-        return this._height;
-    }
-    set height(h: number) {
-        this.size(this._width, h);
     }
 
     /**
@@ -697,7 +642,7 @@ export class Context {
      * @return
      */
     getMatScaleX(): number {
-        if (this._lastMat_a == this._curMat.a && this._lastMat_b == this._curMat.b)
+        if (this._lastMat_a === this._curMat.a && this._lastMat_b === this._curMat.b)
             return this._lastMatScaleX;
         this._lastMatScaleX = this._curMat.getScaleX();
         this._lastMat_a = this._curMat.a;
@@ -706,7 +651,7 @@ export class Context {
     }
 
     getMatScaleY(): number {
-        if (this._lastMat_c == this._curMat.c && this._lastMat_d == this._curMat.d)
+        if (this._lastMat_c === this._curMat.c && this._lastMat_d === this._curMat.d)
             return this._lastMatScaleY;
         this._lastMatScaleY = this._curMat.getScaleY();
         this._lastMat_c = this._curMat.c;
@@ -759,7 +704,7 @@ export class Context {
     }
 
     set globalCompositeOperation(value: string) {
-        this._drawToRender2D(this._curSubmit);
+        // this._drawToRender2D(this._curSubmit);
         var n = BlendMode.TOINT[value];
         n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
     }
@@ -818,69 +763,74 @@ export class Context {
         }
         if (lastBlend != this._nBlendType) {
             //阻止合并
-            this.stopMerge = true;
+            // this.stopMerge = true;
+            this.breakNextMerge();
         }
     }
 
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
-        Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
+        GraphicsRunner._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
     }
     // 与fillText的区别是没有border信息
     drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
-        Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
+        GraphicsRunner._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
     }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-        Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
+        GraphicsRunner._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
     }
     fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
-        Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
+        GraphicsRunner._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
     }
 
     /**@internal */
     _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
+        GraphicsRunner._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
     }
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
+        
+        let mesh = this._graphicsData._meshQuatTex;
         var sameKey =
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
-                submit._key.blendShader === this._nBlendType &&
-                !this.isStopMerge(submit)) &&
-            this._curSubmit.material == this._material
+                submit._key.blendShader === this._nBlendType) 
+                // && this._curSubmit.material == this._material
 
-        if (!sameKey) {
-            this._drawToRender2D(this._curSubmit);
-            this._mesh = this._meshQuatTex;
+        if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
+            mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
+            sameKey = false;
         }
 
-        let mesh = this._mesh as MeshQuadTexture;
+        //clipinfo
+        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
+        
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
-                this.fillShaderValue(submit._internalShaderData);
-                this._copyClipInfo(submit._internalShaderData);
+                submit = this._curSubmit = this.createSubmit( mesh );
+                let material = submit._internalInfo;
+                // this.fillShaderValue(submit.shaderValue);
+                this._copyClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    submit._internalShaderData.textureHost = this.defTexture;
+                    material.textureHost = this.defTexture;
                 } else {
-                    submit._internalShaderData.textureHost = this._lastTex;
+                    material.textureHost = this._lastTex;
                 }
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
             }
+
             mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             this._curSubmit._numEle += 6;
         }
     }
 
-    fillRect(x: number, y: number, width: number, height: number, fillStyle: any): void {
+    fillRect(x: number, y: number, width: number, height: number, fillStyle: any = null): void {
         var drawstyle: DrawStyle = fillStyle ? DrawStyle.create(fillStyle) : this._fillStyle;
         //var rgb = drawstyle.toInt() ;
         //由于显卡的格式是 rgba，所以需要处理一下
@@ -901,8 +851,13 @@ export class Context {
     private _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit = this._curSubmit;
         //这个不合并，直接渲染
-        this._drawToRender2D(this._curSubmit);
-        this._mesh = this._meshQuatTex;
+        let sameKey: boolean = false;
+        let mesh = this._graphicsData._meshQuatTex;
+
+        if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
+            mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
+            sameKey = false;
+        }
 
         //filltexture相关逻辑。计算rect大小以及对应的uv
         var repeatx = true;
@@ -954,37 +909,30 @@ export class Context {
             //tex2d.wrapModeV = BaseTexture.WRAPMODE_REPEAT;
             //var rgba:int = mixRGBandAlpha(0xffffffff);
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-
-            var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
+            submit = this._curSubmit = this.createSubmit(mesh);
+            let material = submit._internalInfo;
+            // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            sv.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+            material.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
-            sv.u_TexRange = Vector4.TEMP;
-            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
-            this.fillShaderValue(sv);
+            material.u_TexRange = Vector4.TEMP;
+
+            this.fillShaderValue(material);
             submit.clipInfoID = this._clipInfoID;
-            submit._internalShaderData.textureHost = texture;
+            submit._internalInfo.textureHost = texture;
+
             var rgba = this._mixRGBandAlpha(color, this._alpha);
-            (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
+            mesh.addQuad(this._transedPoints, uv, rgba, true);
 
             this._curSubmit._numEle += 6;
         }
         this.breakNextMerge();	//暂不合并
     }
 
-
-    /**
-     * 反正只支持一种filter，就不要叫setFilter了，直接叫setColorFilter
-     * @param filter
-     */
-    setColorFilter(filter: ColorFilter): void {
-        SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
-        //_shader2D.filters = value;
-        this._colorFiler = filter;
-        this.stopMerge = true;
-        //_reCalculateBlendShader();
+    createSubmit(mesh:Sprite2DGeometry ): SubmitBase {
+        return this._graphicsData.createSubmit(this, mesh , this._material);
     }
 
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color = 0xffffffff): void {
@@ -1023,20 +971,16 @@ export class Context {
     }
 
     /**@internal */
-    _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color = 0xffffffff): boolean {
-        return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, alpha, false, color);
+    _copyClipInfo(material: GraphicsShaderInfo): void {
+        let clipInfo = this._globalClipMatrix;
+        var cm = material.clipMatDir;
+        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
+        material.clipMatDir = cm;
+        var cmp = material.clipMatPos;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
+        material.clipMatPos = cmp;
     }
 
-    /**@internal */
-    _copyClipInfo(shaderValue: Value2D): void {
-        let clipInfo = this._globalClipMatrix;
-        var cm = shaderValue.clipMatDir;
-        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
-        shaderValue.clipMatDir = cm;
-        var cmp = shaderValue.clipMatPos;
-        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
-        shaderValue.clipMatPos = cmp;
-    }
     /**@internal */
     _copyClipInfoToShaderData(shaderData: ShaderData) {
         let clipInfo = this._globalClipMatrix;
@@ -1047,84 +991,8 @@ export class Context {
     }
 
     //通用的部分的比较
-    private isStopMerge(submit: SubmitBase) {
-        return this.stopMerge || (submit.clipInfoID !== this._clipInfoID);
-    }
-
-    drawCallOptimize(enable: boolean): boolean {
-        this._charSubmitCache.enable(enable, this);
-        return enable;
-    }
-
-    private _drawToRender2D(submit: SubmitBase) {
-        let mesh = this._mesh;
-        if (mesh.indexNum <= 0)
-            return;
-        let shaderValue = submit._internalShaderData;
-        let shaderdata = shaderValue.shaderData;
-        switch (submit._key.blendShader) {
-            case 1://add
-            case 3://screen
-            case 5://light
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-                break;
-            case 2://BlendMultiply
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            case 6://mask
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
-                break;
-            case 7://destination
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
-                break;
-            case 9:// not premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            default:// premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-        }
-
-        if (submit._colorFiler) {
-            var ft = submit._colorFiler;
-            shaderValue.setFilter(ft);
-            Matrix4x4.TEMP.cloneByArray(ft._mat);
-            shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
-            Vector4.TEMP.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
-            shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-        }
-
-        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit._internalShaderData, submit.material);
-        this.stopMerge = false;
-        this._drawCount++;
-    }
-
-    //TODO 目前是为了方便，从设计上这样是不是不太好
-    private _drawMesh(mesh: Sprite2DGeometry, vboff: number, vertNum: number, iboff: number, indexNum: number, shaderValue: Value2D, customMaterial: Material) {
-        if (!this._render2DManager._renderEnd) {
-            this._render2DManager.render(Render2DSimple.rendercontext2D);
-        }
-        if (mesh.indexNum) {
-            this._render2D.draw(
-                mesh,
-                vboff, vertNum * mesh.vertexDeclarition.vertexStride,
-                iboff, indexNum * 2,
-                shaderValue,
-                customMaterial
-            );
-        }
-        mesh.clearMesh();
-        //不能直接release，有的会缓存，例如cacheas normal，或者底层是异步之类的，所以先收集再释放
-        //shaderValue.release();
-        if (!shaderValue._needRelease) {
-            shaderValue._needRelease = true;
-            this._shaderValueNeedRelease.push(shaderValue);
-        }
+    private isSameClipInfo(submit: SubmitBase) {
+        return submit.clipInfoID !== this._clipInfoID;
     }
 
     /**
@@ -1160,7 +1028,8 @@ export class Context {
         }
 
         var submit = this._curSubmit;
-        var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
+        // var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
+        var ops: any[] = this._transedPoints;
 
         //凡是这个都是在_mesh上操作，不用考虑samekey
         this.transformQuad(x, y, width || tex.width, height || tex.height, this._italicDeg, m || this._curMat, ops);
@@ -1181,41 +1050,44 @@ export class Context {
         var rgba = this._mixRGBandAlpha(color, this._alpha * alpha);
 
         //lastRender = false;
-        if (lastRender) {
-            this._charSubmitCache.add(this, tex as Texture, imgid, ops, uv, rgba);
-            return true;
-        }
+        // if (lastRender) {
+        //     this._charSubmitCache.add(this, tex as Texture, imgid, ops, uv, rgba);
+        //     return true;
+        // }
 
         //this._drawCount++;
-
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
-            !this.isStopMerge(this._curSubmit) &&
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
-            this._curSubmit.material == this._material
+            !this.isSameClipInfo(this._curSubmit) 
+            // && this._curSubmit.material == this._material
 
-        if (!sameKey) {
-            this._drawToRender2D(this._curSubmit);
-            this._mesh = this._meshQuatTex;
+        let mesh = this._graphicsData._meshQuatTex;
+        if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
+            // this._drawToRender2D(this._curSubmit);
+            mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
+            sameKey = false;
         }
+
         this._lastTex = tex as Texture;
 
         if (!sameKey) {
-            let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
-            this.fillShaderValue(shaderValue);
-            shaderValue.textureHost = tex;
-            this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
+            // todo
+            this._curSubmit = submit = this.createSubmit(mesh);
+            let material = submit._internalInfo;
+            // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
+            this.fillShaderValue(material);
+            material.textureHost = tex;
             submit._key.other = imgid;
-            this._copyClipInfo(submit._internalShaderData);
+            // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
-        (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
+        mesh.addQuad(ops, uv, rgba, true);
         submit._numEle += 6;
         return true;
     }
 
-    private fillShaderValue(shaderValue: Value2D) {
-        shaderValue.size = new Vector2(this._width, this._height);
-        this._copyClipInfo(shaderValue);
+    private fillShaderValue(material: GraphicsShaderInfo) {
+        // shaderValue.size = new Vector2(this._width, this._height);
+        this._copyClipInfo(material);
     }
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
@@ -1289,7 +1161,8 @@ export class Context {
      * 例如切换rt的时候
      */
     breakNextMerge(): void {
-        this.stopMerge = true;
+        // this.stopMerge = true;
+        this._curSubmit = SubmitBase.RENDERBASE;
     }
 
     private _repaintSprite(): void {
@@ -1371,25 +1244,26 @@ export class Context {
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === webGLImg.id &&
-            preKey.blendShader == this._nBlendType &&
-            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
-            this._curSubmit.material == this._material;
+            preKey.blendShader === this._nBlendType 
+            // && this._curSubmit.material == this._material;
+        
+        let mesh = this._graphicsData._meshTex;
 
-        if (!sameKey) {
-            this._drawToRender2D(this._curSubmit);
-            this._mesh = this._meshTex;
+        if (mesh.vertexNum + vertices.length / 2 < GraphicsRunner._MAXVERTNUM) {
+            // this._drawToRender2D(this._curSubmit);
+            mesh = this._graphicsData.createMesh("tex") as MeshTexture;
+            sameKey = false;
         }
         //var rgba:int = mixRGBandAlpha(0xffffffff);
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = SubmitBase.create(this, this._mesh,
-                Value2D.create(RenderSpriteData.Texture2D));
-            submit._internalShaderData.textureHost = tex;
-            this.fillShaderValue(submit._internalShaderData);
+            var submit = this._curSubmit = this.createSubmit( mesh );
+            submit._internalInfo.textureHost = tex;
+            this.fillShaderValue(submit._internalInfo);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit._internalShaderData);
+            // this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
 
@@ -1402,10 +1276,10 @@ export class Context {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba, null);
+            mesh.addData(vertices, uvs, indices, tmpMat || this._curMat, rgba, null);
         } else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba, null);
+            mesh.addData(vertices, uvs, indices, matrix, rgba, null);
         }
         this._curSubmit._numEle += indices.length;
 
@@ -1433,7 +1307,7 @@ export class Context {
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
-        if (this._clipRect == Context.MAXCLIPRECT) {
+        if (this._clipRect === GraphicsRunner.MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
             this._clipRect.width = width;
@@ -1510,50 +1384,6 @@ export class Context {
         //TEMP end
     }
 
-    startRender() {
-        for (let sv of this._shaderValueNeedRelease) {
-            sv.release();
-            sv._needRelease = false;
-        }
-        this._shaderValueNeedRelease.length = 0;
-
-        this._render2D.renderStart(this._clear, this._clearColor);
-        this.clear();
-    }
-
-    endRender() {
-
-        this.flush();
-        if (!this._render2DManager._renderEnd) {
-            this._render2DManager.render(Render2DSimple.rendercontext2D);
-        }
-        this._render2D.renderEnd();
-        this._curSubmit = SubmitBase.RENDERBASE;
-    }
-
-    //合并mesh之后，最后一点数据还没有渲染，这里强制渲染
-    drawLeftData() {
-        if (!this._render2DManager._renderEnd) {
-            this._render2DManager.render(Render2DSimple.rendercontext2D);
-        }
-        //剩下的
-        this._drawToRender2D(this._curSubmit);
-    }
-
-    flush() {
-        this.drawLeftData();
-        this._clipID_Gen = 0;
-        this._path && this._path.reset();
-        this._curSubmit = SubmitBase.RENDERBASE;
-        this._flushCnt++;
-        //charbook gc
-        if (this._flushCnt % 60 == 0 && this.isMain) {
-            if (TextRender.textRenderInst) {
-                TextRender.textRenderInst.GC();
-            }
-        }
-    }
-
     beginPath(convex = false): void {
         this._getPath().beginPath(convex);
     }
@@ -1587,14 +1417,15 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isStopMerge(submit) &&
-            this._curSubmit.material == this._material;
+            !this.isSameClipInfo(submit) 
+            // && this._curSubmit.material == this._material;
 
+        let mesh = this._graphicsData._meshVG;
         if (!sameKey) {
-            this._drawToRender2D(submit);
-            this._mesh = this._meshVG;
-            this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit._internalShaderData);
+            // this._drawToRender2D(submit);
+            // this._mesh = this._meshVG;
+            this._curSubmit = this.addVGSubmit(mesh);
+            // this.fillShaderValue(this._curSubmit.shaderValue);
         }
         var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
         var curEleNum = 0;
@@ -1603,7 +1434,7 @@ export class Context {
         for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
             var p = tPath.paths[i];
             var vertNum = p.path.length / 2;
-            if (vertNum < 3 || (vertNum == 3 && !p.convex))
+            if (vertNum < 3 || (vertNum === 3 && !p.convex))
                 continue;
             var cpath: any[] = p.path.concat();
             // 应用矩阵转换顶点
@@ -1631,18 +1462,17 @@ export class Context {
                 }
             }
 
-            if (this._mesh.vertexNum + vertNum > Context._MAXVERTNUM) {
+            if (mesh.vertexNum + vertNum > GraphicsRunner._MAXVERTNUM) {
                 //;
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
-                //然后用新的mesh，和新的submit。
-                this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-                this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit._internalShaderData);
+                mesh = this._graphicsData.createMesh("vg") as MeshVG;
+                this._curSubmit = this.addVGSubmit(mesh);
+                // this.fillShaderValue(this._curSubmit.shaderValue);
             }
 
-            var curvert = this._mesh.vertexNum;
+            var curvert = mesh.vertexNum;
             //生成 ib
             if (p.convex) { //convex的ib比较容易
                 var faceNum = vertNum - 2;
@@ -1664,7 +1494,7 @@ export class Context {
                 }
             }
             //填充mesh
-            (this._mesh as MeshVG).addVertAndIBToMesh(cpath, rgba, idx);
+            mesh.addVertAndIBToMesh(cpath, rgba, idx);
             curEleNum += idx.length;
         }
         this._curSubmit._numEle += curEleNum;
@@ -1672,12 +1502,12 @@ export class Context {
 
     private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
-        var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
-        this.fillShaderValue(submit._internalShaderData);
+        var submit: SubmitBase = this.createSubmit(mesh);
+        this.fillShaderValue(submit._internalInfo);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit._internalShaderData);
+        // this._copyClipInfo(submit._internalShaderData);
         submit.clipInfoID = this._clipInfoID;
         return submit;
     }
@@ -1689,14 +1519,15 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isStopMerge(submit) &&
-            this._curSubmit.material == this._material
+            !this.isSameClipInfo(submit) 
+            // && this._curSubmit.material == this._material
 
+        let mesh = this._graphicsData._meshVG;
         if (!sameKey) {
-            this._drawToRender2D(this._curSubmit);
-            this._mesh = this._meshVG;
-            this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit._internalShaderData);
+            // this._drawToRender2D(this._curSubmit);
+            // this._mesh = this._meshVG;
+            this._curSubmit = this.addVGSubmit(mesh);
+            // this.fillShaderValue(this._curSubmit.shaderValue);
         }
         var curEleNum = 0;
         //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
@@ -1711,18 +1542,18 @@ export class Context {
             var maxVertexNum = p.path.length * 2;	//最大可能产生的顶点数。这个需要考虑考虑
             if (maxVertexNum < 2)
                 continue;
-            if (this._mesh.vertexNum + maxVertexNum > Context._MAXVERTNUM) {
+            if (mesh.vertexNum + maxVertexNum > GraphicsRunner._MAXVERTNUM) {
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
-                this._drawToRender2D(this._curSubmit);
+                // this._drawToRender2D(this._curSubmit);
                 //然后用新的mesh，和新的submit。
-                this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-                this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit._internalShaderData);
+                mesh = this._graphicsData.createMesh("vg") as MeshVG;
+                this._curSubmit = this.addVGSubmit(mesh);
+                // this.fillShaderValue(this._curSubmit.shaderValue);
             }
             //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
-            BasePoly.createLine2(p.path, idx, this.lineWidth, this._mesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
+            BasePoly.createLine2(p.path, idx, this.lineWidth, mesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
             // 变换所有的点
             var ptnum = vertex.length / 2;
             var m: Matrix = this._curMat;
@@ -1752,7 +1583,7 @@ export class Context {
 
             //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
             //填充mesh
-            (this._mesh as MeshVG).addVertAndIBToMesh(vertex, rgba, idx);
+            mesh.addVertAndIBToMesh(vertex, rgba, idx);
             curEleNum += idx.length;
         }
         this._curSubmit._numEle += curEleNum;
@@ -1855,13 +1686,13 @@ export class Context {
         var cosx = 0.0;
         if (dir >= 0) {
             fChgAng = halfAng * 2;
-            var fda = fChgAng / Context.SEGNUM;
+            var fda = fChgAng / GraphicsRunner.SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
         else {
             fChgAng = -halfAng * 2;
-            fda = fChgAng / Context.SEGNUM;
+            fda = fChgAng / GraphicsRunner.SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
@@ -1883,7 +1714,7 @@ export class Context {
         var cvy = pty1 - oriy;
         var tx = 0.0;
         var ty = 0.0;
-        for (i = 0; i < Context.SEGNUM; i++) {
+        for (i = 0; i < GraphicsRunner.SEGNUM; i++) {
             var cx = cvx * cosx + cvy * sinx;
             var cy = -cvx * sinx + cvy * cosx;
             x = cx + orix;
@@ -1991,7 +1822,7 @@ export class Context {
         return (color & 0x00ffffff) | (a << 24);
     }
 
-    strokeRect(x: number, y: number, width: number, height: number, parameterLineWidth: number): void {
+    strokeRect(x: number, y: number, width: number, height: number, parameterLineWidth: number = 0): void {
         var tW = parameterLineWidth * 0.5;
         //line(x - tW, y, x + width + tW, y, parameterLineWidth, _curMat);
         //line(x + width, y, x + width, y + height, parameterLineWidth, _curMat);
@@ -2027,12 +1858,6 @@ export class Context {
 
     private _getPath(): Path {
         return this._path || (this._path = new Path());
-    }
-
-    /**获取canvas*/
-    //注意这个是对外接口
-    get canvas(): HTMLCanvas {
-        return this._canvas;
     }
 
     /**
@@ -2136,10 +1961,10 @@ export class Context {
         var bottom = sizeGrid[2];
         var repeat = sizeGrid[4];
 
-        if (width == tex.width) {
+        if (width === tex.width) {
             left = right = 0;
         }
-        if (height == tex.height) {
+        if (height === tex.height) {
             top = bottom = 0;
         }
 
@@ -2270,7 +2095,7 @@ export class Context {
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
                 tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
             if (repeat) {
-                var tuvr: any[] = Context.tmpUVRect;
+                var tuvr: any[] = GraphicsRunner.tmpUVRect;
                 tuvr[0] = uvl_; tuvr[1] = uvt_;
                 tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
                 // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
@@ -2280,6 +2105,7 @@ export class Context {
             }
         }
     }
+
 }
 
 

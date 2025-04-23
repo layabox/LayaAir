@@ -187,7 +187,10 @@ export class PostProcess {
         var internalRT = camera._needInternalRenderTexture();
         var cameraTarget: RenderTexture = !internalRT ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
-        var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
+        var Indirect: RenderTexture[] = [
+            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), 
+            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)
+        ];
         //var screenTexture: RenderTexture = cameraTarget;
         context.command!.clear();
         context.source = screenTexture;

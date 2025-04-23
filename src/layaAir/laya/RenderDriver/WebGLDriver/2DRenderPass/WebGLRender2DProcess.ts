@@ -5,6 +5,9 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { WebRender2DPass } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
+import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
@@ -41,6 +44,14 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     createRenderContext2D(): IRenderContext2D {
         return new WebglRenderContext2D();
+    }
+
+    createRender2DPass(): IRender2DPass {
+        return new WebRender2DPass();
+    }
+
+    createRenderStruct2D(): any {
+        return new WebRenderStruct2D();
     }
 }
 

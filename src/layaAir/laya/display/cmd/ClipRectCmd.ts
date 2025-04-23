@@ -1,6 +1,6 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Clip command
@@ -67,16 +67,16 @@ export class ClipRectCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the clip rectangle command in the given context.
-     * @param context The rendering context.
+     * @param runner The rendering context.
      * @param gx The global x coordinate.
      * @param gy The global y coordinate.
      * @zh 在给定的上下文中执行裁剪矩形命令。
-     * @param context 渲染上下文。
+     * @param runner 渲染上下文。
      * @param gx 全局 x 坐标。
      * @param gy 全局 y 坐标。
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.clipRect(this.x + gx, this.y + gy, this.width, this.height);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.clipRect(this.x + gx, this.y + gy, this.width, this.height);
     }
 
     /**

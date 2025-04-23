@@ -1,5 +1,6 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
+import { GraphicsRunner } from "../display/Scene2DSpecial/GraphicsRunner";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
@@ -13,6 +14,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
 import { Context } from "./Context";
+import { Render2DSimple } from "./Render2D";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -145,12 +147,13 @@ export class Render {
 
         canvas.size(w, h);	//在ctx之后调用。
         ShaderDefines2D.__init__();
-        Context.__init__();
-
-        var ctx = new Context();
-        ctx.isMain = true;
-        Render._context = ctx;
-        canvas._setContext(ctx);
+        // Context.__init__();
+        GraphicsRunner.__init__();
+        Render2DSimple.__init__();
+        // var ctx = new Context();
+        // ctx.isMain = true;
+        // Render._context = ctx;
+        // canvas._setContext(ctx);
 
         Shader2D.__init__();
         BlendMode._init_();
@@ -158,8 +161,8 @@ export class Render {
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
-        Camera2D.shaderValueInit();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
+        Camera2D.shaderValueInit();
 
 
         return true;

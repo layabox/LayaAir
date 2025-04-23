@@ -1,14 +1,14 @@
 import { type Matrix } from "../maths/Matrix";
-import { type Context } from "../renders/Context";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 
 export interface IGraphicsCmd {
     /**
      * 
-     * @param context 
+     * @param runner 
      * @param gx 
      * @param gy 
      */
-    run(context: Context, gx: number, gy: number): void;
+    run(runner: GraphicsRunner, gx: number, gy: number): void;
     /**
      * @zh 如有回收，实现这个函数
      */

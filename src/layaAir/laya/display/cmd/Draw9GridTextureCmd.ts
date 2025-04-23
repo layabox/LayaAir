@@ -1,10 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw a texture with nine-grid information
@@ -117,24 +117,24 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     /**
      * @private
      * @en Execute the draw nine-grid texture command in the given context
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx The global x coordinate
      * @param gy The global y coordinate
      * @zh 在给定的上下文中执行绘制九宫格纹理命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局 x 坐标
      * @param gy 全局 y 坐标
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         if (this.texture) {
             let sizeGrid = this.sizeGrid || this.texture._sizeGrid || EMPTY_SIZE_GRID;
-            if (this.percent && context.sprite) {
-                let w = context.sprite.width;
-                let h = context.sprite.height;
-                context.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, sizeGrid, gx, gy, this.color);
+            if (this.percent && runner.sprite) {
+                let w = runner.sprite.width;
+                let h = runner.sprite.height;
+                runner.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, sizeGrid, gx, gy, this.color);
             }
             else
-                context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, sizeGrid, gx, gy, this.color);
+                runner.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, sizeGrid, gx, gy, this.color);
         }
     }
 

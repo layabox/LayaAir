@@ -61,7 +61,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
      * @param start 列表中的起始索引。
      * @param length 要处理的元素数量。
      */
-    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
+    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , elementCount:number = 1): void {
         let elementArray = list.elements;
         let batchStart = -1;
         for (let i = 0; i < length - 1; i++) {

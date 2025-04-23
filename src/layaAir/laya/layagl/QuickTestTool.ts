@@ -109,9 +109,9 @@ export class QuickTestTool {
 
     /**@internal */
     //TODO:coverage
-    _stageRender(context: Context, x: number, y: number): void {
+    _stageRender(context: Context): void {
         QuickTestTool._countStart();
-        QuickTestTool._PreStageRender.call(ILaya.stage, context, x, y);//TODO TS
+        QuickTestTool._PreStageRender.call(ILaya.stage, context);//TODO TS
         QuickTestTool._countEnd();
     }
     private static _countDic: any = {};

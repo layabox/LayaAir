@@ -1,3 +1,7 @@
+import { LayaGL } from "../../layagl/LayaGL";
+import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
+import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { ISprite2DGeometry } from "../../renders/Render2D";
 
@@ -5,6 +9,7 @@ import { ISprite2DGeometry } from "../../renders/Render2D";
  * Mesh2d只是保存数据。描述attribute用的。本身没有webgl数据。
  */
 export abstract class Sprite2DGeometry implements ISprite2DGeometry {
+
     //顶点结构大小。每个mesh的顶点结构是固定的。
     protected _stride = 0;
     //当前的顶点的个数。对外只读		
@@ -15,6 +20,12 @@ export abstract class Sprite2DGeometry implements ISprite2DGeometry {
     protected _VBBuff: ArrayBuffer;
     protected _IBBuff: ArrayBuffer;
 
+    needRelease: boolean = true;
+
+    vertexBuffer: IVertexBuffer = null;
+    indexBuffer: IIndexBuffer = null;
+    
+    
     /**
      * @param stride
      * @param vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
@@ -79,6 +90,39 @@ export abstract class Sprite2DGeometry implements ISprite2DGeometry {
                 this.onIBRealloc(this._IBBuff);
             }
         }
+    }
+
+    destroy() {
+        if (this.vertexBuffer) {
+            this.vertexBuffer.destroy();
+            this.vertexBuffer = null;
+        }
+        if (this.indexBuffer) {
+            this.indexBuffer.destroy();
+            this.indexBuffer = null;
+        }
+    }
+    
+    createBuffer() {
+        if (this.vertexBuffer && this.indexBuffer) return;
+        let vertexDeclaration = this.vertexDeclarition;
+        let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+        vb.vertexDeclaration = vertexDeclaration;
+        let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
+        this.vertexBuffer = vb;
+        this.indexBuffer = ib;
+    }
+
+    uploadBuffer() {
+        let vertexDeclaration = this.vertexDeclarition;
+        let vb = this.vertexBuffer;
+        let ib = this.indexBuffer;
+        let vblen = this.vertexNum * vertexDeclaration.vertexStride;
+        let iblen = this.indexNum * 2;
+        vb.setDataLength(vblen);
+        vb.setData(this.vbBuffer, 0, 0, vblen);
+        ib._setIndexDataLength(iblen);
+        ib._setIndexData(new Uint16Array(this.ibBuffer, 0, iblen / 2), 0);
     }
 }
 

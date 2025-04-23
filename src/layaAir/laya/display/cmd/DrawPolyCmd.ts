@@ -1,7 +1,7 @@
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw a polygon
@@ -86,18 +86,18 @@ export class DrawPolyCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the drawing polygon command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制多边形命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局 X 偏移
      * @param gy 全局 Y 偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let isConvexPolygon = this.points.length <= 6;
         let offset = (this.lineWidth >= 1 && this.lineColor) ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
-        this.points && context._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
+        this.points && runner._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
     }
 
     /**

@@ -39,7 +39,19 @@ import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { MeshTexture } from "../webgl/utils/MeshTexture";
+import { MeshVG } from "../webgl/utils/MeshVG";
+import { Sprite2DGeometry } from "../webgl/utils/Sprite2DGeometry";
+import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { FastSinglelist } from "../utils/SingletonList";
+import { SubmitBase } from "../webgl/submit/SubmitBase";
+import { NodeFlags } from "../Const";
+import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 
+const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -65,8 +77,13 @@ export class Graphics {
 
     _sp: Sprite | null = null;
 
+    // _texture: Texture | null = null;
+
+    _data: GraphicsRenderData = new GraphicsRenderData();
     /**@internal */
-    _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
+    // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
+
+    private _renderElements: IRenderElement2D[] = [];
 
     private _cmds: IGraphicsCmd[] = [];
     protected _vectorgraphArray: any[] | null = null;
@@ -124,7 +141,7 @@ export class Graphics {
         }
 
         this._cmds.length = 0;
-        this._render = this._renderEmpty;
+        // this._render = this._renderEmpty;
         this._clearData();
         if (this._sp) {
             this._sp._renderType &= ~SpriteConst.GRAPHICS;
@@ -239,10 +256,43 @@ export class Graphics {
 
     private onCmdsChanged() {
         let len = this._cmds.length;
-        if (this._sp && len > 0)
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-        this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+        // this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+        if (this._sp) {
+            this._setDisplay(len > 0);
+        }
         this._repaint();
+    }
+
+    /** @internal */
+    _checkDisplay() {
+        if (this._sp) {
+            let len = this._cmds.length;
+            let value = len > 0 || (this._sp._renderType & SpriteConst.TEXTURE) > 0;
+            this._setDisplay(value);
+        }
+    }
+    
+    _display:boolean = false;
+
+    /** @internal */
+    _setDisplay(value: boolean) {
+        if (this._display === value) return;
+        this._display = value;
+        if (value) {
+            this._sp._initShaderData();
+            this._sp._renderType |= SpriteConst.GRAPHICS;
+            this._sp._struct.set_grapicsUpdateCall(this, this._render, this._getRenderElements);
+        } else {
+            this._sp._renderType &= ~SpriteConst.GRAPHICS;
+            this._sp._struct.set_grapicsUpdateCall(null, null, null);
+        }
+    }
+
+    private _getRenderElements(): any[] {
+        // if (this._render === this._renderEmpty) {
+        //     return [];
+        // }
+        return this._renderElements;
     }
 
     /**
@@ -635,30 +685,111 @@ export class Graphics {
     /**
      * @internal
      */
-    _renderEmpty(sprite: Sprite, context: Context, x: number, y: number): void {
-    }
+    // _renderEmpty( runner: GraphicsRunner, x: number, y: number): void {
+    // }
 
+    // _renderAll( runner: GraphicsRunner, x: number, y: number): void {
     /**
      * @internal
      */
-    _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        var cmds = this._cmds!;
+    _render(runner: GraphicsRunner, x: number, y: number): void {
+        this._data.clear();
+        runner.clear();
+        runner.sprite = this._sp;
+        runner._graphicsData = this._data;
+        runner._material = this._material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sp._blendMode;        
+        // if (this._sp._scrollRect) {
+        //     runner
+        // }
+        var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
-            cmds[i].run(context, x, y);
+            cmds[i].run(runner, x, y);
         }
-        context._material = null;
+        //sprite.texture
+        this._renderSpriteTexture(runner , x , y);
+
+        this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+    }
+
+    _fillRenderTexture(runner: GraphicsRunner, x: number, y: number): void {
+        runner.clear();
+        runner.sprite = this._sp;
+        runner._graphicsData = this._data;
+        runner._material = this._material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sp._blendMode;        
+
+        this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
     }
 
     /**
      * @internal
      */
-    _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        this._cmds[0].run(context, x, y);
-        context._material = null;
+    // _renderOne( runner: GraphicsRunner, x: number, y: number): void {
+    //     this._data.clear();
+    //     runner.clear();
+    //     runner.sprite = this._sp;
+    //     runner._graphicsData = this._data;
+    //     runner._material = this._material;
+    //     this._cmds[0].run(runner, x, y);
+    //     this.updateRenderElement();
+    //     runner._material = null;
+    //     runner._graphicsData = null;
+    //     runner.sprite = null;
+    // }
+
+    _renderSpriteTexture(runner: GraphicsRunner , x:number , y:number): void {
+        let sprite = this._sp;
+        if (!sprite.texture || sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
+            return
+        }
+
+        var tex = sprite.texture;
+        if (tex._getSource()) {
+            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+                let px = x + tex.offsetX * wRate;
+                let py = y + tex.offsetY * hRate;
+                // let px = 0 + tex.offsetX * wRate;
+                // let py = 0 + tex.offsetY * hRate;
+                runner.drawTexture(tex, px, py, width, height, 0xffffffff);
+            }
+        }
+    }
+
+    /**
+     * 提交所有mesh的数据
+     */
+    updateRenderElement(): void {
+        this._data.uploadBuffer();
+        this._renderElements.length = 0;
+
+        let submits = this._data._submits;
+        let submitLength = submits.length;
+        for (let i = 0; i < submitLength; i++) {
+            let submit = submits.elements[i];
+            submit.updateRenderElement();
+            let element = submit._renderElement;
+            element.value2DShaderData = this._sp.shaderData;
+            this._renderElements.push(element);
+        }
     }
 
     /**
@@ -902,5 +1033,171 @@ export class Graphics {
      */
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[], color?: string): void {
         this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid, false, color));
+    }
+}
+
+
+export class GraphicsRenderData {
+    /**@internal */
+    // private _mesh: Sprite2DGeometry;			
+    //用Mesh2D代替_vb,_ib. 当前使用的mesh
+    _meshQuatTex = new MeshQuadTexture();
+    _meshVG = new MeshVG();
+    _meshTex = new MeshTexture();
+
+    meshlist: Sprite2DGeometry[] = [];	//本runner用到的mesh
+
+    /**@internal */
+    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
+
+    clear(): void {
+
+        this._meshQuatTex.clearMesh();
+        this._meshVG.clearMesh();
+        this._meshTex.clearMesh();
+
+        let len = this._submits.length;
+        for (let i = 0; i < len; i++) {
+            this._submits.elements[i].destroy();
+        }
+        this._submits.length = 0;
+
+        len = this.meshlist.length;
+        for (let i = 0; i < len; i++) {
+            let mesh = this.meshlist[i];
+            mesh.needRelease ? mesh.clearMesh() : mesh.destroy();
+        }
+
+        this.meshlist.length = 0;
+    }
+
+    uploadBuffer(): void {
+        this.meshlist.push(this._meshQuatTex, this._meshVG, this._meshTex);
+
+        let meshLength = this.meshlist.length;
+        for (let i = 0; i < meshLength; i++) {
+            let mesh = this.meshlist[i];
+            if (mesh.indexNum <= 0)
+                continue
+            mesh.createBuffer();
+            mesh.uploadBuffer();
+        }
+    }
+
+    destroy(): void {
+        this.clear();
+        this._meshQuatTex.destroy();
+        this._meshVG.destroy();
+        this._meshTex.destroy();
+        this._submits.destroy();
+
+        this._meshQuatTex = null;
+        this._meshVG = null;
+        this._meshTex = null;
+        this._submits = null;
+        this.meshlist = null;
+    }
+
+    createSubmit(runner: GraphicsRunner, mesh: Sprite2DGeometry, material: Material): SubmitBase {
+        let submit = SubmitBase.create(runner, mesh, material);
+        this._submits.add(submit);
+        return submit;
+    }
+
+    createMesh(type: "vg" | "quat" | "tex"): Sprite2DGeometry {
+        let mesh: Sprite2DGeometry = null;
+        if (type === "vg") {
+            this._meshVG.needRelease = false;
+            this.meshlist.push(this._meshVG);
+            mesh = this._meshVG = new MeshVG();
+        } else if (type === "quat") {
+            this._meshQuatTex.needRelease = false;
+            this.meshlist.push(this._meshQuatTex);
+            mesh = this._meshQuatTex = new MeshQuadTexture();
+        } else if (type === "tex") {
+            this._meshTex.needRelease = false;
+            this.meshlist.push(this._meshTex);
+            mesh = this._meshTex = new MeshTexture();
+        }
+        return mesh;
+    }
+
+}
+
+export class SubStructRender{
+    private _subRenderPass: IRender2DPass;
+    private _subStruct: IRenderStruct2D;
+    private _sprite: Sprite;
+    _data = new GraphicsRenderData();
+
+    bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
+        this._sprite = sprite;
+        this._subRenderPass = subRenderPass;
+        this._subStruct = subStruct;
+        subStruct.set_grapicsUpdateCall(this, this._renderUpdate , this._getRenderElements);
+    }
+
+    _renderElements: Array<IRenderElement2D> = [];
+
+    _getRenderElements(){
+        return this._renderElements;
+    }
+
+    _renderUpdate(runner:GraphicsRunner , x:number , y:number){
+        this._data.clear();
+        runner.clear();
+        runner.sprite = this._sprite;
+        runner._graphicsData = this._data;
+        runner._material = this._sprite.material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sprite._blendMode;        
+        //sprite.texture
+        let sprite = this._sprite;
+        var tex = this._subRenderPass.renderTexture;
+        if (tex) {
+            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+                let px = x + tex.offsetX * wRate;
+                let py = y + tex.offsetY * hRate;
+                runner._inner_drawTexture(tex , -1 , px, py, width, height, null , UV , 1 , false , 0xffffffff);
+            }
+        }
+
+        this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+    }
+
+    /**
+     * 提交所有mesh的数据
+     */
+    updateRenderElement(): void {
+        this._data.uploadBuffer();
+        this._renderElements.length = 0;
+
+        let submits = this._data._submits;
+        let submitLength = submits.length;
+        for (let i = 0; i < submitLength; i++) {
+            let submit = submits.elements[i];
+            submit.updateRenderElement();
+            let element = submit._renderElement;
+            element.value2DShaderData = this._sprite.shaderData;
+            this._renderElements.push(element);
+        }
+    }
+
+    destroy(): void {
+        this._data.destroy();
+        this._subRenderPass = null;
+        this._subStruct = null;
+        this._sprite = null;
     }
 }

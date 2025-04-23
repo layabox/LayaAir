@@ -1,6 +1,6 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Alpha command.
@@ -43,16 +43,16 @@ export class AlphaCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the alpha command in the given context.
-     * @param context The rendering context.
+     * @param runner The rendering context.
      * @param gx The global x coordinate (unused in this method).
      * @param gy The global y coordinate (unused in this method).
      * @zh 在给定的上下文中执行 alpha 命令。
-     * @param context 渲染上下文。
+     * @param runner 渲染上下文。
      * @param gx 全局 x 坐标（本方法中未使用）。
      * @param gy 全局 y 坐标（本方法中未使用）。
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.alpha(this.alpha);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.alpha(this.alpha);
     }
 
     /**

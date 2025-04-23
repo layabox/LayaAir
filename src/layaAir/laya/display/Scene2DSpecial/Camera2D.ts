@@ -4,6 +4,7 @@ import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -23,7 +24,9 @@ export class Camera2D extends Sprite {
         let scene2DUniformMap = Scene.scene2DUniformMap;
         Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
         scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
+        // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
+
     }
 
     /**@internal */
@@ -145,7 +148,7 @@ export class Camera2D extends Sprite {
             value.cloneTo(this._zoom);
         }
     }
-    /**@internal */
+    /** @internal min_x max_x min_y max_y */
     _rect: Vector4;
 
 
@@ -332,12 +335,19 @@ export class Camera2D extends Sprite {
             }
 
             if (this.positionSmooth) {
-                let speed = Math.min(1.0, this.positionSpeed * 0.16);
-                let transX = Math.floor((this._cameraPos.x - this._cameraSmoothPos.x) * speed);
-                let transY = Math.floor((this._cameraPos.y - this._cameraSmoothPos.y) * speed);
-
-                this._cameraSmoothPos.x += transX;
-                this._cameraSmoothPos.y += transY;
+                let epsilon = 0.01;
+                let speed = Math.max( epsilon , Math.min(1.0, this.positionSpeed * 0.16));// 0.1
+                let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
+                let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
+                let transX = deltaX * speed;
+                let transY = deltaY * speed;
+                if (Math.abs(transX) < epsilon && Math.abs(transY) < epsilon) {
+                    this._cameraSmoothPos.x = this._cameraPos.x;
+                    this._cameraSmoothPos.y = this._cameraPos.y;
+                } else {
+                    this._cameraSmoothPos.x += transX;
+                    this._cameraSmoothPos.y += transY;
+                }
             } else {
                 this._cameraSmoothPos.x = this._cameraPos.x;
                 this._cameraSmoothPos.y = this._cameraPos.y;
