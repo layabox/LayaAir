@@ -18,19 +18,25 @@ import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/Compu
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderInstance";
-import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
-import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPU3DRenderPassFactory";
 import { WebGPUBindGroup, WebGPUBindGroupHelper } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Stat } from "laya/utils/Stat";
-import { WebGPUCommandUniformMap } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUCommandUniformMap";
 import { IRenderContext3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Camera } from "laya/d3/core/Camera";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 
 export class WebGPU_Bundle_CullingUtil {
+
+    //config
+    //每个renderelement渲染多少物体
     static MAX_INSTANCES_PER_DRAWABLE = 1000;//PC 1000
+    //每个computeshader  计算组是多少
     static CULLING_WORKGROUP_SIZE = 64;
+    //是否使用调试视角
+    static useoverHeadView: boolean = true;
+    //是否使用绑定命令的方案渲染
+    static useRenderBundle: boolean = true;
+
     static Cull_RenderBundle_ComputeShader: ComputeShader;
     static initShader() {
 
@@ -174,7 +180,7 @@ export class WebGPU_Bundle_CullingUtil {
 }
 
 
-export class webgpuBundleCullingELement extends WebGPURenderElement3D {
+export class webgpuDrawCullingELement extends WebGPURenderElement3D {
     cullShaderData: WebGPUShaderData;
     constructor() {
         super();
@@ -281,9 +287,48 @@ export class webgpuBundleCullingELement extends WebGPURenderElement3D {
     }
 }
 
+
+export class webgpuRenderBundleElement extends WebGPURenderElement3D {
+    private _renderelements: webgpuDrawCullingELement[] = [];
+    private _needRecreateRenderBundle: boolean = false;
+    private _commadnBundle: WebGPURenderBundle = new WebGPURenderBundle();
+
+    constructor() {
+        super();
+        this.isRender = true;
+        this.materialRenderQueue = 2000;
+        this.materialShaderData = new WebGPUShaderData();
+    }
+
+    addrenderElement(element: webgpuDrawCullingELement) {
+        this._renderelements.push(element);
+        this._needRecreateRenderBundle = true;
+    }
+
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        for (var i = 0; i < this._renderelements.length; i++) {
+            this._renderelements[i]._preUpdatePre(context);
+        }
+    }
+
+    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+        if (this._needRecreateRenderBundle) {
+            this._commadnBundle.startRender(context.destRT, "renderCullBundle");
+            for (var i = 0; i < this._renderelements.length; i++) {
+                this._renderelements[i]._render(context, this._commadnBundle);
+            }
+            this._commadnBundle.finish("renderCullBundle");
+            this._needRecreateRenderBundle = false;
+        }
+        (command as WebGPURenderCommandEncoder).excuteBundle([this._commadnBundle._gpuBundle])
+        return 0;
+    }
+}
+
 export class BundleCullingRender extends BaseRender {
 
-    private _renderelements: webgpuBundleCullingELement[] = [];
+    private _renderelements: webgpuDrawCullingELement[] = [];
+    private _renderBundleElement: webgpuRenderBundleElement;
     private elementChange = false;
     private cullPlaneData: Float32Array = new Float32Array(4 * 6);
     computeCommand = new ComputeCommandBuffer();
@@ -294,18 +339,37 @@ export class BundleCullingRender extends BaseRender {
         this.ViewCamera = new Camera(0, 0.1, 500);
         this.ViewCamera.transform.position = new Vector3(0, 200, 0);
         this.ViewCamera.transform.rotationEuler = new Vector3(-90, 0, 0);
+
     }
 
     protected _getcommonUniformMap(): Array<string> {
         return ["cullSprite"];
     }
 
-    addrenderElement(element: webgpuBundleCullingELement) {
-        this._renderelements.push(element);
-        element.transform = this.owner.transform;
-        element.renderShaderData = this.renderNode.shaderData as any;
-        element.owner = this.renderNode as any;
-        this.elementChange = true;
+    onEnable(): void {
+        if (WebGPU_Bundle_CullingUtil.useRenderBundle) {
+            this._renderBundleElement = new webgpuRenderBundleElement();
+            this._renderBundleElement.transform = this.owner.transform;
+            this._renderBundleElement.renderShaderData = this.renderNode.shaderData as any;
+            this._renderBundleElement.owner = this.renderNode as any;
+            this.elementChange = true;
+        }
+    }
+
+    addrenderElement(element: webgpuDrawCullingELement) {
+        if (WebGPU_Bundle_CullingUtil.useRenderBundle) {
+            this._renderBundleElement.addrenderElement(element);
+            element.transform = this.owner.transform;
+            element.renderShaderData = this.renderNode.shaderData as any;
+            element.owner = this.renderNode as any;
+        } else {
+            this._renderelements.push(element);
+            element.transform = this.owner.transform;
+            element.renderShaderData = this.renderNode.shaderData as any;
+            element.owner = this.renderNode as any;
+            this.elementChange = true;
+        }
+
     }
 
     _renderUpdate(context: IRenderContext3D): void {
@@ -330,13 +394,16 @@ export class BundleCullingRender extends BaseRender {
         this.renderNode.shaderData.setBuffer(Shader3D.propertyNameToID("frustum"), this.cullPlaneData);
         this.computeCommand.executeCMDs();
 
-        if ((window as any).aaa) {
+        if (WebGPU_Bundle_CullingUtil.useoverHeadView) {
             (camera as any)._shaderValues.setMatrix4x4((BaseCamera as any).VIEWPROJECTMATRIX, this.ViewCamera.projectionViewMatrix);
         }
     }
 
     protected _setRenderElements() {
-        this.renderNode.setRenderelements(this._renderelements as any);
+        if (WebGPU_Bundle_CullingUtil.useRenderBundle)
+            this.renderNode.setRenderelements([this._renderBundleElement]);
+        else
+            this.renderNode.setRenderelements(this._renderelements as any);
         this.elementChange = false;
     }
 }

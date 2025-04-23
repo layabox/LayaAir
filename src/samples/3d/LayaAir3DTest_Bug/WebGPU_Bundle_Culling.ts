@@ -10,7 +10,7 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material, MaterialRenderMode } from "laya/resource/Material";
-import { BundleCullingRender, WebGPU_Bundle_CullingUtil, webgpuBundleCullingELement } from "./WebGPU_Bundle_CullingUtil";
+import { BundleCullingRender, WebGPU_Bundle_CullingUtil, webgpuDrawCullingELement } from "./WebGPU_Bundle_CullingUtil";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshTopology } from "laya/RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "laya/RenderEngine/RenderEnum/DrawType";
@@ -38,7 +38,7 @@ export class WebGPU_Bundle_Culling {
     private meshArray: Mesh[] = [];
     private materialArray: Material[] = [];
     private geometrys: IRenderGeometryElement[] = [];
-    private renderelements: webgpuBundleCullingELement[] = [];
+    private renderelements: webgpuDrawCullingELement[] = [];
     private instanceBuffer: IDeviceBuffer[] = [];
     private indirectDrawBuffer: IDeviceBuffer;
     private indirectCullBuffers: IDeviceBuffer[] = [];
@@ -196,7 +196,7 @@ export class WebGPU_Bundle_Culling {
             return geometry;
         }
         let createWebGPURenderElement = (geometry: IRenderGeometryElement, material: Material) => {
-            let renderelement = new webgpuBundleCullingELement();
+            let renderelement = new webgpuDrawCullingELement();
             renderelement.materialShaderData = material.shaderData as any;
             renderelement.materialId = material.id;
             renderelement.subShader = material.shader.getSubShaderAt(0);

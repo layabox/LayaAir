@@ -17,8 +17,10 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
         } else {
             //create
             const texs = rt._textures;
-            let desc: GPURenderBundleEncoderDescriptor
-            const colorFormats = [];
+            let desc: GPURenderBundleEncoderDescriptor = {
+                colorFormats: []
+            };
+            const colorFormats = desc.colorFormats as GPUTextureFormat[];
             colorFormats.length = rt._textures.length;
             for (let i = 0, len = rt._textures.length; i < len; i++) {
                 if (rt._textures[0]._webGPUFormat === 'depth16unorm'
@@ -43,7 +45,7 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
 
     private _device: GPUDevice;
 
-    private _gpuBundle: GPURenderBundle;
+    _gpuBundle: GPURenderBundle;
 
     encoder: GPURenderBundleEncoder; //渲染绑定编码器
 
@@ -76,7 +78,7 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
     }
 
     finish(lable: string) {
-        this.encoder.finish({ label: lable });
+        this._gpuBundle = this.encoder.finish({ label: lable });
     }
 
     /**
