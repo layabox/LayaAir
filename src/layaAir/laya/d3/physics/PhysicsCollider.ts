@@ -14,6 +14,9 @@ export class PhysicsCollider extends PhysicsColliderComponent {
     /** @internal */
     private _isTrigger: boolean = false;
 
+    /** @internal */
+    private _allowSleep: boolean = true;
+
     /**@override @internal */
     _collider: IStaticCollider;
 
@@ -42,6 +45,7 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;
         this.isTrigger = this._isTrigger;
+        this.allowSleep = this._allowSleep;
     }
 
     /**
@@ -57,6 +61,22 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
             this._collider.setTrigger(value);
             this._setEventFilter();
+        }
+    }
+
+
+    /**
+     * @en Whether the collider allows sleep.
+     * @zh 是否允许碰撞器睡眠。
+     */
+    get allowSleep(): boolean {
+        return this._allowSleep;
+    }
+
+    set allowSleep(value: boolean) {
+        this._allowSleep = value;
+        if (this._collider && this._collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {
+            this._collider.allowSleep(value);
         }
     }
 

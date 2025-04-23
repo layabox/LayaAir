@@ -239,6 +239,9 @@ export class btCollider implements ICollider {
         throw new NotImplementedError;
     }
 
+    allowSleep(value: boolean): void {
+    }
+
     /**
      * @en Checks if the collider is capable of a certain feature.
      * @param value The capability to check.

@@ -294,6 +294,11 @@ export class pxCollider implements ICollider {
 
         this._shape && this._shape.setEventFilterData(flag);
     }
+
+    allowSleep(value: boolean): void {
+    }
+
+
     /**
      * @en Sets the owner node for this collider.
      * @param node The Sprite3D node that owns this collider.

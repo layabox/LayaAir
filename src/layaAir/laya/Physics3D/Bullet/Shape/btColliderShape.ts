@@ -130,7 +130,9 @@ export class btColliderShape implements IColliderShape {
      */
     destroy(): void {
         if (this._btShape && !this._destroyed) {
-            this._btCollider && this._btCollider._physicsManager.removeCollider(this._btCollider);
+            if (this._btCollider && this._btCollider._physicsManager) {
+                this._btCollider._physicsManager.removeCollider(this._btCollider);
+            }
             btPhysicsCreateUtil._bt.btCollisionShape_destroy(this._btShape);
             this._btShape = null;
             this._destroyed = true;
