@@ -383,11 +383,18 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     private _getGPURenderTargetFormat(format: RenderTargetFormat, useSRGB: boolean): WebGPUTextureFormat {
+        const engine = WebGPURenderEngine._instance;
+
         let webgpuTextureFormat = WebGPUTextureFormat.rgba8uint;
         switch (format) {
             case RenderTargetFormat.R8G8B8://TODO
             case RenderTargetFormat.R8G8B8A8:
-                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.bgra8unorm_srgb;
+                if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
+                    webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.bgra8unorm_srgb;
+                }
+                else {
+                    webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.rgba8unorm : WebGPUTextureFormat.rgba8unorm_srgb;
+                }
                 break;
             case RenderTargetFormat.R32G32B32://TODO
             case RenderTargetFormat.R32G32B32A32:

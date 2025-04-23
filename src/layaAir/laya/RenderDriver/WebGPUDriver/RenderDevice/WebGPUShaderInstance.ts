@@ -12,6 +12,7 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderContext2D } from "../2DRenderPass/WebGPURenderContext2D";
+import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 
 /**
@@ -62,9 +63,14 @@ export class WebGPUShaderInstance implements IShaderInstance {
      * 获取渲染管线描述
      */
     getRenderPipelineDescriptor() {
+        const engine = WebGPURenderEngine._instance;
         //设置颜色目标模式
+        let targetFormat = WebGPUTextureFormat.rgba8unorm;
+        if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
+            targetFormat = WebGPUTextureFormat.bgra8unorm;
+        }
         const colorTargetState: GPUColorTargetState = {
-            format: 'bgra8unorm',
+            format: targetFormat,
             blend: {
                 alpha: {
                     srcFactor: 'src-alpha',

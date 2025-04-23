@@ -67,6 +67,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
     _context: GPUCanvasContext;
 
+    _preferredFormat: GPUTextureFormat;
+
     _screenResized: boolean = false;
     _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
@@ -251,9 +253,11 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._context = this._canvas.getContext('webgpu') as GPUCanvasContext;
         if (!this._context)
             throw 'Could not get context';
-        //const preferredFormat = navigator.gpu.getPreferredCanvasFormat();
-        //console.log('preferredFormat =', preferredFormat);
-        const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
+
+        this._preferredFormat = navigator.gpu.getPreferredCanvasFormat();
+
+        const format = this._config.swapChainFormat || (this._preferredFormat == WebGPUTextureFormat.bgra8unorm ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.rgba8unorm);
+
         const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
         this._context.configure({
             device: this._device,

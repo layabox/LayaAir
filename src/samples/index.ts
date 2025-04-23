@@ -12,4 +12,4 @@ Main.useWebGPU = true;
 Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-new Main(true, false, WebGPU_Bundle_Culling);
+new Main(true, false, TextureDemo);

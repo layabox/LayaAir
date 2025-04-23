@@ -23,6 +23,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
 import { IRenderElement3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Stat } from "laya/utils/Stat";
 
 export class WebGPU_Bundle_Culling {
     //一次渲染多少个
@@ -48,6 +49,7 @@ export class WebGPU_Bundle_Culling {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
             //Stat.show();
+            Stat.hide();
             var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
             var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 500)));
