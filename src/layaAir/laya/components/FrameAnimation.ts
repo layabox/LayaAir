@@ -136,8 +136,8 @@ export class FrameAnimation extends Component {
     }
 
     set frames(value: ReadonlyArray<Texture>) {
-        if (this._drawCmd) {
-            this.owner.graphics.removeCmd(this._drawCmd);
+        if (this._drawCmd && this.owner._graphics) {
+            this.owner._graphics.removeCmd(this._drawCmd);
             this._drawCmd = null;
         }
         for (let cmd of this._drawCmds)

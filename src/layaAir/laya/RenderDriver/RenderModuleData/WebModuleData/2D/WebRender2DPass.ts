@@ -16,6 +16,8 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Const } from "../../../../Const";
 import { Matrix } from "../../../../maths/Matrix";
+import { PostProcess2D } from "./PostProcess2D";
+import { Vector3 } from "../../../../maths/Vector3";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -71,6 +73,7 @@ export class BatchManager {
    }
 }
 
+const _TEMP_InvertMatrix = new Matrix();
 export class WebRender2DPass implements IRender2DPass {
    /** @internal */
    static curRenderTexture: RenderTexture2D = null;
@@ -80,13 +83,26 @@ export class WebRender2DPass implements IRender2DPass {
 
    priority: number = 0;
 
+   enable: boolean = true;
+
    renderTexture: RenderTexture2D;
    //todo: 2D process
-   postProcess: boolean = false;
+   postProcess: PostProcess2D = null;
 
    repaint: boolean = true;
 
    _clearColor = new Color;
+
+   private _enableBatch: boolean = true;
+   /** 需要挪出去? */
+   public get enableBatch(): boolean {
+      return this._enableBatch;
+   }
+
+   public set enableBatch(value: boolean) {
+      this.repaint = true;
+      this._enableBatch = value;
+   }
 
    setClearColor(r: number, g: number, b: number, a: number): void {
       this._clearColor.setValue(r, g, b, a);
@@ -105,6 +121,9 @@ export class WebRender2DPass implements IRender2DPass {
    private _cullRect: Vector4 = new Vector4();
 
    root: WebRenderStruct2D = null;
+
+   private _invertMat_0: Vector3 = new Vector3(1, 1);
+   private _invertMat_1: Vector3 = new Vector3(0, 0);
 
    /**
     * 设置裁剪矩形
@@ -147,6 +166,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
+      if (!struct.enable) return;
 
       if (struct._renderUpdateMask !== Stat.loopCount) {
          struct._renderUpdateMask = Stat.loopCount;
@@ -192,7 +212,7 @@ export class WebRender2DPass implements IRender2DPass {
       this._initRenderProcess(context);
       let lists = this._lists;
       // 清理zOrder相关队列
-      
+
       if (this.repaint) {
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
@@ -201,7 +221,7 @@ export class WebRender2DPass implements IRender2DPass {
          for (let i = 0, len = lists.length; i < len; i++) {
             let list = lists[i];
             if (!list || !list.renderElements.length) continue;
-            list.batch();
+            this.enableBatch && list.batch();
             context.drawRenderElementList(list.renderElements);
          }
 
@@ -222,11 +242,17 @@ export class WebRender2DPass implements IRender2DPass {
       //设置viewport 切换rt
       let sizeX, sizeY;
       if (this.renderTexture) {
-         context.invertY = this.renderTexture._invertY;
+         context.invertY = !this.renderTexture._invertY;
          context.setRenderTarget(this.renderTexture._renderTarget, true, this._clearColor);
          sizeX = this.renderTexture.width;
          sizeY = this.renderTexture.height;
          WebRender2DPass.curRenderTexture = this.renderTexture;
+
+         this.root.transform.getMatrixInv(_TEMP_InvertMatrix);
+         this._setInvertMatrix(_TEMP_InvertMatrix.a, _TEMP_InvertMatrix.b, _TEMP_InvertMatrix.c, _TEMP_InvertMatrix.d, _TEMP_InvertMatrix.tx, _TEMP_InvertMatrix.ty);
+
+         this.shaderData.addDefine(ShaderDefines2D.RENDERTEXTURE);
+
       } else {
          context.invertY = false;
          sizeX = RenderState2D.width;
@@ -235,8 +261,11 @@ export class WebRender2DPass implements IRender2DPass {
          if (!WebRender2DPass.curRenderTexture) {
             context.setRenderTarget(null, true, this._clearColor);
          }
-      }
 
+         this._setInvertMatrix(1, 0, 0, 1, 0, 0);
+         this.shaderData.removeDefine(ShaderDefines2D.RENDERTEXTURE);
+      }
+      
       context.passData = this.shaderData;
       // this._setClipInfo(this.clipMatrix);
       this._setRenderSize(sizeX, sizeY);
@@ -250,7 +279,6 @@ export class WebRender2DPass implements IRender2DPass {
       // context.setOffscreenView(RenderState2D.width, RenderState2D.height);
       // context.setRenderTarget(null, true, this._clearColor);
       context.passData = null;
-
       this.recover(context);
    }
 
@@ -260,11 +288,30 @@ export class WebRender2DPass implements IRender2DPass {
    //    this._clipMatrixPos.setValue(matrix.tx, matrix.ty);
    //    this.shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, this._clipMatrixPos);
    // }
+
+   private _setInvertMatrix(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
+      if (
+         a === this._invertMat_0.x 
+         && b === this._invertMat_1.x
+         && c === this._invertMat_0.y 
+         && d === this._invertMat_1.y 
+         && tx === this._invertMat_0.z 
+         && ty === this._invertMat_1.z
+      )
+         return;
+         
+      this._invertMat_0.setValue(a, c, tx);
+      this._invertMat_1.setValue(b, d, ty);
+      
+      this.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_0, this._invertMat_0);
+      this.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_1, this._invertMat_1);
+   }
+
    /**
-     * @override
+     * @internal
      */
-   _setRenderSize(x: number, y: number) {
-      if (x == this._rtsize.x && y == this._rtsize.y)
+   private _setRenderSize(x: number, y: number) {
+      if (x === this._rtsize.x && y === this._rtsize.y)
          return;
       this._rtsize.setValue(x, y);
       this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);

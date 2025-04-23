@@ -13,8 +13,14 @@
     vec4 transedPos;
 #endif
 
+#ifdef RENDERTEXTURE
+    uniform vec3 u_InvertMat_0;
+    uniform vec3 u_InvertMat_1;
+#endif
+
 uniform vec3 u_NMatrix_0;
 uniform vec3 u_NMatrix_1;
+
 uniform vec2 u_size;
 uniform vec4 u_clipMatDir;
 uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
@@ -34,21 +40,27 @@ void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
 }
 
 void getGlobalPos(in vec2 localPos,out vec2 globalPos){
-    transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
-}
-
-void calculateClipInfo(out vec2 globalPos){
+    vec2 tempPos;
+    transfrom(localPos,u_NMatrix_0,u_NMatrix_1,tempPos);
+    // 根据视口调整位置
     vec2 cliped;
     float clipw = length(u_clipMatDir.xy);
     float cliph = length(u_clipMatDir.zw);
-    vec2 clippos = globalPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+    vec2 clippos = tempPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
     if(clipw>20000. && cliph>20000.)
         cliped = vec2(0.5,0.5);
     else {
         //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
         cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
     }
-    globalPos.xy = clippos + u_clipMatPos.zw;	
+    tempPos.xy = clippos + u_clipMatPos.zw;
+
+    #ifdef RENDERTEXTURE
+        transfrom(tempPos , u_InvertMat_0, u_InvertMat_1, globalPos);
+    #else
+        globalPos = tempPos;
+    #endif
+
     v_cliped = cliped;
 }
 
@@ -71,7 +83,6 @@ vec4 getPosition(in vec2 positionOS){
     vec2 globalPos;
     getGlobalPos(positionOS,globalPos);
 
-    calculateClipInfo(globalPos);
     vec2 viewPos;
     getViewPos(globalPos,viewPos);
     vec4 pos;
@@ -89,16 +100,7 @@ vec4 getPosition(in vec2 positionOS){
         info.color.a*=u_VertAlpha;
         info.pos = a_position.xy;
     }
-
-    //兼容旧版的shader
-    void getPosition(inout vec4 pos){
-        vec2 globalPos;
-        getGlobalPos(a_position.xy,globalPos);
-        calculateClipInfo(globalPos);
-        vec2 viewPos;
-        getViewPos(globalPos,viewPos);
-        getProjectPos(viewPos,pos);
-    }
+   
 #endif
 
 #ifdef TEXTUREVS
@@ -124,17 +126,6 @@ vec4 getPosition(in vec2 positionOS){
         info.pos = a_posuv.xy;
     }
 
-    //兼容旧版的shader
-    void getPosition(inout vec4 pos){
-        vec2 globalPos;
-        getGlobalPos(a_posuv.xy,globalPos);
-
-        calculateClipInfo(globalPos);
-        
-        vec2 viewPos;
-        getViewPos(globalPos,viewPos);
-        getProjectPos(viewPos,pos);
-    }
 #endif
 
 #ifdef BASERENDER2D
@@ -211,16 +202,6 @@ vec4 getPosition(in vec2 positionOS){
             info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
             info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif
-    }
-
-    //兼容旧版的shader
-    void getPosition(inout vec4 pos){
-        vec2 globalPos;
-        getGlobalPos(a_position.xy,globalPos);
-        calculateClipInfo(globalPos);
-        vec2 viewPos;
-        getViewPos(globalPos,viewPos);
-        getProjectPos(viewPos,pos);
     }
     
 #endif

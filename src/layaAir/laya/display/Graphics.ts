@@ -48,7 +48,10 @@ import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { FastSinglelist } from "../utils/SingletonList";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { NodeFlags } from "../Const";
+import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 
+const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -264,13 +267,17 @@ export class Graphics {
     _checkDisplay() {
         if (this._sp) {
             let len = this._cmds.length;
-            let value = len > 0 && (this._sp._renderType & SpriteConst.TEXTURE) > 0;
+            let value = len > 0 || (this._sp._renderType & SpriteConst.TEXTURE) > 0;
             this._setDisplay(value);
         }
     }
     
+    _display:boolean = false;
+
     /** @internal */
     _setDisplay(value: boolean) {
+        if (this._display === value) return;
+        this._display = value;
         if (value) {
             this._sp._initShaderData();
             this._sp._renderType |= SpriteConst.GRAPHICS;
@@ -691,10 +698,11 @@ export class Graphics {
         runner.sprite = this._sp;
         runner._graphicsData = this._data;
         runner._material = this._material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sp._blendMode;        
         // if (this._sp._scrollRect) {
         //     runner
         // }
-
         var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(runner, x, y);
@@ -703,6 +711,24 @@ export class Graphics {
         this._renderSpriteTexture(runner , x , y);
 
         this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+    }
+
+    _fillRenderTexture(runner: GraphicsRunner, x: number, y: number): void {
+        runner.clear();
+        runner.sprite = this._sp;
+        runner._graphicsData = this._data;
+        runner._material = this._material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sp._blendMode;        
+
+        this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
@@ -1096,4 +1122,82 @@ export class GraphicsRenderData {
         return mesh;
     }
 
+}
+
+export class SubStructRender{
+    private _subRenderPass: IRender2DPass;
+    private _subStruct: IRenderStruct2D;
+    private _sprite: Sprite;
+    _data = new GraphicsRenderData();
+
+    bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
+        this._sprite = sprite;
+        this._subRenderPass = subRenderPass;
+        this._subStruct = subStruct;
+        subStruct.set_grapicsUpdateCall(this, this._renderUpdate , this._getRenderElements);
+    }
+
+    _renderElements: Array<IRenderElement2D> = [];
+
+    _getRenderElements(){
+        return this._renderElements;
+    }
+
+    _renderUpdate(runner:GraphicsRunner , x:number , y:number){
+        this._data.clear();
+        runner.clear();
+        runner.sprite = this._sprite;
+        runner._graphicsData = this._data;
+        runner._material = this._sprite.material;
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sprite._blendMode;        
+        //sprite.texture
+        let sprite = this._sprite;
+        var tex = this._subRenderPass.renderTexture;
+        if (tex) {
+            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+                let px = x + tex.offsetX * wRate;
+                let py = y + tex.offsetY * hRate;
+                runner._inner_drawTexture(tex , -1 , px, py, width, height, null , UV , 1 , false , 0xffffffff);
+            }
+        }
+
+        this.updateRenderElement();
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+    }
+
+    /**
+     * 提交所有mesh的数据
+     */
+    updateRenderElement(): void {
+        this._data.uploadBuffer();
+        this._renderElements.length = 0;
+
+        let submits = this._data._submits;
+        let submitLength = submits.length;
+        for (let i = 0; i < submitLength; i++) {
+            let submit = submits.elements[i];
+            submit.updateRenderElement();
+            let element = submit._renderElement;
+            element.value2DShaderData = this._sprite.shaderData;
+            this._renderElements.push(element);
+        }
+    }
+
+    destroy(): void {
+        this._data.destroy();
+        this._subRenderPass = null;
+        this._subStruct = null;
+        this._sprite = null;
+    }
 }

@@ -1,3 +1,4 @@
+import { run } from "node:test";
 import { Const } from "../../Const";
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -12,6 +13,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
+import { BlendMode } from "../canvas/BlendMode";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
@@ -77,7 +79,7 @@ export class SubmitBase {
 
         this._renderElement.geometry = geometry;
         this._renderElement.nodeCommonMap = ["Sprite2D"];
-        this._renderElement.renderStateIsBySprite = false;
+        this._renderElement.renderStateIsBySprite = true;
         this._internalInfo = new GraphicsShaderInfo;
         geometry.bufferState = bufferState;
         geometry.indexFormat = IndexFormat.UInt16;
@@ -150,35 +152,11 @@ export class SubmitBase {
         o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = runner._nBlendType;
-        o._key.blendShader = blendType;
-        let shaderdata = o._internalInfo.shaderData;
-
-        switch (blendType) {
-            case 1://add
-            case 3://screen
-            case 5://light
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-                break;
-            case 2://BlendMultiply
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            case 6://mask
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
-                break;
-            case 7://destination
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
-                break;
-            case 9:// not premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            default:// premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        
+        if (runner.globalCompositeOperation != runner.sprite._blendMode) {
+            o._key.blendShader = blendType;
+            BlendMode.setShaderData(blendType, o._internalInfo.shaderData);
+            o._renderElement.renderStateIsBySprite = false;
         }
         //sv.setValue(context._shader2D);
         // o._colorFiler = runner._colorFiler;

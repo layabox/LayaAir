@@ -1,4 +1,7 @@
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 
 //export type BlendFunc = (gl:WebGLRenderingContext)=>void
@@ -14,7 +17,9 @@ export class BlendMode {
         "light",
         "mask",
         "destination-out",
-        "add_old"];
+        "add_old",
+        "source_alpha"
+    ];
 
     /** @internal */
     static TOINT: { [key: string]: number } = {
@@ -28,7 +33,8 @@ export class BlendMode {
         "destination-out": 7,
         "lighter": 1,
         "lighter_old": 8,
-        "add_old": 8
+        "add_old": 8,
+        "source_alpha": 9,
     };
 
     static NORMAL = "normal";					//0
@@ -134,6 +140,39 @@ export class BlendMode {
     }
     static BlendSourceAlpha(): void {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
+    }
+
+    static setShaderData(blendType: string | number, shaderData: ShaderData , premultipliedAlpha = true): void {
+        if (typeof blendType === "string") {
+            blendType = BlendMode.TOINT[blendType];
+        }
+        switch (blendType) {
+            case 1://add
+            case 3://screen
+            case 5://light
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
+            case 2://BlendMultiply
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            case 6://mask
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+                break;
+            case 7://destination
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                break;
+            case 9:// not premul alpha
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            default:// premul alpha
+                shaderData.setInt(Shader3D.BLEND_SRC, premultipliedAlpha ? RenderState.BLENDPARAM_ONE : RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        }
     }
 }
 

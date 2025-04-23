@@ -35,6 +35,8 @@ export class ShaderDefines2D {
     static TEXTURESHADER: ShaderDefine;
     /**@internal */
     static PRIMITIVESHADER: ShaderDefine;
+    /** @internal */
+    static RENDERTEXTURE:ShaderDefine;
 
     /**@internal */
     static UNIFORM_MMAT: number;// mat4 u_mmat
@@ -43,6 +45,7 @@ export class ShaderDefines2D {
     static UNIFORM_PIVOTPOS: number;// uniform vec2 u_clipMatPos;
     static UNIFORM_MMAT2: number;// uniform mat4 u_mmat2;
     static UNIFORM_SIZE:number;
+    
     static UNIFORM_VERTALPHA: number;//顶点alpha，给cacheas normal用;
     static UNIFORM_MVPMatrix: number;//uniform mat4 u_MvpMatrix;
 
@@ -66,6 +69,10 @@ export class ShaderDefines2D {
      * 渲染矩阵第二个vector3属性ID
      */
     static UNIFORM_NMATRIX_1: number;
+    /** uniform vec3 u_InvertMat_0; // 反转矩阵的第一行 */
+    static UNIFORM_INVERTMAT_0:number;
+    /** uniform vec3 u_InvertMat_1; // 反转矩阵的第二行 */
+    static UNIFORM_INVERTMAT_1: number;
     //TODO?
     //static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
 
@@ -80,6 +87,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.WORLDMAT = Shader3D.getDefineByName("WORLDMAT");
         ShaderDefines2D.FILLTEXTURE = Shader3D.getDefineByName("FILLTEXTURE");
         ShaderDefines2D.MVP3D = Shader3D.getDefineByName('MVP3D');
+        ShaderDefines2D.RENDERTEXTURE = Shader3D.getDefineByName('RENDERTEXTURE');
 
         ShaderDefines2D.GAMMASPACE = Shader3D.getDefineByName('GAMMASPACE');
 
@@ -96,7 +104,9 @@ export class ShaderDefines2D {
     static initSprite2DCommandEncoder() {
         ShaderDefines2D.UNIFORM_NMATRIX_0 = Shader3D.propertyNameToID("u_NMatrix_0");
         ShaderDefines2D.UNIFORM_NMATRIX_1 = Shader3D.propertyNameToID("u_NMatrix_1");
-        
+        ShaderDefines2D.UNIFORM_INVERTMAT_0 = Shader3D.propertyNameToID("u_InvertMat_0");
+        ShaderDefines2D.UNIFORM_INVERTMAT_1 = Shader3D.propertyNameToID("u_InvertMat_1");
+       
         ShaderDefines2D.UNIFORM_MMAT = Shader3D.propertyNameToID("u_mmat");
         ShaderDefines2D.UNIFORM_CLIPMATDIR = Shader3D.propertyNameToID("u_clipMatDir");
         ShaderDefines2D.UNIFORM_CLIPMATPOS = Shader3D.propertyNameToID("u_clipMatPos");
@@ -143,6 +153,8 @@ export class ShaderDefines2D {
 
         let sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SIZE, "u_size", ShaderDataType.Vector2);
+        sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_0, "u_InvertMat_0", ShaderDataType.Vector3);
+        sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_1, "u_InvertMat_1", ShaderDataType.Vector3);
         // sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         // sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector2);
     }

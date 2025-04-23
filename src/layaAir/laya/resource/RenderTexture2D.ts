@@ -43,6 +43,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     _mgrKey: number = 0;	//给WebGLRTMgr用的
     /**@internal */
     _invertY: boolean = false;
+    /** @internal */
+    _inPool:boolean = false;
     /**
      * @en Depth format.
      * @zh 深度格式。

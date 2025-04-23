@@ -14,6 +14,11 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Const } from "../../../../Const";
 
+const _DefaultClipInfo : IClipInfo = {
+   clipMatrix: new Matrix(),
+   clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
+   clipMatPos: new Vector4(0, 0, 0, 0),
+}
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    zOrder: number;
@@ -26,8 +31,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    _renderElements: IRenderElement2D[] = [];
 
-   alpha: number;
+   globalAlpha: number = 1.0;
 
+   alpha: number = 1.0;
+   
    spriteShaderData: ShaderData = null;
 
    parent: WebRenderStruct2D | null;
@@ -39,10 +46,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    renderLayer: number = 0;
    /** @internal */
    _renderUpdateMask: number = 0;
+   /** 目前只做记录 */
+   blendMode:string = null;
+   /** 是否启动 */
+   enable:boolean = true;
 
-  
    constructor() {
-      this.alpha = 1.0;
    }
 
    public get lightReceive() {
@@ -113,6 +122,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    //    }
    // }
 
+   private _updateGlobalAlpha(): void {
+      if (this.parent) {
+         this.globalAlpha = this.alpha * this.parent.globalAlpha;
+      } else {
+         this.globalAlpha = this.alpha;
+      }
+   }
+
    setClipRect(rect:Rectangle):void{
       this._clipRect = rect;
       this._initClipInfo();
@@ -138,15 +155,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    // }
 
    getClipInfo(): IClipInfo {
-      return this._clipInfo || this._parentClipInfo;
+      return this._clipInfo || this._parentClipInfo || _DefaultClipInfo;
    }
 
    /** @internal */
    _updateChildrenClipMatirx() {
       let info = this.getClipInfo();
       for (const child of this.children) {
-         child._parentClipInfo = info;
-         child._updateChildrenClipMatirx();
+         if (!child._parentClipInfo) {
+            child._parentClipInfo = info;
+            child._updateChildrenClipMatirx();
+         }
       }
    }
 
@@ -161,12 +180,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.children.push(child);
       //效率
       if (this.pass) {
-         this.updateChildrenPassPriority(this, this.pass.priority);
+         this.updateChildren(this, this.pass.priority);
       }
       return child;
    }
 
-   protected updateChildrenPassPriority(struct: WebRenderStruct2D, priority: number): void {
+   protected updateChildren(struct: WebRenderStruct2D, priority: number): void {
       for (const child of struct.children) {
          if (!child.pass) {
             child.pass = struct.pass;
@@ -174,7 +193,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          else if (child.pass !== this.pass) {
             child.pass.priority = ++priority;
          }
-         child.updateChildrenPassPriority(child, priority);
+         child.updateChildren(child, priority);
       }
    }
 
@@ -187,6 +206,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    renderUpdate(context: IRenderContext2D): void {
+      this._updateGlobalAlpha();
 
       this._sUpdateFun?.call(this._sUpdateCall, context);
 

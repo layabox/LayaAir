@@ -21,9 +21,12 @@ export interface IRenderStruct2D {
    /** 精灵shaderData */
    spriteShaderData:ShaderData;
 
+   blendMode:string;
    //待确定
    rect:Rectangle;
    renderLayer: number ;
+   /** 非即时数据 */
+   globalAlpha:number;
    alpha:number;
    ///** 是否接收光照 */
    lightReceive: boolean;
@@ -36,6 +39,8 @@ export interface IRenderStruct2D {
    /** 按标记来 */
    _renderType:number;
    _renderUpdateMask:number;
+
+   enable:boolean;
    
    parent:IRenderStruct2D;
    children:IRenderStruct2D[];
