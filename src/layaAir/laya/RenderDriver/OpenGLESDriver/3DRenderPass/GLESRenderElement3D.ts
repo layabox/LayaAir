@@ -25,7 +25,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
-        this._nativeObj.setGeometry((data as any)._nativeObj);
+        this._nativeObj.setGeometry(data ? (data as any)._nativeObj : null);
     }
 
     get geometry(): GLESRenderGeometryElement {
