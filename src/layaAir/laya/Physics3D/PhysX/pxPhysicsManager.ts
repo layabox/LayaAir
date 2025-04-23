@@ -111,14 +111,20 @@ export class pxPhysicsManager implements IPhysicsManager {
 
             onWake: (wakeActors: any) => {
                 //加到更新队列
-                let uuid = wakeActors.get(0);
-                this.addDynamicElementByUUID(uuid);
+                let size = wakeActors.size();
+                for (let i = 0; i < size; i++) {
+                    let uuid = wakeActors.get(i);
+                    this.addDynamicElementByUUID(uuid);
+                }
             },
 
             onSleep: (sleepActors: any) => {
                 //移除更新队列
-                let uuid = sleepActors.get(0);
-                this.removeDynamicElementByUUID(uuid);
+                let size = sleepActors.size();
+                for (let i = 0; i < size; i++) {
+                    let uuid = sleepActors.get(i);
+                    this.removeDynamicElementByUUID(uuid);
+                }
             },
 
             onContactBegin: (startContacts: any) => {
@@ -244,13 +250,13 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     private addDynamicElementByUUID(uuid: number) {
         let collider = pxCollider._ActorPool.get(uuid) as pxDynamicCollider;
-        if (collider) return;
+        if (!collider || collider.inPhysicUpdateListIndex !== -1) return;
         this._dynamicUpdateList.add(collider);
     }
 
     private removeDynamicElementByUUID(uuid: number) {
         let collider = pxCollider._ActorPool.get(uuid) as pxDynamicCollider;
-        if (!collider || collider.IsKinematic) return;
+        if (!collider || collider.IsKinematic || collider.inPhysicUpdateListIndex === -1) return;
         this._dynamicUpdateList.remove(collider);
     }
 

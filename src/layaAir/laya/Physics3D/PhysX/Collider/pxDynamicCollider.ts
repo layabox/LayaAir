@@ -434,6 +434,20 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         }
     }
 
+    allowSleep(value: boolean): void {
+        if (this.IsKinematic)
+            return;
+        if (this._pxActor) {
+            if (value) {
+                this.setSleepThreshold(this._sleepThreshold);
+                this._pxActor.setWakeCounter(0.4);
+            } else {
+                this.setSleepThreshold(0.0);
+                this._pxActor.setWakeCounter(Number.MAX_VALUE);
+            }
+        }
+    }
+
     /**
      * @en Set the constraints of the dynamic collider.
      * @param linearFactor The linear factor vector.

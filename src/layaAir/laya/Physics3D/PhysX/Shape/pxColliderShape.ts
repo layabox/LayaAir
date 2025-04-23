@@ -202,7 +202,9 @@ export class pxColliderShape implements IColliderShape {
      */
     destroy(): void {
         if (this._pxShape) {
-            this._pxCollider && this._pxCollider._physicsManager.removeCollider(this._pxCollider);
+            if (this._pxCollider && this._pxCollider._physicsManager) {
+                this._pxCollider._physicsManager.removeCollider(this._pxCollider);
+            }
             this._pxShape.release();
             this._pxShape = undefined;
         }

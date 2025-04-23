@@ -39,6 +39,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     private _trigger: boolean = false;
     /**@internal */
     private _collisionDetectionMode: number = 0;
+    /**@internal */
+    private _allowSleep: boolean = true;
 
     /**
      * @override
@@ -204,6 +206,21 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
+     * @en Set whether the rigidbody allows sleep.
+     * @zh 设置刚体是否允许睡眠。
+     */
+    set allowSleep(value: boolean) {
+        this._allowSleep = value;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {
+            this._collider.allowSleep(value);
+        }
+    }
+
+    get allowSleep(): boolean {
+        return this._allowSleep;
+    }
+
+    /**
     * @en Whether it is sleeping.
     * @zh 是否处于睡眠状态。
     */
@@ -296,6 +313,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.linearDamping = this._linearDamping;
         this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
+        this.allowSleep = this._allowSleep;
     }
 
     /**
