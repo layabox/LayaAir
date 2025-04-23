@@ -39,6 +39,7 @@ import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRende
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -249,6 +250,8 @@ export class Sprite extends Node {
     private _subRenderPass: IRender2DPass = null;
     /** @internal */
     private _subStruct: IRenderStruct2D = null;
+    /** @internal */
+    protected _postProcess: PostProcess2D = null;
 
     /** @ignore */
     constructor() {
@@ -949,6 +952,13 @@ export class Sprite extends Node {
 
             p = p._parent;
         }
+    }
+
+    getPostProcess(){
+        if (!this._postProcess) {
+            this._postProcess = new PostProcess2D();
+        }
+        return this._postProcess;
     }
 
     /**
@@ -2147,14 +2157,16 @@ export class Sprite extends Node {
         this._subStructRender = new SubStructRender();
         this._subStructRender.bind(this , subPass , subStruct);
         this._subStruct = subStruct;
-        this._subRenderPass  = subPass;
+        this._subRenderPass = subPass;
 
         subStruct.transform = this.globalTrans;
         subStruct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
 
+        this._subRenderPass.postProcess = this.getPostProcess();
         this.updateRenderTexture();
     }
 
+    //TODO
     private updateRenderTexture(){
         //计算方式调整
         let rect = this.getSelfBounds();
@@ -2173,7 +2185,6 @@ export class Sprite extends Node {
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._subRenderPass.renderTexture = renderTexture;
-
     }
 
     private updateSubRenderPassState() {

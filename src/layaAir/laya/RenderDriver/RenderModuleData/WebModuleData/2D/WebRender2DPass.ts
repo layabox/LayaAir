@@ -86,6 +86,10 @@ export class WebRender2DPass implements IRender2DPass {
    enable: boolean = true;
 
    renderTexture: RenderTexture2D;
+
+   /** @internal */
+   _internalRT: RenderTexture2D = null;
+
    //todo: 2D process
    postProcess: PostProcess2D = null;
 
@@ -299,7 +303,7 @@ export class WebRender2DPass implements IRender2DPass {
          && ty === this._invertMat_1.z
       )
          return;
-         
+
       this._invertMat_0.setValue(a, c, tx);
       this._invertMat_1.setValue(b, d, ty);
       
