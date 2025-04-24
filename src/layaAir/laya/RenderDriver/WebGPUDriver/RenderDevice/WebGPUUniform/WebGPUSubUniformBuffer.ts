@@ -73,7 +73,7 @@ export class WebGPUSubUniformBuffer extends WebGPUUniformBufferBase implements I
         });
         this.needUpload = true;
         if (info) {
-            this._owner._notifyBindGroupMask(Shader3D.propertyNameToID(this._uniformName));
+            this._owner && this._owner._notifyBindGroupMask(Shader3D.propertyNameToID(this._uniformName));
             this._reSetBindGroupEntry();
         }
     }
