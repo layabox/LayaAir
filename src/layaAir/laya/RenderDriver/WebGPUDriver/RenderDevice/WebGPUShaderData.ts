@@ -149,7 +149,7 @@ export class WebGPUShaderData extends ShaderData {
 
     createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap): WebGPUUniformBuffer {
         if (this._uniformBuffers.has(name)) {
-            return null;
+            return this._uniformBuffers.get(name);
         }
         let uboBuffer = new WebGPUUniformBuffer(name, uniformMap._idata);
         this._uniformBuffers.set(name, uboBuffer);

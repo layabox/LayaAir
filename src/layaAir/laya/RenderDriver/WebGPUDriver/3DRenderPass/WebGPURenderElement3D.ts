@@ -1,4 +1,5 @@
 import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -437,6 +438,14 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         let triangles = 0;
         if (command) {
             triangles += command.applyGeometry(this.geometry);
+        }
+        return triangles;
+    }
+
+    protected _uploadGeometryIndex(command: WebGPURenderCommandEncoder | WebGPURenderBundle, index: number) {
+        let triangles = 0;
+        if (command) {
+            triangles += command.applyGeometryIndex(this.geometry, index);
         }
         return triangles;
     }

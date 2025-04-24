@@ -322,7 +322,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         for (let i = 0; i < len; i++) {
             element = elements[i];
             element._preUpdatePre(this); //渲染前准备，如有必要，编译着色器
-
         }
     
         WebGPURenderEngine._instance.gpuBufferMgr.upload();

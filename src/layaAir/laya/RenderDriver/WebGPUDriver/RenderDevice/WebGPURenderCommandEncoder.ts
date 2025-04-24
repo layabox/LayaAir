@@ -107,6 +107,83 @@ export abstract class WebGPURenderEncoder {
         return triangles;
     }
 
+    applyGeometryIndex(geometry: WebGPURenderGeometry, index: number) {
+
+        //解构geometry中的属性，减少代码重复
+        const { bufferState, indexFormat, drawType, instanceCount, _drawArrayInfo, _drawElementInfo, _drawIndirectInfo } = geometry;
+        const { _vertexBuffers: vertexBuffers, _bindedIndexBuffer: indexBuffer } = bufferState;
+
+        let indexByte = 2; //index的字节数
+
+        vertexBuffers.forEach((vb, i) => this.encoder.setVertexBuffer(i, vb.source._source, 0, vb.source._size));
+        if (indexBuffer) {
+            indexByte = geometry.gpuIndexByte;
+            this.encoder.setIndexBuffer(indexBuffer.source._source, geometry.gpuIndexFormat, 0, indexBuffer.source._size);
+        }
+
+        //绘制的三角形数量
+        let triangles = 0;
+
+        //根据不同的数据类型绘制
+        let count = 0, start = 0;
+        switch (drawType) {
+            case DrawType.DrawArray:
+                {
+                    let info = _drawArrayInfo[index];
+                    count = info.count;
+                    start = info.start;
+                    triangles += count - 2;
+                    this.encoder.draw(count, 1, start, 0);
+                    break;
+                }
+            case DrawType.DrawElement:
+                {
+                    let info = _drawElementInfo[index];
+                    count = info.elementCount;
+                    start = info.elementStart;
+                    triangles += count / 3;
+                    this.encoder.drawIndexed(count, 1, start / indexByte, 0);
+                    break;
+                }
+            case DrawType.DrawArrayInstance:
+                {
+                    let info = _drawArrayInfo[index];
+                    count = info.count;
+                    start = info.start;
+                    triangles += (count - 2) * instanceCount;
+                    this.encoder.draw(count, instanceCount, start, 0);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    break;
+                }
+            case DrawType.DrawElementInstance:
+                {
+                    let info = _drawElementInfo[index];
+                    count = info.elementCount;
+                    start = info.elementStart;
+                    triangles += count / 3 * instanceCount;
+                    this.encoder.drawIndexed(count, instanceCount, start / indexByte, 0);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    break;
+                }
+            case DrawType.DrawArrayIndirect:
+                {
+                    let info = _drawIndirectInfo[index];
+                    this.encoder.drawIndirect(info.buffer.getNativeBuffer()._source, info.offset);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    break;
+                }
+            case DrawType.DrawElementIndirect:
+                {
+                    let info = _drawIndirectInfo[index];
+                    this.encoder.drawIndexedIndirect(info.buffer.getNativeBuffer()._source, info.offset);
+                    WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
+                    break;
+                }
+        }
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles);
+        return triangles;
+    }
+
     abstract finish(lable: string): any;
 }
 

@@ -8,6 +8,7 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
@@ -33,6 +34,9 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
 
     skinnedUniformMap: Map<number, UniformProperty>;
 
+    _skinnedDataSize: number = 0;
+    _skinnedBufferOffsetAlignment: number = 0;
+
     constructor() {
         super();
         this.globalId = WebGPUGlobal.getId(this);
@@ -42,8 +46,17 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             id: SkinnedMeshRenderer.BONES,
             uniformtype: ShaderDataType.Matrix4x4,
             propertyName: "u_bones",
-            arrayLength: 0,
+            arrayLength: 1,
         });
+
+        const boneCount = 24;
+        let bufferLength = boneCount * 16 * Float32Array.BYTES_PER_ELEMENT;
+
+        const engine = WebGPURenderEngine._instance;
+        const alignment = engine.getDevice().limits.minUniformBufferOffsetAlignment;
+
+        this._skinnedBufferOffsetAlignment = Math.ceil(bufferLength / alignment) * alignment;
+        this._skinnedDataSize = this._skinnedBufferOffsetAlignment / Float32Array.BYTES_PER_ELEMENT;
     }
 
     _preUpdatePre(context: WebGPURenderContext3D): void {
@@ -87,19 +100,14 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                     this.skinnedBuffer?.destroy();
                 }
 
-                // this.renderShaderData.setBuffer(SkinnedMeshRenderer.BONES, this.skinnedData[0]);
-
                 this.skinnedBuffer = this.renderShaderData.createSubUniformBuffer("SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
 
-                let dataOffset = 0;
                 for (let i = 0; i < this.skinnedData.length; i++) {
                     let data = this.skinnedData[i];
-                    this.skinnedBuffer.descriptor.uniforms.get(SkinnedMeshRenderer.BONES).view.set(data, dataOffset);
-                    dataOffset += data.length;
+                    this.skinnedBuffer.descriptor.uniforms.get(SkinnedMeshRenderer.BONES).view.set(data, this._skinnedDataSize * i);
+                    this.skinnedBuffer.needUpload = true;
                 }
-
-                this.skinnedBuffer.bufferBlock.needUpload();
-
+                this.skinnedBuffer.upload();
             }
         }
 
@@ -128,10 +136,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
             command.setBindGroup(1, context._cameraBindGroup);
         }
-        // if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
-        //     let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
-        //     command.setBindGroup(2, bindgroup.gpuRS);
-        // }
         if (shaderInstance.uniformSetMap.get(3).length > 0) {
             command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
         }
@@ -158,20 +162,19 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             }
             command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));
             this._bindGroup(context, shaderInstance, command);
+
             {
                 let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
 
-
-                let skinDataOffset = [0];
                 for (let i = 0; i < this.skinnedData.length; i++) {
+                    let skinDataOffset = [0];
+                    skinDataOffset[0] = i * this._skinnedBufferOffsetAlignment;
+
                     command.setBindGroup(2, bindgroup, skinDataOffset);
 
-                    this._uploadGeometry(command);
-
-                    skinDataOffset[0] += this.skinnedData[i].length;
+                    this._uploadGeometryIndex(command, i);
                 }
             }
-
         }
 
 
