@@ -647,10 +647,6 @@ export class WebGPUTextureContext implements ITextureContext {
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
 
-        if (premultiplyAlpha) {
-            doPremultiplyAlpha(device, texture, 0, 0, texture.width, texture.height);
-        }
-
         //Generate mipmap TODO
         if (this._isTextureNeedGenMipmap(texture))
             genMipmap(device, texture.resource);
