@@ -1,3 +1,5 @@
+import { RenderCapable } from './RenderCapable';
+
 /**
  * 纹理格式
  */
@@ -72,4 +74,41 @@ export enum TextureFormat {
     KTXTEXTURE = -1,
     /**pvr图片 */
     PVRTEXTURE = -2
+}
+
+/** 通过纹理格式获取压缩纹理类型 */
+export function getCompressTextureRenderCapable(format: TextureFormat): RenderCapable | null {
+    switch (format) {
+        case TextureFormat.ASTC4x4:
+        case TextureFormat.ASTC4x4SRGB:
+        case TextureFormat.ASTC6x6:
+        case TextureFormat.ASTC6x6SRGB:
+        case TextureFormat.ASTC8x8:
+        case TextureFormat.ASTC8x8SRGB:
+        case TextureFormat.ASTC10x10:
+        case TextureFormat.ASTC10x10SRGB:
+        case TextureFormat.ASTC12x12:
+        case TextureFormat.ASTC12x12SRGB:
+            return RenderCapable.COMPRESS_TEXTURE_ASTC;
+        case TextureFormat.DXT1:
+        case TextureFormat.DXT3:
+        case TextureFormat.DXT5:
+            return RenderCapable.COMPRESS_TEXTURE_S3TC;
+        case TextureFormat.PVRTCRGB_2BPPV:
+        case TextureFormat.PVRTCRGBA_2BPPV:
+        case TextureFormat.PVRTCRGB_4BPPV:
+        case TextureFormat.PVRTCRGBA_4BPPV:
+            return RenderCapable.COMPRESS_TEXTURE_PVRTC;
+        case TextureFormat.ETC2RGB:
+        case TextureFormat.ETC2RGBA:
+        case TextureFormat.ETC2SRGB_Alpha8:
+        case TextureFormat.ETC2SRGB:
+        case TextureFormat.ETC2RGB_Alpha1:
+        case TextureFormat.ETC2SRGB_Alpha1:
+            return RenderCapable.COMPRESS_TEXTURE_ETC;
+        case TextureFormat.ETC1RGB:
+            return RenderCapable.COMPRESS_TEXTURE_ETC1;
+        default:
+            return null;
+    }
 }
