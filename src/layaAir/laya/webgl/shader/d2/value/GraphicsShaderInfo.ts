@@ -12,24 +12,21 @@ import { Texture } from "../../../../resource/Texture";
 import { ShaderDefines2D } from "../ShaderDefines2D";
 import { RenderSpriteData } from "./Value2D";
 
+const _TEMP_CLIPDIR: Vector4 = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
 export class GraphicsShaderInfo{
 
    shaderData: ShaderData;
    _defaultShader: Shader3D;
-   private _clipMatDir: Vector4;
-   private _clipMatPos: Vector2;
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-      this._clipMatDir = new Vector4();
-      this._clipMatPos = new Vector2();
 
       this.toDefault();
    }
 
    toDefault(){
-      this.clipMatDir = this._clipMatDir.setValue(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
-      this.clipMatPos = this._clipMatPos.setValue(0, 0);
+      this.clipMatDir = _TEMP_CLIPDIR;
+      this.clipMatPos = Vector4.ZERO;
       this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
       this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
       this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
@@ -137,28 +134,40 @@ export class GraphicsShaderInfo{
       return this.shaderData.getVector(ShaderDefines2D.UNIFORM_COLOR);
    }
 
+   set materialClip(value:boolean){
+      if (value) {
+         this.shaderData.addDefine(ShaderDefines2D.MATERIALCLIP);
+      } else {
+         this.shaderData.removeDefine(ShaderDefines2D.MATERIALCLIP);
+      }
+   }
+
+   get materialClip():boolean{
+      return this.shaderData.hasDefine(ShaderDefines2D.MATERIALCLIP);
+   }
+
+   set clipMatDir(value: Vector4) {
+      this.shaderData.setVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR, value);
+   }
+
+   get clipMatDir() {
+      return this.shaderData.getVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR);
+   }
+
+   set clipMatPos(value: Vector4) {
+      this.shaderData.setVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS, value);
+   }
+
+   get clipMatPos() {
+      return this.shaderData.getVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS);
+   }
+
    set colorAdd(value: Vector4) {
       this.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORADD, value);
    }
 
    get colorAdd() {
       return this.shaderData.getVector(ShaderDefines2D.UNIFORM_COLORADD);
-   }
-
-   set clipMatDir(value: Vector4) {
-      this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, value);
-   }
-
-   get clipMatDir() {
-      return this.shaderData.getVector(ShaderDefines2D.UNIFORM_CLIPMATDIR);
-   }
-
-   set clipMatPos(value: Vector2) {
-      this.shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, value);
-   }
-
-   get clipMatPos() {
-      return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS);
    }
 
    public get blurInfo(): Vector2 {

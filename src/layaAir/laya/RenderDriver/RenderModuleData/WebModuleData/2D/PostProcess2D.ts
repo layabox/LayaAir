@@ -31,7 +31,15 @@ export class PostProcess2D {
    }
 
    render(pass: IRender2DPass): void {
-      this._context.source = pass.renderTexture;
+      this._context.source = pass.getRenderTexture();
+      
+   }
+
+   destroy(): void {
+      this._context.compositeShaderData.destroy();
+      this._context.compositeShaderData = null;
+      //todo
+      this._effects.length = 0;
    }
 }
 

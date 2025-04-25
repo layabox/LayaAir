@@ -37,12 +37,18 @@ export class ShaderDefines2D {
     static PRIMITIVESHADER: ShaderDefine;
     /** @internal */
     static RENDERTEXTURE:ShaderDefine;
+    /**@internal */
+    static MATERIALCLIP:ShaderDefine;
 
     /**@internal */
     static UNIFORM_MMAT: number;// mat4 u_mmat
     static UNIFORM_CLIPMATDIR: number;// uniform vec4 u_clipMatDir;
     static UNIFORM_CLIPMATPOS: number;// uniform vec2 u_clipMatPos;
-    static UNIFORM_PIVOTPOS: number;// uniform vec2 u_clipMatPos;
+    
+    static UNIFORM_MATERIAL_CLIPMATDIR: number;// uniform vec4 u_mClipMatDir;
+    static UNIFORM_MATERIAL_CLIPMATPOS: number;// uniform vec2 u_mCipMatPos;
+
+    // static UNIFORM_PIVOTPOS: number;// uniform vec2 u_clipMatPos;
     static UNIFORM_MMAT2: number;// uniform mat4 u_mmat2;
     static UNIFORM_SIZE:number;
     
@@ -88,6 +94,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.FILLTEXTURE = Shader3D.getDefineByName("FILLTEXTURE");
         ShaderDefines2D.MVP3D = Shader3D.getDefineByName('MVP3D');
         ShaderDefines2D.RENDERTEXTURE = Shader3D.getDefineByName('RENDERTEXTURE');
+        ShaderDefines2D.MATERIALCLIP = Shader3D.getDefineByName('MATERIALCLIP');
 
         ShaderDefines2D.GAMMASPACE = Shader3D.getDefineByName('GAMMASPACE');
 
@@ -110,7 +117,11 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_MMAT = Shader3D.propertyNameToID("u_mmat");
         ShaderDefines2D.UNIFORM_CLIPMATDIR = Shader3D.propertyNameToID("u_clipMatDir");
         ShaderDefines2D.UNIFORM_CLIPMATPOS = Shader3D.propertyNameToID("u_clipMatPos");
-        ShaderDefines2D.UNIFORM_PIVOTPOS = Shader3D.propertyNameToID("u_pivotPos");
+
+        ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR = Shader3D.propertyNameToID("u_mClipMatDir");
+        ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS = Shader3D.propertyNameToID("u_mClipMatPos");
+        
+        // ShaderDefines2D.UNIFORM_PIVOTPOS = Shader3D.propertyNameToID("u_pivotPos");
         ShaderDefines2D.UNIFORM_MMAT2 = Shader3D.propertyNameToID("u_mmat2");
         ShaderDefines2D.UNIFORM_SIZE = Shader3D.propertyNameToID("u_size");
         ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
@@ -149,7 +160,7 @@ export class ShaderDefines2D {
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_TEXRANGE, "u_TexRange", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector4);
-        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_PIVOTPOS, "u_pivotPos", ShaderDataType.Vector2);
+        // commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_PIVOTPOS, "u_pivotPos", ShaderDataType.Vector2);
 
         let sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SIZE, "u_size", ShaderDataType.Vector2);

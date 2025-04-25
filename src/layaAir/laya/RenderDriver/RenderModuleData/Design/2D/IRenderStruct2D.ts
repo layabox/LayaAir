@@ -32,6 +32,8 @@ export interface IRenderStruct2D {
    lightReceive: boolean;
    pass:IRender2DPass;
    
+   mask:IRenderStruct2D;
+   
    _renderElements:IRenderElement2D[];
 
    setRepaint():void;
@@ -62,4 +64,6 @@ export interface IRenderStruct2D {
    set_grapicsUpdateCall(call:any , renderUpdateFun:any , getRenderElements:any): void ;
    // 待确认
    set_getBoundsCall(call:any, getBoundsFun:any):void;
+
+   destroy():void;
 }

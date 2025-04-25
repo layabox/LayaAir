@@ -79,6 +79,9 @@ export class GraphicsRunner {
 
     static MAXCLIPRECT: Rectangle = null;
 
+    static clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
+    static clipMatPos = new Vector4(0, 0, 0, 0);
+
     private _alpha = 1.0;
 
     /**@internal */
@@ -121,6 +124,8 @@ export class GraphicsRunner {
     _clipRect = GraphicsRunner.MAXCLIPRECT;
     /**@internal */
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+    _clip_x:number = 0;	//clip的x坐标
+    _clip_y:number = 0;	//clip的y坐标
     /**@internal */
     _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
@@ -618,20 +623,23 @@ export class GraphicsRunner {
         }
     }
 
-    clear(): void {
+    clearRenderData(): void {
         this._submitKey.clear();
+        this._curSubmit = SubmitBase.RENDERBASE;
         this._drawCount = 1;
+        this._curMat.identity();
         this._other = ContextParams.DEFAULT;
+        this._other.clear();
+    }
+
+    clear(): void {
+        this.clearRenderData();
         this._alpha = 1.0;
         this._nBlendType = 0;
         this._clipRect = GraphicsRunner.MAXCLIPRECT;
+        this._clip_x = 0;
+        this._clip_y = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
-
-        this._curMat.identity();
-        this._other.clear();
-
-        this._curSubmit = SubmitBase.RENDERBASE;
-
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
     }
@@ -813,7 +821,7 @@ export class GraphicsRunner {
                 submit = this._curSubmit = this.createSubmit( mesh );
                 let material = submit._internalInfo;
                 // this.fillShaderValue(submit.shaderValue);
-                this._copyClipInfo(material);
+                this._setClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
                     material.textureHost = this.defTexture;
@@ -919,7 +927,7 @@ export class GraphicsRunner {
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;
 
-            this.fillShaderValue(material);
+            this._setClipInfo(material);
             submit.clipInfoID = this._clipInfoID;
             submit._internalInfo.textureHost = texture;
 
@@ -971,24 +979,29 @@ export class GraphicsRunner {
     }
 
     /**@internal */
-    _copyClipInfo(material: GraphicsShaderInfo): void {
+    _setClipInfo(material: GraphicsShaderInfo): void {
+        if (this._clipRect === GraphicsRunner.MAXCLIPRECT) {
+            material.materialClip = false;
+            return
+        }
         let clipInfo = this._globalClipMatrix;
         var cm = material.clipMatDir;
+        material.materialClip = true;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         material.clipMatDir = cm;
         var cmp = material.clipMatPos;
-        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty , cmp.z = this._clip_x, cmp.w = this._clip_y;
         material.clipMatPos = cmp;
     }
 
     /**@internal */
-    _copyClipInfoToShaderData(shaderData: ShaderData) {
-        let clipInfo = this._globalClipMatrix;
-        Vector4.TEMP.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.TEMP);
-        Vector2.TEMP.setValue(clipInfo.tx, clipInfo.ty);
-        shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TEMP);
-    }
+    // _copyClipInfoToShaderData(shaderData: ShaderData) {
+    //     let clipInfo = this._globalClipMatrix;
+    //     Vector4.TEMP.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
+    //     shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.TEMP);
+    //     Vector2.TEMP.setValue(clipInfo.tx, clipInfo.ty);
+    //     shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TEMP);
+    // }
 
     //通用的部分的比较
     private isSameClipInfo(submit: SubmitBase) {
@@ -1074,7 +1087,7 @@ export class GraphicsRunner {
             this._curSubmit = submit = this.createSubmit(mesh);
             let material = submit._internalInfo;
             // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
-            this.fillShaderValue(material);
+            this._setClipInfo(material);
             material.textureHost = tex;
             submit._key.other = imgid;
             // this._copyClipInfo(submit.shaderValue);
@@ -1085,10 +1098,10 @@ export class GraphicsRunner {
         return true;
     }
 
-    private fillShaderValue(material: GraphicsShaderInfo) {
-        // shaderValue.size = new Vector2(this._width, this._height);
-        this._copyClipInfo(material);
-    }
+    // private fillShaderValue(material: GraphicsShaderInfo) {
+    //     // shaderValue.size = new Vector2(this._width, this._height);
+    //     this._setClipInfo(material);
+    // }
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
      * @param pt
@@ -1260,7 +1273,7 @@ export class GraphicsRunner {
             //添加一个新的submit
             var submit = this._curSubmit = this.createSubmit( mesh );
             submit._internalInfo.textureHost = tex;
-            this.fillShaderValue(submit._internalInfo);
+            this._setClipInfo(submit._internalInfo);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
             // this._copyClipInfo(submit._internalShaderData);
@@ -1334,25 +1347,33 @@ export class GraphicsRunner {
         var maxy = miny + cm.d;
         //TEMP end
 
+        let mat = this.sprite._globalTrans.getMatrix();
         if (this._clipRect.width >= Const.MAX_CLIP_SIZE) {
             cm.a = cm.d = Const.MAX_CLIP_SIZE;
             cm.b = cm.c = cm.tx = cm.ty = 0;
         } else {
+            let { x, y, width, height } = this._clipRect;
+            cm.tx = x * mat.a + y * mat.c + mat.tx;
+            cm.ty = x * mat.b + y * mat.d + mat.ty;
+            cm.a = width * mat.a;
+            cm.b = width * mat.b;
+            cm.c = height * mat.c;
+            cm.d = height * mat.d;
             //其实就是矩阵相乘
-            if (this._curMat._bTransform) {
-                cm.tx = this._clipRect.x * this._curMat.a + this._clipRect.y * this._curMat.c + this._curMat.tx;
-                cm.ty = this._clipRect.x * this._curMat.b + this._clipRect.y * this._curMat.d + this._curMat.ty;
-                cm.a = this._clipRect.width * this._curMat.a;
-                cm.b = this._clipRect.width * this._curMat.b;
-                cm.c = this._clipRect.height * this._curMat.c;
-                cm.d = this._clipRect.height * this._curMat.d;
-            } else {
-                cm.tx = this._clipRect.x + this._curMat.tx;
-                cm.ty = this._clipRect.y + this._curMat.ty;
-                cm.a = this._clipRect.width;
-                cm.b = cm.c = 0;
-                cm.d = this._clipRect.height;
-            }
+            // if (this._curMat._bTransform) {
+            //     cm.tx = this._clipRect.x * this._curMat.a + this._clipRect.y * this._curMat.c + this._curMat.tx;
+            //     cm.ty = this._clipRect.x * this._curMat.b + this._clipRect.y * this._curMat.d + this._curMat.ty;
+            //     cm.a = this._clipRect.width * this._curMat.a;
+            //     cm.b = this._clipRect.width * this._curMat.b;
+            //     cm.c = this._clipRect.height * this._curMat.c;
+            //     cm.d = this._clipRect.height * this._curMat.d;
+            // } else {
+            //     cm.tx = this._clipRect.x + this._curMat.tx;
+            //     cm.ty = this._clipRect.y + this._curMat.ty;
+            //     cm.a = this._clipRect.width;
+            //     cm.b = cm.c = 0;
+            //     cm.d = this._clipRect.height;
+            // }
         }
 
         //TEMP 处理clip交集问题，这里有点问题，无法处理旋转,翻转
@@ -1381,6 +1402,9 @@ export class GraphicsRunner {
                 if (cm.d <= 0) cm.d = -0.1;
             }
         }
+
+        this._clip_x = mat.tx;
+        this._clip_y = mat.ty;
         //TEMP end
     }
 
@@ -1503,7 +1527,7 @@ export class GraphicsRunner {
     private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
         var submit: SubmitBase = this.createSubmit(mesh);
-        this.fillShaderValue(submit._internalInfo);
+        this._setClipInfo(submit._internalInfo);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;

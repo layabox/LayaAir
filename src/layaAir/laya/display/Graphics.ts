@@ -37,7 +37,7 @@ import type { Material } from "../resource/Material";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
-import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
@@ -50,6 +50,9 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { NodeFlags } from "../Const";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { Vector2 } from "../maths/Vector2";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Vector3 } from "../maths/Vector3";
 
 const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
@@ -694,7 +697,7 @@ export class Graphics {
      */
     _render(runner: GraphicsRunner, x: number, y: number): void {
         this._data.clear();
-        runner.clear();
+        runner.clearRenderData();
         runner.sprite = this._sp;
         runner._graphicsData = this._data;
         runner._material = this._material;
@@ -709,22 +712,6 @@ export class Graphics {
         }
         //sprite.texture
         this._renderSpriteTexture(runner , x , y);
-
-        this.updateRenderElement();
-
-        runner.globalCompositeOperation = oldBlendMode;
-        runner._material = null;
-        runner._graphicsData = null;
-        runner.sprite = null;
-    }
-
-    _fillRenderTexture(runner: GraphicsRunner, x: number, y: number): void {
-        runner.clear();
-        runner.sprite = this._sp;
-        runner._graphicsData = this._data;
-        runner._material = this._material;
-        let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this._sp._blendMode;        
 
         this.updateRenderElement();
 
@@ -1129,12 +1116,24 @@ export class SubStructRender{
     private _subStruct: IRenderStruct2D;
     private _sprite: Sprite;
     _data = new GraphicsRenderData();
+    private shaderData: ShaderData = null;
+
+    private _nMatrix_0 = new Vector3;
+    private _nMatrix_1 = new Vector3;
+    // private _pivotPos: Vector2 = new Vector2;
+
+    constructor() {
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, GraphicsRunner.clipMatDir);
+        this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, GraphicsRunner.clipMatPos);
+    }
 
     bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
         this._sprite = sprite;
         this._subRenderPass = subRenderPass;
         this._subStruct = subStruct;
         subStruct.set_grapicsUpdateCall(this, this._renderUpdate , this._getRenderElements);
+        subStruct.set_spriteUpdateCall(this, this._updateMatrix , null);
     }
 
     _renderElements: Array<IRenderElement2D> = [];
@@ -1143,7 +1142,33 @@ export class SubStructRender{
         return this._renderElements;
     }
 
-    _renderUpdate(runner:GraphicsRunner , x:number , y:number){
+    private _updateMatrix(){
+        if (this._sprite.mask) {
+            let mask = this._sprite.mask;
+            let maskMatrix = mask.globalTrans.getMatrix();
+            if (mask.parent) {
+                this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
+                this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
+            }else{
+                let parentMatrix = this._sprite._globalTrans.getMatrix();
+                let mat = Matrix.mul(maskMatrix , parentMatrix , Matrix.TEMP);
+                this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+                this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+            }
+            // this._pivotPos.setValue(mask._pivotX, mask._pivotY);
+        }else{
+            let mat = this._sprite.globalTrans.getMatrix();
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+            // this._pivotPos.setValue(this._sprite._pivotX, this._sprite._pivotY);
+        }
+
+        this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        // this.shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
+    }
+
+    private _renderUpdate(runner:GraphicsRunner , x:number , y:number){
         this._data.clear();
         runner.clear();
         runner.sprite = this._sprite;
@@ -1189,13 +1214,17 @@ export class SubStructRender{
             let submit = submits.elements[i];
             submit.updateRenderElement();
             let element = submit._renderElement;
-            element.value2DShaderData = this._sprite.shaderData;
+            element.value2DShaderData = this.shaderData;
             this._renderElements.push(element);
         }
     }
 
     destroy(): void {
         this._data.destroy();
+        for (let i = 0; i < this._renderElements.length; i++) {
+            this._renderElements[i]?.destroy();            
+        }
+        this._renderElements = null;
         this._subRenderPass = null;
         this._subStruct = null;
         this._sprite = null;

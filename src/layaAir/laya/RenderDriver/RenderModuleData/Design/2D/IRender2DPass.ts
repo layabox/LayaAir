@@ -22,4 +22,6 @@ export interface IRender2DPass{
    addStruct(object: IRenderStruct2D, zOrder?: number): void;
    removeStruct(object: IRenderStruct2D, zOrder?: number): void;
    render(context: IRenderContext2D): void;
+   getRenderTexture(): RenderTexture2D;
+   destroy(): void;
 }
