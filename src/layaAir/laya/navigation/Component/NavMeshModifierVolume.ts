@@ -100,7 +100,7 @@ export class NavMeshModifierVolume extends Component {
         Vector3.scale(this._size, 0.5, tempVec3);
         Matrix4x4.createAffineTransformation(this._center, Quaternion.DEFAULT, tempVec3, this._transfrom);
         Matrix4x4.multiply((<Sprite3D>this.owner).transform.worldMatrix, this._transfrom, this._transfrom);
-        let min = tempVec31;
+        let min = tempVec3;
         let max = tempVec31;
         min.setValue(-1, -1, -1);
         max.setValue(1, 1, 1);
@@ -128,7 +128,7 @@ export class NavMeshModifierVolume extends Component {
             element._addCovexVoume(this);
         });
         this._onWorldMatNeedChange();
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange)
+        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
     }
 
     /**
