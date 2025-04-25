@@ -149,10 +149,12 @@ export enum WebGPUTextureFormat {
 
 export class WebGPUTextureContext implements ITextureContext {
     private _engine: WebGPURenderEngine;
+
+    needBitmap: boolean = true;
+
     constructor(engine: WebGPURenderEngine) {
         this._engine = engine;
     }
-    needBitmap: boolean;
 
     createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let useSRGBExt = this._isSRGBFormat(format) || (sRGB && this._supportSRGB(format, generateMipmap));
@@ -625,10 +627,11 @@ export class WebGPUTextureContext implements ITextureContext {
         return internalTex;
     }
 
-    async setTextureImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
-        if (!source) return;
-        const imageBitmapSource = await createImageBitmap(source);
-        const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
+    async setTextureImageData(texture: WebGPUInternalTex, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
+        if (!source)
+            return;
+
+        const image: GPUImageCopyExternalImage = { source: source as ImageBitmap, flipY: invertY, origin: [0, 0] };
 
         const textureCopyView: GPUImageCopyTextureTagged = {
             texture: texture.resource,
@@ -643,6 +646,11 @@ export class WebGPUTextureContext implements ITextureContext {
         const copySize: GPUExtent3DStrict = { width: source.width, height: source.height };
         const device = WebGPURenderEngine._instance.getDevice();
         device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
+
+        if (premultiplyAlpha) {
+            doPremultiplyAlpha(device, texture, 0, 0, texture.width, texture.height);
+        }
+
         //Generate mipmap TODO
         if (this._isTextureNeedGenMipmap(texture))
             genMipmap(device, texture.resource);
