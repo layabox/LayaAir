@@ -1,9 +1,16 @@
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { Vector3 } from "../../../../maths/Vector3";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Render2DSimple } from "../../../../renders/Render2D";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
+import { Stat } from "../../../../utils/Stat";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IRender2DPass } from "../../Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 
 export class PostProcess2D {
    _effects: any[] = [];
@@ -12,9 +19,10 @@ export class PostProcess2D {
 
    _context: PostProcessRenderContext2D;
 
+   mask: IRenderStruct2D | null = null;
+
    /**@internal */
    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-
 
    get enabled(): boolean {
       return this._enabled;
@@ -30,9 +38,26 @@ export class PostProcess2D {
       this._context.command = new CommandBuffer2D();
    }
 
-   render(pass: IRender2DPass): void {
-      this._context.source = pass.getRenderTexture();
-      
+   render(context: IRenderContext2D , pass: IRender2DPass): void {
+      let sourceRT = this._context.source = pass.getRenderTexture();
+
+      let mask = this.mask;
+      if (mask) {
+         let maskPass = mask.pass;
+         if (maskPass && maskPass.enable) {
+            // let oldBlendMode = runner.globalCompositeOperation;
+            // runner.globalCompositeOperation = "mask";
+            // let tempVec3 = Vector3.TEMP;
+            // context.passData = maskPass.shaderData;
+            // maskPass.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_0, tempVec3.setValue(1 , 0 , 0));
+            // maskPass.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_1, tempVec3.setValue(0 , 1 , 0));
+            maskPass.renderTexture = sourceRT;
+            maskPass.fowardRender(context);
+            maskPass.renderTexture = null;
+
+            // runner.globalCompositeOperation = oldBlendMode;
+         }
+      }
    }
 
    destroy(): void {
@@ -70,43 +95,43 @@ export class PostProcessRenderContext2D {
     */
    command: CommandBuffer2D | null = null;
    /**
-	 * @en Temporary texture array. You can put created textures here or select an RT to use from here to save memory.
-	 * @zh 临时纹理数组。可以将创建的纹理放入此数组，也可以从这里选取要用的 RT 来节省显存。
-	 */
-	deferredReleaseTextures: RenderTexture2D[] = [];
+    * @en Temporary texture array. You can put created textures here or select an RT to use from here to save memory.
+    * @zh 临时纹理数组。可以将创建的纹理放入此数组，也可以从这里选取要用的 RT 来节省显存。
+    */
+   deferredReleaseTextures: RenderTexture2D[] = [];
 
    /**
-	 * @en Selects an RT from recycled RTs to save memory.
-	 * @param width The width of the RenderTexture.
-	 * @param height The height of the RenderTexture.
-	 * @param colorFormat The color format of the RenderTexture.
-	 * @param depthFormat The depth format of the RenderTexture.
-	 * @returns The selected RenderTexture or null if no match is found.
-	 * @zh 从回收的 RT 中选择一个 RT 用来节省内存。
-	 * @param width 纹理的宽度。	
-	 * @param height 纹理的高度。
-	 * @param colorFormat 纹理的颜色格式。
-	 * @param depthFormat 纹理的深度格式。
-	 * @returns 选择到的 RenderTexture，如果没有匹配的，则返回 null。
-	 */
-	// createRTByContextReleaseTexture(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
-	// 	let n = this.deferredReleaseTextures.length
-	// 	for (let index = 0; index < n; index++) {
-	// 		let rt = this.deferredReleaseTextures[index];
-	// 		if (
+    * @en Selects an RT from recycled RTs to save memory.
+    * @param width The width of the RenderTexture.
+    * @param height The height of the RenderTexture.
+    * @param colorFormat The color format of the RenderTexture.
+    * @param depthFormat The depth format of the RenderTexture.
+    * @returns The selected RenderTexture or null if no match is found.
+    * @zh 从回收的 RT 中选择一个 RT 用来节省内存。
+    * @param width 纹理的宽度。	
+    * @param height 纹理的高度。
+    * @param colorFormat 纹理的颜色格式。
+    * @param depthFormat 纹理的深度格式。
+    * @returns 选择到的 RenderTexture，如果没有匹配的，则返回 null。
+    */
+   // createRTByContextReleaseTexture(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
+   // 	let n = this.deferredReleaseTextures.length
+   // 	for (let index = 0; index < n; index++) {
+   // 		let rt = this.deferredReleaseTextures[index];
+   // 		if (
    //          rt.width == width 
    //          && rt.height == height 
    //          && rt.getColorFormat() == colorFormat 
    //          && rt.depthStencilFormat == depthFormat 
    //       ) {
-	// 			rt._inPool = false;
-	// 			let end = this.deferredReleaseTextures[n - 1];
-	// 			this.deferredReleaseTextures[index] = end;
-	// 			this.deferredReleaseTextures.length -= 1;
-	// 			return rt;
-	// 		}
-	// 	}
-	// 	return null;
-	// }
+   // 			rt._inPool = false;
+   // 			let end = this.deferredReleaseTextures[n - 1];
+   // 			this.deferredReleaseTextures[index] = end;
+   // 			this.deferredReleaseTextures.length -= 1;
+   // 			return rt;
+   // 		}
+   // 	}
+   // 	return null;
+   // }
 
 }

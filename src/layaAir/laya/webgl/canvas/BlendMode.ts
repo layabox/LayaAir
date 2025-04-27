@@ -3,6 +3,7 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
 //export type BlendFunc = (gl:WebGLRenderingContext)=>void
 export class BlendMode {
@@ -173,6 +174,17 @@ export class BlendMode {
                 shaderData.setInt(Shader3D.BLEND_SRC, premultipliedAlpha ? RenderState.BLENDPARAM_ONE : RenderState.BLENDPARAM_SRC_ALPHA);
                 shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         }
+    }
+
+    static initBlendMode(shaderData:ShaderData): void {
+        shaderData.setBool(Shader3D.DEPTH_WRITE, false);
+        shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        shaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
     }
 }
 

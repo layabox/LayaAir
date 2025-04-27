@@ -53,6 +53,7 @@ import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRen
 import { Vector2 } from "../maths/Vector2";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Vector3 } from "../maths/Vector3";
+import { BlendMode } from "../webgl/canvas/BlendMode";
 
 const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
@@ -701,11 +702,13 @@ export class Graphics {
         runner.sprite = this._sp;
         runner._graphicsData = this._data;
         runner._material = this._material;
-        let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this._sp._blendMode;        
+        
+        // let oldBlendMode = runner.globalCompositeOperation;
+        // runner.globalCompositeOperation = this._sp._blendMode;        
         // if (this._sp._scrollRect) {
         //     runner
         // }
+        
         var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(runner, x, y);
@@ -715,7 +718,7 @@ export class Graphics {
 
         this.updateRenderElement();
 
-        runner.globalCompositeOperation = oldBlendMode;
+        // runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
@@ -1124,8 +1127,10 @@ export class SubStructRender{
 
     constructor() {
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        BlendMode.initBlendMode(this.shaderData);
         this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, GraphicsRunner.clipMatDir);
         this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, GraphicsRunner.clipMatPos);
+
     }
 
     bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
@@ -1146,7 +1151,7 @@ export class SubStructRender{
         if (this._sprite.mask) {
             let mask = this._sprite.mask;
             let maskMatrix = mask.globalTrans.getMatrix();
-            if (mask.parent) {
+            if (mask.displayedInStage) {
                 this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
                 this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
             }else{
@@ -1165,6 +1170,7 @@ export class SubStructRender{
 
         this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._sprite._struct.globalAlpha);
         // this.shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
     }
 
@@ -1174,8 +1180,9 @@ export class SubStructRender{
         runner.sprite = this._sprite;
         runner._graphicsData = this._data;
         runner._material = this._sprite.material;
-        let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this._sprite._blendMode;        
+
+        // let oldBlendMode = runner.globalCompositeOperation;
+        // runner.globalCompositeOperation = this._sprite._blendMode;        
         //sprite.texture
         let sprite = this._sprite;
         var tex = this._subRenderPass.renderTexture;
@@ -1195,7 +1202,7 @@ export class SubStructRender{
 
         this.updateRenderElement();
 
-        runner.globalCompositeOperation = oldBlendMode;
+        // runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;

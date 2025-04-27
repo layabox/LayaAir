@@ -266,6 +266,7 @@ export class Sprite extends Node {
         if (this.shaderData)
             return
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        BlendMode.initBlendMode(this.shaderData);
         this._struct.spriteShaderData = this.shaderData;
     }
 
@@ -839,19 +840,34 @@ export class Sprite extends Node {
         if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
             return;
 
-        if (this.mask)
+        if (this.mask){
             this.mask._getCacheStyle().maskParent = null;
+            this.mask.blendMode = null;
+        }
+            // this.removeChild(this.mask);
 
-        this._getCacheStyle().mask = value;
-
+            this._getCacheStyle().mask = value;
+            
         if (value) {
+            value.blendMode = "mask";
+            // this.addChild(value);
             value._getCacheStyle().maskParent = this;
-            this._struct.mask = value._struct;
+            value.setSubRenderPassState(true);//手动render
+            value._subRenderPass.isSupport = true;
+            // value.createSubRenderPass();
+            
             this._renderType |= SpriteConst.MASK;
             this.setSubRenderPassState(true);
+
+            let postProcess = this.getPostProcess();
+            postProcess.mask = value._struct;
+            postProcess.enabled = true;
+            
+            this._subRenderPass.postProcess = postProcess;
+            this.updateRenderTexture();
         }
         else{
-            this._struct.mask = null;
+            this._postProcess && (this._postProcess.mask = null);
             this._renderType &= ~SpriteConst.MASK;
             this.updateSubRenderPassState();
         }
@@ -1311,6 +1327,7 @@ export class Sprite extends Node {
         if (this._destroyed) return;
 
         this.parentRepaint(SpriteConst.REPAINT_CACHE);
+        if (this._subRenderPass) this._subRenderPass.repaint = true;
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
@@ -2166,6 +2183,7 @@ export class Sprite extends Node {
         rtPass.addPass(subPass);
         subPass.root = this._struct;
         subPass.enable = false;
+        subPass.setClearColor(0,0,0,0);
         let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         subStruct.pass = subPass;
         
@@ -2176,9 +2194,6 @@ export class Sprite extends Node {
 
         subStruct.transform = this.globalTrans;
         // subStruct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
-
-        this._subRenderPass.postProcess = this.getPostProcess();
-        this.updateRenderTexture();
     }
 
     //TODO
@@ -2214,8 +2229,8 @@ export class Sprite extends Node {
      * @zh 设置子渲染通道的状态。
      * @param enable 是否启用子渲染通道。
      */
-    private setSubRenderPassState(enable: boolean) {
-        if (!this._subRenderPass) {
+    private setSubRenderPassState(enable: boolean ) {
+        if (!this._subRenderPass && enable) {
             this.createSubRenderPass();
         }
         
@@ -2226,7 +2241,7 @@ export class Sprite extends Node {
                 parent.removeChild(this._struct);
                 parent.addChild(this._subStruct);
             }
-        } else if (!enable && this._subRenderPass.enable) {
+        } else if (!enable && this._subRenderPass && this._subRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
             if (parent) {

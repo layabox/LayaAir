@@ -41,8 +41,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    children: WebRenderStruct2D[] = [];
 
-   mask: WebRenderStruct2D = null;
-
    pass: WebRender2DPass;
 
    renderLayer: number = 0;

@@ -87,6 +87,8 @@ export class WebRender2DPass implements IRender2DPass {
 
    enable: boolean = true;
 
+   isSupport: boolean = false;
+
    renderTexture: RenderTexture2D;
 
    /** @internal */
@@ -129,6 +131,8 @@ export class WebRender2DPass implements IRender2DPass {
    private _cullRect: Vector4 = new Vector4();
 
    root: WebRenderStruct2D = null;
+
+   mask:WebRenderStruct2D = null;
 
    private _invertMat_0: Vector3 = new Vector3(1, 1);
    private _invertMat_1: Vector3 = new Vector3(0, 0);
@@ -202,7 +206,6 @@ export class WebRender2DPass implements IRender2DPass {
          const child = struct.children[i];
          this.cullAndSort(context2D, child);
       }
-
    }
 
    /**
@@ -217,8 +220,21 @@ export class WebRender2DPass implements IRender2DPass {
       this.cullAndSort(context, root);
    }
 
-   render(context: IRenderContext2D) {
+   /**
+    * pass 2D 渲染
+    * @param context 
+    */
+   fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
+      this.render(context);
+      this._endRenderProcess(context);
+   }
+
+   /**
+    * 渲染
+    * @param context 
+    */
+   render(context: IRenderContext2D): void {
       let lists = this._lists;
       // 清理zOrder相关队列
 
@@ -245,29 +261,29 @@ export class WebRender2DPass implements IRender2DPass {
       
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess.render(this);
+         this.postProcess.render(context , this);
       }
 
       this.finalize.apply();
-      this.endRenderProcess(context);
    }
 
    //预留
    private _initRenderProcess(context: IRenderContext2D) {
       //设置viewport 切换rt
       let sizeX, sizeY;
-      let needInternalRT = this.postProcess?.enabled;
+      let needInternalRT = false;//this.postProcess?.enabled;
       if (needInternalRT) {
          let originalRT = this.renderTexture;
          this._internalRT = RenderTexture2D.createFromPool(originalRT.width , originalRT.height , originalRT.getColorFormat() , originalRT.depthStencilFormat );
+         this._internalRT._invertY = originalRT._invertY;
       }else{
          this._internalRT = null;
       }
 
       let rt = this.getRenderTexture();
       if (rt) {
-         context.invertY = !rt._invertY;
-         context.setRenderTarget(rt._renderTarget, true, this._clearColor);
+         context.invertY = rt._invertY;
+         context.setRenderTarget(rt._renderTarget, rt !== WebRender2DPass.curRenderTexture, this._clearColor);
          sizeX = rt.width;
          sizeY = rt.height;
          WebRender2DPass.curRenderTexture = rt;
@@ -294,11 +310,15 @@ export class WebRender2DPass implements IRender2DPass {
       this.finalize._context = context;
       
       Render2DSimple.runner.clear();
+      if (this.root.blendMode) {
+         Render2DSimple.runner.save();
+         Render2DSimple.runner.globalCompositeOperation = this.root.blendMode;
+      }
 
       context.passData = this.shaderData;
       // this._setClipInfo(this.clipMatrix);
       this._setRenderSize(sizeX, sizeY);
-
+      this.finalize.clear();
       if (needInternalRT) {
          this.finalize.blitTextureQuad(this._internalRT , this.renderTexture);
       }
@@ -307,8 +327,8 @@ export class WebRender2DPass implements IRender2DPass {
    private _updateInvertMatrix() {
       let root = this.root;
       let temp = _TEMP_InvertMatrix;
-      if (root.mask) {
-         let mask = root.mask;
+      let mask = this.postProcess?.mask;
+      if (mask) {
          if (!mask.parent) {
             // globalMatrix
             let rootMatrix = root.transform.getMatrix();
@@ -327,15 +347,19 @@ export class WebRender2DPass implements IRender2DPass {
       return this._internalRT || this.renderTexture;
    }
 
-   private endRenderProcess(context: IRenderContext2D) {
+   private _endRenderProcess(context: IRenderContext2D) {
       let rt = this.getRenderTexture();
       if (rt) {
-         context.setRenderTarget(null, true, this._clearColor);
+         context.setRenderTarget(null, false, this._clearColor);
          WebRender2DPass.curRenderTexture = null;
          if (this._internalRT) {
             RenderTexture2D.recoverToPool(this._internalRT);
             this._internalRT = null;
          }
+      }
+
+      if (this.root.blendMode) {
+         Render2DSimple.runner.restore();
       }
       // context.setOffscreenView(RenderState2D.width, RenderState2D.height);
       // context.setRenderTarget(null, true, this._clearColor);

@@ -32,7 +32,7 @@ export class SubmitBase {
     static ID = 1;
 
     clipInfoID = -1;	//用来比较clipinfo
-    blendType = -1;
+    // blendType = -1;
     protected _id = 0;
     /**@internal */
     _renderType = 0;
@@ -152,9 +152,9 @@ export class SubmitBase {
         o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = runner._nBlendType;
-        
-        if (runner.globalCompositeOperation != runner.sprite._blendMode) {
-            o._key.blendShader = blendType;
+        let sBlendMode = runner.sprite._blendMode ? runner.sprite._blendMode : BlendMode.NORMAL;
+        o._key.blendShader = blendType;
+        if (runner.globalCompositeOperation != sBlendMode) {
             BlendMode.setShaderData(blendType, o._internalInfo.shaderData);
             o._renderElement.renderStateIsBySprite = false;
         }

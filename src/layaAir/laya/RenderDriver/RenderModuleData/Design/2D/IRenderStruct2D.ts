@@ -31,9 +31,7 @@ export interface IRenderStruct2D {
    ///** 是否接收光照 */
    lightReceive: boolean;
    pass:IRender2DPass;
-   
-   mask:IRenderStruct2D;
-   
+      
    _renderElements:IRenderElement2D[];
 
    setRepaint():void;

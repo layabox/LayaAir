@@ -9,6 +9,7 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Material } from "../../../../resource/Material";
 import { Texture } from "../../../../resource/Texture";
+import { BlendMode } from "../../../canvas/BlendMode";
 import { ShaderDefines2D } from "../ShaderDefines2D";
 import { RenderSpriteData } from "./Value2D";
 
@@ -27,14 +28,15 @@ export class GraphicsShaderInfo{
    toDefault(){
       this.clipMatDir = _TEMP_CLIPDIR;
       this.clipMatPos = Vector4.ZERO;
-      this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
-      this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-      this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-      this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-      this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-      this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
-      this.shaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
+      BlendMode.initBlendMode(this.shaderData);
+      // this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
+      // this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+      // this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+      // this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+      // this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+      // this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+      // this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+      // this.shaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
    }
 
    private _data: RenderSpriteData = RenderSpriteData.Zero;

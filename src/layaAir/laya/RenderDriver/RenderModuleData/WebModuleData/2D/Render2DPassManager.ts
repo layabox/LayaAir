@@ -63,8 +63,8 @@ export class Render2DPassManager {
         }
 
         for (const pass of this._passes) {
-            if (pass.repaint || this._needsUpdate(pass)) {
-                pass.render(context2D);
+            if (this._needRender(pass)) {
+                pass.fowardRender(context2D);
             }
         }
     }
@@ -74,8 +74,11 @@ export class Render2DPassManager {
      * @param pass IRender2DPass 实例
      * @returns 是否需要更新
      */
-    private _needsUpdate(pass: IRender2DPass): boolean {
-        return true;
+    private _needRender(pass: IRender2DPass): boolean {
+        // return true;
+        return pass.enable 
+        && !pass.isSupport 
+        && (pass.repaint || !pass.renderTexture);
     }
 
     /**
