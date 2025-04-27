@@ -119,7 +119,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
                 const directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
-                this._renderPass.directLightShadowPass.shadowMap = directionShadowMap;
+                this._renderPass.shadowMap = directionShadowMap;
                 shadowParams.x = this._renderPass.directLightShadowPass.light.shadowStrength;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, Texture2D.blackTexture);
             }
@@ -132,8 +132,9 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
                 const spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this._renderPass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
+                this._renderPass.spotShadowMap = spotShadowMap;
                 shadowParams.y = this._renderPass.spotLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
+                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, Texture2D.blackTexture);
             }
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
         }
@@ -221,7 +222,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         }
         if (renderPass.enableDirectLightShadow) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._renderPass.directLightShadowPass.shadowMap);
+            context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._renderPass.shadowMap);
         }
         else {
             context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -229,6 +230,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
 
         if (renderPass.enableSpotLightShadowPass) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+            context.sceneData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._renderPass.spotShadowMap);
         }
         else {
             context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);

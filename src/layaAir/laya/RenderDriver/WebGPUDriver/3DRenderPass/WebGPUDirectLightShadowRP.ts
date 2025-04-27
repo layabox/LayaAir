@@ -38,8 +38,6 @@ export class WebGPUDirectLightShadowRP {
     camera: WebCameraNodeData;
     destTarget: InternalRenderTarget;
 
-    shadowMap: RenderTexture;
-
     private _shadowCasterCommanBuffer: CommandBuffer[];
     get shadowCasterCommanBuffer() {
         return this._shadowCasterCommanBuffer;

@@ -237,7 +237,7 @@ export class WebGPUSpotLightShadowRP {
                 break;
         }
 
-        Matrix4x4.multiply(WebGPUSpotLightShadowRP._invertYScaleMatrix, this._shadowSpotMatrices, this._shadowSpotMatrices);
+        // Matrix4x4.multiply(WebGPUSpotLightShadowRP._invertYScaleMatrix, this._shadowSpotMatrices, this._shadowSpotMatrices);
 
         sceneData.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices);
         sceneData.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
