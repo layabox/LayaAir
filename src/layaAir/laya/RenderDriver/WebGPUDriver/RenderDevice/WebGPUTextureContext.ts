@@ -834,9 +834,10 @@ export class WebGPUTextureContext implements ITextureContext {
             bytesPerRow: bytesPerRow,
             rowsPerImage: height
         }
-        const size = {
+        const size: GPUExtent3DStrict = {
             width: Math.ceil(texture.width / block.width) * block.width,
             height: Math.ceil(height / block.height) * block.height,
+            depthOrArrayLayers: texture.depth
         }
 
         const device = WebGPURenderEngine._instance.getDevice();
@@ -872,6 +873,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const size = {
             width: Math.ceil(width / block.width) * block.width,
             height: Math.ceil(height / block.height) * block.height,
+            depthOrArrayLayers: texture.depth
         }
 
         const device = WebGPURenderEngine._instance.getDevice();
@@ -919,6 +921,7 @@ export class WebGPUTextureContext implements ITextureContext {
             const size = {
                 width: Math.ceil(mipmapWidth / block.width) * block.width,
                 height: Math.ceil(mipmapHeight / block.height) * block.height,
+                depthOrArrayLayers: texture.depth
             };
 
             const imageCopy: GPUImageCopyTextureTagged = {
@@ -982,6 +985,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const size = {
             width: Math.ceil(mipmapWidth / block.width) * block.width,
             height: Math.ceil(mipmapHeight / block.height) * block.height,
+            depthOrArrayLayers: texture.depth
         };
 
         const imageCopy: GPUImageCopyTextureTagged = {
