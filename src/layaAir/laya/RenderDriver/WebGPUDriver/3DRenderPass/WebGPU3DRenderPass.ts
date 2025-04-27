@@ -12,6 +12,7 @@ import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
+import { Texture2D } from "../../../resource/Texture2D";
 import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -118,8 +119,9 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
                 const directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                this._renderPass.directLightShadowPass.shadowMap = directionShadowMap;
                 shadowParams.x = this._renderPass.directLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
+                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, Texture2D.blackTexture);
             }
 
             //聚光灯阴影
@@ -217,12 +219,20 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 renderPass.spotLightShadowPass.render(context, list, count);
             }
         }
-        if (renderPass.enableDirectLightShadow)
+        if (renderPass.enableDirectLightShadow) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        else context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        if (renderPass.enableSpotLightShadowPass)
+            context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._renderPass.directLightShadowPass.shadowMap);
+        }
+        else {
+            context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+        }
+
+        if (renderPass.enableSpotLightShadowPass) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-        else context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+        }
+        else {
+            context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+        }
         renderPass.renderPass.render(context, list, count);
         renderPass._beforeImageEffectCMDS && this._renderCmd(renderPass._beforeImageEffectCMDS, context);
 

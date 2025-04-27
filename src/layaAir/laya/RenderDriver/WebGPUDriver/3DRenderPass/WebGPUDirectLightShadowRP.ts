@@ -15,6 +15,7 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -36,6 +37,8 @@ export class WebGPUDirectLightShadowRP {
 
     camera: WebCameraNodeData;
     destTarget: InternalRenderTarget;
+
+    shadowMap: RenderTexture;
 
     private _shadowCasterCommanBuffer: CommandBuffer[];
     get shadowCasterCommanBuffer() {
