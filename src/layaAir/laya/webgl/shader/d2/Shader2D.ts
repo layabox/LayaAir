@@ -80,7 +80,6 @@ export class Shader2D {
         subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
         Shader2D.render2DNodeShader.addSubShader(subShader);
         subShader.addShaderPass(baseRender2D_vs, baseRender2D_ps);
-
     }
 }
 

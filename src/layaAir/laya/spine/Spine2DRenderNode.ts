@@ -30,6 +30,7 @@ import { Color } from "../maths/Color";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 /**动画开始播放调度
@@ -134,14 +135,18 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      **/
     physicsUpdate = 2;
 
+    shaderData:ShaderData;
+
     constructor() {
         super();
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        this._spriteShaderData.addDefine(SpineShaderInit.SPINE_UV);
-        this._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR);
+
+        let shaderData = this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        shaderData.addDefine(SpineShaderInit.SPINE_UV);
+        shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -310,14 +315,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     get twoColorTint(): boolean {
-        return this._spriteShaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+        return this.shaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
     }
 
     set twoColorTint(value: boolean) {
         if (value) {
-            this._spriteShaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+            this.shaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
         }else{
-            this._spriteShaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+            this.shaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
         }
     }
 
@@ -396,6 +401,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
+    }
+
+    onAdded(): void {
+        this.owner._initShaderData();
     }
 
     onEnable(): void {
@@ -878,7 +887,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let material = this._materials[i];
             element.materialShaderData = material.shaderData;
             element.subShader = material._shader.getSubShaderAt(0);
-            element.value2DShaderData = this._spriteShaderData;
+            element.value2DShaderData = this.owner.shaderData;
         }
     }
 
@@ -902,7 +911,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                         element.geometry = subMesh;
                         element.materialShaderData = material.shaderData;
                         element.subShader = material._shader.getSubShaderAt(0);
-                        element.value2DShaderData = this._spriteShaderData;
+                        element.value2DShaderData = this.shaderData;
                         element.nodeCommonMap = this._getcommonUniformMap();
                     } else {
                         Spine2DRenderNode.recoverRenderElement2D(element);
@@ -910,7 +919,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 }
                 this._renderElements.length = mesh.subMeshCount;
 
-                SpineShaderInit.changeVertexDefine(this._spriteShaderData , mesh);
+                SpineShaderInit.changeVertexDefine(this.shaderData , mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);

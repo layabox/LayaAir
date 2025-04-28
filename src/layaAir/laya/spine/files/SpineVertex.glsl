@@ -1,6 +1,12 @@
 #if !defined(SpineVertex_lib)
     #define SpineVertex_lib
 
+void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
+    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
+    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
+}
+
+
 #ifdef SPINE_SIMPLE
     uniform vec4 u_SimpleAnimatorParams;
     uniform sampler2D u_SimpleAnimatorTexture;
@@ -21,6 +27,7 @@
         vec4 down = texture2D(u_SimpleAnimatorTexture, uv);
         // vec4 up = vec4(1.0,1.0 ,1.0 ,0.0 );
         // vec4 down = vec4( 1.0,1.0 ,1.0 ,0.0 );
+        
         float x = pos.x*up.x + pos.y*up.y +up.z;
         float y = pos.x*down.x + pos.y*down.y +down.z;
         pos.x=x*weight;
@@ -43,9 +50,7 @@
     }
 #endif
 
-uniform vec2 u_size;
 uniform vec4 u_color;
-
 
 vec4 getSpinePos(){
 

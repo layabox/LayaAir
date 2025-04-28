@@ -20,7 +20,7 @@ export class SpriteConst {
     static REPAINT_NODE = 0x01;
     static REPAINT_CACHE = 0x02;
     static REPAINT_ALL = 0x03;
-    static POSTPROCESS = this.CANVAS | this.FILTERS | this.MASK;
+    static DRAW2RT = this.CANVAS | this.FILTERS | this.MASK;
 }
 
 export enum TransformKind {

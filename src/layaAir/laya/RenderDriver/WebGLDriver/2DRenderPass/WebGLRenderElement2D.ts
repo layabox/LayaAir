@@ -62,6 +62,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
                 comDef.addDefineDatas(this.value2DShaderData.getDefineData());
                 pass.nodeCommonMap = this.nodeCommonMap;
             }
+
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 

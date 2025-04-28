@@ -22,9 +22,14 @@ uniform vec3 u_NMatrix_0;
 uniform vec3 u_NMatrix_1;
 
 uniform vec2 u_size;
-uniform vec4 u_clipMatDir;
-uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-uniform vec2 u_pivotPos;
+#ifdef MATERIALCLIP
+    uniform vec4 u_mClipMatDir;
+    uniform vec4 u_mClipMatPos;
+#else
+    uniform vec4 u_clipMatDir;
+    uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+#endif
+// uniform vec2 u_pivotPos;
 varying vec2 v_cliped;
 varying vec4 v_color;
 
@@ -43,17 +48,27 @@ void getGlobalPos(in vec2 localPos,out vec2 globalPos){
     vec2 tempPos;
     transfrom(localPos,u_NMatrix_0,u_NMatrix_1,tempPos);
     // 根据视口调整位置
+    vec4 clipMatDir;
+    vec4 clipMatPos;
+    #ifdef MATERIALCLIP
+        clipMatDir = u_mClipMatDir;
+        clipMatPos = u_mClipMatPos;
+    #else
+        clipMatDir = u_clipMatDir;
+        clipMatPos = u_clipMatPos;
+    #endif
+
     vec2 cliped;
-    float clipw = length(u_clipMatDir.xy);
-    float cliph = length(u_clipMatDir.zw);
-    vec2 clippos = tempPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+    float clipw = length(clipMatDir.xy);
+    float cliph = length(clipMatDir.zw);
+    vec2 clippos = tempPos - clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
     if(clipw>20000. && cliph>20000.)
         cliped = vec2(0.5,0.5);
     else {
         //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
-        cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
+        cliped =vec2( dot(clippos,clipMatDir.xy)/clipw/clipw, dot(clippos,clipMatDir.zw)/cliph/cliph);
     }
-    tempPos.xy = clippos + u_clipMatPos.zw;
+    tempPos.xy = clippos + clipMatPos.zw;
 
     #ifdef RENDERTEXTURE
         transfrom(tempPos , u_InvertMat_0, u_InvertMat_1, globalPos);
