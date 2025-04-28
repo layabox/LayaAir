@@ -33,7 +33,12 @@ export class WebGPUBlendState {
         const cacheID = this._getBlendStateCacheID(blend, operationRGB, srcBlendRGB, dstBlendRGB, operationAlpha, srcBlendAlpha, dstBlendAlpha);
         let state = this._cache[cacheID];
         if (!state)
-            this._cache[cacheID] = state = { state: this._createBlendState(operationRGB, srcBlendRGB, dstBlendRGB, operationAlpha, srcBlendAlpha, dstBlendAlpha), key: cacheID, id: this._idCounter++ };
+            if (cacheID == 0) {
+                this._cache[cacheID] = state = { state: null, key: cacheID, id: this._idCounter++ };
+            } else {
+                this._cache[cacheID] = state = { state: this._createBlendState(operationRGB, srcBlendRGB, dstBlendRGB, operationAlpha, srcBlendAlpha, dstBlendAlpha), key: cacheID, id: this._idCounter++ };
+            }
+
         return state;
     }
 
@@ -419,10 +424,10 @@ export class IRenderPipelineInfo {
 export class WebGPURenderPipeline {
     static idCounter: number = 0;
     private static _pipelineCache: Map<number, GPURenderPipeline> = new Map();
-    
+
     // 用于生成唯一ID的计数器
     private static _keyCounter: number = 0;
-    
+
     // 用于存储已生成的键值对
     private static _keyMap: Map<string, number> = new Map();
 
@@ -435,7 +440,7 @@ export class WebGPURenderPipeline {
     static getRenderPipeline(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT) {
         // 生成缓存key
         const cacheKey = this._getCacheKey(info, shaderInstance, renderTarget);
-        
+
         // 检查缓存
         const cachedPipeline = this._pipelineCache.get(cacheKey);
         if (cachedPipeline) {
@@ -446,10 +451,10 @@ export class WebGPURenderPipeline {
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const pipeline = this._createRenderPipeline(info.blendState.state, info.depthStencilState?.state,
             primitiveState.state, info.geometry.bufferState.vertexState, shaderInstance, renderTarget);
-            
+
         // 存入缓存
         this._pipelineCache.set(cacheKey, pipeline);
-        
+
         return pipeline;
     }
 
@@ -462,7 +467,7 @@ export class WebGPURenderPipeline {
     private static _getCacheKey(info: IRenderPipelineInfo, shaderInstance: WebGPUShaderInstance, renderTarget: WebGPUInternalRT): number {
         // 生成描述性键
         const descKey = `${info.blendState.id}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${shaderInstance._id}_${renderTarget.stateCacheID}`;
-        
+
         // 检查是否已经有对应的数字ID
         let numericKey = this._keyMap.get(descKey);
         if (numericKey === undefined) {
@@ -470,7 +475,7 @@ export class WebGPURenderPipeline {
             numericKey = ++this._keyCounter;
             this._keyMap.set(descKey, numericKey);
         }
-        
+
         return numericKey;
     }
 
@@ -507,23 +512,24 @@ export class WebGPURenderPipeline {
             renderTarget._colorStates.length = 0;
             renderTarget._colorStates[0] = {
                 format: renderTarget._depthTexture._webGPUFormat,
-                blend: blendState,
                 writeMask: GPUColorWrite.ALL,
             };
+            blendState && (renderTarget._colorStates[0].blend = blendState);
         } else {
             if (renderTarget._colorStates.length === textureNum) {
                 for (let i = renderTarget._colorStates.length - 1; i > -1; i--) {
+                    delete renderTarget._colorStates[i].blend;
                     renderTarget._colorStates[i].format = renderTarget._textures[i]._webGPUFormat;
-                    renderTarget._colorStates[i].blend = blendState;
+                    blendState && (renderTarget._colorStates[i].blend = blendState);
                 }
             } else {
                 renderTarget._colorStates.length = textureNum;
                 for (let i = 0; i < textureNum; i++) {
                     renderTarget._colorStates[i] = {
                         format: renderTarget._textures[i]._webGPUFormat,
-                        blend: blendState,
                         writeMask: GPUColorWrite.ALL,
                     };
+                    blendState && (renderTarget._colorStates[i].blend = blendState);
                 }
             }
         }

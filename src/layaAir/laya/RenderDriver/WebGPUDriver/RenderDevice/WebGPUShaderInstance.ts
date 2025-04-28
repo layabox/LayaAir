@@ -71,18 +71,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
         const colorTargetState: GPUColorTargetState = {
             format: targetFormat,
-            blend: {
-                alpha: {
-                    srcFactor: 'src-alpha',
-                    dstFactor: 'one-minus-src-alpha',
-                    operation: 'add',
-                },
-                color: {
-                    srcFactor: 'src-alpha',
-                    dstFactor: 'one-minus-src-alpha',
-                    operation: 'add',
-                },
-            },
             writeMask: GPUColorWrite.ALL,
         };
 
