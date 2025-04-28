@@ -4,7 +4,6 @@ import { ShaderData } from "../RenderDevice/ShaderData";
 
 export interface IRenderElement2D {
     geometry: IRenderGeometryElement;
-    // componentShaderData: ShaderData;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
     subShader: SubShader;

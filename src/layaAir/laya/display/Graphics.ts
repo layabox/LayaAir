@@ -54,6 +54,7 @@ import { Vector2 } from "../maths/Vector2";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Vector3 } from "../maths/Vector3";
 import { BlendMode } from "../webgl/canvas/BlendMode";
+import { IAutoExpiringResource } from "../renders/ResNeedTouch";
 
 const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
@@ -275,8 +276,8 @@ export class Graphics {
             this._setDisplay(value);
         }
     }
-    
-    _display:boolean = false;
+
+    _display: boolean = false;
 
     /** @internal */
     _setDisplay(value: boolean) {
@@ -702,23 +703,23 @@ export class Graphics {
         runner.sprite = this._sp;
         runner._graphicsData = this._data;
         runner._material = this._material;
-        
-        // let oldBlendMode = runner.globalCompositeOperation;
-        // runner.globalCompositeOperation = this._sp._blendMode;        
+
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sp._blendMode;
         // if (this._sp._scrollRect) {
         //     runner
         // }
-        
+
         var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(runner, x, y);
         }
         //sprite.texture
-        this._renderSpriteTexture(runner , x , y);
+        this._renderSpriteTexture(runner, x, y);
 
         this.updateRenderElement();
 
-        // runner.globalCompositeOperation = oldBlendMode;
+        runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
@@ -740,7 +741,7 @@ export class Graphics {
     //     runner.sprite = null;
     // }
 
-    _renderSpriteTexture(runner: GraphicsRunner , x:number , y:number): void {
+    _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
         let sprite = this._sp;
         if (!sprite.texture || sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
             return
@@ -1112,9 +1113,21 @@ export class GraphicsRenderData {
         return mesh;
     }
 
+
+    mustTouchRes: IAutoExpiringResource[] = [];
+    randomTouchRes: IAutoExpiringResource[] = [];
+
+    touchRes(res: IAutoExpiringResource) {
+        if (res.isRandomTouch) {
+            this.randomTouchRes.push(res);
+        } else {
+            this.mustTouchRes.push(res);
+        }
+    }
+
 }
 
-export class SubStructRender{
+export class SubStructRender {
     private _subRenderPass: IRender2DPass;
     private _subStruct: IRenderStruct2D;
     private _sprite: Sprite;
@@ -1137,31 +1150,31 @@ export class SubStructRender{
         this._sprite = sprite;
         this._subRenderPass = subRenderPass;
         this._subStruct = subStruct;
-        subStruct.set_grapicsUpdateCall(this, this._renderUpdate , this._getRenderElements);
-        subStruct.set_spriteUpdateCall(this, this._updateMatrix , null);
+        subStruct.set_grapicsUpdateCall(this, this._renderUpdate, this._getRenderElements);
+        subStruct.set_spriteUpdateCall(this, this._updateMatrix, null);
     }
 
     _renderElements: Array<IRenderElement2D> = [];
 
-    _getRenderElements(){
+    _getRenderElements() {
         return this._renderElements;
     }
 
-    private _updateMatrix(){
+    private _updateMatrix() {
         if (this._sprite.mask) {
             let mask = this._sprite.mask;
             let maskMatrix = mask.globalTrans.getMatrix();
             if (mask.displayedInStage) {
                 this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
                 this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
-            }else{
+            } else {
                 let parentMatrix = this._sprite._globalTrans.getMatrix();
-                let mat = Matrix.mul(maskMatrix , parentMatrix , Matrix.TEMP);
+                let mat = Matrix.mul(maskMatrix, parentMatrix, Matrix.TEMP);
                 this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
                 this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
             }
             // this._pivotPos.setValue(mask._pivotX, mask._pivotY);
-        }else{
+        } else {
             let mat = this._sprite.globalTrans.getMatrix();
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
@@ -1174,15 +1187,15 @@ export class SubStructRender{
         // this.shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
     }
 
-    private _renderUpdate(runner:GraphicsRunner , x:number , y:number){
+    private _renderUpdate(runner: GraphicsRunner, x: number, y: number) {
         this._data.clear();
         runner.clear();
         runner.sprite = this._sprite;
         runner._graphicsData = this._data;
         runner._material = this._sprite.material;
 
-        // let oldBlendMode = runner.globalCompositeOperation;
-        // runner.globalCompositeOperation = this._sprite._blendMode;        
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this._sprite._blendMode;
         //sprite.texture
         let sprite = this._sprite;
         var tex = this._subRenderPass.renderTexture;
@@ -1196,13 +1209,13 @@ export class SubStructRender{
             if (width > 0 && height > 0) {
                 let px = x + tex.offsetX * wRate;
                 let py = y + tex.offsetY * hRate;
-                runner._inner_drawTexture(tex , -1 , px, py, width, height, null , UV , 1 , false , 0xffffffff);
+                runner._inner_drawTexture(tex, -1, px, py, width, height, null, UV, 1, false, 0xffffffff);
             }
         }
 
         this.updateRenderElement();
 
-        // runner.globalCompositeOperation = oldBlendMode;
+        runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
@@ -1229,7 +1242,7 @@ export class SubStructRender{
     destroy(): void {
         this._data.destroy();
         for (let i = 0; i < this._renderElements.length; i++) {
-            this._renderElements[i]?.destroy();            
+            this._renderElements[i]?.destroy();
         }
         this._renderElements = null;
         this._subRenderPass = null;

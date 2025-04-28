@@ -254,6 +254,7 @@ export class GraphicsRunner {
      */
     touchRes(res: IAutoExpiringResource) {
         // res.touch();
+        this._graphicsData.touchRes(res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {

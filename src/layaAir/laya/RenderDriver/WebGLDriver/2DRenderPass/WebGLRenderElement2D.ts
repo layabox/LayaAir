@@ -21,7 +21,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     geometry: WebGLRenderGeometryElement;
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
-    // componentShaderData: WebGLShaderData;
     subShader: SubShader;
 
     protected _compileShader(context: WebglRenderContext2D) {
@@ -64,10 +63,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
                 pass.nodeCommonMap = this.nodeCommonMap;
             }
 
-            // if (this.componentShaderData) {
-            //     comDef.addDefineDatas(this.componentShaderData._defineDatas);
-            // }
-
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
@@ -95,7 +90,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             return
         shader.bind();
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
-        // this.componentShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.componentShaderData, true);
         context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
         context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);

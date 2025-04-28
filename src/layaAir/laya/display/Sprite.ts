@@ -808,8 +808,11 @@ export class Sprite extends Node {
             return;
         if (value == 'bitmap' || value == 'normal') {
             this._renderType |= SpriteConst.CANVAS;
+            this.setSubRenderPassState(true);
+            this.updateRenderTexture();
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
+            this.updateSubRenderPassState();
         }
         this.repaint();
     }
@@ -2220,7 +2223,7 @@ export class Sprite extends Node {
     }
 
     private updateSubRenderPassState() {
-        this.setSubRenderPassState((this._renderType & SpriteConst.POSTPROCESS) !== 0);
+        this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
     
     /**

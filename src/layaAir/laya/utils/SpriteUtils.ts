@@ -225,6 +225,8 @@ export class SpriteUtils {
         let tempRect = TEMP_RECT_1;
         if (sprite._renderType & SpriteConst.MASK) {
             SpriteUtils.getMaskRect(sprite, tempRect);
+        }else{
+            SpriteUtils.getSpriteRect(sprite, tempRect);
         }
         
         if (tempRect.width <= 0 || tempRect.height <= 0) {
@@ -234,27 +236,14 @@ export class SpriteUtils {
         tempRect.cloneTo(out);
     }
 
+    static getSpriteRect(sprite: Sprite, out: Rectangle): void {
+        let cache = sprite._getCacheStyle();
+        cache._calculateCacheRect(sprite, "bitmap", 0, 0);
+        cache.cacheRect.cloneTo(out);
+    }
+
     static getMaskRect(sprite: Sprite, out:Rectangle) {
         let mask = sprite.mask;
-        // let cache = sprite._getCacheStyle();
-
-        //  /**
-        //  * 这里比较绕，需要解释一下
-        //  * 目前的做法是把sprite的rect和mask的rect都转到sprite的原始原点（左上角）空间，这里叫做TextureSpace，简称t空间
-        //  * 然后在t空间做rect交集
-        //  */
-        // cache._calculateCacheRect(sprite, "bitmap", 0, 0);
-        // //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
-        // spRect_TEMP.copyFrom(cache.cacheRect);
-        // if (spRect_TEMP.width <= 0 || spRect_TEMP.height <= 0)
-        //     return;
-        // //转到sprite的原始空间
-        // spRect_TEMP.x += sprite.pivotX;
-        // spRect_TEMP.y += sprite.pivotY;
-
-        //这个时候获得的rect是包含pivot的。下面的mask按照规则是作为sprite的子来计算，但是，他的位置是相对于原始位置
-        //而不是pivot，所以需要根据mask的pivot调整mask的rect的位置
-        //TODO mask如果非常简单，就不要先渲染到texture上
         let maskcache = mask._getCacheStyle();
         maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
         //保存rect，避免被修改。例如 RenderSprite.RenderToCacheTexture 会修改cache的rect
@@ -271,22 +260,7 @@ export class SpriteUtils {
         }
         out.width = maskRect.width;
         out.height = maskRect.height;
-        //计算cache画布的大小，就是两个rect的交集，这个交集作为渲染区域。t空间
-        // let x1 = Math.max(spRect_TEMP.x, maskRect_TEMP.x);
-        // let y1 = Math.max(spRect_TEMP.y, maskRect_TEMP.y);
-        // let x2 = Math.min(spRect_TEMP.x + spRect_TEMP.width, maskRect_TEMP.x + maskRect_TEMP.width);
-        // let y2 = Math.min(spRect_TEMP.y + spRect_TEMP.height, maskRect_TEMP.y + maskRect_TEMP.height);
-
-        // let width1 = x2 - x1;
-        // let height1 = y2 - y1;
-        // if (width1 <= 0 || height1 <= 0) {
-        //     out.setTo(0, 0, 0, 0);
-        //     return;
-        // }
-        // out.x = x1;
-        // out.y = y1;
-        // out.width = width1;
-        // out.height = height1;
+ 
     }
 }
 
