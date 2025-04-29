@@ -227,7 +227,7 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
       */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup);
+            command.setBindGroup(0, context._getSceneBindGroup(shaderInstance._bindCacheKeyPerDraw, shaderInstance));
         }
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
             command.setBindGroup(1, context._cameraBindGroup);

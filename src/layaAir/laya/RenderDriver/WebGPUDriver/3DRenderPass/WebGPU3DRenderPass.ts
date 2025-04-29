@@ -3,6 +3,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
+import { ShadowMapFormat, ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
@@ -31,8 +32,13 @@ const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private _renderPass: WebGPUForwardAddRP;
+
+
+    private _defaultShadowMap: RenderTexture;
+
     constructor() {
         this._renderPass = new WebGPUForwardAddRP();
+        this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
     }
     render3DManager: WebSceneRenderManager;
 
@@ -110,6 +116,9 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             const shadowParams = this._renderPass.shadowParams;
             shadowParams.setValue(0, 0, 0, 0);
 
+            camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+            camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
+
             //直线光源阴影
             const mainDirectionLight = camera.scene._mainDirectionLight;
             const needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode !== ShadowMode.None;
@@ -121,7 +130,6 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
                 this._renderPass.shadowMap = directionShadowMap;
                 shadowParams.x = this._renderPass.directLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, Texture2D.blackTexture);
             }
 
             //聚光灯阴影
@@ -134,7 +142,6 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 this._renderPass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 this._renderPass.spotShadowMap = spotShadowMap;
                 shadowParams.y = this._renderPass.spotLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, Texture2D.blackTexture);
             }
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
         }
@@ -162,9 +169,10 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             context._preDrawUniformMaps.add("Shadow");
             let shadowUniformMap = <WebGPUCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
             sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
-        } else {
-            context._preDrawUniformMaps.delete("Shadow");
-        }
+        } 
+        // else {
+        //     context._preDrawUniformMaps.delete("Shadow");
+        // }
     }
 
     /**

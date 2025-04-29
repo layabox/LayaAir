@@ -180,10 +180,12 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(vertexSpirv.buffer, vertexSpirv.byteOffset, vertexSpirv.byteLength), false);
 
             let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
+
             if (!fragmentSpvRes.success) {
                 console.error(fragmentSpvRes.info_log);
             }
             let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);
+
             let fragmentWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
 
             this._vsShader = device.createShaderModule({ code: vertexWgsl });
@@ -232,7 +234,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //global
         let context = WebGPURenderContext3D._instance;
         let preDrawUniforms = context._preDrawUniformMaps;
-        this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, Array.from(preDrawUniforms)));
+
+        let preDrawArray = Array.from(preDrawUniforms);
+
+        this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray));
         //camera
         this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
         //sprite+additional

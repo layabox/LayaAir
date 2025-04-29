@@ -432,6 +432,8 @@ export class NoRenderShaderData extends ShaderData {
                 break;
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.Texture3D:
                 this.setTexture(uniformIndex, <BaseTexture>value);
                 break;
             case ShaderDataType.Buffer:
@@ -462,6 +464,8 @@ export class NoRenderShaderData extends ShaderData {
                 return this.getMatrix4x4(uniformIndex);
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.Texture3D:
                 return this.getTexture(uniformIndex);
             case ShaderDataType.Buffer:
                 return this.getBuffer(uniformIndex);

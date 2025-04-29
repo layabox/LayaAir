@@ -16,6 +16,8 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         context._preDrawUniformMaps.add("Scene3D");
 
         context._preDrawUniformMaps.add("Global");
+
+        context._preDrawUniformMaps.add("Shadow");
     }
     /**
      * 主渲染流程

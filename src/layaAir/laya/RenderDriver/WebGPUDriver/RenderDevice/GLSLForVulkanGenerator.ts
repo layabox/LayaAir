@@ -80,6 +80,7 @@ ${additionDefineStrs}
 ${vertexCode}
 `;
             let resVS = engine.shaderCompiler.glslang.glsl300es_preprocess(vs, "vertex");
+
             if (!resVS.success) {
                 console.error("vertex shader preprocess error", resVS.info_log);
             }
@@ -107,6 +108,7 @@ ${additionDefineStrs}
 ${fragmentCode}
 `;
             let resFS = engine.shaderCompiler.glslang.glsl300es_preprocess(fs, "fragment");
+
             if (!resFS.success) {
                 console.error("fragment shader preprocess error", resFS.info_log);
             }
@@ -115,9 +117,6 @@ ${fragmentCode}
 
         const attributeStrs = attributeString(attributeMap);
 
-        // const uniformStrs = uniformString(commanMap, uniformMap);
-
-
         const varyings = executeVaryings(fragmentCode, vertexCode);
 
         const vertexVaryingStrs = varyingString(varyings, "out");
@@ -125,9 +124,23 @@ ${fragmentCode}
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
+        let samplerTypeMap = new Map<string, GPUTextureSampleType>();
+
+        const getTextureType = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
+            if (type == "sampler2DShadow" || type == "samplerCubeShadow" || type == "sampler2DArrayShadow") {
+                samplerTypeMap.set(name, "depth");
+            }
+            else {
+                samplerTypeMap.set(name, "float");
+            }
+            return "\n";
+        }
+
         // remove original uniforms
-        vertexCode = vertexCode.replace(uniformRegex, '\n');
-        fragmentCode = fragmentCode.replace(uniformRegex, '\n');
+        vertexCode = vertexCode.replace(uniformRegex, getTextureType);
+        fragmentCode = fragmentCode.replace(uniformRegex, getTextureType);
+
+
         // remove original uniform blocks
         vertexCode = vertexCode.replace(uniformBlockRegex, '\n');
         fragmentCode = fragmentCode.replace(uniformBlockRegex, '\n');
@@ -142,7 +155,7 @@ ${fragmentCode}
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
-        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, checkSetNumber);
+        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, samplerTypeMap, checkSetNumber);
 
         const glslVersion = "#version 450\n";
 
@@ -327,7 +340,7 @@ function uniformString(commonMap: string[], materialUniforms: Map<number, Unifor
     return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
 }
 
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, checkSetNumber: number) {
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, sampleTypeMap: Map<string, GPUTextureSampleType>, checkSetNumber: number) {
     let res = "";
 
     let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
@@ -362,6 +375,10 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                     case WebGPUBindingInfoType.sampler:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`;
+                            let samplerName = uniform.name.replace("_Sampler", "");
+                            if (sampleTypeMap.get(samplerName) == "depth") {
+                                uniform.sampler.type = "comparison";
+                            }
                         }
                         break;
                     default:
@@ -373,10 +390,11 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
     let samplerDefStrs = "\n";
     samplerMap.forEach((uniform, key) => {
-        let sampler = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
+        let sampleType = sampleTypeMap.get(key) || uniform.texture.sampleType;
+        let sampler = getSamplerTextureType(sampleType, uniform.texture.viewDimension);
         samplerDefStrs += `#define ${key} ${sampler}(${uniform.name}, ${key}_Sampler)\n`;
+        uniform.texture.sampleType = sampleType;
     });
-
 
     return res + samplerDefStrs;
 }

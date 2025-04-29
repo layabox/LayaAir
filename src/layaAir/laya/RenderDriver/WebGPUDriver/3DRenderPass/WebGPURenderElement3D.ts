@@ -411,7 +411,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup);
+            let sceneGroup = context._sceneBindGroup;
+            command.setBindGroup(0, sceneGroup);
         }
         if (shaderInstance.uniformSetMap.get(1).length > 0) {
             command.setBindGroup(1, context._cameraBindGroup);

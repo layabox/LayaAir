@@ -16,6 +16,7 @@ import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandE
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
@@ -112,6 +113,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             //buffer 
             let sceneMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
             this.sceneData.createUniformBuffer("Scene3D", sceneMap);
+
+            let shadowMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow");
+            this.sceneData.createSubUniformBuffer("Shadow", "Shadow", shadowMap._idata);
         }
     }
 
@@ -323,7 +327,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             element = elements[i];
             element._preUpdatePre(this); //渲染前准备，如有必要，编译着色器
         }
-    
+
         WebGPURenderEngine._instance.gpuBufferMgr.upload();
 
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
@@ -331,7 +335,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start(); //为录制渲染命令做准备
             this._needStart = false;
         }
-        
+
         for (let i = 0; i < len; i++)
             elements[i]._render(this, this.renderCommand);
 

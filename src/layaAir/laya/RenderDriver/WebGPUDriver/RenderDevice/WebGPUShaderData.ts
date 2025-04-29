@@ -107,8 +107,9 @@ export class WebGPUShaderData extends ShaderData {
     private _bindGroupLastUpdateMask: Map<string, number>;
 
     //BindGroup资源数据 
-    private _cacheBindGroup: Map<string, WebGPUBindGroup>;
-    private _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
+
+    _cacheBindGroup: Map<string, WebGPUBindGroup>;
+    _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
 
     _textureData: { [key: number]: BaseTexture } = {};
     /**
@@ -887,9 +888,7 @@ export class WebGPUShaderData extends ShaderData {
         this.clearData();
 
         this._defineDatas.destroy();
-        this._defineDatas = null;
 
         this._gammaColorMap.clear();
-        this._gammaColorMap = null;
     }
 }
