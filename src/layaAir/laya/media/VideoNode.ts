@@ -50,10 +50,8 @@ export class VideoNode extends Sprite {
     constructor() {
         super();
 
-        if (LayaEnv.isPlaying) {
-            this.on(Event.DISPLAY, this, this.onDisplay);
-            this.on(Event.UNDISPLAY, this, this.onUndisplay);
-        }
+        this.on(Event.DISPLAY, this, this.onDisplay);
+        this.on(Event.UNDISPLAY, this, this.onUndisplay);
     }
 
     /**
@@ -75,7 +73,7 @@ export class VideoNode extends Sprite {
     set source(value: string) {
         this._source = value;
         if (value) {
-            if (this.activeInHierarchy && LayaEnv.isPlaying)
+            if (this.activeInHierarchy)
                 this._load();
         }
         else
@@ -353,7 +351,7 @@ export class VideoNode extends Sprite {
         this._api.muted = this._muted;
         this._api.playbackRate = this._playbackRate;
         this._api.allowBackground = this._allowBackground;
-        if (this._autoPlay && !this._paused)
+        if (this._autoPlay && !this._paused && LayaEnv.isPlaying)
             this._api.play();
         else
             this._api.pause();
