@@ -1,30 +1,25 @@
-import { ShaderCompile } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
 
 export class IncludeFile {
-    static splitToWords(str: string, block: ShaderNode): any[] {//这里要修改
-        var out: any[] = [];
-        /*
-           var words:Array = str.split(_splitToWordExps);
-           trace(str);
-           trace(words);
-         */
-        var c: string;
-        var ofs: number = -1;
-        var word: string;
-        for (var i: number = 0, n: number = str.length; i < n; i++) {
+    static splitToWords(str: string, block: ShaderNode): string[] {//这里要修改
+        let out: string[] = [];
+        let c: string;
+        let ofs: number = -1;
+        let word: string;
+        let n = str.length;
+        for (let i: number = 0; i < n; i++) {
             c = str.charAt(i);
             if (" \t=+-*/&%!<>()'\",;".indexOf(c) >= 0) {
                 if (ofs >= 0 && (i - ofs) > 1) {
-                    word = str.substr(ofs, i - ofs);
+                    word = str.substring(ofs, i);
                     out.push(word);
                 }
                 if (c == '"' || c == "'") {
-                    var ofs2: number = str.indexOf(c, i + 1);
+                    let ofs2: number = str.indexOf(c, i + 1);
                     if (ofs2 < 0) {
                         throw "Sharder err:" + str;
                     }
-                    out.push(str.substr(i + 1, ofs2 - i - 1));
+                    out.push(str.substring(i + 1, ofs2));
                     i = ofs2;
                     ofs = -1;
                     continue;
@@ -40,7 +35,7 @@ export class IncludeFile {
             if (ofs < 0) ofs = i;
         }
         if (ofs < n && (n - ofs) > 1) {
-            word = str.substr(ofs, n - ofs);
+            word = str.substring(ofs, n);
             out.push(word);
         }
         return out;
@@ -55,7 +50,7 @@ export class IncludeFile {
 
     constructor(txt: string) {
         this.script = txt;
-        var begin: number = 0, ofs: number, end: number;
+        let begin: number = 0, ofs: number, end: number;
         while (true) {
             begin = txt.indexOf("#begin", begin);
             if (begin < 0) break;
@@ -74,14 +69,14 @@ export class IncludeFile {
             }
 
             ofs = txt.indexOf('\n', begin);
-            var words: any[] = IncludeFile.splitToWords(txt.substr(begin, ofs - begin), null);
+            let words = IncludeFile.splitToWords(txt.substring(begin, ofs), null);
             if (words[1] == 'code') {
-                this.codes[words[2]] = txt.substr(ofs + 1, end - ofs - 1);
+                this.codes[words[2]] = txt.substring(ofs + 1, end);
             } else if (words[1] == 'function')//#begin function void test()
             {
                 ofs = txt.indexOf("function", begin);
                 ofs += "function".length;
-                this.funs[words[3]] = txt.substr(ofs + 1, end - ofs - 1);
+                this.funs[words[3]] = txt.substring(ofs + 1, end);
                 this.funnames += words[3] + ";";
             }
 
@@ -90,7 +85,7 @@ export class IncludeFile {
     }
 
     getWith(name: string | null = null): string {
-        var r: string = name ? this.codes[name] : this.script;
+        let r: string = name ? this.codes[name] : this.script;
         if (!r) {
             throw "get with error:" + name;
         }
@@ -98,8 +93,8 @@ export class IncludeFile {
     }
 
     getFunsScript(funsdef: string): string {
-        var r: string = "";
-        for (var i in this.funs) {
+        let r: string = "";
+        for (let i in this.funs) {
             if (funsdef.indexOf(i + ";") >= 0) {
                 r += this.funs[i];
             }

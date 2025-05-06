@@ -251,7 +251,7 @@ export class InputDevice_Video {
     // 创建Video
     private createVideo(): void {
         this.video = new VideoNode();
-        this.video.videoTexture = new VideoTexture();
+        this.video.videoTexture = VideoTexture.createInstance();
         // 检查浏览器兼容性
         if (this.video.canPlayType("mp4") == "" && this.video.canPlayType("ogg") == "") {
             alert("当前浏览器不支持播放本视频");

@@ -145,8 +145,12 @@ export class Config {
      * @zh 资源引用参数为0是否立即删除资源，如果不立即删除请调用DestrotyUnUse
      */
     static destroyResourceImmediatelyDefault = true;
-    /**@internal */
-    static _enableWindowRAFFunction: boolean = true;
+
+    /**
+     * @en The maximum size of the audio buffer cache in bytes. After exceeding this size, the oldest unused audio data in the cache will be cleared.
+     * @zh 声音缓冲区缓存的最大大小（字节）。超出后将清除缓存中最久未使用的音频数据。
+     */
+    static audioBufferCacheMaxSize: number = 5 * 1024 * 1024;
 }
 
 export const PlayerConfig: {

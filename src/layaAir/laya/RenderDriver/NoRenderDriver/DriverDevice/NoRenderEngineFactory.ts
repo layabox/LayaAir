@@ -27,7 +27,7 @@ export class NoRenderEngine implements IRenderEngine {
     _screenInvertY: boolean;
     _lodTextureSample: boolean;
     _breakTextureSample: boolean;
-    initRenderEngine(canvas: any): void {
+    initRenderEngine(canvas: HTMLCanvasElement): void {
     }
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
     }
@@ -155,9 +155,9 @@ export class NoTextureContext implements ITextureContext {
         internalTex.isPotSize = true;
         return internalTex;
     }
-    setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean): void {
+    setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData, premultiplyAlpha: boolean, invertY: boolean): void {
     }
-    setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
+    setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
     }
     setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void {
     }

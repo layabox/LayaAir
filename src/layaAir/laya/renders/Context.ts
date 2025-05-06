@@ -41,7 +41,6 @@ import { Earcut } from "../webgl/shapes/Earcut";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { SubmitKey } from "../webgl/submit/SubmitKey";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
-import { MeasureFont } from "../webgl/text/MeasureFont";
 import { TextRender } from "../webgl/text/TextRender";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../webgl/utils/MeshTexture";
@@ -54,87 +53,35 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
-var _clipResult = new Vector2();
+const _clipResult = new Vector2();
+const MAXVERTNUM = 65535;
+const MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
+const SEGNUM = 32;
 
-/**
- * @private
- */
 export class Context {
-
-    /**@internal */
-    private _canvas: HTMLCanvas;
-
-    /**@internal */
     _drawingToTexture: boolean;
-
-    private static _MAXVERTNUM = 65535;
-
-    static MAXCLIPRECT: Rectangle = null;
-
-    private _alpha = 1.0;
-
-    /**@internal */
     _material: Material = null;
-
-    /**@internal */
-    private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
-    /**@internal */
-    private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
-
-    private static SEGNUM = 32;
-    private static _contextcount = 0;
-
-    private _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
-    private _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
-    private _tempUV = new Float32Array(8);
-    private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
-
-    private _other: ContextParams | null = null;
-
-    private _path: Path | null = null;
-    /**@internal */
-    _drawCount = 1;
-    private _width = Const.MAX_CLIP_SIZE;
-    private _height = Const.MAX_CLIP_SIZE;
-    private _renderCount = 0;
     /**@internal */
     stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
     /**@internal */
     _curSubmit = SubmitBase.RENDERBASE;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-
     /**@internal */
-    private _mesh: Sprite2DGeometry;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
-    private _meshQuatTex = new MeshQuadTexture();
-    private _meshVG = new MeshVG();
-    private _meshTex = new MeshTexture();
-
-    //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
-    private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
-    private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
-
+    _clipRect = MAXCLIPRECT;
     /**@internal */
-    _clipRect = Context.MAXCLIPRECT;
+    _globalClipMatrix = defaultClipMatrix.clone(); //用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
-    _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
-    /**@internal */
-    _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
-    private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
+    _clipInfoID = 0; //用来区分是不是clipinfo已经改变了
     /**@internal */
     _curMat: Matrix;
     /**@internal */
     _matBuffer: Float32Array = new Float32Array(6);
-
     //计算矩阵缩放的缓存
     /**@internal */
     _lastMatScaleX = 1.0;
     /**@internal */
     _lastMatScaleY = 1.0;
-    private _lastMat_a = 1.0;
-    private _lastMat_b = 0.0;
-    private _lastMat_c = 0.0;
-    private _lastMat_d = 1.0;
     /**@internal */
     _nBlendType = 0;
     /**@internal */
@@ -144,65 +91,69 @@ export class Context {
     /**@internal */
     _saveMark: SaveMark | null = null;
     /**@internal */
-    private _shader2D = new Shader2D();	//
-
+    _italicDeg = 0;//文字的倾斜角度
+    /**@internal */
+    _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
+    /**@internal */
+    _colorFiler: ColorFilter | null = null;
     /**
      * 所cacheAs精灵
      * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
      * 加载完成后，调用repaint
      */
     sprite: Sprite | null = null;
-
-    /**@internal */
-    private static _textRender: TextRender | null = null;// new TextRender();
-    /**@internal */
-    _italicDeg = 0;//文字的倾斜角度
-    /**@internal */
-    _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
-
-    private _fillColor = 0;
-    private _flushCnt = 0;
-
-    private defTexture: Texture | null = null;	//给fillrect用
-    /**@internal */
-    _colorFiler: ColorFilter | null = null;
-
-    drawTexAlign = false;		// 按照像素对齐
-    /**@internal */
-    _incache = false;			// 正处在cacheas normal过程中
-
-    private _isMain = false;				// 是否是主context
-
-    private _render2D: Render2D = null;
-
-    private _clearColor = new Color(0, 0, 0, 0);
-    private _clear = false;
-
-    private _shaderValueNeedRelease: Value2D[] = [];
-
+    drawTexAlign = false; // 按照像素对齐
     _render2DManager: RenderManager2D;
 
-    static __init__(): void {
-        Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
-        ContextParams.DEFAULT = new ContextParams();
-        if (!Context._textRender) {
-            let textRender = Context._textRender = new TextRender();
-            textRender.fontMeasure = new MeasureFont(textRender.charRender);
-        }
-    }
+    private _canvas: HTMLCanvas;
+    private _alpha = 1.0;
+    private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
+    private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
+    private _drawCount = 1;
+    private _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
+    private _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
+    private _tempUV = new Float32Array(8);
+    private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
+    private _other: ContextParams | null = null;
+    private _path: Path | null = null;
+    private _width = Const.MAX_CLIP_SIZE;
+    private _height = Const.MAX_CLIP_SIZE;
+    private _mesh: Sprite2DGeometry; //用Mesh2D代替_vb,_ib. 当前使用的mesh
+    private _meshQuatTex = new MeshQuadTexture();
+    private _meshVG = new MeshVG();
+    private _meshTex = new MeshTexture();
+    private _transedPoints: any[] = new Array(8); //临时的数组，用来计算4个顶点的转换后的位置。
+    private _temp4Points: any[] = new Array(8); //临时数组。用来保存4个顶点的位置。
+    private _lastMat_a = 1.0;
+    private _lastMat_b = 0.0;
+    private _lastMat_c = 0.0;
+    private _lastMat_d = 1.0;
+    private _shader2D = new Shader2D();	//
+    private _fillColor = 0;
+    private _flushCnt = 0;
+    private _defTexture: Texture | null = null;	//给fillrect用
+    private _isMain = false; // 是否是主context
+    private _render2D: Render2D = null;
+    private _clearColor = new Color(0, 0, 0, 0);
+    private _clear = false;
+    private _shaderValueNeedRelease: Value2D[] = [];
+    private _clipID_Gen = 0; //生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
+
+    static _textRender: TextRender | null = null;
+    private static _contextcount = 0;
 
     constructor() {
         //默认值。可以外面设置
         this.render2D = new Render2DSimple();
         Context._contextcount++;
         //_ib = IndexBuffer2D.QuadrangleIB;
-        if (!this.defTexture) {
+        if (!this._defTexture) {
             var defTex2d = new Texture2D(2, 2, TextureFormat.R8G8B8A8, true, false, false);
             defTex2d.setPixelsData(new Uint8Array(16), false, false);
             defTex2d.lock = true;
-            this.defTexture = new Texture(defTex2d);
+            this._defTexture = new Texture(defTex2d);
         }
-        this._lastTex = this.defTexture;
+        this._lastTex = this._defTexture;
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
         this._charSubmitCache = new CharSubmitCache(this);
@@ -214,6 +165,9 @@ export class Context {
         this.clear();
 
         this._render2DManager = new RenderManager2D();
+        if (!Context._textRender)
+            Context._textRender = new TextRender();
+
     }
 
     //从ctx继承渲染参数
@@ -634,9 +588,9 @@ export class Context {
         --Context._contextcount;
         this.sprite = null;
         this._charSubmitCache && this._charSubmitCache.destroy();
-        if (this.defTexture) {
-            this.defTexture.bitmap && this.defTexture.bitmap.destroy();
-            this.defTexture.destroy();
+        if (this._defTexture) {
+            this._defTexture.bitmap && this._defTexture.bitmap.destroy();
+            this._defTexture.destroy();
         }
         for (var i = 0, n = this._shaderValueNeedRelease.length; i < n; i++) {
             this._shaderValueNeedRelease[i] && this._shaderValueNeedRelease[i].release();
@@ -649,7 +603,7 @@ export class Context {
         this._other = ContextParams.DEFAULT;
         this._alpha = 1.0;
         this._nBlendType = 0;
-        this._clipRect = Context.MAXCLIPRECT;
+        this._clipRect = MAXCLIPRECT;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
 
         this._curMat.identity();
@@ -844,7 +798,7 @@ export class Context {
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
         var sameKey =
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + 4 < MAXVERTNUM &&
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
                 submit._key.blendShader === this._nBlendType &&
@@ -867,7 +821,7 @@ export class Context {
                 this._copyClipInfo(submit.shaderValue);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    submit.shaderValue.textureHost = this.defTexture;
+                    submit.shaderValue.textureHost = this._defTexture;
                 } else {
                     submit.shaderValue.textureHost = this._lastTex;
                 }
@@ -1190,7 +1144,7 @@ export class Context {
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
             !this.isStopMerge(this._curSubmit) &&
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + 4 < MAXVERTNUM &&
             this._curSubmit.material == this._material
 
         if (!sameKey) {
@@ -1372,7 +1326,7 @@ export class Context {
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === webGLImg.id &&
             preKey.blendShader == this._nBlendType &&
-            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + vertices.length / 2 < MAXVERTNUM &&
             this._curSubmit.material == this._material;
 
         if (!sameKey) {
@@ -1433,7 +1387,7 @@ export class Context {
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
-        if (this._clipRect == Context.MAXCLIPRECT) {
+        if (this._clipRect == MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
             this._clipRect.width = width;
@@ -1548,9 +1502,7 @@ export class Context {
         this._flushCnt++;
         //charbook gc
         if (this._flushCnt % 60 == 0 && this.isMain) {
-            if (TextRender.textRenderInst) {
-                TextRender.textRenderInst.GC();
-            }
+            Context._textRender.GC();
         }
     }
 
@@ -1631,7 +1583,7 @@ export class Context {
                 }
             }
 
-            if (this._mesh.vertexNum + vertNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + vertNum > MAXVERTNUM) {
                 //;
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
@@ -1711,7 +1663,7 @@ export class Context {
             var maxVertexNum = p.path.length * 2;	//最大可能产生的顶点数。这个需要考虑考虑
             if (maxVertexNum < 2)
                 continue;
-            if (this._mesh.vertexNum + maxVertexNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + maxVertexNum > MAXVERTNUM) {
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
@@ -1855,13 +1807,13 @@ export class Context {
         var cosx = 0.0;
         if (dir >= 0) {
             fChgAng = halfAng * 2;
-            var fda = fChgAng / Context.SEGNUM;
+            var fda = fChgAng / SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
         else {
             fChgAng = -halfAng * 2;
-            fda = fChgAng / Context.SEGNUM;
+            fda = fChgAng / SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
@@ -1883,7 +1835,7 @@ export class Context {
         var cvy = pty1 - oriy;
         var tx = 0.0;
         var ty = 0.0;
-        for (i = 0; i < Context.SEGNUM; i++) {
+        for (i = 0; i < SEGNUM; i++) {
             var cx = cvx * cosx + cvy * sinx;
             var cy = -cvx * sinx + cvy * cosx;
             x = cx + orix;
@@ -2282,10 +2234,9 @@ export class Context {
     }
 }
 
-
 /** @internal */
 class ContextParams {
-    static DEFAULT: ContextParams;
+    static DEFAULT: ContextParams = new ContextParams();
 
     lineWidth = 1;
     textAlign: string;

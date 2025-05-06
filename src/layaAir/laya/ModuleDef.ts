@@ -49,7 +49,7 @@ import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
-import "./media/webaudio/WebAudioLoader";
+import "./media/WebAudioLoader";
 import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
 import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
 import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";

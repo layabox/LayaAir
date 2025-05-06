@@ -13,6 +13,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -47,7 +48,7 @@ export class NoRenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new NoRenderGeometryElement();
     }
-    createEngine(config: Config, canvas: any): Promise<void> {
+    createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         return Promise.resolve();
     }
     createGlobalUniformMap(blockName: string): CommandUniformMap {

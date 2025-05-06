@@ -3,7 +3,6 @@ import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D"
-import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { RenderInfo } from "../../renders/RenderInfo";
 import { SubmitBase } from "../submit/SubmitBase"
 /**
@@ -25,7 +24,7 @@ export class CharSubmitCache {
     /**@internal */
     _colorFiler: ColorFilter;
 
-    constructor(ctx:Context) {
+    constructor(ctx: Context) {
         this._clipid = ctx._clipInfoID;
         ctx._globalClipMatrix.copyTo(this._clipMatrix);
     }
@@ -99,7 +98,7 @@ export class CharSubmitCache {
         var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
-        
+
         submit.clipInfoID = this._clipid;
 
         for (var i = 0; i < n; i += 3) {

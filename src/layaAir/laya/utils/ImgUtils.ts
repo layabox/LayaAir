@@ -1,4 +1,4 @@
-import { Browser } from "./Browser";
+import { PAL } from "../platform/PlatformAdapters";
 
 /**
  * @en Image binary processing class
@@ -10,7 +10,7 @@ export class ImgUtils {
      * @en Storage data pool
      * @zh 存储数据池
      */
-    static data: any = {};
+    static readonly data: Record<string, string> = {};
     /**
      * @en Whether to save the used data
      * @zh 是否保存使用的数据
@@ -18,47 +18,11 @@ export class ImgUtils {
     static isSavaData: boolean = false;
 
     /**
-     * 比较版本内容
-     * @param curVersion 当前版本
-     * @param needVersion 要求的版本
-     * @returns 
-     */
-    private static compareVersion(curVersion: string, needVersion: string) {
-        let curVersionArr = curVersion.split('.');
-        let needVersionArr = needVersion.split('.');
-        const len = Math.max(curVersionArr.length, needVersionArr.length);
-        while (curVersionArr.length < len) {
-            curVersionArr.push('0');
-        }
-        while (needVersionArr.length < len) {
-            needVersionArr.push('0');
-        }
-        for (let i = 0; i < len; i++) {
-            const num1 = parseInt(curVersionArr[i]);
-            const num2 = parseInt(needVersionArr[i]);
-            if (num1 > num2) {
-                return true;
-            } else if (num1 < num2) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * @en Checks if data preprocessing is supported.
      * @zh 检查是否支持数据预处理。
      */
     static get isSupport(): boolean {
-        if (Browser._isMiniGame) {
-            var version: string = Browser.window.wx.getSystemInfoSync().SDKVersion;
-            return ImgUtils.compareVersion(version, '2.14.0');
-        }
-        else if (Browser.onLayaRuntime) {
-            return true;
-        } else if (Browser.window.Blob)
-            return Browser.window.Blob ? true : false;
-        return false;
+        return PAL.browser.supportArrayBufferURL;
     }
 
     /**
@@ -71,32 +35,24 @@ export class ImgUtils {
      * @param arrayBuffer 要转换的 ArrayBuffer。
      * @returns 表示二进制数据的新 URL 字符串。
      */
-    static arrayBufferToURL(url: string, arrayBuffer: ArrayBuffer) {
+    static arrayBufferToURL(url: string, arrayBuffer: ArrayBuffer): string {
         if (!ImgUtils.isSupport) return url;
         if (ImgUtils.data[url])
             return ImgUtils.data[url];
-        var newurl: string = "";
-        if (Browser._isMiniGame || Browser.onLayaRuntime) {
-            newurl = Browser.window.wx.createBufferURL(arrayBuffer);//是一个字符串内存地址
-        } else if (Browser.window.Blob) {
-            let blob = new Blob([arrayBuffer], { type: 'application/octet-binary' });
-            newurl = Browser.window.URL.createObjectURL(blob);
-        }
+
+        let newurl = PAL.browser.createBufferURL(arrayBuffer);
+
         if (ImgUtils.isSavaData)
             ImgUtils.data[url] = newurl;
+
         return newurl;
     }
 
-    static _arrayBufferToURL(arrayBuffer: ArrayBuffer) {
-        if (!ImgUtils.isSupport) return null;
-        var newurl: string = "";
-        if (Browser._isMiniGame || Browser.onLayaRuntime) {
-            newurl = Browser.window.wx.createBufferURL(arrayBuffer);//是一个字符串内存地址
-        } else if (Browser.window.Blob) {
-            let blob = new Blob([arrayBuffer], { type: 'application/octet-binary' });
-            newurl = Browser.window.URL.createObjectURL(blob);
-        }
-        return newurl;
+    static _arrayBufferToURL(arrayBuffer: ArrayBuffer): string {
+        if (ImgUtils.isSupport)
+            return PAL.browser.createBufferURL(arrayBuffer);
+        else
+            return null;
     }
 
     /**
@@ -107,12 +63,9 @@ export class ImgUtils {
      */
     static destroy(url: string) {
         if (!ImgUtils.isSupport) return;
-        var newurl: string = ImgUtils.data[url];
+        let newurl: string = ImgUtils.data[url];
         if (newurl) {
-            if (Browser._isMiniGame || Browser.onLayaRuntime)
-                Browser.window.wx.revokeBufferURL(newurl);
-            else if (Browser.window.Blob)
-                Browser.window.URL.revokeObjectURL(newurl);
+            PAL.browser.revokeBufferURL(newurl);
             delete ImgUtils.data[url];
         }
     }

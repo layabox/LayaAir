@@ -6,7 +6,7 @@ import { Pool } from "../../utils/Pool"
 import { Sprite } from "../Sprite"
 
 /**
- * @internal
+ * @ignore
  * @en Store cache-related data.
  * Now it has been expanded to store everything related to rendering
  * @zh 存储缓存相关数据

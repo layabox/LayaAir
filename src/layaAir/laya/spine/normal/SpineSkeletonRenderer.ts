@@ -34,8 +34,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
      */
     templet: SpineTemplet;
 
-    private tempColor = new window.spine.Color();
-    private tempColor2 = new window.spine.Color();
+    private tempColor: spine.Color;
+    private tempColor2: spine.Color;
     private static vertices: spine.NumberArrayLike;
     private renderable: Renderable;
     private clipper: spine.SkeletonClipping;
@@ -55,10 +55,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     /**
      * @en Create a new instance of the SpineSkeletonRenderer class.
      * @param templet The Spine templet to use.
-     * @param twoColorTint Whether to use two-color tinting.
      * @zh 创建 SpineSkeletonRenderer 类的新实例。
      * @param templet 要使用的 Spine 模板。
-     * @param twoColorTint 是否使用双色调色。
      */
     constructor(templet: SpineTemplet) {
         super();
@@ -68,6 +66,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         }
         this.renderable = { vertices: null, numVertices: 0, numFloats: 0 };
         this.clipper = new spine.SkeletonClipping();
+        this.tempColor = new spine.Color();
+        this.tempColor2 = new spine.Color();
     }
 
     // drawOld(skeleton: spine.Skeleton, graphics: Graphics, slotRangeStart: number = -1, slotRangeEnd: number = -1) {
@@ -403,7 +403,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             } else if (attachment instanceof window.spine.ClippingAttachment) {
                 let clip = <spine.ClippingAttachment>(attachment);
                 // clipper.clipStart(slot, clip);
-                this.clipStart(this.clipper , slot , clip , -skeleton.x, -skeleton.y);
+                this.clipStart(this.clipper, slot, clip, -skeleton.x, -skeleton.y);
                 continue;
             } else {
                 clipper.clipEndWithSlot(slot);
@@ -482,7 +482,6 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     }
 
     /**
-     * @link spine-ts/.../SkeletonClipping.ts
      * @param clipper 
      * @param slot 
      * @param clip 
@@ -490,7 +489,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
      * @param ofy 
      * @returns 
      */
-    clipStart(clipper:spine.SkeletonClipping , slot : spine.Slot, clip:spine.VertexAttachment ,ofx: number, ofy: number) {
+    clipStart(clipper: spine.SkeletonClipping, slot: spine.Slot, clip: spine.VertexAttachment, ofx: number, ofy: number) {
         //@ts-ignore
         if (clipper.clipAttachment)
             return 0;
@@ -498,9 +497,9 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         clipper.clipAttachment = clip;
         let n = clip.worldVerticesLength;
         //@ts-ignore
-        let vertices:spine.NumberArrayLike = spine.Utils.setArraySize(clipper.clippingPolygon, n);
+        let vertices: spine.NumberArrayLike = spine.Utils.setArraySize(clipper.clippingPolygon, n);
         // clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
-        this.computeWorldVertices_MeshAttachment(clip , slot , 0 , n , vertices , 0 , 2 , ofx , ofy);
+        this.computeWorldVertices_MeshAttachment(clip, slot, 0, n, vertices, 0, 2, ofx, ofy);
         //@ts-ignore
         let clippingPolygon = clipper.clippingPolygon;
         spine.SkeletonClipping.makeClockwise(clippingPolygon);
@@ -516,7 +515,6 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     }
 
     /**
-     * @link spine-ts/.../RegionAttachment.ts
      * @param attachment 
      * @param bone 
      * @param worldVertices 
@@ -560,7 +558,6 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     }
 
     /**
-     * @link spine-ts/.../MeshAttachment.ts
      * @param attachment 
      * @param slot 
      * @param start 

@@ -1,10 +1,8 @@
 import { IV2, Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
-import { TileMapChunk } from "../TileMapChunk";
+import { ChunkCellInfo } from "../TileMapChunkData";
 import { TileMapCellNeighbor, TileMapTerrainMode, TileShape } from "../TileMapEnum";
 import { TileMapLayer } from "../TileMapLayer";
-import { TileSet } from "../TileSet";
-import { TileSetCellData } from "../TileSetCellData";
 
 export type TTerrainVector2 = {
    x: number;
@@ -17,12 +15,12 @@ export type TTerrainVector2 = {
 export type NeighborObject = {
    getNeighborGird: (x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2) => void;
    getRuleInfo: (rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) => void;
-   getOverlap:(x :number , y:number , data:number , vec2Map:TerrainVector2Set , outs:Map<TTerrainVector2 , TileMapCellNeighbor>) => void;
+   getOverlap: (x: number, y: number, data: number, vec2Map: TerrainVector2Set, outs: Map<TTerrainVector2, TileMapCellNeighbor>) => void;
    neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]>;
-   links:TileMapCellNeighbor[];
+   links: TileMapCellNeighbor[];
 }
 
-export class TileMapTerrainUtil{
+export class TileMapTerrainUtil {
    static shape_mode_map: Map<TileShape, NeighborObject> = new Map;
    /** @internal */
    private static initSquare() {
@@ -31,7 +29,7 @@ export class TileMapTerrainUtil{
       //     |     |
       //   __|_____|__
       //     |     |
-   
+
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
          TileMapCellNeighbor.RIGHT_SIDE,
@@ -43,11 +41,11 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_SIDE,
          TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
-      
+
       let links = arr;
-   
+
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
-   
+
       arr = [
          TileMapCellNeighbor.RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_SIDE,
@@ -55,7 +53,7 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_SIDE,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
-      
+
       arr = [
          TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_LEFT_CORNER,
@@ -63,7 +61,7 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS, arr);
-      
+
       this.shape_mode_map.set(TileShape.TILE_SHAPE_SQUARE, {
          neighbors,
          getOverlap: TileMapTerrainUtil.getOverlap_Square,
@@ -74,14 +72,14 @@ export class TileMapTerrainUtil{
    }
    /** @internal */
    private static initIsometric() {//菱形
-   
+
       //    \/
       //    /\
       //  \/  \/
       //  /\  /\   
       //    \/
       //    /\
-   
+
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
          TileMapCellNeighbor.RIGHT_CORNER,
@@ -93,11 +91,11 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_CORNER,
          TileMapCellNeighbor.TOP_RIGHT_SIDE,
       ];
-   
+
       let links = arr;
-   
+
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
-   
+
       arr = [
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_LEFT_SIDE,
@@ -105,7 +103,7 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_RIGHT_SIDE,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
-   
+
       arr = [
          TileMapCellNeighbor.RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_CORNER,
@@ -117,20 +115,20 @@ export class TileMapTerrainUtil{
          neighbors,
          getNeighborGird: TileMapTerrainUtil.getNeighborGird_Isometric,
          getRuleInfo: TileMapTerrainUtil.getRuleInfo_Isometric,
-         getOverlap:TileMapTerrainUtil.getOverlap_Isometric,
+         getOverlap: TileMapTerrainUtil.getOverlap_Isometric,
          links
       });
    }
    /** @internal */
    private static initHalfOffset() {//错位矩形与六边形
-   
+
       //       |
       // --------------
       //    |     |
       //    |     |
       // --------------
       //       |
-   
+
       //       |    
       //      / \
       //   \ /   \ / 
@@ -139,7 +137,7 @@ export class TileMapTerrainUtil{
       //   / \   / \
       //      \ /
       //       |
-   
+
       let neighbors: Map<TileMapTerrainMode, TileMapCellNeighbor[]> = new Map;
       let arr: TileMapCellNeighbor[] = [
          TileMapCellNeighbor.RIGHT_SIDE,
@@ -155,9 +153,9 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_RIGHT_SIDE,
          TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
-   
+
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS_AND_SIDES, arr);
-   
+
       arr = [
          TileMapCellNeighbor.RIGHT_SIDE,
          TileMapCellNeighbor.BOTTOM_RIGHT_SIDE,
@@ -168,7 +166,7 @@ export class TileMapTerrainUtil{
       ];
       neighbors.set(TileMapTerrainMode.MATCH_SIDES, arr);
       let links = arr;
-   
+
       arr = [
          TileMapCellNeighbor.BOTTOM_RIGHT_CORNER,
          TileMapCellNeighbor.BOTTOM_CORNER,
@@ -178,19 +176,19 @@ export class TileMapTerrainUtil{
          TileMapCellNeighbor.TOP_RIGHT_CORNER,
       ];
       neighbors.set(TileMapTerrainMode.MATCH_CORNERS, arr);
-   
+
       this.shape_mode_map.set(TileShape.TILE_SHAPE_HALF_OFFSET_SQUARE, {
          neighbors,
          getNeighborGird: TileMapTerrainUtil.getNeighborGird_HalfOffset,
          getRuleInfo: TileMapTerrainUtil.getRuleInfo_HalfOffset,
-         getOverlap:TileMapTerrainUtil.getOverlap_HalfOffset,
+         getOverlap: TileMapTerrainUtil.getOverlap_HalfOffset,
          links
       });
-   
+
       this.shape_mode_map.set(TileShape.TILE_SHAPE_HEXAGON, {
          getNeighborGird: TileMapTerrainUtil.getNeighborGird_HalfOffset,
          getRuleInfo: TileMapTerrainUtil.getRuleInfo_HalfOffset,
-         getOverlap:TileMapTerrainUtil.getOverlap_HalfOffset,
+         getOverlap: TileMapTerrainUtil.getOverlap_HalfOffset,
          neighbors,
          links
       });
@@ -204,7 +202,7 @@ export class TileMapTerrainUtil{
 
    static temp_vec2 = new Vector2();
    static temp_vec3 = new Vector3();
-   
+
    static getNeighborObject(shape: TileShape): NeighborObject {
       return TileMapTerrainUtil.shape_mode_map.get(shape);
    }
@@ -245,7 +243,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getNeighborGird_Square(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2 ): void {
+   static getNeighborGird_Square(x: number, y: number, neighbor: TileMapCellNeighbor, out: IV2): void {
       if (neighbor == TileMapCellNeighbor.TOP_SIDE) {
          out.x = x;
          out.y = y - 1;
@@ -309,7 +307,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getRuleInfo_Square( rule:TileMapTerrainRule , neighbor:TileMapCellNeighbor){
+   static getRuleInfo_Square(rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) {
       // 上边 右上角 检查上边
       // 右边 右下角 底边 检查自己
       // 左边 左下角 检查左边
@@ -345,7 +343,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getRuleInfo_Isometric(rule:TileMapTerrainRule , neighbor:TileMapCellNeighbor){
+   static getRuleInfo_Isometric(rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) {
       // 上角 检查上角
       // 右上边 右角 检查右上边
       // 右下边 下角 下左边 检查自己
@@ -381,7 +379,7 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getRuleInfo_HalfOffset(rule:TileMapTerrainRule , neighbor:TileMapCellNeighbor){
+   static getRuleInfo_HalfOffset(rule: TileMapTerrainRule, neighbor: TileMapCellNeighbor) {
       if (neighbor == TileMapCellNeighbor.RIGHT_SIDE) {
          rule.data = 1;
       }
@@ -427,108 +425,108 @@ export class TileMapTerrainUtil{
       }
    }
 
-   static getOverlap_Square( x : number , y: number, data:number , vec2Map:TerrainVector2Set , outs: Map<TTerrainVector2 , TileMapCellNeighbor>): void {
+   static getOverlap_Square(x: number, y: number, data: number, vec2Map: TerrainVector2Set, outs: Map<TTerrainVector2, TileMapCellNeighbor>): void {
       let temp_vec2 = TileMapTerrainUtil.temp_vec2;
       if (data == 1) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.RIGHT_SIDE);
-         
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.RIGHT_SIDE);
+
          TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.LEFT_SIDE, temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.LEFT_SIDE);
-      }else if (data == 2) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_RIGHT_CORNER);
-         
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.LEFT_SIDE);
+      } else if (data == 2) {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_RIGHT_CORNER);
+
          TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.BOTTOM_LEFT_CORNER);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.BOTTOM_LEFT_CORNER);
 
          TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_CORNER, temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_LEFT_CORNER);
-         
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_LEFT_CORNER);
+
          TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_SIDE, temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_RIGHT_CORNER);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_RIGHT_CORNER);
 
-      }else{
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_SIDE);
+      } else {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_Square(x , y , TileMapCellNeighbor.BOTTOM_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_SIDE);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.BOTTOM_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_SIDE);
 
       }
    }
 
-   static getOverlap_Isometric(x : number , y: number, data:number ,vec2Map:TerrainVector2Set , outs:Map<TTerrainVector2 , TileMapCellNeighbor>){
+   static getOverlap_Isometric(x: number, y: number, data: number, vec2Map: TerrainVector2Set, outs: Map<TTerrainVector2, TileMapCellNeighbor>) {
       let temp_vec2 = TileMapTerrainUtil.temp_vec2;
       if (data == 1) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE);
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_RIGHT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_LEFT_SIDE);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_LEFT_SIDE);
       }
-		else if(data == 2){
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_CORNER);
-         
-         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.LEFT_CORNER);
-         
-         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_CORNER , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_CORNER);
+      else if (data == 2) {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_CORNER);
 
-         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.RIGHT_CORNER);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.LEFT_CORNER);
+
+         TileMapTerrainUtil.getNeighborGird_Isometric(x, y, TileMapCellNeighbor.BOTTOM_CORNER, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_CORNER);
+
+         TileMapTerrainUtil.getNeighborGird_Isometric(x, y, TileMapCellNeighbor.BOTTOM_LEFT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.RIGHT_CORNER);
 
       }
-		else{
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_LEFT_SIDE);
+      else {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_LEFT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_Isometric(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_RIGHT_SIDE);
+         TileMapTerrainUtil.getNeighborGird_Isometric(x, y, TileMapCellNeighbor.BOTTOM_LEFT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_RIGHT_SIDE);
 
       }
    }
 
-   static getOverlap_HalfOffset(x : number , y: number, data:number , vec2Map:TerrainVector2Set , outs:Map<TTerrainVector2 , TileMapCellNeighbor>){
+   static getOverlap_HalfOffset(x: number, y: number, data: number, vec2Map: TerrainVector2Set, outs: Map<TTerrainVector2, TileMapCellNeighbor>) {
       let temp_vec2 = TileMapTerrainUtil.temp_vec2;
 
       if (data == 1) {
-         
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.RIGHT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.LEFT_SIDE);
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.RIGHT_SIDE);
 
-      }else if (data == 2) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_RIGHT_CORNER);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.LEFT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.BOTTOM_LEFT_CORNER);
+      } else if (data == 2) {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_RIGHT_CORNER);
+
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.BOTTOM_LEFT_CORNER);
 
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_CORNER);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_CORNER);
 
-      }else if (data == 3) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE);
+      } else if (data == 3) {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_RIGHT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_LEFT_SIDE);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_LEFT_SIDE);
 
-      }else if (data == 4) {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_CORNER);
+      } else if (data == 4) {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_CORNER);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_RIGHT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_LEFT_CORNER);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.BOTTOM_RIGHT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_LEFT_CORNER);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_RIGHT_CORNER);
-         
-      }else {
-         outs.set(vec2Map.get(x , y , true) , TileMapCellNeighbor.BOTTOM_LEFT_SIDE);
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.BOTTOM_LEFT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_RIGHT_CORNER);
 
-         TileMapTerrainUtil.getNeighborGird_HalfOffset(x , y , TileMapCellNeighbor.BOTTOM_LEFT_SIDE , temp_vec2);
-         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y , true) , TileMapCellNeighbor.TOP_RIGHT_SIDE);
+      } else {
+         outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_LEFT_SIDE);
+
+         TileMapTerrainUtil.getNeighborGird_HalfOffset(x, y, TileMapCellNeighbor.BOTTOM_LEFT_SIDE, temp_vec2);
+         outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.TOP_RIGHT_SIDE);
       }
    }
 
-   static getChunkCellInfo(layer:TileMapLayer , vec2:TTerrainVector2){
+   static getChunkCellInfo(layer: TileMapLayer, vec2: TTerrainVector2): ChunkCellInfo {
       if (vec2.index == -1) {
          layer._chunk._getChunkPosByCell(vec2.x, vec2.y, TileMapTerrainUtil.temp_vec3);
          vec2.chunkX = TileMapTerrainUtil.temp_vec3.x;
@@ -547,27 +545,27 @@ export class TileMapTerrainUtil{
    }
 }
 
-export class TileMapTerrainRule{
-   data:number = 0;
-   x:number = 0;
-   y:number = 0;
-   terrain:number = 0;
-   neighborObject:NeighborObject;
+export class TileMapTerrainRule {
+   data: number = 0;
+   x: number = 0;
+   y: number = 0;
+   terrain: number = 0;
+   neighborObject: NeighborObject;
    priority = 1;
 
-   constructor(x:number , y:number , terrain:number , neighborObject:NeighborObject){
+   constructor(x: number, y: number, terrain: number, neighborObject: NeighborObject) {
       this.x = x;
       this.y = y;
       this.terrain = terrain;
       this.neighborObject = neighborObject;
    }
 
-   setCellNeighbor(cellNeighbor:TileMapCellNeighbor){
-      this.neighborObject.getRuleInfo(this,cellNeighbor);
+   setCellNeighbor(cellNeighbor: TileMapCellNeighbor) {
+      this.neighborObject.getRuleInfo(this, cellNeighbor);
    }
 
-   clone():TileMapTerrainRule{
-      let rule = new TileMapTerrainRule(this.x,this.y,this.terrain , this.neighborObject);
+   clone(): TileMapTerrainRule {
+      let rule = new TileMapTerrainRule(this.x, this.y, this.terrain, this.neighborObject);
       rule.data = this.data;
       rule.priority = this.priority;
       return rule;
@@ -579,24 +577,24 @@ export abstract class Vector2LikeSet<T extends IV2> {
    /** 无序表 */
    map: any;
    /** 快速查找 */
-   list:T[] = [];
+   list: T[] = [];
 
-   abstract add( ele:T ):T;
-   abstract get(...argv: (number | boolean | T)[]):T;
-   abstract delete(...argv: (number | boolean | T)[]):T;
+   abstract add(ele: T): T;
+   abstract get(...argv: (number | boolean | T)[]): T;
+   abstract delete(...argv: (number | boolean | T)[]): T;
 }
 
-export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule>{
+export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule> {
 
    /** 无序表 */
    map: TileMapTerrainRule[][][] = [];
 
-   add( ele:TileMapTerrainRule ) {
+   add(ele: TileMapTerrainRule) {
       let one = this.map[ele.y];
       if (!one) {
          one = this.map[ele.y] = [];
       }
-      
+
       let two = one[ele.x];
       if (!two) {
          two = one[ele.x] = [];
@@ -610,25 +608,25 @@ export class TerrainRuleSet extends Vector2LikeSet<TileMapTerrainRule>{
       return ele;
    }
 
-   get(x: number, y: number , data:number): TileMapTerrainRule {
-      return this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) :null
+   get(x: number, y: number, data: number): TileMapTerrainRule {
+      return this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) : null
    }
 
-   delete(x: number, y: number , data:number): TileMapTerrainRule {
-      let result = this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) :null;
+   delete(x: number, y: number, data: number): TileMapTerrainRule {
+      let result = this.map[y] ? (this.map[y][x] ? this.map[y][x][data] : null) : null;
       if (result) {
          delete this.map[y][x][data];
-         this.list.splice(this.list.indexOf(result),1);
+         this.list.splice(this.list.indexOf(result), 1);
       }
       return result
    }
 }
 
-export class TerrainVector2Set extends Vector2LikeSet<TTerrainVector2>{
+export class TerrainVector2Set extends Vector2LikeSet<TTerrainVector2> {
    /** 无序表 */
    map: TTerrainVector2[][] = [];
    /** 快速查找 */
-   list:TTerrainVector2[] = [];
+   list: TTerrainVector2[] = [];
 
    add(ele: TTerrainVector2): TTerrainVector2 {
       let one = this.map[ele.y];
@@ -639,25 +637,25 @@ export class TerrainVector2Set extends Vector2LikeSet<TTerrainVector2>{
       if (two) {
          return two
       }
-      one[ele.x] = ele;      
+      one[ele.x] = ele;
       this.list.push(ele);
       return ele;
    }
 
-   get(x: number, y: number , create = false): TTerrainVector2 {
+   get(x: number, y: number, create = false): TTerrainVector2 {
       let result = this.map[y] ? this.map[y][x] : null;
       if (!result && create) {
-         result = { x, y , index : -1};
+         result = { x, y, index: -1 };
          this.add(result);
       }
       return result;
    }
 
-   delete(x:number , y:number): TTerrainVector2 {
+   delete(x: number, y: number): TTerrainVector2 {
       let result = this.map[y] ? this.map[y][x] : null;
       if (result) {
          delete this.map[y][x];
-         this.list.splice(this.list.indexOf(result),1);
+         this.list.splice(this.list.indexOf(result), 1);
       }
       return result
    }

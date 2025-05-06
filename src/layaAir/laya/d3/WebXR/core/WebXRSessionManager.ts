@@ -1,5 +1,5 @@
-import { ILaya } from "../../../../ILaya";
 import { EventDispatcher } from "../../../events/EventDispatcher";
+import { Render } from "../../../renders/Render";
 
 /**
  * @en Manages an XRSession to work with the LayaAir engine.
@@ -52,7 +52,7 @@ export class WebXRSessionManager extends EventDispatcher {
     /** session enable state */
     private _sessionEnded: boolean = false;
     /**WebXR Base Layer */
-    private _baseLayer:any;
+    private _baseLayer: any;
     /**web XRSystem */
     private _xrNavigator: any;
     /**
@@ -103,7 +103,7 @@ export class WebXRSessionManager extends EventDispatcher {
      * @returns 一个承诺，该承诺在 XR 层成功初始化时解决为 true。。
      */
     public initializeXRGL(xrSession: any, gl: WebGLRenderingContext): Promise<boolean> {//: XRWebGLLayer {
-        return (gl as any).makeXRCompatible().then(()=> {
+        return (gl as any).makeXRCompatible().then(() => {
             return true;
         });
     };
@@ -192,7 +192,7 @@ export class WebXRSessionManager extends EventDispatcher {
         let fn = (timestamp: any, xrFrame: any) => {
             this._updateByXrFrame(xrFrame, timestamp);
             this.event(WebXRSessionManager.EVENT_FRAME_LOOP, [xrFrame]);
-            ILaya.stage._loop();
+            Render.loop();
             this.session.requestAnimationFrame(fn);
         };
         this.session.requestAnimationFrame(fn);
@@ -202,7 +202,7 @@ export class WebXRSessionManager extends EventDispatcher {
      * @en Ends the rendering loop for the XR session.
      * @zh 结束 XR 会话的渲染循环。
      */
-    public endXRRenderLoop(){
+    public endXRRenderLoop() {
 
     }
 

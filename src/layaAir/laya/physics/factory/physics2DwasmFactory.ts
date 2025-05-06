@@ -1124,14 +1124,16 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     /**
      * @en Set the mass of a rigid body.
      * @param body The rigid body.
-     * @param mass The mass to set.
+     * @param massValue The mass to set.
      * @param centerofMass The center of mass to set.
-     * @param inertia The inertia to set.
+     * @param inertiaValue The inertia to set.
+     * @param massData The mass data to set.
      * @zh 设置刚体的质量。
      * @param body 刚体。
-     * @param mass 要设置的质量。
+     * @param massValue 要设置的质量。
      * @param centerofMass 要设置的质心。
-     * @param inertia 要设置的惯性张量。
+     * @param inertiaValue 要设置的惯性张量。
+     * @param massData 要设置的质量数据。
      */
     set_rigidBody_Mass(body: any, massValue: number, centerofMass: IV2, inertiaValue: number, massData: any): void {
         massData.mass = massValue;

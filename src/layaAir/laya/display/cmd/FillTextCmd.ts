@@ -2,12 +2,13 @@ import { Context } from "../../renders/Context";
 import { FontInfo } from "../../utils/FontInfo";
 import { Pool } from "../../utils/Pool";
 import { WordText } from "../../utils/WordText";
-import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 import { Rectangle } from "../../maths/Rectangle";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { Render } from "../../renders/Render";
+import { Browser } from "../../utils/Browser";
 
 /**
  * @en Draw text command
@@ -159,7 +160,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移
      */
     run(context: Context, gx: number, gy: number): void {
-        if (ILaya.stage.isGlobalRepaint()) {
+        if (Render.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
         }
         if (null == this._text) this._text = '';
@@ -215,7 +216,7 @@ export class FillTextCmd implements IGraphicsCmd {
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
         if (!this._loosyBound) {
-            let ctx = ILaya.Browser.context;
+            let ctx = Browser.context;
             ctx.save();
             ctx.font = this.font;
             let size = ctx.measureText(this.text);

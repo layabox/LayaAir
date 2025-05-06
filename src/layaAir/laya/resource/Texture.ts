@@ -8,7 +8,6 @@ import { Resource } from "./Resource";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { AtlasResource } from "./AtlasResource";
-import { Loader } from "../net/Loader";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -527,7 +526,7 @@ export class Texture extends Resource {
     recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url, Loader.IMAGE).then((tex: Texture) => {
+            ILaya.loader.load(url, "image").then((tex: Texture) => {
                 this.bitmap = tex.bitmap;
                 callback && callback();
             });

@@ -48,7 +48,7 @@ export class VideoPlayIn3DWorld {
 
     private createVideo(url: string): void {
         if (!this.isoneVideo) {
-            var videoTexture = new VideoTexture();
+            var videoTexture = VideoTexture.createInstance();
             videoTexture.source = url;
             videoTexture.play();
             videoTexture.loop = true;

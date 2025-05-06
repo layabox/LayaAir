@@ -150,28 +150,60 @@ export class Pool {
         return rst;
     }
 
+    /**
+     * @en Create an object pool.
+     * @param type The class used to create the object of this type.
+     * @param init The initialization function for the object.
+     * @param reset The reset function for the object.
+     * @returns An object pool.
+     * @zh 创建对象池。
+     * @param type 用于创建该类型对象的类。
+     * @param init 对象的初始化函数。
+     * @param reset 对象的重置函数。
+     * @returns 对象池。
+     */
     static createPool<T>(type: new () => T, init?: (obj: T, ...args: any[]) => void, reset?: (obj: T) => void): IPool<T> {
-        return new SimplePool<T>(type, init, reset);
+        let p = new SimplePool<T>();
+        p._ct = type;
+        p._init = init;
+        p._reset = reset;
+        return p;
+    }
+
+    /**
+     * @en Create an object pool.
+     * @param create The function used to create the object of this type.
+     * @param init The initialization function for the object.
+     * @param reset The reset function for the object.
+     * @returns An object pool.
+     * @zh 创建对象池。
+     * @param create 用于创建该类型对象的方法。
+     * @param init 对象的初始化函数。
+     * @param reset 对象的重置函数。
+     * @returns 对象池。
+     */
+    static createPool2<T>(create: () => T, init?: (obj: T, ...args: any[]) => void, reset?: (obj: T) => void): IPool<T> {
+        let p = new SimplePool<T>();
+        p._create = create;
+        p._init = init;
+        p._reset = reset;
+        return p;
     }
 }
 
 class SimplePool<T extends Object> implements IPool<T> {
-    pool: Array<T>;
+    pool: Array<T> = [];
     _init: (obj: T, ...args: any[]) => void;
     _reset: (obj: T) => void;
     _ct: new () => T;
+    _create: () => T;
 
-    public constructor(type: new () => T, init?: (obj: T, ...args: any[]) => void, reset?: (obj: T) => void) {
-        this._init = init;
-        this._reset = reset;
-        this._ct = type;
-        this.pool = [];
-    }
-
-    public take(...args: any[]): T {
+    take(...args: any[]): T {
         let ret: T;
         if (this.pool.length > 0)
             ret = this.pool.pop();
+        else if (this._create)
+            ret = this._create();
         else
             ret = new this._ct();
 
@@ -181,7 +213,7 @@ class SimplePool<T extends Object> implements IPool<T> {
         return ret;
     }
 
-    public recover(element: T | Array<T>) {
+    recover(element: T | Array<T>) {
         if (Array.isArray(element)) {
             for (let i = 0, n = element.length; i < n; i++) {
                 let e = element[i];

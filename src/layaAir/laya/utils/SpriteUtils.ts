@@ -3,6 +3,7 @@ import { Sprite } from "../display/Sprite";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { PAL } from "../platform/PlatformAdapters";
 
 export class SpriteUtils {
     /**
@@ -55,20 +56,20 @@ export class SpriteUtils {
      * @returns An object containing the transformed x, y coordinates, and scale factor.
      * @zh 获取指定区域内相对于窗口左上角的transform。
      * @param coordinateSpace	坐标空间，不能是Stage引用
-     * @param x				相对于coordinateSpace的x坐标
-     * @param y				相对于coordinateSpace的y坐标
+     * @param x 相对于coordinateSpace的x坐标
+     * @param y 相对于coordinateSpace的y坐标
      * @returns 包含转换后的x、y坐标以及缩放因子的对象
      */
-    static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): any {
-        var stage = ILaya.stage;
+    static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): { x: number, y: number, scaleX: number, scaleY: number } {
+        let stage = ILaya.stage;
 
         // coordinateSpace的全局缩放、坐标
-        var globalTransform: Rectangle = SpriteUtils.getGlobalPosAndScale(coordinateSpace);
+        let globalTransform: Rectangle = SpriteUtils.getGlobalPosAndScale(coordinateSpace);
         // canvas的transform矩阵
-        var canvasMatrix: Matrix = stage._canvasTransform.clone();
+        let canvasMatrix: Matrix = stage._canvasTransform.clone();
         // 在矩阵变化前前记录的canvas的坐标
-        var canvasLeft: number = canvasMatrix.tx;
-        var canvasTop: number = canvasMatrix.ty;
+        let canvasLeft: number = canvasMatrix.tx;
+        let canvasTop: number = canvasMatrix.ty;
 
         // 把矩阵转回0度，得到正确的画布缩放比
         canvasMatrix.rotate(-Math.PI / 180 * stage.canvasDegree);
@@ -118,10 +119,10 @@ export class SpriteUtils {
         }
 
         // Safari兼容
-        ty += stage['_safariOffsetY'];
+        ty += PAL.browser.safariOffsetY;
 
         // 组合画布缩放和舞台适配缩放以及显示对象缩放，得到DOM原因的缩放因子
-        var domScaleX: number, domScaleY: number;
+        let domScaleX: number, domScaleY: number;
         if (perpendicular) {
             domScaleX = canvasMatrix.d * globalTransform.height;
             domScaleY = canvasMatrix.a * globalTransform.width;
@@ -130,7 +131,7 @@ export class SpriteUtils {
             domScaleY = canvasMatrix.d * globalTransform.height;
         }
 
-        return { x: tx, y: ty, scaleX: domScaleX, scaleY: domScaleY };
+        return { x: Math.round(tx), y: Math.round(ty), scaleX: Math.round(domScaleX * 100000) / 100000, scaleY: Math.round(domScaleY * 100000) / 100000 };
     }
 
     /**
@@ -142,21 +143,21 @@ export class SpriteUtils {
      * @param width The width of the area.
      * @param height The height of the area.
      * @zh 使DOM元素适应舞台内指定区域。
-     * @param dom				DOM元素引用
-     * @param coordinateSpace	坐标空间，不能是Stage引用
-     * @param x				相对于coordinateSpace的x坐标
-     * @param y				相对于coordinateSpace的y坐标
-     * @param width			宽度
-     * @param height			高度
+     * @param dom DOM元素引用
+     * @param coordinateSpace 坐标空间，不能是Stage引用
+     * @param x 相对于coordinateSpace的x坐标
+     * @param y 相对于coordinateSpace的y坐标
+     * @param width 宽度
+     * @param heigh 高度
      */
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {
             dom._fitLayaAirInitialized = true;
             dom.style.transformOrigin = dom.style.webKittransformOrigin = "left top";
-            dom.style.position = "absolute"
+            dom.style.position = "absolute";
         }
 
-        var transform: any = SpriteUtils.getTransformRelativeToWindow(coordinateSpace, x, y);
+        let transform = SpriteUtils.getTransformRelativeToWindow(coordinateSpace, x, y);
 
         // 设置dom样式
         dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)";
@@ -165,7 +166,6 @@ export class SpriteUtils {
         dom.style.left = transform.x + 'px';
         dom.style.top = transform.y + 'px';
     }
-
 
     /**
      * @internal

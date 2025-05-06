@@ -15,6 +15,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { DefferTouchResContext } from "./DefferTouchResContext";
+import { Render } from "./Render";
 import { Render2D } from "./Render2D";
 import { type RenderSprite } from "./RenderSprite";
 import { RenderObject2D, RenderToCache } from "./RenderToCache";
@@ -387,7 +388,7 @@ export class SpriteCache {
     static renderCacheAsNormal(context: Context | DefferTouchResContext, sprite: Sprite, next: RenderSprite, x: number, y: number) {
         let rebuild = false;
         var cache = sprite._getCacheStyle().cacheInfo.page;
-        if (!cache || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
+        if (!cache || sprite._needRepaint() || Render.isGlobalRepaint()) {
             if (sprite.alpha <= 1e-6) {
                 sprite.alpha = 0.001;//TODO 透明的不画了
             }

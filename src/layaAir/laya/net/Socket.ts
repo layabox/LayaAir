@@ -1,6 +1,5 @@
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
-import { Browser } from "../utils/Browser"
 import { Byte } from "../utils/Byte"
 /**
  * @en Socket encapsulates HTML5 WebSocket, allowing full-duplex real-time communication between server and client, and cross-domain communication. After establishing a connection, both server and Browser/Client Agent can actively send or receive text and binary data to each other.
@@ -138,9 +137,9 @@ export class Socket extends EventDispatcher {
         this._socket && this.cleanSocket();
 
         if (!this.protocols || this.protocols.length == 0) {
-            this._socket = new Browser.window.WebSocket(url);
+            this._socket = new window.WebSocket(url);
         } else {
-            this._socket = new Browser.window.WebSocket(url, this.protocols);
+            this._socket = new window.WebSocket(url, this.protocols);
         }
 
         this._socket.binaryType = "arraybuffer";

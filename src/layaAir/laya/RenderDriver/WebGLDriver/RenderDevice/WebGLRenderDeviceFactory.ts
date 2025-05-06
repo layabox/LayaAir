@@ -24,6 +24,7 @@ import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { Laya } from "../../../../Laya";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 
 export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData {
@@ -60,14 +61,14 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
         return comMap;
     }
 
-    createEngine(config: any, canvas: any): Promise<void> {
+    createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         let engine: WebGLEngine;
         let glConfig: WebGLConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
 
         //TODO  other engine
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         engine = new WebGLEngine(glConfig, webglMode);
-        engine.initRenderEngine(canvas._source);
+        engine.initRenderEngine(canvas.source);
         var gl: WebGLRenderingContext = engine._context; //TODO 优化
         if (Config.printWebglOrder)
             this._replaceWebglcall(gl);

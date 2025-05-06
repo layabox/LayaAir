@@ -6,9 +6,9 @@ export class AtlasGrid {
     private _width: number = 0;
     private _height: number = 0;
     private _texCount: number = 0;
-    private _rowInfo: Uint8Array = null;		// 当前行的最大长度
-    private _cells: Uint8Array = null;		// 每个格子的信息。{type,w,h} 相当于一个距离场. type =0 表示空闲的。不为0的情况下填充的是宽高（有什么用呢）
-    _used: number = 0;				// 使用率
+    private _rowInfo: Uint8Array = null; // 当前行的最大长度
+    private _cells: Uint8Array = null; // 每个格子的信息。{type,w,h} 相当于一个距离场. type =0 表示空闲的。不为0的情况下填充的是宽高（有什么用呢）
+    _used: number = 0; // 使用率
 
     // TODO type 是否有用
 
@@ -73,7 +73,7 @@ export class AtlasGrid {
 
                 var tm: number = (y * nWidth + x) * 3;
 
-                if (pCellBox[tm] != 0 || pCellBox[tm + 1] < width || pCellBox[tm + 2] < height) {
+                if (pCellBox[tm] !== 0 || pCellBox[tm + 1] < width || pCellBox[tm + 2] < height) {
                     x += pCellBox[tm + 1];
                     continue;
                 }
@@ -114,7 +114,7 @@ export class AtlasGrid {
             this._rowInfo[yy] -= w;
             for (var xx: number = 0; xx < w; xx++) {
                 var tm: number = (x + yy * nWidth + xx) * 3;
-                this._check(this._cells[tm] == 0);
+                this._check(this._cells[tm] === 0);
                 this._cells[tm] = type;
                 this._cells[tm + 1] = w;
                 this._cells[tm + 2] = h;
@@ -126,7 +126,7 @@ export class AtlasGrid {
                 // TODO 下面应该可以优化
                 var s: number = 0;
                 for (xx = x - 1; xx >= 0; --xx, ++s) {
-                    if (this._cells[((y + yy) * nWidth + xx) * 3] != 0) break;
+                    if (this._cells[((y + yy) * nWidth + xx) * 3] !== 0) break;
                 }
                 for (xx = s; xx > 0; --xx) {
                     this._cells[((y + yy) * nWidth + x - xx) * 3 + 1] = xx;
@@ -140,7 +140,7 @@ export class AtlasGrid {
                 // TODO 下面应该可以优化
                 s = 0;
                 for (yy = y - 1; yy >= 0; --yy, s++) {
-                    if (this._cells[(xx + yy * nWidth) * 3] != 0) break;
+                    if (this._cells[(xx + yy * nWidth) * 3] !== 0) break;
                 }
                 for (yy = s; yy > 0; --yy) {
                     this._cells[(xx + (y - yy) * nWidth) * 3 + 2] = yy;

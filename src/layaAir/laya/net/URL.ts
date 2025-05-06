@@ -51,9 +51,6 @@ export class URL {
     };
 
     static __init__() {
-        //xiaomi 没有location
-        //Vivo location.protocol是""
-        //微信真机 location.protocol是undefined
         if (URL.basePath == null)
             URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
     }
@@ -148,18 +145,18 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-                if (base == null) {
-                    base = URL.basePath;
-                    for (let k in URL.basePaths) {
-                        if (url.startsWith(k)) {
+            if (base == null) {
+                base = URL.basePath;
+                for (let k in URL.basePaths) {
+                    if (url.startsWith(k)) {
                         if (k.charCodeAt(0) === 126)
                             url = url.substring(k.length);
-                            base = URL.basePaths[k];
-                            break;
-                        }
+                        base = URL.basePaths[k];
+                        break;
                     }
                 }
-                url = URL.join(base, url);
+            }
+            url = URL.join(base, url);
         }
 
         return url;

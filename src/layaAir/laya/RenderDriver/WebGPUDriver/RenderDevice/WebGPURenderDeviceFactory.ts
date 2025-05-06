@@ -5,6 +5,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
@@ -43,7 +44,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new WebGPURenderGeometry(mode, drawType);
     }
-    async createEngine(config: Config, canvas: any): Promise<void> {
+    async createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         const gpuConfig = new WebGPUConfig();
         gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
         gpuConfig.colorSpace = "srgb"; //TODO 这里感觉会出问题
@@ -74,7 +75,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
             "bgra8unorm-storage",
             "float32-filterable",
         ];
-        const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
+        const engine = new WebGPURenderEngine(gpuConfig, canvas.source);
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
         LayaGL.textureContext = engine.getTextureContext();

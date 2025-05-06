@@ -1,12 +1,12 @@
 import { ILaya } from "../../ILaya";
 import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
-import { Input } from "../display/Input";
 import type { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Delegate } from "../utils/Delegate";
 import { Event, ITouchInfo } from "./Event";
@@ -179,9 +179,10 @@ export class InputManager {
      * @en Initialization.
      * @zh 初始化。
      */
-    static __init__(stage: Stage, canvas: HTMLCanvasElement): void {
+    static __init__(): void {
         let inst = _inst = new InputManager();
-        inst._stage = stage;
+        inst._stage = ILaya.stage;
+        let canvas = Browser.mainCanvas.source;
 
         canvas.oncontextmenu = () => {
             return false;
@@ -206,12 +207,12 @@ export class InputManager {
         // });
 
         canvas.addEventListener("touchstart", ev => {
-            if (!_isFirstTouch && !Input.isInputting)
+            if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
         }, { passive: false });
         canvas.addEventListener("touchend", ev => {
-            if (!_isFirstTouch && !Input.isInputting)
+            if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             _isFirstTouch = false;
             inst.handleTouch(ev, 1);
@@ -236,7 +237,6 @@ export class InputManager {
             canvas.releasePointerCapture(ev.pointerId);
         }, true);
 
-        let document = <Document>Browser.document;
         document.addEventListener("keydown", ev => {
             inst.handleKeys(ev);
         }, true);
@@ -312,7 +312,6 @@ export class InputManager {
                 touch.event.button = ev.button;
                 touch.downButton = ev.button;
 
-                this.handleFocus();
                 InputManager.onMouseDownCapture.invoke(touch.touchId);
 
                 if (InputManager.mouseEventsEnabled) {
@@ -445,7 +444,6 @@ export class InputManager {
                 if (!touch.began) {
                     touch.begin();
 
-                    this.handleFocus();
                     InputManager.onMouseDownCapture.invoke(touch.touchId);
 
                     if (InputManager.mouseEventsEnabled) {
@@ -501,36 +499,6 @@ export class InputManager {
         this._touches.push(touch);
 
         return touch;
-    }
-
-    private handleFocus() {
-        if (!Input.isInputting)
-            return;
-
-        let lastFocus = this._stage.focus;
-        if (!lastFocus || lastFocus.contains(this._touchTarget))
-            return;
-
-        let pre_input: Input, new_input: Input;
-        if (lastFocus instanceof Input)
-            pre_input = lastFocus;
-        else
-            pre_input = <Input>lastFocus.children.find(e => e instanceof Input);
-
-        if (!pre_input || !pre_input.focus)
-            return;
-
-        if (this._touchTarget instanceof Input)
-            new_input = this._touchTarget;
-        else
-            new_input = <Input>this._touchTarget.children.find(e => e instanceof Input);
-
-        // 新的焦点是Input的情况下，不需要blur；
-        // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
-        if (new_input && new_input.nativeInput && new_input.multiline == pre_input.multiline)
-            pre_input._focusOut();
-        else
-            pre_input.focus = false;
     }
 
     /**

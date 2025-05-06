@@ -9,20 +9,16 @@ export class AccelerationInfo {
      * @en The acceleration value along the x-axis.
      * @zh x 轴上的加速度值。
      */
-	x: number;
+    x: number;
     /**
      * @en The acceleration value along the y-axis.
      * @zh y 轴上的加速度值。
      */
-	y: number;
+    y: number;
     /**
      * @en The acceleration value along the z-axis.
      * @zh z 轴上的加速度值。
      */
-	z: number;
-
-	constructor() {
-
-	}
+    z: number;
 }
 

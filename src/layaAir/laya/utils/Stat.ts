@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { GPUEngineStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
+import { GPUEngineStatisticsInfo, RenderPassStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
 import type { StatUI } from "./StatUI";
@@ -338,7 +338,7 @@ export class Stat {
 
     public static blitDrawCall: number = 0;
 
-    public static renderPassStatArray: number[] = [];
+    public static renderPassStatArray: number[] = new Array(RenderPassStatisticsInfo.RenderPassStatisticCount);
     //是否开启渲染流程统计，会将一些消耗较多的统计放入事件中,在最开始的时候设置最准确
     public static enableRenderPassStatArray: boolean = false;
 

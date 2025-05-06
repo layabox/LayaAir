@@ -24,8 +24,12 @@ export class SoundNode extends Sprite {
 
         this._loop = 1;
 
-        this.on(Event.ADDED, this, this._onParentChange);
-        this.on(Event.REMOVED, this, this._onParentChange);
+        if (LayaEnv.isPlaying) {
+            this.on(Event.ADDED, () => { this.target = this.parent; });
+            this.on(Event.REMOVED, () => { this.target = null; });
+            this.on(Event.DISPLAY, this, this.onDisplay);
+            this.on(Event.UNDISPLAY, this, this.onUndisplay);
+        }
     }
 
     /**
@@ -39,8 +43,8 @@ export class SoundNode extends Sprite {
     set source(value: string) {
         this._source = value;
         if (value) {
-            if (this._autoPlay && (!this._channel || this._channel.isStopped) && LayaEnv.isPlaying)
-                this.play();
+            if (this.activeInHierarchy && (this._autoPlay || this._channel) && LayaEnv.isPlaying)
+                this.play(this._loop);
         }
         else
             this.stop();
@@ -80,34 +84,30 @@ export class SoundNode extends Sprite {
 
     set autoPlay(value: boolean) {
         this._autoPlay = value;
-        if (value && this._source && (!this._channel || this._channel.isStopped) && LayaEnv.isPlaying)
-            this.play();
-    }
-
-    private _onParentChange(): void {
-        this.target = this.parent;
+        if (this.activeInHierarchy && value && !this._channel && LayaEnv.isPlaying)
+            this.play(this._loop);
     }
 
     /**
      * @en Play the audio
      * @param loops The number of times to loop the audio
      * @param complete The callback function to be called when playback is complete
+     * @param startTime The time to start playing the audio from
      * @zh 播放音频
      * @param loops 循环次数
      * @param complete 完成回调函数
+     * @param startTime 播放开始时间
      */
-    play(loops?: number, complete?: Handler): void {
-        if (!this._source) return;
-
-        if (loops == null || isNaN(loops))
-            loops = this._loop;
+    play(loops?: number, complete?: Handler | (() => void), startTime?: number): void {
+        if (!this._source)
+            return;
 
         this.stop();
 
         if (this._isMusic)
-            this._channel = SoundManager.playMusic(this._source, loops, complete);
+            this._channel = SoundManager.playMusic(this._source, loops, complete, startTime);
         else
-            this._channel = SoundManager.playSound(this._source, loops, complete);
+            this._channel = SoundManager.playSound(this._source, loops, complete, startTime);
     }
 
     /**
@@ -115,9 +115,8 @@ export class SoundNode extends Sprite {
      * @zh 停止播放音频
      */
     stop(): void {
-        if (this._channel && !this._channel.isStopped) {
+        if (this._channel)
             this._channel.stop();
-        }
         this._channel = null;
     }
 
@@ -129,7 +128,6 @@ export class SoundNode extends Sprite {
         } else {
             tar.off(event, this, (this as any)[action]);
         }
-
     }
 
     private _setPlayActions(tar: Sprite, events: string, action: string, add: boolean = true): void {
@@ -180,5 +178,14 @@ export class SoundNode extends Sprite {
         if (this._tar) {
             this._setPlayActions(this._tar, events, "stop");
         }
+    }
+
+    private onDisplay(): void {
+        if (this._autoPlay && !this._channel)
+            this.play(this._loop);
+    }
+
+    private onUndisplay(): void {
+        this.stop();
     }
 }
