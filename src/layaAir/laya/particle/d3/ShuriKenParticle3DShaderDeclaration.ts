@@ -1,5 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
@@ -303,7 +303,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 		let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D");
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, 'u_WorldPosition', ShaderDataType.Vector3),
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, 'u_WorldRotation', ShaderDataType.Vector4);
+			uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, 'u_WorldRotation', ShaderDataType.Vector4);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, 'u_PositionScale', ShaderDataType.Vector3);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SIZESCALE, 'u_SizeScale', ShaderDataType.Vector3);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SCALINGMODE, 'u_ScalingMode', ShaderDataType.Int);
@@ -312,48 +312,48 @@ export class ShuriKenParticle3DShaderDeclaration {
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, 'u_StretchedBillboardLengthScale', ShaderDataType.Float);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, 'u_StretchedBillboardSpeedScale', ShaderDataType.Float);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE, 'u_SimulationSpace', ShaderDataType.Int);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, 'u_CurrentTime', ShaderDataType.Vector2);
+		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, 'u_CurrentTime', ShaderDataType.Float);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SHAPE, 'u_Shape', ShaderDataType.Float);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, 'u_ColorOverLifeGradientAlphas', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, 'u_ColorOverLifeGradientColors', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, 'u_ColorOverLifeGradientAlphas', ShaderDataType.Vector4, 4);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, 'u_ColorOverLifeGradientColors', ShaderDataType.Vector4, 8);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, 'u_ColorOverLifeGradientRanges', ShaderDataType.Vector4);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, 'u_MaxColorOverLifeGradientAlphas', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, 'u_MaxColorOverLifeGradientColors', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, 'u_MaxColorOverLifeGradientAlphas', ShaderDataType.Vector4, 4);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, 'u_MaxColorOverLifeGradientColors', ShaderDataType.Vector4, 8);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, 'u_MaxColorOverLifeGradientRanges', ShaderDataType.Vector4);
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, 'u_VOLVelocityConst', ShaderDataType.Vector3));
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, 'u_VOLVelocityGradientX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, 'u_VOLVelocityGradientY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, 'u_VOLVelocityGradientZ', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, 'u_VOLVelocityGradientX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, 'u_VOLVelocityGradientY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, 'u_VOLVelocityGradientZ', ShaderDataType.Vector4, 2);
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX, 'u_VOLVelocityConstMax', ShaderDataType.Vector3));
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, 'u_VOLVelocityGradientMaxX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX, 'u_VOLVelocityGradientMaxY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX, 'u_VOLVelocityGradientMaxZ', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, 'u_VOLVelocityGradientMaxX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX, 'u_VOLVelocityGradientMaxY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX, 'u_VOLVelocityGradientMaxZ', ShaderDataType.Vector4, 2);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.VOLSPACETYPE, 'u_VOLSpaceType', ShaderDataType.Int);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, 'u_SOLSizeGradient', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, 'u_SOLSizeGradientX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, 'u_SOLSizeGradientY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, 'u_SOLSizeGradientZ', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, 'u_SOLSizeGradientMax', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, 'u_SOLSizeGradientMaxX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, 'u_SOLSizeGradientMaxY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, 'u_SOLSizeGradientMaxZ', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, 'u_SOLSizeGradient', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, 'u_SOLSizeGradientX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, 'u_SOLSizeGradientY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, 'u_SOLSizeGradientZ', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, 'u_SOLSizeGradientMax', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, 'u_SOLSizeGradientMaxX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, 'u_SOLSizeGradientMaxY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, 'u_SOLSizeGradientMaxZ', ShaderDataType.Vector4, 2);
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, 'u_ROLAngularVelocityConst', ShaderDataType.Float));
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, 'u_ROLAngularVelocityConstSeprarate', ShaderDataType.Vector3));
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, 'u_ROLAngularVelocityGradient', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, 'u_ROLAngularVelocityGradientX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, 'u_ROLAngularVelocityGradientY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, 'u_ROLAngularVelocityGradientZ', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, 'u_ROLAngularVelocityGradient', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, 'u_ROLAngularVelocityGradientX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, 'u_ROLAngularVelocityGradientY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, 'u_ROLAngularVelocityGradientZ', ShaderDataType.Vector4, 2);
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX, 'u_ROLAngularVelocityConstMax', ShaderDataType.Float));
 		mulDefineMode && (uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE, 'u_ROLAngularVelocityConstMaxSeprarate', ShaderDataType.Vector3));
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, 'u_ROLAngularVelocityGradientMax', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, 'u_ROLAngularVelocityGradientMaxX', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, 'u_ROLAngularVelocityGradientMaxY', ShaderDataType.Buffer);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, 'u_ROLAngularVelocityGradientMaxZ', ShaderDataType.Buffer);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, 'u_ROLAngularVelocityGradientMax', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, 'u_ROLAngularVelocityGradientMaxX', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, 'u_ROLAngularVelocityGradientMaxY', ShaderDataType.Vector4, 2);
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, 'u_ROLAngularVelocityGradientMaxZ', ShaderDataType.Vector4, 2);
 		//mulDefineMode && uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, 'u_ROLAngularVelocityGradientMaxW', ShaderDataType.Buffer);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, 'u_TSACycles', ShaderDataType.Float);
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, 'u_TSASubUVLength', ShaderDataType.Vector2);
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, 'u_TSAGradientUVs', ShaderDataType.Buffer); //兼容WGSL
-		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, 'u_TSAMaxGradientUVs', ShaderDataType.Buffer); //兼容WGSL
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, 'u_TSAGradientUVs', ShaderDataType.Vector4, 2); //兼容WGSL
+		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, 'u_TSAMaxGradientUVs', ShaderDataType.Vector4, 2); //兼容WGSL
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.DRAG, 'u_DragConstanct', ShaderDataType.Vector2);
 	}
 }

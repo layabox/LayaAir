@@ -15,6 +15,11 @@ const uniformBlockRegex = /(?:layout\s*\([^)]*\)\s*)?uniform\s+(\w+)\s*\{([\s\S]
 
 const glFragColorRegex = /gl_FragColor/g;
 
+interface CollectUniform {
+    samplerType?: GPUTextureSampleType,
+    arrayLength?: number,
+}
+
 /**
  * attribute列表
  */
@@ -42,6 +47,9 @@ export class GLSLForVulkanGenerator {
 
         // todo 
         defMap["GRAPHICS_API_GLES3"] = true;
+
+        // particle uniform 
+        defMap["COLORKEYCOUNT_8"] = true;
 
         let vs = VS.toscript(defMap, []);
         let fs = FS.toscript(defMap, []);
@@ -124,15 +132,26 @@ ${fragmentCode}
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
-        let samplerTypeMap = new Map<string, GPUTextureSampleType>();
+        let samplerTypeMap = new Map<string, CollectUniform>();
 
         const getTextureType = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
             if (type == "sampler2DShadow" || type == "samplerCubeShadow" || type == "sampler2DArrayShadow") {
-                samplerTypeMap.set(name, "depth");
+                samplerTypeMap.set(name, { samplerType: "depth" });
             }
             else {
-                samplerTypeMap.set(name, "float");
+                samplerTypeMap.set(name, { samplerType: "float" });
             }
+
+            if (arrayLength) {
+                let length = parseInt(arrayLength);
+                let collect = samplerTypeMap.get(name);
+                if (collect) {
+                    collect.arrayLength = length;
+                } else {
+                    samplerTypeMap.set(name, { arrayLength: length });
+                }
+            }
+
             return "\n";
         }
 
@@ -247,7 +266,7 @@ ${attributeDefines}
 `;
 }
 
-function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number, skipTexture: boolean) {
+function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number, skipTexture: boolean, collectUniforms: Map<string, CollectUniform>) {
     let textureUniforms: UniformProperty[] = [];
     let blockUniforms: UniformProperty[] = [];
 
@@ -268,7 +287,8 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
         for (let uniform of blockUniforms) {
             let uniformName = uniform.propertyName;
             if (uniform.arrayLength > 0) {
-                uniformName = `${uniformName}[${uniform.arrayLength}]`;
+                let arrayLength = collectUniforms.get(uniformName)?.arrayLength || uniform.arrayLength;
+                uniformName = `${uniformName}[${arrayLength}]`;
             }
 
             let typeStr = getTypeString(uniform.uniformtype);
@@ -314,33 +334,7 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
     }
 }
 
-function uniformBlockString(name: string, set: number, bindOffset: number) {
-    let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
-    return uniformMapString(uniformMap._idata, name, set, bindOffset, false);
-}
-
-function uniformString(commonMap: string[], materialUniforms: Map<number, UniformProperty>) {
-
-    let sceneSet = uniformBlockString("Scene3D", 0, 0);
-
-    let cameraSet = uniformBlockString("BaseCamera", 1, 0);
-
-    // let spriteSet = uniformBlockString("Sprite3D", 2, 0);
-
-    // addition map
-    let commonMapSet = { code: "", binding: 0 };
-    for (let common of commonMap) {
-        let set = uniformBlockString(common, 2, commonMapSet.binding);
-        commonMapSet.code += set.code;
-        commonMapSet.binding = set.binding;
-    }
-
-    let materialSet = uniformMapString(materialUniforms, "Material", 3, 0, false);
-
-    return `${sceneSet.code}${cameraSet.code}${commonMapSet.code}${materialSet.code}`;
-}
-
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, sampleTypeMap: Map<string, GPUTextureSampleType>, checkSetNumber: number) {
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, collectUniforms: Map<string, CollectUniform>, checkSetNumber: number) {
     let res = "";
 
     let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
@@ -356,7 +350,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                                 uniformMap = materialMap;
                             }
 
-                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true).code}\n`;
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms).code}\n`;
                             break;
                         }
                     case WebGPUBindingInfoType.texture:
@@ -376,7 +370,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`;
                             let samplerName = uniform.name.replace("_Sampler", "");
-                            if (sampleTypeMap.get(samplerName) == "depth") {
+                            if (collectUniforms.get(samplerName)?.samplerType == "depth") {
                                 uniform.sampler.type = "comparison";
                             }
                         }
@@ -390,7 +384,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
     let samplerDefStrs = "\n";
     samplerMap.forEach((uniform, key) => {
-        let sampleType = sampleTypeMap.get(key) || uniform.texture.sampleType;
+        let sampleType = collectUniforms.get(key)?.samplerType || uniform.texture.sampleType;
         let sampler = getSamplerTextureType(sampleType, uniform.texture.viewDimension);
         samplerDefStrs += `#define ${key} ${sampler}(${uniform.name}, ${key}_Sampler)\n`;
         uniform.texture.sampleType = sampleType;

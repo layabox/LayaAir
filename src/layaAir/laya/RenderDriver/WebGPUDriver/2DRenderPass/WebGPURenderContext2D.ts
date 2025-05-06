@@ -9,7 +9,7 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -92,7 +92,22 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
         if (this.sceneData) {
             let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
+            this.sceneData.createUniformBuffer("Sprite2DGlobal", unifcom);
             this.sceneData._createOrGetBindGroupbyUniformMap("Sprite2DGlobal", "Sprite2DGlobal", 0, unifcom._idata);
+
+            let commandArray = ["Sprite2DGlobal"];
+
+            if (!this._sceneBindGroup) {
+                this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this.sceneData);
+            }
+            else {
+                let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(commandArray);
+                let lastUpdateMask = this.sceneData._getBindGroupLastUpdateMask(bindCacheKey);
+                if (this._sceneBindGroup.isNeedCreate(lastUpdateMask)) {
+                    this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this.sceneData);
+                }
+            }
+
         }
     }
 

@@ -123,6 +123,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
     destroy(): void {
         WebGPUGlobal.releaseId(this);
         this.source.release();
-        this.vertexDeclaration = null;
+        // todo remove cache
+        this._vertexDeclaration = null;
     }
 }
