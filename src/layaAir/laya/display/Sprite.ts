@@ -259,7 +259,6 @@ export class Sprite extends Node {
         super();
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.transform = this.globalTrans;
-        this._struct.set_spriteUpdateCall(this, this._renderUpdate, this.clearRepaint);
     }
 
     /** @internal */
@@ -660,7 +659,7 @@ export class Sprite extends Node {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         if (this._alpha !== value) {
             this._alpha = value;
-            this._struct.alpha = value;
+            this._struct.setAlpha(this.alpha);
             if (value !== 1) this._renderType |= SpriteConst.ALPHA;
             else this._renderType &= ~SpriteConst.ALPHA;
             this.repaint();
@@ -695,12 +694,12 @@ export class Sprite extends Node {
         if (this._blendMode != value) {
             this._blendMode = value;
             this._initShaderData();
-            BlendMode.setShaderData(value, this.shaderData);
+            // BlendMode.setShaderData(value , this.shaderData);
             if (value && value != "source-over")
                 this._renderType |= SpriteConst.BLEND;
             else
                 this._renderType &= ~SpriteConst.BLEND;
-            this._struct.blendMode = value;
+            this._struct.setBlendMode(value);
             this.parentRepaint();
         }
     }
@@ -739,7 +738,6 @@ export class Sprite extends Node {
         this._ownGraphics = transferOwnership;
         this._graphics = value;
         if (value) {
-            // this._renderType |= SpriteConst.GRAPHICS;
             value._sp = this;
             value._checkDisplay();
         }

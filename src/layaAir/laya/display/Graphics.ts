@@ -775,6 +775,7 @@ export class Graphics {
      */
     updateRenderElement(): void {
         this._data.uploadBuffer();
+        let originLen = this._renderElements.length;
         this._renderElements.length = 0;
 
         let submits = this._data._submits;
@@ -786,7 +787,10 @@ export class Graphics {
             element.value2DShaderData = this._sp.shaderData;
             this._renderElements.push(element);
         }
-        this._sp._struct.renderElements = this._renderElements;
+        //reset
+        if (originLen != submitLength) {
+            this._sp._struct.renderElements = this._renderElements;
+        }
     }
 
     /**
@@ -1048,14 +1052,13 @@ export class GraphicsRenderData {
     _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
     clear(): void {
-
         this._meshQuatTex.clearMesh();
         this._meshVG.clearMesh();
         this._meshTex.clearMesh();
 
         let len = this._submits.length;
         for (let i = 0; i < len; i++) {
-            this._submits.elements[i].destroy();
+            this._submits.elements[i].clear();
         }
         this._submits.length = 0;
 
@@ -1086,6 +1089,11 @@ export class GraphicsRenderData {
         this._meshQuatTex.destroy();
         this._meshVG.destroy();
         this._meshTex.destroy();
+
+        let elements = this._submits.elements;
+        for (let i = 0 ; i < this._submits.length; i++) {
+            elements[i].destroy();
+        }
         this._submits.destroy();
 
         this._meshQuatTex = null;
@@ -1096,7 +1104,14 @@ export class GraphicsRenderData {
     }
 
     createSubmit(runner: GraphicsRunner, mesh: Sprite2DGeometry, material: Material): SubmitBase {
-        let submit = SubmitBase.create(runner, mesh, material);
+        let elements = this._submits.elements;
+        let submit:SubmitBase = null;
+        if (elements.length > this._submits.length) {
+            submit = elements[this._submits.length];
+            submit.update(runner, mesh, material);
+        }else
+            submit = SubmitBase.create(runner, mesh, material);
+
         this._submits.add(submit);
         return submit;
     }
@@ -1156,8 +1171,8 @@ export class SubStructRender {
         this._sprite = sprite;
         this._subRenderPass = subRenderPass;
         this._subStruct = subStruct;
-        subStruct.set_grapicsUpdateCall(this, this._renderUpdate, this._getRenderElements);
-        subStruct.set_spriteUpdateCall(this, this._updateMatrix, null);
+        // subStruct.set_grapicsUpdateCall(this, this._renderUpdate, this._getRenderElements);
+        // subStruct.set_spriteUpdateCall(this, this._updateMatrix, null);
     }
 
     _renderElements: Array<IRenderElement2D> = [];
@@ -1247,6 +1262,7 @@ export class SubStructRender {
 
     destroy(): void {
         this._data.destroy();
+        this._data = null;
         for (let i = 0; i < this._renderElements.length; i++) {
             this._renderElements[i]?.destroy();
         }

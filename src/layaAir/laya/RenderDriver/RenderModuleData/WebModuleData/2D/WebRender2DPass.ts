@@ -177,8 +177,6 @@ export class WebRender2DPass implements IRender2DPass {
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (!struct.enable) return;
       struct._handleInterData();
-
-
       //this.handl
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
@@ -447,7 +445,7 @@ class PassRenderList {
    add(struct: WebRenderStruct2D): void {
       this.structs.add(struct);
 
-      let n = struct.renderElements.length;
+      let n = struct.renderElements?.length;
       if (n == 0) return;
       if (n == 1) {
          this._batchStart(struct.renderType, 1);

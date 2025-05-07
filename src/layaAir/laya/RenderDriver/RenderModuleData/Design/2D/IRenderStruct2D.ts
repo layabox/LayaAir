@@ -38,7 +38,11 @@ export interface IRenderStruct2D {
    /** 非即时数据 */
    globalAlpha: number;
    alpha: number;
+   setAlpha(alpha: number): void;
+
    blendMode: string;
+   setBlendMode(blendMode: string): void;
+   getBlendMode(): string;
    /** 是否启动 */
    enable: boolean;
 
@@ -69,11 +73,7 @@ export interface IRenderStruct2D {
    // addCMDCall(context:Context, x:number, y:number):void;
    renderUpdate(context: IRenderContext2D): void;
 
-   set_spriteUpdateCall(call: any, renderUpdateFun: any, clearRepaint: any): void;
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any, preRenderUpdateFun: any, getRenderElements: any): void;
-   set_grapicsUpdateCall(call: any, renderUpdateFun: any, getRenderElements: any): void;
-   // 待确认
-   set_getBoundsCall(call: any, getBoundsFun: any): void;
+   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void;
 
    destroy(): void;
 }
