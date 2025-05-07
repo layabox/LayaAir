@@ -27,7 +27,6 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
@@ -54,6 +53,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Vector3 } from "../maths/Vector3";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { IAutoExpiringResource } from "../renders/ResNeedTouch";
+import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
@@ -93,10 +93,11 @@ export class Graphics {
     protected _vectorgraphArray: any[] | null = null;
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
-
+    protected _renderDataHandle: I2DPrimitiveDataHandle;
     /**@ignore */
     constructor() {
         this._createData();
+        this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
 
     protected _createData(): void {
@@ -117,6 +118,7 @@ export class Graphics {
     destroy(): void {
         this.clear(true);
         if (this._graphicBounds) this._graphicBounds.destroy();
+        this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
         this._vectorgraphArray = null;
         if (this._sp) {
@@ -285,10 +287,14 @@ export class Graphics {
         if (value) {
             this._sp._initShaderData();
             this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._struct.set_grapicsUpdateCall(this, this._render, this._getRenderElements);
+            this._sp._struct.renderDataHandler = this._renderDataHandle;
+
+            //   this._sp._struct.set_grapicsUpdateCall(this, this._render, this._getRenderElements);
+
         } else {
             this._sp._renderType &= ~SpriteConst.GRAPHICS;
-            this._sp._struct.set_grapicsUpdateCall(null, null, null);
+            this._sp._struct.renderDataHandler = null;
+            // this._sp._struct.set_grapicsUpdateCall(null, null, null);
         }
     }
 
@@ -696,7 +702,7 @@ export class Graphics {
     /**
      * @internal
      */
-    _render(runner: GraphicsRunner, x: number, y: number): void {
+    _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
         this._data.clear();
         runner.clearRenderData();
         runner.sprite = this._sp;
@@ -780,6 +786,7 @@ export class Graphics {
             element.value2DShaderData = this._sp.shaderData;
             this._renderElements.push(element);
         }
+        this._sp._struct.renderElements = this._renderElements;
     }
 
     /**

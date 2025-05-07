@@ -194,11 +194,15 @@ export class WebRender2DPass implements IRender2DPass {
       //     return;
       // }
 
-      struct.renderDataHandler.inheriteRenderData(context2D);
+      if (struct.renderDataHandler) {
+         struct.renderDataHandler.inheriteRenderData(context2D);
+         this.addStruct(struct);
+      }
+
       //todo 排序
       // struct.preRenderUpdate(context2D);
 
-      this.addStruct(struct);
+
       //}
 
       //需要处理全局透明的问题，统计并且生成新的 process。
@@ -238,7 +242,7 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
 
-      if (this.repaint || (!this.getRenderTexture())) {//如果需要重画或者直接渲染离屏，走下面流程
+      if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 

@@ -313,7 +313,7 @@ export class BaseRenderNode2D extends Component {
             let m = this._materials[i];
             m && !m.destroyed && m._removeReference();
         }
-        // this._spriteShaderData.destroy();
+        this._renderHandle.destroy();
     }
 
     protected _getRenderHandle(): I2DBaseRenderDataHandle {

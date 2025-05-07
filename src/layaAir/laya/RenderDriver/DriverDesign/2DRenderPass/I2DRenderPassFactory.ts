@@ -25,7 +25,6 @@ export interface I2DRenderPassFactory {
 
     createRenderStruct2D(): IRenderStruct2D;
 
-    createRender2DDataHandle(): IRender2DDataHandle;
 
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle;
 

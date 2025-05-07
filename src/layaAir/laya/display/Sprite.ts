@@ -40,6 +40,7 @@ import { BlendMode } from "../webgl/canvas/BlendMode";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
+import { Render2DSimple } from "../renders/Render2D";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -741,8 +742,6 @@ export class Sprite extends Node {
             // this._renderType |= SpriteConst.GRAPHICS;
             value._sp = this;
             value._checkDisplay();
-        } else {
-            this._renderType &= ~SpriteConst.GRAPHICS;
         }
         this.repaint();
     }
@@ -2009,6 +2008,7 @@ export class Sprite extends Node {
         if (!(this._repaint & type)) {
             this._repaint |= type;
             this._struct.setRepaint();
+            this._graphics?._render(Render2DSimple.runner);
             this.parentRepaint(type);
         }
 

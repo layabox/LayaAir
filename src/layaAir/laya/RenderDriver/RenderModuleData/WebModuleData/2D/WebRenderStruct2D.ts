@@ -11,6 +11,7 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
@@ -57,7 +58,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    commonUniformMap: string[] = null;
 
-   renderDataHandler: IRender2DDataHandle;
+   private _renderDataHandler: WebRender2DDataHandle;
+   public get renderDataHandler(): WebRender2DDataHandle {
+      return this._renderDataHandler;
+   }
+   public set renderDataHandler(value: WebRender2DDataHandle) {
+      this._renderDataHandler = value;
+      this._renderDataHandler.owner = this;
+   }
 
    pass: WebRender2DPass;
 
@@ -97,8 +105,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any, preRenderUpdateFun: any, getRenderElements: any): void {
       this._rnUpdateCall = call;
       this._rnUpdateFun = renderUpdateFun;
-      this._rnPreUpdateFun = preRenderUpdateFun;
-      this._rnGetElementsFun = getRenderElements;
    }
 
    set_grapicsUpdateCall(call: any, renderUpdateFun: any, getRenderElements: any): void {
@@ -214,40 +220,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    renderUpdate(context: IRenderContext2D): void {
       this.renderDataHandler.inheriteRenderData(context);
-   }
-
-   preRenderUpdate(context: IRenderContext2D): void {
-
-      this.renderElements.length = 0;
-
-      if (this._rnPreUpdateFun) {
-         this._rnPreUpdateFun.call(this._rnUpdateCall, context);
-      }
-
-      if (this._gGetElementsFun) {
-         let elements = this._gGetElementsFun.call(this._gUpdateCall);
-         this.renderElements.push(...elements);
-      }
-
-      if (this._rnGetElementsFun) {
-         let elements = this._rnGetElementsFun.call(this._rnUpdateCall);
-         this.renderElements.push(...elements);
-      }
-
-      // let _needRepaint = this.owner._needRepaint();
-      // if (_needRepaint) {
-      //    
-      // }
-      // //整理渲染元素
-      // if (this.owner._renderNode) {
-      //    this.owner._renderNode.preRenderUpdate?.(context);
-      //    if (_needRepaint) {
-      //       let elements = this.owner._renderNode._renderElements;
-      //       for (let i = 0; i < elements.length; i++) {
-      //          this._renderElements.push(elements[i]);
-      //       }
-      //    }
-      // }
    }
 
    destroy(): void {

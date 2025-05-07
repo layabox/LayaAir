@@ -1,6 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -10,7 +9,6 @@ import { Context } from "../../renders/Context";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
-import { Texture2D } from "../../resource/Texture2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 /**

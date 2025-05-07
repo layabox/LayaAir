@@ -68,7 +68,6 @@ export interface IRenderStruct2D {
    getClipInfo(): IClipInfo;
    // addCMDCall(context:Context, x:number, y:number):void;
    renderUpdate(context: IRenderContext2D): void;
-   preRenderUpdate(context: IRenderContext2D): void;
 
    set_spriteUpdateCall(call: any, renderUpdateFun: any, clearRepaint: any): void;
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any, preRenderUpdateFun: any, getRenderElements: any): void;

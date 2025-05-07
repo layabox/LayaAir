@@ -11,11 +11,13 @@ import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandl
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
-    protected owner: WebRenderStruct2D;
+    owner: WebRenderStruct2D;
     protected _nMatrix_0 = new Vector3();
     protected _nMatrix_1 = new Vector3();
-    constructor(owner: WebRenderStruct2D) {
-        this.owner = owner;
+    constructor() {
+    }
+    destroy(): void {
+
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -73,10 +75,6 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         }
         data.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
     }
-
-    constructor(owner: WebRenderStruct2D) {
-        super(owner);
-    }
 }
 
 
@@ -94,18 +92,10 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
             this.owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
     }
-    constructor(owner: WebRenderStruct2D) {
-        super(owner);
-    }
-
-    // TODO inheriteRenderData(): void ;
 }
 
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
     private static _setRenderColor: Color = new Color(1, 1, 1, 1);
-    constructor(owner: WebRenderStruct2D) {
-        super(owner);
-    }
     private _baseColor: Color = new Color(1, 1, 1, 1);
     private _baseTexture: BaseTexture;
     private _textureRangeIsClip: boolean;
