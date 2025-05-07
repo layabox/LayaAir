@@ -703,6 +703,9 @@ export class Graphics {
      * @internal
      */
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
+        if (!this._sp)
+            return;
+        
         this._data.clear();
         runner.clearRenderData();
         runner.sprite = this._sp;
@@ -788,7 +791,10 @@ export class Graphics {
             this._renderElements.push(element);
         }
         //reset
-        if (originLen != submitLength) {
+        if (
+            originLen != submitLength
+            || this._sp._struct.renderElements != this._renderElements
+        ) {
             this._sp._struct.renderElements = this._renderElements;
         }
     }

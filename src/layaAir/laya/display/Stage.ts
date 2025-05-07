@@ -31,6 +31,7 @@ import { WebRender2DPass } from "../RenderDriver/RenderModuleData/WebModuleData/
 import { Render2DSimple } from "../renders/Render2D";
 import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
 import { FastSinglelist } from "../utils/SingletonList";
+import { Graphics } from "./Graphics";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -1021,9 +1022,10 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
-    private _graphicUpdateList: Sprite[] = [];
-    _addgraphicRenderElement(sprite: Sprite) {
-        this._graphicUpdateList.push(sprite);
+    private _graphicUpdateList: Graphics[] = [];
+    _addgraphicRenderElement(graphics: Graphics) {
+        if(!graphics) return;
+        this._graphicUpdateList.push(graphics);
     }
     /**
      * @param x The x-axis coordinate
@@ -1034,7 +1036,7 @@ export class Stage extends Sprite {
         Stat.draw2D = 0;
         // context2D.render2dmgr.runProcess([])
         for (var i = 0, n = this._graphicUpdateList.length; i < n; i++) {
-            this._graphicUpdateList[i].graphics?._render(Render2DSimple.runner);
+            this._graphicUpdateList[i]._render(Render2DSimple.runner);
         }
         this.passManager.apply(Render2DSimple.rendercontext2D);
         this._graphicUpdateList.length = 0;

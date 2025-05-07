@@ -108,10 +108,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    _handleInterData(): void {
       if (this.parent) {
          this.globalAlpha = this.alpha * this.parent.globalAlpha;
+         this._parentBlendMode = this.parent.getBlendMode();
+         this._parentClipInfo = this.parent.getClipInfo();
       } else {
          this.globalAlpha = this.alpha;
       }
-
+      
       //clip处理 TODO
       // let rect = this._scrollRect;
       // let info = this.getClipInfo();
