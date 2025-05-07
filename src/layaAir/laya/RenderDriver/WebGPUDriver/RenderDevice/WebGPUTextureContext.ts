@@ -1471,8 +1471,14 @@ export class WebGPUTextureContext implements ITextureContext {
             usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
         });
         const commandEncoder = device.createCommandEncoder();
+
+        let source: GPUTexelCopyTextureInfo = {
+            texture,
+            origin: { x: xOffset, y: yOffset }
+        };
+
         commandEncoder.copyTextureToBuffer(
-            { texture, origin: { x: xOffset, y: renderTarget._textures[0].height - yOffset - height } },
+            source,
             { buffer, bytesPerRow },
             { width, height, depthOrArrayLayers: 1 }
         );
@@ -1487,8 +1493,8 @@ export class WebGPUTextureContext implements ITextureContext {
             if (renderTarget.colorFormat == RenderTargetFormat.R8G8B8A8 && this._engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
                 for (let j = 0; j < height; j++) {
                     for (let i = 0; i < width; i++) {
-                        let h = height - j - 1;
-                        let outOffset = (h * width + i) * 4;
+                        // let h = height - j - 1;
+                        let outOffset = (j * width + i) * 4;
                         let dataOffset = (j * bytesPerRow + i * 4);
 
                         outView[outOffset + 0] = data[dataOffset + 2]; //bgr
@@ -1501,11 +1507,11 @@ export class WebGPUTextureContext implements ITextureContext {
             else {
                 for (let j = 0; j < height; j++) {
                     for (let i = 0; i < width; i++) {
-                        let h = height - j - 1;
-                        let outOffset = (h * width + i) * 4;
+                        // let h = height - j - 1;
+                        let outOffset = (j * width + i) * 4;
                         let dataOffset = (j * bytesPerRow + i * 4);
 
-                        outView[outOffset + 0] = data[dataOffset + 0]; //bgr
+                        outView[outOffset + 0] = data[dataOffset + 0];
                         outView[outOffset + 1] = data[dataOffset + 1];
                         outView[outOffset + 2] = data[dataOffset + 2];
                         outView[outOffset + 3] = data[dataOffset + 3];

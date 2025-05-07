@@ -1364,7 +1364,8 @@ export class Camera extends BaseCamera {
         context.invertY = false;
         let renderRT = this._getRenderTexture();
         if (renderRT) {
-            context.invertY = renderRT._isCameraTarget ? !LayaGL.renderEngine._screenInvertY : false;
+            // context.invertY = renderRT._isCameraTarget ? !LayaGL.renderEngine._screenInvertY : false;
+            context.invertY = renderRT._isCameraTarget;
         }
 
         // camera data 
