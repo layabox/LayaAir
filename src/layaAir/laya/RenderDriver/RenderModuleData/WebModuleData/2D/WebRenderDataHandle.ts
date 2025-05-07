@@ -11,7 +11,13 @@ import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandl
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
-    owner: WebRenderStruct2D;
+    protected _owner: WebRenderStruct2D;
+    public get owner(): WebRenderStruct2D {
+        return this._owner;
+    }
+    public set owner(value: WebRenderStruct2D) {
+        this._owner = value;
+    }
     protected _nMatrix_0 = new Vector3();
     protected _nMatrix_1 = new Vector3();
     constructor() {
@@ -23,18 +29,18 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     inheriteRenderData(context: IRenderContext2D): void {
         //更新位置
         //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
-        let data = this.owner.spriteShaderData;
+        let data = this._owner.spriteShaderData;
         if (!data)
             return;
-        let mat = this.owner.transform.getMatrix();
+        let mat = this._owner.transform.getMatrix();
         this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
         this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
 
-        let info = this.owner.getClipInfo();
+        let info = this._owner.getClipInfo();
         // global alpha
-        data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this.owner.globalAlpha);
+        data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._owner.globalAlpha);
 
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
@@ -61,7 +67,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             }
         }
 
-        let data = this.owner.spriteShaderData
+        let data = this._owner.spriteShaderData
         if (textrueReadGamma) {
             data.addDefine(ShaderDefines2D.GAMMATEXTURE);
         } else {
@@ -87,9 +93,9 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
     public set lightReceive(value: boolean) {
         this._lightReceive = value;
         if (value) {
-            this.owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
+            this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         } else {
-            this.owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
+            this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
     }
 }
@@ -99,9 +105,26 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
     private _baseColor: Color = new Color(1, 1, 1, 1);
     private _baseTexture: BaseTexture;
     private _textureRangeIsClip: boolean;
-    private _baseTextureRange: Vector4;
+    private _baseTextureRange: Vector4 = new Vector4();
     private _normal2DTexture: BaseTexture;
     private _renderAlpha = -1;
+
+
+    public get owner(): WebRenderStruct2D {
+        return this._owner;
+    }
+    public set owner(value: WebRenderStruct2D) {
+        if (value == this.owner) return;
+        if (this._owner) {
+            this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        }
+        this._owner = value;
+        if (this._owner) {
+            this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        }
+
+    }
+
     public get baseColor(): Color {
         return this._baseColor;
     }
@@ -125,13 +148,13 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
 
         this._baseTexture = value;
         value = value ? value : Texture2D.whiteTexture;
-        this.owner.spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
+        this._owner.spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
         if (value) {
             value._addReference();
             if (value.gammaCorrection != 1) {//预乘纹理特殊处理
-                this.owner.spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+                this._owner.spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
             } else {
-                this.owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+                this._owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
         }
     }
@@ -142,7 +165,7 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
     public set baseTextureRange(value: Vector4) {
         if (!value)
             return;
-        this.owner.spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
+        this._owner.spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
         value ? value.cloneTo(this._baseTextureRange) : null;
     }
 
@@ -153,9 +176,9 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         if (this._textureRangeIsClip != value) {
             this._textureRangeIsClip = value;
             if (value)
-                this.owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+                this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
             else
-                this.owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+                this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
         }
     }
 
@@ -173,11 +196,11 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             value._addReference();
         this._normal2DTexture = value;
 
-        this.owner.spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
+        this._owner.spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
         if (this._normal2DStrength > 0 && this._normal2DTexture)
-            this.owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+            this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
         else
-            this.owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+            this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
     private _normal2DStrength: number;
     public get normal2DStrength(): number {
@@ -188,21 +211,22 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         if (this._normal2DStrength === value)
             return
         this._normal2DStrength = value;
-        this.owner.spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
+        this._owner.spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
         if (value > 0 && this._normal2DTexture)
-            this.owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
-        else this.owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+            this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+        else this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
         super.inheriteRenderData(context);
-        if (this._renderAlpha != this.owner.globalAlpha) {
-            let a = this.owner.globalAlpha * this._baseColor.a;
+        if (this._renderAlpha != this._owner.globalAlpha) {
+            let a = this._owner.globalAlpha * this._baseColor.a;
             WebMesh2DRenderDataHandle._setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
-            this.owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
-            this._renderAlpha = this.owner.globalAlpha;
+            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
+            this._renderAlpha = this._owner.globalAlpha;
         }
     }
+
 
     //还是否需要这个  按道理 不需要
     // _copyClipInfoToShaderData(shaderData: ShaderData) {

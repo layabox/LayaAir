@@ -8,7 +8,7 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderD
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { WebRender2DPass } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
-import { WebPrimitiveDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
@@ -21,13 +21,13 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     }
 
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-       return new WebPrimitiveDataHandle();
+        return new WebPrimitiveDataHandle();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return new Web2DBaseRenderDataHandle();
     }
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return new WebMesh2DRenderDataHandle();
     }
 
     createSetRenderDataCMD(): SetRenderDataCMD {

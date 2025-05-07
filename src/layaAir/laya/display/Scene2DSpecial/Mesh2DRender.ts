@@ -22,6 +22,17 @@ export class Mesh2DRender extends BaseRenderNode2D {
     static mesh2DDefaultMaterial: Material;
     private _sharedMesh: Mesh2D;
     declare _renderHandle: IMesh2DRenderDataHandle;
+
+    protected _getRenderHandle(): IMesh2DRenderDataHandle {
+        return LayaGL.render2DRenderPassFactory.createMesh2DRenderDataHandle();
+    }
+
+    protected _initDefaultRenderData(): void {
+        this.color = new Color();
+        this.textureRange = new Vector4(0, 0, 1, 1);
+        this.texture = null;
+    }
+
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格
@@ -162,6 +173,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
         }
+        this.owner._struct.renderElements = this._renderElements;
     }
 
     /**
@@ -212,9 +224,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         this._renderElements = [];
         this._materials = [];
-        this.color = new Color();
-        this.textureRange = new Vector4(0, 0, 1, 1);
-        this.texture = null;
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+
     }
+
+
 }

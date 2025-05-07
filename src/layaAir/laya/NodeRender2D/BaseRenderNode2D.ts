@@ -240,6 +240,8 @@ export class BaseRenderNode2D extends Component {
         return ["BaseRender2D"];
     }
 
+    protected _initDefaultRenderData?(): void;
+
     // protected _getRect(): Vector4 {
     //     return this._rect;
     // }
@@ -287,12 +289,16 @@ export class BaseRenderNode2D extends Component {
      */
     preRenderUpdate?(context: IRenderContext2D): void;
 
-    protected _onEnable(): void {
-        super._onEnable();
+    protected _onAdded(): void {
         this.owner._initShaderData();
         this.owner.renderNode2D = this;
         this._spriteShaderData = this.owner._struct.spriteShaderData;
         this.owner._struct.renderDataHandler = this._renderHandle;
+        this._initDefaultRenderData && this._initDefaultRenderData();
+    }
+
+    protected _onEnable(): void {
+        super._onEnable();
         if (this._lightReceive)
             this._addRenderToLightManager();
     }
