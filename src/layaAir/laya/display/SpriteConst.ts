@@ -11,15 +11,9 @@ export class SpriteConst {
     static CLIP = 0x40;
     static TEXTURE = 0x80;
     static GRAPHICS = 0x100;
-    /** @deprecated */
-    static CUSTOM = 0x200;
     static HITAREA = 0x400;
     static RENDERNODE2D = 0x800;
     static CHILDS = 0x1000;
-    static REPAINT_NONE = 0;
-    static REPAINT_NODE = 0x01;
-    static REPAINT_CACHE = 0x02;
-    static REPAINT_ALL = 0x03;
     static DRAW2RT = this.CANVAS | this.FILTERS | this.MASK;
 }
 

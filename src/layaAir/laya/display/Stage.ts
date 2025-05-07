@@ -30,6 +30,7 @@ import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleDat
 import { WebRender2DPass } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Render2DSimple } from "../renders/Render2D";
 import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
+import { FastSinglelist } from "../utils/SingletonList";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -251,7 +252,7 @@ export class Stage extends Sprite {
     // private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
     passManager: Render2DPassManager = new Render2DPassManager();
-    
+
     /**
      * @ignore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
@@ -808,8 +809,8 @@ export class Stage extends Sprite {
             this._struct.pass.setClearColor(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
         }
         else
-            this._struct.pass.setClearColor(0, 0, 0 , 0);
-            // this._wgColor = null;
+            this._struct.pass.setClearColor(0, 0, 0, 0);
+        // this._wgColor = null;
 
         Stage._setStyleBgColor(value);
     }
@@ -1020,7 +1021,10 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
-
+    private _graphicUpdateList: Sprite[] = [];
+    _addgraphicRenderElement(sprite: Sprite) {
+        this._graphicUpdateList.push(sprite);
+    }
     /**
      * @param x The x-axis coordinate
      * @param y The y-axis coordinate
@@ -1029,7 +1033,11 @@ export class Stage extends Sprite {
     private _render2d() {
         Stat.draw2D = 0;
         // context2D.render2dmgr.runProcess([])
-        this.passManager.apply( Render2DSimple.rendercontext2D);
+        for (var i = 0, n = this._graphicUpdateList.length; i < n; i++) {
+            this._graphicUpdateList[i].graphics?._render(Render2DSimple.runner);
+        }
+        this.passManager.apply(Render2DSimple.rendercontext2D);
+        this._graphicUpdateList.length = 0;
         // mainProcess.root = this._struct as any;
         // mainProcess.render( context2D , Render2DSimple.rendercontext2D );
         // context2D.startRender();

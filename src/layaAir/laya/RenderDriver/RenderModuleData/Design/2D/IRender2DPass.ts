@@ -12,6 +12,7 @@ export interface IRender2DPass {
    enableBatch: boolean;
    isSupport: boolean;
    root: IRenderStruct2D;
+   
    postProcess: PostProcess2D;
    repaint: boolean;
    renderTexture: RenderTexture2D;

@@ -104,9 +104,6 @@ export class RenderSprite {
             case SpriteConst.CHILDS:
                 this._fun = this._children;
                 return;
-            case SpriteConst.CUSTOM:
-                this._fun = this._custom;
-                return;
             case SpriteConst.TEXTURE:
                 this._fun = this._texture;
                 return;
@@ -143,11 +140,6 @@ export class RenderSprite {
     }
 
     _no(sprite: Sprite, context: Context, x: number, y: number): void {
-    }
-
-    _custom(sprite: Sprite, context: Context, x: number, y: number): void {
-        sprite.customRender(context, x, y);
-        this._next._fun(sprite, context, 0, 0);
     }
 
     _clip(sprite: Sprite, context: Context, x: number, y: number): void {

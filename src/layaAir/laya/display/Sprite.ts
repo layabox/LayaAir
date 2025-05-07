@@ -41,6 +41,7 @@ import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 import { Render2DSimple } from "../renders/Render2D";
+import { Stat } from "../utils/Stat";
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -1130,18 +1131,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Enable or disable custom rendering. Custom rendering must be enabled to use the customRender function.
-     * @param {boolean} b Whether to enable custom rendering.
-     * @zh 设置是否开启自定义渲染，只有开启自定义渲染，才能使用 customRender 函数渲染。
-     * @param {boolean} b 是否开启自定义渲染。
-     */
-    set customRenderEnable(b: boolean) {
-        if (b) {
-            this._renderType |= SpriteConst.CUSTOM;
-        }
-    }
-
-    /**
      * @en Whether to automatically calculate the width and height of the node. The default value is `false`, which does not automatically calculate and offers better performance.
      * If you want to get the width and height based on the drawn content, you can set this property to `true`, or use the getBounds method to obtain them, which has some impact on performance.
      * @zh 是否自动计算节点的宽高数据。默认值为 false，不自动计算，性能更佳。
@@ -1330,7 +1319,7 @@ export class Sprite extends Node {
     protected _transChanged(kind: TransformKind) {
         if (this._destroyed) return;
 
-        this.parentRepaint(SpriteConst.REPAINT_CACHE);
+        this.parentRepaint();
         if (this._subRenderPass) this._subRenderPass.repaint = true;
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
@@ -1342,7 +1331,7 @@ export class Sprite extends Node {
         else {
             let p: Sprite = this._cacheStyle.maskParent;
             if (p)
-                p.repaint(SpriteConst.REPAINT_CACHE);
+                p.repaint();
         }
 
         if ((kind & TransformKind.TRS) != 0) {
@@ -1372,26 +1361,6 @@ export class Sprite extends Node {
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
-        //todo 这里需要生成内部的rendernode2d
-        this._repaint = 0;
-    }
-
-    /**
-     * @deprecated
-     * @en Custom update and render display objects. Generally used to extend rendering modes. Please use it reasonably as it may cause inability to render on accelerators.
-     * Note: Do not add or remove tree nodes in this function, otherwise it will affect the traversal of tree nodes.
-     * @param context The rendering context reference.
-     * @param x The X-axis coordinate.
-     * @param y The Y-axis coordinate.
-     * @zh 自定义更新、呈现显示对象。一般用来扩展渲染模式,请合理使用,可能会导致在加速器上无法渲染。
-     * 注意: 不要在此函数内增加或删除树节点,否则会对树节点遍历造成影响。
-     * @param context 渲染的上下文引用。
-     * @param x X轴坐标。
-     * @param y Y轴坐标。
-     */
-    customRender(context: Context, x: number, y: number): void {
-        //_renderType |= SpriteConst.CUSTOM;
-        this._repaint = SpriteConst.REPAINT_ALL;
     }
 
     /**
@@ -1934,13 +1903,13 @@ export class Sprite extends Node {
     loadImage(url: string, complete?: Handler): this {
         if (!url) {
             this.texture = null;
-            this.repaint(SpriteConst.REPAINT_ALL);
+            this.repaint();
             complete && complete.run();
         } else {
             let tex = ILaya.loader.getRes(url);
             if (tex) {
                 this.texture = tex;
-                this.repaint(SpriteConst.REPAINT_ALL);
+                this.repaint();
                 complete && complete.run();
             }
             else {
@@ -1948,7 +1917,7 @@ export class Sprite extends Node {
                     url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
                     this.texture = tex;
-                    this.repaint(SpriteConst.REPAINT_ALL);
+                    this.repaint();
                     complete && complete.run();
                 });
             }
@@ -1985,7 +1954,7 @@ export class Sprite extends Node {
      * @zh 在设置 cacheAs 的情况下，调用此方法会重新刷新缓存。
      */
     reCache(): void {
-        this._repaint |= SpriteConst.REPAINT_CACHE;
+        this.repaint();
     }
 
     /**
@@ -2004,19 +1973,19 @@ export class Sprite extends Node {
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
     * @param type 重新绘制类型。
     */
-    repaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        if (!(this._repaint & type)) {
-            this._repaint |= type;
+    repaint(): void {
+        if ((this._repaint < Stat.loopCount)) {
+            this._repaint = Stat.loopCount;
             this._struct.setRepaint();
-            this._graphics?._render(Render2DSimple.runner);
-            this.parentRepaint(type);
+            this.stage._addgraphicRenderElement(this);
+            this.parentRepaint();
         }
 
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
             if (this._cacheStyle.maskParent) {
                 this._cacheStyle.maskParent.updateRenderTexture();
-                this._cacheStyle.maskParent.repaint(type);
+                this._cacheStyle.maskParent.repaint();
             }
         }
     }
@@ -2038,7 +2007,7 @@ export class Sprite extends Node {
      */
     _needRepaint(): boolean {
         //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheenableCanvasRender && this._cachereCache;
-        return !!(this._repaint & SpriteConst.REPAINT_CACHE);
+        return !!(this._repaint >= Stat.loopCount);
     }
 
     /**
@@ -2047,12 +2016,11 @@ export class Sprite extends Node {
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
      * @param type 重新绘制类型。默认为 SpriteConst.REPAINT_CACHE。
      */
-    parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
+    parentRepaint(): void {
         var p: Sprite = this._parent;
-        if (p && !(p._repaint & type)) {
-            p._repaint |= type;
+        if (p && !(p._needRepaint())) {
             p._struct.setRepaint();
-            p.parentRepaint(type);
+            p.parentRepaint();
         }
     }
 
@@ -2162,7 +2130,7 @@ export class Sprite extends Node {
      */
     _processVisible(): boolean {
         if (this._setBit(NodeFlags.ACTUAL_VISIBLE, this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE))) {
-            this.parentRepaint(SpriteConst.REPAINT_ALL);
+            this.parentRepaint();
             return true;
         }
         else
@@ -2289,7 +2257,7 @@ export class Sprite extends Node {
         }
         if (this._getBit(NodeFlags.HAS_ZORDER))
             ILaya.systemTimer.callLater(this, this.updateZOrder);
-        this.repaint(SpriteConst.REPAINT_ALL);
+        this.repaint();
     }
 
     /**

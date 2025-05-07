@@ -64,6 +64,7 @@ export class Render2DPassManager {
         for (const pass of this._passes) {
             if (this._needRender(pass)) {
                 pass.fowardRender(context2D);
+                pass.root
             }
         }
     }
