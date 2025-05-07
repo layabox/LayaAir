@@ -23,6 +23,7 @@ import { Particle2DGeomotry } from "./Particle2DGeomotry";
 import { Particle2DShader } from "./Particle2DShader";
 import { Particle2DVertexMesh } from "./Particle2DVertexMesh";
 import { ShurikenParticle2DSystem, Particle2DSystemDirtyFlagBits } from "./ShurikenParticle2DSystem";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 const nMatrix0 = new Vector3();
 const nMatrix1 = new Vector3();
@@ -731,14 +732,14 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         nMatrix0.x = mat.a;
         nMatrix0.y = mat.c;
         nMatrix0.z = px * mat.a + py * mat.c + mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, nMatrix0);
+        this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, nMatrix0);
 
         nMatrix1.x = mat.b;
         nMatrix1.y = mat.d;
         nMatrix1.z = px * mat.b + py * mat.d + mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, nMatrix1);
+        this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, nMatrix1);
 
-        this._setRenderSize(context.width, context.height);
+        //this._setRenderSize(context.width, context.height);
         context._copyClipInfoToShaderData(this._spriteShaderData);
         this._lightReceive && this._updateLight();
 

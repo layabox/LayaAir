@@ -58,6 +58,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
         (!GLESREnderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
     }
+    passData: ShaderData;
     private _sceneData: ShaderData;
     public get sceneData(): ShaderData {
         return this._sceneData;

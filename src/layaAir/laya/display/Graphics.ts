@@ -50,7 +50,6 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { NodeFlags } from "../Const";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { Vector2 } from "../maths/Vector2";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Vector3 } from "../maths/Vector3";
 import { BlendMode } from "../webgl/canvas/BlendMode";

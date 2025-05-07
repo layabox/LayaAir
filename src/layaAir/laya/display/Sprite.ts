@@ -239,7 +239,7 @@ export class Sprite extends Node {
     declare _$children: Sprite[];
     declare _parent: Sprite;
     declare _scene: Sprite;
-    
+
     private _nMatrix_0 = new Vector3;
     private _nMatrix_1 = new Vector3;
 
@@ -258,16 +258,18 @@ export class Sprite extends Node {
         super();
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.transform = this.globalTrans;
-        this._struct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
+        this._struct.set_spriteUpdateCall(this, this._renderUpdate, this.clearRepaint);
     }
 
     /** @internal */
     _initShaderData() {
         if (this.shaderData)
             return
+
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
         BlendMode.initBlendMode(this.shaderData);
         this._struct.spriteShaderData = this.shaderData;
+        this._struct.isRenderStruct = true;
     }
 
     _renderUpdate() {
@@ -287,7 +289,7 @@ export class Sprite extends Node {
             cm.d = height * mat.d;
 
             info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-            info.clipMatPos.setValue(cm.tx, cm.ty , mat.tx , mat.ty);
+            info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
         }
 
         let shaderData = this.shaderData;
@@ -303,7 +305,7 @@ export class Sprite extends Node {
 
         // global alpha
         shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._struct.globalAlpha);
-        
+
         shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
         shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
 
@@ -692,7 +694,7 @@ export class Sprite extends Node {
         if (this._blendMode != value) {
             this._blendMode = value;
             this._initShaderData();
-            BlendMode.setShaderData(value , this.shaderData);
+            BlendMode.setShaderData(value, this.shaderData);
             if (value && value != "source-over")
                 this._renderType |= SpriteConst.BLEND;
             else
@@ -843,14 +845,14 @@ export class Sprite extends Node {
         if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
             return;
 
-        if (this.mask){
+        if (this.mask) {
             this.mask._getCacheStyle().maskParent = null;
             this.mask.blendMode = null;
         }
-            // this.removeChild(this.mask);
+        // this.removeChild(this.mask);
 
-            this._getCacheStyle().mask = value;
-            
+        this._getCacheStyle().mask = value;
+
         if (value) {
             value.blendMode = "mask";
             // this.addChild(value);
@@ -858,18 +860,18 @@ export class Sprite extends Node {
             value.setSubRenderPassState(true);//手动render
             value._subRenderPass.isSupport = true;
             // value.createSubRenderPass();
-            
+
             this._renderType |= SpriteConst.MASK;
             this.setSubRenderPassState(true);
 
             let postProcess = this.getPostProcess();
             postProcess.mask = value._struct;
             postProcess.enabled = true;
-            
+
             this._subRenderPass.postProcess = postProcess;
             this.updateRenderTexture();
         }
-        else{
+        else {
             this._postProcess && (this._postProcess.mask = null);
             this._renderType &= ~SpriteConst.MASK;
             this.updateSubRenderPassState();
@@ -985,7 +987,7 @@ export class Sprite extends Node {
         }
     }
 
-    getPostProcess(){
+    getPostProcess() {
         if (!this._postProcess) {
             this._postProcess = new PostProcess2D();
         }
@@ -2012,7 +2014,7 @@ export class Sprite extends Node {
 
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
-            if (this._cacheStyle.maskParent){
+            if (this._cacheStyle.maskParent) {
                 this._cacheStyle.maskParent.updateRenderTexture();
                 this._cacheStyle.maskParent.repaint(type);
             }
@@ -2023,7 +2025,7 @@ export class Sprite extends Node {
      * @en Clear the repaint flag.
      * @zh 清除重绘标志。
      */
-    clearRepaint(){
+    clearRepaint() {
         this._repaint = 0;
     }
 
@@ -2167,8 +2169,8 @@ export class Sprite extends Node {
             return false;
     }
 
-    protected _setStructParent(value:Node){
-        let struct = this._subRenderPass?.enable ?  this._subStruct : this._struct;
+    protected _setStructParent(value: Node) {
+        let struct = this._subRenderPass?.enable ? this._subStruct : this._struct;
 
         if (struct.parent) {
             struct.parent.removeChild(struct);
@@ -2186,12 +2188,12 @@ export class Sprite extends Node {
         rtPass.addPass(subPass);
         subPass.root = this._struct;
         subPass.enable = false;
-        subPass.setClearColor(0,0,0,0);
+        subPass.setClearColor(0, 0, 0, 0);
         let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         subStruct.pass = subPass;
-        
+
         this._subStructRender = new SubStructRender();
-        this._subStructRender.bind(this , subPass , subStruct);
+        this._subStructRender.bind(this, subPass, subStruct);
         this._subStruct = subStruct;
         this._subRenderPass = subPass;
 
@@ -2200,12 +2202,12 @@ export class Sprite extends Node {
     }
 
     //TODO
-    private updateRenderTexture(){
+    private updateRenderTexture() {
         //计算方式调整
         let rect = new Rectangle;
         SpriteUtils.getRTRect(this, rect);
         //this.getSelfBounds();
-        
+
         if (rect.width === 0 || rect.height === 0)
             return;
 
@@ -2213,7 +2215,7 @@ export class Sprite extends Node {
         //判断待考虑
         if (oldRT && oldRT.width === rect.width && oldRT.height === rect.height)
             return;
-        
+
         // let tRect = new Rectangle;
         // SpriteUtils.getMaskRect(this, tRect);
         oldRT && oldRT.destroy();
@@ -2225,18 +2227,18 @@ export class Sprite extends Node {
     private updateSubRenderPassState() {
         this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
-    
+
     /**
      * @en Set the state of the sub-render pass.
      * @param enable Whether to enable the sub-render pass.
      * @zh 设置子渲染通道的状态。
      * @param enable 是否启用子渲染通道。
      */
-    private setSubRenderPassState(enable: boolean ) {
+    private setSubRenderPassState(enable: boolean) {
         if (!this._subRenderPass && enable) {
             this.createSubRenderPass();
         }
-        
+
         if (enable && !this._subRenderPass.enable) {
             let parent = this._struct.parent;
             this._struct.pass = this._subRenderPass;

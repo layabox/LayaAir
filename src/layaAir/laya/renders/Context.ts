@@ -209,7 +209,7 @@ export class Context {
         //_vb = _vbs[0] = VertexBuffer2D.create( -1);
         this._mesh = this._meshQuatTex;
         this._mesh.clearMesh();
-        this._save = [SaveMark.Create(this)];
+        //this._save = [SaveMark.Create(this)];
         this._save.length = 10;
         this.clear();
 
@@ -301,12 +301,12 @@ export class Context {
         this.globalAlpha *= value;
     }
 
-    /**@internal */
-    _transform(mat: Matrix, pivotX: number, pivotY: number): void {
-        this.translate(pivotX, pivotY);
-        this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
-        this.translate(-pivotX, -pivotY);
-    }
+    // /**@internal */
+    // _transform(mat: Matrix, pivotX: number, pivotY: number): void {
+    //     this.translate(pivotX, pivotY);
+    //     this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
+    //     this.translate(-pivotX, -pivotY);
+    // }
 
     /**@internal */
     _rotate(angle: number, pivotX: number, pivotY: number): void {
@@ -357,239 +357,239 @@ export class Context {
         this.stroke();
     }
 
-    private _fillAndStroke(fillColor: string, strokeColor: string, lineWidth: number, isConvexPolygon = false): void {
-        //绘制填充区域
-        if (fillColor != null) {
-            this.fillStyle = fillColor;
-            this.fill();
-        }
+    // private _fillAndStroke(fillColor: string, strokeColor: string, lineWidth: number, isConvexPolygon = false): void {
+    //     //绘制填充区域
+    //     if (fillColor != null) {
+    //         this.fillStyle = fillColor;
+    //         this.fill();
+    //     }
 
-        //绘制边框
-        if (strokeColor != null && lineWidth > 0) {
-            this.strokeStyle = strokeColor;
-            this.lineWidth = lineWidth;
-            this.stroke();
-        }
-    }
+    //     //绘制边框
+    //     if (strokeColor != null && lineWidth > 0) {
+    //         this.strokeStyle = strokeColor;
+    //         this.lineWidth = lineWidth;
+    //         this.stroke();
+    //     }
+    // }
+    // /**@internal */
+    // _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
+    //     this.beginPath(true);
+    //     this.arc(x, y, radius, radius, 0, 2 * Math.PI, false, true, 40);
+    //     this.closePath();
+    //     //绘制
+    //     this._fillAndStroke(fillColor, lineColor, lineWidth);
+    // }
     /**@internal */
-    _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
-        this.beginPath(true);
-        this.arc(x, y, radius, radius, 0, 2 * Math.PI, false, true, 40);
-        this.closePath();
-        //绘制
-        this._fillAndStroke(fillColor, lineColor, lineWidth);
-    }
-    /**@internal */
-    _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number) {
-        this.beginPath(true);
-        this.arc(x, y, width, height, 0, 2 * Math.PI, false, true, 40);
-        this.closePath();
-        this._fillAndStroke(fillColor, lineColor, lineWidth);
-    }
-    /**@internal */
-    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
-        if (width <= 0) return;
-        if (height <= 0) return;
-        //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
-        this.beginPath(true);
-        var tPath = this._getPath();
-        if (0 >= lt) {
-            tPath.addPoint(x, y);
-        } else {
-            //左上角
-            let st = Math.PI;
-            let ed = 1.5 * Math.PI;
-            if (width < lt + rt) {
-                //需要裁剪
-                //根据比例分配裁剪
-                let dxlt = lt * (lt + rt - width) / (lt + rt);
-                //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lt * lt - dxlt * dxlt);
-                //根据交点计算角度
-                let ang = Math.atan2(hity, dxlt);
-                let dAng = 0.5 * Math.PI - ang;
-                ed -= dAng;
-            }
-            if (height < lt + lb) {
-                //需要裁剪
-                let dylt = lt * (lt + lb - height) / (lt + lb);
-                let hitx = Math.sqrt(lt * lt - dylt * dylt);
-                let ang = Math.atan2(dylt, hitx);
-                st += ang;
-            }
-            if (st > ed) {
-                //tPath.addPoint(x, y);
-            } else {
-                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, 5);
-            }
-        }
-        let startX = x + width - rt;
-        if (0 >= rt) {
-            tPath.addPoint(startX, y);
-        } else {
-            //右上角
-            let st = 1.5 * Math.PI;
-            let ed = 2 * Math.PI;
-            if (width < lt + rt) {
-                //需要裁剪
-                //根据比例分配裁剪
-                let dxlt = rt * (lt + rt - width) / (lt + rt);
-                //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lt * lt - dxlt * dxlt);
-                //根据交点计算角度
-                let ang = Math.atan2(hity, dxlt);
-                let dAng = 0.5 * Math.PI - ang;
-                st += dAng;
-            }
-            if (height < rt + rb) {
-                //需要裁剪
-                let dyrt = rt * (rt + rb - height) / (rt + rb);
-                let hitx = Math.sqrt(rt * rt - dyrt * dyrt);
-                let ang = Math.atan2(dyrt, hitx);
-                ed -= ang;
-            }
-            if (st > ed) {
-                //tPath.addPoint(startX, y);
-            } else {
-                this.arc(startX, y + rt, rt, rt, st, ed, false, true, 5);
-            }
-        }
-        startX = x + width - rb;
-        let startY = y + height - rb;
-        if (0 >= rb) {
-            tPath.addPoint(startX, startY);
-        } else {
-            //右下角
-            let st = 0;
-            let ed = 0.5 * Math.PI;
-            if (width < lb + rb) {
-                //需要裁剪
-                //根据比例分配裁剪
-                let dxlb = rb * (lb + rb - width) / (lb + rb);
-                //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lb * lb - dxlb * dxlb);
-                //根据交点计算角度
-                let ang = Math.atan2(hity, dxlb);
-                let dAng = 0.5 * Math.PI - ang;
-                ed -= dAng;
-            }
-            if (height < rt + rb) {
-                //需要裁剪
-                let dyrt = rb * (rt + rb - height) / (rt + rb);
-                let hitx = Math.sqrt(rb * rb - dyrt * dyrt);
-                let ang = Math.atan2(dyrt, hitx);
-                st += ang;
-            }
-            if (st > ed) {
-                //tPath.addPoint(startX, startY);
-            } else {
-                this.arc(startX, startY, rb, rb, st, ed, false, true, 5);
-            }
-        }
-        startX = x + lb;
-        startY = y + height - lb;
-        if (0 >= lb) {
-            tPath.addPoint(startX, startY);
-        } else {
-            let st = 0.5 * Math.PI;
-            let ed = Math.PI;
-            if (width < lb + rb) {
-                //需要裁剪
-                //根据比例分配裁剪
-                let dxlb = rb * (lb + rb - width) / (lb + rb);
-                //计算交点,统一在第一象限算
-                let hity = Math.sqrt(lb * lb - dxlb * dxlb);
-                //根据交点计算角度
-                let ang = Math.atan2(hity, dxlb);
-                let dAng = 0.5 * Math.PI - ang;
-                st += dAng;
-            }
-            if (height < lt + lb) {
-                //需要裁剪
-                let dylt = lb * (lt + lb - height) / (lt + lb);
-                let hitx = Math.sqrt(lb * lb - dylt * dylt);
-                let ang = Math.atan2(dylt, hitx);
-                ed -= ang;
-            }
-            if (st > ed) {
-                //tPath.addPoint(startX, startY);
-            } else {
-                this.arc(startX, startY, lb, lb, st, ed, false, true, 5);
-            }
-        }
-        //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
-        this.closePath();
-        this._fillAndStroke(fillColor, lineColor, lineWidth);
-    }
+    // _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number) {
+    //     this.beginPath(true);
+    //     this.arc(x, y, width, height, 0, 2 * Math.PI, false, true, 40);
+    //     this.closePath();
+    //     this._fillAndStroke(fillColor, lineColor, lineWidth);
+    // }
+    // /**@internal */
+    // _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
+    //     if (width <= 0) return;
+    //     if (height <= 0) return;
+    //     //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
+    //     this.beginPath(true);
+    //     var tPath = this._getPath();
+    //     if (0 >= lt) {
+    //         tPath.addPoint(x, y);
+    //     } else {
+    //         //左上角
+    //         let st = Math.PI;
+    //         let ed = 1.5 * Math.PI;
+    //         if (width < lt + rt) {
+    //             //需要裁剪
+    //             //根据比例分配裁剪
+    //             let dxlt = lt * (lt + rt - width) / (lt + rt);
+    //             //计算交点,统一在第一象限算
+    //             let hity = Math.sqrt(lt * lt - dxlt * dxlt);
+    //             //根据交点计算角度
+    //             let ang = Math.atan2(hity, dxlt);
+    //             let dAng = 0.5 * Math.PI - ang;
+    //             ed -= dAng;
+    //         }
+    //         if (height < lt + lb) {
+    //             //需要裁剪
+    //             let dylt = lt * (lt + lb - height) / (lt + lb);
+    //             let hitx = Math.sqrt(lt * lt - dylt * dylt);
+    //             let ang = Math.atan2(dylt, hitx);
+    //             st += ang;
+    //         }
+    //         if (st > ed) {
+    //             //tPath.addPoint(x, y);
+    //         } else {
+    //             this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, 5);
+    //         }
+    //     }
+    //     let startX = x + width - rt;
+    //     if (0 >= rt) {
+    //         tPath.addPoint(startX, y);
+    //     } else {
+    //         //右上角
+    //         let st = 1.5 * Math.PI;
+    //         let ed = 2 * Math.PI;
+    //         if (width < lt + rt) {
+    //             //需要裁剪
+    //             //根据比例分配裁剪
+    //             let dxlt = rt * (lt + rt - width) / (lt + rt);
+    //             //计算交点,统一在第一象限算
+    //             let hity = Math.sqrt(lt * lt - dxlt * dxlt);
+    //             //根据交点计算角度
+    //             let ang = Math.atan2(hity, dxlt);
+    //             let dAng = 0.5 * Math.PI - ang;
+    //             st += dAng;
+    //         }
+    //         if (height < rt + rb) {
+    //             //需要裁剪
+    //             let dyrt = rt * (rt + rb - height) / (rt + rb);
+    //             let hitx = Math.sqrt(rt * rt - dyrt * dyrt);
+    //             let ang = Math.atan2(dyrt, hitx);
+    //             ed -= ang;
+    //         }
+    //         if (st > ed) {
+    //             //tPath.addPoint(startX, y);
+    //         } else {
+    //             this.arc(startX, y + rt, rt, rt, st, ed, false, true, 5);
+    //         }
+    //     }
+    //     startX = x + width - rb;
+    //     let startY = y + height - rb;
+    //     if (0 >= rb) {
+    //         tPath.addPoint(startX, startY);
+    //     } else {
+    //         //右下角
+    //         let st = 0;
+    //         let ed = 0.5 * Math.PI;
+    //         if (width < lb + rb) {
+    //             //需要裁剪
+    //             //根据比例分配裁剪
+    //             let dxlb = rb * (lb + rb - width) / (lb + rb);
+    //             //计算交点,统一在第一象限算
+    //             let hity = Math.sqrt(lb * lb - dxlb * dxlb);
+    //             //根据交点计算角度
+    //             let ang = Math.atan2(hity, dxlb);
+    //             let dAng = 0.5 * Math.PI - ang;
+    //             ed -= dAng;
+    //         }
+    //         if (height < rt + rb) {
+    //             //需要裁剪
+    //             let dyrt = rb * (rt + rb - height) / (rt + rb);
+    //             let hitx = Math.sqrt(rb * rb - dyrt * dyrt);
+    //             let ang = Math.atan2(dyrt, hitx);
+    //             st += ang;
+    //         }
+    //         if (st > ed) {
+    //             //tPath.addPoint(startX, startY);
+    //         } else {
+    //             this.arc(startX, startY, rb, rb, st, ed, false, true, 5);
+    //         }
+    //     }
+    //     startX = x + lb;
+    //     startY = y + height - lb;
+    //     if (0 >= lb) {
+    //         tPath.addPoint(startX, startY);
+    //     } else {
+    //         let st = 0.5 * Math.PI;
+    //         let ed = Math.PI;
+    //         if (width < lb + rb) {
+    //             //需要裁剪
+    //             //根据比例分配裁剪
+    //             let dxlb = rb * (lb + rb - width) / (lb + rb);
+    //             //计算交点,统一在第一象限算
+    //             let hity = Math.sqrt(lb * lb - dxlb * dxlb);
+    //             //根据交点计算角度
+    //             let ang = Math.atan2(hity, dxlb);
+    //             let dAng = 0.5 * Math.PI - ang;
+    //             st += dAng;
+    //         }
+    //         if (height < lt + lb) {
+    //             //需要裁剪
+    //             let dylt = lb * (lt + lb - height) / (lt + lb);
+    //             let hitx = Math.sqrt(lb * lb - dylt * dylt);
+    //             let ang = Math.atan2(dylt, hitx);
+    //             ed -= ang;
+    //         }
+    //         if (st > ed) {
+    //             //tPath.addPoint(startX, startY);
+    //         } else {
+    //             this.arc(startX, startY, lb, lb, st, ed, false, true, 5);
+    //         }
+    //     }
+    //     //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
+    //     this.closePath();
+    //     this._fillAndStroke(fillColor, lineColor, lineWidth);
+    // }
 
     //矢量方法	
     /**@internal */
-    _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
-        //移动中心点
-        //ctx.translate(x + args[0], y + args[1]);
-        //形成路径
-        this.beginPath();
-        this.moveTo(x, y);
-        this.arc(x, y, radius, radius, startAngle, endAngle);
-        this.closePath();
-        //绘制
-        this._fillAndStroke(fillColor, lineColor, lineWidth);
-        //恢复中心点
-        //ctx.translate(-x - args[0], -y - args[1]);
-    }
+    // _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
+    //     //移动中心点
+    //     //ctx.translate(x + args[0], y + args[1]);
+    //     //形成路径
+    //     this.beginPath();
+    //     this.moveTo(x, y);
+    //     this.arc(x, y, radius, radius, startAngle, endAngle);
+    //     this.closePath();
+    //     //绘制
+    //     this._fillAndStroke(fillColor, lineColor, lineWidth);
+    //     //恢复中心点
+    //     //ctx.translate(-x - args[0], -y - args[1]);
+    // }
 
     /**@internal */
-    _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void {
-        //var points:Array = args[2];
-        this.beginPath();
-        //poly一定是close的
-        this.addPath(points.slice(), true, isConvexPolygon, x, y);
-        this.closePath();
-        this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
-    }
+    // _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void {
+    //     //var points:Array = args[2];
+    //     this.beginPath();
+    //     //poly一定是close的
+    //     this.addPath(points.slice(), true, isConvexPolygon, x, y);
+    //     this.closePath();
+    //     this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
+    // }
 
     /**@internal */
-    _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void {
-        //形成路径
-        this.beginPath();
-        //x += args[0], y += args[1];
+    // _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void {
+    //     //形成路径
+    //     this.beginPath();
+    //     //x += args[0], y += args[1];
 
-        //var paths:Array = args[2];
-        for (var i = 0, n = paths.length; i < n; i++) {
+    //     //var paths:Array = args[2];
+    //     for (var i = 0, n = paths.length; i < n; i++) {
 
-            var path: any[] = paths[i];
-            switch (path[0]) {
-                case "moveTo":
-                    this.moveTo(x + path[1], y + path[2]);
-                    break;
-                case "lineTo":
-                    this.lineTo(x + path[1], y + path[2]);
-                    break;
-                case "arcTo":
-                    this.arcTo(x + path[1], y + path[2], x + path[3], y + path[4], path[5]);
-                    break;
-                case "closePath":
-                    this.closePath();
-                    break;
-            }
-        }
+    //         var path: any[] = paths[i];
+    //         switch (path[0]) {
+    //             case "moveTo":
+    //                 this.moveTo(x + path[1], y + path[2]);
+    //                 break;
+    //             case "lineTo":
+    //                 this.lineTo(x + path[1], y + path[2]);
+    //                 break;
+    //             case "arcTo":
+    //                 this.arcTo(x + path[1], y + path[2], x + path[3], y + path[4], path[5]);
+    //                 break;
+    //             case "closePath":
+    //                 this.closePath();
+    //                 break;
+    //         }
+    //     }
 
-        //var brush:Object = args[3];
-        if (brush != null) {
-            this.fillStyle = brush.fillStyle;
-            this.fill();
-        }
+    //     //var brush:Object = args[3];
+    //     if (brush != null) {
+    //         this.fillStyle = brush.fillStyle;
+    //         this.fill();
+    //     }
 
-        //var pen:Object = args[4];
-        if (pen != null) {
-            this.strokeStyle = pen.strokeStyle;
-            this.lineWidth = pen.lineWidth || 1;
-            this.lineJoin = pen.lineJoin;
-            this.lineCap = pen.lineCap;
-            this.miterLimit = pen.miterLimit;
-            this.stroke();
-        }
-    }
+    //     //var pen:Object = args[4];
+    //     if (pen != null) {
+    //         this.strokeStyle = pen.strokeStyle;
+    //         this.lineWidth = pen.lineWidth || 1;
+    //         this.lineJoin = pen.lineJoin;
+    //         this.lineCap = pen.lineCap;
+    //         this.miterLimit = pen.miterLimit;
+    //         this.stroke();
+    //     }
+    // }
 
     //  static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
@@ -718,22 +718,22 @@ export class Context {
         return this._fillColor;
     }
 
-    set fillStyle(value: any) {
-        if (!this._fillStyle.equal(value)) {
-            SaveBase.save(this, SaveBase.TYPE_FILESTYLE, this._shader2D, false);
-            this._fillStyle = DrawStyle.create(value);
-            this._submitKey.other = -this._fillStyle._color.numColor;
-        }
-    }
+    // set fillStyle(value: any) {
+    //     if (!this._fillStyle.equal(value)) {
+    //         SaveBase.save(this, SaveBase.TYPE_FILESTYLE, this._shader2D, false);
+    //         this._fillStyle = DrawStyle.create(value);
+    //         this._submitKey.other = -this._fillStyle._color.numColor;
+    //     }
+    // }
 
-    get fillStyle(): any {
-        return this._fillStyle;
-    }
+    // get fillStyle(): any {
+    //     return this._fillStyle;
+    // }
 
     set globalAlpha(value: number) {
         value = Math.floor(value * 1000) / 1000;
         if (value != this._alpha) {
-            SaveBase.save(this, SaveBase.TYPE_ALPHA, this._shader2D, false);
+           // SaveBase.save(this, SaveBase.TYPE_ALPHA, this._shader2D, false);
             this._alpha = value;
         }
     }
@@ -743,7 +743,7 @@ export class Context {
     }
 
     set textAlign(value: string) {
-        (this._other.textAlign === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_TEXTALIGN, this._other, false), this._other.textAlign = value);
+       // (this._other.textAlign === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_TEXTALIGN, this._other, false), this._other.textAlign = value);
     }
 
     get textAlign(): string {
@@ -751,7 +751,7 @@ export class Context {
     }
 
     set textBaseline(value: string) {
-        (this._other.textBaseline === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_TEXTBASELINE, this._other, false), this._other.textBaseline = value);
+      //  (this._other.textBaseline === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_TEXTBASELINE, this._other, false), this._other.textBaseline = value);
     }
 
     get textBaseline(): string {
@@ -761,7 +761,7 @@ export class Context {
     set globalCompositeOperation(value: string) {
         this._drawToRender2D(this._curSubmit);
         var n = BlendMode.TOINT[value];
-        n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
+     //   n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
     }
 
     get globalCompositeOperation(): string {
@@ -769,7 +769,7 @@ export class Context {
     }
 
     set strokeStyle(value: any) {
-        this._strokeStyle.equal(value) || (SaveBase.save(this, SaveBase.TYPE_STROKESTYLE, this._shader2D, false), this._strokeStyle = DrawStyle.create(value), this._submitKey.other = -this._strokeStyle._color.numColor);
+    //    this._strokeStyle.equal(value) || (SaveBase.save(this, SaveBase.TYPE_STROKESTYLE, this._shader2D, false), this._strokeStyle = DrawStyle.create(value), this._submitKey.other = -this._strokeStyle._color.numColor);
     }
 
     get strokeStyle(): any {
@@ -778,9 +778,9 @@ export class Context {
 
     translate(x: number, y: number): void {
         if (x !== 0 || y !== 0) {
-            SaveTranslate.save(this);
+         //   SaveTranslate.save(this);
             if (this._curMat._bTransform) {
-                SaveTransform.save(this);
+           //     SaveTransform.save(this);
                 //translate的话，相当于在当前坐标系下移动x,y，所以直接修改_curMat,然后x,y就消失了。
                 this._curMat.tx += (x * this._curMat.a + y * this._curMat.c);
                 this._curMat.ty += (x * this._curMat.b + y * this._curMat.d);
@@ -792,7 +792,7 @@ export class Context {
     }
 
     set lineWidth(value: number) {
-        (this._other.lineWidth === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_LINEWIDTH, this._other, false), this._other.lineWidth = value);
+      //  (this._other.lineWidth === value) || (this._other = this._other.make(), SaveBase.save(this, SaveBase.TYPE_LINEWIDTH, this._other, false), this._other.lineWidth = value);
     }
 
     get lineWidth(): number {
@@ -800,7 +800,7 @@ export class Context {
     }
 
     save(): void {
-        this._save[this._save._length++] = SaveMark.Create(this);
+       // this._save[this._save._length++] = SaveMark.Create(this);
     }
 
     restore(): void {
@@ -810,7 +810,7 @@ export class Context {
             return;
         for (var i = sz - 1; i >= 0; i--) {
             var o: ISaveData = this._save[i];
-            o.restore(this);
+          //  o.restore(this);
             if (o.isSaveMark()) {
                 this._save._length = i;
                 return;
@@ -822,24 +822,24 @@ export class Context {
         }
     }
 
-    fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
-        Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
-    }
+    // fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
+    //     Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
+    // }
     // 与fillText的区别是没有border信息
-    drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
-        Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
-    }
-    strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-        Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
-    }
-    fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
-        Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
-    }
+    // drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
+    //     Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
+    // }
+    // strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
+    //     Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
+    // }
+    // fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
+    //     Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
+    // }
 
     /**@internal */
-    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
-    }
+    // _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
+    //     Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
+    // }
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
@@ -862,15 +862,15 @@ export class Context {
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
-                this.fillShaderValue(submit._internalShaderData);
-                this._copyClipInfo(submit._internalShaderData);
-                submit.clipInfoID = this._clipInfoID;
-                if (!this._lastTex || this._lastTex.destroyed) {
-                    submit._internalShaderData.textureHost = this.defTexture;
-                } else {
-                    submit._internalShaderData.textureHost = this._lastTex;
-                }
+                // submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
+                // this.fillShaderValue(submit._internalShaderData);
+                // this._copyClipInfo(submit._internalShaderData);
+                // submit.clipInfoID = this._clipInfoID;
+                // if (!this._lastTex || this._lastTex.destroyed) {
+                //     submit._internalShaderData.textureHost = this.defTexture;
+                // } else {
+                //     submit._internalShaderData.textureHost = this._lastTex;
+                // }
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
@@ -880,22 +880,22 @@ export class Context {
         }
     }
 
-    fillRect(x: number, y: number, width: number, height: number, fillStyle: any): void {
-        var drawstyle: DrawStyle = fillStyle ? DrawStyle.create(fillStyle) : this._fillStyle;
-        //var rgb = drawstyle.toInt() ;
-        //由于显卡的格式是 rgba，所以需要处理一下
-        //var rgba:uint = ((rgb & 0xff0000) >> 16) | (rgb & 0x00ff00) | ((rgb & 0xff) << 16) | (_shader2D.ALPHA * 255) << 24;
-        var rgba = this.mixRGBandAlpha(drawstyle._color.numColor);
-        this._fillRect(x, y, width, height, rgba);
-    }
+    // fillRect(x: number, y: number, width: number, height: number, fillStyle: any): void {
+    //     var drawstyle: DrawStyle = fillStyle ? DrawStyle.create(fillStyle) : this._fillStyle;
+    //     //var rgb = drawstyle.toInt() ;
+    //     //由于显卡的格式是 rgba，所以需要处理一下
+    //     //var rgba:uint = ((rgb & 0xff0000) >> 16) | (rgb & 0x00ff00) | ((rgb & 0xff) << 16) | (_shader2D.ALPHA * 255) << 24;
+    //     var rgba = this.mixRGBandAlpha(drawstyle._color.numColor);
+    //     this._fillRect(x, y, width, height, rgba);
+    // }
 
-    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
-        if (!texture._getSource()) {
-            this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
-            return;
-        }
-        this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
-    }
+    // fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
+    //     if (!texture._getSource()) {
+    //         this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
+    //         return;
+    //     }
+    //     this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
+    // }
 
     /**@internal */
     private _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
@@ -962,10 +962,10 @@ export class Context {
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             sv.u_TexRange = Vector4.TEMP;
-            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
+            //submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
             submit.clipInfoID = this._clipInfoID;
-            submit._internalShaderData.textureHost = texture;
+           // submit._internalShaderData.textureHost = texture;
             var rgba = this._mixRGBandAlpha(color, this._alpha);
             (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
 
@@ -980,7 +980,7 @@ export class Context {
      * @param filter
      */
     setColorFilter(filter: ColorFilter): void {
-        SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
+       // SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
         //_shader2D.filters = value;
         this._colorFiler = filter;
         this.stopMerge = true;
@@ -1060,46 +1060,46 @@ export class Context {
         let mesh = this._mesh;
         if (mesh.indexNum <= 0)
             return;
-        let shaderValue = submit._internalShaderData;
-        let shaderdata = shaderValue.shaderData;
-        switch (submit._key.blendShader) {
-            case 1://add
-            case 3://screen
-            case 5://light
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-                break;
-            case 2://BlendMultiply
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            case 6://mask
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
-                break;
-            case 7://destination
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
-                break;
-            case 9:// not premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-                break;
-            default:// premul alpha
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-        }
+       // let shaderValue; = submit._internalShaderData;
+        // let shaderdata = shaderValue.shaderData;
+        // switch (submit._key.blendShader) {
+        //     case 1://add
+        //     case 3://screen
+        //     case 5://light
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+        //         break;
+        //     case 2://BlendMultiply
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        //         break;
+        //     case 6://mask
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+        //         break;
+        //     case 7://destination
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+        //         break;
+        //     case 9:// not premul alpha
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        //         break;
+        //     default:// premul alpha
+        //         shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        //         shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        // }
 
-        if (submit._colorFiler) {
-            var ft = submit._colorFiler;
-            shaderValue.setFilter(ft);
-            Matrix4x4.TEMP.cloneByArray(ft._mat);
-            shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
-            Vector4.TEMP.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
-            shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-        }
+        // if (submit._colorFiler) {
+        //     var ft = submit._colorFiler;
+        //     shaderValue.setFilter(ft);
+        //     Matrix4x4.TEMP.cloneByArray(ft._mat);
+        //     shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
+        //     Vector4.TEMP.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
+        //     shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
+        // }
 
-        this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit._internalShaderData, submit.material);
+    //    this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit._internalShaderData, submit.material);
         this.stopMerge = false;
         this._drawCount++;
     }
@@ -1203,9 +1203,9 @@ export class Context {
             let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
             this.fillShaderValue(shaderValue);
             shaderValue.textureHost = tex;
-            this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
+           // this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
             submit._key.other = imgid;
-            this._copyClipInfo(submit._internalShaderData);
+         //   this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
@@ -1383,14 +1383,14 @@ export class Context {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = SubmitBase.create(this, this._mesh,
-                Value2D.create(RenderSpriteData.Texture2D));
-            submit._internalShaderData.textureHost = tex;
-            this.fillShaderValue(submit._internalShaderData);
-            submit._key.submitType = SubmitBase.KEY_TRIANGLES;
-            submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit._internalShaderData);
-            submit.clipInfoID = this._clipInfoID;
+        //    var submit = this._curSubmit = SubmitBase.create(this, this._mesh,
+          //     Value2D.create(RenderSpriteData.Texture2D));
+          //  submit._internalShaderData.textureHost = tex;
+           // this.fillShaderValue(submit._internalShaderData);
+           // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
+            //submit._key.other = webGLImg.id;
+            //this._copyClipInfo(submit._internalShaderData);
+            //submit.clipInfoID = this._clipInfoID;
         }
 
         var rgba = this._mixRGBandAlpha(colorNum, this._alpha * alpha);
@@ -1416,23 +1416,23 @@ export class Context {
     }
 
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
-        SaveTransform.save(this);
+    //   SaveTransform.save(this);
         Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat);	//TODO 这里会有效率问题。一堆的set
         this._curMat._checkTransform();
     }
 
     rotate(angle: number): void {
-        SaveTransform.save(this);
+      //  SaveTransform.save(this);
         this._curMat.rotateEx(angle);
     }
 
     scale(scaleX: number, scaleY: number): void {
-        SaveTransform.save(this);
+       // SaveTransform.save(this);
         this._curMat.scaleEx(scaleX, scaleY);
     }
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
-        SaveClipRect.save(this);
+        //SaveClipRect.save(this);
         if (this._clipRect == Context.MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
@@ -1594,7 +1594,7 @@ export class Context {
             this._drawToRender2D(submit);
             this._mesh = this._meshVG;
             this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit._internalShaderData);
+          //  this.fillShaderValue(this._curSubmit._internalShaderData);
         }
         var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
         var curEleNum = 0;
@@ -1639,7 +1639,7 @@ export class Context {
                 //然后用新的mesh，和新的submit。
                 this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
                 this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit._internalShaderData);
+               // this.fillShaderValue(this._curSubmit._internalShaderData);
             }
 
             var curvert = this._mesh.vertexNum;
@@ -1672,14 +1672,14 @@ export class Context {
 
     private addVGSubmit(mesh: Sprite2DGeometry): SubmitBase {
         //elenum设为0，后面再加
-        var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
-        this.fillShaderValue(submit._internalShaderData);
-        //submit._key.clear();
-        //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
-        submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit._internalShaderData);
-        submit.clipInfoID = this._clipInfoID;
-        return submit;
+        // var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
+        // this.fillShaderValue(submit._internalShaderData);
+        // //submit._key.clear();
+        // //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
+        // submit._key.submitType = SubmitBase.KEY_VG;
+        // this._copyClipInfo(submit._internalShaderData);
+        // submit.clipInfoID = this._clipInfoID;
+        return null;
     }
 
     stroke(): void {
@@ -1696,7 +1696,7 @@ export class Context {
             this._drawToRender2D(this._curSubmit);
             this._mesh = this._meshVG;
             this._curSubmit = this.addVGSubmit(this._mesh);
-            this.fillShaderValue(this._curSubmit._internalShaderData);
+        //    this.fillShaderValue(this._curSubmit._internalShaderData);
         }
         var curEleNum = 0;
         //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
@@ -1719,7 +1719,7 @@ export class Context {
                 //然后用新的mesh，和新的submit。
                 this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
                 this._curSubmit = this.addVGSubmit(this._mesh);
-                this.fillShaderValue(this._curSubmit._internalShaderData);
+                //this.fillShaderValue(this._curSubmit._internalShaderData);
             }
             //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
             BasePoly.createLine2(p.path, idx, this.lineWidth, this._mesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
@@ -1991,34 +1991,34 @@ export class Context {
         return (color & 0x00ffffff) | (a << 24);
     }
 
-    strokeRect(x: number, y: number, width: number, height: number, parameterLineWidth: number): void {
-        var tW = parameterLineWidth * 0.5;
-        //line(x - tW, y, x + width + tW, y, parameterLineWidth, _curMat);
-        //line(x + width, y, x + width, y + height, parameterLineWidth, _curMat);
-        //line(x, y, x, y + height, parameterLineWidth, _curMat);
-        //line(x - tW, y + height, x + width + tW, y + height, parameterLineWidth, _curMat);
-        /**
-         * p1-------------------------------p2
-         * |  x,y                      x+w,y|
-         * |     p4--------------------p3   |
-         * |     |                     |    |
-         * |     p6--------------------p7   |
-         * |  x,y+h                  x+w,y+h|
-         * p5-------------------------------p8
-         * 
-         * 不用了
-         * 这个其实用4个fillrect拼起来更好，能与fillrect合并。虽然多了几个点。
-         */
-        //TODO 这里能不能与下面的stroke合并一下
-        if (this.lineWidth > 0) {
-            var rgba = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
-            var hw = this.lineWidth / 2;
-            this._fillRect(x - hw, y - hw, width + this.lineWidth, this.lineWidth, rgba);				//上
-            this._fillRect(x - hw, y - hw + height, width + this.lineWidth, this.lineWidth, rgba);		//下
-            this._fillRect(x - hw, y + hw, this.lineWidth, height - this.lineWidth, rgba);					//左
-            this._fillRect(x - hw + width, y + hw, this.lineWidth, height - this.lineWidth, rgba);			//右
-        }
-    }
+    // strokeRect(x: number, y: number, width: number, height: number, parameterLineWidth: number): void {
+    //     var tW = parameterLineWidth * 0.5;
+    //     //line(x - tW, y, x + width + tW, y, parameterLineWidth, _curMat);
+    //     //line(x + width, y, x + width, y + height, parameterLineWidth, _curMat);
+    //     //line(x, y, x, y + height, parameterLineWidth, _curMat);
+    //     //line(x - tW, y + height, x + width + tW, y + height, parameterLineWidth, _curMat);
+    //     /**
+    //      * p1-------------------------------p2
+    //      * |  x,y                      x+w,y|
+    //      * |     p4--------------------p3   |
+    //      * |     |                     |    |
+    //      * |     p6--------------------p7   |
+    //      * |  x,y+h                  x+w,y+h|
+    //      * p5-------------------------------p8
+    //      * 
+    //      * 不用了
+    //      * 这个其实用4个fillrect拼起来更好，能与fillrect合并。虽然多了几个点。
+    //      */
+    //     //TODO 这里能不能与下面的stroke合并一下
+    //     if (this.lineWidth > 0) {
+    //         var rgba = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
+    //         var hw = this.lineWidth / 2;
+    //         this._fillRect(x - hw, y - hw, width + this.lineWidth, this.lineWidth, rgba);				//上
+    //         this._fillRect(x - hw, y - hw + height, width + this.lineWidth, this.lineWidth, rgba);		//下
+    //         this._fillRect(x - hw, y + hw, this.lineWidth, height - this.lineWidth, rgba);					//左
+    //         this._fillRect(x - hw + width, y + hw, this.lineWidth, height - this.lineWidth, rgba);			//右
+    //     }
+    // }
 
     /*******************************************end矢量绘制***************************************************/
     //TODO:coverage
@@ -2122,164 +2122,164 @@ export class Context {
     }
 
     private static tmpUVRect: any[] = [0, 0, 0, 0];
-    drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
-        if (!tex._getSource())
-            return;
-        tx += gx;
-        ty += gy;
+    // drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
+    //     if (!tex._getSource())
+    //         return;
+    //     tx += gx;
+    //     ty += gy;
 
-        var uv = tex.uv, w = tex.bitmap.width, h = tex.bitmap.height;
+    //     var uv = tex.uv, w = tex.bitmap.width, h = tex.bitmap.height;
 
-        var top = sizeGrid[0];
-        var left = sizeGrid[3];
-        var right = sizeGrid[1];
-        var bottom = sizeGrid[2];
-        var repeat = sizeGrid[4];
+    //     var top = sizeGrid[0];
+    //     var left = sizeGrid[3];
+    //     var right = sizeGrid[1];
+    //     var bottom = sizeGrid[2];
+    //     var repeat = sizeGrid[4];
 
-        if (width == tex.width) {
-            left = right = 0;
-        }
-        if (height == tex.height) {
-            top = bottom = 0;
-        }
+    //     if (width == tex.width) {
+    //         left = right = 0;
+    //     }
+    //     if (height == tex.height) {
+    //         top = bottom = 0;
+    //     }
 
-        var imgid = (tex.bitmap as Texture2D).id;
-        var mat: Matrix = this._curMat;
-        var tuv = this._tempUV;
+    //     var imgid = (tex.bitmap as Texture2D).id;
+    //     var mat: Matrix = this._curMat;
+    //     var tuv = this._tempUV;
 
-        //当width过小的情况
-        let hasmidx = true;
-        if (left + right > width) {
-            hasmidx = false;
-            //有时候用户会把左右切割的大小不一致,如果平分裁剪,会导致左右的半圆对不上,假设用户的图片左右两边的半圆是相同的
-            //那么更好的方法是优先裁剪长的那一段
-            this._gridCut(left, right, width, _clipResult);
-            left = _clipResult.x;
-            right = _clipResult.y;
-        }
+    //     //当width过小的情况
+    //     let hasmidx = true;
+    //     if (left + right > width) {
+    //         hasmidx = false;
+    //         //有时候用户会把左右切割的大小不一致,如果平分裁剪,会导致左右的半圆对不上,假设用户的图片左右两边的半圆是相同的
+    //         //那么更好的方法是优先裁剪长的那一段
+    //         this._gridCut(left, right, width, _clipResult);
+    //         left = _clipResult.x;
+    //         right = _clipResult.y;
+    //     }
 
-        let hasmidy = true;
-        if (top + bottom > height) {
-            hasmidy = false;
-            this._gridCut(top, bottom, height, _clipResult);
-            top = _clipResult.x;
-            bottom = _clipResult.y;
-        }
+    //     let hasmidy = true;
+    //     if (top + bottom > height) {
+    //         hasmidy = false;
+    //         this._gridCut(top, bottom, height, _clipResult);
+    //         top = _clipResult.x;
+    //         bottom = _clipResult.y;
+    //     }
 
-        var d_top = top / h;
-        var d_left = left / w;
-        var d_right = right / w;
-        var d_bottom = bottom / h;
+    //     var d_top = top / h;
+    //     var d_left = left / w;
+    //     var d_right = right / w;
+    //     var d_bottom = bottom / h;
 
 
 
-        // 整图的uv
-        // 一定是方的，所以uv只要左上右下就行
-        var uvl = uv[0];
-        var uvt = uv[1];
-        var uvr = uv[4];
-        var uvb = uv[5];
+    //     // 整图的uv
+    //     // 一定是方的，所以uv只要左上右下就行
+    //     var uvl = uv[0];
+    //     var uvt = uv[1];
+    //     var uvr = uv[4];
+    //     var uvb = uv[5];
 
-        // 小图的uv
-        var uvl_ = uvl;
-        var uvt_ = uvt;
-        var uvr_ = uvr;
-        var uvb_ = uvb;
+    //     // 小图的uv
+    //     var uvl_ = uvl;
+    //     var uvt_ = uvt;
+    //     var uvr_ = uvr;
+    //     var uvb_ = uvb;
 
-        //绘制四个角
-        // 构造uv
-        if (left && top) {
-            uvr_ = uvl + d_left;
-            uvb_ = uvt + d_top;
-            tuv[0] = uvl, tuv[1] = uvt, tuv[2] = uvr_, tuv[3] = uvt,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color);
-        }
-        if (right && top) {
-            uvl_ = uvr - d_right; uvt_ = uvt;
-            uvr_ = uvr; uvb_ = uvt + d_top;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color);
-        }
-        if (left && bottom) {
-            uvl_ = uvl; uvt_ = uvb - d_bottom;
-            uvr_ = uvl + d_left; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color);
-        }
-        if (right && bottom) {
-            uvl_ = uvr - d_right; uvt_ = uvb - d_bottom;
-            uvr_ = uvr; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
-        }
-        //绘制上下两个边
-        if (top && hasmidx) {
-            uvl_ = uvl + d_left; uvt_ = uvt;
-            uvr_ = uvr - d_right; uvb_ = uvt + d_top;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, top, left + tx, ty, width - left - right, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color);
-            }
+    //     //绘制四个角
+    //     // 构造uv
+    //     if (left && top) {
+    //         uvr_ = uvl + d_left;
+    //         uvb_ = uvt + d_top;
+    //         tuv[0] = uvl, tuv[1] = uvt, tuv[2] = uvr_, tuv[3] = uvt,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color);
+    //     }
+    //     if (right && top) {
+    //         uvl_ = uvr - d_right; uvt_ = uvt;
+    //         uvr_ = uvr; uvb_ = uvt + d_top;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color);
+    //     }
+    //     if (left && bottom) {
+    //         uvl_ = uvl; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvl + d_left; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color);
+    //     }
+    //     if (right && bottom) {
+    //         uvl_ = uvr - d_right; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvr; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
+    //     }
+    //     //绘制上下两个边
+    //     if (top && hasmidx) {
+    //         uvl_ = uvl + d_left; uvt_ = uvt;
+    //         uvr_ = uvr - d_right; uvb_ = uvt + d_top;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, top, left + tx, ty, width - left - right, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color);
+    //         }
 
-        }
-        if (bottom && hasmidx) {
-            uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
-            uvr_ = uvr - d_right; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, bottom, left + tx, height - bottom + ty, width - left - right, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color);
-            }
-        }
-        //绘制左右两边
-        if (left && hasmidy) {
-            uvl_ = uvl; uvt_ = uvt + d_top;
-            uvr_ = uvl + d_left; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_v(tex, imgid, tuv, left, tex.height - top - bottom, tx, top + ty, height - top - bottom, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-        if (right && hasmidy) {
-            uvl_ = uvr - d_right; uvt_ = uvt + d_top;
-            uvr_ = uvr; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_v(tex, imgid, tuv, right, tex.height - top - bottom, width - right + tx, top + ty, height - top - bottom, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-        //绘制中间
-        if (hasmidx && hasmidy) {
-            uvl_ = uvl + d_left; uvt_ = uvt + d_top;
-            uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                var tuvr: any[] = Context.tmpUVRect;
-                tuvr[0] = uvl_; tuvr[1] = uvt_;
-                tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
-                // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
-                this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-    }
+    //     }
+    //     if (bottom && hasmidx) {
+    //         uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvr - d_right; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, bottom, left + tx, height - bottom + ty, width - left - right, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     //绘制左右两边
+    //     if (left && hasmidy) {
+    //         uvl_ = uvl; uvt_ = uvt + d_top;
+    //         uvr_ = uvl + d_left; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_v(tex, imgid, tuv, left, tex.height - top - bottom, tx, top + ty, height - top - bottom, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     if (right && hasmidy) {
+    //         uvl_ = uvr - d_right; uvt_ = uvt + d_top;
+    //         uvr_ = uvr; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_v(tex, imgid, tuv, right, tex.height - top - bottom, width - right + tx, top + ty, height - top - bottom, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     //绘制中间
+    //     if (hasmidx && hasmidy) {
+    //         uvl_ = uvl + d_left; uvt_ = uvt + d_top;
+    //         uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             var tuvr: any[] = Context.tmpUVRect;
+    //             tuvr[0] = uvl_; tuvr[1] = uvt_;
+    //             tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
+    //             // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
+    //             this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    // }
 }
 
 

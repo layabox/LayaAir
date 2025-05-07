@@ -3,9 +3,9 @@ import { Line2DRender } from "./Line2DRender";
 import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
 import { Vector3 } from "../maths/Vector3";
-import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Draw2DElementCMD } from "../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 export class Draw2DLineCMD extends Command2D {
     private static _pool: Draw2DLineCMD[] = [];
@@ -44,12 +44,12 @@ export class Draw2DLineCMD extends Command2D {
         vec3.y = mat.c;
         vec3.z = mat.tx;
         //vec3.z = mat.tx + mat.a * px + mat.c * py;
-        this._line2DRender._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+        this._line2DRender._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
         vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = mat.ty;
         //vec3.z = mat.ty + mat.b * px + mat.d * py;
-        this._line2DRender._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
+        this._line2DRender._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
     }
 
     /**
@@ -71,7 +71,7 @@ export class Draw2DLineCMD extends Command2D {
         //     this._drawElementData.setRenderelements(this._line2DRender._renderElements)
         //     this._needUpdateElement = false;
         // }
-        this._line2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
+      //  this._line2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
     }
 
 

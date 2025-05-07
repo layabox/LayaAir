@@ -195,28 +195,28 @@ export class Trail2DRender extends BaseRenderNode2D {
     addCMDCall(context: Context, px: number, py: number): void {
         //渲染节点数据是Global数据，使用Scene的数据  
         let mat;
-         if(this.owner.scene && !context._drawingToTexture){
+        if (this.owner.scene && !context._drawingToTexture) {
             mat = Matrix.TEMP;
-            Matrix.mul( this.owner.scene.globalTrans.getMatrix(),Laya.stage.transform,mat); 
-         }else{
+            Matrix.mul(this.owner.scene.globalTrans.getMatrix(), Laya.stage.transform, mat);
+        } else {
             mat = Matrix.EMPTY;
-         }
+        }
         let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
         vec3.z = mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+        //  this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
         vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
-        this._setRenderSize(context.width, context.height);
+        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
+        // this._setRenderSize(context.width, context.height);
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
     onPreRender(): void {
-       let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000,0.016);
-       
+        let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000, 0.016);
+
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
@@ -243,7 +243,7 @@ export class Trail2DRender extends BaseRenderNode2D {
                 trailGeometry._addTrailByNextPosition(curPosV3, curtime, this.minVertexDistance, pointAtoBVector3, delLength)
             }
         }
-        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode,50);
+        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode, 50);
         curPosV3.cloneTo(this._trailFilter._lastPosition);
         if (trailGeometry._disappearBoundsMode) {
             //caculate bound

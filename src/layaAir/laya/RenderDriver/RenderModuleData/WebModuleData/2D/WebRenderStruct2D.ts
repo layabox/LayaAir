@@ -7,70 +7,69 @@ import { SpriteGlobalTransform } from "../../../../display/SpriteGlobaTransform"
 import { WebRender2DPass } from "./WebRender2DPass";
 import { Render2DSimple } from "../../../../renders/Render2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Const } from "../../../../Const";
+import { IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
 
-const _DefaultClipInfo : IClipInfo = {
+const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
    clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
    clipMatPos: new Vector4(0, 0, 0, 0),
 }
 export class WebRenderStruct2D implements IRenderStruct2D {
 
+   //2d 渲染组织流程数据
    zOrder: number;
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
-   /** 待定 */
-   transform: SpriteGlobalTransform = null;
 
-   _renderType: number = -1;
-
-   _renderElements: IRenderElement2D[] = [];
-
-   globalAlpha: number = 1.0;
-
-   alpha: number = 1.0;
-   
-   spriteShaderData: ShaderData = null;
+   renderLayer: number = 0;
 
    parent: WebRenderStruct2D | null;
 
    children: WebRenderStruct2D[] = [];
 
-   pass: WebRender2DPass;
+   /** 按标记来 */
+   renderType: number;
 
-   renderLayer: number = 0;
-   /** @internal */
-   _renderUpdateMask: number = 0;
-   /** 目前只做记录 */
-   blendMode:string = null;
+   renderUpdateMask: number;
+
+   //渲染继承累加数据
+   transform: SpriteGlobalTransform = null;
+
+
+   globalAlpha: number = 1.0;
+
+   alpha: number = 1.0;
+
+   blendMode: string = null;
    /** 是否启动 */
-   enable:boolean = true;
+   enable: boolean = true;
+
+   //渲染数据
+
+   isRenderStruct: boolean = false;
+
+   renderElements: IRenderElement2D[] = null;
+
+   spriteShaderData: ShaderData = null;
+
+   commonUniformMap: string[] = null;
+
+   renderDataHandler: IRender2DDataHandle;
+
+   pass: WebRender2DPass;
 
    constructor() {
    }
 
-   public get lightReceive() {
-      return this.spriteShaderData.hasDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
-   }
-
-   public set lightReceive(value) {
-      if (value) {
-         this.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
-      } else {
-         this.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
-      }
-   }
 
    // private _clipMatrix: Matrix = null;
    // private _parentClipMatrix: Matrix = null;
    private _clipRect: Rectangle = null;
    private _parentClipInfo: IClipInfo = null;
-   private _clipInfo:IClipInfo = null;
+   private _clipInfo: IClipInfo = null;
 
    // RenderNode
    private _rnUpdateCall: any = null;
@@ -89,7 +88,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    private _sUpdateFun: any = null;
    private _sClearRepaint: any = null;
 
-   set_spriteUpdateCall(call: any, renderUpdateFun: any , clearRepaint:any): void {
+   set_spriteUpdateCall(call: any, renderUpdateFun: any, clearRepaint: any): void {
       this._sUpdateCall = call;
       this._sUpdateFun = renderUpdateFun;
       this._sClearRepaint = clearRepaint;
@@ -113,24 +112,32 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._getBoundsFun = getBoundsFun;
    }
 
-   // /** @internal */
-   // private _updateChildrenRect(): void {
-   //    let clipRect: Rectangle = this._clipRect ? this._clipRect : this._parentClipRect;
-   //    for (const child of this.children) {
-   //       child._parentClipRect = clipRect;
-   //       child._updateChildrenRect();
-   //    }
-   // }
-
-   private _updateGlobalAlpha(): void {
+   //处理Struct的继承数据，后续没有必要就删除
+   _handleInterData(): void {
       if (this.parent) {
          this.globalAlpha = this.alpha * this.parent.globalAlpha;
       } else {
          this.globalAlpha = this.alpha;
       }
+
+      //clip处理 TODO
+      // let rect = this._scrollRect;
+      // let info = this.getClipInfo();
+      // if (rect) {
+      //     let cm = info.clipMatrix;
+      //     let { x, y, width, height } = rect;
+      //     cm.tx = x * mat.a + y * mat.c + mat.tx;
+      //     cm.ty = x * mat.b + y * mat.d + mat.ty;
+      //     cm.a = width * mat.a;
+      //     cm.b = width * mat.b;
+      //     cm.c = height * mat.c;
+      //     cm.d = height * mat.d;
+      //     info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
+      //     info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
+      // }
    }
 
-   setClipRect(rect:Rectangle):void{
+   setClipRect(rect: Rectangle): void {
       this._clipRect = rect;
       this._initClipInfo();
       this._updateChildrenClipMatirx();
@@ -206,20 +213,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    renderUpdate(context: IRenderContext2D): void {
-      this._updateGlobalAlpha();
-
-      this._sUpdateFun?.call(this._sUpdateCall, context);
-
-      this._rnUpdateFun?.call(this._rnUpdateCall, context);
-
-      this._gUpdateFun?.call(this._gUpdateCall, Render2DSimple.runner, 0, 0);
-      
-      this._sClearRepaint?.call(this._sUpdateCall);
+      this.renderDataHandler.inheriteRenderData(context);
    }
 
    preRenderUpdate(context: IRenderContext2D): void {
 
-      this._renderElements.length = 0;
+      this.renderElements.length = 0;
 
       if (this._rnPreUpdateFun) {
          this._rnPreUpdateFun.call(this._rnUpdateCall, context);
@@ -227,12 +226,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (this._gGetElementsFun) {
          let elements = this._gGetElementsFun.call(this._gUpdateCall);
-         this._renderElements.push(...elements);
+         this.renderElements.push(...elements);
       }
 
       if (this._rnGetElementsFun) {
          let elements = this._rnGetElementsFun.call(this._rnUpdateCall);
-         this._renderElements.push(...elements);
+         this.renderElements.push(...elements);
       }
 
       // let _needRepaint = this.owner._needRepaint();
@@ -255,8 +254,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._clipInfo = null;
       this._parentClipInfo = null;
       this._clipRect = null;
-      this._renderElements.length = 0;
-      this._renderElements = null;
+      this.renderElements.length = 0;
+      this.renderElements = null;
       this.spriteShaderData = null;
       this.parent = null;
       this.children.length = 0;

@@ -1,5 +1,4 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { Context } from "../../../../renders/Context";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRender2DPass } from "../../Design/2D/IRender2DPass";
 

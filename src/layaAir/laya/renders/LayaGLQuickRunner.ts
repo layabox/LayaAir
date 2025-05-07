@@ -146,8 +146,8 @@ export class LayaGLQuickRunner {
 
             context.save();
             context.transformByMatrix(sprite.transform, x, y);
-            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-                sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
+            // if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+            //     sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
             context.restore();
 
             context.globalAlpha = temp;
@@ -171,8 +171,8 @@ export class LayaGLQuickRunner {
         if (alpha > 0.01 || sprite._needRepaint()) {
             var temp = context.globalAlpha;
             context.globalAlpha *= alpha;
-            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-                sprite._graphics && sprite._graphics._render(sprite, context, x - sprite.pivotX, y - sprite.pivotY);
+            // if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+            //     sprite._graphics && sprite._graphics._render(sprite, context, x - sprite.pivotX, y - sprite.pivotY);
             context.globalAlpha = temp;
         }
     }
@@ -192,8 +192,8 @@ export class LayaGLQuickRunner {
     static transform_drawLayaGL(sprite: Sprite, context: Context, x: number, y: number): void {
         context.save();
         context.transformByMatrix(sprite.transform, x, y);
-        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-            sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
+        // if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+        //     sprite._graphics && sprite._graphics._render(sprite, context, -sprite.pivotX, -sprite.pivotY);
         context.restore();
     }
 
@@ -264,8 +264,8 @@ export class LayaGLQuickRunner {
         let drawingToTexture = context._drawingToTexture;
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
-        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
-            sprite._graphics && sprite._graphics._render(sprite, context, x, y);
+        // if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+        //     sprite._graphics && sprite._graphics._render(sprite, context, x, y);
 
         let childs = sprite._children;
         let rect: Rectangle;

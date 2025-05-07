@@ -404,12 +404,12 @@ export class TileMapLayer extends BaseRenderNode2D {
         let mat = context._curMat;
         let vec3 = Vector3.TEMP;
         vec3.setValue(mat.a, mat.c, px * mat.a + py * mat.c + mat.tx);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
 
         vec3.setValue(mat.b, mat.d, px * mat.b + py * mat.d + mat.ty);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
+        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
 
-        this._setRenderSize(context.width, context.height)
+        //this._setRenderSize(context.width, context.height)
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 

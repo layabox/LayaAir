@@ -1,6 +1,6 @@
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RTShaderPass } from "../../RenderModuleData/RuntimeModuleData/RTShaderPass";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
@@ -57,6 +57,7 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
+    owner: IRenderStruct2D;
     private _nodeCommonMap: string[];//TODO
     public get nodeCommonMap(): string[] {
         return this._nodeCommonMap;

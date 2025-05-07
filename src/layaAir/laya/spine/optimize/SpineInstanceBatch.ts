@@ -13,6 +13,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { FastSinglelist } from "../../utils/SingletonList";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 
 /**
@@ -175,8 +176,8 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
             }
 
-            let nMatrix_0= shaderData.getVector3(BaseRenderNode2D.NMATRIX_0);
-            let nMatrix_1 = shaderData.getVector3(BaseRenderNode2D.NMATRIX_1);
+            let nMatrix_0= shaderData.getVector3(ShaderDefines2D.UNIFORM_NMATRIX_0);
+            let nMatrix_1 = shaderData.getVector3(ShaderDefines2D.UNIFORM_NMATRIX_1);
             let nMatrixOffset = instanceCount * 6;
             nMatrixData[nMatrixOffset] = nMatrix_0.x;
             nMatrixData[nMatrixOffset + 1] = nMatrix_0.y;

@@ -10,9 +10,30 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
+    createRender2DPass(): IRender2DPass {
+        throw new Error("Method not implemented.");
+    }
+    createRenderStruct2D(): IRenderStruct2D {
+        throw new Error("Method not implemented.");
+    }
+    createRender2DDataHandle(): IRender2DDataHandle {
+        throw new Error("Method not implemented.");
+    }
+    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
+        throw new Error("Method not implemented.");
+    }
+    create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
+        throw new Error("Method not implemented.");
+    }
+    createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
+        throw new Error("Method not implemented.");
+    }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new NoRenderSetRenderData();
     }
@@ -38,6 +59,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 }
 
 export class NoRenderElement2D implements IRenderElement2D {
+    owner: IRenderStruct2D;
     nodeCommonMap: string[];
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
@@ -51,6 +73,7 @@ export class NoRenderElement2D implements IRenderElement2D {
 }
 
 export class NoRenderContext2D implements IRenderContext2D {
+    passData: ShaderData;
     getRenderTarget(): InternalRenderTarget {
         return null;
     }

@@ -2,6 +2,7 @@ import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 /**
  * @en Translate command
  * @zh 位移命令
@@ -56,7 +57,7 @@ export class TranslateCmd implements IGraphicsCmd {
      * @zh 执行位移命令
      * @param context 渲染上下文
      */
-    run(context: Context): void {
+    run(context: GraphicsRunner): void {
         context.translate(this.tx, this.ty);
     }
 

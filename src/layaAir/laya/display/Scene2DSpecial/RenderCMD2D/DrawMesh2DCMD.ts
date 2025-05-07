@@ -7,6 +7,7 @@ import { Draw2DElementCMD } from "../../../RenderDriver/DriverDesign/2DRenderPas
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { Command2D } from "./Command2D";
 
@@ -56,12 +57,12 @@ export class DrawMesh2DCMD extends Command2D {
         vec3.y = mat.c;
         vec3.z = mat.tx;
         //vec3.z = mat.tx + mat.a * px + mat.c * py;
-        this._mesh2DRender._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+        this._mesh2DRender._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
         vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = mat.ty;
         //vec3.z = mat.ty + mat.b * px + mat.d * py;
-        this._mesh2DRender._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
+        this._mesh2DRender._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
     }
 
     set material(value: Material) {
@@ -125,7 +126,7 @@ export class DrawMesh2DCMD extends Command2D {
             this._needUpdateElement = false;
         }
         // this._mesh2DRender.addCMDCall()
-        this._mesh2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
+       // this._mesh2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
     }
 
     /**

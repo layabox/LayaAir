@@ -6,6 +6,7 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUContext } from "../3DRenderPass/WebGPUContext";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -43,6 +44,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         this._clearColor = new Color();
         this._viewport = new Viewport();
     }
+    passData: ShaderData;
     getRenderTarget(): InternalRenderTarget {
         return this.destRT;
     }

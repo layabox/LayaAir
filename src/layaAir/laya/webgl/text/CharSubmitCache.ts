@@ -90,7 +90,7 @@ export class CharSubmitCache {
         //@ts-ignore
         let submit = ctx._curSubmit = SubmitBase.create(ctx, _mesh, shaderValue);
         submit._key.other = this._imgId;
-        submit._colorFiler = this._colorFiler;
+      //  submit._colorFiler = this._colorFiler;
         //ctx._copyClipInfo(submit.shaderValue);
         var cm = shaderValue.clipMatDir;
         let clipInfo = this._clipMatrix;

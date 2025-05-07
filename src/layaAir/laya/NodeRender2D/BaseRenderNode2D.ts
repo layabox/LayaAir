@@ -2,6 +2,7 @@ import { Const } from "../Const";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { I2DBaseRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
@@ -92,8 +93,8 @@ export class BaseRenderNode2D extends Component {
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
-        // commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
-        // commandUniform.addShaderUniform(BaseRenderNode2D.NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
+        // commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
+        // commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, "u_baseRender2DTextureRange", ShaderDataType.Vector4);
@@ -144,7 +145,7 @@ export class BaseRenderNode2D extends Component {
      * @internal
      * sprite ShaderData,可以为null
      */
-    // _spriteShaderData: ShaderData;
+    _spriteShaderData: ShaderData;
 
     /**
      * 唯一ID
@@ -189,6 +190,8 @@ export class BaseRenderNode2D extends Component {
      * 渲染范围，用于裁剪规则二
      */
     private _rect: Vector4 = new Vector4();
+
+    protected _renderHandle: I2DBaseRenderDataHandle;
 
     /**
      * 获取渲染层掩码
@@ -252,24 +255,15 @@ export class BaseRenderNode2D extends Component {
         (value) && (value._addReference());//TODO:value可以为空
     }
 
-    /**
-     * @override
-     */
-    // _setRenderSize(x: number, y: number) {
-    //     if (x == this._rtsize.x && y == this._rtsize.y)
-    //         return;
-    //     this._rtsize.setValue(x, y);
-    //     this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._rtsize);
-    // }
+
 
     /**@ignore */
     constructor() {
         super();
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
-        // this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        // this._spriteShaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE));
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
+        this._renderHandle = this._getRenderHandle();
     }
 
     /**
@@ -297,6 +291,8 @@ export class BaseRenderNode2D extends Component {
         super._onEnable();
         this.owner._initShaderData();
         this.owner.renderNode2D = this;
+        this._spriteShaderData = this.owner._struct.spriteShaderData;
+        this.owner._struct.renderDataHandler = this._renderHandle;
         if (this._lightReceive)
             this._addRenderToLightManager();
     }
@@ -318,6 +314,10 @@ export class BaseRenderNode2D extends Component {
             m && !m.destroyed && m._removeReference();
         }
         // this._spriteShaderData.destroy();
+    }
+
+    protected _getRenderHandle(): I2DBaseRenderDataHandle {
+        return LayaGL.render2DRenderPassFactory.create2DBaseRenderDataHandle();
     }
 
     /**
@@ -352,7 +352,7 @@ export class BaseRenderNode2D extends Component {
             this._removeRenderFromLightManager();
             // this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
-        this.owner._struct.lightReceive = value;
+        this._renderHandle.lightReceive = value;
         this._resetUpdateMark();
     }
 

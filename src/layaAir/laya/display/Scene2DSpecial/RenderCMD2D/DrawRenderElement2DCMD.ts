@@ -55,12 +55,12 @@ export class DrawRenderElement2DCMD extends Command2D {
             vec3.y = this._matreix.c;
             vec3.z = this._matreix.tx;
             //vec3.z = mat.tx + mat.a * px + mat.c * py;
-            this._renderElement.value2DShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+            this._renderElement.value2DShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
             vec3.x = this._matreix.b;
             vec3.y = this._matreix.d;
             vec3.z = this._matreix.ty;
             //vec3.z = mat.ty + mat.b * px + mat.d * py;
-            this._renderElement.value2DShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
+            this._renderElement.value2DShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
         }
     }
 

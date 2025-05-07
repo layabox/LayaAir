@@ -10,7 +10,7 @@ export interface IBatch2DRender {
     /**合批范围，合批的RenderElement2D直接add进list中 */
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
 
-    recover():void;
+    recover(): void;
 }
 
 export class Batch2DInfo {

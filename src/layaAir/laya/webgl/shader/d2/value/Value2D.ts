@@ -110,7 +110,7 @@ export class Value2D {
         this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, value);
     }
 
-    get size() {
+    get size() {    
         return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_SIZE);
     }
 

@@ -315,12 +315,12 @@ export class Line2DRender extends BaseRenderNode2D {
         vec3.x = mat.a;
         vec3.y = mat.c;
         vec3.z = px * mat.a + py * mat.c + mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
         vec3.x = mat.b;
         vec3.y = mat.d;
         vec3.z = px * mat.b + py * mat.d + mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
-        this._setRenderSize(context.width, context.height);
+        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
+        //this._setRenderSize(context.width, context.height);
         context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 

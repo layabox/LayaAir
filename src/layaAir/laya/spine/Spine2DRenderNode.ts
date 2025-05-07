@@ -179,8 +179,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
         // this._nMatrix_0.setValue(mat.a, mat.b, mat.tx );
         // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty );
-        // shaderData.setVector3(BaseRenderNode2D.NMATRIX_0, this._nMatrix_0);
-        // shaderData.setVector3(BaseRenderNode2D.NMATRIX_1, this._nMatrix_1);
+        // shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        // shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
 
         // Vector2.TEMP.setValue(context.width, context.height);
         // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
