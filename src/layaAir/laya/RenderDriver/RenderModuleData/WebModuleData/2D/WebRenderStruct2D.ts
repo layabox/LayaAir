@@ -12,6 +12,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
+import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
@@ -39,12 +40,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    //渲染继承累加数据
    transform: SpriteGlobalTransform = null;
 
-
    globalAlpha: number = 1.0;
 
    alpha: number = 1.0;
 
    blendMode: string = null;
+   /** @internal */
+   _parentBlendMode: string = null;
+
    /** 是否启动 */
    enable: boolean = true;
 
@@ -82,40 +85,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    // RenderNode
    private _rnUpdateCall: any = null;
    private _rnUpdateFun: any = null;
-   private _rnPreUpdateFun: any = null;
-   private _rnGetElementsFun: any = null;
-   // graphics
-   private _gUpdateCall: any = null;
-   private _gUpdateFun: any = null;
-   private _gGetElementsFun: any = null;
 
-   private _getBoundsCall: any = null;
-   private _getBoundsFun: any = null;
-   // sprite
-   private _sUpdateCall: any = null;
-   private _sUpdateFun: any = null;
-   private _sClearRepaint: any = null;
 
-   set_spriteUpdateCall(call: any, renderUpdateFun: any, clearRepaint: any): void {
-      this._sUpdateCall = call;
-      this._sUpdateFun = renderUpdateFun;
-      this._sClearRepaint = clearRepaint;
-   }
-
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any, preRenderUpdateFun: any, getRenderElements: any): void {
+   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
       this._rnUpdateCall = call;
       this._rnUpdateFun = renderUpdateFun;
    }
-
-   set_grapicsUpdateCall(call: any, renderUpdateFun: any, getRenderElements: any): void {
-      this._gUpdateCall = call;
-      this._gUpdateFun = renderUpdateFun;
-      this._gGetElementsFun = getRenderElements;
+   
+   setAlpha(alpha: number): void {
+      this.alpha = alpha;
+      this._updateChildren(2);
    }
 
-   set_getBoundsCall(call: any, getBoundsFun: any): void {
-      this._getBoundsCall = call;
-      this._getBoundsFun = getBoundsFun;
+   setBlendMode(blendMode: string): void {
+      this.blendMode = blendMode;
+      this._updateChildren(1);
    }
 
    //处理Struct的继承数据，后续没有必要就删除
@@ -143,10 +127,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       // }
    }
 
-   setClipRect(rect: Rectangle): void {
+   getBlendMode(): string {
+      return this.blendMode || this._parentBlendMode || BlendMode.NORMAL;
+   }
+     
+   setClipRect(rect:Rectangle):void{
       this._clipRect = rect;
       this._initClipInfo();
-      this._updateChildrenClipMatirx();
+      this._updateChildren(0);
    }
 
    private _initClipInfo(): void {
@@ -158,28 +146,52 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   // getClipRect():Rectangle{
-   //    return this._clipRect ? this._clipRect : this._parentClipRect;
-   // }
-
-   // setClipMatrix(matrix: Matrix): void {
-   //    this._clipMatrix = matrix;
-   //    this._updateChildrenClipMatirx();
-   // }
-
    getClipInfo(): IClipInfo {
       return this._clipInfo || this._parentClipInfo || _DefaultClipInfo;
    }
 
-   /** @internal */
-   _updateChildrenClipMatirx() {
-      let info = this.getClipInfo();
-      for (const child of this.children) {
-         if (!child._parentClipInfo) {
-            child._parentClipInfo = info;
-            child._updateChildrenClipMatirx();
-         }
+   
+   /**
+    * @internal 
+    * @type -1 | 0 | 1 |2
+    * -1 all , 0 clip , 1 blend , 2 alpha
+    */
+   _updateChildren(type: -1 | 0 | 1 |2 ): void {
+      let info:IClipInfo , blendMode:string , alpha:number;
+      if (type === -1) {
+         info = this.getClipInfo();
+         blendMode = this.getBlendMode();
+         alpha = this.globalAlpha;
       }
+      else if (type === 0) {
+         info = this.getClipInfo();
+      } else if (type === 1) {
+         blendMode = this.getBlendMode();
+      } else if (type === 2) {
+         alpha = this.globalAlpha;
+      }
+
+      for (const child of this.children) {
+         if (type === -1) {
+            child._parentClipInfo = info;
+            child._parentBlendMode = blendMode;
+            child.globalAlpha = alpha * child.alpha;
+            this._updateChildren(type);
+         } else if (type === 0) {
+            if (!child._parentClipInfo) {
+               child._parentClipInfo = info;
+               this._updateChildren(type);
+            }
+         } else if (type === 1) {
+            if (!child._parentBlendMode) {
+               child._parentBlendMode = blendMode;
+               this._updateChildren(type);
+            }
+         } else if (type === 2) {
+            child.globalAlpha = alpha * child.alpha;
+            this._updateChildren(type);
+         }
+      } 
    }
 
    setRepaint(): void {

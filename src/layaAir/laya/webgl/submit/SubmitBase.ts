@@ -95,7 +95,6 @@ export class SubmitBase {
 
     destroy() {
         this.clear();
-        
         this._geometry.destroy();
         this._bufferState.destroy();
         this._internalInfo.destroy();
@@ -128,14 +127,17 @@ export class SubmitBase {
         }
     }
 
-    /*
-       create方法只传对submit设置的值
-     */
-    static create(runner: GraphicsRunner, mesh: Sprite2DGeometry , material:Material): SubmitBase {
-        var o = new SubmitBase();
-        o.initialize();
-        o.mesh = mesh;
-        o.material = material;
+    update(runner: GraphicsRunner , mesh: Sprite2DGeometry , material: Material) {
+        var blendType = runner._nBlendType;
+        let struct = runner.sprite._struct;
+        let sBlendMode = struct.getBlendMode();
+        this._key.blendShader = blendType;
+
+        if (runner.globalCompositeOperation != sBlendMode) {
+            BlendMode.setShaderData(blendType, this._internalInfo.shaderData);
+            this._renderElement.renderStateIsBySprite = false;
+        }
+
         let vertexDeclaration = mesh.vertexDeclarition;
 
         //vg的顶点格式是x ,y,rgba
@@ -146,20 +148,23 @@ export class SubmitBase {
             data = RenderSpriteData.Texture2D;
         }
 
-        o._internalInfo.data = data;
-        o._key.clear();
-        o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
-        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
-        o._numEle = 0;
-        var blendType = runner._nBlendType;
-        let sBlendMode = runner.sprite._blendMode ? runner.sprite._blendMode : BlendMode.NORMAL;
-        o._key.blendShader = blendType;
-        if (runner.globalCompositeOperation != sBlendMode) {
-            BlendMode.setShaderData(blendType, o._internalInfo.shaderData);
-            o._renderElement.renderStateIsBySprite = false;
-        }
-        //sv.setValue(context._shader2D);
-        // o._colorFiler = runner._colorFiler;
+        this.mesh = mesh;
+        this.material = material;
+        
+        this._internalInfo.data = data;
+        this._key.clear();
+        this._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
+        this._startIdx = mesh.indexNum * Const.INDEX_BYTES;
+        this._numEle = 0;
+    }
+
+    /*
+       create方法只传对submit设置的值
+     */
+    static create( runner: GraphicsRunner , mesh: Sprite2DGeometry , material: Material): SubmitBase {
+        var o = new SubmitBase();
+        o.initialize();
+        o.update(runner , mesh , material);
         return o;
     }
 }
