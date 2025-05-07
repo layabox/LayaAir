@@ -66,8 +66,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       return this._renderDataHandler;
    }
    public set renderDataHandler(value: WebRender2DDataHandle) {
+
       this._renderDataHandler = value;
-      this._renderDataHandler.owner = this;
+      if (value)
+         this._renderDataHandler.owner = this;
    }
 
    pass: WebRender2DPass;
@@ -91,7 +93,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._rnUpdateCall = call;
       this._rnUpdateFun = renderUpdateFun;
    }
-   
+
    setAlpha(alpha: number): void {
       this.alpha = alpha;
       this._updateChildren(2);
@@ -130,8 +132,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    getBlendMode(): string {
       return this.blendMode || this._parentBlendMode || BlendMode.NORMAL;
    }
-     
-   setClipRect(rect:Rectangle):void{
+
+   setClipRect(rect: Rectangle): void {
       this._clipRect = rect;
       this._initClipInfo();
       this._updateChildren(0);
@@ -150,14 +152,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       return this._clipInfo || this._parentClipInfo || _DefaultClipInfo;
    }
 
-   
+
    /**
     * @internal 
     * @type -1 | 0 | 1 |2
     * -1 all , 0 clip , 1 blend , 2 alpha
     */
-   _updateChildren(type: -1 | 0 | 1 |2 ): void {
-      let info:IClipInfo , blendMode:string , alpha:number;
+   _updateChildren(type: -1 | 0 | 1 | 2): void {
+      let info: IClipInfo, blendMode: string, alpha: number;
       if (type === -1) {
          info = this.getClipInfo();
          blendMode = this.getBlendMode();
@@ -191,7 +193,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             child.globalAlpha = alpha * child.alpha;
             this._updateChildren(type);
          }
-      } 
+      }
    }
 
    setRepaint(): void {

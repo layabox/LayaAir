@@ -1118,12 +1118,11 @@ export class Sprite extends Node {
 
     set renderNode2D(value: BaseRenderNode2D) {
         this._renderNode = value;
-
         if (value) {
-            this._struct.set_renderNodeUpdateCall(value, value.renderUpdate, value.preRenderUpdate, value._getRenderElements);
+            this._struct.set_renderNodeUpdateCall(value, value.renderUpdate);
             this._renderType |= SpriteConst.RENDERNODE2D;
         } else {
-            this._struct.set_renderNodeUpdateCall(null, null, null, null);
+            this._struct.set_renderNodeUpdateCall(null, null);
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
     }
