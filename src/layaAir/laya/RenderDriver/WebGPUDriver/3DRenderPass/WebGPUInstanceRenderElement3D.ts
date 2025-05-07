@@ -12,6 +12,7 @@ import { WebGPUBufferState } from "../RenderDevice/WebGPUBufferState";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
+import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
@@ -29,16 +30,17 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
             const oriBufferState = geometry.bufferState;
             const vertexArray = oriBufferState._vertexBuffers.slice();
             let worldMatVertex = stateinfo.worldInstanceVB;
-            const size = this.MaxInstanceCount * 16 * 4;
+            let declaration = VertexMesh.instanceWorldMatrixDeclaration;
+            const size = this.MaxInstanceCount * declaration.vertexStride;
             if (!worldMatVertex || worldMatVertex.source._size < size) {
                 if (worldMatVertex) {
                     worldMatVertex.destroy();
                     worldMatVertex.source._source.destroy();
                 }
                 stateinfo.worldInstanceVB = worldMatVertex = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-                worldMatVertex.setDataLength(this.MaxInstanceCount * 16 * 4);
-                worldMatVertex.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
                 worldMatVertex.instanceBuffer = true;
+                worldMatVertex.setDataLength(size);
+                worldMatVertex.vertexDeclaration = declaration;
             }
             vertexArray.push(worldMatVertex);
             switch (renderType) {
@@ -52,9 +54,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                                 instanceLightMapVertexBuffer.source._source.destroy();
                             }
                             stateinfo.lightmapScaleOffsetVB = instanceLightMapVertexBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                            instanceLightMapVertexBuffer.instanceBuffer = true;
                             instanceLightMapVertexBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
                             instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
-                            instanceLightMapVertexBuffer.instanceBuffer = true;
                         }
                         vertexArray.push(instanceLightMapVertexBuffer);
                     }
@@ -68,9 +70,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                             instanceSimpleAnimatorBuffer.source._source.destroy();
                         }
                         stateinfo.simpleAnimatorVB = instanceSimpleAnimatorBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                        instanceSimpleAnimatorBuffer.instanceBuffer = true;
                         instanceSimpleAnimatorBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
                         instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-                        instanceSimpleAnimatorBuffer.instanceBuffer = true;
                     }
                     vertexArray.push(instanceSimpleAnimatorBuffer);
                     break;
@@ -140,7 +142,37 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     protected _compileShader(context: WebGPURenderContext3D) {
-        //TODO
+        this._shaderInstances.clear();
+
+        let comDef = this._getShaderInstanceDefines(context);
+        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
+        let passes = this.subShader._passes;
+        for (let pass of passes) {
+            if (pass.pipelineMode !== context.pipelineMode)
+                continue;
+
+            if (this.renderShaderData) {
+                pass.nodeCommonMap = this.owner._commonUniformMap;
+            }
+            else {
+                pass.nodeCommonMap = null;
+            }
+
+            pass.additionShaderData = null;
+            if (this.owner) {
+                pass.additionShaderData = this.owner._additionShaderDataKeys;
+            }
+
+            (pass.moduleData as any).geo = this.geometry;
+
+            let shaderIns = pass.withCompile(comDef) as WebGPUShaderInstance;
+            this._shaderInstances.add(shaderIns);
+        }
+
+        if (this._shaderInstances.length > 0) {
+            this._updateInstanceData();
+        }
     }
 
     private _updateInstanceData() {
@@ -149,15 +181,20 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         switch (this.owner.renderNodeType) {
             case BaseRenderType.MeshRender:
                 {
-                    const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
-                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
+                    let worldDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+                    let worldMatFloatStride = worldDeclaration.vertexStride / 4;
+                    const worldMatrixData = this.getUpdateData(0, worldMatFloatStride * WebGPUInstanceRenderElement3D.MaxInstanceCount);
+                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, worldMatFloatStride);
                     const insBatches = this.instanceElementList;
                     const elements = insBatches.elements;
                     const count = insBatches.length;
                     this.drawCount = count;
                     this.geometry.instanceCount = this.drawCount;
-                    for (let i = 0; i < count; i++)
-                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+                    for (let i = 0; i < count; i++) {
+                        let element = elements[i] as WebGPURenderElement3D;
+                        worldMatrixData.set(element.transform.worldMatrix.elements, i * worldMatFloatStride);
+                        element.owner._worldParams.writeTo(worldMatrixData, i * worldMatFloatStride + 16);
+                    }
 
                     const haveLightMap = this.renderShaderData.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP) && this.renderShaderData.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
                     if (haveLightMap) {
