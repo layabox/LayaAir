@@ -831,6 +831,10 @@ export class WebGPUShaderData extends ShaderData {
         this._gammaColorMap.forEach((color, index) => {
             dest._gammaColorMap.set(index, color.clone());
         });
+
+        for (let texInfo in this._textureData) {
+            dest.setTexture(parseInt(texInfo), this._textureData[texInfo]);
+        }
     }
 
     /**
