@@ -13,7 +13,8 @@ export interface IRender2DDataHandle {
 }
 
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
-    textureHost: Texture | BaseTexture;
+    // textureHost: Texture | BaseTexture;
+    mask : IRenderStruct2D | null;
 }
 
 export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {

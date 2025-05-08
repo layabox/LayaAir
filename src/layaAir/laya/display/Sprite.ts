@@ -225,7 +225,7 @@ export class Sprite extends Node {
 
     private _autosize: boolean = false;
     private _tfChanged: boolean;
-    private _repaint: number = 0;
+    private _repaint: number = -1;
     private _texture: Texture;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
@@ -249,7 +249,7 @@ export class Sprite extends Node {
     /** @internal */
     private _subRenderPass: IRender2DPass = null;
     /** @internal */
-    private _subStruct: IRenderStruct2D = null;
+    _subStruct: IRenderStruct2D = null;
     /** @internal */
     protected _postProcess: PostProcess2D = null;
 
@@ -2187,6 +2187,7 @@ export class Sprite extends Node {
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._subRenderPass.renderTexture = renderTexture;
+        this._subStructRender.updateQuat();
     }
 
     private updateSubRenderPassState() {

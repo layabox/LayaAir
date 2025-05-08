@@ -54,6 +54,7 @@ import { Vector3 } from "../maths/Vector3";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { IAutoExpiringResource } from "../renders/ResNeedTouch";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { RenderSpriteData } from "../webgl/shader/d2/value/Value2D";
 
 const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
@@ -1082,7 +1083,6 @@ export class GraphicsRenderData {
             let mesh = this.meshlist[i];
             if (mesh.indexNum <= 0)
                 continue
-            mesh.createBuffer();
             mesh.uploadBuffer();
         }
     }
@@ -1155,72 +1155,40 @@ export class SubStructRender {
     private _subRenderPass: IRender2DPass;
     private _subStruct: IRenderStruct2D;
     private _sprite: Sprite;
-    _data = new GraphicsRenderData();
-    private shaderData: ShaderData = null;
-
-    private _nMatrix_0 = new Vector3;
-    private _nMatrix_1 = new Vector3;
-    // private _pivotPos: Vector2 = new Vector2;
+    
+    private _meshQuatTex: MeshQuadTexture = null;
+    private _shaderData: ShaderData = null;
+    private _handle: I2DPrimitiveDataHandle = null;
+    private _submit: SubmitBase = null;
 
     constructor() {
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        BlendMode.initBlendMode(this.shaderData);
-        this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, GraphicsRunner.clipMatDir);
-        this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, GraphicsRunner.clipMatPos);
-
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
+        this._submit = new SubmitBase;
+        this._submit.initialize();
+        this._submit.data = RenderSpriteData.Texture2D;
+        this._submit._renderElement.value2DShaderData = this._shaderData;
+        BlendMode.initBlendMode(this._shaderData);
+        this._meshQuatTex = new MeshQuadTexture();
+        this._meshQuatTex.createBuffer();
+        this._submit.mesh = this._meshQuatTex;
+        this._submit._numEle += 6;
+        this._submit.updateRenderElement();
     }
 
     bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
         this._sprite = sprite;
         this._subRenderPass = subRenderPass;
         this._subStruct = subStruct;
-        // subStruct.set_grapicsUpdateCall(this, this._renderUpdate, this._getRenderElements);
-        // subStruct.set_spriteUpdateCall(this, this._updateMatrix, null);
+        this._subStruct.spriteShaderData = this._shaderData;
+        this._submit.material = sprite.material;
+        
+        subStruct.renderDataHandler = this._handle;
+        subStruct.renderElements = [this._submit._renderElement];
+        this._handle.mask = sprite.mask?._struct;
     }
 
-    _renderElements: Array<IRenderElement2D> = [];
-
-    _getRenderElements() {
-        return this._renderElements;
-    }
-
-    private _updateMatrix() {
-        if (this._sprite.mask) {
-            let mask = this._sprite.mask;
-            let maskMatrix = mask.globalTrans.getMatrix();
-            if (mask.displayedInStage) {
-                this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
-                this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
-            } else {
-                let parentMatrix = this._sprite._globalTrans.getMatrix();
-                let mat = Matrix.mul(maskMatrix, parentMatrix, Matrix.TEMP);
-                this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-            }
-            // this._pivotPos.setValue(mask._pivotX, mask._pivotY);
-        } else {
-            let mat = this._sprite.globalTrans.getMatrix();
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-            // this._pivotPos.setValue(this._sprite._pivotX, this._sprite._pivotY);
-        }
-
-        this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        this.shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-        this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._sprite._struct.globalAlpha);
-        // this.shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
-    }
-
-    private _renderUpdate(runner: GraphicsRunner, x: number, y: number) {
-        this._data.clear();
-        runner.clear();
-        runner.sprite = this._sprite;
-        runner._graphicsData = this._data;
-        runner._material = this._sprite.material;
-
-        let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this._sprite._blendMode;
-        //sprite.texture
+    updateQuat() {
         let sprite = this._sprite;
         var tex = this._subRenderPass.renderTexture;
         if (tex) {
@@ -1231,45 +1199,23 @@ export class SubStructRender {
             width = tex.width * wRate;
             height = tex.height * hRate;
             if (width > 0 && height > 0) {
-                let px = x + tex.offsetX * wRate;
-                let py = y + tex.offsetY * hRate;
-                runner._inner_drawTexture(tex, -1, px, py, width, height, null, UV, 1, false, 0xffffffff);
+                this._meshQuatTex.clearMesh();
+                let px = tex.offsetX * wRate;
+                let py = tex.offsetY * hRate;
+                let vertices = [px , py, px + width, py, px + width, py + height, px, py + height];
+                this._meshQuatTex.addQuad(vertices, UV , 0xffffffff , true);
+                this._meshQuatTex.uploadBuffer();
             }
         }
-
-        this.updateRenderElement();
-
-        runner.globalCompositeOperation = oldBlendMode;
-        runner._material = null;
-        runner._graphicsData = null;
-        runner.sprite = null;
-    }
-
-    /**
-     * 提交所有mesh的数据
-     */
-    updateRenderElement(): void {
-        this._data.uploadBuffer();
-        this._renderElements.length = 0;
-
-        let submits = this._data._submits;
-        let submitLength = submits.length;
-        for (let i = 0; i < submitLength; i++) {
-            let submit = submits.elements[i];
-            submit.updateRenderElement();
-            let element = submit._renderElement;
-            element.value2DShaderData = this.shaderData;
-            this._renderElements.push(element);
-        }
+        this._submit._internalInfo.textureHost = tex;
     }
 
     destroy(): void {
-        this._data.destroy();
-        this._data = null;
-        for (let i = 0; i < this._renderElements.length; i++) {
-            this._renderElements[i]?.destroy();
-        }
-        this._renderElements = null;
+        this._submit.destroy();
+        this._submit = null;
+        this._meshQuatTex.destroy();
+        this._meshQuatTex = null;
+        this._handle = null;
         this._subRenderPass = null;
         this._subStruct = null;
         this._sprite = null;
