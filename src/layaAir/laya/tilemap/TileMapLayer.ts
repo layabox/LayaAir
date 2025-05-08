@@ -217,6 +217,10 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapOccluder;
     }
 
+    protected _initDefaultRenderData(): void {
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+    }
+
     /**
      * @ignore
      */
@@ -233,7 +237,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
-        // this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     private _initialTileSet() {
@@ -416,7 +419,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @protected
      * @param context 
      */
-    preRenderUpdate(context: IRenderContext2D): void {
+    onUpdate(): void {
         let tileSet = this._tileSet;
         if (tileSet == null) return;
 
@@ -488,7 +491,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             this._tileMapPhysics._updateTransfrom();
             this._needUpdateDirtys[DirtyFlagType.PHYSICS] = false;
         }
-
+        this.owner._struct.renderElements = this._renderElements;
         // this._needUpdateDirtys.length = 0;
         // let sprite = this._testSprite;
         // if (!sprite) {
