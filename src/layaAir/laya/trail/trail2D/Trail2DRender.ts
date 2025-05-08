@@ -15,8 +15,6 @@ import { TrailShaderCommon } from "../trailCommon/RenderFeatureComman/Trail/Trai
 import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/TrailTextureMode";
 import { TrailBaseFilter } from "../trailCommon/RenderFeatureComman/TrailBaseFilter";
 import { Trail2DShaderInit } from "./Shader/Trail2DShaderInit";
-import { Matrix } from "../../maths/Matrix";
-import { Context } from "../../renders/Context";
 
 export class Trail2DRender extends BaseRenderNode2D {
 
@@ -182,37 +180,10 @@ export class Trail2DRender extends BaseRenderNode2D {
         renderElement.nodeCommonMap = this._getcommonUniformMap();
         BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._materials[0] ? this._materials[0] : Trail2DRender.defaultTrail2DMaterial);
         this._renderElements[0] = renderElement;
+        this.owner._struct.renderElements = this._renderElements;
+        this._renderHandle.needUseMatrix = false;//因为顶点便是world
     }
 
-    /**
-   * @internal
-   * @protected
-   * cmd run时调用，可以用来计算matrix等获得即时context属性
-   * @param context 
-   * @param px 
-   * @param py 
-   */
-    addCMDCall(context: Context, px: number, py: number): void {
-        //渲染节点数据是Global数据，使用Scene的数据  
-        let mat;
-        if (this.owner.scene && !context._drawingToTexture) {
-            mat = Matrix.TEMP;
-            Matrix.mul(this.owner.scene.globalTrans.getMatrix(), Laya.stage.transform, mat);
-        } else {
-            mat = Matrix.EMPTY;
-        }
-        let vec3 = Vector3.TEMP;
-        vec3.x = mat.a;
-        vec3.y = mat.c;
-        vec3.z = mat.tx;
-        //  this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
-        vec3.x = mat.b;
-        vec3.y = mat.d;
-        vec3.z = mat.ty;
-        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
-        // this._setRenderSize(context.width, context.height);
-        context._copyClipInfoToShaderData(this._spriteShaderData);
-    }
 
     onPreRender(): void {
         let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000, 0.016);
@@ -255,15 +226,18 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._trailFilter.clear();
     }
 
-    constructor() {
-        super();
-        this._renderElements = [];
-        this._materials = [];
+    protected _initDefaultRenderData(): void {
         this._time = 0.5;
         this._widthMultiplier = 50;
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this.texture = Texture2D.whiteTexture;
+    }
+    constructor() {
+        super();
+        this._renderElements = [];
+        this._materials = [];
+
         if (!Trail2DRender.defaultTrail2DMaterial)
             Trail2DShaderInit.init();
     }

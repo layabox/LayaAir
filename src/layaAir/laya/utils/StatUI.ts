@@ -114,8 +114,8 @@ export class StatUI {
      * @param x X轴显示位置。
      * @param y Y轴显示位置。
      */
-    render(ctx: any, x: number, y: number) {
-        this._show && this._sp && this._sp.render(ctx, 0, 0);
+    render(x: number, y: number) {
+        this._show && this._sp && this._sp.render(0, 0);
     }
 }
 

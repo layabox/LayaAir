@@ -22,6 +22,19 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _nMatrix_1 = new Vector3();
     constructor() {
     }
+    private _needUseMatrix: boolean = true;
+    public get needUseMatrix(): boolean {
+        return this._needUseMatrix;
+    }
+    public set needUseMatrix(value: boolean) {
+        this._needUseMatrix = value;
+        if (!value) {
+            this._nMatrix_0.set(1, 0, 0);
+            this._nMatrix_1.set(0, 1, 0);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        }
+    }
     destroy(): void {
 
     }
@@ -32,11 +45,13 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
         let data = this._owner.spriteShaderData;
         if (!data)
             return;
-        let mat = this._owner.transform.getMatrix();
-        this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-        this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        if (this._needUseMatrix) {
+            let mat = this._owner.transform.getMatrix();
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+        }
 
         let info = this._owner.getClipInfo();
         // global alpha
@@ -226,15 +241,4 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             this._renderAlpha = this._owner.globalAlpha;
         }
     }
-
-
-    //还是否需要这个  按道理 不需要
-    // _copyClipInfoToShaderData(shaderData: ShaderData) {
-    //     let clipInfo = this._globalClipMatrix;
-    //     Vector4.TEMP.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
-    //     shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, Vector4.TEMP);
-    //     Vector2.TEMP.setValue(clipInfo.tx, clipInfo.ty);
-    //     shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, Vector2.TEMP);
-    // }
-
 }

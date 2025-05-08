@@ -1,9 +1,7 @@
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { Context } from "../renders/Context";
 import { Render2D } from "../renders/Render2D";
-import { RenderSprite } from "../renders/RenderSprite";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { ColorFilter } from "./ColorFilter";
@@ -123,7 +121,7 @@ export abstract class Filter extends EventDispatcher implements IFilter {
      * @param x 精灵正在渲染的 x 坐标。
      * @param y 精灵正在渲染的 y 坐标。
      */
-    static _filter = function (this: RenderSprite, sprite: Sprite, context: Context, x: number, y: number): void {
+    static _filter = function (this: any, sprite: Sprite, context: any, x: number, y: number): void {
         var next = this._next;
         if (!next) return;
 

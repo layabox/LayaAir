@@ -10,11 +10,9 @@ import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
 import { Vector2 } from "../maths/Vector2";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { Context } from "../renders/Context"
 import { Material } from "../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { Texture2D } from "../resource/Texture2D";
-import { Physics2D } from "./Physics2D";
 import { Physics2DWorldManager } from "./Physics2DWorldManager";
 /**
  * @en Physical auxiliary line
@@ -212,11 +210,11 @@ export class Physics2DDebugDraw extends Sprite {
      * @en Renders the object using the given context and position.
      * @zh 使用给定的上下文和位置渲染对象。
      */
-    render(ctx: Context, x: number, y: number): void {
+    render(x: number, y: number): void {
         if (!LayaEnv.isPlaying) return;
 
         this._renderToGraphic();
-        super.render(ctx, x, y);
+        super.render(x, y);
     }
 
     /**

@@ -7,32 +7,22 @@ import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
-import { SpineSkeletonRenderer } from "./normal/SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 import { Event } from "../events/Event";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { LayaGL } from "../layagl/LayaGL";
-import { Context } from "../renders/Context";
 import { SpineShaderInit } from "./material/SpineShaderInit";
-import { Vector2 } from "../maths/Vector2";
 import { Material } from "../resource/Material";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SpineNormalRender } from "./optimize/SpineNormalRender";
 import { SketonOptimise } from "./optimize/SketonOptimise";
 import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
-import { Texture2D } from "../resource/Texture2D";
 import { Mesh2D } from "../resource/Mesh2D";
 import { Vector3 } from "../maths/Vector3";
-import { Vector4 } from "../maths/Vector4";
-import { Matrix4x4 } from "../maths/Matrix4x4";
-import { Color } from "../maths/Color";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DBaseRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
-
 
 /**动画开始播放调度
  * @eventType Event.PLAYED
@@ -154,9 +144,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         return ["BaseRender2D", "Spine2D"]
     }
 
-    protected _getRenderHandle(): I2DBaseRenderDataHandle {
-        // return LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle
-    }
+    // protected _getRenderHandle(): I2DBaseRenderDataHandle {
+    //     // return LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle
+    // }
     /**
      * 外部皮肤
      */

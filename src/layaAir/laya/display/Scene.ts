@@ -6,7 +6,6 @@ import { Handler } from "../utils/Handler"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
-import { Context } from "../renders/Context";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { Render2DSimple } from "../renders/Render2D";
@@ -19,7 +18,7 @@ import { IElementComponentManager } from "../components/IScenceComponentManager"
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export interface ILight2DManager {
-    preRenderUpdate(context: Context): void;
+    preRenderUpdate(): void;
     addRender(node: BaseRenderNode2D): void;
     removeRender(node: BaseRenderNode2D): void;
     _getLayerUpdateMark(layer: number): number;
@@ -336,11 +335,11 @@ export class Scene extends Sprite {
      * @param x 
      * @param y 
      */
-    render(ctx: Context, x: number, y: number): void {
-        this._preRenderUpdate(ctx, x, y)
-        super.render(ctx, x, y);
+    render(x: number, y: number): void {
+        this._preRenderUpdate(x, y)
+        super.render(x, y);
 
-        this._recoverRenderSceneState(ctx);
+        this._recoverRenderSceneState();
     }
 
     /**
@@ -357,19 +356,19 @@ export class Scene extends Sprite {
      * @param x 
      * @param y 
      */
-    _preRenderUpdate(ctx: Context, x: number, y: number) {
+    _preRenderUpdate(x: number, y: number) {
         //更新2DScene场景数据    
         Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
         if (this._light2DManager)
-            this._light2DManager.preRenderUpdate(ctx);
+            this._light2DManager.preRenderUpdate();
     }
 
     /**
      * @internal
      * @param ctx 
      */
-    _recoverRenderSceneState(ctx: Context) {
-        ctx.drawLeftData();
+    _recoverRenderSceneState() {
+        //ctx.drawLeftData();
         Render2DSimple.rendercontext2D.sceneData = null;
     }
 

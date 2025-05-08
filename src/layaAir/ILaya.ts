@@ -1,6 +1,5 @@
 import type { Timer } from "./laya/utils/Timer";
 import type { Loader } from "./laya/net/Loader";
-import type { Context } from "./laya/renders/Context";
 import type { Browser } from "./laya/utils/Browser";
 import type { Stage } from "./laya/display/Stage";
 import type { InputManager } from "./laya/events/InputManager";
@@ -11,7 +10,6 @@ import type { InputManager } from "./laya/events/InputManager";
  */
 export class ILaya {
     static Loader: typeof Loader = null;
-    static Context: typeof Context = null;
     static Browser: typeof Browser = null;
     static InputManager: typeof InputManager = null;
 

@@ -5,7 +5,6 @@ import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../../renders/Context";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
@@ -174,37 +173,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
             element.nodeCommonMap = this._getcommonUniformMap();
         }
         this.owner._struct.renderElements = this._renderElements;
-    }
-
-    /**
-     * @internal
-     * @protected
-     * cmd run时调用，可以用来计算matrix等获得即时context属性
-     * @param context 
-     * @param px 
-     * @param py 
-     */
-    addCMDCall(context: Context, px: number, py: number): void {
-        //TODO  挪到底层
-        // let mat = context._curMat;
-        // let vec3 = Vector3.TEMP;
-        // vec3.x = mat.a;
-        // vec3.y = mat.c;
-        // vec3.z = px * mat.a + py * mat.c + mat.tx;
-        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
-        // vec3.x = mat.b;
-        // vec3.y = mat.d;
-        // vec3.z = px * mat.b + py * mat.d + mat.ty;
-        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
-        // //this._setRenderSize(context.width, context.height)
-        // context._copyClipInfoToShaderData(this._spriteShaderData);
-        // if (this._renderAlpha !== context.globalAlpha) {
-        //     let a = context.globalAlpha * this._color.a;
-        //     this._setRenderColor.setValue(this._color.r * a, this._color.g * a, this._color.b * a, a);
-        //     this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._setRenderColor);
-        //     this._renderAlpha = context.globalAlpha;
-        // }
-        // this._lightReceive && this._updateLight();
     }
 
     /**@ignore */

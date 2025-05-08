@@ -6,8 +6,6 @@ import { SoundManager } from "./laya/media/SoundManager";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { Render } from "./laya/renders/Render";
-import { RenderSprite } from "./laya/renders/RenderSprite";
-import { Context } from "./laya/renders/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { Browser } from "./laya/utils/Browser";
 import { Timer } from "./laya/utils/Timer";
@@ -244,7 +242,6 @@ export class Laya {
         }
 
         RenderStateContext.__init__();
-        RenderSprite.__init__();
         Material.__initDefine__();
         InputManager.__init__(stage, Render.canvas);
         if (LayaEnv.isConch && (window as any).conchConfig.getOS() != "Conch-window") {
@@ -360,7 +357,6 @@ export class Laya {
 
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;
-ILaya.Context = Context;
 ILaya.Browser = Browser;
 ILaya.InputManager = InputManager;
 

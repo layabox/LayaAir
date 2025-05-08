@@ -1,4 +1,3 @@
-import { Context } from "../renders/Context";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { Sprite } from "./Sprite";
 import { Scene } from "./Scene";
@@ -32,10 +31,10 @@ export class Area2D extends Sprite {
         }
     }
 
-    _preRenderUpdate(context: Context) {
+    _preRenderUpdate() {
         let shaderData = this._scene.sceneShaderData;
         if (this._mainCamera) {
-            context.drawLeftData();
+            //context.drawLeftData();
             if (shaderData) {
                 shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
                 shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
@@ -49,30 +48,30 @@ export class Area2D extends Sprite {
      * @param x 
      * @param y 
      */
-    render(ctx: Context, x: number, y: number): void {
-        this._preRenderUpdate(ctx);
-        this._scene._curCamera = this._mainCamera;
-        let mgr = ctx._render2DManager;
-        let restoreMask = mgr.renderLayerMask;
-        mgr.renderLayerMask = this._mainCamera.visiableLayer;
+    render( x: number, y: number): void {
+        // this._preRenderUpdate();
+        // this._scene._curCamera = this._mainCamera;
+        // let mgr = ctx._render2DManager;
+        // let restoreMask = mgr.renderLayerMask;
+        // mgr.renderLayerMask = this._mainCamera.visiableLayer;
         
-        mgr.cullRect.cloneTo(TEMP_Vector4);
+        // mgr.cullRect.cloneTo(TEMP_Vector4);
 
-        let rect = this._mainCamera._rect;
-        mgr.cullRect = Vector4.TEMP.setValue(rect.x , rect.z , rect.y , rect.w);
+        // let rect = this._mainCamera._rect;
+        // mgr.cullRect = Vector4.TEMP.setValue(rect.x , rect.z , rect.y , rect.w);
         
-        super.render(ctx, x, y);
-        if (this._mainCamera) {
-            let shaderData = this._scene.sceneShaderData;
-            ctx.drawLeftData();
-            if (shaderData) {
-                shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-            }
-        }
+        // super.render(ctx, x, y);
+        // if (this._mainCamera) {
+        //     let shaderData = this._scene.sceneShaderData;
+        //     ctx.drawLeftData();
+        //     if (shaderData) {
+        //         shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+        //     }
+        // }
         
-        this._scene._curCamera = null;
-        mgr.cullRect = TEMP_Vector4;
-        mgr.renderLayerMask = restoreMask;
+        // this._scene._curCamera = null;
+        // mgr.cullRect = TEMP_Vector4;
+        // mgr.renderLayerMask = restoreMask;
     }   
 
     _setBelongScene(scene: Node): void {

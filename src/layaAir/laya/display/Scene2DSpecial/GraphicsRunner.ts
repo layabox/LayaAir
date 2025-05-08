@@ -1,38 +1,19 @@
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
-import { ColorFilter } from "../../filters/ColorFilter";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Bezier } from "../../maths/Bezier";
 import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Point } from "../../maths/Point";
 import { Rectangle } from "../../maths/Rectangle";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { RenderManager2D } from "../../NodeRender2D/RenderManager2D";
-import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { Context } from "../../renders/Context";
-import { Render2D, Render2DSimple } from "../../renders/Render2D";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { Material } from "../../resource/Material";
-import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { FontInfo } from "../../utils/FontInfo";
-import { FastSinglelist } from "../../utils/SingletonList";
 import { WordText } from "../../utils/WordText";
 import { BlendMode } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
@@ -46,19 +27,16 @@ import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
-import { TextureSV } from "../../webgl/shader/d2/value/TextureSV";
-import { Value2D, RenderSpriteData } from "../../webgl/shader/d2/value/Value2D";
+import { Value2D } from "../../webgl/shader/d2/value/Value2D";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../webgl/submit/SubmitKey";
-import { CharSubmitCache } from "../../webgl/text/CharSubmitCache";
 import { MeasureFont } from "../../webgl/text/MeasureFont";
 import { TextRender } from "../../webgl/text/TextRender";
 import { MeshQuadTexture } from "../../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../../webgl/utils/MeshTexture";
 import { MeshVG } from "../../webgl/utils/MeshVG";
-import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import { Sprite2DGeometry } from "../../webgl/utils/Sprite2DGeometry";
 import { GraphicsRenderData } from "../Graphics";
 import { Sprite } from "../Sprite";
@@ -111,7 +89,7 @@ export class GraphicsRunner {
     // stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
 
     /**@internal */
-    _curSubmit:SubmitBase = null;
+    _curSubmit: SubmitBase = null;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
@@ -124,8 +102,8 @@ export class GraphicsRunner {
     _clipRect = GraphicsRunner.MAXCLIPRECT;
     /**@internal */
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
-    _clip_x:number = 0;	//clip的x坐标
-    _clip_y:number = 0;	//clip的y坐标
+    _clip_x: number = 0;	//clip的x坐标
+    _clip_y: number = 0;	//clip的y坐标
     /**@internal */
     _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
@@ -214,11 +192,6 @@ export class GraphicsRunner {
         this._save.length = 10;
         this.clear();
         // this._render2DManager = new RenderManager2D();
-    }
-
-    //从ctx继承渲染参数
-    copyState(ctx: Context) {
-        ///TODO
     }
 
     /**@private */
@@ -798,13 +771,13 @@ export class GraphicsRunner {
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
-        
+
         let mesh = this._graphicsData._meshQuatTex;
         var sameKey =
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
-                submit._key.blendShader === this._nBlendType) 
-                // && this._curSubmit.material == this._material
+                submit._key.blendShader === this._nBlendType)
+        // && this._curSubmit.material == this._material
 
         if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
             mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
@@ -815,11 +788,11 @@ export class GraphicsRunner {
         sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
-        
+
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = this.createSubmit( mesh );
+                submit = this._curSubmit = this.createSubmit(mesh);
                 let material = submit._internalInfo;
                 // this.fillShaderValue(submit.shaderValue);
                 this._setClipInfo(material);
@@ -940,8 +913,8 @@ export class GraphicsRunner {
         this.breakNextMerge();	//暂不合并
     }
 
-    createSubmit(mesh:Sprite2DGeometry ): SubmitBase {
-        return this._graphicsData.createSubmit(this, mesh , this._material);
+    createSubmit(mesh: Sprite2DGeometry): SubmitBase {
+        return this._graphicsData.createSubmit(this, mesh, this._material);
     }
 
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color = 0xffffffff): void {
@@ -991,7 +964,7 @@ export class GraphicsRunner {
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         material.clipMatDir = cm;
         var cmp = material.clipMatPos;
-        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty , cmp.z = this._clip_x, cmp.w = this._clip_y;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty, cmp.z = this._clip_x, cmp.w = this._clip_y;
         material.clipMatPos = cmp;
     }
 
@@ -1071,8 +1044,8 @@ export class GraphicsRunner {
 
         //this._drawCount++;
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
-            !this.isSameClipInfo(this._curSubmit) 
-            // && this._curSubmit.material == this._material
+            !this.isSameClipInfo(this._curSubmit)
+        // && this._curSubmit.material == this._material
 
         let mesh = this._graphicsData._meshQuatTex;
         if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
@@ -1258,9 +1231,9 @@ export class GraphicsRunner {
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === webGLImg.id &&
-            preKey.blendShader === this._nBlendType 
-            // && this._curSubmit.material == this._material;
-        
+            preKey.blendShader === this._nBlendType
+        // && this._curSubmit.material == this._material;
+
         let mesh = this._graphicsData._meshTex;
 
         if (mesh.vertexNum + vertices.length / 2 < GraphicsRunner._MAXVERTNUM) {
@@ -1272,7 +1245,7 @@ export class GraphicsRunner {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = this.createSubmit( mesh );
+            var submit = this._curSubmit = this.createSubmit(mesh);
             submit._internalInfo.textureHost = tex;
             this._setClipInfo(submit._internalInfo);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
@@ -1442,8 +1415,8 @@ export class GraphicsRunner {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isSameClipInfo(submit) 
-            // && this._curSubmit.material == this._material;
+            !this.isSameClipInfo(submit)
+        // && this._curSubmit.material == this._material;
 
         let mesh = this._graphicsData._meshVG;
         if (!sameKey) {
@@ -1544,8 +1517,8 @@ export class GraphicsRunner {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isSameClipInfo(submit) 
-            // && this._curSubmit.material == this._material
+            !this.isSameClipInfo(submit)
+        // && this._curSubmit.material == this._material
 
         let mesh = this._graphicsData._meshVG;
         if (!sameKey) {

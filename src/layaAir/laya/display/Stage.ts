@@ -10,7 +10,6 @@ import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Render } from "../renders/Render"
 import { RenderInfo } from "../renders/RenderInfo"
-import { Context } from "../renders/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
 import { ColorUtils } from "../utils/ColorUtils"
@@ -19,7 +18,6 @@ import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import type { Scene3D } from "../d3/core/scene/Scene3D";
-import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 import type { Scene } from "./Scene";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
@@ -899,7 +897,7 @@ export class Stage extends Sprite {
     _loop(): boolean {
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
-        this.render(Render._context);
+        this.render();
         return true;
     }
 
@@ -956,7 +954,7 @@ export class Stage extends Sprite {
      * @param x 横轴坐标
      * @param y 纵轴坐标
      */
-    render(context2D: Context): void {
+    render(): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)

@@ -10,7 +10,6 @@ import { Sprite } from "../display/Sprite";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
-import { Context } from "../renders/Context";
 import { Material } from "../resource/Material";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
@@ -268,13 +267,6 @@ export class BaseRenderNode2D extends Component {
         this._renderHandle = this._getRenderHandle();
     }
 
-    /**
-     * cmd run时调用，可以用来计算matrix等获得即时context属性
-     * @param context 
-     * @param px 
-     * @param py 
-     */
-    addCMDCall?(context: Context, px: number, py: number): void;
 
     /**
      * 帧更新，可以放一些顶点更新，数据计算等

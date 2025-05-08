@@ -1,6 +1,5 @@
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
-import { Context } from "../renders/Context";
 import { Browser } from "../utils/Browser";
 import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -115,7 +114,7 @@ export class HTMLCanvas extends Resource {
      * @en The Canvas rendering context.
      * @zh Canvas 渲染上下文。
      */
-    get context(): Context {
+    get context() {
         if (this._ctx) return this._ctx;
         //@ts-ignore
         if (this._source == this) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
@@ -134,7 +133,7 @@ export class HTMLCanvas extends Resource {
      * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
      * @param context Canvas 渲染上下文。
      */
-    _setContext(context: Context): void {
+    _setContext(context: any): void {
         this._ctx = context;
     }
 
@@ -148,7 +147,7 @@ export class HTMLCanvas extends Resource {
      * @param other
      * @return  Canvas 渲染上下文 Context 对象。
      */
-    getContext(contextID: string, other: any = null): Context {
+    getContext(contextID: string, other: any = null): any {
         return this.context;
     }
 

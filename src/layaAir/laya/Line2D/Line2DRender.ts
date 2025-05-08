@@ -12,7 +12,6 @@ import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../renders/Context";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Material } from "../resource/Material";
 import { Texture2D } from "../resource/Texture2D";
@@ -301,28 +300,28 @@ export class Line2DRender extends BaseRenderNode2D {
         this._needUpdate = true;
     }
 
-    /**
-     * @internal
-     * @protected
-     * cmd run时调用，可以用来计算matrix等获得即时context属性
-     * @param context 
-     * @param px 
-     * @param py 
-     */
-    addCMDCall(context: Context, px: number, py: number): void {
-        let mat = context._curMat;
-        let vec3 = Vector3.TEMP;
-        vec3.x = mat.a;
-        vec3.y = mat.c;
-        vec3.z = px * mat.a + py * mat.c + mat.tx;
-        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
-        vec3.x = mat.b;
-        vec3.y = mat.d;
-        vec3.z = px * mat.b + py * mat.d + mat.ty;
-        //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
-        //this._setRenderSize(context.width, context.height);
-        context._copyClipInfoToShaderData(this._spriteShaderData);
-    }
+    // /**
+    //  * @internal
+    //  * @protected
+    //  * cmd run时调用，可以用来计算matrix等获得即时context属性
+    //  * @param context 
+    //  * @param px 
+    //  * @param py 
+    //  */
+    // addCMDCall(context: Context, px: number, py: number): void {
+    //     let mat = context._curMat;
+    //     let vec3 = Vector3.TEMP;
+    //     vec3.x = mat.a;
+    //     vec3.y = mat.c;
+    //     vec3.z = px * mat.a + py * mat.c + mat.tx;
+    //     //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
+    //     vec3.x = mat.b;
+    //     vec3.y = mat.d;
+    //     vec3.z = px * mat.b + py * mat.d + mat.ty;
+    //     //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
+    //     //this._setRenderSize(context.width, context.height);
+    //     context._copyClipInfoToShaderData(this._spriteShaderData);
+    // }
 
     onPreRender(): void {
         if (!this._needUpdate) return;
@@ -367,6 +366,7 @@ export class Line2DRender extends BaseRenderNode2D {
         renderElement.nodeCommonMap = this._getcommonUniformMap();
         BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
         this._renderElements[0] = renderElement;
+        this.owner._struct.renderElements = this._renderElements;
 
     }
 

@@ -2,7 +2,6 @@ import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point"
 import { RenderInfo } from "../../renders/RenderInfo"
-import { Context } from "../../renders/Context"
 import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"

@@ -1,7 +1,6 @@
 import { ISaveData } from "./ISaveData";
 import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
-import { Context } from "../../../renders/Context"
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
 export class SaveTransform implements ISaveData {

@@ -1,6 +1,5 @@
 import { Laya } from "../../../Laya";
-import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { IBatch2DRender, RenderManager2D } from "../../NodeRender2D/RenderManager2D";
+import { BaseRender2DType } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -20,7 +19,7 @@ import { SpineShaderInit } from "../material/SpineShaderInit";
  * @en SpineInstanceBatch used for efficient rendering Spine instances.
  * @zh SpineInstanceBatch 用于高效渲染 Spine 实例。
  */
-export class SpineInstanceBatch implements IBatch2DRender{
+export class SpineInstanceBatch {
     /**
      * @en The instance of SpineInstanceBatch.
      * @zh SpineInstanceBatch 的实例。
@@ -233,7 +232,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
 Laya.addAfterInitCallback(function() {
     SpineInstanceBatch.instance = new SpineInstanceBatch;
-    RenderManager2D.regisBatch(BaseRender2DType.spineSimple,SpineInstanceBatch.instance);
+    //RenderManager2D.regisBatch(BaseRender2DType.spineSimple,SpineInstanceBatch.instance);
 })
 
 export interface SpineInstanceInfo {

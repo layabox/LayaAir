@@ -1,17 +1,15 @@
 import { ILaya } from "../../ILaya";
-import { Const, NodeFlags } from "../Const";
+import { NodeFlags } from "../Const";
 import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { RenderSprite } from "../renders/RenderSprite";
-import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { CacheStyle } from "./css/CacheStyle";
-import { Graphics, GraphicsRenderData, SubStructRender } from "./Graphics";
+import { Graphics, SubStructRender } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -1356,8 +1354,8 @@ export class Sprite extends Node {
      * 如果此节点的某个父节点有旋转，x、y会在那里被重置为[0,0]，然后继续累加。
      * 所以可以认为这个x、y是表示当前节点到某个有旋转的节点（或者根节点）的累加值。
      */
-    render(ctx: Context, x: number, y: number): void {
-        RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
+    render(x: number, y: number): void {
+        //RenderSprite.renders[this._renderType]._fun(this, null, x + this._x, y + this._y);
     }
 
     /**
@@ -1473,22 +1471,23 @@ export class Sprite extends Node {
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
     static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
-        let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
-        let ctx = new Context();
-        if (rt) {
-            ctx.size(rt.width, rt.height);
-        } else {
-            ctx.size(canvasWidth, canvasHeight)
-        }
-        ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
-        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
-        ctx._drawingToTexture = false;
-        ctx.destroy();
-        if (!rt) {
-            let outTexture = new Texture(outrt, Texture.INV_UV);
-            return outTexture;
-        }
-        return outrt;
+        // let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
+        // let ctx = new Context();
+        // if (rt) {
+        //     ctx.size(rt.width, rt.height);
+        // } else {
+        //     ctx.size(canvasWidth, canvasHeight)
+        // }
+        // ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
+        // let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
+        // ctx._drawingToTexture = false;
+        // ctx.destroy();
+        // if (!rt) {
+        //     let outTexture = new Texture(outrt, Texture.INV_UV);
+        //     return outTexture;
+        // }
+        // return outrt;
+        return null;
     }
 
     /**
@@ -1539,22 +1538,23 @@ export class Sprite extends Node {
      * @returns 绘制的 RenderTexture2D 对象。
      */
     static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false): RenderTexture2D {
-        let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
-        let ctx = new Context();
-        if (rt) {
-            ctx.size(rt.width, rt.height);
-        } else {
-            ctx.size(canvasWidth, canvasHeight)
-        }
-        ctx.render2D = ctx.render2D.clone(renderout);
-        ctx._drawingToTexture = true;
-        if (flipY) {
-            renderout._invertY = true;//翻转纹理
-        }
-        let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
-        ctx._drawingToTexture = false;
-        ctx.destroy();
-        return outrt;
+        // let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
+        // let ctx = new Context();
+        // if (rt) {
+        //     ctx.size(rt.width, rt.height);
+        // } else {
+        //     ctx.size(canvasWidth, canvasHeight)
+        // }
+        // ctx.render2D = ctx.render2D.clone(renderout);
+        // ctx._drawingToTexture = true;
+        // if (flipY) {
+        //     renderout._invertY = true;//翻转纹理
+        // }
+        // let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
+        // ctx._drawingToTexture = false;
+        // ctx.destroy();
+        // return outrt;
+        return null;
     }
 
     /**

@@ -13,15 +13,13 @@ import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
-import { Context } from "./Context";
 import { Render2DSimple } from "./Render2D";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
  */
 export class Render {
-    /** @internal */
-    static _context: Context;
+
     /** @internal 主画布。canvas和webgl渲染都用这个画布*/
     static _mainCanvas: HTMLCanvas;
     /**自定义帧循环 */
@@ -168,11 +166,6 @@ export class Render {
         return true;
     }
 
-
-    /** 目前使用的渲染器。*/
-    static get context(): Context {
-        return Render._context;
-    }
 
     /** 渲染使用的原生画布引用。 */
     static get canvas(): any {

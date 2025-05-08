@@ -1,6 +1,4 @@
 import { ISaveData } from "./ISaveData";
-import { Context } from "../../../renders/Context"
-import { SubmitBase } from "../../submit/SubmitBase"
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
 export class SaveBase implements ISaveData {
