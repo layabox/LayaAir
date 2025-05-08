@@ -11,7 +11,7 @@
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap)	     mediump sampler2D shadowMap
     #else // NO_NATIVE_SHADOWMAP
 	#define TEXTURE2D_SHADOW(textureName)		     uniform mediump sampler2DShadow textureName
-	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2DLodEXT(textureName, coord3, 0.0)
+	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2D(textureName, coord3)
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap)	     mediump sampler2DShadow shadowMap
     #endif // NO_NATIVE_SHADOWMAP
 

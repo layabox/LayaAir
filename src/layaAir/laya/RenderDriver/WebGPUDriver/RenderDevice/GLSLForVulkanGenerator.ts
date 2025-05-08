@@ -5,6 +5,7 @@ import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
+import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -18,6 +19,7 @@ const glFragColorRegex = /gl_FragColor/g;
 interface CollectUniform {
     samplerType?: GPUTextureSampleType,
     arrayLength?: number,
+    demision?: GPUTextureViewDimension,
 }
 
 /**
@@ -135,21 +137,21 @@ ${fragmentCode}
         let samplerTypeMap = new Map<string, CollectUniform>();
 
         const getTextureType = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
+            // todo
+            let u: CollectUniform = {};
+            samplerTypeMap.set(name, u);
+
             if (type == "sampler2DShadow" || type == "samplerCubeShadow" || type == "sampler2DArrayShadow") {
-                samplerTypeMap.set(name, { samplerType: "depth" });
+                u.samplerType = "depth";
             }
-            else {
-                samplerTypeMap.set(name, { samplerType: "float" });
+
+            if (type == "sampler2DArray") {
+                u.demision = "2d-array";
             }
 
             if (arrayLength) {
                 let length = parseInt(arrayLength);
-                let collect = samplerTypeMap.get(name);
-                if (collect) {
-                    collect.arrayLength = length;
-                } else {
-                    samplerTypeMap.set(name, { arrayLength: length });
-                }
+                u.arrayLength = length;
             }
 
             return "\n";
@@ -159,6 +161,27 @@ ${fragmentCode}
         vertexCode = vertexCode.replace(uniformRegex, getTextureType);
         fragmentCode = fragmentCode.replace(uniformRegex, getTextureType);
 
+        uniformMap.forEach((value, key) => {
+            if (key < checkSetNumber) {
+                value.forEach(uniform => {
+                    if (uniform.type == WebGPUBindingInfoType.sampler) {
+                        let name = uniform.name.replace("_Sampler", "")
+                        let collect = samplerTypeMap.get(name);
+                        // todo
+                        if (collect) {
+                            // collect.samplerType = uniform.texture.sampleType;
+                        } else {
+                            // todo
+                            let samplerType: GPUTextureSampleType = "float";
+                            if (uniform.sampler?.type == "comparison") {
+                                samplerType = "depth";
+                            }
+                            samplerTypeMap.set(name, { samplerType: samplerType });
+                        }
+                    }
+                });
+            }
+        });
 
         // remove original uniform blocks
         vertexCode = vertexCode.replace(uniformBlockRegex, '\n');
@@ -173,6 +196,18 @@ ${fragmentCode}
 
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
+
+        // const vertexProcess = new WebGPU_GLSLProcess();
+        // vertexProcess.process(vertexCode, Array.from(useTexArray));
+        // vertexCode = vertexProcess.glslCode;
+
+        // const fragmentProcess = new WebGPU_GLSLProcess();
+        // fragmentProcess.process(fragmentCode, Array.from(useTexArray));
+        // fragmentCode = fragmentProcess.glslCode;
+
+        // 将所有 gl_VertexID 替换为 gl_VertexIndex
+        vertexCode = vertexCode.replace(/gl_VertexID/g, "gl_VertexIndex");
+        fragmentCode = fragmentCode.replace(/gl_VertexID/g, "gl_VertexIndex");
 
         const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, samplerTypeMap, checkSetNumber);
 
@@ -356,6 +391,13 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                     case WebGPUBindingInfoType.texture:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
 
+                            let textureName = uniform.name.replace("_Texture", "");
+                            let collectUniform = collectUniforms.get(textureName);
+                            if (collectUniform) {
+                                uniform.texture.sampleType = collectUniform.samplerType || uniform.texture.sampleType;
+                                uniform.texture.viewDimension = collectUniform.demision || uniform.texture.viewDimension;
+                            }
+
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
@@ -368,11 +410,19 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                         break;
                     case WebGPUBindingInfoType.sampler:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
-                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform sampler ${uniform.name};\n`;
+                            let sampler = "sampler";
                             let samplerName = uniform.name.replace("_Sampler", "");
-                            if (collectUniforms.get(samplerName)?.samplerType == "depth") {
-                                uniform.sampler.type = "comparison";
+
+                            let collectUniform = collectUniforms.get(samplerName);
+                            if (collectUniform) {
+                                // sampler = getSamplerTextureType(collectUniform.samplerType, collectUniform.demision);
+
+                                if (collectUniform.samplerType == "depth") {
+                                    uniform.sampler.type = "comparison";
+                                }
                             }
+
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${sampler} ${uniform.name};\n`;
                         }
                         break;
                     default:
@@ -516,7 +566,7 @@ function additionDefineString() {
 }
 
 // todo
-function getSamplerTextureType(type: GPUTextureSampleType, dimension: GPUTextureViewDimension) {
+function getSamplerTextureType(type: GPUTextureSampleType = "float", dimension: GPUTextureViewDimension = "2d") {
     if (dimension == "2d") {
         switch (type) {
             case "depth":

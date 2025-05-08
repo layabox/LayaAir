@@ -171,6 +171,19 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
 
         {
+
+            const glslTowgsl = (code: string, state: "vertex" | "fragment" | "compute") => {
+                let spvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(code, state);
+                if (!spvRes.success) {
+                    console.error(spvRes.info_log);
+                }
+
+                let spv = spvRes.spirv;
+                let wgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(spv.buffer, spv.byteOffset, spv.byteLength), false);
+
+                return wgsl;
+            };
+
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
                 console.error(vertexSpvRes.info_log);
@@ -178,6 +191,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let vertexSpirv = vertexSpvRes.spirv;
 
             let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(vertexSpirv.buffer, vertexSpirv.byteOffset, vertexSpirv.byteLength), false);
+            // let vertexWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.vertex, "vertex", true);
 
             let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
 
@@ -187,6 +201,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);
 
             let fragmentWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
+            // let fragmentWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.fragment, "fragment", true);
 
             this._vsShader = device.createShaderModule({ code: vertexWgsl });
             this._fsShader = device.createShaderModule({ code: fragmentWgsl });

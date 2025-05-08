@@ -1,6 +1,6 @@
 import { WebGPU_GLSLMacro } from "./WebGPU_GLSLMacro";
 import { WebGPU_GLSLStruct } from "./WebGPU_GLSLStruct";
-import { WebGPU_GLSLFunction } from "./WebGPU_GLSLFunction";
+import { Parameter, WebGPU_GLSLFunction } from "./WebGPU_GLSLFunction";
 import { WebGPU_GLSLUniform } from "./WebGPU_GLSLUniform";
 
 /**
@@ -26,8 +26,8 @@ export class WebGPU_GLSLProcess {
         this.textureNames = textureNames;
         this._removeComments(glslCode); //移除注释
         this._extractMacros(this.glslCode); //提取宏定义
-        for (let i = 0; i < 3; i++)
-            this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，执行3次）
+        // for (let i = 0; i < 3; i++)
+        //     this._replaceMacros(this.glslCode); //执行宏替换（处理宏替换嵌套，执行3次）
         this._extractInternals(this.glslCode); //提取内置变量
         this._extractFunctions(this.glslCode); //提取函数定义
         this._extractStructs(this.glslCode); //提取结构体定义
@@ -37,6 +37,61 @@ export class WebGPU_GLSLProcess {
         //对函数进行处理，处理sampler类型的参数（参数一分为二）
         for (let i = 0; i < this.functions.length; i++)
             this.functions[i].processSampler(textureNames);
+
+        // 处理 sampler 当作参数的函数调用
+        {
+            const paramIsSampler = (param: Parameter) => {
+                return param.type.indexOf('sampler') !== -1 || param.type.indexOf('texture') !== -1;
+            }
+
+            const functionHasSamplerParams = (fn: WebGPU_GLSLFunction) => {
+                for (let i = 0, len = fn.params.length; i < len; i++) {
+                    if (paramIsSampler(fn.params[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            this.functions.forEach(fn => {
+                if (functionHasSamplerParams(fn)) {
+                    this.functions.forEach(fn2 => {
+                        fn2.calls.forEach(call => {
+                            if (call.name == fn.name) {
+                                // fn2 调用了 fn, 且 fn 有 sampler 参数
+                                let body = fn2.samplerProcessed ? fn2.samplerOutput : fn2.body;
+
+                                //@ts-ignore
+                                const regex = /(\b\w+\b)\s*\(([^()]*\([^()]*\)[^()]*)*([^()]*)\)/gs;
+
+                                const rep = (match: string, p0: string, p1: string, p2: string) => {
+                                    if (p0 == call.name) {
+
+                                        fn.params.forEach((p, i) => {
+                                            if (paramIsSampler(p)) {
+                                                p2 = p2.replace(call.params[i], `${call.params[i]}_Texture, ${call.params[i]}_Sampler`);
+                                            }
+                                        });
+                                        return `${p0}(${p2})`;
+                                    }
+                                    else {
+                                        return match;
+                                    }
+                                };
+
+                                if (fn2.samplerProcessed) {
+                                    fn2.samplerOutput = body.replace(regex, rep);
+                                }
+                                else {
+                                    fn2.body = body.replace(regex, rep);
+                                }
+
+                            }
+                        });
+                    });
+                }
+            });
+        }
 
         this._outputGLSL(); //输出处理后的GLSL代码
     }

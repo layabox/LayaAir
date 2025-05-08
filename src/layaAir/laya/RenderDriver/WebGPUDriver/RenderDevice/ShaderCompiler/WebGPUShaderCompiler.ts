@@ -18,6 +18,7 @@ export interface GlslangCompiler {
 
 export interface NagaCompiler {
     spirv_to_wgsl(spv: Uint8Array, validation: boolean): string;
+    glsl_to_wgsl(source: string, stage: "vertex" | "fragment" | "compute", validation: boolean): string;
 };
 
 export class WebGPUShaderCompiler {

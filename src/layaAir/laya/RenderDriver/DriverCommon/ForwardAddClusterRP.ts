@@ -198,7 +198,7 @@ export class ForwardAddClusterRP {
         RenderPassUtil.renderCmd(this.beforeForwardCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        this.enableOpaque && this._opaqueList.renderQueue(context);
+        // this._opaqueList.renderQueue(context);
         RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
 
         if (this.skyRenderNode) {
