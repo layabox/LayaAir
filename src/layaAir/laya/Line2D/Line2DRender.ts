@@ -242,6 +242,16 @@ export class Line2DRender extends BaseRenderNode2D {
         return ["BaseRender2D", "Line2DRender"];
     }
 
+    protected _initDefaultRenderData(): void {
+        this._initRender();
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        //this._spriteShaderData.addDefine(Shader3D.getDefineByName("UV"));
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+        this._updateDashValue();
+        this.tillOffset = null;
+        this.texture = null;
+    }
+
     /**
      * @internal
      */
@@ -376,13 +386,7 @@ export class Line2DRender extends BaseRenderNode2D {
         Line2DRender._createDefaultLineMaterial();
         this._renderElements = [];
         this._materials = [];
-        this._initRender();
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        //this._spriteShaderData.addDefine(Shader3D.getDefineByName("UV"));
-        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
-        this._updateDashValue();
-        this.tillOffset = null;
-        this.texture = null;
+
     }
 }
 

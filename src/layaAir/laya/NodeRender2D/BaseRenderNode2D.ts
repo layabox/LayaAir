@@ -345,10 +345,8 @@ export class BaseRenderNode2D extends Component {
         this._lightReceive = value;
         if (value) {
             this._addRenderToLightManager();
-            // this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         } else {
             this._removeRenderFromLightManager();
-            // this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
         this._renderHandle.lightReceive = value;
         this._resetUpdateMark();
