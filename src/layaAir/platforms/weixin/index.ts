@@ -17,6 +17,8 @@ PAL.postInitialize = function () {
     TextRenderConfig.supportImageData = Browser.systemVersion === "ios 10.1.1";
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
+    cacheManager.spaceLimit = 200 * 1024 * 1024;
+
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
     downloader.escapeZhCharsInURL = false;

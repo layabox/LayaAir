@@ -485,7 +485,8 @@ export class Stage extends Sprite {
         this.offset.x = Math.round(this.offset.x);
         this.offset.y = Math.round(this.offset.y);
         mat.translate(this.offset.x, this.offset.y);
-        mat.translate(0, PAL.browser.safariOffsetY);
+        if (PAL.browser.safariOffsetY !== 0)
+            mat.translate(0, PAL.browser.safariOffsetY);
 
         //处理横竖屏
         this.canvasDegree = 0;
@@ -513,6 +514,8 @@ export class Stage extends Sprite {
         canvasStyle.width = canvasWidth + "px";
         canvasStyle.height = canvasHeight + "px";
         mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
+        if (PAL.browser.safariOffsetY !== 0)
+            mat.translate(0, -PAL.browser.safariOffsetY);
 
         RenderState2D.width = canvasWidth;
         RenderState2D.height = canvasHeight;

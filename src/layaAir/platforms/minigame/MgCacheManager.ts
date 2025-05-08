@@ -25,7 +25,7 @@ export class MgCacheManager {
      * @en Maximum capacity of cache directory
      * @zh 缓存目录的最大容量
      */
-    spaceLimit: number = (200 * 1024 * 1024);
+    spaceLimit: number = (50 * 1024 * 1024);
     /**
      * @en The interval time for processing cache requests, in milliseconds
      * @zh 处理缓存请求的间隔时间，单位是毫秒
@@ -230,7 +230,7 @@ export class MgCacheManager {
 
         let fielName = `${this.cacheRoot}/${info.group}/${info.fileName}`;
         return PAL.fs.unlink(fielName).catch((err: WechatMinigame.FileError) => {
-            if (err.errCode !== 1300002) { //文件不存在的错误码
+            if (err.errCode !== 1300002 && err.errCode !== 10022) { //文件不存在的错误码
                 console.error("delete cache file", fielName, err.errMsg);
                 //文件存在，但又删不掉，就很尴尬了，要怎么处理
             }

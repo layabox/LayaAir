@@ -11,7 +11,7 @@ export class BrowserAdapter extends EventDispatcher {
     public safariOffsetY: number = 0;
 
     protected _visibilityStateKey: string;
-    protected _pixelRatio: number;
+    protected _pixelRatio: number = 1;
 
     constructor() {
         super();

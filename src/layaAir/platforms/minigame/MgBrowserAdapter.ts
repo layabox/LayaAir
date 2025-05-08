@@ -40,15 +40,19 @@ export class MgBrowserAdapter extends BrowserAdapter {
             platform = systemInfo.platform;
         }
         platform = platform.toLowerCase();
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo
+            this._pixelRatio = window.devicePixelRatio;
+        }
+        console.log(`platform=${platform}, window size=${this._windowWidth}x${this._windowHeight}, dpr=${this._pixelRatio}`);
 
-        if (platform === "ios") {
+        if (platform.indexOf("ios") !== -1) {
             Browser.onIOS = true;
             Browser.onIPhone = true;
             Browser.onIPad = true;
 
             Browser.onAndroid = false;
             Browser.platform = Browser.PLATFORM_IOS;
-        } else if (platform === "android" || platform === "ohos") {
+        } else if (platform.indexOf("android") !== -1 || platform.indexOf("ohos") !== -1) {
             Browser.onIOS = false;
             Browser.onIPhone = false;
             Browser.onIPad = false;
@@ -134,6 +138,9 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     setCursor(cursor: string): void {
+        if (!mg.setCursor)
+            return;
+
         let arr = cursor.split(" ");
         let x = arr[1] ? parseInt(arr[1].trim()) : 0;
         let y = arr[2] ? parseInt(arr[2].trim()) : 0;

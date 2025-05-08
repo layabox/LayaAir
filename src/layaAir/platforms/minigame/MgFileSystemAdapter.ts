@@ -5,11 +5,13 @@ import { ClassUtils } from "../../laya/utils/ClassUtils";
 export class MgFileSystemAdapter extends FileSystemAdapter {
 
     private fs: WechatMinigame.FileSystemManager;
+    private hasAccess: boolean = false;
 
     constructor() {
         super();
 
         this.fs = PAL.global.getFileSystemManager();
+        this.hasAccess = typeof (this.fs.access) === "function";
     }
 
     readFile(path: string, encoding?: string): Promise<ArrayBuffer | string> {
@@ -58,14 +60,23 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
 
     exists(path: string): Promise<boolean> {
         return new Promise(resolve => {
-            this.fs.access({
-                path,
-                success: () => resolve(true),
-                fail: (err) => {
-                    //console.warn('access', path, err.errMsg);
-                    resolve(false);
-                }
-            });
+            if (this.hasAccess) {
+                this.fs.access({
+                    path,
+                    success: () => resolve(true),
+                    fail: (err) => {
+                        //console.warn('access', path, err.errMsg);
+                        resolve(false);
+                    }
+                });
+            }
+            else {
+                this.fs.getFileInfo({
+                    filePath: path,
+                    success: (res) => resolve(true),
+                    fail: (err) => resolve(false)
+                });
+            }
         });
     }
 
