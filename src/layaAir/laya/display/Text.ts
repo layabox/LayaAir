@@ -1190,7 +1190,7 @@ export class Text extends Sprite {
         };
 
         let moveCmds = (cmd: ITextCmd) => {
-            while (cmd.linkEnd) { //跳过空链接的结束符
+            while (cmd.linkEnd && cmd.next) { //跳过空链接的结束符
                 cmd = cmd.next;
             }
             if (!cmd)
