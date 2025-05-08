@@ -58,7 +58,7 @@ export class MediaAdapter {
         return new HTMLVideoTexture();
     }
 
-    createVideoPlayer(owner: Sprite): VideoPlayer {
+    createVideoPlayer(): VideoPlayer {
         return new HTMLVideoPlayer();
     }
 

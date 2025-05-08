@@ -183,7 +183,7 @@ export class MgDownloader extends Downloader {
         let str: string = "";
         let len = url.length;
         for (let i = 0; i < len; i++) {
-            let word = str[i];
+            let word = url[i];
             if (IGNORE.test(word)) {
                 str += word;
             }

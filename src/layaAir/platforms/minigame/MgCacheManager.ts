@@ -110,7 +110,10 @@ export class MgCacheManager {
     }
 
     addFile(url: string, tempFilePath: string): void {
-        PAL.fs.getFileSize(tempFilePath).then(fileSize => this.cacheRequest.set(url, { tempFilePath, fileSize }));
+        PAL.fs.getFileSize(tempFilePath).then(fileSize => this.cacheRequest.set(url, { tempFilePath, fileSize }))
+            .catch((err: WechatMinigame.FileError) => {
+                console.warn("get file size", `${err.errMsg}(${err.errCode})`);
+            });
     }
 
     private process() {
@@ -185,7 +188,7 @@ export class MgCacheManager {
             return Utils.runTasks(entries, 5, ([_, { tempFilePath }]) =>
                 PAL.fs.copyFile(tempFilePath, `${this.cacheRoot}/${group}/${Utils.getBaseName(tempFilePath)}`)
                     .catch((err: WechatMinigame.FileError) => {
-                        //什么意外？
+                        //缓存文件拷贝失败，可能是源文件被系统清掉了
                         console.warn("create cache file", `${err.errMsg}(${err.errCode})`);
                     }));
         }).then(() => {

@@ -1,5 +1,6 @@
 import { LayaEnv } from "../../LayaEnv";
 import { PAL } from "../platform/PlatformAdapters";
+import { Browser } from "../utils/Browser";
 import { VideoPlayer } from "./VideoPlayer";
 
 /**
@@ -70,7 +71,7 @@ export class HTMLVideoPlayer extends VideoPlayer {
         this.element.controls = this.options.controls ?? false;
         PAL.media.setVideoElementSrc(this.element, url);
         if (this.options.underGameView) {
-            let c = PAL.browser.getCanvasContainer();
+            let c = Browser.container;
             if (c !== document.body)
                 document.body.insertBefore(this.element, c);
             else
@@ -78,6 +79,7 @@ export class HTMLVideoPlayer extends VideoPlayer {
         }
         else
             document.body.appendChild(this.element);
+        this.onTransformChanged();
         this.setLoaded();
     }
 
@@ -94,7 +96,8 @@ export class HTMLVideoPlayer extends VideoPlayer {
         this.element.pause();
     }
 
-    protected onSyncTransform(x: number, y: number, width: number, height: number): void {
+    protected onTransformChanged(): void {
+        let { x, y, width, height } = this.getNodeTransform();
         let style = this.element.style;
         style.left = x + "px";
         style.top = y + "px";

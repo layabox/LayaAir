@@ -10,8 +10,11 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         conch = PAL.global;
     }
 
-    getCanvasContainer(): HTMLElement {
-        return document.body;
+    createMainCanvas() {
+        let canvas = this.createElement("canvas");
+        document.body.appendChild(canvas);
+
+        return canvas;
     }
 
     get supportArrayBufferURL(): boolean {

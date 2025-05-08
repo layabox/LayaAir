@@ -412,7 +412,7 @@ export class Browser {
      * @zh 用来存放画布元素的容器，方便对画布进行控制。
      */
     static get container(): HTMLElement {
-        return PAL.browser.getCanvasContainer();
+        return Browser.mainCanvas.source.parentElement || document.body;
     }
 
     /**

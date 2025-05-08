@@ -230,12 +230,14 @@ export class InputManager {
             inst.handleMouse(ev, 4);
         }, { passive: false });
 
-        canvas.addEventListener("pointerdown", ev => {
-            canvas.setPointerCapture(ev.pointerId);
-        });
-        canvas.addEventListener("pointerup", ev => {
-            canvas.releasePointerCapture(ev.pointerId);
-        }, true);
+        if (typeof (canvas.setPointerCapture) === 'function') {
+            canvas.addEventListener("pointerdown", ev => {
+                canvas.setPointerCapture(ev.pointerId);
+            });
+            canvas.addEventListener("pointerup", ev => {
+                canvas.releasePointerCapture(ev.pointerId);
+            }, true);
+        }
 
         document.addEventListener("keydown", ev => {
             inst.handleKeys(ev);

@@ -46,17 +46,25 @@ export class MgInnerAudioChannel extends SoundChannel {
             this.stop();
         });
         ctx.onEnded(() => this.onPlayEnd());
+        let playSound = () => {
+            if (this._ctx && !this._paused) {
+                if (this.startTime != 0)
+                    ctx.seek(this.startTime);
+                ctx.play();
+            }
+            ctx.offCanplay(playSound);
+        };
+        ctx.onCanplay(playSound);
+
         ctx.src = filePath;
         ctx.playbackRate = this.playbackRate;
-        ctx.currentTime = this.startTime;
         ctx.loop = this.loops === 0;
         ctx.volume = this._muted ? 0 : this._volume;
-        if (!this._paused)
-            ctx.play();
     }
 
     protected onPlayAgain(): void {
-        this._ctx.currentTime = this.startTime;
+        if (this.startTime != 0)
+            this._ctx.seek(this.startTime);
         this._ctx.play();
     }
 

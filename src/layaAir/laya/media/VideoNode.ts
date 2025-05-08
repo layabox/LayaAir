@@ -19,7 +19,7 @@ export class VideoNode extends Sprite {
      * @en Video player options. These options need to be set before setting the source, and if you change the settings, you need to reset the source.
      * @zh 视频播放器选项。这些选项需要在设置source前设置好，如果更改设置，需要重新设置source。
      */
-    readonly options: IVideoPlayerOptions = { objectFit: "contain" };
+    readonly options: IVideoPlayerOptions = { controls: false, objectFit: "contain" };
 
     /**
      * @zh 视频播放模式。如果设置的模式不支持，会尝试使用另外一种模式。
@@ -309,14 +309,14 @@ export class VideoNode extends Sprite {
         let vt: VideoTexture;
         let backendType = LayaEnv.isPlaying ? this.mode : "decoder";
         if (backendType === "player") {
-            player = (this._player || PAL.media.createVideoPlayer(this));
+            player = (this._player || PAL.media.createVideoPlayer());
             if (!player)
                 vt = PAL.media.createVideoTexture();
         }
         else { //if (backendType === "decoder") 
             vt = (this._vtex || PAL.media.createVideoTexture());
             if (!vt)
-                player = PAL.media.createVideoPlayer(this);
+                player = PAL.media.createVideoPlayer();
         }
 
         if (player) {

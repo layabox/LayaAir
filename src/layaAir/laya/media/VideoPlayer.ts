@@ -228,15 +228,17 @@ export class VideoPlayer {
 
     protected setLoaded() {
         this._loaded = true;
-        this.onTransformChanged();
 
         if (this._playing)
             this.onPlay();
     }
 
-    private onTransformChanged() {
+    protected getNodeTransform() {
         let trans = SpriteUtils.getTransformRelativeToWindow(this._owner, 0, 0);
-        this.onSyncTransform(trans.x, trans.y, Math.round(this._owner.width * trans.scaleX), Math.round(this._owner.height * trans.scaleY));
+        return { x: trans.x, y: trans.y, width: Math.round(this._owner.width * trans.scaleX), height: Math.round(this._owner.height * trans.scaleY) };
+    }
+
+    protected onTransformChanged() {
     }
 
     /**
@@ -261,9 +263,6 @@ export class VideoPlayer {
     }
 
     protected onPause(): void {
-    }
-
-    protected onSyncTransform(x: number, y: number, width: number, height: number): void {
     }
 
     protected onDestroy(): void {

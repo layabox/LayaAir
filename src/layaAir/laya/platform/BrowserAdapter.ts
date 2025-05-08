@@ -12,7 +12,6 @@ export class BrowserAdapter extends EventDispatcher {
 
     protected _visibilityStateKey: string;
     protected _pixelRatio: number;
-    protected _container: HTMLElement;
 
     constructor() {
         super();
@@ -185,23 +184,19 @@ export class BrowserAdapter extends EventDispatcher {
         canvas.id = "layaCanvas";
         canvas.width = 0;
         canvas.height = 0;
-        this.getCanvasContainer().appendChild(canvas);
 
         let style = canvas.style;
         style.position = 'absolute';
         style.top = style.left = "0px";
         style.background = "#000000";
 
-        return canvas;
-    }
+        let container = document.createElement("div");
+        container.id = "layaContainer";
+        document.body.appendChild(container);
 
-    getCanvasContainer(): HTMLElement {
-        if (!this._container) {
-            this._container = document.createElement("div");
-            this._container.id = "layaContainer";
-            document.body.appendChild(this._container);
-        }
-        return this._container;
+        container.appendChild(canvas);
+
+        return canvas;
     }
 
     setCursor(cursor: string): void {

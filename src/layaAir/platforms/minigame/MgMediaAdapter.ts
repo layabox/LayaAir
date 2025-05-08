@@ -48,8 +48,17 @@ export class MgMediaAdapter extends MediaAdapter {
         }
     }
 
-    createVideoPlayer(owner: Sprite): VideoPlayer {
-        return new MgVideoPlayer();
+    private _warned2: boolean = false;
+    createVideoPlayer(): VideoPlayer {
+        if (mg.createVideo)
+            return new MgVideoPlayer();
+        else {
+            if (!this._warned2) {
+                console.warn("VideoPlayer is not supported in this platform.");
+                this._warned2 = true;
+            }
+            return new VideoPlayer();
+        }
     }
 
     private createInnerAudioContext(useWebAudioImplement?: boolean): WechatMinigame.InnerAudioContext {

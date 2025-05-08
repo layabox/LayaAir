@@ -4,7 +4,6 @@ import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
 import { ClassUtils } from "../../laya/utils/ClassUtils";
-import { Utils } from "../../laya/utils/Utils";
 
 var mg: WechatMinigame.Wx;
 
@@ -17,15 +16,21 @@ export class MgBrowserAdapter extends BrowserAdapter {
     protected init() {
         mg = PAL.global;
         URL.basePath = URL.rootPath = "";
-        let platform: string;
+        let platform: string = "";
 
         if (mg.getWindowInfo) {
             let windowInfo = mg.getWindowInfo();
             this._pixelRatio = windowInfo.pixelRatio;
             this._windowWidth = windowInfo.windowWidth;
             this._windowHeight = windowInfo.windowHeight;
-            let deviceInfo = mg.getDeviceInfo();
-            platform = deviceInfo.platform;
+            if (mg.getDeviceInfo) {
+                let deviceInfo = mg.getDeviceInfo();
+                platform = deviceInfo.platform;
+            }
+            else {
+                let systemInfo = mg.getSystemInfoSync();
+                platform = systemInfo.platform;
+            }
         }
         else {
             let systemInfo = mg.getSystemInfoSync();
@@ -34,6 +39,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this._windowHeight = systemInfo.windowHeight;
             platform = systemInfo.platform;
         }
+        platform = platform.toLowerCase();
 
         if (platform === "ios") {
             Browser.onIOS = true;
@@ -59,13 +65,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
         }
 
         const { SDKVersion } = mg.getAppBaseInfo ? mg.getAppBaseInfo() : mg.getSystemInfoSync();
-        Browser.SDKVersion = SDKVersion;
+        Browser.SDKVersion = SDKVersion || "";
 
         const { system } = mg.getDeviceInfo ? mg.getDeviceInfo() : mg.getSystemInfoSync();
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
-        this._supportBufferURL = Utils.compareVersion(Browser.SDKVersion, '2.14.0') > 0;
+        this._supportBufferURL = typeof (mg.createBufferURL) === "function" && typeof (mg.revokeBufferURL) === "function";
 
         mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
             this._windowWidth = result.windowWidth;
@@ -84,8 +90,21 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.event(Event.VISIBILITY_CHANGE, false);
             this.event(Event.BLUR);
         });
-        mg.onError(e => this.event(Event.ERROR, e));
-        mg.onUnhandledRejection(e => this.event("unhandledrejection", e));
+        mg.onError(e => {
+            if (this.hasListener(Event.ERROR))
+                this.event(Event.ERROR, e);
+            else
+                console.error(e);
+        });
+
+        if (typeof (mg.onUnhandledRejection) === "function") {
+            mg.onUnhandledRejection(e => {
+                if (this.hasListener("unhandledrejection"))
+                    this.event("unhandledrejection", e);
+                else
+                    console.error(e);
+            });
+        }
     }
 
     getClientWidth(): number {
@@ -101,23 +120,17 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     createMainCanvas(): HTMLCanvasElement {
-        return (window as any).canvas;
+        return (window as any).canvas || (window as any).__canvas;
     }
 
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
-        if (tagName === "canvas") {
-            const canvas: any = mg.createCanvas();
-            canvas.type = 'canvas';
-            canvas.__proto__.__proto__ = document.createElement("_canvas");
-            canvas.style = {};
-            return canvas;
-        }
+        let ele: any;
+        if (tagName === "canvas" && typeof (mg.createCanvas) === "function")
+            ele = mg.createCanvas();
         else
-            return super.createElement(tagName);
-    }
-
-    getCanvasContainer(): HTMLElement {
-        return document.body;
+            ele = super.createElement(tagName);
+        (!ele.style) && (ele.style = {});
+        return ele;
     }
 
     setCursor(cursor: string): void {

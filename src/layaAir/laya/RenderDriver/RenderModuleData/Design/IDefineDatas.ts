@@ -1,6 +1,6 @@
 import { ShaderDefine } from "./ShaderDefine";
 
-//Shader data
+/** @ignore */
 export interface IDefineDatas {
     /**
      * @internal

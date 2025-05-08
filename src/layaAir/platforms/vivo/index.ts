@@ -15,10 +15,7 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
-    //注册用户磁盘路径-vivo没有用户磁盘目录
-    PAL.global.env.USER_DATA_PATH = "internal://files";
-
-    let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
+    let cacheManager = new MgCacheManager("internal://files/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
     downloader.supportSubPackageMultiLevelFolders = false;

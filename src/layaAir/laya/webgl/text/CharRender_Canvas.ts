@@ -17,7 +17,7 @@ export class CharRender_Canvas {
         this.maxTexW = maxw;
         this.maxTexH = maxh;
 
-        let canvas = <HTMLCanvasElement>Browser.createElement('canvas');
+        let canvas = <HTMLCanvasElement>Browser.createElement("canvas");
         this.canvas = canvas;
         canvas.width = 1024;
         canvas.height = 512;
@@ -25,7 +25,10 @@ export class CharRender_Canvas {
         //为了避免被发现，设一个在屏幕外的绝对位置。
         canvas.style.left = "-10000px";
         canvas.style.position = "absolute";
-        document.body.appendChild(canvas);
+        try {
+            document.body.appendChild(canvas);
+        }
+        catch (e) { } // 可能会报错，canvas不是Node的情况
         this.ctx = canvas.getContext('2d', { willReadFrequently: true });
     }
     /**

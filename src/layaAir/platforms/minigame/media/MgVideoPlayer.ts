@@ -63,15 +63,16 @@ export class MgVideoPlayer extends VideoPlayer {
         if (this._loaded)
             this.video.destroy();
 
-        (<Mutable<this>>this).video = (<WechatMinigame.Wx>PAL.global).createVideo(Object.assign({
-            controls: false,
-        }, this.options, {
-            src: URL.postFormatURL(URL.formatURL(url)),
-            autoplay: this._playing,
-            loop: this._loop,
-            muted: this._muted,
-            playbackRate: this._playbackRate,
-        }));
+        (<Mutable<this>>this).video = (<WechatMinigame.Wx>PAL.global).createVideo(Object.assign({},
+            this.options,
+            this.getNodeTransform(),
+            {
+                src: URL.postFormatURL(URL.formatURL(url)),
+                autoplay: this._playing,
+                loop: this._loop,
+                muted: this._muted,
+                playbackRate: this._playbackRate,
+            }));
         this.video.onEnded(() => this._ended = true);
         this.video.onError((err) => {
             console.error("MgVideoPlayer error: " + err.errMsg);
@@ -87,9 +88,11 @@ export class MgVideoPlayer extends VideoPlayer {
         this.video.pause();
     }
 
-    protected onSyncTransform(x: number, y: number, width: number, height: number): void {
+    protected onTransformChanged(): void {
         if (!this.video)
             return;
+
+        let { x, y, width, height } = this.getNodeTransform();
 
         this.video.x = x;
         this.video.y = y;
