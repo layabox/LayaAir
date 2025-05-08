@@ -142,7 +142,7 @@ export class AutoBitmap extends Graphics {
     protected changeSource(): void {
         this._isChanged = false;
         let source = this._source;
-        if (!source || !source.bitmap || !this._sp)
+        if (!source || !source.bitmap || !this.owner)
             return;
 
         let width = this.width;

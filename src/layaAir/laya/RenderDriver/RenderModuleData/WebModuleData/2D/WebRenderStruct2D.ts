@@ -114,21 +114,22 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.globalAlpha = this.alpha;
       }
       
-      //clip处理 TODO
-      // let rect = this._scrollRect;
-      // let info = this.getClipInfo();
-      // if (rect) {
-      //     let cm = info.clipMatrix;
-      //     let { x, y, width, height } = rect;
-      //     cm.tx = x * mat.a + y * mat.c + mat.tx;
-      //     cm.ty = x * mat.b + y * mat.d + mat.ty;
-      //     cm.a = width * mat.a;
-      //     cm.b = width * mat.b;
-      //     cm.c = height * mat.c;
-      //     cm.d = height * mat.d;
-      //     info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-      //     info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
-      // }
+      //clip处理 
+      let rect = this._clipRect;
+      if (rect) {
+         let info = this._clipInfo;
+         let mat = this.transform.getMatrix();
+         let cm = info.clipMatrix;
+         let { x, y, width, height } = rect;
+         cm.tx = x * mat.a + y * mat.c + mat.tx;
+         cm.ty = x * mat.b + y * mat.d + mat.ty;
+         cm.a = width * mat.a;
+         cm.b = width * mat.b;
+         cm.c = height * mat.c;
+         cm.d = height * mat.d;
+         info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
+         info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
+      }
    }
 
    getBlendMode(): string {

@@ -31,6 +31,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { I2DBaseRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 
 /**动画开始播放调度
@@ -153,6 +154,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         return ["BaseRender2D", "Spine2D"]
     }
 
+    protected _getRenderHandle(): I2DBaseRenderDataHandle {
+        // return LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle
+    }
     /**
      * 外部皮肤
      */
