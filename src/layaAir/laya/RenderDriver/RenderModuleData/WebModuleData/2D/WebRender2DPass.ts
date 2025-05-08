@@ -177,6 +177,8 @@ export class WebRender2DPass implements IRender2DPass {
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (!struct.enable) return;
       struct._handleInterData();
+
+
       //this.handl
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
@@ -193,6 +195,7 @@ export class WebRender2DPass implements IRender2DPass {
       // }
 
       if (struct.renderDataHandler) {
+         struct.renderUpdate(context2D);
          struct.renderDataHandler.inheriteRenderData(context2D);
          this.addStruct(struct);
       }
@@ -240,7 +243,7 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
 
-      if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
+      //if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
@@ -253,13 +256,13 @@ export class WebRender2DPass implements IRender2DPass {
          }
 
          this.repaint = false;
-      } else {//这里应该是dirty判断
-         for (let i = 0, len = lists.length; i < len; i++) {
-            let list = lists[i];
-            if (!list || !list.renderElements.length) continue;
-            context.drawRenderElementList(list.renderElements);
-         }
-      }
+      // } else {//这里应该是dirty判断
+      //    for (let i = 0, len = lists.length; i < len; i++) {
+      //       let list = lists[i];
+      //       if (!list || !list.renderElements.length) continue;
+      //       context.drawRenderElementList(list.renderElements);
+      //    }
+      // }
 
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
@@ -445,7 +448,7 @@ class PassRenderList {
    add(struct: WebRenderStruct2D): void {
       this.structs.add(struct);
 
-      let n = struct.renderElements?.length;
+      let n = struct.renderElements.length;
       if (n == 0) return;
       if (n == 1) {
          this._batchStart(struct.renderType, 1);

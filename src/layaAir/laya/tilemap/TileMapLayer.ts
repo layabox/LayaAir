@@ -419,7 +419,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @protected
      * @param context 
      */
-    onUpdate(): void {
+    renderUpdate(context: IRenderContext2D): void {
         let tileSet = this._tileSet;
         if (tileSet == null) return;
 

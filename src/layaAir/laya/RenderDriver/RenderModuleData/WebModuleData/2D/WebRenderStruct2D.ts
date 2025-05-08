@@ -113,7 +113,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       } else {
          this.globalAlpha = this.alpha;
       }
-      
+
       //clip处理 
       let rect = this._clipRect;
       if (rect) {
@@ -237,6 +237,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    renderUpdate(context: IRenderContext2D): void {
       this.renderDataHandler.inheriteRenderData(context);
+      if (this._rnUpdateFun)
+         this._rnUpdateFun?.call(this._rnUpdateCall, context);
    }
 
    destroy(): void {
