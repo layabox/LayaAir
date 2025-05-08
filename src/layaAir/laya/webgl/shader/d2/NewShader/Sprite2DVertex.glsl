@@ -44,9 +44,8 @@ void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
     // outPos.y=yDir.x*x+yDir.y*y + u_pivotPos.y +yDir.z;
 }
 
-void getGlobalPos(in vec2 localPos,out vec2 globalPos){
-    vec2 tempPos;
-    transfrom(localPos,u_NMatrix_0,u_NMatrix_1,tempPos);
+void clip(inout vec2 globalPos){
+    vec2 tempPos = vec2(globalPos.x,globalPos.y);
     // 根据视口调整位置
     vec4 clipMatDir;
     vec4 clipMatPos;
@@ -79,6 +78,10 @@ void getGlobalPos(in vec2 localPos,out vec2 globalPos){
     v_cliped = cliped;
 }
 
+void getGlobalPos(in vec2 localPos,out vec2 globalPos){
+    transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
+}
+
 void getProjectPos(in vec2 viewPos,out vec4 projectPos){
     projectPos= vec4((viewPos.x/u_size.x-0.5)*2.0,(0.5-viewPos.y/u_size.y)*2.0,0.,1.0);
     #ifdef INVERTY
@@ -97,6 +100,7 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 vec4 getPosition(in vec2 positionOS){
     vec2 globalPos;
     getGlobalPos(positionOS,globalPos);
+    clip(globalPos);
 
     vec2 viewPos;
     getViewPos(globalPos,viewPos);

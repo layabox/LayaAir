@@ -2,8 +2,8 @@
     #define SpineVertex_lib
 
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
-    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
+    outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
+    outPos.y = -(yDir.x*pos.x+yDir.y*pos.y -yDir.z);
 }
 
 
@@ -28,11 +28,14 @@ void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
         // vec4 up = vec4(1.0,1.0 ,1.0 ,0.0 );
         // vec4 down = vec4( 1.0,1.0 ,1.0 ,0.0 );
         
-        float x = pos.x*up.x + pos.y*up.y +up.z;
-        float y = pos.x*down.x + pos.y*down.y +down.z;
-        pos.x=x*weight;
-        pos.y=y*weight;
-        return vec4(pos,0.,1.0);
+        vec2 outPos;
+        transfrom(pos , up , down , outPos);
+        outPos = outPos * weight;
+        // float x = pos.x*up.x + pos.y*up.y +up.z;
+        // float y = pos.x*down.x + pos.y*down.y +down.z;
+        // pos.x=x*weight;
+        // pos.y=y*weight;
+        return vec4(outPos,0.,1.0);
     }
 #endif
 
@@ -42,11 +45,12 @@ void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
         int boneId=int(fboneId);
         vec4 up= u_sBone[boneId*2];
         vec4 down=u_sBone[boneId*2+1];
-        float x = pos.x*up.x + pos.y*up.y +up.z ;
-        float y = pos.x*down.x + pos.y*down.y +down.z;
-        pos.x=x*weight;
-        pos.y=y*weight;
-        return vec4(pos,0.,1.0);
+        vec2 outPos;
+        transfrom(pos , up , down , outPos);
+        // float x = pos.x*up.x + pos.y*up.y +up.z ;
+        // float y = pos.x*down.x + pos.y*down.y +down.z;
+        outPos = outPos * weight;
+        return vec4(outPos,0.,1.0);
     }
 #endif
 
@@ -93,13 +97,15 @@ void getGlobalPos(vec4 pos, out vec2 globalPos){
         vec3 down =u_NMatrix_1;
         vec3 up =u_NMatrix_0;
     #endif
-    float x=up.x*pos.x+up.y*pos.y+up.z;
-    float y=down.x*pos.x+down.y*pos.y-down.z;
 
-    globalPos = vec2(x,-y);
+    transfrom_spine(pos.xy,up,down,globalPos);
+    // float x=up.x*pos.x+up.y*pos.y+up.z;
+    // float y=down.x*pos.x+down.y*pos.y-down.z;
+    // globalPos = vec2(x,-y);
 }
 
 vec4 getScreenPos(vec4 pos){
+    vec2 globalPos;
     #ifdef GPU_INSTANCE
         vec3 down =a_NMatrix_1;
         vec3 up =a_NMatrix_0;
@@ -107,16 +113,19 @@ vec4 getScreenPos(vec4 pos){
         vec3 down =u_NMatrix_1;
         vec3 up =u_NMatrix_0;
     #endif
-    float x=up.x*pos.x+up.y*pos.y+up.z;
-    float y= -1.0 * (down.x*pos.x+down.y*pos.y-down.z);
+
+    transfrom_spine(pos.xy,up,down,globalPos);
+    // float x=up.x*pos.x+up.y*pos.y+up.z;
+    // float y= -1.0 * (down.x*pos.x+down.y*pos.y-down.z);
     
-    #ifdef CAMERA2D
-       vec2 posT= (u_view2D *vec3(x,y,1.0)).xy+u_baseRenderSize2D/2.;
-       x = posT.x;
-       y = posT.y;
-    #endif  
-    v_cliped = getClipedInfo(vec2(x,y));
-    return vec4((x/u_baseRenderSize2D.x-0.5)*2.0,(0.5 - y/u_baseRenderSize2D.y)*2.0,pos.z,1.0);
+    clip(globalPos); //裁剪
+
+    vec2 viewPos;
+    getViewPos(globalPos,viewPos);
+    vec4 pos;
+    getProjectPos(viewPos,pos);
+
+    return pos;
 }
 
 void getVertexInfo(vec4 pos, inout vertexInfo info){

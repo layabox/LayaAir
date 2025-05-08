@@ -79,7 +79,7 @@ export class Graphics {
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
-    _sp: Sprite | null = null;
+    owner: Sprite | null = null;
 
     // _texture: Texture | null = null;
 
@@ -121,9 +121,9 @@ export class Graphics {
         this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
         this._vectorgraphArray = null;
-        if (this._sp) {
-            this._sp._renderType = 0;
-            this._sp = null;
+        if (this.owner) {
+            this.owner._renderType = 0;
+            this.owner = null;
         }
         if (this._material) {
             this._material._removeReference();
@@ -149,8 +149,8 @@ export class Graphics {
         this._cmds.length = 0;
         // this._render = this._renderEmpty;
         this._clearData();
-        if (this._sp) {
-            this._sp._renderType &= ~SpriteConst.GRAPHICS;
+        if (this.owner) {
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
         }
         this._repaint();
     }
@@ -170,7 +170,7 @@ export class Graphics {
      */
     _repaint(): void {
         this._clearBoundsCache();
-        this._sp && this._sp.repaint();
+        this.owner && this.owner.repaint();
     }
 
     /**@internal */
@@ -263,7 +263,7 @@ export class Graphics {
     private onCmdsChanged() {
         let len = this._cmds.length;
         // this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
-        if (this._sp) {
+        if (this.owner) {
             this._setDisplay(len > 0);
         }
         this._repaint();
@@ -271,9 +271,9 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        if (this._sp) {
+        if (this.owner) {
             let len = this._cmds.length;
-            let value = len > 0 || (this._sp._renderType & SpriteConst.TEXTURE) > 0;
+            let value = len > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
             this._setDisplay(value);
         }
     }
@@ -285,15 +285,15 @@ export class Graphics {
         if (this._display === value) return;
         this._display = value;
         if (value) {
-            this._sp._initShaderData();
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._struct.renderDataHandler = this._renderDataHandle;
+            this.owner._initShaderData();
+            this.owner._renderType |= SpriteConst.GRAPHICS;
+            this.owner._struct.renderDataHandler = this._renderDataHandle;
 
             //   this._sp._struct.set_grapicsUpdateCall(this, this._render, this._getRenderElements);
 
         } else {
-            this._sp._renderType &= ~SpriteConst.GRAPHICS;
-            this._sp._struct.renderDataHandler = null;
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
+            this.owner._struct.renderDataHandler = null;
             // this._sp._struct.set_grapicsUpdateCall(null, null, null);
         }
     }
@@ -682,12 +682,12 @@ export class Graphics {
         let tex: Texture = ILaya.loader.getRes(url);
         if (tex) {
             this.drawImage(tex, x, y, width, height);
-            complete && complete.call(this._sp);
+            complete && complete.call(this.owner);
         }
         else {
             ILaya.loader.load(url).then((tex: Texture) => {
                 this.drawImage(tex, x, y, width, height);
-                complete && complete.call(this._sp);
+                complete && complete.call(this.owner);
             });
         }
     }
@@ -703,20 +703,17 @@ export class Graphics {
      * @internal
      */
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
-        if (!this._sp)
+        if (!this.owner)
             return;
         
         this._data.clear();
         runner.clearRenderData();
-        runner.sprite = this._sp;
+        runner.sprite = this.owner;
         runner._graphicsData = this._data;
         runner._material = this._material;
 
         let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this._sp._blendMode;
-        // if (this._sp._scrollRect) {
-        //     runner
-        // }
+        runner.globalCompositeOperation = this.owner._blendMode;
 
         var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
@@ -750,7 +747,7 @@ export class Graphics {
     // }
 
     _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
-        let sprite = this._sp;
+        let sprite = this.owner;
         if (!sprite.texture || sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
             return
         }
@@ -787,15 +784,15 @@ export class Graphics {
             let submit = submits.elements[i];
             submit.updateRenderElement();
             let element = submit._renderElement;
-            element.value2DShaderData = this._sp.shaderData;
+            element.value2DShaderData = this.owner.shaderData;
             this._renderElements.push(element);
         }
         //reset
         if (
             originLen != submitLength
-            || this._sp._struct.renderElements != this._renderElements
+            || this.owner._struct.renderElements != this._renderElements
         ) {
-            this._sp._struct.renderElements = this._renderElements;
+            this.owner._struct.renderElements = this._renderElements;
         }
     }
 
