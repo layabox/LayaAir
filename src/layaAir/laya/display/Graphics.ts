@@ -704,7 +704,7 @@ export class Graphics {
      * @internal
      */
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
-        if (!this.owner)
+        if (!this.owner || this.owner.destroyed)
             return;
         
         this._data.clear();

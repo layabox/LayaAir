@@ -63,17 +63,17 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
 
         this._spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        let color = renderNode.shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
+        let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
         color.setValue(scolor.r, scolor.g, scolor.b , scolor.a );
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
         }else
             color.a *= renderNode.owner.alpha;
-        renderNode.shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
 
-        renderNode.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-        renderNode.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
-        renderNode.shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+        renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
+        renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -118,5 +118,6 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     render(time: number) {
         this._owner.clear();
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
+        this._owner.owner._struct.renderElements = this._owner._renderElements;
     }
 }

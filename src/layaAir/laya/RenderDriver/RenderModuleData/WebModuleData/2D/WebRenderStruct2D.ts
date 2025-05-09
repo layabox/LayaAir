@@ -99,8 +99,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._updateChildren(2);
    }
 
-   
-
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
       // if (this.parent) {
@@ -257,6 +255,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (index !== -1) {
          child.parent = null;
          this.children.splice(index, 1);
+
+         if (child.pass == this.pass) {
+            child.pass = null;
+         }
+         child._parentClipInfo = null;
+         child._parentBlendMode = null;
+         this.updateChildren(child);
       }
    }
 

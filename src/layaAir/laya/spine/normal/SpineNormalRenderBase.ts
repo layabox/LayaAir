@@ -49,7 +49,7 @@ export abstract class SpineNormalRenderBase {
             let vmesh = this.createMesh(material);
             this.vmeshs.push(vmesh);
             spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
-            vmesh.element.value2DShaderData = spineRenderNode.shaderData;
+            vmesh.element.value2DShaderData = spineRenderNode._spriteShaderData;
             return vmesh;
         }
         let vmesh = this.vmeshs[this.nextBatchIndex];
