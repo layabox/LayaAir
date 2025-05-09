@@ -85,6 +85,12 @@ export interface IDynamicCollider extends ICollider {
     setSleepThreshold(value: number): void;
 
     /**
+    * @en Whether it is sleeping.
+    * @zh 是否处于睡眠状态。
+    */
+    isSleeping(): boolean;
+
+    /**
      * @en Sets the colliders' collision detection mode.
      * @param value Rigid body flag.
      * @zh 设置碰撞器的碰撞检测模式。

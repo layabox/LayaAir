@@ -138,7 +138,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_EventFilter, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
 
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
@@ -149,8 +149,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxAngularVelocity, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxDepenetrationVelocity, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
@@ -236,9 +236,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @en Whether it is sleeping.
      * @zh 是否处于睡眠状态。
      */
-    private isSleeping(): boolean {
+    isSleeping(): boolean {
         if (this._btCollider)
-            return btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING;
+            return btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING || btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_DISABLE_DEACTIVATION;;
         return false;
     }
 
@@ -431,7 +431,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         throw new NotImplementedError();
     }
 
-    //这里是bug把  类都不对
+    /**
+     * @en Set the linear velocity threshold for the rigid body to sleep.
+     * @param value The linear velocity threshold.
+     * @zh 设置刚体进入睡眠状态的线速度阈值。
+     * @param value 线速度阈值。
+     */
     setSleepThreshold(value: number): void {
         //btRigidBody_getLinearSleepingThreshold
         this._btCollider && btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, value, btStatics.bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
@@ -444,7 +449,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @param value 角速度阈值。
      */
     setSleepAngularVelocity(value: number) {
-        btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, btStatics.bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
+        this._btCollider && btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, btStatics.bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
 
     /**
@@ -725,6 +730,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btTransform_equal(transform, oriTransform);
         this._innerDerivePhysicsTransformation(transform, force);
         bt.btRigidBody_setCenterOfMassTransform(btColliderObject, transform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
+    }
+
+    protected _onScaleChange(scale: Vector3): void {
+        super._onScaleChange(scale);
+        this.setMass(this._isKinematic ? 0 : this._mass);
     }
 
     /**

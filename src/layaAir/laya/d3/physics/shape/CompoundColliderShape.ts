@@ -1,169 +1,134 @@
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
-import { ILaya3D } from "../../../../ILaya3D";
-import { Quaternion } from "../../../maths/Quaternion";
-import { Vector3 } from "../../../maths/Vector3";
+import { Laya3D } from "../../../../Laya3D";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
+import { ICompoundColliderShape } from "../../../Physics3D/interface/Shape/ICompoundColliderShape";
 
 /**
- * @deprecated
- * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。
+ * @en use to create compound collider.
+ * @zh 用于创建组合碰撞器。
  */
 export class CompoundColliderShape extends Physics3DColliderShape {
-	private static _btVector3One: number;
-	private static _btTransform: number;
-	private static _btOffset: number;
-	private static _btRotation: number;
+    _shape: ICompoundColliderShape;
 
-	/**
-	 * @internal
-	 */
-	static __init__(): void {
-		//var bt: any = ILaya3D.Physics3D._bullet;
-		// CompoundColliderShape._btVector3One = bt.btVector3_create(1, 1, 1);
-		// CompoundColliderShape._btTransform = bt.btTransform_create();
-		// CompoundColliderShape._btOffset = bt.btVector3_create(0, 0, 0);
-		// CompoundColliderShape._btRotation = bt.btQuaternion_create(0, 0, 0, 1);
-	}
-	private _childColliderShapes: Physics3DColliderShape[] = [];
+    /**@internal */
+    private _childColliderShapes: Physics3DColliderShape[] = [];
 
-	/**
-	 * 创建一个新的 <code>CompoundColliderShape</code> 实例。
-	 */
-	constructor() {
-		super();
-		// this._type = Physics3DColliderShape.;
-		// this._btShape = ILaya3D.Physics3D._bullet.btCompoundShape_create();
-	}
+    /**
+     * @en create a new instance of CompoundColliderShape.
+     * @zh 创建一个新的组合碰撞形状实例。
+     */
+    constructor() {
+        super();
+    }
 
-	private _clearChildShape(shape: any): void {
-		shape._attatched = false;
-		shape._compoundParent = null;
-		shape._indexInCompound = -1;
-	}
+    protected _createShape(): void {
+        if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CompoundColliderShape)) {
+            this._shape = Laya3D.PhysicsCreateUtil.createCompoundShape();
+        } else {
+            console.error("CompoundColliderShape: cannot enable CompoundColliderShape");
+        }
+    }
 
-	/**
-	 * @internal
-	 */
-	_updateChildTransform(shape: any): void {
-		// var bt: any = ILaya3D.Physics3D._bullet;
-		// var offset: Vector3 = shape.localOffset;
-		// var rotation: Quaternion = shape.localRotation;
-		// var btOffset: number = ColliderShape._btVector30;
-		// var btQuaternion: number = ColliderShape._btQuaternion0;
-		// var btTransform: number = ColliderShape._btTransform0;
-		// bt.btVector3_setValue(btOffset, offset.x, offset.y, offset.z);
-		// bt.btQuaternion_setValue(btQuaternion, rotation.x, rotation.y, rotation.z, rotation.w);
-		// bt.btTransform_setOrigin(btTransform, btOffset);
-		// bt.btTransform_setRotation(btTransform, btQuaternion);
-		// bt.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
-	}
+    /**
+     * @en set the physics shape array.
+     * @zh 设置物理形状数组。
+     */
+    public set shapes(value: any[]) {
+        for (var i = this._childColliderShapes.length - 1; i >= 0; i--) {
+            this.removeChildShape(this._childColliderShapes[i]);
+        }
 
+        for (var i = 0; i < value.length; i++) {
+            this.addChildShape(value[i]);
+        }
+    }
 
-	/**
-	 * 设置物理shape数组
-	 * IDE
-	 */
-	public set shapes(value: any[]) {
-		for (var i = this._childColliderShapes.length - 1; i >= 0; i--) {
-			this.removeChildShape(this._childColliderShapes[i]);
-		}
+    public get shapes(): any[] {
+        return this._childColliderShapes;
+    }
 
-		for (var i = 0; i < value.length; i++) {
-			this.addChildShape(value[i]);
-		}
-	}
+    /**
+     * @en add a child collider shape.
+     * @param shape.
+     * @zh 添加一个子碰撞器形状。
+     * @param shape 子碰撞器形状。
+     */
+    addChildShape(shape: Physics3DColliderShape): void {
+        if (shape instanceof CompoundColliderShape) {
+            console.warn("CompoundColliderShape: cannot add a CompoundColliderShape as a child shape.");
+            return;
+        }
+        this._shape && this._shape.setShapeData(this.physicsComponent);
+        this._shape && this._shape.addChildShape(shape.shape);
+        this._childColliderShapes.push(shape);
+    }
 
-	public get shapes(): any[] {
-		return this._childColliderShapes;
-	}
+    /**
+     * @en remove a child collider shape.
+     * @param shape.
+     * @zh 移除一个子碰撞器形状。
+     * @param shape 子碰撞器形状。
+     */
+    removeChildShape(shape: Physics3DColliderShape): void {
+        if (shape instanceof CompoundColliderShape) {
+            console.warn("CompoundColliderShape: cannot remove a CompoundColliderShape as a child shape.");
+            return;
+        }
+        let index = this._childColliderShapes.indexOf(shape);
+        this._shape && this._shape.removeChildShape(shape.shape, index);
+        this._childColliderShapes.splice(index, 1);
+    }
 
-	/**
-	 * 添加子碰撞器形状。
-	 * @param shape 子碰撞器形状。
-	 */
-	addChildShape(shape: any): void {
-		// if (shape._attatched)
-		// 	throw "CompoundColliderShape: this shape has attatched to other entity.";
+    /**
+     * @en clear the child collider shape.
+     * @zh 清空子碰撞器形状。
+     */
+    clearChildShape(): void {
+        this._shape && this._childColliderShapes.forEach(shape => {
+            this._shape && this._shape.removeChildShape(shape.shape, 0);
+        });
+        this._childColliderShapes = [];
+    }
 
-		// shape._attatched = true;
-		// shape._compoundParent = this;
-		// shape._indexInCompound = this._childColliderShapes.length;
-		// this._childColliderShapes.push(shape);
-		// var offset: Vector3 = shape.localOffset;
-		// var rotation: Quaternion = shape.localRotation;
-		// var bt: any = ILaya3D.Physics3D._bullet;
-		// bt.btVector3_setValue(CompoundColliderShape._btOffset, offset.x, offset.y, offset.z);
-		// bt.btQuaternion_setValue(CompoundColliderShape._btRotation, rotation.x, rotation.y, rotation.z, rotation.w);
-		// bt.btTransform_setOrigin(CompoundColliderShape._btTransform, CompoundColliderShape._btOffset);
-		// bt.btTransform_setRotation(CompoundColliderShape._btTransform, CompoundColliderShape._btRotation);
+    /**
+     * @en get the child shape count.
+     * @zh 获取子形状数量。
+     */
+    getChildShapeCount(): number {
+        return this._childColliderShapes.length;
+    }
 
-		// var btScale: number = bt.btCollisionShape_getLocalScaling(this._btShape);
-		// bt.btCollisionShape_setLocalScaling(this._btShape, CompoundColliderShape._btVector3One);
-		// bt.btCompoundShape_addChildShape(this._btShape, CompoundColliderShape._btTransform, shape._btShape);
-		// bt.btCollisionShape_setLocalScaling(this._btShape, btScale);
+    /**
+     * @en clone the data to the destination node.
+     * @zh 将数据克隆到目标节点。
+     */
+    cloneTo(destObject: CompoundColliderShape): void {
+        destObject.clearChildShape();
+        for (let i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
+            destObject.addChildShape(this._childColliderShapes[i].clone());
+    }
 
-		// (this._attatchedCollisionObject) && (this._attatchedCollisionObject.colliderShape = this);//修改子Shape需要重新赋值父Shape以及将物理精灵重新加入物理世界等操作
-	}
+    /**
+     * @en clone the data to the destination node.
+     * @zh 将数据克隆到目标节点。
+     */
+    clone(): any {
+        var dest: CompoundColliderShape = new CompoundColliderShape();
+        this.cloneTo(dest);
+        return dest;
+    }
 
-	/**
-	 * 移除子碰撞器形状。
-	 * @param shape 子碰撞器形状。
-	 */
-	removeChildShape(shape:any): void {
-		// if (shape._compoundParent === this) {
-		// 	var index: number = shape._indexInCompound;
-		// 	this._clearChildShape(shape);
-		// 	var endShape: ColliderShape = this._childColliderShapes[this._childColliderShapes.length - 1];
-		// 	endShape._indexInCompound = index;
-		// 	this._childColliderShapes[index] = endShape;
-		// 	this._childColliderShapes.pop();
-		// 	ILaya3D.Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, index);
-		// }
-	}
+    /**
+     * @en destroy the instance.
+     * @zh 销毁实例。
+     */
+    destroy(): void {
+        super.destroy();
+        for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
+            var childShape: Physics3DColliderShape = this._childColliderShapes[i];
+            childShape.destroy();
+        }
 
-	/**
-	 * 清空子碰撞器形状。
-	 */
-	clearChildShape(): void {
-		// for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
-		// 	this._clearChildShape(this._childColliderShapes[i]);
-		// 	ILaya3D.Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, 0);
-		// }
-		// this._childColliderShapes.length = 0;
-	}
-
-	/**
-	 * 获取子形状数量。
-	 * @return
-	 */
-	getChildShapeCount(): number {
-		return this._childColliderShapes.length;
-	}
-
-	/**
-	 * 将数据克隆到目标节点
-	 * @param destObject 目标节点
-	 */
-	cloneTo(destObject: CompoundColliderShape): void {
-		destObject.clearChildShape();
-		for (let i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
-			destObject.addChildShape(this._childColliderShapes[i].clone());
-	}
-
-	clone(): any {
-		var dest: CompoundColliderShape = new CompoundColliderShape();
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	destroy(): void {
-		// super.destroy();
-		// for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
-		// 	var childShape: ColliderShape = this._childColliderShapes[i];
-		// 	if (childShape._referenceCount === 0)
-		// 		childShape.destroy();
-		// }
-	}
-
+    }
 }
-
 

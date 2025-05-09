@@ -640,7 +640,8 @@ export class SkinAniRenderData {
 
         } else {
             this.vb = mainVB;
-            this._defaultMesh = SpineMeshUtils.createMesh(this.type, this.vb, ibCreator, this.isDynamic);;
+            this._defaultMesh = SpineMeshUtils.createMesh(this.type, this.vb, ibCreator, this.isDynamic);
+            this._defaultMesh._addReference();
             this.maxIndexCount = ibCreator.maxIndexCount;
         }
 

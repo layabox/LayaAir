@@ -242,6 +242,7 @@ export class PhysicsColliderComponent extends Component {
         this._colliderShape && this._colliderShape.destroy();
         this._colliderShape = value;
         if (this._collider && value) {
+            value.physicsComponent = this;
             this._collider.setColliderShape(value._shape);
         }
     }
@@ -322,9 +323,6 @@ export class PhysicsColliderComponent extends Component {
             this.initCollider();
             this._isColliderInit = true;
         }
-        this.restitution = this._restitution;
-        this.friction = this._friction;
-        this.rollingFriction = this._rollingFriction;
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = this.owner._scene._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);

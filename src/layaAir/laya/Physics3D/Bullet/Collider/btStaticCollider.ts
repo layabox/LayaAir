@@ -63,6 +63,17 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         }
     }
 
+    allowSleep(value: boolean): void {
+        if (this._btCollider) {
+            let bt = btStatics.bt;
+            if (value) {
+                bt.btCollisionObject_forceActivationState(this._btCollider, btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING);
+            } else {
+                bt.btCollisionObject_forceActivationState(this._btCollider, btStatics.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
+            }
+        }
+    }
+
     protected getColliderType(): btColliderType {
         return btColliderType.StaticCollider;
     }
@@ -121,6 +132,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, false);
         this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
+        this._staticCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
     }
 
     /**
