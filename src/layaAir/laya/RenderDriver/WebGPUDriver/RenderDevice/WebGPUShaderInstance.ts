@@ -135,7 +135,15 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //如果是3D  只对set2（Node） 和set3（Material）的纹理进行剔除   如果剔除scene和camera 会产生大量的bindGroup
         //如果是2D  TODO  暂时先不做剔出
         let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer);
+        /**
+         * 编译 shader 时可能检出新的 uniform
+         * 将新检出的 uniform 添加到 material map 中
+         */
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer);
+
+        if (!shaderProcessInfo.is2D) {
+            this._generateMaterialCommandMap();
+        }
 
         //去除无用的TextureBinding
         let textureIndices: number[] = [];
@@ -259,9 +267,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
         this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
 
-        this._generateMaterialCommandMap();
         //material
-        this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
+        // this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
     }
 
 

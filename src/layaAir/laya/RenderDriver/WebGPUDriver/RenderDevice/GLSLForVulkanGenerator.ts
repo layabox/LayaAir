@@ -1,12 +1,13 @@
 import { Config3D } from "../../../../Config3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
 import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
-import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
+import { WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 
@@ -20,6 +21,8 @@ interface CollectUniform {
     samplerType?: GPUTextureSampleType,
     arrayLength?: number,
     demision?: GPUTextureViewDimension,
+    type: ShaderDataType
+    set?: number
 }
 
 /**
@@ -38,7 +41,7 @@ type WebGPUAttributeMapType = {
  */
 export class GLSLForVulkanGenerator {
 
-    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number) {
+    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number) {
 
         const engine = WebGPURenderEngine._instance;
 
@@ -134,12 +137,17 @@ ${fragmentCode}
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
-        let samplerTypeMap = new Map<string, CollectUniform>();
+        let collectionUniforms = new Map<string, CollectUniform>();
 
-        const getTextureType = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
+        const uniformCollect = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
             // todo
-            let u: CollectUniform = {};
-            samplerTypeMap.set(name, u);
+            let u: CollectUniform = {
+                type: getShaderDataType(type),
+            };
+
+            if (u.type != ShaderDataType.None) {
+                collectionUniforms.set(name, u);
+            }
 
             if (type == "sampler2DShadow" || type == "samplerCubeShadow" || type == "sampler2DArrayShadow") {
                 u.samplerType = "depth";
@@ -158,30 +166,100 @@ ${fragmentCode}
         }
 
         // remove original uniforms
-        vertexCode = vertexCode.replace(uniformRegex, getTextureType);
-        fragmentCode = fragmentCode.replace(uniformRegex, getTextureType);
+        vertexCode = vertexCode.replace(uniformRegex, uniformCollect);
+        fragmentCode = fragmentCode.replace(uniformRegex, uniformCollect);
 
         uniformMap.forEach((value, key) => {
-            if (key < checkSetNumber) {
-                value.forEach(uniform => {
-                    if (uniform.type == WebGPUBindingInfoType.sampler) {
-                        let name = uniform.name.replace("_Sampler", "")
-                        let collect = samplerTypeMap.get(name);
-                        // todo
-                        if (collect) {
-                            // collect.samplerType = uniform.texture.sampleType;
-                        } else {
-                            // todo
-                            let samplerType: GPUTextureSampleType = "float";
-                            if (uniform.sampler?.type == "comparison") {
-                                samplerType = "depth";
-                            }
-                            samplerTypeMap.set(name, { samplerType: samplerType });
-                        }
+
+            value.forEach(uniform => {
+
+                // if (key < checkSetNumber) {
+                //     if (uniform.type == WebGPUBindingInfoType.sampler) {
+                //         let name = uniform.name.replace("_Sampler", "")
+                //         let collect = collectionUniforms.get(name);
+                //         // todo
+                //         if (collect) {
+                //             // collect.samplerType = uniform.texture.sampleType;
+                //         } else {
+                //             // todo
+                //             let samplerType: GPUTextureSampleType = "float";
+                //             if (uniform.sampler?.type == "comparison") {
+                //                 samplerType = "depth";
+                //             }
+                //             collectionUniforms.set(name, { type: "", samplerType: samplerType });
+                //         }
+                //     }
+                // }
+
+                if (uniform.type == WebGPUBindingInfoType.texture) {
+                    let name = uniform.name.replace("_Texture", "");
+                    let collect = collectionUniforms.get(name);
+                    if (collect) {
+                        collect.set = uniform.set;
                     }
-                });
-            }
+                }
+
+                if (uniform.type == WebGPUBindingInfoType.sampler) {
+                    let name = uniform.name.replace("_Sampler", "");
+                    let collect = collectionUniforms.get(name);
+
+                    if (collect) {
+                        collect.set = uniform.set;
+                    }
+                    else if (key < checkSetNumber) {
+                        let samplerType: GPUTextureSampleType = "float";
+                        if (uniform.sampler?.type == "comparison") {
+                            samplerType = "depth";
+                        }
+                        // 这里的 type 无意义
+                        collectionUniforms.set(name, { type: ShaderDataType.Texture2D, samplerType: samplerType, set: uniform.set });
+                    }
+                }
+
+                if (uniform.type == WebGPUBindingInfoType.storageBuffer) {
+                    let collect = collectionUniforms.get(uniform.name);
+                    if (collect) {
+                        collect.set = uniform.set;
+                    }
+                }
+
+                if (uniform.type == WebGPUBindingInfoType.buffer) {
+                    let name = uniform.name;
+
+                    let commandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
+
+                    commandMap._idata.forEach((u, i) => {
+                        let collect = collectionUniforms.get(u.propertyName);
+                        if (collect) {
+                            collect.set = uniform.set;
+                        }
+                    });
+                }
+            });
+
         });
+
+
+        // 添加 新检出的 uniform 
+        let appendNewUniform = false;
+        {
+            collectionUniforms.forEach((value, name) => {
+                if (value.set == undefined) {
+                    appendNewUniform = true;
+                    let uniform: UniformProperty = {
+                        id: Shader3D.propertyNameToID(name),
+                        propertyName: name,
+                        uniformtype: value.type,
+                        arrayLength: value.arrayLength || 0
+                    };
+
+                    materialMap.set(uniform.id, uniform);
+                }
+            });
+            if (!uniformMap.has(3)) {
+                uniformMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPassName, materialMap));
+            }
+        }
 
         // remove original uniform blocks
         vertexCode = vertexCode.replace(uniformBlockRegex, '\n');
@@ -209,7 +287,7 @@ ${fragmentCode}
         vertexCode = vertexCode.replace(/gl_VertexID/g, "gl_VertexIndex");
         fragmentCode = fragmentCode.replace(/gl_VertexID/g, "gl_VertexIndex");
 
-        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, samplerTypeMap, checkSetNumber);
+        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, collectionUniforms, checkSetNumber);
 
         const glslVersion = "#version 450\n";
 
@@ -245,7 +323,8 @@ ${fragmentCode}
 
         return {
             vertex,
-            fragment
+            fragment,
+            appendNewUniform
         };
 
     }
@@ -415,8 +494,6 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
                             let collectUniform = collectUniforms.get(samplerName);
                             if (collectUniform) {
-                                // sampler = getSamplerTextureType(collectUniform.samplerType, collectUniform.demision);
-
                                 if (collectUniform.samplerType == "depth") {
                                     uniform.sampler.type = "comparison";
                                 }
@@ -641,4 +718,37 @@ function getDimensionTextureType(type: GPUTextureViewDimension) {
         default:
             return "texture2D";
     }
+}
+
+
+function getShaderDataType(type: string) {
+    // todo types
+    switch (type) {
+        case "float":
+            return ShaderDataType.Float;
+        case "int":
+        case "uint":
+            return ShaderDataType.Int;
+        case "bool":
+            return ShaderDataType.Bool;
+        case "vec2":
+            return ShaderDataType.Vector2;
+        case "vec3":
+            return ShaderDataType.Vector3;
+        case "vec4":
+            return ShaderDataType.Vector4;
+        case "mat3":
+            return ShaderDataType.Matrix3x3;
+        case "mat4":
+            return ShaderDataType.Matrix4x4;
+        case "sampler2D":
+            return ShaderDataType.Texture2D;
+        case "samplerCube":
+            return ShaderDataType.TextureCube;
+        case "sampler2DArray":
+            return ShaderDataType.Texture2DArray;
+        default:
+            return ShaderDataType.None;
+    }
+
 }
