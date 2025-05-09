@@ -34,6 +34,8 @@ import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 import { pxStatics } from "./pxStatics";
+import { ICompoundColliderShape } from "../interface/Shape/ICompoundColliderShape";
+import { pxCompoundColliderShape } from "./Shape/pxCompoundColliderShape";
 
 
 /**
@@ -62,7 +64,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, false);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.physics_heightFieldColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
@@ -345,6 +347,16 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
      */
     createHeightFieldShape(): pxHeightFieldShape {
         return new pxHeightFieldShape();
+    }
+
+    /**
+     * @en Create a compound collider shape.
+     * @returns A new compound collider shape instance.
+     * @zh 创建组合碰撞器形状。
+     * @returns 新的组合碰撞器形状实例。
+     */
+    createCompoundShape(): ICompoundColliderShape {
+        return new pxCompoundColliderShape();
     }
 
     /**

@@ -9,6 +9,7 @@ import { Event } from "../../../events/Event";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import { Physics3DStatInfo } from "../../interface/Physics3DStatInfo";
 import { partFlag, pxStatics } from "../pxStatics";
+import { pxColliderShape } from "../Shape/pxColliderShape";
 export enum ControllerNonWalkableMode {
     /**
      * @en Stops character from climbing up non-walkable slopes, but doesn't move it otherwise.
@@ -95,6 +96,25 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         super(manager);
         this._type = pxColliderType.CharactorCollider;
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, 1);
+    }
+
+    setColliderShape(shape: pxColliderShape): void {
+        if (shape == this._shape)
+            return;
+        this._shape = shape;
+        if (shape) {
+            if (this._pxActor) {
+                if (this.componentEnable) {
+                    this._physicsManager.addCollider(this);
+                }
+            } else {
+                this._shape = null;
+            }
+        } else {
+            if (this._isSimulate) {
+                this._physicsManager.removeCollider(this);
+            }
+        }
     }
 
     private _getNodeScale() {
@@ -294,7 +314,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      */
     getWorldTransform() {
         const v3 = this._pxController.getPosition();
-        _tempTranslation.set(v3.x, v3.y, v3.z);
+        //根据偏移值与半高来计算中心点的坐标
+        _tempTranslation.set(v3.x + this._localOffset.x, v3.y - this._height + this._localOffset.y, v3.z + this._localOffset.z);
         this.owner.transform.position = _tempTranslation;
     }
 

@@ -46,6 +46,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, true);
         this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, true);
+        this._staticCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
     }
 
     /**
