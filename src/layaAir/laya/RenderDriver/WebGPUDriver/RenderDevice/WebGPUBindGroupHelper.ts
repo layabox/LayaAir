@@ -355,21 +355,8 @@ export class WebGPUBindGroupHelper {
         let bindingIndex = 0;
         const propertyId = Shader3D.propertyNameToID(name);
         let bindingInfos: WebGPUUniformPropertyBindingInfo[] = [];
-        // 创建绑定信息对象
-        const bindingInfo: WebGPUUniformPropertyBindingInfo = {
-            id: 0,
-            name: name,
-            set: groupID,
-            binding: bindingIndex++,
-            propertyId: propertyId,
-            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
-            type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
-            buffer: {
-                type: 'uniform'
-            }
-        };
-        // 将绑定信息添加到数组中
-        bindingInfos.push(bindingInfo);
+
+        let hasBuffer = false;
         for (let [propertyID, uniformProperty] of uniformMap) {
             // 检查是否为纹理类型
             if (uniformProperty.uniformtype >= ShaderDataType.Texture2D) {
@@ -408,8 +395,7 @@ export class WebGPUBindGroupHelper {
                 }
                 bindingInfos.push(samplerBindInfo);
             }
-
-            if (uniformProperty.uniformtype == ShaderDataType.ReadOnlyDeviceBuffer) {
+            else if (uniformProperty.uniformtype == ShaderDataType.ReadOnlyDeviceBuffer) {
                 let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
                     id: 0,
                     set: groupID,
@@ -424,7 +410,7 @@ export class WebGPUBindGroupHelper {
                 }
                 bindingInfos.push(storageBufferBindInfo);
             }
-            if (uniformProperty.uniformtype == ShaderDataType.DeviceBuffer) {
+            else if (uniformProperty.uniformtype == ShaderDataType.DeviceBuffer) {
                 let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
                     id: 0,
                     set: groupID,
@@ -439,7 +425,28 @@ export class WebGPUBindGroupHelper {
                 }
                 bindingInfos.push(storageBufferBindInfo);
             }
+            else {
+                hasBuffer = true;
+            }
         }
+        if (hasBuffer) {
+            // 创建绑定信息对象
+            const bindingInfo: WebGPUUniformPropertyBindingInfo = {
+                id: 0,
+                name: name,
+                set: groupID,
+                binding: bindingIndex++,
+                propertyId: propertyId,
+                visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, // 默认在顶点和片元着色器中可见
+                type: WebGPUBindingInfoType.buffer, // 默认为缓冲区类型
+                buffer: {
+                    type: 'uniform'
+                }
+            };
+            // 将绑定信息添加到数组中
+            bindingInfos.push(bindingInfo);
+        }
+
         WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);
         return bindingInfos;
 
