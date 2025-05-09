@@ -1,9 +1,9 @@
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { Texture } from "../../../../resource/Texture";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { IRenderStruct2D } from "./IRenderStruct2D";
 
 export interface IRender2DDataHandle {
     needUseMatrix: boolean;
