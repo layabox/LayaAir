@@ -195,6 +195,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             let shaderInstance = shaders[j];
             //TODO 先创建RenderPipeline  后续讨论如何Cache RenderPipeline的方案
             command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
+
+            if (!command.isBundle && this._stencilParam.enable) {
+                (command as WebGPURenderCommandEncoder).setStencilReference(this._stencilParam.ref);
+            }
+
             this._bindGroup(context, shaderInstance, command); //绑定资源组
             this._uploadGeometry(command); //上传几何数据 draw
         }

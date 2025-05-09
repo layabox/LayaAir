@@ -327,6 +327,12 @@ export class WebGPUDepthStencilState {
                     statePassOp = 'decrement-wrap';
                     break;
             }
+            // state.stencilBack = {
+            //     compare: stateStencilCompare,
+            //     failOp: stateFailOp,
+            //     depthFailOp: stateDepthFailOp,
+            //     passOp: statePassOp
+            // };
             state.stencilFront = {
                 compare: stateStencilCompare,
                 failOp: stateFailOp,

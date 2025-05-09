@@ -14,7 +14,15 @@ export interface IGPURenderEncoder extends GPUObjectBase,
 
 }
 export abstract class WebGPURenderEncoder {
+
+    readonly isBundle: boolean = false;
+
     encoder: IGPURenderEncoder;
+
+    constructor(isBundle: boolean = false) {
+        this.isBundle = isBundle;
+    }
+
     /**
     * 设置渲染管线
     * @param pipeline 
