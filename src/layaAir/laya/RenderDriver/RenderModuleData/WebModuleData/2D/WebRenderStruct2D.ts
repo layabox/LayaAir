@@ -106,20 +106,15 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._updateChildren(2);
    }
 
-   setBlendMode(blendMode: string): void {
-      this.blendMode = blendMode;
-      this._updateChildren(1);
-   }
-
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
-      if (this.parent) {
-         this.globalAlpha = this.alpha * this.parent.globalAlpha;
-         this._parentBlendMode = this.parent.getBlendMode();
-         this._parentClipInfo = this.parent.getClipInfo();
-      } else {
-         this.globalAlpha = this.alpha;
-      }
+      // if (this.parent) {
+      //    this.globalAlpha = this.alpha * this.parent.globalAlpha;
+      //    this._parentBlendMode = this.parent.getBlendMode();
+      //    this._parentClipInfo = this.parent.getClipInfo();
+      // } else {
+      //    this.globalAlpha = this.alpha;
+      // }
 
       //clip处理 
       let rect = this._clipRect;
@@ -142,6 +137,19 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    getBlendMode(): string {
       return this.blendMode || this._parentBlendMode || BlendMode.NORMAL;
    }
+
+   setBlendMode(blendMode: string): void {
+      this.blendMode = blendMode;
+      this._updateBlendMode();
+      this._updateChildren(1);
+   }
+
+   private _updateBlendMode(): void {
+      if (!this.spriteShaderData) return;
+      let blendMode = this.getBlendMode();
+      BlendMode.setShaderData( blendMode , this.spriteShaderData);
+   }
+
 
    setClipRect(rect: Rectangle): void {
       this._clipRect = rect;
@@ -185,23 +193,29 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       for (const child of this.children) {
          if (type === -1) {
-            child._parentClipInfo = info;
-            child._parentBlendMode = blendMode;
-            child.globalAlpha = alpha * child.alpha;
-            this._updateChildren(type);
-         } else if (type === 0) {
-            if (!child._parentClipInfo) {
+            if (!child._clipInfo) {
                child._parentClipInfo = info;
-               this._updateChildren(type);
+            }
+            if (!child.blendMode) {
+               child._parentBlendMode = blendMode;
+               child._updateBlendMode();
+            }
+            child.globalAlpha = alpha * child.alpha;
+            child._updateChildren(type);
+         } else if (type === 0) {
+            if (!child._clipInfo) {
+               child._parentClipInfo = info;
+               child._updateChildren(type);
             }
          } else if (type === 1) {
-            if (!child._parentBlendMode) {
+            if (!child.blendMode) {
                child._parentBlendMode = blendMode;
-               this._updateChildren(type);
+               child._updateBlendMode();
+               child._updateChildren(type);
             }
          } else if (type === 2) {
             child.globalAlpha = alpha * child.alpha;
-            this._updateChildren(type);
+            child._updateChildren(type);
          }
       }
    }
@@ -216,21 +230,30 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       child.parent = this;
       this.children.push(child);
       //效率
-      if (this.pass) {
-         this.updateChildren(this, this.pass.priority);
-      }
+      this.updateChildren(this);
       return child;
    }
 
-   protected updateChildren(struct: WebRenderStruct2D, priority: number): void {
+   protected updateChildren(struct: WebRenderStruct2D): void {
+      let clipInfo: IClipInfo = struct.getClipInfo();
+      let blendMode: string = struct.getBlendMode();
+      let priority: number = struct.pass ? struct.pass.priority + 1 : 0;
       for (const child of struct.children) {
          if (!child.pass) {
             child.pass = struct.pass;
          }
          else if (child.pass !== this.pass) {
-            child.pass.priority = ++priority;
+            child.pass.priority = priority;
          }
-         child.updateChildren(child, priority);
+         if (!child._clipInfo) {
+            child._parentClipInfo = clipInfo;
+         }
+
+         if (!child.blendMode) {
+            child._parentBlendMode = blendMode;
+            child._updateBlendMode();
+         }
+         child.updateChildren(child);
       }
    }
 
@@ -239,6 +262,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (index !== -1) {
          child.parent = null;
          this.children.splice(index, 1);
+
+         if (child.pass == this.pass) {
+            child.pass = null;
+         }
+         child._parentClipInfo = null;
+         child._parentBlendMode = null;
+         this.updateChildren(child);
       }
    }
 

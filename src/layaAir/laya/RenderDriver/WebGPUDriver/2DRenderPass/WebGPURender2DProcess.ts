@@ -5,7 +5,7 @@ import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../Dri
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle,IGlobalRenderData } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
@@ -16,6 +16,9 @@ import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
 export class WebGPURender2DProcess implements I2DRenderPassFactory {
     create2DGlobalRenderDataHandle(): IGlobalRenderData {
+        throw new Error("Method not implemented.");
+    }
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
         throw new Error("Method not implemented.");
     }
     createRender2DPass(): IRender2DPass {

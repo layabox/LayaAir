@@ -128,8 +128,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    root: WebRenderStruct2D = null;
 
-   mask: WebRenderStruct2D = null;
-
    private _invertMat_0: Vector3 = new Vector3(1, 1);
    private _invertMat_1: Vector3 = new Vector3(0, 0);
 
@@ -334,15 +332,13 @@ export class WebRender2DPass implements IRender2DPass {
       let temp = _TEMP_InvertMatrix;
       let mask = this.postProcess?.mask;
       if (mask) {
-         if (!mask.parent) {
-            // globalMatrix
-            let rootMatrix = root.transform.getMatrix();
-            // localMatrix
-            let maskMatrix = mask.transform.getMatrix();
-            Matrix.mul(maskMatrix, rootMatrix, temp);
-            temp.invert();
-         } else
-            mask.transform.getMatrixInv(temp);
+         // globalMatrix
+         let rootMatrix = root.transform.getMatrix();
+         // localMatrix
+         let maskMatrix = mask.transform.getMatrix();
+
+         Matrix.mul(maskMatrix, rootMatrix ,  temp);
+         temp.invert();
       } else
          root.transform.getMatrixInv(temp);
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
@@ -448,7 +444,7 @@ class PassRenderList {
    add(struct: WebRenderStruct2D): void {
       this.structs.add(struct);
 
-      let n = struct.renderElements.length;
+      let n = struct.renderElements?.length;
       if (n == 0) return;
       if (n == 1) {
          this._batchStart(struct.renderType, 1);

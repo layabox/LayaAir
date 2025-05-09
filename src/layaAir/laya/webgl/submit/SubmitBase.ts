@@ -37,17 +37,46 @@ export class SubmitBase {
     _key = new SubmitKey();
     
     private _mesh: Sprite2DGeometry;
+
     public get mesh(): Sprite2DGeometry {
         return this._mesh;
     }
+
     public set mesh(value: Sprite2DGeometry) {
         if (value) {
-            
+            value.createBuffer();
+            let vb = value.vertexBuffer;
+            let ib = value.indexBuffer;
+            this._bufferState.applyState([vb] , ib);
         }
         this._mesh = value;
     }
 
-    material: Material;
+    private _material: Material;
+    
+    public get material(): Material {
+        return this._material;
+    }
+
+    public set material(value: Material) {
+        this._material = value;
+        if (value) {
+            this._renderElement.materialShaderData = value.shaderData;
+            this._renderElement.subShader = value._shader.getSubShaderAt(0);
+        }else {
+            this._renderElement.materialShaderData = this._internalInfo.shaderData;
+            this._renderElement.subShader = this._internalInfo._defaultShader.getSubShaderAt(0);
+        }
+    }
+
+    private _data: RenderSpriteData = RenderSpriteData.Zero;
+    public get data(): RenderSpriteData {
+        return this._data;
+    }
+    public set data(value: RenderSpriteData) {
+        this._internalInfo.data = value;
+        this._data = value;
+    }
 
     // 从VB中什么地方开始画，画到哪
     /**@internal */
@@ -68,7 +97,7 @@ export class SubmitBase {
         this._id = ++SubmitBase.ID;
     }
     
-    protected initialize() {
+    initialize() {
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         let bufferState = LayaGL.renderDeviceFactory.createBufferState();
@@ -104,23 +133,8 @@ export class SubmitBase {
     }
 
     updateRenderElement() {
-        if (!this._mesh)
-            return
-
-        let vb = this._mesh.vertexBuffer;
-        let ib = this._mesh.indexBuffer;
-        this._bufferState.applyState([vb] , ib);
-
         this._geometry.clearRenderParams();
         this._geometry.setDrawElemenParams(this._numEle , this._startIdx );
-
-        if (this.material) {
-            this._renderElement.materialShaderData = this.material.shaderData;
-            this._renderElement.subShader = this.material._shader.getSubShaderAt(0);
-        }else {
-            this._renderElement.materialShaderData = this._internalInfo.shaderData;
-            this._renderElement.subShader = this._internalInfo._defaultShader.getSubShaderAt(0);
-        }
     }
 
     update(runner: GraphicsRunner , mesh: Sprite2DGeometry , material: Material) {
@@ -143,11 +157,10 @@ export class SubmitBase {
         }else if (vertexDeclaration.vertexStride === 48) {
             data = RenderSpriteData.Texture2D;
         }
-
+        
+        this.data = data;
         this.mesh = mesh;
         this.material = material;
-        
-        this._internalInfo.data = data;
         this._key.clear();
         this._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
         this._startIdx = mesh.indexNum * Const.INDEX_BYTES;

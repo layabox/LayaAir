@@ -5,10 +5,10 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,IGlobalRenderData} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { WebRender2DPass } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
-import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
@@ -21,6 +21,10 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     }
     create2DGlobalRenderDataHandle(): IGlobalRenderData {
         return new WebGlobalRenderData();
+    }
+
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
+        return new WebSpineRenderDataHandle();
     }
 
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {

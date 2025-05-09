@@ -117,7 +117,7 @@ export class Shader3D {
     /**@internal */
     static _debugShaderVariantInfo: any;
     /**是否开启调试模式。 */
-    static debugMode: boolean = false;
+    static debugMode: boolean = true;
 
     static init() {
         Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();

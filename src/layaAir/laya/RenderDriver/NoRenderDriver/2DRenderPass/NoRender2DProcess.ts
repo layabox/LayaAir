@@ -10,7 +10,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
@@ -18,6 +18,9 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 export class NoRender2DProcess implements I2DRenderPassFactory {
     create2DGlobalRenderDataHandle(): IGlobalRenderData {
         return null;
+    }
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
+        throw new Error("Method not implemented.");
     }
     createRender2DPass(): IRender2DPass {
         return null;
