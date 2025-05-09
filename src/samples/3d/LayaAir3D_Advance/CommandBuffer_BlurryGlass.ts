@@ -106,9 +106,7 @@ export class CommandBuffer_BlurryGlass {
         //vertical blur
         buf.blitScreenTriangle(blurTexture, downRenderTexture, null, shader, shaderValue, 2);
 
-        //设置全局uniform变量  
-        var globalUniformNameID: number = Shader3D.propertyNameToID("u_screenTexture");
-        buf.setGlobalTexture(globalUniformNameID, downRenderTexture);
+        this.mat.setTexture("u_screenTexture", downRenderTexture);
         // 将commandBuffer加入渲染流程
         camera.addCommandBuffer(CameraEventFlags.BeforeTransparent, buf);
         return;

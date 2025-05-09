@@ -169,7 +169,9 @@ ${fragmentCode}
         vertexCode = vertexCode.replace(uniformRegex, uniformCollect);
         fragmentCode = fragmentCode.replace(uniformRegex, uniformCollect);
 
-        uniformMap.forEach((value, key) => {
+        let textureNames: string[] = [];
+
+        const executeUniforms = (value: WebGPUUniformPropertyBindingInfo[], key: number) => {
 
             value.forEach(uniform => {
 
@@ -193,6 +195,9 @@ ${fragmentCode}
 
                 if (uniform.type == WebGPUBindingInfoType.texture) {
                     let name = uniform.name.replace("_Texture", "");
+
+                    textureNames.push(name);
+
                     let collect = collectionUniforms.get(name);
                     if (collect) {
                         collect.set = uniform.set;
@@ -236,9 +241,9 @@ ${fragmentCode}
                     });
                 }
             });
+        };
 
-        });
-
+        uniformMap.forEach(executeUniforms);
 
         // 添加 新检出的 uniform 
         let appendNewUniform = false;
@@ -258,6 +263,8 @@ ${fragmentCode}
             });
             if (!uniformMap.has(3)) {
                 uniformMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPassName, materialMap));
+
+                executeUniforms(uniformMap.get(3), 3);
             }
         }
 
@@ -276,11 +283,11 @@ ${fragmentCode}
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
         // const vertexProcess = new WebGPU_GLSLProcess();
-        // vertexProcess.process(vertexCode, Array.from(useTexArray));
+        // vertexProcess.process(vertexCode, textureNames);
         // vertexCode = vertexProcess.glslCode;
 
         // const fragmentProcess = new WebGPU_GLSLProcess();
-        // fragmentProcess.process(fragmentCode, Array.from(useTexArray));
+        // fragmentProcess.process(fragmentCode, textureNames);
         // fragmentCode = fragmentProcess.glslCode;
 
         // 将所有 gl_VertexID 替换为 gl_VertexIndex
