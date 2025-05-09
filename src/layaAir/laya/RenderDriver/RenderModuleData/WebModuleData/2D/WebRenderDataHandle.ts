@@ -1,13 +1,17 @@
 import { Color } from "../../../../maths/Color";
+import { Matrix } from "../../../../maths/Matrix";
+import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
+import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
@@ -65,37 +69,35 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
-    private _textureHost: BaseTexture | Texture;
-
-    public get textureHost(): BaseTexture | Texture {
-        return this._textureHost;
-    }
-    public set textureHost(value: BaseTexture | Texture) {
-        if (this._textureHost == value) return;
-        this._textureHost = value;
-        let textrueReadGamma: boolean = false;
-        if (this.textureHost) {
-            if (this.textureHost instanceof BaseTexture) {
-                textrueReadGamma = (this.textureHost as BaseTexture).gammaCorrection != 1;
-            } else if (this.textureHost instanceof Texture && (this.textureHost as Texture).bitmap) {
-                textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
-            }
+    inheriteRenderData(context: IRenderContext2D): void {
+        //更新位置
+        //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
+        let data = this.owner.spriteShaderData;
+        if (!data)
+            return;
+        let mat = this.owner.transform.getMatrix();
+        if (this.mask) {
+            let maskMatrix = this.mask.transform.getMatrix();
+            let tempMatirx = Matrix.mul(maskMatrix, mat,  Matrix.TEMP);
+            this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
+            this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
+        }else{
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
         }
 
-        let data = this._owner.spriteShaderData
-        if (textrueReadGamma) {
-            data.addDefine(ShaderDefines2D.GAMMATEXTURE);
-        } else {
-            data.removeDefine(ShaderDefines2D.GAMMATEXTURE);
-        }
-        let tex;
-        if (value instanceof Texture) {
-            tex = value.bitmap;
-        } else {
-            tex = value;
-        }
-        data.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+
+        let info = this.owner.getClipInfo();
+        // global alpha
+        data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this.owner.globalAlpha);
+
+        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
+        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
     }
+
+    mask: IRenderStruct2D | null = null;
 }
 
 
@@ -240,5 +242,54 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
+    }
+}
+
+export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
+
+    public get owner(): WebRenderStruct2D {
+        return this._owner;
+    }
+    public set owner(value: WebRenderStruct2D) {
+        if (value == this.owner) return;
+        if (this._owner) {
+            let shaderData = this._owner.spriteShaderData;
+            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+            shaderData.removeDefine(SpineShaderInit.SPINE_UV);
+            shaderData.removeDefine(SpineShaderInit.SPINE_COLOR);
+        }
+        this._owner = value;
+        if (this._owner) {
+            let shaderData = this._owner.spriteShaderData;
+            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+            shaderData.addDefine(SpineShaderInit.SPINE_UV);
+            shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
+        }
+
+    }
+
+    skeleton: spine.Skeleton;
+
+    inheriteRenderData(context: IRenderContext2D): void {
+        if (!this._owner || !this._owner.spriteShaderData)
+            return
+        let shaderData = this.owner.spriteShaderData;
+        let trans = this.owner.transform;
+        let mat = trans.getMatrix();
+        let ofx = - this.skeleton.x;
+        let ofy =   this.skeleton.y;
+        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
+        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
+        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx );
+        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty );
+        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+
+        let info = this._owner.getClipInfo();
+        // global alpha
+        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._owner.globalAlpha);
+
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
+        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
     }
 }

@@ -192,14 +192,14 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
 
         this.spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        let color = renderNode.shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
+        let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
         color.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
         } else
             color.a *= (renderNode.owner as Sprite).alpha;
 
-        renderNode.shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
 
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);
@@ -232,8 +232,8 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
         this.renderProxy = this.renderProxyMap.get(value);
         if (value == ERenderProxyType.RenderNormal) {
-            this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-            this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+            this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+            this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
         }
         this._renderProxytype = value;
     }
@@ -275,16 +275,16 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.currentRender = this.skinRenderArray[index];
         switch (this.currentRender.skinAttachType) {
             case ESpineRenderType.boneGPU:
-                this._nodeOwner.shaderData.addDefine(SpineShaderInit.SPINE_FAST);
-                this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
+                this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                 break;
             case ESpineRenderType.rigidBody:
-                this._nodeOwner.shaderData.addDefine(SpineShaderInit.SPINE_RB);
-                this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+                this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
+                this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                 break;
             case ESpineRenderType.normal:
-                this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+                this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                 break;
         }
         if (this.currentAnimation) {
@@ -344,16 +344,16 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
             switch (this.currentRender.skinAttachType) {
                 case ESpineRenderType.boneGPU:
-                    this._nodeOwner.shaderData.addDefine(SpineShaderInit.SPINE_FAST);
-                    this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                    this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
+                    this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                     break;
                 case ESpineRenderType.rigidBody:
-                    this._nodeOwner.shaderData.addDefine(SpineShaderInit.SPINE_RB);
-                    this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+                    this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
+                    this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                     break;
                 case ESpineRenderType.normal:
-                    this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                    this._nodeOwner.shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                    this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+                    this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
                     break;
             }
 
@@ -499,7 +499,7 @@ class RenderOptimize implements IRender {
     render(curTime: number, boneMat: Float32Array) {
         this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat , -this._skeleton.x, -this._skeleton.y);//TODO bone
         // this.material.boneMat = boneMat;
-        this._renderNode.shaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
+        this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
 }
 
@@ -537,7 +537,7 @@ class RenderNormal implements IRender {
      * @zh 离开当前渲染状态时调用。
      */
     leave(): void {
-        this._renderNode.shaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
+        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -550,7 +550,7 @@ class RenderNormal implements IRender {
      */
     change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
         this._renderer = currentRender._renderer;
-        this._renderNode.shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
     }
 
     /**
@@ -564,6 +564,7 @@ class RenderNormal implements IRender {
     render(curTime: number, boneMat: Float32Array) {
         this._renderNode.clear();
         this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
+        this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
     }
 
 }
@@ -612,9 +613,9 @@ class RenderBake implements IRender {
         }
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
-        this._renderNode.shaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
+        this._renderNode._spriteShaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
         value._addReference();
-        this._renderNode.shaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+        this._renderNode._spriteShaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
     }
 
     /**
@@ -677,7 +678,7 @@ class RenderBake implements IRender {
      * @zh 离开当前渲染状态时调用。
      */
     leave() {
-        this._renderNode.shaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
+        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
         //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         this._renderNode._renderType = BaseRender2DType.spine;
     }
@@ -693,7 +694,7 @@ class RenderBake implements IRender {
     change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
         this.skinRender = currentRender;
         this.currentAnimation = currentAnimation;
-        this._renderNode.shaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
+        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
         if (currentAnimation.currentSKin.canInstance) {
             this._renderNode._renderType = BaseRender2DType.spineSimple;
@@ -736,6 +737,6 @@ class RenderBake implements IRender {
         this._computeAnimatorParamsData();
         // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
         // this.material.boneMat = boneMat;
-        this._renderNode.shaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 }

@@ -23,6 +23,7 @@ import { Vector3 } from "../maths/Vector3";
 import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRender2DDataHandle, ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 /**动画开始播放调度
  * @eventType Event.PLAYED
@@ -63,6 +64,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    protected _renderHandle: ISpineRenderDataHandle;
 
     /**状态-停止 */
     static readonly STOPPED: number = 0;
@@ -126,27 +128,21 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      **/
     physicsUpdate = 2;
 
-    shaderData:ShaderData;
-
     constructor() {
         super();
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
-
-        let shaderData = this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        shaderData.addDefine(SpineShaderInit.SPINE_UV);
-        shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
     }
 
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D", "Spine2D"]
     }
 
-    // protected _getRenderHandle(): I2DBaseRenderDataHandle {
-    //     // return LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle
-    // }
+    protected _getRenderHandle(): ISpineRenderDataHandle {
+        return LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
+    }
+
     /**
      * 外部皮肤
      */
@@ -163,23 +159,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     renderUpdate(context:IRenderContext2D) {
-        // let shaderData = this._spriteShaderData;
-        // let trans = this.owner._globalTrans;
-        // let mat = trans.getMatrix();
-        // let mat = context._curMat;
-        // let ofx = px - this._skeleton.x;
-        // let ofy = py + this._skeleton.y;
-        // this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
-        // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        // this._nMatrix_0.setValue(mat.a, mat.b, mat.tx );
-        // this._nMatrix_1.setValue(mat.c, mat.d, mat.ty );
-        // shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        // shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
+        
         // Vector2.TEMP.setValue(context.width, context.height);
         // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
 
-        
         // if (this._renderAlpha !==  context.globalAlpha) {
         //     let scolor = this.spineItem.getSpineColor();
         //     let a = scolor.a * context.globalAlpha;
@@ -188,20 +171,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         //     shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
         //     this._renderAlpha =  context.globalAlpha;
         // }
-        
-        // 兼容 colorfilter
-        // let filter = context._colorFiler;
-        // if (filter) {
-        //     this._spriteShaderData.addDefine(ShaderDefines2D.FILTERCOLOR);
-        //     Matrix4x4.TEMP.cloneByArray(filter._mat);
-        //     shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
-        //     Vector4.TEMP.setValue(filter._alpha[0], filter._alpha[1], filter._alpha[2], filter._alpha[3]);
-        //     shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-        // }else{
-        //     this._spriteShaderData.removeDefine(ShaderDefines2D.FILTERCOLOR);
-        // }
-
-        // context._copyClipInfoToShaderData(shaderData);
 
         this._lightReceive && this._updateLight();
     }
@@ -213,6 +182,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
             this.spineItem.changeSkeleton(this._skeleton);
+            this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
         }
     }
@@ -309,14 +279,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     get twoColorTint(): boolean {
-        return this.shaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+        return this._spriteShaderData.hasDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
     }
 
     set twoColorTint(value: boolean) {
         if (value) {
-            this.shaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+            this._spriteShaderData.addDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
         }else{
-            this.shaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
+            this._spriteShaderData.removeDefine(SpineShaderInit.SPINE_TWOCOLORTINT);
         }
     }
 
@@ -390,19 +360,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     spineItem: ISpineOptimizeRender;
 
-    onAwake(): void {
+    onEnable(): void {
+        this.owner.on(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
         }
-    }
-
-    onAdded(): void {
-        this.owner._initShaderData();
-    }
-
-    onEnable(): void {
-        this.owner.on(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
     }
     
 
@@ -430,6 +393,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+        this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
         this._state = new spine.AnimationState(this._stateData);
@@ -494,7 +458,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._flushExtSkin();
         this.event(Event.READY);
 
-        if (LayaEnv.isPlaying && this._animationName !== undefined) {
+        if (
+            LayaEnv.isPlaying 
+            && this.enabled 
+            && this._animationName !== undefined
+        ) {
             this.play(this._animationName, this._loop, true);
         }
     }
@@ -883,6 +851,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             element.subShader = material._shader.getSubShaderAt(0);
             element.value2DShaderData = this.owner.shaderData;
         }
+        this.owner._struct.renderElements = this._renderElements;
     }
 
     _onMeshChange(mesh: Mesh2D, force: boolean = false) {
@@ -905,19 +874,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                         element.geometry = subMesh;
                         element.materialShaderData = material.shaderData;
                         element.subShader = material._shader.getSubShaderAt(0);
-                        element.value2DShaderData = this.shaderData;
+                        element.value2DShaderData = this.owner.shaderData;
                         element.nodeCommonMap = this._getcommonUniformMap();
                     } else {
                         Spine2DRenderNode.recoverRenderElement2D(element);
                     }
                 }
                 this._renderElements.length = mesh.subMeshCount;
-
-                SpineShaderInit.changeVertexDefine(this.shaderData , mesh);
+                this.owner._struct.renderElements = this._renderElements;
+                SpineShaderInit.changeVertexDefine(this.owner.shaderData , mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
                 this._renderElements.length = 0;
+                this.owner._struct.renderElements = this._renderElements;
             }
 
         }

@@ -754,7 +754,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 //case GPUTextureFormat.EACR11Unorm:
                 //case GPUTextureFormat.EACR11Snorm:
                 return { width: 4, height: 4, length: 8 };
-            case WebGPUTextureFormat.etc2_rgb8unorm:
+            case WebGPUTextureFormat.etc2_rgba8unorm:
             case WebGPUTextureFormat.etc2_rgba8unorm_srgb:
                 //case GPUTextureFormat.EACRG11Unorm:
                 //case GPUTextureFormat.EACRG11Snorm:

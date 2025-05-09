@@ -13,13 +13,11 @@ export interface IRender2DDataHandle {
 }
 
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
-    textureHost: Texture | BaseTexture;
+    mask : IRenderStruct2D | null;
 }
 
 export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {
     lightReceive: boolean;
-
-
 }
 
 export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
@@ -29,4 +27,8 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
     textureRangeIsClip: boolean;
     normal2DTexture: BaseTexture;
     normal2DStrength: number;
+}
+
+export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
+    skeleton: spine.Skeleton;
 }

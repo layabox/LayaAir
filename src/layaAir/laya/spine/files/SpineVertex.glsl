@@ -1,6 +1,11 @@
 #if !defined(SpineVertex_lib)
     #define SpineVertex_lib
 
+void transfrom(vec2 pos,vec4 xDir,vec4 yDir,out vec2 outPos){
+    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
+    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
+}
+
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
     outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
     outPos.y = -(yDir.x*pos.x+yDir.y*pos.y -yDir.z);
@@ -122,10 +127,9 @@ vec4 getScreenPos(vec4 pos){
 
     vec2 viewPos;
     getViewPos(globalPos,viewPos);
-    vec4 pos;
-    getProjectPos(viewPos,pos);
-
-    return pos;
+    vec4 outPos;
+    getProjectPos(viewPos,outPos);
+    return outPos;
 }
 
 void getVertexInfo(vec4 pos, inout vertexInfo info){
