@@ -78,7 +78,7 @@ export class MgCacheManager {
                 }));
             });
         }).then(() => {
-            console.debug(`${this.fileCache.size} files ${this.totalFileSize} bytes in manifests`);
+            console.log(`${this.fileCache.size} files ${this.totalFileSize} bytes in manifests`);
             console.timeEnd("read all manifests");
 
             //如果存在旧的缓存目录，删除它
@@ -86,7 +86,7 @@ export class MgCacheManager {
 
             return PAL.fs.exists(oldCacheDir).then(oldExists => {
                 if (oldExists) {
-                    console.debug("delete old cache folder");
+                    console.log("delete old cache folder");
                     return PAL.fs.rmdir(oldCacheDir, { recursive: true }).catch((err: WechatMinigame.FileError) => {
                         console.warn("failed to delete old cache folder", `${err.errMsg}(${err.errCode})`);
                     });
@@ -154,7 +154,7 @@ export class MgCacheManager {
             }
 
             return Utils.runTasks(arr.slice(0, i + 1), 20, (info: ICachedFileInfo) => this.deleteFile(info)).then(() => {
-                console.debug(`cleared ${arr.length} files ${totalSize} bytes`);
+                console.log(`cleared ${arr.length} files ${totalSize} bytes`);
                 console.timeEnd("clear cache space");
 
             });

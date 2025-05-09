@@ -192,7 +192,7 @@ export class MgDownloader extends Downloader {
                     str += encodeURI(word);
                 }
                 catch (e) {
-                    console.log("errorInfo", ">>>" + word);
+                    console.warn("errorInfo", ">>>" + word);
                 }
             }
         }

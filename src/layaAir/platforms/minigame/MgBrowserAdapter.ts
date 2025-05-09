@@ -12,38 +12,37 @@ export class MgBrowserAdapter extends BrowserAdapter {
     private _windowHeight: number;
     private _supportBufferURL: boolean;
     private _visible: boolean;
+    private _orientation: OrientationType;
 
     protected init() {
         mg = PAL.global;
         URL.basePath = URL.rootPath = "";
         let platform: string = "";
 
-        if (mg.getWindowInfo) {
+        if (mg.getSystemInfoSync) {
+            let systemInfo = mg.getSystemInfoSync();
+            this._pixelRatio = systemInfo.pixelRatio;
+            this._windowWidth = systemInfo.windowWidth;
+            this._windowHeight = systemInfo.windowHeight;
+            this._orientation = systemInfo.deviceOrientation === "landscape" ? "landscape-primary" : "portrait-primary";
+            platform = systemInfo.platform || "";
+        }
+        else if (mg.getWindowInfo) {
             let windowInfo = mg.getWindowInfo();
             this._pixelRatio = windowInfo.pixelRatio;
             this._windowWidth = windowInfo.windowWidth;
             this._windowHeight = windowInfo.windowHeight;
             if (mg.getDeviceInfo) {
                 let deviceInfo = mg.getDeviceInfo();
-                platform = deviceInfo.platform;
-            }
-            else {
-                let systemInfo = mg.getSystemInfoSync();
-                platform = systemInfo.platform;
+                platform = deviceInfo.platform || "";
             }
         }
-        else {
-            let systemInfo = mg.getSystemInfoSync();
-            this._pixelRatio = systemInfo.pixelRatio;
-            this._windowWidth = systemInfo.windowWidth;
-            this._windowHeight = systemInfo.windowHeight;
-            platform = systemInfo.platform;
-        }
+
         platform = platform.toLowerCase();
         if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo
             this._pixelRatio = window.devicePixelRatio;
         }
-        console.log(`platform=${platform}, window size=${this._windowWidth}x${this._windowHeight}, dpr=${this._pixelRatio}`);
+        console.log(`platform=${platform}, windowSize=${this._windowWidth}x${this._windowHeight}, dpr=${this._pixelRatio}, orientation=${this._orientation}`);
 
         if (platform.indexOf("ios") !== -1) {
             Browser.onIOS = true;
@@ -77,12 +76,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         this._supportBufferURL = typeof (mg.createBufferURL) === "function" && typeof (mg.revokeBufferURL) === "function";
 
-        mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
-            this._windowWidth = result.windowWidth;
-            this._windowHeight = result.windowHeight;
-            this.event(Event.RESIZE);
-        });
-
         this._visible = true;
         mg.onShow(() => {
             this._visible = true;
@@ -94,6 +87,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.event(Event.VISIBILITY_CHANGE, false);
             this.event(Event.BLUR);
         });
+
+        mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
+            this._windowWidth = result.windowWidth;
+            this._windowHeight = result.windowHeight;
+            this.event(Event.RESIZE);
+        });
+
         mg.onError(e => {
             if (this.hasListener(Event.ERROR))
                 this.event(Event.ERROR, e);
@@ -101,7 +101,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
                 console.error(e);
         });
 
-        if (typeof (mg.onUnhandledRejection) === "function") {
+        if (mg.onUnhandledRejection) {
             mg.onUnhandledRejection(e => {
                 if (this.hasListener("unhandledrejection"))
                     this.event("unhandledrejection", e);
@@ -121,6 +121,10 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     getVisibility(): boolean {
         return this._visible;
+    }
+
+    getScreenOrientation(): OrientationType {
+        return this._orientation;
     }
 
     createMainCanvas(): HTMLCanvasElement {
