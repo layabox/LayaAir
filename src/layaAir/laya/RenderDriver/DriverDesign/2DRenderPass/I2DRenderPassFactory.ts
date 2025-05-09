@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGlobalRenderData, IMesh2DRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -31,4 +31,7 @@ export interface I2DRenderPassFactory {
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle;
 
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle;
+
+    create2DGlobalRenderDataHandle(): IGlobalRenderData;
+
 }

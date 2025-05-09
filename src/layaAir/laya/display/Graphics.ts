@@ -705,7 +705,7 @@ export class Graphics {
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
         if (!this.owner)
             return;
-        
+
         this._data.clear();
         runner.clearRenderData();
         runner.sprite = this.owner;
@@ -785,6 +785,7 @@ export class Graphics {
             submit.updateRenderElement();
             let element = submit._renderElement;
             element.value2DShaderData = this.owner.shaderData;
+            element.owner = this.owner._struct;
             this._renderElements.push(element);
         }
         //reset
@@ -1094,7 +1095,7 @@ export class GraphicsRenderData {
         this._meshTex.destroy();
 
         let elements = this._submits.elements;
-        for (let i = 0 ; i < this._submits.length; i++) {
+        for (let i = 0; i < this._submits.length; i++) {
             elements[i].destroy();
         }
         this._submits.destroy();
@@ -1108,11 +1109,11 @@ export class GraphicsRenderData {
 
     createSubmit(runner: GraphicsRunner, mesh: Sprite2DGeometry, material: Material): SubmitBase {
         let elements = this._submits.elements;
-        let submit:SubmitBase = null;
+        let submit: SubmitBase = null;
         if (elements.length > this._submits.length) {
             submit = elements[this._submits.length];
             submit.update(runner, mesh, material);
-        }else
+        } else
             submit = SubmitBase.create(runner, mesh, material);
 
         this._submits.add(submit);

@@ -6,6 +6,7 @@ import { ILight2DManager, Scene } from "../display/Scene";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
+import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
@@ -177,20 +178,19 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         let mat = ILaya.stage.transform; //获取Stage的矩阵
         this._stageMat0.set(mat.a, mat.c, mat.tx);
         this._stageMat1.set(mat.b, mat.d, mat.ty);
-        // if (context._drawingToTexture) {
-        //     this._sceneInv0.set(mat.a, mat.c, mat.tx);
-        //     this._sceneInv1.set(mat.b, mat.d, mat.ty);
-        // } else {
-        //     mat = this._scene.globalTrans.getMatrixInv(Matrix.TEMP); //获取Scene的Global逆矩阵
-        //     this._sceneInv0.set(mat.a, mat.c, mat.tx);
-        //     this._sceneInv1.set(mat.b, mat.d, mat.ty);
-        // }
+        if (false) {//IDE 判断 是否需要画到纹理上
+            this._sceneInv0.set(mat.a, mat.c, mat.tx);
+            this._sceneInv1.set(mat.b, mat.d, mat.ty);
+        } else {
+            mat = this._scene.globalTrans.getMatrixInv(Matrix.TEMP); //获取Scene的Global逆矩阵
+            this._sceneInv0.set(mat.a, mat.c, mat.tx);
+            this._sceneInv1.set(mat.b, mat.d, mat.ty);
+        }
 
-        const shaderData = this._scene.sceneShaderData; //上传给着色器
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, this._sceneInv0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, this._sceneInv1);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, this._stageMat0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, this._stageMat1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, ShaderDataType.Vector3, this._sceneInv0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, ShaderDataType.Vector3, this._sceneInv1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, ShaderDataType.Vector3, this._stageMat0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, ShaderDataType.Vector3, this._stageMat1);
     }
 
     /**

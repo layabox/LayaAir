@@ -4,14 +4,12 @@ import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import { Area2D } from "../Area2D";
-import { Node } from "../Node";
 import { Scene } from "../Scene";
 import { Sprite } from "../Sprite";
 
@@ -57,8 +55,6 @@ export class Camera2D extends Sprite {
     /**@internal */
     _isMain: boolean;
     /**@internal */
-    _ownerArea: Area2D;
-    /**@internal */
     _cameraRotation: number;//angle 
 
 
@@ -87,12 +83,12 @@ export class Camera2D extends Sprite {
     public set isMain(value: boolean) {
         if (this._ownerArea) {
             if (value) {
-                this._ownerArea._setMainCamera(this);
+                (<Area2D>this._ownerArea)._setMainCamera(this);
                 this._isMain = true;
             }
             else {
-                if (this._ownerArea.mainCamera == this) {
-                    this._ownerArea._setMainCamera(null);
+                if ((<Area2D>this._ownerArea).mainCamera == this) {
+                    (<Area2D>this._ownerArea)._setMainCamera(null);
                     this._isMain = false;
                 }
             }
@@ -105,30 +101,21 @@ export class Camera2D extends Sprite {
      */
     _setUnBelongScene(): void {
         if (this._ownerArea != null) {
-            if (this._ownerArea.mainCamera == this)
-                this._ownerArea._setMainCamera(null);
+            if ((<Area2D>this._ownerArea).mainCamera == this)
+                (<Area2D>this._ownerArea)._setMainCamera(null);
             this._ownerArea = null;
         }
         super._setUnBelongScene();
     }
 
-    /**
-     * @ignore
-     * @param scene 
-     */
-    _setBelongScene(scene: Node): void {
-        super._setBelongScene(scene);
-        this._findOwnerArea();
-    }
-
-    private _findOwnerArea() {
+    protected _findOwnerArea() {
         let ele = this as any;
         while (ele) {
             if (ele === this._scene || ele === ILaya.stage) break;
             if (ele instanceof Area2D) {
                 this._ownerArea = ele;
-                if (this._isMain && !this._ownerArea.mainCamera)
-                    this._ownerArea._setMainCamera(this);
+                if (this._isMain && !(<Area2D>this._ownerArea).mainCamera)
+                    (<Area2D>this._ownerArea)._setMainCamera(this);
                 break;
             }
             ele = ele._parent;
@@ -336,7 +323,7 @@ export class Camera2D extends Sprite {
 
             if (this.positionSmooth) {
                 let epsilon = 0.01;
-                let speed = Math.max( epsilon , Math.min(1.0, this.positionSpeed * 0.16));// 0.1
+                let speed = Math.max(epsilon, Math.min(1.0, this.positionSpeed * 0.16));// 0.1
                 let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
                 let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
                 let transX = deltaX * speed;

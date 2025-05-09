@@ -12,7 +12,6 @@ import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
-import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
 
 export enum ShaderDataType {
     None,

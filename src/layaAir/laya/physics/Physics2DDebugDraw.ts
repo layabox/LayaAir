@@ -142,10 +142,10 @@ export class Physics2DDebugDraw extends Sprite {
             for (let i = 0; i < (this._scene as Scene)._area2Ds.length; i++) {
                 let area = (this._scene as Scene)._area2Ds[i];
                 if (area && area.mainCamera) {
-                    let shaderData = (this._scene as Scene).sceneShaderData;
-                    if (shaderData) {
-                        shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                    }
+                    // let shaderData = (this._scene as Scene).sceneShaderData;
+                    // if (shaderData) {
+                    //     shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+                    // }
                     break;
                 }
             }
@@ -193,13 +193,13 @@ export class Physics2DDebugDraw extends Sprite {
         if ((this._scene as Scene)._area2Ds.length != 0) {
             for (let i = 0; i < (this._scene as Scene)._area2Ds.length; i++) {
                 let area = (this._scene as Scene)._area2Ds[i];
-                if (area && area.mainCamera) {
-                    let shaderData = (this._scene as Scene).sceneShaderData;
-                    if (shaderData) {
-                        shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                    }
-                    break;
-                }
+                // if (area && area.mainCamera) {
+                //     let shaderData = (this._scene as Scene).sceneShaderData;
+                //     if (shaderData) {
+                //         shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+                //     }
+                //     break;
+                // }
             }
         }
         this._mG.restore();

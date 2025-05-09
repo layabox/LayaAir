@@ -16,7 +16,6 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { URL } from "../net/URL";
-import { Scene } from "./Scene";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
@@ -25,21 +24,18 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
-import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Vector3 } from "../maths/Vector3";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { Vector2 } from "../maths/Vector2";
-import { Vector4 } from "../maths/Vector4";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+
 import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
-import { Render2DSimple } from "../renders/Render2D";
 import { Stat } from "../utils/Stat";
+import { Scene } from "./Scene";
+
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -239,6 +235,9 @@ export class Sprite extends Node {
     declare _$children: Sprite[];
     declare _parent: Sprite;
     declare _scene: Sprite;
+
+    /**@internal */
+    _ownerArea: Sprite;
 
     private _nMatrix_0 = new Vector3;
     private _nMatrix_1 = new Vector3;
@@ -2132,6 +2131,44 @@ export class Sprite extends Node {
         }
         else
             return false;
+    }
+
+
+
+    /**
+     * @ignore
+     */
+    _setUnBelongScene(): void {
+        if (this._ownerArea != null) {
+            this._ownerArea = null;
+        }
+        this._struct.globalRenderData = null;
+        super._setUnBelongScene();
+    }
+
+    /**
+     * @ignore
+     * @param scene 
+     */
+    _setBelongScene(scene: Node): void {
+        super._setBelongScene(scene);
+        this._findOwnerArea();
+    }
+
+    protected _findOwnerArea() {
+        let ele = this as any;
+        while (ele) {
+            if (ele === this._scene || ele === ILaya.stage) break;
+            if (ele._globalRenderData) {
+                this._ownerArea = ele;
+                this._struct.globalRenderData = ele._globalRenderData;
+                break;
+            }
+            ele = ele._parent;
+        }
+        if (this._ownerArea == null) {
+            this._struct.globalRenderData = (this.scene)?._globalRenderData;
+        }
     }
 
     protected _setStructParent(value: Node) {

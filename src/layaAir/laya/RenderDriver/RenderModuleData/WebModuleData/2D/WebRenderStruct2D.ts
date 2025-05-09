@@ -1,24 +1,29 @@
-import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { IClipInfo, IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { SpriteGlobalTransform } from "../../../../display/SpriteGlobaTransform";
 import { WebRender2DPass } from "./WebRender2DPass";
-import { Render2DSimple } from "../../../../renders/Render2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
-import { IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
+import { IGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
    clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
    clipMatPos: new Vector4(0, 0, 0, 0),
 }
+
+export class WebGlobalRenderData implements IGlobalRenderData {
+   cullRect: Vector4;
+   renderLayerMask: number;
+   globalShaderData: ShaderData;
+}
+
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
@@ -71,6 +76,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (value)
          this._renderDataHandler.owner = this;
    }
+
+   globalRenderData: WebGlobalRenderData;
 
    pass: WebRender2DPass;
 

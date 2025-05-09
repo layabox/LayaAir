@@ -35,7 +35,6 @@ export class WebglRenderContext2D implements IRenderContext2D {
     _destRT: WebGLInternalRT;
     invertY: boolean = false;
     pipelineMode: string = "Forward";
-    sceneData: WebGLShaderData;
     passData: WebGLShaderData;
 
     _globalConfigShaderData: WebDefineDatas;

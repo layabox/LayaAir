@@ -3,13 +3,18 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRender2DPass } from "./IRender2DPass";
-import { IRenderStruct2D } from "./IRenderStruct2D";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 
 export interface IRender2DDataHandle {
     needUseMatrix: boolean;
     inheriteRenderData(context: IRenderContext2D): void;
     destroy(): void;
+}
+
+export interface IGlobalRenderData {
+    cullRect: Vector4;
+    renderLayerMask: number;
+    globalShaderData: ShaderData;
 }
 
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {

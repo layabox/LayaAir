@@ -3,7 +3,6 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -26,6 +25,13 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     value2DShaderData: WebGLShaderData;
     subShader: SubShader;
 
+    private getGlobalShaderData() {
+        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
+            return this.owner.globalRenderData.globalShaderData;
+        else
+            return null;
+    }
+
     protected _compileShader(context: WebglRenderContext2D) {
         var passes: ShaderPass[] = this.subShader._passes;
         this._shaderInstances.clear();
@@ -38,14 +44,14 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
+            if (this.owner.globalRenderData) {
+                (this.owner.globalRenderData.globalShaderData as WebGLShaderData)._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }
 
             if (context.passData) {
-                context.passData._defineDatas.cloneTo(comDef);
+                comDef.addDefineDatas(context.passData._defineDatas);
             }
 
             let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
@@ -93,7 +99,8 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             return
         shader.bind();
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
-        context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
+        let global = this.getGlobalShaderData() as WebGLShaderData;
+        global && shader.uploadUniforms(shader._sceneUniformParamsMap, global, true);
         context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend

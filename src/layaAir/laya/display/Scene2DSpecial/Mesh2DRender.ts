@@ -171,8 +171,10 @@ export class Mesh2DRender extends BaseRenderNode2D {
             BaseRenderNode2D._setRenderElement2DMaterial(element, this._materials[i] ? this._materials[i] : Mesh2DRender.mesh2DDefaultMaterial);
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
+            element.owner = this.owner._struct;
         }
         this.owner._struct.renderElements = this._renderElements;
+
     }
 
     /**@ignore */

@@ -275,12 +275,6 @@ export class BaseRenderNode2D extends Component {
      */
     renderUpdate?(context: IRenderContext2D): void;
 
-    /**
-     * 渲染前更新，准备所需的渲染数据
-     * @param context 
-     */
-    preRenderUpdate?(context: IRenderContext2D): void;
-
     protected _onAdded(): void {
         this.owner._initShaderData();
         this.owner.renderNode2D = this;

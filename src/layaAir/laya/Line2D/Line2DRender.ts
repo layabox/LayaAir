@@ -374,6 +374,7 @@ export class Line2DRender extends BaseRenderNode2D {
         renderElement.value2DShaderData = this._spriteShaderData;
         renderElement.renderStateIsBySprite = false;
         renderElement.nodeCommonMap = this._getcommonUniformMap();
+        renderElement.owner = this.owner._struct;
         BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
         this._renderElements[0] = renderElement;
         this.owner._struct.renderElements = this._renderElements;

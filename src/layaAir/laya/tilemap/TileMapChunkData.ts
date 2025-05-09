@@ -77,7 +77,7 @@ export class TileMapChunkData {
      */
     private _cellDataRefMap: number[][];
 
-    private _refGids:number[] = [];
+    private _refGids: number[] = [];
     /**
      * 帧处理cell数据更新
      * 0 render , 1 physics 3 light
@@ -147,9 +147,9 @@ export class TileMapChunkData {
      * 危险操作
      */
     set cellDataRefMap(data: number[][]) {
-        if (!data || !Object.keys(data).length) 
+        if (!data || !Object.keys(data).length)
             return
-        
+
         for (let i = 0, len = data.length; i < len; i++) {
             if (data[i]) {
                 this._refGids.push(i);
@@ -165,9 +165,9 @@ export class TileMapChunkData {
      * 获取使用得压缩数据
      */
     get compressData(): Record<number, number[]> {
-        let out: Record<number , number[]> = {};
-        this._refGids.forEach(gid =>{
-            if(this._cellDataRefMap[gid]) out[gid] = this._cellDataRefMap[gid];
+        let out: Record<number, number[]> = {};
+        this._refGids.forEach(gid => {
+            if (this._cellDataRefMap[gid]) out[gid] = this._cellDataRefMap[gid];
         })
         return out;
     }
@@ -202,11 +202,11 @@ export class TileMapChunkData {
         let localPos = Vector2.TEMP;
 
         for (let i = this._refGids.length - 1; i > -1; i--) {
-            let gid = this._refGids[i];      
+            let gid = this._refGids[i];
             let localIndexs = this._cellDataRefMap[gid];
             if (localIndexs) {
                 let cellData = tileSet.getCellDataByGid(gid);
-                if (cellData){//todo 算数据丢失
+                if (cellData) {//todo 算数据丢失
                     cellData._addNoticeRenderTile(this);
                     for (let i = 0, len = localIndexs.length; i < len; i++) {
                         let index = localIndexs[i];
@@ -217,11 +217,11 @@ export class TileMapChunkData {
                         this._chuckCellList.push(chuckCellInfo);
                     }
                     this._setDirtyFlag(gid, TileMapDirtyFlag.CELL_CHANGE);
-                }else{
+                } else {
                     delete this._cellDataRefMap[gid];
-                    this._refGids.splice(i , 1);
+                    this._refGids.splice(i, 1);
                 }
-            }      
+            }
         }
 
         this._reCreateRenderData = true;
@@ -410,7 +410,7 @@ export class TileMapChunkData {
                                 let uvSize = nativesData._getRegionSize();
                                 data[dataoffset + 2] = uvSize.x;
                                 data[dataoffset + 3] = uvSize.y;
-    
+
                             }
                             if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_QUADUV)) {
                                 //cell uv /Animation
@@ -423,7 +423,7 @@ export class TileMapChunkData {
                                 data[dataoffset + 1] = uvOri.y;
                                 data[dataoffset + 2] = uvextend.x;
                                 data[dataoffset + 3] = uvextend.y;
-    
+
                             }
                             if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_COLOR)) {
                                 //cellColor
@@ -435,8 +435,8 @@ export class TileMapChunkData {
                                 data[dataoffset + 1] = color.g;
                                 data[dataoffset + 2] = color.b;
                                 data[dataoffset + 3] = color.a;
-    
-    
+
+
                             }
                             if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_UVTRAN)) {
                                 let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
@@ -447,7 +447,7 @@ export class TileMapChunkData {
                                 data[dataoffset + 1] = transData.y;
                                 data[dataoffset + 2] = transData.z;
                                 data[dataoffset + 3] = transData.w;
-    
+
                             }
                         });
                     }
@@ -491,17 +491,17 @@ export class TileMapChunkData {
         dirtyFlag.forEach((value, key) => {
             //cell posOri extends  
             let cellDataUseArray = this._cellDataRefMap[key];
-            if(cellDataUseArray){
+            if (cellDataUseArray) {
                 cellDataUseArray.forEach(element => {
                     let chunkCellInfo = this._cellDataMap[element];
                     let cellData = chunkCellInfo.cell;
                     let cellDatas = cellData.physicsDatas;
-    
+
                     //TODO Layer变更时需要删除
                     if (cellDatas && (value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_PHYSICS)) {
-    
+
                         chunk._getPixelByChunkPosAndIndex(this.chunkX, this.chunkY, chunkCellInfo.chuckLocalindex, pos);
-    
+
                         let ofx = pos.x;
                         let ofy = pos.y;
                         let datas = chunkCellInfo._physicsDatas;
@@ -509,31 +509,31 @@ export class TileMapChunkData {
                             datas = [];
                             chunkCellInfo._physicsDatas = datas;
                         }
-    
+
                         for (let i = 0; i < layerCount; i++) {
                             let physicslayer = physicsLayers[i];
                             let pIndex = physicslayer.id;
                             if (!cellDatas[pIndex]) continue;
-    
+
                             let data = datas[pIndex];
                             if (data) {
                                 physics.destroyFixture(rigidBody, data);
                             }
-    
+
                             let shape = cellDatas[pIndex].shape;
                             if (!shape) continue;
-    
+
                             let shapeLength = shape.length;
                             let nShape: Array<number> = new Array(shapeLength);
-    
+
                             for (let j = 0; j < shapeLength; j += 2) {
                                 nShape[j] = (shape[j] + ofx) * scaleX;
                                 nShape[j + 1] = (shape[j + 1] + ofy) * scaleY;
                             }
-    
+
                             data = physics.createFixture(rigidBody, physicslayer, nShape);
                         }
-    
+
                     }
                 });
             }
@@ -563,12 +563,12 @@ export class TileMapChunkData {
                     let chunkCellInfo = this._cellDataMap[element];
                     let cellData = chunkCellInfo.cell;
                     let cellDatas = cellData.lightOccluderDatas;
-    
+
                     //TODO Layer变更时需要删除
                     if (cellDatas && (value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_LIGHTSHADOW)) {
-    
+
                         chunk._getPixelByChunkPosAndIndex(this.chunkX, this.chunkY, chunkCellInfo.chuckLocalindex, pos);
-    
+
                         let ofx = pos.x;
                         let ofy = pos.y;
                         let datas = chunkCellInfo._occluderDatas;
@@ -576,31 +576,31 @@ export class TileMapChunkData {
                             datas = [];
                             chunkCellInfo._occluderDatas = datas;
                         }
-    
+
                         for (let i = 0; i < layerCount; i++) {
                             let layer = lightInfoLayers[i];
                             let pIndex = layer.id;
                             if (!cellDatas[pIndex]) continue;
-    
+
                             let shape = cellDatas[pIndex].shape;
                             if (!shape) continue;
-    
+
                             let shapeLength = shape.length;
-    
+
                             let point: PolygonPoint2D = new PolygonPoint2D;
-    
+
                             let data = datas[pIndex];
                             if (!data) {
                                 data = agent.addOccluder(point, layer.layerMask);
                                 datas[pIndex] = data;
                             }
-    
+
                             for (let j = 0; j < shapeLength; j += 2)
                                 point.addPoint(shape[j] + ofx, shape[j + 1] + ofy);
-    
+
                             data.polygonPoint = point;
                         }
-    
+
                     }
                 });
             }
@@ -632,7 +632,7 @@ export class TileMapChunkData {
 
         if (!mat) {
             mat = this._material;
-        }else{
+        } else {
             // mat.setTexture("u_render2DTexture", texture);
         }
 
@@ -645,6 +645,7 @@ export class TileMapChunkData {
 
         //init Buffer
         let renderElement = element.renderElement;
+        renderElement.owner = this._tileLayer.owner._struct;
         let cachDatas = element.cacheData;
         let instanceColor = cachDatas[TileMapChunkData.instanceColorBufferIndex];
         let instanceposScal = cachDatas[TileMapChunkData.instanceposScalBufferIndex];
@@ -843,15 +844,15 @@ export class TileMapChunkData {
             localIndexArray.splice(localIndexArray.indexOf(chunkCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
                 delete this._cellDataRefMap[oldGid];
-                this._refGids.splice(this._refGids.indexOf(gid) , 1);
+                this._refGids.splice(this._refGids.indexOf(gid), 1);
                 oldcell._removeNoticeRenderTile(this);
             }
             chunkCellInfo.cell = cellData;
             chunkCellInfo.zOrderValue = cellData.z_index;
             localIndexArray = this._cellDataRefMap[gid];
             localIndexArray.push(chunkCellInfo.chuckLocalindex);
-            
-            if (this._breakBatch(oldcell , cellData)) {
+
+            if (this._breakBatch(oldcell, cellData)) {
                 this._reCreateRenderData = true;
             }
         }
@@ -893,7 +894,7 @@ export class TileMapChunkData {
         localIndexArray.splice(localIndexArray.indexOf(index), 1);
         if (localIndexArray.length == 0) {
             delete this._cellDataRefMap[gid];
-            this._refGids.splice(this._refGids.indexOf(gid) , 1);
+            this._refGids.splice(this._refGids.indexOf(gid), 1);
             chunkCellInfo.cell._removeNoticeRenderTile(this);
         }
 
@@ -921,7 +922,7 @@ export class TileMapChunkData {
 
         cell._removeNoticeRenderTile(this);
         delete this._cellDataRefMap[gid];
-        this._refGids.splice(this._refGids.indexOf(gid) , 1);
+        this._refGids.splice(this._refGids.indexOf(gid), 1);
         this._reCreateRenderData = true;
         this._dirtyFlags.forEach(flags => flags.delete(gid));
     }
@@ -941,7 +942,7 @@ export class TileMapChunkData {
         }
     }
 
-    modifyRenderData(){
+    modifyRenderData() {
         this._reCreateRenderData = true;
     }
 

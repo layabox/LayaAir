@@ -1022,7 +1022,7 @@ export class Stage extends Sprite {
 
     private _graphicUpdateList: Graphics[] = [];
     _addgraphicRenderElement(graphics: Graphics) {
-        if(!graphics) return;
+        if (!graphics) return;
         this._graphicUpdateList.push(graphics);
     }
     /**
@@ -1033,17 +1033,14 @@ export class Stage extends Sprite {
     private _render2d() {
         Stat.draw2D = 0;
         // context2D.render2dmgr.runProcess([])
+        for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
+            this._scene2Ds[i].render(0, 0);
+        }
         for (var i = 0, n = this._graphicUpdateList.length; i < n; i++) {
             this._graphicUpdateList[i]._render(Render2DSimple.runner);
         }
         this.passManager.apply(Render2DSimple.rendercontext2D);
         this._graphicUpdateList.length = 0;
-        // mainProcess.root = this._struct as any;
-        // mainProcess.render( context2D , Render2DSimple.rendercontext2D );
-        // context2D.startRender();
-        // super.render(context2D, x, y);
-        // Stat.render(context2D, x, y);
-        // context2D.endRender();
     }
 
     private _runComponents() {

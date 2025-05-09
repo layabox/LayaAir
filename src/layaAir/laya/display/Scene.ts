@@ -8,14 +8,14 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { CommandUniformMap } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
-import { Render2DSimple } from "../renders/Render2D";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { TransformKind } from "./SpriteConst";
 import { Area2D } from "./Area2D";
-import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { LayaEnv } from "../../LayaEnv";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
-import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { LayaGL } from "../layagl/LayaGL";
 
 export interface ILight2DManager {
     preRenderUpdate(): void;
@@ -93,8 +93,8 @@ export class Scene extends Sprite {
     _componentElementDatasMap: any = {};
     _specialManager: Scene2DSpecialManager;
     _light2DManager: ILight2DManager;
-    _curCamera: Camera2D;
-
+    /**@internal */
+    _globalRenderData: IGlobalRenderData;
     constructor() {
         super();
         this._specialManager = new Scene2DSpecialManager();
@@ -105,6 +105,8 @@ export class Scene extends Sprite {
         Scene.componentManagerMap.forEach((val, key) => {
             this._specialManager.componentElementMap.set(key, new val(this));
         });
+        this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
+        this._globalRenderData.globalShaderData = this.shaderData = this._specialManager._shaderData;
     }
 
     /**
@@ -337,17 +339,20 @@ export class Scene extends Sprite {
      */
     render(x: number, y: number): void {
         this._preRenderUpdate(x, y)
-        super.render(x, y);
-
-        this._recoverRenderSceneState();
+        for (var i = 0; i < this._area2Ds.length; i++) {
+            this._area2Ds[i].render()
+        }
     }
 
-    /**
-     * @en Gets shader data from scene's manager
-     * @zh 获取场景的着色器数据
-     */
-    get sceneShaderData(): ShaderData {
-        return this._specialManager._shaderData;
+
+
+    setglobalRenderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
+
+        this.shaderData && this.shaderData.setShaderData(uniformIndex, type, value);
+        for (var i = 0; i < this._area2Ds.length; i++) {
+            this._area2Ds[i].shaderData.setShaderData(uniformIndex, type, value);
+        }
+
     }
 
     /**
@@ -358,19 +363,12 @@ export class Scene extends Sprite {
      */
     _preRenderUpdate(x: number, y: number) {
         //更新2DScene场景数据    
-        Render2DSimple.rendercontext2D.sceneData = this._specialManager._shaderData;
+        this._specialManager._shaderData;
         if (this._light2DManager)
             this._light2DManager.preRenderUpdate();
     }
 
-    /**
-     * @internal
-     * @param ctx 
-     */
-    _recoverRenderSceneState() {
-        //ctx.drawLeftData();
-        Render2DSimple.rendercontext2D.sceneData = null;
-    }
+
 
     /**
      * @ignore

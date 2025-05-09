@@ -10,29 +10,32 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
+    create2DGlobalRenderDataHandle(): IGlobalRenderData {
+        return null;
+    }
     createRender2DPass(): IRender2DPass {
-        throw new Error("Method not implemented.");
+        return null;
     }
     createRenderStruct2D(): IRenderStruct2D {
-        throw new Error("Method not implemented.");
+        return null;
     }
     createRender2DDataHandle(): IRender2DDataHandle {
-        throw new Error("Method not implemented.");
+        return null;
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        throw new Error("Method not implemented.");
+        return null;
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return null;
     }
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return null;
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new NoRenderSetRenderData();

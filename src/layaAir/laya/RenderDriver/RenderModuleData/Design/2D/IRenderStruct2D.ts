@@ -5,7 +5,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { IRender2DDataHandle } from "./IRender2DDataHandle";
+import { IGlobalRenderData, IRender2DDataHandle } from "./IRender2DDataHandle";
 import { IRender2DPass } from "./IRender2DPass";
 
 export interface IClipInfo {
@@ -54,15 +54,17 @@ export interface IRenderStruct2D {
    spriteShaderData: ShaderData;
 
    commonUniformMap: string[];
-   
+
    renderDataHandler: IRender2DDataHandle;
+
+   globalRenderData: IGlobalRenderData;
 
    pass: IRender2DPass;
 
    setRepaint(): void;
 
    addChild(child: IRenderStruct2D): IRenderStruct2D;
-   
+
    removeChild(child: IRenderStruct2D): void;
 
    setClipRect(rect: Rectangle): void;

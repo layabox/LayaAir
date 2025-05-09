@@ -9,8 +9,7 @@ export interface IRenderContext2D {
 
     invertY: boolean;
     pipelineMode: string;
-    sceneData: ShaderData;
-    passData:ShaderData;
+    passData: ShaderData;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void;
     getRenderTarget(): InternalRenderTarget;
     setOffscreenView(width: number, height: number): void;

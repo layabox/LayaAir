@@ -23,6 +23,7 @@ import { DirtyFlagType, TileLayerSortMode } from "./TileMapEnum";
 import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
 import { Event } from "../events/Event";
 import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
+import { Area2D } from "../display/Area2D";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -430,8 +431,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         const renderRect = TempRectange;
         let mat = this._globalTransfrom();
 
-        let scene = this.owner.scene;
-        let camera = scene?._curCamera;
+        let scene = this.owner._ownerArea;
+        let camera = (<Area2D>scene)?.mainCamera;
         let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);

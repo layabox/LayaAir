@@ -244,18 +244,18 @@ export class WebRender2DPass implements IRender2DPass {
       // 清理zOrder相关队列
 
       //if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-         for (let i = 0, len = lists.length; i < len; i++)
-            lists[i]?.reset();
+      for (let i = 0, len = lists.length; i < len; i++)
+         lists[i]?.reset();
 
-         this.updateRenderQueue(context);
-         for (let i = 0, len = lists.length; i < len; i++) {
-            let list = lists[i];
-            if (!list || !list.renderElements.length) continue;
-            this.enableBatch && list.batch();
-            context.drawRenderElementList(list.renderElements);
-         }
+      this.updateRenderQueue(context);
+      for (let i = 0, len = lists.length; i < len; i++) {
+         let list = lists[i];
+         if (!list || !list.renderElements.length) continue;
+         this.enableBatch && list.batch();
+         context.drawRenderElementList(list.renderElements);
+      }
 
-         this.repaint = false;
+      this.repaint = false;
       // } else {//这里应该是dirty判断
       //    for (let i = 0, len = lists.length; i < len; i++) {
       //       let list = lists[i];
