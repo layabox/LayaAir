@@ -1400,7 +1400,7 @@ export class Camera extends BaseCamera {
      * @param out  输出射线。
      */
     viewportPointToRay(point: Vector2, out: Ray): void {
-        _tempVector20.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
+        _tempVector20.setValue(point.x * ILaya.stage.clientScaleX * Config3D.pixelRatio, point.y * ILaya.stage.clientScaleY * Config3D.pixelRatio);
         this._rayViewport.x = this.viewport.x;
         this._rayViewport.y = this.viewport.y;
         this._rayViewport.width = this.viewport.width;
