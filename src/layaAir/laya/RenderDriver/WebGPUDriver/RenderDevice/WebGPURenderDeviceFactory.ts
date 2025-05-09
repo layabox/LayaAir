@@ -55,7 +55,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     }
     async createEngine(config: Config, canvas: any): Promise<void> {
         const gpuConfig = new WebGPUConfig();
-        gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
+        gpuConfig.alphaMode = "opaque";
         gpuConfig.colorSpace = "srgb"; //TODO 这里感觉会出问题
         switch (Config.powerPreference) {
             case "default":
