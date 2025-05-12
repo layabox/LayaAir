@@ -2,6 +2,7 @@ import { Mutable } from "../../../ILaya";
 import { VideoPlayer } from "../../../laya/media/VideoPlayer";
 import { URL } from "../../../laya/net/URL";
 import { PAL } from "../../../laya/platform/PlatformAdapters";
+import { Browser } from "../../../laya/utils/Browser";
 
 /**
  * @ignore
@@ -94,10 +95,15 @@ export class MgVideoPlayer extends VideoPlayer {
 
         let { x, y, width, height } = this.getNodeTransform();
 
-        this.video.x = x;
-        this.video.y = y;
-        this.video.width = width;
-        this.video.height = height;
+        if ((this.video as any).paintTo) { //douyin
+            (this.video as any).paintTo(Browser.mainCanvas.source, x, y, 0, 0, width, height);
+        }
+        else {
+            this.video.x = x;
+            this.video.y = y;
+            this.video.width = width;
+            this.video.height = height;
+        }
     }
 
     protected onDestroy(): void {

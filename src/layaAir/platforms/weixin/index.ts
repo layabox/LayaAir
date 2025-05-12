@@ -5,6 +5,8 @@ import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
+import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
+import { WxVideoTexture } from "./WxVideoTexture";
 
 PAL.preIntialize = function () {
     Browser.onMiniGame = true;
@@ -15,6 +17,9 @@ PAL.preIntialize = function () {
 
 PAL.postInitialize = function () {
     TextRenderConfig.supportImageData = Browser.systemVersion === "ios 10.1.1";
+
+    if (!Browser.onDevTools)
+        (<MgMediaAdapter>PAL.media).videoTextureClass = WxVideoTexture;
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     cacheManager.spaceLimit = 200 * 1024 * 1024;

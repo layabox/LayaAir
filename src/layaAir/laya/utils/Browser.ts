@@ -189,6 +189,12 @@ export class Browser {
     static onLayaRuntime: boolean;
 
     /**
+     * @en Indicates whether the current environment is running in a development tool.
+     * @zh 表示当前环境是否运行在开发工具中。
+     */
+    static onDevTools: boolean;
+
+    /**
      * @en The actual platform type, OnMobile and others are determined through UserAgent, which may be faked.
      * @zh 真实平台类型，onMobile等是通过UserAgent判断，可能具有欺骗性
      */

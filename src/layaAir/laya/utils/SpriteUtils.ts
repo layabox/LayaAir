@@ -7,13 +7,13 @@ import { PAL } from "../platform/PlatformAdapters";
 
 export class SpriteUtils {
     /**
-     * @private
      * @en Returns the smallest rectangular area object composed of two points on the stage coordinate system for the given display object Sprite.
      * @param sprite The display object Sprite.
      * @param x0 The X-axis coordinate of the first point.
      * @param y0 The Y-axis coordinate of the first point.
      * @param x1 The X-axis coordinate of the second point.
      * @param y1 The Y-axis coordinate of the second point.
+     * @param out The rectangle object to be returned. If not provided, a new rectangle object will be created.
      * @return The rectangle object Rectangle composed of the two points on the stage coordinate system.
      * @zh 根据传入的显示对象 Sprite 和此显示对象上的两个点，返回这两点在舞台坐标系上组成的最小矩形区域对象。
      * @param sprite 显示对象 Sprite。
@@ -21,31 +21,36 @@ export class SpriteUtils {
      * @param y0 点一的 Y 轴坐标。
      * @param x1 点二的 X 轴坐标。
      * @param y1 点二的 Y 轴坐标。
+     * @param out 返回的矩形对象。如果不提供，则创建一个新的矩形对象。
      * @return 两个点在舞台坐标系组成的矩形对象 Rectangle。
      */
-    static getGlobalRecByPoints(sprite: Sprite, x0: number, y0: number, x1: number, y1: number): Rectangle {
-        var newLTPoint: Point;
+    static getGlobalRecByPoints(sprite: Sprite, x0: number, y0: number, x1: number, y1: number, out?: Rectangle): Rectangle {
+        let newLTPoint: Point;
         newLTPoint = Point.create().setTo(x0, y0);
         newLTPoint = sprite.localToGlobal(newLTPoint);
-        var newRBPoint: Point;
+        let newRBPoint: Point;
         newRBPoint = Point.create().setTo(x1, y1);
         newRBPoint = sprite.localToGlobal(newRBPoint);
-        var rst: Rectangle = Rectangle._getWrapRec([newLTPoint.x, newLTPoint.y, newRBPoint.x, newRBPoint.y]);
+        let rst = Rectangle._getWrapRec([newLTPoint.x, newLTPoint.y, newRBPoint.x, newRBPoint.y], out);
         newLTPoint.recover();
         newRBPoint.recover();
         return rst;
     }
 
     /**
-     * @en Calculates the global coordinates and scaling values of the specified Sprite display object, and returns a Rectangle object containing the calculated X and Y coordinates as well as the scaleX and scaleY values.
+     * @en Calculates the global coordinates and scaling values of the specified Sprite display object, and returns a object containing the calculated X and Y coordinates as well as the scaleX and scaleY values.
      * @param sprite The Sprite object to calculate.
-     * @returns The Rectangle object with the calculated values.
-     * @zh 计算传入的显示对象 Sprite 在全局坐标系中的坐标和缩放值，返回一个 Rectangle 对象，存放计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值。
+     * @returns The object with the calculated values.
+     * @zh 计算传入的显示对象 Sprite 在全局坐标系中的坐标和缩放值，返回一个对象，存放计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值。
      * @param sprite Sprite 对象。
-     * @return  矩形对象 Rectangle。
+     * @return 包含计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值的对象。
      */
-    static getGlobalPosAndScale(sprite: Sprite): Rectangle {
-        return SpriteUtils.getGlobalRecByPoints(sprite, 0, 0, 1, 1);
+    static getGlobalPosAndScale(sprite: Sprite): { x: number, y: number, scaleX: number, scaleY: number } {
+        let tmpRect = Rectangle.create();
+        SpriteUtils.getGlobalRecByPoints(sprite, 0, 0, 1, 1, tmpRect);
+        let ret = { x: tmpRect.x, y: tmpRect.y, scaleX: tmpRect.width, scaleY: tmpRect.height };
+        tmpRect.recover();
+        return ret;
     }
 
     /**
@@ -64,9 +69,11 @@ export class SpriteUtils {
         let stage = ILaya.stage;
 
         // coordinateSpace的全局缩放、坐标
-        let globalTransform: Rectangle = SpriteUtils.getGlobalPosAndScale(coordinateSpace);
+        let globalTransform = SpriteUtils.getGlobalPosAndScale(coordinateSpace);
+
         // canvas的transform矩阵
-        let canvasMatrix: Matrix = stage._canvasTransform.clone();
+        let canvasMatrix = Matrix.create();
+        stage._canvasTransform.copyTo(canvasMatrix);
         // 在矩阵变化前前记录的canvas的坐标
         let canvasLeft: number = canvasMatrix.tx;
         let canvasTop: number = canvasMatrix.ty;
@@ -124,14 +131,21 @@ export class SpriteUtils {
         // 组合画布缩放和舞台适配缩放以及显示对象缩放，得到DOM原因的缩放因子
         let domScaleX: number, domScaleY: number;
         if (perpendicular) {
-            domScaleX = canvasMatrix.d * globalTransform.height;
-            domScaleY = canvasMatrix.a * globalTransform.width;
+            domScaleX = canvasMatrix.d * globalTransform.scaleY;
+            domScaleY = canvasMatrix.a * globalTransform.scaleX;
         } else {
-            domScaleX = canvasMatrix.a * globalTransform.width;
-            domScaleY = canvasMatrix.d * globalTransform.height;
+            domScaleX = canvasMatrix.a * globalTransform.scaleX;
+            domScaleY = canvasMatrix.d * globalTransform.scaleY;
         }
 
-        return { x: Math.round(tx), y: Math.round(ty), scaleX: Math.round(domScaleX * 100000) / 100000, scaleY: Math.round(domScaleY * 100000) / 100000 };
+        canvasMatrix.recover();
+
+        globalTransform.x = Math.round(tx);
+        globalTransform.y = Math.round(ty);
+        globalTransform.scaleX = Math.round(domScaleX * 100000) / 100000;
+        globalTransform.scaleY = Math.round(domScaleY * 100000) / 100000;
+
+        return globalTransform;
     }
 
     /**

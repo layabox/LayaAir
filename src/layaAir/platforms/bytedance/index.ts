@@ -6,6 +6,8 @@ import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
+import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
+import { TtVideoTexture } from "./TtVideoTexture";
 
 PAL.preIntialize = function () {
     Browser.onTTMiniGame = true;
@@ -17,6 +19,9 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
     TextRenderConfig.supportImageData = Browser.systemVersion === "ios 10.1.1";
+
+    if (!Browser.onDevTools)
+        (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

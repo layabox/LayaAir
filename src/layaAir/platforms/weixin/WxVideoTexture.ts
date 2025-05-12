@@ -1,10 +1,10 @@
-import { LayaGL } from "../../../laya/layagl/LayaGL";
-import { VideoTexture } from "../../../laya/media/VideoTexture";
-import { URL } from "../../../laya/net/URL";
-import { PAL } from "../../../laya/platform/PlatformAdapters";
-import { Browser } from "../../../laya/utils/Browser";
+import { LayaGL } from "../../laya/layagl/LayaGL";
+import { VideoTexture } from "../../laya/media/VideoTexture";
+import { URL } from "../../laya/net/URL";
+import { PAL } from "../../laya/platform/PlatformAdapters";
+import { Browser } from "../../laya/utils/Browser";
 
-export class MgVideoTexture extends VideoTexture {
+export class WxVideoTexture extends VideoTexture {
     readonly decoder: WechatMinigame.VideoDecoder;
 
     private _currentTime: number;

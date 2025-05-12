@@ -36,7 +36,11 @@ export class MgDownloader extends Downloader {
 
         mg = PAL.global;
 
-        URL.postFormatURL = this.postFormatURL.bind(this);
+        let old = URL.postFormatURL;
+        URL.postFormatURL = url => {
+            url = this.escapeURL(url);
+            return old.call(this, url);
+        };
     }
 
     common(owner: any, url: string, originalUrl: string, contentType: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
@@ -166,7 +170,7 @@ export class MgDownloader extends Downloader {
             return url;
     }
 
-    private postFormatURL(url: string): string {
+    private escapeURL(url: string): string {
         if (!this.supportSubPackageMultiLevelFolders && this.subPackages) {
             for (let k in this.subPackages) {
                 if (url.startsWith(k)) {

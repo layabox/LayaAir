@@ -1,4 +1,3 @@
-import { Sprite } from "../../laya/display/Sprite";
 import { SoundChannel } from "../../laya/media/SoundChannel";
 import { VideoPlayer } from "../../laya/media/VideoPlayer";
 import { VideoTexture } from "../../laya/media/VideoTexture";
@@ -6,9 +5,9 @@ import { MediaAdapter } from "../../laya/platform/MediaAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { ClassUtils } from "../../laya/utils/ClassUtils";
 import { IPool, Pool } from "../../laya/utils/Pool";
-import { MgInnerAudioChannel } from "./media/MgInnerAudioChannel";
+import { MgInnerAudioChannel, MgWebAudioChannel } from "./media/MgInnerAudioChannel";
 import { MgVideoPlayer } from "./media/MgVideoPlayer";
-import { MgVideoTexture } from "./media/MgVideoTexture";
+import { WxVideoTexture } from "../weixin/WxVideoTexture";
 
 var mg: WechatMinigame.Wx;
 
@@ -16,49 +15,49 @@ export class MgMediaAdapter extends MediaAdapter {
     innerCtxPool: IPool<WechatMinigame.InnerAudioContext>;
     webAudioCtxPool: IPool<WechatMinigame.InnerAudioContext>;
     touchToStart: boolean = false;
-    supportWebAudio: boolean;
+
+    innerAudioClass: new (url: string) => SoundChannel;
+    webAudioClass: new (url: string) => SoundChannel;
+    videoTextureClass: new () => VideoTexture;
+    videoPlayerClass: new () => VideoPlayer;
 
     protected init() {
         mg = PAL.global;
         this.innerCtxPool = Pool.createPool2(() => this.createInnerAudioContext(), null, ctx => this.resetInnerAudioContext(ctx));
         this.webAudioCtxPool = Pool.createPool2(() => this.createInnerAudioContext(true), null, ctx => this.resetInnerAudioContext(ctx));
 
-        this.supportWebAudio = typeof (mg.createWebAudioContext) === "function";
+        this.innerAudioClass = MgInnerAudioChannel;
+        this.webAudioClass = mg.createWebAudioContext ? MgWebAudioChannel : MgInnerAudioChannel;
+
+        this.videoPlayerClass = mg.createVideo ? MgVideoPlayer : VideoPlayer;
+        this.videoTextureClass = mg.createVideoDecoder ? WxVideoTexture : VideoTexture;
     }
 
     createSoundChannel(url: string, useWebAudioImplement: boolean): SoundChannel {
         let channel: SoundChannel;
-        if (this.supportWebAudio && useWebAudioImplement)
-            channel = new MgInnerAudioChannel(url, true);
+        if (useWebAudioImplement)
+            channel = new this.webAudioClass(url);
         else
-            channel = new MgInnerAudioChannel(url);
+            channel = new this.innerAudioClass(url);
         return channel;
     }
 
     private _warned: boolean = false;
     createVideoTexture(): VideoTexture {
-        if (mg.createVideoDecoder)
-            return new MgVideoTexture();
-        else {
-            if (!this._warned) {
-                console.warn("VideoTexture is not supported in this platform.");
-                this._warned = true;
-            }
-            return new VideoTexture();
+        if (this.videoTextureClass === VideoTexture && !this._warned) {
+            console.warn("VideoTexture is not supported in this platform.");
+            this._warned = true;
         }
+        return new this.videoTextureClass();
     }
 
     private _warned2: boolean = false;
     createVideoPlayer(): VideoPlayer {
-        if (mg.createVideo)
-            return new MgVideoPlayer();
-        else {
-            if (!this._warned2) {
-                console.warn("VideoPlayer is not supported in this platform.");
-                this._warned2 = true;
-            }
-            return new VideoPlayer();
+        if (this.videoPlayerClass === VideoPlayer && !this._warned2) {
+            console.warn("VideoPlayer is not supported in this platform.");
+            this._warned2 = true;
         }
+        return new this.videoPlayerClass();
     }
 
     private createInnerAudioContext(useWebAudioImplement?: boolean): WechatMinigame.InnerAudioContext {

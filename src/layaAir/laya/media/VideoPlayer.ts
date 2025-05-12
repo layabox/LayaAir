@@ -4,6 +4,7 @@ import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { PAL } from "../platform/PlatformAdapters";
 import { AssetDb } from "../resource/AssetDb";
+import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
 
 export interface IVideoPlayerOptions {
@@ -228,13 +229,23 @@ export class VideoPlayer {
 
     protected setLoaded() {
         this._loaded = true;
+        this.onTransformChanged();
 
         if (this._playing)
             this.onPlay();
     }
 
     protected getNodeTransform() {
-        let trans = SpriteUtils.getTransformRelativeToWindow(this._owner, 0, 0);
+        let trans: ReturnType<typeof SpriteUtils.getGlobalPosAndScale>;
+        if (Browser.onTTMiniGame) {
+            trans = SpriteUtils.getGlobalPosAndScale(this._owner);
+            trans.x *= ILaya.stage.clientScaleX;
+            trans.y *= ILaya.stage.clientScaleY;
+            trans.scaleX *= ILaya.stage.clientScaleX;
+            trans.scaleY *= ILaya.stage.clientScaleY;
+        }
+        else
+            trans = SpriteUtils.getTransformRelativeToWindow(this._owner, 0, 0);
         return { x: trans.x, y: trans.y, width: Math.round(this._owner.width * trans.scaleX), height: Math.round(this._owner.height * trans.scaleY) };
     }
 

@@ -32,7 +32,7 @@ export class MgInnerAudioChannel extends SoundChannel {
     }
 
     private onLoaded(filePath: string): void {
-        if (!this._started)
+        if (!this._started || filePath == null)
             return;
 
         this._ctx = this._useWebAudioImplement ?
@@ -94,5 +94,11 @@ export class MgInnerAudioChannel extends SoundChannel {
             this._ctx.pause();
         else
             this._ctx.play();
+    }
+}
+
+export class MgWebAudioChannel extends MgInnerAudioChannel {
+    constructor(url: string) {
+        super(url, true);
     }
 }

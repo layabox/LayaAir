@@ -39,6 +39,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
         }
 
         platform = platform.toLowerCase();
+        Browser.onDevTools = platform === "devtools";
+
         if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo
             this._pixelRatio = window.devicePixelRatio;
         }
@@ -138,6 +140,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
         else
             ele = super.createElement(tagName);
         (!ele.style) && (ele.style = {});
+        if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
+            ele.style = {};
         return ele;
     }
 
