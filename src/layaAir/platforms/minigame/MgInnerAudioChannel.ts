@@ -1,17 +1,9 @@
-import { Laya } from "../../../Laya";
-import { SoundChannel } from "../../../laya/media/SoundChannel";
-import { PAL } from "../../../laya/platform/PlatformAdapters";
-import { MgMediaAdapter } from "../MgMediaAdapter";
+import { Laya } from "../../Laya";
+import { SoundChannel } from "../../laya/media/SoundChannel";
+import { PAL } from "../../laya/platform/PlatformAdapters";
 
 export class MgInnerAudioChannel extends SoundChannel {
     private _ctx: WechatMinigame.InnerAudioContext;
-    private _useWebAudioImplement: boolean;
-
-    constructor(url: string, useWebAudioImplement?: boolean) {
-        super(url);
-
-        this._useWebAudioImplement = useWebAudioImplement;
-    }
 
     get position(): number {
         if (this._ctx)
@@ -35,12 +27,8 @@ export class MgInnerAudioChannel extends SoundChannel {
         if (!this._started || filePath == null)
             return;
 
-        this._ctx = this._useWebAudioImplement ?
-            (<MgMediaAdapter>PAL.media).webAudioCtxPool.take() :
-            (<MgMediaAdapter>PAL.media).innerCtxPool.take();
-
         this._loaded = true;
-        let ctx = this._ctx;
+        let ctx = this._ctx = this.createContext();
         ctx.onError(result => {
             console.error("MgInnerAudioChannel: ", result);
             this.stop();
@@ -69,12 +57,7 @@ export class MgInnerAudioChannel extends SoundChannel {
     }
 
     protected onStop(): void {
-        this._ctx.pause();
-        if (this._useWebAudioImplement)
-            (<MgMediaAdapter>PAL.media).webAudioCtxPool.recover(this._ctx);
-        else
-            (<MgMediaAdapter>PAL.media).innerCtxPool.recover(this._ctx);
-        this._ctx = null;
+        this.releaseContext();
     }
 
     protected onPause(): void {
@@ -95,10 +78,23 @@ export class MgInnerAudioChannel extends SoundChannel {
         else
             this._ctx.play();
     }
+
+    protected createContext(): WechatMinigame.InnerAudioContext {
+        return (<WechatMinigame.Wx>PAL.global).createInnerAudioContext();
+    }
+
+    protected releaseContext(): void {
+        this._ctx.destroy();
+        this._ctx = null;
+    }
 }
 
 export class MgWebAudioChannel extends MgInnerAudioChannel {
     constructor(url: string) {
-        super(url, true);
+        super(url);
+    }
+
+    protected createContext(): WechatMinigame.InnerAudioContext {
+        return (<WechatMinigame.Wx>PAL.global).createInnerAudioContext({ useWebAudioImplement: true });
     }
 }

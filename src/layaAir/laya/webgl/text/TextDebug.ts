@@ -35,7 +35,7 @@ export class TextDebug {
     }
 
     static printRenderInfo(render: TextRender): void {
-        console.log('图集个数:' + render.textAtlases.length + ',每个图集大小:' + TextRenderConfig.atlasWidth + 'x' + TextRenderConfig.atlasWidth, ' 用canvas:', !TextRenderConfig.supportImageData);
+        console.log('图集个数:' + render.textAtlases.length + ',每个图集大小:' + TextRenderConfig.atlasWidth + 'x' + TextRenderConfig.atlasWidth, ' 用canvas:', !TextRenderConfig.useImageData);
         console.log('图集占用空间:' + (TextRenderConfig.atlasWidth * TextRenderConfig.atlasWidth * 4 / 1024 / 1024 * render.textAtlases.length) + 'M');
         console.log('缓存用到的字体:');
         for (var f in render.mapFont) {

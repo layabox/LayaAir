@@ -3,7 +3,6 @@ import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
-import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
 import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
@@ -18,7 +17,6 @@ PAL.preIntialize = function () {
 
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
-    TextRenderConfig.supportImageData = Browser.systemVersion === "ios 10.1.1";
 
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;

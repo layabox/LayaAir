@@ -1,8 +1,8 @@
-import { Mutable } from "../../../ILaya";
-import { VideoPlayer } from "../../../laya/media/VideoPlayer";
-import { URL } from "../../../laya/net/URL";
-import { PAL } from "../../../laya/platform/PlatformAdapters";
-import { Browser } from "../../../laya/utils/Browser";
+import { Mutable } from "../../ILaya";
+import { VideoPlayer } from "../../laya/media/VideoPlayer";
+import { URL } from "../../laya/net/URL";
+import { PAL } from "../../laya/platform/PlatformAdapters";
+import { Browser } from "../../laya/utils/Browser";
 
 /**
  * @ignore

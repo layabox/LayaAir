@@ -4,13 +4,14 @@ import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
 import { ClassUtils } from "../../laya/utils/ClassUtils";
+import { Utils } from "../../laya/utils/Utils";
+import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 
 var mg: WechatMinigame.Wx;
 
 export class MgBrowserAdapter extends BrowserAdapter {
     private _windowWidth: number;
     private _windowHeight: number;
-    private _supportBufferURL: boolean;
     private _visible: boolean;
     private _orientation: OrientationType;
 
@@ -76,7 +77,17 @@ export class MgBrowserAdapter extends BrowserAdapter {
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
-        this._supportBufferURL = typeof (mg.createBufferURL) === "function" && typeof (mg.revokeBufferURL) === "function";
+        /*
+         这个是原来的isWan1Wan标志的逻辑
+         1. 微信下玩一玩平台，不支持imagedata,所以是黑屏的，设置这个标志，采用canvas模式
+         2. 其他平台也遇到这种问题，wan1wan标志就不再专指玩一玩了
+         3. 微信支持imagedata了，关闭这个标记
+         4. 发现虽然支持，但是有的手机会有文字黑边无法解决，再次打开
+        */
+        TextRenderConfig.useImageData = false;
+        //这里还有个对特定ios版本允许使用imageData的判断，已不清楚为什么
+        if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
+            TextRenderConfig.useImageData = true;
 
         this._visible = true;
         mg.onShow(() => {
@@ -130,7 +141,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     createMainCanvas(): HTMLCanvasElement {
-        return (window as any).canvas || (window as any).__canvas;
+        if (Browser.onTBMiniGame) {
+            return (window as any).screencanvas //taobao mini
+                || (window as any).canvas.getRealCanvas(); //taobao app/plugin
+        }
+        else
+            return (window as any).canvas || (window as any).__canvas; //vivo/oppo
     }
 
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
@@ -165,7 +181,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     get supportArrayBufferURL(): boolean {
-        return this._supportBufferURL;
+        return mg.createBufferURL != null && mg.revokeBufferURL != null;
     }
 
     createBufferURL(data: ArrayBuffer): string {

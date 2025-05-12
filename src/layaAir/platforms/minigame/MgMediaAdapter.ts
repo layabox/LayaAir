@@ -4,16 +4,13 @@ import { VideoTexture } from "../../laya/media/VideoTexture";
 import { MediaAdapter } from "../../laya/platform/MediaAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { ClassUtils } from "../../laya/utils/ClassUtils";
-import { IPool, Pool } from "../../laya/utils/Pool";
-import { MgInnerAudioChannel, MgWebAudioChannel } from "./media/MgInnerAudioChannel";
-import { MgVideoPlayer } from "./media/MgVideoPlayer";
+import { MgInnerAudioChannel, MgWebAudioChannel } from "./MgInnerAudioChannel";
+import { MgVideoPlayer } from "./MgVideoPlayer";
 import { WxVideoTexture } from "../weixin/WxVideoTexture";
 
 var mg: WechatMinigame.Wx;
 
 export class MgMediaAdapter extends MediaAdapter {
-    innerCtxPool: IPool<WechatMinigame.InnerAudioContext>;
-    webAudioCtxPool: IPool<WechatMinigame.InnerAudioContext>;
     touchToStart: boolean = false;
 
     innerAudioClass: new (url: string) => SoundChannel;
@@ -23,8 +20,6 @@ export class MgMediaAdapter extends MediaAdapter {
 
     protected init() {
         mg = PAL.global;
-        this.innerCtxPool = Pool.createPool2(() => this.createInnerAudioContext(), null, ctx => this.resetInnerAudioContext(ctx));
-        this.webAudioCtxPool = Pool.createPool2(() => this.createInnerAudioContext(true), null, ctx => this.resetInnerAudioContext(ctx));
 
         this.innerAudioClass = MgInnerAudioChannel;
         this.webAudioClass = mg.createWebAudioContext ? MgWebAudioChannel : MgInnerAudioChannel;
@@ -58,16 +53,6 @@ export class MgMediaAdapter extends MediaAdapter {
             this._warned2 = true;
         }
         return new this.videoPlayerClass();
-    }
-
-    private createInnerAudioContext(useWebAudioImplement?: boolean): WechatMinigame.InnerAudioContext {
-        return mg.createInnerAudioContext({ useWebAudioImplement });
-    }
-
-    private resetInnerAudioContext(ctx: WechatMinigame.InnerAudioContext) {
-        ctx.offError();
-        ctx.offEnded();
-        ctx.offCanplay();
     }
 }
 

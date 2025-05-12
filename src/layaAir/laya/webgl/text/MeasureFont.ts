@@ -16,7 +16,7 @@ export class MeasureFont {
     getFontSizeInfo(font: string, size: number): number {
         let fontstr = 'bold ' + size + 'px ' + font;
 
-        if (!TextRenderConfig.supportImageData) {
+        if (!TextRenderConfig.useImageData) {
             // 这时候无法获得imagedata，只能采取保险测量
             let fontSizeW = this.charRender.getWidth(fontstr, '有') * 1.5;
             let fontSizeH = size * 1.5;

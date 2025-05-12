@@ -357,7 +357,7 @@ export class TextRender extends EventDispatcher {
             charRender.fontsz = font._size;
             let tex: TextTexture;
             let imgdt: ImageData | HTMLCanvasElement;
-            if (TextRenderConfig.supportImageData)
+            if (TextRenderConfig.useImageData)
                 imgdt = charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin);
             else
                 imgdt = charRender.getCharCanvas(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin);
@@ -391,7 +391,7 @@ export class TextRender extends EventDispatcher {
             }
             this.charRender.fontsz = font._size;
             let imgdt: ImageData | HTMLCanvasElement;
-            if (TextRenderConfig.supportImageData)
+            if (TextRenderConfig.useImageData)
                 imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
                     margin, margin, margin, margin, imgdtRect);
             else
@@ -409,7 +409,7 @@ export class TextRender extends EventDispatcher {
                 atlas = this.findAtlas(imgdt.width, imgdt.height);
                 atlas.texture.addChar(imgdt, tmpAtlasPos.x, tmpAtlasPos.y, ri.uv);
                 ri.texture = atlas.texture;
-                if (!TextRenderConfig.supportImageData) {
+                if (!TextRenderConfig.useImageData) {
                     // 这时候 imgdtRect 是不好使的，要自己设置
                     ri.orix = margin;	// 不要乘缩放。要不后面也要除。
                     ri.oriy = margin;

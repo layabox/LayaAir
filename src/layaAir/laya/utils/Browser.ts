@@ -105,10 +105,15 @@ export class Browser {
     static onPC: boolean;
 
     /**
+     * @deprecated
+     */
+    static onMiniGame: boolean;
+
+    /**
      * @en Indicates whether the current environment is a WeChat mini-game.
      * @zh 表示当前环境是否是微信小游戏。
      */
-    static onMiniGame: boolean;
+    static onWXMiniGame: boolean;
 
     /**
      * @en Indicates whether the current environment is a Baidu mini-game.
@@ -430,11 +435,10 @@ export class Browser {
      * @return 参数的值。
      */
     static getQueryString(name: string): string {
-        if (Browser.onMiniGame) return null;
         if (!window.location || !window.location.search)
             return null;
-        var reg: RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-        var r: any = window.location.search.substring(1).match(reg);
+        let reg: RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        let r: any = window.location.search.substring(1).match(reg);
         if (r != null) return unescape(r[2]);
         return null;
     }

@@ -76,7 +76,7 @@ export class CharRender_Canvas {
      * @override
      */
     scale(sx: number, sy: number): void {
-        if (!TextRenderConfig.supportImageData) { // supportImageData==false表示用 getCharCanvas，这个自己管理缩放
+        if (!TextRenderConfig.useImageData) { // useImageData==false表示用 getCharCanvas，这个自己管理缩放
             this.lastScaleX = sx;
             this.lastScaleY = sy;
             return;

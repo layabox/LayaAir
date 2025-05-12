@@ -82,6 +82,7 @@ export class Laya {
     private static _inited = false;
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
+    private static _beforeInitCallbacks2: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
     private static _readyCallbacks: Array<() => void | Promise<void>> = [];
 
@@ -147,6 +148,9 @@ export class Laya {
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
         steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
+
+        Laya._beforeInitCallbacks2.forEach(func => steps.push(() => func(stageConfig)));
+
         steps.push(() => Laya.initRender2D(stageConfig));
 
         let laya3D = <typeof Laya3D>(<any>window)["Laya3D"];
@@ -259,14 +263,23 @@ export class Laya {
     }
 
     /**
-     * @en Execute custom logic before engine initialization. At this time, the Stage has not been created yet, so you can modify stageConfig to implement dynamic stage configuration. All registered callbacks are executed in the order of registration.
+     * @en Execute custom logic before engine initialization. 
+     * 
+     * At this time, the Stage has not been created yet, so you can modify stageConfig to implement dynamic stage configuration. All registered callbacks are executed in the order of registration.
      * @param callback The initialization function of the module.
+     * @param dependRenderDevice Whether the callback depends on the render device. If true, it will be executed after the render device is created.
      * @zh 在引擎初始化前执行自定义逻辑。
+     * 
+     * 
      * 此时 Stage 尚未创建，可以修改 stageConfig 实现动态舞台配置。所有注册的回调按注册顺序依次执行。
      * @param callback 模块的初始化函数。
+     * @param dependRenderDevice 回调是否依赖渲染设备，如果为true，则在渲染设备创建后执行。
      */
-    static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
-        Laya._beforeInitCallbacks.push(callback);
+    static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>, dependRenderDevice?: boolean): void {
+        if (dependRenderDevice)
+            Laya._beforeInitCallbacks2.push(callback);
+        else
+            Laya._beforeInitCallbacks.push(callback);
     }
 
     /**

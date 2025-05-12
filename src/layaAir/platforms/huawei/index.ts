@@ -7,7 +7,7 @@ import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
 
 PAL.preIntialize = function () {
-    Browser.onMiniGame = true;
+    Browser.onHWMiniGame = true;
     PAL.global = (window as any).hbs;
 };
 

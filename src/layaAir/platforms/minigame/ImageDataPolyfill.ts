@@ -1,7 +1,7 @@
 import { Browser } from "../../laya/utils/Browser";
 
 /** @internal */
-export function ImageDataPolyfill() {
+function ImageDataPolyfill() {
     let width, height, data: Uint8ClampedArray;
     if (arguments.length == 3) {
         if (arguments[0] instanceof Uint8ClampedArray) {

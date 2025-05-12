@@ -19,5 +19,5 @@ export class TextRenderConfig {
     static debugUV = false; // 文字纹理需要保护边。当像素没有对齐的时候，可能会采样到旁边的贴图。true则填充texture为白色，模拟干扰
     static simClean = false; // 测试用。强制清理占用低的图集
     static debugCharCanvas = false;
-    static supportImageData = true;
+    static useImageData = true;
 }

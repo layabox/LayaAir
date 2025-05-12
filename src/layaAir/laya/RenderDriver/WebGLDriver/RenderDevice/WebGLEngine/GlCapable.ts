@@ -158,4 +158,9 @@ export class GlCapable {
     getExtension(type: WebGLExtension): any {
         return this._extensionMap.get(type) || null;
     }
+
+    turnOffSRGB(): void {
+        this._extensionMap.set(WebGLExtension.EXT_sRGB, null);
+        this._capabilityMap.set(RenderCapable.Texture_SRGB, false);
+    }
 }
