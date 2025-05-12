@@ -15,12 +15,12 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
+    WasmAdapter.setNativeProvider(window.WebAssembly);
+
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
     downloader.supportSubPackageMultiLevelFolders = false;
-
-    WasmAdapter.setNativeProvider(window.WebAssembly);
 
     return cacheManager.start();
 };

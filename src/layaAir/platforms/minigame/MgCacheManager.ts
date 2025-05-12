@@ -25,7 +25,7 @@ export class MgCacheManager {
      * @en Maximum capacity of cache directory
      * @zh 缓存目录的最大容量
      */
-    spaceLimit: number = (50 * 1024 * 1024);
+    spaceLimit: number = (200 * 1024 * 1024);
     /**
      * @en The interval time for processing cache requests, in milliseconds
      * @zh 处理缓存请求的间隔时间，单位是毫秒

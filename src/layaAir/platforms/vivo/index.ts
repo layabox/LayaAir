@@ -15,14 +15,12 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
+    WasmAdapter.setNativeProvider(window.WebAssembly);
+
     let cacheManager = new MgCacheManager("internal://files/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
     downloader.supportSubPackageMultiLevelFolders = false;
-    //vivo下载接口是download而不是downloadFile, 这里为了通用定义成downloadFile
-    PAL.global.downloadFile = PAL.global.download;
-
-    WasmAdapter.setNativeProvider(window.WebAssembly);
 
     return cacheManager.start();
 };

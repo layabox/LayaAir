@@ -19,14 +19,12 @@ PAL.postInitialize = function () {
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = WxVideoTexture;
 
-    let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
-    cacheManager.spaceLimit = 200 * 1024 * 1024;
+    WasmAdapter.setNativeProvider(window.WXWebAssembly);
 
+    let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
     downloader.escapeZhCharsInURL = false;
-
-    WasmAdapter.setNativeProvider(window.WXWebAssembly);
 
     return cacheManager.start();
 };

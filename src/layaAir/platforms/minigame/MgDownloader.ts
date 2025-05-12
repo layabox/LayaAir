@@ -3,6 +3,7 @@ import { ProgressCallback } from "../../laya/net/BatchProgress";
 import { DownloadCompleteCallback, Downloader } from "../../laya/net/Downloader";
 import { URL } from "../../laya/net/URL";
 import { PAL } from "../../laya/platform/PlatformAdapters";
+import { Browser } from "../../laya/utils/Browser";
 import { MgCacheManager } from "./MgCacheManager";
 
 var mg: WechatMinigame.Wx;
@@ -29,12 +30,16 @@ export class MgDownloader extends Downloader {
      */
     supportSubPackageMultiLevelFolders: boolean = true;
 
+    private downloadFileFunction: typeof wx.downloadFile;
+
     private subPackages: Record<string, string>;
 
     constructor() {
         super();
 
         mg = PAL.global;
+        //vivo下载接口是download而不是downloadFile
+        this.downloadFileFunction = Browser.onVVMiniGame ? PAL.global.download : mg.downloadFile;
 
         let old = URL.postFormatURL;
         URL.postFormatURL = url => {
@@ -124,7 +129,7 @@ export class MgDownloader extends Downloader {
     }
 
     private downloadFile(url: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
-        let task = mg.downloadFile({
+        let task = this.downloadFileFunction({
             url,
             success: (res) => {
                 if (res.statusCode === 200) {

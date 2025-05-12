@@ -20,10 +20,6 @@ PAL.postInitialize = function () {
     // 淘宝的webgl2支持不完善，淘宝推荐使用webgl1.0
     Config.useWebGL2 = false;
 
-    let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
-    let downloader = Loader.downloader = new MgDownloader();
-    downloader.cacheManager = cacheManager;
-
     Laya.addBeforeInitCallback(() => {
         // srgb问题
         (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
@@ -35,6 +31,10 @@ PAL.postInitialize = function () {
         }
 
     }, true);
+
+    let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
+    let downloader = Loader.downloader = new MgDownloader();
+    downloader.cacheManager = cacheManager;
 
     return cacheManager.start();
 };

@@ -21,12 +21,11 @@ PAL.postInitialize = function () {
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
 
+    WasmAdapter.setNativeProvider((window as any).TTWebAssembly);
+
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
-
-    if (!Browser.onDevTools)
-        WasmAdapter.setNativeProvider((window as any).TTWebAssembly);
 
     return cacheManager.start();
 };

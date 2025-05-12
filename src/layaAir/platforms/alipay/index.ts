@@ -17,16 +17,16 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
 
+    WasmAdapter.setNativeProvider((window as any).MYWebAssembly);
+
+    Laya.addBeforeInitCallback(() => {
+        // srgb问题
+        (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
+    }, true);
+
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
-
-    WasmAdapter.setNativeProvider((window as any).MYWebAssembly);
-
-    Laya.addInitCallback(() => {
-        // srgb问题
-        (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
-    });
 
     return cacheManager.start();
 };
