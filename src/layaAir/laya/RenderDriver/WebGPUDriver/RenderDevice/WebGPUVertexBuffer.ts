@@ -15,7 +15,14 @@ export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
 
     source: WebGPUBuffer;
 
-    instanceBuffer: boolean;
+    private _instanceBuffer: boolean;
+    public get instanceBuffer(): boolean {
+        return this._instanceBuffer;
+    }
+    public set instanceBuffer(value: boolean) {
+        this._instanceBuffer = value;
+        this._getCacheInfo();
+    }
 
     buffer: ArrayBuffer;
     //绑定信息
