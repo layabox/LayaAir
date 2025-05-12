@@ -15,7 +15,7 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
-    WasmAdapter.setNativeProvider(window.WebAssembly);
+    WasmAdapter.setInstantiateMethod(window.WebAssembly, "byBuffer");
 
     let cacheManager = new MgCacheManager("internal://files/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

@@ -1,5 +1,5 @@
+import { Laya } from "../../Laya";
 import { PAL } from "../platform/PlatformAdapters";
-import { Utils } from "./Utils";
 
 /**
  * @ignore
@@ -32,10 +32,8 @@ export class WasmAdapter {
             moduleArg["locateFile"] = function (path: string, scriptDirectory: string) {
                 if (WasmAdapter.locateFile != null)
                     wasmFile = WasmAdapter.locateFile(path, scriptDirectory, webDir);
-                else if (scriptDirectory)
-                    wasmFile = scriptDirectory + path;
                 else
-                    wasmFile = webDir + "libs/" + Utils.getBaseName(path);
+                    wasmFile = scriptDirectory + path;
                 return wasmFile;
             }
 
@@ -43,23 +41,45 @@ export class WasmAdapter {
         };
     }
 
-    static setNativeProvider(provider: any) {
-        let isStandard = window.WebAssembly != null && provider == window.WebAssembly;
-        if (provider && !isStandard) {
-            (window as any).WebAssembly = {};
+    static setInstantiateMethod(provider: typeof WebAssembly, method: "byUrl" | "byBuffer" | "byBufferSync") {
+        if (provider) {
+            if (!window.WebAssembly)
+                (window as any).WebAssembly = {};
             WasmAdapter.Memory = provider.Memory;
         }
+
+        let shouldInit = PAL.global.setWasmTaskCompile != null; //oppo
+
         WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
             if (!provider)
                 throw new Error("WASM is not supported");
 
-            if (isStandard) {
-                if (PAL.global.setWasmTaskCompile)
-                    PAL.global.setWasmTaskCompile(true); //oppo
-                return PAL.fs.readFile("libs/" + wasmFile, "arraybuffer").then(data => window.WebAssembly.instantiate(data, imports));
+            if (shouldInit) {
+                shouldInit = false;
+                PAL.global.setWasmTaskCompile(true); //oppo
             }
-            else
+
+            if (method === "byUrl") {
                 return provider.instantiate("libs/" + wasmFile, imports);
+            }
+            else {
+                return Laya.loader.fetch("libs/" + wasmFile, "arraybuffer").then(data => {
+                    if (!data) {
+                        console.error("WASM file not found: " + wasmFile);
+                        return null;
+                    }
+
+                    if (method === "byBuffer")
+                        return provider.instantiate(data, imports);
+                    else {
+                        let module = new window.WebAssembly.Module(data);
+                        let instance = new window.WebAssembly.Instance(module, imports);
+                        let ret: any = {};
+                        ret["instance"] = instance;
+                        return ret;
+                    }
+                });
+            }
         };
     }
 }

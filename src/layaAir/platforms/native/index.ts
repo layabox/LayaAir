@@ -3,6 +3,7 @@ import { Browser } from "../../laya/utils/Browser";
 import { Config } from "../../Config";
 import { Render } from "../../laya/renders/Render";
 import { Laya } from "../../Laya";
+import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 
 PAL.preIntialize = function () {
     Browser.onLayaRuntime = true;
@@ -12,6 +13,8 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
+
+    WasmAdapter.setInstantiateMethod(window.WebAssembly, "byBufferSync");
 
     Laya.addAfterInitCallback(() => {
         Laya.timer.frameOnce(2, null, gc);

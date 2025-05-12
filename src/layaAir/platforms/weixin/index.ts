@@ -19,7 +19,7 @@ PAL.postInitialize = function () {
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = WxVideoTexture;
 
-    WasmAdapter.setNativeProvider(window.WXWebAssembly);
+    WasmAdapter.setInstantiateMethod(<any>window.WXWebAssembly, "byUrl");
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

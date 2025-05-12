@@ -21,7 +21,7 @@ PAL.postInitialize = function () {
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
 
-    WasmAdapter.setNativeProvider((window as any).TTWebAssembly);
+    WasmAdapter.setInstantiateMethod((window as any).TTWebAssembly, "byUrl");
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

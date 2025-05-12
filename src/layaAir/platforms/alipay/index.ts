@@ -17,7 +17,7 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
 
-    WasmAdapter.setNativeProvider((window as any).MYWebAssembly);
+    WasmAdapter.setInstantiateMethod((window as any).MYWebAssembly, "byUrl");
 
     Laya.addBeforeInitCallback(() => {
         // srgb问题
