@@ -1187,6 +1187,7 @@ export class SubStructRender {
         subStruct.renderDataHandler = this._handle;
         subStruct.renderElements = [this._submit._renderElement];
         this._handle.mask = sprite.mask?._struct;
+        this._submit._renderElement.owner = this._subStruct;
     }
 
     updateQuat() {

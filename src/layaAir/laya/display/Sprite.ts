@@ -866,6 +866,7 @@ export class Sprite extends Node {
             value._getCacheStyle().maskParent = this;
             value.setSubRenderPassState(true);//手动render
             value._subRenderPass.isSupport = true;
+            value._subRenderPass.doClearColor = false;
             // value.createSubRenderPass();
 
             this._renderType |= SpriteConst.MASK;

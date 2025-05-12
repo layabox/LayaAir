@@ -54,6 +54,7 @@ export abstract class SpineNormalRenderBase {
         }
         let vmesh = this.vmeshs[this.nextBatchIndex];
         spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
+        vmesh.element.owner = spineRenderNode.owner._struct;
         vmesh.material = material;
         return vmesh;
     }

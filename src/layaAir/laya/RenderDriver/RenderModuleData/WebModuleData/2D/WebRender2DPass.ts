@@ -87,6 +87,10 @@ export class WebRender2DPass implements IRender2DPass {
 
    _clearColor = new Color;
 
+   doClearColor:boolean = true;
+
+   finalize: CommandBuffer2D = null;
+
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
    public get enableBatch(): boolean {
@@ -258,7 +262,7 @@ export class WebRender2DPass implements IRender2DPass {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
-         context.setRenderTarget(rt._renderTarget, true, this._clearColor);
+         context.setRenderTarget(rt._renderTarget, this.doClearColor, this._clearColor);
          sizeX = rt.width;
          sizeY = rt.height;
          this._updateInvertMatrix();
@@ -270,8 +274,8 @@ export class WebRender2DPass implements IRender2DPass {
          sizeY = RenderState2D.height;
          context.setOffscreenView(sizeX, sizeY);
 
-         context.setRenderTarget(null, true, this._clearColor);
-
+         
+		 context.setRenderTarget(null, this.doClearColor, this._clearColor);
 
          this._setInvertMatrix(1, 0, 0, 1, 0, 0);
          this.shaderData.removeDefine(ShaderDefines2D.RENDERTEXTURE);

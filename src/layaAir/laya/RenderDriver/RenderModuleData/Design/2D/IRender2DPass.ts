@@ -10,6 +10,7 @@ export interface IRender2DPass {
    enableBatch: boolean;
    isSupport: boolean;
    root: IRenderStruct2D;
+   doClearColor:boolean;
    
    postProcess: PostProcess2D;
    repaint: boolean;

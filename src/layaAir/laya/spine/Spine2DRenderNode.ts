@@ -876,6 +876,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                         element.subShader = material._shader.getSubShaderAt(0);
                         element.value2DShaderData = this.owner.shaderData;
                         element.nodeCommonMap = this._getcommonUniformMap();
+                        element.owner = this.owner._struct;
                     } else {
                         Spine2DRenderNode.recoverRenderElement2D(element);
                     }
