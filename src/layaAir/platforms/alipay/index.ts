@@ -3,8 +3,7 @@ import { Laya } from "../../Laya";
 import { LayaGL } from "../../laya/layagl/LayaGL";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { WebGLExtension } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLExtension";
-import { RenderCapable } from "../../laya/RenderEngine/RenderEnum/RenderCapable";
+import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { Browser } from "../../laya/utils/Browser";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { MgCacheManager } from "../minigame/MgCacheManager";
@@ -22,24 +21,11 @@ PAL.postInitialize = function () {
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
 
-    const MYWebAssembly = (window as any).MYWebAssembly;
-    if (MYWebAssembly) {
-        (window as any).WebAssembly = {};
-        WasmAdapter.Memory = MYWebAssembly.Memory;
-    }
-    WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-        if (!MYWebAssembly)
-            throw new Error("==== 不支持wasm加载 ====");
-
-        return MYWebAssembly.instantiate("libs/" + wasmFile, imports);
-    };
+    WasmAdapter.setNativeProvider((window as any).MYWebAssembly);
 
     Laya.addInitCallback(() => {
-        // 支付宝安卓端sRGB扩展格式支持有问题全部关掉
-        //@ts-ignore
-        LayaGL.renderEngine._supportCapatable._extensionMap.set(WebGLExtension.EXT_sRGB, null);
-        //@ts-ignore
-        LayaGL.renderEngine._supportCapatable._capabilityMap.set(RenderCapable.Texture_SRGB, false);
+        // srgb问题
+        (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
     });
 
     return cacheManager.start();

@@ -22,12 +22,7 @@ PAL.postInitialize = function () {
     //vivo下载接口是download而不是downloadFile, 这里为了通用定义成downloadFile
     PAL.global.downloadFile = PAL.global.download;
 
-    WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-        if (!window.WebAssembly)
-            throw new Error("==== 不支持wasm加载 ====");
-
-        return PAL.fs.readFile("libs/" + wasmFile, "arraybuffer").then(data => window.WebAssembly.instantiate(data, imports));
-    };
+    WasmAdapter.setNativeProvider(window.WebAssembly);
 
     return cacheManager.start();
 };

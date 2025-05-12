@@ -10,10 +10,10 @@ import { HTMLVideoTexture } from "../media/HTMLVideoTexture";
 import { ILaya, Mutable } from "../../ILaya";
 import { Event } from "../events/Event";
 import { VideoPlayer } from "../media/VideoPlayer";
-import { Sprite } from "../display/Sprite";
 import { Utils } from "../utils/Utils";
 import { URL } from "../net/URL";
 import { HTMLVideoPlayer } from "../media/HTMLVideoPlayer";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
@@ -35,6 +35,7 @@ export class MediaAdapter {
         this.elementPool = Pool.createPool2(() => this.createAudioElement(), null, ele => this.resetAudioElement(ele));
         this.gainNodePool = Pool.createPool2(() => this.createGainNode(), node => this.initGainNode(node), node => this.resetGainNode(node));
         this.suspendedMedias = new Set();
+        this.touchToStart = PAL.global == null; //一般需要点击允许播放的是web，在小游戏或者native上都不需要点击允许播放
 
         this.init();
     }

@@ -11,8 +11,6 @@ import { WxVideoTexture } from "../weixin/WxVideoTexture";
 var mg: WechatMinigame.Wx;
 
 export class MgMediaAdapter extends MediaAdapter {
-    touchToStart: boolean = false;
-
     innerAudioClass: new (url: string) => SoundChannel;
     webAudioClass: new (url: string) => SoundChannel;
     videoTextureClass: new () => VideoTexture;

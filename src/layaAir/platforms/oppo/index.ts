@@ -20,13 +20,7 @@ PAL.postInitialize = function () {
     downloader.cacheManager = cacheManager;
     downloader.supportSubPackageMultiLevelFolders = false;
 
-    PAL.global.setWasmTaskCompile(true);
-    WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-        if (!window.WebAssembly)
-            throw new Error("==== 不支持wasm加载 ====");
-
-        return PAL.fs.readFile("libs/" + wasmFile, "arraybuffer").then(data => window.WebAssembly.instantiate(data, imports));
-    };
+    WasmAdapter.setNativeProvider(window.WebAssembly);
 
     return cacheManager.start();
 };

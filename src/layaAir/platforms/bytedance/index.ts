@@ -25,19 +25,8 @@ PAL.postInitialize = function () {
     let downloader = Loader.downloader = new MgDownloader();
     downloader.cacheManager = cacheManager;
 
-    //抖音ide不支持wasm，并且存在TTWebAssembly，所以需要做下兼容
-    const TTWebAssembly = (window as any).TTWebAssembly;
-    if ((!(window.navigator.platform === "devtools")) && TTWebAssembly) {
-        (window as any).WebAssembly = {};
-        WasmAdapter.Memory = TTWebAssembly.Memory;
-    }
-
-    WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-        if (!TTWebAssembly)
-            throw new Error("==== 不支持wasm加载 ====");
-
-        return TTWebAssembly.instantiate("libs/" + wasmFile, imports);
-    };
+    if (!Browser.onDevTools)
+        WasmAdapter.setNativeProvider((window as any).TTWebAssembly);
 
     return cacheManager.start();
 };

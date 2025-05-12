@@ -26,16 +26,7 @@ PAL.postInitialize = function () {
     downloader.cacheManager = cacheManager;
     downloader.escapeZhCharsInURL = false;
 
-    if (window.WXWebAssembly) {
-        (window as any).WebAssembly = {};
-        WasmAdapter.Memory = window.WXWebAssembly.Memory;
-    }
-    WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-        if (!window.WXWebAssembly)
-            throw new Error("==== 不支持wasm加载 ====");
-
-        return window.WXWebAssembly.instantiate("libs/" + wasmFile, imports);
-    };
+    WasmAdapter.setNativeProvider(window.WXWebAssembly);
 
     return cacheManager.start();
 };
