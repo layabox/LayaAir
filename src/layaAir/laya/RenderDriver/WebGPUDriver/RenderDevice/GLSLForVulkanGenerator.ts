@@ -212,12 +212,12 @@ ${fragmentCode}
                         collect.set = uniform.set;
                     }
                     else if (key < checkSetNumber) {
-                        let samplerType: GPUTextureSampleType = "float";
+                        let samplerType: GPUTextureSampleType = uniform.texture.sampleType;
                         if (uniform.sampler?.type == "comparison") {
                             samplerType = "depth";
                         }
                         // 这里的 type 无意义
-                        collectionUniforms.set(name, { type: ShaderDataType.Texture2D, samplerType: samplerType, set: uniform.set });
+                        collectionUniforms.set(name, { type: ShaderDataType.Texture2D, set: uniform.set });
                     }
                 }
 
@@ -480,7 +480,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                             let textureName = uniform.name.replace("_Texture", "");
                             let collectUniform = collectUniforms.get(textureName);
                             if (collectUniform) {
-                                uniform.texture.sampleType = collectUniform.samplerType || uniform.texture.sampleType;
+                                uniform.texture.sampleType = uniform.texture.sampleType;
                                 uniform.texture.viewDimension = collectUniform.demision || uniform.texture.viewDimension;
                             }
 

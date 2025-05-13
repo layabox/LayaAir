@@ -237,8 +237,8 @@ export class WebGPUInternalTex implements InternalTexture {
             || this._webGPUFormat === WebGPUTextureFormat.depth32float) {
             if (layout.type !== 'non-filtering') {
                 layout.type = 'non-filtering';
-                this.filterMode = FilterMode.Point;
             }
+            this.filterMode = FilterMode.Point;
         }
         else {
             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);

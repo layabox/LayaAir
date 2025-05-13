@@ -6,6 +6,7 @@ import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Viewport } from "../../maths/Viewport";
 import { Scene3D } from "../core/scene/Scene3D";
+import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 
 /**
  * @en The `DepthPass` class is responsible for handling depth rendering and shadow mapping in a 3D scene.
@@ -24,7 +25,7 @@ export class DepthPass {
     /**@internal */
     static DEPTHZBUFFERPARAMS: number;
 
-    private _zBufferParams: Vector4;
+    private _zBufferParams: Vector4 = new Vector4();
 
     static __init__() {
         DepthPass.DEPTHPASS = Shader3D.getDefineByName("DEPTHPASS");
@@ -59,7 +60,15 @@ export class DepthPass {
         this._viewPort = camera.viewport;
         switch (depthType) {
             case DepthTextureMode.Depth:
-                camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, RenderTargetFormat.None, false, 1);
+                {
+                    if (camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture) {
+                        camera.depthTexture = this._depthTexture = camera._cacheDepthTexture;
+                        camera.depthTextureMode &= ~DepthTextureMode.Depth;
+                    }
+                    else {
+                        camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, RenderTargetFormat.None, false, 1);
+                    }
+                }
                 break;
             case DepthTextureMode.DepthNormals:
                 camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, RenderTargetFormat.R8G8B8A8, depthTextureFormat, false, 1);
@@ -87,6 +96,9 @@ export class DepthPass {
                 camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
                 camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
                 break;
+            case DepthTextureMode.DepthNormals:
+                camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this._depthNormalsTexture);
+                break;
             default:
                 throw ("there is UnDefined type of DepthTextureMode")
         }
@@ -97,11 +109,17 @@ export class DepthPass {
      * @en Clear the depth data.
      * @zh 清理深度数据
      */
-    cleanUp(): void {
+    cleanUp(camera: Camera): void {
         (this._depthTexture instanceof RenderTexture) && this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
         this._depthNormalsTexture && RenderTexture.recoverToPool(this._depthNormalsTexture);
         this._depthTexture = null;
         this._depthNormalsTexture = null;
+
+        camera.depthTexture = null;
+        camera.depthNormalTexture = null;
+
+        camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, null);
+        camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, null);
     }
 }
 

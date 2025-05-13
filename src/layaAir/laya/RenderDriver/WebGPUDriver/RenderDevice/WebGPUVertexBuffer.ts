@@ -21,7 +21,9 @@ export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
     }
     public set instanceBuffer(value: boolean) {
         this._instanceBuffer = value;
-        this._getCacheInfo();
+        if (this._vertexDeclaration) {
+            this._getCacheInfo();
+        }
     }
 
     buffer: ArrayBuffer;

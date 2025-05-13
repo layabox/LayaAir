@@ -74,7 +74,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         }
 
         const clearValue = renderRT._texture.gammaCorrection !== 1 ? camera.clearColor : camera._linearClearColor;
-        renderPass.camera = camera._renderDataModule;
+        renderPass.camera = camera;
 
         renderPass.destTarget = renderRT._renderTarget;
         renderPass.clearFlag = clearConst;
@@ -184,24 +184,15 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         if (camera.postProcess && camera.postProcess.enable)
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            const needDepthTex = camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture;
-            if (needDepthTex) {
-                camera.depthTexture = camera._cacheDepthTexture.depthStencilTexture; // @ts-ignore
-                Camera.depthPass._depthTexture = camera.depthTexture;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-                depthMode &= ~DepthTextureMode.Depth;
-            }
-            else {
-                Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this._renderPass.renderPass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-            }
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            this._renderPass.renderPass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            // Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
             this._renderPass.renderPass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
+            // Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, camera);
         }
         this._renderPass.renderPass.depthTextureMode = depthMode;
     }
@@ -280,13 +271,13 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
      * @param camera 
      */
     fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
+        Camera.depthPass.cleanUp(camera);
         WebGPUStatis.startFrame();
         this._initRenderPass(camera, context);
         this._renderDepth(camera);
         let renderList = this.render3DManager.baseRenderList.elements;
         let count = this.render3DManager.baseRenderList.length;
         this._renderForwardAddCameraPass(context, this._renderPass, renderList, count);
-        Camera.depthPass.cleanUp();
     }
 
     /**

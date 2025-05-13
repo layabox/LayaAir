@@ -5,15 +5,16 @@ import { CameraCullInfo } from "../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
-import { DepthTextureMode } from "../../resource/RenderTexture";
+import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
 import { IRenderContext3D, PipelineMode } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../DriverDesign/RenderDevice/InternalRenderTarget";
-import { ICameraNodeData } from "../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { RenderCullUtil } from "./RenderCullUtil";
 import { RenderPassUtil } from "./RenderPassUtil";
 import { RenderListQueue } from "./RenderListQueue";
 import { Viewport } from "../../maths/Viewport";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Texture2D } from "../../resource/Texture2D";
 
 /**
  * 前向渲染流程通用类
@@ -24,7 +25,7 @@ export class ForwardAddClusterRP {
     depthNormalPipelineMode: PipelineMode
     depthTarget: InternalRenderTarget;
     destTarget: InternalRenderTarget;
-    camera: ICameraNodeData;
+    camera: Camera;
     cameraCullInfo: CameraCullInfo;
     depthTextureMode: DepthTextureMode;
     depthNormalTarget: InternalRenderTarget;
@@ -41,6 +42,8 @@ export class ForwardAddClusterRP {
     protected _transparent: RenderListQueue;
     protected _zBufferParams: Vector4;
     protected _defaultNormalDepthColor: Color;
+
+    private _defaultDepthTex: RenderTexture;
 
     protected _viewPort: Viewport;
     setViewPort(value: Viewport) {
@@ -150,8 +153,15 @@ export class ForwardAddClusterRP {
      * 渲染深度流程
      * @param context 
      */
-    protected _renderDepthPass(context: IRenderContext3D,): void {
+    protected _renderDepthPass(context: IRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
+
+        if (!this._defaultDepthTex) {
+            this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
+        }
+
+        this.camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
+
         const viewport = this._viewPort;
         const shadervalue = context.sceneData;
         shadervalue.addDefine(DepthPass.DEPTHPASS);
@@ -164,11 +174,14 @@ export class ForwardAddClusterRP {
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
-        const far = this.camera.farplane;
-        const near = this.camera.nearplane;
+        const far = this.camera.farPlane;
+        const near = this.camera.nearPlane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         context.cameraData.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
         context.cameraData.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
+
+        Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this.camera);
+
         shadervalue.removeDefine(DepthPass.DEPTHPASS);
     }
 
@@ -178,6 +191,9 @@ export class ForwardAddClusterRP {
      */
     protected _renderDepthNormalPass(context: IRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
+
+        this.camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, Texture2D.blackTexture);
+
         //传入shader该传的值
         const viewport = this._viewPort;
         Viewport.TEMP.set(viewport.x, viewport.y, viewport.width, viewport.height);
@@ -187,6 +203,8 @@ export class ForwardAddClusterRP {
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this._opaqueList.renderQueue(context);
+
+        Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, this.camera);
     }
 
     /**
