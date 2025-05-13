@@ -52,6 +52,9 @@ export class MgCacheManager {
     }
 
     start(): Promise<void> {
+        //不用等他返回，因为不影响我们的逻辑
+        this.checkAndDeleteOldCacheDir();
+
         return Promise.resolve().then(() => {
             //建立缓存目录
             return Promise.all(this.cacheGroups.map((_, index) => {
@@ -81,20 +84,6 @@ export class MgCacheManager {
             console.log(`${this.fileCache.size} files ${this.totalFileSize} bytes in manifests`);
             console.timeEnd("read all manifests");
 
-            //如果存在旧的缓存目录，删除它
-            let oldCacheDir = this.cacheRoot.substring(0, this.cacheRoot.lastIndexOf("/")) + "/layaairGame";
-
-            return PAL.fs.exists(oldCacheDir).then(oldExists => {
-                if (oldExists) {
-                    console.log("delete old cache folder");
-                    return PAL.fs.rmdir(oldCacheDir, { recursive: true }).catch((err: WechatMinigame.FileError) => {
-                        console.warn("failed to delete old cache folder", `${err.errMsg}(${err.errCode})`);
-                    });
-                }
-                else
-                    return Promise.resolve();
-            });
-        }).then(() => {
             ILaya.systemTimer.loop(this.processInterval, this, this.process);
         });
     }
@@ -298,6 +287,22 @@ export class MgCacheManager {
             console.timeEnd(`save manifest-${group}`);
         }).catch(err => {
             console.error(`save manifest-${group}`, `${err.errMsg}(${err.errCode})`);
+        });
+    }
+
+    private checkAndDeleteOldCacheDir(): Promise<void> {
+        //如果存在旧的缓存目录，删除它
+        let oldCacheDir = this.cacheRoot.substring(0, this.cacheRoot.lastIndexOf("/")) + "/layaairGame";
+
+        return PAL.fs.exists(oldCacheDir).then(oldExists => {
+            if (oldExists) {
+                console.log("delete old cache folder");
+                return PAL.fs.rmdir(oldCacheDir, { recursive: true }).catch((err: WechatMinigame.FileError) => {
+                    console.warn("failed to delete old cache folder", `${err.errMsg}(${err.errCode})`);
+                });
+            }
+            else
+                return Promise.resolve();
         });
     }
 }

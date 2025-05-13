@@ -16,6 +16,7 @@ export class MgTextInputAdapter extends TextInputAdapter {
 
         mg.onKeyboardInput(this.onKeyboardInput.bind(this));
         mg.onKeyboardConfirm(this.onKeyboardConfirm.bind(this));
+        mg.onKeyboardComplete(this.onKeyboardComplete.bind(this));
     }
 
     setText(value: string): void {
@@ -23,6 +24,10 @@ export class MgTextInputAdapter extends TextInputAdapter {
     }
 
     protected onBegin(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    protected onCanShowKeyboard(): Promise<void> {
         let target = this.target;
         if (!target.editable)
             return Promise.resolve();
@@ -40,7 +45,10 @@ export class MgTextInputAdapter extends TextInputAdapter {
         });
     }
 
-    protected onEnd(target: Input): Promise<void> {
+    protected onEnd(target: Input, complete: boolean, switching: boolean): Promise<void> {
+        if (complete || switching) //如果是键盘自己收回，或者是切换输入框的情况，无需调用关闭键盘
+            return Promise.resolve();
+
         return new Promise<any>((resolve, reject) => {
             mg.hideKeyboard({ success: resolve, fail: reject });
         });
@@ -64,12 +72,17 @@ export class MgTextInputAdapter extends TextInputAdapter {
             }
         }
 
-        this.updateTargetText(str);
-        this.target.event(Event.INPUT);
+        if (this.updateTargetText(str))
+            this.target.event(Event.INPUT);
     }
 
     private onKeyboardConfirm(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        this.onKeyboardInput(ev);
         this.end();
+    }
+
+    private onKeyboardComplete(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        this.end(true);
     }
 }
 

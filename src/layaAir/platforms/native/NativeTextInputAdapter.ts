@@ -4,7 +4,6 @@ import { Event } from "../../laya/events/Event";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { TextInputAdapter } from "../../laya/platform/TextInputAdapter";
 import { ClassUtils } from "../../laya/utils/ClassUtils";
-import { SpriteUtils } from "../../laya/utils/SpriteUtils";
 
 var conch: WechatMinigame.Wx;
 
@@ -20,6 +19,7 @@ export class NativeTextInputAdapter extends TextInputAdapter {
         if (!this._editInline) {
             conch.onKeyboardInput(this.onKeyboardInput.bind(this));
             conch.onKeyboardConfirm(this.onKeyboardConfirm.bind(this));
+            conch.onKeyboardComplete(this.onKeyboardComplete.bind(this));
         }
     }
 
@@ -28,61 +28,68 @@ export class NativeTextInputAdapter extends TextInputAdapter {
     }
 
     protected onBegin(): Promise<void> {
+        if (!this._editInline)
+            return Promise.resolve();
+
+        this.showInputElement();
+
+        let ele = this._visEle;
         let target = this.target;
 
-        if (this._editInline) {
-            this.showInputElement();
+        (ele as any).setType(this.target.type);
+        (ele as any).setForbidEdit(!this.target.editable);
+        (ele as any).setMultiAble(target.multiline);
+        if (target.bgColor)
+            (ele as any).setBgColor(target.bgColor);
 
-            let ele = this._visEle;
-            let target = this.target;
+        ele.maxLength = target.maxChars <= 0 ? 1E5 : target.maxChars;
+        ele.value = target.text;
+        ele.placeholder = target.prompt;
 
-            (ele as any).setType(this.target.type);
-            (ele as any).setForbidEdit(!this.target.editable);
-            (ele as any).setMultiAble(target.multiline);
-            if (target.bgColor)
-                (ele as any).setBgColor(target.bgColor);
+        let style = ele.style;
+        style.fontFamily = target.realFont;
+        style.color = target.color;
+        style.fontSize = target.fontSize + 'px';
+        style.whiteSpace = (target.wordWrap ? "pre-wrap" : "nowrap");
+        style.lineHeight = (target.leading + target.fontSize) + "px";
+        style.fontStyle = (target.italic ? "italic" : "normal");
+        style.fontWeight = (target.bold ? "bold" : "normal");
+        style.textAlign = target.align;
+        style.padding = "0 0";
+        style.direction = Text.RightToLeft ? "rtl" : "";
 
-            ele.maxLength = target.maxChars <= 0 ? 1E5 : target.maxChars;
-            ele.value = target.text;
-            ele.placeholder = target.prompt;
+        this.setPromptColor();
+        this.syncTransform();
 
-            let style = ele.style;
-            style.fontFamily = target.realFont;
-            style.color = target.color;
-            style.fontSize = target.fontSize + 'px';
-            style.whiteSpace = (target.wordWrap ? "pre-wrap" : "nowrap");
-            style.lineHeight = (target.leading + target.fontSize) + "px";
-            style.fontStyle = (target.italic ? "italic" : "normal");
-            style.fontWeight = (target.bold ? "bold" : "normal");
-            style.textAlign = target.align;
-            style.padding = "0 0";
-            style.direction = Text.RightToLeft ? "rtl" : "";
-
-            this.setPromptColor();
-            this.syncTransform();
-
-            return Promise.resolve();
-        }
-        else {
-            if (!target.editable)
-                return Promise.resolve();
-
-            return new Promise<any>((resolve, reject) => {
-                conch.showKeyboard({
-                    defaultValue: target.text,
-                    maxLength: target.maxChars <= 0 ? 1E5 : target.maxChars,
-                    multiple: target.multiline,
-                    confirmHold: true,
-                    confirmType: target.confirmType,
-                    success: resolve,
-                    fail: reject
-                });
-            });
-        }
+        return Promise.resolve();
     }
 
-    protected onEnd(target: Input): Promise<void> {
+    protected onCanShowKeyboard(): Promise<void> {
+        if (this._editInline)
+            return super.onCanShowKeyboard();
+
+        let target = this.target;
+        if (!target.editable)
+            return Promise.resolve();
+
+        return new Promise<any>((resolve, reject) => {
+            conch.showKeyboard({
+                defaultValue: target.text,
+                maxLength: target.maxChars <= 0 ? 1E5 : target.maxChars,
+                multiple: target.multiline,
+                confirmHold: true,
+                confirmType: target.confirmType,
+                success: resolve,
+                fail: reject
+            });
+        });
+    }
+
+    protected onEnd(target: Input, complete: boolean, switching: boolean): Promise<void> {
         if (!this._editInline) {
+            if (complete || switching) //如果是键盘自己收回，或者是切换输入框的情况，无需调用关闭键盘
+                return Promise.resolve();
+
             return new Promise<any>((resolve, reject) => {
                 conch.hideKeyboard({ success: resolve, fail: reject });
             });
@@ -130,12 +137,17 @@ export class NativeTextInputAdapter extends TextInputAdapter {
             }
         }
 
-        this.updateTargetText(str);
-        this.target.event(Event.INPUT);
+        if (this.updateTargetText(str))
+            this.target.event(Event.INPUT);
     }
 
     private onKeyboardConfirm(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        this.onKeyboardInput(ev);
         this.end();
+    }
+
+    private onKeyboardComplete(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        this.end(true);
     }
 }
 

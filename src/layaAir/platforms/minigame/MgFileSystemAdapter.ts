@@ -102,14 +102,22 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
     }
 
     rmdir(path: string, options?: { recursive?: boolean }): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.fs.rmdir({
-                dirPath: path,
-                recursive: options?.recursive,
-                success: () => resolve(),
-                fail: (err) => reject(err)
-            });
-        });
+        //根据实际测试和网上资料，真机上rmdir异步方法设置了recursive为true后有可能不返回（既不成功也不失败），所以改成同步的实现
+        // return new Promise((resolve, reject) => {
+        //     this.fs.rmdir({
+        //         dirPath: path,
+        //         recursive: options?.recursive,
+        //         success: () => resolve(),
+        //         fail: (err) => reject(err)
+        //     });
+        // });
+        try {
+            this.fs.rmdirSync(path, options?.recursive);
+            return Promise.resolve();
+        }
+        catch (e) {
+            return Promise.reject(e);
+        }
     }
 
     readdir(path: string): Promise<string[]> {

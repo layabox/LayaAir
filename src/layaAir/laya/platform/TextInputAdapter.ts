@@ -13,6 +13,8 @@ import { SpriteUtils } from "../utils/SpriteUtils";
  * @ignore
  */
 export class TextInputAdapter {
+    readonly target: Input;
+
     protected _eInput: HTMLInputElement;
     protected _ePassword: HTMLInputElement;
     protected _eTextArea: HTMLTextAreaElement;
@@ -20,56 +22,67 @@ export class TextInputAdapter {
     protected _container: HTMLDivElement;
     protected _promptStyleDOM: HTMLElement;
     protected _restrictPattern: RegExp;
-    protected _editInline: boolean = true;
     protected _enterEvent: Event;
     protected _lastTransform: { x: number, y: number, width: number, height: number, scaleX: number, scaleY: number };
-    protected _beginning: boolean = false;
+    protected _beginFlag: number = 0;
 
-    readonly target: Input;
+    /**
+     * If true, the input box will be displayed inline with the canvas.
+     * If false, use a pop-up keyboard to enter text.
+     */
+    protected _editInline: boolean = true;
 
     constructor() {
         this._enterEvent = new Event();
         this._lastTransform = <any>{};
 
         Laya.addAfterInitCallback(() => {
-            ILaya.stage.on(Event.MOUSE_UP, () => {
-                if (this._visEle)
-                    this._visEle.focus();
-            });
-            InputManager.onMouseDownCapture.add(this.onMouseDownCapture, this);
+            ILaya.stage.on(Event.MOUSE_UP, this, this.onTouchEnd);
+            InputManager.onMouseDownCapture.add(this.onTouchBegin, this);
         });
     }
 
-    begin(target: Input) {
-        if (this.target === target)
-            return;
+    begin(target: Input, fromTouchBegin?: boolean): Promise<void> {
+        if (this.target === target || this._beginFlag !== 0)
+            return Promise.resolve();
 
-        if (this.target)
-            this.end();
+        this._beginFlag = 1;
+        return (this.target ? this.end(false, this.target.editable) : Promise.resolve()).then(() => {
+            (<Mutable<this>>this).target = target;
+            (<Mutable<Stage>>ILaya.stage).focus = target;
 
-        this._beginning = true;
-        (<Mutable<this>>this).target = target;
-        (<Mutable<Stage>>ILaya.stage).focus = target;
-        this.updateRestrictPattern();
-        this._lastTransform.x = null;
-        target.on(Event.UNDISPLAY, this, this.end);
+            this.updateRestrictPattern();
+            this._lastTransform.x = null;
 
-        this.onBegin().then(() => {
+            target.on(Event.UNDISPLAY, this, this.end);
+
+            return this.onBegin().catch(e => {
+                console.error("TextInputAdapter begin error:", e);
+            });
+        }).then(() => {
             if (this._editInline) {
                 this.target.hideText(true);
                 ILaya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
             }
-            this._beginning = false;
             target.event(Event.FOCUS);
-        }).catch(e => {
-            console.error("TextInputAdapter begin error:", e);
+        }).then(() => {
+            if (!fromTouchBegin) {
+                this._beginFlag = 0;
+                return this.onCanShowKeyboard().catch(e => {
+                    console.error("TextInputAdapter begin error:", e);
+                });
+            }
+            else { //等待touchEnd再调用
+                this._beginFlag = 2;
+                return Promise.resolve();
+            }
         });
     }
 
-    end() {
+    end(complete?: boolean, switching?: boolean): Promise<void> {
         let target = this.target;
         if (!target)
-            return;
+            return Promise.resolve();
 
         (<Mutable<this>>this).target = null;
         (<Mutable<Stage>>ILaya.stage).focus = null;
@@ -77,7 +90,7 @@ export class TextInputAdapter {
         if (this._editInline)
             ILaya.stage.off(Event.KEY_DOWN, this, this.onKeyDown);
 
-        this.onEnd(target).then(() => {
+        return this.onEnd(target, !!complete, !!switching).then(() => {
             if (this._editInline)
                 target.hideText(false);
 
@@ -123,7 +136,14 @@ export class TextInputAdapter {
         return Promise.resolve();
     }
 
-    protected onEnd(target: Input): Promise<void> {
+    //和onBegin区别在于，onBegin在touchBegin调用，这个在touchEnd调用
+    protected onCanShowKeyboard(): Promise<void> {
+        if (this._visEle)
+            this._visEle.focus();
+        return Promise.resolve();
+    }
+
+    protected onEnd(target: Input, complete: boolean, switching: boolean): Promise<void> {
         document.body.scrollTop = 0;
         target.text = this._visEle.value;
 
@@ -138,7 +158,7 @@ export class TextInputAdapter {
     }
 
     syncText() {
-        if (this._visEle && !this._beginning)
+        if (this._visEle && this._beginFlag === 0)
             this.updateTargetText(this._visEle.value);
     }
 
@@ -154,14 +174,28 @@ export class TextInputAdapter {
         }
     }
 
-    protected onMouseDownCapture(): void {
+    private onTouchBegin(): void {
         let lastFocus = ILaya.stage.focus;
         let touchTarget = InputManager.touchTarget;
         if (lastFocus != touchTarget) {
             if (touchTarget instanceof Input)
-                this.begin(touchTarget);
+                this.begin(touchTarget, true);
             else if (lastFocus instanceof Input)
                 this.end();
+        }
+    }
+
+    private onTouchEnd(): void {
+        if (this._beginFlag !== 0) {
+            if (this._beginFlag === 1) { //如果onBegin还没完成，需要延时。一般不会发生
+                ILaya.systemTimer.frameOnce(1, this, this.onTouchEnd);
+            }
+            else { //==2
+                this._beginFlag = 0;
+                this.onCanShowKeyboard().catch(e => {
+                    console.error("TextInputAdapter begin error:", e);
+                });
+            }
         }
     }
 
@@ -223,11 +257,13 @@ export class TextInputAdapter {
             this._visEle.remove();
     }
 
-    protected updateTargetText(value: string): void {
+    protected updateTargetText(value: string): boolean {
         let target = this.target;
         (<Mutable<this>>this).target = null;
+        let ret = target.text != value;
         target.text = value;
         (<Mutable<this>>this).target = target;
+        return ret;
     }
 
     protected getTargetTransform() {
@@ -312,8 +348,8 @@ export class TextInputAdapter {
             }
         }
 
-        this.updateTargetText(value);
-        this.target.event(Event.INPUT);
+        if (this.updateTargetText(value))
+            this.target.event(Event.INPUT);
     }
 
     protected stopEvent(e: any): void {

@@ -101,18 +101,22 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.event(Event.BLUR);
         });
 
-        mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
-            this._windowWidth = result.windowWidth;
-            this._windowHeight = result.windowHeight;
-            this.event(Event.RESIZE);
-        });
+        if (mg.onWindowResize) {
+            mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
+                this._windowWidth = result.windowWidth;
+                this._windowHeight = result.windowHeight;
+                this.event(Event.RESIZE);
+            });
+        }
 
-        mg.onError(e => {
-            if (this.hasListener(Event.ERROR))
-                this.event(Event.ERROR, e);
-            else
-                console.error(e);
-        });
+        if (mg.onError) {
+            mg.onError(e => {
+                if (this.hasListener(Event.ERROR))
+                    this.event(Event.ERROR, e);
+                else
+                    console.error(e);
+            });
+        }
 
         if (mg.onUnhandledRejection) {
             mg.onUnhandledRejection(e => {
