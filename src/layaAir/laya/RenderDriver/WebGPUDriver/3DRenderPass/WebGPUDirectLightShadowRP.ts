@@ -5,7 +5,7 @@ import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
-import { BoundSphere } from "../../../d3/math/BoundSphere";
+import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
@@ -15,7 +15,6 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -194,6 +193,9 @@ export class WebGPUDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
+
+            let cameraDephtTex = context.cameraData.getTexture(DepthPass.DEPTHTEXTURE);
+            sliceData.cameraShaderValue.setTexture(DepthPass.DEPTHTEXTURE, cameraDephtTex);
 
             context.cameraData = sliceData.cameraShaderValue as WebGPUShaderData;
             context.cameraUpdateMask++;

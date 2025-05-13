@@ -43,8 +43,6 @@ export class ForwardAddClusterRP {
     protected _zBufferParams: Vector4;
     protected _defaultNormalDepthColor: Color;
 
-    private _defaultDepthTex: RenderTexture;
-
     protected _viewPort: Viewport;
     setViewPort(value: Viewport) {
         value.cloneTo(this._viewPort);
@@ -155,12 +153,6 @@ export class ForwardAddClusterRP {
      */
     protected _renderDepthPass(context: IRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
-
-        if (!this._defaultDepthTex) {
-            this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
-        }
-
-        this.camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
 
         const viewport = this._viewPort;
         const shadervalue = context.sceneData;

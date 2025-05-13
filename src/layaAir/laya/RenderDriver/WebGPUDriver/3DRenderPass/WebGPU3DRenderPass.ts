@@ -33,12 +33,14 @@ const offsetScale = new Vector4();
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private _renderPass: WebGPUForwardAddRP;
 
-
     private _defaultShadowMap: RenderTexture;
+
+    private _defaultDepthTex: RenderTexture;
 
     constructor() {
         this._renderPass = new WebGPUForwardAddRP();
         this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
+        this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
     }
     render3DManager: WebSceneRenderManager;
 
@@ -108,6 +110,8 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         else renderPass.skyRenderNode = null;
 
         renderPass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
+
+        camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
 
         const enableShadow = (Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency === 0) && Stat.enableShadow;
         this._renderPass.shadowCastPass = enableShadow;
@@ -186,13 +190,10 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         if ((depthMode & DepthTextureMode.Depth) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
             this._renderPass.renderPass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-            // Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
             this._renderPass.renderPass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
-            camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
-            // Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, camera);
         }
         this._renderPass.renderPass.depthTextureMode = depthMode;
     }
@@ -285,5 +286,11 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
+
+        this._defaultShadowMap.destroy();
+        this._defaultShadowMap = null;
+
+        this._defaultDepthTex.destroy();
+        this._defaultDepthTex = null;
     }
 }

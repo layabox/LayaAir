@@ -110,16 +110,29 @@ export class DepthPass {
      * @zh 清理深度数据
      */
     cleanUp(camera: Camera): void {
-        (this._depthTexture instanceof RenderTexture) && this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
-        this._depthNormalsTexture && RenderTexture.recoverToPool(this._depthNormalsTexture);
-        this._depthTexture = null;
-        this._depthNormalsTexture = null;
+        if (this._depthTexture) {
+            let cameraDephtTex = camera._shaderValues.getTexture(DepthPass.DEPTHTEXTURE);
 
-        camera.depthTexture = null;
-        camera.depthNormalTexture = null;
+            if (cameraDephtTex == this._depthTexture) {
+                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, null);
+                camera.depthTexture = null;
+            }
 
-        camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, null);
-        camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, null);
+            RenderTexture.recoverToPool(this._depthTexture);
+            this._depthTexture = null;
+        }
+
+        if (this._depthNormalsTexture) {
+            let cameraDepthNormalTex = camera._shaderValues.getTexture(DepthPass.DEPTHNORMALSTEXTURE);
+
+            if (cameraDepthNormalTex == this._depthNormalsTexture) {
+                camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, null);
+                camera.depthNormalTexture = null;
+            }
+
+            RenderTexture.recoverToPool(this._depthNormalsTexture);
+            this._depthNormalsTexture = null;
+        }
     }
 }
 

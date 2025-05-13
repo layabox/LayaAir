@@ -1,5 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -16,7 +17,6 @@ import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandE
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
-import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
@@ -139,7 +139,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             //buffer
             let cameraMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
             this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
-
         }
     }
 

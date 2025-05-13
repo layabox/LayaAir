@@ -4,8 +4,9 @@ import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
+import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
-import {  ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
+import { ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -114,6 +115,10 @@ export class WebGPUSpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderData, shadowSpotData, this._shadowBias);
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
+
+        let cameraDepthTex = context.cameraData.getTexture(DepthPass.DEPTHTEXTURE);
+        shadowSpotData.cameraShaderValue.setTexture(DepthPass.DEPTHTEXTURE, cameraDepthTex);
+
         context.cameraData = <WebGPUShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;
 
