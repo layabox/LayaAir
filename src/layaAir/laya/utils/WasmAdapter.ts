@@ -1,6 +1,3 @@
-import { Laya } from "../../Laya";
-import { PAL } from "../platform/PlatformAdapters";
-
 /**
  * @ignore
  */
@@ -38,48 +35,6 @@ export class WasmAdapter {
             }
 
             return module(moduleArg);
-        };
-    }
-
-    static setInstantiateMethod(provider: typeof WebAssembly, method: "byUrl" | "byBuffer" | "byBufferSync") {
-        if (provider) {
-            if (!window.WebAssembly)
-                (window as any).WebAssembly = {};
-            WasmAdapter.Memory = provider.Memory;
-        }
-
-        let shouldInit = PAL.global.setWasmTaskCompile != null; //oppo
-
-        WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-            if (!provider)
-                throw new Error("WASM is not supported");
-
-            if (shouldInit) {
-                shouldInit = false;
-                PAL.global.setWasmTaskCompile(true); //oppo
-            }
-
-            if (method === "byUrl") {
-                return provider.instantiate("libs/" + wasmFile, imports);
-            }
-            else {
-                return Laya.loader.fetch("libs/" + wasmFile, "arraybuffer").then(data => {
-                    if (!data) {
-                        console.error("WASM file not found: " + wasmFile);
-                        return null;
-                    }
-
-                    if (method === "byBuffer")
-                        return provider.instantiate(data, imports);
-                    else {
-                        let module = new window.WebAssembly.Module(data);
-                        let instance = new window.WebAssembly.Instance(module, imports);
-                        let ret: any = {};
-                        ret["instance"] = instance;
-                        return ret;
-                    }
-                });
-            }
         };
     }
 }

@@ -5,9 +5,9 @@ import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { Browser } from "../../laya/utils/Browser";
-import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
+import { setupMgWasmSupport } from "../minigame/WasmUtils";
 
 PAL.preIntialize = function () {
     Browser.onAlipayMiniGame = true;
@@ -17,7 +17,7 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
 
-    WasmAdapter.setInstantiateMethod((window as any).MYWebAssembly, "byUrl");
+    setupMgWasmSupport((window as any).MYWebAssembly);
 
     Laya.addBeforeInitCallback(() => {
         // srgb问题

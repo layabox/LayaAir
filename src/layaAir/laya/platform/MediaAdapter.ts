@@ -3,15 +3,12 @@ import { SoundChannel } from "../media/SoundChannel";
 import { WebAudioChannel } from "../media/WebAudioChannel";
 import { AudioDataCache } from "../media/AudioDataCache";
 import { ClassUtils } from "../utils/ClassUtils";
-import { IPool, Pool } from "../utils/Pool";
 import { Browser } from "../utils/Browser";
 import { VideoTexture } from "../media/VideoTexture";
 import { HTMLVideoTexture } from "../media/HTMLVideoTexture";
 import { ILaya, Mutable } from "../../ILaya";
 import { Event } from "../events/Event";
 import { VideoPlayer } from "../media/VideoPlayer";
-import { Utils } from "../utils/Utils";
-import { URL } from "../net/URL";
 import { HTMLVideoPlayer } from "../media/HTMLVideoPlayer";
 import { PAL } from "./PlatformAdapters";
 
@@ -19,11 +16,14 @@ import { PAL } from "./PlatformAdapters";
  * @ignore
  */
 export class MediaAdapter {
-    readonly dataCache: AudioDataCache;
-    readonly elementPool: IPool<HTMLAudioElement>;
-    readonly gainNodePool: IPool<GainNode>;
-    readonly ctx: AudioContext;
+    readonly audioDataCache: AudioDataCache;
+    ctx: AudioContext;
     touchToStart: boolean = true;
+
+    shortAudioClass: new (url: string) => SoundChannel;
+    longAudioClass: new (url: string) => SoundChannel;
+    videoTextureClass: new () => VideoTexture;
+    videoPlayerClass: new () => VideoPlayer;
 
     protected suspendedMedias: Set<SoundChannel | VideoTexture | VideoPlayer>;
 
@@ -31,9 +31,7 @@ export class MediaAdapter {
     private _firstTouch = true;
 
     constructor() {
-        this.dataCache = new AudioDataCache();
-        this.elementPool = Pool.createPool2(() => this.createAudioElement(), null, ele => this.resetAudioElement(ele));
-        this.gainNodePool = Pool.createPool2(() => this.createGainNode(), node => this.initGainNode(node), node => this.resetGainNode(node));
+        this.audioDataCache = new AudioDataCache();
         this.suspendedMedias = new Set();
         this.touchToStart = PAL.global == null; //一般需要点击允许播放的是web，在小游戏或者native上都不需要点击允许播放
 
@@ -43,93 +41,39 @@ export class MediaAdapter {
     protected init() {
         let ctxClass = window.AudioContext || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"];
         if (ctxClass != null)
-            (<Mutable<this>>this).ctx = new ctxClass();
+            this.ctx = new ctxClass();
+
+        this.shortAudioClass = this.ctx ? WebAudioChannel : HTMLAudioChannel;
+        this.longAudioClass = HTMLAudioChannel;
+        this.videoTextureClass = HTMLVideoTexture;
+        this.videoPlayerClass = HTMLVideoPlayer;
     }
 
-    createSoundChannel(url: string, useWebAudioImplement?: boolean): SoundChannel {
-        let channel: SoundChannel;
-        if (this.ctx && useWebAudioImplement)
-            channel = new WebAudioChannel(url);
-        else
-            channel = new HTMLAudioChannel(url);
-        return channel;
+    createSoundChannel(url: string, longAudioUsage?: boolean): SoundChannel {
+        return longAudioUsage ? new this.longAudioClass(url) : new this.shortAudioClass(url);
     }
 
+    private _warned: boolean = false;
     createVideoTexture(): VideoTexture {
-        return new HTMLVideoTexture();
+        if (this.videoTextureClass === VideoTexture && !this._warned) {
+            console.warn("VideoTexture is not supported in this platform.");
+            this._warned = true;
+        }
+        return new this.videoTextureClass();
     }
 
+    private _warned2: boolean = false;
     createVideoPlayer(): VideoPlayer {
-        return new HTMLVideoPlayer();
+        if (this.videoPlayerClass === VideoPlayer && !this._warned2) {
+            console.warn("VideoPlayer is not supported in this platform.");
+            this._warned2 = true;
+        }
+        return new this.videoPlayerClass();
     }
 
-    createVideoElement(): HTMLVideoElement {
-        let ele = Browser.createElement("video");
-        let style: any = ele.style;
-        style.position = 'absolute';
-        style.top = '0px';
-        style.left = '0px';
-
-        // 默认放开webGL对纹理数据的跨域限制
-        ele.setAttribute('crossorigin', 'anonymous');
-        if (Browser.onMobile) {
-            //@ts-ignore
-            ele["x5-playsInline"] = true;
-            //@ts-ignore
-            ele["x5-playsinline"] = true;
-            //@ts-ignore
-            ele.x5PlaysInline = true;
-            //@ts-ignore
-            ele.playsInline = true;
-            //@ts-ignore
-            ele["webkit-playsInline"] = true;
-            //@ts-ignore
-            ele["webkit-playsinline"] = true;
-            //@ts-ignore
-            ele.webkitPlaysInline = true;
-            //@ts-ignore
-            ele.playsinline = true;
-            //@ts-ignore
-            ele.style.playsInline = true;
-            ele.crossOrigin = "anonymous";
-            ele.setAttribute('playsinline', 'true');
-            ele.setAttribute('x5-playsinline', 'true');
-            ele.setAttribute('webkit-playsinline', 'true');
-            ele.autoplay = true;
-        }
-
-        return ele;
-    }
-
-    setVideoElementSrc(ele: HTMLVideoElement, url: string) {
-        while (ele.childElementCount)
-            ele.firstChild.remove();
-
-        if (url) {
-            if (url.startsWith("blob:"))
-                ele.src = url;
-            else {
-                let sourceElement = Browser.createElement("source");
-                sourceElement.src = URL.postFormatURL(URL.formatURL(url));
-                let extension = Utils.getFileExtension(url);
-                sourceElement.type = extension == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + extension);
-                ele.appendChild(sourceElement);
-            }
-        }
-        else {
-            ele.pause();
-            ele.src = "";
-        }
-    }
-
-    decodeAudioData(url: string, data: ArrayBuffer): Promise<any> {
-        if (this.ctx) {
-            let len = data.byteLength;
-            return this.ctx.decodeAudioData(data).then(buffer => {
-                this.dataCache.add(url, buffer, len);
-                return buffer;
-            });
-        }
+    decodeAudioData(data: ArrayBuffer): Promise<any> {
+        if (this.ctx)
+            return this.ctx.decodeAudioData(data);
         else
             return Promise.resolve(null);
     }
@@ -148,7 +92,7 @@ export class MediaAdapter {
     canPlayType(type: string): CanPlayTypeResult {
         if (typeof (HTMLAudioElement) !== undefined && typeof (HTMLAudioElement.prototype.canPlayType) === "function") {
             if (!this._testElement)
-                this._testElement = this.createAudioElement();
+                this._testElement = Browser.createElement("audio");
             return this._testElement.canPlayType(type);
         }
         else
@@ -185,37 +129,6 @@ export class MediaAdapter {
         }
 
         return Promise.resolve();
-    }
-
-    protected createAudioElement() {
-        let ele = Browser.createElement("audio");
-        return ele;
-    }
-
-    protected resetAudioElement(ele: HTMLAudioElement) {
-        ele.remove();
-        ele.src = "";
-        ele.onended = null;
-        ele.onerror = null;
-        ele.oncanplay = null;
-        ele.oncanplaythrough = null;
-    }
-
-    protected createGainNode(): GainNode {
-        let node: GainNode;
-        if (this.ctx.createGain)
-            node = this.ctx.createGain();
-        else
-            node = (this.ctx as any).createGainNode();
-        return node;
-    }
-
-    protected initGainNode(node: GainNode) {
-        node.connect(this.ctx.destination);
-    }
-
-    protected resetGainNode(node: GainNode) {
-        node.disconnect(0);
     }
 }
 

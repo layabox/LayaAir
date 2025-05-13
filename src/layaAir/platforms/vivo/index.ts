@@ -2,9 +2,9 @@ import { Config } from "../../Config";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
-import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
+import { setCustomWasmLoader } from "../minigame/WasmUtils";
 
 PAL.preIntialize = function () {
     Browser.onVVMiniGame = true;
@@ -15,7 +15,7 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
-    WasmAdapter.setInstantiateMethod(window.WebAssembly, "byBuffer");
+    setCustomWasmLoader();
 
     let cacheManager = new MgCacheManager("internal://files/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

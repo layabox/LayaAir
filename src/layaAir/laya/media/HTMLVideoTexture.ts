@@ -3,6 +3,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { VideoTexture } from "./VideoTexture";
 import { PAL } from "../platform/PlatformAdapters";
 import { LayaEnv } from "../../LayaEnv";
+import { HTMLVideoPlayer } from "./HTMLVideoPlayer";
 
 /**
  * @ignore
@@ -16,8 +17,7 @@ export class HTMLVideoTexture extends VideoTexture {
     constructor() {
         super();
 
-        let ele: HTMLVideoElement = PAL.media.createVideoElement();
-        this.element = ele;
+        let ele = this.element = HTMLVideoPlayer.createElement();
 
         ele.addEventListener("loadedmetadata", () =>
             this.setLoaded(this.element.videoWidth, this.element.videoHeight, Browser.onLayaRuntime));
@@ -93,7 +93,7 @@ export class HTMLVideoTexture extends VideoTexture {
     }
 
     protected onLoad(url: string) {
-        PAL.media.setVideoElementSrc(this.element, url);
+        HTMLVideoPlayer.setSrc(this.element, url);
         this.element.load();
     }
 
@@ -121,7 +121,7 @@ export class HTMLVideoTexture extends VideoTexture {
     }
 
     protected onDestroy() {
-        PAL.media.setVideoElementSrc(this.element, null);
+        HTMLVideoPlayer.setSrc(this.element, null);
         this.element.remove();
         if (LayaEnv.isConch)
             (this.element as any)._destroy();

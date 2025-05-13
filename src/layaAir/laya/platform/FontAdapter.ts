@@ -9,8 +9,6 @@ import { Utils } from "../utils/Utils";
  * @ignore
  */
 export class FontAdapter {
-    constructor() {
-    }
 
     loadFont(task: ILoadTask): Promise<{ family: string } | null> {
         let fontName = Utils.replaceFileExtension(Utils.getBaseName(task.url), "");
@@ -31,7 +29,8 @@ export class FontAdapter {
 
     protected loadByCSS(task: ILoadTask, url: string, fontName: string): Promise<{ family: string } | null> {
         let fontTxt = "40px " + fontName;
-        let txtWidth = this.measureText(testString, fontTxt).width;
+        Browser.context.font = fontTxt;
+        let oldWidth = Browser.context.measureText(testString).width;
 
         let fontStyle = Browser.createElement("style");
         fontStyle.type = "text/css";
@@ -40,7 +39,9 @@ export class FontAdapter {
 
         return new Promise((resolve) => {
             let checkComplete = () => {
-                if (this.measureText(testString, fontTxt).width != txtWidth)
+                Browser.context.font = fontTxt;
+                let newWidth = Browser.context.measureText(testString).width;
+                if (newWidth != oldWidth)
                     complete();
             };
             let complete = () => {
@@ -54,22 +55,8 @@ export class FontAdapter {
             ILaya.systemTimer.loop(20, this, checkComplete);
         });
     }
-
-    protected measureText(txt: string, font: string): TextMetrics {
-        let isChinese: boolean = hanzi.test(txt);
-        if (isChinese && fontMap[font])
-            return fontMap[font];
-
-        Browser.context.font = font;
-        let r = Browser.context.measureText(txt);
-        if (isChinese)
-            fontMap[font] = r;
-        return r;
-    }
 }
 
 const testString = "LayaTTFFont";
-const hanzi: RegExp = new RegExp("^[\u4E00-\u9FA5]$");
-const fontMap: { [key: string]: TextMetrics } = {};
 
 ClassUtils.regClass("PAL.Font", FontAdapter);

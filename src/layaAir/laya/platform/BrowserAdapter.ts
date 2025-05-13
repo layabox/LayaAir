@@ -21,6 +21,7 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     protected init() {
+        //这个遗留逻辑未确认其含义
         if (window.navigator.userAgent.indexOf("Mozilla/6.0(Linux; Android 6.0; HUAWEI NXT-AL10 Build/HUAWEINXT-AL10)") > -1)
             this._pixelRatio = 2;
         else

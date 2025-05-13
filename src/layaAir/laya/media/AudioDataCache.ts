@@ -69,6 +69,8 @@ export class AudioDataCache {
 
         //不需要在Loader里cache
         ILaya.loader.load(url, { type: Loader.SOUND, cache: false }).then(buffer => {
+            if (buffer)
+                this.add(url, buffer, buffer.__byteLength);
             callback.call(callbackThis, buffer);
         });
     }

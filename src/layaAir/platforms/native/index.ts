@@ -3,7 +3,7 @@ import { Browser } from "../../laya/utils/Browser";
 import { Config } from "../../Config";
 import { Render } from "../../laya/renders/Render";
 import { Laya } from "../../Laya";
-import { WasmAdapter } from "../../laya/utils/WasmAdapter";
+import { setCustomWasmLoader } from "../minigame/WasmUtils";
 
 PAL.preIntialize = function () {
     Browser.onLayaRuntime = true;
@@ -14,7 +14,7 @@ PAL.postInitialize = function () {
     Config.fixedFrames = false;
     Config.useRetinalCanvas = true;
 
-    WasmAdapter.setInstantiateMethod(window.WebAssembly, "byBufferSync");
+    setCustomWasmLoader(true);
 
     Laya.addAfterInitCallback(() => {
         Laya.timer.frameOnce(2, null, gc);

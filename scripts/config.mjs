@@ -370,6 +370,7 @@ export const allBundles = [{
     name: 'pal-native',
     input: [
         'platforms/native/**/*.*',
+        'platforms/minigame/WasmUtils.ts',
     ],
 },
 {

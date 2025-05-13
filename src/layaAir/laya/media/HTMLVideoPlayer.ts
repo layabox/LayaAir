@@ -1,6 +1,8 @@
 import { LayaEnv } from "../../LayaEnv";
+import { URL } from "../net/URL";
 import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
+import { Utils } from "../utils/Utils";
 import { VideoPlayer } from "./VideoPlayer";
 
 /**
@@ -12,7 +14,7 @@ export class HTMLVideoPlayer extends VideoPlayer {
     constructor() {
         super();
 
-        this.element = PAL.media.createVideoElement();
+        this.element = HTMLVideoPlayer.createElement();
     }
 
     get currentTime(): number {
@@ -69,7 +71,7 @@ export class HTMLVideoPlayer extends VideoPlayer {
 
     protected onLoad(url: string) {
         this.element.controls = this.options.controls ?? false;
-        PAL.media.setVideoElementSrc(this.element, url);
+        HTMLVideoPlayer.setSrc(this.element, url);
         if (this.options.underGameView) {
             let c = Browser.container;
             if (c !== document.body)
@@ -106,9 +108,68 @@ export class HTMLVideoPlayer extends VideoPlayer {
     }
 
     protected onDestroy() {
-        PAL.media.setVideoElementSrc(this.element, null);
+        HTMLVideoPlayer.setSrc(this.element, null);
         this.element.remove();
         if (LayaEnv.isConch)
             (this.element as any)._destroy();
+    }
+
+    static createElement(): HTMLVideoElement {
+        let ele = Browser.createElement("video");
+        let style: any = ele.style;
+        style.position = 'absolute';
+        style.top = '0px';
+        style.left = '0px';
+
+        // 默认放开webGL对纹理数据的跨域限制
+        ele.setAttribute('crossorigin', 'anonymous');
+        if (Browser.onMobile) {
+            //@ts-ignore
+            ele["x5-playsInline"] = true;
+            //@ts-ignore
+            ele["x5-playsinline"] = true;
+            //@ts-ignore
+            ele.x5PlaysInline = true;
+            //@ts-ignore
+            ele.playsInline = true;
+            //@ts-ignore
+            ele["webkit-playsInline"] = true;
+            //@ts-ignore
+            ele["webkit-playsinline"] = true;
+            //@ts-ignore
+            ele.webkitPlaysInline = true;
+            //@ts-ignore
+            ele.playsinline = true;
+            //@ts-ignore
+            ele.style.playsInline = true;
+            ele.crossOrigin = "anonymous";
+            ele.setAttribute('playsinline', 'true');
+            ele.setAttribute('x5-playsinline', 'true');
+            ele.setAttribute('webkit-playsinline', 'true');
+            ele.autoplay = true;
+        }
+
+        return ele;
+    }
+
+    static setSrc(ele: HTMLVideoElement, url: string) {
+        while (ele.childElementCount)
+            ele.firstChild.remove();
+
+        if (url) {
+            if (url.startsWith("blob:"))
+                ele.src = url;
+            else {
+                let sourceElement = Browser.createElement("source");
+                sourceElement.src = URL.postFormatURL(URL.formatURL(url));
+                let extension = Utils.getFileExtension(url);
+                sourceElement.type = extension == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + extension);
+                ele.appendChild(sourceElement);
+            }
+        }
+        else {
+            ele.pause();
+            ele.src = "";
+        }
     }
 }

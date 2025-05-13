@@ -1,6 +1,7 @@
 import { SoundChannel } from "./SoundChannel"
 import { Browser } from "../utils/Browser"
 import { PAL } from "../platform/PlatformAdapters";
+import { IPool, Pool } from "../utils/Pool";
 
 /**
  * @ignore
@@ -10,6 +11,8 @@ export class WebAudioChannel extends SoundChannel {
     private _sourceNode: AudioBufferSourceNode;
     private _buffer: AudioBuffer;
 
+    private static gainNodePool: IPool<GainNode> = Pool.createPool2(() => createGainNode(), node => initGainNode(node), node => resetGainNode(node));
+
     get duration(): number {
         if (this._buffer)
             return this._buffer.duration;
@@ -18,7 +21,7 @@ export class WebAudioChannel extends SoundChannel {
     }
 
     protected onPlay(url: string): void {
-        PAL.media.dataCache.get(url, this.onLoaded, this);
+        PAL.media.audioDataCache.get(url, this.onLoaded, this);
     }
 
     protected onPlayAgain(): void {
@@ -74,22 +77,24 @@ export class WebAudioChannel extends SoundChannel {
 
     private startPlay(isResuming: boolean) {
         let ctx = PAL.media.ctx;
-        this._gainNode = PAL.media.gainNodePool.take();
+        this._gainNode = WebAudioChannel.gainNodePool.take();
 
         let sourceNode = this._sourceNode = ctx.createBufferSource();
         sourceNode.buffer = this._buffer;
         sourceNode.connect(this._gainNode);
         sourceNode.onended = () => this.onPlayEnd();
-        if (sourceNode.playbackRate.setTargetAtTime)
-            sourceNode.playbackRate.setTargetAtTime(this.playbackRate, ctx.currentTime, 0.001)
-        else
-            sourceNode.playbackRate.value = this.playbackRate;
+        if (sourceNode.playbackRate) { //douyin真机这个为空
+            if (sourceNode.playbackRate.setTargetAtTime)
+                sourceNode.playbackRate.setTargetAtTime(this.playbackRate, ctx.currentTime, 0.001)
+            else
+                sourceNode.playbackRate.value = this.playbackRate;
+        }
         sourceNode.loop = this.loops === 0;
         sourceNode.loopStart = this.startTime;
         sourceNode.loopEnd = this._buffer.duration;
         this._gainNode.gain.value = this._muted ? 0 : this._volume;
         sourceNode.start(0, isResuming ? this._pauseTime : this.startTime);
-        if (ctx.state !== "running") {
+        if (ctx.state != null && ctx.state !== "running") {
             this._startTime = 0;
             PAL.media.resumeUntilGotFocus(this);
         }
@@ -110,7 +115,24 @@ export class WebAudioChannel extends SoundChannel {
         sourceNode.onended = null;
         this._sourceNode = null;
 
-        PAL.media.gainNodePool.recover(this._gainNode);
+        WebAudioChannel.gainNodePool.recover(this._gainNode);
         this._gainNode = null;
     }
+}
+
+function createGainNode(): GainNode {
+    let node: GainNode;
+    if (PAL.media.ctx.createGain)
+        node = PAL.media.ctx.createGain();
+    else
+        node = (PAL.media.ctx as any).createGainNode();
+    return node;
+}
+
+function initGainNode(node: GainNode) {
+    node.connect(PAL.media.ctx.destination);
+}
+
+function resetGainNode(node: GainNode) {
+    node.disconnect(0);
 }

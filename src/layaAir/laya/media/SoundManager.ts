@@ -162,7 +162,7 @@ export class SoundManager {
         if (typeof (soundClass) === 'number')
             startTime = soundClass;
 
-        let channel = PAL.media.createSoundChannel(url, true);
+        let channel = PAL.media.createSoundChannel(url, false);
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;
@@ -197,7 +197,7 @@ export class SoundManager {
         if (!url)
             return null;
 
-        let channel = PAL.media.createSoundChannel(url, !mgr.useAudioMusic);
+        let channel = PAL.media.createSoundChannel(url, mgr.useAudioMusic);
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;

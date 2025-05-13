@@ -1,10 +1,10 @@
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
-import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
 import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
+import { setupMgWasmSupport } from "../minigame/WasmUtils";
 import { WxVideoTexture } from "./WxVideoTexture";
 
 PAL.preIntialize = function () {
@@ -19,7 +19,7 @@ PAL.postInitialize = function () {
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = WxVideoTexture;
 
-    WasmAdapter.setInstantiateMethod(<any>window.WXWebAssembly, "byUrl");
+    setupMgWasmSupport(<any>window.WXWebAssembly);
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

@@ -1,11 +1,12 @@
 import { Config } from "../../Config";
+import { WebAudioChannel } from "../../laya/media/WebAudioChannel";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
-import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
 import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
+import { setupMgWasmSupport } from "../minigame/WasmUtils";
 import { TtVideoTexture } from "./TtVideoTexture";
 
 PAL.preIntialize = function () {
@@ -18,10 +19,12 @@ PAL.preIntialize = function () {
 PAL.postInitialize = function () {
     Config.useRetinalCanvas = true;
 
+    PAL.media.shortAudioClass = WebAudioChannel; //抖音支持WebAudio API
+
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
 
-    WasmAdapter.setInstantiateMethod((window as any).TTWebAssembly, "byUrl");
+    setupMgWasmSupport((window as any).TTWebAssembly);
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
     let downloader = Loader.downloader = new MgDownloader();

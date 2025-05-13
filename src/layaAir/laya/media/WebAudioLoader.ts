@@ -10,7 +10,15 @@ class WebAudioLoader implements IResourceLoader {
 
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
-            return PAL.media.decodeAudioData(task.url, data);
+            if (!data)
+                return null;
+
+            let size = data.byteLength;
+            return PAL.media.decodeAudioData(data).then(buffer => {
+                if (buffer) //记录一下内存占用，AudioDataCache会用到
+                    buffer.__byteLength = size;
+                return buffer;
+            });
         });
     }
 }

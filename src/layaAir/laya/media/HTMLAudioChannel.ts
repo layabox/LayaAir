@@ -2,12 +2,15 @@ import { SoundChannel } from "./SoundChannel"
 import { PAL } from "../platform/PlatformAdapters";
 import { URL } from "../net/URL";
 import { Browser } from "../utils/Browser";
+import { IPool, Pool } from "../utils/Pool";
 
 /**
  * @ignore
  */
 export class HTMLAudioChannel extends SoundChannel {
     private _ele: HTMLAudioElement;
+
+    private static elementPool: IPool<HTMLAudioElement> = Pool.createPool2(() => createAudioElement(), null, ele => resetAudioElement(ele));
 
     get position(): number {
         if (this._ele)
@@ -24,7 +27,7 @@ export class HTMLAudioChannel extends SoundChannel {
     }
 
     protected onPlay(url: string): void {
-        this._ele = PAL.media.elementPool.take();
+        this._ele = HTMLAudioChannel.elementPool.take();
         Browser.container.appendChild(this._ele);
 
         this._loaded = true;
@@ -57,7 +60,7 @@ export class HTMLAudioChannel extends SoundChannel {
 
     protected onStop(): void {
         this._ele.pause();
-        PAL.media.elementPool.recover(this._ele);
+        HTMLAudioChannel.elementPool.recover(this._ele);
         this._ele = null;
     }
 
@@ -78,4 +81,19 @@ export class HTMLAudioChannel extends SoundChannel {
     protected onMuted(): void {
         this._ele.muted = this._muted;
     }
+}
+
+//pool support
+
+function createAudioElement() {
+    return Browser.createElement("audio");
+}
+
+function resetAudioElement(ele: HTMLAudioElement) {
+    ele.remove();
+    ele.src = "";
+    ele.onended = null;
+    ele.onerror = null;
+    ele.oncanplay = null;
+    ele.oncanplaythrough = null;
 }
