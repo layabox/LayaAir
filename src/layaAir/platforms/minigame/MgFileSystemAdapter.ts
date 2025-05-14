@@ -1,6 +1,5 @@
 import { FileSystemAdapter } from "../../laya/platform/FileSystemAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 
 export class MgFileSystemAdapter extends FileSystemAdapter {
 
@@ -131,4 +130,4 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.FileSystem", MgFileSystemAdapter);
+PAL.register("fs", MgFileSystemAdapter);

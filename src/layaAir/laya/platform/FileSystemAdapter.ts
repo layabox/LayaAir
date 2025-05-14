@@ -1,5 +1,5 @@
-import { ClassUtils } from "../utils/ClassUtils";
 import { NotImplementedError } from "../utils/Error";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
@@ -108,4 +108,4 @@ export class FileSystemAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.FileSystem", FileSystemAdapter);
+PAL.register("fs", FileSystemAdapter);

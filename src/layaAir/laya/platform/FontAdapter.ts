@@ -2,8 +2,8 @@ import { ILaya } from "../../ILaya";
 import { ILoadTask } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Browser } from "../utils/Browser";
-import { ClassUtils } from "../utils/ClassUtils";
 import { Utils } from "../utils/Utils";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
@@ -59,4 +59,4 @@ export class FontAdapter {
 
 const testString = "LayaTTFFont";
 
-ClassUtils.regClass("PAL.Font", FontAdapter);
+PAL.register("font", FontAdapter);

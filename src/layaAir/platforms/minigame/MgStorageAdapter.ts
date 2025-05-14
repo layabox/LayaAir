@@ -1,14 +1,13 @@
-import { LocalStorageAdapter } from "../../laya/platform/LocalStorageAdapter";
+import { StorageAdapter } from "../../laya/platform/StorageAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 
 var mg: WechatMinigame.Wx;
 
-export class MgLocalStorageAdapter extends LocalStorageAdapter {
+export class MgStorageAdapter extends StorageAdapter {
 
     constructor() {
         super();
-        
+
         mg = PAL.global;
     }
 
@@ -33,8 +32,8 @@ export class MgLocalStorageAdapter extends LocalStorageAdapter {
     }
 
     getCount(): number {
-        return mg.getStorageInfoSync().currentSize;
+        return mg.getStorageInfoSync().keys.length;
     }
 }
 
-ClassUtils.regClass("PAL.LocalStorage", MgLocalStorageAdapter);
+PAL.register("storage", MgStorageAdapter);

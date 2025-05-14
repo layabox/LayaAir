@@ -76,7 +76,7 @@ export class Accelerator extends EventDispatcher {
      * @returns 转换后的加速度信息。
      */
     static getTransformedAcceleration(acceleration: AccelerationInfo): AccelerationInfo {
-        Accelerator.transformedAcceleration = Accelerator.transformedAcceleration || new AccelerationInfo();
+        Accelerator.transformedAcceleration = Accelerator.transformedAcceleration || { x: 0, y: 0, z: 0 };
         Accelerator.transformedAcceleration.z = acceleration.z;
 
         let ot = PAL.browser.getScreenOrientation();

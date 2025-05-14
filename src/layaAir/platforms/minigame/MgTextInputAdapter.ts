@@ -2,7 +2,6 @@ import { Input } from "../../laya/display/Input";
 import { Event } from "../../laya/events/Event";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { TextInputAdapter } from "../../laya/platform/TextInputAdapter";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 
 var mg: WechatMinigame.Wx;
 
@@ -86,4 +85,4 @@ export class MgTextInputAdapter extends TextInputAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.TextInput", MgTextInputAdapter);
+PAL.register("textInput", MgTextInputAdapter);

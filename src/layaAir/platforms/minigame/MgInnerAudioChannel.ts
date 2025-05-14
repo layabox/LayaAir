@@ -88,13 +88,3 @@ export class MgInnerAudioChannel extends SoundChannel {
         this._ctx = null;
     }
 }
-
-export class MgWebAudioChannel extends MgInnerAudioChannel {
-    constructor(url: string) {
-        super(url);
-    }
-
-    protected createContext(): WechatMinigame.InnerAudioContext {
-        return (<WechatMinigame.Wx>PAL.global).createInnerAudioContext({ useWebAudioImplement: true });
-    }
-}

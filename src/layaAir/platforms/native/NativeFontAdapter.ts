@@ -1,7 +1,6 @@
 import { ILoadTask } from "../../laya/net/Loader";
 import { FontAdapter } from "../../laya/platform/FontAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 import { Utils } from "../../laya/utils/Utils";
 
 export class NativeFontAdapter extends FontAdapter {
@@ -16,4 +15,4 @@ export class NativeFontAdapter extends FontAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.Font", NativeFontAdapter);
+PAL.register("font", NativeFontAdapter);

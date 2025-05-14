@@ -1,7 +1,6 @@
 import { ILoadTask } from "../../laya/net/Loader";
 import { FontAdapter } from "../../laya/platform/FontAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 
 export class MgFontAdapter extends FontAdapter {
 
@@ -17,4 +16,4 @@ export class MgFontAdapter extends FontAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.Font", MgFontAdapter);
+PAL.register("font", MgFontAdapter);

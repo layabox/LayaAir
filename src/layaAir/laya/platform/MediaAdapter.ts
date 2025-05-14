@@ -2,11 +2,10 @@ import { HTMLAudioChannel } from "../media/HTMLAudioChannel";
 import { SoundChannel } from "../media/SoundChannel";
 import { WebAudioChannel } from "../media/WebAudioChannel";
 import { AudioDataCache } from "../media/AudioDataCache";
-import { ClassUtils } from "../utils/ClassUtils";
 import { Browser } from "../utils/Browser";
 import { VideoTexture } from "../media/VideoTexture";
 import { HTMLVideoTexture } from "../media/HTMLVideoTexture";
-import { ILaya, Mutable } from "../../ILaya";
+import { ILaya } from "../../ILaya";
 import { Event } from "../events/Event";
 import { VideoPlayer } from "../media/VideoPlayer";
 import { HTMLVideoPlayer } from "../media/HTMLVideoPlayer";
@@ -56,7 +55,7 @@ export class MediaAdapter {
     private _warned: boolean = false;
     createVideoTexture(): VideoTexture {
         if (this.videoTextureClass === VideoTexture && !this._warned) {
-            console.warn("VideoTexture is not supported in this platform.");
+            console.warn(`VideoTexture is not supported in in this platform(${Browser.platformName}).`);
             this._warned = true;
         }
         return new this.videoTextureClass();
@@ -65,7 +64,7 @@ export class MediaAdapter {
     private _warned2: boolean = false;
     createVideoPlayer(): VideoPlayer {
         if (this.videoPlayerClass === VideoPlayer && !this._warned2) {
-            console.warn("VideoPlayer is not supported in this platform.");
+            console.warn(`VideoPlayer is not supported in this platform(${Browser.platformName}).`);
             this._warned2 = true;
         }
         return new this.videoPlayerClass();
@@ -132,4 +131,4 @@ export class MediaAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.Media", MediaAdapter);
+PAL.register("media", MediaAdapter);

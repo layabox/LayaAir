@@ -1,4 +1,4 @@
-import { LocalStorageAdapter } from "../platform/LocalStorageAdapter";
+import { StorageAdapter } from "../platform/StorageAdapter";
 import { PAL } from "../platform/PlatformAdapters";
 
 /**
@@ -6,7 +6,7 @@ import { PAL } from "../platform/PlatformAdapters";
  * @zh `LocalStorage` 类用于没有时间限制的数据存储。
  */
 export class LocalStorage {
-    static adapter: LocalStorageAdapter;
+    static adapter: StorageAdapter;
 
     /**
      * @en Stores a key-value pair as strings.
@@ -17,7 +17,7 @@ export class LocalStorage {
      * @param value 键值。
      */
     static setItem(key: string, value: string): void {
-        PAL.localStorage.setItem(key, value);
+        PAL.storage.setItem(key, value);
     }
 
     /**
@@ -29,7 +29,7 @@ export class LocalStorage {
      * @returns 与键关联的字符串值。
      */
     static getItem(key: string): string | null {
-        return PAL.localStorage.getItem(key);
+        return PAL.storage.getItem(key);
     }
 
     /**
@@ -41,7 +41,7 @@ export class LocalStorage {
      * @param value 键值。是 Object 类型，会被转化为 JSON 字符串存储。
      */
     static setJSON(key: string, value: any): void {
-        PAL.localStorage.setItem(key, JSON.stringify(value));
+        PAL.storage.setItem(key, JSON.stringify(value));
     }
 
     /**
@@ -53,7 +53,7 @@ export class LocalStorage {
      * @returns 与键关联的 Object 类型值。
      */
     static getJSON(key: string): any {
-        return JSON.parse(PAL.localStorage.getItem(key));
+        return JSON.parse(PAL.storage.getItem(key));
     }
 
     /**
@@ -63,7 +63,7 @@ export class LocalStorage {
      * @param key 键名。
      */
     static removeItem(key: string): void {
-        PAL.localStorage.removeItem(key);
+        PAL.storage.removeItem(key);
     }
 
     /**
@@ -71,7 +71,7 @@ export class LocalStorage {
      * @zh 清除所有本地存储的信息。
      */
     static clear(): void {
-        PAL.localStorage.clear();
+        PAL.storage.clear();
     }
 
     /**
@@ -81,7 +81,7 @@ export class LocalStorage {
      * @returns 存储的项目数量。
      */
     static get count(): number {
-        return PAL.localStorage.getCount();
+        return PAL.storage.getCount();
     }
 }
 

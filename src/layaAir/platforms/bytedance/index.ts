@@ -1,4 +1,5 @@
 import { Config } from "../../Config";
+import { VideoPlayer } from "../../laya/media/VideoPlayer";
 import { WebAudioChannel } from "../../laya/media/WebAudioChannel";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
@@ -23,6 +24,8 @@ PAL.postInitialize = function () {
 
     if (!Browser.onDevTools)
         (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
+    else //devtools下tt.createVideo报错
+        (<MgMediaAdapter>PAL.media).videoPlayerClass = VideoPlayer;
 
     setupMgWasmSupport((window as any).TTWebAssembly);
 

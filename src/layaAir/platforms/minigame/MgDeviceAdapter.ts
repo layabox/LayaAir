@@ -1,32 +1,32 @@
 import { GeolocationInfo } from "../../laya/device/geolocation/GeolocationInfo";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 import { ILaya } from "../../ILaya";
-import type { DeviceAdapter } from '../../laya/device/DeviceAdapter';
 import { PAL } from "../../laya/platform/PlatformAdapters";
-
-let BaseClass: typeof DeviceAdapter = ClassUtils.getClass("PAL.Device");
-if (!BaseClass)
-    BaseClass = <any>Object;
+import { DeviceAdapter } from "../../laya/platform/DeviceAdapter";
+import { RotationInfo } from "../../laya/device/motion/RotationInfo";
+import { AccelerationInfo } from "../../laya/device/motion/AccelerationInfo";
 
 var mg: WechatMinigame.Wx;
 
-export class MgDeviceAdapter extends BaseClass {
+export class MgDeviceAdapter extends DeviceAdapter {
     private _watchDic: Map<number, { successCallback: (info: GeolocationInfo) => void, errorCallback?: (err: { code: number; message: string }) => void }>;
     private _watchId: number = 1;
     private _watchOptions: PositionOptions;
 
+    private _accInfo: AccelerationInfo;
+    private _rotInfo: RotationInfo;
+
     constructor() {
         super();
-        this._watchDic = new Map();
+
         mg = PAL.global;
+
+        this._watchDic = new Map();
+        this._accInfo = { x: 0, y: 0, z: 0 };
+        this._rotInfo = { alpha: 0, beta: 0, gamma: 0, absolute: false, compassAccuracy: 0 };
     }
 
     get supportedLocation(): boolean {
-        return true;
-    }
-
-    get supportedGetUserMedia(): boolean {
-        return false;
+        return !!(mg.getFuzzyLocation || mg.getLocation);
     }
 
     getCurrentPosition(successCallback: (info: GeolocationInfo) => void, errorCallback?: (err: { code: number, message: string }) => void, options?: PositionOptions): void {
@@ -95,21 +95,19 @@ export class MgDeviceAdapter extends BaseClass {
         mg.startAccelerometer({ interval: "game" });
         mg.onAccelerometerChange(res => {
             Object.assign(this._accInfo, res);
-            Object.assign(this._accInfo2, res);
-            this.event("devicemotion", [this._accInfo, this._accInfo2, {}, 0]);
+            this.event("devicemotion", [this._accInfo, this._accInfo, {}, 0]);
         });
     }
 
     protected startListeningDeviceOrientation(): void {
         mg.startGyroscope({ interval: "game" });
         mg.onGyroscopeChange(res => {
-            this._rotInfo2.alpha = res.z;
-            this._rotInfo2.beta = res.x;
-            this._rotInfo2.gamma = res.y;
-            this.event("deviceorientation", [true, this._rotInfo2]);
+            this._rotInfo.alpha = res.z;
+            this._rotInfo.beta = res.x;
+            this._rotInfo.gamma = res.y;
+            this.event("deviceorientation", [true, this._rotInfo]);
         });
     }
 }
 
-if (BaseClass)
-    ClassUtils.regClass("PAL.Device", MgDeviceAdapter);
+PAL.register("device", MgDeviceAdapter);

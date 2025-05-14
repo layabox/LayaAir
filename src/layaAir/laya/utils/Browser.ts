@@ -204,8 +204,26 @@ export class Browser {
      * @zh 真实平台类型，onMobile等是通过UserAgent判断，可能具有欺骗性
      */
     static platform: number = 0;
+    /**
+     * @en The readable name of the platform.
+     * @zh 平台的可读名称。
+     */
+    static platformName: string = "";
+
+    /**
+     * @en PC platform.
+     * @zh PC 平台。
+     */
     static PLATFORM_PC = 0;
+    /**
+     * @en Android platform.
+     * @zh Android 平台。
+     */
     static PLATFORM_ANDROID = 1;
+    /**
+     * @en iOS platform.
+     * @zh iOS 平台。
+     */
     static PLATFORM_IOS = 2;
 
     /**
@@ -302,10 +320,14 @@ export class Browser {
             //也有可能是模拟器
             if (platform && (platform.indexOf("Win") != -1 || platform.indexOf("Mac") != -1))
                 Browser.platform = Browser.PLATFORM_PC;
-            else if (Browser.onAndroid)
+            else if (Browser.onAndroid) {
                 Browser.platform = Browser.PLATFORM_ANDROID;
-            else
+                Browser.platformName = "android";
+            }
+            else {
                 Browser.platform = Browser.PLATFORM_IOS;
+                Browser.platformName = "ios";
+            }
         }
         else
             Browser.platform = Browser.PLATFORM_PC;

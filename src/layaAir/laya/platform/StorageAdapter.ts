@@ -1,9 +1,9 @@
-import { ClassUtils } from "../utils/ClassUtils";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
  */
-export class LocalStorageAdapter {
+export class StorageAdapter {
     protected _storage: Storage;
     protected _supported: boolean;
 
@@ -44,10 +44,10 @@ export class LocalStorageAdapter {
 
     getCount(): number {
         if (this._supported)
-            return this._storage.length;
+            return this._storage.length || 0;
         else
             return 0;
     }
 }
 
-ClassUtils.regClass("PAL.LocalStorage", LocalStorageAdapter);
+PAL.register("storage", StorageAdapter);

@@ -1,7 +1,7 @@
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Browser } from "../utils/Browser";
-import { ClassUtils } from "../utils/ClassUtils";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
@@ -229,4 +229,4 @@ export class BrowserAdapter extends EventDispatcher {
     }
 }
 
-ClassUtils.regClass("PAL.Browser", BrowserAdapter);
+PAL.register("browser", BrowserAdapter);

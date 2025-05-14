@@ -6,8 +6,8 @@ import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { InputManager } from "../events/InputManager";
 import { Browser } from "../utils/Browser";
-import { ClassUtils } from "../utils/ClassUtils";
 import { SpriteUtils } from "../utils/SpriteUtils";
+import { PAL } from "./PlatformAdapters";
 
 /**
  * @ignore
@@ -373,4 +373,4 @@ export class TextInputAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.TextInput", TextInputAdapter);
+PAL.register("textInput", TextInputAdapter);

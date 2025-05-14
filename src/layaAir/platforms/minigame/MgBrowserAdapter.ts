@@ -1,9 +1,7 @@
 import { Event } from "../../laya/events/Event";
-import { URL } from "../../laya/net/URL";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
 import { Utils } from "../../laya/utils/Utils";
 import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 
@@ -17,7 +15,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     protected init() {
         mg = PAL.global;
-        URL.basePath = URL.rootPath = "";
         let platform: string = "";
 
         if (mg.getSystemInfoSync) {
@@ -54,13 +51,24 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
             Browser.onAndroid = false;
             Browser.platform = Browser.PLATFORM_IOS;
-        } else if (platform.indexOf("android") !== -1 || platform.indexOf("ohos") !== -1) {
+            Browser.platformName = "ios";
+        } else if (platform.indexOf("android") !== -1) {
             Browser.onIOS = false;
             Browser.onIPhone = false;
             Browser.onIPad = false;
 
             Browser.onAndroid = true;
             Browser.platform = Browser.PLATFORM_ANDROID;
+            Browser.platformName = "android";
+        }
+        else if (platform.indexOf("ohos") !== -1) {
+            Browser.onIOS = false;
+            Browser.onIPhone = false;
+            Browser.onIPad = false;
+
+            Browser.onAndroid = true;
+            Browser.platform = Browser.PLATFORM_ANDROID;
+            Browser.platformName = "ohos";
         } else {
             Browser.onIOS = false;
             Browser.onIPhone = false;
@@ -68,6 +76,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
             Browser.onAndroid = false;
             Browser.platform = Browser.PLATFORM_PC;
+            Browser.platformName = platform;
         }
 
         const { SDKVersion } = mg.getAppBaseInfo ? mg.getAppBaseInfo() : mg.getSystemInfoSync();
@@ -206,4 +215,4 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.Browser", MgBrowserAdapter);
+PAL.register("browser", MgBrowserAdapter);

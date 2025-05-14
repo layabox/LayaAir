@@ -1,6 +1,6 @@
-import { EventDispatcher } from "../events/EventDispatcher";
+import { DeviceAdapter } from "../platform/DeviceAdapter";
+import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
-import { ClassUtils } from "../utils/ClassUtils";
 import { GeolocationInfo } from "./geolocation/GeolocationInfo";
 import { AccelerationInfo } from "./motion/AccelerationInfo";
 import { RotationInfo } from "./motion/RotationInfo";
@@ -8,19 +8,26 @@ import { RotationInfo } from "./motion/RotationInfo";
 /**
  * @ignore
  */
-export class DeviceAdapter extends EventDispatcher {
+export class WebDeviceAdapter extends DeviceAdapter {
     protected _loc: Geolocation;
     protected _getUserMedia: (constraints: MediaStreamConstraints) => Promise<MediaStream>;
 
-    protected _locInfo: GeolocationInfo = new GeolocationInfo();
-    protected _accInfo: AccelerationInfo = new AccelerationInfo();
-    protected _accInfo2: AccelerationInfo = new AccelerationInfo();
-    protected _rotInfo: RotationInfo = new RotationInfo();
-    protected _rotInfo2: RotationInfo = new RotationInfo();
+    protected _locInfo: GeolocationInfo;
+    protected _accInfo: AccelerationInfo;
+    protected _accInfo2: AccelerationInfo;
+    protected _rotInfo: RotationInfo;
+    protected _rotInfo2: RotationInfo;
 
     constructor() {
         super();
 
+        this._locInfo = { timestamp: 0, accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, latitude: 0, longitude: 0, speed: 0 };
+        this._accInfo = { x: 0, y: 0, z: 0 };
+        this._accInfo2 = Object.assign({}, this._accInfo);
+        this._rotInfo = { alpha: 0, beta: 0, gamma: 0, absolute: false, compassAccuracy: 0 };
+        this._rotInfo2 = Object.assign({}, this._rotInfo);
+
+        let navigator = window.navigator;
         if (navigator) {
             this._loc = navigator.geolocation;
             this._getUserMedia = navigator.mediaDevices?.getUserMedia || (navigator as any).getUserMedia;
@@ -81,14 +88,6 @@ export class DeviceAdapter extends EventDispatcher {
         }
         else
             errorCallback?.(new Error("getUserMedia is not supported."));
-    }
-
-    protected onStartListeningToType(type: string) {
-        if (type === "devicemotion")
-            this.startListeningDeviceMotion();
-        else if (type === "deviceorientation")
-            this.startListeningDeviceOrientation();
-        return this;
     }
 
     protected startListeningDeviceMotion() {
@@ -154,4 +153,4 @@ export class DeviceAdapter extends EventDispatcher {
 
 const unsupportedError: any = { code: 9, message: "Geolocation is not supported." };
 
-ClassUtils.regClass("PAL.Device", DeviceAdapter);
+PAL.register("device", WebDeviceAdapter);

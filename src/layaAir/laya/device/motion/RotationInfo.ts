@@ -3,7 +3,7 @@
  * @zh 保存旋转信息的类。请勿修改本类的属性。
  * @author Survivor
  */
-export class RotationInfo {
+export interface RotationInfo {
     /**
      * @en Indicates whether the device can provide absolute orientation data (toward the Earth coordinate system) or an arbitrary coordinate system determined by the device.
      * For more information about coordinate systems, see (https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Orientation_and_motion_data_explained).

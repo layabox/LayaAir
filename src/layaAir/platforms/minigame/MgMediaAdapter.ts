@@ -2,10 +2,10 @@ import { VideoPlayer } from "../../laya/media/VideoPlayer";
 import { VideoTexture } from "../../laya/media/VideoTexture";
 import { MediaAdapter } from "../../laya/platform/MediaAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { ClassUtils } from "../../laya/utils/ClassUtils";
-import { MgInnerAudioChannel, MgWebAudioChannel } from "./MgInnerAudioChannel";
+import { MgInnerAudioChannel } from "./MgInnerAudioChannel";
 import { MgVideoPlayer } from "./MgVideoPlayer";
 import { WxVideoTexture } from "../weixin/WxVideoTexture";
+import { MgWebAudioChannel } from "./MgWebAudioChannel";
 
 var mg: WechatMinigame.Wx;
 
@@ -27,4 +27,4 @@ export class MgMediaAdapter extends MediaAdapter {
     }
 }
 
-ClassUtils.regClass("PAL.Media", MgMediaAdapter);
+PAL.register("media", MgMediaAdapter);

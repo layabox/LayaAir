@@ -1,12 +1,13 @@
 import { Mutable } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 import { type BrowserAdapter } from "./BrowserAdapter";
-import { type LocalStorageAdapter } from "./LocalStorageAdapter";
+import { type StorageAdapter } from "./StorageAdapter";
 import { type MediaAdapter } from "./MediaAdapter";
 import { type TextInputAdapter } from "./TextInputAdapter";
-import { type DeviceAdapter } from "../device/DeviceAdapter";
+import { type WebDeviceAdapter } from "../device/WebDeviceAdapter";
 import { type FontAdapter } from "./FontAdapter";
 import { type FileSystemAdapter } from "./FileSystemAdapter";
+
+const AdapterNames = ["browser", "fs", "storage", "font", "textInput", "media", "device"] as const;
 
 /**
  * @en Platform Adapter Libraries.
@@ -35,13 +36,13 @@ export class PAL {
      * @en The LocalStorage Adapter.
      * @zh 本地存储适配器。
      */
-    static readonly localStorage: LocalStorageAdapter;
+    static readonly storage: StorageAdapter;
 
     /**
      * @en The Device Adapter.
      * @zh 设备适配器。
      */
-    static readonly device: DeviceAdapter;
+    static readonly device: WebDeviceAdapter;
 
     /**
      * @en The Font Adapter.
@@ -71,7 +72,9 @@ export class PAL {
      * @en The global object built into the platform. For example, wx in WeChat.
      * @zh 平台内置的全局对象。例如微信中的wx。
      */
-    static global: any;
+    static global: any = null;
+
+    private static _classes: Record<string, any> = {};
 
     /**
      * @internal
@@ -80,24 +83,25 @@ export class PAL {
         return Promise.resolve().then(() => {
             return PAL.preIntialize?.();
         }).then(() => {
-            let p = <Mutable<typeof PAL>>PAL;
-            p.browser = PAL.createAdapter("Browser");
-            p.fs = PAL.createAdapter("FileSystem");
-            p.localStorage = PAL.createAdapter("LocalStorage");
-            p.font = PAL.createAdapter("Font");
-            p.textInput = PAL.createAdapter("TextInput");
-            p.media = PAL.createAdapter("Media");
-            p.device = PAL.createAdapter("Device");
+            for (let key of AdapterNames) {
+                let cls = PAL._classes[key];
+                if (cls)
+                    (<Mutable<typeof PAL>>PAL)[key] = new cls();
+            }
         }).then(() => {
             return PAL.postInitialize?.();
         });
     }
 
-    private static createAdapter(name: string) {
-        let cls = ClassUtils.getClass("PAL." + name);
-        if (cls)
-            return new cls();
-        else
-            return null;
+    /**
+     * @en Register a platform adapter.
+     * @param name The name of the adapter.
+     * @param cls The class of the adapter.
+     * @zh 注册一个平台适配器。
+     * @param name 适配器的名称。
+     * @param cls 适配器的类。
+     */
+    static register(name: typeof AdapterNames[number], cls: any) {
+        PAL._classes[name] = cls;
     }
 }

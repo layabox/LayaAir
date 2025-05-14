@@ -2,7 +2,7 @@
  * @en Represents geolocation information for a device.
  * @zh 表示设备的地理位置信息。
  */
-export class GeolocationInfo {
+export interface GeolocationInfo {
     /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/GeolocationPosition/timestamp) */
     timestamp: number;
     /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/GeolocationCoordinates/time) */
