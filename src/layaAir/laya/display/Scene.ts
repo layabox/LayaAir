@@ -50,7 +50,7 @@ export class Scene extends Sprite {
     private static _root: Sprite;
     private static _loadPage: Sprite;
 
-    /**@private 场景组件管理表 */
+    /** 场景组件管理表 */
     private static componentManagerMap: Map<string, any> = new Map();
 
     /**

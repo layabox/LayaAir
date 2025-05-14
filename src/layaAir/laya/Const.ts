@@ -1,5 +1,5 @@
 /**
- * @private
+ * @ignore
  * 静态常量集合
  */
 export class Const {
@@ -13,6 +13,7 @@ export class Const {
 }
 
 /**
+ * @ignore
  * 节点标志
  */
 export class NodeFlags {
@@ -41,9 +42,29 @@ export class NodeFlags {
     static ESCAPE_LAYOUT = 0x400000; //FGUI use
 }
 
+/**
+ * @en HideFlags is a class that defines the flags used to control the visibility and saving behavior of objects in the editor.
+ * @zh HideFlags 是一个类，用于定义在编辑器中控制对象的可见性和保存行为的标志。
+ */
 export class HideFlags {
+    /**
+     * @en The object is hidden in the hierarchy.
+     * @zh 对象在层级中隐藏。
+     */
     static HideInHierarchy = 0x1;
+    /**
+     * @en The object is hidden in the inspector.
+     * @zh 对象在检查器中隐藏。
+     */
     static HideInInspector = 0x2;
+    /**
+     * @en The object is not saved to the scene or prefab.
+     * @zh 对象不会保存到场景或预制件中。
+     */
     static DontSave = 0x4;
+    /**
+     * @en The object is hidden and not saved to the scene or prefab.
+     * @zh 对象隐藏且不会保存到场景或预制件中。
+     */
     static HideAndDontSave = 0x7;
 }

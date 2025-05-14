@@ -245,6 +245,12 @@ export class Browser {
     static isIOSHighPerformanceModePlus: boolean;
 
     /**
+     * @en Indicates whether the environment supports DOM.
+     * @zh 表示环境是否支持 DOM。
+     */
+    static isDomSupported: boolean = true;
+
+    /**
      * @en The version of the system.
      * @zh 系统版本。
      */
@@ -291,18 +297,17 @@ export class Browser {
         //处理兼容性
         let win: any = Browser.window = window;
         Browser.document = document;
-        let u: string = Browser.userAgent = win.navigator.userAgent;
-        let maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
-        let platform: string = win.navigator.platform;
 
-        //新增trace的支持
-        win.trace = console.log;
+        let navigator = win.navigator || {};
+        let u: string = Browser.userAgent = navigator.userAgent || "";
+        let maxTouchPoints: number = navigator.maxTouchPoints || 0;
+        let platform: string = (navigator.platform || "").toLowerCase();
 
         Browser.onMobile = u.indexOf("Mobile") > -1;
         Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         Browser.onIPhone = u.indexOf("iPhone") > -1;
         Browser.onMac = u.indexOf("Mac OS X") > -1;
-        Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'MacIntel' && maxTouchPoints > 1);
+        Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'macintel' && maxTouchPoints > 1);
         Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
         Browser.onOpenHarmonyOS = u.indexOf('OpenHarmony') > -1;
         Browser.onWP = u.indexOf("Windows Phone") > -1;
@@ -318,7 +323,7 @@ export class Browser {
 
         if (Browser.onAndroid || Browser.onIOS) {
             //也有可能是模拟器
-            if (platform && (platform.indexOf("Win") != -1 || platform.indexOf("Mac") != -1))
+            if (platform.indexOf("win") != -1 || platform.indexOf("mac") != -1)
                 Browser.platform = Browser.PLATFORM_PC;
             else if (Browser.onAndroid) {
                 Browser.platform = Browser.PLATFORM_ANDROID;

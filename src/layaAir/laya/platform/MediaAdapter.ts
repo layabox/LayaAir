@@ -52,21 +52,15 @@ export class MediaAdapter {
         return longAudioUsage ? new this.longAudioClass(url) : new this.shortAudioClass(url);
     }
 
-    private _warned: boolean = false;
     createVideoTexture(): VideoTexture {
-        if (this.videoTextureClass === VideoTexture && !this._warned) {
-            console.warn(`VideoTexture is not supported in in this platform(${Browser.platformName}).`);
-            this._warned = true;
-        }
+        if (this.videoTextureClass === VideoTexture)
+            PAL.warnIncompatibility("VideoTexture");
         return new this.videoTextureClass();
     }
 
-    private _warned2: boolean = false;
     createVideoPlayer(): VideoPlayer {
-        if (this.videoPlayerClass === VideoPlayer && !this._warned2) {
-            console.warn(`VideoPlayer is not supported in this platform(${Browser.platformName}).`);
-            this._warned2 = true;
-        }
+        if (this.videoPlayerClass === VideoPlayer)
+            PAL.warnIncompatibility("VideoPlayer");
         return new this.videoPlayerClass();
     }
 

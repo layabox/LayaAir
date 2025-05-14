@@ -6,6 +6,7 @@ import { type TextInputAdapter } from "./TextInputAdapter";
 import { type WebDeviceAdapter } from "../device/WebDeviceAdapter";
 import { type FontAdapter } from "./FontAdapter";
 import { type FileSystemAdapter } from "./FileSystemAdapter";
+import { Browser } from "../utils/Browser";
 
 const AdapterNames = ["browser", "fs", "storage", "font", "textInput", "media", "device"] as const;
 
@@ -80,6 +81,14 @@ export class PAL {
      * @internal
      */
     static __init__(): Promise<void> {
+        if (!console.time) { //有些平台，例如taobao没有这个
+            console.time = function (name: string) {
+            };
+            console.timeEnd = function (name: string) {
+                console.log(name);
+            };
+        }
+
         return Promise.resolve().then(() => {
             return PAL.preIntialize?.();
         }).then(() => {
@@ -104,4 +113,20 @@ export class PAL {
     static register(name: typeof AdapterNames[number], cls: any) {
         PAL._classes[name] = cls;
     }
+
+    /**
+     * @en Print a warning message if the specified feature is not supported on the current platform.
+     * @param name The name of the feature.
+     * @zh 打印一条警告消息，说明当前平台不支持指定的功能。
+     * @param name 功能的名称。
+     */
+    static warnIncompatibility(name: string) {
+        if (!warned.has(name)) {
+            warned.add(name);
+
+            console.warn(`${name} is not supported in this platform(${Browser.platformName}).`);
+        }
+    }
 }
+
+const warned: Set<string> = new Set();

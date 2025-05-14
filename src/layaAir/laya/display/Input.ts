@@ -211,6 +211,9 @@ export class Input extends Text {
     }
 
     set prompt(value: string) {
+        if (value == null)
+            value = "";
+
         value = Text.langPacks?.[value] || value;
         if (this._prompt != value) {
             this._prompt = value;

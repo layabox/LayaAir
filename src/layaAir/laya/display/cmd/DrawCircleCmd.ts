@@ -53,7 +53,6 @@ export class DrawCircleCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawCircleCmd instance
      * @param x X-axis position of the circle center
      * @param y Y-axis position of the circle center

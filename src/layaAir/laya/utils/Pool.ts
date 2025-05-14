@@ -10,11 +10,8 @@ export interface IPool<T> {
 }
 
 export class Pool {
-    /**@private */
     private static _CLSID: number = 0;
-    /**@private */
     private static POOLSIGN: string = "__InPool";
-    /**@private  对象存放池。*/
     private static _poolDic: any = {};
 
     /**

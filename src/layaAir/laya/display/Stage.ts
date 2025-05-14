@@ -173,7 +173,6 @@ export class Stage extends Sprite {
      */
     readonly focus: Node;
     /**
-     * @private
      * @deprecated
      * @en Offset relative to the browser's top-left corner, deprecated, please use _canvasTransform.
      * @zh 相对浏览器左上角的偏移，弃用，请使用_canvasTransform。
@@ -508,7 +507,7 @@ export class Stage extends Sprite {
         mat.ty = this._formatData(mat.ty);
 
         this.transform = this.transform; //force call
-        let canvasStyle = Browser.mainCanvas.source.style;
+        let canvasStyle = Browser.mainCanvas.style;
         canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = (canvasStyle as any).msTransformOrigin = (canvasStyle as any).mozTransformOrigin = (canvasStyle as any).oTransformOrigin = "0px 0px 0px";
         canvasStyle.transform = canvasStyle.webkitTransform = (canvasStyle as any).msTransform = (canvasStyle as any).mozTransform = (canvasStyle as any).oTransform = "matrix(" + mat.toString() + ")";
         canvasStyle.width = canvasWidth + "px";
@@ -624,7 +623,6 @@ export class Stage extends Sprite {
         }
     }
 
-    /**@private */
     private _formatData(value: number): number {
         if (Math.abs(value) < 0.000001) return 0;
         if (Math.abs(1 - value) < 0.001) return value > 0 ? 1 : -1;
@@ -719,7 +717,7 @@ export class Stage extends Sprite {
         else
             this._wgColor = null;
 
-        Browser.mainCanvas.source.style.background = value ?? "none";
+        Browser.mainCanvas.style.background = value ?? "none";
     }
 
     /**
@@ -815,7 +813,7 @@ export class Stage extends Sprite {
     set visible(value: boolean) {
         super.visible = value;
 
-        Browser.mainCanvas.source.style.visibility = value ? "visible" : "hidden";
+        Browser.mainCanvas.style.visibility = value ? "visible" : "hidden";
     }
 
     /**

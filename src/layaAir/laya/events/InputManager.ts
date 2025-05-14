@@ -175,7 +175,7 @@ export class InputManager {
     }
 
     /**
-     * @private
+     * @internal
      * @en Initialization.
      * @zh 初始化。
      */
@@ -183,6 +183,7 @@ export class InputManager {
         let inst = _inst = new InputManager();
         inst._stage = ILaya.stage;
         let canvas = Browser.mainCanvas.source;
+        let passiveOption: AddEventListenerOptions = { passive: false };
 
         canvas.oncontextmenu = () => {
             return false;
@@ -191,18 +192,18 @@ export class InputManager {
             if (!Browser.onIE)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 0);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mouseup", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 1);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mousemove", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 2);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mouseout", ev => {
             inst.handleMouse(ev, 3);
-        }, { passive: false });
+        }, passiveOption);
         // canvas.addEventListener("mouseover", ev => {
         // });
 
@@ -210,25 +211,25 @@ export class InputManager {
             if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchend", ev => {
             if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             _isFirstTouch = false;
             inst.handleTouch(ev, 1);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchmove", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 2);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchcancel", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 3);
-        }, { passive: false });
+        }, passiveOption);
 
         canvas.addEventListener("wheel", ev => {
             inst.handleMouse(ev, 4);
-        }, { passive: false });
+        }, passiveOption);
 
         if (typeof (canvas.setPointerCapture) === 'function') {
             canvas.addEventListener("pointerdown", ev => {

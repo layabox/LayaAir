@@ -5,10 +5,8 @@ import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { Browser } from "../../laya/utils/Browser";
-import { Utils } from "../../laya/utils/Utils";
-import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 import { MgCacheManager } from "../minigame/MgCacheManager";
-import { MgDownloader } from "../minigame/MgDownloader";
+import { TbDownloader } from "./TbDownloader";
 
 PAL.preIntialize = function () {
     Browser.onTBMiniGame = true;
@@ -33,7 +31,7 @@ PAL.postInitialize = function () {
     }, true);
 
     let cacheManager = new MgCacheManager(PAL.global.env.USER_DATA_PATH + "/layaCache");
-    let downloader = Loader.downloader = new MgDownloader();
+    let downloader = Loader.downloader = new TbDownloader();
     downloader.cacheManager = cacheManager;
 
     return cacheManager.start();

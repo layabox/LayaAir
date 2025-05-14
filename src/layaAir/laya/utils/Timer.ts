@@ -388,9 +388,6 @@ export class Timer {
     }
 }
 
-
-
-/** @private */
 class TimerHandler {
     /**
      * @en The key of the timer handler.

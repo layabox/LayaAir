@@ -1,6 +1,6 @@
 import { Event } from "../events/Event";
+import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
-import { ImgUtils } from "../utils/ImgUtils";
 import { ProgressCallback } from "./BatchProgress";
 import { HttpRequest } from "./HttpRequest";
 import { WorkerLoader } from "./WorkerLoader";
@@ -93,8 +93,11 @@ export class Downloader {
      * @param onComplete 下载完成时的回调函数。
      */
     imageWithBlob(owner: any, blob: ArrayBuffer, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
-        let url = ImgUtils.arrayBufferToURL(originalUrl, blob);
-        this.image(owner, url, originalUrl, onProgress, onComplete);
+        let url = PAL.browser.createBufferURL(blob);
+        if (url)
+            this.image(owner, url, originalUrl, onProgress, onComplete);
+        else
+            onComplete(null, "Blob URL creation not supported.");
     }
 
     /**

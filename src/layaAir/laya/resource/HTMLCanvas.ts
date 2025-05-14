@@ -15,6 +15,7 @@ export class HTMLCanvas extends Resource {
 
     protected _ctx: any;
     protected _texture: Texture | BaseTexture;
+    protected _style: any;
 
     source: HTMLCanvasElement;
     width: number = 0;
@@ -103,6 +104,15 @@ export class HTMLCanvas extends Resource {
      */
     getContext(contextID: string, other?: any): Context {
         return this.context;
+    }
+
+    /**
+     * @en The style of the Canvas.
+     * @zh Canvas 的样式。
+     */
+    get style(): CSSStyleDeclaration {
+        //taobao下无法获取style对象，即使设置了也是null
+        return this.source.style || this._style || (this._style = {});
     }
 
     /**

@@ -16,9 +16,9 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 
     declare _render: PixelLineRenderer;
 
-    /** @private 是否调用active */
+    /** 是否调用active */
     private _isRenderActive: Boolean = false;
-    /** @private 是否加入渲染队列*/
+    /** 是否加入渲染队列*/
     private _isInRenders: Boolean = false;
     /** @internal */
     public _geometryFilter: PixelLineFilter;

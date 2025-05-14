@@ -30,16 +30,12 @@ export class MgDownloader extends Downloader {
      */
     supportSubPackageMultiLevelFolders: boolean = true;
 
-    private downloadFileFunction: typeof wx.downloadFile;
-
     private subPackages: Record<string, string>;
 
     constructor() {
         super();
 
         mg = PAL.global;
-        //vivo下载接口是download而不是downloadFile
-        this.downloadFileFunction = Browser.onVVMiniGame ? PAL.global.download : mg.downloadFile;
 
         let old = URL.postFormatURL;
         URL.postFormatURL = url => {
@@ -128,8 +124,8 @@ export class MgDownloader extends Downloader {
         onProgress && loadTask.onProgressUpdate && loadTask.onProgressUpdate(res => onProgress(res.progress));
     }
 
-    private downloadFile(url: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
-        let task = this.downloadFileFunction({
+    protected downloadFile(url: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
+        let task = mg.downloadFile({
             url,
             success: (res) => {
                 if (res.statusCode === 200) {
@@ -150,7 +146,7 @@ export class MgDownloader extends Downloader {
         }
     }
 
-    private readFile(url: string, contentType: string, onComplete: DownloadCompleteCallback) {
+    protected readFile(url: string, contentType: string, onComplete: DownloadCompleteCallback) {
         let filePath = this.urlToFilePath(url);
         PAL.fs.readFile(filePath, contentType === "arraybuffer" ? "" : "utf8").then(data => {
             switch (contentType) {
@@ -175,7 +171,7 @@ export class MgDownloader extends Downloader {
             return url;
     }
 
-    private escapeURL(url: string): string {
+    protected escapeURL(url: string): string {
         if (!this.supportSubPackageMultiLevelFolders && this.subPackages) {
             for (let k in this.subPackages) {
                 if (url.startsWith(k)) {

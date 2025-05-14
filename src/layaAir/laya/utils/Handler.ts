@@ -8,9 +8,7 @@
  */
 export class Handler {
 
-    /**@private handler对象池*/
-    protected static _pool: Handler[] = [];
-    /**@private */
+    private static _pool: Handler[] = [];
     private static _gid: number = 1;
 
     /**
@@ -34,7 +32,6 @@ export class Handler {
      */
     once = false;
 
-    /**@private */
     protected _id = 0;
 
     /**

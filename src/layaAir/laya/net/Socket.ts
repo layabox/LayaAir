@@ -1,6 +1,7 @@
-import { Event } from "../events/Event"
-import { EventDispatcher } from "../events/EventDispatcher"
-import { Byte } from "../utils/Byte"
+import { Event } from "../events/Event";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { Byte } from "../utils/Byte";
+
 /**
  * @en Socket encapsulates HTML5 WebSocket, allowing full-duplex real-time communication between server and client, and cross-domain communication. After establishing a connection, both server and Browser/Client Agent can actively send or receive text and binary data to each other.
  * -  To use Socket class methods, first create a Socket object using the constructor new Socket. Socket transmits and receives data asynchronously.
@@ -26,6 +27,7 @@ export class Socket extends EventDispatcher {
      * @zh 大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
      */
     static BIG_ENDIAN: string = "bigEndian";
+
     /**@internal */
     _endian: string;
     protected _socket: any;

@@ -10,7 +10,6 @@ import { Pool } from "../utils/Pool";
 export class Rectangle implements IClone {
 
     /**
-     * @private
      * @en Global empty rectangle area with x=0, y=0, width=0, height=0. The content of this object is not allowed to be modified.
      * @zh 全局空的矩形区域，x=0, y=0, width=0, height=0。不允许修改此对象内容。
      */

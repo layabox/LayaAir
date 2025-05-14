@@ -25,20 +25,16 @@ export class Byte {
      * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
      */
     static LITTLE_ENDIAN: string = "littleEndian";
-    /**@private */
-    private static _sysEndian: string = null;
-    /**@private 是否为小端数据。*/
+
+    /** 是否为小端数据。*/
     protected _xd_: boolean = true;
-    /**@private */
-    private _allocated_: number = 8;
-    /**@private 原始数据。*/
+    protected _allocated_: number = 8;
     protected _d_: any
-    /**@private DataView*/
     protected _u8d_: any;
-    /**@private */
     protected _pos_: number = 0;
-    /**@private */
     protected _length: number = 0;
+
+    private static _sysEndian: string = null;
 
     /**
      * @en Get the byte order of the current host.
@@ -66,7 +62,7 @@ export class Byte {
      * @zh 构造方法
      * @param data 用于指定初始化的元素数目，或者用于初始化的TypedArray对象、ArrayBuffer对象。如果为 null ，则预分配一定的内存空间，当可用空间不足时，优先使用这部分内存，如果还不够，则重新分配所需内存。
      */
-    constructor(data: any = null) {
+    constructor(data?: any) {
         if (data) {
             this._u8d_ = new Uint8Array(data);
             this._d_ = new DataView(this._u8d_.buffer);
@@ -123,7 +119,6 @@ export class Byte {
         return this._length;
     }
 
-    /**@private */
     private _resizeBuffer(len: number): void {
         try {
             var newByteView: any = new Uint8Array(len);

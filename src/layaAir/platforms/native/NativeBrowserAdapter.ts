@@ -1,13 +1,15 @@
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
+import { Browser } from "../../laya/utils/Browser";
 
 var conch: WechatMinigame.Wx;
 
 export class NativeBrowserAdapter extends BrowserAdapter {
-    constructor() {
-        super();
+    init() {
+        super.init();
 
         conch = PAL.global;
+        Browser.isDomSupported = false;
     }
 
     createMainCanvas() {

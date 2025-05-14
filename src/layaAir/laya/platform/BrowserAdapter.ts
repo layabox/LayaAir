@@ -103,8 +103,7 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     protected initRequestFrameFunction(): void {
-        this.requestFrame = requestAnimationFrame
-            || window.requestAnimationFrame
+        this.requestFrame = window.requestAnimationFrame
             || (window as any).webkitRequestAnimationFrame
             || (window as any).mozRequestAnimationFrame
             || (window as any).oRequestAnimationFrame

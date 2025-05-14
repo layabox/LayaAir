@@ -65,7 +65,6 @@ export class Widget extends Component {
     }
 
     /**
-     * @private
      * @en Resets the object's layout along the X-axis (horizontal direction).
      * @zh 重置对象的水平布局（X轴方向）。
      */
@@ -95,7 +94,6 @@ export class Widget extends Component {
     }
 
     /**
-     * @private
      * @en Resets the object's layout along the Y-axis (vertical direction).
      * @zh 重置对象的垂直布局（Y轴方向）。
      */

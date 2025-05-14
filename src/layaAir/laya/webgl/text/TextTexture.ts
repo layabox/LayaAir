@@ -52,15 +52,15 @@ export class TextTexture extends Texture2D {
      * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
      */
     addChar(data: ImageData | HTMLCanvasElement, x: number, y: number, uv?: number[]): number[] {
-        if (data instanceof ImageData) {
-            var dt: any = data.data;
-            if (data.data instanceof Uint8ClampedArray)
+        if (TextRenderConfig.useImageData) {
+            var dt: any = (<ImageData>data).data;
+            if ((<ImageData>data).data instanceof Uint8ClampedArray)
                 dt = new Uint8Array(dt.buffer);
 
             LayaGL.textureContext.setTextureSubPixelsData(this._texture, dt, 0, false, x, y, data.width, data.height, true, false);
         }
         else {
-            LayaGL.textureContext.setTextureSubImageData(this._texture, data, x, y, true, false);
+            LayaGL.textureContext.setTextureSubImageData(this._texture, <HTMLCanvasElement>data, x, y, true, false);
         }
 
         let u0: number;

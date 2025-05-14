@@ -8,8 +8,6 @@ import { TextRenderConfig } from "../../laya/webgl/text/TextRenderConfig";
 var mg: WechatMinigame.Wx;
 
 export class MgBrowserAdapter extends BrowserAdapter {
-    private _windowWidth: number;
-    private _windowHeight: number;
     private _visible: boolean;
     private _orientation: OrientationType;
 
@@ -20,16 +18,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (mg.getSystemInfoSync) {
             let systemInfo = mg.getSystemInfoSync();
             this._pixelRatio = systemInfo.pixelRatio;
-            this._windowWidth = systemInfo.windowWidth;
-            this._windowHeight = systemInfo.windowHeight;
             this._orientation = systemInfo.deviceOrientation === "landscape" ? "landscape-primary" : "portrait-primary";
             platform = systemInfo.platform || "";
         }
         else if (mg.getWindowInfo) {
             let windowInfo = mg.getWindowInfo();
             this._pixelRatio = windowInfo.pixelRatio;
-            this._windowWidth = windowInfo.windowWidth;
-            this._windowHeight = windowInfo.windowHeight;
             if (mg.getDeviceInfo) {
                 let deviceInfo = mg.getDeviceInfo();
                 platform = deviceInfo.platform || "";
@@ -42,7 +36,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo
             this._pixelRatio = window.devicePixelRatio;
         }
-        console.log(`platform=${platform}, windowSize=${this._windowWidth}x${this._windowHeight}, dpr=${this._pixelRatio}, orientation=${this._orientation}`);
+        console.log(`platform=${platform}, dpr=${this._pixelRatio}, orientation=${this._orientation}`);
 
         if (platform.indexOf("ios") !== -1) {
             Browser.onIOS = true;
@@ -67,6 +61,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             Browser.onIPad = false;
 
             Browser.onAndroid = true;
+            Browser.onOpenHarmonyOS = true;
             Browser.platform = Browser.PLATFORM_ANDROID;
             Browser.platformName = "ohos";
         } else {
@@ -85,6 +80,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
         const { system } = mg.getDeviceInfo ? mg.getDeviceInfo() : mg.getSystemInfoSync();
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
+
+        Browser.isDomSupported = false;
 
         /*
          这个是原来的isWan1Wan标志的逻辑
@@ -112,8 +109,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         if (mg.onWindowResize) {
             mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
-                this._windowWidth = result.windowWidth;
-                this._windowHeight = result.windowHeight;
                 this.event(Event.RESIZE);
             });
         }
@@ -135,14 +130,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
                     console.error(e);
             });
         }
-    }
-
-    getClientWidth(): number {
-        return this._windowWidth;
-    }
-
-    getClientHeight(): number {
-        return this._windowHeight;
     }
 
     getVisibility(): boolean {
@@ -168,8 +155,9 @@ export class MgBrowserAdapter extends BrowserAdapter {
             ele = mg.createCanvas();
         else
             ele = super.createElement(tagName);
-        (!ele.style) && (ele.style = {});
-        if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
+        if (!ele.style)
+            ele.style = {};
+        else if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
             ele.style = {};
         return ele;
     }

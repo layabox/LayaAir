@@ -49,7 +49,6 @@ export class Transform {
 	/**
 	 * @en The internal matrix used for transformations.
 	 * @zh 用于变换的内部矩阵。
-	 * @private
 	 */
 	private mMatrix: Matrix;
 

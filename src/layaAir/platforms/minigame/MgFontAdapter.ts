@@ -5,6 +5,11 @@ import { PAL } from "../../laya/platform/PlatformAdapters";
 export class MgFontAdapter extends FontAdapter {
 
     loadFont(task: ILoadTask): Promise<{ family: string } | null> {
+        if (!PAL.global.loadFont) {
+            PAL.warnIncompatibility("TTFont");
+            return Promise.resolve(null);
+        }
+
         return task.loader.fetch(task.url, <any>"filePath", task.progress.createCallback(), task.options).then((filePath: string) => {
             if (filePath) {
                 let fontFamily = (<WechatMinigame.Wx>PAL.global).loadFont(filePath);
