@@ -53,8 +53,8 @@ export class Stage extends Sprite {
     static SCALE_NOSCALE: string = "noscale";
 
     /**
-     * @en Scale the stage to fit the screen while maintaining the aspect ratio, ensuring that the entire design width and height remain visible. The canvas size remains equal to the design width and height, while the stage dimensions are calculated based on the design width and height multiplied by the minimum scaling factor of the physical resolution. Although this prevents content from being cropped, it may result in blank margins at the top and bottom or on the sides.
-     * @zh 保持纵横比的情况下，将舞台缩放以适应屏幕，确保整个舞台内容可见。画布的的宽高等于设计宽高，舞台的宽高根据设计宽度和高度乘以物理分辨率的最小缩放因子计算。虽然避免了内容被裁切，但可能会出现上下或左右的空白边缘。
+     * @en The canvas and stage are proportionally scaled to fit the screen as much as possible while preserving the original design aspect ratio. The scaling factor is determined by the smaller ratio between the screen size and the design resolution (width and height), ensuring that all design content remains fully visible without cropping. This approach may result in blank margins at the top/bottom or sides of the screen, which are typically handled using appropriate canvas alignment settings.
+     * @zh 保持设计宽高比例的情况下，将画布和舞台等比缩放至屏幕最大尺寸，缩放系数取设计宽度与屏幕宽度、设计高度与屏幕高度之间的最小缩放因子，以确保整个设计宽高的内容可见，避免裁切，但可能会出现上下或左右的空白边缘，通常需要配合画布的对齐方式使用。
      */
     static SCALE_SHOWALL: string = "showall";
 
