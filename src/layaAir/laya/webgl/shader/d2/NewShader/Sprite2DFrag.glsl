@@ -39,21 +39,9 @@ vec4 transspaceColor(vec4 color)
  }
 
 
-  varying vec2 v_cliped;
-#if defined(PRIMITIVEMESH)
-    varying vec4 v_color;
-  
-  
+varying vec2 v_cliped;
 
-    vec4 getGlColor(vec4 color){
-        #ifdef GAMMASPACE
-            return color;
-        #else
-            return gammaToLinear(color);
-        #endif
-    }
-
-#elif defined(TEXTUREVS)
+#ifdef TEXTUREVS
     varying vec4 v_texcoordAlpha;
     varying vec4 v_color;
     varying float v_useTex;

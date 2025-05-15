@@ -7,8 +7,13 @@ void transfrom(vec2 pos,vec4 xDir,vec4 yDir,out vec2 outPos){
 }
 
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
-    outPos.y = -(yDir.x*pos.x+yDir.y*pos.y -yDir.z);
+    // outPos.x = xDir.x*pos.x+ xDir.y*pos.y + xDir.z;
+    // outPos.y = -(yDir.x*pos.x+ yDir.y*pos.y -yDir.z);
+    outPos.x =  xDir.x * pos.x - yDir.x  * pos.y + xDir.z ;
+    // outPos.y = -  yDir.x * pos.x - yDir.y * pos.y + yDir.z ;
+    outPos.y =  xDir.y * pos.x - yDir.y * pos.y + yDir.z;
+    // outPos.y =   - ( yDir.x * pos.x + yDir.y * pos.y - yDir.z );
+    // outPos.y = - ( xDir.y * pos.x + yDir.y * pos.y - yDir.z );
 }
 
 

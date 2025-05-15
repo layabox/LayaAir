@@ -5,8 +5,9 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,IGlobalRenderData} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,IGlobalRenderData, IDynamicVIBuffer} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { WebDynamicVIBuffer } from "../../RenderModuleData/WebModuleData/2D/WebDynamicVIBuffer";
 import { WebRender2DPass } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
@@ -19,6 +20,11 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
     }
+    
+    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer {
+        return new WebDynamicVIBuffer(vertexBlockSize, indexBlockSize);
+    }
+
     create2DGlobalRenderDataHandle(): IGlobalRenderData {
         return new WebGlobalRenderData();
     }

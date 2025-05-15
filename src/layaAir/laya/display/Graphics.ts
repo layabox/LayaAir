@@ -55,8 +55,10 @@ import { BlendMode } from "../webgl/canvas/BlendMode";
 import { IAutoExpiringResource } from "../renders/ResNeedTouch";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderSpriteData } from "../webgl/shader/d2/value/Value2D";
+import { GraphicsMesh } from "../webgl/utils/GraphicsMesh";
+import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
-const UV = [0, 0, 1, 0, 1, 1, 0, 1];
+// const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -289,21 +291,13 @@ export class Graphics {
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
             this.owner._struct.renderDataHandler = this._renderDataHandle;
-
-            //   this._sp._struct.set_grapicsUpdateCall(this, this._render, this._getRenderElements);
-
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
+            if (this._renderElements === this.owner._struct.renderElements) {
+                this.owner._struct.renderElements = [];
+            }
             this.owner._struct.renderDataHandler = null;
-            // this._sp._struct.set_grapicsUpdateCall(null, null, null);
         }
-    }
-
-    private _getRenderElements(): any[] {
-        // if (this._render === this._renderEmpty) {
-        //     return [];
-        // }
-        return this._renderElements;
     }
 
     /**
@@ -723,7 +717,7 @@ export class Graphics {
         //sprite.texture
         this._renderSpriteTexture(runner, x, y);
 
-        this.updateRenderElement();
+        this._data.updateRenderElement(this.owner._struct, this._renderDataHandle);
 
         runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
@@ -768,33 +762,6 @@ export class Graphics {
                 // let py = 0 + tex.offsetY * hRate;
                 runner.drawTexture(tex, px, py, width, height, 0xffffffff);
             }
-        }
-    }
-
-    /**
-     * 提交所有mesh的数据
-     */
-    updateRenderElement(): void {
-        this._data.uploadBuffer();
-        let originLen = this._renderElements.length;
-        this._renderElements.length = 0;
-
-        let submits = this._data._submits;
-        let submitLength = submits.length;
-        for (let i = 0; i < submitLength; i++) {
-            let submit = submits.elements[i];
-            submit.updateRenderElement();
-            let element = submit._renderElement;
-            element.value2DShaderData = this.owner.shaderData;
-            element.owner = this.owner._struct;
-            this._renderElements.push(element);
-        }
-        //reset
-        if (
-            originLen != submitLength
-            || this.owner._struct.renderElements != this._renderElements
-        ) {
-            this.owner._struct.renderElements = this._renderElements;
         }
     }
 
@@ -1039,186 +1006,5 @@ export class Graphics {
      */
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[], color?: string): void {
         this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid, false, color));
-    }
-}
-
-
-export class GraphicsRenderData {
-    /**@internal */
-    // private _mesh: Sprite2DGeometry;			
-    //用Mesh2D代替_vb,_ib. 当前使用的mesh
-    _meshQuatTex = new MeshQuadTexture();
-    _meshVG = new MeshVG();
-    _meshTex = new MeshTexture();
-
-    meshlist: Sprite2DGeometry[] = [];	//本runner用到的mesh
-
-    /**@internal */
-    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
-
-    clear(): void {
-        this._meshQuatTex.clearMesh();
-        this._meshVG.clearMesh();
-        this._meshTex.clearMesh();
-
-        let len = this._submits.length;
-        for (let i = 0; i < len; i++) {
-            this._submits.elements[i].clear();
-        }
-        this._submits.length = 0;
-
-        len = this.meshlist.length;
-        for (let i = 0; i < len; i++) {
-            let mesh = this.meshlist[i];
-            mesh.needRelease ? mesh.clearMesh() : mesh.destroy();
-        }
-
-        this.meshlist.length = 0;
-    }
-
-    uploadBuffer(): void {
-        this.meshlist.push(this._meshQuatTex, this._meshVG, this._meshTex);
-
-        let meshLength = this.meshlist.length;
-        for (let i = 0; i < meshLength; i++) {
-            let mesh = this.meshlist[i];
-            if (mesh.indexNum <= 0)
-                continue
-            mesh.uploadBuffer();
-        }
-    }
-
-    destroy(): void {
-        this.clear();
-        this._meshQuatTex.destroy();
-        this._meshVG.destroy();
-        this._meshTex.destroy();
-
-        let elements = this._submits.elements;
-        for (let i = 0; i < this._submits.length; i++) {
-            elements[i].destroy();
-        }
-        this._submits.destroy();
-
-        this._meshQuatTex = null;
-        this._meshVG = null;
-        this._meshTex = null;
-        this._submits = null;
-        this.meshlist = null;
-    }
-
-    createSubmit(runner: GraphicsRunner, mesh: Sprite2DGeometry, material: Material): SubmitBase {
-        let elements = this._submits.elements;
-        let submit: SubmitBase = null;
-        if (elements.length > this._submits.length) {
-            submit = elements[this._submits.length];
-            submit.update(runner, mesh, material);
-        } else
-            submit = SubmitBase.create(runner, mesh, material);
-
-        this._submits.add(submit);
-        return submit;
-    }
-
-    createMesh(type: "vg" | "quat" | "tex"): Sprite2DGeometry {
-        let mesh: Sprite2DGeometry = null;
-        if (type === "vg") {
-            this._meshVG.needRelease = false;
-            this.meshlist.push(this._meshVG);
-            mesh = this._meshVG = new MeshVG();
-        } else if (type === "quat") {
-            this._meshQuatTex.needRelease = false;
-            this.meshlist.push(this._meshQuatTex);
-            mesh = this._meshQuatTex = new MeshQuadTexture();
-        } else if (type === "tex") {
-            this._meshTex.needRelease = false;
-            this.meshlist.push(this._meshTex);
-            mesh = this._meshTex = new MeshTexture();
-        }
-        return mesh;
-    }
-
-
-    mustTouchRes: IAutoExpiringResource[] = [];
-    randomTouchRes: IAutoExpiringResource[] = [];
-
-    touchRes(res: IAutoExpiringResource) {
-        if (res.isRandomTouch) {
-            this.randomTouchRes.push(res);
-        } else {
-            this.mustTouchRes.push(res);
-        }
-    }
-
-}
-
-export class SubStructRender {
-    private _subRenderPass: IRender2DPass;
-    private _subStruct: IRenderStruct2D;
-    private _sprite: Sprite;
-    
-    private _meshQuatTex: MeshQuadTexture = null;
-    private _shaderData: ShaderData = null;
-    private _handle: I2DPrimitiveDataHandle = null;
-    private _submit: SubmitBase = null;
-
-    constructor() {
-        this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
-        this._submit = new SubmitBase;
-        this._submit.initialize();
-        this._submit.data = RenderSpriteData.Texture2D;
-        this._submit._renderElement.value2DShaderData = this._shaderData;
-        BlendMode.initBlendMode(this._shaderData);
-        this._meshQuatTex = new MeshQuadTexture();
-        this._meshQuatTex.createBuffer();
-        this._submit.mesh = this._meshQuatTex;
-        this._submit._numEle += 6;
-        this._submit.updateRenderElement();
-    }
-
-    bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
-        this._sprite = sprite;
-        this._subRenderPass = subRenderPass;
-        this._subStruct = subStruct;
-        this._subStruct.spriteShaderData = this._shaderData;
-        this._submit.material = sprite.material;
-        
-        subStruct.renderDataHandler = this._handle;
-        subStruct.renderElements = [this._submit._renderElement];
-        this._handle.mask = sprite.mask?._struct;
-    }
-
-    updateQuat() {
-        let sprite = this._sprite;
-        var tex = this._subRenderPass.renderTexture;
-        if (tex) {
-            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
-            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
-            var wRate = width / tex.sourceWidth;
-            var hRate = height / tex.sourceHeight;
-            width = tex.width * wRate;
-            height = tex.height * hRate;
-            if (width > 0 && height > 0) {
-                this._meshQuatTex.clearMesh();
-                let px = tex.offsetX * wRate;
-                let py = tex.offsetY * hRate;
-                let vertices = [px , py, px + width, py, px + width, py + height, px, py + height];
-                this._meshQuatTex.addQuad(vertices, UV , 0xffffffff , true);
-                this._meshQuatTex.uploadBuffer();
-            }
-        }
-        this._submit._internalInfo.textureHost = tex;
-    }
-
-    destroy(): void {
-        this._submit.destroy();
-        this._submit = null;
-        this._meshQuatTex.destroy();
-        this._meshQuatTex = null;
-        this._handle = null;
-        this._subRenderPass = null;
-        this._subStruct = null;
-        this._sprite = null;
     }
 }

@@ -8,10 +8,12 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
+import { Stat } from "../../../../utils/Stat";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IBufferDataView, IDynamicVIBuffer, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
+import { BufferDataView } from "./WebDynamicVIBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
@@ -69,6 +71,15 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
+    mask: IRenderStruct2D | null = null;
+
+    private _vertexViews: Set<IBufferDataView> = new Set();
+
+    applyViews(views: IBufferDataView[]): void {
+        for (let i = 0, n = views.length; i < n; i++) {
+            this._vertexViews.add(views[i]);
+        }
+    }
 
     inheriteRenderData(context: IRenderContext2D): void {
         //更新位置
@@ -80,10 +91,10 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let mat = this.owner.transform.getMatrix();
         if (this.mask) {
             let maskMatrix = this.mask.transform.getMatrix();
-            let tempMatirx = Matrix.mul(maskMatrix, mat,  Matrix.TEMP);
+            let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
             this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
             this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
-        }else{
+        } else {
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
         }
@@ -97,9 +108,28 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+
+        if (this._vertexViews.size > 0 && this._owner.pass) {
+            let views = Array.from(this._vertexViews);
+            for (let i = 0, n = views.length; i < n; i++) {
+                let vertexView = views[i];
+                let { data, stride, length } = vertexView;
+                for (let j = 0, m = length; j < m; j += stride) {
+                    let x = data[j];
+                    let y = data[j + 1];
+                    let nx = this._nMatrix_0.x * x + this._nMatrix_0.y * y + this._nMatrix_0.z;
+                    let ny = this._nMatrix_1.x * x + this._nMatrix_1.y * y + this._nMatrix_1.z;
+                    data[j] = nx;
+                    data[j + 1] = ny;
+                }
+                // console.log("==== change matrix " , vertexView , Stat.loopCount);
+                this._owner.pass.setBuffer(vertexView.owner);
+                vertexView.isModified = true;
+            }
+            this._vertexViews.clear();
+        }
     }
 
-    mask: IRenderStruct2D | null = null;
 }
 
 
@@ -279,11 +309,11 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         let trans = this.owner.transform;
         let mat = trans.getMatrix();
         let ofx = - this.skeleton.x;
-        let ofy =   this.skeleton.y;
+        let ofy = this.skeleton.y;
         this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
         this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx );
-        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty );
+        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx);
+        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
 

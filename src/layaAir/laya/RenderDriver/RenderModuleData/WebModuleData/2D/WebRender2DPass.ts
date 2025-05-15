@@ -14,6 +14,9 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Matrix } from "../../../../maths/Matrix";
 import { PostProcess2D } from "./PostProcess2D";
 import { Vector3 } from "../../../../maths/Vector3";
+import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
+import { IDynamicVIBuffer } from "../../Design/2D/IRender2DDataHandle";
+
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
@@ -86,6 +89,12 @@ export class WebRender2DPass implements IRender2DPass {
    repaint: boolean = true;
 
    _clearColor = new Color;
+
+   doClearColor: boolean = true;
+
+   finalize: CommandBuffer2D = null;
+
+   buffers: Set<IDynamicVIBuffer> = new Set();
 
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
@@ -188,7 +197,6 @@ export class WebRender2DPass implements IRender2DPass {
       //todo 排序
       // struct.preRenderUpdate(context2D);
 
-
       //}
 
       //需要处理全局透明的问题，统计并且生成新的 process。
@@ -233,6 +241,9 @@ export class WebRender2DPass implements IRender2DPass {
          lists[i]?.reset();
 
       this.updateRenderQueue(context);
+
+      this.uploadBuffer();
+
       for (let i = 0, len = lists.length; i < len; i++) {
          let list = lists[i];
          if (!list || !list.renderElements.length) continue;
@@ -258,7 +269,7 @@ export class WebRender2DPass implements IRender2DPass {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
-         context.setRenderTarget(rt._renderTarget, true, this._clearColor);
+         context.setRenderTarget(rt._renderTarget, this.doClearColor, this._clearColor);
          sizeX = rt.width;
          sizeY = rt.height;
          this._updateInvertMatrix();
@@ -270,8 +281,7 @@ export class WebRender2DPass implements IRender2DPass {
          sizeY = RenderState2D.height;
          context.setOffscreenView(sizeX, sizeY);
 
-         context.setRenderTarget(null, true, this._clearColor);
-
+		   context.setRenderTarget(null, this.doClearColor, this._clearColor);
 
          this._setInvertMatrix(1, 0, 0, 1, 0, 0);
          this.shaderData.removeDefine(ShaderDefines2D.RENDERTEXTURE);
@@ -280,6 +290,19 @@ export class WebRender2DPass implements IRender2DPass {
       context.passData = this.shaderData;
       this._setRenderSize(sizeX, sizeY);
 
+   }
+
+   setBuffer(buffer: IDynamicVIBuffer): void {
+      this.buffers.add(buffer);
+   }
+
+   uploadBuffer(): void {
+      if (this.buffers.size > 0) {
+         this.buffers.forEach(buffer => {
+            buffer.upload();
+         });
+         this.buffers.clear();
+      }
    }
 
    private _updateInvertMatrix() {
@@ -298,8 +321,6 @@ export class WebRender2DPass implements IRender2DPass {
          root.transform.getMatrixInv(temp);
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }
-
-
 
    private _endRenderProcess(context: IRenderContext2D) {
       //set 到 底层呢

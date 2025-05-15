@@ -1,0 +1,244 @@
+import { LayaGL } from "../../layagl/LayaGL";
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { I2DPrimitiveDataHandle, IBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
+import { Material } from "../../resource/Material";
+import { Texture } from "../../resource/Texture";
+import { FastSinglelist } from "../../utils/SingletonList";
+import { Stat } from "../../utils/Stat";
+import { BlendMode } from "../../webgl/canvas/BlendMode";
+import { Shader2D } from "../../webgl/shader/d2/Shader2D";
+import { SubmitBase } from "../../webgl/submit/SubmitBase";
+import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
+import { Sprite } from "../Sprite";
+import { GraphicsRunner } from "./GraphicsRunner";
+
+export class GraphicsRenderData {
+
+   static _pool: IRenderElement2D[] = [];
+
+   static createRenderElement2D() {
+      if (this._pool.length > 0) {
+         return this._pool.pop();
+      }
+      let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+      element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+      element.geometry.indexFormat = IndexFormat.UInt16;
+      element.renderStateIsBySprite = false;
+      element.nodeCommonMap = ["Sprite2D"];
+      return element;
+   }
+
+   static recoverRenderElement2D(value: IRenderElement2D) {
+      if (!(value as any).canotPool) {
+         this._pool.push(value);
+      }
+   }
+
+   private _renderElements: IRenderElement2D[] = [];
+
+   /**@internal */
+   _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
+
+   clear(): void {
+      let len = this._submits.length;
+      for (let i = 0; i < len; i++) {
+         this._submits.elements[i].clear();
+      }
+      this._submits.length = 0;
+   }
+
+   destroy(): void {
+      this.clear();
+
+      let elements = this._submits.elements;
+      for (let i = 0; i < this._submits.length; i++) {
+         elements[i].destroy();
+      }
+      this._submits.destroy();
+      this._submits = null;
+   }
+
+   /**
+   * 提交所有mesh的数据
+   */
+   updateRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
+      let originLen = this._renderElements.length;
+      this._renderElements.length = 0;
+
+      let submits = this._submits;
+      let submitLength = submits.length;
+      let needUpdate = originLen !== submitLength;
+
+      let flength = Math.max(originLen, submitLength);
+
+      let vertexViews: IBufferDataView[] = [];
+
+      for (let i = 0; i < flength; i++) {
+         let submit = submits.elements[i];
+         let element = this._renderElements[i];
+         if (submit) {
+            if (!element) {
+               element = GraphicsRenderData.createRenderElement2D();
+               element.value2DShaderData = struct.spriteShaderData;
+               element.owner = struct;
+               this._renderElements[i] = element;
+            }
+
+            if (submit.material) {
+               element.subShader = submit.material.shader.getSubShaderAt(0);
+               element.materialShaderData = submit.material.shaderData;
+               element.renderStateIsBySprite = false;
+            } else {
+               element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
+               element.materialShaderData = submit._internalInfo.shaderData;
+               element.renderStateIsBySprite = submit.renderStateIsBySprite;
+            }
+
+            element.geometry.bufferState = submit.mesh.bufferState;
+            element.geometry.clearRenderParams();
+            vertexViews.push(...submit.vertexViews);
+
+            let params = this.getDrawElementParams(submit.indexViews);
+            for (let j = 0; j < params.length; j += 2) {
+               element.geometry.setDrawElemenParams(params[j + 1], params[j]);
+            }
+
+         } else {
+            GraphicsRenderData.recoverRenderElement2D(element);
+         }
+      }
+
+      this._renderElements.length = submitLength;
+      //reset
+      if (needUpdate) {
+         struct.renderElements = this._renderElements;
+      }
+
+      // console.log("==== apply buffer" , Stat.loopCount);
+
+      handle.applyViews(vertexViews);
+   }
+
+   getDrawElementParams(indexViews: IBufferDataView[]): number[] {
+      let params: number[] = [];
+      if (!indexViews || indexViews.length === 0) return params;
+
+      let start = indexViews[0].start;
+      let end = start + indexViews[0].length;
+
+      for (let i = 1, n = indexViews.length; i < n; i++) {
+         let view = indexViews[i];
+         if (end === view.start) {
+            end += view.length;
+         } else {
+            params.push(start, end - start);
+            start = view.start;
+            end = start + view.length;
+         }
+      }
+
+      params.push(start * 2, end - start);
+
+      return params;
+   }
+
+   createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
+      let elements = this._submits.elements;
+      let submit: SubmitBase = null;
+      if (elements.length > this._submits.length) {
+         submit = elements[this._submits.length];
+         submit.update(runner, mesh, material);
+      } else
+         submit = SubmitBase.create(runner, mesh, material);
+
+      this._submits.add(submit);
+      return submit;
+   }
+
+   mustTouchRes: IAutoExpiringResource[] = [];
+   randomTouchRes: IAutoExpiringResource[] = [];
+
+   touchRes(res: IAutoExpiringResource) {
+      if (res.isRandomTouch) {
+         this.randomTouchRes.push(res);
+      } else {
+         this.mustTouchRes.push(res);
+      }
+   }
+
+}
+
+export class SubStructRender {
+   private _subRenderPass: IRender2DPass;
+   private _subStruct: IRenderStruct2D;
+   private _sprite: Sprite;
+
+   private _renderElement: IRenderElement2D = null;
+   private _shaderData: ShaderData = null;
+   private _handle: I2DPrimitiveDataHandle = null;
+   private _submit: SubmitBase = null;
+
+   private mesh: GraphicsMesh;
+
+   constructor() {
+      this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
+      this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
+      this._submit = new SubmitBase;
+      this._renderElement = GraphicsRenderData.createRenderElement2D();
+      this._renderElement.value2DShaderData = this._shaderData;
+      BlendMode.initBlendMode(this._shaderData);
+      // this._submit._numEle += 6;
+   }
+
+   bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
+      this._sprite = sprite;
+      this._subRenderPass = subRenderPass;
+      this._subStruct = subStruct;
+      this._subStruct.spriteShaderData = this._shaderData;
+      this._submit.material = sprite.material;
+
+      subStruct.renderDataHandler = this._handle;
+      subStruct.renderElements = [this._renderElement];
+      this._handle.mask = sprite.mask?._struct;
+      this._renderElement.owner = this._subStruct;
+      // this.mesh = 
+   }
+
+   updateQuat() {
+      let sprite = this._sprite;
+      var tex = this._subRenderPass.renderTexture;
+      if (tex) {
+         var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+         var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+         var wRate = width / tex.sourceWidth;
+         var hRate = height / tex.sourceHeight;
+         width = tex.width * wRate;
+         height = tex.height * hRate;
+         if (width > 0 && height > 0) {
+            // this._meshQuatTex.clearMesh();
+            // let px = tex.offsetX * wRate;
+            // let py = tex.offsetY * hRate;
+            // let vertices = [px, py, px + width, py, px + width, py + height, px, py + height];
+            // this._meshQuatTex.addQuad(vertices, Texture.DEF_UV, 0xffffffff, true);
+            // this._meshQuatTex.uploadBuffer();
+         }
+      }
+      this._submit._internalInfo.textureHost = tex;
+   }
+
+   destroy(): void {
+      this._submit.destroy();
+      this._submit = null;
+      this._handle = null;
+      this._subRenderPass = null;
+      this._subStruct = null;
+      this._sprite = null;
+   }
+}

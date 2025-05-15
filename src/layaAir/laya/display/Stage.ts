@@ -1038,6 +1038,8 @@ export class Stage extends Sprite {
         }
         this.passManager.apply(Render2DSimple.rendercontext2D);
         this._graphicUpdateList.length = 0;
+
+        Stat.render(0 , 0)
     }
 
     private _runComponents() {
