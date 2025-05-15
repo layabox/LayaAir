@@ -26,6 +26,7 @@ export class GraphicsShaderInfo {
    toDefault() {
       this.clipMatDir = _TEMP_CLIPDIR;
       this.clipMatPos = Vector4.ZERO;
+      this.vertexSize = Vector4.ZERO;
       BlendMode.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
    }
@@ -78,6 +79,26 @@ export class GraphicsShaderInfo {
       }
       this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
 
+   }
+
+   set enableVertexSize(value: boolean) {
+      if (value) {
+         this.shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
+      } else {
+         this.shaderData.removeDefine(ShaderDefines2D.VERTEX_SIZE);
+      }
+   }
+
+   get enableVertexSize(): boolean {
+      return this.shaderData.hasDefine(ShaderDefines2D.VERTEX_SIZE);
+   }
+
+   set vertexSize(value: Vector4) {
+      this.shaderData.setVector(ShaderDefines2D.UNIFORM_VERTEX_SIZE, value);
+   }
+
+   get vertexSize(): Vector4 {
+      return this.shaderData.getVector(ShaderDefines2D.UNIFORM_VERTEX_SIZE);
    }
 
    set materialClip(value: boolean) {

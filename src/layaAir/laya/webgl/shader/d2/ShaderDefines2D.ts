@@ -25,6 +25,8 @@ export class ShaderDefines2D {
     /**@internal */
     static GAMMATEXTURE: ShaderDefine;
 
+    static VERTEX_SIZE: ShaderDefine;
+
     /**@internal */
     static TEXTURESHADER: ShaderDefine;
     /**@internal */
@@ -50,6 +52,7 @@ export class ShaderDefines2D {
 
     static UNIFORM_SPRITETEXTURE: number;// uniform sampler2D u_spriteTexture;
 
+    static UNIFORM_VERTEX_SIZE: number;// uniform vec4 u_vertexSize;
 
     static UNIFORM_TEXRANGE: number;//uniform vec4 u_TexRange;
     /**
@@ -70,6 +73,7 @@ export class ShaderDefines2D {
     static __init__(): void {
         ShaderDefines2D.TEXTURE2D = Shader3D.getDefineByName("TEXTURE2D");
         ShaderDefines2D.PRIMITIVE = Shader3D.getDefineByName("PRIMITIVE");
+        ShaderDefines2D.VERTEX_SIZE = Shader3D.getDefineByName("VERTEX_SIZE");
 
         ShaderDefines2D.COLORADD = Shader3D.getDefineByName("COLOR_ADD");
         ShaderDefines2D.WORLDMAT = Shader3D.getDefineByName("WORLDMAT");
@@ -108,8 +112,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
 
         ShaderDefines2D.UNIFORM_SPRITETEXTURE = Shader3D.propertyNameToID("u_spriteTexture");
-
-
+        ShaderDefines2D.UNIFORM_VERTEX_SIZE = Shader3D.propertyNameToID("u_vertexSize");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
@@ -124,7 +127,7 @@ export class ShaderDefines2D {
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_TEXRANGE, "u_TexRange", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector4);
-        // commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_PIVOTPOS, "u_pivotPos", ShaderDataType.Vector2);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_VERTEX_SIZE, "u_vertexSize", ShaderDataType.Vector4);
 
         let sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SIZE, "u_size", ShaderDataType.Vector2);
