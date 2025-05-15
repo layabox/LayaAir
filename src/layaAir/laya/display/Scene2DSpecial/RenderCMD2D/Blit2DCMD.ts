@@ -20,7 +20,7 @@ import { Command2D } from "./Command2D";
 
 export class Blit2DCMD extends Command2D {
 
-    private static QuadGeometry: IRenderGeometryElement;
+    static QuadGeometry: IRenderGeometryElement;
 
     private static _defaultShader: Shader3D;
 
@@ -105,7 +105,7 @@ export class Blit2DCMD extends Command2D {
         geometry.bufferState = bufferState;
     }
 
-    private static __init__() {
+    static __init__() {
         Blit2DCMD.__initBlitShader__();
         Blit2DCMD.__initGeometryElement__();
         Blit2DCMD._blitShaderData = LayaGL.renderDeviceFactory.createShaderData();

@@ -49,7 +49,7 @@ export class DrawRenderElement2DCMD extends Command2D {
 
     _setMatrix(value: Matrix) {
         value ? (this._matreix = value.clone()) : (this._matreix = null);
-        if (this._matreix && this.renderElement.nodeCommonMap.indexOf("BaseRender2D") != -1) {
+        if (this._matreix && this.renderElement.nodeCommonMap && this.renderElement.nodeCommonMap.indexOf("BaseRender2D") != -1) {
             let vec3 = Vector3.TEMP;
             vec3.x = this._matreix.a;
             vec3.y = this._matreix.c;
@@ -68,7 +68,7 @@ export class DrawRenderElement2DCMD extends Command2D {
         if (Vector2.equals(this._renderSize, this._commandBuffer._renderSize))
             return;
         this._renderSize.setValue(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
-        this._renderElement.value2DShaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._renderSize);
+        this._renderElement.value2DShaderData && this._renderElement.value2DShaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._renderSize);
     }
 
     /**

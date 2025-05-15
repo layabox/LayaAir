@@ -14,9 +14,6 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Matrix } from "../../../../maths/Matrix";
 import { PostProcess2D } from "./PostProcess2D";
 import { Vector3 } from "../../../../maths/Vector3";
-import { Render2DSimple } from "../../../../renders/Render2D";
-import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
@@ -74,9 +71,6 @@ export class BatchManager {
 const _TEMP_InvertMatrix = new Matrix();
 export class WebRender2DPass implements IRender2DPass {
    /** @internal */
-   static curRenderTexture: RenderTexture2D = null;
-
-   /** @internal */
    _lists: PassRenderList[] = [];
 
    priority: number = 0;
@@ -87,17 +81,11 @@ export class WebRender2DPass implements IRender2DPass {
 
    renderTexture: RenderTexture2D;
 
-   /** @internal */
-   _internalRT: RenderTexture2D = null;
-
-   //todo: 2D process
    postProcess: PostProcess2D = null;
 
    repaint: boolean = true;
 
    _clearColor = new Color;
-
-   finalize: CommandBuffer2D = null;
 
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
@@ -149,7 +137,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-      this.finalize = new CommandBuffer2D();
    }
 
    /**
@@ -254,77 +241,45 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       this.repaint = false;
-      // } else {//这里应该是dirty判断
-      //    for (let i = 0, len = lists.length; i < len; i++) {
-      //       let list = lists[i];
-      //       if (!list || !list.renderElements.length) continue;
-      //       context.drawRenderElementList(list.renderElements);
-      //    }
-      // }
 
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess.render(context, this);
+         this.postProcess.setResource(this.renderTexture);
+         this.postProcess.render();
+         this.postProcess._context.command.apply(true);
       }
-
-      this.finalize.apply();
    }
 
    //预留
    private _initRenderProcess(context: IRenderContext2D) {
       //设置viewport 切换rt
       let sizeX, sizeY;
-      let needInternalRT = false;//this.postProcess?.enabled;
-      if (needInternalRT) {
-         let originalRT = this.renderTexture;
-         this._internalRT = RenderTexture2D.createFromPool(originalRT.width, originalRT.height, originalRT.getColorFormat(), originalRT.depthStencilFormat);
-         this._internalRT._invertY = originalRT._invertY;
-      } else {
-         this._internalRT = null;
-      }
 
-      let rt = this.getRenderTexture();
+      let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
-         context.setRenderTarget(rt._renderTarget, rt !== WebRender2DPass.curRenderTexture, this._clearColor);
+         context.setRenderTarget(rt._renderTarget, true, this._clearColor);
          sizeX = rt.width;
          sizeY = rt.height;
-         WebRender2DPass.curRenderTexture = rt;
-         // let invertTransform = this.root.mask ? this.root.mask.transform : this.root.transform;
-         // invertTransform.getMatrixInv(_TEMP_InvertMatrix);
-         // this._setInvertMatrix(_TEMP_InvertMatrix.a, _TEMP_InvertMatrix.b, _TEMP_InvertMatrix.c, _TEMP_InvertMatrix.d, _TEMP_InvertMatrix.tx, _TEMP_InvertMatrix.ty);
          this._updateInvertMatrix();
-         this.shaderData.addDefine(ShaderDefines2D.RENDERTEXTURE);
+         this.shaderData.addDefine(ShaderDefines2D.RENDERTEXTURE);//??
 
       } else {
          context.invertY = false;
          sizeX = RenderState2D.width;
          sizeY = RenderState2D.height;
          context.setOffscreenView(sizeX, sizeY);
-         if (!WebRender2DPass.curRenderTexture) {
-            context.setRenderTarget(null, true, this._clearColor);
-         }
+
+         context.setRenderTarget(null, true, this._clearColor);
+
 
          this._setInvertMatrix(1, 0, 0, 1, 0, 0);
          this.shaderData.removeDefine(ShaderDefines2D.RENDERTEXTURE);
       }
 
-      //@ts-ignore
-      this.finalize._context = context;
-
-      Render2DSimple.runner.clear();//TODO  这里删掉
-      if (this.root.blendMode) {
-         Render2DSimple.runner.save();
-         Render2DSimple.runner.globalCompositeOperation = this.root.blendMode;
-      }
-
       context.passData = this.shaderData;
-      // this._setClipInfo(this.clipMatrix);
       this._setRenderSize(sizeX, sizeY);
-      this.finalize.clear();//这个finalize 感觉也没有必要
-      if (needInternalRT) {
-         this.finalize.blitTextureQuad(this._internalRT, this.renderTexture);
-      }
+
    }
 
    private _updateInvertMatrix() {
@@ -337,43 +292,21 @@ export class WebRender2DPass implements IRender2DPass {
          // localMatrix
          let maskMatrix = mask.transform.getMatrix();
 
-         Matrix.mul(maskMatrix, rootMatrix ,  temp);
+         Matrix.mul(maskMatrix, rootMatrix, temp);
          temp.invert();
       } else
          root.transform.getMatrixInv(temp);
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }
 
-   getRenderTexture() {
-      return this._internalRT || this.renderTexture;
-   }
+
 
    private _endRenderProcess(context: IRenderContext2D) {
-      let rt = this.getRenderTexture();
-      if (rt) {
-         context.setRenderTarget(null, false, this._clearColor);
-         WebRender2DPass.curRenderTexture = null;
-         if (this._internalRT) {
-            RenderTexture2D.recoverToPool(this._internalRT);
-            this._internalRT = null;
-         }
+      //set 到 底层呢
+      if (this.postProcess) {
+         this.postProcess.getDestRT();//set to sprite
       }
-
-      if (this.root.blendMode) {
-         Render2DSimple.runner.restore();
-      }
-      // context.setOffscreenView(RenderState2D.width, RenderState2D.height);
-      // context.setRenderTarget(null, true, this._clearColor);
-      context.passData = null;
-      this.recover(context);
    }
-
-   // _setClipInfo(matrix:Matrix){
-   //    this._clipMatrixDir.setValue(matrix.a, matrix.b, matrix.c, matrix.d);
-   //    this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, this._clipMatrixDir);
-   //    this._clipMatrixPos.setValue(matrix.tx, matrix.ty);
-   //    this.shaderData.setVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS, this._clipMatrixPos);
-   // }
 
    private _setInvertMatrix(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
       if (
@@ -414,7 +347,6 @@ export class WebRender2DPass implements IRender2DPass {
       this._lists = null;
       this.root = null;
       this.renderTexture = null;
-      this._internalRT = null;
       this.postProcess = null;
       this.shaderData.destroy();
       this.shaderData = null;

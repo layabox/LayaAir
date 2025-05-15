@@ -24,11 +24,8 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
-import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { WebRender2DPass } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Render2DSimple } from "../renders/Render2D";
 import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
-import { FastSinglelist } from "../utils/SingletonList";
 import { Graphics } from "./Graphics";
 
 /**

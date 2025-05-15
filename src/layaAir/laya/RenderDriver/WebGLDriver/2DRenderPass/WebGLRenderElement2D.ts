@@ -44,7 +44,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (this.owner.globalRenderData) {
+            if (this.owner && this.owner.globalRenderData) {
                 (this.owner.globalRenderData.globalShaderData as WebGLShaderData)._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);

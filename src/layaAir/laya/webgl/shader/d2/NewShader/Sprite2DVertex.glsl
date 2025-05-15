@@ -1,9 +1,5 @@
 #include "Sprite2DShaderInfo.glsl";
 
-#ifdef MVP3D
-    uniform mat4 u_MvpMatrix;
-#endif
-
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
 #endif

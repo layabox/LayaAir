@@ -9,9 +9,9 @@ import MathGLSL from "../d2/files/Math.glsl";
 import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
 import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
-
+import OutputTransformGLSL from "./files/OutputTransform.glsl";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader, UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class Shader2D {
@@ -60,6 +60,7 @@ export class Shader2D {
         Shader3D.addInclude("Sprite2DShaderInfo.glsl", Sprite2DShaderInfo);
         Shader3D.addInclude("Color.glsl", ColorGLSL);
         Shader3D.addInclude("Math.glsl", MathGLSL);
+        Shader3D.addInclude("OutputTransform.glsl", OutputTransformGLSL);
         //textureShader
         Shader2D.textureShader = Shader3D.add("Sprite2DTexture", false, false);
         Shader2D.textureShader.shaderType = ShaderFeatureType.D2_TextureSV;

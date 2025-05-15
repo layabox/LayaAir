@@ -743,6 +743,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated use post2DProcess
      * @en The filter collection. Multiple filters can be combined.
      * @zh 滤镜集合。可以设置多个滤镜组合。
      */
@@ -765,10 +766,21 @@ export class Sprite extends Node {
                 f && f.on(Event.CHANGED, this, this.repaint);
             }
         }
-        if (value)
+        if (value) {
             this._renderType |= SpriteConst.FILTERS;
-        else
+            this.setSubRenderPassState(true);
+            this.updateRenderTexture();
+            (!this._subRenderPass.postProcess) && (this._subRenderPass.postProcess = new PostProcess2D());
+            this._subRenderPass.postProcess.clear();
+            for (var i = 0; i < this.filters.length; i++) {
+                this._subRenderPass.postProcess.addEffect(this.filters[i].getEffect());
+            }
+        }
+        else {
             this._renderType &= ~SpriteConst.FILTERS;
+            this.updateSubRenderPassState();
+            this._subRenderPass.postProcess && this._subRenderPass.postProcess.destroy();
+        }
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
@@ -1315,6 +1327,8 @@ export class Sprite extends Node {
 
         this.parentRepaint();
         if (this._subRenderPass) this._subRenderPass.repaint = true;
+
+
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
@@ -2256,6 +2270,7 @@ export class Sprite extends Node {
                 parent.removeChild(this._subStruct);
                 parent.addChild(this._struct);
             }
+            //postProcess release
         }
         this._subRenderPass.enable = enable;
     }

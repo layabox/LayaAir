@@ -1,8 +1,10 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { GraphicsRunner } from "../display/Scene2DSpecial/GraphicsRunner";
+import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
+import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture2D } from "../resource/Texture2D";
 import { Texture2DArray } from "../resource/Texture2DArray";
@@ -161,7 +163,8 @@ export class Render {
         HalfFloatUtils.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Camera2D.shaderValueInit();
-
+        Blit2DCMD.__init__();
+        PostProcess2D.init();
 
         return true;
     }

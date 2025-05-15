@@ -10,6 +10,7 @@ import { Color } from "../maths/Color";
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Vector4 } from "../maths/Vector4";
+import { ColorEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/ColorEffect2D";
 
 /**
  * @en An array representing a list of contrast values.
@@ -33,6 +34,7 @@ const IDENTITY_MATRIX: any[] = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
 const LENGTH: number = 25;
 
 /**
+ * @deprecated use post2DProcess
  * @en The `ColorFilter` class represents a color filter that applies a 4x5 matrix transformation to the RGBA color and Alpha values of each pixel of the input image to produce a result with a new set of RGBA colors and Alpha values. This class allows for saturation adjustments, hue rotation, brightness to Alpha, and various other effects. You can apply the filter to any display object (i.e., an object that inherits from the `Sprite` class).
  * For RGBA values, the most significant byte represents the red channel value, followed by the green, blue, and Alpha channel values respectively.
  * @zh `ColorFilter` 类是一个颜色滤镜，它将 4x5 矩阵转换应用于输入图像上的每个像素的 RGBA 颜色和 Alpha 值，以生成具有一组新的 RGBA 颜色和 Alpha 值的结果。此类允许饱和度更改、色相旋转、亮度转 Alpha 以及各种其他效果。您可以将滤镜应用于任何显示对象（即从 `Sprite` 类继承的对象）。
@@ -50,6 +52,11 @@ export class ColorFilter extends Filter implements IFilter {
      */
     _matrix: any[];
 
+    _effect2D: ColorEffect2D;
+
+    getEffect() {
+        return this._effect2D;
+    }
     /**
      * @en Creates an instance of the ColorFilter class with an optional 4x5 matrix for color transformation.
      * @param mat An array with 20 elements arranged in a 4x5 matrix for color transformation.
@@ -61,46 +68,9 @@ export class ColorFilter extends Filter implements IFilter {
         if (!mat) mat = this._copyMatrix(IDENTITY_MATRIX);
         this._mat = new Float32Array(16);
         this._alpha = new Float32Array(4);
+        this._effect2D = new ColorEffect2D();
         this.setByMatrix(mat);
-    }
-    /** @ignore */
-    render(srctexture: RenderTexture2D, width: number, height: number): void {
-        let texwidth = width;
-        let texheight = height;
-        this.width = texwidth;
-        this.height = texheight;
-        if (!this.texture || this.texture.destroyed || this.texture.width != texwidth || this.texture.height != texheight) {
-            if (this.texture)
-                this.texture.destroy();
-            this.texture = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
-        }
 
-        let render2d = this._render2D.clone(this.texture);
-        //render2d.out = this.texture;
-        render2d.renderStart(true, new Color(0, 0, 0, 0));
-        //修改mesh
-        let rectVB = this._rectMeshVB;
-        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride / 4;
-        rectVB[0] = 0; rectVB[1] = 0;  //v0.xy
-        rectVB[stridef32] = width; rectVB[stridef32 + 1] = 0; //v1.xy
-        rectVB[stridef32 * 2] = width; rectVB[stridef32 * 2 + 1] = height; //v2.xy
-        rectVB[stridef32 * 3] = 0; rectVB[stridef32 * 3 + 1] =  height;   //v3.xy
-        //shaderdata
-        let shadersv = new TextureSV();// this.shaderData;
-        shadersv.setFilter(this);
-        Matrix4x4.TEMP.cloneByArray(this._mat);
-        shadersv.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMP);
-        Vector4.TEMP.setValue(this._alpha[0], this._alpha[1], this._alpha[2], this._alpha[3]);
-        shadersv.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.TEMP);
-
-        shadersv.size = new Vector2(texwidth, texheight);
-        shadersv.textureHost = srctexture;
-        render2d.draw(
-            this._rectMesh,
-            0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
-            0, 12,
-            shadersv, null);
-        render2d.renderEnd();        
     }
 
     /**
@@ -154,8 +124,13 @@ export class ColorFilter extends Filter implements IFilter {
                 this._mat[j++] = matrix[i];
             } else {
                 this._alpha[z++] = matrix[i];
+
             }
         }
+        this._effect2D.alpha.setValue(this._alpha[0], this._alpha[1], this._alpha[2], this._alpha[3]);
+        this._effect2D.alpha = this._effect2D.alpha;
+        Matrix4x4.TEMP.cloneByArray(this._mat);
+        this._effect2D.colorMat = Matrix4x4.TEMP;
         this.onChange();
         return this;
     }
@@ -168,15 +143,6 @@ export class ColorFilter extends Filter implements IFilter {
      */
     get type(): number {
         return Filter.COLOR;
-    }
-
-    /**
-     * @internal
-     * @en Gets the shader definition used for the color filter.
-     * @zh 获取颜色滤镜使用的着色器定义。
-     */
-    get typeDefine(): ShaderDefine {
-        return ShaderDefines2D.FILTERCOLOR;
     }
 
     /**

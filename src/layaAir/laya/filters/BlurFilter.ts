@@ -1,3 +1,4 @@
+import { BlurEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/BlurEffect2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
@@ -26,7 +27,10 @@ export class BlurFilter extends Filter {
     private _strength: number;
 
     private _shaderV1 = new Vector4();
-
+    _effect2D: BlurEffect2D;
+    getEffect() {
+        return this._effect2D;
+    }
     /**
      * @en Constructs a new BlurFilter instance with the specified strength.
      * The strength of the blur filter, with a default value of 4. Higher values result in a more indistinct image.
@@ -37,8 +41,8 @@ export class BlurFilter extends Filter {
      */
     constructor(strength = 4) {
         super();
+        this._effect2D = new BlurEffect2D();
         this.strength = strength;
-        //this._glRender = new BlurFilterGLRender();
     }
 
     /**
@@ -73,58 +77,11 @@ export class BlurFilter extends Filter {
             _definiteIntegralMap[key] = s;
         }
         v1.w /= s;
+
+        this._effect2D.shaderV1 = v1;
         this.onChange();
     }
 
-    /**
-     * @en Renders the blur filter effect on the given source texture.
-     * @param srctexture The source texture to apply the blur filter to.
-     * @param width The width of the rendering area.
-     * @param height The height of the rendering area.
-     * @zh 将模糊滤镜效果渲染到给定的源纹理上。
-     * @param srctexture 要应用模糊滤镜的源纹理。
-     * @param width 渲染区域的宽度。
-     * @param height 渲染区域的高度。
-     */
-    render(srctexture: RenderTexture2D, width: number, height: number): void {
-        let marginLeft = 50;
-        let marginTop = 50;
-        this.left = -marginLeft;
-        this.top = -marginTop;
-        let texwidth = width + 2 * marginLeft;
-        let texheight = height + 2 * marginTop;
-        this.width = texwidth;
-        this.height = texheight;
-        if (!this.texture || this.texture.destroyed || this.texture.width != texwidth || this.texture.height != texheight) {
-            if (this.texture)
-                this.texture.destroy();
-            this.texture = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
-        }
 
-        let render2d = this._render2D.clone(this.texture);
-        //render2d.out = this.texture;
-        render2d.renderStart(true, new Color(0, 0, 0, 0));
-        //修改mesh
-        let rectVB = this._rectMeshVB;
-        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride / 4;
-        rectVB[0] = marginLeft; rectVB[1] = marginTop;  //v0.xy
-        rectVB[stridef32] = marginLeft + width; rectVB[stridef32 + 1] = marginTop; //v1.xy
-        rectVB[stridef32 * 2] = marginLeft + width; rectVB[stridef32 * 2 + 1] = marginTop + height; //v2.xy
-        rectVB[stridef32 * 3] = marginTop; rectVB[stridef32 * 3 + 1] = marginTop + height;   //v3.xy
-        //shaderdata
-        let shadersv = this.shaderData;
-        shadersv.shaderData.addDefine(ShaderDefines2D.FILTERBLUR);
-        shadersv.size = new Vector2(texwidth, texheight);
-        shadersv.textureHost = srctexture;
-        shadersv.blurInfo = new Vector2(texwidth, texheight);
-
-        shadersv.strength_sig2_2sig2_gauss1 = this._shaderV1;
-        render2d.draw(
-            this._rectMesh,
-            0, 4 * this._rectMesh.vertexDeclarition.vertexStride,
-            0, 12,
-            shadersv, null);
-        render2d.renderEnd();
-    }
 }
 

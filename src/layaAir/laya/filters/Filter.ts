@@ -1,6 +1,7 @@
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
+import { PostProcess2DEffect } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2DEffect";
 import { Render2D } from "../renders/Render2D";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
@@ -71,7 +72,7 @@ export abstract class Filter extends EventDispatcher implements IFilter {
         this.useFlipY(false);
     }
 
-    protected onChange(){
+    protected onChange() {
         this.event(Event.CHANGED);
     }
 
@@ -84,6 +85,8 @@ export abstract class Filter extends EventDispatcher implements IFilter {
         this._rectMeshVB = b ? this._rectMeshVBInvY : this._rectMeshVBNormY;
     }
 
+    abstract getEffect(): PostProcess2DEffect;
+
     /**
      * @en The setter for the Render2D object used for rendering.
      * @zh 用于设置渲染用的 Render2D 对象。
@@ -91,14 +94,6 @@ export abstract class Filter extends EventDispatcher implements IFilter {
     set render2D(r: Render2D) {
         this._render2D = r;
     }
-    /**
-     * @en No location required
-     * @zh 不需要位置
-     * @param texture 
-     * @param width 
-     * @param height 
-     */
-    abstract render(texture: RenderTexture2D, width: number, height: number): void;
 
     /**
      * @private
@@ -122,57 +117,5 @@ export abstract class Filter extends EventDispatcher implements IFilter {
      * @param y 精灵正在渲染的 y 坐标。
      */
     static _filter = function (this: any, sprite: Sprite, context: any, x: number, y: number): void {
-        var next = this._next;
-        if (!next) return;
-
-        var filters = sprite.filters, len = filters.length;
-        //如果只有一个滤镜，那么还用原来的方式
-        if (len == 1 && (filters[0].type == Filter.COLOR)) {
-            context.save();
-            context.setColorFilter(filters[0] as ColorFilter);
-            next._fun.call(next, sprite, context, x, y);
-            context.restore();
-            return;
-        }
-
-        let cache = sprite._getCacheStyle();
-        // 先把节点渲染到一个贴图上
-        //if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
-        //多个滤镜off会累加，例如blur一次导致偏移50，两次就是100
-        let rtOffX = 0, rtOffY = 0;
-        //在多个filter的情况下，假设必然有模糊，所以把sprite渲染到大一点的贴图上，否则下面模糊的时候，边界的地方就不模糊了
-        if (this._renderNextToCacheRT(sprite, context,16,16,16,16)) {
-            rtOffX = cache.cacheRect.x;
-            rtOffY = cache.cacheRect.y;
-            let src = cache.renderTexture;
-            let dst = src;
-            let width = src.width;// cache.cacheRect.width;     不能用cacheRect,因为可能有空白，而src补充了这个空白
-            let height = src.height; //cache.cacheRect.height;
-            // 针对这个贴图，依次应用filter
-            for (let i = 0; i < len; i++) {
-                src = dst;
-                var filter = filters[i];
-                filter._render2D = context.render2D;
-                filter.useFlipY(i != 0);
-                filter.render(src, width, height);
-                width = filter.width;
-                height = filter.height;
-                dst = filter.texture;
-                rtOffX += filter.left;
-                rtOffY += filter.top;
-            }
-            //context.render2D.out=lastRT;
-            // 把最终结果保存到cache
-            cache.renderTexture = dst;
-            cache.renderTexOffx = rtOffX;
-            cache.renderTexOffy = rtOffY;
-        }
-        //直接使用缓存的
-        cache.renderTexture && context._drawRenderTexture(cache.renderTexture,
-            x + cache.renderTexOffx ,//不再减去anchor，因为上面 rtOffX = cache.cacheRect.x;已经包含了
-            y + cache.renderTexOffy ,
-            cache.renderTexture.width,
-            cache.renderTexture.height,
-            null, 1.0, RenderTexture2D.defuv);
     }
 }

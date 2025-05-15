@@ -69,9 +69,11 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
+
     inheriteRenderData(context: IRenderContext2D): void {
         //更新位置
         //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
+        
         let data = this.owner.spriteShaderData;
         if (!data)
             return;

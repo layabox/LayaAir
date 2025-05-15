@@ -132,14 +132,6 @@ export class Value2D {
         return this.shaderData.getMatrix4x4(ShaderDefines2D.UNIFORM_MMAT);
     }
 
-    /**@internal */
-    set u_MvpMatrix(value: Matrix4x4) {
-        this.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_MVPMatrix, value);
-    }
-
-    get u_MvpMatrix() {
-        return this.shaderData.getMatrix4x4(ShaderDefines2D.UNIFORM_MVPMatrix);
-    }
 
     public get textureHost(): Texture | BaseTexture {
         return this._textureHost
@@ -170,21 +162,6 @@ export class Value2D {
 
     }
 
-    set color(value: Vector4) {
-        value && this.shaderData.setVector(ShaderDefines2D.UNIFORM_COLOR, value);
-    }
-
-    get color() {
-        return this.shaderData.getVector(ShaderDefines2D.UNIFORM_COLOR);
-    }
-
-    set colorAdd(value: Vector4) {
-        this.shaderData.setVector(ShaderDefines2D.UNIFORM_COLORADD, value);
-    }
-
-    get colorAdd() {
-        return this.shaderData.getVector(ShaderDefines2D.UNIFORM_COLORADD);
-    }
 
     set clipMatDir(value: Vector4) {
         this.shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, value);
@@ -205,13 +182,13 @@ export class Value2D {
     upload(material: Material | null, shaderData: ShaderData): void {
     }
 
-    //TODO:coverage
-    setFilter(value: ColorFilter): void {
-        if (!value)
-            return;
+    // //TODO:coverage
+    // setFilter(value: ColorFilter): void {
+    //     if (!value)
+    //         return;
 
-        this.shaderData.addDefine(value.typeDefine);//搬到setValue中
-    }
+    //     this.shaderData.addDefine(value.typeDefine);//搬到setValue中
+    // }
 
     clear(): void {
         if (this.shaderData) {
