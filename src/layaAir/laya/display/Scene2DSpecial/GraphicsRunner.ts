@@ -761,7 +761,7 @@ export class GraphicsRunner {
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
             }
 
-            this.appendData(this._transedPoints, Texture.NO_UV, rgba, _drawTexToQuad_Index, vertexResult, null, null, false);
+            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, null, rgba, null, null, false);
             this._updateSubmit(vertexResult);
         }
     }
@@ -867,7 +867,7 @@ export class GraphicsRunner {
             submit._internalInfo.textureHost = texture;
 
             var rgba = this._mixRGBandAlpha(color, this._alpha);
-            this.appendData(this._transedPoints, uv, rgba, _drawTexToQuad_Index, vertexResult, null, null, true);
+            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
             this._updateSubmit(vertexResult);
             // this._curSubmit._numEle += 6;
         }
@@ -1029,7 +1029,7 @@ export class GraphicsRunner {
             // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
-        this.appendData(ops, uv, rgba, _drawTexToQuad_Index, vertexResult, null, null, true);
+        this.appendData(ops, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
         // submit._numEle += 6;
         this._updateSubmit(vertexResult);
         return true;
@@ -1243,12 +1243,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, uvs, rgba, indices, vertexResult, tmpMat, null, true);
+            this.appendData(vertices, indices, vertexResult, uvs, rgba, tmpMat, null, true);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, uvs, rgba, indices, vertexResult, m, null, true);
+            this.appendData(vertices, indices, vertexResult, uvs, rgba, m, null, true);
         }
         // this._curSubmit._numEle += indices.length;
         this._updateSubmit(vertexResult);
@@ -1504,7 +1504,7 @@ export class GraphicsRunner {
                 }
             }
             //填充mesh
-            this.appendData(cpath, Texture.NO_UV, rgba, idx, vertexResult, null, null, false);
+            this.appendData(cpath, idx, vertexResult, null, rgba, null, null, false);
             curEleNum += idx.length;
             this._updateSubmit(vertexResult);
         }
@@ -1603,7 +1603,7 @@ export class GraphicsRunner {
             //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
             //填充mesh
             // mesh.addVertAndIBToMesh(vertex, rgba, idx);
-            this.appendData(vertex, Texture.NO_UV, rgba, idx, vertexResult, null, null, false);
+            this.appendData(vertex, idx, vertexResult, null, rgba, null, null, false);
             curEleNum += idx.length;
             this._updateSubmit(vertexResult);
         }
@@ -2163,8 +2163,9 @@ export class GraphicsRunner {
 
 
     appendData(
-        vertices: ArrayLike<number>, uvs: ArrayLike<number>, rgba: number, indices: ArrayLike<number>,
+        vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo,
+        uvs: ArrayLike<number> = null, rgba: number = 0xffffffff, 
         matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false
     ) {
         let vertexCount = vertices.length / 2;
@@ -2211,7 +2212,6 @@ export class GraphicsRunner {
                 offset = dataView.start / dataView.stride;
             }
 
-            indexsMap[i] = i + offset;
             let vbdata = dataView.data;
             let x = vertices[ci], y = vertices[ci + 1];
             if (matrix) {
@@ -2226,8 +2226,11 @@ export class GraphicsRunner {
                 vbdata[pos] = x;
                 vbdata[pos + 1] = y;
             }
-            vbdata[pos + 2] = uvminx + uvs[ci] * uvu;
-            vbdata[pos + 3] = uvminy + uvs[ci + 1] * uvv;
+
+            if (uvs) {
+                vbdata[pos + 2] = uvminx + uvs[ci] * uvu;
+                vbdata[pos + 3] = uvminy + uvs[ci + 1] * uvv;
+            }
 
             vbdata[pos + 4] = b;
             vbdata[pos + 5] = g;
@@ -2237,6 +2240,8 @@ export class GraphicsRunner {
             dataView.count += 12;
             pos += 12;
             ci += 2;
+            indexsMap[i] = offset ++;
+
         }
 
         let indexResult = result.mesh.checkIndex(indices.length);
@@ -2257,7 +2262,9 @@ export class GraphicsRunner {
             dataView.count++;
             pos++;
         }
-        // console.log("==== fill buffer" , Stat.loopCount);
+        if (window.startConsole) {
+            console.log("==== fill buffer" , result.vertexBlocks , result.indexBlocks);
+        }
     }
 
     defalutInfo:MeshBlockInfo;
@@ -2267,10 +2274,10 @@ export class GraphicsRunner {
             this.defalutInfo = this.acquire(4);
             this.appendData(
                 [0,0,1,0,1,1,0,1],
-                Texture.DEF_UV,
-                0xffffffff,
                 _drawTexToQuad_Index,
                 this.defalutInfo,
+                Texture.DEF_UV,
+                0xffffffff,
                 null,
                 null,
                 true
