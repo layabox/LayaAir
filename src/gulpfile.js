@@ -322,6 +322,18 @@ gulp.task('ConcatBulletPhysics.wasm-wx', function (cb) {
         cb();
     });
 });
+//合并 laya.bullet.js 和 laya.physics3D.wasm-alipay.js   支付宝wasm物理库适配
+gulp.task('ConcatBulletPhysics.wasm-alipay', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/laya.physics3D.wasm-alipay.js',
+            '../build/js/libs/laya.bullet.js']),
+        concat('laya.physics3D.wasm-alipay.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], function() {   
+        cb();
+    });
+});
 //合并 laya.bullet.js 和 laya.physics3D.js
 gulp.task('ConcatBulletPhysics', function (cb) {
     pump([
@@ -340,7 +352,7 @@ gulp.task('ConcatBulletPhysics', function (cb) {
 gulp.task('CopyJSLibsToJS', () => {
     return gulp.src([
         './layaAir/jsLibs/laya.physics3D.wasm.wasm','./layaAir/jsLibs/*.js',
-        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js}'])
+        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js,laya.physics3D.wasm-alipay.js}'])
         .pipe(gulp.dest('../build/js/libs'));
 });
 
@@ -452,6 +464,24 @@ function changeWxWasmPath() {
     }; 
     return stream;
 }
+// 修改laya.physics3D.wasm-alipay.js 里的路径
+function changeAliPayWasmPath() {
+    var stream = new Stream.Transform({ objectMode: true });
+    stream._transform = function (originalFile, unused, callback) {
+        let fPath = originalFile.path;
+        if (fPath.indexOf('laya.physics3D.wasm-alipay.js') >= 0) {
+            var stringData = String(originalFile.contents); 
+            stringData = stringData.replace('libs/laya.physics3D.wasm.wasm', 'libs/min/laya.physics3D.wasm.wasm');
+            var file = originalFile.clone({ contents: false });
+            var finalBinaryData = Buffer.from(stringData);
+            file.contents = finalBinaryData;
+            callback(null, file);
+        } else {
+            callback(null, originalFile);
+        } 
+    }; 
+    return stream;
+}
 // 压缩
 // 下面两个方法，最好能合并
 gulp.task("compressJs", function () {
@@ -476,6 +506,7 @@ gulp.task("compressJs", function () {
             console.warn(err.toString());
         })
         .pipe(changeWxWasmPath()) 
+        .pipe(changeAliPayWasmPath()) 
         .pipe(rename({extname: ".min.js"}))
         .pipe(gulp.dest("../build/as/jslibs/min"))
         .pipe(gulp.dest("../build/js/libs/min"))
@@ -500,13 +531,14 @@ gulp.task("compresstsnewJs", function () {
             console.warn(err.toString());
         })
         .pipe(changeWxWasmPath()) 
+        .pipe(changeAliPayWasmPath()) 
         .pipe(rename({extname: ".min.js"}))
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 });
 
 gulp.task('build', 
 gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 
-            'ConcatCannonPhysics','ConcatBulletPhysics.wasm', 'ConcatBulletPhysics.wasm-wx',  
+            'ConcatCannonPhysics','ConcatBulletPhysics.wasm', 'ConcatBulletPhysics.wasm-wx', 'ConcatBulletPhysics.wasm-alipay',  
             'ConcatBulletPhysics', 'CopyJSLibsToJS', 
             'CopyTSFileToTS', 'CopyJSFileToAS', 
             'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 

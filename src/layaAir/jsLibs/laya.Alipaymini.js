@@ -29,19 +29,23 @@ window.aliPayMiniGame = function (exports, Laya) {
 	            fileUrl = filePath;
 	        }
 	        fileUrl = Laya.URL.getAdptedFilePath(fileUrl);
-	        MiniFileMgr.fs.readFile({ filePath: fileUrl, encoding: encoding, success: function (data) {
+	        MiniFileMgr.fs.readFile({
+	            filePath: fileUrl,
+	            encoding: encoding,
+	            success: function (data) {
 	                callBack != null && callBack.runWith([0, data]);
 	            }, fail: function (data) {
 	                if (data && readyUrl != "")
 	                    MiniFileMgr.downFiles(encodeURI(readyUrl), encoding, callBack, readyUrl, isSaveFile, fileType);
 	                else
 	                    callBack != null && callBack.runWith([1]);
-	            } });
+	            }
+	        });
 	    }
 	    static isFile(url) {
 	        let stat;
 	        try {
-	            stat = MiniFileMgr.fs.statSync(url);
+	            stat = MiniFileMgr.fs.statSync(url).stats;
 	        }
 	        catch (err) {
 	            return false;
@@ -49,7 +53,9 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        return stat.isFile();
 	    }
 	    static downFiles(fileUrl, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
-	        var downloadTask = MiniFileMgr.down({ url: fileUrl, success: function (data) {
+	        var downloadTask = MiniFileMgr.down({
+	            url: fileUrl,
+	            success: function (data) {
 	                if (!data.hasOwnProperty("statusCode")) {
 	                    data.statusCode = 200;
 	                }
@@ -63,14 +69,18 @@ window.aliPayMiniGame = function (exports, Laya) {
 	                }
 	            }, fail: function (data) {
 	                callBack != null && callBack.runWith([1, data]);
-	            } });
+	            }
+	        });
 	        downloadTask.onProgressUpdate(function (data) {
 	            callBack != null && callBack.runWith([2, data.progress]);
 	        });
 	    }
 	    static readFile(filePath, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
 	        filePath = Laya.URL.getAdptedFilePath(filePath);
-	        MiniFileMgr.fs.readFile({ filePath: filePath, encoding: encoding, success: function (data) {
+	        MiniFileMgr.fs.readFile({
+	            filePath: filePath,
+	            encoding: encoding,
+	            success: function (data) {
 	                if ((filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) && filePath.indexOf(ALIMiniAdapter.window.my.env.USER_DATA_PATH) == -1) {
 	                    if (ALIMiniAdapter.AutoCacheDownFile || isSaveFile) {
 	                        callBack != null && callBack.runWith([0, data]);
@@ -84,10 +94,13 @@ window.aliPayMiniGame = function (exports, Laya) {
 	            }, fail: function (data) {
 	                if (data)
 	                    callBack != null && callBack.runWith([1, data]);
-	            } });
+	            }
+	        });
 	    }
 	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
-	        MiniFileMgr.down({ url: fileUrl, success: function (data) {
+	        MiniFileMgr.down({
+	            url: fileUrl,
+	            success: function (data) {
 	                if (!data.hasOwnProperty("statusCode"))
 	                    data.statusCode = 200;
 	                if (data.statusCode === 200) {
@@ -103,7 +116,8 @@ window.aliPayMiniGame = function (exports, Laya) {
 	                }
 	            }, fail: function (data) {
 	                callBack != null && callBack.runWith([1, data]);
-	            } });
+	            }
+	        });
 	    }
 	    static copyFile(src, dest, complete = null) {
 	        MiniFileMgr.fs.copyFile({
@@ -167,11 +181,15 @@ window.aliPayMiniGame = function (exports, Laya) {
 	                            ALIMiniAdapter.minClearSize = data.size;
 	                        MiniFileMgr.onClearCacheRes();
 	                    }
-	                    MiniFileMgr.fs.copyFile({ srcPath: tempFilePath, destPath: saveFilePath, success: function (data2) {
+	                    MiniFileMgr.fs.copyFile({
+	                        srcPath: tempFilePath,
+	                        destPath: saveFilePath,
+	                        success: function (data2) {
 	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, data.size);
 	                        }, fail: function (data) {
 	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
+	                        }
+	                    });
 	                },
 	                fail: function (data) {
 	                    callBack != null && callBack.runWith([1, data]);
@@ -188,7 +206,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        }
 	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC);
 	        var clearSize = 0;
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	        for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
 	            var fileObj = tempFileListArr[i];
 	            if (clearSize >= memSize)
 	                break;
@@ -209,21 +227,28 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    static deleteFile(tempFileName, readyUrl = "", callBack = null, encoding = "", fileSize = 0) {
 	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
 	        var deleteFileUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
-	        MiniFileMgr.fs.unlink({ filePath: deleteFileUrl, success: function (data) {
+	        MiniFileMgr.fs.unlink({
+	            filePath: deleteFileUrl,
+	            success: function (data) {
 	                if (tempFileName != "") {
 	                    var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	                    MiniFileMgr.fs.copyFile({ srcPath: tempFileName, destPath: saveFilePath, success: function (data) {
+	                    MiniFileMgr.fs.copyFile({
+	                        srcPath: tempFileName,
+	                        destPath: saveFilePath,
+	                        success: function (data) {
 	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, fileSize);
 	                        }, fail: function (data) {
 	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
+	                        }
+	                    });
 	                }
 	                else {
 	                    MiniFileMgr.onSaveFile(readyUrl, tempFileName, false, encoding, callBack, fileSize);
 	                }
 	            }, fail: function (data) {
 	                callBack != null && callBack.runWith([1, data]);
-	            } });
+	            }
+	        });
 	    }
 	    static deleteAll() {
 	        var tempFileListArr = [];
@@ -231,7 +256,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	            if (key != "fileUsedSize")
 	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
 	        }
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	        for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
 	            var fileObj = tempFileListArr[i];
 	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
 	        }
@@ -266,9 +291,14 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    }
 	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
 	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
-	        MiniFileMgr.fs.writeFile({ filePath: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
+	        MiniFileMgr.fs.writeFile({
+	            filePath: listFilesPath,
+	            encoding: 'utf8',
+	            data: filesListStr,
+	            success: function (data) {
 	            }, fail: function (data) {
-	            } });
+	            }
+	        });
 	        if (!ALIMiniAdapter.isZiYu && ALIMiniAdapter.isPosMsgYu && ALIMiniAdapter.window.my.postMessage) {
 	            ALIMiniAdapter.window.my.postMessage({ url: fileurlkey, data: MiniFileMgr.filesListObj[fileurlkey], isLoad: "filenative", isAdd: isAdd });
 	        }
@@ -281,7 +311,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    static getCacheList(dirPath, cb) {
 	        let stat;
 	        try {
-	            stat = MiniFileMgr.fs.statSync(dirPath);
+	            stat = MiniFileMgr.fs.statSync(dirPath).stats;
 	        }
 	        catch (err) {
 	            stat = null;
@@ -295,21 +325,27 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    static existDir(dirPath, callBack) {
-	        MiniFileMgr.fs.mkdir({ dirPath: dirPath, success: function (data) {
+	        MiniFileMgr.fs.mkdir({
+	            dirPath: dirPath,
+	            success: function (data) {
 	                callBack != null && callBack.runWith([0, { data: JSON.stringify({}) }]);
 	            }, fail: function (data) {
 	                if (data.error == 10025)
 	                    MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
 	                else
 	                    callBack != null && callBack.runWith([1, data]);
-	            } });
+	            }
+	        });
 	    }
 	    static readSync(filePath, encoding = "utf8", callBack = null, readyUrl = "") {
 	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
 	        var filesListStr;
 	        try {
-	            filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
-	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
+	            filesListStr = MiniFileMgr.fs.readFileSync({
+	                filePath: fileUrl,
+	                encoding: encoding,
+	            });
+	            callBack != null && callBack.runWith([0, { data: filesListStr.data }]);
 	        }
 	        catch (error) {
 	            callBack != null && callBack.runWith([1]);
@@ -331,17 +367,51 @@ window.aliPayMiniGame = function (exports, Laya) {
 	MiniFileMgr.NUMERIC = 16;
 
 	class MiniSoundChannel extends Laya.SoundChannel {
-	    constructor(audio, miniSound) {
+	    constructor(miniSound) {
 	        super();
-	        this._audio = audio;
 	        this._miniSound = miniSound;
+	        this._audio = miniSound._sound;
+	        this._onCanPlay = MiniSoundChannel.bindToThis(this.onCanPlay, this);
 	        this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
-	        audio.onEnded(this._onEnd);
+	        this._onError = MiniSoundChannel.bindToThis(this.onError, this);
+	        this.addEventListener();
 	    }
 	    static bindToThis(fun, scope) {
 	        var rst = fun;
 	        rst = fun.bind(scope);
 	        return rst;
+	    }
+	    addEventListener() {
+	        this._audio.onError(this._onError);
+	        this._audio.onCanplay(this._onCanPlay);
+	    }
+	    offEventListener() {
+	        this._audio.offError(this._onError);
+	        this._audio.offCanplay(this._onCanPlay);
+	        this._audio.offEnded(this._onEnd);
+	    }
+	    onError(error) {
+	        console.log("-----1---------------minisound-----url:", this.url);
+	        console.log(error);
+	        this.event(Laya.Event.ERROR);
+	        if (!this._audio)
+	            return;
+	        this._miniSound.dispose();
+	        this.offEventListener();
+	        this._miniSound = this._audio = null;
+	    }
+	    onCanPlay() {
+	        if (!this._audio)
+	            return;
+	        this.event(Laya.Event.COMPLETE);
+	        this.offEventListener();
+	        this._audio.onEnded(this._onEnd);
+	        if (!this.isStopped) {
+	            this.play();
+	        }
+	        else {
+	            this.stop();
+	        }
 	    }
 	    __onEnd() {
 	        if (this.loops == 1) {
@@ -362,6 +432,8 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    play() {
 	        this.isStopped = false;
 	        Laya.SoundManager.addChannel(this);
+	        if (!this._miniSound)
+	            return;
 	        this._audio.play();
 	    }
 	    set startTime(time) {
@@ -386,6 +458,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        return this._audio.duration;
 	    }
 	    stop() {
+	        super.stop();
 	        this.isStopped = true;
 	        Laya.SoundManager.removeChannel(this);
 	        this.completeHandler = null;
@@ -433,6 +506,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    constructor() {
 	        super();
 	        this.loaded = false;
+	        this._sound = MiniSound._createSound();
 	    }
 	    static _createSound() {
 	        MiniSound._id++;
@@ -535,40 +609,15 @@ window.aliPayMiniGame = function (exports, Laya) {
 	                else {
 	                    fileNativeUrl = tempFilePath;
 	                }
-	                if (this.url != Laya.SoundManager._bgMusic) {
-	                    this._sound = MiniSound._createSound();
-	                    this._sound.src = this.url = fileNativeUrl;
-	                }
-	                else {
-	                    this._sound = MiniSound._musicAudio;
-	                    this._sound.src = this.url = fileNativeUrl;
-	                }
+	                this._sound.src = this.url = fileNativeUrl;
 	            }
 	            else {
-	                if (this.url != Laya.SoundManager._bgMusic) {
-	                    this._sound = MiniSound._createSound();
-	                    this._sound.src = sourceUrl;
-	                }
-	                else {
-	                    this._sound = MiniSound._musicAudio;
-	                    this._sound.src = sourceUrl;
-	                }
+	                this._sound.src = sourceUrl;
 	            }
-	            this._sound.onCanPlay(MiniSound.bindToThis(this.onCanPlay, this));
-	            this._sound.onError(MiniSound.bindToThis(this.onError, this));
 	        }
 	        else {
 	            this.event(Laya.Event.ERROR);
 	        }
-	    }
-	    onError(error) {
-	        this.event(Laya.Event.ERROR);
-	        this._sound.offError(null);
-	    }
-	    onCanPlay() {
-	        this.loaded = true;
-	        this.event(Laya.Event.COMPLETE);
-	        this._sound.offCanPlay(null);
 	    }
 	    static bindToThis(fun, scope) {
 	        var rst = fun;
@@ -576,36 +625,12 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        return rst;
 	    }
 	    play(startTime = 0, loops = 0) {
-	        var tSound;
-	        if (this.url == Laya.SoundManager._bgMusic) {
-	            if (!MiniSound._musicAudio)
-	                MiniSound._musicAudio = MiniSound._createSound();
-	            tSound = MiniSound._musicAudio;
-	        }
-	        else {
-	            if (MiniSound._audioCache[this.readyUrl]) {
-	                tSound = MiniSound._audioCache[this.readyUrl]._sound;
-	            }
-	            else {
-	                tSound = MiniSound._createSound();
-	            }
-	        }
-	        if (!tSound)
-	            return null;
-	        if (ALIMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(this.url)) {
-	            var fileObj = MiniFileMgr.getFileInfo(this.url);
-	            var fileMd5Name = fileObj.md5;
-	            tSound.src = this.url = MiniFileMgr.getFileNativePath(fileMd5Name);
-	        }
-	        else {
-	            tSound.src = encodeURI(this.url);
-	        }
-	        var channel = new MiniSoundChannel(tSound, this);
+	        var channel = new MiniSoundChannel(this);
 	        channel.url = this.url;
 	        channel.loops = loops;
 	        channel.loop = (loops === 0 ? true : false);
 	        channel.startTime = startTime;
-	        channel.play();
+	        channel.isStopped = false;
 	        Laya.SoundManager.addChannel(channel);
 	        return channel;
 	    }
@@ -688,6 +713,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	            _inputTarget.text = str;
 	            _inputTarget.event(Laya.Event.INPUT);
 	            MiniInput.inputEnter();
+	            _inputTarget.event("enter");
 	            _inputTarget.event("confirm");
 	        });
 	        ALIMiniAdapter.window.my.onKeyboardInput(function (res) {
@@ -705,6 +731,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	                }
 	            }
 	            _inputTarget.text = str;
+	            _inputTarget.miniGameTxt && _inputTarget.miniGameTxt(str);
 	            _inputTarget.event(Laya.Event.INPUT);
 	        });
 	    }
@@ -841,10 +868,10 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    _loadHttpRequestWhat(url, contentType) {
 	        var thisLoader = this;
 	        var encoding = ALIMiniAdapter.getUrlEncode(url, contentType);
-	        if (Laya.Loader.preLoadedMap[url])
-	            thisLoader.onLoaded(Laya.Loader.preLoadedMap[url]);
+	        var tempurl = Laya.URL.formatURL(url);
+	        if (Laya.Loader.preLoadedMap[tempurl])
+	            thisLoader.onLoaded(Laya.Loader.preLoadedMap[tempurl]);
 	        else {
-	            var tempurl = Laya.URL.formatURL(url);
 	            if (!ALIMiniAdapter.AutoCacheDownFile) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
 	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
@@ -963,10 +990,26 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        MiniLocalStorage.items = MiniLocalStorage;
 	    }
 	    static setItem(key, value) {
-	        ALIMiniAdapter.window.my.setStorageSync({ key: key, value: value });
+	        try {
+	            ALIMiniAdapter.window.my.setStorageSync({
+	                key: key,
+	                data: value
+	            });
+	        }
+	        catch (error) {
+	            console.error("set localStorage Item failed", error);
+	        }
 	    }
 	    static getItem(key) {
-	        return ALIMiniAdapter.window.my.getStorageSync({ "key": key });
+	        try {
+	            var result = ALIMiniAdapter.window.my.getStorageSync({ "key": key });
+	            if (result) {
+	                return result.data;
+	            }
+	        }
+	        catch (error) {
+	            console.error("get localStorage Item failed", error);
+	        }
 	    }
 	    static setJSON(key, value) {
 	        try {
@@ -980,7 +1023,9 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        return JSON.parse(MiniLocalStorage.getItem(key));
 	    }
 	    static removeItem(key) {
-	        ALIMiniAdapter.window.my.removeStorageSync(key);
+	        ALIMiniAdapter.window.my.removeStorageSync({
+	            key: key,
+	        });
 	    }
 	    static clear() {
 	        ALIMiniAdapter.window.my.clearStorageSync();
@@ -999,6 +1044,44 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    }
 	}
 	MiniLocalStorage.support = true;
+
+	function ImageDataPolyfill() {
+	    let width, height, data;
+	    if (arguments.length == 3) {
+	        if (arguments[0] instanceof Uint8ClampedArray) {
+	            if (arguments[0].length % 4 !== 0) {
+	                throw new Error("Failed to construct 'ImageData': The input data length is not a multiple of 4.");
+	            }
+	            if (arguments[0].length !== arguments[1] * arguments[2] * 4) {
+	                throw new Error("Failed to construct 'ImageData': The input data length is not equal to (4 * width * height).");
+	            }
+	            else {
+	                data = arguments[0];
+	                width = arguments[1];
+	                height = arguments[2];
+	            }
+	        }
+	        else {
+	            throw new Error("Failed to construct 'ImageData': parameter 1 is not of type 'Uint8ClampedArray'.");
+	        }
+	    }
+	    else if (arguments.length == 2) {
+	        width = arguments[0];
+	        height = arguments[1];
+	        data = new Uint8ClampedArray(arguments[0] * arguments[1] * 4);
+	    }
+	    else if (arguments.length < 2) {
+	        throw new Error("Failed to construct 'ImageData': 2 arguments required, but only " + arguments.length + " present.");
+	    }
+	    let imgdata = Laya.Browser.canvas.getContext("2d").getImageData(0, 0, width, height);
+	    for (let i = 0; i < data.length; i += 4) {
+	        imgdata.data[i] = data[i];
+	        imgdata.data[i + 1] = data[i + 1];
+	        imgdata.data[i + 2] = data[i + 2];
+	        imgdata.data[i + 3] = data[i + 3];
+	    }
+	    return imgdata;
+	}
 
 	class ALIMiniAdapter {
 	    static getJson(data) {
@@ -1047,6 +1130,9 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        Laya.RunDriver.createShaderCondition = ALIMiniAdapter.createShaderCondition;
 	        Laya.Utils['parseXMLFromString'] = ALIMiniAdapter.parseXMLFromString;
 	        Laya.Input['_createInputElement'] = MiniInput['_createInputElement'];
+	        if (!window.ImageData) {
+	            window.ImageData = ImageDataPolyfill;
+	        }
 	        Laya.Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 	        Laya.Loader.prototype.originComplete = Laya.Loader.prototype.complete;
 	        Laya.Loader.prototype.complete = MiniLoader.prototype.complete;
@@ -1056,6 +1142,77 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        MiniLocalStorage.__init__();
 	        Laya.Config.useRetinalCanvas = true;
 	        ALIMiniAdapter.window.my.onMessage && ALIMiniAdapter.window.my.onMessage(ALIMiniAdapter._onMessage);
+	        Laya.Laya.createRender = ALIMiniAdapter.aliPayCreateRender;
+	    }
+	    static aliPayCreateRender() {
+	        var screenWidth = Laya.Browser.clientWidth * Laya.Browser.pixelRatio;
+	        var screenHeight = Laya.Browser.clientHeight * Laya.Browser.pixelRatio;
+	        var rotation = false;
+	        if (Laya.Laya.stage.screenMode !== Laya.Stage.SCREEN_NONE) {
+	            var screenType = screenWidth / screenHeight < 1 ? Laya.Stage.SCREEN_VERTICAL : Laya.Stage.SCREEN_HORIZONTAL;
+	            rotation = screenType !== Laya.Laya.stage.screenMode;
+	            if (rotation) {
+	                var temp = screenHeight;
+	                screenHeight = screenWidth;
+	                screenWidth = temp;
+	            }
+	        }
+	        Laya.Laya.stage.canvasRotation = rotation;
+	        var scaleMode = Laya.Laya.stage.scaleMode;
+	        var scaleX = screenWidth / Laya.Laya.stage.designWidth;
+	        var scaleY = screenHeight / Laya.Laya.stage.designHeight;
+	        var canvasWidth = Laya.Laya.stage.useRetinalCanvas ? screenWidth : Laya.Laya.stage.designWidth;
+	        var canvasHeight = Laya.Laya.stage.useRetinalCanvas ? screenHeight : Laya.Laya.stage.designHeight;
+	        var realWidth = screenWidth;
+	        var realHeight = screenHeight;
+	        var pixelRatio = Laya.Browser.pixelRatio;
+	        Laya.Laya.stage._width = Laya.Laya.stage.designWidth;
+	        Laya.Laya.stage._height = Laya.Laya.stage.designHeight;
+	        switch (scaleMode) {
+	            case Laya.Stage.SCALE_NOSCALE:
+	                scaleX = scaleY = 1;
+	                realWidth = Laya.Laya.stage.designWidth;
+	                realHeight = Laya.Laya.stage.designHeight;
+	                break;
+	            case Laya.Stage.SCALE_SHOWALL:
+	                scaleX = scaleY = Math.min(scaleX, scaleY);
+	                canvasWidth = realWidth = Math.round(Laya.Laya.stage.designWidth * scaleX);
+	                canvasHeight = realHeight = Math.round(Laya.Laya.stage.designHeight * scaleY);
+	                break;
+	            case Laya.Stage.SCALE_NOBORDER:
+	                scaleX = scaleY = Math.max(scaleX, scaleY);
+	                realWidth = Math.round(Laya.Laya.stage.designWidth * scaleX);
+	                realHeight = Math.round(Laya.Laya.stage.designHeight * scaleY);
+	                break;
+	            case Laya.Stage.SCALE_FULL:
+	                scaleX = scaleY = 1;
+	                Laya.Laya.stage._width = canvasWidth = screenWidth;
+	                Laya.Laya.stage._height = canvasHeight = screenHeight;
+	                break;
+	            case Laya.Stage.SCALE_FIXED_WIDTH:
+	                scaleY = scaleX;
+	                Laya.Laya.stage._height = canvasHeight = Math.round(screenHeight / scaleX);
+	                break;
+	            case Laya.Stage.SCALE_FIXED_HEIGHT:
+	                scaleX = scaleY;
+	                Laya.Laya.stage._width = canvasWidth = Math.round(screenWidth / scaleY);
+	                break;
+	            case Laya.Stage.SCALE_FIXED_AUTO:
+	                if ((screenWidth / screenHeight) < (Laya.Laya.stage.designWidth / Laya.Laya.stage.designHeight)) {
+	                    scaleY = scaleX;
+	                    Laya.Laya.stage._height = canvasHeight = Math.round(screenHeight / scaleX);
+	                }
+	                else {
+	                    scaleX = scaleY;
+	                    Laya.Laya.stage._width = canvasWidth = Math.round(screenWidth / scaleY);
+	                }
+	                break;
+	        }
+	        if (Laya.Laya.stage.useRetinalCanvas) {
+	            canvasWidth = screenWidth;
+	            canvasHeight = screenHeight;
+	        }
+	        return new Laya.Render(canvasWidth, canvasHeight, Laya.Browser.mainCanvas);
 	    }
 	    static _onMessage(data) {
 	        switch (data.type) {
@@ -1124,8 +1281,10 @@ window.aliPayMiniGame = function (exports, Laya) {
 	            MiniFileMgr.fakeObj = {};
 	            MiniFileMgr.filesListObj = {};
 	        }
-	        let files = MiniFileMgr.fs.readdirSync(MiniFileMgr.fileNativeDir);
-	        if (!files.length)
+	        let files = MiniFileMgr.fs.readdirSync({
+	            dirPath: MiniFileMgr.fileNativeDir,
+	        }).files;
+	        if (!files || !files.length)
 	            return;
 	        var tempMd5ListObj = {};
 	        var fileObj;
@@ -1308,9 +1467,9 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    }
 	}
 	ALIMiniAdapter._inited = false;
-	ALIMiniAdapter.autoCacheFile = false;
+	ALIMiniAdapter.autoCacheFile = true;
 	ALIMiniAdapter.minClearSize = (5 * 1024 * 1024);
-	ALIMiniAdapter.sizeLimit = (50 * 1024 * 1024);
+	ALIMiniAdapter.sizeLimit = (200 * 1024 * 1024);
 	ALIMiniAdapter.nativefiles = ["layaNativeDir"];
 	ALIMiniAdapter.subNativeFiles = [];
 	ALIMiniAdapter.subNativeheads = [];
@@ -1769,6 +1928,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	}
 
 	exports.ALIMiniAdapter = ALIMiniAdapter;
+	exports.ImageDataPolyfill = ImageDataPolyfill;
 	exports.MiniAccelerator = MiniAccelerator;
 	exports.MiniFileMgr = MiniFileMgr;
 	exports.MiniImage = MiniImage;

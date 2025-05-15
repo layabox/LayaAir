@@ -183,7 +183,7 @@ window.biliMiniGame = function (exports, Laya) {
 	        }
 	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC);
 	        var clearSize = 0;
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	        for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
 	            var fileObj = tempFileListArr[i];
 	            if (clearSize >= memSize)
 	                break;
@@ -226,7 +226,7 @@ window.biliMiniGame = function (exports, Laya) {
 	            if (key != "fileUsedSize")
 	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
 	        }
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	        for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
 	            var fileObj = tempFileListArr[i];
 	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
 	        }
@@ -691,6 +691,7 @@ window.biliMiniGame = function (exports, Laya) {
 	            _inputTarget.text = str;
 	            _inputTarget.event(Laya.Event.INPUT);
 	            MiniInput.inputEnter();
+	            _inputTarget.event("enter");
 	            _inputTarget.event("confirm");
 	        });
 	        BLMiniAdapter.window.bl.onKeyboardInput(function (res) {
@@ -708,6 +709,7 @@ window.biliMiniGame = function (exports, Laya) {
 	                }
 	            }
 	            _inputTarget.text = str;
+	            _inputTarget.miniGameTxt && _inputTarget.miniGameTxt(str);
 	            _inputTarget.event(Laya.Event.INPUT);
 	        });
 	    }
@@ -844,10 +846,10 @@ window.biliMiniGame = function (exports, Laya) {
 	    _loadHttpRequestWhat(url, contentType) {
 	        var thisLoader = this;
 	        var encoding = BLMiniAdapter.getUrlEncode(url, contentType);
-	        if (Laya.Loader.preLoadedMap[url])
-	            thisLoader.onLoaded(Laya.Loader.preLoadedMap[url]);
+	        var tempurl = Laya.URL.formatURL(url);
+	        if (Laya.Loader.preLoadedMap[tempurl])
+	            thisLoader.onLoaded(Laya.Loader.preLoadedMap[tempurl]);
 	        else {
-	            var tempurl = Laya.URL.formatURL(url);
 	            if (!BLMiniAdapter.AutoCacheDownFile) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
 	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
@@ -1006,6 +1008,44 @@ window.biliMiniGame = function (exports, Laya) {
 	}
 	MiniLocalStorage.support = true;
 
+	function ImageDataPolyfill() {
+	    let width, height, data;
+	    if (arguments.length == 3) {
+	        if (arguments[0] instanceof Uint8ClampedArray) {
+	            if (arguments[0].length % 4 !== 0) {
+	                throw new Error("Failed to construct 'ImageData': The input data length is not a multiple of 4.");
+	            }
+	            if (arguments[0].length !== arguments[1] * arguments[2] * 4) {
+	                throw new Error("Failed to construct 'ImageData': The input data length is not equal to (4 * width * height).");
+	            }
+	            else {
+	                data = arguments[0];
+	                width = arguments[1];
+	                height = arguments[2];
+	            }
+	        }
+	        else {
+	            throw new Error("Failed to construct 'ImageData': parameter 1 is not of type 'Uint8ClampedArray'.");
+	        }
+	    }
+	    else if (arguments.length == 2) {
+	        width = arguments[0];
+	        height = arguments[1];
+	        data = new Uint8ClampedArray(arguments[0] * arguments[1] * 4);
+	    }
+	    else if (arguments.length < 2) {
+	        throw new Error("Failed to construct 'ImageData': 2 arguments required, but only " + arguments.length + " present.");
+	    }
+	    let imgdata = Laya.Browser.canvas.getContext("2d").getImageData(0, 0, width, height);
+	    for (let i = 0; i < data.length; i += 4) {
+	        imgdata.data[i] = data[i];
+	        imgdata.data[i + 1] = data[i + 1];
+	        imgdata.data[i + 2] = data[i + 2];
+	        imgdata.data[i + 3] = data[i + 3];
+	    }
+	    return imgdata;
+	}
+
 	class BLMiniAdapter {
 	    static getJson(data) {
 	        return JSON.parse(data);
@@ -1054,6 +1094,9 @@ window.biliMiniGame = function (exports, Laya) {
 	        Laya.RunDriver.createShaderCondition = BLMiniAdapter.createShaderCondition;
 	        Laya.Utils['parseXMLFromString'] = BLMiniAdapter.parseXMLFromString;
 	        Laya.Input['_createInputElement'] = MiniInput['_createInputElement'];
+	        if (!window.ImageData) {
+	            window.ImageData = ImageDataPolyfill;
+	        }
 	        Laya.Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 	        Laya.Loader.prototype.originComplete = Laya.Loader.prototype.complete;
 	        Laya.Loader.prototype.complete = MiniLoader.prototype.complete;
@@ -1799,6 +1842,7 @@ window.biliMiniGame = function (exports, Laya) {
 	}
 
 	exports.BLMiniAdapter = BLMiniAdapter;
+	exports.ImageDataPolyfill = ImageDataPolyfill;
 	exports.MiniAccelerator = MiniAccelerator;
 	exports.MiniFileMgr = MiniFileMgr;
 	exports.MiniImage = MiniImage;

@@ -243,7 +243,7 @@ window.tbMiniGame = function (exports, Laya) {
             }
             MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC);
             var clearSize = 0;
-            for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+            for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
                 var fileObj = tempFileListArr[i];
                 if (clearSize >= memSize)
                     break;
@@ -298,7 +298,7 @@ window.tbMiniGame = function (exports, Laya) {
                 if (key != "fileUsedSize")
                     tempFileListArr.push(MiniFileMgr.filesListObj[key]);
             }
-            for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+            for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
                 var fileObj = tempFileListArr[i];
                 MiniFileMgr.deleteFile("", fileObj.readyUrl);
             }
@@ -649,7 +649,7 @@ window.tbMiniGame = function (exports, Laya) {
                             var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
                             if (fileObj && fileObj.md5) {
                                 var fileMd5Name = fileObj.md5;
-                                fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+                                fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileMd5Name);
                             }
                             else {
                                 if (sourceUrl.indexOf("http://") == -1
@@ -740,7 +740,37 @@ window.tbMiniGame = function (exports, Laya) {
             ts.scale((Laya.Browser.width / Laya.Render.canvas.width / Laya.Browser.pixelRatio), Laya.Browser.height / Laya.Render.canvas.height / Laya.Browser.pixelRatio);
         }
         static wxinputFocus(e) {
-            return;
+            var _inputTarget = Laya.Input['inputElement'].target;
+            if (_inputTarget && !_inputTarget.editable) {
+                return;
+            }
+            TBMiniAdapter.window.my.prompt({
+                title: '请在提示框中输入内容',
+                content: _inputTarget.text || "",
+                placeholder: _inputTarget.prompt || "",
+                success: (res) => {
+                    if (res.ok) {
+                        console.log('用户点击确定');
+                        var str = res ? res.inputValue : "";
+                        if (_inputTarget._restrictPattern) {
+                            str = str.replace(/\u2006|\x27/g, "");
+                            if (_inputTarget._restrictPattern.test(str)) {
+                                str = str.replace(_inputTarget._restrictPattern, "");
+                            }
+                        }
+                        _inputTarget.text = str;
+                        _inputTarget.miniGameTxt && _inputTarget.miniGameTxt(str);
+                        _inputTarget.event(Laya.Event.INPUT);
+                        MiniInput.inputEnter();
+                        _inputTarget.event("confirm");
+                        _inputTarget.event("enter");
+                    }
+                    else if (!res.ok) {
+                        console.log('用户点击取消');
+                        MiniInput.inputEnter();
+                    }
+                }
+            });
         }
         static inputEnter() {
             Laya.Input['inputElement'].target.focus = false;
@@ -749,7 +779,13 @@ window.tbMiniGame = function (exports, Laya) {
             MiniInput.hideKeyboard();
         }
         static hideKeyboard() {
-            return;
+            TBMiniAdapter.window.my.hideKeyboard({
+                success: function (res) {
+                    console.log('隐藏键盘');
+                }, fail: function (res) {
+                    console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
+                }
+            });
         }
     }
 
