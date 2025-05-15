@@ -15,6 +15,9 @@ export class TtVideoTexture extends VideoTexture {
 
         this.decoder = PAL.global.createOffscreenVideo();
         this.decoder.onCandraw((aspectRatio: number) => {
+            if (isNaN(Number(aspectRatio)))
+                return;
+
             this.setLoaded(1080 * aspectRatio, 1080, true);
         });
         this.decoder.onCanplay(() => {

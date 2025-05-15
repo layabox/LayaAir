@@ -68,18 +68,8 @@ export class Stage extends Sprite {
     /**
      * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
      * @zh 将舞台与画布直接设置为屏幕宽度和高度，其它方面与SCALE_NOSCALE模式一样，不对设计内容本身进行缩放。这种模式适用于希望完全利用屏幕空间，自行对屏幕动态排版的需求。
-     * 需要注意的是，在这种模式下，由于UI设计内容本身没有根据 DPR 缩放，所以需要开发者在项目逻辑里对 UI 根据 DPR(pixelRatio) 进行缩放处理。
      */
     static SCALE_FULL: string = "full";
-    /**
-     * @en Similar to SCALE_FULL, this mode sets the stage and canvas directly to the screen width and height. However, the difference is that it scales according to DPR (pixelRatio), making it suitable for high-DPR devices. 
-     * Advantages of this mode: evelopers do not need to manually scale UI elements based on DPR in their logic.  
-     * Important considerations: The design width and height should not use the physical resolution of the target device. Instead, they must use the logical resolution; otherwise, content exceeding the logical resolution may be cropped.
-     *  @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
-     * 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
-     * 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率，这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
-     */
-    static SCALE_FULLSCREEN: string = "fullscreen";
 
     /**
      * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
@@ -369,6 +359,10 @@ export class Stage extends Sprite {
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
         this._needUpdateCanvasSize = false;
+        let pixelRatio: number = Browser.pixelRatio;
+        //screen width/height是乘了dpr的，先除回去
+        screenWidth /= pixelRatio;
+        screenHeight /= pixelRatio;
 
         //计算是否旋转
         let rotation: boolean = false;
@@ -389,124 +383,108 @@ export class Stage extends Sprite {
         let scaleMode: string = this._scaleMode;
         let scaleX: number = screenWidth / this.designWidth;
         let scaleY: number = screenHeight / this.designHeight;
-        let canvasWidth: number = Config.useRetinalCanvas ? screenWidth : this.designWidth;
-        let canvasHeight: number = Config.useRetinalCanvas ? screenHeight : this.designHeight;
-        let realWidth: number = screenWidth;
-        let realHeight: number = screenHeight;
-        let pixelRatio: number = Browser.pixelRatio;
-        this._width = this.designWidth;
-        this._height = this.designHeight;
+        let stageWidth: number = this.designWidth;
+        let stageHeight: number = this.designHeight;
+        let canvasWidth: number = screenWidth;
+        let canvasHeight: number = screenHeight;
 
-        //处理缩放模式
+        if (!Browser.isDomSupported  //在这种情况下（例如小游戏），画布是强制全屏的，所以需要改变画布大小的模式都不能支持
+            && (scaleMode === Stage.SCALE_NOSCALE || scaleMode == Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOBORDER)) {
+            console.warn(`${scaleMode} is not supported in this platform`);
+            scaleMode = Stage.SCALE_FIXED_AUTO;
+        }
+
+        //设计大小 => 调整宽度或高度得到 => 舞台大小 => 乘以缩放因子 => canvas大小
         switch (scaleMode) {
             case Stage.SCALE_NOSCALE:
-                scaleX = scaleY = 1;
-                realWidth = this.designWidth;
-                realHeight = this.designHeight;
+                canvasWidth = stageWidth;
+                canvasHeight = stageHeight;
+                break;
+            case Stage.SCALE_FULL:
+                canvasWidth = stageWidth = screenWidth;
+                canvasHeight = stageHeight = screenHeight;
                 break;
             case Stage.SCALE_SHOWALL:
                 scaleX = scaleY = Math.min(scaleX, scaleY);
-                realWidth = Math.round(this.designWidth * scaleX);
-                realHeight = Math.round(this.designHeight * scaleY);
+                canvasWidth = Math.round(stageWidth * scaleX);
+                canvasHeight = Math.round(stageHeight * scaleY);
                 break;
             case Stage.SCALE_NOBORDER:
                 scaleX = scaleY = Math.max(scaleX, scaleY);
-                realWidth = Math.round(this.designWidth * scaleX);
-                realHeight = Math.round(this.designHeight * scaleY);
-                break;
-            case Stage.SCALE_FULL:
-                scaleX = scaleY = 1;
-                this._width = canvasWidth = screenWidth;
-                this._height = canvasHeight = screenHeight;
-                break;
-            case Stage.SCALE_FULLSCREEN:
-                scaleX = scaleY = pixelRatio;
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
-                this._width = screenWidth / pixelRatio;
-                this._height = screenHeight / pixelRatio;
+                canvasWidth = Math.round(stageWidth * scaleX);
+                canvasHeight = Math.round(stageHeight * scaleY);
                 break;
             case Stage.SCALE_FIXED_WIDTH:
-                scaleY = scaleX;
-                this._height = canvasHeight = Math.round(screenHeight / scaleX);
-                break;
             case Stage.SCALE_FIXED_HEIGHT:
-                scaleX = scaleY;
-                this._width = canvasWidth = Math.round(screenWidth / scaleY);
-                break;
             case Stage.SCALE_FIXED_AUTO:
-                if ((screenWidth / screenHeight) < (this.designWidth / this.designHeight)) {
-                    scaleY = scaleX;
-                    this._height = canvasHeight = Math.round(screenHeight / scaleX);
-                } else {
-                    scaleX = scaleY;
-                    this._width = canvasWidth = Math.round(screenWidth / scaleY);
-                }
+                if (scaleMode === Stage.SCALE_FIXED_WIDTH
+                    || scaleMode === Stage.SCALE_FIXED_AUTO && (screenWidth / screenHeight) < (stageWidth / stageHeight))
+                    stageHeight = Math.round(screenHeight / scaleX);
+                else
+                    stageWidth = Math.round(screenWidth / scaleY);
+                canvasWidth = screenWidth;
+                canvasHeight = screenHeight;
                 break;
+        }
+
+        let offsetX: number = 0;
+        let offsetY: number = 0;
+        if (!Browser.isDomSupported) { //在这种情况下，画布是强制全屏的，不能移动
+            //处理水平对齐
+            if (this._alignH === Stage.ALIGN_LEFT)
+                offsetX = 0;
+            else if (this._alignH === Stage.ALIGN_RIGHT)
+                offsetX = screenWidth - canvasWidth;
+            else
+                offsetX = (screenWidth - canvasWidth) * 0.5;
+
+            //处理垂直对齐
+            if (this._alignV === Stage.ALIGN_TOP)
+                offsetY = 0;
+            else if (this._alignV === Stage.ALIGN_BOTTOM)
+                offsetY = screenHeight - canvasHeight;
+            else
+                offsetY = (screenHeight - canvasHeight) * 0.5;
+            offsetX += this.offset.x;
+            offsetY += this.offset.y;
+
+            offsetY += PAL.browser.safariOffsetY;
         }
 
         if (Config.useRetinalCanvas) {
-            //对于会漏出画布的非全屏适配模式，没必要按设备物理分辨率统一处理
-            if (scaleMode === Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOSCALE) {
-                canvasWidth = realWidth;
-                canvasHeight = realHeight;
-            } else {
-                canvasWidth = realWidth = screenWidth;
-                canvasHeight = realHeight = screenHeight;
-            }
+            //将画布设置为dpr倍大小，然后通过matrix缩小到实际显示大小，实现视网膜效果
+
+            if (pixelRatio > 4) //限制最大放大倍数，避免巨大dpr造成的卡死
+                pixelRatio = 4;
+            canvasWidth *= pixelRatio;
+            canvasHeight *= pixelRatio;
+
+            mat.scale(1 / pixelRatio, 1 / pixelRatio);
         }
 
-        //根据不同尺寸缩放stage画面
-        scaleX *= this.scaleX;
-        scaleY *= this.scaleY;
-        if (scaleX === 1 && scaleY === 1) {
-            this.transform.identity();
-        } else {
-            this.transform.a = this._formatData(scaleX / (realWidth / canvasWidth));
-            this.transform.d = this._formatData(scaleY / (realHeight / canvasHeight));
-        }
-
-        //处理canvas大小
-        canvas.size(canvasWidth, canvasHeight);
-        mat.scale(realWidth / canvasWidth / pixelRatio, realHeight / canvasHeight / pixelRatio);
-
-        //处理水平对齐
-        if (this._alignH === Stage.ALIGN_LEFT) this.offset.x = 0;
-        else if (this._alignH === Stage.ALIGN_RIGHT) this.offset.x = screenWidth - realWidth;
-        else this.offset.x = (screenWidth - realWidth) * 0.5 / pixelRatio;
-
-        //处理垂直对齐
-        if (this._alignV === Stage.ALIGN_TOP) this.offset.y = 0;
-        else if (this._alignV === Stage.ALIGN_BOTTOM) this.offset.y = screenHeight - realHeight;
-        else this.offset.y = (screenHeight - realHeight) * 0.5 / pixelRatio;
-
-        //处理用户自行设置的画布偏移
-        this.offset.x = Math.round(this.offset.x);
-        this.offset.y = Math.round(this.offset.y);
-        mat.translate(this.offset.x, this.offset.y);
-        if (PAL.browser.safariOffsetY !== 0)
-            mat.translate(0, PAL.browser.safariOffsetY);
+        mat.translate(Math.round(offsetX), Math.round(offsetY));
 
         //处理横竖屏
         this.canvasDegree = 0;
         if (rotation) {
             if (this._screenMode === Stage.SCREEN_HORIZONTAL) {
                 mat.rotate(Math.PI / 2);
-                mat.translate(screenHeight / pixelRatio, 0);
+                mat.translate(screenHeight, 0);
                 this.canvasDegree = 90;
             } else {
                 mat.rotate(-Math.PI / 2);
-                mat.translate(0, screenWidth / pixelRatio);
+                mat.translate(0, screenWidth);
                 this.canvasDegree = -90;
             }
         }
 
-        mat.a = this._formatData(mat.a);
-        mat.d = this._formatData(mat.d);
-        mat.tx = this._formatData(mat.tx);
-        mat.ty = this._formatData(mat.ty);
+        mat.a = formatData(mat.a);
+        mat.d = formatData(mat.d);
+        mat.tx = formatData(mat.tx);
+        mat.ty = formatData(mat.ty);
 
-        this.transform = this.transform; //force call
+        canvas.size(canvasWidth, canvasHeight);
+
         let canvasStyle = Browser.mainCanvas.style;
         canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = (canvasStyle as any).msTransformOrigin = (canvasStyle as any).mozTransformOrigin = (canvasStyle as any).oTransformOrigin = "0px 0px 0px";
         canvasStyle.transform = canvasStyle.webkitTransform = (canvasStyle as any).msTransform = (canvasStyle as any).mozTransform = (canvasStyle as any).oTransform = "matrix(" + mat.toString() + ")";
@@ -516,6 +494,12 @@ export class Stage extends Sprite {
         if (PAL.browser.safariOffsetY !== 0)
             mat.translate(0, -PAL.browser.safariOffsetY);
 
+        this._width = stageWidth;
+        this._height = stageHeight;
+        this.transform.a = formatData(this.scaleX * (canvasWidth / stageWidth));
+        this.transform.d = formatData(this.scaleY * (canvasHeight / stageHeight));
+        this.transform = this.transform; //force call
+
         RenderState2D.width = canvasWidth;
         RenderState2D.height = canvasHeight;
         (<typeof Laya3D>(<any>window)['Laya3D'])?._changeWebGLSize(canvasWidth, canvasHeight);
@@ -524,109 +508,6 @@ export class Stage extends Sprite {
         this.visible = true;
         this.repaint();
         this.event(Event.RESIZE);
-    }
-
-    /**
-     * @en Set screen size for scene rotation, required by layaverse
-     * @param screenWidth The width of the screen
-     * @param screenHeight The height of the screen
-     * @param screenMode The screen mode. "none" is the default value, "horizontal" for landscape mode, "vertical" for portrait mode
-     * @zh 设置场景旋转的屏幕大小，layaverse 需要
-     * @param screenWidth 屏幕宽度
-     * @param screenHeight 屏幕高度
-     * @param screenMode 屏幕模式。"none"为默认值，"horizontal"为横屏，"vertical"为竖屏
-     */
-    setScreenSizeForScene(screenWidth: number, screenHeight: number, screenMode: string) {
-        //计算是否旋转
-        var rotation: boolean = false;
-        if (/**this.*/screenMode !== Stage.SCREEN_NONE) {
-            var screenType: string = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
-            rotation = screenType !== /**this.*/screenMode;
-            if (rotation) {
-                //宽高互换
-                var temp: number = screenHeight;
-                screenHeight = screenWidth;
-                screenWidth = temp;
-            }
-        }
-        this.canvasRotation = rotation;
-
-        var scaleMode: string = this._scaleMode;
-        var scaleX: number = screenWidth / this.designWidth
-        var scaleY: number = screenHeight / this.designHeight;
-        var canvasWidth: number = Config.useRetinalCanvas ? screenWidth : this.designWidth;
-        var canvasHeight: number = Config.useRetinalCanvas ? screenHeight : this.designHeight;
-        var realWidth: number = screenWidth;
-        var realHeight: number = screenHeight;
-        let width = this.designWidth;
-        let height = this.designHeight;
-
-        //处理缩放模式
-        switch (scaleMode) {
-            case Stage.SCALE_NOSCALE:
-                scaleX = scaleY = 1;
-                realWidth = this.designWidth;
-                realHeight = this.designHeight;
-                break;
-            case Stage.SCALE_SHOWALL:
-                scaleX = scaleY = Math.min(scaleX, scaleY);
-                realWidth = Math.round(this.designWidth * scaleX);
-                realHeight = Math.round(this.designHeight * scaleY);
-                break;
-            case Stage.SCALE_NOBORDER:
-                scaleX = scaleY = Math.max(scaleX, scaleY);
-                realWidth = Math.round(this.designWidth * scaleX);
-                realHeight = Math.round(this.designHeight * scaleY);
-                break;
-            case Stage.SCALE_FULL:
-                scaleX = scaleY = 1;
-                width = canvasWidth = screenWidth;
-                height = canvasHeight = screenHeight;
-                break;
-            case Stage.SCALE_FIXED_WIDTH:
-                scaleY = scaleX;
-                height = canvasHeight = Math.round(screenHeight / scaleX);
-                break;
-            case Stage.SCALE_FIXED_HEIGHT:
-                scaleX = scaleY;
-                width = canvasWidth = Math.round(screenWidth / scaleY);
-                break;
-            case Stage.SCALE_FIXED_AUTO:
-                if ((screenWidth / screenHeight) < (this.designWidth / this.designHeight)) {
-                    scaleY = scaleX;
-                    height = canvasHeight = Math.round(screenHeight / scaleX);
-                } else {
-                    scaleX = scaleY;
-                    width = canvasWidth = Math.round(screenWidth / scaleY);
-                }
-                break;
-        }
-
-        if (Config.useRetinalCanvas) {
-            //对于会漏出画布的非全屏适配模式，没必要按设备物理分辨率统一处理
-            if (scaleMode === Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOSCALE) {
-                canvasWidth = realWidth;
-                canvasHeight = realHeight;
-            } else {
-                canvasWidth = realWidth = screenWidth;
-                canvasHeight = realHeight = screenHeight;
-            }
-        }
-
-        return {
-            stageWidth: width,
-            stageHeight: height,
-            canvasWidth: canvasWidth,
-            canvasHeight: canvasHeight,
-            scaleX: scaleX / (realWidth / canvasWidth),
-            scaleY: scaleY / (realHeight / canvasHeight),
-        }
-    }
-
-    private _formatData(value: number): number {
-        if (Math.abs(value) < 0.000001) return 0;
-        if (Math.abs(1 - value) < 0.001) return value > 0 ? 1 : -1;
-        return value;
     }
 
     /**
@@ -974,4 +855,10 @@ function requestFullscreen(): void {
     let canvas = Browser.mainCanvas.source;
     canvas.removeEventListener('mousedown', requestFullscreen);
     canvas.removeEventListener('touchstart', requestFullscreen);
+}
+
+function formatData(value: number): number {
+    if (Math.abs(value) < 0.000001) return 0;
+    if (Math.abs(1 - value) < 0.001) return value > 0 ? 1 : -1;
+    return value;
 }

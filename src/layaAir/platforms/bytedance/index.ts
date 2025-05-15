@@ -1,12 +1,11 @@
 import { Config } from "../../Config";
-import { VideoPlayer } from "../../laya/media/VideoPlayer";
 import { WebAudioChannel } from "../../laya/media/WebAudioChannel";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
-import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
+import { MgVideoPlayer } from "../minigame/MgVideoPlayer";
 import { setupMgWasmSupport } from "../minigame/WasmUtils";
 import { TtVideoTexture } from "./TtVideoTexture";
 
@@ -22,10 +21,14 @@ PAL.postInitialize = function () {
 
     PAL.media.shortAudioClass = WebAudioChannel; //抖音支持WebAudio API
 
-    if (!Browser.onDevTools)
-        (<MgMediaAdapter>PAL.media).videoTextureClass = TtVideoTexture;
-    else //devtools下tt.createVideo报错
-        (<MgMediaAdapter>PAL.media).videoPlayerClass = VideoPlayer;
+    if (Browser.onDevTools) { //devtools下报错，而且影响到主循环
+        PAL.media.videoTextureClass = null;
+        PAL.media.videoPlayerClass = null;
+    }
+    else {
+        PAL.media.videoTextureClass = TtVideoTexture;
+        PAL.media.videoPlayerClass = MgVideoPlayer;
+    }
 
     setupMgWasmSupport((window as any).TTWebAssembly);
 

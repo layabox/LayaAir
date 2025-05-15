@@ -15,7 +15,6 @@ import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
-import { URL } from "./laya/net/URL";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
@@ -117,9 +116,6 @@ export class Laya {
         }
         else
             stageConfig = args[0];
-
-        Browser.__init__();
-        URL.__init__();
 
         ILaya.systemTimer = Laya.systemTimer = Timer.gSysTimer = systemTimer = new Timer(false);
         ILaya.timer = Laya.timer = timer = new Timer(false);
@@ -229,25 +225,27 @@ export class Laya {
      * @param value 表示是否捕获全局错误并弹出提示。设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈,默认为false。
      */
     static alertGlobalError(value: boolean) {
-        if (value) {
-            PAL.browser.on("error", this, this.onGlobalError);
-            PAL.browser.on("unhandledrejection", this, this.onGlobalError);
-        }
-        else {
-            PAL.browser.off("error", this, this.onGlobalError);
-            PAL.browser.off("unhandledrejection", this, this.onGlobalError);
-        }
+        if (value)
+            PAL.browser.captureGlobalError(Laya.onGlobalError);
+        else
+            PAL.browser.captureGlobalError(null);
     }
 
-    /** @internal */
-    private static _erralert: number = 0;
-    /** @internal */
-    private static onGlobalError(ev: ErrorEvent | PromiseRejectionEvent) {
-        if (this._erralert++ < 5)
-            window.alert("Something went wrong\n"
-                + ((ev as ErrorEvent).message || (ev as PromiseRejectionEvent).reason)
-                + "\n"
-                + ((ev as any).stack || (ev as ErrorEvent).error?.stack));
+    /**
+     * @en Global error callback function. Will be called when an error occurs in the engine and alertGlobalError is set to true.
+     * @param ev The error event object.
+     * @zh 全局错误回调函数，当引擎发生错误并且alertGlobalError设置为true时会被调用。
+     * @param ev 错误事件对象。
+     */
+    static onGlobalError(ev: ErrorEvent | PromiseRejectionEvent) {
+        let msg = "Something went wrong\n"
+            + ((ev as ErrorEvent).message || (ev as PromiseRejectionEvent).reason)
+            + "\n"
+            + ((ev as any).stack || (ev as ErrorEvent).error?.stack);
+        if (_erralert++ < 5)
+            PAL.browser.alert(msg);
+        else
+            console.error(msg);
     }
 
     /**
@@ -328,6 +326,8 @@ export class Laya {
         return obj;
     }
 }
+
+var _erralert: number = 0;
 
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;

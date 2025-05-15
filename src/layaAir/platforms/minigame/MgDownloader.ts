@@ -116,7 +116,7 @@ export class MgDownloader extends Downloader {
                 onComplete(null);
             },
             fail: err => {
-                onComplete(null, `${err.errMsg}(${err.errCode})`);
+                onComplete(null, PAL.getErrorMsg(err));
             },
             complete: null
         });
@@ -128,16 +128,16 @@ export class MgDownloader extends Downloader {
         let task = mg.downloadFile({
             url,
             success: (res) => {
-                if (res.statusCode === 200) {
+                if (res.statusCode == null || res.statusCode === 200) {
                     if (this.enableCache)
                         this.cacheManager.addFile(url, res.tempFilePath);
                     onComplete(res.tempFilePath);
                 }
                 else {
-                    onComplete(null, res.statusCode + " " + res.errMsg);
+                    onComplete(null, PAL.getErrorMsg(res));
                 }
             },
-            fail: (err) => onComplete(null, err.errMsg)
+            fail: (err) => onComplete(null, PAL.getErrorMsg(err))
         });
         if (onProgress) {
             task.onProgressUpdate((res) => {
@@ -160,7 +160,7 @@ export class MgDownloader extends Downloader {
                     onComplete(data);
                     break;
             }
-        }).catch((err: WechatMinigame.FileError) => onComplete(null, `${err.errMsg}(${err.errCode})`));
+        }).catch((err: WechatMinigame.FileError) => onComplete(null, PAL.getErrorMsg(err)));
     }
 
     private urlToFilePath(url: string): string {

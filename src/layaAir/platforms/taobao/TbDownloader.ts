@@ -12,7 +12,7 @@ export class TbDownloader extends MgDownloader {
                     this.cacheManager.addFile(url, res.apFilePath);
                 onComplete(res.apFilePath);
             },
-            fail: (err: any) => onComplete(null, err.errorMessage || err.error)
+            fail: (err: any) => onComplete(null, PAL.getErrorMsg(err))
         });
     }
 }

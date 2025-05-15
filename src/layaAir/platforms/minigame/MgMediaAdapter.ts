@@ -1,10 +1,7 @@
-import { VideoPlayer } from "../../laya/media/VideoPlayer";
-import { VideoTexture } from "../../laya/media/VideoTexture";
 import { MediaAdapter } from "../../laya/platform/MediaAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { MgInnerAudioChannel } from "./MgInnerAudioChannel";
 import { MgVideoPlayer } from "./MgVideoPlayer";
-import { WxVideoTexture } from "../weixin/WxVideoTexture";
 import { MgWebAudioChannel } from "./MgWebAudioChannel";
 
 var mg: WechatMinigame.Wx;
@@ -22,8 +19,8 @@ export class MgMediaAdapter extends MediaAdapter {
         this.longAudioClass = MgInnerAudioChannel;
         this.shortAudioClass = MgWebAudioChannel;
 
-        this.videoPlayerClass = mg.createVideo ? MgVideoPlayer : VideoPlayer;
-        this.videoTextureClass = mg.createVideoDecoder ? WxVideoTexture : VideoTexture;
+        this.videoPlayerClass = mg.createVideo ? MgVideoPlayer : null;
+        this.videoTextureClass = null;
     }
 }
 

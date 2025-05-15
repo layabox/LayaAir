@@ -53,15 +53,21 @@ export class MediaAdapter {
     }
 
     createVideoTexture(): VideoTexture {
-        if (this.videoTextureClass === VideoTexture)
+        if (this.videoTextureClass == null) {
             PAL.warnIncompatibility("VideoTexture");
-        return new this.videoTextureClass();
+            return new VideoTexture();
+        }
+        else
+            return new this.videoTextureClass();
     }
 
     createVideoPlayer(): VideoPlayer {
-        if (this.videoPlayerClass === VideoPlayer)
+        if (this.videoPlayerClass == null) {
             PAL.warnIncompatibility("VideoPlayer");
-        return new this.videoPlayerClass();
+            return new VideoPlayer();
+        }
+        else
+            return new this.videoPlayerClass();
     }
 
     decodeAudioData(data: ArrayBuffer): Promise<any> {

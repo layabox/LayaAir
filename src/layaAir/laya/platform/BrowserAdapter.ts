@@ -13,6 +13,9 @@ export class BrowserAdapter extends EventDispatcher {
     protected _visibilityStateKey: string;
     protected _pixelRatio: number = 1;
 
+    /** @internal */
+    _globalErrorCallback: (e: any) => void;
+
     constructor() {
         super();
 
@@ -21,6 +24,8 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     protected init() {
+        this.setPlatform(window.navigator.userAgent || "", window.navigator.platform || "");
+
         //这个遗留逻辑未确认其含义
         if (window.navigator.userAgent.indexOf("Mozilla/6.0(Linux; Android 6.0; HUAWEI NXT-AL10 Build/HUAWEINXT-AL10)") > -1)
             this._pixelRatio = 2;
@@ -59,7 +64,7 @@ export class BrowserAdapter extends EventDispatcher {
         window.addEventListener("orientationchange", (e: any) => this.event(Event.ORIENTATION_CHANGE, e));
         window.addEventListener("focus", () => this.event(Event.FOCUS));
         window.addEventListener("blur", () => this.event(Event.BLUR));
-        window.addEventListener("error", e => this.event(Event.ERROR, e));
+
         window.addEventListener("unhandledrejection", e => this.event("unhandledrejection", e));
 
         //强制修改body样式
@@ -100,6 +105,81 @@ export class BrowserAdapter extends EventDispatcher {
             }
         }
         viewport.content = Object.keys(viewportContent).map(k => k + "=" + viewportContent[k]);
+    }
+
+    protected setPlatform(u: string, platform: string): void {
+        platform = platform.toLowerCase();
+
+        Browser.userAgent = u;
+
+        Browser.onMobile = u.indexOf("Mobile") > -1;
+        Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+        Browser.onIPhone = u.indexOf("iPhone") > -1;
+        Browser.onMac = u.indexOf("Mac OS X") > -1;
+        Browser.onIPad = u.indexOf("iPad") > -1;
+        Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+        Browser.onOpenHarmonyOS = u.indexOf('OpenHarmony') > -1;
+        Browser.onWP = u.indexOf("Windows Phone") > -1;
+        Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
+        Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
+        Browser.onIE = !!(window as any).ActiveXObject || "ActiveXObject" in window;
+        Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
+        Browser.onSafari = u.indexOf("Safari") > -1 && u.indexOf("Chrome") === -1;
+        Browser.onChrome = u.indexOf("Chrome") > -1;
+        Browser.onFirefox = u.indexOf('Firefox') > -1;
+        Browser.onEdge = u.indexOf('Edge') > -1 || u.indexOf('Edg') > -1;
+
+        if (platform.indexOf("ios") !== -1) {
+            Browser.onIOS = true;
+            Browser.onMobile = true;
+            if (!u) {
+                Browser.onIPhone = true;
+                Browser.onIPad = true;
+            }
+
+            Browser.platform = Browser.PLATFORM_IOS;
+            Browser.platformName = "ios";
+
+        } else if (platform.indexOf("android") !== -1) {
+            Browser.onAndroid = true;
+            Browser.onMobile = true;
+
+            Browser.platform = Browser.PLATFORM_ANDROID;
+            Browser.platformName = "android";
+        }
+        else if (platform.indexOf("ohos") !== -1) {
+            Browser.onOpenHarmonyOS = true;
+            Browser.onMobile = true;
+
+            Browser.platform = Browser.PLATFORM_ANDROID;
+            Browser.platformName = "ohos";
+
+        } else if (platform.indexOf("mac") !== -1) {
+            Browser.onMac = true;
+
+            Browser.platform = Browser.PLATFORM_PC;
+            Browser.platformName = "mac";
+
+        } else if (platform.indexOf("win") !== -1) {
+            Browser.platform = Browser.PLATFORM_PC;
+            Browser.platformName = "windows";
+        }
+        else if (Browser.onAndroid) {
+            Browser.platform = Browser.PLATFORM_ANDROID;
+            Browser.platformName = "android";
+        }
+        else if (Browser.onIOS) {
+            Browser.platform = Browser.PLATFORM_IOS;
+            Browser.platformName = "ios";
+        }
+        else {
+            Browser.platform = Browser.PLATFORM_PC;
+            Browser.platformName = platform;
+        }
+
+        Browser.onPC = !Browser.onMobile;
+        Browser.onDevTools = Browser.platformName === "devtools";
+        Browser.isTouchDevice = true; //不使用的标志了，直接true
     }
 
     protected initRequestFrameFunction(): void {
@@ -226,6 +306,30 @@ export class BrowserAdapter extends EventDispatcher {
 
     postMessageToOpenDataContext(msg: any): void {
     }
+
+    captureGlobalError(callback: (e: any) => void | null): void {
+        this._globalErrorCallback = callback;
+        this.onCaptureGlobalError(callback != null, onError);
+    }
+
+    protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
+        if (enabled) {
+            window.addEventListener("error", func);
+            window.addEventListener("unhandledrejection", func);
+        }
+        else {
+            window.removeEventListener("error", func);
+            window.removeEventListener("unhandledrejection", func);
+        }
+    }
+
+    alert(msg: string): void {
+        window.alert(msg);
+    }
+}
+
+function onError(e: any) {
+    PAL.browser._globalErrorCallback(e);
 }
 
 PAL.register("browser", BrowserAdapter);

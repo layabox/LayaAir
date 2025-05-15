@@ -292,54 +292,6 @@ export class Browser {
     private static _clientWidth: number;
     private static _clientHeight: number;
 
-    /**@internal */
-    static __init__(): any {
-        //处理兼容性
-        let win: any = Browser.window = window;
-        Browser.document = document;
-
-        let navigator = win.navigator || {};
-        let u: string = Browser.userAgent = navigator.userAgent || "";
-        let maxTouchPoints: number = navigator.maxTouchPoints || 0;
-        let platform: string = (navigator.platform || "").toLowerCase();
-
-        Browser.onMobile = u.indexOf("Mobile") > -1;
-        Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-        Browser.onIPhone = u.indexOf("iPhone") > -1;
-        Browser.onMac = u.indexOf("Mac OS X") > -1;
-        Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'macintel' && maxTouchPoints > 1);
-        Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
-        Browser.onOpenHarmonyOS = u.indexOf('OpenHarmony') > -1;
-        Browser.onWP = u.indexOf("Windows Phone") > -1;
-        Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
-        Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
-        Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
-        Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
-        Browser.onSafari = u.indexOf("Safari") > -1 && u.indexOf("Chrome") === -1;
-        Browser.onChrome = u.indexOf("Chrome") > -1;
-        Browser.onPC = !Browser.onMobile;
-        Browser.onFirefox = u.indexOf('Firefox') > -1;
-        Browser.onEdge = u.indexOf('Edge') > -1 || u.indexOf('Edg') > -1;
-
-        if (Browser.onAndroid || Browser.onIOS) {
-            //也有可能是模拟器
-            if (platform.indexOf("win") != -1 || platform.indexOf("mac") != -1)
-                Browser.platform = Browser.PLATFORM_PC;
-            else if (Browser.onAndroid) {
-                Browser.platform = Browser.PLATFORM_ANDROID;
-                Browser.platformName = "android";
-            }
-            else {
-                Browser.platform = Browser.PLATFORM_IOS;
-                Browser.platformName = "ios";
-            }
-        }
-        else
-            Browser.platform = Browser.PLATFORM_PC;
-
-        Browser.isTouchDevice = Browser.onMobile || maxTouchPoints > 0 || ('ontouchstart' in window);
-    }
-
     /**
      * @en Creates a native browser element of the specified type.
      * @param tagName The type of node to create.

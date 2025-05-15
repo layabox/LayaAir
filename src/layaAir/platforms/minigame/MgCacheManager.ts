@@ -101,7 +101,7 @@ export class MgCacheManager {
     addFile(url: string, tempFilePath: string): void {
         PAL.fs.getFileSize(tempFilePath).then(fileSize => this.cacheRequest.set(url, { tempFilePath, fileSize }))
             .catch((err: WechatMinigame.FileError) => {
-                console.warn("get file size", `${err.errMsg}(${err.errCode})`);
+                console.warn("get file size", PAL.getErrorMsg(err));
             });
     }
 
@@ -129,7 +129,7 @@ export class MgCacheManager {
             console.time("clear cache space");
 
             //如果需要清理空间，先清理旧的文件
-            let toClearSpace = Math.max(this.minClearSpace, this.totalFileSize + needSpace - this.spaceLimit);
+            let toClearSpace = this.totalFileSize + needSpace - this.spaceLimit + this.minClearSpace;
             let totalSize = 0;
             let arr = Array.from(this.fileCache.values());
             arr.sort((a, b) => a.accessTime - b.accessTime);
@@ -178,7 +178,7 @@ export class MgCacheManager {
                 PAL.fs.copyFile(tempFilePath, `${this.cacheRoot}/${group}/${Utils.getBaseName(tempFilePath)}`)
                     .catch((err: WechatMinigame.FileError) => {
                         //缓存文件拷贝失败，可能是源文件被系统清掉了
-                        console.warn("create cache file", `${err.errMsg}(${err.errCode})`);
+                        console.warn("create cache file", PAL.getErrorMsg(err));
                     }));
         }).then(() => {
             //保存其他修改过的清单文件
@@ -219,10 +219,7 @@ export class MgCacheManager {
 
         let fielName = `${this.cacheRoot}/${info.group}/${info.fileName}`;
         return PAL.fs.unlink(fielName).catch((err: WechatMinigame.FileError) => {
-            if (err.errCode !== 1300002 && err.errCode !== 10022) { //文件不存在的错误码
-                console.error("delete cache file", fielName, err.errMsg);
-                //文件存在，但又删不掉，就很尴尬了，要怎么处理
-            }
+            console.error("delete cache file", PAL.getErrorMsg(err));
         });
     }
 
@@ -257,7 +254,7 @@ export class MgCacheManager {
             }
             this.cacheGroups[group] = cnt;
         }).catch(err => {
-            console.error(`load manifest-${group}`, `${err.errMsg}(${err.errCode})`);
+            console.error(`load manifest-${group}`, PAL.getErrorMsg(err));
         });
     }
 
@@ -286,7 +283,7 @@ export class MgCacheManager {
             this.toSaveManifestFlags[group] = false;
             console.timeEnd(`save manifest-${group}`);
         }).catch(err => {
-            console.error(`save manifest-${group}`, `${err.errMsg}(${err.errCode})`);
+            console.error(`save manifest-${group}`, PAL.getErrorMsg(err));
         });
     }
 
@@ -298,7 +295,7 @@ export class MgCacheManager {
             if (oldExists) {
                 console.log("delete old cache folder");
                 return PAL.fs.rmdir(oldCacheDir, { recursive: true }).catch((err: WechatMinigame.FileError) => {
-                    console.warn("failed to delete old cache folder", `${err.errMsg}(${err.errCode})`);
+                    console.warn("failed to delete old cache folder", PAL.getErrorMsg(err));
                 });
             }
             else

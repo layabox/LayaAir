@@ -14,10 +14,10 @@ export class VvDownloader extends MgDownloader {
                     onComplete(res.tempFilePath);
                 }
                 else {
-                    onComplete(null, `code = ${res.statusCode}`);
+                    onComplete(null, PAL.getErrorMsg(res));
                 }
             },
-            fail: (data: any, code: any) => onComplete(null, `code = ${code}`)
+            fail: (res: any) => onComplete(null, PAL.getErrorMsg(res))
         });
         if (onProgress) {
             task.onProgressUpdate((res: any) => {

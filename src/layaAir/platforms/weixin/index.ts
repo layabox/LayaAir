@@ -1,9 +1,9 @@
+import { Config } from "../../Config";
 import { Loader } from "../../laya/net/Loader";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Browser } from "../../laya/utils/Browser";
 import { MgCacheManager } from "../minigame/MgCacheManager";
 import { MgDownloader } from "../minigame/MgDownloader";
-import { MgMediaAdapter } from "../minigame/MgMediaAdapter";
 import { setupMgWasmSupport } from "../minigame/WasmUtils";
 import { WxVideoTexture } from "./WxVideoTexture";
 
@@ -16,8 +16,9 @@ PAL.preIntialize = function () {
 };
 
 PAL.postInitialize = function () {
+    Config.useRetinalCanvas = true;
     if (!Browser.onDevTools)
-        (<MgMediaAdapter>PAL.media).videoTextureClass = WxVideoTexture;
+        PAL.media.videoTextureClass = WxVideoTexture;
 
     setupMgWasmSupport(<any>window.WXWebAssembly);
 

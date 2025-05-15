@@ -76,7 +76,7 @@ export class MgVideoPlayer extends VideoPlayer {
             }));
         this.video.onEnded(() => this._ended = true);
         this.video.onError((err) => {
-            console.error("MgVideoPlayer error: " + (err.errMsg || err));
+            console.error("MgVideoPlayer: " + PAL.getErrorMsg(err));
         });
         this.setLoaded();
     }

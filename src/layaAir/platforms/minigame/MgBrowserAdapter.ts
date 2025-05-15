@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { Event } from "../../laya/events/Event";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
@@ -30,49 +31,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
             }
         }
 
-        platform = platform.toLowerCase();
-        Browser.onDevTools = platform === "devtools";
-
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame) { //vivo or oppo, systemInfo里的不准确？！
             this._pixelRatio = window.devicePixelRatio;
         }
-        console.log(`platform=${platform}, dpr=${this._pixelRatio}, orientation=${this._orientation}`);
 
-        if (platform.indexOf("ios") !== -1) {
-            Browser.onIOS = true;
-            Browser.onIPhone = true;
-            Browser.onIPad = true;
+        this.setPlatform("", platform);
 
-            Browser.onAndroid = false;
-            Browser.platform = Browser.PLATFORM_IOS;
-            Browser.platformName = "ios";
-        } else if (platform.indexOf("android") !== -1) {
-            Browser.onIOS = false;
-            Browser.onIPhone = false;
-            Browser.onIPad = false;
-
-            Browser.onAndroid = true;
-            Browser.platform = Browser.PLATFORM_ANDROID;
-            Browser.platformName = "android";
-        }
-        else if (platform.indexOf("ohos") !== -1) {
-            Browser.onIOS = false;
-            Browser.onIPhone = false;
-            Browser.onIPad = false;
-
-            Browser.onAndroid = true;
-            Browser.onOpenHarmonyOS = true;
-            Browser.platform = Browser.PLATFORM_ANDROID;
-            Browser.platformName = "ohos";
-        } else {
-            Browser.onIOS = false;
-            Browser.onIPhone = false;
-            Browser.onIPad = false;
-
-            Browser.onAndroid = false;
-            Browser.platform = Browser.PLATFORM_PC;
-            Browser.platformName = platform;
-        }
+        console.log(`platform=${Browser.platformName}(${Browser.platform}), dpr=${this._pixelRatio}, orientation=${this._orientation}`);
 
         const { SDKVersion } = mg.getAppBaseInfo ? mg.getAppBaseInfo() : mg.getSystemInfoSync();
         Browser.SDKVersion = SDKVersion || "";
@@ -110,24 +75,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (mg.onWindowResize) {
             mg.onWindowResize((result: WechatMinigame.OnWindowResizeListenerResult) => {
                 this.event(Event.RESIZE);
-            });
-        }
-
-        if (mg.onError) {
-            mg.onError(e => {
-                if (this.hasListener(Event.ERROR))
-                    this.event(Event.ERROR, e);
-                else
-                    console.error(e);
-            });
-        }
-
-        if (mg.onUnhandledRejection) {
-            mg.onUnhandledRejection(e => {
-                if (this.hasListener("unhandledrejection"))
-                    this.event("unhandledrejection", e);
-                else
-                    console.error(e);
             });
         }
     }
@@ -200,6 +147,30 @@ export class MgBrowserAdapter extends BrowserAdapter {
     postMessageToOpenDataContext(msg: any): void {
         if (mg.getOpenDataContext)
             mg.getOpenDataContext().postMessage(msg);
+    }
+
+    protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
+        if (enabled) {
+            if (mg.onError)
+                mg.onError(func);
+            if (mg.onUnhandledRejection)
+                mg.onUnhandledRejection(func);
+        }
+        else {
+            if (mg.offError)
+                mg.offError(func);
+            if (mg.offUnhandledRejection)
+                mg.offUnhandledRejection(func);
+        }
+    }
+
+    alert(msg: string): void {
+        if (typeof (window.alert) === "function") {
+            window.alert.call(null, msg); //在douyin上直接window.alert会报错
+        }
+        else {
+            console.warn("alert is not a function");
+        }
     }
 }
 

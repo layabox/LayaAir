@@ -29,8 +29,8 @@ export class MgInnerAudioChannel extends SoundChannel {
 
         this._loaded = true;
         let ctx = this._ctx = this.createContext();
-        ctx.onError(result => {
-            console.error("MgInnerAudioChannel: ", result);
+        ctx.onError(err => {
+            console.error("MgInnerAudioChannel: " + PAL.getErrorMsg(err));
             this.stop();
         });
         ctx.onEnded(() => this.onPlayEnd());

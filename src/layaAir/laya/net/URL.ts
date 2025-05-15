@@ -50,9 +50,6 @@ export class URL {
         "lavm": "lavm.json",
     };
 
-    static __init__() {
-    }
-
     /**
      * @en Initialize file extension overrides for mini-game.
      * @zh 初始化小游戏的文件扩展名覆盖。

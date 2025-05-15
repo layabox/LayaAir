@@ -63,10 +63,7 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
                 this.fs.access({
                     path,
                     success: () => resolve(true),
-                    fail: (err) => {
-                        //console.warn('access', path, err.errMsg);
-                        resolve(false);
-                    }
+                    fail: (err) => resolve(false)
                 });
             }
             else {
