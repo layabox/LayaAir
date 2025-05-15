@@ -1,3 +1,4 @@
+import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { URL } from "../net/URL";
 import { PAL } from "../platform/PlatformAdapters";
@@ -105,6 +106,7 @@ export class HTMLVideoPlayer extends VideoPlayer {
         style.top = y + "px";
         style.width = width + "px";
         style.height = height + "px";
+        PAL.browser.setStyleTransform(style, "rotate(" + (ILaya.stage.canvasDegree) + "deg)");
     }
 
     protected onDestroy() {
@@ -116,10 +118,11 @@ export class HTMLVideoPlayer extends VideoPlayer {
 
     static createElement(): HTMLVideoElement {
         let ele = Browser.createElement("video");
-        let style: any = ele.style;
+        let style = ele.style;
         style.position = 'absolute';
         style.top = '0px';
         style.left = '0px';
+        PAL.browser.setStyleTransformOrigin(style, "0 0");
 
         // 默认放开webGL对纹理数据的跨域限制
         ele.setAttribute('crossorigin', 'anonymous');

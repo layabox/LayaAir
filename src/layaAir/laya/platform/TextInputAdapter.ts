@@ -290,11 +290,10 @@ export class TextInputAdapter {
         let t = this.getTargetTransform();
         if (t != null) {
             let style = this._visEle.style;
-            style.transform = style.webkitTransform = (style as any).msTransform = (style as any).mozTransform
-                = (style as any).oTransform = "scale(" + t.scaleX + "," + t.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)";
 
-            this._visEle.style.width = t.width + 'px';
-            this._visEle.style.height = t.height + 'px';
+            style.width = t.width + 'px';
+            style.height = t.height + 'px';
+            PAL.browser.setStyleTransform(style, "scale(" + t.scaleX + "," + t.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)");
 
             this._container.style.left = t.x + 'px';
             this._container.style.top = t.y + 'px';
@@ -316,12 +315,13 @@ export class TextInputAdapter {
 
     protected initElement(input: HTMLInputElement | HTMLTextAreaElement): void {
         let style = input.style;
-        style.cssText = "position:absolute;overflow:hidden;resize:none;transform-origin:0 0;-webkit-transform-origin:0 0;-moz-transform-origin:0 0;-o-transform-origin:0 0;";
+        style.cssText = "position:absolute;overflow:hidden;resize:none;";
         style.resize = 'none';
         style.backgroundColor = 'transparent';
         style.border = 'none';
         style.outline = 'none';
         style.zIndex = '1';
+        PAL.browser.setStyleTransformOrigin(style, "0 0");
 
         input.addEventListener('input', ev => this.processInputting(ev));
 

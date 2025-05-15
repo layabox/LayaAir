@@ -83,8 +83,8 @@ export class SpriteUtils {
         // 组合画布缩放和舞台适配缩放
         canvasMatrix.scale(stage.clientScaleX, stage.clientScaleY);
         // 画布是否处于正常角度的垂直角度，-90或90度
-        var perpendicular: boolean = (stage.canvasDegree % 180 != 0);
-        var tx: number, ty: number;
+        let perpendicular: boolean = (stage.canvasDegree % 180 != 0);
+        let tx: number, ty: number;
 
         if (perpendicular) {
             // 在舞台上的坐标
@@ -167,14 +167,14 @@ export class SpriteUtils {
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {
             dom._fitLayaAirInitialized = true;
-            dom.style.transformOrigin = dom.style.webKittransformOrigin = "left top";
+            PAL.browser.setStyleTransformOrigin(dom.style, "left top");
             dom.style.position = "absolute";
         }
 
         let transform = SpriteUtils.getTransformRelativeToWindow(coordinateSpace, x, y);
 
         // 设置dom样式
-        dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)";
+        PAL.browser.setStyleTransform(dom.style, "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)");
         dom.style.width = width + 'px';
         dom.style.height = height + 'px';
         dom.style.left = transform.x + 'px';

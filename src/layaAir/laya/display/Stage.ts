@@ -59,7 +59,6 @@ export class Stage extends Sprite {
     static SCALE_SHOWALL: string = "showall";
 
     /**
-     * @deprecated 不推荐使用
      * @en The stage is scaled to fill the screen, with the actual width and height of the canvas calculated based on the design width and height multiplied by the maximum scale factor. This mode ensures that content fully covers the display area, but it may result in some content being cut off.
      * @zh 将舞台缩放以填满屏幕，画布的实际宽度和高度根据设计宽度和高度乘以最大缩放因子计算。这种模式保证内容完全覆盖屏幕，但可能会导致部分设计内容被裁切。
      */
@@ -486,8 +485,8 @@ export class Stage extends Sprite {
         canvas.size(canvasWidth, canvasHeight);
 
         let canvasStyle = Browser.mainCanvas.style;
-        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = (canvasStyle as any).msTransformOrigin = (canvasStyle as any).mozTransformOrigin = (canvasStyle as any).oTransformOrigin = "0px 0px 0px";
-        canvasStyle.transform = canvasStyle.webkitTransform = (canvasStyle as any).msTransform = (canvasStyle as any).mozTransform = (canvasStyle as any).oTransform = "matrix(" + mat.toString() + ")";
+        PAL.browser.setStyleTransformOrigin(canvasStyle, "0px 0px 0px");
+        PAL.browser.setStyleTransform(canvasStyle, "matrix(" + mat.toString() + ")");
         canvasStyle.width = canvasWidth + "px";
         canvasStyle.height = canvasHeight + "px";
         mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);

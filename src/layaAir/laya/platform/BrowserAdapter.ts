@@ -326,6 +326,18 @@ export class BrowserAdapter extends EventDispatcher {
     alert(msg: string): void {
         window.alert(msg);
     }
+
+    setStyleTransformOrigin(style: CSSStyleDeclaration, value: string): void {
+        style.transformOrigin = style.webkitTransformOrigin
+            = (style as any).msTransformOrigin = (style as any).mozTransformOrigin
+            = (style as any).oTransformOrigin = value;
+    }
+
+    setStyleTransform(style: CSSStyleDeclaration, value: string): void {
+        style.transform = style.webkitTransform
+            = (style as any).msTransform = (style as any).mozTransform
+            = (style as any).oTransform = value;
+    }
 }
 
 function onError(e: any) {

@@ -237,7 +237,7 @@ export class VideoPlayer {
 
     protected getNodeTransform() {
         let trans: ReturnType<typeof SpriteUtils.getGlobalPosAndScale>;
-        if (Browser.onTTMiniGame) {
+        if (Browser.onTTMiniGame) { //抖音上视频的坐标是相对画布的坐标，不是相对窗口的坐标
             trans = SpriteUtils.getGlobalPosAndScale(this._owner);
             trans.x *= ILaya.stage.clientScaleX;
             trans.y *= ILaya.stage.clientScaleY;
