@@ -3,10 +3,9 @@ import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
 export class SaveBase implements ISaveData {
     static TYPE_ALPHA = 0x1;
-    static TYPE_FILESTYLE = 0x2;
+    static TYPE_STYLE = 0x2;
     static TYPE_FONT = 0x8;
     static TYPE_LINEWIDTH = 0x100;
-    static TYPE_STROKESTYLE = 0x200;
     static TYPE_MARK = 0x400;
     static TYPE_TRANSFORM = 0x800;
     static TYPE_TRANSLATE = 0x1000;
@@ -21,7 +20,6 @@ export class SaveBase implements ISaveData {
     static TYPE_SHADER = 0x100000;
     static TYPE_FILTERS = 0x200000;
     static TYPE_FILTERS_TYPE = 0x400000;
-    static TYPE_COLORFILTER = 0x800000;
     private static POOL: any = SaveBase._createArray();
     private static _namemap: any = SaveBase._init();
     private _valueName: string;
@@ -41,11 +39,11 @@ export class SaveBase implements ISaveData {
     /**@internal */
     static _init() {
         var namemap: any = SaveBase._namemap = {};
-        namemap[SaveBase.TYPE_ALPHA] = "ALPHA";
-        namemap[SaveBase.TYPE_FILESTYLE] = "fillStyle";
+        namemap[SaveBase.TYPE_ALPHA] = "_alpha";
+        // namemap[SaveBase.TYPE_FILESTYLE] = "fillStyle";
         namemap[SaveBase.TYPE_FONT] = "font";
         namemap[SaveBase.TYPE_LINEWIDTH] = "lineWidth";
-        namemap[SaveBase.TYPE_STROKESTYLE] = "strokeStyle";
+        // namemap[SaveBase.TYPE_STROKESTYLE] = "strokeStyle";
         namemap[SaveBase.TYPE_ENABLEMERGE] = "_mergeID";
         namemap[SaveBase.TYPE_MARK] = namemap[SaveBase.TYPE_TRANSFORM] = namemap[SaveBase.TYPE_TRANSLATE] = [];
         namemap[SaveBase.TYPE_TEXTBASELINE] = "textBaseline";
@@ -53,7 +51,7 @@ export class SaveBase implements ISaveData {
         namemap[SaveBase.TYPE_GLOBALCOMPOSITEOPERATION] = "_nBlendType";
         namemap[SaveBase.TYPE_SHADER] = "shader";
         namemap[SaveBase.TYPE_FILTERS] = "filters";
-        namemap[SaveBase.TYPE_COLORFILTER] = '_colorFiler';
+        // namemap[SaveBase.TYPE_COLORFILTER] = '_colorFiler';
         return namemap;
     }
 

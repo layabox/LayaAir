@@ -19,6 +19,7 @@ export class SaveTransform implements ISaveData {
 
     restore(runner: GraphicsRunner): void {
         runner._curMat = this._savematrix;
+        runner._matrixChanged = false;
         SaveTransform.POOL[SaveTransform.POOL._length++] = this;
     }
 

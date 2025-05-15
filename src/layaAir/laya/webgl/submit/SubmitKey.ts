@@ -4,7 +4,7 @@
  */
 export class SubmitKey {
     blendShader: number;
-    submitType: number;
+    // submitType: number;
     other: number;
 
     constructor() {
@@ -12,7 +12,7 @@ export class SubmitKey {
     }
 
     clear(): void {
-        this.submitType = -1;
+        // this.submitType = -1;
         this.blendShader = this.other = 0;
         //alpha = 1;
     }

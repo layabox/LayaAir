@@ -9,7 +9,7 @@ import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { CacheStyle } from "./css/CacheStyle";
-import { Graphics, SubStructRender } from "./Graphics";
+import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -35,6 +35,7 @@ import { BlendMode } from "../webgl/canvas/BlendMode";
 import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
+import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
@@ -1985,6 +1986,7 @@ export class Sprite extends Node {
     * @param type 重新绘制类型。
     */
     repaint(): void {
+        
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();

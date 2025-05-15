@@ -19,6 +19,7 @@ export class StatUI {
         this._pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
         let sp: Sprite = this._sp = new Sprite();
         this._pass.root = this._sp._struct;
+        this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
         
         sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));

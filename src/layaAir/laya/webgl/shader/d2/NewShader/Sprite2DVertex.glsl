@@ -1,4 +1,3 @@
-#include "Sprite2DShaderInfo.glsl";
 
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
@@ -93,33 +92,16 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     #endif
 }
 
-vec4 getPosition(in vec2 positionOS){
-    vec2 globalPos;
-    getGlobalPos(positionOS,globalPos);
-    clip(globalPos);
-
-    vec2 viewPos;
-    getViewPos(globalPos,viewPos);
-    vec4 pos;
-    getProjectPos(viewPos,pos);
-    return pos;
-}
-
-#ifdef PRIMITIVEMESH
-    uniform float u_VertAlpha;
-    // attribute vec4 a_position;
-    // attribute vec4 a_attribColor;
-
-    void getVertexInfo(inout vertexInfo info){
-        info.color = a_attribColor;
-        info.color.a*=u_VertAlpha;
-        info.pos = a_position.xy;
-    }
-   
-#endif
-
 #ifdef TEXTUREVS
     
+    struct vertexInfo {
+        vec2 pos;
+        vec4 color;
+        vec2 cliped;
+        vec4 texcoordAlpha;
+        float useTex;
+    };
+
     uniform float u_VertAlpha;
 	//texture和fillrect使用的。
     // attribute vec4 a_posuv;
@@ -139,6 +121,18 @@ vec4 getPosition(in vec2 positionOS){
         //useTex
         info.useTex = a_attribFlags.r;
         info.pos = a_posuv.xy;
+    }
+
+    vec4 getPosition(in vec2 positionOS){
+        vec2 globalPos = positionOS;
+        // getGlobalPos(positionOS,globalPos);
+        clip(globalPos);
+
+        vec2 viewPos;
+        getViewPos(globalPos,viewPos);
+        vec4 pos;
+        getProjectPos(viewPos,pos);
+        return pos;
     }
 
 #endif
@@ -219,4 +213,15 @@ vec4 getPosition(in vec2 positionOS){
         #endif
     }
     
+    vec4 getPosition(in vec2 positionOS){
+        vec2 globalPos;
+        getGlobalPos(positionOS,globalPos);
+        clip(globalPos);
+
+        vec2 viewPos;
+        getViewPos(globalPos,viewPos);
+        vec4 pos;
+        getProjectPos(viewPos,pos);
+        return pos;
+    }
 #endif

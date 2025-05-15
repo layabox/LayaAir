@@ -31,6 +31,7 @@ import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderS
 import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import type { Laya3D } from "./Laya3D";
+import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -216,9 +217,11 @@ export class Laya {
         VertexElementFormat.__init__();
         VertexMesh.__init__();
         Shader3D.init();
-        MeshQuadTexture.__int__();
-        MeshVG.__init__();
-        MeshTexture.__init__();
+
+        GraphicsMesh.__init__();
+        // MeshQuadTexture.__int__();
+        // MeshVG.__init__();
+        // MeshTexture.__init__();
 
 
         Laya.render = Laya.createRender();

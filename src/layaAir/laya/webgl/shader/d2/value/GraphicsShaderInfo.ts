@@ -17,11 +17,9 @@ const _TEMP_CLIPDIR: Vector4 = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_
 export class GraphicsShaderInfo {
 
    shaderData: ShaderData;
-   _defaultShader: Shader3D;
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-
       this.toDefault();
    }
 
@@ -29,48 +27,10 @@ export class GraphicsShaderInfo {
       this.clipMatDir = _TEMP_CLIPDIR;
       this.clipMatPos = Vector4.ZERO;
       BlendMode.initBlendMode(this.shaderData);
-      // this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
-      // this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-      // this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-      // this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-      // this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-      // this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-      // this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
-      // this.shaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
-   }
-
-   private _data: RenderSpriteData = RenderSpriteData.Zero;
-   public get data() {
-      return this._data;
-   }
-
-   public set data(value) {
-      if (value === RenderSpriteData.Zero) {
-         this.shaderData.removeDefine(ShaderDefines2D.TEXTURESHADER);
-         this.shaderData.removeDefine(ShaderDefines2D.PRIMITIVESHADER);
-      } else if (value === RenderSpriteData.Texture2D) {
-         this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
-         this.shaderData.removeDefine(ShaderDefines2D.PRIMITIVESHADER);
-         this._defaultShader = Shader3D.find("Sprite2DTexture");
-      }
-      else if (value === RenderSpriteData.Primitive) {
-         this.shaderData.removeDefine(ShaderDefines2D.TEXTURESHADER);
-         this.shaderData.addDefine(ShaderDefines2D.PRIMITIVESHADER);
-         this._defaultShader = Shader3D.find("Sprite2DPrimitive");
-      }
-      this._data = value;
+      this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
    }
 
    private _textureHost: Texture | BaseTexture;
-
-   /**@internal */
-   set size(value: Vector2) {
-      this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, value);
-   }
-
-   get size() {
-      return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_SIZE);
-   }
 
    set vertAlpha(value: number) {
       this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, value);
@@ -159,12 +119,10 @@ export class GraphicsShaderInfo {
       this.shaderData.clearData();
       this.shaderData.clearDefine();
       this.toDefault();
-      this.data = this._data;
    }
 
    destroy() {
       this.shaderData.destroy();
-      this._defaultShader = null;
       this._textureHost = null;
    }
 }

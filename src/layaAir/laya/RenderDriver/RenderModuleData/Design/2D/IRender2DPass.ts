@@ -3,6 +3,7 @@ import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { PostProcess2D } from "../../WebModuleData/2D/PostProcess2D";
+import { IDynamicVIBuffer } from "./IRender2DDataHandle";
 import { IRenderStruct2D } from "./IRenderStruct2D";
 
 export interface IRender2DPass {
@@ -11,7 +12,7 @@ export interface IRender2DPass {
    isSupport: boolean;
    root: IRenderStruct2D;
    doClearColor:boolean;
-   
+      
    postProcess: PostProcess2D;
    repaint: boolean;
    renderTexture: RenderTexture2D;
@@ -26,4 +27,5 @@ export interface IRender2DPass {
    fowardRender(context: IRenderContext2D): void;
    render(context: IRenderContext2D): void;
    destroy(): void;
+   setBuffer(buffer: IDynamicVIBuffer): void;
 }
