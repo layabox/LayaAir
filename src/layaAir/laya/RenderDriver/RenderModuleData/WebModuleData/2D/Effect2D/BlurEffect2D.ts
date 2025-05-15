@@ -63,7 +63,11 @@ export class BlurEffect2D extends PostProcess2DEffect {
    }
 
    destroy() {
-
+      this._destRT && this._destRT.destroy();
+      this.mat.destroy();
+      this.mat = null;
+      this._renderElement?.destroy();
+      this._renderElement = null;
    }
 
 }

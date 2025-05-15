@@ -8,11 +8,11 @@ export class Render2DPassManager {
         return this._basePass;
     }
 
-    private _basePass:IRender2DPass
+    private _basePass: IRender2DPass
 
     private _modefy: boolean = false;
 
-    modefy(){
+    modefy() {
         this._modefy = true;
     }
 
@@ -55,7 +55,7 @@ export class Render2DPassManager {
      * 渲染所有 Pass
      * @param context2D 2D 渲染上下文
      */
-    apply( context2D: IRenderContext2D): void {
+    apply(context2D: IRenderContext2D): void {
         if (this._modefy) {
             this._modefy = false;
             this._sortPassesByPriority();
@@ -75,9 +75,9 @@ export class Render2DPassManager {
      */
     private _needRender(pass: IRender2DPass): boolean {
         // return true;
-        return pass.enable 
-        && !pass.isSupport 
-        && (pass.repaint || !pass.renderTexture);
+        return pass.enable
+            && !pass.isSupport
+            && (pass.repaint || !pass.renderTexture);
     }
 
     /**

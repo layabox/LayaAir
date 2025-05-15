@@ -6,8 +6,8 @@ import BlurEffect2DVS from "./BlurEffect2D.vs"
 import BlurEffect2DFS from "./BlurEffect2D.fs"
 import ColorEffect2DVS from "./ColorEffect2D.vs"
 import ColorEffect2DFS from "./ColorEffect2D.fs"
-import GlowEffect2DVS from "./ColorEffect2D.vs"
-import GlowEffect2DFS from "./ColorEffect2D.fs"
+import GlowEffect2DVS from "./GlowEffect2D.vs"
+import GlowEffect2DFS from "./GlowEffect2D.fs"
 export class Effect2DShaderInit {
     static colorEffect2DShaderInit() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
@@ -67,7 +67,7 @@ export class Effect2DShaderInit {
         let uniformMap = {
             "u_centerScale": ShaderDataType.Vector2,//src rt除以dest rt
             "u_MainTex": ShaderDataType.Texture2D,
-            "u_color": ShaderDataType.Color,
+            "u_color": ShaderDataType.Vector4,
             "u_blurInfo1": ShaderDataType.Vector4,
             "u_blurInfo2": ShaderDataType.Vector4
         };

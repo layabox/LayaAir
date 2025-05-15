@@ -6,6 +6,7 @@ import { Matrix4x4 } from "../../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../../maths/Vector2";
 import { Vector4 } from "../../../../../maths/Vector4";
 import { RenderTargetFormat } from "../../../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../../../resource/Material";
 import { RenderTexture2D } from "../../../../../resource/RenderTexture2D";
 import { IRenderElement2D } from "../../../../DriverDesign/2DRenderPass/IRenderElement2D";
@@ -42,6 +43,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this.mat.setShaderName("ColorEffect2D");
         this.mat.setMatrix4x4("u_colorMat", this.colorMat);
         this.mat.setVector4("u_colorAlpha", this.alpha);
+        this.mat.addDefine(Shader3D.getDefineByName("COLORFILTER"));
         this._centerScale.setValue(1, 1);
         this.mat.setVector2("u_centerScale", this._centerScale);
         if (!this._renderElement) {
@@ -64,5 +66,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this.mat.setTexture("u_MainTex", context.indirectTarget);
         context.command.setRenderTarget(this._destRT, true, PostProcess2DEffect.nullColor);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
+    }
+
+    destroy() {
+        this._destRT && (this._destRT.destroy());
+        this.mat && (this.mat.destroy());
+        this._renderElement && (this._renderElement.destroy());
     }
 }
