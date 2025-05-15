@@ -6,7 +6,7 @@ import { Stat } from "../../../utils/Stat";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -38,7 +38,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
 
     _skinnedDataSize: number = 0;
     _skinnedBufferOffsetAlignment: number = 0;
-    _skinBindGroupMap: Map<number, WebGPUBindGroup> = new Map();
+    _skinBindGroupMap: Map<number, WebGPUBindGroup1> = new Map();
     //创建帧数
     private _skinBufferMask: number;
 
@@ -173,7 +173,10 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
 
         if (recreateBindGroup) {//创建BindGroup
             //creat BindGroup
-            let bindGroupArray = shaderInstance.uniformSetMap.get(2);
+            // let bindGroupArray = shaderInstance.uniformSetMap.get(2);
+
+            // todo
+            let bindGroupArray: any = [];
             //填充bindgroupEntriys
             let shaderData = node.shaderData as WebGPUShaderData;
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
@@ -197,7 +200,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 entries: bindgroupEntriys
             };
             let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            bindgroup = new WebGPUBindGroup();
+            bindgroup = new WebGPUBindGroup1();
             bindgroup.gpuRS = bindGroupgpu;
             bindgroup.createMask = Stat.loopCount;
             this._skinBindGroupMap.set(shaderInstanceID, bindgroup);
@@ -206,14 +209,20 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     }
 
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup);
+        {
+            let sceneGroup = context._sceneBindGroup;
+            command.setBindGroup(0, sceneGroup);
+            this.bindGroupMap.set(0, sceneGroup);
         }
-        if (shaderInstance.uniformSetMap.get(1).length > 0) {
+        {
             command.setBindGroup(1, context._cameraBindGroup);
+            this.bindGroupMap.set(1, context._cameraBindGroup);
         }
-        if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
+        {
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner);
+
+            command.setBindGroup(2, bindgroup);
+            this.bindGroupMap.set(2, bindgroup);
         }
     }
 

@@ -12,7 +12,7 @@ import { Resource } from "../../../resource/Resource";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureCube } from "../../../resource/TextureCube";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
@@ -22,14 +22,11 @@ import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Stat } from "../../../utils/Stat";
-import { WebGPUBuffer } from "./WebGPUBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGPUBindGroup, WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
-import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
-import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 
 /**
@@ -87,7 +84,7 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
 
-    _stateKey: string;
+    private _stateKey: string;
 
     //UBO Buffer Module
     private _uniformBuffers: Map<string, WebGPUUniformBuffer>;
@@ -108,7 +105,7 @@ export class WebGPUShaderData extends ShaderData {
 
     //BindGroup资源数据 
 
-    _cacheBindGroup: Map<string, WebGPUBindGroup>;
+    _cacheBindGroup: Map<string, WebGPUBindGroup1>;
     _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
 
     _textureData: { [key: number]: BaseTexture } = {};
@@ -210,6 +207,89 @@ export class WebGPUShaderData extends ShaderData {
         return uniformBuffer;
     }
 
+
+    //////////////////////////////////////////
+
+    private _layoutEntryCache: Map<string, GPUBindGroupLayoutEntry[]> = new Map();
+
+    private _textureStateCache: Map<number, number> = new Map();
+
+    createBindGroup(commands: string[]) {
+        let cacheKey = commands.sort().join("_");
+        // todo texture state
+        let entries = this._layoutEntryCache.get(cacheKey);
+        if (!entries) {
+            entries = [];
+            this._layoutEntryCache.set(cacheKey, entries);
+        };
+
+        {
+            // create new bind group layout
+            let bindIndex = 0;
+
+            let graphicVisibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
+
+            let computeVisibility = GPUShaderStage.COMPUTE;
+
+            let textureState = 0;
+            let bitVal = 1;
+
+            commands.forEach((mapName) => {
+                let map = (LayaGL.renderDeviceFactory.createGlobalUniformMap(mapName) as WebGPUCommandUniformMap);
+                if (map._ishasBuffer) {
+                    let entry: GPUBindGroupLayoutEntry = {
+                        binding: bindIndex++,
+                        visibility: graphicVisibility,
+                        buffer: {
+                            type: 'uniform',
+                        }
+                    };
+                    entries.push(entry);
+                }
+                map._idata.forEach((uniform) => {
+                    // texture
+                    if (uniform.uniformtype >= ShaderDataType.Texture2D) {
+
+                        let textureEntry: GPUBindGroupLayoutEntry = {
+                            binding: bindIndex++,
+                            visibility: graphicVisibility,
+                            texture: {
+                                sampleType: 'float',
+                                viewDimension: '2d',
+                                multisampled: false,
+                            },
+                        };
+                        entries.push(textureEntry);
+                        let samplerEntry: GPUBindGroupLayoutEntry = {
+                            binding: bindIndex++,
+                            visibility: graphicVisibility,
+                            sampler: {
+                                type: 'filtering',
+                            }
+                        };
+                        entries.push(samplerEntry);
+
+                        let tex = this._data[uniform.id] as WebGPUInternalTex;
+                        if (tex) {
+                            tex._getGPUTextureBindingLayout(textureEntry.texture);
+                            tex._getSampleBindingLayout(samplerEntry.sampler);
+
+                            if (samplerEntry.sampler.type != 'filtering') {
+                                textureState |= bitVal;
+                            }
+                        }
+
+                        bitVal << 1;
+                    }
+                });
+            });
+            
+        }
+
+    }
+
+    ////////////////////////////////////////////
+
     /**
    * 传入布局，绑定好资源数据
    * @param groupId 
@@ -259,19 +339,20 @@ export class WebGPUShaderData extends ShaderData {
                     break;
                 case WebGPUBindingInfoType.sampler:
                     if (item.sampler) {
-                        let texture = this._data[item.propertyId];
+                        let texture = this._data[item.propertyId] as WebGPUInternalTex;
                         if (!texture) {
                             //设置为默认纹理
                             switch (item.texture.viewDimension) {
                                 case 'cube':
-                                    texture = WebGPUShaderData._dummyTextureCube._texture;
+                                    texture = WebGPUShaderData._dummyTextureCube._texture as WebGPUInternalTex;
                                     break;
                                 case "2d":
-                                    texture = WebGPUShaderData._dummyTexture2D._texture;
+                                    texture = WebGPUShaderData._dummyTexture2D._texture as WebGPUInternalTex;
                                     break;
                             }
-                        } else {
-                            (texture as WebGPUInternalTex)._getSampleBindingLayout(item.sampler);
+                        }
+                        else {
+                            texture._getSampleBindingLayout(item.sampler);
                         }
                         entryArray.push({
                             binding: item.binding,
@@ -314,13 +395,13 @@ export class WebGPUShaderData extends ShaderData {
         return this._bindGroupLastUpdateMask.has(key) ? this._bindGroupLastUpdateMask.get(key) : Number.MAX_VALUE;
     }
 
-
-    _createOrGetBindGroupbyUniformMap(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup {
+    _createOrGetBindGroupbyUniformMap(name: string, cacheName: string, bindGroup: number, uniformMap: Map<number, UniformProperty>): WebGPUBindGroup1 {
         let needRecreate = false;
         //判断是否已经缓存了相应的BindGroup
         needRecreate = !this._cacheBindGroup.has(cacheName) ||
             this._cacheBindGroup.get(cacheName).isNeedCreate(this._getBindGroupLastUpdateMask(cacheName));
         if (needRecreate) {//重新创建BindGroup
+
             if (!this._cacheNameBindGroupInfos.has(`${bindGroup}` + cacheName)) {
                 this._cacheNameBindGroupInfos.set(`${bindGroup}` + cacheName, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(bindGroup, name, cacheName, uniformMap));
             }
@@ -330,6 +411,7 @@ export class WebGPUShaderData extends ShaderData {
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
             //填充bindgroupEntriys
             this.fillBindGroupEntry(cacheName, cacheName, bindgroupEntriys, bindGroupInfos);
+
             let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos)
             let bindGroupDescriptor: GPUBindGroupDescriptor = {
                 label: "GPUBindGroupDescriptor",
@@ -337,40 +419,44 @@ export class WebGPUShaderData extends ShaderData {
                 entries: bindgroupEntriys
             };
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            let returns = new WebGPUBindGroup();
+            let returns = new WebGPUBindGroup1();
             returns.gpuRS = bindGroupGPU;
             returns.createMask = Stat.loopCount;
             this._cacheBindGroup.set(cacheName, returns);
             return returns;
-        } else {
+        }
+        else {
             return this._cacheBindGroup.get(cacheName);
         }
     }
 
-    _createOrGetBindGroupByBindInfoArray(name: string, cacheName: string, shaderinstance: WebGPUShaderInstance, bindGroup: number, bindInfoArray: WebGPUUniformPropertyBindingInfo[]): WebGPUBindGroup {
+    _createOrGetBindGroupByBindInfoArray(name: string, cacheName: string, shaderinstance: WebGPUShaderInstance, bindGroup: number, bindInfoArray: WebGPUUniformPropertyBindingInfo[]): WebGPUBindGroup1 {
         let needRecreate = false;
         let cacheBindgroupKey = `${cacheName}_${bindGroup}_${shaderinstance._id}`;
-        needRecreate = !this._cacheBindGroup.has(cacheBindgroupKey) ||
-            this._cacheBindGroup.get(cacheBindgroupKey).isNeedCreate(this._getBindGroupLastUpdateMask(cacheBindgroupKey));
+        needRecreate = !this._cacheBindGroup.has(cacheBindgroupKey) || this._cacheBindGroup.get(cacheBindgroupKey).isNeedCreate(this._getBindGroupLastUpdateMask(cacheBindgroupKey));
+
         if (needRecreate) {
             let bindGroupInfos = bindInfoArray;
 
             let bindgroupEntriys: GPUBindGroupEntry[] = [];
 
             this.fillBindGroupEntry(cacheName, cacheBindgroupKey, bindgroupEntriys, bindGroupInfos);
+
             let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupInfos);
+
             let bindGroupDescriptor: GPUBindGroupDescriptor = {
                 label: "cacheBindgroupKey",
                 layout: groupLayout,
                 entries: bindgroupEntriys
             };
             let bindGroupGPU = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            let returns = new WebGPUBindGroup();
+            let returns = new WebGPUBindGroup1();
             returns.gpuRS = bindGroupGPU;
             returns.createMask = Stat.loopCount;
             this._cacheBindGroup.set(cacheBindgroupKey, returns);
             return returns;
-        } else {
+        }
+        else {
             return this._cacheBindGroup.get(cacheBindgroupKey);
         }
 

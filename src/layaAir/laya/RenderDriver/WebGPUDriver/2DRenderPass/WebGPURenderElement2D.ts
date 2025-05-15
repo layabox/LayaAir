@@ -8,7 +8,7 @@ import { Stat } from "../../../utils/Stat";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -27,7 +27,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     private _nodeCommonMap: string[];
 
-    private _value2DgpuRS: WebGPUBindGroup = new WebGPUBindGroup();
+    private _value2DgpuRS: WebGPUBindGroup1 = new WebGPUBindGroup1();
 
     private _nodeCommonMapMask: number = 0;
 

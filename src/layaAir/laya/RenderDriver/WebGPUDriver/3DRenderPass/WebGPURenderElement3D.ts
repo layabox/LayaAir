@@ -12,11 +12,13 @@ import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
-import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
@@ -193,14 +195,18 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             if (!shaders[j].complete)
                 continue;
             let shaderInstance = shaders[j];
+
+            this._bindGroup(context, shaderInstance, command); //绑定资源组
+
             //TODO 先创建RenderPipeline  后续讨论如何Cache RenderPipeline的方案
-            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
+            let pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context);
+
+            command.setPipeline(pipeline);  //新建渲染管线
 
             if (!command.isBundle && this._stencilParam.enable) {
                 (command as WebGPURenderCommandEncoder).setStencilReference(this._stencilParam.ref);
             }
 
-            this._bindGroup(context, shaderInstance, command); //绑定资源组
             this._uploadGeometry(command); //上传几何数据 draw
         }
 
@@ -221,7 +227,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._getDepthStencilState(shaderInstance, dest);
             this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         }
-        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
+        // return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
+
+        let pipeline = WebGPURenderEngine._instance.pipelineCache.getPipeline(this.bindGroupMap, this, shaderInstance, context.destRT);
+        return pipeline;
     }
 
     /**
@@ -408,6 +417,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
     }
 
+    bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
+
     /**
      * 绑定资源组
      * @param shaderInstance 
@@ -415,23 +426,26 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (shaderInstance.uniformSetMap.get(0).length > 0) {
+        {
             let sceneGroup = context._sceneBindGroup;
             command.setBindGroup(0, sceneGroup);
+            this.bindGroupMap.set(0, sceneGroup);
         }
-        if (shaderInstance.uniformSetMap.get(1).length > 0) {
+        {
             command.setBindGroup(1, context._cameraBindGroup);
+            this.bindGroupMap.set(1, context._cameraBindGroup);
         }
-        //if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
-        if (this.owner) {
-            let bindgroup = (Laya3DRender.Render3DPassFactory as WebGPU3DRenderPassFactory).getBaseRender3DNodeBindGroup(this.owner, context, shaderInstance);
-            command.setBindGroup(2, bindgroup);
-        } else {
+        {
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner);
 
-            command.setBindGroup(2, WebGPUBindGroupHelper.createEmptyBindGroup());
+            command.setBindGroup(2, bindgroup);
+            this.bindGroupMap.set(2, bindgroup);
         }
-        if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader._owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
+        {
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData);
+
+            command.setBindGroup(3, bindgroup);
+            this.bindGroupMap.set(3, bindgroup);
         }
     }
 

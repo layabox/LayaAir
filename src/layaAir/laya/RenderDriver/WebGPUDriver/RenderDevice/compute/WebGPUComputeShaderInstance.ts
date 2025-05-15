@@ -122,7 +122,6 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
                     const group = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
                     bindGroupLayouts.push(group);
                 }
-
             }
             this._gpuPipelineLayout = this._device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
         }

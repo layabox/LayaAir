@@ -24,7 +24,7 @@
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
     "@types/node": "^20.12.7",
-    "@webgpu/types": "^0.1.40",
+    "@webgpu/types": "^0.1.60",
     "conventional-changelog-cli": "^2.2.2",
     "copy-and-watch": "^0.1.6",
     "copyfiles": "^2.4.1",

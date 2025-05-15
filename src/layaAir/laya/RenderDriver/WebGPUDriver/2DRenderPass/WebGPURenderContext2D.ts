@@ -9,7 +9,7 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindGroup, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -35,7 +35,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     pipelineMode: string = 'Forward';
 
-    _sceneBindGroup: WebGPUBindGroup;
+    _sceneBindGroup: WebGPUBindGroup1;
 
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
 

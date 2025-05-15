@@ -31,7 +31,6 @@ import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
-        //@ts-ignore
         const shaderIns = new WebGPUShaderInstance(shaderPass._owner._owner.name);
         shaderIns._create(shaderProcessInfo, shaderPass as ShaderPass);
         return shaderIns;

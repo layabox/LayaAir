@@ -37,7 +37,7 @@ export interface WebGPUUniformPropertyBindingInfo {
 
 
 
-export class WebGPUBindGroup {
+export class WebGPUBindGroup1 {
     gpuRS: GPUBindGroup;
     createMask: number = -1;//创建的时候生成的帧数
     constructor() {
@@ -50,19 +50,23 @@ export class WebGPUBindGroup {
 }
 
 export class WebGPUBindGroupHelper {
+
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
-    static emptyBindgoup: WebGPUBindGroup;
+    static emptyBindgoup: WebGPUBindGroup1;
+
     static createEmptyBindGroup() {
         if (WebGPUBindGroupHelper.emptyBindgoup)
             return WebGPUBindGroupHelper.emptyBindgoup;
+
         let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout([]);
+
         let bindgroupEntriys: GPUBindGroupEntry[] = [];
         let bindGroupDescriptor: GPUBindGroupDescriptor = {
             label: "cacheBindgroupKey",
             layout: groupLayout,
             entries: bindgroupEntriys
         };
-        WebGPUBindGroupHelper.emptyBindgoup = new WebGPUBindGroup();
+        WebGPUBindGroupHelper.emptyBindgoup = new WebGPUBindGroup1();
         WebGPUBindGroupHelper.emptyBindgoup.gpuRS = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         return WebGPUBindGroupHelper.emptyBindgoup;
     }
@@ -105,50 +109,69 @@ export class WebGPUBindGroupHelper {
     }
 
     static _createBindGroupLayout(name: string, data: WebGPUUniformPropertyBindingInfo[]) {
+        let textureState = 0;
+        let textureCount = 0;
 
         let entries: GPUBindGroupLayoutEntry[] = [];
-        const desc: GPUBindGroupLayoutDescriptor = {
-            label: name,
-            entries: entries,
-        };
         if (data) {
+            let bitVal = 1;
             for (let i = 0; i < data.length; i++) {
                 switch (data[i].type) {
                     case WebGPUBindingInfoType.buffer:
-                        (desc.entries as any).push({
+                        entries.push({
                             binding: data[i].binding,
                             visibility: data[i].visibility,
                             buffer: data[i].buffer,
                         });
                         break;
                     case WebGPUBindingInfoType.sampler:
-                        (desc.entries as any).push({
-                            binding: data[i].binding,
-                            visibility: data[i].visibility,
-                            sampler: data[i].sampler,
-                        });
-                        break;
+                        {
+                            let entry: GPUBindGroupLayoutEntry = {
+                                binding: data[i].binding,
+                                visibility: data[i].visibility,
+                                sampler: data[i].sampler,
+                            };
+                            if (entry.sampler.type != "filtering") {
+                                textureState |= bitVal;
+                            }
+                            entries.push(entry);
+                            bitVal <<= 1;
+                            textureCount++;
+                            break;
+                        }
                     case WebGPUBindingInfoType.texture:
-                        (desc.entries as any).push({
+                        entries.push({
                             binding: data[i].binding,
                             visibility: data[i].visibility,
                             texture: data[i].texture,
                         });
                         break;
                     case WebGPUBindingInfoType.storageBuffer:
-                        (desc.entries as any).push({
+                        entries.push({
                             binding: data[i].binding,
                             visibility: data[i].visibility,
                             buffer: data[i].buffer,
                         })
+                        break;
+                    default:
+                        break;
                 }
             }
 
         }
-        return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
+
+        const desc: GPUBindGroupLayoutDescriptor = {
+            label: name,
+            entries: entries,
+        };
+
+        let handle = WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
+
+        return handle;
     }
 
     /**
+     * @deprecated // todo delete
      * 根据unfiformCommandMapArray获得绑定信息
      * @param groupID 
      * @param unifromCommandMapArray 
@@ -323,7 +346,7 @@ export class WebGPUBindGroupHelper {
 
 
     //传入Command的string Array 生成Scene和Camera用这个
-    static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup {
+    static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup1 {
         let infoArray: WebGPUUniformPropertyBindingInfo[] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray);
         let bindgroupEntriys: GPUBindGroupEntry[] = [];
         //填充bindgroupEntriys
@@ -339,7 +362,7 @@ export class WebGPUBindGroupHelper {
 
         let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
         //设置缓存  
-        let returns = new WebGPUBindGroup();
+        let returns = new WebGPUBindGroup1();
         returns.gpuRS = bindGroup;
         returns.createMask = Stat.loopCount;
         return returns;
@@ -444,7 +467,10 @@ export class WebGPUBindGroupHelper {
                 }
             };
             // 将绑定信息添加到数组中
-            bindingInfos.push(bindingInfo);
+            bindingInfos.unshift(bindingInfo);
+            bindingInfos.forEach((info, index) => { 
+                info.binding = index;
+            });
         }
 
         WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);

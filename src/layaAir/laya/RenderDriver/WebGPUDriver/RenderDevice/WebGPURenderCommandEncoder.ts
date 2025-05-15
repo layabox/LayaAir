@@ -1,7 +1,8 @@
 import { Laya } from "../../../../Laya";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
-import { WebGPUBindGroup } from "./WebGPUBindGroupHelper";
+import { WebGPUBindGroup } from "./WebGPUBindGroupCache";
+import { WebGPUBindGroup1 } from "./WebGPUBindGroupHelper";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -37,7 +38,7 @@ export abstract class WebGPURenderEncoder {
     * @param bindGroup 
     * @param dynamicOffsets 
     */
-    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
+    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup1 | WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
         dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup.gpuRS);
     }
 

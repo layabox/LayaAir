@@ -134,7 +134,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         let useTexSet = new Set<string>();
         //如果是3D  只对set2（Node） 和set3（Material）的纹理进行剔除   如果剔除scene和camera 会产生大量的bindGroup
         //如果是2D  TODO  暂时先不做剔出
-        let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
+        let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 4;
         /**
          * 编译 shader 时可能检出新的 uniform
          * 将新检出的 uniform 添加到 material map 中
@@ -145,38 +145,42 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._generateMaterialCommandMap();
         }
 
-        //去除无用的TextureBinding
-        let textureIndices: number[] = [];
-        for (const texName of useTexSet) {
-            let propertyIDName = texName;
-            // 去掉_texture和_Sample前缀
-            if (propertyIDName.endsWith("_Texture")) {
-                textureIndices.push(WebGPURenderEngine._instance.propertyNameToID(propertyIDName.substring(0, propertyIDName.length - 8)));
-            }
-        }
-        // 遍历uniformSetMap，移除不在textureIndices中的纹理
-        for (const [setIndex, bindInfoArray] of this.uniformSetMap) {
-            if (setIndex < cullTextureSetLayer) {
-                continue;
-            }
-            // 创建一个新数组来存储过滤后的绑定信息
-            let filteredBindInfoArray: WebGPUUniformPropertyBindingInfo[] = [];
+        if (true) {
 
-            for (const bindInfo of bindInfoArray) {
-                // 检查是否为纹理类型
-                if (bindInfo.sampler || bindInfo.texture) {
-                    // 检查该纹理是否在textureIndices中
-                    if (textureIndices.includes(bindInfo.propertyId)) {
-                        filteredBindInfoArray.push(bindInfo);
-                    }
-                } else {
-                    // 非纹理类型直接保留
-                    filteredBindInfoArray.push(bindInfo);
+            //去除无用的TextureBinding
+            let textureIndices: number[] = [];
+            for (const texName of useTexSet) {
+                let propertyIDName = texName;
+                // 去掉_texture和_Sample前缀
+                if (propertyIDName.endsWith("_Texture")) {
+                    textureIndices.push(WebGPURenderEngine._instance.propertyNameToID(propertyIDName.substring(0, propertyIDName.length - 8)));
                 }
             }
-            // 用过滤后的数组替换原数组
-            this.uniformSetMap.set(setIndex, filteredBindInfoArray);
+            // 遍历uniformSetMap，移除不在textureIndices中的纹理
+            for (const [setIndex, bindInfoArray] of this.uniformSetMap) {
+                if (setIndex < cullTextureSetLayer) {
+                    continue;
+                }
+                // 创建一个新数组来存储过滤后的绑定信息
+                let filteredBindInfoArray: WebGPUUniformPropertyBindingInfo[] = [];
+
+                for (const bindInfo of bindInfoArray) {
+                    // 检查是否为纹理类型
+                    if (bindInfo.sampler || bindInfo.texture) {
+                        // 检查该纹理是否在textureIndices中
+                        if (textureIndices.includes(bindInfo.propertyId)) {
+                            filteredBindInfoArray.push(bindInfo);
+                        }
+                    } else {
+                        // 非纹理类型直接保留
+                        filteredBindInfoArray.push(bindInfo);
+                    }
+                }
+                // 用过滤后的数组替换原数组
+                this.uniformSetMap.set(setIndex, filteredBindInfoArray);
+            }
         }
+
 
         {
 
@@ -211,8 +215,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let fragmentWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
             // let fragmentWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.fragment, "fragment", true);
 
-            this._vsShader = device.createShaderModule({ code: vertexWgsl });
-            this._fsShader = device.createShaderModule({ code: fragmentWgsl });
+            this._vsShader = device.createShaderModule({ label: this.name, code: vertexWgsl });
+            this._fsShader = device.createShaderModule({ label: this.name, code: fragmentWgsl });
         }
 
         this.complete = true;
@@ -265,6 +269,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
         //sprite+additional
         this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
+
         this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
 
         //material
@@ -282,8 +287,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
         if (!this._gpuPipelineLayout) {
             const bindGroupLayouts: GPUBindGroupLayout[] = [];
             for (let i = 0; i < 4; i++) {
-                const group = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
-                bindGroupLayouts.push(group);
+                const bindGroup = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
+                bindGroupLayouts.push(bindGroup);
             }
             this._gpuPipelineLayout = device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
         }

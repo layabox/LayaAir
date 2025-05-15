@@ -11,8 +11,10 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUShaderCompiler } from "./ShaderCompiler/WebGPUShaderCompiler";
+import { WebGPUBindGroupCache } from "./WebGPUBindGroupCache";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
+import { WebGPUPipelineCache } from "./WebGPUPipelineCache";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
@@ -105,6 +107,9 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
     shaderCompiler: WebGPUShaderCompiler;
 
+    bindGroupCache: WebGPUBindGroupCache;
+    pipelineCache: WebGPUPipelineCache;
+
     /**
      * 实例化一个webgpuEngine
      */
@@ -122,6 +127,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this.globalId = WebGPUGlobal.getId(this);
 
         this.shaderCompiler = new WebGPUShaderCompiler();
+        this.bindGroupCache = new WebGPUBindGroupCache();
+        this.pipelineCache = new WebGPUPipelineCache();
     }
 
     /**

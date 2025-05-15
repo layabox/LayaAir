@@ -174,25 +174,6 @@ ${fragmentCode}
         const executeUniforms = (value: WebGPUUniformPropertyBindingInfo[], key: number) => {
 
             value.forEach(uniform => {
-
-                // if (key < checkSetNumber) {
-                //     if (uniform.type == WebGPUBindingInfoType.sampler) {
-                //         let name = uniform.name.replace("_Sampler", "")
-                //         let collect = collectionUniforms.get(name);
-                //         // todo
-                //         if (collect) {
-                //             // collect.samplerType = uniform.texture.sampleType;
-                //         } else {
-                //             // todo
-                //             let samplerType: GPUTextureSampleType = "float";
-                //             if (uniform.sampler?.type == "comparison") {
-                //                 samplerType = "depth";
-                //             }
-                //             collectionUniforms.set(name, { type: "", samplerType: samplerType });
-                //         }
-                //     }
-                // }
-
                 if (uniform.type == WebGPUBindingInfoType.texture) {
                     let name = uniform.name.replace("_Texture", "");
 

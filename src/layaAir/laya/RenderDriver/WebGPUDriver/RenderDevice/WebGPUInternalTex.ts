@@ -245,8 +245,8 @@ export class WebGPUInternalTex implements InternalTexture {
             if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32) {
                 if (layout.type !== 'non-filtering') {
                     layout.type = 'non-filtering';
-                    this.filterMode = FilterMode.Point;
                 }
+                this.filterMode = FilterMode.Point;
             }
             else if (layout.type !== 'filtering') {
                 layout.type = 'filtering';

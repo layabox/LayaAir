@@ -18,7 +18,7 @@ import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/Compu
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderInstance";
-import { WebGPUBindGroup, WebGPUBindGroupHelper } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Stat } from "laya/utils/Stat";
 import { IRenderContext3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -242,9 +242,9 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
         }
     }
 
-    private bindGroup: Map<number, WebGPUBindGroup> = new Map();
+    private bindGroup: Map<number, WebGPUBindGroup1> = new Map();
 
-    private getBaseRender3DNodeBindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance): WebGPUBindGroup {//一帧调用一次
+    private getBaseRender3DNodeBindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance): WebGPUBindGroup1 {//一帧调用一次
         let recreateBindGroup: boolean = false;
         let bindgroup = this.bindGroup.get((shaderInstance as any)._id);
         let shaderInstanceID = (shaderInstance as any)._id;
@@ -278,7 +278,7 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
                 entries: bindgroupEntriys
             };
             let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            bindgroup = new WebGPUBindGroup();
+            bindgroup = new WebGPUBindGroup1();
             bindgroup.gpuRS = bindGroupgpu;
             bindgroup.createMask = Stat.loopCount;
             this.bindGroup.set(shaderInstanceID, bindgroup);

@@ -106,7 +106,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;
-        // console.log("compile");
         shader = ShaderPass.createShaderInstance(this, is2D, compileDefine);
         this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
