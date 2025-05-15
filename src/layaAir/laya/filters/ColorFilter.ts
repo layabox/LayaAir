@@ -1,15 +1,6 @@
 import { Filter } from "./Filter";
-import { IFilter } from "./IFilter";
 import { ColorUtils } from "../utils/ColorUtils"
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Vector2 } from "../maths/Vector2";
-import { Color } from "../maths/Color";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Matrix4x4 } from "../maths/Matrix4x4";
-import { Vector4 } from "../maths/Vector4";
 import { ColorEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/ColorEffect2D";
 
 /**
@@ -40,7 +31,7 @@ const LENGTH: number = 25;
  * @zh `ColorFilter` 类是一个颜色滤镜，它将 4x5 矩阵转换应用于输入图像上的每个像素的 RGBA 颜色和 Alpha 值，以生成具有一组新的 RGBA 颜色和 Alpha 值的结果。此类允许饱和度更改、色相旋转、亮度转 Alpha 以及各种其他效果。您可以将滤镜应用于任何显示对象（即从 `Sprite` 类继承的对象）。
  * 注意：对于 RGBA 值，最高有效字节代表红色通道值，其后的有效字节分别代表绿色、蓝色和 Alpha 通道值。
  */
-export class ColorFilter extends Filter implements IFilter {
+export class ColorFilter extends Filter {
 
     /** @internal */
     _mat: Float32Array;
@@ -133,16 +124,6 @@ export class ColorFilter extends Filter implements IFilter {
         this._effect2D.colorMat = Matrix4x4.TEMP;
         this.onChange();
         return this;
-    }
-
-    /**
-     * @private
-     * @override
-     * @en Gets the type of the filter.
-     * @zh 获取滤镜类型。
-     */
-    get type(): number {
-        return Filter.COLOR;
     }
 
     /**

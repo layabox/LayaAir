@@ -36,10 +36,10 @@ export class GlowFilter extends Filter {
      */
     constructor(color: string, blur = 4, offX = 6, offY = 6) {
         super();
-   
+
         //限制最大效果为20
         this._effect2D = new GlowEffect2D();
-             this.color = color || "#000";
+        this.color = color || "#000";
         this.blur = Math.min(blur, 20);
         this.offX = offX;
         this.offY = offY;
