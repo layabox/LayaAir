@@ -122,6 +122,7 @@ export class Graphics {
         this.clear(true);
         if (this._graphicBounds) this._graphicBounds.destroy();
         this._renderDataHandle && this._renderDataHandle.destroy();
+        this._data && this._data.destroy();
         this._graphicBounds = null;
         this._vectorgraphArray = null;
         if (this.owner) {

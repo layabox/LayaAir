@@ -122,9 +122,8 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     data[j] = nx;
                     data[j + 1] = ny;
                 }
-                // console.log("==== change matrix " , vertexView , Stat.loopCount);
                 this._owner.pass.setBuffer(vertexView.owner);
-                vertexView.isModified = true;
+                vertexView.modify(0);
             }
             this._vertexViews.clear();
         }

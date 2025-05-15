@@ -28,6 +28,7 @@ export interface IBufferDataView {
     stride: number;
     count: number;
     isModified: boolean;
+    modify(type:number):void;
     owner: IDynamicVIBuffer;
 }
 

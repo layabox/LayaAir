@@ -7,6 +7,7 @@ import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/I
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Render2DSimple } from "../../renders/Render2D";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
@@ -14,6 +15,8 @@ import { FastSinglelist } from "../../utils/SingletonList";
 import { Stat } from "../../utils/Stat";
 import { BlendMode } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
@@ -36,9 +39,15 @@ export class GraphicsRenderData {
    }
 
    static recoverRenderElement2D(value: IRenderElement2D) {
-      if (!(value as any).canotPool) {
-         this._pool.push(value);
-      }
+      if (!value) return;
+      value.geometry.clearRenderParams();
+      value.geometry.bufferState = null;
+      value.materialShaderData = null;
+      value.value2DShaderData = null;
+      value.owner = null;
+      value.subShader = null;
+      value.renderStateIsBySprite = false;
+      this._pool.push(value);
    }
 
    private _renderElements: IRenderElement2D[] = [];
@@ -56,10 +65,9 @@ export class GraphicsRenderData {
 
    destroy(): void {
       this.clear();
-
-      let elements = this._submits.elements;
+      let submits = this._submits.elements;
       for (let i = 0; i < this._submits.length; i++) {
-         elements[i].destroy();
+         submits[i].destroy();
       }
       this._submits.destroy();
       this._submits = null;
@@ -83,7 +91,7 @@ export class GraphicsRenderData {
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
          let element = this._renderElements[i];
-         if (submit) {
+         if (i < submitLength) {
             if (!element) {
                element = GraphicsRenderData.createRenderElement2D();
                element.value2DShaderData = struct.spriteShaderData;
@@ -184,17 +192,21 @@ export class SubStructRender {
    private _shaderData: ShaderData = null;
    private _handle: I2DPrimitiveDataHandle = null;
    private _submit: SubmitBase = null;
-
-   private mesh: GraphicsMesh;
-
+   private _internalInfo: GraphicsShaderInfo = null;
+   
    constructor() {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
       this._submit = new SubmitBase;
+      this._internalInfo = new GraphicsShaderInfo();
+      this._submit._internalInfo = this._internalInfo;
       this._renderElement = GraphicsRenderData.createRenderElement2D();
       this._renderElement.value2DShaderData = this._shaderData;
+      this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
+      this._renderElement.materialShaderData = this._submit._internalInfo.shaderData;
+
       BlendMode.initBlendMode(this._shaderData);
-      // this._submit._numEle += 6;
+      this._internalInfo.enableVertexSize = true;
    }
 
    bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
@@ -208,7 +220,11 @@ export class SubStructRender {
       subStruct.renderElements = [this._renderElement];
       this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
-      // this.mesh = 
+
+      let info = Render2DSimple.runner.defalutInfo;
+      let view = info.indexViews[0];
+      this._renderElement.geometry.bufferState = info.mesh.bufferState;
+      this._renderElement.geometry.setDrawElemenParams(view.start * 2, view.length);
    }
 
    updateQuat() {
@@ -222,18 +238,23 @@ export class SubStructRender {
          width = tex.width * wRate;
          height = tex.height * hRate;
          if (width > 0 && height > 0) {
-            // this._meshQuatTex.clearMesh();
-            // let px = tex.offsetX * wRate;
-            // let py = tex.offsetY * hRate;
-            // let vertices = [px, py, px + width, py, px + width, py + height, px, py + height];
-            // this._meshQuatTex.addQuad(vertices, Texture.DEF_UV, 0xffffffff, true);
-            // this._meshQuatTex.uploadBuffer();
+            let px = tex.offsetX * wRate;
+            let py = tex.offsetY * hRate;
+            let vSize = this._internalInfo.vertexSize;
+            vSize.x = px;
+            vSize.y = py;
+            vSize.z = width;
+            vSize.w = height;
+            this._internalInfo.vertexSize = vSize;
          }
       }
-      this._submit._internalInfo.textureHost = tex;
+      this._internalInfo.textureHost = tex;
    }
 
    destroy(): void {
+      GraphicsRenderData.recoverRenderElement2D(this._renderElement);
+      this._internalInfo.destroy();
+      this._internalInfo = null;
       this._submit.destroy();
       this._submit = null;
       this._handle = null;

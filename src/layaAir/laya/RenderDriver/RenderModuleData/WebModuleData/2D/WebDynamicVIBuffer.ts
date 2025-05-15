@@ -17,19 +17,19 @@ export class BufferDataView implements IBufferDataView {
     private _stride:number = 1;
     owner: WebDynamicVIBuffer;
 
-    private _isModified: boolean = false; // 标记数据是否被修改
-
-    public get isModified(): boolean {
-        return this._isModified;
-    }
-    public set isModified(value: boolean) {
-        if(this.owner && value){
-            this.owner.needUpload = true;
-        }
-        this._isModified = value;
-    }
-    
     count = 0;
+
+    isModified: boolean = false; // 标记数据是否被修改
+    
+    modify(type:number){
+        if(type === 0){
+            this.owner._vertexModify = true;
+        }else{
+            this.owner._indexModify = true;
+        }
+        this.isModified = true;
+        this.owner.needUpload = true;
+    }
 
     constructor(owner: WebDynamicVIBuffer, source: Float32Array | Uint16Array, start: number, length: number, stride:number = 1) {
         this.owner = owner;
@@ -106,6 +106,10 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
     
     private _vertexFreeBlocks: number[] = [];
     private _indexFreeBlocks: number[] = [];
+
+    _vertexModify:boolean = true;
+
+    _indexModify:boolean = true;
     /** @internal */
     public needUpload: boolean = false;
 
@@ -286,6 +290,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
                     view.updateView(this._vertexData);
                 }
             });
+            this._vertexModify = true;
         }
 
         // ib
@@ -304,11 +309,12 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
                 if (view) {
                     view.updateView(this._indexData);
                 }
-            });
+            }); 
+            this._indexModify = true;
         }
 
         // vb
-        if (this._vertexData) {
+        if (this._vertexModify) {
             let start = 0;
             let end = 0;
             for (let i = 0 , n = this._vertexViews.length; i < n; i++) {
@@ -322,10 +328,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             if(start !== end ){
                 this._vertexBuffer.setData( this._vertexData.buffer,start ,start * 4,(end - start) * 4);
             }
+            this._vertexModify = false;
         }
         // this._vertexBuffer.setData( this._vertexData.buffer,0 ,0, this._vertexData.byteLength);
         
-        if (this._indexData) {
+        if (this._indexModify) {
             let start = 0;
             let end = 0;
             for (let i = 0 , n = this._indexViews.length; i < n; i++) {
@@ -340,9 +347,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
                 let tempView = new Uint16Array(this._indexData.buffer, start * 2, end - start);
                 this._indexBuffer._setIndexData(tempView,start);
             }
+            this._indexModify = false;
         }
+        
         // this._indexBuffer._setIndexData(this._indexData, 0);
-        // console.log("==== upload buffer" , Stat.loopCount , this._indexData , this._vertexData);
+        // console.log( "==== upload buffer" , Stat.loopCount );
         this.needUpload = false;
         this._vertexState = BufferState.NO_CHANGE;
         this._indexState = BufferState.NO_CHANGE;

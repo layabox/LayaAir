@@ -13,6 +13,10 @@
     uniform vec3 u_InvertMat_1;
 #endif
 
+#ifdef VERTEX_SIZE
+    uniform vec4 u_vertexSize;
+#endif
+
 uniform vec3 u_NMatrix_0;
 uniform vec3 u_NMatrix_1;
 
@@ -120,12 +124,23 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r;
-        info.pos = a_posuv.xy;
+        vec2 pos;
+        #ifdef VERTEX_SIZE
+            pos = (a_posuv.xy + u_vertexSize.xy) * u_vertexSize.zw;
+        #else
+            pos = a_posuv.xy;
+        #endif
+        info.pos = pos;
     }
 
     vec4 getPosition(in vec2 positionOS){
-        vec2 globalPos = positionOS;
-        // getGlobalPos(positionOS,globalPos);
+        vec2 globalPos;
+        #ifdef VERTEX_SIZE
+            getGlobalPos(positionOS , globalPos);
+        #else
+            globalPos = positionOS;
+        #endif
+       
         clip(globalPos);
 
         vec2 viewPos;

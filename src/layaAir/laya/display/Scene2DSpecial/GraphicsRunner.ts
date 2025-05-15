@@ -169,6 +169,7 @@ export class GraphicsRunner {
         this._save = [SaveMark.Create(this)];
         this._save.length = 10;
         this.clear();
+        this.initDefalutMesh();
         // this._render2DManager = new RenderManager2D();
     }
 
@@ -2248,7 +2249,7 @@ export class GraphicsRunner {
         for (let i = 0; i < indexCount; i++) {
             if (!dataView || dataView.length <= pos) {
                 dataView = indexViews[dataViewIndex];
-                dataView.isModified = true;
+                dataView.modify(1);
                 dataViewIndex++;
                 pos = 0;
             }
@@ -2257,6 +2258,24 @@ export class GraphicsRunner {
             pos++;
         }
         // console.log("==== fill buffer" , Stat.loopCount);
+    }
+
+    defalutInfo:MeshBlockInfo;
+
+    initDefalutMesh(){
+        if(!this.defalutInfo){
+            this.defalutInfo = this.acquire(4);
+            this.appendData(
+                [0,0,1,0,1,1,0,1],
+                Texture.DEF_UV,
+                0xffffffff,
+                _drawTexToQuad_Index,
+                this.defalutInfo,
+                null,
+                null,
+                true
+            );
+        }
     }
 
 }
