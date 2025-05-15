@@ -243,7 +243,7 @@ window.tbMiniGame = function (exports, Laya) {
             }
             MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC);
             var clearSize = 0;
-            for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+            for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
                 var fileObj = tempFileListArr[i];
                 if (clearSize >= memSize)
                     break;
@@ -298,7 +298,7 @@ window.tbMiniGame = function (exports, Laya) {
                 if (key != "fileUsedSize")
                     tempFileListArr.push(MiniFileMgr.filesListObj[key]);
             }
-            for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+            for (var i = 0, sz = tempFileListArr.length; i < sz; i++) {
                 var fileObj = tempFileListArr[i];
                 MiniFileMgr.deleteFile("", fileObj.readyUrl);
             }
@@ -640,7 +640,7 @@ window.tbMiniGame = function (exports, Laya) {
                             var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
                             if (fileObj && fileObj.md5) {
                                 var fileMd5Name = fileObj.md5;
-                                fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+                                fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileMd5Name);
                             }
                             else {
                                 if (sourceUrl.indexOf("http://") == -1
