@@ -1971,7 +1971,7 @@ export class Sprite extends Node {
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
-            this.stage._addgraphicRenderElement(this._graphics);
+            this.stage._addgraphicRenderElement(this);
             this.parentRepaint();
         }
 
