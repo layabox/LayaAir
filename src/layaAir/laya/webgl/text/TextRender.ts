@@ -347,7 +347,6 @@ export class TextRender extends EventDispatcher {
                 if (ri.isSpace) continue;
                 runner.touchRes(ri);
                 runner.drawTexAlign = true;
-
                 runner._inner_drawTexture(tex, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
                     mat, ri.uv, 1.0, isLastRender, 0xffffffff);

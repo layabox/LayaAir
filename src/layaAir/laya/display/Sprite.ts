@@ -1328,9 +1328,8 @@ export class Sprite extends Node {
         if (this._destroyed) return;
 
         this.parentRepaint();
+
         if (this._subRenderPass) this._subRenderPass.repaint = true;
-
-
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
