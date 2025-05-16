@@ -26,15 +26,6 @@ import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 
 /**
- * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
- * Stage provides several adaptation modes. Different adaptation modes will produce different canvas sizes. The larger the canvas, the greater the rendering pressure, so it's important to choose an appropriate adaptation scheme.
- * Stage provides different frame rate modes. The higher the frame rate, the greater the rendering pressure and power consumption. Reasonable use of frame rates or even dynamic changes in frame rates can help improve mobile phone power consumption.
- * - Event.RESIZE("resize"): Discheduled when the stage size is resized.
- * - Event.FOCUS("focus"): Dispatched when the stage gains focus. For example, when the browser or current tab is switched back from the background.
- * - Event.BLUR("blur"): Dispatched when the stage loses focus. For example, when the browser or current tab is switched to the background.
- * - Event.FOCUS_CHANGE("focuschange"): Dispatched when the stage focus changes. Use Laya.stage.isFocused to get whether the current stage has focus.
- * - Event.VISIBILITY_CHANGE("visibilitychange"): Dispatched when the stage visibility changes (e.g., when the browser or current tab is switched to the background). Use Laya.stage.isVisibility to get the current visibility state.
- * - Event.FULL_SCREEN_CHANGE("fullscreenchange"): Discheduled when the browser fullscreen state changes, such as entering or exiting fullscreen mode.
  * @zh Stage 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。
  * Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。
  * Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。
@@ -44,58 +35,66 @@ import { LayaGL } from "../layagl/LayaGL";
  * - Event.FOCUS_CHANGE("focuschange"): 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
  * - Event.VISIBILITY_CHANGE("visibilitychange"): 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
  * - Event.FULL_SCREEN_CHANGE("fullscreenchange"): 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
+ * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
+ * Stage provides several adaptation modes. Different adaptation modes will produce different canvas sizes. The larger the canvas, the greater the rendering pressure, so it's important to choose an appropriate adaptation scheme.
+ * Stage provides different frame rate modes. The higher the frame rate, the greater the rendering pressure and power consumption. Reasonable use of frame rates or even dynamic changes in frame rates can help improve mobile phone power consumption.
+ * - Event.RESIZE("resize"): Discheduled when the stage size is resized.
+ * - Event.FOCUS("focus"): Dispatched when the stage gains focus. For example, when the browser or current tab is switched back from the background.
+ * - Event.BLUR("blur"): Dispatched when the stage loses focus. For example, when the browser or current tab is switched to the background.
+ * - Event.FOCUS_CHANGE("focuschange"): Dispatched when the stage focus changes. Use Laya.stage.isFocused to get whether the current stage has focus.
+ * - Event.VISIBILITY_CHANGE("visibilitychange"): Dispatched when the stage visibility changes (e.g., when the browser or current tab is switched to the background). Use Laya.stage.isVisibility to get the current visibility state.
+ * - Event.FULL_SCREEN_CHANGE("fullscreenchange"): Discheduled when the browser fullscreen state changes, such as entering or exiting fullscreen mode.
  */
 export class Stage extends Sprite {
     /**
-     * @en No scaling is applied, and the stage is displayed at its design size. The actual width and height of the canvas are set to the design width and height. This mode is suitable for applications that want to maintain the original design ratio, but it may result in blank areas or content overflow on different devices.
-     * @zh 不进行缩放，舞台按照设计尺寸显示，画布的实际宽度和高度设置为设计宽度和高度。这种模式适合希望保持原始设计比例的应用，但在不同设备上可能会出现空白区域或内容超出屏幕的情况。
-     */
+    * @zh 不缩放模式：画布宽高等于设计宽高，不进行任何缩放，舞台按照设计尺寸显示，这种模式适合在固定像素大小的嵌入需求，如果出现在与设计宽高不同尺寸的设备上，会出现空白区域或内容超出屏幕（运行窗口）的情况。
+    * @en No Scale Mode:The canvas width and height are equal to the design resolution, with no scaling applied. The stage is rendered strictly according to the design dimensions. This mode is suitable for scenarios where a fixed-size pixel canvas is embedded in another interface. If used on devices with screen sizes different from the design resolution, blank margins may appear or content may overflow beyond the screen boundaries.
+    */
     static SCALE_NOSCALE: string = "noscale";
 
     /**
-     * @en The canvas and stage are proportionally scaled to fit the screen as much as possible while preserving the original design aspect ratio. The scaling factor is determined by the smaller ratio between the screen size and the design resolution (width and height), ensuring that all design content remains fully visible without cropping. This approach may result in blank margins at the top/bottom or sides of the screen, which are typically handled using appropriate canvas alignment settings.
-     * @zh 保持设计宽高比例的情况下，将画布和舞台等比缩放至屏幕最大尺寸，缩放系数取设计宽度与屏幕宽度、设计高度与屏幕高度之间的最小缩放因子，以确保整个设计宽高的内容可见，避免裁切，但可能会出现上下或左右的空白边缘，通常需要配合画布的对齐方式使用。
+     * @zh 设计内容全部显示的等比缩放模式：画布宽高等于设计宽高，在确保全部设计内容可见，避免裁切的前提下，将舞台（画布适配后的逻辑宽高）等比缩放至屏幕（运行窗口）最大尺寸，缩放系数取设计宽度与屏幕宽度、设计高度与屏幕高度之间的最小缩放因子。该模式在与设计尺寸比例不同的屏幕上，会出现上下或左右的空白边缘，通常需要配合画布的对齐方式使用。
+     * @en Show All Mode: The canvas size equals the design resolution. To ensure that all design content remains visible with no cropping, the stage (i.e., the logical width and height after the canvas is adapted) is uniformly scaled to the largest size that fits inside the screen (runtime window). The scaling factor is the smaller of the two ratios: screen width ÷ design width and screen height ÷ design height. When the screen’s aspect ratio differs from the design’s, blank margins may appear at the top and bottom or the left and right edges, so this mode is typically used together with a canvas-alignment setting.
      */
     static SCALE_SHOWALL: string = "showall";
 
     /**
-     * @deprecated 不推荐使用
-     * @en The stage is scaled to fill the screen, with the actual width and height of the canvas calculated based on the design width and height multiplied by the maximum scale factor. This mode ensures that content fully covers the display area, but it may result in some content being cut off.
-     * @zh 将舞台缩放以填满屏幕，画布的实际宽度和高度根据设计宽度和高度乘以最大缩放因子计算。这种模式保证内容完全覆盖屏幕，但可能会导致部分设计内容被裁切。
+     * @zh 没底色边的等比缩放模式（全屏适配）：画布宽高等于设计宽高，在确保不会漏出屏幕背景颜色的前提下，将舞台（画布适配后的逻辑宽高）等比缩放至填满屏幕（运行窗口），缩放系数取设计宽度与屏幕宽度、设计高度与屏幕高度之间的最大缩放因子。该模式在与设计尺寸比例不同的屏幕上，会导致部分设计内容被裁切（舞台尺寸超出屏幕），通常用于没有边缘UI，对边缘裁切无所谓的3D场景中。
+     * @en No Border Mode: The canvas size equals the design resolution. Under the premise of ensuring that the screen background color is never exposed, the stage (i.e., the logical width and height after the canvas is adapted) is uniformly scaled to fill the entire screen (runtime window). The scaling factor is the larger of the two ratios: screen width ÷ design width and screen height ÷ design height. When the screen’s aspect ratio differs from the design’s, part of the design content may be cropped (since the stage size exceeds the screen). This mode is typically used in 3D scenes without edge UI elements, where edge cropping is not a concern.
      */
     static SCALE_NOBORDER: string = "noborder";
 
     /**
-     * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
-     * @zh 将舞台与画布直接设置为屏幕宽度和高度，其它方面与SCALE_NOSCALE模式一样，不对设计内容本身进行缩放。这种模式适用于希望完全利用屏幕空间，自行对屏幕动态排版的需求。
+     * @zh 画布铺满的不缩放模式：画布和舞台（即画布适配后的逻辑宽高）等于屏幕（运行窗口）的宽高，但不对设计内容本身进行缩放。如果有 UI 元素，开发者需要根据设备的 DPR（设备像素比）自行进行缩放，否则在高 DPR 设备上 UI 会显得较小。该模式通常用于以 3D 内容为主、UI 较少且采用动态相对布局的场景。
+     * @en Full Mode: The canvas and the stage (i.e., the logical width and height after adaptation) are set to match the screen (runtime window) dimensions, but the design content itself is not scaled. If there are UI elements, developers need to scale them manually according to the device's DPR (pixelRatio), otherwise the UI may appear too small on high-DPR devices. This mode is commonly used in 3D games with minimal UI that relies on dynamic or relative layout.
      */
     static SCALE_FULL: string = "full";
 
     /**
-     * @en Similar to SCALE_FULL, this mode sets the stage and canvas directly to the screen width and height. However, the difference is that it scales according to DPR (pixelRatio), making it suitable for high-DPR devices. 
-     * Advantages of this mode: evelopers do not need to manually scale UI elements based on DPR in their logic.  
-     * Important considerations: The design width and height should not use the physical resolution of the target device. Instead, they must use the logical resolution; otherwise, content exceeding the logical resolution may be cropped.
-     *  @zh 与SCALE_FULL类似，将舞台与画布直接设置为屏幕宽度和高度，但区别是，会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
-     * 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
-     * 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率，这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
-     */
+     * @zh 画布铺满的缩放模式：与SCALE_FULL类似，画布和舞台（即画布适配后的逻辑宽高）等于屏幕（运行窗口）的宽高，但区别是，设计内容会按 DPR(pixelRatio) 进行缩放，适合于各种高 DPR 的机型应用场景。
+     * - 该模式的好处是，不需要开发者对于 UI 根据 DPR 自行在逻辑里进行缩放处理。
+     * - 需要注意的是，在这种模式下，设计的宽高不能使用目标机型的物理分辨率，而是要使用目标机型的逻辑分辨率（物理分辨率除以DRP），这与其它适配模式不同，否则，会导致超出逻辑分辨率部分内容被裁切。
+     * @en Full Screen Mode: Similar to SCALE_FULL, the canvas and the stage (i.e., the logical width and height after adaptation) are set to match the screen (runtime window) dimensions.  However, unlike SCALE_FULL, the design content is automatically scaled according to the device’s DPR (pixelRatio), making it suitable for applications on high-DPR devices.
+     * - One advantage of this mode is that developers do not need to manually scale UI elements based on DPR in their code.
+     * - Note: In this mode, the design width and height should be based on the device’s logical resolution (i.e., physical resolution divided by DPR), which differs from other scaling modes. Otherwise, any content exceeding the logical resolution may be clipped.
+     **/
     static SCALE_FULLSCREEN: string = "fullscreen";
 
     /**
-     * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
-     * @zh 保持舞台的宽度固定，根据屏幕高度进行缩放。画布的高度根据屏幕高度和缩放因子计算，并设置舞台的高度。这种模式确保宽度一致，但在不同设备上可能会改变高度比例。
+     * @zh 保宽适配模式（全屏）：画布的宽等于设计宽，高度根据屏幕高度与全屏缩放因子计算得出。舞台（即画布适配后的逻辑宽高）根据画布尺寸等比缩放至填满屏幕（运行窗口）。这种模式可以确保水平方向的UI设计内容始终完全显示在屏幕内，而垂直方向的UI设计内容可能因缩放而部分超出屏幕或露出舞台背景色。但由于舞台始终填满屏幕，开发者可通过相对布局方式，使垂直方向的UI内容适配于各类屏幕，实现完美的全屏效果。
+     * @en Fixed width Mode：The canvas width is equal to the design width, while its height is calculated based on the screen height and a full-screen scaling factor. The stage (i.e., the logical width and height after canvas adaptation) is then uniformly scaled according to the canvas size to fill the entire screen (runtime window). This mode ensures that all horizontal design content is always fully visible on the screen, while vertical design content may be partially clipped or expose the stage background due to scaling. However, since the stage always fills the screen, developers can use relative layout in the vertical direction to adapt the content for various screen sizes and achieve a perfect full-screen experience.
      */
     static SCALE_FIXED_WIDTH: string = "fixedwidth";
 
     /**
-     * @en The stage height is kept fixed, and scaling is done based on the screen width. The canvas width is calculated based on the screen width and scale factor, and the stage width is set accordingly. This mode ensures consistent height but may alter the width ratio on different devices.
-     * @zh 保持舞台的高度固定，根据屏幕宽度进行缩放。画布的宽度根据屏幕宽度和缩放因子计算，并设置舞台的宽度。这种模式确保高度一致，但在不同设备上可能会改变宽度比例。
+     * @zh 保高适配模式（全屏）：画布的高等于设计高，宽度根据屏幕宽度与全屏缩放因子计算得出。舞台（即画布适配后的逻辑宽高）根据画布尺寸等比缩放至填满屏幕（运行窗口）。这种模式可以确保垂直方向的UI设计内容始终完全显示在屏幕内，而水平方向的UI设计内容可能因缩放而部分超出屏幕或露出舞台背景色。但由于舞台始终填满屏幕，开发者可通过相对布局方式，使水平方向的UI内容适配于各类屏幕，实现完美的全屏效果。
+     * @en Fixed height Mode：The canvas height is equal to the design height, while its width is calculated based on the screen width and a full-screen scaling factor. The stage (i.e., the logical width and height after canvas adaptation) is then uniformly scaled according to the canvas size to fill the entire screen (runtime window). This mode ensures that all vertical UI design content is always fully visible on the screen, while horizontal content may be partially clipped or expose the stage background due to scaling. However, since the stage always fills the screen, developers can use relative layout in the horizontal direction to adapt the content for various screen sizes and achieve a perfect full-screen experience.
      */
     static SCALE_FIXED_HEIGHT: string = "fixedheight";
 
     /**
-     * @en The scaling method is automatically chosen based on the comparison between the screen aspect ratio and the design aspect ratio. If the screen aspect ratio is less than the design aspect ratio, the width is kept fixed with equal scale factors and the canvas height is calculated; otherwise, the height is kept fixed with equal scale factors and the canvas width is calculated. This mode flexibly adapts to different devices but may result in content being cut off or blank borders appearing.
-     * @zh 根据屏幕宽高比与设计宽高比的比较，自动选择缩放方式；如果屏幕宽高比小于设计宽高比，则保持宽度固定，缩放因子相等并计算画布高度；否则，保持高度固定，缩放因子相等并计算画布宽度。这种模式可以灵活适应不同的设备，但可能会导致内容被裁切或出现空白边缘。
+     * @zh 自动保宽高模式（全屏）：这是一种根据屏幕（运行窗口）宽高比动态选择“保宽”或“保高”策略的自适应模式。当屏幕宽高比小于设计宽高比时，采用“保宽”（fixedwidth）模式；反之，则采用“保高”（fixedheight）模式。该模式可确保UI设计内容始终处于舞台范围内，不会被裁切，但可能在水平方向或垂直方向漏出背景颜色。为实现理想的全屏效果，建议通过相对布局方式适配不同屏幕。
+     * @en Fixed Auto Mode: This is an adaptive scaling mode that dynamically selects either the "fixedwidth" or "fixedheight" strategy based on the aspect ratio of the screen (runtime window). When the screen’s aspect ratio is less than the design aspect ratio, it uses the **fixedwidth** mode; otherwise, it uses the **fixedheight** mode. This mode ensures that the UI design content always stays within the stage without being cropped, though background color may appear on the horizontal or vertical edges. For an optimal full-screen experience, it is recommended to use relative layout to adapt to various screen sizes.
      */
     static SCALE_FIXED_AUTO: string = "fixedauto";
 
