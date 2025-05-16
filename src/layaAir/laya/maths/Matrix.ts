@@ -1,6 +1,7 @@
 import { Point } from "./Point";
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
+import { MathUtils3D } from "./MathUtils3D";
 
 /**
  * @en Represents a transformation matrix that determines how to map points from one coordinate space to another.
@@ -11,6 +12,25 @@ import { Utils } from "../utils/Utils";
  * 然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。
  */
 export class Matrix {
+    /**
+     * @en Compares two matrices for equality.
+     * @param a The first matrix.
+     * @param b The second matrix.
+     * @returns true if the matrices are equal, false otherwise.
+     * @zh 比较两个矩阵是否相等。
+     * @param a 第一个矩阵。
+     * @param b 第二个矩阵。
+     * @returns 如果矩阵相等，返回 true，否则返回 false。
+     */
+    static equals(a: Matrix, b: Matrix): boolean {
+        return MathUtils3D.nearEqual(a.a,b.a) 
+        && MathUtils3D.nearEqual(a.b,b.b) 
+        && MathUtils3D.nearEqual(a.c,b.c) 
+        && MathUtils3D.nearEqual(a.d,b.d) 
+        && MathUtils3D.nearEqual(a.tx,b.tx) 
+        && MathUtils3D.nearEqual(a.ty,b.ty);
+    }
+
     /**
      * @en Extracts the transformation information from the matrix, including the skew in the X and Y directions.
      * @param matrix The matrix from which to extract the transformation information.

@@ -762,11 +762,11 @@ export class GraphicsRunner {
             }
 
             this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, null, rgba, null, null, false);
-            this._updateSubmit(vertexResult);
+            this._appendBlockInfo(vertexResult);
         }
     }
 
-    private _updateSubmit(info: MeshBlockInfo): void {
+    private _appendBlockInfo(info: MeshBlockInfo): void {
         this._curSubmit.appendData(info);
     }
 
@@ -868,7 +868,7 @@ export class GraphicsRunner {
 
             var rgba = this._mixRGBandAlpha(color, this._alpha);
             this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
-            this._updateSubmit(vertexResult);
+            this._appendBlockInfo(vertexResult);
             // this._curSubmit._numEle += 6;
         }
 
@@ -1031,7 +1031,7 @@ export class GraphicsRunner {
         }
         this.appendData(ops, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
         // submit._numEle += 6;
-        this._updateSubmit(vertexResult);
+        this._appendBlockInfo(vertexResult);
         return true;
     }
 
@@ -1251,7 +1251,7 @@ export class GraphicsRunner {
             this.appendData(vertices, indices, vertexResult, uvs, rgba, m, null, true);
         }
         // this._curSubmit._numEle += indices.length;
-        this._updateSubmit(vertexResult);
+        this._appendBlockInfo(vertexResult);
         if (blendMode) {
             this.globalCompositeOperation = oldcomp!;
         }
@@ -1399,7 +1399,7 @@ export class GraphicsRunner {
         var m = this._curMat;
         var tPath = this._getPath();
         var submit = this._curSubmit;
-        let mesh: GraphicsMesh = this.getCurrentMesh();
+        let mesh: GraphicsMesh; //= this.getCurrentMesh();
         var sameKey = (
             // submit._key.submitType === SubmitBase.KEY_VG 
             // && 
@@ -1408,12 +1408,6 @@ export class GraphicsRunner {
             && !this.isSameClipInfo(submit)
         // && this._curSubmit.material == this._material;
 
-        // if (!sameKey) {
-        // this._drawToRender2D(submit);
-        // this._mesh = this._meshVG;
-        // this._curSubmit = this.addVGSubmit(mesh);
-        // this.fillShaderValue(this._curSubmit.shaderValue);
-        // }
         var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
         var curEleNum = 0;
         var idx: any[];
@@ -1466,7 +1460,11 @@ export class GraphicsRunner {
             //     }
             // }
 
-            let vertexResult = mesh.checkVertex(vertNum);
+            let vertexResult : MeshBlockInfo;
+            if ( mesh ) {
+                vertexResult = mesh.checkVertex(vertNum);
+            }
+
             if (
                 !sameKey
                 || !vertexResult
@@ -1474,13 +1472,16 @@ export class GraphicsRunner {
                 //顶点数超了，要先提交一次
                 // this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
+                curvert = 0;
 
                 vertexResult = this.acquire(vertNum);
                 mesh = vertexResult.mesh;
-                //然后用新的mesh，和新的submit。
-                this._curSubmit = this.addVGSubmit(mesh);
-                curvert = 0;
-                sameKey = true;
+
+                if ( !sameKey || this._curSubmit.mesh !== mesh ) {
+                    //然后用新的mesh，和新的submit。
+                    this._curSubmit = this.addVGSubmit(mesh);
+                    sameKey = true;
+                }
             }
 
             //生成 ib
@@ -1506,7 +1507,7 @@ export class GraphicsRunner {
             //填充mesh
             this.appendData(cpath, idx, vertexResult, null, rgba, null, null, false);
             curEleNum += idx.length;
-            this._updateSubmit(vertexResult);
+            this._appendBlockInfo(vertexResult);
         }
         // this._curSubmit._numEle += curEleNum;
     }
@@ -1554,25 +1555,35 @@ export class GraphicsRunner {
             if (maxVertexNum < 2)
                 continue;
 
-            let vertexResult = mesh.checkVertex(maxVertexNum);
-            if (
-                sameKey ||
-                !vertexResult
-            ) {
-                //顶点数超了，要先提交一次
-                // this._curSubmit._numEle += curEleNum;
-                curEleNum = 0;
-                //然后用新的mesh，和新的submit。
-                vertexResult = this.acquire(maxVertexNum);
-                mesh = vertexResult.mesh;
-                this._curSubmit = this.addVGSubmit(mesh);
-                sameKey = true;
-            }
-
             //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
             BasePoly.createLine2(p.path, idx, this.lineWidth, 0, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
             // 变换所有的点
             let ptnum = vertex.length / 2;
+
+            let vertexResult:MeshBlockInfo;
+            if ( mesh ) {
+                vertexResult = mesh.checkVertex(ptnum);
+            }
+
+            if (
+                !sameKey 
+                || !vertexResult
+            ) {
+                //顶点数超了，要先提交一次
+                // this._curSubmit._numEle += curEleNum;
+                curEleNum = 0;
+
+                //然后用新的mesh，和新的submit。
+                vertexResult = this.acquire(ptnum);
+                mesh = vertexResult.mesh;
+                if (!sameKey || this._curSubmit.mesh !== mesh ) {
+                    //然后用新的mesh，和新的submit。
+                    this._curSubmit = this.addVGSubmit(mesh);
+                    sameKey = true;
+                }
+            }
+
+
             let pi = 0;
             let xp: number, yp: number;
             let _x: number, _y: number;
@@ -1605,7 +1616,7 @@ export class GraphicsRunner {
             // mesh.addVertAndIBToMesh(vertex, rgba, idx);
             this.appendData(vertex, idx, vertexResult, null, rgba, null, null, false);
             curEleNum += idx.length;
-            this._updateSubmit(vertexResult);
+            this._appendBlockInfo(vertexResult);
         }
         // this._curSubmit._numEle += curEleNum;
     }
@@ -2128,7 +2139,6 @@ export class GraphicsRunner {
     }
 
     private _currentMeshIndex: number;
-
     /**
     * 获取一个可用的 Mesh
     * @param vertexCount 需要的顶点数
@@ -2200,6 +2210,9 @@ export class GraphicsRunner {
         let indexsMap: number[] = [];
         let dataView: IBufferDataView;
         let offset = 0;
+
+        let positions :number[] = [];
+
         for (let i = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= pos) {
@@ -2214,15 +2227,15 @@ export class GraphicsRunner {
             let x = vertices[ci], y = vertices[ci + 1];
             if (matrix) {
                 if (matrix._bTransform) {
-                    vbdata[pos] = x * m00 + y * m10 + tx;
-                    vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                    positions[ci] = x * m00 + y * m10 + tx;
+                    positions[ci + 1] = x * m01 + y * m11 + ty;
                 } else {
-                    vbdata[pos] = x + tx;
-                    vbdata[pos + 1] = y + ty;
+                    positions[ci] = x + tx;
+                    positions[ci + 1] = y + ty;
                 }
             } else {
-                vbdata[pos] = x;
-                vbdata[pos + 1] = y;
+                positions[ci] = x;
+                positions[ci + 1] = y;
             }
 
             if (uvs) {
@@ -2242,6 +2255,8 @@ export class GraphicsRunner {
 
         }
 
+        result.positions = positions;
+
         let indexResult = result.mesh.checkIndex(indices.length);
         let indexViews = result.indexViews = indexResult.indexViews;
         result.indexBlocks = indexResult.indexBlocks;
@@ -2252,7 +2267,7 @@ export class GraphicsRunner {
         for (let i = 0; i < indexCount; i++) {
             if (!dataView || dataView.length <= pos) {
                 dataView = indexViews[dataViewIndex];
-                dataView.modify(1);
+                dataView.modify(BufferModifyType.Index);
                 dataViewIndex++;
                 pos = 0;
             }

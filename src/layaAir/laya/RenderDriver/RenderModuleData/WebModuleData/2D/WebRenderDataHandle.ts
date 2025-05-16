@@ -11,7 +11,7 @@ import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { Stat } from "../../../../utils/Stat";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IBufferDataView, IDynamicVIBuffer, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IBufferDataView, IDynamicVIBuffer, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { BufferDataView } from "./WebDynamicVIBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -73,12 +73,14 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     mask: IRenderStruct2D | null = null;
 
-    private _vertexViews: Set<IBufferDataView> = new Set();
+    private _vertexBufferBlocks: VertexBufferBlock[] = [];
+    private _needUpdateVertexBuffer: boolean = false;
+    private _modifiedFrame: number = -1;
+    private _matrix: Matrix = new Matrix();
 
-    applyViews(views: IBufferDataView[]): void {
-        for (let i = 0, n = views.length; i < n; i++) {
-            this._vertexViews.add(views[i]);
-        }
+    applyVertexBufferBlock(blocks: VertexBufferBlock[]): void {
+        this._vertexBufferBlocks = blocks;
+        this._needUpdateVertexBuffer = blocks.length > 0;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -88,7 +90,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let data = this.owner.spriteShaderData;
         if (!data)
             return;
-        let mat = this.owner.transform.getMatrix();
+
+        let trans = this.owner.transform;
+        let mat = trans.getMatrix();
         if (this.mask) {
             let maskMatrix = this.mask.transform.getMatrix();
             let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
@@ -109,23 +113,51 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
 
-        if (this._vertexViews.size > 0 && this._owner.pass) {
-            let views = Array.from(this._vertexViews);
-            for (let i = 0, n = views.length; i < n; i++) {
-                let vertexView = views[i];
-                let { data, stride, length } = vertexView;
-                for (let j = 0, m = length; j < m; j += stride) {
-                    let x = data[j];
-                    let y = data[j + 1];
-                    let nx = this._nMatrix_0.x * x + this._nMatrix_0.y * y + this._nMatrix_0.z;
-                    let ny = this._nMatrix_1.x * x + this._nMatrix_1.y * y + this._nMatrix_1.z;
-                    data[j] = nx;
-                    data[j + 1] = ny;
+        if (
+            this._needUpdateVertexBuffer 
+            || this._modifiedFrame < trans._modifiedFrame
+            //临时的判断
+            || !Matrix.equals(this._matrix, mat)
+        ) {
+            let pos = 0 , dataViewIndex = 0 , ci = 0;
+            let dataView: BufferDataView = null;
+            let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
+            let _bTransform = mat._bTransform;
+            let vbdata = null;
+            this._matrix.setTo(m00, m01, m10, m11, tx, ty);
+            for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
+                let blocks = this._vertexBufferBlocks;
+                let { positions, vertexViews } = blocks[i];
+                let vertexCount = positions.length / 2;
+                dataView = null;
+                pos = 0 , ci = 0 , dataViewIndex = 0;
+
+                for (let j = 0; j < vertexCount; j++) {
+
+                    if (!dataView || dataView.length <= pos) {
+                        dataView = vertexViews[dataViewIndex] as BufferDataView;
+                        dataView.modify(BufferModifyType.Vertex);
+                        if (! dataView.owner._inPass ) this._owner.pass.setBuffer(dataView.owner);
+                        dataViewIndex++;
+                        pos = 0;
+                    }
+        
+                    vbdata = dataView.data;
+                    let x = positions[ci], y = positions[ci + 1];
+                    if (_bTransform) {
+                        vbdata[pos] = x * m00 + y * m10 + tx;
+                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                    } else {
+                        vbdata[pos] = x + tx;
+                        vbdata[pos + 1] = y + ty;
+                    }
+
+                    pos += 12;
+                    ci += 2;
                 }
-                this._owner.pass.setBuffer(vertexView.owner);
-                vertexView.modify(0);
             }
-            this._vertexViews.clear();
+            this._needUpdateVertexBuffer = false;
+            this._modifiedFrame = trans._modifiedFrame;
         }
     }
 

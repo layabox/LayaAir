@@ -4,7 +4,6 @@ import { BlendMode } from "../canvas/BlendMode";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
 import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { SubmitKey } from "./SubmitKey";
-import { IBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 export class SubmitBase {
 
@@ -24,10 +23,7 @@ export class SubmitBase {
 
     material: Material;
     
-    vertexViews: IBufferDataView[] = [];
-    indexViews: IBufferDataView[] = [];
-    vertexBlocks: number[] = [];
-    indexBlocks: number[] = [];
+    infos: MeshBlockInfo[] = [];
 
     /** @internal */
     _internalInfo: GraphicsShaderInfo = null;
@@ -41,11 +37,10 @@ export class SubmitBase {
     clear() {
         this._internalInfo.clear();
         this.material = null;
-        this.mesh.clearBlocks(this.vertexBlocks, this.indexBlocks);
-        this.vertexViews.length = 0;
-        this.indexViews.length = 0;
-        this.vertexBlocks.length = 0;
-        this.indexBlocks.length = 0;
+        for (let i = 0, n = this.infos.length; i < n; i++) {
+            this.mesh.clearBlocks(this.infos[i].vertexBlocks, this.infos[i].indexBlocks);
+        }
+        this.infos.length = 0;
         this.mesh = null;
     }
 
@@ -56,10 +51,7 @@ export class SubmitBase {
     }
 
     appendData(info: MeshBlockInfo) {
-        this.vertexViews.push(...info.vertexViews);
-        this.indexViews.push(...info.indexViews);
-        this.vertexBlocks.push(...info.vertexBlocks);
-        this.indexBlocks.push(...info.indexBlocks);
+        this.infos.push(info);
     }
 
     update(runner: GraphicsRunner , mesh: GraphicsMesh , material: Material) {
