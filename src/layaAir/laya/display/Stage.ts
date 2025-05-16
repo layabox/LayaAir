@@ -380,12 +380,9 @@ export class Stage extends Sprite {
         let canvas: HTMLCanvas = Browser.mainCanvas;
         let mat: Matrix = this._canvasTransform.identity();
         let scaleMode: string = this._scaleMode;
-        let scaleX: number = screenWidth / this.designWidth;
-        let scaleY: number = screenHeight / this.designHeight;
-        let stageWidth: number = this.designWidth;
-        let stageHeight: number = this.designHeight;
-        let canvasWidth: number = screenWidth;
-        let canvasHeight: number = screenHeight;
+        let canvasWidth: number = this.designWidth;
+        let canvasHeight: number = this.designHeight;
+        let canvasScale: number = 1;
 
         if (!Browser.isDomSupported  //在这种情况下（例如小游戏），画布是强制全屏的，所以需要改变画布大小的模式都不能支持
             && (scaleMode === Stage.SCALE_NOSCALE || scaleMode == Stage.SCALE_SHOWALL || scaleMode === Stage.SCALE_NOBORDER)) {
@@ -396,71 +393,77 @@ export class Stage extends Sprite {
         //设计大小 => 调整宽度或高度得到 => 舞台大小 => 乘以缩放因子 => canvas大小
         switch (scaleMode) {
             case Stage.SCALE_NOSCALE:
-                canvasWidth = stageWidth;
-                canvasHeight = stageHeight;
                 break;
             case Stage.SCALE_FULL:
-                canvasWidth = stageWidth = screenWidth;
-                canvasHeight = stageHeight = screenHeight;
+                canvasWidth = screenWidth;
+                canvasHeight = screenHeight;
                 break;
             case Stage.SCALE_SHOWALL:
-                scaleX = scaleY = Math.min(scaleX, scaleY);
-                canvasWidth = Math.round(stageWidth * scaleX);
-                canvasHeight = Math.round(stageHeight * scaleY);
+                canvasScale = Math.min(screenWidth / canvasWidth, screenHeight / canvasHeight);
                 break;
             case Stage.SCALE_NOBORDER:
-                scaleX = scaleY = Math.max(scaleX, scaleY);
-                canvasWidth = Math.round(stageWidth * scaleX);
-                canvasHeight = Math.round(stageHeight * scaleY);
+                canvasScale = Math.max(screenWidth / canvasWidth, screenHeight / canvasHeight);
                 break;
             case Stage.SCALE_FIXED_WIDTH:
             case Stage.SCALE_FIXED_HEIGHT:
             case Stage.SCALE_FIXED_AUTO:
                 if (scaleMode === Stage.SCALE_FIXED_WIDTH
-                    || scaleMode === Stage.SCALE_FIXED_AUTO && (screenWidth / screenHeight) < (stageWidth / stageHeight))
-                    stageHeight = Math.round(screenHeight / scaleX);
-                else
-                    stageWidth = Math.round(screenWidth / scaleY);
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
+                    || scaleMode === Stage.SCALE_FIXED_AUTO && (screenWidth / screenHeight) < (canvasWidth / canvasHeight)) {
+                    canvasScale = screenWidth / canvasWidth;
+                    canvasHeight = screenHeight / canvasScale;
+                }
+                else {
+                    canvasScale = screenHeight / canvasHeight;
+                    canvasWidth = screenWidth / canvasScale;
+                }
                 break;
         }
 
+        //设置舞台大小
+        this._width = canvasWidth;
+        this._height = canvasHeight;
+
+        if (Config.useRetinalCanvas) {
+            //高清画布模式放弃canvasScale, 通过改变画布大小实现
+            if (canvasScale > 1) {
+                canvasWidth *= canvasScale;
+                canvasHeight *= canvasScale;
+                canvasScale = 1;
+            }
+
+            //高清画布模式继续将画布大小增大到乘以dpr，后续会通过matrix缩回到需求的显示大小，实现视网膜效果
+            if (pixelRatio > 4) //限制最大放大倍数，避免巨大dpr造成的卡死
+                pixelRatio = 4;
+            canvasWidth *= pixelRatio;
+            canvasHeight *= pixelRatio;
+            canvasScale /= pixelRatio;
+        }
+        mat.scale(canvasScale, canvasScale);
+
+        //处理画布对齐
         let offsetX: number = 0;
         let offsetY: number = 0;
-        if (!Browser.isDomSupported) { //在这种情况下，画布是强制全屏的，不能移动
+        if (Browser.isDomSupported) { //在这种情况下，画布是强制全屏的，不能移动
             //处理水平对齐
             if (this._alignH === Stage.ALIGN_LEFT)
                 offsetX = 0;
             else if (this._alignH === Stage.ALIGN_RIGHT)
-                offsetX = screenWidth - canvasWidth;
+                offsetX = screenWidth - canvasWidth * canvasScale;
             else
-                offsetX = (screenWidth - canvasWidth) * 0.5;
+                offsetX = (screenWidth - canvasWidth * canvasScale) * 0.5;
 
             //处理垂直对齐
             if (this._alignV === Stage.ALIGN_TOP)
                 offsetY = 0;
             else if (this._alignV === Stage.ALIGN_BOTTOM)
-                offsetY = screenHeight - canvasHeight;
+                offsetY = screenHeight - canvasHeight * canvasScale;
             else
-                offsetY = (screenHeight - canvasHeight) * 0.5;
+                offsetY = (screenHeight - canvasHeight * canvasScale) * 0.5;
             offsetX += this.offset.x;
             offsetY += this.offset.y;
 
             offsetY += PAL.browser.safariOffsetY;
         }
-
-        if (Config.useRetinalCanvas) {
-            //将画布设置为dpr倍大小，然后通过matrix缩小到实际显示大小，实现视网膜效果
-
-            if (pixelRatio > 4) //限制最大放大倍数，避免巨大dpr造成的卡死
-                pixelRatio = 4;
-            canvasWidth *= pixelRatio;
-            canvasHeight *= pixelRatio;
-
-            mat.scale(1 / pixelRatio, 1 / pixelRatio);
-        }
-
         mat.translate(Math.round(offsetX), Math.round(offsetY));
 
         //处理横竖屏
@@ -482,6 +485,8 @@ export class Stage extends Sprite {
         mat.tx = formatData(mat.tx);
         mat.ty = formatData(mat.ty);
 
+        canvasWidth = Math.round(canvasWidth);
+        canvasHeight = Math.round(canvasHeight);
         canvas.size(canvasWidth, canvasHeight);
 
         let canvasStyle = Browser.mainCanvas.style;
@@ -489,14 +494,14 @@ export class Stage extends Sprite {
         PAL.browser.setStyleTransform(canvasStyle, "matrix(" + mat.toString() + ")");
         canvasStyle.width = canvasWidth + "px";
         canvasStyle.height = canvasHeight + "px";
+
         mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
         if (PAL.browser.safariOffsetY !== 0)
             mat.translate(0, -PAL.browser.safariOffsetY);
 
-        this._width = stageWidth;
-        this._height = stageHeight;
-        this.transform.a = formatData(this.scaleX * (canvasWidth / stageWidth));
-        this.transform.d = formatData(this.scaleY * (canvasHeight / stageHeight));
+        //放大舞台
+        this.transform.a = formatData(canvasWidth / this._width * this.scaleX);
+        this.transform.d = formatData(canvasHeight / this._height * this.scaleY);
         this.transform = this.transform; //force call
 
         RenderState2D.width = canvasWidth;

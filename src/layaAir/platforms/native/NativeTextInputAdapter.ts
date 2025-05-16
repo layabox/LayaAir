@@ -141,6 +141,8 @@ export class NativeTextInputAdapter extends TextInputAdapter {
     }
 
     private onKeyboardConfirm(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        if (!this.target)
+            return;
         this.onKeyboardInput(ev);
         this.target.event(Event.ENTER);
         this.end();
