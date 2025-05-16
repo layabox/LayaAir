@@ -4,6 +4,7 @@ import { PostProcess2D, PostProcessRenderContext2D } from "./PostProcess2D";
 export abstract class PostProcess2DEffect {
    static nullColor = new Color(0, 0, 0, 0);
    protected _active: boolean = true;
+   protected _owner: PostProcess2D;
 
    protected _singleton: boolean = false;
 

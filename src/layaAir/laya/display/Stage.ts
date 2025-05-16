@@ -27,6 +27,7 @@ import { Tweener } from "../tween/Tweener";
 import { Render2DSimple } from "../renders/Render2D";
 import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
 import { Graphics } from "./Graphics";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -1017,11 +1018,18 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
-    private _graphicUpdateList: Graphics[] = [];
+    private _graphicUpdateList: Set<Graphics> = new Set();
+    private _subpassUpdateList: Set<Sprite> = new Set();
     _addgraphicRenderElement(graphics: Graphics) {
         if (!graphics) return;
-        this._graphicUpdateList.push(graphics);
+        this._graphicUpdateList.add(graphics);
     }
+
+    _addSubPassNeedUpdateElement(sprite: Sprite) {
+        if (!sprite) return;
+        this._subpassUpdateList.add(sprite);
+    }
+
     /**
      * @param x The x-axis coordinate
      * @param y The y-axis coordinate
@@ -1034,13 +1042,36 @@ export class Stage extends Sprite {
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
         }
-        for (var i = 0, n = this._graphicUpdateList.length; i < n; i++) {
-            this._graphicUpdateList[i]._render(Render2DSimple.runner);
+
+        //subpass 分析  for
+        let subpassUpdateArray = Array.from(this._subpassUpdateList);
+        for (let i = 0, n = subpassUpdateArray.length; i < n; i++) {
+            let sprite = subpassUpdateArray[i];
+            sprite.updateRenderTexture();
+            sprite.updateSubRenderPassState();
+            let destrt: RenderTexture2D = sprite._drawOriRT;
+            sprite._oriRenderPass.renderTexture = sprite._drawOriRT;
+            let process = sprite._oriRenderPass.postProcess;
+            if (process) {
+                process.setResource(sprite._drawOriRT);
+                process.clearCMD();
+                process.render();
+                destrt = process._context.destination;
+            }
+            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
+            //Mask TODO
+            sprite._subpassUpdateFlag = 0;
+        }
+
+        let graphicUpdateList = Array.from(this._graphicUpdateList);
+        for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
+            graphicUpdateList[i]._render(Render2DSimple.runner);
         }
         this.passManager.apply(Render2DSimple.rendercontext2D);
-        this._graphicUpdateList.length = 0;
+        this._graphicUpdateList.clear();
+        this._subpassUpdateList.clear();
 
-        Stat.render(0 , 0)
+        Stat.render(0, 0)
     }
 
     private _runComponents() {

@@ -21,24 +21,31 @@ export class ColorEffect2D extends PostProcess2DEffect {
     private _renderElement: IRenderElement2D;
     private _destRT: RenderTexture2D;
     private _centerScale: Vector2 = new Vector2();
-
+    private _alpha: Vector4 = new Vector4();
     public get colorMat(): Matrix4x4 {
         return this._colorMat;
     }
     public set colorMat(value: Matrix4x4) {
         this._colorMat = value;
         this.mat && this.mat.setMatrix4x4("u_colorMat", this.colorMat);
+        this._owner && this._owner._onChangeRender();
     }
-    private _alpha: Vector4 = new Vector4();
+
+
+
     public get alpha(): Vector4 {
         return this._alpha;
     }
+
     public set alpha(value: Vector4) {
         this._alpha = value;
         this.mat && this.mat.setVector4("u_colorAlpha", this.alpha);
+        this._owner && this._owner._onChangeRender();
+
     }
 
     effectInit(postprocess: PostProcess2D): void {
+        this._owner = postprocess;
         (!this.mat) && (this.mat = new Material());
         this.mat.setShaderName("ColorEffect2D");
         this.mat.setMatrix4x4("u_colorMat", this.colorMat);

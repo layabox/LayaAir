@@ -10,6 +10,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Render2DSimple } from "../../renders/Render2D";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { Material } from "../../resource/Material";
+import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { Stat } from "../../utils/Stat";
@@ -144,10 +145,10 @@ export class GraphicsRenderData {
       for (let i = 1, n = indexViews.length; i < n; i++) {
          let view = indexViews[i];
          let lastEnd = lastView.length + lastView.start;
-         if(lastEnd === view.start){
+         if (lastEnd === view.start) {
             lastView = view;
             end = view.count + view.start;
-         }else{
+         } else {
             params.push(start * 2, end - start);
             start = view.start;
             end = start + view.count;
@@ -196,7 +197,7 @@ export class SubStructRender {
    private _handle: I2DPrimitiveDataHandle = null;
    private _submit: SubmitBase = null;
    private _internalInfo: GraphicsShaderInfo = null;
-   
+
    constructor() {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
@@ -227,22 +228,19 @@ export class SubStructRender {
       let info = Render2DSimple.runner.defalutInfo;
       let view = info.indexViews[0];
       this._renderElement.geometry.bufferState = info.mesh.bufferState;
-      this._renderElement.geometry.setDrawElemenParams(view.start * 2, view.length);
+      this._renderElement.geometry.setDrawElemenParams(view.length, view.start * 2);
    }
 
-   updateQuat() {
-      let sprite = this._sprite;
-      var tex = this._subRenderPass.renderTexture;
+   updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
+      var tex = destRT;
       if (tex) {
-         var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
-         var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
-         var wRate = width / tex.sourceWidth;
-         var hRate = height / tex.sourceHeight;
-         width = tex.width * wRate;
-         height = tex.height * hRate;
+         var width = destRT.sourceWidth;
+         var height = destRT.sourceHeight;
+         var widthExtend = width - oriRT.sourceWidth;
+         var heightExtend = height - oriRT.sourceHeight;
          if (width > 0 && height > 0) {
-            let px = tex.offsetX * wRate;
-            let py = tex.offsetY * hRate;
+            let px = -widthExtend / 2;
+            let py = -heightExtend / 2;
             let vSize = this._internalInfo.vertexSize;
             vSize.x = px;
             vSize.y = py;
@@ -251,7 +249,7 @@ export class SubStructRender {
             this._internalInfo.vertexSize = vSize;
          }
       }
-      this._internalInfo.textureHost = tex;
+      this._internalInfo.textureHost = destRT;
    }
 
    destroy(): void {

@@ -32,6 +32,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
     public set sv_blurInfo1(value: Vector4) {
         this._sv_blurInfo1 = value;
         this._glowMat && (this._glowMat.setVector4("u_blurInfo1", this._sv_blurInfo1));
+        this._owner && this._owner._onChangeRender();
     }
     private _sv_blurInfo2: Vector4 = new Vector4(0, 0, 1, 0);
     public get sv_blurInfo2(): Vector4 {
@@ -40,6 +41,8 @@ export class GlowEffect2D extends PostProcess2DEffect {
     public set sv_blurInfo2(value: Vector4) {
         this._sv_blurInfo2 = value;
         this._glowMat && (this._glowMat.setVector4("u_blurInfo2", this._sv_blurInfo2));
+        this._owner && this._owner._onChangeRender();
+
     }
     private _color: Vector4 = new Vector4();
     public get color(): Vector4 {
@@ -48,9 +51,12 @@ export class GlowEffect2D extends PostProcess2DEffect {
     public set color(value: Vector4) {
         this._color = value;
         this._glowMat && (this._glowMat.setVector4("u_color", this._color));
+        this._owner && this._owner._onChangeRender();
+
     }
 
     effectInit(postprocess: PostProcess2D): void {
+        this._owner = postprocess;
         //blitmat
         (!this._blitmat) && (this._blitmat = new Material());
         this._blitmat.setShaderName("ColorEffect2D");
@@ -70,7 +76,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._glowMat.setVector4("u_blurInfo1", this.sv_blurInfo1);
         if (!this._glowElement) {
             this._glowElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-            this._glowElement.geometry = Blit2DCMD.QuadGeometry;
+            this._glowElement.geometry = Blit2DCMD.InvertQuadGeometry;
             this._glowElement.nodeCommonMap = null;
             this._glowElement.renderStateIsBySprite = false;
             this._glowElement.materialShaderData = this._glowMat.shaderData;
@@ -83,7 +89,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._compositeMat.setShaderName("ColorEffect2D");
         if (!this._compositeElement) {
             this._compositeElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-            this._compositeElement.geometry = Blit2DCMD.QuadGeometry;
+            this._compositeElement.geometry = Blit2DCMD.InvertQuadGeometry;
             this._compositeElement.nodeCommonMap = null;
             this._compositeElement.renderStateIsBySprite = false;
             this._compositeElement.materialShaderData = this._compositeMat.shaderData;
@@ -99,16 +105,16 @@ export class GlowEffect2D extends PostProcess2DEffect {
         let height = context.indirectTarget.height;
         let texwidth = width + 2 * marginLeft;
         let texheight = height + 2 * marginTop;
-        if (!this._destRT || this._destRT.width != context.indirectTarget.width || context.indirectTarget.height != this._destRT.height) {
+        if (!this._destRT || this._destRT.width != texwidth || texheight != this._destRT.height) {
             if (this._destRT)
                 this._destRT.destroy();
-            this._destRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
+            this._destRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
         }
 
-        if (!this._blitExtendRT || this._blitExtendRT.width != context.indirectTarget.width || context.indirectTarget.height != this._blitExtendRT.height) {
+        if (!this._blitExtendRT || this._blitExtendRT.width != texwidth || texheight != this._blitExtendRT.height) {
             if (this._blitExtendRT)
                 this._blitExtendRT.destroy();
-            this._blitExtendRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
+            this._blitExtendRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
         }
 
         //extend rt

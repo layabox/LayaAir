@@ -23,9 +23,11 @@ export class BlurEffect2D extends PostProcess2DEffect {
    public set shaderV1(value) {
       this._shaderV1 = value;
       this.mat && this.mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
+      this._owner && this._owner._onChangeRender();
    }
 
    effectInit(postprocess: PostProcess2D): void {
+      this._owner = postprocess;
       (!this.mat) && (this.mat = new Material());
       this.mat.setShaderName("BlurEffect2D");
       if (!this._renderElement) {
@@ -48,10 +50,10 @@ export class BlurEffect2D extends PostProcess2DEffect {
       let texwidth = width + 2 * marginLeft;
       let texheight = height + 2 * marginTop;
       this._blurInfo.setValue(texwidth, texheight);
-      if (!this._destRT || this._destRT.width != texwidth || context.indirectTarget.height != texheight) {
+      if (!this._destRT || this._destRT.width != texwidth || this._destRT.height != texheight) {
          if (this._destRT)
             this._destRT.destroy();
-         this._destRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
+         this._destRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
       }
       this._centerScale.setValue(width / texwidth, height / texheight);
       this.mat.setVector2("u_centerScale", this._centerScale);

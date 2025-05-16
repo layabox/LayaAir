@@ -126,7 +126,7 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
         info.useTex = a_attribFlags.r;
         vec2 pos;
         #ifdef VERTEX_SIZE
-            pos = (a_posuv.xy + u_vertexSize.xy) * u_vertexSize.zw;
+            pos = (a_posuv.xy*u_vertexSize.zw ) +u_vertexSize.xy;//xy偏移，zw 顶点扩展宽高
         #else
             pos = a_posuv.xy;
         #endif

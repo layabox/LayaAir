@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags } from "../Const";
+import { NodeFlags, SUBPASSFLAG } from "../Const";
 import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
@@ -189,6 +189,8 @@ export class Sprite extends Node {
     /**@internal */
     _struct: IRenderStruct2D;
 
+    /**@internal */
+    _subpassUpdateFlag: number;
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
      * When penetrable, the engine will no longer detect this object and will recursively check its child objects until it finds the target object or misses all objects.
@@ -245,10 +247,12 @@ export class Sprite extends Node {
 
     // private _pivotPos: Vector2 = new Vector2;
 
-    private _subStructRender: SubStructRender = null;
-    /** @internal */
-    private _subRenderPass: IRender2DPass = null;
-    /** @internal */
+    _subStructRender: SubStructRender = null;
+    /** @internal  渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效*/
+    _oriRenderPass: IRender2DPass = null;
+    /**@internal 渲染真实sprite所需的rt大小 */
+    _drawOriRT: RenderTexture2D;
+    /** @internal 片，代替的结构 ，真正的结构划到了rt上*/
     _subStruct: IRenderStruct2D = null;
     /** @internal */
     protected _postProcess: PostProcess2D = null;
@@ -323,10 +327,10 @@ export class Sprite extends Node {
         this._cacheStyle && this._cacheStyle.recover();
         this._cacheStyle = null;
         this._texture && this._texture._removeReference();
-        if (this._subRenderPass) {
-            ILaya.stage.passManager.removePass(this._subRenderPass);
-            this._subRenderPass.destroy();
-            this._subRenderPass = null;
+        if (this._oriRenderPass) {
+            ILaya.stage.passManager.removePass(this._oriRenderPass);
+            this._oriRenderPass.destroy();
+            this._oriRenderPass = null;
         }
         this._subStructRender && this._subStructRender.destroy();
         this._subStructRender = null;
@@ -754,33 +758,23 @@ export class Sprite extends Node {
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
-
-        //先去掉旧的事件监听
-        if (this._filterArr) {
-            for (let f of this._filterArr) {
-                f && f.off(Event.CHANGED, this, this.repaint);
-            }
-        }
-        this._filterArr = value ? value.slice() : null;
         if (value) {
-            for (let f of value) {
-                f && f.on(Event.CHANGED, this, this.repaint);
-            }
-        }
-        if (value) {
+            this._filterArr = value;
             this._renderType |= SpriteConst.FILTERS;
-            this.setSubRenderPassState(true);
-            this.updateRenderTexture();
-            (!this._subRenderPass.postProcess) && (this._subRenderPass.postProcess = new PostProcess2D());
-            this._subRenderPass.postProcess.clear();
-            for (var i = 0; i < this.filters.length; i++) {
-                this._subRenderPass.postProcess.addEffect(this.filters[i].getEffect());
+            if (!this._oriRenderPass) {
+                this.createSubRenderPass();
             }
+            (!this._oriRenderPass.postProcess) && (this._oriRenderPass.postProcess = new PostProcess2D(this));
+            this._oriRenderPass.postProcess.clear();
+            for (var i = 0; i < this._filterArr.length; i++) {
+                this._oriRenderPass.postProcess.addEffect(this.filters[i].getEffect());
+            }
+            this.setSubpassFlag(SUBPASSFLAG.PostProcess);
         }
         else {
             this._renderType &= ~SpriteConst.FILTERS;
-            this.updateSubRenderPassState();
-            this._subRenderPass.postProcess && this._subRenderPass.postProcess.destroy();
+            this._oriRenderPass.postProcess && this._oriRenderPass.postProcess.destroy();
+            this.setSubpassFlag(SUBPASSFLAG.PostProcess);
         }
 
         if (value && value.length > 0) {
@@ -788,6 +782,8 @@ export class Sprite extends Node {
         }
         this.repaint();
     }
+
+
 
     /**
     * @en Specifies whether the display object is cached as a static image. When cacheAs is set, changes in child objects will automatically update the cache. You can also manually call the reCache method to update the cache.
@@ -818,11 +814,9 @@ export class Sprite extends Node {
             return;
         if (value == 'bitmap' || value == 'normal') {
             this._renderType |= SpriteConst.CANVAS;
-            this.setSubRenderPassState(true);
-            this.updateRenderTexture();
+            this.setSubpassFlag(SUBPASSFLAG.CacheAsBitmap);
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
-            this.updateSubRenderPassState();
         }
         this.repaint();
     }
@@ -866,26 +860,24 @@ export class Sprite extends Node {
             // this.addChild(value);
             value._getCacheStyle().maskParent = this;
             value.setSubRenderPassState(true);//手动render
-            value._subRenderPass.isSupport = true;
-            value._subRenderPass.doClearColor = false;
+            value._oriRenderPass.isSupport = true;
+            value._oriRenderPass.doClearColor = false;
             // value.createSubRenderPass();
 
             this._renderType |= SpriteConst.MASK;
             this.setSubRenderPassState(true);
-
-            let postProcess = this.getPostProcess();
-            postProcess.mask = value._struct;
-            postProcess.enabled = true;
-
-            this._subRenderPass.postProcess = postProcess;
             this.updateRenderTexture();
         }
         else {
-            this._postProcess && (this._postProcess.mask = null);
             this._renderType &= ~SpriteConst.MASK;
             this.updateSubRenderPassState();
         }
         this.repaint();
+    }
+
+    setSubpassFlag(flag: SUBPASSFLAG) {
+        this._subpassUpdateFlag |= flag;
+        this.stage._addSubPassNeedUpdateElement(this);
     }
 
     /**
@@ -994,13 +986,6 @@ export class Sprite extends Node {
 
             p = p._parent;
         }
-    }
-
-    getPostProcess() {
-        if (!this._postProcess) {
-            this._postProcess = new PostProcess2D();
-        }
-        return this._postProcess;
     }
 
     /**
@@ -1329,7 +1314,7 @@ export class Sprite extends Node {
 
         this.parentRepaint();
 
-        if (this._subRenderPass) this._subRenderPass.repaint = true;
+        if (this._oriRenderPass) this._oriRenderPass.repaint = true;
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
@@ -1985,7 +1970,7 @@ export class Sprite extends Node {
     * @param type 重新绘制类型。
     */
     repaint(): void {
-        
+
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
@@ -2188,7 +2173,7 @@ export class Sprite extends Node {
     }
 
     protected _setStructParent(value: Node) {
-        let struct = this._subRenderPass?.enable ? this._subStruct : this._struct;
+        let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
 
         if (struct.parent) {
             struct.parent.removeChild(struct);
@@ -2213,14 +2198,14 @@ export class Sprite extends Node {
         this._subStructRender = new SubStructRender();
         this._subStructRender.bind(this, subPass, subStruct);
         this._subStruct = subStruct;
-        this._subRenderPass = subPass;
+        this._oriRenderPass = subPass;
 
         subStruct.transform = this.globalTrans;
         // subStruct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
     }
 
     //TODO
-    private updateRenderTexture() {
+    updateRenderTexture() {
         //计算方式调整
         let rect = new Rectangle;
         SpriteUtils.getRTRect(this, rect);
@@ -2229,21 +2214,17 @@ export class Sprite extends Node {
         if (rect.width === 0 || rect.height === 0)
             return;
 
-        let oldRT = this._subRenderPass.renderTexture;
+        let oldRT = this._drawOriRT;
         //判断待考虑
         if (oldRT && oldRT.width === rect.width && oldRT.height === rect.height)
             return;
-
-        // let tRect = new Rectangle;
-        // SpriteUtils.getMaskRect(this, tRect);
         oldRT && oldRT.destroy();
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
-        this._subRenderPass.renderTexture = renderTexture;
-        this._subStructRender.updateQuat();
+        this._drawOriRT = renderTexture;
     }
 
-    private updateSubRenderPassState() {
+    updateSubRenderPassState() {
         this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
 
@@ -2254,18 +2235,18 @@ export class Sprite extends Node {
      * @param enable 是否启用子渲染通道。
      */
     private setSubRenderPassState(enable: boolean) {
-        if (!this._subRenderPass && enable) {
+        if (!this._oriRenderPass && enable) {
             this.createSubRenderPass();
         }
 
-        if (enable && !this._subRenderPass.enable) {
+        if (enable && !this._oriRenderPass.enable) {
             let parent = this._struct.parent;
-            this._struct.pass = this._subRenderPass;
+            this._struct.pass = this._oriRenderPass;
             if (parent) {
                 parent.removeChild(this._struct);
                 parent.addChild(this._subStruct);
             }
-        } else if (!enable && this._subRenderPass && this._subRenderPass.enable) {
+        } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
             if (parent) {
@@ -2274,7 +2255,7 @@ export class Sprite extends Node {
             }
             //postProcess release
         }
-        this._subRenderPass.enable = enable;
+        this._oriRenderPass.enable = enable;
     }
 
     /**

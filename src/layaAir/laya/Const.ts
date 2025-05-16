@@ -47,3 +47,10 @@ export class HideFlags {
     static DontSave = 0x4;
     static HideAndDontSave = 0x7;
 }
+
+export enum SUBPASSFLAG {
+    PostProcess = 0x1,
+    CacheAsBitmap = 0x2,
+    Mask = 0x4,
+
+}

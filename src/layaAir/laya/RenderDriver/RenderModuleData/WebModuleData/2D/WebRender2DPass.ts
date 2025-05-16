@@ -255,10 +255,10 @@ export class WebRender2DPass implements IRender2DPass {
 
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess.setResource(this.renderTexture);
-         this.postProcess.render();
          this.postProcess._context.command.apply(true);
       }
+
+      //mask
    }
 
    //预留
@@ -281,7 +281,7 @@ export class WebRender2DPass implements IRender2DPass {
          sizeY = RenderState2D.height;
          context.setOffscreenView(sizeX, sizeY);
 
-		   context.setRenderTarget(null, this.doClearColor, this._clearColor);
+         context.setRenderTarget(null, this.doClearColor, this._clearColor);
 
          this._setInvertMatrix(1, 0, 0, 1, 0, 0);
          this.shaderData.removeDefine(ShaderDefines2D.RENDERTEXTURE);

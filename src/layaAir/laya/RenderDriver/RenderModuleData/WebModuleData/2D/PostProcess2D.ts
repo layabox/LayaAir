@@ -1,4 +1,7 @@
+import { SUBPASSFLAG } from "../../../../Const";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
+import { Sprite } from "../../../../display/Sprite";
+import { EventDispatcher } from "../../../../events/EventDispatcher";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector2 } from "../../../../maths/Vector2";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
@@ -7,7 +10,9 @@ import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { Effect2DShaderInit } from "./Effect2D/Shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 
-export class PostProcess2D {
+export class PostProcess2D extends EventDispatcher {
+   static POSTRENDERCHANGE: string = "post_render_change";//渲染改动
+   static POSTCMDCHANGE: string = "post_cmd_change";
    /**@internal */
    _effects: PostProcess2DEffect[] = [];
    /**@internal */
@@ -34,10 +39,21 @@ export class PostProcess2D {
       this._enabled = value;
    }
 
-   constructor() {
+   constructor(sprite: Sprite) {
+      super();
       this._context = new PostProcessRenderContext2D();
       this._context.compositeShaderData = this._compositeShaderData;
       this._context.command = new CommandBuffer2D();
+      this.on(PostProcess2D.POSTCMDCHANGE, sprite, sprite.setSubpassFlag, [SUBPASSFLAG.PostProcess]);
+   }
+
+   _onChangeRender() {
+      //this.event(PostProcess2D.POSTRENDERCHANGE);//TODO
+      this.event(PostProcess2D.POSTCMDCHANGE);//TODO
+   }
+
+   _onChangeRenderCmd() {
+      this.event(PostProcess2D.POSTCMDCHANGE);
    }
 
    /**
@@ -92,6 +108,10 @@ export class PostProcess2D {
       this._effects.length = 0;
    }
 
+   clearCMD() {
+      this._context.command.clear();
+   }
+
    destroy(): void {
       this._context.compositeShaderData.destroy();
       this._context.compositeShaderData = null;
@@ -115,7 +135,7 @@ export class PostProcessRenderContext2D {
     * @en The RenderTexture where the processed result should be drawn to.
     * @zh 需要将处理后的结果画入此 RenderTexture。
     */
-   destination: RenderTexture2D | null = null;
+   destination: RenderTexture2D | null = null;//扩张的图
    /**
     * @en The composite shader data.
     * @zh 合成着色器数据。
