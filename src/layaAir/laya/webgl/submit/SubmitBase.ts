@@ -19,11 +19,11 @@ export class SubmitBase {
     //渲染key，通过key判断是否是同一个
     /**@internal */
     _key = new SubmitKey();
-    
+
     mesh: GraphicsMesh;
 
     material: Material;
-    
+
     vertexViews: IBufferDataView[] = [];
     indexViews: IBufferDataView[] = [];
     vertexBlocks: number[] = [];
@@ -32,12 +32,12 @@ export class SubmitBase {
     /** @internal */
     _internalInfo: GraphicsShaderInfo = null;
 
-    renderStateIsBySprite = false;
+    renderStateIsBySprite = true;
 
     constructor() {
         this._id = ++SubmitBase.ID;
     }
-  
+
     clear() {
         this._internalInfo.clear();
         this.material = null;
@@ -62,7 +62,7 @@ export class SubmitBase {
         this.indexBlocks.push(...info.indexBlocks);
     }
 
-    update(runner: GraphicsRunner , mesh: GraphicsMesh , material: Material) {
+    update(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material) {
         var blendType = runner._nBlendType;
         let struct = runner.sprite._struct;
         let sBlendMode = struct.getBlendMode();
@@ -81,10 +81,10 @@ export class SubmitBase {
     /*
        create方法只传对submit设置的值
      */
-    static create( runner: GraphicsRunner , mesh: GraphicsMesh , material: Material): SubmitBase {
+    static create(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
         var o = new SubmitBase();
         o._internalInfo = new GraphicsShaderInfo();
-        o.update(runner , mesh , material);
+        o.update(runner, mesh, material);
         return o;
     }
 }

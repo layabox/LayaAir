@@ -857,21 +857,19 @@ export class Sprite extends Node {
 
         if (value) {
             value.blendMode = "mask";
-            // this.addChild(value);
             value._getCacheStyle().maskParent = this;
-            value.setSubRenderPassState(true);//手动render
+            //if (!value._oriRenderPass) {
+            value.setSubRenderPassState(true);
+            //}
             value._oriRenderPass.isSupport = true;
             value._oriRenderPass.doClearColor = false;
-            // value.createSubRenderPass();
-
             this._renderType |= SpriteConst.MASK;
-            this.setSubRenderPassState(true);
-            this.updateRenderTexture();
+
         }
         else {
             this._renderType &= ~SpriteConst.MASK;
-            this.updateSubRenderPassState();
         }
+        this.setSubpassFlag(SUBPASSFLAG.Mask);
         this.repaint();
     }
 
@@ -1981,7 +1979,7 @@ export class Sprite extends Node {
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
             if (this._cacheStyle.maskParent) {
-                this._cacheStyle.maskParent.updateRenderTexture();
+                this._cacheStyle.maskParent.setSubpassFlag(SUBPASSFLAG.Mask);
                 this._cacheStyle.maskParent.repaint();
             }
         }
@@ -2234,7 +2232,7 @@ export class Sprite extends Node {
      * @zh 设置子渲染通道的状态。
      * @param enable 是否启用子渲染通道。
      */
-    private setSubRenderPassState(enable: boolean) {
+    setSubRenderPassState(enable: boolean) {
         if (!this._oriRenderPass && enable) {
             this.createSubRenderPass();
         }

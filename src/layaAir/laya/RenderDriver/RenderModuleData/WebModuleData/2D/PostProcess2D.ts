@@ -19,9 +19,6 @@ export class PostProcess2D extends EventDispatcher {
    _enabled: boolean = true;
    /**@internal */
    _context: PostProcessRenderContext2D;
-
-
-   mask: IRenderStruct2D;//TODO
    /**@internal */
    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 

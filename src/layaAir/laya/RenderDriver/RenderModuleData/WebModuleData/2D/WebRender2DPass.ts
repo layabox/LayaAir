@@ -16,6 +16,7 @@ import { PostProcess2D } from "./PostProcess2D";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { IDynamicVIBuffer } from "../../Design/2D/IRender2DDataHandle";
+import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -95,6 +96,8 @@ export class WebRender2DPass implements IRender2DPass {
    finalize: CommandBuffer2D = null;
 
    buffers: Set<IDynamicVIBuffer> = new Set();
+
+   mask: WebRenderStruct2D;
 
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
@@ -194,11 +197,6 @@ export class WebRender2DPass implements IRender2DPass {
          this.addStruct(struct);
       }
 
-      //todo 排序
-      // struct.preRenderUpdate(context2D);
-
-      //}
-
       //需要处理全局透明的问题，统计并且生成新的 process。
       for (let i = 0; i < struct.children.length; i++) {
          const child = struct.children[i];
@@ -225,7 +223,6 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
       this.render(context);
-      this._endRenderProcess(context);
    }
 
    /**
@@ -253,12 +250,17 @@ export class WebRender2DPass implements IRender2DPass {
 
       this.repaint = false;
 
+      if (this.mask && this.mask.pass.enable) {
+         this.mask.pass.renderTexture = this.renderTexture;
+         this.mask.pass.fowardRender(context);
+         this.mask.pass.renderTexture = null;
+      }
+
+
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
          this.postProcess._context.command.apply(true);
       }
-
-      //mask
    }
 
    //预留
@@ -308,7 +310,7 @@ export class WebRender2DPass implements IRender2DPass {
    private _updateInvertMatrix() {
       let root = this.root;
       let temp = _TEMP_InvertMatrix;
-      let mask = this.postProcess?.mask;
+      let mask = this.mask;
       if (mask) {
          // globalMatrix
          let rootMatrix = root.transform.getMatrix();
@@ -322,12 +324,6 @@ export class WebRender2DPass implements IRender2DPass {
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }
 
-   private _endRenderProcess(context: IRenderContext2D) {
-      //set 到 底层呢
-      if (this.postProcess) {
-         this.postProcess.getDestRT();//set to sprite
-      }
-   }
 
    private _setInvertMatrix(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
       if (

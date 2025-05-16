@@ -11,9 +11,10 @@ export interface IRender2DPass {
    enableBatch: boolean;
    isSupport: boolean;
    root: IRenderStruct2D;
-   doClearColor:boolean;
-      
+   doClearColor: boolean;
+
    postProcess: PostProcess2D;
+   mask: IRenderStruct2D;
    repaint: boolean;
    renderTexture: RenderTexture2D;
    priority: number;
