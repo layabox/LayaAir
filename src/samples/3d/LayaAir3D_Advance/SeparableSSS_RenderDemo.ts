@@ -152,6 +152,7 @@ export class SeparableSSS_RenderDemo {
 
         buf.setGlobalTexture(Shader3D.propertyNameToID("sssssDiffuseTexture"), diffuseRenderTexture);
         this.sssssRenderMaterial.shaderData.setTexture(Shader3D.propertyNameToID("sssssSpecularTexture"), specRrenderTexture);
+        this.sssssRenderMaterial.shaderData.setTexture(Shader3D.propertyNameToID("sssssDiffuseTexture"), diffuseRenderTexture);
         diffuseRenderTexture.filterMode = FilterMode.Point;
         specRrenderTexture.filterMode = FilterMode.Point;
 

@@ -8,6 +8,7 @@ import { Stat } from "../../../utils/Stat";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
@@ -27,7 +28,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     private _nodeCommonMap: string[];
 
-    private _value2DgpuRS: WebGPUBindGroup1 = new WebGPUBindGroup1();
+    private _value2DgpuRS: WebGPUBindGroup;
 
     private _nodeCommonMapMask: number = 0;
 
@@ -270,53 +271,41 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
 
     protected _getValue2DBindGroup() {
-        let recreateBindGroup: boolean = false;
-        if (!this._value2DgpuRS || this._value2DgpuRS.isNeedCreate(this._nodeCommonMapMask)) {
-            recreateBindGroup = true;
-        } else {
-            for (var com of this._nodeCommonMap) {
-                if (this._value2DgpuRS.isNeedCreate((this.value2DShaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(com))) {
-                    recreateBindGroup = true;
-                    break;
-                }
-            }
-        }
-        if (recreateBindGroup) {//创建BindGroup
-            let bindGroupArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._nodeCommonMap);
-            //填充bindgroupEntriys
-            let shaderData = this.value2DShaderData;
-            let bindgroupEntriys: GPUBindGroupEntry[] = [];
-            for (var com of this._nodeCommonMap) {
-                //shaderData.createSubUniformBuffer(com, com, ((LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as WebGPUCommandUniformMap)._idata));
-                shaderData.fillBindGroupEntry(com, com, bindgroupEntriys, bindGroupArray);
-            }
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
-            let bindGroupDescriptor: GPUBindGroupDescriptor = {
-                label: "GPUBindGroupDescriptor",
-                layout: groupLayout,
-                entries: bindgroupEntriys
-            };
-            let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
 
-            this._value2DgpuRS.gpuRS = bindGroup;
-            this._value2DgpuRS.createMask = Stat.loopCount;
-        }
     }
+
+    bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
 
     /**
      * 绑定资源组
      * @param shaderInstance 
      * @param command 
      */
-    protected _bindGroup(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (context.sceneData) {
-            command.setBindGroup(0, context._sceneBindGroup);
+    protected _bindGroup(context: WebGPURenderContext2D, shader: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+        this.bindGroupMap.clear();
+
+        {
+            let resource = shader.uniformSetMap.get(0);
+            if (resource.length > 0) {
+                command.setBindGroup(0, context._sceneBindGroup);
+                this.bindGroupMap.set(0, context._sceneBindGroup);
+            }
         }
-        if (this.value2DShaderData) {
+        {
+            let resource = shader.uniformSetMap.get(1);
+            this._value2DgpuRS = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(this._nodeCommonMap, this.value2DShaderData, null, resource);
+
             command.setBindGroup(1, this._value2DgpuRS);
+            this.bindGroupMap.set(1, this._value2DgpuRS);
+
         }
+
         if (this.materialShaderData) {
-            command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap));
+            // command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap));
+            let resource = shader.uniformSetMap.get(2);
+            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, resource);
+            command.setBindGroup(2, bindGroup);
+            this.bindGroupMap.set(2, bindGroup);
         }
     }
 
@@ -344,7 +333,10 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.renderStateIsBySprite || !this.materialShaderData)
             this._getCullFrontMode(this.value2DShaderData, shaderInstance, false, context.invertY);
         else this._getCullFrontMode(this.materialShaderData, shaderInstance, false, context.invertY);
-        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
+        // return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
+
+        let pipeline = WebGPURenderEngine._instance.pipelineCache.getPipeline(this.bindGroupMap, this, shaderInstance, dest);
+        return pipeline;
     }
 
     /**
@@ -367,7 +359,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 }
             }
         }
-        this._getValue2DBindGroup();
+        // this._getValue2DBindGroup();
         // material ubo
         let subShader = this.subShader;
         if (this.materialShaderData) {
@@ -384,7 +376,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param command 
      */
     _render(context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        this._bindGroup(context, command)
         if (this._shaderInstances.length == 1) {
             this._renderByShaderInstance(this._shaderInstances.elements[0], context, command)
         } else {
@@ -399,6 +390,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _renderByShaderInstance(shader: WebGPUShaderInstance, context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (!shader.complete)
             return
+
+        this._bindGroup(context, shader, command)
 
         command.setPipeline(this._getWebGPURenderPipeline(shader, context._destRT, context));  //新建渲染管线
 

@@ -164,6 +164,31 @@ export class WebGPUShaderData extends ShaderData {
         return uboBuffer;
     }
 
+    /** @internal */
+    _cacheSubUniformBuffer(buffer: WebGPUSubUniformBuffer, name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
+        let subBuffer = this._subUniformBuffers.get(cacheName);
+        if (!subBuffer || buffer != subBuffer) {
+            if (!subBuffer) {
+                this._subUboBufferNumber++;
+            }
+            buffer.notifyGPUBufferChange();
+
+            this._subUniformBuffers.set(cacheName, buffer);
+
+            let id = Shader3D.propertyNameToID(name);
+            this._data[id] = buffer;
+
+            uniformMap.forEach(uniform => {
+                let uniformId = uniform.id;
+                // let data = this._data[uniformId];
+                // if (data != null) {
+                //     buffer.setUniformData(uniformId, uniform.uniformtype, data);
+                // }
+                this._uniformBuffersPropertyMap.set(uniformId, buffer);
+            });
+        }
+    }
+
     createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): WebGPUSubUniformBuffer {
         let subBuffer = this._subUniformBuffers.get(cacheName);
         if (subBuffer) {
@@ -283,7 +308,7 @@ export class WebGPUShaderData extends ShaderData {
                     }
                 });
             });
-            
+
         }
 
     }

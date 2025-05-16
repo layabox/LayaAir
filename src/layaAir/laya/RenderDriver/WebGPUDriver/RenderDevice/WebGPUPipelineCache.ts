@@ -13,8 +13,8 @@ export class WebGPUPipelineCache {
 
         let bindGroupLayouts: GPUBindGroupLayout[] = [];
 
-        bindGroups.forEach((bindGroup) => {
-            bindGroupLayouts.push(bindGroup.layout);
+        bindGroups.forEach((bindGroup, index) => {
+            bindGroupLayouts[index] = bindGroup.layout;
         });
 
         let descriptor: GPUPipelineLayoutDescriptor = {

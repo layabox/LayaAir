@@ -38,7 +38,7 @@ export abstract class WebGPURenderEncoder {
     * @param bindGroup 
     * @param dynamicOffsets 
     */
-    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup1 | WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
+    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
         dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup.gpuRS);
     }
 

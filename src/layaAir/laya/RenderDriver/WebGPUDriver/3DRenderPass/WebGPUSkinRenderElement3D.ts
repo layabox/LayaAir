@@ -39,8 +39,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     _skinnedDataSize: number = 0;
     _skinnedBufferOffsetAlignment: number = 0;
     _skinBindGroupMap: Map<number, WebGPUBindGroup1> = new Map();
-    //创建帧数
-    private _skinBufferMask: number;
 
     constructor() {
         super();
@@ -81,6 +79,10 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             for (var i = 0, n = nodemap.length; i < n; i++) {
                 let moduleName = nodemap[i];
 
+                if (moduleName == "SkinSprite3D") {
+                    continue;
+                }
+
                 let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
 
                 let uniformBuffer = this.renderShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
@@ -101,7 +103,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                     this.skinnedBuffer?.destroy();
                     //create subUniformBuffer
                     this.skinnedBuffer = new WebGPUSubUniformBuffer("SkinSprite3D", this.skinnedUniformMap, null);
-                    this._skinBufferMask = Stat.loopCount;
                 }
 
                 for (let i = 0; i < this.skinnedData.length; i++) {
@@ -110,6 +111,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                     this.skinnedBuffer.needUpload = true;
                 }
                 this.skinnedBuffer.upload();
+
+                this.renderShaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
             }
         }
 
@@ -125,87 +128,10 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             }
         }
 
-        //create skin BindGroup
-
-
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
 
         return;
-    }
-
-    private _ownerGetBaseRender3DNodeBindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance) {
-        let cacheData = this._skinBindGroupMap;
-        let recreateBindGroup: boolean = false;
-        let node = this.owner;
-        let bindgroup = cacheData.get(shaderInstance._id);
-        let shaderInstanceID = shaderInstance._id;
-        let strArray: string[];
-        //处理BindGroup
-        //判断是否要重新创建BindGroup
-        if (!bindgroup) {
-            recreateBindGroup = true;
-        } else if (bindgroup.isNeedCreate(node._additionalUpdateMask)) {
-            strArray = [];
-            strArray = strArray.concat(node._commonUniformMap, node._additionShaderDataKeys);
-            recreateBindGroup = true;
-        } else {
-            for (var com of node._commonUniformMap) {
-                if (com == "SkinSprite3D" && bindgroup.isNeedCreate(this._skinBufferMask)) {
-                    recreateBindGroup = true;
-                } else {
-                    if (bindgroup.isNeedCreate((node.shaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderInstanceID}`))) {
-                        recreateBindGroup = true;
-                        break;
-                    }
-                }
-            }
-            //判断AdditionalShaderData 是否要更新BindGroup
-            if (!recreateBindGroup) {
-                for (var addition of node._additionShaderDataKeys) {
-                    if (bindgroup.isNeedCreate((node.additionShaderData.get(addition) as WebGPUShaderData)._getBindGroupLastUpdateMask(`${com}_${shaderInstanceID}`))) {
-                        recreateBindGroup = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (recreateBindGroup) {//创建BindGroup
-            //creat BindGroup
-            // let bindGroupArray = shaderInstance.uniformSetMap.get(2);
-
-            // todo
-            let bindGroupArray: any = [];
-            //填充bindgroupEntriys
-            let shaderData = node.shaderData as WebGPUShaderData;
-            let bindgroupEntriys: GPUBindGroupEntry[] = [];
-            for (var com of node._commonUniformMap) {
-                if (com == "SkinSprite3D") {
-                    for (const item of bindGroupArray) {
-                        item.name == "SkinSprite3D" && bindgroupEntriys.push(this.skinnedBuffer.getBindGroupEntry(item.binding));
-                    }
-                } else {
-                    shaderData.fillBindGroupEntry(com, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
-                }
-            }
-            for (var addition of node._additionShaderDataKeys) {
-                let shaderdata = (node.additionShaderData.get(addition) as WebGPUShaderData);
-                shaderdata.fillBindGroupEntry(addition, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
-            }
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
-            let bindGroupDescriptor: GPUBindGroupDescriptor = {
-                label: "GPUBindGroupDescriptor",
-                layout: groupLayout,
-                entries: bindgroupEntriys
-            };
-            let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            bindgroup = new WebGPUBindGroup1();
-            bindgroup.gpuRS = bindGroupgpu;
-            bindgroup.createMask = Stat.loopCount;
-            this._skinBindGroupMap.set(shaderInstanceID, bindgroup);
-        }
-        return bindgroup;
     }
 
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
@@ -219,10 +145,12 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             this.bindGroupMap.set(1, context._cameraBindGroup);
         }
         {
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner);
+            let shaderResource = shaderInstance.uniformSetMap.get(3);
 
-            command.setBindGroup(2, bindgroup);
-            this.bindGroupMap.set(2, bindgroup);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource);
+
+            command.setBindGroup(3, bindgroup);
+            this.bindGroupMap.set(3, bindgroup);
         }
     }
 
@@ -245,21 +173,27 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             if (!shaderInstance.complete) {
                 continue;
             }
-            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));
             this._bindGroup(context, shaderInstance, command);
+            {
+                let resource = shaderInstance.uniformSetMap.get(2);
+                let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner);
+                // command.setBindGroup(2, bindgroup);
+                this.bindGroupMap.set(2, bindgroup);
+            }
+
+            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));
 
             {
-                let bindgroup = this._ownerGetBaseRender3DNodeBindGroup(context, shaderInstance);
-
+                let bindgroup = this.bindGroupMap.get(2);
                 for (let i = 0; i < this.skinnedData.length; i++) {
                     let skinDataOffset = [0];
                     skinDataOffset[0] = i * this._skinnedBufferOffsetAlignment;
-
                     command.setBindGroup(2, bindgroup, skinDataOffset);
-
                     this._uploadGeometryIndex(command, i);
                 }
             }
+
+
         }
 
 

@@ -227,7 +227,6 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
       */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 
-        let usedTexSet = shaderInstance.usedTexSet;
         {
             let sceneGroup = context._sceneBindGroup;
             command.setBindGroup(0, sceneGroup);
@@ -239,12 +238,15 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
             this.bindGroupMap.set(1, cameraGroup);
         }
         {
-            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner, usedTexSet);
+            let shaderResource = shaderInstance.uniformSetMap.get(2);
+
+            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(shaderResource, this.owner);
             command.setBindGroup(2, spriteGroup);
             this.bindGroupMap.set(2, spriteGroup);
         }
         {
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, usedTexSet);
+            let resource = shaderInstance.uniformSetMap.get(3);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, resource);
 
             command.setBindGroup(3, bindgroup);
             this.bindGroupMap.set(3, bindgroup);

@@ -9,7 +9,8 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
+import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -35,7 +36,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     pipelineMode: string = 'Forward';
 
-    _sceneBindGroup: WebGPUBindGroup1;
+    _sceneBindGroup: WebGPUBindGroup;
 
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
 
@@ -97,17 +98,9 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
             let commandArray = ["Sprite2DGlobal"];
 
-            if (!this._sceneBindGroup) {
-                this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this.sceneData);
-            }
-            else {
-                let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(commandArray);
-                let lastUpdateMask = this.sceneData._getBindGroupLastUpdateMask(bindCacheKey);
-                if (this._sceneBindGroup.isNeedCreate(lastUpdateMask)) {
-                    this._sceneBindGroup = WebGPUBindGroupHelper.createBindGroupByCommandMapArray(0, commandArray, this.sceneData);
-                }
-            }
+            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
 
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.sceneData, null, resource);
         }
     }
 
