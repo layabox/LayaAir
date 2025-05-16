@@ -87,7 +87,7 @@ enum BufferState {
 
 export class WebDynamicVIBuffer implements IDynamicVIBuffer{
     static MAX_VERTEX = 65535;
-    static DEFAULT_BLOCK_SIZE = 512;
+    static DEFAULT_BLOCK_SIZE = 1024;
 
     private _bufferState: IBufferState;
     private _vertexBuffer: IVertexBuffer;
@@ -144,6 +144,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
         this._indexBuffer._setIndexDataLength(indexDefaultSize * 2);
 
         this._bufferState = LayaGL.renderDeviceFactory.createBufferState();
+        
     }
 
     set vertexDeclaration(vertexDeclaration:VertexDeclaration){
@@ -289,9 +290,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             this._vertexViews.forEach((view, index) => {
                 if (view) {
                     view.updateView(this._vertexData);
+                    view.isModified = false;
                 }
             });
-            this._vertexModify = true;
+            this._vertexModify = false;
+            this._vertexBuffer.setData( this._vertexData.buffer,0 ,0, this._vertexData.byteLength);
         }
 
         // ib
@@ -309,9 +312,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             this._indexViews.forEach((view, index) => {
                 if (view) {
                     view.updateView(this._indexData);
+                    view.isModified = false;
                 }
             }); 
-            this._indexModify = true;
+            this._indexModify = false;
+            this._indexBuffer._setIndexData(this._indexData, 0);
         }
 
         // vb
