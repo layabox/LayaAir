@@ -426,6 +426,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param bundle 
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+
+        let usedTexSet = shaderInstance.usedTexSet;
+
         {
             let sceneGroup = context._sceneBindGroup;
             command.setBindGroup(0, sceneGroup);
@@ -436,13 +439,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this.bindGroupMap.set(1, context._cameraBindGroup);
         }
         {
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner, usedTexSet);
 
             command.setBindGroup(2, bindgroup);
             this.bindGroupMap.set(2, bindgroup);
         }
         {
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, usedTexSet);
 
             command.setBindGroup(3, bindgroup);
             this.bindGroupMap.set(3, bindgroup);

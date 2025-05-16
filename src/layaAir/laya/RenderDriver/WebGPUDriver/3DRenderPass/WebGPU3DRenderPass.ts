@@ -10,6 +10,7 @@ import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
@@ -41,7 +42,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         this._renderPass = new WebGPUForwardAddRP();
         this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
+
+        let shadowMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow") as WebGPUCommandUniformMap;
+        shadowMap._defaultData.set(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+        shadowMap._defaultData.set(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
     }
+
     render3DManager: WebSceneRenderManager;
 
     /**
@@ -116,12 +122,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         const enableShadow = (Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency === 0) && Stat.enableShadow;
         this._renderPass.shadowCastPass = enableShadow;
 
+        camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+        camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
+
         if (enableShadow) {
             const shadowParams = this._renderPass.shadowParams;
             shadowParams.setValue(0, 0, 0, 0);
-
-            camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
-            camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
 
             //直线光源阴影
             const mainDirectionLight = camera.scene._mainDirectionLight;

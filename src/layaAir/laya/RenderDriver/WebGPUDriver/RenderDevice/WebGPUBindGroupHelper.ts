@@ -4,6 +4,7 @@ import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
+import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 
@@ -225,10 +226,15 @@ export class WebGPUBindGroupHelper {
             }
 
             if (uniformMap && uniformMap._idata) {
+                let defaultMap = uniformMap._defaultData;
+
                 // 遍历uniform映射中的所有属性,添加纹理set和sampler的绑定信息
                 for (let [propertyID, uniformProperty] of uniformMap._idata) {
                     // 检查是否为纹理类型
                     if (uniformProperty.uniformtype >= ShaderDataType.Texture2D) {
+
+                        let defaultTex = defaultMap.get(propertyID)?._texture as WebGPUInternalTex;
+
                         let textureBindInfo: WebGPUUniformPropertyBindingInfo = {
                             id: 0,
                             set: groupID,
@@ -264,6 +270,12 @@ export class WebGPUBindGroupHelper {
 
                         }
                         bindingInfos.push(samplerBindInfo);
+
+                        if (defaultTex) {
+                            defaultTex._getGPUTextureBindingLayout(textureBindInfo.texture);
+                            defaultTex._getSampleBindingLayout(samplerBindInfo.sampler);
+                        }
+
                     }
                     if (uniformProperty.uniformtype == ShaderDataType.ReadOnlyDeviceBuffer) {
                         let storageBufferBindInfo: WebGPUUniformPropertyBindingInfo = {
@@ -468,7 +480,7 @@ export class WebGPUBindGroupHelper {
             };
             // 将绑定信息添加到数组中
             bindingInfos.unshift(bindingInfo);
-            bindingInfos.forEach((info, index) => { 
+            bindingInfos.forEach((info, index) => {
                 info.binding = index;
             });
         }

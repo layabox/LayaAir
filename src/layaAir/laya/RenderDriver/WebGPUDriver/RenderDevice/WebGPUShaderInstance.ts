@@ -45,7 +45,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     complete: boolean = false;
 
-    uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
+    private uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
+
+    usedTexSet = new Set<string>();
 
     constructor(name: string) {
         this.name = name;
@@ -131,10 +133,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
             }
         }
 
-        let useTexSet = new Set<string>();
+        let useTexSet = this.usedTexSet;
         //如果是3D  只对set2（Node） 和set3（Material）的纹理进行剔除   如果剔除scene和camera 会产生大量的bindGroup
         //如果是2D  TODO  暂时先不做剔出
-        let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 4;
+        let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
         /**
          * 编译 shader 时可能检出新的 uniform
          * 将新检出的 uniform 添加到 material map 中
@@ -146,7 +148,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
 
         if (true) {
-
             //去除无用的TextureBinding
             let textureIndices: number[] = [];
             for (const texName of useTexSet) {
@@ -159,6 +160,11 @@ export class WebGPUShaderInstance implements IShaderInstance {
             // 遍历uniformSetMap，移除不在textureIndices中的纹理
             for (const [setIndex, bindInfoArray] of this.uniformSetMap) {
                 if (setIndex < cullTextureSetLayer) {
+                    bindInfoArray.forEach(info => {
+                        if (info.sampler) {
+                            this.usedTexSet.add(info.name.replace("_Sampler", ""));
+                        }
+                    });
                     continue;
                 }
                 // 创建一个新数组来存储过滤后的绑定信息
@@ -181,21 +187,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             }
         }
 
-
         {
-
-            const glslTowgsl = (code: string, state: "vertex" | "fragment" | "compute") => {
-                let spvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(code, state);
-                if (!spvRes.success) {
-                    console.error(spvRes.info_log);
-                }
-
-                let spv = spvRes.spirv;
-                let wgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(spv.buffer, spv.byteOffset, spv.byteLength), false);
-
-                return wgsl;
-            };
-
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
                 console.error(vertexSpvRes.info_log);
@@ -256,21 +248,38 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.uniformSetMap.set(3, []);
     }
 
+    regularUniforms: Map<number, any[]> = new Map();
+
     private _create3D(): void {
         let shaderPass = this._shaderPass;
         //global
         let context = WebGPURenderContext3D._instance;
-        let preDrawUniforms = context._preDrawUniformMaps;
 
-        let preDrawArray = Array.from(preDrawUniforms);
+        let sceneBindGroup = context._sceneBindGroup;
+        this.regularUniforms.set(0, sceneBindGroup.info.entries);
 
-        this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray));
-        //camera
-        this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
-        //sprite+additional
-        this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
+        let cameraBindGroup = context._cameraBindGroup;
+        this.regularUniforms.set(1, cameraBindGroup.info.entries);
 
-        this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
+        {
+            this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
+
+            // const bindGroupCache = WebGPURenderEngine._instance.bindGroupCache;
+
+            // let layoutInfo = bindGroupCache.getLayoutInfo(this._commanMap, null, null, null);
+        }
+
+
+        // let preDrawUniforms = context._preDrawUniformMaps;
+        // let preDrawArray = Array.from(preDrawUniforms);
+        // this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray));
+
+        // //camera
+        // this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
+        // //sprite+additional
+        // this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
+
+        // this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
 
         //material
         // this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));

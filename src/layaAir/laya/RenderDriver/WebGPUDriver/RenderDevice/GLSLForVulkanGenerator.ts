@@ -153,8 +153,12 @@ ${fragmentCode}
                 u.samplerType = "depth";
             }
 
+            // todo
             if (type == "sampler2DArray") {
                 u.demision = "2d-array";
+            }
+            if (type == "samplerCube") {
+                u.demision = "cube";
             }
 
             if (arrayLength) {
@@ -442,6 +446,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
     let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
 
     uniformSetMap.forEach((value, key) => {
+        let binding = 0;
         if (value.length > 0) {
             for (let uniform of value) {
                 switch (uniform.type) {
@@ -452,7 +457,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                                 uniformMap = materialMap;
                             }
 
-                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms).code}\n`;
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, collectUniforms).code}\n`;
                             break;
                         }
                     case WebGPUBindingInfoType.texture:
@@ -467,7 +472,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
-                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
+                            res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${textureType} ${uniform.name};\n`
 
                             let samplerName = uniform.name.replace("_Texture", "");
 
@@ -487,7 +492,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                                 }
                             }
 
-                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${sampler} ${uniform.name};\n`;
+                            res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${sampler} ${uniform.name};\n`;
                         }
                         break;
                     default:

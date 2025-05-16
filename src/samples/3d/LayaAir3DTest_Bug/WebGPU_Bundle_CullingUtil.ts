@@ -226,19 +226,28 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
       * @param bundle 
       */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (shaderInstance.uniformSetMap.get(0).length > 0) {
-            command.setBindGroup(0, context._sceneBindGroup);
+
+        let usedTexSet = shaderInstance.usedTexSet;
+        {
+            let sceneGroup = context._sceneBindGroup;
+            command.setBindGroup(0, sceneGroup);
+            this.bindGroupMap.set(0, sceneGroup);
         }
-        if (shaderInstance.uniformSetMap.get(1).length > 0) {
-            command.setBindGroup(1, context._cameraBindGroup);
+        {
+            let cameraGroup = context._cameraBindGroup;
+            command.setBindGroup(1, cameraGroup);
+            this.bindGroupMap.set(1, cameraGroup);
         }
-        //if (shaderInstance.uniformSetMap.get(2).length > 0) {//additional & Sprite3D NodeModule
-        if (this.owner) {
-            let bindgroup = this.getBaseRender3DNodeBindGroup(context, shaderInstance);
-            command.setBindGroup(2, bindgroup);
+        {
+            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(this.owner, usedTexSet);
+            command.setBindGroup(2, spriteGroup);
+            this.bindGroupMap.set(2, spriteGroup);
         }
-        if (shaderInstance.uniformSetMap.get(3).length > 0) {
-            command.setBindGroup(3, this.materialShaderData._createOrGetBindGroupByBindInfoArray("Material", this.subShader.owner.name, shaderInstance, 3, shaderInstance.uniformSetMap.get(3)));
+        {
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, usedTexSet);
+
+            command.setBindGroup(3, bindgroup);
+            this.bindGroupMap.set(3, bindgroup);
         }
     }
 
@@ -260,7 +269,8 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
 
         if (recreateBindGroup) {//创建BindGroup
             //creat BindGroup
-            let bindGroupArray = shaderInstance.uniformSetMap.get(2);
+            // let bindGroupArray = shaderInstance.uniformSetMap.get(2);
+            let bindGroupArray = [];
             //填充bindgroupEntriys
             let shaderData = this.cullShaderData as WebGPUShaderData;
             let bindgroupEntriys: GPUBindGroupEntry[] = [];

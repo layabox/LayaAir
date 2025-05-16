@@ -1,4 +1,5 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
@@ -6,9 +7,16 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
 
     /** @internal */
     _idata: Map<number, UniformProperty> = new Map<number, UniformProperty>();
+
+    /** @internal */
+    _defaultData: Map<number, BaseTexture> = new Map();
+
     _ishasBuffer: boolean = false;
+
     _stateName: string;
+
     _stateID: number;
+
     constructor(stateName: string) {
         super(stateName);
         this._stateName = stateName;
