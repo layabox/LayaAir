@@ -115,6 +115,9 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
     public needUpload: boolean = false;
 
     private _vertexDeclaration:VertexDeclaration;
+    
+    /** @internal */
+    _inPass:boolean = false;
 
     get vertexBuffer(): IVertexBuffer {
         return this._vertexBuffer;
@@ -165,8 +168,19 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
      * @returns 使用的blocks，如果空间不足则返回null
      */
     checkVertexBuffer(length: number): IBufferBlock {
-        let requiredBlocks = Math.ceil(length / this._vertexBlockSize);
         
+        let requiredBlocks = Math.ceil(length / this._vertexBlockSize);
+        let needNewBlocks = requiredBlocks - this._vertexFreeBlocks.length;
+
+        if (
+            needNewBlocks > 0
+        ) {
+            let totalBlocks = this._vertexViews.length + needNewBlocks;
+            let vertexCount = totalBlocks * this._vertexBlockSize / this._vertexDeclaration.vertexStride * 4/** Float32Array.BYTES_PER_ELEMENT */;
+            if (vertexCount > WebDynamicVIBuffer.MAX_VERTEX) {
+                return null;
+            }
+        }
         let usedBlocks: number[] = [];
         let usedViews: BufferDataView[] = [];
         let remainingBlocks = requiredBlocks;

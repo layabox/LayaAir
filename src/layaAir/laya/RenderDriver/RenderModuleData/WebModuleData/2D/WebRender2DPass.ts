@@ -17,6 +17,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { IDynamicVIBuffer } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
+import { WebDynamicVIBuffer } from "./WebDynamicVIBuffer";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -95,7 +96,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    finalize: CommandBuffer2D = null;
 
-   buffers: Set<IDynamicVIBuffer> = new Set();
+   buffers: Set<WebDynamicVIBuffer> = new Set();
 
    mask: WebRenderStruct2D;
 
@@ -294,7 +295,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    }
 
-   setBuffer(buffer: IDynamicVIBuffer): void {
+   setBuffer(buffer: WebDynamicVIBuffer): void {
+      if(buffer._inPass) return;
+      buffer._inPass = true;
       this.buffers.add(buffer);
    }
 
@@ -302,6 +305,7 @@ export class WebRender2DPass implements IRender2DPass {
       if (this.buffers.size > 0) {
          this.buffers.forEach(buffer => {
             buffer.upload();
+            buffer._inPass = false;
          });
          this.buffers.clear();
       }

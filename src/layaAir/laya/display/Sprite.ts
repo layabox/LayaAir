@@ -1327,8 +1327,7 @@ export class Sprite extends Node {
         }
 
         if ((kind & TransformKind.TRS) != 0) {
-            if (this._globalTrans)
-                this._globalTrans._spTransChanged(kind);
+            this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);

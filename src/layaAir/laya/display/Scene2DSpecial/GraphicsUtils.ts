@@ -1,7 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, IBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, IBufferDataView, VertexBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -87,7 +87,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let vertexViews: IBufferDataView[] = [];
+      let vertexStruct:VertexBufferBlock[] = [];
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -112,9 +112,19 @@ export class GraphicsRenderData {
 
             element.geometry.bufferState = submit.mesh.bufferState;
             element.geometry.clearRenderParams();
-            vertexViews.push(...submit.vertexViews);
+            
+            let infos = submit.infos;
+            let indexViews: IBufferDataView[] = [];
+            for (let i = 0, n = infos.length; i < n; i++) {
+               let info = infos[i];
+               indexViews.push(...info.indexViews);
+               vertexStruct.push({
+                  positions:info.positions,
+                  vertexViews:info.vertexViews
+               });
+            }
 
-            let params = this.getDrawElementParams(submit.indexViews);
+            let params = this.getDrawElementParams(indexViews);
             for (let j = 0; j < params.length; j += 2) {
                element.geometry.setDrawElemenParams(params[j + 1], params[j]);
             }
@@ -132,7 +142,7 @@ export class GraphicsRenderData {
 
       // console.log("==== apply buffer" , Stat.loopCount);
 
-      handle.applyViews(vertexViews);
+      handle.applyVertexBufferBlock(vertexStruct);
    }
 
    getDrawElementParams(indexViews: IBufferDataView[]): number[] {
@@ -254,10 +264,10 @@ export class SubStructRender {
 
    destroy(): void {
       GraphicsRenderData.recoverRenderElement2D(this._renderElement);
-      this._internalInfo.destroy();
-      this._internalInfo = null;
+      // this._internalInfo.destroy();
       this._submit.destroy();
       this._submit = null;
+      this._internalInfo = null;
       this._handle = null;
       this._subRenderPass = null;
       this._subStruct = null;
