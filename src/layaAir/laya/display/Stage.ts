@@ -1018,11 +1018,11 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
-    private _graphicUpdateList: Set<Graphics> = new Set();
+    private _graphicUpdateList: Set<Sprite> = new Set();
     private _subpassUpdateList: Set<Sprite> = new Set();
-    _addgraphicRenderElement(graphics: Graphics) {
-        if (!graphics) return;
-        this._graphicUpdateList.add(graphics);
+    _addgraphicRenderElement(sprite: Sprite) {
+        if (!sprite) return;
+        this._graphicUpdateList.add(sprite);
     }
 
     _addSubPassNeedUpdateElement(sprite: Sprite) {
@@ -1068,7 +1068,10 @@ export class Stage extends Sprite {
 
         let graphicUpdateList = Array.from(this._graphicUpdateList);
         for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
-            graphicUpdateList[i]._render(Render2DSimple.runner);
+            let sprite = graphicUpdateList[i];
+            if (sprite._graphics) {
+                sprite._graphics._render(Render2DSimple.runner);
+            }
         }
         this.passManager.apply(Render2DSimple.rendercontext2D);
         this._graphicUpdateList.clear();
