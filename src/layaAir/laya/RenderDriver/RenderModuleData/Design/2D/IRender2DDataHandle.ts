@@ -44,6 +44,10 @@ export interface IBufferBlock {
     indexBlocks?: number[],
 }
 
+export type VertexBufferBlock = {
+    positions: number[],
+    vertexViews: IBufferDataView[],
+}
 export interface IDynamicVIBuffer {
     vertexDeclaration: VertexDeclaration;
     bufferState: IBufferState;
@@ -60,7 +64,7 @@ export interface IDynamicVIBuffer {
 
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyViews(views: IBufferDataView[]): void;
+    applyVertexBufferBlock(views: VertexBufferBlock[]): void;
 }
 
 export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {

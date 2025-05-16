@@ -14,6 +14,7 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 
 export type MeshBlockInfo = {
    mesh: GraphicsMesh,
+   positions?: number[],
    vertexViews?: IBufferDataView[],
    vertexBlocks?: number[],
    indexViews?: IBufferDataView[],

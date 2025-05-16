@@ -79,7 +79,18 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    globalRenderData: WebGlobalRenderData;
 
-   pass: WebRender2DPass;
+   private _pass: WebRender2DPass;
+   
+   public get pass(): WebRender2DPass {
+      return this._pass;
+   }
+
+   public set pass(value: WebRender2DPass) {
+      this._pass = value;
+      if (value) {
+         this.updateChildren(this);
+      }
+   }
 
    constructor() {
    }

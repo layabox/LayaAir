@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
+import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
 import { TransformKind } from "./SpriteConst";
 
@@ -14,7 +15,7 @@ export class SpriteGlobalTransform {
     private _scaleY: number = 1.0;
     private _matrix: Matrix;
     private _cache = false;
-
+    _modifiedFrame: number = 0;
     /**
      * @zh An event constant for when the global transformation information changes.
      * @zh 全局变换信息发生改变时的事件常量。
@@ -363,6 +364,7 @@ export class SpriteGlobalTransform {
         if (this._cache)
             this._setFlag(kind | TransformKind.Matrix, true)
         this._syncFlag(kind | TransformKind.Matrix, true);
+        this._modifiedFrame = Stat.loopCount;
     }
 
     /**
