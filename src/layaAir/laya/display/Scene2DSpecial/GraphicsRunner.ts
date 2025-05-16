@@ -38,7 +38,7 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { IBufferDataView, IDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { BufferModifyType, IBufferDataView, IDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Stat } from "../../utils/Stat";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
@@ -2137,8 +2137,6 @@ export class GraphicsRunner {
     public acquire(vertexCount: number): MeshBlockInfo {
         // 按顺序检查是否有可用的 Mesh
         let meshes = this._meshPool;
-        //@ts-ignore
-        window.testMesh = meshes;
         
         for (let i = 0; i < meshes.length; i++) {
             let mesh = meshes[i];
@@ -2262,9 +2260,6 @@ export class GraphicsRunner {
             dataView.count++;
             pos++;
         }
-        if (window.startConsole) {
-            console.log("==== fill buffer" , result.vertexBlocks , result.indexBlocks);
-        }
     }
 
     defalutInfo:MeshBlockInfo;
@@ -2282,6 +2277,8 @@ export class GraphicsRunner {
                 null,
                 true
             );
+            this.defalutInfo.vertexViews[0].modify(BufferModifyType.Vertex);
+            this.defalutInfo.indexViews[0].modify(BufferModifyType.Index);
         }
     }
 

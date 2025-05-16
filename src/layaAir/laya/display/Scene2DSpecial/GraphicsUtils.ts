@@ -140,15 +140,18 @@ export class GraphicsRenderData {
 
       let start = indexViews[0].start;
       let end = start + indexViews[0].length;
-
+      let lastView = indexViews[0];
       for (let i = 1, n = indexViews.length; i < n; i++) {
          let view = indexViews[i];
-         if (end === view.start) {
-            end += view.length;
-         } else {
-            params.push(start, end - start);
+         let lastEnd = lastView.length + lastView.start;
+         if(lastEnd === view.start){
+            lastView = view;
+            end = view.count + view.start;
+         }else{
+            params.push(start * 2, end - start);
             start = view.start;
-            end = start + view.length;
+            end = start + view.count;
+            lastView = view;
          }
       }
 

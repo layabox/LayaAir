@@ -6,7 +6,7 @@ import { Stat } from "../../../../utils/Stat";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { IDynamicVIBuffer, IBufferDataView, IBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { IDynamicVIBuffer, IBufferDataView, IBufferBlock, BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 
 export class BufferDataView implements IBufferDataView {
     private _data: Float32Array | Uint16Array;
@@ -21,8 +21,9 @@ export class BufferDataView implements IBufferDataView {
 
     isModified: boolean = false; // 标记数据是否被修改
     
-    modify(type:number){
-        if(type === 0){
+    modify(type:BufferModifyType){
+
+        if(type === BufferModifyType.Vertex){
             this.owner._vertexModify = true;
         }else{
             this.owner._indexModify = true;
@@ -315,7 +316,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
 
         // vb
         if (this._vertexModify) {
-            let start = 0;
+            let start = Number.MAX_VALUE;
             let end = 0;
             for (let i = 0 , n = this._vertexViews.length; i < n; i++) {
                 let view = this._vertexViews[i];
@@ -326,14 +327,15 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
                 }
             }
             if(start !== end ){
-                this._vertexBuffer.setData( this._vertexData.buffer,start ,start * 4,(end - start) * 4);
+                this._vertexBuffer.setData( this._vertexData.buffer, start * 4 ,start * 4,(end - start) * 4);
             }
             this._vertexModify = false;
         }
+
         // this._vertexBuffer.setData( this._vertexData.buffer,0 ,0, this._vertexData.byteLength);
         
         if (this._indexModify) {
-            let start = 0;
+            let start = Number.MAX_VALUE;
             let end = 0;
             for (let i = 0 , n = this._indexViews.length; i < n; i++) {
                 let view = this._indexViews[i];
@@ -345,11 +347,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             }
             if(start !== end ){
                 let tempView = new Uint16Array(this._indexData.buffer, start * 2, end - start);
-                this._indexBuffer._setIndexData(tempView,start);
+                this._indexBuffer._setIndexData(tempView,start * 2);
             }
             this._indexModify = false;
         }
-        
+    
         // this._indexBuffer._setIndexData(this._indexData, 0);
         // console.log( "==== upload buffer" , Stat.loopCount );
         this.needUpload = false;

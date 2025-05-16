@@ -21,6 +21,10 @@ export interface IGlobalRenderData {
     globalShaderData: ShaderData;
 }
 
+export enum BufferModifyType {
+    Vertex = 0,
+    Index = 1,
+}
 export interface IBufferDataView {
     data: Float32Array | Uint16Array;
     start: number;
@@ -28,7 +32,7 @@ export interface IBufferDataView {
     stride: number;
     count: number;
     isModified: boolean;
-    modify(type:number):void;
+    modify(type:BufferModifyType):void;
     owner: IDynamicVIBuffer;
 }
 

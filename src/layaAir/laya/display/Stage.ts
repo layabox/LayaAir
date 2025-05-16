@@ -1028,6 +1028,7 @@ export class Stage extends Sprite {
      * @perfTag PerformanceDefine.T_UIRender
     */
     private _render2d() {
+
         Stat.draw2D = 0;
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
