@@ -38,7 +38,6 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
 
     _skinnedDataSize: number = 0;
     _skinnedBufferOffsetAlignment: number = 0;
-    _skinBindGroupMap: Map<number, WebGPUBindGroup1> = new Map();
 
     constructor() {
         super();
@@ -101,7 +100,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 if (arrayLength != uniform.arrayLength) {
                     uniform.arrayLength = arrayLength;
                     this.skinnedBuffer?.destroy();
-                    //create subUniformBuffer
+                    // //create subUniformBuffer
                     this.skinnedBuffer = new WebGPUSubUniformBuffer("SkinSprite3D", this.skinnedUniformMap, null);
                 }
 
@@ -110,9 +109,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                     this.skinnedBuffer.descriptor.uniforms.get(SkinnedMeshRenderer.BONES).view.set(data, this._skinnedDataSize * i);
                     this.skinnedBuffer.needUpload = true;
                 }
-                this.skinnedBuffer.upload();
 
-                this.renderShaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
+                this.skinnedBuffer.upload();
             }
         }
 
@@ -135,6 +133,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     }
 
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+        this.bindGroupMap.clear();
         {
             let sceneGroup = context._sceneBindGroup;
             command.setBindGroup(0, sceneGroup);
@@ -176,6 +175,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             this._bindGroup(context, shaderInstance, command);
             {
                 let resource = shaderInstance.uniformSetMap.get(2);
+                let shaderData = this.owner.shaderData as WebGPUShaderData;
+                shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
                 let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner);
                 // command.setBindGroup(2, bindgroup);
                 this.bindGroupMap.set(2, bindgroup);
