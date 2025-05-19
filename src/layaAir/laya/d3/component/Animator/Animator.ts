@@ -544,6 +544,7 @@ export class Animator extends Component {
 
     private _applyColor(defaultValue: Color, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
         if (!defaultValue) return null;
+        if (!nodeOwner.defaultValue) nodeOwner.defaultValue = defaultValue.clone();
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.r += weight * data.x;
@@ -1200,10 +1201,11 @@ export class Animator extends Component {
                                     break;
                             }
                             value = proPat[m];
-                            _tempColor.r = nodeOwner.defaultValue.x;
-                            _tempColor.g = nodeOwner.defaultValue.y;
-                            _tempColor.b = nodeOwner.defaultValue.z;
-                            _tempColor.a = nodeOwner.defaultValue.w;
+                            if (!nodeOwner.defaultValue) break;
+                            _tempColor.r = nodeOwner.defaultValue.r;
+                            _tempColor.g = nodeOwner.defaultValue.g;
+                            _tempColor.b = nodeOwner.defaultValue.b;
+                            _tempColor.a = nodeOwner.defaultValue.a;
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = _tempColor);
                                 if (nodeOwner.callbackFun) {
