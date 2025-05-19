@@ -3,16 +3,12 @@ import { WebGLEngine } from "../WebGLEngine";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { VertexArrayObject } from "./VertexArrayObject";
 
-export class GlCapable {
-    /**@internal */
-    private _extentionVendorPrefixes: string[] = ["", "WEBKIT_", "MOZ_"];
-    /**@internal */
-    private _gl: any;
-    /**@internal */
-    private _extensionMap: Map<WebGLExtension, any>;
-    /**@internal */
-    private _capabilityMap: Map<RenderCapable, boolean>;
+const extentionVendorPrefixes: string[] = ["", "WEBKIT_", "MOZ_"];
 
+export class GlCapable {
+    private _gl: any;
+    private _extensionMap: Map<WebGLExtension, any>;
+    private _capabilityMap: Map<RenderCapable, boolean>;
 
     constructor(glEngine: WebGLEngine) {
         this._gl = glEngine.gl;
@@ -94,55 +90,63 @@ export class GlCapable {
 
     private initExtension(isWebgl2: boolean) {
         this._extensionMap = new Map();
+        const getGlExtension = (name: string) => {
+            for (const k in extentionVendorPrefixes) {
+                let ext = this._gl.getExtension(extentionVendorPrefixes[k] + name);
+                if (ext)
+                    return ext;
+            }
+            return null;
+        }
         const setExtensionMap = (extension: WebGLExtension, value: any, map: Map<WebGLExtension, any>) => {
             value && map.set(extension, value);
         }
-        const _extTextureFilterAnisotropic = this._getExtension("EXT_texture_filter_anisotropic");
+        const _extTextureFilterAnisotropic = getGlExtension("EXT_texture_filter_anisotropic");
         setExtensionMap(WebGLExtension.EXT_texture_filter_anisotropic, _extTextureFilterAnisotropic, this._extensionMap);
-        const _compressedTextureS3tc = this._getExtension("WEBGL_compressed_texture_s3tc");
+        const _compressedTextureS3tc = getGlExtension("WEBGL_compressed_texture_s3tc");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_s3tc, _compressedTextureS3tc, this._extensionMap);
-        const _compressdTextureS3tc_srgb = this._getExtension("WEBGL_compressed_texture_s3tc_srgb");
+        const _compressdTextureS3tc_srgb = getGlExtension("WEBGL_compressed_texture_s3tc_srgb");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_s3tc_srgb, _compressdTextureS3tc_srgb, this._extensionMap);
-        const _compressedTexturePvrtc = this._getExtension("WEBGL_compressed_texture_pvrtc");
+        const _compressedTexturePvrtc = getGlExtension("WEBGL_compressed_texture_pvrtc");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_pvrtc, _compressedTexturePvrtc, this._extensionMap);
-        const _compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
+        const _compressedTextureEtc1 = getGlExtension("WEBGL_compressed_texture_etc1");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_etc1, _compressedTextureEtc1, this._extensionMap);
-        const _compressedTextureETC = this._getExtension("WEBGL_compressed_texture_etc");
+        const _compressedTextureETC = getGlExtension("WEBGL_compressed_texture_etc");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_etc, _compressedTextureETC, this._extensionMap);
-        const _compressedTextureASTC = this._getExtension("WEBGL_compressed_texture_astc");
+        const _compressedTextureASTC = getGlExtension("WEBGL_compressed_texture_astc");
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_astc, _compressedTextureASTC, this._extensionMap);
-        const _oesTextureFloatLinear = this._getExtension("OES_texture_float_linear");
+        const _oesTextureFloatLinear = getGlExtension("OES_texture_float_linear");
         setExtensionMap(WebGLExtension.OES_texture_float_linear, _oesTextureFloatLinear, this._extensionMap);
-        const _extColorBufferHalfFloat = this._getExtension("EXT_color_buffer_half_float");
+        const _extColorBufferHalfFloat = getGlExtension("EXT_color_buffer_half_float");
         setExtensionMap(WebGLExtension.EXT_color_buffer_half_float, _extColorBufferHalfFloat, this._extensionMap);
         if (isWebgl2) {
-            const _extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
+            const _extColorBufferFloat = getGlExtension("EXT_color_buffer_float");
             setExtensionMap(WebGLExtension.EXT_color_buffer_float, _extColorBufferFloat, this._extensionMap);
         } else {
             VertexArrayObject;//强制引用
             if ((window as any)._setupVertexArrayObject) //兼容VAO
                 (window as any)._setupVertexArrayObject(this._gl);
-            const _vaoExt = this._getExtension("OES_vertex_array_object");
+            const _vaoExt = getGlExtension("OES_vertex_array_object");
             setExtensionMap(WebGLExtension.OES_vertex_array_object, _vaoExt, this._extensionMap);
-            const _angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");
+            const _angleInstancedArrays = getGlExtension("ANGLE_instanced_arrays");
             setExtensionMap(WebGLExtension.ANGLE_instanced_arrays, _angleInstancedArrays, this._extensionMap);
-            const _oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
+            const _oesTextureHalfFloat = getGlExtension("OES_texture_half_float");
             setExtensionMap(WebGLExtension.OES_texture_half_float, _oesTextureHalfFloat, this._extensionMap);
-            const _oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
+            const _oesTextureHalfFloatLinear = getGlExtension("OES_texture_half_float_linear");
             setExtensionMap(WebGLExtension.OES_texture_half_float_linear, _oesTextureHalfFloatLinear, this._extensionMap);
-            const _oesTextureFloat = this._getExtension("OES_texture_float");
+            const _oesTextureFloat = getGlExtension("OES_texture_float");
             setExtensionMap(WebGLExtension.OES_texture_float, _oesTextureFloat, this._extensionMap);
 
-            const _oes_element_index_uint = this._getExtension("OES_element_index_uint");
+            const _oes_element_index_uint = getGlExtension("OES_element_index_uint");
             setExtensionMap(WebGLExtension.OES_element_index_uint, _oes_element_index_uint, this._extensionMap);
-            const _extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
+            const _extShaderTextureLod = getGlExtension("EXT_shader_texture_lod");
             setExtensionMap(WebGLExtension.EXT_shader_texture_lod, _extShaderTextureLod, this._extensionMap);
-            const _webgl_depth_texture = this._getExtension("WEBGL_depth_texture");
+            const _webgl_depth_texture = getGlExtension("WEBGL_depth_texture");
             setExtensionMap(WebGLExtension.WEBGL_depth_texture, _webgl_depth_texture, this._extensionMap);
-            const _sRGB = this._getExtension("EXT_sRGB");
+            const _sRGB = getGlExtension("EXT_sRGB");
             setExtensionMap(WebGLExtension.EXT_sRGB, _sRGB, this._extensionMap);
 
-            const OES_standard_derivatives = this._getExtension("OES_standard_derivatives");
+            const OES_standard_derivatives = getGlExtension("OES_standard_derivatives");
             setExtensionMap(WebGLExtension.OES_standard_derivatives, OES_standard_derivatives, this._extensionMap);
         }
     }
@@ -152,24 +156,11 @@ export class GlCapable {
     }
 
     getExtension(type: WebGLExtension): any {
-        if (this._extensionMap.has(type))
-            return this._extensionMap.get(type);
-        else
-            return null;
+        return this._extensionMap.get(type) || null;
     }
 
-    /**
-     * @internal
-     */
-    private _getExtension(name: string) {
-        const prefixes: string[] = this._extentionVendorPrefixes;
-        for (const k in prefixes) {
-            var ext = this._gl.getExtension(prefixes[k] + name);
-            if (ext)
-                return ext;
-        }
-        return null;
+    turnOffSRGB(): void {
+        this._extensionMap.set(WebGLExtension.EXT_sRGB, null);
+        this._capabilityMap.set(RenderCapable.Texture_SRGB, false);
     }
-
-
 }

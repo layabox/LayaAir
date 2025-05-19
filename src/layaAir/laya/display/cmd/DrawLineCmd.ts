@@ -52,7 +52,6 @@ export class DrawLineCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawLineCmd instance
      * @param fromX X-axis start position
      * @param fromY Y-axis start position

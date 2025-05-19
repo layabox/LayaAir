@@ -366,7 +366,7 @@ export class GButton extends GLabel {
 
     private _click(evt: Event): void {
         if (this._sound)
-            SoundManager.playSound(this._sound, 1, null, null, 0, this._soundVolumeScale);
+            SoundManager.playSound(this._sound).volume = this._soundVolumeScale;
 
         let ss = (<GPanel>this.parent)?.selection;
         if (ss && ss.mode != SelectionMode.None) {

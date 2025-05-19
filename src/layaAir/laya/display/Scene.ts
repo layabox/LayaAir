@@ -17,6 +17,7 @@ import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { LayaEnv } from "../../LayaEnv";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { type Scene3D } from "../d3/core/scene/Scene3D";
 
 export interface ILight2DManager {
     preRenderUpdate(context: Context): void;
@@ -49,7 +50,7 @@ export class Scene extends Sprite {
     private static _root: Sprite;
     private static _loadPage: Sprite;
 
-    /**@private 场景组件管理表 */
+    /** 场景组件管理表 */
     private static componentManagerMap: Map<string, any> = new Map();
 
     /**
@@ -71,7 +72,7 @@ export class Scene extends Sprite {
     /**
      * @internal
      */
-    _scene3D: any;
+    _scene3D: Scene3D;
 
     /**
      * @internal
@@ -242,7 +243,7 @@ export class Scene extends Sprite {
      * @en 3D scene instances included in the scene
      * @zh 场景包含的3D场景实例
      */
-    get scene3D() {
+    get scene3D(): Scene3D {
         return this._scene3D;
     }
 
@@ -471,7 +472,7 @@ export class Scene extends Sprite {
             else if (ret._nodeType === 1) {
                 scene = new Scene();
                 scene.left = scene.right = scene.top = scene.bottom = 0;
-                scene._scene3D = ret;
+                scene._scene3D = <Scene3D>ret;
             }
             else
                 throw "Not a scene:" + url;

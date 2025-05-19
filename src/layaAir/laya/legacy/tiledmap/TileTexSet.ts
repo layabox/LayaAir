@@ -1,5 +1,6 @@
 import { ILaya } from "../../../ILaya";
 import { Texture } from "../../resource/Texture";
+import { Browser } from "../../utils/Browser";
 import { TileAniSprite } from "./TileAniSprite";
 
 
@@ -110,7 +111,7 @@ export class TileTexSet {
         if (this._spriteNum == 0) {
             //每3帧刷新一下吧，每帧刷新可能太耗了
             ILaya.timer.frameLoop(3, this, this.animate);
-            this._preFrameTime = ILaya.Browser.now();
+            this._preFrameTime = Browser.now();
             this._frameIndex = 0;
             this._time = 0;
             this._interval = 0;
@@ -129,7 +130,7 @@ export class TileTexSet {
      */
     private animate(): void {
         if (this.textureArray && this.textureArray.length > 0 && this.durationTimeArray && this.durationTimeArray.length > 0) {
-            var tNow: number = ILaya.Browser.now();
+            var tNow: number = Browser.now();
             this._interval = tNow - this._preFrameTime;
             this._preFrameTime = tNow;
             if (this._interval > this.animationTotalTime) {

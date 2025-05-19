@@ -364,11 +364,9 @@ export class Physics2DWorldManager implements IElementComponentManager {
 
     /**
      * @zh 查询物理世界中对射线路径上的所有形状，可以获取最近点、任意点、还是 n 点。射线投射会忽略包含起点的形状。
-     * @param 
      * @param startPos 射线开始位置
      * @param endPos 射线结束位置
      * @en Query the physical world for all shapes on a ray path, either the closest point, any point, or n points. Ray casting ignores shapes that contain the starting point.
-     * @param 
      * @param startPos ray start position
      * @param endPos ray end position
      */

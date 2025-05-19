@@ -59,6 +59,8 @@ export const allBundles = [{
         'Config3D.ts',
         "laya/bt/**/*.*",
         'laya/physics/IPhysiscs2DFactory.ts',
+
+        'laya/platform/**/*.*',
     ],
     copy: ['jsLibs/laya.workerloader.js']
 },
@@ -362,5 +364,68 @@ export const allBundles = [{
     input: [
         'laya/d3/postProcessEffect/**/*.*'
     ]
-}
-];
+},
+//Adaptation libraries
+{
+    name: 'adapter-native',
+    input: [
+        'platforms/native/**/*.*',
+        'platforms/minigame/WasmUtils.ts',
+    ],
+},
+{
+    name: 'adapter-alipay',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/alipay/**/*.*'
+    ],
+},
+{
+    name: 'adapter-huawei',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/huawei/**/*.*'
+    ],
+},
+{
+    name: 'adapter-bytedance',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bytedance/**/*.*'
+    ],
+},
+{
+    name: 'adapter-oppo',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/oppo/**/*.*'
+    ],
+},
+{
+    name: 'adapter-taobao',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/taobao/**/*.*'
+    ],
+},
+{
+    name: 'adapter-vivo',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/vivo/**/*.*'
+    ],
+},
+{
+    name: 'adapter-weixin',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/weixin/**/*.*'
+    ],
+},
+{
+    name: 'adapter-xiaomi',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/xiaomi/**/*.*'
+    ],
+}];

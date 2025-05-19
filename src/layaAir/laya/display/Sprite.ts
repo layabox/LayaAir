@@ -1303,9 +1303,9 @@ export class Sprite extends Node {
         }
         //imgdata.data.set(dt);
         //画到2d画布上
-        var canv = new HTMLCanvas(true);
+        let canv = new HTMLCanvas(true);
         canv.size(canvasWidth, canvasHeight);
-        var ctx2d = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        let ctx2d = <CanvasRenderingContext2D>(canv.context as any);
         ctx2d.putImageData(imgdata, 0, 0);
         rt.destroy();
         return canv;

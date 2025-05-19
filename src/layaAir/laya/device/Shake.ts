@@ -3,8 +3,7 @@ import { Accelerator } from "./motion/Accelerator"
 import { RotationInfo } from "./motion/RotationInfo"
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Event } from "../events/Event";
-import { ILaya } from "../../ILaya";
-
+import { Browser } from "../utils/Browser";
 
 /**
  * @en Shake is usually achieved through the built-in accelerometer and gyroscope sensors in a mobile phone, and it only works on devices that support this operation.
@@ -21,13 +20,8 @@ export class Shake extends EventDispatcher {
 
     private lastMillSecond: number;
 
-    constructor() {
-        super();
-
-
-    }
-
     private static _instance: Shake;
+
     /**
      * @en The singleton instance of Shake.
      * @zh  Shake 的单例实例。
@@ -71,23 +65,23 @@ export class Shake extends EventDispatcher {
             this.lastY = accelerationIncludingGravity.y;
             this.lastZ = accelerationIncludingGravity.z;
 
-            this.lastMillSecond = ILaya.Browser.now();
+            this.lastMillSecond = Browser.now();
             return;
         }
 
         // 速度增量计算。
-        var deltaX: number = Math.abs(this.lastX - accelerationIncludingGravity.x);
-        var deltaY: number = Math.abs(this.lastY - accelerationIncludingGravity.y);
-        var deltaZ: number = Math.abs(this.lastZ - accelerationIncludingGravity.z);
+        let deltaX: number = Math.abs(this.lastX - accelerationIncludingGravity.x);
+        let deltaY: number = Math.abs(this.lastY - accelerationIncludingGravity.y);
+        let deltaZ: number = Math.abs(this.lastZ - accelerationIncludingGravity.z);
 
         // 是否满足摇晃选项。
         if (this.isShaked(deltaX, deltaY, deltaZ)) {
-            var deltaMillSecond: number = ILaya.Browser.now() - this.lastMillSecond;
+            let deltaMillSecond: number = Browser.now() - this.lastMillSecond;
 
             // 按照设定间隔触发摇晃。
             if (deltaMillSecond > this.shakeInterval) {
                 this.event(Event.CHANGE);
-                this.lastMillSecond = ILaya.Browser.now();
+                this.lastMillSecond = Browser.now();
             }
         }
 

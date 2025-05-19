@@ -198,10 +198,15 @@ export class EventDispatcher {
      * @returns 此 EventDispatcher 对象。
      */
     offAll(type?: string): EventDispatcher {
-        if (type == null)
-            this._events = null;
+        if (!this._events)
+            return this;
+
+        if (type == null) {
+            for (let type in this._events)
+                this._events[type].clear();
+        }
         else {
-            let listeners = this._events && this._events[type];
+            let listeners = this._events[type];
             if (listeners)
                 listeners.clear();
         }

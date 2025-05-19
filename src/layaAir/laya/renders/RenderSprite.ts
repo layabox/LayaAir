@@ -15,6 +15,7 @@ import { Context } from "./Context";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { Render2DSimple } from "./Render2D";
 import { SpriteCache } from "./SpriteCache";
+import { Render } from "./Render";
 
 /**
  * @ignore
@@ -293,7 +294,7 @@ export class RenderSprite {
      */
     _renderNextToCacheRT(sprite: Sprite, context: Context, marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0) {
         let cache = sprite._getCacheStyle();
-        if (sprite._needRepaint() || !cache.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if (sprite._needRepaint() || !cache.renderTexture || Render.isGlobalRepaint()) {
             if (cache.renderTexture) {
                 cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
@@ -447,7 +448,7 @@ export class RenderSprite {
      */
     static RenderToCacheTexture(sprite: Sprite, context: Context | null, x: number, y: number, isDrawRenderRect: boolean = true) {
         let cache = sprite._getCacheStyle();
-        if (sprite._needRepaint() || !cache.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if (sprite._needRepaint() || !cache.renderTexture || Render.isGlobalRepaint()) {
             if (cache.renderTexture) {
                 cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
@@ -513,7 +514,7 @@ export class RenderSprite {
         }
         let cache = sprite._getCacheStyle();
         //由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
-        if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed || ILaya.stage.isGlobalRepaint()) {
+        if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed || Render.isGlobalRepaint()) {
             if (cache.renderTexture) {
                 cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }

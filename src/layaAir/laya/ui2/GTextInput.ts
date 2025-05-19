@@ -14,7 +14,6 @@ export class GTextInput extends GWidget {
         this.textIns = new Input();
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.overflow = "hidden";
-        this.textIns.wordWrap = true;
         this.textIns.padding.fill(2);
         this.textIns.on(Event.KEY_DOWN, this, this._onKeyDown);
         this.addChild(this.textIns);

@@ -2,7 +2,7 @@ import { AtlasGrid } from "./AtlasGrid";
 import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point"
 import { CharRenderInfo } from "./CharRenderInfo"
-import { TextRender } from "./TextRender";
+import { TextRenderConfig } from "./TextRenderConfig";
 
 /**
  *  文字贴图的大图集。
@@ -12,17 +12,16 @@ export class TextAtlas {
     texHeight: number = 1024;
     private atlasgrid: AtlasGrid;
     //private protectDist: number = 1;
-    texture: TextTexture|null = null;
-    charMaps: {[key:string]:CharRenderInfo} = {};		// 保存文字信息的字典
-    static atlasGridW: number = 16;
+    texture: TextTexture | null = null;
+    charMaps: { [key: string]: CharRenderInfo } = {}; // 保存文字信息的字典
 
     constructor() {
-        this.texHeight = this.texWidth = TextRender.atlasWidth;
+        this.texHeight = this.texWidth = TextRenderConfig.atlasWidth;
         this.texture = TextTexture.getTextTexture(this.texWidth, this.texHeight);
-        if (this.texWidth / TextAtlas.atlasGridW > 256) {
-            TextAtlas.atlasGridW = Math.ceil(this.texWidth / 256);
+        if (this.texWidth / TextRenderConfig.atlasGridW > 256) {
+            TextRenderConfig.atlasGridW = Math.ceil(this.texWidth / 256);
         }
-        this.atlasgrid = new AtlasGrid(this.texWidth / TextAtlas.atlasGridW, this.texHeight / TextAtlas.atlasGridW, this.texture.id);
+        this.atlasgrid = new AtlasGrid(this.texWidth / TextRenderConfig.atlasGridW, this.texHeight / TextRenderConfig.atlasGridW, this.texture.id);
     }
 
     setProtecteDist(d: number): void {
@@ -37,10 +36,10 @@ export class TextAtlas {
      * @return
      */
     getAEmpty(w: number, h: number, pt: Point): boolean {
-        var find: boolean = this.atlasgrid.addRect(1, Math.ceil(w / TextAtlas.atlasGridW), Math.ceil(h / TextAtlas.atlasGridW), pt);
+        var find: boolean = this.atlasgrid.addRect(1, Math.ceil(w / TextRenderConfig.atlasGridW), Math.ceil(h / TextRenderConfig.atlasGridW), pt);
         if (find) {
-            pt.x *= TextAtlas.atlasGridW;
-            pt.y *= TextAtlas.atlasGridW;
+            pt.x *= TextRenderConfig.atlasGridW;
+            pt.y *= TextRenderConfig.atlasGridW;
         }
         return find;
     }

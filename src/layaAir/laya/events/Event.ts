@@ -259,6 +259,13 @@ export class Event {
      * @zh 定义 `visibilitychange` 事件对象的 `type` 属性值。
      */
     static VISIBILITY_CHANGE = "visibilitychange";
+
+    /**
+     * @en Defines the value of the `type` property of a `orientationchange` event object.
+     * @zh 定义 `orientationchange` 事件对象的 `type` 属性值。
+     */
+    static ORIENTATION_CHANGE = "orientationchange";
+
     /**
      * @en Defines the value of the `type` property of a `focuschange` event object.
      * @zh 定义 `focuschange` 事件对象的 `type` 属性值。

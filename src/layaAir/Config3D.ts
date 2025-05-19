@@ -17,8 +17,6 @@ export class Config3D {
      */
     static enableStaticBatch: boolean = true;
 
-   
-
     /**
      * @en Set 3D RT resolution multiplier
      * @zh 设置3D RT分辨率倍数
