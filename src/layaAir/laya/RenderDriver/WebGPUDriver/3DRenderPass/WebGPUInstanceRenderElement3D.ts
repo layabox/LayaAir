@@ -178,24 +178,25 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     private _updateInstanceData() {
         if (this.updateNums != 0)
             this.clearRenderData(); //?
+
+        let worldDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+        let worldMatFloatStride = worldDeclaration.vertexStride / 4;
+        const worldMatrixData = this.getUpdateData(0, worldMatFloatStride * WebGPUInstanceRenderElement3D.MaxInstanceCount);
+        this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, worldMatFloatStride);
+        const insBatches = this.instanceElementList;
+        const elements = insBatches.elements;
+        const count = insBatches.length;
+        this.drawCount = count;
+        this.geometry.instanceCount = this.drawCount;
+        for (let i = 0; i < count; i++) {
+            let element = elements[i] as WebGPURenderElement3D;
+            worldMatrixData.set(element.transform.worldMatrix.elements, i * worldMatFloatStride);
+            element.owner._worldParams.writeTo(worldMatrixData, i * worldMatFloatStride + 16);
+        }
+
         switch (this.owner.renderNodeType) {
             case BaseRenderType.MeshRender:
                 {
-                    let worldDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-                    let worldMatFloatStride = worldDeclaration.vertexStride / 4;
-                    const worldMatrixData = this.getUpdateData(0, worldMatFloatStride * WebGPUInstanceRenderElement3D.MaxInstanceCount);
-                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, worldMatFloatStride);
-                    const insBatches = this.instanceElementList;
-                    const elements = insBatches.elements;
-                    const count = insBatches.length;
-                    this.drawCount = count;
-                    this.geometry.instanceCount = this.drawCount;
-                    for (let i = 0; i < count; i++) {
-                        let element = elements[i] as WebGPURenderElement3D;
-                        worldMatrixData.set(element.transform.worldMatrix.elements, i * worldMatFloatStride);
-                        element.owner._worldParams.writeTo(worldMatrixData, i * worldMatFloatStride + 16);
-                    }
-
                     const haveLightMap = this.renderShaderData.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP) && this.renderShaderData.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
                     if (haveLightMap) {
                         const lightMapData = this.getUpdateData(1, 4 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
@@ -213,16 +214,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                 }
             case BaseRenderType.SimpleSkinRender:
                 {
-                    const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
-                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                    const insBatches = this.instanceElementList;
-                    const elements = insBatches.elements;
-                    const count = insBatches.length;
-                    this.drawCount = count;
-                    this.geometry.instanceCount = this.drawCount;
-                    for (let i = 0; i < count; i++)
-                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-
                     const simpleAnimatorData = this.getUpdateData(1, 4 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
                     for (let i = 0; i < count; i++) {
                         const simpleAnimatorParams = elements[i].renderShaderData.getVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS);
