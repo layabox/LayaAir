@@ -15,9 +15,8 @@ export class Config {
      */
     static useWebGL2: boolean = true;
 
-    /**@internal */
+    /** @internal */
     static _uniformBlock: boolean;
-
 
     /** 
     * @en Whether to enable UniformBuffer
@@ -38,8 +37,8 @@ export class Config {
     static FPS = 60;
 
     /**
-     * @en Whether to use retina mode, which may create larger RT on iOS for better effects
-     * @zh 是否使用视网膜模式，在iOS上面可能会创建更大的RT，来达到更佳的效果
+     * @en Whether to use the retina mode. In retina mode, a larger canvas is created for finer display effects.
+     * @zh 是否使用视网膜模式。在视网膜模式下，会创建更大的Canvas，来达到更精细的显示效果
      */
     static useRetinalCanvas: boolean = false;
 
@@ -145,8 +144,12 @@ export class Config {
      * @zh 资源引用参数为0是否立即删除资源，如果不立即删除请调用DestrotyUnUse
      */
     static destroyResourceImmediatelyDefault = true;
-    /**@internal */
-    static _enableWindowRAFFunction: boolean = true;
+
+    /**
+     * @en The maximum size of the audio buffer cache in bytes. After exceeding this size, the oldest unused audio data in the cache will be cleared.
+     * @zh 声音缓冲区缓存的最大大小（字节）。超出后将清除缓存中最久未使用的音频数据。
+     */
+    static audioBufferCacheMaxSize: number = 5 * 1024 * 1024;
 }
 
 export const PlayerConfig: {

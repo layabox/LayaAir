@@ -19,6 +19,7 @@ import { AssetDb } from "../resource/AssetDb";
 import { BaseTexture } from "../resource/BaseTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { XML } from "../html/XML";
+import { Browser } from "../utils/Browser";
 
 export interface ILoadTask {
     readonly type: string;
@@ -1267,135 +1268,121 @@ export class Loader extends EventDispatcher {
             if (!remoteUrl.endsWith("/"))
                 remoteUrl += "/";
             URL.basePaths[path.length > 0 ? (path + "/") : path] = remoteUrl;
-            return this._loadSubFileConfig(path, null, progress);
+            return this._loadFileConfig(path, true, progress);
         } else {
             if (LayaEnv.isPreview)
                 return Promise.resolve();
 
-            let mini = ILaya.Browser.miniGameContext;
+            if (path.length === 0)
+                return this._loadFileConfig(path, true, progress);
+            else
+                return new Promise((resolve) => {
+                    Loader.downloader.package(path, progress, (data, error) => {
+                        if (error != null) {
+                            Loader.warn(`Failed to load package '${path}'`, error);
+                            resolve();
+                            return;
+                        }
 
-            if (mini == null) {
-                return this._loadSubFileConfig(path, null, progress);
-            }
-            else {
-                return this._loadMiniPackage(mini, path, progress).then(() =>
-                    this._loadSubFileConfig(path, mini, progress)
-                );
-            }
+                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(() => resolve);
+                    });
+                });
         }
     }
 
-    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
-        if (mini.subPkgNameSeperator)
-            packName = packName.replace(/\//g, mini.subPkgNameSeperator);
-        if (!(packName.length > 0)) return Promise.resolve();
-        return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
-            let loadTask: any = mini.loadSubpackage({
-                name: packName,
-                success: (res: any) => {
-                    resolve(res);
-                },
-                fail: (res: any) => {
-                    reject(res);
-                }
-            });
-
-            loadTask.onProgressUpdate && loadTask.onProgressUpdate((res: any) => {
-                progress && progress(res);
-            });
-        })
-    }
-
-    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<any> {
-        if (mini && mini.subPkgPathSeperator)
-            path = path.replace(/\//g, mini.subPkgPathSeperator);
+    _loadFileConfig(path: string, loadScript: boolean, onProgress: ProgressCallback): Promise<any> {
         if (path.length > 0)
             path += "/";
 
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
-            let files: Array<string> = [];
-            let col = fileConfig.files;
-            for (let k in col) {
-                if (k.length > 0) {
-                    for (let file of col[k])
-                        files.push(k + "/" + file);
-                }
+            if (fileConfig == null)
+                return;
+
+            this._parseFileConfig(fileConfig);
+
+            if (loadScript && fileConfig.entry)
+                Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+        });
+    }
+
+    _parseFileConfig(fileConfig: any) {
+        let files: Array<string> = [];
+        let col = fileConfig.files;
+        for (let k in col) {
+            if (k.length > 0) {
+                for (let file of col[k])
+                    files.push(k + "/" + file);
+            }
+            else {
+                for (let file of col[k])
+                    files.push(file);
+            }
+        }
+
+        if (fileConfig.hash) {
+            let i = 0;
+            let version = URL.version;
+            for (let k of fileConfig.hash) {
+                if (k != null)
+                    version[files[i]] = k;
+                i++;
+            }
+        }
+
+        let configs: Array<any> = fileConfig.config;
+        let len = configs.length;
+        let i = 0, j = 0, m = 0, k = 0, n = 0;
+        let indice: Array<number>;
+        let c: any;
+        let metaMap = AssetDb.inst.metaMap;
+        while (true) {
+            if (indice == null) {
+                if (i >= len)
+                    break;
+                c = configs[i];
+                indice = c.i;
+                if (Array.isArray(indice))
+                    n = indice.length;
                 else {
-                    for (let file of col[k])
-                        files.push(file);
+                    m = indice;
+                    n = 0;
+                    k = 1;
                 }
+                j = 0;
             }
-
-            if (fileConfig.hash) {
-                let i = 0;
-                let version = URL.version;
-                for (let k of fileConfig.hash) {
-                    if (k != null)
-                        version[files[i]] = k;
+            if (k == 0) {
+                if (j >= n) {
                     i++;
+                    indice = null;
+                    continue;
                 }
-            }
-
-            let configs: Array<any> = fileConfig.config;
-            let len = configs.length;
-            let i = 0, j = 0, m = 0, k = 0, n = 0;
-            let indice: Array<number>;
-            let c: any;
-            let metaMap = AssetDb.inst.metaMap;
-            while (true) {
-                if (indice == null) {
-                    if (i >= len)
-                        break;
-                    c = configs[i];
-                    indice = c.i;
-                    if (Array.isArray(indice))
-                        n = indice.length;
-                    else {
-                        m = indice;
-                        n = 0;
-                        k = 1;
-                    }
-                    j = 0;
-                }
-                if (k == 0) {
-                    if (j >= n) {
-                        i++;
-                        indice = null;
-                        continue;
-                    }
-                    k = indice[j++];
-                    if (k > 0) {
-                        m = k;
-                        k = 0;
-                    }
-                    else
-                        k = -k;
+                k = indice[j++];
+                if (k > 0) {
+                    m = k;
+                    k = 0;
                 }
                 else
-                    k--;
-
-                let file = files[m + k];
-                switch (c.t) {
-                    case 0: //图片
-                        metaMap[file] = c;
-                        break;
-                    case 1: //自动图集
-                        AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
-                        break;
-                    case 2: //Shader
-                        AssetDb.inst.shaderNameMap[c.shaderName] = file;
-                        break;
-                    case 3: //render texture
-                        Loader.preLoadedMap[URL.formatURL(file)] = c;
-                        break;
-                }
+                    k = -k;
             }
-
-            if (!mini && fileConfig.entry)
-                return ILaya.Browser.loadLib(URL.formatURL(path + fileConfig.entry));
             else
-                return Promise.resolve();
-        });
+                k--;
+
+            let file = files[m + k];
+            switch (c.t) {
+                case 0: //图片
+                    metaMap[file] = c;
+                    break;
+                case 1: //自动图集
+                    AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
+                    break;
+                case 2: //Shader
+                    AssetDb.inst.shaderNameMap[c.shaderName] = file;
+                    break;
+                case 3: //render texture
+                    Loader.preLoadedMap[URL.formatURL(file)] = c;
+                    break;
+            }
+        }
     }
 }
 
@@ -1477,7 +1464,7 @@ const dummyOptions: ILoadOptions = {};
 interface DownloadItem {
     url: string;
     originalUrl: string;
-    contentType: string;
+    contentType: keyof ContentTypeMap;
     priority: number;
     useWorkerLoader?: boolean;
     workerLoaderOptions?: Record<string, any>;

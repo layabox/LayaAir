@@ -990,7 +990,6 @@ export class Node extends EventDispatcher {
      * @zh 节点的组件列表。
      */
     protected _components: Component[];
-    /**@private */
     private _activeChangeScripts: Component[];
 
 

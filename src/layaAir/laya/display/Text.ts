@@ -139,7 +139,7 @@ export class Text extends Sprite {
      * @zh 表示使用此文本格式的文本字段是否自动换行。
      * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
      */
-    protected _wordWrap: boolean;
+    protected _wordWrap: boolean = false;
 
     /**
      * @internal
@@ -148,7 +148,7 @@ export class Text extends Sprite {
      * @zh 指定文本字段是否是密码文本字段。
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
      */
-    protected _asPassword: boolean;
+    protected _asPassword: boolean = false;
 
     protected _htmlParseOptions: HtmlParseOptions;
 
@@ -175,13 +175,13 @@ export class Text extends Sprite {
     protected _bitmapFont: BitmapFont;
     protected _scrollPos: Point | null;
     protected _bgDrawCmd: DrawRectCmd;
-    protected _html: boolean;
-    protected _ubb: boolean;
+    protected _html: boolean = false;
+    protected _ubb: boolean = false;
     protected _lines: Array<ITextLine>;
     protected _elements: Array<HtmlElement>
     protected _objContainer: Sprite;
     protected _maxWidth: number = 0;
-    protected _hideText: boolean;
+    protected _hideText: boolean = false;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
 
@@ -386,10 +386,12 @@ export class Text extends Sprite {
             let fontObj = ILaya.loader.getRes(value);
             if (!fontObj || fontObj.obsolute) {
                 ILaya.loader.load(value).then(fontObj => {
-                    if (!fontObj || this._realFont != t)
+                    if (this._realFont != t)
                         return;
 
-                    if (fontObj instanceof BitmapFont)
+                    if (!fontObj)
+                        this._realFont = "arial";
+                    else if (fontObj instanceof BitmapFont)
                         this._bitmapFont = fontObj;
                     else
                         this._realFont = fontObj.family;
@@ -411,6 +413,14 @@ export class Text extends Sprite {
             if (this._text)
                 this.markChanged();
         }
+    }
+
+    /**
+     * @en The actual font name used for rendering.
+     * @zh 实际用于渲染的字体名称。
+     */
+    get realFont() {
+        return this._realFont;
     }
 
     /**
@@ -976,6 +986,24 @@ export class Text extends Sprite {
     }
 
     /**
+     * @en Hide the text. This is commonly used for input text field when it is focused.
+     * @zh 隐藏文本。常用于输入文本框处于焦点时。
+     */
+    hideText(value: boolean) {
+        this._hideText = value;
+        if (value) {
+            if (this._bgDrawCmd)
+                this.graphics.removeCmd(this._bgDrawCmd);
+            this.graphics.clear(true);
+            this.drawBg();
+        }
+        else {
+            this.markChanged();
+            this.typeset();
+        }
+    }
+
+    /**
      * 排版文本。
      * 进行宽高计算，渲染、重绘文本。
      */
@@ -1190,7 +1218,7 @@ export class Text extends Sprite {
         };
 
         let moveCmds = (cmd: ITextCmd) => {
-            while (cmd.linkEnd) { //跳过空链接的结束符
+            while (cmd.linkEnd && cmd.next) { //跳过空链接的结束符
                 cmd = cmd.next;
             }
             if (!cmd)

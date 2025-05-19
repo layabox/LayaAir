@@ -1,10 +1,12 @@
 import { ILaya } from "../../../ILaya";
 import { Sprite } from "../../display/Sprite";
+import { PAL } from "../../platform/PlatformAdapters";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { Texture } from "../../resource/Texture";
 import { CharRenderInfo } from "./CharRenderInfo";
 import { TextAtlas } from "./TextAtlas";
 import { TextRender } from "./TextRender";
+import { TextRenderConfig } from "./TextRenderConfig";
 import { TextTexture } from "./TextTexture";
 
 export class TextDebug {
@@ -12,10 +14,10 @@ export class TextDebug {
     static showTextAtlas(texttex: TextTexture, n: number, bgcolor: string, x: number, y: number, w: number, h: number): Sprite {
         var sp = new Sprite();
         var texture: any = {
-            width: TextRender.atlasWidth,
-            height: TextRender.atlasWidth,
-            sourceWidth: TextRender.atlasWidth,
-            sourceHeight: TextRender.atlasWidth,
+            width: TextRenderConfig.atlasWidth,
+            height: TextRenderConfig.atlasWidth,
+            sourceWidth: TextRenderConfig.atlasWidth,
+            sourceHeight: TextRenderConfig.atlasWidth,
             offsetX: 0,
             offsetY: 0,
             getIsReady: function (): boolean { return true; },
@@ -33,8 +35,8 @@ export class TextDebug {
     }
 
     static printRenderInfo(render: TextRender): void {
-        console.log('图集个数:' + render.textAtlases.length + ',每个图集大小:' + TextRender.atlasWidth + 'x' + TextRender.atlasWidth, ' 用canvas:', TextRender.isWan1Wan);
-        console.log('图集占用空间:' + (TextRender.atlasWidth * TextRender.atlasWidth * 4 / 1024 / 1024 * render.textAtlases.length) + 'M');
+        console.log('图集个数:' + render.textAtlases.length + ',每个图集大小:' + TextRenderConfig.atlasWidth + 'x' + TextRenderConfig.atlasWidth, ' 用canvas:', !TextRenderConfig.useImageData);
+        console.log('图集占用空间:' + (TextRenderConfig.atlasWidth * TextRenderConfig.atlasWidth * 4 / 1024 / 1024 * render.textAtlases.length) + 'M');
         console.log('缓存用到的字体:');
         for (var f in render.mapFont) {
             var fontsz = render.getFontSizeInfo(f);
@@ -57,7 +59,7 @@ export class TextDebug {
             console.log('--图集(id:' + id + ',当前使用率:' + (a.texture.curUsedCovRate * 1000 | 0) + '‰', '当前图集使用率:', (a.texture.curUsedCovRateAtlas * 100 | 0) + '%', '图集使用率:', (a.usedRate * 100 | 0), '%, 使用于:' + dtstr + ')--:');
             for (var k in a.charMaps) {
                 var ri: CharRenderInfo = a.charMaps[k];
-                console.log('     off:', ri.orix, ri.oriy, ' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (RenderInfo.loopCount - ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
+                console.log('     off:', ri.orix, ri.oriy, ' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (RenderInfo.loopCount - ri.touchTick), '位置:', ri.uv[0] * TextRenderConfig.atlasWidth | 0, ri.uv[1] * TextRenderConfig.atlasWidth | 0,
                     '字符:', ri.char, 'key:', k);
                 num++;
             }

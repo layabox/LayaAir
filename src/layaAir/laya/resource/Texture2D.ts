@@ -13,6 +13,7 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { LayaGL } from "../layagl/LayaGL";
+import { Browser } from "../utils/Browser";
 
 /**
  * @en Interface for texture property parameters.
@@ -218,10 +219,10 @@ export class Texture2D extends BaseTexture {
             if (LayaEnv.isConch && imageSource._nativeObj) {
                 texture._pixels = new Uint8Array(imageSource._nativeObj.getImageData(0, 0, imageSource.width, imageSource.height));
             } else {
-                ILaya.Browser.canvas.size(imageSource.width, imageSource.height);
-                ILaya.Browser.canvas.clear();
-                ILaya.Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
-                texture._pixels = new Uint8Array(ILaya.Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
+                Browser.canvas.size(imageSource.width, imageSource.height);
+                Browser.canvas.clear();
+                Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
+                texture._pixels = new Uint8Array(Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
             }
         }
 

@@ -42,7 +42,6 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     lineWidth: number;
 
     /**
-     * @private
      * @en Create a DrawCurvesCmd instance
      * @param x X-axis position to start drawing
      * @param y Y-axis position to start drawing

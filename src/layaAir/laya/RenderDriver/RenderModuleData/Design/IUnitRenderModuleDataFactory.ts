@@ -4,6 +4,7 @@ import { IShaderPassData } from "./IShaderPassData";
 import { ISubshaderData } from "./ISubShaderData";
 import { RenderState } from "./RenderState";
 
+/** @ignore */
 export interface IUnitRenderModuleDataFactory{
     createRenderState():RenderState;
     //createShaderDefine(index:number,value:number):ShaderDefine;

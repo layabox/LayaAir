@@ -86,6 +86,7 @@ async function buildBundles() {
         files = files.filter(ele => ele.endsWith(".ts"))
             .map(ele => ele = ele.substring(0, ele.length - 3) + ".js");
         let fileSet = new Set(files.map(ele => path.normalize(outPath + ele)));
+        let sourcemap = !bundleDef.name.startsWith("adapter-");
 
         let config = {
             input: mentry + bundleDef.name,
@@ -102,7 +103,7 @@ async function buildBundles() {
                 rollupSourcemaps(),
                 glsl({
                     include: /.*(.glsl|.vs|.fs)$/,
-                    sourceMap: true,
+                    sourceMap: sourcemap,
                     compress: true
                 })
             ],
@@ -117,7 +118,7 @@ async function buildBundles() {
             globals: {
                 'Laya': 'Laya'
             },
-            sourcemap: true
+            sourcemap: sourcemap
         };
         if (bundleDef.name != "core")
             outputOption.extend = true;
@@ -203,6 +204,9 @@ async function buildDeclarations() {
     let files = emitResult.getFiles();
     files.sort((a, b) => a.filePath.localeCompare(b.filePath));
     for (let file of files) {
+        if (!file.filePath.endsWith("d.ts"))
+            continue;
+
         let inNamespace = !file.filePath.endsWith("Laya.d.ts") && !file.filePath.endsWith("Laya3D.d.ts");
         let code = file.text;
         let declarationFile = ts.createSourceFile(file.filePath, code, ts.ScriptTarget.Latest, true);

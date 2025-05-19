@@ -21,10 +21,10 @@ import { GLESShaderData } from "./GLESShaderData";
 import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { NotImplementedError } from "../../../utils/Error";
 import { GLESEngine, GLESMode } from "./GLESEngine";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -55,14 +55,14 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
         return new GLESRenderGeometryElement(mode, drawType);
     }
     
-    createEngine(config: Config, canvas: any): Promise<void> {
+    createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         let engine: GLESEngine;
         let glConfig: any = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
 
         //TODO  other engine
         const webglMode: GLESMode = Config.useWebGL2 ? GLESMode.Auto : GLESMode.WebGL1;
         engine = new GLESEngine(glConfig, webglMode);
-        engine.initRenderEngine(canvas._source);
+        engine.initRenderEngine(canvas.source);
 
         new LayaGL();
 

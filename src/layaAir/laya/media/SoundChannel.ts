@@ -1,5 +1,9 @@
+import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher"
+import { AssetDb } from "../resource/AssetDb";
+import { Browser } from "../utils/Browser";
 import { Handler } from "../utils/Handler"
+import { SoundManager } from "./SoundManager";
 
 /**
  * @en The `SoundChannel` class is used to control sounds in the program. Each sound is assigned to a channel, and an application can have multiple channels mixed together.
@@ -12,55 +16,120 @@ export class SoundChannel extends EventDispatcher {
      * @en The URL of the sound.
      * @zh 声音地址。
      */
-    url: string;
+    readonly url: string;
     /**
-     * @en The number of loops.
-     * @zh 循环次数。
+     * @en The number of loops. Zero indicates an infinite loop.
+     * @zh 循环次数。零表示无限循环。
      */
     loops: number;
     /**
-     * @en The start time of sound playback.
-     * @zh 播放声音开始时间。
+     * @en The start time of sound playback. In seconds.
+     * @zh 播放声音开始时间。以秒为单位。
      */
     startTime: number;
     /**
-     * @en Indicates whether the sound is paused. 
-     * @zh 表示声音是否已暂停。
+     * @en Sound playback rate. default value is 1.
+     * @zh 声音播放速率。默认值为1。
      */
-    isStopped: boolean = false;
+    playbackRate: number = 1;
     /**
      * @en The handler for playback completion.
      * @zh 播放完成处理器。
      */
-    completeHandler: Handler;
+    completeHandler: Handler | ((success: boolean) => void);
+
+    protected _started: boolean = false;
+    protected _paused: boolean = false;
+    protected _loaded: boolean = false;
+    protected _completed: boolean = false;
+    protected _repeated: number = 0;
+    protected _volumeSet: number = 1;
+    protected _volume: number = 1;
+    protected _muted: boolean = false;
+    protected _startTime: number = 0;
+    protected _pauseTime: number = 0;
+
+    /** @internal */
+    _isMusic: boolean = false;
+    /** @internal */
+    _autoResume: boolean = false;
+
+    constructor(url: string) {
+        super();
+        this.url = url;
+    }
 
     /**
      * @en The volume. The volume range is from 0 (mute) to 1 (maximum volume).
      * @zh 音量。音量范围从 0（静音）至 1（最大音量）。
      */
     get volume(): number {
-        return 1;
+        return this._volumeSet;
     }
 
-    set volume(v: number) {
-
+    set volume(value: number) {
+        this._volumeSet = value;
+        let t = value * (this._isMusic ? SoundManager.musicVolume : SoundManager.soundVolume);
+        if (t !== this._volume) {
+            this._volume = t;
+            if (this._loaded)
+                this.onVolumeChanged();
+        }
     }
-
 
     /**
-     * @en The current playback time in seconds.
-     * @zh 当前播放时间，单位是秒。
+     * @en Indicates whether the mute switch is turned on. Note that this property is controlled by the SoundManager's mute switch, so it is generally not recommended to set this value directly.
+     * @zh 表示静音开关是否已打开。请注意，这个属性受SoundManager的静音开关控制，因此一般不要直接设置这个值。
+     */
+    get muted(): boolean {
+        return this._muted;
+    }
+
+    set muted(value: boolean) {
+        value = !!value;
+        if (this._muted == value)
+            return;
+
+        this._muted = value;
+        if (this._loaded)
+            this.onMuted();
+    }
+
+    /**
+     * @en The current playback position in seconds
+     * @zh 当前播放位置，以秒为单位
      */
     get position(): number {
-        return 0;
+        if (this._paused)
+            return this._pauseTime;
+        else if (this._startTime != 0)
+            return (Browser.now() - this._startTime) / 1000 + this.startTime;
+        else
+            return this.startTime;
     }
 
     /**
-     * @en The total duration in seconds.
-     * @zh 总时间，单位是秒。
+     * @en The duration of the audio in seconds
+     * @zh 音频的持续时间，以秒为单位
      */
     get duration(): number {
         return 0;
+    }
+
+    /**
+     * @en Indicates whether the sound is paused.
+     * @zh 表示声音是否已暂停。
+     */
+    get paused(): boolean {
+        return this._paused;
+    }
+
+    /**
+     * @en Indicates whether the sound is stopped.
+     * @zh 表示声音是否已停止
+     */
+    get isStopped(): boolean {
+        return !this._started;
     }
 
     /**
@@ -68,7 +137,29 @@ export class SoundChannel extends EventDispatcher {
      * @zh 播放声音。
      */
     play(): void {
+        if (this._started) {
+            if (this._paused)
+                this.resume();
+            return;
+        }
 
+        this._started = true;
+        this._loaded = false;
+        this._completed = false;
+        this._repeated = 0;
+        this._startTime = Browser.now();
+        SoundManager.addChannel(this);
+
+        AssetDb.inst.resolveURL(this.url, url => {
+            if (!this._started)
+                return;
+
+            if (!url) {
+                this.stop();
+                return;
+            }
+            this.onPlay(url);
+        });
     }
 
     /**
@@ -76,7 +167,15 @@ export class SoundChannel extends EventDispatcher {
      * @zh 停止播放。
      */
     stop(): void {
-        if (this.completeHandler) this.completeHandler.runWith(false);
+        if (!this._started)
+            return;
+
+        this._started = false;
+        this._loaded = false;
+        SoundManager.removeChannel(this);
+        this.onStop();
+
+        this.callComplete(this._completed);
     }
 
     /**
@@ -84,6 +183,15 @@ export class SoundChannel extends EventDispatcher {
      * @zh 暂停播放。
      */
     pause(): void {
+        if (!this._started || this._paused)
+            return;
+
+        this._pauseTime = this.position;
+        this._paused = true;
+        this._autoResume = false;
+
+        if (this._loaded)
+            this.onPause();
     }
 
     /**
@@ -91,12 +199,58 @@ export class SoundChannel extends EventDispatcher {
      * @zh 继续播放。
      */
     resume(): void {
+        if (!this._started || !this._paused)
+            return;
+
+        this._paused = false;
+        if (this._loaded)
+            this.onResume();
     }
 
-    protected __runComplete(handler: Handler): void {
-        if (handler) {
-            handler.runWith(true);
+    protected onPlay(url: string) {
+    }
+
+    protected onPlayAgain() {
+    }
+
+    protected onStop() {
+    }
+
+    protected onPause() {
+    }
+
+    protected onResume() {
+    }
+
+    protected onVolumeChanged(): void {
+    }
+
+    protected onMuted(): void {
+    }
+
+    protected onPlayEnd() {
+        this._repeated++;
+        if (this.loops > 0 && this._repeated >= this.loops) {
+            this._completed = true;
+            this.stop();
         }
+        else
+            this.onPlayAgain();
+    }
+
+    protected callComplete(success: boolean): void {
+        if (success)
+            this.event(Event.COMPLETE);
+
+        if (!this.completeHandler)
+            return;
+
+        let handler = this.completeHandler;
+        this.completeHandler = null;
+        if (handler instanceof Handler)
+            handler.runWith(success ?? true);
+        else
+            handler(success ?? true);
     }
 }
 

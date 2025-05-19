@@ -85,11 +85,9 @@ export class AtlasResource extends Resource {
 
     /**
      * @en Updates the atlas resource with new textures and frames.
-     * @param dir Directory of the atlas. 
      * @param textures Array of textures to add to the atlas.
      * @param frames Array of frames corresponding to the textures.
      * @zh 使用新的纹理和帧更新大图合集资源。
-     * @param dir 大图合集的目录路径。
      * @param textures 要添加到大图合集的纹理数组。
      * @param frames 对应纹理的帧数组。 
      */
