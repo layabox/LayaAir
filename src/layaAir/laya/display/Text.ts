@@ -997,7 +997,8 @@ export class Text extends Sprite {
                         //if (newLine.charCodeAt(newLine.length - 1) < 255) {
                         //按照英文单词字边界截取 因此将会无视中文
                         //var execResult = /(?:\w|-)+$/.exec(newLine);
-                        var execResult = /(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
+                        //var execResult = /(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
+                        var execResult = /(?:\w|-)+$/.exec(newLine);
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行

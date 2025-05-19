@@ -28,7 +28,7 @@ export class HttpRequest extends EventDispatcher {
     /**@private */
     protected _http = new XMLHttpRequest();
     /**@private */
-    private static _urlEncode:Function = encodeURI;
+    private static _urlEncode: Function = encodeURI;
     /**@private */
     protected _responseType: string;
     /**@private */
@@ -44,7 +44,7 @@ export class HttpRequest extends EventDispatcher {
      * @param	responseType	(default = "text")Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
      * @param	headers			(default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
      */
-    send(url: string, data: any = null, method: string = "get", responseType: string = "text", headers: any[]|null = null): void {
+    send(url: string, data: any = null, method: string = "get", responseType: string = "text", headers: any[] | null = null): void {
         this._responseType = responseType;
         this._data = null;
 
@@ -55,20 +55,23 @@ export class HttpRequest extends EventDispatcher {
         var _this: HttpRequest = this;
         var http = this._http;
         //临时，因为微信不支持以下文件格式
-		http.open(method, url, true);
-		let isJson = false;
+        http.open(method, url, true);
+        let isJson = false;
         if (headers) {
             for (var i: number = 0; i < headers.length; i++) {
                 http.setRequestHeader(headers[i++], headers[i]);
+                if (headers[i] === "application/json" && !(data instanceof ArrayBuffer) && typeof data !== "string") {
+                    isJson = true;
+                }
             }
         } else if (!(((<any>window)).conch)) {
             if (!data || typeof (data) == 'string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			else{ 
+            else {
                 http.setRequestHeader("Content-Type", "application/json");
                 if (!(data instanceof ArrayBuffer) && typeof data !== "string") {
-                    isJson=true;
+                    isJson = true;
                 }
-			}
+            }
         }
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;
@@ -87,8 +90,8 @@ export class HttpRequest extends EventDispatcher {
         http.onload = function (e: any): void {
             _this._onLoad(e);
         }
-        if(Browser.onBLMiniGame&&Browser.onAndroid&&!data)data={};
-        http.send( isJson?JSON.stringify(data):data);
+        if (Browser.onBLMiniGame && Browser.onAndroid && !data) data = {};
+        http.send(isJson ? JSON.stringify(data) : data);
     }
 
     /**
