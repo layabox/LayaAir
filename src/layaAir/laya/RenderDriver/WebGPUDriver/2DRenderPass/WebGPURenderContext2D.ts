@@ -102,6 +102,9 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
             this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.sceneData, null, resource);
         }
+        else {
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.sceneData, null, []);
+        }
     }
 
     getRenderTarget(): InternalRenderTarget {

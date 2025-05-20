@@ -285,11 +285,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this.bindGroupMap.clear();
 
         {
-            let resource = shader.uniformSetMap.get(0);
-            if (resource.length > 0) {
-                command.setBindGroup(0, context._sceneBindGroup);
-                this.bindGroupMap.set(0, context._sceneBindGroup);
-            }
+            command.setBindGroup(0, context._sceneBindGroup);
+            this.bindGroupMap.set(0, context._sceneBindGroup);
         }
         {
             let resource = shader.uniformSetMap.get(1);
