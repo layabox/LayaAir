@@ -39,9 +39,6 @@ export class GaussianDoF extends PostProcessEffect {
     static SOURCESIZE: number;
 
     /**@internal */
-    static ZBUFFERPARAMS: number;
-
-    /**@internal */
     static COCPARAMS: number;
 
     /**@internal */
@@ -68,7 +65,6 @@ export class GaussianDoF extends PostProcessEffect {
      */
     static init() {
         GaussianDoF.SOURCESIZE = Shader3D.propertyNameToID("u_SourceSize");
-        GaussianDoF.ZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
         GaussianDoF.COCPARAMS = Shader3D.propertyNameToID("u_CoCParams");
         GaussianDoF.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         GaussianDoF.NORMALDEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalTexture");
@@ -85,7 +81,6 @@ export class GaussianDoF extends PostProcessEffect {
             "u_MainTex": ShaderDataType.Texture2D,
             "u_MainTex_TexelSize": ShaderDataType.Vector4,
             "u_OffsetScale": ShaderDataType.Vector4,
-            "u_ZBufferParams": ShaderDataType.Vector4,
             "u_CoCParams": ShaderDataType.Vector3,
             "u_FullCoCTex": ShaderDataType.Texture2D,
             "u_SourceSize": ShaderDataType.Vector4,
@@ -153,9 +148,6 @@ export class GaussianDoF extends PostProcessEffect {
     private _shaderData: ShaderData;
 
     /**@internal */
-    private _zBufferParams: Vector4;
-
-    /**@internal */
     private _sourceSize: Vector4;
 
     /**@internal */
@@ -171,7 +163,6 @@ export class GaussianDoF extends PostProcessEffect {
         this._shader = Shader3D.find("GaussianDoF");
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
-        this._zBufferParams = new Vector4();
         this._sourceSize = new Vector4();
         this._dowmSampleScale = new Vector4();
     }
@@ -229,10 +220,6 @@ export class GaussianDoF extends PostProcessEffect {
         let camera: Camera = context.camera;
         this._dowmSampleScale.setValue(0.5, 0.5, 2.0, 2.0);
         this._shaderData.setVector(GaussianDoF.DOWNSAMPLESCALE, this._dowmSampleScale);
-        let far = camera.farPlane;
-        let near = camera.nearPlane;
-        this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
-        this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
     }
 
 
@@ -288,15 +275,13 @@ export class GaussianDoF extends PostProcessEffect {
         blurVTex.anisoLevel = 1;
         fullCoC.filterMode = FilterMode.Point;
         this._shaderData.setTexture(GaussianDoF.BLURCOCTEXTURE, blurVTex);
-        let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, source.depthStencilFormat, false, 1);
         cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 4);
-        //context.source = finalTex;
+        // context.source = finalTex;
         // recover render texture
         RenderTexture.recoverToPool(fullCoC);
         RenderTexture.recoverToPool(prefilterTex);
         RenderTexture.recoverToPool(blurHTex);
         RenderTexture.recoverToPool(blurVTex);
-        context.deferredReleaseTextures.push(finalTex);
     }
 }
 Laya.addInitCallback(() => GaussianDoF.init());

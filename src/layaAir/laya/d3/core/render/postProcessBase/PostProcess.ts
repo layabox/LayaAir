@@ -243,7 +243,7 @@ export class PostProcess {
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);
         var tempRenderTextures: RenderTexture[] = context.deferredReleaseTextures;
-        for (i = 0, n = tempRenderTextures.length; i < n; i++)
+        for (let i = 0, n = tempRenderTextures.length; i < n; i++)
             RenderTexture.recoverToPool(tempRenderTextures[i]);
         tempRenderTextures.length = 0;
     }
