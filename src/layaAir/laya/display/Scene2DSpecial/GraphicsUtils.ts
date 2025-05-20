@@ -215,6 +215,7 @@ export class SubStructRender {
    private _sprite: Sprite;
 
    private _renderElement: IRenderElement2D = null;
+   /** @internal 模拟sprite shaderdata */
    private _shaderData: ShaderData = null;
    private _handle: I2DPrimitiveDataHandle = null;
    private _submit: SubmitBase = null;

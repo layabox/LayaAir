@@ -95,10 +95,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let mat = trans.getMatrix();
         if (this.mask) {
             let maskMatrix = this.mask.transform.getMatrix();
-            let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
+            let tempMatirx = Matrix.mul( maskMatrix , mat , Matrix.TEMP);
             this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
             this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
-        } else {
+        }
+        else {
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
         }

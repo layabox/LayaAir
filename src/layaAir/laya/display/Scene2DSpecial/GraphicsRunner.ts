@@ -2227,15 +2227,15 @@ export class GraphicsRunner {
             let x = vertices[ci], y = vertices[ci + 1];
             if (matrix) {
                 if (matrix._bTransform) {
-                    positions[ci] = x * m00 + y * m10 + tx;
-                    positions[ci + 1] = x * m01 + y * m11 + ty;
+                    vbdata[pos] = positions[ci] = x * m00 + y * m10 + tx;
+                    vbdata[pos + 1] = positions[ci + 1] = x * m01 + y * m11 + ty;
                 } else {
-                    positions[ci] = x + tx;
-                    positions[ci + 1] = y + ty;
+                    vbdata[pos] = positions[ci] = x + tx;
+                    vbdata[pos + 1] = positions[ci + 1] = y + ty;
                 }
             } else {
-                positions[ci] = x;
-                positions[ci + 1] = y;
+                vbdata[pos] = positions[ci] = x;
+                vbdata[pos + 1] = positions[ci + 1] = y;
             }
 
             if (uvs) {
