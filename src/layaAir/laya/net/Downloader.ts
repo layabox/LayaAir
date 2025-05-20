@@ -1,6 +1,8 @@
+import { ILaya } from '../../ILaya';
 import { Event } from "../events/Event";
 import { Browser } from "../utils/Browser";
 import { ImgUtils } from "../utils/ImgUtils";
+import { Utils } from '../utils/Utils';
 import { HttpRequest } from "./HttpRequest";
 import { WorkerLoader } from "./WorkerLoader";
 
@@ -148,6 +150,49 @@ export class Downloader {
         };
         audio.src = url;
         owner.$ref = audio; //保持引用避免gc掉
+    }
+
+    font(owner: any, url: string, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
+        let fontName = Utils.replaceFileExtension(Utils.getBaseName(url), "");
+        if ((window as any).conch) {
+            this.common(owner, url, originalUrl, "arraybuffer", onProgress, (data, error) => {
+                if (error || !data) {
+                    onComplete(null, error);
+                    return;
+                }
+                (window as any).conch.registerFont(fontName, data);
+                onComplete({ family: fontName });
+            });
+        } else if ((window as any).FontFace) {
+            let fontFace: any = new (window as any).FontFace(fontName, "url('" + url + "')");
+            fontFace.load()
+                .catch((err: Error) => onComplete(null, err.message))
+                .then(() => {
+                    (document as any).fonts.add(fontFace);
+                    onComplete(fontFace);
+                });
+        } else {
+            const testString = "LayaTTFFont";
+            let fontTxt = "40px " + fontName;
+            let txtWidth = Browser.measureText(testString, fontTxt).width;
+
+            let fontStyle: any = Browser.createElement("style");
+            fontStyle.type = "text/css";
+            document.body.appendChild(fontStyle);
+            fontStyle.textContent = "@font-face { font-family:'" + fontName + "'; src:url('" + url + "');}";
+
+            let checkComplete = () => {
+                if (Browser.measureText(testString, fontTxt).width != txtWidth)
+                    complete();
+            };
+            let complete = () => {
+                ILaya.systemTimer.clear(this, checkComplete);
+                ILaya.systemTimer.clear(this, complete);
+                onComplete({ family: fontName });
+            };
+            ILaya.systemTimer.once(10000, this, complete);
+            ILaya.systemTimer.loop(20, this, checkComplete);
+        }
     }
 
     /**

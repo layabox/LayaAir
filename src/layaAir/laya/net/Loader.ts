@@ -62,7 +62,8 @@ interface ContentTypeMap {
     "xml": XML,
     "arraybuffer": ArrayBuffer,
     "image": HTMLImageElement | ImageBitmap,
-    "sound": HTMLAudioElement
+    "sound": HTMLAudioElement,
+    "font": FontFace,
 }
 
 var typeIdCounter = 0;
@@ -749,6 +750,10 @@ export class Loader extends EventDispatcher {
         }
         else if (item.contentType == "sound") {
             Loader.downloader.audio(item, url, item.originalUrl, item.onProgress, (data: any, error: string) =>
+                this.completeItem(item, data, error));
+        }
+        else if (item.contentType == "font") {
+            Loader.downloader.font(item, url, item.originalUrl, item.onProgress, (data: any, error: string) =>
                 this.completeItem(item, data, error));
         }
         else {
