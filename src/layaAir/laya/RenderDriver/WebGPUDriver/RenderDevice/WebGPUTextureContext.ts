@@ -1359,8 +1359,8 @@ export class WebGPUTextureContext implements ITextureContext {
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         const useSRGBExt = this._isSRGBFormat(colorFormat) || (sRGB && this._supportSRGB(colorFormat, generateMipmap));
         let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB)
-            gammaCorrection = 2.2;
+        // if (!useSRGBExt && sRGB)
+        //     gammaCorrection = 2.2;
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
