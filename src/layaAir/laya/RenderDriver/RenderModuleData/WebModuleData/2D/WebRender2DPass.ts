@@ -194,7 +194,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       if (struct.renderDataHandler) {
          struct.renderUpdate(context2D);
-         struct.renderDataHandler.inheriteRenderData(context2D);
+         // struct.renderDataHandler.inheriteRenderData(context2D);
          this.addStruct(struct);
       }
 

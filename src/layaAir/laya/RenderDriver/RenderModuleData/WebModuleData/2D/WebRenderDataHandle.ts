@@ -144,13 +144,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         
                     vbdata = dataView.data;
                     let x = positions[ci], y = positions[ci + 1];
-                    if (_bTransform) {
-                        vbdata[pos] = x * m00 + y * m10 + tx;
-                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                    } else {
-                        vbdata[pos] = x + tx;
-                        vbdata[pos + 1] = y + ty;
-                    }
+                    // if (_bTransform) {
+                    vbdata[pos] = x * m00 + y * m10 + tx;
+                    vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                    // } else {
+                    //     vbdata[pos] = x + tx;
+                    //     vbdata[pos + 1] = y + ty;
+                    // }
 
                     pos += 12;
                     ci += 2;

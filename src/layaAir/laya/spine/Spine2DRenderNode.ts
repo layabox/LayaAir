@@ -882,12 +882,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                     }
                 }
                 this._renderElements.length = mesh.subMeshCount;
-                this.owner._struct.renderElements = this._renderElements;
                 SpineShaderInit.changeVertexDefine(this.owner.shaderData , mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
                 this._renderElements.length = 0;
+            }
+            
+            if (this.owner._struct) {
                 this.owner._struct.renderElements = this._renderElements;
             }
 

@@ -90,7 +90,7 @@ export class Graphics {
     /**@internal */
     // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
 
-    private _renderElements: IRenderElement2D[] = [];
+    // private _renderElements: IRenderElement2D[] = [];
 
     private _cmds: IGraphicsCmd[] = [];
     protected _vectorgraphArray: any[] | null = null;
@@ -292,9 +292,10 @@ export class Graphics {
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
             this.owner._struct.renderDataHandler = this._renderDataHandle;
+            this.owner._struct.renderElements = this._data._renderElements;
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
-            if (this._renderElements === this.owner._struct.renderElements) {
+            if (this._data._renderElements === this.owner._struct.renderElements) {
                 this.owner._struct.renderElements = [];
             }
             this.owner._struct.renderDataHandler = null;

@@ -148,24 +148,24 @@ export class Render {
         canvas.size(w, h);	//在ctx之后调用。
         ShaderDefines2D.__init__();
         // Context.__init__();
-        GraphicsRunner.__init__();
-        Render2DSimple.__init__();
         // var ctx = new Context();
         // ctx.isMain = true;
         // Render._context = ctx;
         // canvas._setContext(ctx);
-
+        
         Shader2D.__init__();
         BlendMode._init_();
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
+        
+        GraphicsRunner.__init__();
+        Render2DSimple.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Camera2D.shaderValueInit();
         Blit2DCMD.__init__();
         PostProcess2D.init();
-
         return true;
     }
 

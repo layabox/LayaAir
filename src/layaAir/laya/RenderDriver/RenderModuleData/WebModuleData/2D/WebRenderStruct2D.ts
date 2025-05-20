@@ -80,9 +80,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    globalRenderData: WebGlobalRenderData;
 
    private _pass: WebRender2DPass;
+   private _parentPass : WebRender2DPass;
    
    public get pass(): WebRender2DPass {
-      return this._pass;
+      return this._pass || this._parentPass;
    }
 
    public set pass(value: WebRender2DPass) {
@@ -248,14 +249,18 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    protected updateChildren(struct: WebRenderStruct2D): void {
       let clipInfo: IClipInfo = struct.getClipInfo();
       let blendMode: string = struct.getBlendMode();
-      let priority: number = struct.pass ? struct.pass.priority + 1 : 0;
+      let alpha = struct.globalAlpha;
+      let structPass = struct.pass;
+      let priority: number = structPass ? structPass.priority + 1 : 0;
       for (const child of struct.children) {
-         if (!child.pass) {
-            child.pass = struct.pass;
+         child._parentPass = structPass;
+
+         if (child._pass
+            && child._pass !== structPass
+         ) {
+            child._pass.priority = priority;
          }
-         else if (child.pass !== this.pass) {
-            child.pass.priority = priority;
-         }
+
          if (!child._clipInfo) {
             child._parentClipInfo = clipInfo;
          }
@@ -264,6 +269,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             child._parentBlendMode = blendMode;
             child._updateBlendMode();
          }
+
+         child.globalAlpha = alpha * child.alpha;
          child.updateChildren(child);
       }
    }

@@ -51,7 +51,8 @@ export class GraphicsRenderData {
       this._pool.push(value);
    }
 
-   private _renderElements: IRenderElement2D[] = [];
+   /** @internal */
+   _renderElements: IRenderElement2D[] = [];
 
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
@@ -79,7 +80,6 @@ export class GraphicsRenderData {
    */
    updateRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
       let originLen = this._renderElements.length;
-      this._renderElements.length = 0;
 
       let submits = this._submits;
       let submitLength = submits.length;
@@ -114,21 +114,35 @@ export class GraphicsRenderData {
             element.geometry.clearRenderParams();
             
             let infos = submit.infos;
-            let indexViews: IBufferDataView[] = [];
+
             for (let i = 0, n = infos.length; i < n; i++) {
                let info = infos[i];
-               indexViews.push(...info.indexViews);
+               let indexViews = info.indexViews;
+               let start = indexViews[0].start;
+               let end = start + indexViews[0].length;
+               let lastView = indexViews[0];
+               
+               for (let j = 1, m = indexViews.length; j < m; j ++) {
+                  let view = indexViews[j];
+                  let lastEnd = lastView.length + lastView.start;
+                  if (lastEnd === view.start) {
+                     lastView = view;
+                     end = view.count + view.start;
+                  } else {
+                     element.geometry.setDrawElemenParams(end - start , start * 2);
+                     start = view.start;
+                     end = start + view.count;
+                     lastView = view;
+                  }
+               }
+               
                vertexStruct.push({
                   positions:info.positions,
                   vertexViews:info.vertexViews
                });
-            }
 
-            let params = this.getDrawElementParams(indexViews);
-            for (let j = 0; j < params.length; j += 2) {
-               element.geometry.setDrawElemenParams(params[j + 1], params[j]);
+               element.geometry.setDrawElemenParams(end - start , start * 2);
             }
-
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
          }
@@ -140,36 +154,34 @@ export class GraphicsRenderData {
          struct.renderElements = this._renderElements;
       }
 
-      // console.log("==== apply buffer" , Stat.loopCount);
-
       handle.applyVertexBufferBlock(vertexStruct);
    }
 
-   getDrawElementParams(indexViews: IBufferDataView[]): number[] {
-      let params: number[] = [];
-      if (!indexViews || indexViews.length === 0) return params;
+   // getDrawElementParams(indexViews: IBufferDataView[]): number[] {
+   //    let params: number[] = [];
+   //    if (!indexViews || indexViews.length === 0) return params;
 
-      let start = indexViews[0].start;
-      let end = start + indexViews[0].length;
-      let lastView = indexViews[0];
-      for (let i = 1, n = indexViews.length; i < n; i++) {
-         let view = indexViews[i];
-         let lastEnd = lastView.length + lastView.start;
-         if (lastEnd === view.start) {
-            lastView = view;
-            end = view.count + view.start;
-         } else {
-            params.push(start * 2, end - start);
-            start = view.start;
-            end = start + view.count;
-            lastView = view;
-         }
-      }
+   //    let start = indexViews[0].start;
+   //    let end = start + indexViews[0].length;
+   //    let lastView = indexViews[0];
+   //    for (let i = 1, n = indexViews.length; i < n; i++) {
+   //       let view = indexViews[i];
+   //       let lastEnd = lastView.length + lastView.start;
+   //       if (lastEnd === view.start) {
+   //          lastView = view;
+   //          end = view.count + view.start;
+   //       } else {
+   //          params.push(start * 2, end - start);
+   //          start = view.start;
+   //          end = start + view.count;
+   //          lastView = view;
+   //       }
+   //    }
 
-      params.push(start * 2, end - start);
+   //    params.push(start * 2, end - start);
 
-      return params;
-   }
+   //    return params;
+   // }
 
    createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
       let elements = this._submits.elements;
@@ -235,7 +247,7 @@ export class SubStructRender {
       this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
 
-      let info = Render2DSimple.runner.defalutInfo;
+      let info = Render2DSimple.runner.inv_uv;
       let view = info.indexViews[0];
       this._renderElement.geometry.bufferState = info.mesh.bufferState;
       this._renderElement.geometry.setDrawElemenParams(view.length, view.start * 2);

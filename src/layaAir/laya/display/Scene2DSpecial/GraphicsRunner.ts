@@ -2277,23 +2277,39 @@ export class GraphicsRunner {
         }
     }
 
-    defalutInfo:MeshBlockInfo;
+    def_uv:MeshBlockInfo;
+
+    inv_uv:MeshBlockInfo;
 
     initDefalutMesh(){
-        if(!this.defalutInfo){
-            this.defalutInfo = this.acquire(4);
+        if(!this.def_uv){
+            this.def_uv = this.acquire(4);
             this.appendData(
                 [0,0,1,0,1,1,0,1],
                 _drawTexToQuad_Index,
-                this.defalutInfo,
+                this.def_uv,
                 Texture.DEF_UV,
                 0xffffffff,
                 null,
                 null,
                 true
             );
-            this.defalutInfo.vertexViews[0].modify(BufferModifyType.Vertex);
-            this.defalutInfo.indexViews[0].modify(BufferModifyType.Index);
+            this.def_uv.vertexViews[0].modify(BufferModifyType.Vertex);
+            this.def_uv.indexViews[0].modify(BufferModifyType.Index);
+
+            this.inv_uv = this.acquire(4);
+            this.appendData(
+                [0,0,1,0,1,1,0,1],
+                _drawTexToQuad_Index,
+                this.inv_uv,
+                Texture.INV_UV,
+                0xffffffff,
+                null,
+                null,
+                true
+            )
+            this.inv_uv.vertexViews[0].modify(BufferModifyType.Vertex);
+            this.inv_uv.indexViews[0].modify(BufferModifyType.Index);
         }
     }
 

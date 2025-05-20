@@ -9,6 +9,7 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Material } from "../../../../resource/Material";
 import { Texture } from "../../../../resource/Texture";
+import { Texture2D } from "../../../../resource/Texture2D";
 import { BlendMode } from "../../../canvas/BlendMode";
 import { ShaderDefines2D } from "../ShaderDefines2D";
 import { RenderSpriteData } from "./Value2D";
@@ -29,6 +30,7 @@ export class GraphicsShaderInfo {
       this.vertexSize = Vector4.ZERO;
       BlendMode.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
+      this.textureHost = Texture2D.whiteTexture;
    }
 
    private _textureHost: Texture | BaseTexture;

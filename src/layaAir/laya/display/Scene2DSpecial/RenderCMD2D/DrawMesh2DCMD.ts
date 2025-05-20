@@ -4,6 +4,8 @@ import { Matrix } from "../../../maths/Matrix";
 import { Vector3 } from "../../../maths/Vector3";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { Draw2DElementCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
+import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
@@ -35,7 +37,11 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _drawElementData: Draw2DElementCMD;
 
-    private _mesh2DRender: Mesh2DRender;
+    // private _mesh2DRender: Mesh2DRender;
+
+    private _renderElements : IRenderElement2D[];
+
+    private _shaderData:ShaderData;
 
     private _needUpdateElement: boolean;
 
@@ -44,7 +50,7 @@ export class DrawMesh2DCMD extends Command2D {
     constructor() {
         super();
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
-        this._mesh2DRender = new Mesh2DRender();
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._needUpdateElement = true;
         this._matrix = new Matrix();
     }
