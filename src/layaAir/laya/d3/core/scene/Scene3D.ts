@@ -1073,6 +1073,7 @@ export class Scene3D extends Sprite {
      */
     _setCullCamera(camera: Camera) {
         this._cullInfoCamera = camera;
+        this.skyRenderer.setRenderElement(camera.skyRenderElement);
     }
 
     /**
@@ -1080,10 +1081,10 @@ export class Scene3D extends Sprite {
      * @zh 重新计算剔除摄像机。
      */
     recaculateCullCamera() {
-        this._cullInfoCamera = this._cameraPool[0] as Camera;
+        this._setCullCamera(this._cameraPool[0] as Camera);
         this._cameraPool.forEach(element => {
             if (this.cullInfoCamera.maxlocalYDistance < (element as Camera).maxlocalYDistance) {
-                this._cullInfoCamera = element as Camera;
+                this._setCullCamera(element as Camera);
             }
         });
     }
