@@ -52,6 +52,8 @@ export class pxColliderShape implements IColliderShape {
     /** @internal */
     _pxMaterials: pxPhysicsMaterial[] = new Array(1);
 
+    _destroyed: boolean = false;
+
     _id: number;
 
     /**
@@ -75,12 +77,16 @@ export class pxColliderShape implements IColliderShape {
             true,
             new pxStatics._physX.PxShapeFlags(this._shapeFlags)
         );
-        this._pxShape.setUUID(this._id);
+        this._pxShape && this._pxShape.setUUID(this._id);
         pxColliderShape._shapePool.set(this._id, this);
     }
 
     private _modifyFlag(flag: ShapeFlag, value: boolean): void {
         this._shapeFlags = value ? this._shapeFlags | flag : this._shapeFlags & ~flag;
+    }
+
+    getPhysicsShape() {
+        return this._pxShape;
     }
 
     /**
@@ -126,6 +132,10 @@ export class pxColliderShape implements IColliderShape {
                 Vector3.multiply(position, this._scale, transform.translation);
             this._pxShape.setLocalPose(transform);
         }
+    }
+
+    getOffset(): Vector3 {
+        return this._offset;
     }
 
     /**
@@ -183,13 +193,15 @@ export class pxColliderShape implements IColliderShape {
 
     }
 
-    
     /**
      * @en Destroys the collider shape and releases resources.
      * @zh 销毁碰撞器形状并释放资源。
      */
     destroy(): void {
         if (this._pxShape) {
+            if (this._pxCollider && this._pxCollider._physicsManager) {
+                this._pxCollider._physicsManager.removeCollider(this._pxCollider);
+            }
             this._pxShape.release();
             this._pxShape = undefined;
         }
@@ -198,5 +210,6 @@ export class pxColliderShape implements IColliderShape {
             element.destroy();
         });
         this._pxMaterials.length = 0;
+        this._destroyed = true;
     }
 }
