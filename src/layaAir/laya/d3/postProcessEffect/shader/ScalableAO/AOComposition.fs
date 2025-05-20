@@ -20,17 +20,17 @@ float GetPackedAO(vec4 p)
 }
 
 // Geometry-aware bilateral filter (single pass/small kernel)
-float BlurSmall(sampler2D tex, vec2 uv, vec2 delta)
+float BlurSmall(vec2 uv, vec2 delta)
 {
-    vec4 p0 = texture2D(tex, uv);
+    vec4 p0 = texture2D(u_compositionAoTexture, uv);
     vec2 uvtran = uv + vec2(-delta.x, -delta.y);
-    vec4 p1 = texture2D(tex, uvtran);
+    vec4 p1 = texture2D(u_compositionAoTexture, uvtran);
     uvtran = uv + vec2(delta.x, -delta.y);
-    vec4 p2 = texture2D(tex, uvtran);
+    vec4 p2 = texture2D(u_compositionAoTexture, uvtran);
     uvtran = uv + vec2(-delta.x, delta.y);
-    vec4 p3 = texture2D(tex, uvtran);
+    vec4 p3 = texture2D(u_compositionAoTexture, uvtran);
     uvtran = uv + delta;
-    vec4 p4 = texture2D(tex, uvtran);
+    vec4 p4 = texture2D(u_compositionAoTexture, uvtran);
 
     vec3 n0 = GetPackedNormal(p0);
 
@@ -54,7 +54,7 @@ void main()
 {
     vec2 uv = v_Texcoord0;
     vec2 delty = u_MainTex_TexelSize.xy;
-    float ao = BlurSmall(u_compositionAoTexture, uv, delty);
+    float ao = BlurSmall(uv, delty);
     vec4 albedo = texture2D(u_MainTex, uv);
 #ifdef Gamma_u_MainTex
     albedo = gammaToLinear(albedo);
