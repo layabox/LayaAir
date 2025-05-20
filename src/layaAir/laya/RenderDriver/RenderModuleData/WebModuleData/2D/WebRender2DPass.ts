@@ -156,7 +156,8 @@ export class WebRender2DPass implements IRender2DPass {
     * add Render Node
     * @param object 
     */
-   addStruct(object: WebRenderStruct2D, zOrder = 0): void {
+   addStruct(object: WebRenderStruct2D): void {
+      let zOrder = object.zOrder;
       if (!this._lists[zOrder]) {
          this._lists[zOrder] = new PassRenderList;
          this._lists[zOrder].zOrder = zOrder;
@@ -168,7 +169,8 @@ export class WebRender2DPass implements IRender2DPass {
     * remove Render Node
     * @param object 
     */
-   removeStruct(object: WebRenderStruct2D, zOrder = 0): void {
+   removeStruct(object: WebRenderStruct2D): void {
+      let zOrder = object.zOrder;
       this._lists[zOrder].remove(object);
    }
 

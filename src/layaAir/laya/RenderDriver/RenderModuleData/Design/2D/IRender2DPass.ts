@@ -23,8 +23,8 @@ export interface IRender2DPass {
    shaderData: ShaderData;
 
    setClearColor(r: number, g: number, b: number, a: number): void;
-   addStruct(object: IRenderStruct2D, zOrder?: number): void;
-   removeStruct(object: IRenderStruct2D, zOrder?: number): void;
+   addStruct(object: IRenderStruct2D): void;
+   removeStruct(object: IRenderStruct2D): void;
    fowardRender(context: IRenderContext2D): void;
    render(context: IRenderContext2D): void;
    destroy(): void;

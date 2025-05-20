@@ -206,7 +206,6 @@ export class Physics2DDebugDraw extends Sprite {
     }
 
     /**
-     * @override
      * @en Renders the object using the given context and position.
      * @zh 使用给定的上下文和位置渲染对象。
      */

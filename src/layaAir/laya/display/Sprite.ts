@@ -814,10 +814,10 @@ export class Sprite extends Node {
             return;
         if (value == 'bitmap' || value == 'normal') {
             this._renderType |= SpriteConst.CANVAS;
-            this.setSubpassFlag(SUBPASSFLAG.CacheAsBitmap);
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
         }
+        this.setSubpassFlag(SUBPASSFLAG.CacheAsBitmap);
         this.repaint();
     }
 

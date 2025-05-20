@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
 import { Vector2 } from "../../../maths/Vector2";
@@ -14,6 +15,8 @@ import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Stat } from "../../../utils/Stat";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Scene } from "../../Scene";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { Blit2DCMD } from "./Blit2DCMD";
@@ -42,11 +45,13 @@ export class CommandBuffer2D {
     /**
      * @internal
      */
-    _renderSize: Vector2 = new Vector2();
+    // _renderSize: Vector2 = new Vector2();
+    shaderData :ShaderData; 
 
     /** @ignore */
     constructor(name?: string) {
         this._name = name;
+        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._context = Render2DSimple.rendercontext2D;
         this._commands = [];
     }
@@ -86,12 +91,25 @@ export class CommandBuffer2D {
      * @param render  是否立即渲染，默认为true
      */
     apply(render: boolean = true, recoverContextStat: boolean = true): void {
+        this.shaderData.clearData();
+        let lastPass = this._context.passData;
+        if (lastPass) {
+            lastPass.cloneTo(this.shaderData);
+        }else{
+            this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE,Vector2.TEMP.setValue(
+                RenderState2D.width, RenderState2D.height
+            ));
+        }
+        this._context.passData = this.shaderData;
+
         recoverContextStat && this._cacheContextState();
         for (var i: number = 0, n: number = this._commands.length; i < n; i++) {
             let cmd = this._commands[i];
             cmd.run && cmd.run();
         }
         render && this._context.runCMDList(this._renderCMDs);
+
+        this._context.passData = lastPass;
         //draw array
         Stat.cmdDrawCall += this._renderCMDs.length;
         recoverContextStat && this._recoverContextState();

@@ -19,6 +19,23 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 默认Mesh2D渲染材质 
      */
     static mesh2DDefaultMaterial: Material;
+
+    static __init__(){
+        if (Mesh2DRender.mesh2DDefaultMaterial) return
+
+        Mesh2DRender.mesh2DDefaultMaterial = new Material();
+        Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
+        Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
+    }
+
+
     private _sharedMesh: Mesh2D;
     declare _renderHandle: IMesh2DRenderDataHandle;
 
@@ -171,27 +188,15 @@ export class Mesh2DRender extends BaseRenderNode2D {
             BaseRenderNode2D._setRenderElement2DMaterial(element, this._materials[i] ? this._materials[i] : Mesh2DRender.mesh2DDefaultMaterial);
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
-            element.owner = this.owner._struct;
+            element.owner = this._struct;
         }
-        this.owner._struct.renderElements = this._renderElements;
+        this._struct.renderElements = this._renderElements;
 
     }
 
     /**@ignore */
     constructor() {
         super();
-        if (!Mesh2DRender.mesh2DDefaultMaterial) {
-            Mesh2DRender.mesh2DDefaultMaterial = new Material();
-            Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
-            Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-            Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-        }
         this._renderElements = [];
         this._materials = [];
 

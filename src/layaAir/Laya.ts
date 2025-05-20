@@ -32,6 +32,7 @@ import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import type { Laya3D } from "./Laya3D";
 import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
+import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -246,6 +247,7 @@ export class Laya {
 
         RenderStateContext.__init__();
         Material.__initDefine__();
+        Mesh2DRender.__init__();
         InputManager.__init__(stage, Render.canvas);
         if (LayaEnv.isConch && (window as any).conchConfig.getOS() != "Conch-window") {
             Input.isAppUseNewInput = true;

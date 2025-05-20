@@ -3,6 +3,7 @@ import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { I2DBaseRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
@@ -144,6 +145,10 @@ export class BaseRenderNode2D extends Component {
     _spriteShaderData: ShaderData;
 
     /**
+     * @internal
+     */
+    _struct:IRenderStruct2D;
+    /**
      * 唯一ID
      */
     private _renderid: number;
@@ -275,7 +280,8 @@ export class BaseRenderNode2D extends Component {
     protected _onAdded(): void {
         this.owner._initShaderData();
         this.owner.renderNode2D = this;
-        this._spriteShaderData = this.owner._struct.spriteShaderData;
+        this._struct = this.owner._struct;
+        this._spriteShaderData = this._struct.spriteShaderData;
         this.owner._struct.renderDataHandler = this._renderHandle;
         this._initDefaultRenderData && this._initDefaultRenderData();
     }

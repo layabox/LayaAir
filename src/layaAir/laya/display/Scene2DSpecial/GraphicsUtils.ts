@@ -115,24 +115,30 @@ export class GraphicsRenderData {
             
             let infos = submit.infos;
 
+            let start = 0;
+            let end = 0;
+            let lastView:IBufferDataView = null;
             for (let i = 0, n = infos.length; i < n; i++) {
                let info = infos[i];
                let indexViews = info.indexViews;
-               let start = indexViews[0].start;
-               let end = start + indexViews[0].length;
-               let lastView = indexViews[0];
                
-               for (let j = 1, m = indexViews.length; j < m; j ++) {
+               for (let j = 0, m = indexViews.length; j < m; j ++) {
                   let view = indexViews[j];
-                  let lastEnd = lastView.length + lastView.start;
-                  if (lastEnd === view.start) {
+                  if (!lastView) {
                      lastView = view;
-                     end = view.count + view.start;
-                  } else {
-                     element.geometry.setDrawElemenParams(end - start , start * 2);
                      start = view.start;
-                     end = start + view.count;
-                     lastView = view;
+                     end = view.count + start;
+                  }else{
+                     let lastEnd = lastView.length + lastView.start;
+                     if (lastEnd === view.start) {
+                        lastView = view;
+                        end = view.count + view.start;
+                     } else {
+                        element.geometry.setDrawElemenParams(end - start , start * 2);
+                        start = view.start;
+                        end = start + view.count;
+                        lastView = view;
+                     }
                   }
                }
                
@@ -140,9 +146,9 @@ export class GraphicsRenderData {
                   positions:info.positions,
                   vertexViews:info.vertexViews
                });
-
-               element.geometry.setDrawElemenParams(end - start , start * 2);
             }
+            
+            element.geometry.setDrawElemenParams(end - start , start * 2);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
          }

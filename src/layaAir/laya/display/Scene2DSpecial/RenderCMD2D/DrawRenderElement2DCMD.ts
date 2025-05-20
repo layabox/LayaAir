@@ -21,7 +21,7 @@ export class DrawRenderElement2DCMD extends Command2D {
 
     private _matreix: Matrix;
     private _renderElement: IRenderElement2D;
-    private _renderSize: Vector2;
+    // private _renderSize: Vector2;
 
     /**
      * @en The render element of this command.
@@ -44,7 +44,7 @@ export class DrawRenderElement2DCMD extends Command2D {
     constructor() {
         super();
         this._drawElementCMDData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
-        this._renderSize = new Vector2();
+        // this._renderSize = new Vector2();
     }
 
     _setMatrix(value: Matrix) {
@@ -65,10 +65,10 @@ export class DrawRenderElement2DCMD extends Command2D {
     }
 
     run(): void {
-        if (Vector2.equals(this._renderSize, this._commandBuffer._renderSize))
-            return;
-        this._renderSize.setValue(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
-        this._renderElement.value2DShaderData && this._renderElement.value2DShaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._renderSize);
+        // if (Vector2.equals(this._renderSize, this._commandBuffer._renderSize))
+        //     return;
+        // this._renderSize.setValue(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
+        // this._renderElement.value2DShaderData && this._renderElement.value2DShaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._renderSize);
     }
 
     /**

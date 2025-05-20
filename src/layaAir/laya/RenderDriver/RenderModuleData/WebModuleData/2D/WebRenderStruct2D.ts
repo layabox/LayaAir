@@ -27,7 +27,7 @@ export class WebGlobalRenderData implements IGlobalRenderData {
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
-   zOrder: number;
+   zOrder: number = 0;
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
@@ -38,9 +38,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    children: WebRenderStruct2D[] = [];
 
    /** 按标记来 */
-   renderType: number;
+   renderType: number = -1;
 
-   renderUpdateMask: number;
+   renderUpdateMask: number = 0;
 
    //渲染继承累加数据
    transform: SpriteGlobalTransform = null;

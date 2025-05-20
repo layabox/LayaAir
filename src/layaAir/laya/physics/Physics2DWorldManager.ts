@@ -488,10 +488,16 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._jsDraw.DrawAABB = this._debugDrawAABB.bind(this);
         }
         if (this._enableDraw) {
+            Laya.timer.frameLoop(1 , this , this._frameLoop);
             Physics2D.I._factory.appendFlags(this._jsDraw, flag);
         } else {
+            Laya.timer.clear( this , this._frameLoop);
             Physics2D.I._factory.clearFlags(this._jsDraw, flag);
         }
+    }
+
+    private _frameLoop(){
+        this._debugDraw.render(0 , 0);
     }
 
     private _scaleSizeXByScaleMode(x: number) {

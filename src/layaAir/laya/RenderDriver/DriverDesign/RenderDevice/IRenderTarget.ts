@@ -3,6 +3,8 @@ import { InternalRenderTarget } from "./InternalRenderTarget";
 
 
 export interface IRenderTarget {
+    width:number;
+    height:number;
     _renderTarget: InternalRenderTarget;
     _isCameraTarget: boolean;
     isCube: boolean;
