@@ -208,9 +208,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         Camera.depthPass.cleanUp(camera);
 
         let time: number;
-        this.initRenderpass(camera, context);
-
         this.renderDepth(camera);
+
+        this.initRenderpass(camera, context);
 
         let renderList = this.render3DManager.baseRenderList.elements;
         let count = this.render3DManager.baseRenderList.length;

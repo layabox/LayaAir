@@ -280,8 +280,8 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
     fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
         WebGPUStatis.startFrame();
-        this._initRenderPass(camera, context);
         this._renderDepth(camera);
+        this._initRenderPass(camera, context);
         let renderList = this.render3DManager.baseRenderList.elements;
         let count = this.render3DManager.baseRenderList.length;
         this._renderForwardAddCameraPass(context, this._renderPass, renderList, count);
