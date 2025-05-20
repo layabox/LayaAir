@@ -86,7 +86,7 @@ export class ScreenQuad extends GeometryElement {
 	 * @param value 是否反转Y轴
 	 */
 	set invertY(value: boolean) {
-		value = LayaGL.renderEngine._screenInvertY ? !value : value;
+		// value = LayaGL.renderEngine._screenInvertY ? !value : value;
 		this.bufferState = value ? this._bufferStateInvertUV : this._bufferState;
 	}
 

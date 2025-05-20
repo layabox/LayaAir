@@ -155,6 +155,9 @@ export class BlitFrameBufferCMD {
 			shaderData.addDefine(RenderContext3D.GammaCorrect);
 		}
 		this._renderElement.setGeometry(ScreenQuad.InvertInstance);
+		if (LayaGL.renderEngine._screenInvertY) {
+			this._renderElement.setGeometry(ScreenQuad.instance);
+		}
 		context.destTarget = dest;
 		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		context.drawRenderElement(this._renderElement._renderElementOBJ);
