@@ -6,7 +6,7 @@
 // curve = (threshold - knee, knee * 2, 0.25 / knee)
 mediump vec4 quadraticThreshold(mediump vec4 color, mediump float threshold, mediump vec3 curve) {
 	// Pixel brightness
-	mediump float br = max3(color.r, color.g, color.b);
+	mediump float br = max(max(color.r, color.g), color.b);
 
 	// Under-threshold part: quadratic curve
 	mediump float rq = clamp(br - curve.x, 0.0, curve.y);

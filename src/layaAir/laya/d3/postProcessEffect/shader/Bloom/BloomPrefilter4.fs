@@ -22,7 +22,7 @@ mediump vec4 prefilter(mediump vec4 color, vec2 uv)
 
 void fragPrefilter4()
 {
-    mediump vec4 color = downsampleBox4Tap(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy);
+    mediump vec4 color = downsampleBox4Tap(v_Texcoord0, u_MainTex_TexelSize.xy);
     gl_FragColor = prefilter(safeHDR(color), v_Texcoord0);
 }
 

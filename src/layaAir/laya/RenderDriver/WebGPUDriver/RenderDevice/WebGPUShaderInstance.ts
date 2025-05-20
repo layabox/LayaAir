@@ -193,6 +193,14 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
 
             if (!fragmentSpvRes.success) {
+                let subShader = this._shaderPass._owner;
+                let shader = subShader.owner;
+
+                let subIndex = shader._subShaders.indexOf(subShader);
+                let passIndex = subShader._passes.indexOf(this._shaderPass);
+
+                console.error(`${shader.name}_sub${subIndex}_pass${passIndex}`);
+
                 console.error(fragmentSpvRes.info_log);
             }
             let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);

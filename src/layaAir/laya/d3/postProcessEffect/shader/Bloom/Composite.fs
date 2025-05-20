@@ -6,6 +6,47 @@
 
 varying vec2 v_Texcoord0;
 
+vec4 samplerBloom(vec2 uv)
+{
+    vec4 mainSampler = texture2D(u_BloomTex, uv);
+#ifdef Gamma_u_MainTex
+    mainSampler = gammaToLinear(mainSampler);
+#endif // Gamma_u_MainTex
+
+    return mainSampler;
+}
+
+mediump vec4 upsampleTentBloom(vec2 uv, vec2 texelSize, vec4 sampleScale)
+{
+    vec4 d = texelSize.xyxy * vec4(1.0, 1.0, -1.0, 0.0) * sampleScale;
+
+    mediump vec4 s = samplerBloom(uv - d.xy);
+    s += samplerBloom(uv - d.wy) * 2.0;
+    s += samplerBloom(uv - d.zy);
+
+    s += samplerBloom(uv + d.zw) * 2.0;
+    s += samplerBloom(uv) * 4.0;
+    s += samplerBloom(uv + d.xw) * 2.0;
+
+    s += samplerBloom(uv + d.zy);
+    s += samplerBloom(uv + d.wy) * 2.0;
+    s += samplerBloom(uv + d.xy);
+
+    return s * (1.0 / 16.0);
+}
+
+mediump vec4 upsampleBoxBloom(vec2 uv, vec2 texelSize, vec4 sampleScale)
+{
+    vec4 d = texelSize.xyxy * vec4(-1.0, -1.0, 1.0, 1.0) * 0.5 * sampleScale;
+
+    mediump vec4 s = samplerBloom(uv + d.xy);
+    s += samplerBloom(uv + d.zy);
+    s += samplerBloom(uv + d.xw);
+    s += samplerBloom(uv + d.zw);
+
+    return s * (1.0 / 4.0);
+}
+
 void main()
 {
     vec4 autoExposureSampler = texture2D(u_AutoExposureTex, v_Texcoord0);
@@ -24,9 +65,9 @@ void main()
 
 #if defined(BLOOM) || defined(BLOOM_LOW)
     #ifdef BLOOM
-    mediump vec4 bloom = upsampleTent(u_BloomTex, v_Texcoord0, u_BloomTex_TexelSize.xy, vec4(u_Bloom_Settings.x));
+    mediump vec4 bloom = upsampleTentBloom(v_Texcoord0, u_BloomTex_TexelSize.xy, vec4(u_Bloom_Settings.x));
     #else
-    mediump vec4 bloom = upsampleBox(u_BloomTex, v_Texcoord0, u_BloomTex_TexelSize.xy, vec4(u_Bloom_Settings.x));
+    mediump vec4 bloom = upsampleBoxBloom(v_Texcoord0, u_BloomTex_TexelSize.xy, vec4(u_Bloom_Settings.x));
     #endif
 
     // UVs should be Distort(uv * u_Bloom_DirtTileOffset.xy + u_Bloom_DirtTileOffset.zw)

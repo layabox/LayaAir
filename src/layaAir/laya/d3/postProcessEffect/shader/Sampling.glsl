@@ -1,8 +1,8 @@
 
 // todo only sampler u_MainTex
-vec4 samplerTex(sampler2D tex, vec2 uv)
+vec4 samplerTex(vec2 uv)
 {
-    vec4 mainSampler = texture2D(tex, uv);
+    vec4 mainSampler = texture2D(u_MainTex, uv);
 #ifdef Gamma_u_MainTex
     mainSampler = gammaToLinear(mainSampler);
 #endif // Gamma_u_MainTex
@@ -19,21 +19,21 @@ vec4 samplerTex(sampler2D tex, vec2 uv)
 // . . I . J . .
 // . K . L . M .
 // . . . . . . .
-mediump vec4 downsampleBox13Tap(sampler2D tex, vec2 uv, vec2 texelSize)
+mediump vec4 downsampleBox13Tap(vec2 uv, vec2 texelSize)
 {
-    mediump vec4 A = samplerTex(tex, uv + texelSize * vec2(-1.0, -1.0));
-    mediump vec4 B = samplerTex(tex, uv + texelSize * vec2(0.0, -1.0));
-    mediump vec4 C = samplerTex(tex, uv + texelSize * vec2(1.0, -1.0));
-    mediump vec4 D = samplerTex(tex, uv + texelSize * vec2(-0.5, -0.5));
-    mediump vec4 E = samplerTex(tex, uv + texelSize * vec2(0.5, -0.5));
-    mediump vec4 F = samplerTex(tex, uv + texelSize * vec2(-1.0, 0.0));
-    mediump vec4 G = samplerTex(tex, uv);
-    mediump vec4 H = samplerTex(tex, uv + texelSize * vec2(1.0, 0.0));
-    mediump vec4 I = samplerTex(tex, uv + texelSize * vec2(-0.5, 0.5));
-    mediump vec4 J = samplerTex(tex, uv + texelSize * vec2(0.5, 0.5));
-    mediump vec4 K = samplerTex(tex, uv + texelSize * vec2(-1.0, 1.0));
-    mediump vec4 L = samplerTex(tex, uv + texelSize * vec2(0.0, 1.0));
-    mediump vec4 M = samplerTex(tex, uv + texelSize * vec2(1.0, 1.0));
+    mediump vec4 A = samplerTex(uv + texelSize * vec2(-1.0, -1.0));
+    mediump vec4 B = samplerTex(uv + texelSize * vec2(0.0, -1.0));
+    mediump vec4 C = samplerTex(uv + texelSize * vec2(1.0, -1.0));
+    mediump vec4 D = samplerTex(uv + texelSize * vec2(-0.5, -0.5));
+    mediump vec4 E = samplerTex(uv + texelSize * vec2(0.5, -0.5));
+    mediump vec4 F = samplerTex(uv + texelSize * vec2(-1.0, 0.0));
+    mediump vec4 G = samplerTex(uv);
+    mediump vec4 H = samplerTex(uv + texelSize * vec2(1.0, 0.0));
+    mediump vec4 I = samplerTex(uv + texelSize * vec2(-0.5, 0.5));
+    mediump vec4 J = samplerTex(uv + texelSize * vec2(0.5, 0.5));
+    mediump vec4 K = samplerTex(uv + texelSize * vec2(-1.0, 1.0));
+    mediump vec4 L = samplerTex(uv + texelSize * vec2(0.0, 1.0));
+    mediump vec4 M = samplerTex(uv + texelSize * vec2(1.0, 1.0));
 
     mediump vec2 scale = vec2(0.5, 0.125);
     mediump vec2 div = (1.0 / 4.0) * scale;
@@ -48,14 +48,14 @@ mediump vec4 downsampleBox13Tap(sampler2D tex, vec2 uv, vec2 texelSize)
 }
 
 // Standard box filtering
-mediump vec4 downsampleBox4Tap(sampler2D tex, vec2 uv, vec2 texelSize)
+mediump vec4 downsampleBox4Tap(vec2 uv, vec2 texelSize)
 {
     vec4 d = texelSize.xyxy * vec4(-1.0, -1.0, 1.0, 1.0);
 
-    mediump vec4 s = samplerTex(tex, uv + d.xy);
-    s += samplerTex(tex, uv + d.zy);
-    s += samplerTex(tex, uv + d.xw);
-    s += samplerTex(tex, uv + d.zw);
+    mediump vec4 s = samplerTex(uv + d.xy);
+    s += samplerTex(uv + d.zy);
+    s += samplerTex(uv + d.xw);
+    s += samplerTex(uv + d.zw);
 
     return s * (1.0 / 4.0);
 }
@@ -68,34 +68,34 @@ mediump vec4 downsampleBox4Tap(sampler2D tex, vec2 uv, vec2 texelSize)
 // . . . . . . .
 // . 1 . 2 . 1 .
 // . . . . . . .
-mediump vec4 upsampleTent(sampler2D tex, vec2 uv, vec2 texelSize, vec4 sampleScale)
+mediump vec4 upsampleTent(vec2 uv, vec2 texelSize, vec4 sampleScale)
 {
     vec4 d = texelSize.xyxy * vec4(1.0, 1.0, -1.0, 0.0) * sampleScale;
 
-    mediump vec4 s = samplerTex(tex, uv - d.xy);
-    s += samplerTex(tex, uv - d.wy) * 2.0;
-    s += samplerTex(tex, uv - d.zy);
+    mediump vec4 s = samplerTex(uv - d.xy);
+    s += samplerTex(uv - d.wy) * 2.0;
+    s += samplerTex(uv - d.zy);
 
-    s += samplerTex(tex, uv + d.zw) * 2.0;
-    s += samplerTex(tex, uv) * 4.0;
-    s += samplerTex(tex, uv + d.xw) * 2.0;
+    s += samplerTex(uv + d.zw) * 2.0;
+    s += samplerTex(uv) * 4.0;
+    s += samplerTex(uv + d.xw) * 2.0;
 
-    s += samplerTex(tex, uv + d.zy);
-    s += samplerTex(tex, uv + d.wy) * 2.0;
-    s += samplerTex(tex, uv + d.xy);
+    s += samplerTex(uv + d.zy);
+    s += samplerTex(uv + d.wy) * 2.0;
+    s += samplerTex(uv + d.xy);
 
     return s * (1.0 / 16.0);
 }
 
 // Standard box filtering
-mediump vec4 upsampleBox(sampler2D tex, vec2 uv, vec2 texelSize, vec4 sampleScale)
+mediump vec4 upsampleBox(vec2 uv, vec2 texelSize, vec4 sampleScale)
 {
     vec4 d = texelSize.xyxy * vec4(-1.0, -1.0, 1.0, 1.0) * 0.5 * sampleScale;
 
-    mediump vec4 s = samplerTex(tex, uv + d.xy);
-    s += samplerTex(tex, uv + d.zy);
-    s += samplerTex(tex, uv + d.xw);
-    s += samplerTex(tex, uv + d.zw);
+    mediump vec4 s = samplerTex(uv + d.xy);
+    s += samplerTex(uv + d.zy);
+    s += samplerTex(uv + d.xw);
+    s += samplerTex(uv + d.zw);
 
     return s * (1.0 / 4.0);
 }
