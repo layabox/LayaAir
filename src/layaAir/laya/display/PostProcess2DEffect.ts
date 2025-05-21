@@ -1,4 +1,4 @@
-import { Color } from "../../../../maths/Color";
+import { Color } from "../maths/Color";
 import { PostProcess2D, PostProcessRenderContext2D } from "./PostProcess2D";
 
 export abstract class PostProcess2DEffect {

@@ -1,14 +1,13 @@
-import { SUBPASSFLAG } from "../../../../Const";
-import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { Sprite } from "../../../../display/Sprite";
-import { EventDispatcher } from "../../../../events/EventDispatcher";
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { Vector2 } from "../../../../maths/Vector2";
-import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
-import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
-import { Effect2DShaderInit } from "./Effect2D/Shader/Effect2DShaderInit";
+import { SUBPASSFLAG } from "../Const";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { LayaGL } from "../layagl/LayaGL";
+import { Vector2 } from "../maths/Vector2";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
+import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
+import { Sprite } from "./Sprite";
 
 export class PostProcess2D extends EventDispatcher {
    static POSTRENDERCHANGE: string = "post_render_change";//渲染改动

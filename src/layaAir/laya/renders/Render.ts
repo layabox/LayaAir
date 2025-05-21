@@ -1,10 +1,11 @@
 import { LayaEnv } from "../../LayaEnv";
+import { PostProcess2D } from "../display/PostProcess2D";
+import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { GraphicsRunner } from "../display/Scene2DSpecial/GraphicsRunner";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
-import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture2D } from "../resource/Texture2D";
 import { Texture2DArray } from "../resource/Texture2DArray";
@@ -15,7 +16,6 @@ import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
-import { Render2DSimple } from "./Render2D";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -161,7 +161,7 @@ export class Render {
         HalfFloatUtils.__init__();
         
         GraphicsRunner.__init__();
-        Render2DSimple.__init__();
+        Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Camera2D.shaderValueInit();
         Blit2DCMD.__init__();

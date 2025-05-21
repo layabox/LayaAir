@@ -6,18 +6,16 @@ import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { RenderState2D } from "../../../../webgl/utils/RenderState2D";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
-import { IRender2DPass } from "../../Design/2D/IRender2DPass";
+import { IRender2DPass, IRender2DPassManager } from "../../Design/2D/IRender2DPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector2 } from "../../../../maths/Vector2";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Matrix } from "../../../../maths/Matrix";
-import { PostProcess2D } from "./PostProcess2D";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { IDynamicVIBuffer } from "../../Design/2D/IRender2DDataHandle";
-import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { WebDynamicVIBuffer } from "./WebDynamicVIBuffer";
+import { PostProcess2D } from "../../../../display/PostProcess2D";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -150,6 +148,18 @@ export class WebRender2DPass implements IRender2DPass {
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+   }
+
+
+   /**
+     * 判断是否需要更新渲染
+     * @returns 是否需要更新
+     */
+   needRender(): boolean {
+      // return true;
+      return this.enable
+         && !this.isSupport
+         && (this.repaint || !this.renderTexture);
    }
 
    /**
@@ -294,7 +304,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    setBuffer(buffer: WebDynamicVIBuffer): void {
-      if(buffer._inPass) return;
+      if (buffer._inPass) return;
       buffer._inPass = true;
       this.buffers.add(buffer);
    }
@@ -481,5 +491,45 @@ class PassRenderList {
       this._currentBatch = null;
       this._currentType = -1;
       this._currentElementCount = 0;
+   }
+}
+
+export class WebRender2DPassManager implements IRender2DPassManager {
+   private _modefy: boolean = false;
+
+   private _passes: WebRender2DPass[] = [];
+
+   removePass(pass: WebRender2DPass): void {
+      this._passes.splice(this._passes.indexOf(pass), 1);
+      this._modefy = true;
+   }
+
+   apply(context: IRenderContext2D): void {
+      if (this._modefy) {
+         this._modefy = false;
+         this._sortPassesByPriority();
+      }
+
+      for (const pass of this._passes) {
+         if (pass.needRender()) {
+            pass.fowardRender(context);
+         }
+      }
+   }
+
+   clear(): void {
+      this._passes.length = 0;
+   }
+
+   addPass(pass: WebRender2DPass): void {
+      this._passes.push(pass);
+      this._modefy = true;
+   }
+
+   /**
+    * 按照 priority 对 Pass 进行排序
+    */
+   private _sortPassesByPriority(): void {
+      this._passes.sort((a, b) => b.priority - a.priority); // 按 priority 从大到小排序
    }
 }

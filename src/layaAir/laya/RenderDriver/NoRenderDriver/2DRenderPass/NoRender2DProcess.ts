@@ -11,11 +11,15 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData, ISpineRenderDataHandle, IDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
-import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
+    
+    createRender2DPassManager(): IRender2DPassManager {
+        throw new Error("Method not implemented.");
+    }
     createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer {
         return null;
     }

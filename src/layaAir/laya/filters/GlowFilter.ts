@@ -1,5 +1,5 @@
-import { GlowEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/GlowEffect2D";
-import { PostProcess2DEffect } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2DEffect";
+import { GlowEffect2D } from "../display/effect2d/GlowEffect2D";
+import { PostProcess2DEffect } from "../display/PostProcess2DEffect";
 import { ColorUtils } from "../utils/ColorUtils";
 import { Filter } from "./Filter";
 

@@ -9,7 +9,6 @@ import { IRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/I
 import { checkShaderDataValueLegal, ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Render2DSimple } from "../../../renders/Render2D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
@@ -17,6 +16,7 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { Stat } from "../../../utils/Stat";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
+import { Render2DProcessor } from "../../Render2DProcessor";
 import { Scene } from "../../Scene";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { Blit2DCMD } from "./Blit2DCMD";
@@ -52,7 +52,7 @@ export class CommandBuffer2D {
     constructor(name?: string) {
         this._name = name;
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        this._context = Render2DSimple.rendercontext2D;
+        this._context = Render2DProcessor.rendercontext2D;
         this._commands = [];
     }
 

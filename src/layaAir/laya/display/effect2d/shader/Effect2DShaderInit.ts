@@ -1,13 +1,14 @@
-import { Shader3D, ShaderFeatureType } from "../../../../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../../../../RenderEngine/RenderShader/SubShader";
-import { ShaderDataType } from "../../../../../DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../../../Design/RenderState";
+
 import BlurEffect2DVS from "./BlurEffect2D.vs"
 import BlurEffect2DFS from "./BlurEffect2D.fs"
 import ColorEffect2DVS from "./ColorEffect2D.vs"
 import ColorEffect2DFS from "./ColorEffect2D.fs"
 import GlowEffect2DVS from "./GlowEffect2D.vs"
 import GlowEffect2DFS from "./GlowEffect2D.fs"
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState"
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D"
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader"
 export class Effect2DShaderInit {
     static colorEffect2DShaderInit() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {

@@ -1,7 +1,7 @@
 import { Filter } from "./Filter";
 import { ColorUtils } from "../utils/ColorUtils"
 import { Matrix4x4 } from "../maths/Matrix4x4";
-import { ColorEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/ColorEffect2D";
+import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
 
 /**
  * @en An array representing a list of contrast values.

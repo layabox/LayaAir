@@ -32,10 +32,10 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 
-import { PostProcess2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2D";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
 import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
+import { PostProcess2D } from "./PostProcess2D";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;

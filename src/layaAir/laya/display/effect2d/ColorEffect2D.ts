@@ -1,17 +1,17 @@
-import { Blit2DCMD } from "../../../../../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
-import { LayaGL } from "../../../../../layagl/LayaGL";
-import { Color } from "../../../../../maths/Color";
-import { Matrix } from "../../../../../maths/Matrix";
-import { Matrix4x4 } from "../../../../../maths/Matrix4x4";
-import { Vector2 } from "../../../../../maths/Vector2";
-import { Vector4 } from "../../../../../maths/Vector4";
-import { RenderTargetFormat } from "../../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
-import { Material } from "../../../../../resource/Material";
-import { RenderTexture2D } from "../../../../../resource/RenderTexture2D";
-import { IRenderElement2D } from "../../../../DriverDesign/2DRenderPass/IRenderElement2D";
+
+import { LayaGL } from "../../layagl/LayaGL";
+import { Matrix } from "../../maths/Matrix";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector4 } from "../../maths/Vector4";
+import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../resource/Material";
+import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { PostProcess2D, PostProcessRenderContext2D } from "../PostProcess2D";
 import { PostProcess2DEffect } from "../PostProcess2DEffect";
+import { Blit2DCMD } from "../Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 
 
 

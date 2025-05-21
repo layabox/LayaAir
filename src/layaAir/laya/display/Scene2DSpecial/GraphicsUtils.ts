@@ -7,7 +7,6 @@ import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/I
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Render2DSimple } from "../../renders/Render2D";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
@@ -20,6 +19,7 @@ import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
+import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
 import { GraphicsRunner } from "./GraphicsRunner";
 
@@ -254,7 +254,7 @@ export class SubStructRender {
       this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
 
-      let info = Render2DSimple.runner.inv_uv;
+      let info = Render2DProcessor.runner.inv_uv;
       let view = info.indexViews[0];
       this._renderElement.geometry.bufferState = info.mesh.bufferState;
       this._renderElement.geometry.setDrawElemenParams(view.length, view.start * 2);

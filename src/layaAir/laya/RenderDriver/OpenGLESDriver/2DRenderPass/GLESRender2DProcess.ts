@@ -4,7 +4,7 @@ import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderP
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData, ISpineRenderDataHandle, IDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
-import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
@@ -12,6 +12,9 @@ import { GLESREnderContext2D } from "./GLESRenderContext2D";
 import { GLESREnderElement2D } from "./GLESRenderElement2D";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
+    createRender2DPassManager(): IRender2DPassManager {
+        throw new Error("Method not implemented.");
+    }
     createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer {
         throw new Error("Method not implemented.");
     }

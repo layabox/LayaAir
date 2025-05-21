@@ -1,4 +1,4 @@
-import { BlurEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/BlurEffect2D";
+import { BlurEffect2D } from "../display/effect2d/BlurEffect2D";
 import { Vector4 } from "../maths/Vector4";
 import { Filter } from "./Filter";
 

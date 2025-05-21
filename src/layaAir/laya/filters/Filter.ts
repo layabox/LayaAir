@@ -1,7 +1,6 @@
+import { PostProcess2DEffect } from "../display/PostProcess2DEffect";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { PostProcess2DEffect } from "../RenderDriver/RenderModuleData/WebModuleData/2D/PostProcess2DEffect";
-
 
 /**
  * 

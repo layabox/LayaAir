@@ -6,7 +6,7 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle,IGlobalRenderData, ISpineRenderDataHandle, IDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
-import { IRender2DPass } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
 import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
@@ -15,6 +15,9 @@ import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
 export class WebGPURender2DProcess implements I2DRenderPassFactory {
+    createRender2DPassManager(): IRender2DPassManager {
+        throw new Error("Method not implemented.");
+    }
     createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer {
         throw new Error("Method not implemented.");
     }

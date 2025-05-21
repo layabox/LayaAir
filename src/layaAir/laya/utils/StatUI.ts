@@ -1,11 +1,11 @@
 
 import { Laya } from "../../Laya";
+import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
-import { Render2DSimple } from "../renders/Render2D";
 import { Stat, StatUIParams } from "./Stat";
 
 export class StatUI {
@@ -124,7 +124,7 @@ export class StatUI {
      * @param y Y轴显示位置。
      */
     render(x: number, y: number) {
-        this._show && this._pass && this._pass.fowardRender(Render2DSimple.rendercontext2D);
+        this._show && this._pass && this._pass.fowardRender(Render2DProcessor.rendercontext2D);
     }
 }
 

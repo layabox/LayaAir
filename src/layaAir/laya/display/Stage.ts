@@ -24,10 +24,8 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
-import { Render2DSimple } from "../renders/Render2D";
-import { Render2DPassManager } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Render2DPassManager";
-import { Graphics } from "./Graphics";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Render2DProcessor } from "./Render2DProcessor";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -248,7 +246,7 @@ export class Stage extends Sprite {
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
     // private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
-    passManager: Render2DPassManager = new Render2DPassManager();
+    passManager: Render2DProcessor = new Render2DProcessor();
 
     /**
      * @ignore
@@ -1070,10 +1068,10 @@ export class Stage extends Sprite {
         for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
             let sprite = graphicUpdateList[i];
             if (sprite._graphics) {
-                sprite._graphics._render(Render2DSimple.runner);
+                sprite._graphics._render(Render2DProcessor.runner);
             }
         }
-        this.passManager.apply(Render2DSimple.rendercontext2D);
+        this.passManager.apply(Render2DProcessor.rendercontext2D);
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();
 
