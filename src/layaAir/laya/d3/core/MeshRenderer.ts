@@ -40,6 +40,8 @@ export class MeshRenderer extends BaseRender {
         MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT = Shader3D.getDefineByName("TANGENT");
+        MeshSprite3DShaderDeclaration.SHADERDEFINE_BONEW = Shader3D.getDefineByName("VBONEW");
+        MeshSprite3DShaderDeclaration.SHADERDEFINE_BONEI = Shader3D.getDefineByName("VBONEI");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
     }
 

@@ -99,6 +99,12 @@ export class BaseRender extends Component {
                     case VertexMesh.MESH_TANGENT0:
                         out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT);
                         break;
+                    case VertexMesh.MESH_BLENDINDICES0:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_BONEI);
+                        break;
+                    case VertexMesh.MESH_BLENDWEIGHT0:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_BONEW);
+                        break;
                 }
             }
         }

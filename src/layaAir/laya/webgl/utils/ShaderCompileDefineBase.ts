@@ -36,6 +36,9 @@ export class ShaderCompileDefineBase {
 
         for (let k of compiledObj.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
+
+        this._validDefine.add(Shader3D.getDefineByName("VBONEW"));
+        this._validDefine.add(Shader3D.getDefineByName("VBONEI"));
     }
 
     withCompile(compileDefine: IDefineDatas): IShaderInstance {
