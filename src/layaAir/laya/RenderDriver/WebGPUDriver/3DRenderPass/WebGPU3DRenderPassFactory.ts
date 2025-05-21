@@ -1,37 +1,25 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
-import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
 import { IInstanceRenderBatch, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
-import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { BlitQuadCMDData, DrawElementCMDData, DrawNodeCMDData, SetRenderTargetCMD, SetViewportCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
+import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
+import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
+import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
 import { WebGPU3DRenderPass } from "./WebGPU3DRenderPass";
+import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
 import { WebGPUInstanceRenderElement3D } from "./WebGPUInstanceRenderElement3D";
 import { WebGPUBlitQuadCMDData } from "./WebGPURenderCMD/WebGPUBlitQuadCMDData";
 import { WebGPUDrawElementCMDData } from "./WebGPURenderCMD/WebGPUDrawElementCMDData";
 import { WebGPUDrawNodeCMDData } from "./WebGPURenderCMD/WebGPUDrawNodeCMDData";
-import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
 import { WebGPUSetRenderTargetCMD } from "./WebGPURenderCMD/WebGPUSetRenderTargetCMD";
-import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
 import { WebGPUSetViewportCMD } from "./WebGPURenderCMD/WebGPUSetViewportCMD";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
-import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
-import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
-import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
-import { Stat } from "../../../utils/Stat";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
-import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
-import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 
-export class WebGPUDriverRenderNodeCacheData {
-    bindGroup: Map<number, WebGPUBindGroup1> = new Map();
-    commandUniformMapArray: string[] = [];
-}
 
 /**
  * WebGPU渲染工厂类

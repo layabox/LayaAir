@@ -1,5 +1,4 @@
 import { WebGPUBindGroup } from "../WebGPUBindGroupCache";
-import { WebGPUBindGroup1 } from "../WebGPUBindGroupHelper";
 import { WebGPUInternalRT } from "../WebGPUInternalRT";
 import { WebGPURenderEncoder } from "../WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
@@ -74,7 +73,7 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
      * @param bindGroup 
      * @param dynamicOffsets 
      */
-    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup1 | WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
+    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
         dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS) : this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets);
     }
 

@@ -11,23 +11,21 @@ import { Material } from "../../../resource/Material";
 import { Resource } from "../../../resource/Resource";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureCube } from "../../../resource/TextureCube";
+import { Stat } from "../../../utils/Stat";
+import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
+import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
+import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
-import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
-import { RenderState } from "../../RenderModuleData/Design/RenderState";
-import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
-import { Stat } from "../../../utils/Stat";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
-import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
-import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
-import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
+import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
+import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 
 /**
  * 着色器数据
@@ -103,9 +101,6 @@ export class WebGPUShaderData extends ShaderData {
     //根据string来查找某个Uniform组最后数据更新的值 用来快速判断是否需要重新创建bindGroup
     private _bindGroupLastUpdateMask: Map<string, number>;
 
-    //BindGroup资源数据 
-
-    _cacheBindGroup: Map<string, WebGPUBindGroup1>;
     _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
 
     _textureData: { [key: number]: BaseTexture } = {};
@@ -121,7 +116,6 @@ export class WebGPUShaderData extends ShaderData {
 
         this._textureCacheUpdateMap = new Map();
         this._bindGroupLastUpdateMask = new Map();
-        this._cacheBindGroup = new Map();
         this._cacheNameBindGroupInfos = new Map();
 
         this._uniformBuffers = new Map();
@@ -751,12 +745,10 @@ export class WebGPUShaderData extends ShaderData {
         });
         this._subUniformBuffers.clear();
 
-        //bindGroup Cache
-        this._cacheBindGroup.clear();
+
         this._bindGroupLastUpdateMask.clear();
         this._textureCacheUpdateMap.clear();
 
-        this._cacheBindGroup.clear();
         this._cacheNameBindGroupInfos.clear();
 
         this._data = {};

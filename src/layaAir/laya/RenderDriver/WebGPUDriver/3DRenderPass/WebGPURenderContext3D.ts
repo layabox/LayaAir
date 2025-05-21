@@ -11,7 +11,7 @@ import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
+import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";

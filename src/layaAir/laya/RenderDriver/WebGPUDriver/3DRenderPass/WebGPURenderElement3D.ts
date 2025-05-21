@@ -13,7 +13,6 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";

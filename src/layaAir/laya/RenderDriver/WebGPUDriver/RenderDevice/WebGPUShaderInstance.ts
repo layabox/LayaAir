@@ -116,6 +116,18 @@ export class WebGPUShaderInstance implements IShaderInstance {
         const device = engine.getDevice();
         this._shaderPass = shaderPass;
 
+        {
+            let subShader = shaderPass._owner;
+            let shader = subShader.owner;
+
+            let subIndex = shader._subShaders.indexOf(subShader);
+            let passIndex = subShader._passes.indexOf(shaderPass);
+
+            let defineString = shaderProcessInfo.defineString;
+
+            console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
+        }
+
         if (!shaderProcessInfo.is2D) {
             this._create3D();
         } else {
@@ -267,25 +279,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         // // material
         // this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
-    }
-
-
-    /**
-     * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
-     * @param device 
-     * @param name 
-     * @param entries 
-     */
-    createPipelineLayout(device: GPUDevice) {
-        // if (!this._gpuPipelineLayout) {
-        //     const bindGroupLayouts: GPUBindGroupLayout[] = [];
-        //     for (let i = 0; i < 4; i++) {
-        //         const bindGroup = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
-        //         bindGroupLayouts.push(bindGroup);
-        //     }
-        //     this._gpuPipelineLayout = device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
-        // }
-        return this._gpuPipelineLayout;
     }
 
     /**

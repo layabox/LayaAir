@@ -1,29 +1,25 @@
-import { Color } from "laya/maths/Color";
-import { Vector4 } from "laya/maths/Vector4";
-import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Shader3D, ShaderFeatureType } from "laya/RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { WebGPU_Bundle_Culling } from "./WebGPU_Bundle_Culling";
-import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
-import { WebGPURenderContext3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderContext3D";
-import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
-import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBundle/WebGPURenderBundle";
+import { BaseCamera } from "laya/d3/core/BaseCamera";
+import { Camera } from "laya/d3/core/Camera";
 import { BaseRender } from "laya/d3/core/render/BaseRender";
-import { Vector3 } from "laya/maths/Vector3";
-import { Bounds } from "laya/d3/math/Bounds";
 import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
+import { Bounds } from "laya/d3/math/Bounds";
 import { Plane } from "laya/d3/math/Plane";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
+import { IRenderContext3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
+import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { WebGPURenderContext3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderContext3D";
+import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
+import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBundle/WebGPURenderBundle";
+import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderInstance";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBindGroupHelper";
-import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
-import { Stat } from "laya/utils/Stat";
-import { IRenderContext3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { Camera } from "laya/d3/core/Camera";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
+import { Shader3D, ShaderFeatureType } from "laya/RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 
 export class WebGPU_Bundle_CullingUtil {
 
@@ -252,8 +248,6 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
             this.bindGroupMap.set(3, bindgroup);
         }
     }
-
-    private bindGroup: Map<number, WebGPUBindGroup1> = new Map();
 }
 
 

@@ -1,12 +1,8 @@
 import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
-import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Stat } from "../../../utils/Stat";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -15,8 +11,6 @@ import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUSubUniformBuffer } from "../RenderDevice/WebGPUUniform/WebGPUSubUniformBuffer";
-import { WebGPUUniformBuffer } from "../RenderDevice/WebGPUUniform/WebGPUUniformBuffer";
-import { WebGPU3DRenderPassFactory } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 

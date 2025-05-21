@@ -2,7 +2,6 @@ import { Laya } from "../../../../Laya";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPUBindGroup } from "./WebGPUBindGroupCache";
-import { WebGPUBindGroup1 } from "./WebGPUBindGroupHelper";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";

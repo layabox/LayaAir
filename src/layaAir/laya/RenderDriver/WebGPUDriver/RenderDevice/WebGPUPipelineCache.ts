@@ -1,5 +1,4 @@
 import { WebGPUBindGroup } from "./WebGPUBindGroupCache";
-import { WebGPUBindGroup1 } from "./WebGPUBindGroupHelper";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { IRenderPipelineInfo, WebGPUPrimitiveState } from "./WebGPURenderPipelineHelper";

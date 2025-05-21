@@ -53,24 +53,6 @@ export class WebGPUBindGroup1 {
 export class WebGPUBindGroupHelper {
 
     static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
-    static emptyBindgoup: WebGPUBindGroup1;
-
-    static createEmptyBindGroup() {
-        if (WebGPUBindGroupHelper.emptyBindgoup)
-            return WebGPUBindGroupHelper.emptyBindgoup;
-
-        let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout([]);
-
-        let bindgroupEntriys: GPUBindGroupEntry[] = [];
-        let bindGroupDescriptor: GPUBindGroupDescriptor = {
-            label: "cacheBindgroupKey",
-            layout: groupLayout,
-            entries: bindgroupEntriys
-        };
-        WebGPUBindGroupHelper.emptyBindgoup = new WebGPUBindGroup1();
-        WebGPUBindGroupHelper.emptyBindgoup.gpuRS = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-        return WebGPUBindGroupHelper.emptyBindgoup;
-    }
 
     static _getBindGroupID(array: string[]): string {
         // 将数组中的字符串拼接成一个唯一标识符

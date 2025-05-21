@@ -9,7 +9,6 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
-import { WebGPUBindGroup1, WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
