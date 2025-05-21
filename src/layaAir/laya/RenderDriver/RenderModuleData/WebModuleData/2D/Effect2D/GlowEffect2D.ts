@@ -62,7 +62,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._blitmat.setShaderName("ColorEffect2D");
         if (!this._blitElement) {
             this._blitElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-            this._blitElement.geometry = Blit2DCMD.QuadGeometry;
+            this._blitElement.geometry = Blit2DCMD.InvertQuadGeometry;
             this._blitElement.nodeCommonMap = null;
             this._blitElement.renderStateIsBySprite = false;
             this._blitElement.materialShaderData = this._blitmat.shaderData;

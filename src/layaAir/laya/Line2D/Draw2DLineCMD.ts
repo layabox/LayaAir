@@ -24,6 +24,7 @@ export class Draw2DLineCMD extends Command2D {
         cmd._line2DRender.color = color;
         cmd._line2DRender.positions = pointArray;
         cmd._line2DRender.lineWidth = lineWidth;
+        cmd._needUpdateElement = true;
         cmd._setMatrix(mat);
         return cmd;
     }
@@ -46,8 +47,8 @@ export class Draw2DLineCMD extends Command2D {
         // this._struct.transform = new SpriteGlobalTransform(null);
         this._line2DRender = new Line2DRender;
         this._line2DRender._struct = this._struct;
-        this._line2DRender._initRender();
         this._line2DRender._spriteShaderData = this._shaderData;
+        this._line2DRender._initRender();
 
         this._matrix = new Matrix();
 

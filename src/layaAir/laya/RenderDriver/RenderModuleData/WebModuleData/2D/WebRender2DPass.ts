@@ -176,10 +176,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (!struct.enable) return;
+
       struct._handleInterData();
 
-
-      //this.handl
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
@@ -194,11 +193,8 @@ export class WebRender2DPass implements IRender2DPass {
       //     return;
       // }
 
-      if (struct.renderDataHandler) {
-         struct.renderUpdate(context2D);
-         // struct.renderDataHandler.inheriteRenderData(context2D);
-         this.addStruct(struct);
-      }
+      struct.renderUpdate(context2D);
+      this.addStruct(struct);
 
       //需要处理全局透明的问题，统计并且生成新的 process。
       for (let i = 0; i < struct.children.length; i++) {

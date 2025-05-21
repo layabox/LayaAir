@@ -275,7 +275,7 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        if (this.owner) {
+        if (this.owner && !this.owner.destroyed) {
             let len = this._cmds.length;
             let value = len > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
             this._setDisplay(value);

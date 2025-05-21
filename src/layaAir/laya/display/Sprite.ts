@@ -1909,6 +1909,7 @@ export class Sprite extends Node {
                 if (this._skinBaseUrl)
                     url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
+                    if (this.destroyed) return;
                     this.texture = tex;
                     this.repaint();
                     complete && complete.run();
@@ -2178,7 +2179,8 @@ export class Sprite extends Node {
         }
 
         if (value && (value as Sprite)._struct) {
-            (value as Sprite)._struct.addChild(struct);
+            let index = value.children.indexOf(this);
+            (value as Sprite)._struct.addChild(struct , index);
         }
     }
 
@@ -2198,7 +2200,6 @@ export class Sprite extends Node {
         this._oriRenderPass = subPass;
 
         subStruct.transform = this.globalTrans;
-        // subStruct.set_spriteUpdateCall(this, this._renderUpdate , this.clearRepaint);
     }
 
     //TODO
@@ -2240,17 +2241,18 @@ export class Sprite extends Node {
             let parent = this._struct.parent;
             this._struct.pass = this._oriRenderPass;
             if (parent) {
+                let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);
-                parent.addChild(this._subStruct);
+                parent.addChild(this._subStruct, index);
             }
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
             if (parent) {
+                let index = parent.children.indexOf(this._subStruct);
                 parent.removeChild(this._subStruct);
-                parent.addChild(this._struct);
+                parent.addChild(this._struct, index);
             }
-            //postProcess release
         }
         this._oriRenderPass.enable = enable;
     }
@@ -2259,8 +2261,9 @@ export class Sprite extends Node {
      * @ignore
      */
     protected _setParent(value: Node): void {
-        this._setStructParent(value);
         super._setParent(value);
+
+        this._setStructParent(value);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {
@@ -2269,6 +2272,15 @@ export class Sprite extends Node {
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
+    }
+
+    /**
+     * @internal
+     */
+    _setChildIndex(node: Sprite, oldIndex: number, index: number): number {
+        let out = super._setChildIndex(node, oldIndex, index);
+        this._struct.updateChildIndex(node._struct, oldIndex, out);
+        return out;
     }
 
     /**

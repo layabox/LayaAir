@@ -12,7 +12,6 @@ import { Color } from "../maths/Color";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Stat } from "../utils/Stat";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { GraphicsRunner } from "../display/Scene2DSpecial/GraphicsRunner";
 
@@ -36,20 +35,20 @@ class Render2DGlobalState{
 
 export abstract class Render2D {
 
-    protected _renderTexture: RenderTexture2D = null;
-    //外部设置渲染结果。默认为null,null则渲染到canvas上
-    constructor(out: RenderTexture2D = null) {
-        this._renderTexture = out;
-    }
-    abstract clone(out: RenderTexture2D): Render2D;
-    abstract renderStart(clear: boolean, clearColor: Color): void;
-    // 有vb是外部提供的，因此，顶点描述也要由外部提供
-    //abstract setVertexDecl(decl:VertexDeclaration):void;
-    //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
-    abstract draw(mesh: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
-    abstract drawElement(ele: IRenderElement2D): void;
+    // protected _renderTexture: RenderTexture2D = null;
+    // //外部设置渲染结果。默认为null,null则渲染到canvas上
+    // constructor(out: RenderTexture2D = null) {
+    //     this._renderTexture = out;
+    // }
+    // abstract clone(out: RenderTexture2D): Render2D;
+    // abstract renderStart(clear: boolean, clearColor: Color): void;
+    // // 有vb是外部提供的，因此，顶点描述也要由外部提供
+    // //abstract setVertexDecl(decl:VertexDeclaration):void;
+    // //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
+    // abstract draw(mesh: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void;
+    // abstract drawElement(ele: IRenderElement2D): void;
 
-    abstract renderEnd(): void;
+    // abstract renderEnd(): void;
 }
 
 /**
@@ -63,102 +62,102 @@ export class Render2DSimple extends Render2D {
         Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
     }
     //private geo: IRenderGeometryElement;
-    private _renderElement: IRenderElement2D;
-    private _lastRT:RenderTexture2D=null;
-    private static _geoMap:{[key:number]:IRenderGeometryElement}={}
-    constructor(out: RenderTexture2D = null) {
-        super(out);
-        this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        this._renderElement.nodeCommonMap = ["Sprite2D"];
-    }
+    // private _renderElement: IRenderElement2D;
+    // private _lastRT:RenderTexture2D=null;
+    // private static _geoMap:{[key:number]:IRenderGeometryElement}={}
+    // constructor(out: RenderTexture2D = null) {
+    //     super(out);
+    //     this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+    //     this._renderElement.nodeCommonMap = ["Sprite2D"];
+    // }
 
-    clone(out: RenderTexture2D): Render2D {
-        return new Render2DSimple(out);
-    }
+    // clone(out: RenderTexture2D): Render2D {
+    //     return new Render2DSimple(out);
+    // }
 
-    private _createMesh(decl: VertexDeclaration) {
-        let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-        let mesh = LayaGL.renderDeviceFactory.createBufferState();
-        geo.bufferState = mesh;
-        let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
-        vb.vertexDeclaration = decl;
-        let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        mesh.applyState([vb], ib)
-        geo.indexFormat = IndexFormat.UInt16;
-        return geo;
-    }
+    // private _createMesh(decl: VertexDeclaration) {
+    //     let geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+    //     let mesh = LayaGL.renderDeviceFactory.createBufferState();
+    //     geo.bufferState = mesh;
+    //     let vb = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+    //     vb.vertexDeclaration = decl;
+    //     let ib = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
+    //     mesh.applyState([vb], ib)
+    //     geo.indexFormat = IndexFormat.UInt16;
+    //     return geo;
+    // }
 
-    private getGeo(decl: VertexDeclaration){
-        let geo = Render2DSimple._geoMap[decl.id];
-        if(geo==undefined){
-            geo = this._createMesh(decl);
-            Render2DSimple._geoMap[decl.id]=geo;
-        }
-        return geo;
-    }
+    // private getGeo(decl: VertexDeclaration){
+    //     let geo = Render2DSimple._geoMap[decl.id];
+    //     if(geo==undefined){
+    //         geo = this._createMesh(decl);
+    //         Render2DSimple._geoMap[decl.id]=geo;
+    //     }
+    //     return geo;
+    // }
 
-    renderStart(clear: boolean, clearColor: Color): void {
-        this._lastRT = Render2DGlobalState.curRT;
-        //分层
-        // if (this._renderTexture) {
-        //     this._renderTexture.start();
-        //     this._renderTexture.clear(0, 0, 0, 0);
-        // }
-        if (this._renderTexture) {
-            Render2DSimple.rendercontext2D.invertY = this._renderTexture._invertY;
-            Render2DSimple.rendercontext2D.setRenderTarget(this._renderTexture._renderTarget, clear, clearColor);
-            Render2DGlobalState.curRT = this._renderTexture;
-        } else {
-            Render2DSimple.rendercontext2D.invertY = false;
-            Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
-            //如果没有设置，则是继续上一次的。但是可能这是第一次，没有上一次，希望是null
-            if(!Render2DGlobalState.curRT)
-                Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
-        }
-        RenderTexture2D._clear = false;
-    }
+    // renderStart(clear: boolean, clearColor: Color): void {
+    //     this._lastRT = Render2DGlobalState.curRT;
+    //     //分层
+    //     // if (this._renderTexture) {
+    //     //     this._renderTexture.start();
+    //     //     this._renderTexture.clear(0, 0, 0, 0);
+    //     // }
+    //     if (this._renderTexture) {
+    //         Render2DSimple.rendercontext2D.invertY = this._renderTexture._invertY;
+    //         Render2DSimple.rendercontext2D.setRenderTarget(this._renderTexture._renderTarget, clear, clearColor);
+    //         Render2DGlobalState.curRT = this._renderTexture;
+    //     } else {
+    //         Render2DSimple.rendercontext2D.invertY = false;
+    //         Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
+    //         //如果没有设置，则是继续上一次的。但是可能这是第一次，没有上一次，希望是null
+    //         if(!Render2DGlobalState.curRT)
+    //             Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
+    //     }
+    //     RenderTexture2D._clear = false;
+    // }
 
-    drawElement(ele: IRenderElement2D) {
-        Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
-    }
+    // drawElement(ele: IRenderElement2D) {
+    //     Render2DSimple.rendercontext2D.drawRenderElementOne(ele);
+    // }
 
-    draw(mesh2d: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
-        Stat.draw2D++;
-        let geo = this.getGeo(mesh2d.vertexDeclarition);
-        let mesh = geo.bufferState
-        let vb = mesh._vertexBuffers[0];
-        let ib = mesh._bindedIndexBuffer;
-        vb.setDataLength(vblen);
-        vb.setData(mesh2d.vbBuffer, vboff, 0, vblen);
-        ib._setIndexDataLength(iblen);
-        ib._setIndexData(new Uint16Array(mesh2d.ibBuffer, iboff, iblen / 2), 0)
-        geo.clearRenderParams();
-        geo.setDrawElemenParams(iblen / 2, 0);
+    // draw(mesh2d: ISprite2DGeometry, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D, customMaterial: Material): void {
+    //     Stat.draw2D++;
+    //     let geo = this.getGeo(mesh2d.vertexDeclarition);
+    //     let mesh = geo.bufferState
+    //     let vb = mesh._vertexBuffers[0];
+    //     let ib = mesh._bindedIndexBuffer;
+    //     vb.setDataLength(vblen);
+    //     vb.setData(mesh2d.vbBuffer, vboff, 0, vblen);
+    //     ib._setIndexDataLength(iblen);
+    //     ib._setIndexData(new Uint16Array(mesh2d.ibBuffer, iboff, iblen / 2), 0)
+    //     geo.clearRenderParams();
+    //     geo.setDrawElemenParams(iblen / 2, 0);
 
-        //Material??
-        let mat: Material = customMaterial;
-        this._renderElement.geometry = geo;
-        //this._renderElement.material = mtl;
-        this._renderElement.value2DShaderData = mtl.shaderData;
-        if (mat)//有Material Shader是Material的shader  没有是默认的Shader
-        {
-            this._renderElement.subShader = mat._shader.getSubShaderAt(0);
-            this._renderElement.materialShaderData = mat.shaderData;
-        } else {
-            this._renderElement.subShader = mtl._defaultShader.getSubShaderAt(0);
-            this._renderElement.materialShaderData = null;
-        }
-        //blendState TODO
-        Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
-    }
+    //     //Material??
+    //     let mat: Material = customMaterial;
+    //     this._renderElement.geometry = geo;
+    //     //this._renderElement.material = mtl;
+    //     this._renderElement.value2DShaderData = mtl.shaderData;
+    //     if (mat)//有Material Shader是Material的shader  没有是默认的Shader
+    //     {
+    //         this._renderElement.subShader = mat._shader.getSubShaderAt(0);
+    //         this._renderElement.materialShaderData = mat.shaderData;
+    //     } else {
+    //         this._renderElement.subShader = mtl._defaultShader.getSubShaderAt(0);
+    //         this._renderElement.materialShaderData = null;
+    //     }
+    //     //blendState TODO
+    //     Render2DSimple.rendercontext2D.drawRenderElementOne(this._renderElement);
+    // }
 
-    renderEnd(): void {
-        let lastRT:InternalRenderTarget = this._lastRT?this._lastRT._renderTarget:null;
-        //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
-        Render2DSimple.rendercontext2D.invertY = false;
-        Render2DSimple.rendercontext2D.setRenderTarget(lastRT, false, Color.BLACK);
-        Render2DGlobalState.curRT = this._lastRT;
-        this._lastRT = null;
-    }
+    // renderEnd(): void {
+    //     let lastRT:InternalRenderTarget = this._lastRT?this._lastRT._renderTarget:null;
+    //     //恢复rt，如果有实际可以恢复的，表示是被打断了，一定不希望clear，所以clear=false
+    //     Render2DSimple.rendercontext2D.invertY = false;
+    //     Render2DSimple.rendercontext2D.setRenderTarget(lastRT, false, Color.BLACK);
+    //     Render2DGlobalState.curRT = this._lastRT;
+    //     this._lastRT = null;
+    // }
 
 }

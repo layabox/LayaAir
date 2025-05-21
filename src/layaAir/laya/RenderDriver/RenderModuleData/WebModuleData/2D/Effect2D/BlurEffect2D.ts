@@ -32,7 +32,7 @@ export class BlurEffect2D extends PostProcess2DEffect {
       this.mat.setShaderName("BlurEffect2D");
       if (!this._renderElement) {
          this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-         this._renderElement.geometry = Blit2DCMD.QuadGeometry;
+         this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
          this._renderElement.nodeCommonMap = null;
          this._renderElement.renderStateIsBySprite = false;
          this._renderElement.materialShaderData = this.mat.shaderData;

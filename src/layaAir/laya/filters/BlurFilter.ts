@@ -1,11 +1,5 @@
 import { BlurEffect2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/Effect2D/BlurEffect2D";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Color } from "../maths/Color";
-import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Filter } from "./Filter";
 
 /**
@@ -18,8 +12,6 @@ var _definiteIntegralMap: { [key: number]: number } = {};
  * @zh 模糊滤镜
  */
 export class BlurFilter extends Filter {
-    /**@internal */
-    shaderData = new TextureSV();
     /**
      * @en The intensity of the blur filter. The higher the value, the more indistinct the image becomes.
      * @zh 模糊滤镜的强度。值越大，图像越不清晰。

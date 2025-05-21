@@ -12,7 +12,6 @@ import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { BlendMode } from "../../../canvas/BlendMode";
 import { ShaderDefines2D } from "../ShaderDefines2D";
-import { RenderSpriteData } from "./Value2D";
 
 const _TEMP_CLIPDIR: Vector4 = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
 export class GraphicsShaderInfo {

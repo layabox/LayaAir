@@ -1,5 +1,3 @@
-import prime_ps from './files/primitive.ps.glsl';
-import prime_vs from './files/primitive.vs.glsl';
 import texture_ps from './files/texture.ps.glsl';
 import texture_vs from './files/texture.vs.glsl';
 import baseRender2D_vs from './files/baseRender2D.vs';

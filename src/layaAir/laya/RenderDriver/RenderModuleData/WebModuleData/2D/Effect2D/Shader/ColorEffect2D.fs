@@ -11,7 +11,6 @@
             //mainColor = gammaToLinear(mainColor);
             //#endif // Gamma_u_AlbedoTexture
             gl_FragColor = mainColor;
-            gl_FragColor = outputTransform(gl_FragColor);
             #ifdef COLORFILTER
                 mat4 alphaMat = u_colorMat;
                 alphaMat[0][3] *= gl_FragColor.a;
@@ -21,4 +20,7 @@
                 gl_FragColor = gl_FragColor * alphaMat;
                 gl_FragColor += u_colorAlpha / 255.0 * gl_FragColor.a;
             #endif
+
+            gl_FragColor = outputTransform(gl_FragColor);
+            // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }

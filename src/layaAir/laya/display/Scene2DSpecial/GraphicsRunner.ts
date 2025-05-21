@@ -28,7 +28,6 @@ import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
-import { Value2D } from "../../webgl/shader/d2/value/Value2D";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";

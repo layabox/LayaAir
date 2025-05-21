@@ -61,10 +61,12 @@ export interface IRenderStruct2D {
 
    pass: IRender2DPass;
 
+   getPass(): IRender2DPass;
+
    setRepaint(): void;
 
-   addChild(child: IRenderStruct2D): IRenderStruct2D;
-
+   addChild(child: IRenderStruct2D ,  index:number): IRenderStruct2D;
+   updateChildIndex(child: IRenderStruct2D ,  oldIndex:number , index:number): void;
    removeChild(child: IRenderStruct2D): void;
 
    setClipRect(rect: Rectangle): void;

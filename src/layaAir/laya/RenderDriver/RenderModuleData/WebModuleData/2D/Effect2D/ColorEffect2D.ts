@@ -55,7 +55,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this.mat.setVector2("u_centerScale", this._centerScale);
         if (!this._renderElement) {
             this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-            this._renderElement.geometry = Blit2DCMD.QuadGeometry;
+            this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
             this._renderElement.nodeCommonMap = null;
             this._renderElement.renderStateIsBySprite = false;
             this._renderElement.materialShaderData = this.mat.shaderData;
@@ -73,6 +73,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this.mat.setTexture("u_MainTex", context.indirectTarget);
         context.command.setRenderTarget(this._destRT, true, PostProcess2DEffect.nullColor);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
+        context.destination = this._destRT;
     }
 
     destroy() {
