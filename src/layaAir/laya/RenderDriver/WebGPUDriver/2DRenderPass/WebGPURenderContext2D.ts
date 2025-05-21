@@ -94,7 +94,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         if (this.sceneData) {
             let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
             this.sceneData.createUniformBuffer("Sprite2DGlobal", unifcom);
-            this.sceneData._createOrGetBindGroupbyUniformMap("Sprite2DGlobal", "Sprite2DGlobal", 0, unifcom._idata);
 
             let commandArray = ["Sprite2DGlobal"];
 

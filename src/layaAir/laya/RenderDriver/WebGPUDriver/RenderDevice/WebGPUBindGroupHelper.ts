@@ -172,7 +172,6 @@ export class WebGPUBindGroupHelper {
     }
 
     /**
-     * @deprecated // todo delete
      * 根据unfiformCommandMapArray获得绑定信息
      * @param groupID 
      * @param unifromCommandMapArray 
@@ -354,30 +353,6 @@ export class WebGPUBindGroupHelper {
             }
         }
         return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
-    }
-
-
-    //传入Command的string Array 生成Scene和Camera用这个
-    static createBindGroupByCommandMapArray(groupID: number, unifromCommandMapArray: string[], shaderData: WebGPUShaderData): WebGPUBindGroup1 {
-        let infoArray: WebGPUUniformPropertyBindingInfo[] = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray);
-        let bindgroupEntriys: GPUBindGroupEntry[] = [];
-        //填充bindgroupEntriys
-        for (var i = 0; i < unifromCommandMapArray.length; i++) {
-            shaderData.fillBindGroupEntry(unifromCommandMapArray[i], unifromCommandMapArray[i], bindgroupEntriys, infoArray);
-        }
-        let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(infoArray);
-        let bindGroupDescriptor: GPUBindGroupDescriptor = {
-            label: "GPUBindGroupDescriptor",
-            layout: groupLayout,
-            entries: bindgroupEntriys
-        };
-
-        let bindGroup = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-        //设置缓存  
-        let returns = new WebGPUBindGroup1();
-        returns.gpuRS = bindGroup;
-        returns.createMask = Stat.loopCount;
-        return returns;
     }
 
     //传入UniformMap，创建WebGPUUniformPropertyBindingInfo数组

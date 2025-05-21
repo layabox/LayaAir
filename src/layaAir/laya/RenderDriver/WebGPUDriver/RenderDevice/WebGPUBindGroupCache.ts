@@ -50,8 +50,6 @@ export class WebGPUBindGroupCache {
 
         let bindIndex = 0;
 
-        let graphicVisibility = GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX;
-
         let textureState = 0;
         let bitVal = 1;
         let textureCount = 0;
@@ -64,7 +62,7 @@ export class WebGPUBindGroupCache {
                 if (map.hasPtrID(propertyID)) {
                     let entry: GPUBindGroupLayoutEntry = {
                         binding: bindIndex++,
-                        visibility: graphicVisibility,
+                        visibility: resource.visibility,
                     };
                     entries.push(entry);
                     properties.push(propertyID);

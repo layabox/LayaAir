@@ -247,8 +247,10 @@ export class WebGPUComputeContext implements IComputeContext {
                 }
             }
 
-            let bindgroup = webgpuShaderData[i]._createOrGetBindGroupByBindInfoArray(computeShader.name, uniformCommandMap._stateName, computeShader as any, i, propertyBindArray).gpuRS;
-            this._computeEncoder.setBindGroup(i, bindgroup);
+            let resource = computeShader.uniformSetMap.get(i);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([uniformCommandMap._stateName], shaderdata, null, resource);
+
+            this._computeEncoder.setBindGroup(i, bindgroup.gpuRS);
         }
         WebGPURenderEngine._instance.gpuBufferMgr.upload();
     }

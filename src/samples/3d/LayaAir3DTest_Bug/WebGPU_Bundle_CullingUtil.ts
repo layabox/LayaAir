@@ -254,49 +254,6 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
     }
 
     private bindGroup: Map<number, WebGPUBindGroup1> = new Map();
-
-    private getBaseRender3DNodeBindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance): WebGPUBindGroup1 {//一帧调用一次
-        let recreateBindGroup: boolean = false;
-        let bindgroup = this.bindGroup.get((shaderInstance as any)._id);
-        let shaderInstanceID = (shaderInstance as any)._id;
-        //处理BindGroup
-        //判断是否要重新创建BindGroup
-        if (!bindgroup) {
-            recreateBindGroup = true;
-        } else {
-            if (bindgroup.isNeedCreate((this.cullShaderData as WebGPUShaderData)._getBindGroupLastUpdateMask(`${this.owner._commonUniformMap[0]}_${shaderInstanceID}`))) {
-                recreateBindGroup = true;
-            }
-        }
-
-        if (recreateBindGroup) {//创建BindGroup
-            //creat BindGroup
-            // let bindGroupArray = shaderInstance.uniformSetMap.get(2);
-            let bindGroupArray = [];
-            //填充bindgroupEntriys
-            let shaderData = this.cullShaderData as WebGPUShaderData;
-            let bindgroupEntriys: GPUBindGroupEntry[] = [];
-            for (var com of this.owner._commonUniformMap) {
-                let comMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(com) as any;
-                if (comMap._ishasBuffer)
-                    shaderData.createSubUniformBuffer(com, com, comMap._idata);
-                shaderData.fillBindGroupEntry(com, `${com}_${shaderInstanceID}`, bindgroupEntriys, bindGroupArray);
-            }
-
-            let groupLayout: GPUBindGroupLayout = WebGPUBindGroupHelper.createBindGroupEntryLayout(bindGroupArray);
-            let bindGroupDescriptor: GPUBindGroupDescriptor = {
-                label: "GPUBindGroupDescriptor",
-                layout: groupLayout,
-                entries: bindgroupEntriys
-            };
-            let bindGroupgpu = WebGPURenderEngine._instance.getDevice().createBindGroup(bindGroupDescriptor);
-            bindgroup = new WebGPUBindGroup1();
-            bindgroup.gpuRS = bindGroupgpu;
-            bindgroup.createMask = Stat.loopCount;
-            this.bindGroup.set(shaderInstanceID, bindgroup);
-        }
-        return bindgroup;
-    }
 }
 
 
