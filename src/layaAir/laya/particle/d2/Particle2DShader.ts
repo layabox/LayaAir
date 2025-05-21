@@ -52,6 +52,11 @@ export class Particle2DShader {
             uniformMap.addShaderUniform(index, name, type);
             return index;
         }
+        const addUniformArray = (name: string, type: ShaderDataType, arrayLength: number) => {
+            let index = Shader3D.propertyNameToID(name);
+            uniformMap.addShaderUniformArray(index, name, type, arrayLength);
+            return index;
+        }
 
         Particle2DShader.CurrentTime = addUniform("u_CurrentTime", ShaderDataType.Float);
         Particle2DShader.UnitPixels = addUniform("u_UnitPixels", ShaderDataType.Float);
@@ -62,11 +67,11 @@ export class Particle2DShader {
             Particle2DShader.ColorOverLifetimeRandom = Shader3D.getDefineByName("COLOROVERLIFETIME_RANDOM");
             Particle2DShader.ColorOVerLifetimeColorKey_8 = Shader3D.getDefineByName("COLOROVERLIFETIME_COLORKEY_8");
 
-            Particle2DShader.GradientRGB = addUniform("u_GradientRGB", ShaderDataType.Buffer);
-            Particle2DShader.GradientAlpha = addUniform("u_GradientAlpha", ShaderDataType.Buffer);
+            Particle2DShader.GradientRGB = addUniformArray("u_GradientRGB", ShaderDataType.Vector4, 8);
+            Particle2DShader.GradientAlpha = addUniformArray("u_GradientAlpha", ShaderDataType.Vector4, 4);
             Particle2DShader.GradientTimeRange = addUniform("u_GradientTimeRange", ShaderDataType.Vector4);
-            Particle2DShader.GradientMaxRGB = addUniform("u_GradientMaxRGB", ShaderDataType.Buffer);
-            Particle2DShader.GradientMaxAlpha = addUniform("u_GradientMaxAlpha", ShaderDataType.Buffer);
+            Particle2DShader.GradientMaxRGB = addUniformArray("u_GradientMaxRGB", ShaderDataType.Vector4, 8);
+            Particle2DShader.GradientMaxAlpha = addUniformArray("u_GradientMaxAlpha", ShaderDataType.Vector4, 4);
             Particle2DShader.GradientMaxTimeRange = addUniform("u_GradientMaxTimeRange", ShaderDataType.Vector4);
         }
 
@@ -74,11 +79,11 @@ export class Particle2DShader {
             // velocity over life time
             Particle2DShader.VelocityOverLifetimeDef = Shader3D.getDefineByName("VELOCITYOVERLIFETIME");
 
-            Particle2DShader.VelocityCurveMinX = addUniform("u_VelocityCurveMinX", ShaderDataType.Buffer);
-            Particle2DShader.VelocityCurveMinY = addUniform("u_VelocityCurveMinY", ShaderDataType.Buffer);
+            Particle2DShader.VelocityCurveMinX = addUniformArray("u_VelocityCurveMinX", ShaderDataType.Vector4, 2);
+            Particle2DShader.VelocityCurveMinY = addUniformArray("u_VelocityCurveMinY", ShaderDataType.Vector4, 2);
 
-            Particle2DShader.VelocityCurveMaxX = addUniform("u_VelocityCurveMaxX", ShaderDataType.Buffer);
-            Particle2DShader.VelocityCurveMaxY = addUniform("u_VelocityCurveMaxY", ShaderDataType.Buffer);
+            Particle2DShader.VelocityCurveMaxX = addUniformArray("u_VelocityCurveMaxX", ShaderDataType.Vector4, 2);
+            Particle2DShader.VelocityCurveMaxY = addUniformArray("u_VelocityCurveMaxY", ShaderDataType.Vector4, 2);
 
             Particle2DShader.VelocityOverLifetimeSpace = addUniform("u_VelocityOverLifetimeSpace", ShaderDataType.Float);
         }
@@ -87,28 +92,28 @@ export class Particle2DShader {
             // Size over life time
             Particle2DShader.SizeOverLifetimeDef = Shader3D.getDefineByName("SIZEOVERLIFETIME");
 
-            Particle2DShader.SizeCurveMinX = addUniform("u_SizeCurveMinX", ShaderDataType.Buffer);
-            Particle2DShader.SizeCurveMinY = addUniform("u_SizeCurveMinY", ShaderDataType.Buffer);
+            Particle2DShader.SizeCurveMinX = addUniformArray("u_SizeCurveMinX", ShaderDataType.Vector4, 2);
+            Particle2DShader.SizeCurveMinY = addUniformArray("u_SizeCurveMinY", ShaderDataType.Vector4, 2);
             Particle2DShader.SizeCurveMinTimeRange = addUniform("u_SizeCurveMinTimeRange", ShaderDataType.Vector4);
 
-            Particle2DShader.SizeCurveMaxX = addUniform("u_SizeCurveMaxX", ShaderDataType.Buffer);
-            Particle2DShader.SizeCurveMaxY = addUniform("u_SizeCurveMaxY", ShaderDataType.Buffer);
+            Particle2DShader.SizeCurveMaxX = addUniformArray("u_SizeCurveMaxX", ShaderDataType.Vector4, 2);
+            Particle2DShader.SizeCurveMaxY = addUniformArray("u_SizeCurveMaxY", ShaderDataType.Vector4, 2);
             Particle2DShader.SizeCurveMaxTimeRange = addUniform("u_SizeCurveMaxTimeRange", ShaderDataType.Vector4);
         }
         {
             // Rotation over life time
             Particle2DShader.RotationOverLifetimeDef = Shader3D.getDefineByName("ROTATIONOVERLIFETIME");
 
-            Particle2DShader.RotationCurveMin = addUniform("u_RotationCurveMin", ShaderDataType.Buffer);
-            Particle2DShader.RotationCurveMax = addUniform("u_RotationCurveMax", ShaderDataType.Buffer);
+            Particle2DShader.RotationCurveMin = addUniformArray("u_RotationCurveMin", ShaderDataType.Vector4, 2);
+            Particle2DShader.RotationCurveMax = addUniformArray("u_RotationCurveMax", ShaderDataType.Vector4, 2);
         }
         {
             // TextureSheetAnimation
             Particle2DShader.TextureSheetAnimationDef = Shader3D.getDefineByName("TEXTURESHEETANIMATION");
 
             Particle2DShader.TextureSheetFrameData = addUniform("u_TextureSheetFrameData", ShaderDataType.Vector4);
-            Particle2DShader.TextureSheetFrame = addUniform("u_TextureSheetFrame", ShaderDataType.Buffer);
-            Particle2DShader.TextureSheetFrameMax = addUniform("u_TextureSheetFrameMax", ShaderDataType.Buffer);
+            Particle2DShader.TextureSheetFrame = addUniformArray("u_TextureSheetFrame", ShaderDataType.Vector4, 2);
+            Particle2DShader.TextureSheetFrameMax = addUniformArray("u_TextureSheetFrameMax", ShaderDataType.Vector4, 2);
             Particle2DShader.TextureSheetFrameRange = addUniform("u_TextureSheetFrameRange", ShaderDataType.Vector4);
         }
 

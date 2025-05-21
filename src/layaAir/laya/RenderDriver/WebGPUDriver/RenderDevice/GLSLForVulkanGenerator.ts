@@ -55,6 +55,7 @@ export class GLSLForVulkanGenerator {
 
         // particle uniform 
         defMap["COLORKEYCOUNT_8"] = true;
+        defMap["COLOROVERLIFETIME_COLORKEY_8"] = true;
 
         let vs = VS.toscript(defMap, []);
         let fs = FS.toscript(defMap, []);
