@@ -275,47 +275,6 @@ export class Sprite extends Node {
         this._struct.isRenderStruct = true;
     }
 
-    _renderUpdate() {
-        //需要修改 是否需要挪到struct里面去？
-        let mat = this._globalTrans.getMatrix();
-        let rect = this._scrollRect;
-        let info = this._struct.getClipInfo();
-
-        if (rect) {
-            let cm = info.clipMatrix;
-            let { x, y, width, height } = rect;
-            cm.tx = x * mat.a + y * mat.c + mat.tx;
-            cm.ty = x * mat.b + y * mat.d + mat.ty;
-            cm.a = width * mat.a;
-            cm.b = width * mat.b;
-            cm.c = height * mat.c;
-            cm.d = height * mat.d;
-
-            info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-            info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
-        }
-
-        let shaderData = this.shaderData;
-        if (!shaderData) {
-            return
-        }
-
-        this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-        this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        // global alpha
-        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._struct.globalAlpha);
-
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
-
-        // this._pivotPos.setValue(this._pivotX, this._pivotY);
-        // shaderData.setVector2(ShaderDefines2D.UNIFORM_PIVOTPOS, this._pivotPos);
-    }
-
     /**
      * @en Destroy the sprite.
      * @param destroyChild Whether to destroy child nodes. Default is true.
@@ -681,6 +640,7 @@ export class Sprite extends Node {
         if (this._visible !== value) {
             this._visible = value;
             this._struct.enable = value;
+            this.repaint();
             this._processVisible();
         }
     }
@@ -1909,7 +1869,6 @@ export class Sprite extends Node {
                 if (this._skinBaseUrl)
                     url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
-                    if (this.destroyed) return;
                     this.texture = tex;
                     this.repaint();
                     complete && complete.run();
