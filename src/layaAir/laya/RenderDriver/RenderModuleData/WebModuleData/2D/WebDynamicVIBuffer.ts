@@ -2,7 +2,6 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { Stat } from "../../../../utils/Stat";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";

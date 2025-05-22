@@ -1,17 +1,14 @@
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
-import { Stat } from "../../../../utils/Stat";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IBufferDataView, IDynamicVIBuffer, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { BufferDataView } from "./WebDynamicVIBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -52,7 +49,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
         if (!data)
             return;
         if (this._needUseMatrix) {
-            let mat = this._owner.transform.getMatrix();
+            let mat = this._owner.renderMatrix;
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
@@ -86,16 +83,16 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     inheriteRenderData(context: IRenderContext2D): void {
         //更新位置
         //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
-        
+
         let data = this.owner.spriteShaderData;
         if (!data)
             return;
 
-        let trans = this.owner.transform;
-        let mat = trans.getMatrix();
+        let trans = this.owner.trans;
+        let mat = trans.matrix;
         if (this.mask) {
-            let maskMatrix = this.mask.transform.getMatrix();
-            let tempMatirx = Matrix.mul( maskMatrix , mat , Matrix.TEMP);
+            let maskMatrix = this.mask.renderMatrix;
+            let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
             this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
             this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
         }
@@ -115,12 +112,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
 
         if (
-            this._needUpdateVertexBuffer 
-            || this._modifiedFrame < trans._modifiedFrame
+            this._needUpdateVertexBuffer
+            || this._modifiedFrame < trans.modifiedFrame
             //临时的判断
             || !Matrix.equals(this._matrix, mat)
         ) {
-            let pos = 0 , dataViewIndex = 0 , ci = 0;
+            let pos = 0, dataViewIndex = 0, ci = 0;
             let dataView: BufferDataView = null;
             let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
             let _bTransform = mat._bTransform;
@@ -132,18 +129,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let { positions, vertexViews } = blocks[i];
                 let vertexCount = positions.length / 2;
                 dataView = null;
-                pos = 0 , ci = 0 , dataViewIndex = 0;
+                pos = 0, ci = 0, dataViewIndex = 0;
 
                 for (let j = 0; j < vertexCount; j++) {
 
                     if (!dataView || dataView.length <= pos) {
                         dataView = vertexViews[dataViewIndex] as BufferDataView;
                         dataView.modify(BufferModifyType.Vertex);
-                        if (! dataView.owner._inPass ) pass.setBuffer(dataView.owner);
+                        if (!dataView.owner._inPass) pass.setBuffer(dataView.owner);
                         dataViewIndex++;
                         pos = 0;
                     }
-        
+
                     vbdata = dataView.data;
                     let x = positions[ci], y = positions[ci + 1];
                     // if (_bTransform) {
@@ -159,7 +156,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 }
             }
             this._needUpdateVertexBuffer = false;
-            this._modifiedFrame = trans._modifiedFrame;
+            this._modifiedFrame = trans.modifiedFrame;
         }
     }
 
@@ -339,8 +336,8 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         if (!this._owner || !this._owner.spriteShaderData)
             return
         let shaderData = this.owner.spriteShaderData;
-        let trans = this.owner.transform;
-        let mat = trans.getMatrix();
+        let trans = this.owner.renderMatrix;
+        let mat = trans;
         let ofx = - this.skeleton.x;
         let ofy = this.skeleton.y;
         this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);

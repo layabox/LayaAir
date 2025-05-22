@@ -1,13 +1,9 @@
 import { Const } from "../../../../Const";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { Material } from "../../../../resource/Material";
 import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { BlendMode } from "../../../canvas/BlendMode";

@@ -14,7 +14,7 @@ export class SpriteGlobalTransform {
     private _scaleX: number = 1.0;
     private _scaleY: number = 1.0;
     private _matrix: Matrix;
-    private _cache = false;
+    private _cache: boolean;
     _modifiedFrame: number = 0;
     /**
      * @zh An event constant for when the global transformation information changes.
@@ -24,6 +24,8 @@ export class SpriteGlobalTransform {
 
     constructor(sp: Sprite) {
         this._sp = sp;
+        this.cache = true;
+        this._notifyRenderSpriteTransChange();
     }
 
     /**
@@ -35,23 +37,11 @@ export class SpriteGlobalTransform {
     }
 
     set cache(value: boolean) {
-        if (this._cache != value) {
-            this._cache = value;
-            if (value) {
-                //缓存全局变量
-                this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);
-                //更新父节点
-                let parent = this._sp._parent;
-                if (parent != null && parent != ILaya.stage)
-                    parent.globalTrans.cache = true;
-            } else {
-                //更新子节点
-                for (let child of this._sp._children) {
-                    if (child._globalTrans)
-                        child._globalTrans.cache = false;
-                }
-            }
+        if (value) {
+            //缓存全局变量
+            this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);
         }
+        this._cache = value;
     }
 
     /**
@@ -65,7 +55,6 @@ export class SpriteGlobalTransform {
         //if (this.scene == null) { return this._globalMatrix; }
         if (this._cache && !this._getFlag(TransformKind.Matrix))
             return this._matrix;
-
         let sp = this._sp;
         this._matrix.setMatrix(sp._x, sp._y, sp._scaleX, sp._scaleY, sp._rotation, sp._skewX, sp._skewY, sp._pivotX, sp._pivotY);
         if (sp._parent) {
@@ -73,7 +62,6 @@ export class SpriteGlobalTransform {
             this._setFlag(TransformKind.Matrix, false);
             this._syncFlag(TransformKind.Matrix, true);
         }
-
         return this._matrix;
     }
 
@@ -125,7 +113,6 @@ export class SpriteGlobalTransform {
     getScenePos(out: Point) {
         if (!this._sp.scene)
             return this.getPos(out);
-
         return this._sp.scene.globalTrans.getMatrixInv(tmpMarix).transformPoint(this.getPos(out));
     }
 
@@ -338,6 +325,13 @@ export class SpriteGlobalTransform {
             this._flags &= ~type;
         if (value) {
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
+            this._notifyRenderSpriteTransChange();
+        }
+    }
+
+    private _notifyRenderSpriteTransChange() {
+        if (this._sp._struct.renderDataHandler || (this._sp._subStruct && this._sp._subStruct.renderDataHandler)) {
+            ILaya.stage._addtransChangeElement(this._sp);
         }
     }
 
@@ -348,9 +342,10 @@ export class SpriteGlobalTransform {
     private _syncFlag(flag: number, value: boolean) {
         if (this._cache) {
             for (let child of this._sp._children) {
-                if (child._globalTrans) {
-                    child._globalTrans._setFlag(flag, value);
-                    child._globalTrans._syncFlag(flag, value);
+                let globaltrans = child.globalTrans
+                if (globaltrans) {
+                    globaltrans._setFlag(flag, value);
+                    globaltrans._syncFlag(flag, value);
                 }
             }
         }

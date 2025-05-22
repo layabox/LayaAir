@@ -1018,6 +1018,7 @@ export class Stage extends Sprite {
 
     private _graphicUpdateList: Set<Sprite> = new Set();
     private _subpassUpdateList: Set<Sprite> = new Set();
+    private _tranMatrixUpdateList: Set<Sprite> = new Set();
     _addgraphicRenderElement(sprite: Sprite) {
         if (!sprite) return;
         this._graphicUpdateList.add(sprite);
@@ -1028,6 +1029,10 @@ export class Stage extends Sprite {
         this._subpassUpdateList.add(sprite);
     }
 
+    _addtransChangeElement(sprite: Sprite) {
+        if (!sprite) return;
+        this._tranMatrixUpdateList.add(sprite);
+    }
     /**
      * @param x The x-axis coordinate
      * @param y The y-axis coordinate
@@ -1064,6 +1069,17 @@ export class Stage extends Sprite {
             sprite._subpassUpdateFlag = 0;
         }
 
+        let changeMatrixList = Array.from(this._tranMatrixUpdateList);
+        for (var i = 0, n = changeMatrixList.length; i < n; i++) {
+            let sprite = changeMatrixList[i];
+            if (sprite._struct)//有可能被删除
+            {
+                sprite._struct.renderMatrix = sprite.globalTrans.getMatrix();
+                sprite._subStruct && (sprite._subStruct.renderMatrix = sprite.globalTrans.getMatrix());
+            }
+
+        }
+
         let graphicUpdateList = Array.from(this._graphicUpdateList);
         for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
             let sprite = graphicUpdateList[i];
@@ -1074,6 +1090,7 @@ export class Stage extends Sprite {
         this.passManager.apply(Render2DProcessor.rendercontext2D);
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();
+        this._tranMatrixUpdateList.clear();
 
         Stat.render(0, 0)
     }

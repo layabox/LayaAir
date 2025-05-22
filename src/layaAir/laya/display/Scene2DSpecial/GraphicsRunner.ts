@@ -1,13 +1,11 @@
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { Bezier } from "../../maths/Bezier";
-import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Point } from "../../maths/Point";
 import { Rectangle } from "../../maths/Rectangle";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
@@ -25,7 +23,6 @@ import { SaveStyle } from "../../webgl/canvas/save/SaveStyle";
 import { SaveMark } from "../../webgl/canvas/save/SaveMark";
 import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
 import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
-import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
@@ -37,8 +34,7 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { BufferModifyType, IBufferDataView, IDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
-import { Stat } from "../../utils/Stat";
+import { BufferModifyType, IBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -1305,7 +1301,7 @@ export class GraphicsRunner {
         var maxy = miny + cm.d;
         //TEMP end
 
-        let mat = this.sprite._globalTrans.getMatrix();
+        let mat = this.sprite.globalTrans.getMatrix();
         if (this._clipRect.width >= Const.MAX_CLIP_SIZE) {
             cm.a = cm.d = Const.MAX_CLIP_SIZE;
             cm.b = cm.c = cm.tx = cm.ty = 0;
@@ -1459,8 +1455,8 @@ export class GraphicsRunner {
             //     }
             // }
 
-            let vertexResult : MeshBlockInfo;
-            if ( mesh ) {
+            let vertexResult: MeshBlockInfo;
+            if (mesh) {
                 vertexResult = mesh.checkVertex(vertNum);
             }
 
@@ -1476,7 +1472,7 @@ export class GraphicsRunner {
                 vertexResult = this.acquire(vertNum);
                 mesh = vertexResult.mesh;
 
-                if ( !sameKey || this._curSubmit.mesh !== mesh ) {
+                if (!sameKey || this._curSubmit.mesh !== mesh) {
                     //然后用新的mesh，和新的submit。
                     this._curSubmit = this.addVGSubmit(mesh);
                     sameKey = true;
@@ -1559,13 +1555,13 @@ export class GraphicsRunner {
             // 变换所有的点
             let ptnum = vertex.length / 2;
 
-            let vertexResult:MeshBlockInfo;
-            if ( mesh ) {
+            let vertexResult: MeshBlockInfo;
+            if (mesh) {
                 vertexResult = mesh.checkVertex(ptnum);
             }
 
             if (
-                !sameKey 
+                !sameKey
                 || !vertexResult
             ) {
                 //顶点数超了，要先提交一次
@@ -1575,7 +1571,7 @@ export class GraphicsRunner {
                 //然后用新的mesh，和新的submit。
                 vertexResult = this.acquire(ptnum);
                 mesh = vertexResult.mesh;
-                if (!sameKey || this._curSubmit.mesh !== mesh ) {
+                if (!sameKey || this._curSubmit.mesh !== mesh) {
                     //然后用新的mesh，和新的submit。
                     this._curSubmit = this.addVGSubmit(mesh);
                     sameKey = true;
@@ -2146,7 +2142,7 @@ export class GraphicsRunner {
     public acquire(vertexCount: number): MeshBlockInfo {
         // 按顺序检查是否有可用的 Mesh
         let meshes = this._meshPool;
-        
+
         for (let i = 0; i < meshes.length; i++) {
             let mesh = meshes[i];
             let result = mesh.checkVertex(vertexCount);
@@ -2172,7 +2168,7 @@ export class GraphicsRunner {
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo,
-        uvs: ArrayLike<number> = null, rgba: number = 0xffffffff, 
+        uvs: ArrayLike<number> = null, rgba: number = 0xffffffff,
         matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false
     ) {
         let vertexCount = vertices.length / 2;
@@ -2210,7 +2206,7 @@ export class GraphicsRunner {
         let dataView: IBufferDataView;
         let offset = 0;
 
-        let positions :number[] = [];
+        let positions: number[] = [];
 
         for (let i = 0; i < vertexCount; i++) {
 
@@ -2250,7 +2246,7 @@ export class GraphicsRunner {
             dataView.count += 12;
             pos += 12;
             ci += 2;
-            indexsMap[i] = offset ++;
+            indexsMap[i] = offset++;
 
         }
 
@@ -2276,15 +2272,15 @@ export class GraphicsRunner {
         }
     }
 
-    def_uv:MeshBlockInfo;
+    def_uv: MeshBlockInfo;
 
-    inv_uv:MeshBlockInfo;
+    inv_uv: MeshBlockInfo;
 
-    initDefalutMesh(){
-        if(!this.def_uv){
+    initDefalutMesh() {
+        if (!this.def_uv) {
             this.def_uv = this.acquire(4);
             this.appendData(
-                [0,0,1,0,1,1,0,1],
+                [0, 0, 1, 0, 1, 1, 0, 1],
                 _drawTexToQuad_Index,
                 this.def_uv,
                 Texture.DEF_UV,
@@ -2298,7 +2294,7 @@ export class GraphicsRunner {
 
             this.inv_uv = this.acquire(4);
             this.appendData(
-                [0,0,1,0,1,1,0,1],
+                [0, 0, 1, 0, 1, 1, 0, 1],
                 _drawTexToQuad_Index,
                 this.inv_uv,
                 Texture.INV_UV,

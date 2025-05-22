@@ -36,26 +36,11 @@ import type { Material } from "../resource/Material";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
-import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "../webgl/utils/MeshTexture";
-import { MeshVG } from "../webgl/utils/MeshVG";
-import { Sprite2DGeometry } from "../webgl/utils/Sprite2DGeometry";
-import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { FastSinglelist } from "../utils/SingletonList";
-import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { NodeFlags } from "../Const";
-import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
-import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { Vector3 } from "../maths/Vector3";
-import { BlendMode } from "../webgl/canvas/BlendMode";
-import { IAutoExpiringResource } from "../renders/ResNeedTouch";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
-import { RenderSpriteData } from "../webgl/shader/d2/value/Value2D";
-import { GraphicsMesh } from "../webgl/utils/GraphicsMesh";
 import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
 // const UV = [0, 0, 1, 0, 1, 1, 0, 1];
@@ -292,6 +277,7 @@ export class Graphics {
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
             this.owner._struct.renderDataHandler = this._renderDataHandle;
+            this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
             this.owner._struct.renderElements = this._data._renderElements;
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;

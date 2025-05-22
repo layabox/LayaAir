@@ -2,7 +2,6 @@ import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderCont
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { IClipInfo, IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { Rectangle } from "../../../../maths/Rectangle";
-import { SpriteGlobalTransform } from "../../../../display/SpriteGlobaTransform";
 import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Matrix } from "../../../../maths/Matrix";
@@ -11,6 +10,7 @@ import { Const } from "../../../../Const";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 import { IGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
+import { Stat } from "../../../../utils/Stat";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
@@ -32,6 +32,11 @@ export enum ChildrenUpdateType {
    Pass = 8,
 }
 
+export class structTransform {
+   matrix: Matrix;
+   modifiedFrame: number;
+}
+
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
@@ -50,8 +55,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    renderUpdateMask: number = 0;
 
-   //渲染继承累加数据
-   transform: SpriteGlobalTransform = null;
+   public get renderMatrix(): Matrix {
+      return this.trans.matrix;
+   }
+
+   public set renderMatrix(value: Matrix) {
+
+      this.trans.matrix = value;
+      this.trans.modifiedFrame = Stat.loopCount;
+   }
+
+   trans: structTransform
 
    globalAlpha: number = 1.0;
 
@@ -83,13 +97,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._renderDataHandler = value;
       if (value)
          this._renderDataHandler.owner = this;
+      if (!this.trans) {
+         this.trans = new structTransform();
+         this.renderMatrix = new Matrix();
+      }
    }
 
    globalRenderData: WebGlobalRenderData;
 
    private _pass: WebRender2DPass;
-   private _parentPass : WebRender2DPass;
-   
+   private _parentPass: WebRender2DPass;
+
    public get pass(): WebRender2DPass {
       return this._pass;
    }
@@ -144,7 +162,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       let rect = this._clipRect;
       if (rect) {
          let info = this._clipInfo;
-         let mat = this.transform.getMatrix();
+         let mat = this.renderMatrix;
          let cm = info.clipMatrix;
          let { x, y, width, height } = rect;
          cm.tx = x * mat.a + y * mat.c + mat.tx;
@@ -171,7 +189,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    private _updateBlendMode(): void {
       if (!this.spriteShaderData) return;
       let blendMode = this.getBlendMode();
-      BlendMode.setShaderData( blendMode , this.spriteShaderData);
+      BlendMode.setShaderData(blendMode, this.spriteShaderData);
    }
 
 
@@ -195,10 +213,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
 
-   updateChildren( type: ChildrenUpdateType): void {
+   updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: string, alpha: number;
-      let priority: number = 0 , pass: WebRender2DPass = null;
-      let updateBlend = false , updateClip = false , updateAlpha = false , updatePass = false;
+      let priority: number = 0, pass: WebRender2DPass = null;
+      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
@@ -223,13 +241,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       for (const child of this.children) {
          let updateChild = false;
-          if (updateClip) {
+         if (updateClip) {
             if (!child._clipInfo) {
                child._parentClipInfo = info;
                updateChild = true;
             }
-         }  
-         
+         }
+
          if (updateBlend) {
             if (!child.blendMode) {
                child._parentBlendMode = blendMode;
@@ -265,7 +283,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   addChild(child: WebRenderStruct2D , index: number ): WebRenderStruct2D {
+   addChild(child: WebRenderStruct2D, index: number): WebRenderStruct2D {
       child.parent = this;
       this.children.splice(index, 0, child);
       //效率
@@ -273,8 +291,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       return child;
    }
 
-   updateChildIndex(child: WebRenderStruct2D ,  oldIndex:number , index:number): void {
-      if(oldIndex === index)
+   updateChildIndex(child: WebRenderStruct2D, oldIndex: number, index: number): void {
+      if (oldIndex === index)
          return;
 
       this.children.splice(oldIndex, 1);
@@ -302,7 +320,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (this.renderDataHandler) {
          this.renderDataHandler.inheriteRenderData(context);
       }
-      
+
       if (this._rnUpdateFun)
          this._rnUpdateFun?.call(this._rnUpdateCall, context);
    }

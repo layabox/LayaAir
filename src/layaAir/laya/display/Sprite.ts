@@ -28,10 +28,8 @@ import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRen
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Vector3 } from "../maths/Vector3";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
 import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
@@ -174,7 +172,7 @@ export class Sprite extends Node {
     /**
      * @internal 
      */
-    _globalTrans: SpriteGlobalTransform;
+    private _globalTrans: SpriteGlobalTransform;
 
     //以下变量为系统调用，请不要直接使用
 
@@ -261,7 +259,7 @@ export class Sprite extends Node {
     constructor() {
         super();
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
-        this._struct.transform = this.globalTrans;
+        this._globalTrans = new SpriteGlobalTransform(this);
     }
 
     /** @internal */
@@ -558,7 +556,7 @@ export class Sprite extends Node {
      * @zh 对象的全局变换信息。
      */
     get globalTrans(): SpriteGlobalTransform {
-        return this._globalTrans || (this._globalTrans = new SpriteGlobalTransform(this));
+        return this._globalTrans;
     }
 
     /**
@@ -1287,7 +1285,7 @@ export class Sprite extends Node {
         }
 
         if ((kind & TransformKind.TRS) != 0) {
-            this._globalTrans._spTransChanged(kind);
+            this._globalTrans && this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
@@ -2139,7 +2137,7 @@ export class Sprite extends Node {
 
         if (value && (value as Sprite)._struct) {
             let index = value.children.indexOf(this);
-            (value as Sprite)._struct.addChild(struct , index);
+            (value as Sprite)._struct.addChild(struct, index);
         }
     }
 
@@ -2158,7 +2156,7 @@ export class Sprite extends Node {
         this._subStruct = subStruct;
         this._oriRenderPass = subPass;
 
-        subStruct.transform = this.globalTrans;
+        subStruct.renderMatrix = this.globalTrans.getMatrix();
     }
 
     //TODO

@@ -87,7 +87,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let vertexStruct:VertexBufferBlock[] = [];
+      let vertexStruct: VertexBufferBlock[] = [];
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -112,43 +112,43 @@ export class GraphicsRenderData {
 
             element.geometry.bufferState = submit.mesh.bufferState;
             element.geometry.clearRenderParams();
-            
+
             let infos = submit.infos;
 
             let start = 0;
             let end = 0;
-            let lastView:IBufferDataView = null;
+            let lastView: IBufferDataView = null;
             for (let i = 0, n = infos.length; i < n; i++) {
                let info = infos[i];
                let indexViews = info.indexViews;
-               
-               for (let j = 0, m = indexViews.length; j < m; j ++) {
+
+               for (let j = 0, m = indexViews.length; j < m; j++) {
                   let view = indexViews[j];
                   if (!lastView) {
                      lastView = view;
                      start = view.start;
                      end = view.count + start;
-                  }else{
+                  } else {
                      let lastEnd = lastView.length + lastView.start;
                      if (lastEnd === view.start) {
                         lastView = view;
                         end = view.count + view.start;
                      } else {
-                        element.geometry.setDrawElemenParams(end - start , start * 2);
+                        element.geometry.setDrawElemenParams(end - start, start * 2);
                         start = view.start;
                         end = start + view.count;
                         lastView = view;
                      }
                   }
                }
-               
+
                vertexStruct.push({
-                  positions:info.positions,
-                  vertexViews:info.vertexViews
+                  positions: info.positions,
+                  vertexViews: info.vertexViews
                });
             }
-            
-            element.geometry.setDrawElemenParams(end - start , start * 2);
+
+            element.geometry.setDrawElemenParams(end - start, start * 2);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
          }
@@ -250,6 +250,7 @@ export class SubStructRender {
       this._submit.material = sprite.material;
 
       subStruct.renderDataHandler = this._handle;
+      subStruct.renderMatrix = sprite.globalTrans.getMatrix();
       subStruct.renderElements = [this._renderElement];
       this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
