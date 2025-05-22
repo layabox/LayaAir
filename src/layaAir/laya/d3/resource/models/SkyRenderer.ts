@@ -142,6 +142,7 @@ export class SkyRenderer {
      * @param skyRenderElement 要设置的渲染元素。
      */
     setRenderElement(skyRenderElement: SkyRenderElement) {
+        if (!skyRenderElement) return;
         if (this._cacheRenderElement != skyRenderElement) {
             skyRenderElement.setGeometry(this.mesh);
             skyRenderElement.material = this._material;
@@ -153,6 +154,11 @@ export class SkyRenderer {
                 "SkyRenderer"
             ]);
             this._cacheRenderElement = skyRenderElement;
+        } else {
+            skyRenderElement.setGeometry(this.mesh);
+            skyRenderElement.material = this._material;
+            skyRenderElement.render = this._renderData;
+            skyRenderElement._renderElementOBJ.isRender = this._renderGeometry;
         }
     }
 
