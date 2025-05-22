@@ -11,10 +11,12 @@ export enum BlendMode {
     Multiply = "multiply",
     Screen = "screen",
     Overlay = "overlay",
+    Light = "light",
     Lighter = "lighter",
     Mask = "mask",
     DestinationOut = "destination-out",
     AddOld = "add_old",
+    LighterOld = "lighter_old",
     SourceAlpha = "source_alpha",
 }
 
@@ -27,7 +29,7 @@ export class BlendModeHandler {
         BlendMode.Multiply,
         BlendMode.Screen,
         BlendMode.Overlay,
-        BlendMode.Lighter,
+        BlendMode.Light,
         BlendMode.Mask,
         BlendMode.DestinationOut,
         BlendMode.AddOld,
@@ -41,49 +43,22 @@ export class BlendModeHandler {
         [BlendMode.Multiply]: 2,
         [BlendMode.Screen]: 3,
         [BlendMode.Overlay]: 4,
-        [BlendMode.Lighter]: 5,
+        [BlendMode.Light]: 5,
         [BlendMode.Mask]: 6,
         [BlendMode.DestinationOut]: 7,
+        [BlendMode.Lighter]: 1,
+        [BlendMode.LighterOld]: 8,
         [BlendMode.AddOld]: 8,
         [BlendMode.SourceAlpha]: 9,
     };
 
-    static fns: any[];
-    static targetFns: any[];
     /**@internal */
     static _init_(): void {
-        
-        BlendModeHandler.fns = [
-            BlendMode.Normal,      //0
-            BlendMode.Add,         //1
-            BlendMode.Multiply,    //2
-            BlendMode.Screen,      //3
-            BlendMode.Overlay,     //4
-            BlendMode.Lighter,       //5
-            BlendMode.Mask,        //6
-            BlendMode.DestinationOut,   //7
-            BlendMode.AddOld,         //8
-            BlendMode.SourceAlpha,            //9
-        ];
-
-        BlendModeHandler.targetFns = [
-            BlendMode.Normal,    //0
-            BlendMode.Add,       //1
-            BlendMode.Multiply,  //2 
-            BlendMode.Screen,    //3
-            BlendMode.Overlay,   //4
-            BlendMode.Lighter,     //5
-            BlendMode.Mask,            //6
-            BlendMode.DestinationOut,  //7
-            BlendMode.AddOld,    //8
-            BlendMode.SourceAlpha             //9
-        ];
     }
 
     static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
         RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */

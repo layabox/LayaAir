@@ -650,17 +650,16 @@ export class Sprite extends Node {
         return this._blendMode;
     }
 
-    set blendMode(value: BlendMode) {
+    set blendMode(value: BlendMode | string) {
         if (this._blendMode != value) {
-            this._blendMode = value;
+            this._blendMode = value as BlendMode;
             this._initShaderData();
-            // BlendMode.setShaderData(value , this.shaderData);
             if (value)
                 this._renderType |= SpriteConst.BLEND;
             else
                 this._renderType &= ~SpriteConst.BLEND;
 
-            this._struct.blendMode = value;
+            this._struct.blendMode = this._blendMode;
             this.parentRepaint();
         }
     }

@@ -40,7 +40,7 @@ export class structTransform {
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
-   zOrder: number = 0;
+   zIndex: number = 0;
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
@@ -60,6 +60,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set renderMatrix(value: Matrix) {
+
+      if (!this.trans) {
+         this.trans = new structTransform();
+         this.trans.matrix = new Matrix();
+      }
 
       this.trans.matrix = value;
       this.trans.modifiedFrame = Stat.loopCount;
@@ -113,15 +118,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public get renderDataHandler(): WebRender2DDataHandle {
       return this._renderDataHandler;
    }
+   
    public set renderDataHandler(value: WebRender2DDataHandle) {
-
       this._renderDataHandler = value;
       if (value)
          this._renderDataHandler.owner = this;
-      if (!this.trans) {
-         this.trans = new structTransform();
-         this.renderMatrix = new Matrix();
-      }
    }
 
    globalRenderData: WebGlobalRenderData;

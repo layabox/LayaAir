@@ -171,7 +171,7 @@ export class WebRender2DPass implements IRender2DPass {
     * @param object 
     */
    addStruct(object: WebRenderStruct2D): void {
-      let zOrder = object.zOrder;
+      let zOrder = object.zIndex;
       if (!this._lists[zOrder]) {
          this._lists[zOrder] = new PassRenderList;
          this._lists[zOrder].zOrder = zOrder;
@@ -184,7 +184,7 @@ export class WebRender2DPass implements IRender2DPass {
     * @param object 
     */
    removeStruct(object: WebRenderStruct2D): void {
-      let zOrder = object.zOrder;
+      let zOrder = object.zIndex;
       this._lists[zOrder].remove(object);
    }
 
@@ -335,8 +335,10 @@ export class WebRender2DPass implements IRender2DPass {
 
          Matrix.mul(maskMatrix, rootMatrix, temp);
          temp.invert();
-      } else
-         root.transform.getMatrixInv(temp);
+      } else {
+         root.trans.matrix.copyTo(temp);
+         temp.invert();
+      }
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
    }
 

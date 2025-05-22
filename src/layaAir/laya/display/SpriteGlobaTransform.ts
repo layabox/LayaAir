@@ -3,7 +3,7 @@ import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
 
 export class SpriteGlobalTransform {
     private _sp: Sprite;
@@ -330,7 +330,8 @@ export class SpriteGlobalTransform {
     }
 
     private _notifyRenderSpriteTransChange() {
-        if (this._sp._struct.renderDataHandler || (this._sp._subStruct && this._sp._subStruct.renderDataHandler)) {
+        if (this._sp._renderType & SpriteConst.UPDATETRANS)
+        {
             ILaya.stage._addtransChangeElement(this._sp);
         }
     }
