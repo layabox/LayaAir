@@ -61,9 +61,7 @@ export class VertexMesh {
 
 
 	/**@internal */
-	private static _vertexDeclarationMap: any = {};
-
-
+	private static _vertexDeclarationMap: Record<string, VertexDeclaration> = {};
 
 
 	/**

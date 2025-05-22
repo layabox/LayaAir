@@ -1,14 +1,13 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureCube } from "../../../resource/TextureCube";
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
-import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 
 export interface WebGPUBindGroupLayoutInfo {

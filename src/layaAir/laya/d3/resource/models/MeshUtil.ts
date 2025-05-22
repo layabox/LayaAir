@@ -39,6 +39,7 @@ export class MeshUtil {
                 case VertexMesh.MESH_BLENDINDICES0:
                     out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_BONEI);
                     break;
+                    
             }
         }
     }

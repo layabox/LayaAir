@@ -33,8 +33,6 @@ import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase
 export class WebGPUShaderData extends ShaderData {
     private static _dummyTexture2D: Texture2D; //替代贴图（2D）
     private static _dummyTextureCube: TextureCube; //替代贴图（Cube）
-    private static _stateKeyMap: Set<number>;
-
 
     /**
      * 全局初始化
@@ -51,23 +49,6 @@ export class WebGPUShaderData extends ShaderData {
             this._dummyTextureCube.lock = true;
         }
         Material.__initDefine__();
-        this._stateKeyMap = new Set();
-        this._stateKeyMap.add(Shader3D.BLEND);
-        this._stateKeyMap.add(Shader3D.BLEND_EQUATION);
-        this._stateKeyMap.add(Shader3D.BLEND_SRC);
-        this._stateKeyMap.add(Shader3D.BLEND_DST);
-        this._stateKeyMap.add(Shader3D.BLEND_EQUATION_RGB);
-        this._stateKeyMap.add(Shader3D.BLEND_SRC_RGB);
-        this._stateKeyMap.add(Shader3D.BLEND_DST_RGB);
-        this._stateKeyMap.add(Shader3D.BLEND_EQUATION_ALPHA);
-        this._stateKeyMap.add(Shader3D.BLEND_SRC_ALPHA);
-        this._stateKeyMap.add(Shader3D.BLEND_DST_ALPHA);
-        this._stateKeyMap.add(Shader3D.DEPTH_WRITE);
-        this._stateKeyMap.add(Shader3D.DEPTH_TEST);
-        this._stateKeyMap.add(Shader3D.STENCIL_TEST);
-        this._stateKeyMap.add(Shader3D.STENCIL_Op);
-        this._stateKeyMap.add(Shader3D.STENCIL_Ref);
-        this._stateKeyMap.add(Shader3D.STENCIL_WRITE);
     }
     /**
     * 帧结束时做一些处理
@@ -81,8 +62,6 @@ export class WebGPUShaderData extends ShaderData {
     _data: any; //数据对象
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
-
-    private _stateKey: string;
 
     //UBO Buffer Module
     private _uniformBuffers: Map<string, WebGPUUniformBuffer>;
@@ -101,8 +80,6 @@ export class WebGPUShaderData extends ShaderData {
     //根据string来查找某个Uniform组最后数据更新的值 用来快速判断是否需要重新创建bindGroup
     private _bindGroupLastUpdateMask: Map<string, number>;
 
-    _cacheNameBindGroupInfos: Map<string, WebGPUUniformPropertyBindingInfo[]>;
-
     _textureData: { [key: number]: BaseTexture } = {};
     /**
      * 不允许直接创建，只能通过对象池
@@ -116,7 +93,6 @@ export class WebGPUShaderData extends ShaderData {
 
         this._textureCacheUpdateMap = new Map();
         this._bindGroupLastUpdateMask = new Map();
-        this._cacheNameBindGroupInfos = new Map();
 
         this._uniformBuffers = new Map();
         this._subUniformBuffers = new Map();
@@ -227,33 +203,6 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-     * 设置某个key 对应的需要统计资源更新列表，组织TextureCacheUpdateMap和_bindGroupLastUpdateMask
-     * @param key 
-     * @param infos 
-     */
-    _setBindGroupCacheInfo(key: string, infos: WebGPUUniformPropertyBindingInfo[]) {
-        for (const item of infos) {
-            if (item.type != WebGPUBindingInfoType.sampler) {
-                if (this._textureCacheUpdateMap.has(item.propertyId)) {
-                    this._textureCacheUpdateMap.get(item.propertyId).add(key);
-                } else {
-                    this._textureCacheUpdateMap.set(item.propertyId, new Set<string>([key]));
-                }
-            }
-        }
-        this._bindGroupLastUpdateMask.set(key, 0);//重新开始记录更新最后一帧
-    }
-
-    /**
-     * 活得资源更新的mask数据
-     * @param key 
-     * @returns 
-     */
-    _getBindGroupLastUpdateMask(key: string) {
-        return this._bindGroupLastUpdateMask.has(key) ? this._bindGroupLastUpdateMask.get(key) : Number.MAX_VALUE;
-    }
-
-    /**
      * 获取数据对象
      */
     getData() {
@@ -342,38 +291,7 @@ export class WebGPUShaderData extends ShaderData {
         if (this._data[index] === value) return;
         this._data[index] = value;
         //更新状态标识符
-        if (WebGPUShaderData._stateKeyMap.has(index)) {
-            this._stateKey = '<';
-            this._stateKey += (this._data[Shader3D.BLEND] ?? 'x') + '_';
-            switch (this._data[Shader3D.BLEND]) {
-                case RenderState.BLEND_DISABLE:
-                    break;
-                case RenderState.BLEND_ENABLE_ALL:
-                    this._stateKey += (this._data[Shader3D.BLEND_EQUATION] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_SRC] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_DST] ?? 'x') + '_';
-                    break;
-                case RenderState.BLEND_ENABLE_SEPERATE:
-                    this._stateKey += (this._data[Shader3D.BLEND_EQUATION_RGB] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_SRC_RGB] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_DST_RGB] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_EQUATION_ALPHA] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_SRC_ALPHA] ?? 'x') + '_';
-                    this._stateKey += (this._data[Shader3D.BLEND_DST_ALPHA] ?? 'x') + '_';
-                    break;
-            }
-            this._stateKey += (this._data[Shader3D.DEPTH_WRITE] ? 't' : 'f') + '_';
-            this._stateKey += (this._data[Shader3D.DEPTH_TEST] ?? 'x') + '_';
-            this._stateKey += (this._data[Shader3D.STENCIL_TEST] ?? 'x') + '_';
-            if (this._data[Shader3D.STENCIL_Op]) {
-                this._stateKey += this._data[Shader3D.STENCIL_Op].x + '_';
-                this._stateKey += this._data[Shader3D.STENCIL_Op].y + '_';
-                this._stateKey += this._data[Shader3D.STENCIL_Op].z + '_';
-            } else this._stateKey += 'x_x_x_';
-            this._stateKey += (this._data[Shader3D.STENCIL_Ref] ?? 'x') + '_';
-            this._stateKey += (this._data[Shader3D.STENCIL_WRITE] ? 't' : 'f') + '>_';
-        }
-        else {
+        {
             this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setInt;
         }
     }
@@ -745,11 +663,8 @@ export class WebGPUShaderData extends ShaderData {
         });
         this._subUniformBuffers.clear();
 
-
         this._bindGroupLastUpdateMask.clear();
         this._textureCacheUpdateMap.clear();
-
-        this._cacheNameBindGroupInfos.clear();
 
         this._data = {};
         this._gammaColorMap.clear();

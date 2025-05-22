@@ -103,12 +103,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         //重新绑定 
         if (value) {
-            //global BindGroup
-            let preDrawArray = Array.from(this._preDrawUniformMaps);
-            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(preDrawArray);
-            let groupBindInfoArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray);
-            this._sceneData._setBindGroupCacheInfo(bindCacheKey, groupBindInfoArray);
-
             //buffer 
             let sceneMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
             this.sceneData.createUniformBuffer("Scene3D", sceneMap);
@@ -126,13 +120,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (value == this._cameraData)
             return;
         if (value) {
-            //camera bindGroup
-            let preDrawArray = ["BaseCamera"];
-            let bindCacheKey = WebGPUBindGroupHelper._getBindGroupID(preDrawArray);
             this._cameraData = value;
-            let groupBindInfoArray = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, preDrawArray);
-            this._cameraData._setBindGroupCacheInfo(bindCacheKey, groupBindInfoArray);
-            //buffer
             let cameraMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
             this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
         }
