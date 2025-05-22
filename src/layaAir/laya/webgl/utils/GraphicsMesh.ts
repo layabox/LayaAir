@@ -4,7 +4,7 @@ import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBuff
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { IBufferDataView, IDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicBufferDataView, IGraphicDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -15,9 +15,9 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 export type MeshBlockInfo = {
    mesh: GraphicsMesh,
    positions?: number[],
-   vertexViews?: IBufferDataView[],
+   vertexViews?: I2DGraphicBufferDataView[],
    vertexBlocks?: number[],
-   indexViews?: IBufferDataView[],
+   indexViews?: I2DGraphicBufferDataView[],
    indexBlocks?: number[],
 }
 
@@ -37,7 +37,7 @@ export class GraphicsMesh {
    }
 
    /** @internal */
-   _buffer: IDynamicVIBuffer;
+   _buffer: IGraphicDynamicVIBuffer;
 
    get bufferState(): IBufferState {
       return this._buffer.bufferState;

@@ -8,7 +8,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DVBBlock } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { BufferDataView } from "./WebDynamicVIBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -70,12 +70,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     mask: IRenderStruct2D | null = null;
 
-    private _vertexBufferBlocks: VertexBufferBlock[] = [];
+    private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
     private _needUpdateVertexBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _matrix: Matrix = new Matrix();
 
-    applyVertexBufferBlock(blocks: VertexBufferBlock[]): void {
+    applyVertexBufferBlock(blocks: Graphic2DVBBlock[]): void {
         this._vertexBufferBlocks = blocks;
         this._needUpdateVertexBuffer = blocks.length > 0;
     }

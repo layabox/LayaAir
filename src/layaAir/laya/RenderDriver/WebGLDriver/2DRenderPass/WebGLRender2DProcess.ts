@@ -5,7 +5,7 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,IGlobalRenderData, IDynamicVIBuffer} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,IGlobalRenderData, IGraphicDynamicVIBuffer} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { WebDynamicVIBuffer } from "../../RenderModuleData/WebModuleData/2D/WebDynamicVIBuffer";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
@@ -25,7 +25,7 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
         return new WebRender2DPassManager();
     }
     
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer {
+    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
         return new WebDynamicVIBuffer(vertexBlockSize, indexBlockSize);
     }
 

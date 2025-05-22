@@ -34,7 +34,7 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { BufferModifyType, IBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { BufferModifyType, I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -2202,7 +2202,7 @@ export class GraphicsRunner {
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
-        let dataView: IBufferDataView;
+        let dataView: I2DGraphicBufferDataView;
         let offset = 0;
 
         let positions: number[] = [];
