@@ -149,7 +149,6 @@ export class GraphicsRunner {
         if (!GraphicsRunner._textRender) {
             let textRender = GraphicsRunner._textRender = new TextRender();
             textRender.fontMeasure = new MeasureFont(textRender.charRender);
-            window.textRender = textRender;
         }
     }
 
