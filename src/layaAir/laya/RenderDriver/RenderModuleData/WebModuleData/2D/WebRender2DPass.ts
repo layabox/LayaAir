@@ -335,11 +335,8 @@ export class WebRender2DPass implements IRender2DPass {
 
          Matrix.mul(maskMatrix, rootMatrix, temp);
          temp.invert();
-      } else {
-         root.trans.matrix.copyTo(temp);
-         temp.invert();
-      }
-
+      } else
+         root.transform.getMatrixInv(temp);
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
    }
 

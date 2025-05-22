@@ -212,10 +212,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
 
-   updateChildren(type: ChildrenUpdateType): void {
+   updateChildren( type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
-      let priority: number = 0, pass: WebRender2DPass = null;
-      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
+      let priority: number = 0 , pass: WebRender2DPass = null;
+      let updateBlend = false , updateClip = false , updateAlpha = false , updatePass = false;
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
