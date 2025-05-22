@@ -147,7 +147,7 @@ export class BaseRenderNode2D extends Component {
     /**
      * @internal
      */
-    _struct:IRenderStruct2D;
+    _struct: IRenderStruct2D;
     /**
      * 唯一ID
      */
@@ -283,6 +283,7 @@ export class BaseRenderNode2D extends Component {
         this._struct = this.owner._struct;
         this._spriteShaderData = this._struct.spriteShaderData;
         this.owner._struct.renderDataHandler = this._renderHandle;
+        this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
         this._initDefaultRenderData && this._initDefaultRenderData();
     }
 

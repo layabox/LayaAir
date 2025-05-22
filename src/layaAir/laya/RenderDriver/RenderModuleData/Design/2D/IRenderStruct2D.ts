@@ -1,4 +1,3 @@
-import { SpriteGlobalTransform } from "../../../../display/SpriteGlobaTransform";
 import { Matrix } from "../../../../maths/Matrix";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -33,8 +32,7 @@ export interface IRenderStruct2D {
 
 
    //----- 渲染继承累加数据 -----
-   //待确定
-   transform: SpriteGlobalTransform;
+   renderMatrix: Matrix;
    /** 非即时数据 */
    globalAlpha: number;
    alpha: number;
@@ -65,8 +63,8 @@ export interface IRenderStruct2D {
 
    setRepaint(): void;
 
-   addChild(child: IRenderStruct2D ,  index:number): IRenderStruct2D;
-   updateChildIndex(child: IRenderStruct2D ,  oldIndex:number , index:number): void;
+   addChild(child: IRenderStruct2D, index: number): IRenderStruct2D;
+   updateChildIndex(child: IRenderStruct2D, oldIndex: number, index: number): void;
    removeChild(child: IRenderStruct2D): void;
 
    setClipRect(rect: Rectangle): void;

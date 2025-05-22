@@ -9,13 +9,7 @@ import { Render } from "./laya/renders/Render";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { Browser } from "./laya/utils/Browser";
 import { Timer } from "./laya/utils/Timer";
-import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
-import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
 import { Mouse } from "./laya/utils/Mouse";
-import { MeshVG } from "./laya/webgl/utils/MeshVG";
-import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
@@ -254,9 +248,6 @@ export class Laya {
         }
         Input.__init__(Render.canvas);
         SoundManager.autoStopMusic = true;
-        //Init internal 2D Value2D
-        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
-        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
     }
 
     /**
