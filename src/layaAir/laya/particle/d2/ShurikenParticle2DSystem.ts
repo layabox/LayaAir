@@ -123,7 +123,7 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
 
     protected getPositionAndDirection(): Vector4 {
 
-        if (this.shape && this.shape.enable) {
+        if (this.shape && this.shape.enable && this.shape.shape) {
             return this.shape.shape.getPositionAndDirection();
         }
         else {
