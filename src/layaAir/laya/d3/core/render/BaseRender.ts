@@ -672,6 +672,11 @@ export class BaseRender extends Component {
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         this._baseRenderNode.destroy();
+        this._baseRenderNode = null;
+        this._renderElements.forEach(element => {
+            element.destroy();
+        });
+        this._renderElements = null;
         for (let i = 0, n = this._sharedMaterials.length; i < n; i++) {
             let m = this._sharedMaterials[i];
             m && !m.destroyed && m._removeReference();
