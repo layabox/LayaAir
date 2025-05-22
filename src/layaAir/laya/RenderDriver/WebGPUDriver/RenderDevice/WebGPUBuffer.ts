@@ -33,7 +33,7 @@ export class WebGPUBuffer {
     setDataLength(length: number): void {
         const size = roundUp(length, 4);
         if (!this._isCreate || this._size != size) {
-            this._memorychange(- this._size);
+            this._releaseResource();
             this._size = size;
             this._create();
         }
@@ -168,10 +168,17 @@ export class WebGPUBuffer {
         this._source.unmap();
     }
 
+    private _releaseResource() {
+        if (this._source) {
+            this._source.destroy();
+            this._source = null;
+            this._memorychange(-this._size);
+            this._size = 0;
+        }
+    }
+
     release() {
-        //好像需要延迟删除
-        this._memorychange(-this._size);
+        this._releaseResource();
         WebGPUGlobal.releaseId(this);
-        //this._source.destroy(); //WebGPU会自动删除
     }
 }
