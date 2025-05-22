@@ -179,6 +179,12 @@ export class BlitScreenQuadCMD extends Command {
 		}
 
 		let invertY = dest ? true : false;
+		if (LayaGL.renderEngine._screenInvertY) {
+			if (invertY && dest._isCameraTarget) {
+				invertY = false;
+			}
+		}
+
 		this._renderElement.setGeometry(invertY ? ScreenQuad.InvertInstance : ScreenQuad.instance);
 
 		Stat.blitDrawCall++;
