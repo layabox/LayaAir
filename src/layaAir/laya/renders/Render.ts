@@ -11,7 +11,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { Texture2DArray } from "../resource/Texture2DArray";
 import { TextureCube } from "../resource/TextureCube";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
-import { BlendMode } from "../webgl/canvas/BlendMode";
+import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Config } from "./../../Config";
@@ -154,7 +154,7 @@ export class Render {
         // canvas._setContext(ctx);
         
         Shader2D.__init__();
-        BlendMode._init_();
+        BlendModeHandler._init_();
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();

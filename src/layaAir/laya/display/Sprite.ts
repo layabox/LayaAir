@@ -29,11 +29,12 @@ import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Vector3 } from "../maths/Vector3";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
-import { BlendMode } from "../webgl/canvas/BlendMode";
+import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
 import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
+import { Render2DProcessor } from "./Render2DProcessor";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
@@ -148,7 +149,7 @@ export class Sprite extends Node {
      * @en Blend mode
      * @zh 混合模式
      */
-    _blendMode: string;
+    _blendMode: BlendMode;
     /**
      * @internal
     */
@@ -239,12 +240,7 @@ export class Sprite extends Node {
 
     /**@internal */
     _ownerArea: Sprite;
-
-    private _nMatrix_0 = new Vector3;
-    private _nMatrix_1 = new Vector3;
-
-    // private _pivotPos: Vector2 = new Vector2;
-
+    /** @internal */
     _subStructRender: SubStructRender = null;
     /** @internal  渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效*/
     _oriRenderPass: IRender2DPass = null;
@@ -268,7 +264,7 @@ export class Sprite extends Node {
             return
 
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        BlendMode.initBlendMode(this.shaderData);
+        BlendModeHandler.initBlendMode(this.shaderData);
         this._struct.spriteShaderData = this.shaderData;
         this._struct.isRenderStruct = true;
     }
@@ -293,6 +289,7 @@ export class Sprite extends Node {
         this._subStructRender = null;
         this._postProcess && this._postProcess.destroy();
         this._postProcess = null;
+        this._filterArr = null;
         this._texture = null;
         this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
@@ -619,7 +616,7 @@ export class Sprite extends Node {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         if (this._alpha !== value) {
             this._alpha = value;
-            this._struct.setAlpha(this.alpha);
+            this._struct.alpha = this.alpha;
             if (value !== 1) this._renderType |= SpriteConst.ALPHA;
             else this._renderType &= ~SpriteConst.ALPHA;
             this.repaint();
@@ -638,6 +635,7 @@ export class Sprite extends Node {
         if (this._visible !== value) {
             this._visible = value;
             this._struct.enable = value;
+            // if(this._graphics) this._graphics._modefied = true;
             this.repaint();
             this._processVisible();
         }
@@ -647,20 +645,21 @@ export class Sprite extends Node {
      * @en Specifies the blending mode to be used. Only "lighter" is currently supported.
      * @zh 指定要使用的混合模式，目前只支持 "lighter"。
      */
-    get blendMode(): string {
+    get blendMode(): BlendMode {
         return this._blendMode;
     }
 
-    set blendMode(value: string) {
+    set blendMode(value: BlendMode) {
         if (this._blendMode != value) {
             this._blendMode = value;
             this._initShaderData();
             // BlendMode.setShaderData(value , this.shaderData);
-            if (value && value != "source-over")
+            if (value)
                 this._renderType |= SpriteConst.BLEND;
             else
                 this._renderType &= ~SpriteConst.BLEND;
-            this._struct.setBlendMode(value);
+
+            this._struct.blendMode = value;
             this.parentRepaint();
         }
     }
@@ -814,7 +813,7 @@ export class Sprite extends Node {
         this._getCacheStyle().mask = value;
 
         if (value) {
-            value.blendMode = "mask";
+            value.blendMode = BlendMode.Mask;
             value._getCacheStyle().maskParent = this;
             //if (!value._oriRenderPass) {
             value.setSubRenderPassState(true);
@@ -1042,6 +1041,7 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.TEXTURE;
             this._graphics?._checkDisplay();
         }
+        this._graphics._modefied = true;
         this.repaint();
     }
 
@@ -1425,23 +1425,7 @@ export class Sprite extends Node {
      * @returns 绘制的 Texture 或 RenderTexture2D 对象。
      */
     static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true): Texture | RenderTexture2D {
-        // let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
-        // let ctx = new Context();
-        // if (rt) {
-        //     ctx.size(rt.width, rt.height);
-        // } else {
-        //     ctx.size(canvasWidth, canvasHeight)
-        // }
-        // ctx.render2D = ctx.render2D.clone(null);//这个ctx只是提供大小，所以不要设置rt
-        // let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
-        // ctx._drawingToTexture = false;
-        // ctx.destroy();
-        // if (!rt) {
-        //     let outTexture = new Texture(outrt, Texture.INV_UV);
-        //     return outTexture;
-        // }
-        // return outrt;
-        return null;
+        return Sprite.drawToRenderTexture2D(sprite, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect);
     }
 
     /**
@@ -1508,7 +1492,54 @@ export class Sprite extends Node {
         // ctx._drawingToTexture = false;
         // ctx.destroy();
         // return outrt;
-        return null;
+
+        let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
+        renderout._invertY = flipY;
+        let runner = Render2DProcessor.runner;
+
+        const _updateSprites = function (root: Sprite): void {
+            for (let i = 0, len = root.numChildren; i < len; i++) {
+                let child = root._children[i];
+                if (child._graphics) {
+                    child._graphics._render(runner, 0, 0);
+                }
+
+                if (child._subpassUpdateFlag) {
+                    child.updateRenderTexture();
+                    child.updateSubRenderPassState();
+                    let destrt: RenderTexture2D = child._drawOriRT;
+                    child._oriRenderPass.renderTexture = child._drawOriRT;
+                    if (child.mask) {
+                        child._oriRenderPass.mask = child.mask._struct;
+                    }
+                    let process = child._oriRenderPass.postProcess;
+                    if (process) {
+                        process.setResource(child._drawOriRT);
+                        process.clearCMD();
+                        process.render();
+                        destrt = process._context.destination;
+                    }
+                    child._subStructRender.updateQuat(child._drawOriRT, destrt);
+                    //Mask TODO
+                    child._subpassUpdateFlag = 0;
+                }
+                _updateSprites(child);
+            }
+        }
+
+        _updateSprites(sprite);
+
+        let pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+        pass.renderTexture = renderout;
+        pass.root = sprite._struct;
+        pass.renderOffset.x = offsetX;
+        pass.renderOffset.y = offsetY;
+        // renderout
+        // 设置 invMatrix
+        pass.fowardRender(Render2DProcessor.rendercontext2D);
+
+        pass.destroy();
+        return renderout;
     }
 
     /**

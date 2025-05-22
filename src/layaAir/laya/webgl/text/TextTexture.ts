@@ -171,13 +171,7 @@ export class TextTexture extends Texture2D {
         }
     }
 
-    touchRect(ri: CharRenderInfo, frame: number): void {
-        if (this.lastTouchTm != frame) {
-            //每帧都重新统计覆盖率
-            this.curUsedCovRate = 0;
-            this.curUsedCovRateAtlas = 0;
-            this.lastTouchTm = frame;
-        }
+    touchRect(ri: CharRenderInfo): void {
         var texw2 = TextRender.atlasWidth * TextRender.atlasWidth;
         var gridw2 = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
         this.curUsedCovRate += (ri.bmpWidth * ri.bmpHeight) / texw2;

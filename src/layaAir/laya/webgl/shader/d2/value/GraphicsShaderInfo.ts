@@ -6,7 +6,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { BlendMode } from "../../../canvas/BlendMode";
+import { BlendModeHandler } from "../../../canvas/BlendMode";
 import { ShaderDefines2D } from "../ShaderDefines2D";
 
 const _TEMP_CLIPDIR: Vector4 = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
@@ -23,7 +23,7 @@ export class GraphicsShaderInfo {
       this.clipMatDir = _TEMP_CLIPDIR;
       this.clipMatPos = Vector4.ZERO;
       this.vertexSize = Vector4.ZERO;
-      BlendMode.initBlendMode(this.shaderData);
+      BlendModeHandler.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
       this.textureHost = Texture2D.whiteTexture;
    }

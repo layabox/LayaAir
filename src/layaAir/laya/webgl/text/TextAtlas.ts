@@ -58,6 +58,16 @@ export class TextAtlas {
     }
     */
 
+    updateTextureUsage(): void {
+        this.texture.touchTexture();
+        for (var k in this.charMaps) {
+            var ri: CharRenderInfo = this.charMaps[k];
+            if (ri.referenceCount > 0) {
+                ri.touch();
+            }
+        }
+    }
+
     destroy(): void {
         for (var k in this.charMaps) {
             var ri: CharRenderInfo = this.charMaps[k];

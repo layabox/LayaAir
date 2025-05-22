@@ -1,6 +1,6 @@
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
 import { Material } from "../../resource/Material";
-import { BlendMode } from "../canvas/BlendMode";
+import { BlendModeHandler } from "../canvas/BlendMode";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
 import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { SubmitKey } from "./SubmitKey";
@@ -57,11 +57,11 @@ export class SubmitBase {
     update(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material) {
         var blendType = runner._nBlendType;
         let struct = runner.sprite._struct;
-        let sBlendMode = struct.getBlendMode();
+        let sBlendMode = struct.blendMode;
         this._key.blendShader = blendType;
 
         if (runner.globalCompositeOperation != sBlendMode) {
-            BlendMode.setShaderData(blendType, this._internalInfo.shaderData);
+            BlendModeHandler.setShaderData(blendType, this._internalInfo.shaderData);
             this.renderStateIsBySprite = false;
         }
 

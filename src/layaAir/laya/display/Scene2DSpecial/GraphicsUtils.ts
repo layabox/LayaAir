@@ -13,7 +13,7 @@ import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { Stat } from "../../utils/Stat";
-import { BlendMode } from "../../webgl/canvas/BlendMode";
+import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
@@ -23,6 +23,7 @@ import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
 import { GraphicsRunner } from "./GraphicsRunner";
 
+/** @internal */
 export class GraphicsRenderData {
 
    static _pool: IRenderElement2D[] = [];
@@ -57,12 +58,22 @@ export class GraphicsRenderData {
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
+   private _vertexStruct: VertexBufferBlock[] = [];
+
    clear(): void {
       let len = this._submits.length;
-      for (let i = 0; i < len; i++) {
+      let i = 0;
+      for (i = 0; i < len; i++) {
          this._submits.elements[i].clear();
       }
+
+      this._vertexStruct.length = 0;
       this._submits.length = 0;
+
+      for (i = 0; i < this.touchResources.length; i++) {
+         this.touchResources[i].referenceCount--;
+      }
+      this.touchResources.length = 0;
    }
 
    destroy(): void {
@@ -87,7 +98,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let vertexStruct: VertexBufferBlock[] = [];
+      let vertexStruct: VertexBufferBlock[] = this._vertexStruct;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -163,31 +174,10 @@ export class GraphicsRenderData {
       handle.applyVertexBufferBlock(vertexStruct);
    }
 
-   // getDrawElementParams(indexViews: IBufferDataView[]): number[] {
-   //    let params: number[] = [];
-   //    if (!indexViews || indexViews.length === 0) return params;
-
-   //    let start = indexViews[0].start;
-   //    let end = start + indexViews[0].length;
-   //    let lastView = indexViews[0];
-   //    for (let i = 1, n = indexViews.length; i < n; i++) {
-   //       let view = indexViews[i];
-   //       let lastEnd = lastView.length + lastView.start;
-   //       if (lastEnd === view.start) {
-   //          lastView = view;
-   //          end = view.count + view.start;
-   //       } else {
-   //          params.push(start * 2, end - start);
-   //          start = view.start;
-   //          end = start + view.count;
-   //          lastView = view;
-   //       }
-   //    }
-
-   //    params.push(start * 2, end - start);
-
-   //    return params;
-   // }
+   setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
+      struct.renderElements = this._renderElements;
+      handle.applyVertexBufferBlock(this._vertexStruct);
+   }
 
    createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
       let elements = this._submits.elements;
@@ -202,19 +192,16 @@ export class GraphicsRenderData {
       return submit;
    }
 
-   mustTouchRes: IAutoExpiringResource[] = [];
-   randomTouchRes: IAutoExpiringResource[] = [];
+   touchResources: IAutoExpiringResource[] = [];
 
    touchRes(res: IAutoExpiringResource) {
-      if (res.isRandomTouch) {
-         this.randomTouchRes.push(res);
-      } else {
-         this.mustTouchRes.push(res);
-      }
+      res.referenceCount++;
+      this.touchResources.push(res);
    }
 
 }
 
+/** @internal */
 export class SubStructRender {
    private _subRenderPass: IRender2DPass;
    private _subStruct: IRenderStruct2D;
@@ -238,7 +225,7 @@ export class SubStructRender {
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
       this._renderElement.materialShaderData = this._submit._internalInfo.shaderData;
 
-      BlendMode.initBlendMode(this._shaderData);
+      BlendModeHandler.initBlendMode(this._shaderData);
       this._internalInfo.enableVertexSize = true;
    }
 
@@ -284,7 +271,6 @@ export class SubStructRender {
 
    destroy(): void {
       GraphicsRenderData.recoverRenderElement2D(this._renderElement);
-      // this._internalInfo.destroy();
       this._submit.destroy();
       this._submit = null;
       this._internalInfo = null;

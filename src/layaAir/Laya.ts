@@ -19,7 +19,6 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
 import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
-import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 import { Stat } from "./laya/utils/Stat";
 import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
@@ -214,10 +213,6 @@ export class Laya {
         Shader3D.init();
 
         GraphicsMesh.__init__();
-        // MeshQuadTexture.__int__();
-        // MeshVG.__init__();
-        // MeshTexture.__init__();
-
 
         Laya.render = Laya.createRender();
         render = Laya.render;

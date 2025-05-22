@@ -120,10 +120,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let pos = 0, dataViewIndex = 0, ci = 0;
             let dataView: BufferDataView = null;
             let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
-            let _bTransform = mat._bTransform;
             let vbdata = null;
             this._matrix.setTo(m00, m01, m10, m11, tx, ty);
-            let pass = this._owner.getPass();
+            let pass = this._owner.pass;
             for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
                 let blocks = this._vertexBufferBlocks;
                 let { positions, vertexViews } = blocks[i];
@@ -159,7 +158,6 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._modifiedFrame = trans.modifiedFrame;
         }
     }
-
 }
 
 

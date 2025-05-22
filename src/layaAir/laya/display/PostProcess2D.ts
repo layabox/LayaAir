@@ -111,7 +111,7 @@ export class PostProcess2D extends EventDispatcher {
    destroy(): void {
       this._context.compositeShaderData.destroy();
       this._context.compositeShaderData = null;
-      //todo
+      this._effects.forEach(effect => effect.destroy());
       this._effects.length = 0;
    }
 }

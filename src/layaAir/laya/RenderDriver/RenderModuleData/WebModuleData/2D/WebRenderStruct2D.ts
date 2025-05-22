@@ -8,7 +8,7 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
-import { BlendMode } from "../../../../webgl/canvas/BlendMode";
+import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
 import { IGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
 
@@ -69,11 +69,31 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    globalAlpha: number = 1.0;
 
-   alpha: number = 1.0;
+   private _alpha: number = 1.0;
+   
+   public get alpha(): number {
+      return this._alpha;
+   }
 
-   blendMode: string = null;
+   public set alpha(value: number) {
+      this._alpha = value;
+      this.updateChildren(ChildrenUpdateType.Alpha);
+   }
+
+   private _blendMode: BlendMode = null;
+   private _parentBlendMode: BlendMode = null;
+   
+   public get blendMode(): BlendMode {
+      return this._blendMode || this._parentBlendMode || BlendMode.Normal;
+   }
+
+   public set blendMode(value: BlendMode) {
+      this._blendMode = value;
+      this._updateBlendMode();
+      this.updateChildren(ChildrenUpdateType.Blend);
+   }
+
    /** @internal */
-   _parentBlendMode: string = null;
 
    /** 是否启动 */
    enable: boolean = true;
@@ -89,6 +109,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    commonUniformMap: string[] = null;
 
    private _renderDataHandler: WebRender2DDataHandle;
+
    public get renderDataHandler(): WebRender2DDataHandle {
       return this._renderDataHandler;
    }
@@ -109,7 +130,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    private _parentPass: WebRender2DPass;
 
    public get pass(): WebRender2DPass {
-      return this._pass;
+      return this._pass || this._parentPass;
    }
 
    public set pass(value: WebRender2DPass) {
@@ -119,16 +140,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   getPass(): WebRender2DPass {
-      return this._pass || this._parentPass;
-   }
-
    constructor() {
    }
 
-
-   // private _clipMatrix: Matrix = null;
-   // private _parentClipMatrix: Matrix = null;
    private _clipRect: Rectangle = null;
    private _parentClipInfo: IClipInfo = null;
    private _clipInfo: IClipInfo = null;
@@ -143,11 +157,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._rnUpdateFun = renderUpdateFun;
    }
 
-   setAlpha(alpha: number): void {
-      this.alpha = alpha;
-      this.updateChildren(ChildrenUpdateType.Alpha);
-   }
-
+  
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
       // if (this.parent) {
@@ -176,20 +186,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   getBlendMode(): string {
-      return this.blendMode || this._parentBlendMode || BlendMode.NORMAL;
-   }
-
-   setBlendMode(blendMode: string): void {
-      this.blendMode = blendMode;
-      this._updateBlendMode();
-      this.updateChildren(ChildrenUpdateType.Blend);
-   }
-
    private _updateBlendMode(): void {
       if (!this.spriteShaderData) return;
-      let blendMode = this.getBlendMode();
-      BlendMode.setShaderData(blendMode, this.spriteShaderData);
+      BlendModeHandler.setShaderData( this.blendMode , this.spriteShaderData);
    }
 
 
@@ -214,7 +213,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
 
    updateChildren(type: ChildrenUpdateType): void {
-      let info: IClipInfo, blendMode: string, alpha: number;
+      let info: IClipInfo, blendMode: BlendMode, alpha: number;
       let priority: number = 0, pass: WebRender2DPass = null;
       let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
 
@@ -224,7 +223,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
 
       if (type & ChildrenUpdateType.Blend) {
-         blendMode = this.getBlendMode();
+         blendMode = this.blendMode;
          updateBlend = true;
       }
 
@@ -234,7 +233,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
 
       if (type & ChildrenUpdateType.Pass) {
-         pass = this.getPass();
+         pass = this.pass;
          priority = pass ? pass.priority + 1 : 0;
          updatePass = true;
       }

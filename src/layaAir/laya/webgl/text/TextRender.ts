@@ -389,18 +389,18 @@ export class TextRender extends EventDispatcher {
         var i = 0;
         // 遍历所有的大图集看是否存在
         var sz = this.textAtlases.length;
-        var ri: CharRenderInfo;
-        var atlas: TextAtlas;
         if (!isoTexture) {
             for (i = 0; i < sz; i++) {
-                atlas = this.textAtlases[i];
-                ri = atlas.charMaps[key]
+                ri = this.textAtlases[i].charMaps[key];
                 if (ri) {
-                    ri.touch();
                     return ri;
                 }
             }
         }
+
+        var ri: CharRenderInfo;
+        var atlas: TextAtlas;
+
         // 没有找到，要创建一个
         ri = new CharRenderInfo();
         this.charRender.scale(this.fontScaleX, this.fontScaleY);
@@ -544,6 +544,7 @@ export class TextRender extends EventDispatcher {
             curatlas = this.textAtlases[i];
             tex = curatlas.texture;
             if (tex) {
+                curatlas.updateTextureUsage();
                 totalUsedRateAtlas += tex.curUsedCovRateAtlas;
                 // 浪费掉的图集
                 // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
@@ -575,22 +576,23 @@ export class TextRender extends EventDispatcher {
         // 缩减图集数组的长度
         this.textAtlases.length = sz;
 
+        // 引用计数
         // 独立贴图的清理 TODO 如果多的话，要不要分开处理
-        sz = this.isoTextures.length;
-        for (i = 0; i < sz; i++) {
-            tex = this.isoTextures[i];
-            dt = curloop - tex.lastTouchTm;
-            if (dt > TextRender.destroyUnusedTextureDt) {
-                tex.ri.deleted = true;
-                tex.ri.texture = null;
-                // 直接删除，不回收
-                tex.destroy();
-                this.isoTextures[i] = this.isoTextures[sz - 1];
-                sz--;
-                i--;
-            }
-        }
-        this.isoTextures.length = sz;
+        // sz = this.isoTextures.length;
+        // for (i = 0; i < sz; i++) {
+        //     tex = this.isoTextures[i];
+        //     dt = curloop - tex.lastTouchTm;
+        //     if (dt > TextRender.destroyUnusedTextureDt) {
+        //         tex.ri.deleted = true;
+        //         tex.ri.texture = null;
+        //         // 直接删除，不回收
+        //         tex.destroy();
+        //         this.isoTextures[i] = this.isoTextures[sz - 1];
+        //         sz--;
+        //         i--;
+        //     }
+        // }
+        // this.isoTextures.length = sz;
 
         // 如果超出内存需要清理不常用
         var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2;	// 总量浪费了超过2张

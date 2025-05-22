@@ -17,14 +17,10 @@ export class CharRenderInfo implements IAutoExpiringResource{
     bmpHeight: number;
     orix = 0;				    // 原点位置，通常都是所在区域的左上角
     oriy = 0;
-    touchTick = 0;	
+    referenceCount = 0;
     isSpace = false;		    //是否是空格，如果是空格，则只有width有效
     touch(): void {
-        var curLoop = RenderInfo.loopCount;
-        if (this.touchTick != curLoop) {// 这个保证每帧只调用一次
-            this.texture.touchRect(this, curLoop);
-            this.touchTick = curLoop;
-        }
+        this.texture.touchRect(this);
     }
 }
 

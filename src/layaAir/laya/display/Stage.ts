@@ -1050,6 +1050,9 @@ export class Stage extends Sprite {
         let subpassUpdateArray = Array.from(this._subpassUpdateList);
         for (let i = 0, n = subpassUpdateArray.length; i < n; i++) {
             let sprite = subpassUpdateArray[i];
+            if (!sprite._subpassUpdateFlag)
+                continue;
+            
             sprite.updateRenderTexture();
             sprite.updateSubRenderPassState();
             let destrt: RenderTexture2D = sprite._drawOriRT;

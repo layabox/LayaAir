@@ -13,7 +13,7 @@ import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { FontInfo } from "../../utils/FontInfo";
 import { WordText } from "../../utils/WordText";
-import { BlendMode } from "../../webgl/canvas/BlendMode";
+import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
 import { ISaveData } from "../../webgl/canvas/save/ISaveData";
@@ -82,7 +82,7 @@ export class GraphicsRunner {
     _curSubmit: SubmitBase = null;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-
+    /** @internal */
     _graphicsData: GraphicsRenderData = null;	//保存当前的渲染数据。用来给shader使用。    
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
@@ -149,6 +149,7 @@ export class GraphicsRunner {
         if (!GraphicsRunner._textRender) {
             let textRender = GraphicsRunner._textRender = new TextRender();
             textRender.fontMeasure = new MeasureFont(textRender.charRender);
+            window.textRender = textRender;
         }
     }
 
@@ -200,7 +201,6 @@ export class GraphicsRunner {
      * @param res 
      */
     touchRes(res: IAutoExpiringResource) {
-        // res.touch();
         this._graphicsData.touchRes(res);
     }
 
@@ -631,12 +631,12 @@ export class GraphicsRunner {
 
     set globalCompositeOperation(value: string) {
         // this._drawToRender2D(this._curSubmit);
-        var n = BlendMode.TOINT[value];
+        var n = BlendModeHandler.TOINT[value];
         n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
     }
 
     get globalCompositeOperation(): string {
-        return BlendMode.NAMES[this._nBlendType];
+        return BlendModeHandler.NAMES[this._nBlendType];
     }
 
     set strokeStyle(value: any) {

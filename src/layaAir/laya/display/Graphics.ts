@@ -70,9 +70,8 @@ export class Graphics {
     owner: Sprite | null = null;
 
     // _texture: Texture | null = null;
-
+    /** @internal */
     _data: GraphicsRenderData = new GraphicsRenderData();
-    /**@internal */
     // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
 
     // private _renderElements: IRenderElement2D[] = [];
@@ -82,6 +81,9 @@ export class Graphics {
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
     protected _renderDataHandle: I2DPrimitiveDataHandle;
+    /** @internal */
+    _modefied: boolean = false;
+
     /**@ignore */
     constructor() {
         this._createData();
@@ -158,6 +160,7 @@ export class Graphics {
      * @zh 重绘此对象。
      */
     _repaint(): void {
+        this._modefied = true;
         this._clearBoundsCache();
         this.owner && this.owner.repaint();
     }
@@ -251,9 +254,10 @@ export class Graphics {
 
     private onCmdsChanged() {
         let len = this._cmds.length;
-        // this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+        let result = len > 0;
         if (this.owner) {
-            this._setDisplay(len > 0);
+            result = result || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
+            this._setDisplay(result);
         }
         this._repaint();
     }
@@ -689,6 +693,15 @@ export class Graphics {
         if (!this.owner || this.owner.destroyed)
             return;
 
+        if (
+            !this._modefied
+            // && this._data.offsetX === x
+            // && this._data.offsetY === y
+        ) {
+            this._data.setRenderElement(this.owner._struct, this._renderDataHandle);
+            return
+        }
+
         this._data.clear();
         runner.clearRenderData();
         runner.sprite = this.owner;
@@ -711,6 +724,9 @@ export class Graphics {
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
+        this._modefied = false;
+        // this._data.offsetX = x;
+        // this._data.offsetY = y;
     }
 
     /**

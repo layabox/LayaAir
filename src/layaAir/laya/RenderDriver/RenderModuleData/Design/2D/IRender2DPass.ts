@@ -1,4 +1,5 @@
 import { PostProcess2D } from "../../../../display/PostProcess2D";
+import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
@@ -21,6 +22,8 @@ export interface IRender2DPass {
    renderLayerMask: number;
    cullRect: Vector4;
    shaderData: ShaderData;
+
+   renderOffset: Vector2;
 
    needRender(): boolean;
    setClearColor(r: number, g: number, b: number, a: number): void;

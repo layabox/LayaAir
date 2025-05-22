@@ -1,6 +1,7 @@
 import { Matrix } from "../../../../maths/Matrix";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { Vector4 } from "../../../../maths/Vector4";
+import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
@@ -36,11 +37,7 @@ export interface IRenderStruct2D {
    /** 非即时数据 */
    globalAlpha: number;
    alpha: number;
-   setAlpha(alpha: number): void;
-
-   blendMode: string;
-   setBlendMode(blendMode: string): void;
-   getBlendMode(): string;
+   blendMode: BlendMode;
    /** 是否启动 */
    enable: boolean;
 
@@ -58,8 +55,6 @@ export interface IRenderStruct2D {
    globalRenderData: IGlobalRenderData;
 
    pass: IRender2DPass;
-
-   getPass(): IRender2DPass;
 
    setRepaint(): void;
 

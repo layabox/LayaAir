@@ -48,5 +48,9 @@ export abstract class PostProcess2DEffect {
     */
    abstract render(context: PostProcessRenderContext2D): void;
 
-
+   /**
+    * @en Destroys the effect.
+    * @zh 销毁效果。
+    */
+   abstract destroy(): void;
 }

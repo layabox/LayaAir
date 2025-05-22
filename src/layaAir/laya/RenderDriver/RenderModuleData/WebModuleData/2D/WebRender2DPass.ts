@@ -126,6 +126,10 @@ export class WebRender2DPass implements IRender2DPass {
    private _cullRect: Vector4 = new Vector4();
 
    root: WebRenderStruct2D = null;
+   /**
+    * rt渲染偏移
+    **/
+   renderOffset: Vector2 = new Vector2();
 
    private _invertMat_0: Vector3 = new Vector3(1, 1);
    private _invertMat_1: Vector3 = new Vector3(0, 0);
@@ -336,7 +340,7 @@ export class WebRender2DPass implements IRender2DPass {
          temp.invert();
       }
 
-      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
+      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
    }
 
 

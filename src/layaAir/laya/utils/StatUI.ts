@@ -28,7 +28,7 @@ export class StatUI {
         });
 
         let leftText = new Text();
-        leftText.singleCharRender = true;
+        leftText.singleCharRender = false;
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
         leftText.fontSize = fontSize;
