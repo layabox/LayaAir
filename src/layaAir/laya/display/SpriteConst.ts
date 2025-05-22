@@ -15,6 +15,7 @@ export class SpriteConst {
     static RENDERNODE2D = 0x800;
     static CHILDS = 0x1000;
     static DRAW2RT = this.CANVAS | this.FILTERS | this.MASK;
+    static UPDATETRANS = this.CANVAS | this.FILTERS | this.MASK | this.CLIP | this.GRAPHICS;
 }
 
 export enum TransformKind {

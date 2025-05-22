@@ -40,7 +40,7 @@ export class structTransform {
 export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
-   zOrder: number = 0;
+   zIndex: number = 0;
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
@@ -61,6 +61,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    public set renderMatrix(value: Matrix) {
 
+      if (!this.trans) {
+         this.trans = new structTransform();
+         this.trans.matrix = new Matrix();
+      }
       this.trans.matrix = value;
       this.trans.modifiedFrame = Stat.loopCount;
    }
@@ -70,7 +74,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    globalAlpha: number = 1.0;
 
    private _alpha: number = 1.0;
-   
+
    public get alpha(): number {
       return this._alpha;
    }
@@ -82,7 +86,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private _blendMode: BlendMode = null;
    private _parentBlendMode: BlendMode = null;
-   
+
    public get blendMode(): BlendMode {
       return this._blendMode || this._parentBlendMode || BlendMode.Normal;
    }
@@ -118,10 +122,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._renderDataHandler = value;
       if (value)
          this._renderDataHandler.owner = this;
-      if (!this.trans) {
-         this.trans = new structTransform();
-         this.renderMatrix = new Matrix();
-      }
    }
 
    globalRenderData: WebGlobalRenderData;
@@ -157,7 +157,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._rnUpdateFun = renderUpdateFun;
    }
 
-  
+
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
       // if (this.parent) {
@@ -188,7 +188,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private _updateBlendMode(): void {
       if (!this.spriteShaderData) return;
-      BlendModeHandler.setShaderData( this.blendMode , this.spriteShaderData);
+      BlendModeHandler.setShaderData(this.blendMode, this.spriteShaderData);
    }
 
 

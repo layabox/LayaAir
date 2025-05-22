@@ -16,7 +16,7 @@ export interface IClipInfo {
 
 export interface IRenderStruct2D {
    //-----2d 渲染组织流程数据-----
-   zOrder: number;
+   zIndex: number;
    //TODO
    rect: Rectangle;
 

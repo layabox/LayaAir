@@ -11,10 +11,12 @@ export enum BlendMode {
     Multiply = "multiply",
     Screen = "screen",
     Overlay = "overlay",
+    Light = "light",
     Lighter = "lighter",
     Mask = "mask",
     DestinationOut = "destination-out",
     AddOld = "add_old",
+    LighterOld = "lighter_old",
     SourceAlpha = "source_alpha",
 }
 
@@ -27,7 +29,7 @@ export class BlendModeHandler {
         BlendMode.Multiply,
         BlendMode.Screen,
         BlendMode.Overlay,
-        BlendMode.Lighter,
+        BlendMode.Light,
         BlendMode.Mask,
         BlendMode.DestinationOut,
         BlendMode.AddOld,
@@ -41,43 +43,17 @@ export class BlendModeHandler {
         [BlendMode.Multiply]: 2,
         [BlendMode.Screen]: 3,
         [BlendMode.Overlay]: 4,
-        [BlendMode.Lighter]: 5,
+        [BlendMode.Light]: 5,
         [BlendMode.Mask]: 6,
         [BlendMode.DestinationOut]: 7,
+        [BlendMode.Lighter]: 1,
+        [BlendMode.LighterOld]: 8,
         [BlendMode.AddOld]: 8,
         [BlendMode.SourceAlpha]: 9,
     };
 
-    static fns: any[];
-    static targetFns: any[];
     /**@internal */
     static _init_(): void {
-        
-        BlendModeHandler.fns = [
-            BlendMode.Normal,      //0
-            BlendMode.Add,         //1
-            BlendMode.Multiply,    //2
-            BlendMode.Screen,      //3
-            BlendMode.Overlay,     //4
-            BlendMode.Lighter,       //5
-            BlendMode.Mask,        //6
-            BlendMode.DestinationOut,   //7
-            BlendMode.AddOld,         //8
-            BlendMode.SourceAlpha,            //9
-        ];
-
-        BlendModeHandler.targetFns = [
-            BlendMode.Normal,    //0
-            BlendMode.Add,       //1
-            BlendMode.Multiply,  //2 
-            BlendMode.Screen,    //3
-            BlendMode.Overlay,   //4
-            BlendMode.Lighter,     //5
-            BlendMode.Mask,            //6
-            BlendMode.DestinationOut,  //7
-            BlendMode.AddOld,    //8
-            BlendMode.SourceAlpha             //9
-        ];
     }
 
     static BlendNormal(): void {
@@ -150,7 +126,7 @@ export class BlendModeHandler {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
     }
 
-    static setShaderData(blendType: BlendMode | number, shaderData: ShaderData , premultipliedAlpha = true): void {
+    static setShaderData(blendType: BlendMode | number, shaderData: ShaderData, premultipliedAlpha = true): void {
         if (typeof blendType === "string") {
             blendType = BlendModeHandler.TOINT[blendType];
         }
@@ -183,7 +159,7 @@ export class BlendModeHandler {
         }
     }
 
-    static initBlendMode(shaderData:ShaderData): void {
+    static initBlendMode(shaderData: ShaderData): void {
         shaderData.setBool(Shader3D.DEPTH_WRITE, false);
         shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
         shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
