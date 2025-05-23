@@ -240,7 +240,7 @@ export class WebGPUComputeContext implements IComputeContext {
             let propertyBindArray = computeShader.uniformSetMap.get(i);
             let shaderdata = webgpuShaderData[i];
             let uniformCommandMap = computeShader.uniformCommandMap[i];
-            if (uniformCommandMap._ishasBuffer) {
+            if (uniformCommandMap._hasUniformBuffer) {
                 let uniform = shaderdata.createSubUniformBuffer(uniformCommandMap._stateName, uniformCommandMap._stateName, uniformCommandMap._idata);
                 if (uniform && uniform.needUpload) {
                     uniform.bufferBlock.needUpload();

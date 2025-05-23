@@ -221,7 +221,35 @@ export class WebGPUShaderInstance implements IShaderInstance {
             // let fragmentWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.fragment, "fragment", true);
 
             this._vsShader = device.createShaderModule({ label: this.name, code: vertexWgsl });
+            this._vsShader.getCompilationInfo().then(info => {
+                if (info.messages.length > 0) {
+                    let subShader = this._shaderPass._owner;
+                    let shader = subShader.owner;
+                    let subIndex = shader._subShaders.indexOf(subShader);
+                    let passIndex = subShader._passes.indexOf(this._shaderPass);
+                    console.group(`Vertex shader compilation details for ${shader.name}_s${subIndex}_p${passIndex}:`);
+                    for (const msg of info.messages) {
+                        const type = msg.type === "error" ? "ERROR" : "WARNING";
+                        console.warn(`${type} [${msg.lineNum}:${msg.linePos}]: ${msg.message}`);
+                    }
+                    console.groupEnd();
+                }
+            });
             this._fsShader = device.createShaderModule({ label: this.name, code: fragmentWgsl });
+            this._fsShader.getCompilationInfo().then(info => {
+                if (info.messages.length > 0) {
+                    let subShader = this._shaderPass._owner;
+                    let shader = subShader.owner;
+                    let subIndex = shader._subShaders.indexOf(subShader);
+                    let passIndex = subShader._passes.indexOf(this._shaderPass);
+                    console.group(`Fragment shader compilation details for ${shader.name}_s${subIndex}_p${passIndex}:`);
+                    for (const msg of info.messages) {
+                        const type = msg.type === "error" ? "ERROR" : "WARNING";
+                        console.warn(`${type} [${msg.lineNum}:${msg.linePos}]: ${msg.message}`);
+                    }
+                    console.groupEnd();
+                }
+            });
         }
 
         this.complete = true;
@@ -233,7 +261,12 @@ export class WebGPUShaderInstance implements IShaderInstance {
         if (map._idata.size == 0) {
             //组织一下
             for (const [key, value] of shaderpass._owner._uniformMap) {
-                map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength > 1 ? value.arrayLength : 0);
+                if (value.arrayLength > 0) {
+                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
+                }
+                else {
+                    map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
+                }
             }
             map._stateID = LayaGL.renderEngine.propertyNameToID("Material");
         }

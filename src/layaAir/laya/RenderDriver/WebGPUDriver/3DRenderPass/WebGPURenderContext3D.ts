@@ -83,9 +83,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
 
-
-
-
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         this._preDrawUniformMaps = new Set<string>();

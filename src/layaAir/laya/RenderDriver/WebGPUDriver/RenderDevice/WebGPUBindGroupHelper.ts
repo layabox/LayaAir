@@ -6,8 +6,6 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUShaderData } from "./WebGPUShaderData";
-
 
 /**
  * 绑定类型（uniformBlock，texture或sampler）
@@ -183,7 +181,7 @@ export class WebGPUBindGroupHelper {
 
             // 从WebGPUCommandUniformMap中获取uniform信息
             const uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(commandName) as WebGPUCommandUniformMap;
-            if (uniformMap._ishasBuffer) {
+            if (uniformMap._hasUniformBuffer) {
                 // 创建绑定信息对象
                 const bindingInfo: WebGPUUniformPropertyBindingInfo = {
                     id: 0,
@@ -293,48 +291,6 @@ export class WebGPUBindGroupHelper {
         }
         WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);
         return bindingInfos;
-    }
-
-    //根据同一组的绑定信息，创建绑定组布局
-    static createBindGroupEntryLayout(infoArray: WebGPUUniformPropertyBindingInfo[]) {
-        let entries: GPUBindGroupLayoutEntry[] = [];
-        const desc: GPUBindGroupLayoutDescriptor = {
-            label: "GPUBindGroupLayoutDescriptor",
-            entries: entries,
-        };
-        for (let i = 0; i < infoArray.length; i++) {
-            switch (infoArray[i].type) {
-                case WebGPUBindingInfoType.buffer:
-                    (desc.entries as any).push({
-                        binding: infoArray[i].binding,
-                        visibility: infoArray[i].visibility,
-                        buffer: infoArray[i].buffer,
-                    });
-                    break;
-                case WebGPUBindingInfoType.storageBuffer:
-                    (desc.entries as any).push({
-                        binding: infoArray[i].binding,
-                        visibility: infoArray[i].visibility,
-                        buffer: infoArray[i].buffer,
-                    });
-                    break;
-                case WebGPUBindingInfoType.sampler:
-                    (desc.entries as any).push({
-                        binding: infoArray[i].binding,
-                        visibility: infoArray[i].visibility,
-                        sampler: infoArray[i].sampler,
-                    });
-                    break;
-                case WebGPUBindingInfoType.texture:
-                    (desc.entries as any).push({
-                        binding: infoArray[i].binding,
-                        visibility: infoArray[i].visibility,
-                        texture: infoArray[i].texture,
-                    });
-                    break;
-            }
-        }
-        return WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
     }
 
     //传入UniformMap，创建WebGPUUniformPropertyBindingInfo数组

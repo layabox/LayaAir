@@ -35,9 +35,6 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
                 size: this._buffer._size,
             }
         }
-        for (const [key, value] of this._cacheShaderData) {
-            key._notifyBindGroupMask(value);
-        }
     }
 
     _addCacheShaderData(shaderData: WebGPUShaderData, propertyID: number) {

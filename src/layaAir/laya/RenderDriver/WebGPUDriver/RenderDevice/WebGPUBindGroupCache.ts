@@ -18,9 +18,9 @@ export interface WebGPUBindGroupLayoutInfo {
 
     values: any[];
 
-    textureState: number;
+    textureStates: number;
 
-    textureCount: number;
+    textureExits: number;
 }
 
 export class WebGPUBindGroup {
@@ -37,8 +37,10 @@ export class WebGPUBindGroup {
 
 }
 
-
 export class WebGPUBindGroupCache {
+
+    private layoutCache: Map<string, GPUBindGroupLayout> = new Map<string, GPUBindGroupLayout>();
+
     // todo
     // cache bindgrouplayout
     getLayoutInfo(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resources: WebGPUUniformPropertyBindingInfo[]) {
@@ -49,9 +51,10 @@ export class WebGPUBindGroupCache {
 
         let bindIndex = 0;
 
-        let textureState = 0;
-        let bitVal = 1;
-        let textureCount = 0;
+        let textureStates = 0;
+        let textureExits = 0;
+
+        let bitOffset = 0;
 
         const func2 = (name: string, data: WebGPUShaderData) => {
             let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
@@ -85,10 +88,12 @@ export class WebGPUBindGroupCache {
                                 let tex = (value as WebGPUInternalTex);
                                 tex._getSampleBindingLayout(entry.sampler);
                             }
+                            let textureBit = map._textureBits.get(propertyID) + bitOffset;
+                            let posMask = 1 << textureBit;
+                            textureExits |= posMask;
                             if (entry.sampler.type != "filtering") {
-                                textureState |= bitVal;
+                                textureStates |= posMask;
                             }
-                            textureCount++;
                             break;
                         case WebGPUBindingInfoType.storageBuffer:
                             entry.buffer = resource.buffer;
@@ -96,10 +101,10 @@ export class WebGPUBindGroupCache {
                         default:
                             break;
                     }
-
-                    bitVal = bitVal << 1;
                 }
             });
+
+            bitOffset += map._textureCount;
         }
 
         commands?.forEach(mapName => {
@@ -116,8 +121,8 @@ export class WebGPUBindGroupCache {
             entries: entries,
             properties: properties,
             values: values,
-            textureState: textureState,
-            textureCount: textureCount,
+            textureStates: textureStates,
+            textureExits: textureExits,
         };
 
         return info;

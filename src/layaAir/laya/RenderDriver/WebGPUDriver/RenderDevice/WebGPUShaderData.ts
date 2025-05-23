@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -14,12 +15,10 @@ import { TextureCube } from "../../../resource/TextureCube";
 import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
-import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -74,11 +73,7 @@ export class WebGPUShaderData extends ShaderData {
 
     private _subUboBufferNumber: number = 0;
 
-    //BindGroup缓存数据
-    //缓存了纹理改动之后，需要重建的key
-    private _textureCacheUpdateMap: Map<number, Set<string>>;
-    //根据string来查找某个Uniform组最后数据更新的值 用来快速判断是否需要重新创建bindGroup
-    private _bindGroupLastUpdateMask: Map<string, number>;
+    private textureStatesMap: Map<string, number> = new Map();
 
     _textureData: { [key: number]: BaseTexture } = {};
     /**
@@ -90,9 +85,6 @@ export class WebGPUShaderData extends ShaderData {
         this._data = {};
         this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
-
-        this._textureCacheUpdateMap = new Map();
-        this._bindGroupLastUpdateMask = new Map();
 
         this._uniformBuffers = new Map();
         this._subUniformBuffers = new Map();
@@ -121,6 +113,7 @@ export class WebGPUShaderData extends ShaderData {
         }
         let uboBuffer = new WebGPUUniformBuffer(name, uniformMap._idata);
         this._uniformBuffers.set(name, uboBuffer);
+        this.textureStatesMap.set(name, 0);
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uboBuffer;
         uniformMap._idata.forEach(uniform => {
@@ -130,6 +123,7 @@ export class WebGPUShaderData extends ShaderData {
                 uboBuffer.setUniformData(uniformId, uniform.uniformtype, data);
             }
             this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
+            this._updateTextureState(uniformId, name, data as WebGPUInternalTex);
         });
         return uboBuffer;
     }
@@ -144,6 +138,7 @@ export class WebGPUShaderData extends ShaderData {
             buffer.notifyGPUBufferChange();
 
             this._subUniformBuffers.set(cacheName, buffer);
+            this.textureStatesMap.set(cacheName, 0);
 
             let id = Shader3D.propertyNameToID(name);
             this._data[id] = buffer;
@@ -187,6 +182,7 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
+        this.textureStatesMap.set(cacheName, 0);
 
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uniformBuffer;
@@ -198,6 +194,8 @@ export class WebGPUShaderData extends ShaderData {
                 uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
             }
             this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
+
+            this._updateTextureState(uniformId, cacheName, data as WebGPUInternalTex);
         });
         return uniformBuffer;
     }
@@ -513,7 +511,33 @@ export class WebGPUShaderData extends ShaderData {
         value && value._addReference();
     }
 
+    private _updateTextureState(index: number, mapName: string, value: WebGPUInternalTex) {
+        if (this.textureStatesMap.has(mapName)) {
+            let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(mapName) as WebGPUCommandUniformMap;
+            if (!map._textureBits.has(index)) {
+                return;
+            }
 
+            value = value || map._defaultData.get(index)?._texture as WebGPUInternalTex;
+
+            let textureBit = map._textureBits.get(index);
+            let stateMask = this.textureStatesMap.get(mapName);
+
+            let sampler: GPUSamplerBindingLayout = { type: "filtering" };
+            if (value) {
+                let tex = value as WebGPUInternalTex;
+                tex._getSampleBindingLayout(sampler);
+            }
+            if (sampler.type != "filtering") {
+                stateMask = stateMask | (1 << textureBit);
+            }
+            else {
+                stateMask = stateMask & ~(1 << textureBit);
+            }
+
+            this.textureStatesMap.set(mapName, stateMask);
+        }
+    }
 
     /**
      * 设置内部纹理
@@ -532,8 +556,12 @@ export class WebGPUShaderData extends ShaderData {
                 }
             }
             this._data[index] = value;
-            this._notifyBindGroupMask(index);
 
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            if (buffer) {
+                let name = buffer.descriptor.lable;
+                this._updateTextureState(index, name, value as WebGPUInternalTex);
+            }
         }
     }
 
@@ -546,23 +574,6 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             if (value) {
                 value._addCacheShaderData(this, index);
-            }
-            this._notifyBindGroupMask(index);
-        }
-    }
-
-    _notifyBindGroupMask(index: number) {
-        let arra = this._textureCacheUpdateMap.get(index);
-        if (arra) {
-            for (const item of arra) {//更新和纹理相关的所有bindGroup的标记
-                let oldMask = this._bindGroupLastUpdateMask.get(item)
-                let mask: number;
-                if (oldMask >= Stat.loopCount) {
-                    mask = Stat.loopCount + 1;
-                } else {
-                    mask = Stat.loopCount;
-                }
-                this._bindGroupLastUpdateMask.set(item, mask);
             }
         }
     }
@@ -663,15 +674,12 @@ export class WebGPUShaderData extends ShaderData {
         });
         this._subUniformBuffers.clear();
 
-        this._bindGroupLastUpdateMask.clear();
-        this._textureCacheUpdateMap.clear();
-
         this._data = {};
         this._gammaColorMap.clear();
         this.clearDefine();
         this._subUboBufferNumber = 0;
 
-
+        this.textureStatesMap.clear();
     }
 
     /**

@@ -11,16 +11,25 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
     /** @internal */
     _defaultData: Map<number, BaseTexture> = new Map();
 
-    _ishasBuffer: boolean = false;
+    /** @internal */
+    _hasUniformBuffer: boolean = false;
 
+    /** @internal */
     _stateName: string;
 
     _stateID: number;
+
+    /** @internal */
+    _textureCount: number = 0;
+
+    /** @internal */
+    _textureBits: Map<number, number>;
 
     constructor(stateName: string) {
         super(stateName);
         this._stateName = stateName;
         this._stateID = Shader3D.propertyNameToID(stateName);
+        this._textureBits = new Map<number, number>();
     }
 
     hasPtrID(propertyID: number): boolean {
@@ -34,16 +43,26 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
      * @param propertyName 
      */
     addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType): void {
-        this._idata.set(propertyID, { id: propertyID, uniformtype, propertyName, arrayLength: 0 });
+        let uniform = { id: propertyID, uniformtype, propertyName, arrayLength: 0 }
+        this._idata.set(propertyID, uniform);
         if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
-            this._ishasBuffer = true;
+            this._hasUniformBuffer = true;
+        }
+        if (uniformtype >= ShaderDataType.Texture2D) {
+            this._textureBits.set(propertyID, this._textureCount);
+            this._textureCount++;
+            // todo 
+            // max texture count 31
+            if (this._textureCount > 31) {
+                console.log(this._stateName, "max texture count 31", this._textureCount);
+            }
         }
     }
 
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype, propertyName, arrayLength });
         if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
-            this._ishasBuffer = true;
+            this._hasUniformBuffer = true;
         }
     }
 }

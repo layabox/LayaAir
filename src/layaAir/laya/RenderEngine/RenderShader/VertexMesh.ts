@@ -57,12 +57,8 @@ export class VertexMesh {
 	/**顶点自定义数据3 */
 	static MESH_CUSTOME3: number = 15;
 
-
-
-
 	/**@internal */
 	private static _vertexDeclarationMap: Record<string, VertexDeclaration> = {};
-
 
 	/**
 	 * @internal
