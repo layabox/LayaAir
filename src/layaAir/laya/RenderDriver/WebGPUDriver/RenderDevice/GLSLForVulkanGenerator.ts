@@ -41,7 +41,7 @@ type WebGPUAttributeMapType = {
  */
 export class GLSLForVulkanGenerator {
 
-    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number) {
+    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
 
         const engine = WebGPURenderEngine._instance;
 
@@ -247,10 +247,10 @@ ${fragmentCode}
                     materialMap.set(uniform.id, uniform);
                 }
             });
-            if (!uniformMap.has(3)) {
-                uniformMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPassName, materialMap));
+            if (!uniformMap.has(appendSet)) {
+                uniformMap.set(appendSet, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
 
-                executeUniforms(uniformMap.get(3), 3);
+                executeUniforms(uniformMap.get(appendSet), appendSet);
             }
         }
 
@@ -280,7 +280,7 @@ ${fragmentCode}
         vertexCode = vertexCode.replace(/gl_VertexID/g, "gl_VertexIndex");
         fragmentCode = fragmentCode.replace(/gl_VertexID/g, "gl_VertexIndex");
 
-        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, collectionUniforms, checkSetNumber);
+        const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, collectionUniforms, checkSetNumber, appendSet);
 
         const glslVersion = "#version 450\n";
 
@@ -441,7 +441,7 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
     }
 }
 
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, collectUniforms: Map<string, CollectUniform>, checkSetNumber: number) {
+function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, collectUniforms: Map<string, CollectUniform>, checkSetNumber: number, appendSet: number) {
     let res = "";
 
     let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
@@ -454,7 +454,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                     case WebGPUBindingInfoType.buffer:
                         {
                             let uniformMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as WebGPUCommandUniformMap)._idata;
-                            if (key == 3) {
+                            if (key == appendSet) {
                                 uniformMap = materialMap;
                             }
 

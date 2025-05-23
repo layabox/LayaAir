@@ -147,15 +147,15 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //如果是3D  只对set2（Node） 和set3（Material）的纹理进行剔除   如果剔除scene和camera 会产生大量的bindGroup
         //如果是2D  TODO  暂时先不做剔出
         let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
+        // 检测出新的uniform添加到的set position
+        let appendSet = shaderProcessInfo.is2D ? 2 : 3;
         /**
          * 编译 shader 时可能检出新的 uniform
          * 将新检出的 uniform 添加到 material map 中
          */
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer);
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer, appendSet);
 
-        if (!shaderProcessInfo.is2D) {
-            this._generateMaterialCommandMap();
-        }
+        this._generateMaterialCommandMap();
 
         if (true) {
             //去除无用的TextureBinding
@@ -282,14 +282,14 @@ export class WebGPUShaderInstance implements IShaderInstance {
         else
             this.uniformSetMap.set(0, []);
 
-        this._commanMap = shaderpass.nodeCommonMap.slice();
+        this._commanMap = shaderpass.nodeCommonMap ? shaderpass.nodeCommonMap.slice() : [];
 
         this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap));
-        if (shaderpass._owner._uniformMap.size > 0) {
-            this._generateMaterialCommandMap();
-            this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(2, "Material", shaderpass.name, shaderpass._owner._uniformMap));
-        } else
-            this.uniformSetMap.set(2, []);
+        // if (shaderpass._owner._uniformMap.size > 0) {
+        //     this._generateMaterialCommandMap();
+        //     this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(2, "Material", shaderpass.name, shaderpass._owner._uniformMap));
+        // } else
+        //     this.uniformSetMap.set(2, []);
 
         this.uniformSetMap.set(3, []);
     }
