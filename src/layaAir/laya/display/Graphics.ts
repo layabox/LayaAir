@@ -140,9 +140,7 @@ export class Graphics {
         this._cmds.length = 0;
         // this._render = this._renderEmpty;
         this._clearData();
-        if (this.owner) {
-            this.owner._renderType &= ~SpriteConst.GRAPHICS;
-        }
+        this._checkDisplay();
         this._repaint();
     }
 

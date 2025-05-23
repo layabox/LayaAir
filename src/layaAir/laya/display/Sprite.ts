@@ -1012,7 +1012,7 @@ export class Sprite extends Node {
      * @zh 根据 zOrder 进行重新排序。
      */
     protected updateZOrder(): void {
-        SpriteUtils.updateOrder(this._children) && this.repaint();
+        SpriteUtils.updateOrder(this) && this.repaint()
     }
 
     /**

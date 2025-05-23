@@ -8,6 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Tween } from "laya/tween/Tween";
 import { Main } from "./../Main";
+import { BlendMode } from "laya/webgl/canvas/BlendMode";
 
 export class BlendMode_Lighter {
 	// 一只凤凰的分辨率是550 * 400
@@ -49,7 +50,7 @@ export class BlendMode_Lighter {
 
 		// 加了混合模式的凤凰
 		this.blendedPhoenix = this.createAnimation();
-		this.blendedPhoenix.blendMode = "lighter";
+		this.blendedPhoenix.blendMode = BlendMode.Lighter;
 		this.blendedPhoenix.scale(scaleFactor, scaleFactor);
 		this.blendedPhoenix.y = (Laya.stage.height - this.phoenixHeight * scaleFactor) / 2;
 
