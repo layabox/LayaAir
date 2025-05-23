@@ -5,6 +5,7 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { Stat } from "../../../utils/Stat";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -75,6 +76,18 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         if (this.materialShaderData)
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
+
+
+        let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
+        if (context._destRT == WebGPURenderEngine._instance._screenRT) {
+            returnGamma = true;
+        }
+        if (returnGamma) {
+            comDef.add(ShaderDefines2D.GAMMASPACE);
+        } else {
+            comDef.remove(ShaderDefines2D.GAMMASPACE);
+        }
+
         return comDef;
     }
 
