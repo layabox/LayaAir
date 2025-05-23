@@ -11,6 +11,7 @@ import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
+import { Texture2D } from "../../resource/Texture2D";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { Stat } from "../../utils/Stat";
 import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
@@ -159,6 +160,7 @@ export class GraphicsRenderData {
                });
             }
 
+            this._updateGraphicsKeys(element, submit);
             element.geometry.setDrawElemenParams(end - start, start * 2);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
@@ -172,6 +174,29 @@ export class GraphicsRenderData {
       }
 
       handle.applyVertexBufferBlock(vertexStruct);
+   }
+
+   // TODO
+   private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
+      let key = submit._key.blendShader; // max 15
+ 
+      // @ts-ignore
+      element.type |= (key); // 15
+
+      let useCustomMaterial = !!submit.material;
+      // @ts-ignore
+      element.type |= useCustomMaterial << 4; 
+
+      let mc = !useCustomMaterial && submit._internalInfo.materialClip;
+      // @ts-ignore
+      element.type |= mc << 5; 
+      
+      let tex = submit._internalInfo.textureHost || Texture2D.whiteTexture;
+      let texKey = tex._id;
+      // texKey = tex._id;
+      // if ( tex && tex !== Texture2D.whiteTexture) {
+      // }
+      element.type |= texKey << 6;
    }
 
    setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {

@@ -7,6 +7,7 @@ import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryEle
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 
 export class GLESREnderElement2D implements IRenderElement2D {
+    type:number = 0;
     private _geometry: GLESRenderGeometryElement;
     private _materialShaderData: GLESShaderData;
     private _value2DShaderData: GLESShaderData;

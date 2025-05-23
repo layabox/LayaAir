@@ -1,9 +1,11 @@
+import { BlendMode } from "../canvas/BlendMode";
+
 /**
  * ...
  * @author xie
  */
 export class SubmitKey {
-    blendShader: number;
+    blendShader: BlendMode;
     // submitType: number;
     other: number;
 

@@ -30,6 +30,7 @@ import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData
 import { Vector3 } from "../maths/Vector3";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
+
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
 import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
@@ -149,7 +150,7 @@ export class Sprite extends Node {
      * @en Blend mode
      * @zh 混合模式
      */
-    _blendMode: BlendMode;
+    _blendMode: BlendMode = BlendMode.Normal;
     /**
      * @internal
     */
@@ -651,9 +652,14 @@ export class Sprite extends Node {
 
     set blendMode(value: BlendMode | string) {
         if (this._blendMode != value) {
-            this._blendMode = value as BlendMode;;
+            if (typeof value === 'string') {
+                value = BlendModeHandler.NAMES[value];
+            }else if(value == null){
+                value = BlendMode.Normal;
+            }
+
+            this._blendMode = value ;
             this._initShaderData();
-            // BlendMode.setShaderData(value , this.shaderData);
             if (value)
                 this._renderType |= SpriteConst.BLEND;
             else
@@ -1012,7 +1018,7 @@ export class Sprite extends Node {
      * @zh 根据 zOrder 进行重新排序。
      */
     protected updateZOrder(): void {
-        SpriteUtils.updateOrder(this._children) && this.repaint();
+        SpriteUtils.updateOrder(this) && this.repaint()
     }
 
     /**

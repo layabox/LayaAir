@@ -12,6 +12,7 @@ export interface IClipInfo {
    clipMatDir: Vector4;
    clipMatPos: Vector4;
    clipMatrix: Matrix;
+   _updateFrame: number;
 };
 
 export interface IRenderStruct2D {

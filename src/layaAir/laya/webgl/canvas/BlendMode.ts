@@ -6,35 +6,37 @@ import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
 export enum BlendMode {
-    Normal = "normal",
-    Add = "add",
-    Multiply = "multiply",
-    Screen = "screen",
-    Overlay = "overlay",
-    Light = "light",
-    Lighter = "lighter",
-    Mask = "mask",
-    DestinationOut = "destination-out",
-    AddOld = "add_old",
-    LighterOld = "lighter_old",
-    SourceAlpha = "source_alpha",
+    Normal = 0,
+    Add ,    
+    Multiply,
+    Screen,
+    Overlay ,
+    Light,
+    Lighter,
+    Mask,
+    DestinationOut ,
+    AddOld ,
+    LighterOld ,
+    SourceAlpha ,
 }
 
 export class BlendModeHandler {
 
     /** @internal 这个不直接暴露给开发者*/
-    static NAMES = [
-        BlendMode.Normal,
-        BlendMode.Add,
-        BlendMode.Multiply,
-        BlendMode.Screen,
-        BlendMode.Overlay,
-        BlendMode.Light,
-        BlendMode.Mask,
-        BlendMode.DestinationOut,
-        BlendMode.AddOld,
-        BlendMode.SourceAlpha
-    ];
+    static NAMES : Record<string , BlendMode >= {
+        "normal": BlendMode.Normal,
+        "add" : BlendMode.Add,
+        "multiply" : BlendMode.Multiply,
+        "screen" : BlendMode.Screen,
+        "overlay" : BlendMode.Overlay,
+        "light" : BlendMode.Light,
+        "lighter" : BlendMode.Lighter,
+        "mask" : BlendMode.Mask,
+        "destination-out" : BlendMode.DestinationOut,
+        "add_old" : BlendMode.AddOld,
+        "source_alpha" : BlendMode.SourceAlpha
+    
+    }
 
     /** @internal */
     static TOINT: { [key: string]: number } = {
@@ -59,7 +61,6 @@ export class BlendModeHandler {
     static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
         RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
@@ -126,11 +127,12 @@ export class BlendModeHandler {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
     }
 
-    static setShaderData(blendType: BlendMode | number, shaderData: ShaderData, premultipliedAlpha = true): void {
+    static setShaderData(blendType: BlendMode | string, shaderData: ShaderData, premultipliedAlpha = true): void {
         if (typeof blendType === "string") {
-            blendType = BlendModeHandler.TOINT[blendType];
+            blendType = BlendModeHandler.NAMES[blendType];
         }
-        switch (blendType) {
+        let type = BlendModeHandler.TOINT[blendType];
+        switch (type) {
             case 1://add
             case 3://screen
             case 5://light
