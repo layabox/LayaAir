@@ -1,5 +1,5 @@
 
-import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { Sprite } from "../../display/Sprite";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Color } from "../../maths/Color";
@@ -17,6 +17,7 @@ import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { SketonOptimise, TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { SkinRenderUpdate } from "./SkinRenderUpdate"; // 新增导入
+import { BaseRender2DType } from "../../display/SpriteConst";
 
 /**
  * @en SpineOptimizeRender used for optimized rendering of Spine animations.

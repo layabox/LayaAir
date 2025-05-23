@@ -4,6 +4,7 @@ import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../RenderDevice/ShaderData";
 
 export interface IRenderElement2D {
+    type:number;
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;

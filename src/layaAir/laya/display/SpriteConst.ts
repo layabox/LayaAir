@@ -34,3 +34,11 @@ export enum TransformKind {
 }
 
 
+export enum BaseRender2DType {
+    empty = -1,
+    baseRenderNode = 0,
+    spine = 1,
+    particle = 2,
+    spineSimple = 3,
+    graphics = 4
+}

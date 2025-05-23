@@ -86,7 +86,7 @@ enum BufferState {
 
 export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
     static MAX_VERTEX = 65535;
-    static DEFAULT_BLOCK_SIZE = 1024;
+    static DEFAULT_BLOCK_SIZE = 4096;
 
     private _bufferState: IBufferState;
     private _vertexBuffer: IVertexBuffer;

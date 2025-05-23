@@ -1,6 +1,6 @@
 import { Sprite } from "./Sprite";
 import { GraphicsBounds } from "./GraphicsBounds";
-import { SpriteConst } from "./SpriteConst";
+import { BaseRender2DType, SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 import { ClipRectCmd } from "./cmd/ClipRectCmd"
 import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd"
@@ -278,6 +278,7 @@ export class Graphics {
         if (value) {
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
+            this.owner._struct.renderType = BaseRender2DType.graphics;
             this.owner._struct.renderDataHandler = this._renderDataHandle;
             this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
             this.owner._struct.renderElements = this._data._renderElements;
@@ -286,6 +287,7 @@ export class Graphics {
             if (this._data._renderElements === this.owner._struct.renderElements) {
                 this.owner._struct.renderElements = [];
             }
+            this.owner._struct.renderType = -1;
             this.owner._struct.renderDataHandler = null;
         }
     }

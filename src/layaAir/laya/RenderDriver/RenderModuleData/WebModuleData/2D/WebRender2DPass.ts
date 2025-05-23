@@ -16,6 +16,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { WebDynamicVIBuffer } from "./WebDynamicVIBuffer";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
+import { WebGraphicsBatch } from "./WebGraphicsBatch";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -28,7 +29,7 @@ export class Batch2DInfo {
    batchFun: IBatch2DRender = null;
    batch: boolean = false;
    indexStart: number = -1;
-   elementLenth: number = 0;
+   elementLength: number = 0;
    elementCount: number = 0;
 
    constructor() {
@@ -113,6 +114,10 @@ export class WebRender2DPass implements IRender2DPass {
       this._clearColor.setValue(r, g, b, a);
    }
 
+   needUploadClip = true;
+
+   needUploadAlpha = true;
+
    private _rtsize: Vector2 = new Vector2;
 
    /**
@@ -192,7 +197,6 @@ export class WebRender2DPass implements IRender2DPass {
       if (!struct.enable) return;
 
       struct._handleInterData();
-
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
@@ -208,6 +212,7 @@ export class WebRender2DPass implements IRender2DPass {
       // }
 
       struct.renderUpdate(context2D);
+
       this.addStruct(struct);
 
       //需要处理全局透明的问题，统计并且生成新的 process。
@@ -246,7 +251,7 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
 
-      //if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
+      // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
       for (let i = 0, len = lists.length; i < len; i++)
          lists[i]?.reset();
 
@@ -393,7 +398,7 @@ class PassRenderList {
    _batchInfoList = new FastSinglelist<Batch2DInfo>;
 
    private _currentType: number = -1;
-   private _currentElementCount: number = 0;
+   // private _currentElementCount: number = 0;
    private _currentBatch: Batch2DInfo = null;
 
    structs: FastSinglelist<WebRenderStruct2D> = null;
@@ -411,8 +416,8 @@ class PassRenderList {
    add(struct: WebRenderStruct2D): void {
       this.structs.add(struct);
 
-      let n = struct.renderElements?.length;
-      if (n == 0) return;
+      let n = struct.renderElements ? struct.renderElements.length : 0;
+      if ( n == 0 ) return;
       if (n == 1) {
          this._batchStart(struct.renderType, 1);
          this.renderElements.add(struct.renderElements[0]);
@@ -428,9 +433,9 @@ class PassRenderList {
     * 开启一个Batch
     */
    private _batchStart(type: number, elementLength: number) {
-      if (this._currentType == type && this._currentElementCount == elementLength) {
+      if (this._currentType == type /*&& this._currentElementCount == elementLength*/) {
          this._currentBatch.batch = !!(this._currentBatch.batchFun);
-         this._currentBatch.elementLenth += elementLength;
+         this._currentBatch.elementLength += elementLength;
          return;
       }
 
@@ -441,9 +446,9 @@ class PassRenderList {
       this._currentBatch.batch = false;
       this._currentBatch.batchFun = BatchManager._batchMapManager[type];
       this._currentBatch.indexStart = this.renderElements.length;
-      this._currentBatch.elementLenth = elementLength;
+      this._currentBatch.elementLength = elementLength;
       this._currentType = type;
-      this._currentElementCount = elementLength;
+      // this._currentElementCount = elementLength;
    }
 
    /**
@@ -459,9 +464,9 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLenth);
+            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength);
          } else {
-            for (let j = info.indexStart, m = info.elementLenth + info.indexStart; j < m; j++)
+            for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
                this.renderElements.add(this.renderElements.elements[j]);
          }
       }
@@ -496,7 +501,7 @@ class PassRenderList {
       this._batchInfoList.length = 0;
       this._currentBatch = null;
       this._currentType = -1;
-      this._currentElementCount = 0;
+      // this._currentElementCount = 0;
    }
 }
 
@@ -539,3 +544,6 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       this._passes.sort((a, b) => b.priority - a.priority); // 按 priority 从大到小排序
    }
 }
+
+WebGraphicsBatch.instance = new WebGraphicsBatch;
+BatchManager.regisBatch( 4 , WebGraphicsBatch.instance)

@@ -35,6 +35,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     protected _sceneData: WebGPUShaderData;
     protected _cameraData: WebGPUShaderData;
+    type:number = 0;
     materialShaderData: WebGPUShaderData;
     value2DShaderData: WebGPUShaderData;
     subShader: SubShader;

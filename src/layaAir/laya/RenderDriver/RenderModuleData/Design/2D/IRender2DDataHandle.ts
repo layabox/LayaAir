@@ -27,7 +27,6 @@ export interface I2DGlobalRenderData {
     globalShaderData: ShaderData;
 }
 
-
 export enum BufferModifyType {
     Vertex = 0,
     Index = 1,

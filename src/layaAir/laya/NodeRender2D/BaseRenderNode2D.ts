@@ -8,18 +8,12 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
 import { Sprite } from "../display/Sprite";
+import { BaseRender2DType } from "../display/SpriteConst";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { Material } from "../resource/Material";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-
-export enum BaseRender2DType {
-    baseRenderNode = 0,
-    spine = 1,
-    particle = 2,
-    spineSimple = 3
-}
 
 export enum Render2DOrderMode {
     elementIndex,
