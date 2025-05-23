@@ -21,7 +21,7 @@ export interface IRender2DDataHandle {
 /**
  * 全局数据
  */
-export interface IGlobalRenderData {
+export interface I2DGlobalRenderData {
     cullRect: Vector4;
     renderLayerMask: number;
     globalShaderData: ShaderData;

@@ -3,7 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
@@ -18,7 +18,7 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
     createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
         throw new Error("Method not implemented.");
     }
-    create2DGlobalRenderDataHandle(): IGlobalRenderData {
+    create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         throw new Error("Method not implemented.");
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {

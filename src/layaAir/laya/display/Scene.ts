@@ -14,7 +14,7 @@ import { Area2D } from "./Area2D";
 import { LayaEnv } from "../../LayaEnv";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { LayaGL } from "../layagl/LayaGL";
 
 export interface ILight2DManager {
@@ -94,7 +94,7 @@ export class Scene extends Sprite {
     _specialManager: Scene2DSpecialManager;
     _light2DManager: ILight2DManager;
     /**@internal */
-    _globalRenderData: IGlobalRenderData;
+    _globalRenderData: I2DGlobalRenderData;
     constructor() {
         super();
         this._specialManager = new Scene2DSpecialManager();

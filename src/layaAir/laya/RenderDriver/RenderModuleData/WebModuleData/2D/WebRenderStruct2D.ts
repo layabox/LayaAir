@@ -9,7 +9,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
-import { IGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
 
 const _DefaultClipInfo: IClipInfo = {
@@ -18,7 +18,7 @@ const _DefaultClipInfo: IClipInfo = {
    clipMatPos: new Vector4(0, 0, 0, 0),
 }
 
-export class WebGlobalRenderData implements IGlobalRenderData {
+export class WebGlobalRenderData implements I2DGlobalRenderData {
    cullRect: Vector4;
    renderLayerMask: number;
    globalShaderData: ShaderData;

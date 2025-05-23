@@ -10,7 +10,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, IGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
@@ -23,7 +23,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
         return null;
     }
-    create2DGlobalRenderDataHandle(): IGlobalRenderData {
+    create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return null;
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {

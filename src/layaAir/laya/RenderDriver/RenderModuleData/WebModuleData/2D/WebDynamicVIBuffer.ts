@@ -7,7 +7,7 @@ import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { IGraphicDynamicVIBuffer, I2DGraphicBufferDataView, I2DGraphicBufferBlock, BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 
-export class BufferDataView implements I2DGraphicBufferDataView {
+export class Web2DGraphicBufferDataView implements I2DGraphicBufferDataView {
     private _data: Float32Array | Uint16Array;
     private _start: number;
     private _length: number;
@@ -101,8 +101,8 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
     private _vertexBlockSize: number;
     private _indexBlockSize: number;
     
-    private _vertexViews: BufferDataView [] = [];
-    private _indexViews: BufferDataView [] = [];
+    private _vertexViews: Web2DGraphicBufferDataView [] = [];
+    private _indexViews: Web2DGraphicBufferDataView [] = [];
     
     private _vertexFreeBlocks: number[] = [];
     private _indexFreeBlocks: number[] = [];
@@ -181,7 +181,7 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
             }
         }
         let usedBlocks: number[] = [];
-        let usedViews: BufferDataView[] = [];
+        let usedViews: Web2DGraphicBufferDataView[] = [];
         let remainingBlocks = requiredBlocks;
 
         // 首先使用空闲块
@@ -197,7 +197,7 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
             let newBlockIndex = this._vertexViews.length;
             usedBlocks.push(newBlockIndex);
             // 为新块创建视图
-            let view = new BufferDataView(
+            let view = new Web2DGraphicBufferDataView(
                 this,
                 this._vertexData,
                 newBlockIndex * this._vertexBlockSize,
@@ -224,7 +224,7 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
         let requiredBlocks = Math.ceil(length / this._indexBlockSize);
 
         let usedBlocks: number[] = [];
-        let usedViews: BufferDataView[] = [];
+        let usedViews: Web2DGraphicBufferDataView[] = [];
         let remainingBlocks = requiredBlocks;
 
         // 首先使用空闲块
@@ -240,7 +240,7 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
             let newBlockIndex = this._indexViews.length;
             usedBlocks.push(newBlockIndex);
             // 为新块创建视图
-            let view = new BufferDataView(
+            let view = new Web2DGraphicBufferDataView(
                 this,
                 this._indexData,
                 newBlockIndex * this._indexBlockSize,
@@ -258,7 +258,7 @@ export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
     }
 
 
-    private _releaseBlocks(blocks: number[] , list: BufferDataView[] , freeBlocks: number[]) {
+    private _releaseBlocks(blocks: number[] , list: Web2DGraphicBufferDataView[] , freeBlocks: number[]) {
         if (!blocks || blocks.length === 0)
             return;
         blocks.forEach(blockIndex => {

@@ -6,14 +6,14 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { NodeFlags } from "../Const";
 import { Vector4 } from "../maths/Vector4";
 import { LayaGL } from "../layagl/LayaGL";
-import { IGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 const TEMP_Vector4 = new Vector4(0, 0, 0, 0);
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
     declare _scene: any;
     /**@internal */
-    _globalRenderData: IGlobalRenderData;
+    _globalRenderData: I2DGlobalRenderData;
     constructor() {
         super();
         this._setBit(NodeFlags.AREA_2D, true);
