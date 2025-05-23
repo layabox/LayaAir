@@ -114,10 +114,6 @@ export class WebRender2DPass implements IRender2DPass {
       this._clearColor.setValue(r, g, b, a);
    }
 
-   needUploadClip = true;
-
-   needUploadAlpha = true;
-
    private _rtsize: Vector2 = new Vector2;
 
    /**
@@ -332,7 +328,7 @@ export class WebRender2DPass implements IRender2DPass {
       let root = this.root;
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
-      if (mask) {
+      if (mask && mask.trans) {
          // globalMatrix
          let rootMatrix = root.trans.matrix;
          // localMatrix

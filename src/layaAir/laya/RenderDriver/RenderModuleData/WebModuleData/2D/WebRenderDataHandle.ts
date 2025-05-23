@@ -68,7 +68,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
-    mask: IRenderStruct2D | null = null;
+    mask: WebRenderStruct2D | null = null;
 
     private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
     private _needUpdateVertexBuffer: boolean = false;
@@ -95,7 +95,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
             if (!this._vertexBufferBlocks || !this._vertexBufferBlocks.length) {
                 //更新位置
-                if (this.mask && this.mask.renderMatrix) {
+                if (this.mask && this.mask.trans) {
                     let maskMatrix = this.mask.renderMatrix;
                     let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
                     this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
