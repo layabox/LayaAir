@@ -11,6 +11,7 @@ import { IHingeJoint } from "./Joint/IHingeJoint";
 import { ISpringJoint } from "./Joint/ISpringJoint";
 import { IBoxColliderShape } from "./Shape/IBoxColliderShape";
 import { ICapsuleColliderShape } from "./Shape/ICapsuleColliderShape";
+import { ICompoundColliderShape } from "./Shape/ICompoundColliderShape";
 import { IConeColliderShape } from "./Shape/IConeColliderShape";
 import { ICylinderColliderShape } from "./Shape/ICylinderColliderShape";
 import { IHeightFieldShape } from "./Shape/IHeightFieldShape";
@@ -157,6 +158,11 @@ export interface IPhysicsCreateUtil {
      */
     createHeightFieldShape?(): IHeightFieldShape;
 
+    /**
+     * @en Create compound collider shape.
+     * @zh 创建组合碰撞形状。
+     */
+    createCompoundShape(): ICompoundColliderShape;
 
     /**
      * @en Create curve mesh.

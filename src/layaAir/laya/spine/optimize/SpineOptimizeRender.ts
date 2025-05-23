@@ -304,6 +304,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let mesh = this._dynamicMap.get(id);
         if (!mesh && create) {
             mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration);
+            mesh._addReference();
             this._dynamicMap.set(id, mesh);
         }
         return mesh;

@@ -63,6 +63,12 @@ export class btColliderShape implements IColliderShape {
         this._worldScale = new Vector3(-1, -1, -1);
         this._destroyed = false;
     }
+    getOffset(): Vector3 {
+        return this._localOffset;
+    }
+    getPhysicsShape() {
+        return this._btShape;
+    }
 
     /**
      * @override
@@ -108,6 +114,9 @@ export class btColliderShape implements IColliderShape {
      */
     destroy(): void {
         if (this._btShape && !this._destroyed) {
+            if (this._btCollider && this._btCollider._physicsManager) {
+                this._btCollider._physicsManager.removeCollider(this._btCollider);
+            }
             btStatics.bt.btCollisionShape_destroy(this._btShape);
             this._btShape = null;
             this._destroyed = true;

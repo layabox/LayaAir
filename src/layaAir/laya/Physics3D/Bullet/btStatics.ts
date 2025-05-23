@@ -99,7 +99,7 @@ export class btStatics {
     /**
      * @internal
      * @en Island sleeping tag for activation state
-     * @zh 休眠岛状态的标签
+     * @zh 落地休眠状态的标签
      */
     static ACTIVATIONSTATE_ISLAND_SLEEPING = 2;
     /**

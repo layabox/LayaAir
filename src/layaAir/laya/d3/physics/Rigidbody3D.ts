@@ -38,7 +38,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     private _trigger: boolean = false;
     /**@internal */
     private _collisionDetectionMode: number = 0;
-
+    /**@internal */
+    private _allowSleep: boolean = true;
     /**
      * @override
      * @internal
@@ -99,8 +100,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The angular damping of the rigidbody.
-     * @zh 刚体的角阻力。
+     * @en The angular damping of the rigidbody. It simulates angular resistance and other environmental factors to make the object's rotation slow down gradually. 
+     * @zh 刚体的角速度阻尼。控制刚体旋转运动的阻尼系数，使旋转逐渐减速，防止永久旋转。
      */
     get angularDamping(): number {
         return this._angularDamping;
@@ -129,8 +130,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The linear motion scaling factor for each axis of the rigidbody. If the value of any axis is 0, it means that the linear motion is frozen on that axis.
-     * @zh 刚体每个轴的线性运动缩放因子。如果某一轴的值为0表示冻结在该轴的线性运动。
+     * @en The linear motion scaling factor for each axis of the rigidbody. 
+     * If the value of any axis is 0, it means that the linear motion is frozen on that axis.
+     * If the value is 1, it means that linear motion on that axis is not restricted.
+     * @zh 限制刚体在特定轴向的线性运动, 如果某一轴的值为0表示冻结在该轴的线性运动。为1表示在该轴的线性运动不受限制。
      */
     get linearFactor(): Vector3 {
         return this._linearFactor;
@@ -144,8 +147,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
-     * @en The linear velocity of the rigidbody.
-     * @zh 刚体的线速度。
+     * @en The linear velocity of the rigidbody. 
+     * It is represented by a three-dimensional vector (x, y, z) that corresponds to the linear velocity components of the rigidbody on the X, Y, and Z axes. 
+     * This value not only represents the magnitude but also includes direction.
+     * @zh 刚体的线速度。由一个三维向量（x, y, z）表示，分别对应刚体在X、Y、Z 轴上的速度分量，该分量值既有大小又有方向。
      */
     get linearVelocity(): Vector3 {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
@@ -179,7 +184,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @en The angular velocity of the rigidbody.
-     * @zh 刚体的角速度。
+     * It is represented by a three-dimensional vector (x, y, z) that corresponds to the angular velocity components of the rigidbody around X, Y, and Z axes. 
+     * This value not only represents the magnitude but also includes direction. The unit is **radians per second**.
+     * @zh 刚体的角速度。由一个三维向量（Vector3）表示，分别对应刚体围绕X、Y、Z 轴的旋转速率分量，该分量值既有大小又有方向。单位是**弧度/秒**。
      */
     get angularVelocity(): Vector3 {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
@@ -194,6 +201,30 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
             this._collider.setAngularVelocity(value);
         }
+    }
+
+
+    /**
+     * @en Set whether the rigidbody allows sleep.
+     * @zh 设置刚体是否允许睡眠。
+     */
+    set allowSleep(value: boolean) {
+        this._allowSleep = value;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {
+            this._collider.allowSleep(value);
+        }
+    }
+
+    get allowSleep(): boolean {
+        return this._allowSleep;
+    }
+
+    /**
+    * @en Whether it is sleeping.
+    * @zh 是否处于睡眠状态。
+    */
+    get isSleeping(): boolean {
+        return this._collider.isSleeping();
     }
 
     /**
@@ -270,6 +301,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      */
     protected _onEnable(): void {
         super._onEnable();
+        this.restitution = this._restitution;
+        this.friction = this._friction;
+        this.rollingFriction = this._rollingFriction;
         this.gravity = this._gravity;
         this.trigger = this._trigger;
         this.isKinematic = this._isKinematic;
@@ -279,6 +313,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.linearDamping = this._linearDamping;
         this.linearVelocity = this._linearVelocity;
         this.angularDamping = this._angularDamping;
+        this.allowSleep = this._allowSleep;
     }
 
     /**
