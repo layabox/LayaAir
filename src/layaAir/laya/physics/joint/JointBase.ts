@@ -55,7 +55,6 @@ export class JointBase extends Component {
 
     /**@internal */
     protected _onAwake(): void {
-        this._createJoint();
     }
 
     /**@internal */
