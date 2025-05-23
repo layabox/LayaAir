@@ -78,6 +78,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 }
 
 export class NoRenderElement2D implements IRenderElement2D {
+    type: number;
     owner: IRenderStruct2D;
     nodeCommonMap: string[];
     geometry: IRenderGeometryElement;

@@ -73,7 +73,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
     private _needUpdateVertexBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    
+
     applyVertexBufferBlock(blocks: Graphic2DVBBlock[]): void {
         this._vertexBufferBlocks = blocks;
         this._needUpdateVertexBuffer = blocks.length > 0;
@@ -85,7 +85,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             return;
 
         let trans = this._owner.trans;
-        
+
         if (
             this._needUpdateVertexBuffer
             || this._modifiedFrame < trans.modifiedFrame
@@ -105,34 +105,34 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
                     this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
                 }
-    
+
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-            }else{
+            } else {
                 let pos = 0, dataViewIndex = 0, ci = 0;
-                let dataView: Web2DGraphicBufferDataView = null;
+                let dataView: Web2DGraphic2DBufferDataView = null;
                 let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
                 let vbdata = null;
                 let pass = this._owner.pass;
                 let blocks = this._vertexBufferBlocks;
-                let vertexCount = 0 , positions : number[] = null , vertexViews : Web2DGraphicBufferDataView[] = null;
+                let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
                 for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
                     positions = blocks[i].positions;
-                    vertexViews = blocks[i].vertexViews as Web2DGraphicBufferDataView[];
+                    vertexViews = blocks[i].vertexViews as Web2DGraphic2DBufferDataView[];
                     vertexCount = positions.length / 2;
                     dataView = null;
                     pos = 0, ci = 0, dataViewIndex = 0;
-    
+
                     for (let j = 0; j < vertexCount; j++) {
-    
+
                         if (!dataView || dataView.length <= pos) {
                             dataView = vertexViews[dataViewIndex];
-                            dataView.modify(BufferModifyType.Vertex);
+                            dataView.modify();
                             dataViewIndex++;
                             pos = 0;
                         }
-    
-                        vbdata = dataView.data;
+
+                        vbdata = dataView.getData();
                         let x = positions[ci], y = positions[ci + 1];
                         // if (_bTransform) {
                         vbdata[pos] = x * m00 + y * m10 + tx;
@@ -141,7 +141,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                         //     vbdata[pos] = x + tx;
                         //     vbdata[pos + 1] = y + ty;
                         // }
-    
+
                         pos += 12;
                         ci += 2;
                     }
@@ -151,7 +151,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
             this._modifiedFrame = trans.modifiedFrame;
         }
-        
+
     }
 }
 
