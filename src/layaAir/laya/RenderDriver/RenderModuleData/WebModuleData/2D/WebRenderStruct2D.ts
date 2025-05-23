@@ -9,7 +9,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
-import { IGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
 
 const _DefaultClipInfo: IClipInfo = {
@@ -18,7 +18,7 @@ const _DefaultClipInfo: IClipInfo = {
    clipMatPos: new Vector4(0, 0, 0, 0),
 }
 
-export class WebGlobalRenderData implements IGlobalRenderData {
+export class WebGlobalRenderData implements I2DGlobalRenderData {
    cullRect: Vector4;
    renderLayerMask: number;
    globalShaderData: ShaderData;
@@ -75,7 +75,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    globalAlpha: number = 1.0;
 
    private _alpha: number = 1.0;
-   
+
    public get alpha(): number {
       return this._alpha;
    }
@@ -87,7 +87,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private _blendMode: BlendMode = null;
    private _parentBlendMode: BlendMode = null;
-   
+
    public get blendMode(): BlendMode {
       return this._blendMode || this._parentBlendMode || BlendMode.Normal;
    }
@@ -158,7 +158,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._rnUpdateFun = renderUpdateFun;
    }
 
-  
+
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
       // if (this.parent) {
@@ -189,7 +189,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private _updateBlendMode(): void {
       if (!this.spriteShaderData) return;
-      BlendModeHandler.setShaderData( this.blendMode , this.spriteShaderData);
+      BlendModeHandler.setShaderData(this.blendMode, this.spriteShaderData);
    }
 
 

@@ -5,9 +5,9 @@ import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { IDynamicVIBuffer, IBufferDataView, IBufferBlock, BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
+import { IGraphicDynamicVIBuffer, I2DGraphicBufferDataView, I2DGraphicBufferBlock, BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 
-export class BufferDataView implements IBufferDataView {
+export class Web2DGraphicBufferDataView implements I2DGraphicBufferDataView {
     private _data: Float32Array | Uint16Array;
     private _start: number;
     private _length: number;
@@ -84,7 +84,7 @@ enum BufferState {
     RESIZED = 2
 }
 
-export class WebDynamicVIBuffer implements IDynamicVIBuffer{
+export class WebDynamicVIBuffer implements IGraphicDynamicVIBuffer{
     static MAX_VERTEX = 65535;
     static DEFAULT_BLOCK_SIZE = 1024;
 
@@ -101,8 +101,8 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
     private _vertexBlockSize: number;
     private _indexBlockSize: number;
     
-    private _vertexViews: BufferDataView [] = [];
-    private _indexViews: BufferDataView [] = [];
+    private _vertexViews: Web2DGraphicBufferDataView [] = [];
+    private _indexViews: Web2DGraphicBufferDataView [] = [];
     
     private _vertexFreeBlocks: number[] = [];
     private _indexFreeBlocks: number[] = [];
@@ -166,7 +166,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
      * @param length 需要的长度
      * @returns 使用的blocks，如果空间不足则返回null
      */
-    checkVertexBuffer(length: number): IBufferBlock {
+    checkVertexBuffer(length: number): I2DGraphicBufferBlock {
         
         let requiredBlocks = Math.ceil(length / this._vertexBlockSize);
         let needNewBlocks = requiredBlocks - this._vertexFreeBlocks.length;
@@ -181,7 +181,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             }
         }
         let usedBlocks: number[] = [];
-        let usedViews: BufferDataView[] = [];
+        let usedViews: Web2DGraphicBufferDataView[] = [];
         let remainingBlocks = requiredBlocks;
 
         // 首先使用空闲块
@@ -197,7 +197,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             let newBlockIndex = this._vertexViews.length;
             usedBlocks.push(newBlockIndex);
             // 为新块创建视图
-            let view = new BufferDataView(
+            let view = new Web2DGraphicBufferDataView(
                 this,
                 this._vertexData,
                 newBlockIndex * this._vertexBlockSize,
@@ -220,11 +220,11 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
      * @param length 需要的长度
      * @returns 包含数据视图和使用的blocks的对象，如果空间不足则返回null
      */
-    checkIndexBuffer(length: number): IBufferBlock {
+    checkIndexBuffer(length: number): I2DGraphicBufferBlock {
         let requiredBlocks = Math.ceil(length / this._indexBlockSize);
 
         let usedBlocks: number[] = [];
-        let usedViews: BufferDataView[] = [];
+        let usedViews: Web2DGraphicBufferDataView[] = [];
         let remainingBlocks = requiredBlocks;
 
         // 首先使用空闲块
@@ -240,7 +240,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
             let newBlockIndex = this._indexViews.length;
             usedBlocks.push(newBlockIndex);
             // 为新块创建视图
-            let view = new BufferDataView(
+            let view = new Web2DGraphicBufferDataView(
                 this,
                 this._indexData,
                 newBlockIndex * this._indexBlockSize,
@@ -258,7 +258,7 @@ export class WebDynamicVIBuffer implements IDynamicVIBuffer{
     }
 
 
-    private _releaseBlocks(blocks: number[] , list: BufferDataView[] , freeBlocks: number[]) {
+    private _releaseBlocks(blocks: number[] , list: Web2DGraphicBufferDataView[] , freeBlocks: number[]) {
         if (!blocks || blocks.length === 0)
             return;
         blocks.forEach(blockIndex => {

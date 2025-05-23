@@ -330,9 +330,9 @@ export class SpriteGlobalTransform {
     }
 
     private _notifyRenderSpriteTransChange() {
-        if (this._sp._renderType & SpriteConst.UPDATETRANS)
-        {
-            ILaya.stage._addtransChangeElement(this._sp);
+            if (this._sp._renderType & SpriteConst.UPDATETRANS) {
+                ILaya.stage._addtransChangeElement(this._sp);
+
         }
     }
 

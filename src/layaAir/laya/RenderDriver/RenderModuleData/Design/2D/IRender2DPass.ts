@@ -4,7 +4,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { IDynamicVIBuffer } from "./IRender2DDataHandle";
+import { IGraphicDynamicVIBuffer } from "./IRender2DDataHandle";
 import { IRenderStruct2D } from "./IRenderStruct2D";
 
 export interface IRender2DPass {
@@ -32,7 +32,7 @@ export interface IRender2DPass {
    fowardRender(context: IRenderContext2D): void;
    render(context: IRenderContext2D): void;
    destroy(): void;
-   setBuffer(buffer: IDynamicVIBuffer): void;
+   setBuffer(buffer: IGraphicDynamicVIBuffer): void;
 }
 
 export interface IRender2DPassManager {

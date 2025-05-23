@@ -5,7 +5,7 @@ import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { IGlobalRenderData, IRender2DDataHandle } from "./IRender2DDataHandle";
+import { I2DGlobalRenderData, IRender2DDataHandle } from "./IRender2DDataHandle";
 import { IRender2DPass } from "./IRender2DPass";
 
 export interface IClipInfo {
@@ -52,7 +52,7 @@ export interface IRenderStruct2D {
 
    renderDataHandler: IRender2DDataHandle;
 
-   globalRenderData: IGlobalRenderData;
+   globalRenderData: I2DGlobalRenderData;
 
    pass: IRender2DPass;
 

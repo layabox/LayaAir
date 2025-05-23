@@ -1,7 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, IBufferDataView, VertexBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphic2DVBBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -58,7 +58,7 @@ export class GraphicsRenderData {
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
-   private _vertexStruct: VertexBufferBlock[] = [];
+   private _vertexStruct: Graphic2DVBBlock[] = [];
 
    clear(): void {
       let len = this._submits.length;
@@ -98,7 +98,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let vertexStruct: VertexBufferBlock[] = this._vertexStruct;
+      let vertexStruct: Graphic2DVBBlock[] = this._vertexStruct;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -128,7 +128,7 @@ export class GraphicsRenderData {
 
             let start = 0;
             let end = 0;
-            let lastView: IBufferDataView = null;
+            let lastView: I2DGraphicBufferDataView = null;
             for (let i = 0, n = infos.length; i < n; i++) {
                let info = infos[i];
                let indexViews = info.indexViews;

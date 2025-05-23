@@ -8,9 +8,9 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { BufferModifyType, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DVBBlock } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
-import { BufferDataView } from "./WebDynamicVIBuffer";
+import { Web2DGraphicBufferDataView } from "./WebDynamicVIBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
@@ -70,12 +70,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     mask: IRenderStruct2D | null = null;
 
-    private _vertexBufferBlocks: VertexBufferBlock[] = [];
+    private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
     private _needUpdateVertexBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _matrix: Matrix = new Matrix();
 
-    applyVertexBufferBlock(blocks: VertexBufferBlock[]): void {
+    applyVertexBufferBlock(blocks: Graphic2DVBBlock[]): void {
         this._vertexBufferBlocks = blocks;
         this._needUpdateVertexBuffer = blocks.length > 0;
     }
@@ -118,7 +118,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             || !Matrix.equals(this._matrix, mat)
         ) {
             let pos = 0, dataViewIndex = 0, ci = 0;
-            let dataView: BufferDataView = null;
+            let dataView: Web2DGraphicBufferDataView = null;
             let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
             let vbdata = null;
             this._matrix.setTo(m00, m01, m10, m11, tx, ty);
@@ -133,7 +133,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 for (let j = 0; j < vertexCount; j++) {
 
                     if (!dataView || dataView.length <= pos) {
-                        dataView = vertexViews[dataViewIndex] as BufferDataView;
+                        dataView = vertexViews[dataViewIndex] as Web2DGraphicBufferDataView;
                         dataView.modify(BufferModifyType.Vertex);
                         if (!dataView.owner._inPass) pass.setBuffer(dataView.owner);
                         dataViewIndex++;

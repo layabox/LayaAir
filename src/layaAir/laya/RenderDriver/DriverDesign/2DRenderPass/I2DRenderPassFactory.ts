@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, IGlobalRenderData, ISpineRenderDataHandle, IDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -33,9 +33,9 @@ export interface I2DRenderPassFactory {
 
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle;
 
-    create2DGlobalRenderDataHandle(): IGlobalRenderData;
+    create2DGlobalRenderDataHandle(): I2DGlobalRenderData;
 
     createSpineRenderDataHandle(): ISpineRenderDataHandle;
 
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IDynamicVIBuffer;
+    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer;
 }

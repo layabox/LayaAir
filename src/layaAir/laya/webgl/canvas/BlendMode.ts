@@ -125,7 +125,7 @@ export class BlendModeHandler {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
     }
 
-    static setShaderData(blendType: BlendMode | number, shaderData: ShaderData , premultipliedAlpha = true): void {
+    static setShaderData(blendType: BlendMode | number, shaderData: ShaderData, premultipliedAlpha = true): void {
         if (typeof blendType === "string") {
             blendType = BlendModeHandler.TOINT[blendType];
         }
@@ -158,7 +158,7 @@ export class BlendModeHandler {
         }
     }
 
-    static initBlendMode(shaderData:ShaderData): void {
+    static initBlendMode(shaderData: ShaderData): void {
         shaderData.setBool(Shader3D.DEPTH_WRITE, false);
         shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
         shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
