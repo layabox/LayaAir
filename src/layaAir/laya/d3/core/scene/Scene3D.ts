@@ -1073,7 +1073,11 @@ export class Scene3D extends Sprite {
      */
     _setCullCamera(camera: Camera) {
         this._cullInfoCamera = camera;
-        this.skyRenderer.setRenderElement(camera.skyRenderElement);
+        if (camera) {
+            this.skyRenderer.setRenderElement(camera.skyRenderElement);
+        } else {
+            this.skyRenderer.setRenderElement(null);
+        }
     }
 
     /**
