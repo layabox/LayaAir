@@ -16,7 +16,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     nodeCommonMap: string[];
     renderStateIsBySprite: boolean = true;
 
-
+    type:number = 0;
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     protected _shaderInstances: FastSinglelist<WebGLShaderInstance> = new FastSinglelist<WebGLShaderInstance>();

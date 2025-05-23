@@ -41,6 +41,7 @@ export class Shader2D {
         'a_posuv': [0, ShaderDataType.Vector4],
         'a_attribColor': [1, ShaderDataType.Vector4],
         'a_attribFlags': [2, ShaderDataType.Vector4]
+        // 
     }
 
     public static readonly Render2DNodeAttribute: { [name: string]: [number, ShaderDataType] } = {

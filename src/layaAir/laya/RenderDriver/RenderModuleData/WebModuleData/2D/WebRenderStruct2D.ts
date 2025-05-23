@@ -11,11 +11,13 @@ import { WebRender2DDataHandle } from "./WebRenderDataHandle";
 import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
 import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
    clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
    clipMatPos: new Vector4(0, 0, 0, 0),
+   _updateFrame : 0
 }
 
 export class WebGlobalRenderData implements I2DGlobalRenderData {
@@ -44,7 +46,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
-   renderLayer: number = 0;
+   renderLayer: number = -1;
 
    parent: WebRenderStruct2D | null;
 
@@ -65,6 +67,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.trans = new structTransform();
          this.trans.matrix = new Matrix();
       }
+
       this.trans.matrix = value;
       this.trans.modifiedFrame = Stat.loopCount;
    }
@@ -84,8 +87,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 
-   private _blendMode: BlendMode = null;
-   private _parentBlendMode: BlendMode = null;
+   private _blendMode: BlendMode = BlendMode.Normal;
+   private _parentBlendMode: BlendMode = BlendMode.Normal;
 
    public get blendMode(): BlendMode {
       return this._blendMode || this._parentBlendMode || BlendMode.Normal;
@@ -98,6 +101,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    /** @internal */
+   needUploadClip = true;
+
+   /** @internal */
+   needUploadAlpha = true;
 
    /** 是否启动 */
    enable: boolean = true;
@@ -117,8 +124,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public get renderDataHandler(): WebRender2DDataHandle {
       return this._renderDataHandler;
    }
-   public set renderDataHandler(value: WebRender2DDataHandle) {
 
+   public set renderDataHandler(value: WebRender2DDataHandle) {
       this._renderDataHandler = value;
       if (value)
          this._renderDataHandler.owner = this;
@@ -143,9 +150,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    constructor() {
    }
 
-   private _clipRect: Rectangle = null;
-   private _parentClipInfo: IClipInfo = null;
-   private _clipInfo: IClipInfo = null;
+   /** @internal */
+   _clipRect: Rectangle = null;
+   /** @internal */
+   _parentClipInfo: IClipInfo = null;
+   /** @internal */
+   _clipInfo: IClipInfo = null;
 
    // RenderNode
    private _rnUpdateCall: any = null;
@@ -172,17 +182,39 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       let rect = this._clipRect;
       if (rect) {
          let info = this._clipInfo;
-         let mat = this.renderMatrix;
-         let cm = info.clipMatrix;
-         let { x, y, width, height } = rect;
-         cm.tx = x * mat.a + y * mat.c + mat.tx;
-         cm.ty = x * mat.b + y * mat.d + mat.ty;
-         cm.a = width * mat.a;
-         cm.b = width * mat.b;
-         cm.c = height * mat.c;
-         cm.d = height * mat.d;
-         info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-         info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
+         let trans = this.trans;
+         if (info._updateFrame < trans.modifiedFrame) {
+            let mat = trans.matrix;
+            let cm = info.clipMatrix;
+            let { x, y, width, height } = rect;
+            cm.tx = x * mat.a + y * mat.c + mat.tx;
+            cm.ty = x * mat.b + y * mat.d + mat.ty;
+            cm.a = width * mat.a;
+            cm.b = width * mat.b;
+            cm.c = height * mat.c;
+            cm.d = height * mat.d;
+            info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
+            info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
+            info._updateFrame = trans.modifiedFrame;
+         }
+      }
+
+      if (this.renderDataHandler) {
+
+         let data = this.spriteShaderData;
+         // clip
+         if (this.needUploadClip) {
+            let info = this.getClipInfo();
+            data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
+            data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+            this.needUploadClip = false;
+         }
+
+         // global alpha
+         if (this.needUploadAlpha) {
+            data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this.globalAlpha);
+            this.needUploadAlpha = false;
+         }
       }
    }
 
@@ -204,6 +236,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._clipInfo.clipMatDir = new Vector4;
          this._clipInfo.clipMatPos = new Vector4;
          this._clipInfo.clipMatrix = new Matrix;
+         this._clipInfo._updateFrame = -1;
       }
    }
 
@@ -219,6 +252,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
+         this.needUploadClip = true;
          updateClip = true;
       }
 
@@ -229,6 +263,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (type & ChildrenUpdateType.Alpha) {
          alpha = this.globalAlpha;
+         this.needUploadAlpha = true;
          updateAlpha = true;
       }
 
@@ -285,8 +320,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    addChild(child: WebRenderStruct2D, index: number): WebRenderStruct2D {
       child.parent = this;
       this.children.splice(index, 0, child);
+      
+      child._parentClipInfo = this.getClipInfo();
+      child._parentBlendMode = this.blendMode;
+      child._parentPass = this.pass;
       //效率
-      this.updateChildren(ChildrenUpdateType.All);
+      child.updateChildren(ChildrenUpdateType.All);
       return child;
    }
 
@@ -310,7 +349,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          child._parentPass = null;
          child._parentClipInfo = null;
-         child._parentBlendMode = null;
+         child._parentBlendMode = BlendMode.Normal;
          child.updateChildren(ChildrenUpdateType.All);
       }
    }

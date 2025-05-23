@@ -68,95 +68,91 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
-    mask: IRenderStruct2D | null = null;
+    mask: WebRenderStruct2D | null = null;
 
     private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
     private _needUpdateVertexBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    private _matrix: Matrix = new Matrix();
-
+    
     applyVertexBufferBlock(blocks: Graphic2DVBBlock[]): void {
         this._vertexBufferBlocks = blocks;
         this._needUpdateVertexBuffer = blocks.length > 0;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
-        //更新位置
-        //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
-
-        let data = this.owner.spriteShaderData;
+        let data = this._owner.spriteShaderData;
         if (!data)
             return;
 
-        let trans = this.owner.trans;
-        let mat = trans.matrix;
-        if (this.mask) {
-            let maskMatrix = this.mask.renderMatrix;
-            let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
-            this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
-            this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
-        }
-        else {
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        }
-
-        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        this.owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        let info = this.owner.getClipInfo();
-        // global alpha
-        data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this.owner.globalAlpha);
-
-        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
-
+        let trans = this._owner.trans;
+        
         if (
             this._needUpdateVertexBuffer
             || this._modifiedFrame < trans.modifiedFrame
-            //临时的判断
-            || !Matrix.equals(this._matrix, mat)
         ) {
-            let pos = 0, dataViewIndex = 0, ci = 0;
-            let dataView: Web2DGraphicBufferDataView = null;
-            let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
-            let vbdata = null;
-            this._matrix.setTo(m00, m01, m10, m11, tx, ty);
-            let pass = this._owner.pass;
-            for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
-                let blocks = this._vertexBufferBlocks;
-                let { positions, vertexViews } = blocks[i];
-                let vertexCount = positions.length / 2;
-                dataView = null;
-                pos = 0, ci = 0, dataViewIndex = 0;
 
-                for (let j = 0; j < vertexCount; j++) {
+            let mat = trans.matrix;
 
-                    if (!dataView || dataView.length <= pos) {
-                        dataView = vertexViews[dataViewIndex] as Web2DGraphicBufferDataView;
-                        dataView.modify(BufferModifyType.Vertex);
-                        if (!dataView.owner._inPass) pass.setBuffer(dataView.owner);
-                        dataViewIndex++;
-                        pos = 0;
-                    }
-
-                    vbdata = dataView.data;
-                    let x = positions[ci], y = positions[ci + 1];
-                    // if (_bTransform) {
-                    vbdata[pos] = x * m00 + y * m10 + tx;
-                    vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                    // } else {
-                    //     vbdata[pos] = x + tx;
-                    //     vbdata[pos + 1] = y + ty;
-                    // }
-
-                    pos += 12;
-                    ci += 2;
+            if (!this._vertexBufferBlocks || !this._vertexBufferBlocks.length) {
+                //更新位置
+                if (this.mask && this.mask.trans) {
+                    let maskMatrix = this.mask.renderMatrix;
+                    let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
+                    this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
+                    this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
                 }
+                else {
+                    this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+                    this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+                }
+    
+                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+            }else{
+                let pos = 0, dataViewIndex = 0, ci = 0;
+                let dataView: Web2DGraphicBufferDataView = null;
+                let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
+                let vbdata = null;
+                let pass = this._owner.pass;
+                let blocks = this._vertexBufferBlocks;
+                let vertexCount = 0 , positions : number[] = null , vertexViews : Web2DGraphicBufferDataView[] = null;
+                for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
+                    positions = blocks[i].positions;
+                    vertexViews = blocks[i].vertexViews as Web2DGraphicBufferDataView[];
+                    vertexCount = positions.length / 2;
+                    dataView = null;
+                    pos = 0, ci = 0, dataViewIndex = 0;
+    
+                    for (let j = 0; j < vertexCount; j++) {
+    
+                        if (!dataView || dataView.length <= pos) {
+                            dataView = vertexViews[dataViewIndex];
+                            dataView.modify(BufferModifyType.Vertex);
+                            if (!dataView.owner._inPass) pass.setBuffer(dataView.owner);
+                            dataViewIndex++;
+                            pos = 0;
+                        }
+    
+                        vbdata = dataView.data;
+                        let x = positions[ci], y = positions[ci + 1];
+                        // if (_bTransform) {
+                        vbdata[pos] = x * m00 + y * m10 + tx;
+                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                        // } else {
+                        //     vbdata[pos] = x + tx;
+                        //     vbdata[pos + 1] = y + ty;
+                        // }
+    
+                        pos += 12;
+                        ci += 2;
+                    }
+                }
+                this._needUpdateVertexBuffer = false;
             }
-            this._needUpdateVertexBuffer = false;
+
             this._modifiedFrame = trans.modifiedFrame;
         }
+        
     }
 }
 

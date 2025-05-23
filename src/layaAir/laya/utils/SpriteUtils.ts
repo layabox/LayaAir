@@ -4,6 +4,7 @@ import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 
 export class SpriteUtils {
     /**
@@ -172,25 +173,32 @@ export class SpriteUtils {
      * @internal
      * @en Reorders the passed array of items based on the Z property of the child items.
      * Returns a Boolean value indicating whether the array has been reordered.
-     * @param array The array of child objects.
+     * @param parent The parent object.
      * @return A Boolean value indicating if the array has been reordered.
      * @zh 根据子项的 Z 属性值对传入的数组列表进行重新排序。
      * 返回一个 Boolean 值，表示是否已重新排序。
-     * @param array 子对象数组。
+     * @param parent 父对象
      * @return Boolean 值，表示是否已重新排序。
      */
-    static updateOrder(array: Array<Sprite>): boolean {
+    static updateOrder(parent: Sprite): boolean {
+        let array: Array<Sprite> = parent.children as Array<Sprite>;
         if (!array || array.length < 2) return false;
-        let i: number = 1, j: number, len: number = array.length, key: number, c: Sprite;
+        let i: number = 1, j: number, len: number = array.length, key: number, c: Sprite , d : IRenderStruct2D;
+        let _structArray = parent._struct.children;
         while (i < len) {
             j = i;
             c = array[j];
+            d = _structArray[j];
             key = array[j]._zOrder;
             while (--j > -1) {
-                if (array[j]._zOrder > key) array[j + 1] = array[j];
+                if (array[j]._zOrder > key) {
+                    array[j + 1] = array[j];
+                    _structArray[j + 1] = _structArray[j];
+                }
                 else break;
             }
             array[j + 1] = c;
+            _structArray[j + 1] = d;
             i++;
         }
         return true;
