@@ -30,7 +30,19 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     device: GPUDevice; //GPU设备
 
-    sceneData: WebGPUShaderData;
+    private _sceneData: WebGPUShaderData;
+    public get sceneData(): WebGPUShaderData {
+        return this._sceneData;
+    }
+    public set sceneData(value: WebGPUShaderData) {
+        if (value == this._sceneData)
+            return;
+        this._sceneData = value;
+        if (value) {
+            let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
+            this.sceneData.createUniformBuffer("Sprite2DGlobal", unifcom);
+        }
+    }
 
     invertY: boolean = false;
 
@@ -92,10 +104,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         }
 
         if (this.sceneData) {
-            let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
-            this.sceneData.createUniformBuffer("Sprite2DGlobal", unifcom);
-
             let commandArray = ["Sprite2DGlobal"];
+            this._sceneData.updateUBOBuffer("Sprite2DGlobal");
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
 
