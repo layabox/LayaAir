@@ -44,7 +44,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
-   renderLayer: number = 0;
+   renderLayer: number = -1;
 
    parent: WebRenderStruct2D | null;
 
@@ -85,8 +85,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 
-   private _blendMode: BlendMode = null;
-   private _parentBlendMode: BlendMode = null;
+   private _blendMode: BlendMode = BlendMode.Normal;
+   private _parentBlendMode: BlendMode = BlendMode.Normal;
 
    public get blendMode(): BlendMode {
       return this._blendMode || this._parentBlendMode || BlendMode.Normal;
@@ -311,7 +311,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          child._parentPass = null;
          child._parentClipInfo = null;
-         child._parentBlendMode = null;
+         child._parentBlendMode = BlendMode.Normal;
          child.updateChildren(ChildrenUpdateType.All);
       }
    }

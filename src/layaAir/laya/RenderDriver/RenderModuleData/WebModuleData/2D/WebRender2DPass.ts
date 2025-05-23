@@ -197,9 +197,9 @@ export class WebRender2DPass implements IRender2DPass {
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
       // 裁剪规则一：检查渲染层掩码
-      // if ((struct.renderLayer & this._renderLayerMask) === 0) {
-      //    return;
-      // }
+      if ((struct.renderLayer & this._renderLayerMask) === 0) {
+         return;
+      }
 
       // // 裁剪规则二：检查矩形相交
       // const nodeRect = renderNode.rect;

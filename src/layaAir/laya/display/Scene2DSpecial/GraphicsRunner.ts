@@ -13,7 +13,7 @@ import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { FontInfo } from "../../utils/FontInfo";
 import { WordText } from "../../utils/WordText";
-import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
 import { ISaveData } from "../../webgl/canvas/save/ISaveData";
@@ -116,7 +116,7 @@ export class GraphicsRunner {
     private _lastMat_c = 0.0;
     private _lastMat_d = 1.0;
     /**@internal */
-    _nBlendType = 0;
+    _nBlendType = BlendMode.Normal ;
     /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
     /**@internal */
@@ -556,7 +556,7 @@ export class GraphicsRunner {
     clear(): void {
         this.clearRenderData();
         this._alpha = 1.0;
-        this._nBlendType = 0;
+        this._nBlendType = BlendMode.Normal;
         this._clipRect = GraphicsRunner.MAXCLIPRECT;
         this._clip_x = 0;
         this._clip_y = 0;
@@ -628,14 +628,12 @@ export class GraphicsRunner {
         return this._other.textBaseline;
     }
 
-    set globalCompositeOperation(value: string) {
-        // this._drawToRender2D(this._curSubmit);
-        var n = BlendModeHandler.TOINT[value];
-        n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
+    set globalCompositeOperation( value: BlendMode) {
+        value == null || (this._nBlendType === value) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = value /*, _shader2D.ALPHA = 1*/);
     }
 
-    get globalCompositeOperation(): string {
-        return BlendModeHandler.NAMES[this._nBlendType];
+    get globalCompositeOperation(): BlendMode {
+        return this._nBlendType;
     }
 
     set strokeStyle(value: any) {
@@ -1136,10 +1134,13 @@ export class GraphicsRunner {
      * @param ty
      * @param alpha
      */
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color = 0xffffffff): void {
-        var oldcomp: string;
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: BlendMode | string | null, uv?: number[], color = 0xffffffff): void {
+        var oldcomp: BlendMode;
         var curMat = this._curMat;
-        if (blendMode) {
+        if (blendMode != null) {
+            if (typeof blendMode == "string") {
+                blendMode = BlendModeHandler.NAMES[blendMode];
+            }
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
         }
@@ -1168,7 +1169,7 @@ export class GraphicsRunner {
             transform = tmpMat;
         }
         this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
-        if (blendMode)
+        if (blendMode != null)
             this.globalCompositeOperation = oldcomp;
     }
 
@@ -1177,7 +1178,7 @@ export class GraphicsRunner {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number | null, blendMode: string, colorNum = 0xffffffff): void {
+        matrix: Matrix, alpha: number | null, blendMode: BlendMode|string, colorNum = 0xffffffff): void {
 
         if (alpha == null) alpha = 1.0;
 
@@ -1187,8 +1188,13 @@ export class GraphicsRunner {
             }
             return;
         }
-        var oldcomp: string | null = null;
-        if (blendMode) {
+
+        var oldcomp: BlendMode | null = null;
+        
+        if (blendMode != null) {
+            if (typeof blendMode == "string") {
+                blendMode = BlendModeHandler.NAMES[blendMode];
+            }
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
         }
@@ -1246,7 +1252,8 @@ export class GraphicsRunner {
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
-        if (blendMode) {
+
+        if (blendMode != null) {
             this.globalCompositeOperation = oldcomp!;
         }
         //return true;

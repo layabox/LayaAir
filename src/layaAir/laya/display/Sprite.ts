@@ -150,7 +150,7 @@ export class Sprite extends Node {
      * @en Blend mode
      * @zh 混合模式
      */
-    _blendMode: BlendMode;
+    _blendMode: BlendMode = BlendMode.Normal;
     /**
      * @internal
     */
@@ -652,7 +652,13 @@ export class Sprite extends Node {
 
     set blendMode(value: BlendMode | string) {
         if (this._blendMode != value) {
-            this._blendMode = value as BlendMode;
+            if (typeof value === 'string') {
+                value = BlendModeHandler.NAMES[value];
+            }else if(value == null){
+                value = BlendMode.Normal;
+            }
+
+            this._blendMode = value ;
             this._initShaderData();
             if (value)
                 this._renderType |= SpriteConst.BLEND;
