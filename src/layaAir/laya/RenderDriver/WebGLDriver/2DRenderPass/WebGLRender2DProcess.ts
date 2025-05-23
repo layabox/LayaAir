@@ -5,9 +5,9 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle ,I2DGlobalRenderData, IGraphicDynamicVIBuffer} from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
-import { WebDynamicVIBuffer } from "../../RenderModuleData/WebModuleData/2D/WebDynamicVIBuffer";
+import { Web2DGraphic2DBufferDataView, Web2DGraphicWholeBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBufferDataView";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
@@ -20,14 +20,17 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
     }
-    
+    create2DGraphicBufferDataView(wholeBuffer: Web2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
+        return new Web2DGraphic2DBufferDataView(wholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
+    }
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+        return new Web2DGraphicWholeBuffer();
+    }
+
     createRender2DPassManager(): IRender2DPassManager {
         return new WebRender2DPassManager();
     }
-    
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
-        return new WebDynamicVIBuffer(vertexBlockSize, indexBlockSize);
-    }
+
 
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return new WebGlobalRenderData();

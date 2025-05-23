@@ -14,8 +14,8 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { WebDynamicVIBuffer } from "./WebDynamicVIBuffer";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
+import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -73,6 +73,7 @@ export class BatchManager {
 
 const _TEMP_InvertMatrix = new Matrix();
 export class WebRender2DPass implements IRender2DPass {
+   static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
    /** @internal */
    _lists: PassRenderList[] = [];
 
@@ -94,7 +95,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    finalize: CommandBuffer2D = null;
 
-   buffers: Set<WebDynamicVIBuffer> = new Set();
+
 
    mask: WebRenderStruct2D;
 
@@ -252,7 +253,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       this.updateRenderQueue(context);
 
-      this.uploadBuffer();
+      WebRender2DPass.uploadBuffer();
 
       for (let i = 0, len = lists.length; i < len; i++) {
          let list = lists[i];
@@ -307,19 +308,19 @@ export class WebRender2DPass implements IRender2DPass {
 
    }
 
-   setBuffer(buffer: WebDynamicVIBuffer): void {
+   static setBuffer(buffer: Web2DGraphicWholeBuffer): void {
       if (buffer._inPass) return;
       buffer._inPass = true;
       this.buffers.add(buffer);
    }
 
-   uploadBuffer(): void {
-      if (this.buffers.size > 0) {
-         this.buffers.forEach(buffer => {
+   static uploadBuffer(): void {
+      if (WebRender2DPass.buffers.size > 0) {
+         WebRender2DPass.buffers.forEach(buffer => {
             buffer.upload();
             buffer._inPass = false;
          });
-         this.buffers.clear();
+         WebRender2DPass.buffers.clear();
       }
    }
 
@@ -370,12 +371,6 @@ export class WebRender2DPass implements IRender2DPass {
          return;
       this._rtsize.setValue(x, y);
       this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
-   }
-
-   recover(context: IRenderContext2D): void {
-      if (this.renderTexture) {
-         context.setRenderTarget(null, this.repaint, this.repaint ? null : this._clearColor);
-      }
    }
 
    destroy(): void {

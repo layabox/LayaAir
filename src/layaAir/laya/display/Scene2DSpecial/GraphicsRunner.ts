@@ -34,7 +34,7 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { BufferModifyType, I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -2217,7 +2217,7 @@ export class GraphicsRunner {
                 offset = dataView.start / dataView.stride;
             }
 
-            let vbdata = dataView.data;
+            let vbdata = (dataView.getData() as Float32Array[])[0];
             let x = vertices[ci], y = vertices[ci + 1];
             if (matrix) {
                 if (matrix._bTransform) {
@@ -2242,7 +2242,6 @@ export class GraphicsRunner {
             vbdata[pos + 6] = r;
             vbdata[pos + 7] = a;
             vbdata[pos + 8] = useTexByte;
-            dataView.count += 12;
             pos += 12;
             ci += 2;
             indexsMap[i] = offset++;
@@ -2261,12 +2260,11 @@ export class GraphicsRunner {
         for (let i = 0; i < indexCount; i++) {
             if (!dataView || dataView.length <= pos) {
                 dataView = indexViews[dataViewIndex];
-                dataView.modify(BufferModifyType.Index);
+                dataView.modify();
                 dataViewIndex++;
                 pos = 0;
             }
-            dataView.data[pos] = indexsMap[indices[i]];
-            dataView.count++;
+            (dataView.getData() as Uint16Array)[pos] = indexsMap[indices[i]];
             pos++;
         }
     }
@@ -2288,8 +2286,8 @@ export class GraphicsRunner {
                 null,
                 true
             );
-            this.def_uv.vertexViews[0].modify(BufferModifyType.Vertex);
-            this.def_uv.indexViews[0].modify(BufferModifyType.Index);
+            this.def_uv.vertexViews[0].modify();
+            this.def_uv.indexViews[0].modify();
 
             this.inv_uv = this.acquire(4);
             this.appendData(
@@ -2302,8 +2300,8 @@ export class GraphicsRunner {
                 null,
                 true
             )
-            this.inv_uv.vertexViews[0].modify(BufferModifyType.Vertex);
-            this.inv_uv.indexViews[0].modify(BufferModifyType.Index);
+            this.inv_uv.vertexViews[0].modify();
+            this.inv_uv.indexViews[0].modify();
         }
     }
 

@@ -138,16 +138,16 @@ export class GraphicsRenderData {
                   if (!lastView) {
                      lastView = view;
                      start = view.start;
-                     end = view.count + start;
+                     end = view.length + start;
                   } else {
                      let lastEnd = lastView.length + lastView.start;
                      if (lastEnd === view.start) {
                         lastView = view;
-                        end = view.count + view.start;
+                        end = view.length + view.start;
                      } else {
                         element.geometry.setDrawElemenParams(end - start, start * 2);
                         start = view.start;
-                        end = start + view.count;
+                        end = start + view.length;
                         lastView = view;
                      }
                   }

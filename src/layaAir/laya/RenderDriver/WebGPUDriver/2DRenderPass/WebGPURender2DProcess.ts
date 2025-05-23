@@ -5,7 +5,7 @@ import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../Dri
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle,I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
@@ -15,10 +15,13 @@ import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
 export class WebGPURender2DProcess implements I2DRenderPassFactory {
-    createRender2DPassManager(): IRender2DPassManager {
+    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
         throw new Error("Method not implemented.");
     }
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+        throw new Error("Method not implemented.");
+    }
+    createRender2DPassManager(): IRender2DPassManager {
         throw new Error("Method not implemented.");
     }
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {

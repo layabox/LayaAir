@@ -10,19 +10,25 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
     
+    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
+        throw new Error("Method not implemented.");
+    }
+
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+        throw new Error("Method not implemented.");
+    }
+
     createRender2DPassManager(): IRender2DPassManager {
         throw new Error("Method not implemented.");
     }
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
-        return null;
-    }
+
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return null;
     }

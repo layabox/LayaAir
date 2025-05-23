@@ -1,9 +1,7 @@
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
-import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
@@ -33,41 +31,27 @@ export enum BufferModifyType {
     Index = 1,
 }
 export interface I2DGraphicBufferDataView {
-    data: Float32Array | Uint16Array;
     start: number;
     length: number;
     stride: number;
-    count: number;
     isModified: boolean;
-    modify(type: BufferModifyType): void;
-    owner: IGraphicDynamicVIBuffer;
+    modifyType: BufferModifyType;
+    owner: I2DGraphicWholeBuffer;
+    getData(): Float32Array[] | Uint16Array;
+    modify(): void;
 }
 
-export interface I2DGraphicBufferBlock {
-    buffer: IGraphicDynamicVIBuffer,
-    vertexViews?: I2DGraphicBufferDataView[],
-    vertexBlocks?: number[],
-    indexViews?: I2DGraphicBufferDataView[],
-    indexBlocks?: number[],
+export interface I2DGraphicWholeBuffer {
+    buffers: IVertexBuffer[] | IIndexBuffer
+    bufferData: Float32Array[] | Uint16Array;
+    modifyType: BufferModifyType;
+    resetData(byteLength: number): void;
+    destroy(): void;
 }
 
 export type Graphic2DVBBlock = {
     positions: number[],
     vertexViews: I2DGraphicBufferDataView[],
-}
-
-export interface IGraphicDynamicVIBuffer {
-    vertexDeclaration: VertexDeclaration;
-    bufferState: IBufferState;
-    vertexBuffer: IVertexBuffer;
-    indexBuffer: IIndexBuffer;
-    checkVertexBuffer(length: number): I2DGraphicBufferBlock;
-    checkIndexBuffer(length: number): I2DGraphicBufferBlock;
-    releaseVertexBlocks(blocks: number[]): void;
-    releaseIndexBlocks(blocks: number[]): void;
-    upload(): void;
-    clear(): void;
-    destroy(): void;
 }
 
 /**

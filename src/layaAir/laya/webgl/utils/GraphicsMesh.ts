@@ -1,13 +1,7 @@
+import { Graphic2DDynamicVIBuffer } from "../../display/Scene2DSpecial/Graphic2DDynamicVIBuffer";
 import { LayaGL } from "../../layagl/LayaGL";
-import { Matrix } from "../../maths/Matrix";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
-import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicBufferDataView, IGraphicDynamicVIBuffer } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
@@ -37,7 +31,7 @@ export class GraphicsMesh {
    }
 
    /** @internal */
-   _buffer: IGraphicDynamicVIBuffer;
+   _buffer: Graphic2DDynamicVIBuffer;
 
    get bufferState(): IBufferState {
       return this._buffer.bufferState;
@@ -45,7 +39,7 @@ export class GraphicsMesh {
 
    constructor() {
       // 4 * GraphicsMesh.stride / 4 1次4个点
-      this._buffer = LayaGL.render2DRenderPassFactory.createDynamicVIBuffer(GraphicsMesh.stride * 4 /** * 4 / 4 */, 6 );
+      this._buffer = new Graphic2DDynamicVIBuffer(GraphicsMesh.stride * 4 /** * 4 / 4 */, 6);
       this._buffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
    }
 

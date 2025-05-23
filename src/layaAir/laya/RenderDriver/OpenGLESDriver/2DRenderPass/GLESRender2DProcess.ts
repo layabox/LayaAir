@@ -3,7 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicDynamicVIBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
@@ -12,12 +12,18 @@ import { GLESREnderContext2D } from "./GLESRenderContext2D";
 import { GLESREnderElement2D } from "./GLESRenderElement2D";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
+    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
+        throw new Error("Method not implemented.");
+    }
+
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+        throw new Error("Method not implemented.");
+    }
+
     createRender2DPassManager(): IRender2DPassManager {
         throw new Error("Method not implemented.");
     }
-    createDynamicVIBuffer(vertexBlockSize: number, indexBlockSize: number): IGraphicDynamicVIBuffer {
-        throw new Error("Method not implemented.");
-    }
+
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         throw new Error("Method not implemented.");
     }
