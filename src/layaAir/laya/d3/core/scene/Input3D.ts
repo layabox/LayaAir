@@ -23,8 +23,8 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
     var pageX = x;
     var pageY = y;
 
-    var normalWidth = x / Browser.canvas.width;
-    var normalHeight = y / Browser.canvas.height;
+    var normalWidth = x / Browser.mainCanvas.width;
+    var normalHeight = y / Browser.mainCanvas.height;
 
     x = this._stage.width * normalWidth;
     y = this._stage.height * normalHeight;
