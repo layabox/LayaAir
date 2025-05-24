@@ -190,6 +190,7 @@ export class BaseNavMeshSurface extends Component {
      * @zh 清理所有的Tile
      */
     public cleanAllTile() {
+        if (!this._oriTiles) return;
         for (var i = 0, n = this._oriTiles.length; i < n; i++) {
             let tile = this._oriTiles.getNavData(i);
             this._navMesh._removeTile(tile.x, tile.y);
