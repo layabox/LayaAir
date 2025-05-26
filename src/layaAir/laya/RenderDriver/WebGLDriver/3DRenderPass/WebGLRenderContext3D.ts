@@ -1,3 +1,4 @@
+import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
@@ -20,7 +21,7 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 export class WebGLRenderContext3D implements IRenderContext3D {
     //单例
-    static _instance:WebGLRenderContext3D;
+    static _instance: WebGLRenderContext3D;
     /**
      * @internal 
     */
@@ -71,7 +72,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
-        if (this.sceneData) {
+        if (Config._uniformBlock && this.sceneData) {
             let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
             this.sceneData.createUniformBuffer("Scene3D", sceneMap._idata);
         }
@@ -84,7 +85,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
 
-        if (this.cameraData) {
+        if (Config._uniformBlock && this.cameraData) {
             let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
             this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata);
         }

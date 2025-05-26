@@ -71,8 +71,8 @@ export class WebGLShaderData extends ShaderData {
      * @returns 
      */
     createUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>): WebGLUniformBuffer {
-        if (!Config._uniformBlock || this._uniformBuffers.has(name)) {
-            return null;
+        if (this._uniformBuffers.has(name)) {
+            this._uniformBuffers.get(name);
         }
 
         this._needCacheData = true;
