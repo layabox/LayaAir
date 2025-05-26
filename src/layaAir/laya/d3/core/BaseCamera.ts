@@ -13,7 +13,6 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { SkyRenderElement } from "./render/SkyRenderElement";
-import { Config } from "../../../Config";
 
 /**
  * @en The `BaseCamera` class is used to create the parent class of cameras.
@@ -27,6 +26,7 @@ export class BaseCamera extends Sprite3D {
      */
     static cameraUniformMap: CommandUniformMap;
 
+    /** @internal */
     static cameraBlockName: string = "BaseCamera";
 
     /**Camera Uniform PropertyID */
@@ -67,15 +67,18 @@ export class BaseCamera extends Sprite3D {
     static SHADERDEFINE_ORTHOGRAPHIC: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FXAA: ShaderDefine;
-    /**@internal */
+
+    /** @internal */
     static RENDERINGTYPE_SHADERDEFINE_FXAA: string = "FXAA";
-    /**渲染模式,延迟光照渲染，暂未开放。*/
+    /**渲染模式,延迟光照渲染，暂未开放。 @internal */
     static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
     /**
      * @en Rendering mode: Forward rendering.
      * @zh 渲染模式：前向渲染。
+     * @internal
      */
     static RENDERINGTYPE_FORWARDRENDERING: string = "FORWARDRENDERING";
+
     protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
     protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
     protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();

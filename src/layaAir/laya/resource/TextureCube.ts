@@ -123,6 +123,7 @@ export class TextureCube extends BaseTexture {
      * @param mipmap 是否为立方体纹理生成mipmap。
      * @param sRGB 是否使用sRGB色彩空间。
      * @param premultiplyAlpha 是否预乘Alpha。
+     * @blueprintIgnore
      */
     constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false, premultiplyAlpha: boolean = false) {
         super(size, size, format);

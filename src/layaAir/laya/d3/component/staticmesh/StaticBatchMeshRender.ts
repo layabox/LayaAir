@@ -13,6 +13,7 @@ import { StaticMeshMergeInfo } from "./StaticMeshMergeInfo";
 /**
  * @en StaticBatchMeshRender class, extends BaseRender for static batch mesh rendering.
  * @zh StaticBatchMeshRender 类，继承自 BaseRender，用于静态批处理网格渲染。
+ * @blueprintIgnore
  */
 export class StaticBatchMeshRender extends BaseRender {
     /**

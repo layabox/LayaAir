@@ -5,6 +5,8 @@ import type { Browser } from "./laya/utils/Browser";
 import type { Stage } from "./laya/display/Stage";
 import type { InputManager } from "./laya/events/InputManager";
 import type { Laya } from "./Laya";
+import type { Scene3D } from "./laya/d3/core/scene/Scene3D";
+import type { Laya3D } from "./Laya3D";
 
 /**
  * @internal
@@ -16,6 +18,9 @@ export class ILaya {
     static Context: typeof Context = null;
     static Browser: typeof Browser = null;
     static InputManager: typeof InputManager = null;
+
+    static Scene3D: typeof Scene3D = null;
+    static Laya3D: typeof Laya3D = null;
 
     static loader: Loader = null;
     static timer: Timer = null;

@@ -9,7 +9,6 @@ import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { RenderInfo } from "../renders/RenderInfo";
 import { Context } from "../renders/Context";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Browser } from "../utils/Browser";
 import { ColorUtils } from "../utils/ColorUtils";
 import { Stat } from "../utils/Stat";
@@ -50,111 +49,111 @@ export class Stage extends Sprite {
      * @en No scaling is applied, and the stage is displayed at its design size. The actual width and height of the canvas are set to the design width and height. This mode is suitable for applications that want to maintain the original design ratio, but it may result in blank areas or content overflow on different devices.
      * @zh 不进行缩放，舞台按照设计尺寸显示，画布的实际宽度和高度设置为设计宽度和高度。这种模式适合希望保持原始设计比例的应用，但在不同设备上可能会出现空白区域或内容超出屏幕的情况。
      */
-    static SCALE_NOSCALE: string = "noscale";
+    static readonly SCALE_NOSCALE: string = "noscale";
 
     /**
      * @en The canvas and stage are proportionally scaled to fit the screen as much as possible while preserving the original design aspect ratio. The scaling factor is determined by the smaller ratio between the screen size and the design resolution (width and height), ensuring that all design content remains fully visible without cropping. This approach may result in blank margins at the top/bottom or sides of the screen, which are typically handled using appropriate canvas alignment settings.
      * @zh 保持设计宽高比例的情况下，将画布和舞台等比缩放至屏幕最大尺寸，缩放系数取设计宽度与屏幕宽度、设计高度与屏幕高度之间的最小缩放因子，以确保整个设计宽高的内容可见，避免裁切，但可能会出现上下或左右的空白边缘，通常需要配合画布的对齐方式使用。
      */
-    static SCALE_SHOWALL: string = "showall";
+    static readonly SCALE_SHOWALL: string = "showall";
 
     /**
      * @en The stage is scaled to fill the screen, with the actual width and height of the canvas calculated based on the design width and height multiplied by the maximum scale factor. This mode ensures that content fully covers the display area, but it may result in some content being cut off.
      * @zh 将舞台缩放以填满屏幕，画布的实际宽度和高度根据设计宽度和高度乘以最大缩放因子计算。这种模式保证内容完全覆盖屏幕，但可能会导致部分设计内容被裁切。
      */
-    static SCALE_NOBORDER: string = "noborder";
+    static readonly SCALE_NOBORDER: string = "noborder";
 
     /**
      * @en Set the stage and canvas directly to the screen's width and height. Other aspects are the same as the SCALE_NOSCALE mode, with no scaling applied to the design content itself. This mode is suitable for scenarios where you want to fully utilize the screen space and handle dynamic layout on the screen yourself.
      * @zh 将舞台与画布直接设置为屏幕宽度和高度，其它方面与SCALE_NOSCALE模式一样，不对设计内容本身进行缩放。这种模式适用于希望完全利用屏幕空间，自行对屏幕动态排版的需求。
      */
-    static SCALE_FULL: string = "full";
+    static readonly SCALE_FULL: string = "full";
 
     /**
      * @en The stage width is kept fixed, and scaling is done based on the screen height. The canvas height is calculated based on the screen height and scale factor, and the stage height is set accordingly. This mode ensures consistent width but may alter the height ratio on different devices.
      * @zh 保持舞台的宽度固定，根据屏幕高度进行缩放。画布的高度根据屏幕高度和缩放因子计算，并设置舞台的高度。这种模式确保宽度一致，但在不同设备上可能会改变高度比例。
      */
-    static SCALE_FIXED_WIDTH: string = "fixedwidth";
+    static readonly SCALE_FIXED_WIDTH: string = "fixedwidth";
 
     /**
      * @en The stage height is kept fixed, and scaling is done based on the screen width. The canvas width is calculated based on the screen width and scale factor, and the stage width is set accordingly. This mode ensures consistent height but may alter the width ratio on different devices.
      * @zh 保持舞台的高度固定，根据屏幕宽度进行缩放。画布的宽度根据屏幕宽度和缩放因子计算，并设置舞台的宽度。这种模式确保高度一致，但在不同设备上可能会改变宽度比例。
      */
-    static SCALE_FIXED_HEIGHT: string = "fixedheight";
+    static readonly SCALE_FIXED_HEIGHT: string = "fixedheight";
 
     /**
      * @en The scaling method is automatically chosen based on the comparison between the screen aspect ratio and the design aspect ratio. If the screen aspect ratio is less than the design aspect ratio, the width is kept fixed with equal scale factors and the canvas height is calculated; otherwise, the height is kept fixed with equal scale factors and the canvas width is calculated. This mode flexibly adapts to different devices but may result in content being cut off or blank borders appearing.
      * @zh 根据屏幕宽高比与设计宽高比的比较，自动选择缩放方式；如果屏幕宽高比小于设计宽高比，则保持宽度固定，缩放因子相等并计算画布高度；否则，保持高度固定，缩放因子相等并计算画布宽度。这种模式可以灵活适应不同的设备，但可能会导致内容被裁切或出现空白边缘。
      */
-    static SCALE_FIXED_AUTO: string = "fixedauto";
+    static readonly SCALE_FIXED_AUTO: string = "fixedauto";
 
     /**
      * @en Canvas is horizontally aligned to the left.
      * @zh 画布水平居左对齐。
      */
-    static ALIGN_LEFT: string = "left";
+    static readonly ALIGN_LEFT: string = "left";
     /**
      * @en Canvas is horizontally aligned to the right.
      * @zh 画布水平居右对齐。
      */
-    static ALIGN_RIGHT: string = "right";
+    static readonly ALIGN_RIGHT: string = "right";
     /**
      * @en Canvas is horizontally centered.
      * @zh 画布水平居中对齐。
      */
-    static ALIGN_CENTER: string = "center";
+    static readonly ALIGN_CENTER: string = "center";
     /**
      * @en Canvas is vertically aligned to the top.
      * @zh 画布垂直居上对齐。
      */
-    static ALIGN_TOP: string = "top";
+    static readonly ALIGN_TOP: string = "top";
     /**
      * @en Canvas is vertically centered.
      * @zh 画布垂直居中对齐。
      */
-    static ALIGN_MIDDLE: string = "middle";
+    static readonly ALIGN_MIDDLE: string = "middle";
     /**
      * @en Canvas is vertically aligned to the bottom.
      * @zh 画布垂直居下对齐。
      */
-    static ALIGN_BOTTOM: string = "bottom";
+    static readonly ALIGN_BOTTOM: string = "bottom";
 
     /**
      * @en Do not change the screen orientation.
      * @zh 不更改屏幕。
      */
-    static SCREEN_NONE: string = "none";
+    static readonly SCREEN_NONE: string = "none";
     /**
      * @en Automatically switch to landscape mode.
      * @zh 自动横屏。
      */
-    static SCREEN_HORIZONTAL: string = "horizontal";
+    static readonly SCREEN_HORIZONTAL: string = "horizontal";
     /**
      * @en Automatically switch to portrait mode.
      * @zh 自动竖屏。
      */
-    static SCREEN_VERTICAL: string = "vertical";
+    static readonly SCREEN_VERTICAL: string = "vertical";
 
     /**
      * @en Fast mode, running at the configured maximum frame rate (not exceeding the device's maximum frame rate).
      * @zh 快速模式，以配置的最高帧率运行（不得超过设备最高帧率）。
      */
-    static FRAME_FAST: string = "fast";
+    static readonly FRAME_FAST: string = "fast";
     /**
      * @en Slow mode has a frame rate that is half of the fast mode. The principle is to skip rendering every other frame. For example, if the maximum frame rate in fast mode is 60, the maximum frame rate in slow mode would be 30.
      * @zh 慢速模式的帧率是快速模式的一半，其原理是每隔一帧就会跳过渲染。例如快速模式的满帧为60时，慢速模式的满帧则为30。
      */
-    static FRAME_SLOW: string = "slow";
+    static readonly FRAME_SLOW: string = "slow";
     /**
      * @en Mouse mode, In this mode, it checks if the last mouse movement occurred within the last two seconds. If it did, `frameMode` will be set to `FRAME_FAST`; otherwise, it will be set to `FRAME_SLOW`.
      * @zh 鼠标模式，该模式下，会检查上一次鼠标移动的时间，如果是在最近的两秒内，帧率的模式会采用快速模式，否则采用慢速模式。
      */
-    static FRAME_MOUSE: string = "mouse";
+    static readonly FRAME_MOUSE: string = "mouse";
     /**
      * @en Sleep mode, running at 1 frame per second.
      * @zh 休眠模式，以每秒1帧的速度运行。
      */
-    static FRAME_SLEEP: string = "sleep";
+    static readonly FRAME_SLEEP: string = "sleep";
 
     /**
      * @en The current focus object, which will affect the dispatch of current keyboard events.
@@ -849,6 +848,21 @@ export class Stage extends Sprite {
     set frameRate(value: string) {
         this._frameRate = value;
     }
+
+    /** @internal @blueprintEvent */
+    Stage_bpEvent: {
+        [Event.KEY_DOWN]: (event: Event) => void;
+        [Event.KEY_UP]: (event: Event) => void;
+        [Event.KEY_PRESS]: (event: Event) => void;
+
+        [Event.RESIZE]: () => void;
+        [Event.FOCUS]: () => void;
+        [Event.BLUR]: () => void;
+        [Event.FOCUS_CHANGE]: () => void;
+        [Event.VISIBILITY_CHANGE]: (visible: boolean) => void;
+        [Event.FULL_SCREEN_CHANGE]: () => void;
+        [Event.WILL_RESIZE]: () => void;
+    };
 }
 
 function requestFullscreen(): void {

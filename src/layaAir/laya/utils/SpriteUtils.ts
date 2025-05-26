@@ -159,7 +159,7 @@ export class SpriteUtils {
      * @param x 相对于coordinateSpace的x坐标
      * @param y 相对于coordinateSpace的y坐标
      * @param width 宽度
-     * @param heigh 高度
+     * @param height 高度
      */
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {

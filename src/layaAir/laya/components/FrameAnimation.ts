@@ -385,7 +385,7 @@ export class FrameAnimation extends Component {
     }
 
     /**
-     * @hidden
+     * @ignore
      */
     onUpdate(): void {
         if (!this._playing || this._count == 0)

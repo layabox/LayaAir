@@ -12,8 +12,11 @@ import { NotImplementedError } from "../utils/Error";
  */
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     private static _currentActive: RenderTexture2D;
+    /** @internal */
     static _clearColor: Color = new Color(0, 0, 0, 0);
+    /** @internal */
     static _clear: boolean = false;
+    /** @internal */
     static _clearLinearColor: Color = new Color();
 
     //为push,pop 用的。以后和上面只保留一份。
@@ -22,12 +25,12 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @en Default UV coordinates.
      * @zh 默认的UV坐标。
      */
-    static defuv: any[] = [0, 0, 1, 0, 1, 1, 0, 1];
+    static readonly defuv: any[] = [0, 0, 1, 0, 1, 1, 0, 1];
     /**
      * @en Default flipped UV coordinates.
      * @zh 默认翻转的UV坐标。
      */
-    static flipyuv: any[] = [0, 1, 1, 1, 1, 0, 0, 0];
+    static readonly flipyuv: any[] = [0, 1, 1, 1, 1, 0, 0, 0];
     /**
      * @en The currently active RenderTexture.
      * @zh 当前激活的渲染纹理。

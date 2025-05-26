@@ -19,24 +19,28 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**
      * @en Animation event called when the state is entered.
      * @zh 动画事件，在进入状态时调用。
+     * @blueprintIgnore
      */
-    static EVENT_OnStateEnter = "OnStartEnter";
+    static readonly EVENT_OnStateEnter = "OnStartEnter";
     /**
      * @en Animation event called when the state is updated.
      * @zh 动画事件，在更新状态时调用。
+     * @blueprintIgnore
      */
-    static EVENT_OnStateUpdate = "OnStateUpdate";
+    static readonly EVENT_OnStateUpdate = "OnStateUpdate";
 
     /**
      * @en Animation event called when a loop is completed.
      * @zh 动画事件，在循环完成时调用。
+     * @blueprintIgnore
      */
-    static EVENT_OnStateLoop = 'OnStateLoop';
+    static readonly EVENT_OnStateLoop = 'OnStateLoop';
     /**
      * @en Animation event called when the state is exited.
      * @zh 动画事件，在离开状态时调用。
+     * @blueprintIgnore
      */
-    static EVENT_OnStateExit = "OnStateExit";
+    static readonly EVENT_OnStateExit = "OnStateExit";
 
     /** @internal */
     private _referenceCount: number = 0;
@@ -408,10 +412,17 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @zh 创建当前AnimatorState的克隆。
      * @returns 一个新的AnimatorState对象，具有与当前对象相同的属性。
      */
-    clone(): any {
+    clone() {
         var dest: AnimatorState = new AnimatorState();
         this.cloneTo(dest);
         return dest;
     }
 
+    /** @internal @blueprintEvent */
+    Animator_bpEvent: {
+        [AnimatorState.EVENT_OnStateEnter]: () => void;
+        [AnimatorState.EVENT_OnStateUpdate]: () => void;
+        [AnimatorState.EVENT_OnStateLoop]: (state: AnimatorState) => void;
+        [AnimatorState.EVENT_OnStateExit]: () => void;
+    };
 }

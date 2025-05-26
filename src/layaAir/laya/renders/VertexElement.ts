@@ -1,6 +1,7 @@
 /**
-* <code>VertexElement</code> 类用于创建顶点结构分配。
-*/
+ * VertexElement类用于创建顶点结构分配。
+ * @blueprintIgnore
+ */
 export class VertexElement {
     /**@internal */
     _offset: number;

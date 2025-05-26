@@ -693,7 +693,7 @@ export class Vector3 implements IClone {
      * @zh 创建当前向量的克隆。
      * @returns 返回一个新的 Vector3 对象，其值与当前向量相同。
      */
-    clone(): any {
+    clone() {
         var destVector3: Vector3 = new Vector3();
         this.cloneTo(destVector3);
         return destVector3;

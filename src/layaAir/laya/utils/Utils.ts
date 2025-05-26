@@ -12,6 +12,7 @@ const _pi2: number = Math.PI / 180;
 /**
  * @en Utils is a utility class.
  * @zh Utils 是工具类。
+ * @blueprintable
  */
 export class Utils {
 

@@ -17,6 +17,9 @@ import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
 
+/**
+ * @blueprintInheritable
+ */
 export class GWidget extends Sprite {
     data: any;
 
@@ -478,9 +481,11 @@ export class GWidget extends Sprite {
         this.onConstruct();
     }
 
+    /** @blueprintIgnore */
     onConstruct() {
     }
 
+    /** @blueprintIgnore */
     onAfterDeserialize() {
         super.onAfterDeserialize();
         if (SerializeUtil.hasProp("_startPages")) {

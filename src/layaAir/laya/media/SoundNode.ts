@@ -98,16 +98,19 @@ export class SoundNode extends Sprite {
      * @param complete 完成回调函数
      * @param startTime 播放开始时间
      */
-    play(loops?: number, complete?: Handler | (() => void), startTime?: number): void {
+    play(loops?: number, complete?: (success: boolean) => void, startTime?: number): void;
+    /** @deprecated */
+    play(loops?: number, complete?: Handler, startTime?: number): void;
+    play(loops?: number, complete?: Handler | ((success: boolean) => void), startTime?: number): void {
         if (!this._source)
             return;
 
         this.stop();
 
         if (this._isMusic)
-            this._channel = SoundManager.playMusic(this._source, loops, complete, startTime);
+            this._channel = SoundManager.playMusic(this._source, loops, <any>complete, startTime);
         else
-            this._channel = SoundManager.playSound(this._source, loops, complete, startTime);
+            this._channel = SoundManager.playSound(this._source, loops, <any>complete, startTime);
     }
 
     /**

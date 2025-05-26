@@ -12,7 +12,7 @@ export class DrawPieCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPieCmd
      * @zh 绘制扇形命令的标识符
      */
-    static ID: string = "DrawPie";
+    static readonly ID: string = "DrawPie";
 
     /**
      * @en The X-axis position to start drawing.

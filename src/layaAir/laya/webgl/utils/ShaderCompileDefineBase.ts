@@ -18,6 +18,9 @@ export interface ShaderProcessInfo {
     //....其他数据
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export class ShaderCompileDefineBase {
     _VS: ShaderNode;
     _PS: ShaderNode;

@@ -5,28 +5,29 @@ import { UIComponent } from "./UIComponent";
 /**
  * @en VBox is a vertical layout container class.
  * @zh VBox 是一个垂直布局容器类。
+ * @blueprintInheritable
  */
 export class VBox extends LayoutBox {
     /**
      * @en No alignment.
      * @zh 无对齐。
      */
-    static NONE: string = "none";
+    static readonly NONE: string = "none";
     /**
      * @en Left aligned.
      * @zh 左对齐。
      */
-    static LEFT: string = "left";
+    static readonly LEFT: string = "left";
     /**
      * @en Center alignment.
      * @zh 居中对齐。
      */
-    static CENTER: string = "center";
+    static readonly CENTER: string = "center";
     /**
      * @en Right aligned.
      * @zh 右对齐。
      */
-    static RIGHT: string = "right";
+    static readonly RIGHT: string = "right";
 
     /** 
      * @en Compatible with previous changeItems logic, whether to use sortItem to sort all items when changes occur.

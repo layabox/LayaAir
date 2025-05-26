@@ -8,6 +8,7 @@ import { NotReadableError } from "../../utils/Error";
 /**
  * @en The `VertexBuffer3D` class is used to create vertex buffers. To create an instance of `VertexBuffer3D`, use `LayaGL.RenderOBJCreate.createIndexBuffer3D`.
  * @zh `VertexBuffer3D` 类用于创建顶点缓冲。要创建 `VertexBuffer3D` 的实例，请使用 `LayaGL.RenderOBJCreate.createIndexBuffer3D`。
+ * @blueprintIgnore
  */
 export class VertexBuffer3D {
 

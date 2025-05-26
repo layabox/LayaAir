@@ -8,6 +8,7 @@ import { XML } from "../html/XML";
 /**
  * @en BitmapFont is a bitmap font class used to define bitmap font information.
  * @zh BitmapFont 是位图字体类，用于定义位图字体信息。
+ * @blueprintIgnore
  */
 export class BitmapFont extends Resource {
     /**

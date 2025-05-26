@@ -1,5 +1,5 @@
 import { Config3D } from "./Config3D";
-import { ILaya3D } from "./ILaya3D";
+import { ILaya } from "./ILaya";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
@@ -108,8 +108,8 @@ export class Laya3D {
             console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
         Config3D._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, Config3D.maxLightCount);
 
-        ILaya3D.Scene3D = Scene3D;
-        ILaya3D.Laya3D = Laya3D;
+        ILaya.Scene3D = Scene3D;
+        ILaya.Laya3D = Laya3D;
 
         VertexPositionTexture.__init__();
         PixelLineVertex.__init__();

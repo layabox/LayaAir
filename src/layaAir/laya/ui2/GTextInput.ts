@@ -5,6 +5,9 @@ import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
 import { UIEvent } from "./UIEvent";
 
+/**
+ * @blueprintInheritable
+ */
 export class GTextInput extends GWidget {
     readonly textIns: Input;
 
@@ -374,4 +377,9 @@ export class GTextInput extends GWidget {
             evt.preventDefault();
         }
     }
+
+    /** @internal @blueprintEvent */
+    GTextInput_bpEvent: {
+        [UIEvent.Submit]: () => void;
+    };
 }

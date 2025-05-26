@@ -15,7 +15,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en Identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
      */
-    static ID: string = "Draw9GridTexture";
+    static readonly ID: string = "Draw9GridTexture";
 
     /**
      * @en The texture to be drawn

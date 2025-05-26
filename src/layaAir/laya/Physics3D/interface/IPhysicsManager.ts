@@ -24,6 +24,7 @@ export interface IPhysicsManager {
      * @param collider StaticCollider or DynamicCollider to be added.
      * @zh 向物理管理器添加碰撞器。
      * @param collider 要添加的静态碰撞器或动态碰撞器。
+     * @blueprintIgnore
      */
     addCollider(collider: ICollider): void;
 
@@ -35,6 +36,7 @@ export interface IPhysicsManager {
      * @zh 是否启用碰撞器。
      * @param collider 要设置启用状态的碰撞器。
      * @param value 碰撞器是否处于启用状态。
+     * @blueprintIgnore
      */
     setActiveCollider(collider: ICollider, value: boolean): void;
 
@@ -43,6 +45,7 @@ export interface IPhysicsManager {
      * @param collider StaticCollider or DynamicCollider to be removed.
      * @zh 从物理管理器中移除碰撞器。
      * @param collider 要移除的静态碰撞器或动态碰撞器。
+     * @blueprintIgnore
      */
     removeCollider(collider: ICollider): void;
 
@@ -51,6 +54,7 @@ export interface IPhysicsManager {
      * @param elapsedTime Step time for the update.
      * @zh 更新物理世界，每帧调用以更新对象姿态。
      * @param elapsedTime 更新的步进时间。
+     * @blueprintIgnore
      */
     update(elapsedTime: number): void;
 
@@ -97,6 +101,7 @@ export interface IPhysicsManager {
     /**
      * @en Destroy the physics manager.
      * @zh 销毁物理管理器。
+     * @blueprintIgnore
      */
     destroy(): void;
 

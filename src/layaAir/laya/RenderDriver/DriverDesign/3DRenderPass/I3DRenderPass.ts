@@ -12,12 +12,20 @@ import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Viewport } from "../../../maths/Viewport";
 import { IRenderCMD } from "../RenderDevice/IRenderCMD";
+
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void;
     destroy(): void;
 }
 
 export declare type PipelineMode = "Forward" | "ShadowCaster" | "DepthNormal" | string;
+
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRenderContext3D {
     globalShaderData: ShaderData;
     sceneData: ShaderData;
@@ -38,6 +46,9 @@ export interface IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void;
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
@@ -52,12 +63,18 @@ export interface IRenderElement3D {
     destroy(): void;
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IInstanceRenderBatch {
     batch(elements: SingletonList<IRenderElement3D>): void;
     clearRenderData(): void;
     recoverData(): void;
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IInstanceRenderElement3D extends IRenderElement3D {
     instanceElementList: SingletonList<IRenderElement3D>;
     setGeometry(geometry: IRenderGeometryElement): void;
@@ -65,6 +82,9 @@ export interface IInstanceRenderElement3D extends IRenderElement3D {
     recover(): void;
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface ISkinRenderElement3D {
     skinnedData: Float32Array[];
 }

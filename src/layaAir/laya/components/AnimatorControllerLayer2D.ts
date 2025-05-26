@@ -13,13 +13,13 @@ export class AnimatorControllerLayer2D implements IClone {
      * @en Mixed Mode: Overwrite
      * @zh 混合模式_覆盖。
      */
-    static BLENDINGMODE_OVERRIDE: number = 0;
+    static readonly BLENDINGMODE_OVERRIDE: number = 0;
 
     /**
      * @en Mixed Mode: Stacking
      * @zh 混合模式_叠加。 
      */
-    static BLENDINGMODE_ADDTIVE: number = 1;
+    static readonly BLENDINGMODE_ADDTIVE: number = 1;
 
     /**@internal */
     private _defaultState: AnimatorState2D | null;

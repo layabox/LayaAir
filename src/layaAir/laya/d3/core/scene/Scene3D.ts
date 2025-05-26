@@ -50,7 +50,6 @@ import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { BaseRender } from "../render/BaseRender";
 import { Viewport } from "../../../maths/Viewport";
 import { IElementComponentManager } from "../../../components/IScenceComponentManager";
-import { ILaya3D } from "../../../../ILaya3D";
 import { Config } from "../../../../Config";
 import { Sprite3D } from "../Sprite3D";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
@@ -133,7 +132,7 @@ export class Scene3D extends Sprite {
      * @en Scene component management table
      * @zh 场景组件管理表 
      */
-    static componentManagerMap: Map<string, any> = new Map();
+    static componentManagerMap: Map<string, new () => IElementComponentManager> = new Map();
 
     /**
      * @en The update mark of the scene.
@@ -155,13 +154,14 @@ export class Scene3D extends Sprite {
      * @param type 要注册的管理器类型。
      * @param cla 管理器实例。
      */
-    static regManager(type: string, cla: any) {
+    static regManager(type: string, cla: new () => IElementComponentManager): void {
         Scene3D.componentManagerMap.set(type, cla);
     }
 
     /**
      * @en init shaderData
      * @zh 着色器数据初始化
+     * @internal
      */
     static shaderValueInit() {
         Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
@@ -206,6 +206,7 @@ export class Scene3D extends Sprite {
      * including directional lights, point lights, and spotlights.
      * @zh 初始化 ShaderData 的传统光照值。
      * 此函数为各种类型的灯光（包括方向光、点光源和聚光灯）设置着色器与场景之间的统一映射。
+     * @internal
      */
     static legacyLightingValueInit() {
         Scene3D.LIGHTDIRECTION = Shader3D.propertyNameToID("u_DirLightDirection");
@@ -731,8 +732,8 @@ export class Scene3D extends Sprite {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-        if (ILaya3D.Laya3D.enablePhysics)
-            this._physicsManager = ILaya3D.Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
+        if (ILaya.Laya3D.enablePhysics)
+            this._physicsManager = ILaya.Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
         this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
@@ -760,8 +761,7 @@ export class Scene3D extends Sprite {
         this.ambientColor = new Color(0.212, 0.227, 0.259);
 
         Scene3D.componentManagerMap.forEach((val, key) => {
-            let cla: any = val;
-            this.componentElementMap.set(key, new cla());
+            this.componentElementMap.set(key, new val());
         });
     }
 
@@ -794,7 +794,7 @@ export class Scene3D extends Sprite {
             if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
 
                 let physicsManager = this._physicsManager;
-                if (ILaya3D.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                if (ILaya.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
                     physicsManager.update(this._physicsStepTime);
                 }
                 this._physicsStepTime = 0;

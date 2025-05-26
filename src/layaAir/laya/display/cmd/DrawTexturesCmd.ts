@@ -13,7 +13,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTexturesCmd
      * @zh 根据坐标集合绘制多个贴图命令的标识符
      */
-    static ID: string = "DrawTextures";
+    static readonly ID: string = "DrawTextures";
 
     /**
      * @en The texture to be drawn.

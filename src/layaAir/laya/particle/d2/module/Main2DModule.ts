@@ -16,6 +16,9 @@ export enum Particle2DScalingMode {
     Local
 }
 
+/**
+ * @blueprintIgnore
+ */
 export class Main2DModule implements IClone {
 
     duration: number = 5;
@@ -138,7 +141,7 @@ export class Main2DModule implements IClone {
         destObject.unitPixels = this.unitPixels;
     }
 
-    clone(): Main2DModule {
+    clone() {
         let dest = new Main2DModule();
         this.cloneTo(dest);
         return dest;

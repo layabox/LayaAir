@@ -1,35 +1,29 @@
 /**
  * @en The MathUtils3D class is used to create mathematical utilities.
  * @zh MathUtils3D 类用于创建数学工具。
+ * @blueprintable
  */
 export class MathUtils3D {
     /**
      * @en Tolerance for single-precision floating-point (float) zero.
      * @zh 单精度浮点(float)零的容差。
      */
-    static zeroTolerance: number = 1e-6;
+    static readonly zeroTolerance: number = 1e-6;
     /**
      * @en Default maximum value for floating-point numbers.
      * @zh 浮点数默认最大值。
      */
-    static MaxValue: number = 3.40282347e+38;
+    static readonly MaxValue: number = 3.40282347e+38;
     /**
      * @en Default minimum value for floating-point numbers.
      * @zh 浮点数默认最小值。
      */
-    static MinValue: number = -3.40282347e+38;
+    static readonly MinValue: number = -3.40282347e+38;
     /**
      * @en Coefficient for converting degrees to radians.
      * @zh 角度转弧度系数。
      */
-    static Deg2Rad: number = Math.PI / 180;
-    /**
-     * @en Constructor of MathUtils3D.
-     * @zh MathUtils3D 的构造函数。
-     */
-    constructor() {
-
-    }
+    static readonly Deg2Rad: number = Math.PI / 180;
 
     /**
      * @en Determines if a value is approximately zero within the tolerance range.

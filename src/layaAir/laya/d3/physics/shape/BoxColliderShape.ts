@@ -11,117 +11,117 @@ import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
  */
 export class BoxColliderShape extends Physics3DColliderShape {
 
-	/**@internal */
-	_shape: IBoxColliderShape;
-	private _size: Vector3;
+    /**@internal */
+    _shape: IBoxColliderShape;
+    private _size: Vector3;
 
-	/**
-	 * @en Constructor method, initializes the box collider shape with a specified size.
-	 * @param sizeX The size of the box along the X-axis.
-	 * @param sizeY The size of the box along the Y-axis.
-	 * @param sizeZ The size of the box along the Z-axis.
-	 * @zh 盒形碰撞器的构造方法，初始化为指定尺寸。
-	 * @param sizeX 盒子X轴尺寸。
-	 * @param sizeY 盒子Y轴尺寸。
-	 * @param sizeZ 盒子Z轴尺寸。
-	 */
-	constructor(sizeX: number = 1.0, sizeY: number = 1.0, sizeZ: number = 1.0) {
-		super();
-		this._size = new Vector3(sizeX, sizeY, sizeZ);
-		this._shape.setSize(this._size);
-	}
-	
-	protected _createShape() {
-		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
-			this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
-		else {
-			console.error("BoxColliderShape: cant enable BoxColliderShape");
-		}
-	}
+    /**
+     * @en Constructor method, initializes the box collider shape with a specified size.
+     * @param sizeX The size of the box along the X-axis.
+     * @param sizeY The size of the box along the Y-axis.
+     * @param sizeZ The size of the box along the Z-axis.
+     * @zh 盒形碰撞器的构造方法，初始化为指定尺寸。
+     * @param sizeX 盒子X轴尺寸。
+     * @param sizeY 盒子Y轴尺寸。
+     * @param sizeZ 盒子Z轴尺寸。
+     */
+    constructor(sizeX: number = 1.0, sizeY: number = 1.0, sizeZ: number = 1.0) {
+        super();
+        this._size = new Vector3(sizeX, sizeY, sizeZ);
+        this._shape.setSize(this._size);
+    }
 
-	/**
-	 * @en Box size
-	 * @zh 盒子尺寸
-	 */
-	get size(): Vector3 {
-		return this._size;
-	}
+    protected _createShape() {
+        if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
+            this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
+        else {
+            console.error("BoxColliderShape: cant enable BoxColliderShape");
+        }
+    }
 
-	set size(value: Vector3) {
-		this._size = value;
-		if (LayaEnv.isPlaying) {
-			this._shape.setSize(this._size);
-		}
-	}
+    /**
+     * @en Box size
+     * @zh 盒子尺寸
+     */
+    get size(): Vector3 {
+        return this._size;
+    }
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @en Clone a new BoxColliderShape object.
-	 * @zh 克隆一个新的 BoxColliderShape 对象。
-	 */
-	clone(): any {
-		var dest: BoxColliderShape = new BoxColliderShape(this._size.x, this._size.y, this._size.z);
-		this.cloneTo(dest);
-		return dest;
-	}
+    set size(value: Vector3) {
+        this._size = value;
+        if (LayaEnv.isPlaying) {
+            this._shape.setSize(this._size);
+        }
+    }
 
-	/**
-	 * @en Clone data to target object.
-	 * @param destObject target object.
-	 * @zh 克隆数据到目标对象
-	 * @param destObject 目标对象 
-	 */
-	cloneTo(destObject: BoxColliderShape): void {
-		super.cloneTo(destObject);
-		destObject.size = this.size;
-	}
+    /**
+     * @inheritDoc
+     * @override
+     * @en Clone a new BoxColliderShape object.
+     * @zh 克隆一个新的 BoxColliderShape 对象。
+     */
+    clone() {
+        var dest: BoxColliderShape = new BoxColliderShape(this._size.x, this._size.y, this._size.z);
+        this.cloneTo(dest);
+        return dest;
+    }
 
-	//-------------------deprecated-------------------
-	/** 
-	 * @en X-axis size.
-	 * @zh X轴尺寸。
-	 */
-	get sizeX(): number {
-		return this.size.x;
-	}
+    /**
+     * @en Clone data to target object.
+     * @param destObject target object.
+     * @zh 克隆数据到目标对象
+     * @param destObject 目标对象 
+     */
+    cloneTo(destObject: BoxColliderShape): void {
+        super.cloneTo(destObject);
+        destObject.size = this.size;
+    }
 
-	set sizeX(value: number) {
-		this._size.x = value;
-		if (LayaEnv.isPlaying) {
-			this._shape.setSize(this._size);
-		}
-	}
+    //-------------------deprecated-------------------
+    /** 
+     * @en X-axis size.
+     * @zh X轴尺寸。
+     */
+    get sizeX(): number {
+        return this.size.x;
+    }
 
-	/**
-	 * @en Y-axis size.
-	 * @zh Y轴尺寸。
-	 */
-	get sizeY(): number {
-		return this.size.y;
-	}
+    set sizeX(value: number) {
+        this._size.x = value;
+        if (LayaEnv.isPlaying) {
+            this._shape.setSize(this._size);
+        }
+    }
 
-	set sizeY(value: number) {
-		this._size.y = value;
-		if (LayaEnv.isPlaying) {
-			this._shape.setSize(this._size);
-		}
-	}
+    /**
+     * @en Y-axis size.
+     * @zh Y轴尺寸。
+     */
+    get sizeY(): number {
+        return this.size.y;
+    }
 
-	/**
-	 * @en Z-axis size.
-	 * @zh Z轴尺寸。
-	 */
-	get sizeZ(): number {
-		return this.size.z;
-	}
+    set sizeY(value: number) {
+        this._size.y = value;
+        if (LayaEnv.isPlaying) {
+            this._shape.setSize(this._size);
+        }
+    }
 
-	set sizeZ(value: number) {
-		this._size.z = value;
-		if (LayaEnv.isPlaying) {
-			this._shape.setSize(this._size);
-		}
-	}
+    /**
+     * @en Z-axis size.
+     * @zh Z轴尺寸。
+     */
+    get sizeZ(): number {
+        return this.size.z;
+    }
+
+    set sizeZ(value: number) {
+        this._size.z = value;
+        if (LayaEnv.isPlaying) {
+            this._shape.setSize(this._size);
+        }
+    }
 }
 
 

@@ -394,7 +394,6 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     /**
      * @internal
-     * @protected
      * cmd run时调用，可以用来计算matrix等获得即时context属性
      * @param context 
      * @param px 
@@ -415,7 +414,6 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     /**
      * 根据相机和设置做裁剪;更新所有格子的渲染数据
-     * @protected
      * @param context 
      */
     preRenderUpdate(context: IRenderContext2D): void {

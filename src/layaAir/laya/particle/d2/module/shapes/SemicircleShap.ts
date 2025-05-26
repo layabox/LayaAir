@@ -50,7 +50,7 @@ export class SemicircleShap extends Base2DShape {
         destObject.randomDirction = this.randomDirction;
     }
 
-    clone(): SemicircleShap {
+    clone() {
         let destObject = new SemicircleShap();
         this.cloneTo(destObject);
         return destObject;

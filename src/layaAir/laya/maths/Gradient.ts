@@ -606,7 +606,7 @@ export class Gradient implements IClone {
      * @zh 克隆渐变。
      * @returns 克隆的副本。
      */
-    clone(): any {
+    clone() {
         var destGradientDataColor: Gradient = new Gradient();
         this.cloneTo(destGradientDataColor);
         return destGradientDataColor;

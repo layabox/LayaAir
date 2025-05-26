@@ -399,7 +399,7 @@ export class Color implements IClone {
      * @zh 克隆颜色。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: Color = new Color();
         this.cloneTo(dest);
         return dest;

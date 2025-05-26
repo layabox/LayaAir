@@ -311,7 +311,17 @@ export class Skeleton extends Sprite {
      * @param path 要加载的动画文件路径。
      * @param complete 加载完成后的回调函数。
      */
-    load(path: string, complete?: Handler): void {
+    load(path: string, complete?: Handler): void;
+    /**
+     * @en Load and create an animation directly from a path.
+     * @param path The path of the animation file to load.
+     * @param complete The callback function when the loading is complete.
+     * @zh 通过路径直接加载并创建动画。
+     * @param path 要加载的动画文件路径。
+     * @param complete 加载完成后的回调函数。
+     */
+    load(path: string, complete?: () => void): void;
+    load(path: string, complete?: Handler | (() => void)): void {
         ILaya.loader.load(path).then((templet: Templet) => {
             if (templet == null) return;
 
@@ -321,7 +331,10 @@ export class Skeleton extends Sprite {
             this.init(templet);
             this.play(0, true);
 
-            complete && complete.runWith(this);
+            if (complete instanceof Handler)
+                complete.runWith(this);
+            else if (complete)
+                complete();
         });
     }
 

@@ -84,7 +84,7 @@ export class Controller extends EventDispatcher {
                     ref.onChanged(this);
                 }
                 GearDisplay.checkAll(this);
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGE);
             }
             finally {
                 (<Mutable<this>>this).changing = false;
@@ -116,4 +116,9 @@ export class Controller extends EventDispatcher {
         else if (this._pages.length > 1)
             this.selectedIndex = 1;
     }
+
+    /** @internal @blueprintEvent */
+    Controller_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

@@ -29,6 +29,7 @@ export class Slider extends UIComponent {
     /** 
      * @en Get a reference to the Label component contained within the Slider component.
      * @zh 获取 Slider 组件所包含的 Label 组件的引用。
+     * @blueprintIgnore
      */
     static label: Label = null;// new Label(); 静态的可能还没有初始化
 
@@ -486,4 +487,10 @@ export class Slider extends UIComponent {
     get bar(): Button {
         return this._bar;
     }
+
+    /** @internal @blueprintEvent */
+    Slider_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.CHANGED]: () => void;
+    };
 }

@@ -48,7 +48,7 @@ export class RotationOverLifetime implements IClone {
      * @zh 克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var destAngularVelocity: GradientAngularVelocity;
         switch (this._angularVelocity.type) {
             case 0:

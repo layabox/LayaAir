@@ -5,13 +5,14 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Translate command
  * @zh 位移命令
+ * @blueprintIgnore
  */
 export class TranslateCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the TranslateCmd
      * @zh 位移命令的标识符
      */
-    static ID: string = "Translate";
+    static readonly ID: string = "Translate";
 
     /**
      * @en The value to be added to the horizontal coordinate (x).

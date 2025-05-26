@@ -8,6 +8,7 @@ import { Browser } from "../utils/Browser";
 /**
  * @en Shake is usually achieved through the built-in accelerometer and gyroscope sensors in a mobile phone, and it only works on devices that support this operation.
  * @zh 摇动通常是通过手机内置的加速度计和陀螺仪传感器来实现，只能在支持此操作的设备环境上有效。
+ * @blueprintable
  * 
  */
 export class Shake extends EventDispatcher {
@@ -113,5 +114,10 @@ export class Shake extends EventDispatcher {
         // 通过 mask & (mask - 1) 操作判断 mask 中是否至少有两个 1， 如果结果不为 0，说明至少有两个方向的加速度差值超过了阈值
         return (mask & (mask - 1)) !== 0;
     }
+
+    /** @internal @blueprintEvent */
+    Shake_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }
 

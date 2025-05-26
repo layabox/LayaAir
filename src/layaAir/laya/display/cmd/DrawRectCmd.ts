@@ -13,7 +13,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en Identifier for the DrawRectCmd
      * @zh 绘制矩形命令的标识符
      */
-    static ID: string = "DrawRect";
+    static readonly ID: string = "DrawRect";
 
     /**
      * @en The X-axis position to start drawing.

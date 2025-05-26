@@ -80,7 +80,7 @@ export class ParticleMinMaxGradient implements IClone {
         this.gradientMax.cloneTo(destObject.gradientMax);
     }
 
-    clone(): ParticleMinMaxGradient {
+    clone() {
         let res = new ParticleMinMaxGradient();
         this.cloneTo(res);
         return res;

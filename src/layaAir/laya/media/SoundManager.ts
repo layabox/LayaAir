@@ -16,6 +16,7 @@ import { MathUtil } from "../maths/MathUtil";
  * - 播放音效时，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放。H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
  * - 播放背景音乐时，则使用H5Audio播放（使用WebAudio会增加特别大的内存，并且要等加载完毕后才能播放，有延迟）。
  * - 建议背景音乐用mp3类型，音效用wav或者mp3类型（如果打包为app，音效只能用wav格式）。
+ * @blueprintable
  */
 export class SoundManager {
     /**
@@ -140,21 +141,21 @@ export class SoundManager {
      * @en Play a sound effect. Multiple sound effects can be played simultaneously.
      * @param url The URL of the sound file.
      * @param loops The number of times to loop the sound. 0 means infinite loop.
-     * @param complete The callback function when the sound playback is complete. It should be a Handler object.
+     * @param complete The callback function when the sound playback is complete.
      * @param startTime The start time of the sound playback. In seconds.
      * @returns A SoundChannel object, through which you can control the sound and get sound information.
      * @zh 播放音效。音效可以同时播放多个。
      * @param url 声音文件地址。
      * @param loops 循环次数，0表示无限循环。
-     * @param complete 声音播放完成回调，应为Handler对象。
+     * @param complete 声音播放完成回调。
      * @param startTime 声音播放起始时间。以秒为单位。
      * @returns SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
-    static playSound(url: string, loops?: number, complete?: Handler | (() => void), startTime?: number): SoundChannel;
-    /**
-     * @deprecated
-     */
-    static playSound(url: string, loops?: number, complete?: Handler | (() => void), soundClass?: new () => any, startTime?: number): SoundChannel;
+    static playSound(url: string, loops?: number, complete?: () => void, startTime?: number): SoundChannel;
+    /** @deprecated */
+    static playSound(url: string, loops?: number, complete?: Handler, startTime?: number): SoundChannel;
+    /** @deprecated */
+    static playSound(url: string, loops?: number, complete?: Handler, soundClass?: new () => any, startTime?: number): SoundChannel;
     static playSound(url: string, loops?: number, complete?: Handler | (() => void), soundClass?: (new () => any) | number, startTime?: number): SoundChannel {
         if (!url)
             return null;
@@ -188,6 +189,9 @@ export class SoundManager {
      * @param startTime 声音播放起始时间。以秒为单位。
      * @returns SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
+    static playMusic(url: string, loops?: number, complete?: (success: boolean) => void, startTime?: number): SoundChannel;
+    /** @deprecated */
+    static playMusic(url: string, loops?: number, complete?: Handler, startTime?: number): SoundChannel;
     static playMusic(url: string, loops?: number, complete?: Handler | ((success: boolean) => void), startTime?: number): SoundChannel {
         if (mgr._musicChannel) {
             mgr._musicChannel.stop();

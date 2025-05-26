@@ -120,7 +120,7 @@ export class GTreeNode {
             this._leafController = null;
 
             if (this._expandCtrler)
-                this._expandCtrler.off(Event.CHANGED, this, this._expandedStateChanged);
+                this._expandCtrler.off(Event.CHANGE, this, this._expandedStateChanged);
 
             let btn = this._cell.findChild("expandButton");
             if (btn)
@@ -141,7 +141,7 @@ export class GTreeNode {
 
             this._expandCtrler = this._cell.getController("expanded");
             if (this._expandCtrler) {
-                this._expandCtrler.on(Event.CHANGED, this, this._expandedStateChanged);
+                this._expandCtrler.on(Event.CHANGE, this, this._expandedStateChanged);
                 this._expandCtrler.selectedIndex = this.expanded ? 1 : 0;
             }
 

@@ -12,7 +12,7 @@ export class DrawPathCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPathCmd
      * @zh 根据路径绘制矢量图形命令的标识符
      */
-    static ID: string = "DrawPath";
+    static readonly ID: string = "DrawPath";
 
     /**
      * @en The X-axis position to start drawing.

@@ -19,6 +19,7 @@ import { Physics2DWorldManager } from "./Physics2DWorldManager";
 /**
  * @en Physical auxiliary line
  * @zh 物理辅助线
+ * @blueprintIgnore
  */
 export class Physics2DDebugDraw extends Sprite {
 
@@ -37,7 +38,6 @@ export class Physics2DDebugDraw extends Sprite {
     /**@internal */
     protected _textG: Graphics;
 
-    /**@protected */
     protected _lineWidth: number = 3;
 
     private _matrix: Matrix = new Matrix();

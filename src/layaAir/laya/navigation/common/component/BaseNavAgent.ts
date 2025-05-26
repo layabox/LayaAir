@@ -436,9 +436,6 @@ export class BaseNavAgent extends Component {
         throw new NotImplementedError();
     }
 
-    /**
-    * @protected
-    */
     _getUpdateFlags(): number {
         let updateFlags = UpdateFlags.DT_CROWD_ANTICIPATE_TURNS | UpdateFlags.DT_CROWD_OPTIMIZE_VIS | UpdateFlags.DT_CROWD_OPTIMIZE_TOPO;
         if (this._quality > 0) {
@@ -450,9 +447,6 @@ export class BaseNavAgent extends Component {
         return updateFlags;
     }
 
-    /**
-     * @protected
-     */
     _onDestroy(): void {
         super._onDestroy();
         this._removeAgent();

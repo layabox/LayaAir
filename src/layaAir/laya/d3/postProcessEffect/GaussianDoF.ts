@@ -65,6 +65,7 @@ export class GaussianDoF extends PostProcessEffect {
     /**
      * @en GaussianDOF resource init
      * @zh 高斯DOF资源初始化
+     * @internal
      */
     static init() {
         GaussianDoF.SOURCESIZE = Shader3D.propertyNameToID("u_SourceSize");

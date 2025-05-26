@@ -6,13 +6,14 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Transform command
  * @zh 矩阵变换命令
+ * @blueprintIgnore
  */
 export class TransformCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
      */
-    static ID: string = "Transform";
+    static readonly ID: string = "Transform";
 
     /**
      * @en The transformation matrix.

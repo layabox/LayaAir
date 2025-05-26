@@ -1,3 +1,3 @@
-export class StencilState{
-    
+export class StencilState {
+
 }

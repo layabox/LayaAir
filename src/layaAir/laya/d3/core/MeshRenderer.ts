@@ -166,7 +166,6 @@ export class MeshRenderer extends BaseRender {
 
     /**
      * @internal
-     * @protected
      * @en Update morph target data.
      * @zh 更新变形目标数据。
      */

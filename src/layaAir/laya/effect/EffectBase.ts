@@ -6,6 +6,7 @@ import { Component } from "../components/Component";
 /**
  * @en Effect plugin base class, managed based on the object pool.
  * @zh 效果插件基类，基于对象池管理。
+ * @blueprintIgnore @blueprintIgnoreSubclasses
  */
 export class EffectBase extends Component {
     /**

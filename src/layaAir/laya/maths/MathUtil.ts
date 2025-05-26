@@ -1,6 +1,7 @@
 /**
  * @en The MathUtil class is a utility class for data processing.
  * @zh MathUtil 是一个数据处理工具类。
+ * @blueprintable
  */
 export class MathUtil {
 

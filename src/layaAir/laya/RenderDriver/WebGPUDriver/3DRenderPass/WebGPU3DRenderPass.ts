@@ -1,4 +1,4 @@
-import { ILaya3D } from "../../../../ILaya3D";
+import { ILaya } from "../../../../ILaya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
@@ -117,7 +117,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             if (needDirectionShadow) {
                 this._renderPass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this._renderPass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
-                const directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+                const directionShadowMap = ILaya.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
                 shadowParams.x = this._renderPass.directLightShadowPass.light.shadowStrength;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
@@ -129,7 +129,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this._renderPass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
-                const spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+                const spotShadowMap = ILaya.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this._renderPass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 shadowParams.y = this._renderPass.spotLightShadowPass.light.shadowStrength;
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);

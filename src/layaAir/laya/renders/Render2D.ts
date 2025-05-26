@@ -33,6 +33,9 @@ class Render2DGlobalState{
     static curRT:RenderTexture2D = null;
 }
 
+/**
+ * @blueprintIgnore
+ */
 export abstract class Render2D {
 
     protected _renderTexture: RenderTexture2D = null;

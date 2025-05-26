@@ -233,7 +233,7 @@ export class MorphTargetData {
      * @zh 克隆变形目标数据。
      * @returns 变形目标数据的克隆实例。
      */
-    clone(): MorphTargetData {
+    clone() {
         let res = new MorphTargetData();
 
         res.bounds.setMin(this.bounds.getMin());

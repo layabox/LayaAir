@@ -7,6 +7,9 @@ import { GPanel } from "./GPanel";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "./GWidget";
 
+/**
+ * @blueprintInheritable
+ */
 export class GTree extends GPanel {
 
     public treeNodeRender: (node: GTreeNode, obj: any) => void;

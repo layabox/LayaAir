@@ -9,6 +9,7 @@ import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 import { TransformKind } from "../display/SpriteConst";
+
 /**
  * @en The TextInput class is used to create an input text display object.
  * - Event.INPUT event: When the input text after dispatching.
@@ -20,6 +21,7 @@ import { TransformKind } from "../display/SpriteConst";
  * - Event.ENTER事件：当输入框内敲回车键后调度。
  * - Event.FOCUS事件：当输入框获得焦点时调度。
  * - Event.BLUR事件：当输入框失去焦点时调度。
+ * @blueprintInheritable
  */
 export class TextInput extends Label {
     protected _skin: string;
@@ -273,4 +275,13 @@ export class TextInput extends Label {
     setSelection(startIndex: number, endIndex: number): void {
         this._tf.setSelection(startIndex, endIndex);
     }
+
+    /** @internal @blueprintEvent */
+    TextInput_bpEvent: {
+        [Event.INPUT]: () => void;
+        [Event.ENTER]: () => void;
+        [Event.FOCUS]: () => void;
+        [Event.BLUR]: () => void;
+        [Event.CHANGE]: () => void;
+    };
 }

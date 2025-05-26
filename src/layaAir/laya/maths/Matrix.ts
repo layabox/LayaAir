@@ -469,7 +469,7 @@ export class Matrix {
      * @zh 返回此 Matrix 对象的副本。
      * @returns 与原始实例具有完全相同的属性的新 Matrix 实例。
      */
-    clone(): Matrix {
+    clone() {
         var dec: Matrix = new Matrix();
         dec.a = this.a;
         dec.b = this.b;

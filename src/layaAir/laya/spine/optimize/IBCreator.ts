@@ -9,23 +9,24 @@ import { VBCreator } from "./VBCreator";
 /**
  * @en Creator class for index buffer (IB) in spine rendering.
  * @zh Spine渲染中用于创建索引缓冲区（IB）的类。
+ * @blueprintIgnore
  */
 export class IBCreator {
     /** 
      * @en The index type.
      * @zh 索引类型。
      */
-    type:IndexFormat;
+    type: IndexFormat;
     /**
      * @en The byte count of the index type.
      * @zh 索引类型字节数量。
      */
-    size:number;
+    size: number;
     /**
      * @en The index buffer array.
      * @zh 索引缓冲区数组。
      */
-    ib: Uint16Array|Uint32Array|Uint8Array;
+    ib: Uint16Array | Uint32Array | Uint8Array;
     /**
      * @en The actual length of the index buffer.
      * @zh 索引缓冲区的实际长度。
@@ -35,7 +36,7 @@ export class IBCreator {
      * @en The Max length of the index buffer.
      * @zh 索引缓冲区的最大长度。
      */
-    maxIndexCount:number = 0;
+    maxIndexCount: number = 0;
     /**
      * @en The output render data for multiple renders.
      * @zh 用于多重渲染的输出渲染数据。
@@ -51,26 +52,26 @@ export class IBCreator {
      * @zh 根据顶点长度设置索引类型
      * @param vertexCount 顶点数目
      */
-    updateFormat(vertexCount:number){
-        let ntype:IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
+    updateFormat(vertexCount: number) {
+        let ntype: IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
         if (this.type === ntype) return
         this.type = ntype;
         this._updateBuffer();
     }
 
     /**
-	 * @en set index buffer length.
-	 * @param maxIndexCount The Max length of Index count.
-	 * @zh 设置索引缓冲长度。
-	 * @param maxIndexCount 索引最大个数。
-	 */
-    setBufferLength(maxIndexCount:number){
+     * @en set index buffer length.
+     * @param maxIndexCount The Max length of Index count.
+     * @zh 设置索引缓冲长度。
+     * @param maxIndexCount 索引最大个数。
+     */
+    setBufferLength(maxIndexCount: number) {
         if (maxIndexCount <= this.maxIndexCount) return;
         this.maxIndexCount = maxIndexCount;
         this._updateBuffer();
     }
 
-    private _updateBuffer(){
+    private _updateBuffer() {
         let oldbuffer = this.ib;
 
         switch (this.type) {
@@ -82,7 +83,7 @@ export class IBCreator {
                 this.size = 1;
                 this.ib = new Uint8Array(this.maxIndexCount);
                 break;
-                
+
             case IndexFormat.UInt32:
                 this.size = 4
                 this.ib = new Uint32Array(this.maxIndexCount);
@@ -123,7 +124,7 @@ export class IBCreator {
         let texture;
         let blend;
 
-        let uploadData:Array<{offset:number , data : ArrayLike<number> , start:number}> = [];
+        let uploadData: Array<{ offset: number, data: ArrayLike<number>, start: number }> = [];
         let end = -1;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let attach = getAttach(drawOrder[i]);
@@ -139,29 +140,29 @@ export class IBCreator {
                 }
                 if (needAdd) {
                     if (outRenderData.currentData) {
-                        outRenderData.endData(offset); 
+                        outRenderData.endData(offset);
                     }
-                    outRenderData.addData(attach.textureName, attach.blendMode, offset, 0 , attach.attachment);
+                    outRenderData.addData(attach.textureName, attach.blendMode, offset, 0, attach.attachment);
                 }
 
                 let attachPos = slotVBMap.get(attach.slotId).get(attach.attachment);
-                
+
                 if (attach.attachment && attach.indexArray) {
-                    
+
                     uploadData.push({
-                        data:attach.indexArray,
-                        offset : attachPos.offset,
-                        start : offset
+                        data: attach.indexArray,
+                        offset: attachPos.offset,
+                        start: offset
                     });
 
                     offset += attach.indexArray.length;
-                    end = Math.max(end , offset);
+                    end = Math.max(end, offset);
                 }
             }
         }
 
         let vertexCount = vbCreator.maxVertexCount;
-        let ntype:IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
+        let ntype: IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
 
         let needUpdateBuffer = false;
         if (ntype !== this.type) {
@@ -169,15 +170,15 @@ export class IBCreator {
             needUpdateBuffer = true;
         }
 
-        if (end > this.maxIndexCount){
+        if (end > this.maxIndexCount) {
             this.maxIndexCount = end;
             needUpdateBuffer = true;
-        } 
+        }
 
         needUpdateBuffer && this._updateBuffer();
 
         let ib = this.ib;
-        for (let i = 0 , len = uploadData.length; i < len; i++) {
+        for (let i = 0, len = uploadData.length; i < len; i++) {
             let upload = uploadData[i];
             let offset = upload.offset;
             let start = upload.start;

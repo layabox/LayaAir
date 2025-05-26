@@ -6,6 +6,7 @@ import { Event } from "../events/Event"
 /**
  * @en Relative layout Component.
  * @zh 相对布局组件
+ * @blueprintIgnore
  */
 export class Widget extends Component {
     /**

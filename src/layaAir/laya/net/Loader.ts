@@ -86,121 +86,125 @@ export class Loader extends EventDispatcher {
      * @en Text type, returns a TextResource object containing a string after loading is complete.
      * @zh 文本类型，加载完成后返回包含 string 的 TextResource 对象。
      */
-    static TEXT = "text";
+    static readonly TEXT = "text";
     /**
      * @en JSON type, returns a TextResource object containing JSON data after loading is complete.
      * @zh JSON 类型，加载完成后返回包含 json 数据的 TextResource 对象。
      */
-    static JSON = "json";
+    static readonly JSON = "json";
     /**
      * @en XML type, returns a TextResource object containing domXML after loading is complete.
      * @zh XML 类型，加载完成后返回包含 domXML 的 TextResource 对象。
      */
-    static XML = "xml";
+    static readonly XML = "xml";
     /**
      * @en Binary type, returns a TextResource object containing arraybuffer after loading is complete.
      * @zh 二进制类型，加载完成后返回包含 arraybuffer 的 TextResource 对象。
      */
-    static BUFFER = "arraybuffer";
+    static readonly BUFFER = "arraybuffer";
     /**
      * @en Texture type, returns a Texture after loading is complete.
      * @zh 纹理类型，加载完成后返回 Texture。
      */
-    static IMAGE = "image";
+    static readonly IMAGE = "image";
     /**
      * @en Sound type, returns a Sound after loading is complete.
      * @zh 声音类型，加载完成后返回 Sound。
      */
-    static SOUND = "sound";
+    static readonly SOUND = "sound";
     /**
      * @en Video type, returns a VideoTexture after loading is complete.
      * @zh 视频类型，加载完成后返回 VideoTexture。
      */
-    static VIDEO = "video";
+    static readonly VIDEO = "video";
     /**
      * @en Atlas type, returns atlas JSON information (and creates small Textures within the atlas) after loading is complete.
      * @zh 图集类型，加载完成后返回图集 json 信息（并创建图集内小图 Texture）。
      */
-    static ATLAS = "atlas";
+    static readonly ATLAS = "atlas";
     /**
      * @en Bitmap font type, returns a BitmapFont after loading is complete. It will be automatically registered as a bitmap font based on the file name.
      * @zh 位图字体类型，加载完成后返回 BitmapFont，加载后，会根据文件名自动注册为位图字体。
      */
-    static FONT = "font";
+    static readonly FONT = "font";
     /**
      * @en TTF font type, returns an object after loading is complete.
      * @zh TTF 字体类型，加载完成后返回一个对象。
      */
-    static TTF = "ttf";
+    static readonly TTF = "ttf";
     /**
      * @en Hierarchy resource.
      * @zh Hierarchy 资源。
      */
-    static HIERARCHY = "HIERARCHY";
+    static readonly HIERARCHY = "HIERARCHY";
     /**
      * @en Mesh resource.
      * @zh Mesh 资源。
      */
-    static MESH = "MESH";
+    static readonly MESH = "MESH";
     /**
      * @en Material resource.
      * @zh Material 资源。
      */
-    static MATERIAL = "MATERIAL";
+    static readonly MATERIAL = "MATERIAL";
     /**
      * @en Texture2D resource. This is for compatibility, it should actually be BaseTexture.
      * @zh Texture2D 资源。这里是为了兼容，实际应该是 BaseTexture。
      */
-    static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
+    static readonly TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**
      * @en TextureCube resource. For compatibility, now TEXTURE2D type can load Texture or TextureCube.
      * @zh TextureCube 资源。兼容处理，现在 TEXTURE2D 类型可以载入 Texture 或者 TextureCube。
      */
-    static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
+    static readonly TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
     /**
      * @en TEXTURE2DARRAY resource.
      * @zh TEXTURE2DARRAY 资源。
      */
-    static TEXTURE2DARRAY = "TEXTURE2D";
+    static readonly TEXTURE2DARRAY = "TEXTURE2D";
     /**
      * @en AnimationClip resource.
      * @zh AnimationClip 资源。
      */
-    static ANIMATIONCLIP = "ANIMATIONCLIP";
+    static readonly ANIMATIONCLIP = "ANIMATIONCLIP";
     /**
      * @en Terrain height data resource.
      * @zh Terrain 高度数据资源。
      */
-    static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
+    static readonly TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     /**
      * @en Terrain resource.
      * @zh Terrain 资源。
      */
-    static TERRAINRES = "TERRAIN";
+    static readonly TERRAINRES = "TERRAIN";
     /**
      * @en Spine resource.
      * @zh Spine 资源。
      */
-    static SPINE = "SPINE";
+    static readonly SPINE = "SPINE";
     // Loader ResourceTime  
     /**
      * @en Resource download + parse time.
      * @zh 资源下载 + 解析时间。
+     * @readonly
      */
     static LoaderStat_LoadResourceTime: number;
     /**
      * @en Number of resource downloads.
      * @zh 资源下载次数。  
+     * @readonly
      */
     static LoaderStat_LoaderResourceCount: number;
     /**
      * @en Number of network file requests.
      * @zh 网络文件请求次数。
+     * @readonly
      */
     static LoaderStat_LoadRequestCount: number;//网络文件请求次数
     /**
      * @en Network download time.
      * @zh 网络下载时间。
+     * @readonly
      */
     static LoaderStat_LoadRequestTime: number;//网络下载时间
 
@@ -223,22 +227,26 @@ export class Loader extends EventDispatcher {
     /**
      * @en List of resource loaders.
      * @zh 资源加载器列表。
+     * @blueprintIgnore
      */
     static readonly extMap: { [ext: string]: Array<TypeMapEntry> } = {};
     /**
      * @en Resource type mapping table.
      * @zh 资源类型对应表。
+     * @blueprintIgnore
      */
     static readonly typeMap: { [type: string]: TypeMapEntry } = {};
     /**
      * @en Hot overload identification.
      * @zh 热重载标识。
+     * @blueprintIgnore
      */
     static readonly hotReloadableFlags: Record<number, boolean> = {};
 
     /**
      * @en If an extension corresponds to multiple loading types, you can define a mapping here, which can be used to obtain the correct loading type through the resource type recorded in the file during deserialization.
      * @zh 如果一个扩展名对应多种加载类型时，那么在可以在这里定义一个映射，用于在反序列化时，通过文件中记录的资源类型获得正确的加载类型。
+     * @blueprintIgnore
      */
     static readonly assetTypeToLoadType: Record<string, string> = {
         "Image": Loader.IMAGE,
@@ -268,6 +276,7 @@ export class Loader extends EventDispatcher {
      * @param cls 加载器类
      * @param type 类型标识。如果这种资源需要支持识别没有扩展名的情况，或者一个扩展名对应了多种资源类型的情况，那么指定 type 参数是个最优实践。
      * @param hotReloadable 是否支持热重载
+     * @blueprintIgnore
      */
     static registerLoader(exts: string[], cls: new () => IResourceLoader, type?: string, hotReloadable?: boolean) {
         let typeEntry: TypeMapEntry;
@@ -301,16 +310,19 @@ export class Loader extends EventDispatcher {
     /**
      * @en Resource group mapping table.
      * @zh 资源分组对应表。
+     * @blueprintIgnore
      */
     static groupMap: { [name: string]: Set<string> } = {};
     /**
      * @en Pool of loaded resources.
      * @zh 已加载的资源池。
+     * @blueprintIgnore
      */
     static loadedMap: { [url: string]: Array<any> } = {};
     /**
      * @en Preloaded data files. If a url has a record here, the data here will be used directly when requested, abandoning network loading.
      * @zh 预加载的数据文件。如果一个 url 在这里有记录，则请求时直接使用这里的数据，放弃网络加载。
+     * @blueprintIgnore
      */
     static preLoadedMap: { [url: string]: any } = {};
 
