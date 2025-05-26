@@ -48,6 +48,8 @@ export class URL {
         "glsl": "glsl.txt",
         "skel": "skel.bin",
         "lavm": "lavm.json",
+        "bp": "bp.json",
+        "tres":"tres.json"
     };
 
     /**
