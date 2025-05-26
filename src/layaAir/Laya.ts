@@ -334,7 +334,6 @@ var _erralert: number = 0;
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;
 ILaya.Context = Context;
-ILaya.Browser = Browser;
 ILaya.InputManager = InputManager;
 
 /**@internal */
