@@ -7,6 +7,7 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
@@ -18,8 +19,9 @@ export class WebGPUSetRendertarget2DCMD extends SetRendertarget2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        if (this.rt)
-            context.invertY = this.invertY;
+        let engine = WebGPURenderEngine._instance;
+        if (this.rt != engine._screenRT)
+            context.invertY = WebGPURenderEngine._instance._screenInvertY ? (!this.invertY) : this.invertY;
         else context.invertY = false;
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
     }
