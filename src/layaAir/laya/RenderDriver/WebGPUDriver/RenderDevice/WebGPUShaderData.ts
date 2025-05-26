@@ -73,7 +73,12 @@ export class WebGPUShaderData extends ShaderData {
 
     private _subUboBufferNumber: number = 0;
 
-    private textureStatesMap: Map<string, number> = new Map();
+    private _textureStatesMap: Map<string, number> = new Map();
+
+    /** @internal */
+    get textureStatesMap(): ReadonlyMap<string, number> {
+        return this._textureStatesMap;
+    }
 
     _textureData: { [key: number]: BaseTexture } = {};
     /**
@@ -113,7 +118,7 @@ export class WebGPUShaderData extends ShaderData {
         }
         let uboBuffer = new WebGPUUniformBuffer(name, uniformMap._idata);
         this._uniformBuffers.set(name, uboBuffer);
-        this.textureStatesMap.set(name, 0);
+        this._textureStatesMap.set(name, 0);
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uboBuffer;
         uniformMap._idata.forEach(uniform => {
@@ -138,7 +143,7 @@ export class WebGPUShaderData extends ShaderData {
             buffer.notifyGPUBufferChange();
 
             this._subUniformBuffers.set(cacheName, buffer);
-            this.textureStatesMap.set(cacheName, 0);
+            this._textureStatesMap.set(cacheName, 0);
 
             let id = Shader3D.propertyNameToID(name);
             this._data[id] = buffer;
@@ -182,7 +187,7 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
-        this.textureStatesMap.set(cacheName, 0);
+        this._textureStatesMap.set(cacheName, 0);
 
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uniformBuffer;
@@ -512,7 +517,7 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     private _updateTextureState(index: number, mapName: string, value: WebGPUInternalTex) {
-        if (this.textureStatesMap.has(mapName)) {
+        if (this._textureStatesMap.has(mapName)) {
             let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(mapName) as WebGPUCommandUniformMap;
             if (!map._textureBits.has(index)) {
                 return;
@@ -521,7 +526,7 @@ export class WebGPUShaderData extends ShaderData {
             value = value || map._defaultData.get(index)?._texture as WebGPUInternalTex;
 
             let textureBit = map._textureBits.get(index);
-            let stateMask = this.textureStatesMap.get(mapName);
+            let stateMask = this._textureStatesMap.get(mapName);
 
             let sampler: GPUSamplerBindingLayout = { type: "filtering" };
             if (value) {
@@ -535,7 +540,7 @@ export class WebGPUShaderData extends ShaderData {
                 stateMask = stateMask & ~(1 << textureBit);
             }
 
-            this.textureStatesMap.set(mapName, stateMask);
+            this._textureStatesMap.set(mapName, stateMask);
         }
     }
 
@@ -679,7 +684,7 @@ export class WebGPUShaderData extends ShaderData {
         this.clearDefine();
         this._subUboBufferNumber = 0;
 
-        this.textureStatesMap.clear();
+        this._textureStatesMap.clear();
     }
 
     /**

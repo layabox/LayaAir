@@ -34,25 +34,19 @@ export interface WebGPUUniformPropertyBindingInfo {
     sampler?: GPUSamplerBindingLayout;
 };
 
-
-
-export class WebGPUBindGroup1 {
-    gpuRS: GPUBindGroup;
-    createMask: number = -1;//创建的时候生成的帧数
-    constructor() {
-        this.createMask = Stat.loopCount;
-    }
-
-    isNeedCreate(resourceUpdateMask: number): boolean {
-        return resourceUpdateMask >= this.createMask;
-    }
-}
-
 export class WebGPUBindGroupHelper {
 
-    static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
+    private static BindGroupPropertyInfoMap: Map<string, WebGPUUniformPropertyBindingInfo[]> = new Map();
 
-    static _getBindGroupID(array: string[]): string {
+    /** internal */
+    static CacheBindGroupPropertyInfo(key: string, infos: WebGPUUniformPropertyBindingInfo[]) {
+        if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(key)) {
+            console.warn("WebGPUBindGroupHelper.CacheBindGroupPropertyInfo: key already exists, overwriting.");
+        }
+        WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(key, infos);
+    }
+
+    private static _getBindGroupID(array: string[]): string {
         // 将数组中的字符串拼接成一个唯一标识符
         if (!array || array.length === 0) {
             return "";
@@ -289,7 +283,7 @@ export class WebGPUBindGroupHelper {
                 }
             }
         }
-        WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);
+        WebGPUBindGroupHelper.CacheBindGroupPropertyInfo(bindGroupKey, bindingInfos);
         return bindingInfos;
     }
 

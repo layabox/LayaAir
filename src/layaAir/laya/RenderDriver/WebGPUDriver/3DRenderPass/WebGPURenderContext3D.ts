@@ -191,7 +191,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             let commandArray = Array.from(this._preDrawUniformMaps);
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray)
-            this._sceneBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this._sceneData, null, resource);
+            this._sceneBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this._sceneData, null, resource, ~0);
         }
         else {
             this._globalConfigShaderData.cloneTo(contextDef)
@@ -204,9 +204,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             //判断是否需要重新准备Camera的BindGroup
             let commandArray = ["BaseCamera"];
 
-            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, commandArray)
+            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, commandArray);
 
-            this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource);
+            this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource, ~0);
         }
     }
 

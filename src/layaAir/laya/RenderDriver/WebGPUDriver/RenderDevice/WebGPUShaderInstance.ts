@@ -4,7 +4,7 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { NotImplementedError } from "../../../utils/Error";
-import { WebGPUBindGroupHelper, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
+import { WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPURenderContext3D } from "../3DRenderPass/WebGPURenderContext3D";
 import { GLSLForVulkanGenerator } from "./GLSLForVulkanGenerator";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
@@ -27,8 +27,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     private _destroyed: boolean = false;
 
-    private _gpuPipelineLayout: GPUPipelineLayout;
-
     private _commanMap: string[] = [];
 
     /**
@@ -46,6 +44,11 @@ export class WebGPUShaderInstance implements IShaderInstance {
     complete: boolean = false;
 
     uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]> = new Map();
+
+    private uniformResourcesCacheKey: Map<number, string[]> = new Map();
+
+    /** @internal */
+    uniformTextureExits: Map<number, number> = new Map();
 
     constructor(name: string) {
         this.name = name;
@@ -156,9 +159,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
         const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer, appendSet);
 
         this._generateMaterialCommandMap();
+        this.uniformResourcesCacheKey.set(appendSet, [shaderPass.name]);
 
-        if (true) {
-            //去除无用的TextureBinding
+        //去除无用的TextureBinding
+        {
             let textureIndices: number[] = [];
             for (const texName of useTexSet) {
                 let propertyIDName = texName;
@@ -189,6 +193,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
                 }
                 // 用过滤后的数组替换原数组
                 this.uniformSetMap.set(setIndex, filteredBindInfoArray);
+                let cacheKey = this.uniformResourcesCacheKey.get(setIndex);
+
+                // WebGPUBindGroupHelper.CacheBindGroupPropertyInfo("")
             }
         }
 
@@ -252,6 +259,35 @@ export class WebGPUShaderInstance implements IShaderInstance {
             });
         }
 
+        {
+            this.uniformResourcesCacheKey.forEach((names, index) => {
+                let bitOffset = 0;
+                let textureExits = 0;
+                let resources = this.uniformSetMap.get(index);
+                names.forEach(name => {
+                    let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
+                    resources.forEach(resource => {
+                        let propertyID = resource.propertyId;
+                        if (map.hasPtrID(propertyID)) {
+                            switch (resource.type) {
+                                case WebGPUBindingInfoType.sampler:
+                                    let textureBit = map._textureBits.get(propertyID) + bitOffset;
+                                    let posMask = 1 << textureBit;
+                                    textureExits |= posMask;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+
+                    bitOffset += map._textureCount;
+                });
+
+                this.uniformTextureExits.set(index, textureExits);
+            });
+        }
+
         this.complete = true;
     }
 
@@ -272,25 +308,27 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
     }
 
-
     private _create2D(): void {
         let shaderpass = this._shaderPass;
         let context = WebGPURenderContext2D._instance;
         // sprite2DGlobal
-        if (context._needGlobalData())
-            this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, ["Sprite2DGlobal"]));
-        else
+        if (context._needGlobalData()) {
+            let globalArray = ["Sprite2DGlobal"];
+            this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, globalArray));
+            this.uniformResourcesCacheKey.set(0, globalArray);
+        }
+        else {
+            let globalArray: string[] = [];
+            this.uniformResourcesCacheKey.set(0, globalArray);
             this.uniformSetMap.set(0, []);
+        }
 
         this._commanMap = shaderpass.nodeCommonMap ? shaderpass.nodeCommonMap.slice() : [];
-
+        this.uniformResourcesCacheKey.set(1, this._commanMap);
         this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap));
-        // if (shaderpass._owner._uniformMap.size > 0) {
-        //     this._generateMaterialCommandMap();
-        //     this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(2, "Material", shaderpass.name, shaderpass._owner._uniformMap));
-        // } else
-        //     this.uniformSetMap.set(2, []);
 
+        let emptyArray: string[] = [];
+        this.uniformResourcesCacheKey.set(3, emptyArray);
         this.uniformSetMap.set(3, []);
     }
 
@@ -302,16 +340,17 @@ export class WebGPUShaderInstance implements IShaderInstance {
         let preDrawUniforms = context._preDrawUniformMaps;
         let preDrawArray = Array.from(preDrawUniforms);
         this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, preDrawArray));
+        this.uniformResourcesCacheKey.set(0, preDrawArray);
 
         //camera
-        this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, ["BaseCamera"]));
+        let cameraArray = ["BaseCamera"];
+        this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, cameraArray));
+        this.uniformResourcesCacheKey.set(1, cameraArray);
+
         //sprite+additional
         this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
-
         this.uniformSetMap.set(2, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(2, this._commanMap));
-
-        // // material
-        // this.uniformSetMap.set(3, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(3, "Material", shaderPass.name, shaderPass._owner._uniformMap));
+        this.uniformResourcesCacheKey.set(2, this._commanMap);
     }
 
     /**
@@ -321,6 +360,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
         if (!this._destroyed) {
             WebGPUGlobal.releaseId(this);
             this._destroyed = true;
+            this.uniformSetMap.clear();
+            this.uniformResourcesCacheKey.clear();
+            this.uniformTextureExits.clear();
         }
     }
 }

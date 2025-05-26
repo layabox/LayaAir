@@ -437,16 +437,22 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
         {
             let shaderResource = shaderInstance.uniformSetMap.get(2);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
+            if (this.owner) {
+                let commands = this.owner._commonUniformMap;
+                let shaderData = this.owner.shaderData as WebGPUShaderData;
+                let addition = this.owner.additionShaderData;
+                let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
 
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(shaderResource, this.owner);
-
-            command.setBindGroup(2, bindgroup);
-            this.bindGroupMap.set(2, bindgroup);
+                command.setBindGroup(2, bindGroup);
+                this.bindGroupMap.set(2, bindGroup);
+            }
         }
         {
             let shaderResource = shaderInstance.uniformSetMap.get(3);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
 
             command.setBindGroup(3, bindgroup);
             this.bindGroupMap.set(3, bindgroup);

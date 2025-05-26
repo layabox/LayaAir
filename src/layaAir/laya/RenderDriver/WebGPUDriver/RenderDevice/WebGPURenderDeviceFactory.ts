@@ -81,7 +81,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
             "shader-f16",
             "rg11b10ufloat-renderable",
             "bgra8unorm-storage",
-            "float32-filterable",
+            // "float32-filterable",
         ];
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;
