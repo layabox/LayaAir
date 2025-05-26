@@ -15,7 +15,7 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     private _GPUBindGroupEntry: GPUBindGroupEntry;
     private _cacheShaderData: Map<WebGPUShaderData, number> = new Map();
     _destroyed: boolean = false;
-    constructor(type: number) {
+    constructor(type: EDeviceBufferUsage) {
         let usage = 0;
         usage |= (type & EDeviceBufferUsage.MAP_READ) ? GPUBufferUsage.MAP_READ : 0;
         usage |= (type & EDeviceBufferUsage.MAP_WRITE) ? GPUBufferUsage.MAP_WRITE : 0;
