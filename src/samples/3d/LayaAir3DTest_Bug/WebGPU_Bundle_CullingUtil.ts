@@ -235,14 +235,16 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
         }
         {
             let shaderResource = shaderInstance.uniformSetMap.get(2);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
-            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(shaderResource, this.owner);
+            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(shaderResource, this.owner, textureExitsMask);
             command.setBindGroup(2, spriteGroup);
             this.bindGroupMap.set(2, spriteGroup);
         }
         {
             let resource = shaderInstance.uniformSetMap.get(3);
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, resource);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, resource, textureExitsMask);
 
             command.setBindGroup(3, bindgroup);
             this.bindGroupMap.set(3, bindgroup);

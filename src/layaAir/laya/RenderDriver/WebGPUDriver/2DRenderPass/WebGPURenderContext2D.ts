@@ -109,10 +109,10 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
 
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.sceneData, null, resource);
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.sceneData, null, resource, ~0);
         }
         else {
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.sceneData, null, []);
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.sceneData, null, [], 0);
         }
     }
 

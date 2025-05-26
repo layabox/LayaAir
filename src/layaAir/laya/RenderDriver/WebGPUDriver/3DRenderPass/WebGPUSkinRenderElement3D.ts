@@ -139,8 +139,9 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         }
         {
             let shaderResource = shaderInstance.uniformSetMap.get(3);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource);
+            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
 
             command.setBindGroup(3, bindgroup);
             this.bindGroupMap.set(3, bindgroup);
@@ -169,11 +170,13 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             this._bindGroup(context, shaderInstance, command);
             {
                 let resource = shaderInstance.uniformSetMap.get(2);
+                let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
                 let shaderData = this.owner.shaderData as WebGPUShaderData;
                 shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
-                let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner);
+
+                let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner, textureExitsMask);
                 // command.setBindGroup(2, bindgroup);
-                this.bindGroupMap.set(2, bindgroup);
+                this.bindGroupMap.set(2, bindGroup);
             }
 
             command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));

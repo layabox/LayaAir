@@ -25,6 +25,9 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
     /** @internal */
     _textureBits: Map<number, number>;
 
+    /** @internal */
+    _textureExits: number;
+
     constructor(stateName: string) {
         super(stateName);
         this._stateName = stateName;
@@ -50,6 +53,7 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
         }
         if (uniformtype >= ShaderDataType.Texture2D) {
             this._textureBits.set(propertyID, this._textureCount);
+            this._textureExits |= (1 << this._textureCount);
             this._textureCount++;
             // todo 
             // max texture count 31

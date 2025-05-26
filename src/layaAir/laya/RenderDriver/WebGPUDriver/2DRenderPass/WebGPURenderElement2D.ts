@@ -302,7 +302,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         }
         {
             let resource = shader.uniformSetMap.get(1);
-            this._value2DgpuRS = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(this._nodeCommonMap, this.value2DShaderData, null, resource);
+            let textureExitsMask = shader.uniformTextureExits.get(1);
+            this._value2DgpuRS = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(this._nodeCommonMap, this.value2DShaderData, null, resource, textureExitsMask);
 
             command.setBindGroup(1, this._value2DgpuRS);
             this.bindGroupMap.set(1, this._value2DgpuRS);
@@ -312,7 +313,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.materialShaderData) {
             // command.setBindGroup(2, this.materialShaderData._createOrGetBindGroupbyUniformMap("Material", this.subShader._owner.name, 3, this.subShader._uniformMap));
             let resource = shader.uniformSetMap.get(2);
-            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, resource);
+            let textureExitsMask = shader.uniformTextureExits.get(2);
+            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, resource, textureExitsMask);
             command.setBindGroup(2, bindGroup);
             this.bindGroupMap.set(2, bindGroup);
         }
