@@ -14,7 +14,7 @@ export class WebGPUBindGroupLayoutInfo {
 
     private static _idCounter: number = 0;
 
-    private id: number;
+    readonly id: number;
 
     entries: GPUBindGroupLayoutEntry[];
 
@@ -201,7 +201,7 @@ export class WebGPUBindGroupCache {
     getBindGroupLayout(info: WebGPUBindGroupLayoutInfo) {
 
         let descriptor: GPUBindGroupLayoutDescriptor = {
-            label: "GPUBindGroupLayoutDescriptor",
+            label: `Layout_${info.id}`,
             entries: info.entries,
         };
 
