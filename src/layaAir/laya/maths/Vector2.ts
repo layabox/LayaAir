@@ -204,7 +204,7 @@ export class Vector2 implements IClone {
      * @zh 创建此Vector2的克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var destVector2: Vector2 = new Vector2();
         this.cloneTo(destVector2);
         return destVector2;

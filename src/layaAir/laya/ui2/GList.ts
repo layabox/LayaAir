@@ -11,6 +11,9 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
 
+/**
+ * @blueprintInheritable
+ */
 export class GList extends GPanel {
     public itemRenderer: (index: number, item: any) => void;
     public itemProvider: (index: number) => string;

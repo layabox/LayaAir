@@ -5,23 +5,24 @@ import { PAL } from "../../platform/PlatformAdapters";
 /**
  * @en A class that encapsulates Geolocation-related functionalities can check if the browser supports the Geolocation API by using `Geolocation.supported`.
  * @zh 封装了地理位置相关功能的类，可以通过`Geolocation.supported`查看浏览器是否支持地理位置API。
+ * @blueprintable
  */
 export class Geolocation {
     /**
      * @en Indicates failure to get geographical information due to denied permission.
      * @zh 表示由于权限被拒绝造成的地理信息获取失败。
      */
-    static PERMISSION_DENIED: number = 1;
+    static readonly PERMISSION_DENIED: number = 1;
     /**
      * @en Indicates failure to get geographical information due to an internal error from the location source.
      * @zh 表示由于内部位置源返回了内部错误导致地理信息获取失败。
      */
-    static POSITION_UNAVAILABLE: number = 2;
+    static readonly POSITION_UNAVAILABLE: number = 2;
     /**
      * @en Whether the runtime environment supports the Geolocation API.
      * @zh 信息获取所用时长超出`timeout`所设置时长。
      */
-    static TIMEOUT: number = 3;
+    static readonly TIMEOUT: number = 3;
 
     /**
      * @en If `enableHighAccuracy` set to true, and if the device can provide a more accurate location, it will get the best possible results.
@@ -59,6 +60,9 @@ export class Geolocation {
      * @param onSuccess 带有唯一 `Position` 参数的回调处理器。
      * @param onError 可选的。带有错误信息的回调处理器。错误代码为 Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE 和 Geolocation.TIMEOUT 之一。
      */
+    static getCurrentPosition(onSuccess: ((info: GeolocationInfo) => void), onError?: ((err: { code: number, message: string }) => void)): void;
+    /** @deprecated */
+    static getCurrentPosition(onSuccess: Handler, onError?: Handler): void;
     static getCurrentPosition(onSuccess: Handler | ((info: GeolocationInfo) => void), onError?: Handler | ((err: { code: number, message: string }) => void)): void {
         PAL.device.getCurrentPosition(
             info => {
@@ -89,6 +93,9 @@ export class Geolocation {
      * @param onSuccess 带有唯一 `Position` 参数的回调处理器。
      * @param onError 可选的。带有错误信息的回调处理器。错误代码为 Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE 和 Geolocation.TIMEOUT 之一。
      */
+    static watchPosition(onSuccess: ((info: GeolocationInfo) => void), onError?: ((err: { code: number, message: string }) => void)): number;
+    /** @deprecated */
+    static watchPosition(onSuccess: Handler, onError?: Handler): number;
     static watchPosition(onSuccess: Handler | ((info: GeolocationInfo) => void), onError?: Handler | ((err: { code: number, message: string }) => void)): number {
         return PAL.device.watchPosition(
             info => {

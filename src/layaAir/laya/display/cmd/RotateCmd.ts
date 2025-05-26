@@ -6,13 +6,14 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Rotate command
  * @zh 旋转命令
+ * @blueprintIgnore
  */
 export class RotateCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the RotateCmd
      * @zh 旋转命令的标识符
      */
-    static ID: string = "Rotate";
+    static readonly ID: string = "Rotate";
 
     /**
      * @en Rotation angle in radians.

@@ -10,6 +10,7 @@ import { Browser } from "../utils/Browser";
 /**
  * @en `HTMLCanvas` is a proxy class for the HTML Canvas, encapsulating the properties and methods of the Canvas.
  * @zh `HTMLCanvas` 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
+ * @blueprintIgnore
  */
 export class HTMLCanvas extends Resource {
 

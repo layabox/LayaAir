@@ -1,6 +1,7 @@
 /**
  * @en Config is used to set some global parameters. If you need to change them, please set them before initializing the engine.
  * @zh Config类用于配置一些全局参数。如需更改，请在初始化引擎之前设置。
+ * @blueprintable
  */
 export class Config {
     /**

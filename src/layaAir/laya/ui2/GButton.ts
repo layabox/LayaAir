@@ -21,6 +21,9 @@ var tmpColor: Color;
 const downEffectValueC = 0.8;
 const downEffectValueS = 0.9;
 
+/**
+ * @blueprintInheritable
+ */
 export class GButton extends GLabel {
     private _mode: ButtonMode;
     private _selected: boolean = false;
@@ -379,13 +382,13 @@ export class GButton extends GLabel {
         if (this._mode == ButtonMode.Check) {
             if (this._changeStateOnClick) {
                 this.selected = !this._selected;
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGE);
             }
         }
         else if (this._mode == ButtonMode.Radio) {
             if (this._changeStateOnClick && !this._selected) {
                 this.selected = true;
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGE);
             }
         }
         else {
@@ -400,4 +403,9 @@ export class GButton extends GLabel {
             ss.handleClick(this, evt);
         }
     }
+
+    /** @internal @blueprintEvent */
+    GButton_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

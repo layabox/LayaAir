@@ -7,6 +7,9 @@ import { Point } from "../maths/Point";
 import { ProgressTitleType } from "./Const";
 import { GWidget } from "./GWidget";
 
+/**
+ * @blueprintInheritable
+ */
 export class GSlider extends GWidget {
     public changeOnClick: boolean = true;
     public canDrag: boolean = true;
@@ -117,7 +120,7 @@ export class GSlider extends GWidget {
 
             if (newValue != this._value) {
                 this._value = newValue;
-                this.event(Event.CHANGED, Event.EMPTY);
+                this.event(Event.CHANGE, Event.EMPTY);
                 if (!this.canDrag)
                     return;
             }
@@ -258,6 +261,11 @@ export class GSlider extends GWidget {
             percent += delta;
         this.updateWithPercent(percent, true);
     }
+
+    /** @internal @blueprintEvent */
+    GSlider_bpEvent: {
+        [Event.CHANGE]: (e: Event) => void;
+    };
 }
 
 const s_vec2 = new Point();

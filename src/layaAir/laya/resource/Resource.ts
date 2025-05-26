@@ -9,6 +9,7 @@ var _clearRetry: number = 0;
 /**
  * @en The `Resource` class used for resource access.
  * @zh `Resource` 类用于资源存取。
+ * @blueprintable @blueprintableSubclasses
  */
 export class Resource extends EventDispatcher {
     /**@ignore */

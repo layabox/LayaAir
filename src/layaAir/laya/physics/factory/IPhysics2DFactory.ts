@@ -493,6 +493,9 @@ export enum Ebox2DType {
 }
 
 
+/**
+ * @blueprintIgnore
+ */
 export interface IPhysics2DFactory {
     worldCount: number;
 

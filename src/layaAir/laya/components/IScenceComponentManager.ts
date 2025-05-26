@@ -1,6 +1,7 @@
 /**
  * @en Interface for the overall management of a type of component within a 3D scene.
  * @zh 3D 场景中某种类型组件的全面管理接口
+ * @blueprintIgnore
  */
 export interface IElementComponentManager {
 

@@ -2520,7 +2520,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: ShurikenParticleSystem = new ShurikenParticleSystem(null);
         this.cloneTo(dest);
         return dest;

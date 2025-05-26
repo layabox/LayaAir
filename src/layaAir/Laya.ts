@@ -1,4 +1,4 @@
-﻿import { ILaya } from "./ILaya";
+﻿import { ILaya, Mutable } from "./ILaya";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { Loader } from "./laya/net/Loader";
@@ -38,38 +38,41 @@ import { SoundManager } from "./laya/media/SoundManager";
 
 /**
  * @en Laya is the reference entry for global objects.
- * @en The Laya class refers to some commonly used global objects, such as Laya.stage: stage, Laya.timer: time manager, Laya.loader: loading manager. Pay attention to case when using.
+ * 
+ * The Laya class refers to some commonly used global objects, such as Laya.stage: stage, Laya.timer: time manager, Laya.loader: loading manager. Pay attention to case when using.
  * @zh Laya是全局对象的引用入口集。
- * @zh Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
+ * 
+ * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
+ * @blueprintable
  */
 export class Laya {
     /**
      * @en Reference to the stage object.
      * @zh 舞台对象的引用。
      */
-    static stage: Stage = null;
+    static readonly stage: Stage = null;
     /**
      * @ignore 
      * @en System clock manager, used by the engine internally.
      * @zh 系统时钟管理器，引擎内部使用。
      */
-    static systemTimer: Timer = null;
+    static readonly systemTimer: Timer = null;
     /**
      * @ignore
      * @en physics clock manager for components.
      * @zh 组件的物理时钟管理器
      */
-    static physicsTimer: Timer = null;
+    static readonly physicsTimer: Timer = null;
     /**
      * @en Main game timer, also manages scene, animation, tween effects clock. By controlling this timer's scale, fast-forward and slow-motion effects can be achieved.
      * @zh 游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果。
      */
-    static timer: Timer = null;
+    static readonly timer: Timer = null;
     /**
      * @en Reference to the loading manager.
      * @zh 加载管理器的引用。
      */
-    static loader: Loader = null;
+    static readonly loader: Loader = null;
 
     /**
      * @ignore
@@ -89,6 +92,7 @@ export class Laya {
      * @param stageConfig Stage settings used to initialize the engine
      * @zh 初始化引擎。使用引擎需要先初始化引擎。
      * @param stageConfig 初始化引擎的舞台设置。
+     * @blueprintIgnore
      */
     static init(stageConfig?: IStageConfig): Promise<void>;
 
@@ -99,6 +103,7 @@ export class Laya {
      * @zh 初始化引擎。使用引擎需要先初始化引擎。
      * @param width 初始化的游戏窗口宽度，又称设计宽度。
      * @param height 初始化的游戏窗口高度，又称设计高度。
+     * @blueprintIgnore
      */
     static init(width: number, height: number): Promise<void>;
     static init(...args: any[]): Promise<void> {
@@ -116,10 +121,10 @@ export class Laya {
         else
             stageConfig = args[0];
 
-        ILaya.systemTimer = Laya.systemTimer = Timer.gSysTimer = systemTimer = new Timer(false);
-        ILaya.timer = Laya.timer = timer = new Timer(false);
-        ILaya.physicsTimer = Laya.physicsTimer = physicsTimer = new Timer(false);
-        ILaya.loader = Laya.loader = loader = new Loader();
+        ILaya.systemTimer = (<Mutable<typeof Laya>>Laya).systemTimer = Timer.gSysTimer = systemTimer = new Timer(false);
+        ILaya.timer = (<Mutable<typeof Laya>>Laya).timer = timer = new Timer(false);
+        ILaya.physicsTimer = (<Mutable<typeof Laya>>Laya).physicsTimer = physicsTimer = new Timer(false);
+        ILaya.loader = (<Mutable<typeof Laya>>Laya).loader = loader = new Loader();
 
         //初始化平台适配器
         PAL.__init__();
@@ -174,7 +179,7 @@ export class Laya {
     }
 
     private static initRender2D(stageConfig: IStageConfig) {
-        stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
+        stage = ((<any>window)).stage = ILaya.stage = (<Mutable<typeof Laya>>Laya).stage = new Stage();
 
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
@@ -225,7 +230,7 @@ export class Laya {
      */
     static alertGlobalError(value: boolean) {
         if (value)
-            PAL.browser.captureGlobalError(Laya.onGlobalError);
+            PAL.browser.captureGlobalError(Laya._onGlobalError);
         else
             PAL.browser.captureGlobalError(null);
     }
@@ -236,7 +241,7 @@ export class Laya {
      * @zh 全局错误回调函数，当引擎发生错误并且alertGlobalError设置为true时会被调用。
      * @param ev 错误事件对象。
      */
-    static onGlobalError(ev: ErrorEvent | PromiseRejectionEvent) {
+    static _onGlobalError(ev: ErrorEvent | PromiseRejectionEvent) {
         let msg = "Something went wrong\n"
             + ((ev as ErrorEvent).message || (ev as PromiseRejectionEvent).reason)
             + "\n"
@@ -254,6 +259,7 @@ export class Laya {
      * @zh 新增初始化函数，引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。
      * 开发者一般不直接使用。所有注册的回调是并行执行。
      * @param callback 模块的初始化函数。
+     * @blueprintIgnore
      */
     static addInitCallback(callback: () => void | Promise<void>) {
         Laya._initCallbacks.push(callback);
@@ -268,6 +274,7 @@ export class Laya {
      * 
      * 此时 Stage 尚未创建，可以修改 stageConfig 实现动态舞台配置。所有注册的回调按注册顺序依次执行。
      * @param callback 模块的初始化函数。
+     * @blueprintIgnore
      */
     static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
         Laya._beforeInitCallbacks.push(callback);
@@ -278,6 +285,7 @@ export class Laya {
      * @param callback The initialization function of the module.
      * @zh 在引擎初始化后执行自定义逻辑。所有注册的回调按注册顺序依次执行。
      * @param callback 模块的初始化函数。
+     * @blueprintIgnore
      */
     static addAfterInitCallback(callback: () => void | Promise<void>): void {
         Laya._afterInitCallbacks.push(callback);
@@ -288,6 +296,7 @@ export class Laya {
      * @param callback The callback function.
      * @zh 当主包加载完成后，会执行这个回调。所有注册的回调是并行执行。
      * @param callback 回调函数。
+     * @blueprintIgnore
      */
     static addReadyCallback(callback: () => void | Promise<void>): void {
         Laya._readyCallbacks.push(callback);

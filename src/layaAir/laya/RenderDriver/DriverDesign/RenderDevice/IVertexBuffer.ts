@@ -1,5 +1,8 @@
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IVertexBuffer {
     vertexDeclaration: VertexDeclaration;//要的数据是_shaderValues
     instanceBuffer: boolean;

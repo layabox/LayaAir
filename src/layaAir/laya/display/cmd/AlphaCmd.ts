@@ -5,13 +5,14 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Alpha command.
  * @zh 透明命令
+ * @blueprintIgnore
  */
 export class AlphaCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the AlphaCmd
      * @zh 透明命令的标识符
      */
-    static ID: string = "Alpha";
+    static readonly ID: string = "Alpha";
 
     /**
      * @en The opacity level of the command.

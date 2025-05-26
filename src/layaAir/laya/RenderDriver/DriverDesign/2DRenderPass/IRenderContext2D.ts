@@ -5,6 +5,9 @@ import { IRenderCMD } from "../RenderDevice/IRenderCMD";
 import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderElement2D } from "./IRenderElement2D";
 
+/**
+ * @blueprintIgnore
+ */
 export interface IRenderContext2D {
 
     invertY: boolean;

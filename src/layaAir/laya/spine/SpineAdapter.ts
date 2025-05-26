@@ -30,8 +30,8 @@ export class SpineAdapter {
      * @zh 初始化系统，由系统内部调用。
     */
     static initialize() {
-         //@ts-ignore
-         if (window.Spine) {
+        //@ts-ignore
+        if (window.Spine) {
             SpineAdapter.isWasm = true;
             //@ts-ignore
             return window.Spine().then((spine: any) => {

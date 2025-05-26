@@ -4,6 +4,9 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "./IBufferState";
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRenderGeometryElement {
     /**@internal */
     bufferState: IBufferState;

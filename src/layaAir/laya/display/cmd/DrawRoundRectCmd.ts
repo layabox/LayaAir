@@ -13,7 +13,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @en Identifier for the DrawRoundRectCmd
      * @zh 绘制圆角矩形命令的标识符
      */
-    static ID: string = "DrawRoundRect";
+    static readonly ID: string = "DrawRoundRect";
     /**
      * @en The X-axis position of the rounded rectangle.
      * @zh 圆角矩形的 X 轴位置。

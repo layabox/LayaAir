@@ -3,6 +3,7 @@ import { Vector3 } from "./laya/maths/Vector3";
 /**
  * @en Config3D class is used to create 3D initialization configuration.
  * @zh Config3D 类用于创建3D初始化配置。
+ * @blueprintable
  */
 export class Config3D {
     /**

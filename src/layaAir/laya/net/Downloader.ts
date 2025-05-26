@@ -10,6 +10,7 @@ export type DownloadCompleteCallback = (data: any, error?: string) => void;
 /**
  * @en Downloader class responsible for handling various types of resource downloads.
  * @zh Downloader类负责处理各种类型的资源下载。
+ * @blueprintIgnore
  */
 export class Downloader {
     /**

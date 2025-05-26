@@ -5,13 +5,14 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 /**
  * @en Scale command
  * @zh 缩放命令
+ * @blueprintIgnore
  */
 export class ScaleCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the ScaleCmd
      * @zh 缩放命令的标识符
      */
-    static ID: string = "Scale";
+    static readonly ID: string = "Scale";
 
     /**
      * @en Horizontal scaling value.

@@ -63,6 +63,7 @@ export class BaseRender extends Component {
     /**
      * @en Initialize the BaseRender class.
      * @zh 初始化 BaseRender 类。
+     * @internal
      */
     static __init__() {
         BaseRender.shaderValueInit();
@@ -629,7 +630,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @protected
      * @param context 
      */
     renderUpdate(context: RenderContext3D) {

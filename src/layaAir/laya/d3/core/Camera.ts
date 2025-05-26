@@ -972,7 +972,7 @@ export class Camera extends BaseCamera {
      * @en Clone the camera.
      * @zh 克隆相机。
      */
-    clone(): Camera {
+    clone() {
         let camera = <Camera>super.clone();
         camera.clearFlag = this.clearFlag;
         this.clearColor.cloneTo(camera.clearColor);

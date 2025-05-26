@@ -15,7 +15,7 @@ export class Byte {
      * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
      * LITTLE_ENDIAN： 小端字节序，地址低位存储值的低位，地址高位存储值的高位。
      */
-    static BIG_ENDIAN: string = "bigEndian";
+    static readonly BIG_ENDIAN: string = "bigEndian";
     /**
      * @en Host byte order, which represents the two different sequences in which a CPU can store data: little-endian and big-endian. Use getSystemEndian to obtain the byte order of the current system.
      * LITTLE_ENDIAN byte order: The lower address stores the lower bits of the value, and the higher address stores the higher bits.
@@ -24,7 +24,7 @@ export class Byte {
      * LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。
      * BIG_ENDIAN：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。
      */
-    static LITTLE_ENDIAN: string = "littleEndian";
+    static readonly LITTLE_ENDIAN: string = "littleEndian";
 
     /** 是否为小端数据。*/
     protected _xd_: boolean = true;

@@ -1,6 +1,7 @@
 /** 
  * @en Global UI configuration settings.
- * @zh 全局配置 
+ * @zh 全局配置
+ * @blueprintable
  */
 export class UIConfig {
     /** 

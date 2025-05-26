@@ -7,6 +7,7 @@ import { Button } from "./Button"
  * Choosing an unselected member of a Radio group will unselect the currently selected `Radio` control within that group.
  * @zh Radio 控件使用户可在一组互相排斥的选择中做出一种选择。
  * 用户一次只能选择 Radio 组中的一个成员。选择未选中的组成员将取消选择该组中当前所选的 Radio 控件。
+ * @blueprintInheritable
  */
 export class Radio extends Button {
     protected _value: any;

@@ -16,6 +16,7 @@ import { AssetDb } from "../resource/AssetDb";
 /**
  * @en Video texture class, used to create video textures.
  * @zh 视频纹理
+ * @blueprintIgnoreSubclasses
  */
 export class VideoTexture extends BaseTexture {
     /**

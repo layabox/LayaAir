@@ -12,6 +12,9 @@ import { Loader } from "../net/Loader";
 
 const internalEvent = "click_menu_item";
 
+/**
+ * @blueprintInheritable
+ */
 export class PopupMenu extends EventDispatcher {
 
     public visibleItemCount: number = 0;
@@ -223,4 +226,9 @@ export class PopupMenu extends EventDispatcher {
 
         item.event(internalEvent, item);
     }
+
+    /** @internal @blueprintEvent */
+    PopupMenu_bpEvent: {
+        [UIEvent.Popup]: () => void;
+    };
 }

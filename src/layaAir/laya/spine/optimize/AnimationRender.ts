@@ -370,6 +370,7 @@ export class AnimationRender {
 /**
  * @en Represents skin animation render data for spine animations.
  * @zh 表示骨骼动画的皮肤动画渲染数据。
+ * @blueprintIgnore
  */
 export class SkinAniRenderData {
 

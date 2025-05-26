@@ -8,6 +8,7 @@ import { ICompoundColliderShape } from "../../../Physics3D/interface/Shape/IComp
  * @zh 用于创建组合碰撞器。
  */
 export class CompoundColliderShape extends Physics3DColliderShape {
+    /**@internal */
     _shape: ICompoundColliderShape;
 
     /**@internal */
@@ -33,7 +34,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
      * @en set the physics shape array.
      * @zh 设置物理形状数组。
      */
-    public set shapes(value: any[]) {
+    public set shapes(value: Physics3DColliderShape[]) {
         for (var i = this._childColliderShapes.length - 1; i >= 0; i--) {
             this.removeChildShape(this._childColliderShapes[i]);
         }
@@ -43,7 +44,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
         }
     }
 
-    public get shapes(): any[] {
+    public get shapes(): Physics3DColliderShape[] {
         return this._childColliderShapes;
     }
 
@@ -112,7 +113,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
      * @en clone the data to the destination node.
      * @zh 将数据克隆到目标节点。
      */
-    clone(): any {
+    clone() {
         var dest: CompoundColliderShape = new CompoundColliderShape();
         this.cloneTo(dest);
         return dest;

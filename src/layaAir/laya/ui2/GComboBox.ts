@@ -14,6 +14,9 @@ import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { NodeFlags } from "../Const";
 
+/**
+ * @blueprintInheritable
+ */
 export class GComboBox extends GLabel {
     public popupDirection: PopupDirection = 0;
     public visibleItemCount: number = 0;
@@ -299,7 +302,7 @@ export class GComboBox extends GLabel {
 
         this._selectedIndex = -1;
         this.selectedIndex = this._list.getChildIndex(item);
-        this.event(Event.CHANGED);
+        this.event(Event.CHANGE);
     }
 
     private _rollover(): void {
@@ -332,4 +335,10 @@ export class GComboBox extends GLabel {
             this.setCurrentState();
         }
     }
+
+    /** @internal @blueprintEvent */
+    GComboBox_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [UIEvent.Popup]: () => void;
+    };
 }

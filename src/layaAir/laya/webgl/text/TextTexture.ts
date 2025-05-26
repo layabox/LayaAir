@@ -11,6 +11,7 @@ import { TextRenderConfig } from "./TextRenderConfig";
 
 /**
  * 保存文字的贴图
+ * @blueprintIgnore
  */
 export class TextTexture extends Texture2D {
     private static pool: TextTexture[] = new Array(10); // 回收用

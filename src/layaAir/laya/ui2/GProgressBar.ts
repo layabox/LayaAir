@@ -8,6 +8,9 @@ import { GImage } from "./GImage";
 import { GLoader } from "./GLoader";
 import { ProgressMesh } from "./render/ProgressMesh";
 
+/**
+ * @blueprintInheritable
+ */
 export class GProgressBar extends GWidget {
     private _hBar: GWidget;
     private _vBar: GWidget;

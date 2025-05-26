@@ -320,7 +320,7 @@ export class RenderState {
         this.stencilOp.cloneTo(dest.stencilOp);
     }
 
-    clone(): RenderState {
+    clone() {
         var dest: RenderState = new RenderState();
         this.cloneTo(dest);
         return dest;

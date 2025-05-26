@@ -39,7 +39,7 @@
 // 	 * @inheritDoc
 // 	 * @override
 // 	 */
-// 	clone(): any {
+// 	clone() {
 // 		var dest: StaticPlaneColliderShape = new StaticPlaneColliderShape(this._normal, this._offset);
 // 		this.cloneTo(dest);
 // 		return dest;

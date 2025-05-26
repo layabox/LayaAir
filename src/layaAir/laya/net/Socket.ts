@@ -18,6 +18,7 @@ import { IWebSocket, IWebSocketConnectOptions } from "./IWebSocket";
  * - Event.MESSAGE 事件：接收到数据后调度。
  * - Event.CLOSE 事件：连接被关闭后调度。
  * - Event.ERROR 事件：出现异常后调度。
+ * @blueprintable
  */
 export class Socket extends EventDispatcher {
     /**
@@ -258,4 +259,12 @@ export class Socket extends EventDispatcher {
 
         this.event(Event.MESSAGE, data);
     }
+
+    /** @internal @blueprintEvent */
+    Socket_bpEvent: {
+        [Event.OPEN]: () => void;
+        [Event.CLOSE]: () => void;
+        [Event.ERROR]: (e: any) => void;
+        [Event.MESSAGE]: (data: string | ArrayBuffer) => void;
+    };
 }

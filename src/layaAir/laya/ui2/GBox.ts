@@ -2,7 +2,11 @@ import { GWidget } from "./GWidget";
 import { Layout } from "./layout/Layout";
 import { ILayout } from "./layout/ILayout";
 import { LayoutChangedReason } from "./Const";
+import { UIEvent } from "./UIEvent";
 
+/**
+ * @blueprintInheritable
+ */
 export class GBox extends GWidget {
     protected _layout: ILayout;
 
@@ -24,4 +28,9 @@ export class GBox extends GWidget {
         if (changeByLayout)
             this._layout.refresh();
     }
+
+    /** @internal @blueprintEvent */
+    GBox_bpEvent: {
+        [UIEvent.ContentSizeChanged]: () => void;
+    };
 }

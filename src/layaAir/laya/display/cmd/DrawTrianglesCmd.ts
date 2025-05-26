@@ -15,7 +15,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
      */
-    static ID: string = "DrawTriangles";
+    static readonly ID: string = "DrawTriangles";
 
     /**
      * @en The texture to be drawn.

@@ -2,6 +2,7 @@ import { Sprite } from "./Sprite";
 import { AnimationWrapMode, FrameAnimation } from "../components/FrameAnimation";
 import { HideFlags } from "../Const";
 import { ILaya } from "../../ILaya";
+import { Event } from "../events/Event";
 
 /**
  * @en The Animation class is used to play frame animation.
@@ -288,4 +289,10 @@ export class Animation extends Sprite {
         }
         return false;
     }
+
+    /** @internal @blueprintEvent */    
+    Animation_bpEvent: {
+        [Event.COMPLETE]: () => void;
+        [Event.LABEL]: (label: string) => void;
+    };
 }

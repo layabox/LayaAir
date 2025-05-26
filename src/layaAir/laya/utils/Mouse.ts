@@ -3,6 +3,7 @@ import { PAL } from "../platform/PlatformAdapters";
 /**
  * @en The `Mouse` class is used to control the style of the mouse cursor.
  * @zh `Mouse` 类用于控制鼠标光标的样式。
+ * @blueprintable
  */
 export class Mouse {
     private static _cursor: string = "auto";

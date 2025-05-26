@@ -3,13 +3,19 @@ import { ISelection } from "./selection/ISelection";
 import { ILayout } from "./layout/ILayout";
 import { Selection } from "./selection/Selection";
 import { IScroller } from "./IScroller";
-import { LayoutChangedReason, SelectionMode } from "./Const";
+import { LayoutChangedReason } from "./Const";
 import { GBox } from "./GBox";
 import { Rectangle } from "../maths/Rectangle";
 import { Sprite } from "../display/Sprite";
 import { InputManager } from "../events/InputManager";
 import { HideFlags } from "../Const";
+import { Event } from "../events/Event";
+import { UIEvent } from "./UIEvent";
+import { GButton } from "./GButton";
 
+/**
+ * @blueprintInheritable
+ */
 export class GPanel extends GBox {
     private _clipping: boolean;
     private _scroller: IScroller;
@@ -144,6 +150,16 @@ export class GPanel extends GBox {
 
         super.destroy();
     }
+
+    /** @internal @blueprintEvent */
+    GPanel_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [UIEvent.ClickItem]: (item: GButton) => void;
+        [UIEvent.Scroll]: () => void;
+        [UIEvent.ScrollEnd]: () => void;
+        [UIEvent.PullDownRelease]: () => void;
+        [UIEvent.PullUpRelease]: () => void;
+    };
 }
 
 class PanelContainer extends GWidget {

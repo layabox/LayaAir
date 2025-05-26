@@ -532,7 +532,7 @@ export class NoRenderShaderData extends ShaderData {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: NoRenderShaderData = new NoRenderShaderData();
         this.cloneTo(dest);
         return dest;

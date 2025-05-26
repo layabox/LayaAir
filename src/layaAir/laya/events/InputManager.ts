@@ -18,6 +18,11 @@ const _rollOverChain: Array<Node> = [];
 const _rollOutChain: Array<Node> = [];
 var _inst: InputManager;
 
+/**
+ * @en The `InputManager` class is responsible for managing input events such as mouse, touch, and keyboard events.
+ * @zh `InputManager` 类负责管理输入事件，例如鼠标、触摸和键盘事件。
+ * @blueprintable
+ */
 export class InputManager {
 
     /**

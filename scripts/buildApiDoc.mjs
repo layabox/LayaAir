@@ -4,7 +4,10 @@ import { rimrafSync } from "rimraf";
 import { Application, OptionDefaults } from "typedoc";
 
 const outDir = path.join(".", "docs");
-const ourTags = ["@en", "@zh", "@perfTag"];
+const ourTags = ["@en", "@zh", "@perfTag",
+    "@blueprintable", "@blueprintableSubclasses", "@blueprintIgnore", "@blueprintIgnoreSubclasses",
+    "@blueprintEvent", "@blueprintDefaultEvent", "@blueprintPure", "@blueprintInheritable"
+];
 const currentVersion = "3.3";
 
 const configVersions = [

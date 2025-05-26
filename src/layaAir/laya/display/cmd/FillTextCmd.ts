@@ -19,7 +19,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @en Identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
      */
-    static ID: string = "FillText";
+    static readonly ID: string = "FillText";
 
     /**
      * @en The x position of the start of the text (relative to the canvas).

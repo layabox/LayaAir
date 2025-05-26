@@ -51,6 +51,7 @@ export enum HtmlElementType {
 /**
  * @en The `HtmlElement` class represents HTML element.
  * @zh `HtmlElement` 类表示 HTML 元素。
+ * @blueprintIgnore
  */
 export class HtmlElement {
     /**

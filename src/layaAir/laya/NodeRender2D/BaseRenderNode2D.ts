@@ -34,48 +34,65 @@ export class BaseRenderNode2D extends Component {
 
     /**
      * 渲染矩阵第一个vector3属性ID
+     * @readonly
      */
     static NMATRIX_0: number;
     /**
      * 渲染矩阵第二个vector3属性ID
+     * @readonly
      */
     static NMATRIX_1: number;
     /**
      * 渲染节点颜色ID
+     * @readonly
      */
     static BASERENDER2DCOLOR: number;
     /**
      * 渲染节点纹理ID
+     * @readonly
      */
     static BASERENDER2DTEXTURE: number;
     /**
      * 渲染节点纹理范围ID
+     * @readonly
      */
     static BASERENDER2DTEXTURERANGE: number;
     /**
      * 渲染节点size ID
+     * @readonly
      */
     static BASERENDERSIZE: number;
 
     /**
      * 渲染节点纹理ID
+     * @readonly
      */
     static NORMAL2DTEXTURE: number;
+    /**
+     * @readonly
+     */
     static NORMAL2DSTRENGTH: number;
 
     /**
      * 2D渲染节点宏
+     * @readonly
      */
     static SHADERDEFINE_BASERENDER2D: ShaderDefine;
 
     /**
      * 2D灯光宏
+     * @readonly
      */
     static SHADERDEFINE_LIGHT2D_ENABLE: ShaderDefine;
+    /** @readonly */
     static SHADERDEFINE_LIGHT2D_EMPTY: ShaderDefine;
+    /** @readonly */
     static SHADERDEFINE_LIGHT2D_ADDMODE: ShaderDefine;
+    /** @readonly */
     static SHADERDEFINE_LIGHT2D_SUBMODE: ShaderDefine;
+    /** @readonly */
     static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
+    /** @readonly */
     static SHADERDEFINE_CLIPMODE: ShaderDefine;
 
     /**
@@ -275,7 +292,6 @@ export class BaseRenderNode2D extends Component {
 
     /**
      * 帧更新，可以放一些顶点更新，数据计算等
-     * @protected
      * @param context 
      */
     renderUpdate?(context: IRenderContext2D): void;

@@ -433,7 +433,7 @@ export class HierarchyParser {
         let test: Record<string, string[]> = {};
         let innerUrls: (string | ILoadURL)[] = [];
 
-        function addInnerUrl(url: string, type: string) {
+        function addInnerUrl(url: string, type: string, absolutePath?: boolean) {
             if (!url)
                 return "";
             let entry = test[url];
@@ -441,6 +441,8 @@ export class HierarchyParser {
                 let url2: string;
                 if (Utils.isUUID(url))
                     url2 = "res://" + url;
+                else if (absolutePath)
+                    url2 = url;
                 else
                     url2 = URL.join(basePath, url);
                 innerUrls.push({ url: url2, type: type });
@@ -464,7 +466,7 @@ export class HierarchyParser {
                 data._$prefab = addInnerUrl(data._$prefab, Loader.HIERARCHY);
             else if ((type = data._$type) != null) {
                 if (type.endsWith(".bp"))
-                    addInnerUrl(type, null);
+                    addInnerUrl(type, null, true);
                 else if (LayaEnv.isPreview && Utils.isUUID(type)) {
                     let cls = ClassUtils.getClass(type);
                     if (cls == null || cls._$loadable)

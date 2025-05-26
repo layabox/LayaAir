@@ -48,11 +48,6 @@ export class HingeConstraint extends ConstraintComponent {
         super();
     }
 
-    /**
-     * @internal
-     * @protected
-     * create joint
-     */
     protected _initJoint(): void {
         this._physicsManager = this.owner._scene._physicsManager;
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_HingeJoint)) {
@@ -62,22 +57,12 @@ export class HingeConstraint extends ConstraintComponent {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     * overrid it
-     */
     protected _onEnable(): void {
         super._onEnable();
         if (this._joint)
             this._joint.isEnable(true);
     }
 
-    /**
-     * @internal
-     * @protected
-     * overrid it
-     */
     protected _onDisable(): void {
         if (this._joint)
             this._joint.isEnable(false);

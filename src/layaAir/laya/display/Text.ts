@@ -34,31 +34,32 @@ export class Text extends Sprite {
      * @en Visible without any clipping.
      * @zh visible不进行任何裁切。
      */
-    static VISIBLE: string = "visible";
+    static readonly VISIBLE: string = "visible";
     /**
      * @en Scroll does not display character pixels outside the text area and supports the scroll interface.
      * @zh scroll 不显示文本域外的字符像素，并且支持 scroll 接口。
      */
-    static SCROLL: string = "scroll";
+    static readonly SCROLL: string = "scroll";
     /**
      * @en Hidden does not display characters beyond the text area.
      * @zh hidden 不显示超出文本域的字符。
      */
-    static HIDDEN: string = "hidden";
+    static readonly HIDDEN: string = "hidden";
     /**
      * @en Shrink the entire text to fit the text box when it exceeds the text area.
      * @zh shrink 超出文本域时，文本整体缩小以适应文本框。
      */
-    static SHRINK: string = "shrink";
+    static readonly SHRINK: string = "shrink";
     /**
      * @en Ellipsis truncates the text and displays an ellipsis at the end when it exceeds the text area.
      * @zh ellipsis 超出文本域时，文本被截断，并且文本最后显示省略号。
      */
-    static ELLIPSIS: string = "ellipsis";
+    static readonly ELLIPSIS: string = "ellipsis";
 
     /**
      * @en Language pack, a collection of key:value pairs, indexed by key, replaced with target value language.
      * @zh 语言包，是一个包含key:value的集合，用key索引，替换为目标value语言。
+     * @blueprintIgnore
      */
     static langPacks: Record<string, string>;
     /**
@@ -1874,6 +1875,7 @@ export interface ITextCmd {
     prev: ITextCmd;
 }
 
+/**  @blueprintIgnore */
 export interface ITextLine {
     x: number;
     y: number;

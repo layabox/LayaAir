@@ -15,24 +15,28 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**
      * @en Event triggered when entering the state
      * @zh 进入状态时触发的事件
+     * @blueprintIgnore
      */
     static EVENT_OnStateEnter = "OnStartEnter";
 
     /**
      * @en Event triggered during state update
      * @zh 状态更新时触发的事件
+     * @blueprintIgnore
      */
     static EVENT_OnStateUpdate = "OnStateUpdate";
 
     /**
      * @en Event triggered when exiting the state
      * @zh 退出状态时触发的事件
+     * @blueprintIgnore
      */
     static EVENT_OnStateExit = "OnStateExit";
 
     /**
      * @en Event triggered when the state loops
      * @zh 状态循环时触发的事件
+     * @blueprintIgnore
      */
     static EVENT_OnStateLoop = 'OnStateLoop';
 

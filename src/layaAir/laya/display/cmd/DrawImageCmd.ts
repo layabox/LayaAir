@@ -14,7 +14,7 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @en Identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
      */
-    static ID: string = "DrawImage";
+    static readonly ID: string = "DrawImage";
 
     /**
      * @en Texture to be drawn

@@ -228,7 +228,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     /**
      * @internal
-     * @protected
      * cmd run时调用，可以用来计算matrix等获得即时context属性
      * @param context 
      * @param px 

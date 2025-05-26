@@ -2,6 +2,9 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../RenderDevice/ShaderData";
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;

@@ -6,7 +6,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**
- * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
+ * BufferState类用于实现渲染所需的Buffer状态集合。
+ * @blueprintIgnore
  */
 export class BufferState {
     private static vertexBufferArray: IVertexBuffer[] = [];
