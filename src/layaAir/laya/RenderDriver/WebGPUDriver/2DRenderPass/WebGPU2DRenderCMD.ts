@@ -6,7 +6,6 @@ import { SetRendertarget2DCMD, Draw2DElementCMD, Blit2DQuadCMD } from "../../Dri
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";

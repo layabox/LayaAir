@@ -168,6 +168,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         // if (WebGPUGlobal.useGlobalContext)
         //     WebGPUContext.startRender();
         node._prepare(this);
+        WebGPURenderEngine._instance.gpuBufferMgr.upload();
         node._render(this, this.renderCommand);
         this._submit();
     }
