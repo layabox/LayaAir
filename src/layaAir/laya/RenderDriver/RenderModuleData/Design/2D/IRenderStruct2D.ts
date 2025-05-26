@@ -32,12 +32,13 @@ export interface IRenderStruct2D {
 
    renderUpdateMask: number;
 
-
    //----- 渲染继承累加数据 -----
    renderMatrix: Matrix;
    /** 非即时数据 */
    globalAlpha: number;
+
    alpha: number;
+
    blendMode: BlendMode;
    /** 是否启动 */
    enable: boolean;
@@ -60,15 +61,13 @@ export interface IRenderStruct2D {
    setRepaint(): void;
 
    addChild(child: IRenderStruct2D, index: number): IRenderStruct2D;
+
    updateChildIndex(child: IRenderStruct2D, oldIndex: number, index: number): void;
+
    removeChild(child: IRenderStruct2D): void;
 
    setClipRect(rect: Rectangle): void;
-   // getClipRect():Rectangle;
 
-   // setClipMatrix(matrix:Matrix):void;
-   getClipInfo(): IClipInfo;
-   // addCMDCall(context:Context, x:number, y:number):void;
    renderUpdate(context: IRenderContext2D): void;
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void;

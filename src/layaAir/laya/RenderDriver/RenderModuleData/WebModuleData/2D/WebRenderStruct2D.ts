@@ -64,6 +64,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set renderMatrix(value: Matrix) {
 
       if (!this.trans) {
+         //da buffer 的位置   abcd dx dy modify
          this.trans = new structTransform();
          this.trans.matrix = new Matrix();
       }
