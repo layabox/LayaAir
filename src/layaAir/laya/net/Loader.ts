@@ -38,18 +38,75 @@ export interface IResourceLoader {
 }
 
 export interface ILoadOptions {
+    /**
+     * @en The type of resource to load. If not specified, it will be determined based on the file extension.
+     * @zh 要加载的资源类型。如果未指定，将根据文件扩展名确定。
+     */
     type?: string;
+    /**
+     * @en Only used when the resource type cannot be determined from the extension.
+     * @zh 只有当无法从扩展名获取资源类型时，才使用这里指定的类型。
+     */
+    maybeType?: string;
+    /**
+     * @en The priority of the loading task. Higher numbers indicate higher priority. Default is 0.
+     * @zh 加载任务的优先级。数字越大，优先级越高。默认为 0。
+     */
     priority?: number;
+    /**
+     * @en The group name for resource management. Resources in the same group can be loaded together or managed collectively.
+     * @zh 资源分组名称，用于资源管理。同一组中的资源可以一起加载或进行集体管理。
+     */
     group?: string;
+    /**
+     * @en Whether to cache the resource after loading. Default is true.
+     * @zh 加载后是否缓存资源。默认为 true。
+     */
     cache?: boolean;
+    /**
+     * @en Whether to ignore the cache and always load the resource from the network. Default is false.
+     * @zh 是否忽略缓存，始终从网络加载资源。默认为 false。
+     */
     ignoreCache?: boolean;
+    /**
+     * @en Whether to retry loading if it fails. Default is true.
+     * @zh 加载失败时是否重试。默认为 true。
+     */
     noRetry?: boolean;
+    /**
+     * @en Whether not to display error messages in the console if loading fails. Default is false.
+     * @zh 加载失败时是否不在控制台显示错误信息。默认为 false。
+     */
     silent?: boolean;
+    /**
+     * @en Whether to use a worker for loading. This is only effective for IMAGE types, and only if the browser supports it. Default is false.
+     * @zh 是否使用 worker 进行加载。仅对 IMAGE 类型有效，且浏览器支持时生效。默认为 false。
+     */
     useWorkerLoader?: boolean;
+    /**
+     * @en Parameters for constructing a Texture. This is only effective for TEXTURE2D, TEXTURECUBE, and TEXTURE2DARRAY types.
+     * @zh 用于构造 Texture 的参数。仅对 TEXTURE2D、TEXTURECUBE 和 TEXTURE2DARRAY 类型有效。
+     */
     constructParams?: TextureConstructParams;
+    /**
+     * @en Parameters for setting texture properties. This is only effective for TEXTURE2D, TEXTURECUBE, and TEXTURE2DARRAY types.
+     * @zh 用于设置纹理属性的参数。仅对 TEXTURE2D、TEXTURECUBE 和 TEXTURE2DARRAY 类型有效。
+     */
     propertyParams?: TexturePropertyParams;
+    /**
+     * @en Create an image bitmap from the array buffer.
+     * @zh 从数组缓冲区创建图像位图。
+     */
     blob?: ArrayBuffer;
+    /**
+     * @en The initiator of the loading task. This can be used to track which task initiated the load, or to pass additional context information.
+     * @zh 加载任务的发起者。可以用于跟踪哪个任务发起了加载，或传递其他上下文信息。
+     */
     initiator?: ILoadTask;
+    /**
+     * @en Custom data that can be used to pass additional information or parameters to the loader.
+     * @zh 自定义数据，可以用于向加载器传递额外的信息或参数。
+     */
     [key: string]: any;
 }
 
@@ -383,7 +440,7 @@ export class Loader extends EventDispatcher {
      * @param cache Whether to cache the resource. Default is true.
      * @param group The group name for resource management.
      * @param ignoreCache Whether to ignore the cache. Default is false.
-     * @param useWorkerLoader Whether to use worker loading (only for IMAGE and ATLAS types, and when browser supports it). Default is false.
+     * @param useWorkerLoader Whether to use worker loading (only for IMAGE types, and when browser supports it). Default is false.
      * @returns A Promise object.
      * @zh 加载资源（兼容 2.0 引擎的加载接口）。
      * @param url 要加载的单个资源地址或资源信息数组。可以是简单数组 ["a.png", "b.png"] 或复杂数组 [{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
@@ -394,7 +451,7 @@ export class Loader extends EventDispatcher {
      * @param cache 是否缓存资源。默认为 true。
      * @param group 分组名称，用于资源管理。
      * @param ignoreCache 是否忽略缓存。默认为 false。
-     * @param useWorkerLoader 是否使用 worker 加载（仅针对 IMAGE 和 ATLAS 类型，且浏览器支持时生效）。默认为 false。
+     * @param useWorkerLoader 是否使用 worker 加载（仅针对 IMAGE 类型，且浏览器支持时生效）。默认为 false。
      * @returns Promise 对象。
      */
     load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
@@ -516,7 +573,7 @@ export class Loader extends EventDispatcher {
 
     /** @internal */
     _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
+        let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type, options.maybeType);
         if (!loaderType) {
             !options.silent && Loader.warnFailed(url, type ? `unsupported load type:${type}` : !url.startsWith("res://") ? `unsupported suffix` : "", options.initiator?.url);
             return Promise.resolve(null);
@@ -816,12 +873,14 @@ export class Loader extends EventDispatcher {
      * @param type 可选的类型规范。
      * @returns 包含扩展名、主要标志、类型ID和加载器类型的URLInfo对象。
      */
-    public static getURLInfo(url: string, type?: string): URLInfo {
+    public static getURLInfo(url: string, type?: string, maybeType?: string): URLInfo {
         //先根据扩展名获得注册信息A
         let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
         let extEntry: Array<TypeMapEntry>;
         if (ext.length > 0)
             extEntry = Loader.extMap[ext];
+        if (!extEntry && !type)
+            type = maybeType;
 
         let typeId: number;
         let main: boolean;

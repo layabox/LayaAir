@@ -201,7 +201,7 @@ export class GLoader extends GWidget {
         let loadID = ++this._loadId;
         let res = Loader.getRes(this._src);
         if (!res)
-            res = await ILaya.loader.load(this._src);
+            res = await ILaya.loader.load(this._src, { maybeType: Loader.IMAGE });
         this.onLoaded(res, loadID);
     }
 

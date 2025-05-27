@@ -380,6 +380,19 @@ export class GWidget extends Sprite {
         return this._controllers[name];
     }
 
+    setPage(controllerName: string, pageName: string): void;
+    setPage(controllerName: string, pageIndex: number): void;
+    setPage(controllerName: string, page: number | string): void {
+        let c = this._controllers[controllerName];
+        if (!c)
+            return;
+
+        if (typeof (page) === "number")
+            c.selectedIndex = page;
+        else
+            c.selectedPage = page;
+    }
+
     protected _controllersChanged() {
         this.event(UIEvent.ControllersChanged);
     }

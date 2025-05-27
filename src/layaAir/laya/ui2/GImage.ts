@@ -47,7 +47,7 @@ export class GImage extends GWidget {
             if (tex)
                 this.onLoaded(tex, loadID);
             else
-                ILaya.loader.load(value).then(res => this.onLoaded(res, loadID));
+                ILaya.loader.load(value, Loader.IMAGE).then(res => this.onLoaded(res, loadID));
         }
         else
             this.onLoaded(null, loadID);
