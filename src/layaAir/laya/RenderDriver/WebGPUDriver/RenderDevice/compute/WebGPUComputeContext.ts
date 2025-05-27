@@ -1,17 +1,17 @@
 
-import { Color } from '../../../../maths/Color.js';
-import { Matrix3x3 } from '../../../../maths/Matrix3x3.js';
-import { Matrix4x4 } from '../../../../maths/Matrix4x4.js';
-import { Vector2 } from '../../../../maths/Vector2.js';
-import { Vector3 } from '../../../../maths/Vector3.js';
-import { Vector4 } from '../../../../maths/Vector4.js';
-import { BaseTexture } from '../../../../resource/BaseTexture.js';
-import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData.js';
-import { WebGPURenderEngine } from '../WebGPURenderEngine.js';
-import { WebGPUShaderData } from '../WebGPUShaderData.js';
-import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance.js';
-import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer.js';
+import { Color } from '../../../../maths/Color';
+import { Matrix3x3 } from '../../../../maths/Matrix3x3';
+import { Matrix4x4 } from '../../../../maths/Matrix4x4';
+import { Vector2 } from '../../../../maths/Vector2';
+import { Vector3 } from '../../../../maths/Vector3';
+import { Vector4 } from '../../../../maths/Vector4';
+import { BaseTexture } from '../../../../resource/BaseTexture';
+import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
+import { WebGPURenderEngine } from '../WebGPURenderEngine';
+import { WebGPUShaderData } from '../WebGPUShaderData';
+import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance';
+import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer';
 
 /**
  * 命令类型枚举

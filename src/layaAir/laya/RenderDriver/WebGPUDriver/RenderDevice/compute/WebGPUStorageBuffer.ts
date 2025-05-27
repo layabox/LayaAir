@@ -1,9 +1,9 @@
-import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IDeviceBuffer.js';
+import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IDeviceBuffer';
 import { WebGPUBuffer } from '../WebGPUBuffer';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
-import { WebGPUShaderData } from '../WebGPUShaderData.js';
-import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer.js';
+import { WebGPUShaderData } from '../WebGPUShaderData';
+import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer';
 
 export interface IDeviceBufferCacheData {
     gpudata: WebGPUShaderData;

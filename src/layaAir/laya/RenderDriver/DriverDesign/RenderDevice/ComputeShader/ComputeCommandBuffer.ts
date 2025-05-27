@@ -1,12 +1,12 @@
-import { LayaGL } from "../../../../layagl/LayaGL.js";
-import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext.ts.js";
-import { IDeviceBuffer } from "../IDeviceBuffer.js";
-import { IVertexBuffer } from "../IVertexBuffer.js";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData.js";
-import { ComputeShader } from "./ComputeShader.js";
-import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas.js";
-import { Vector3 } from "../../../../maths/Vector3.js";
-import { IIndexBuffer } from "../IIndexBuffer.js";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
+import { IDeviceBuffer } from "../IDeviceBuffer";
+import { IVertexBuffer } from "../IVertexBuffer";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
+import { ComputeShader } from "./ComputeShader";
+import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
+import { Vector3 } from "../../../../maths/Vector3";
+import { IIndexBuffer } from "../IIndexBuffer";
 
 export class ComputeCommandBuffer {
     private _context: IComputeContext;
