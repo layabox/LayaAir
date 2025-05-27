@@ -1,6 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { NodeFlags, SUBPASSFLAG } from "../Const";
-import { Filter } from "../filters/Filter";
+import { Filter } from "../legacy/filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
@@ -36,6 +36,7 @@ import { Scene } from "./Scene";
 import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
+import { Color } from "../maths/Color";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
@@ -150,7 +151,7 @@ export class Sprite extends Node {
      * @en Blend mode
      * @zh 混合模式
      */
-    _blendMode: BlendMode = BlendMode.Normal;
+    _blendMode: BlendMode = BlendMode.Invalid;
     /**
      * @internal
     */
@@ -167,6 +168,10 @@ export class Sprite extends Node {
      * @zh z排序，数值越大越靠前。
      */
     _zOrder: number = 0;
+    /**
+     * @internal 
+     */
+    _zIndex: number = 0;
     /**
      * @internal 
      */
@@ -251,6 +256,8 @@ export class Sprite extends Node {
     _subStruct: IRenderStruct2D = null;
     /** @internal */
     protected _postProcess: PostProcess2D = null;
+
+    private _layer: number = 0;
 
     /** @ignore */
     constructor() {
@@ -653,12 +660,12 @@ export class Sprite extends Node {
     set blendMode(value: BlendMode | string) {
         if (this._blendMode != value) {
             if (typeof value === 'string') {
-                value = BlendModeHandler.NAMES[value];
-            }else if(value == null){
-                value = BlendMode.Normal;
+                value = BlendModeHandler.NAMES[value] || BlendMode.Invalid;
+            } else if (value == null) {
+                value = BlendMode.Invalid;
             }
 
-            this._blendMode = value ;
+            this._blendMode = value;
             this._initShaderData();
             if (value)
                 this._renderType |= SpriteConst.BLEND;
@@ -667,6 +674,25 @@ export class Sprite extends Node {
 
             this._struct.blendMode = this._blendMode;
             this.parentRepaint();
+        }
+    }
+
+    /**
+     * @en Mask layer.
+     * @zh 蒙版层。
+     */
+    get layer(): number {
+        return this._layer;
+    }
+
+    set layer(value: number) {
+        if (this._layer !== value) {
+            if (value >= 0 && value <= 30) {
+                this._layer = value;
+                this._struct.renderLayer = 1 << value;
+            } else {
+                throw new Error("Layer value must be 0-30.");
+            }
         }
     }
 
@@ -723,7 +749,7 @@ export class Sprite extends Node {
         value && value.length === 0 && (value = null);
         if (value) {
             this._filterArr = value;
-            this._renderType |= SpriteConst.FILTERS;
+            this._renderType |= SpriteConst.POSTPROCESS;
             if (!this._oriRenderPass) {
                 this.createSubRenderPass();
             }
@@ -732,13 +758,13 @@ export class Sprite extends Node {
             for (var i = 0; i < this._filterArr.length; i++) {
                 this._oriRenderPass.postProcess.addEffect(this.filters[i].getEffect());
             }
-            this.setSubpassFlag(SUBPASSFLAG.PostProcess);
         }
         else {
-            this._renderType &= ~SpriteConst.FILTERS;
+            this._renderType &= ~SpriteConst.POSTPROCESS;
             this._oriRenderPass.postProcess && this._oriRenderPass.postProcess.destroy();
-            this.setSubpassFlag(SUBPASSFLAG.PostProcess);
         }
+
+        this.setSubpassFlag(SUBPASSFLAG.PostProcess);
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
@@ -747,6 +773,17 @@ export class Sprite extends Node {
     }
 
 
+    get postProcess(): PostProcess2D {
+        return this._oriRenderPass ? this._oriRenderPass.postProcess : null;
+    }
+
+    set postProcess(value: PostProcess2D) {
+        if (!this._oriRenderPass) {
+            this.createSubRenderPass();
+        }
+        this._oriRenderPass.postProcess = value;
+        this.setSubpassFlag(SUBPASSFLAG.PostProcess);
+    }
 
     /**
     * @en Specifies whether the display object is cached as a static image. When cacheAs is set, changes in child objects will automatically update the cache. You can also manually call the reCache method to update the cache.
@@ -1010,6 +1047,21 @@ export class Sprite extends Node {
                 value && this._parent._setBit(NodeFlags.HAS_ZORDER, true);
                 ILaya.systemTimer.callLater(this._parent, this.updateZOrder);
             }
+        }
+    }
+
+    /**
+     * @en z rendering sort, which will modify the rendering order of the current object. The larger the value, the higher it is. The default is 0.
+     * @zh z渲染排序，会修改当前对象的渲染顺序。值越大，越靠上。默认值为 0。
+     */
+    get zIndex(): number {
+        return this._zIndex;
+    }
+
+    set zIndex(value: number) {
+        if (this._zIndex != value) {
+            this._zIndex = value;
+            this._struct.zIndex = value;
         }
     }
 
@@ -1469,6 +1521,7 @@ export class Sprite extends Node {
      * @param rt The render target. If not provided, a new RenderTexture2D will be created.
      * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
+     * @param clearColor Optional. If provided, the texture will be cleared to this color before drawing. Default is null.
      * @returns The drawn RenderTexture2D object.
      * @zh 将指定的 Sprite 绘制到 RenderTexture2D 对象上。
      * @param sprite 要绘制的 Sprite。
@@ -1479,25 +1532,10 @@ export class Sprite extends Node {
      * @param rt 渲染目标。如果未提供,将创建一个新的 RenderTexture2D。
      * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
+     * @param clearColor 可选。如果为 true，则清除颜色。默认为 null。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false): RenderTexture2D {
-        // let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
-        // let ctx = new Context();
-        // if (rt) {
-        //     ctx.size(rt.width, rt.height);
-        // } else {
-        //     ctx.size(canvasWidth, canvasHeight)
-        // }
-        // ctx.render2D = ctx.render2D.clone(renderout);
-        // ctx._drawingToTexture = true;
-        // if (flipY) {
-        //     renderout._invertY = true;//翻转纹理
-        // }
-        // let outrt = RenderSprite.RenderToRenderTexture(sprite, ctx, offsetX, offsetY, renderout, isDrawRenderRect);
-        // ctx._drawingToTexture = false;
-        // ctx.destroy();
-        // return outrt;
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false, clearColor: Color = null): RenderTexture2D {
 
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         renderout._invertY = flipY;
@@ -1506,9 +1544,6 @@ export class Sprite extends Node {
         const _updateSprites = function (root: Sprite): void {
             for (let i = 0, len = root.numChildren; i < len; i++) {
                 let child = root._children[i];
-                if (child._graphics) {
-                    child._graphics._render(runner, 0, 0);
-                }
 
                 if (child._subpassUpdateFlag) {
                     child.updateRenderTexture();
@@ -1529,6 +1564,16 @@ export class Sprite extends Node {
                     //Mask TODO
                     child._subpassUpdateFlag = 0;
                 }
+
+                if (child._struct) {
+                    let matrix = child.globalTrans.getMatrix();
+                    child._struct.renderMatrix = matrix;
+                    child._subStruct && (child._subStruct.renderMatrix = matrix);
+                }
+
+                if (child._graphics) {
+                    child._graphics._render(runner, 0, 0);
+                }
                 _updateSprites(child);
             }
         }
@@ -1536,6 +1581,11 @@ export class Sprite extends Node {
         _updateSprites(sprite);
 
         let pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+        
+        if (clearColor) {
+            pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        } else
+            pass.setClearColor(0, 0, 0, 0);
         pass.renderTexture = renderout;
         pass.root = sprite._struct;
         pass.renderOffset.x = offsetX;
@@ -2258,6 +2308,8 @@ export class Sprite extends Node {
         super._setParent(value);
 
         this._setStructParent(value);
+
+        this._globalTrans._spTransChanged(TransformKind.TRS);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {

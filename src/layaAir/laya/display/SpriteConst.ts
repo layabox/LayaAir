@@ -6,7 +6,7 @@ export class SpriteConst {
     static TRANSFORM = 0x02;
     static BLEND = 0x04;
     static CANVAS = 0x08;
-    static FILTERS = 0x10;
+    static POSTPROCESS = 0x10;
     static MASK = 0x20;
     static CLIP = 0x40;
     static TEXTURE = 0x80;
@@ -14,8 +14,8 @@ export class SpriteConst {
     static HITAREA = 0x400;
     static RENDERNODE2D = 0x800;
     static CHILDS = 0x1000;
-    static DRAW2RT = this.CANVAS | this.FILTERS | this.MASK;
-    static UPDATETRANS = this.CANVAS | this.FILTERS | this.MASK | this.CLIP | this.GRAPHICS;
+    static DRAW2RT = this.CANVAS | this.POSTPROCESS | this.MASK;
+    static UPDATETRANS = this.CANVAS | this.POSTPROCESS | this.MASK | this.CLIP | this.GRAPHICS | this.RENDERNODE2D;
 }
 
 export enum TransformKind {

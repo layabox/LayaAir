@@ -107,6 +107,7 @@ export class Scene extends Sprite {
         });
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this.shaderData = this._specialManager._shaderData;
+        this._globalRenderData.renderLayerMask = -1;
     }
 
     /**

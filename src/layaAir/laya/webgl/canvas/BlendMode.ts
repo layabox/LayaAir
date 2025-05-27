@@ -6,7 +6,8 @@ import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
 export enum BlendMode {
-    Normal = 0,
+    Invalid = 0,
+    Normal,
     Add ,    
     Multiply,
     Screen,

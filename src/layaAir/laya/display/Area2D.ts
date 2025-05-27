@@ -30,14 +30,15 @@ export class Area2D extends Sprite {
         if (camera == this._mainCamera)
             return;
         this._mainCamera && (this._mainCamera._isMain = false);
-        this._mainCamera = camera;
-        if (this._mainCamera) {
-            this._mainCamera._isMain = true;
+
+        if (camera) {
+            camera._isMain = true;
             this.shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-        }
-        if (!this._mainCamera) {
+        } else {
             this.shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
         }
+        
+        this._mainCamera = camera;
     }
 
     /**

@@ -1707,11 +1707,6 @@ export class Text extends Sprite {
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
-            // let rectangle = this._scrollRect;
-            // if (!rectangle) {
-            //    rectangle = new Rectangle(0, 0, rectWidth, rectHeight);
-            // }
-            // this.scrollRect = rectangle
             graphics.save();
             graphics.clipRect(0, 0, rectWidth, rectHeight);
             this.repaint();

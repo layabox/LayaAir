@@ -7,6 +7,7 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { ColorUtils } from "../../utils/ColorUtils";
 import { PostProcess2D, PostProcessRenderContext2D } from "../PostProcess2D";
 import { PostProcess2DEffect } from "../PostProcess2DEffect";
 import { Blit2DCMD } from "../Scene2DSpecial/RenderCMD2D/Blit2DCMD";
@@ -25,13 +26,17 @@ export class GlowEffect2D extends PostProcess2DEffect {
     private _blitExtendRT: RenderTexture2D;
     private _destRT: RenderTexture2D;
 
+    /**滤镜的颜色*/
+    private _colorUtils: ColorUtils;
 
     private _sv_blurInfo1: Vector4 = new Vector4();
     public get sv_blurInfo1(): Vector4 {
         return this._sv_blurInfo1;
     }
     public set sv_blurInfo1(value: Vector4) {
-        this._sv_blurInfo1 = value;
+        if (value !== this._sv_blurInfo1) {
+            value.cloneTo(this._sv_blurInfo1);
+        }
         this._glowMat && (this._glowMat.setVector4("u_blurInfo1", this._sv_blurInfo1));
         this._owner && this._owner._onChangeRender();
     }
@@ -40,12 +45,16 @@ export class GlowEffect2D extends PostProcess2DEffect {
         return this._sv_blurInfo2;
     }
     public set sv_blurInfo2(value: Vector4) {
-        this._sv_blurInfo2 = value;
+        if (value !== this._sv_blurInfo2) {
+            value.cloneTo(this._sv_blurInfo2);
+        }
         this._glowMat && (this._glowMat.setVector4("u_blurInfo2", this._sv_blurInfo2));
         this._owner && this._owner._onChangeRender();
 
     }
+
     private _color: Vector4 = new Vector4();
+
     public get color(): Vector4 {
         return this._color;
     }
@@ -53,7 +62,99 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._color = value;
         this._glowMat && (this._glowMat.setVector4("u_color", this._color));
         this._owner && this._owner._onChangeRender();
+    }
 
+    /**
+     * @private
+     * @en Gets X color value
+     * @zh 获取颜色值
+     */
+    get strColor(): string {
+        return this._colorUtils.strColor;
+    }
+
+    /**
+     * @private
+     * @en Sets X color value
+     * @zh 设置颜色值
+     */
+    set strColor(value: string) {
+        if (this._colorUtils && value == this._colorUtils.strColor)
+            return;
+
+        this._colorUtils = new ColorUtils(value);
+        let color = this._colorUtils.arrColor;
+        this.color.setValue(color[0], color[1], color[2], color[3])
+        this.color = this.color;
+    }
+
+    /**
+     * @private
+     * @en Gest fuzzy value
+     * @zh 获取模糊值
+     */
+    get blur(): number {
+        return this._sv_blurInfo1.y;
+    }
+
+    /**
+     * @private
+     * @en Sets fuzzy value
+     * @zh 设置模糊值
+     */
+    set blur(value: number) {
+        this._sv_blurInfo1.x = this._sv_blurInfo1.y = value;
+        this.sv_blurInfo1 = this._sv_blurInfo1;
+    }
+
+    /**
+     * @private
+     * @en Gets Y offset value
+     * @zh 获取Y偏移值
+     */
+    get offY(): number {
+        return this._sv_blurInfo1.w;
+    }
+
+    /**
+     * @private
+     * @en Sets Y offset value
+     * @zh 设置Y偏移值
+     */
+    set offY(value: number) {
+        if (value !== this._sv_blurInfo1.w) {
+            this._sv_blurInfo1.w = value;
+            this.sv_blurInfo1 = this._sv_blurInfo1;
+        }
+    }
+
+    /**
+     * @private
+     * @en Gets X offset value
+     * @zh 获取X偏移值
+     */
+    get offX(): number {
+        return this._sv_blurInfo1.z;
+    }
+
+    /**
+     * @private
+     * @en Sets X offset value
+     * @zh 设置X偏移值
+     */
+    set offX(value: number) {
+        if (value !== this._sv_blurInfo1.z) {
+            this._sv_blurInfo1.z = value;
+            this.sv_blurInfo1 = this._sv_blurInfo1;
+        }
+    }
+
+    constructor(color: string, blur = 4, offX = 6, offY = 6) {
+        super();
+        this.strColor = color || "#000";
+        this.blur = Math.min(blur, 20);
+        this.offX = offX;
+        this.offY = offY;
     }
 
     effectInit(postprocess: PostProcess2D): void {

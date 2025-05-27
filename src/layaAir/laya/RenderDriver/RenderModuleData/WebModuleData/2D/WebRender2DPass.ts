@@ -17,12 +17,13 @@ import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/
 import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
-   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void;
+   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void;
 
-   recover(): void;
+   recover(list: FastSinglelist<IRenderElement2D>): void;
 }
 
 export class Batch2DInfo {
@@ -42,6 +43,7 @@ export class Batch2DInfo {
       } else
          return new Batch2DInfo();
    }
+
    static recover(info: Batch2DInfo) {
       this._pool.push(info);
    }
@@ -100,7 +102,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    mask: WebRenderStruct2D;
 
-   private _enableBatch: boolean = true;
+   private _enableBatch: boolean = false;
    /** 需要挪出去? */
    public get enableBatch(): boolean {
       return this._enableBatch;
@@ -117,16 +119,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    private _rtsize: Vector2 = new Vector2;
 
-   /**
-     * 渲染层掩码，用于裁剪规则一
-     */
-   protected _renderLayerMask: number = 0xFFFFFFFF;
-
-   /**
-    * 裁剪矩形，用于裁剪规则二
-    */
-   private _cullRect: Vector4 = new Vector4();
-
    root: WebRenderStruct2D = null;
    /**
     * rt渲染偏移
@@ -135,20 +127,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    private _invertMat_0: Vector3 = new Vector3(1, 1);
    private _invertMat_1: Vector3 = new Vector3(0, 0);
-
-   /**
-    * 设置裁剪矩形
-    */
-   set cullRect(value: Vector4) {
-      value.cloneTo(this._cullRect);
-   }
-
-   /**
-     * 设置渲染层掩码
-     */
-   set renderLayerMask(value: number) {
-      this._renderLayerMask = value;
-   }
 
    shaderData: ShaderData = null;
 
@@ -198,7 +176,8 @@ export class WebRender2DPass implements IRender2DPass {
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
       // 裁剪规则一：检查渲染层掩码
-      if ((struct.renderLayer & this._renderLayerMask) === 0) {
+      if (struct.globalRenderData
+         && (struct.renderLayer & struct.globalRenderData.renderLayerMask) === 0) {
          return;
       }
 
@@ -247,7 +226,6 @@ export class WebRender2DPass implements IRender2DPass {
    render(context: IRenderContext2D): void {
       let lists = this._lists;
       // 清理zOrder相关队列
-
       // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
       for (let i = 0, len = lists.length; i < len; i++)
          lists[i]?.reset();
@@ -326,19 +304,20 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    private _updateInvertMatrix() {
-      let root = this.root;
+      let rootTrans = this.root.trans;
+      if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
       if (mask && mask.trans) {
          // globalMatrix
-         let rootMatrix = root.trans.matrix;
+         let rootMatrix = rootTrans.matrix;
          // localMatrix
          let maskMatrix = mask.trans.matrix;
 
          Matrix.mul(maskMatrix, rootMatrix, temp);
          temp.invert();
       } else {
-         root.trans.matrix.copyTo(temp);
+         rootTrans.matrix.copyTo(temp);
          temp.invert();
       }
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
@@ -399,6 +378,8 @@ class PassRenderList {
    //预想给list更新使用
    _dirtyFlag: number = 0;
 
+   private _recoverList = new FastSinglelist<IRenderElement2D>();
+
    constructor() {
       this.renderElements = new FastSinglelist<IRenderElement2D>();
       this.structs = new FastSinglelist<WebRenderStruct2D>();
@@ -408,7 +389,7 @@ class PassRenderList {
       this.structs.add(struct);
 
       let n = struct.renderElements ? struct.renderElements.length : 0;
-      if ( n == 0 ) return;
+      if (n == 0) return;
       if (n == 1) {
          this._batchStart(struct.renderType, 1);
          this.renderElements.add(struct.renderElements[0]);
@@ -424,7 +405,7 @@ class PassRenderList {
     * 开启一个Batch
     */
    private _batchStart(type: number, elementLength: number) {
-      if (this._currentType == type /*&& this._currentElementCount == elementLength*/) {
+      if (this._currentBatch && this._currentType == type /*&& this._currentElementCount == elementLength*/) {
          this._currentBatch.batch = !!(this._currentBatch.batchFun);
          this._currentBatch.elementLength += elementLength;
          return;
@@ -455,7 +436,7 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength);
+            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength , this._recoverList);
          } else {
             for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
                this.renderElements.add(this.renderElements.elements[j]);
@@ -485,7 +466,7 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let element = this._batchInfoList.elements[i];
          if (element.batch) {
-            element.batchFun.recover();
+            element.batchFun.recover(this._recoverList);
          }
          Batch2DInfo.recover(element);
       }
@@ -537,4 +518,4 @@ export class WebRender2DPassManager implements IRender2DPassManager {
 }
 
 WebGraphicsBatch.instance = new WebGraphicsBatch;
-BatchManager.regisBatch( 4 , WebGraphicsBatch.instance)
+BatchManager.regisBatch( BaseRender2DType.graphics , WebGraphicsBatch.instance)

@@ -18,8 +18,6 @@ export interface IRender2DPass {
    repaint: boolean;
    renderTexture: RenderTexture2D;
    priority: number;
-   renderLayerMask: number;
-   cullRect: Vector4;
    shaderData: ShaderData;
 
    renderOffset: Vector2;

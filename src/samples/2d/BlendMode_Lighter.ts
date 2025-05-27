@@ -50,7 +50,7 @@ export class BlendMode_Lighter {
 
 		// 加了混合模式的凤凰
 		this.blendedPhoenix = this.createAnimation();
-		this.blendedPhoenix.blendMode = BlendMode.Lighter;
+		this.blendedPhoenix.blendMode = "lighter";
 		this.blendedPhoenix.scale(scaleFactor, scaleFactor);
 		this.blendedPhoenix.y = (Laya.stage.height - this.phoenixHeight * scaleFactor) / 2;
 
