@@ -73,9 +73,8 @@ export class WebGPUPipelineCache {
 
         let layout = this.getPipelinelayout(bindGroups);
 
-        
         // 生成描述性键
-        const descKey = `${info.geometry.stateCacheID}_${info.blendState.id}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${layout.id}_${renderTarget.stateCacheID}`;
+        const descKey = `${info.geometry.stateCacheID}_${info.blendState.id}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${shaderInstance._id}_${layout.id}_${renderTarget.stateCacheID}`;
         if (this.pipelineCache.has(descKey)) {
             return this.pipelineCache.get(descKey);
         }
