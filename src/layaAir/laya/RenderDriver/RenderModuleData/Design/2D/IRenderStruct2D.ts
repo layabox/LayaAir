@@ -60,7 +60,7 @@ export interface IRenderStruct2D {
 
    setRepaint(): void;
 
-   addChild(child: IRenderStruct2D, index: number): IRenderStruct2D;
+   addChild(child: IRenderStruct2D, index: number): void;
 
    updateChildIndex(child: IRenderStruct2D, oldIndex: number, index: number): void;
 

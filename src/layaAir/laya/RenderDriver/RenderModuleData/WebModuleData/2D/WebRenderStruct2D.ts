@@ -17,7 +17,7 @@ const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
    clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
    clipMatPos: new Vector4(0, 0, 0, 0),
-   _updateFrame : 0
+   _updateFrame: 0
 }
 
 export class WebGlobalRenderData implements I2DGlobalRenderData {
@@ -246,7 +246,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
 
-   updateChildren(type: ChildrenUpdateType): void {
+   private updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
       let priority: number = 0, pass: WebRender2DPass = null;
       let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
@@ -318,16 +318,16 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   addChild(child: WebRenderStruct2D, index: number): WebRenderStruct2D {
+   addChild(child: WebRenderStruct2D, index: number): void {
       child.parent = this;
       this.children.splice(index, 0, child);
-      
+
       child._parentClipInfo = this.getClipInfo();
       child._parentBlendMode = this.blendMode;
       child._parentPass = this.pass;
       //效率
       child.updateChildren(ChildrenUpdateType.All);
-      return child;
+      return;
    }
 
    updateChildIndex(child: WebRenderStruct2D, oldIndex: number, index: number): void {
