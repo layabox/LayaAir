@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { LayaEnv } from "../../LayaEnv";
 import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
@@ -43,13 +44,13 @@ export class URL {
         "controller": "controller.json",
         "mc": "mc.bin",
         "mcc": "mcc.json",
-        "shader": "shader.json",
+        "shader": "shader.txt",
         "fui": "fui.json",
         "glsl": "glsl.txt",
         "skel": "skel.bin",
         "lavm": "lavm.json",
         "bp": "bp.json",
-        "tres":"tres.json"
+        "tres": "tres.json"
     };
 
     /**
@@ -60,7 +61,7 @@ export class URL {
         if (LayaEnv.isPreview)
             return;
 
-        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap, PlayerConfig.safeFileExtConversionMap);
         this.hasExtOverrides = true;
         this.usingSafeFileExts = true;
     }
