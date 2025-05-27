@@ -35,6 +35,7 @@ export class SubmitBase {
     }
 
     clear() {
+        this._key.clear();
         this._internalInfo.clear();
         this.material = null;
         for (let i = 0, n = this.infos.length; i < n; i++) {
@@ -67,7 +68,6 @@ export class SubmitBase {
 
         this.mesh = mesh;
         this.material = material;
-        this._key.clear();
     }
 
     /*

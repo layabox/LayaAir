@@ -709,7 +709,7 @@ export class Graphics {
         runner._material = this._material;
 
         let oldBlendMode = runner.globalCompositeOperation;
-        runner.globalCompositeOperation = this.owner._blendMode;
+        runner.globalCompositeOperation = this.owner._struct.blendMode;
 
         var cmds = this._cmds;
         for (let i = 0, n = cmds.length; i < n; i++) {
