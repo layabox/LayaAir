@@ -1,7 +1,7 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
-import { IGPUBuffer } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts";
+import { IGPUBuffer } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUVertexStepMode } from "./WebGPUBufferState";

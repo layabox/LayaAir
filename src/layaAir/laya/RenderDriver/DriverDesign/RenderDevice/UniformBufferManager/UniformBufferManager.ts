@@ -67,7 +67,7 @@ export class UniformBufferManager {
     //释放内存缓存数组
     private _removeHoleArray: Array<UniformBufferCluster> = [];
     //优化内存位置数据
-    private _optimizeBufferPosArray: Array<UniformBufferCluster> = [];
+    private _optimizeBufferPosArray: Array<UniformBufferCluster> = []; 
 
     _useBigBuffer: boolean = true; //是否使用大内存模式
 
