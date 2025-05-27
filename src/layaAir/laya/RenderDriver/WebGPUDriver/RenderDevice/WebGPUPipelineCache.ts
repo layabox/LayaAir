@@ -1,3 +1,4 @@
+import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstance";
 import { WebGPUBindGroup } from "./WebGPUBindGroupCache";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -24,6 +25,8 @@ export class WebGPUPipelineCache {
     private pipelineLayoutCache: Map<string, WebGPUPipelineLayout> = new Map();
 
     private pipelineCache: Map<string, GPURenderPipeline> = new Map();
+
+    private computePipelineCache: Map<string, GPUComputePipeline> = new Map();
 
     private getPipelineLayoutCacheKey(bindGroups: Map<number, WebGPUBindGroup>) {
         // 对键进行排序以确保一致性
@@ -137,6 +140,26 @@ export class WebGPUPipelineCache {
         let pipeline = device.createRenderPipeline(descriptor);
         this.pipelineCache.set(descKey, pipeline);
 
+        return pipeline;
+    }
+
+    getComputePipeline(bindGroups: Map<number, WebGPUBindGroup>, shaderInstance: WebGPUComputeShaderInstance, kernal: string): GPUComputePipeline {
+        const device = WebGPURenderEngine._instance.getDevice();
+
+        let layout = this.getPipelinelayout(bindGroups);
+
+        // 生成描述性键
+        const descKey = `${shaderInstance._id}_${layout.id}_${kernal}`;
+        if (this.pipelineCache.has(descKey)) {
+            return this.computePipelineCache.get(descKey);
+        }
+
+        let descriptor: GPUComputePipelineDescriptor = shaderInstance.getPipelineDescriptor(kernal);
+        descriptor.layout = layout.layout;
+
+
+        let pipeline = device.createComputePipeline(descriptor);
+        this.computePipelineCache.set(descKey, pipeline);
         return pipeline;
     }
 
