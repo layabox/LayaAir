@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { LayaEnv } from "../../LayaEnv";
 import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
@@ -48,6 +49,8 @@ export class URL {
         "glsl": "glsl.txt",
         "skel": "skel.bin",
         "lavm": "lavm.json",
+        "bp": "bp.json",
+        "tres": "tres.json"
     };
 
     static __init__() {
@@ -66,7 +69,7 @@ export class URL {
         if (LayaEnv.isPreview)
             return;
 
-        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap, PlayerConfig.safeFileExtConversionMap);
         this.hasExtOverrides = true;
         this.usingSafeFileExts = true;
     }
@@ -148,18 +151,18 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-                if (base == null) {
-                    base = URL.basePath;
-                    for (let k in URL.basePaths) {
-                        if (url.startsWith(k)) {
+            if (base == null) {
+                base = URL.basePath;
+                for (let k in URL.basePaths) {
+                    if (url.startsWith(k)) {
                         if (k.charCodeAt(0) === 126)
                             url = url.substring(k.length);
-                            base = URL.basePaths[k];
-                            break;
-                        }
+                        base = URL.basePaths[k];
+                        break;
                     }
                 }
-                url = URL.join(base, url);
+            }
+            url = URL.join(base, url);
         }
 
         return url;
