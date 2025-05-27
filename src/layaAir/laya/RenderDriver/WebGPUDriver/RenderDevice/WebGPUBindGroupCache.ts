@@ -10,6 +10,8 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 
+const empthArray: string[] = [];
+
 export class WebGPUBindGroupLayoutInfo {
 
     private static _idCounter: number = 0;
@@ -212,6 +214,8 @@ export class WebGPUBindGroupCache {
     }
 
     getBindGroup(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resource: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number): WebGPUBindGroup {
+
+        commands = commands || empthArray;
 
         let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask);
         if (!info.layout) {
