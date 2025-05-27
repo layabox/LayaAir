@@ -231,9 +231,11 @@ export class Camera2D extends Sprite {
         this._drag_Bottom = value;
     }
 
-
-    visiableLayer: number;//TODO
-
+    /**
+     * @en The layer to be rendered
+     * @zh 渲染层
+     */
+    visiableLayer: number = -1;
 
     private _viewRect: Vector2 = new Vector2();
 
@@ -245,7 +247,6 @@ export class Camera2D extends Sprite {
      * TODO 功能
      * Camera 的cull功能
      * rotationSmooth、rotationSpeed功能
-     * visiableLayer渲染层功能
      * zoom功能
      * RenderTarget功能
      * @ignore

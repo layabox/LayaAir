@@ -5,10 +5,10 @@ description
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
-import { BlurFilter } from "laya/filters/BlurFilter";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
+import { BlurFilter } from "laya/legacy/filters/BlurFilter";
 
 export class Filters_Blur {
 	private apePath: string = "res/apes/monkey2.png";

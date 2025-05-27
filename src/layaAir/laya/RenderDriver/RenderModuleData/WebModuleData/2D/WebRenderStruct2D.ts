@@ -43,10 +43,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
    zIndex: number = 0;
-
+   
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
-   renderLayer: number = -1;
+   renderLayer: number = 1;
 
    parent: WebRenderStruct2D | null;
 
@@ -88,8 +88,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 
-   private _blendMode: BlendMode = BlendMode.Normal;
-   private _parentBlendMode: BlendMode = BlendMode.Normal;
+   private _blendMode: BlendMode = BlendMode.Invalid;
+   private _parentBlendMode: BlendMode = BlendMode.Invalid;
 
    public get blendMode(): BlendMode {
       return this._blendMode || this._parentBlendMode || BlendMode.Normal;
@@ -144,6 +144,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set pass(value: WebRender2DPass) {
       this._pass = value;
       if (value) {
+         if (this._parentPass) {
+            value.priority = this._parentPass.priority + 1;
+         }
          this.updateChildren(ChildrenUpdateType.Pass);
       }
    }
@@ -184,12 +187,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (rect) {
          let info = this._clipInfo;
          let trans = this.trans;
-         if (info._updateFrame < trans.modifiedFrame) {
+         if ( trans && info._updateFrame < trans.modifiedFrame ) {
             let mat = trans.matrix;
             let cm = info.clipMatrix;
             let { x, y, width, height } = rect;
-            cm.tx = x * mat.a + y * mat.c + mat.tx;
             cm.ty = x * mat.b + y * mat.d + mat.ty;
+            cm.tx = x * mat.a + y * mat.c + mat.tx;
             cm.a = width * mat.a;
             cm.b = width * mat.b;
             cm.c = height * mat.c;
@@ -237,8 +240,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._clipInfo.clipMatDir = new Vector4;
          this._clipInfo.clipMatPos = new Vector4;
          this._clipInfo.clipMatrix = new Matrix;
-         this._clipInfo._updateFrame = -1;
       }
+      this._clipInfo._updateFrame = -1;
    }
 
    getClipInfo(): IClipInfo {
@@ -247,8 +250,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
 
    private updateChildren(type: ChildrenUpdateType): void {
-      let info: IClipInfo, blendMode: BlendMode, alpha: number;
-      let priority: number = 0, pass: WebRender2DPass = null;
+      let info: IClipInfo, blendMode: BlendMode, alpha: number; 
+      let priority: number = 0, pass: WebRender2DPass = null;  
       let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
 
       if (type & ChildrenUpdateType.Clip) {
@@ -277,14 +280,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       for (const child of this.children) {
          let updateChild = false;
          if (updateClip) {
+            child._parentClipInfo = info;
             if (!child._clipInfo) {
-               child._parentClipInfo = info;
                updateChild = true;
             }
          }
 
          if (updateBlend) {
-            if (!child.blendMode) {
+            if (child._blendMode) {//有效值
                child._parentBlendMode = blendMode;
                child._updateBlendMode();
                updateChild = true;
@@ -350,7 +353,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          child._parentPass = null;
          child._parentClipInfo = null;
-         child._parentBlendMode = BlendMode.Normal;
+         child._parentBlendMode = BlendMode.Invalid;
          child.updateChildren(ChildrenUpdateType.All);
       }
    }
@@ -360,8 +363,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.renderDataHandler.inheriteRenderData(context);
       }
 
-      if (this._rnUpdateFun)
-         this._rnUpdateFun?.call(this._rnUpdateCall, context);
+      if (this._rnUpdateFun){
+         this._rnUpdateFun.call(this._rnUpdateCall, context);
+      }
    }
 
    destroy(): void {

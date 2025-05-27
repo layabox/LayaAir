@@ -10,6 +10,8 @@ const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
 export class WebGraphicsBatch implements IBatch2DRender {
 
+    static instance : WebGraphicsBatch = null;
+
     static _pool: IRenderElement2D[] = [];
 
     static createRenderElement2D() {
@@ -19,6 +21,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         element.geometry.indexFormat = IndexFormat.UInt16;
+        element.nodeCommonMap = ["Sprite2D"];
         element.renderStateIsBySprite = false;
         return element;
     }
@@ -34,11 +37,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
         this._pool.push(value);
     }
 
-    static instance: WebGraphicsBatch;
+    // _recoverList = new FastSinglelist<IRenderElement2D>();
 
-    _recoverList = new FastSinglelist<IRenderElement2D>();
-
-    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
+    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void {
         let elementArray = list.elements;
         let batchStart = -1;
         let count = 0;
@@ -56,7 +57,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
                     count ++;
             } else {
                 if (count !== 0) {
-                    this.batch(list, batchStart + start, count);
+                    this.batch(list, batchStart + start, count , recoverList);
                 }else{
                     list.add(cElement);
                 }
@@ -66,17 +67,18 @@ export class WebGraphicsBatch implements IBatch2DRender {
         }
 
         if ( count !== 0) {
-            this.batch(list, batchStart + start, count);
+            this.batch(list, batchStart + start, count , recoverList);
         }else{
             list.add(elementArray[end + start]);
         }
     }
 
-    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
+    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void {
         let elementArray = list.elements;
         let staticBatchRenderElement:IRenderElement2D = WebGraphicsBatch.createRenderElement2D();
         let drawArray : number[][] = [];
         let i = 0;
+        let drawLengths :number[] = [];
         for (i = 0; i < length; i++) {
             let element = elementArray[start + i];
             let geometry = element.geometry;
@@ -90,6 +92,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             
             geometry.getDrawDataParams(TEMP_SINGLE_LIST);
             drawArray.push(TEMP_SINGLE_LIST.elements);
+            drawLengths.push(TEMP_SINGLE_LIST.length);
         }
         
         let geometry = staticBatchRenderElement.geometry;
@@ -100,7 +103,8 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
         for ( i = 0; i < len; i++) {
             let drawParam = drawArray[i];
-            for (let j = 0 , m = drawParam.length; j < m; j += 2) {
+            let drawLength = drawLengths[i];
+            for (let j = 0 ; j < drawLength ; j += 2) {
                 let offset = drawParam[j];
                 let count = drawParam[j + 1];
 
@@ -125,9 +129,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
         // 一次性合并完整了
         if (!isFirst) {
             geometry.setDrawElemenParams(currentCount, currentOffset);
-        }
+        }   
 
-        this._recoverList.add(staticBatchRenderElement);
+        recoverList.add(staticBatchRenderElement);
         list.add(staticBatchRenderElement);
     }
 
@@ -190,14 +194,14 @@ export class WebGraphicsBatch implements IBatch2DRender {
     /**
      * 
      */
-    recover(): void {
-        let length = this._recoverList.length;
-        let recoverArray = this._recoverList.elements;
+    recover(list: FastSinglelist<IRenderElement2D>): void {
+        let length = list.length;
+        let recoverArray = list.elements;
         for (let i = 0; i < length; i++) {
             let info = recoverArray[i];
             WebGraphicsBatch.recoverRenderElement2D(info);
         }
-        this._recoverList.length = 0;
+        list.length = 0;
     }
 
 }

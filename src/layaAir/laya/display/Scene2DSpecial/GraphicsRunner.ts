@@ -2213,18 +2213,17 @@ export class GraphicsRunner {
         let offset = 0;
 
         let positions: number[] = [];
-
+        let vbdata: Float32Array;
         for (let i = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= pos) {
                 dataView = vertexViews[dataViewIndex];
-                // dataView.isModified = true;
                 dataViewIndex++;
                 pos = 0;
                 offset = dataView.start / dataView.stride;
+                vbdata = (dataView.getData() as Float32Array[])[0]; 
             }
 
-            let vbdata = (dataView.getData() as Float32Array[])[0];
             let x = vertices[ci], y = vertices[ci + 1];
             if (matrix) {
                 if (matrix._bTransform) {
@@ -2264,15 +2263,24 @@ export class GraphicsRunner {
         let indexCount = indices.length;
         dataViewIndex = 0;
         dataView = null;
+        let ibdata :Uint16Array;
         for (let i = 0; i < indexCount; i++) {
             if (!dataView || dataView.length <= pos) {
                 dataView = indexViews[dataViewIndex];
                 dataView.modify();
                 dataViewIndex++;
+                ibdata = dataView.getData() as Uint16Array; 
                 pos = 0;
             }
-            (dataView.getData() as Uint16Array)[pos] = indexsMap[indices[i]];
+
+            ibdata[pos] = indexsMap[indices[i]];
             pos++;
+        }
+
+        if(dataView.length > pos){
+            for(let i = pos , n = dataView.length; i < n; i++){
+                ibdata[i] = 0;
+            }
         }
     }
 

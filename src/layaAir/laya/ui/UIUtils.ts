@@ -1,5 +1,5 @@
 import { Sprite } from "../display/Sprite"
-import { ColorFilter } from "../filters/ColorFilter"
+import { ColorFilter } from "../legacy/filters/ColorFilter"
 import { WeakObject } from "../utils/WeakObject"
 
 /**

@@ -9,7 +9,6 @@ import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DVBBlock } from "../../Design/2D/IRender2DDataHandle";
-import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -55,13 +54,6 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
         }
-
-        let info = this._owner.getClipInfo();
-        // global alpha
-        data.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._owner.globalAlpha);
-
-        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-        data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
     }
 
 }
@@ -90,7 +82,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._needUpdateVertexBuffer
             || this._modifiedFrame < trans.modifiedFrame
         ) {
-
+           
             let mat = trans.matrix;
 
             if (!this._vertexBufferBlocks || !this._vertexBufferBlocks.length) {
@@ -113,7 +105,6 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let dataView: Web2DGraphic2DBufferDataView = null;
                 let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
                 let vbdata = null;
-                let pass = this._owner.pass;
                 let blocks = this._vertexBufferBlocks;
                 let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
                 for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
@@ -130,18 +121,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                             dataView.modify();
                             dataViewIndex++;
                             pos = 0;
+                            vbdata = dataView.getData()[0] as Float32Array;
                         }
 
-                        vbdata = dataView.getData();
                         let x = positions[ci], y = positions[ci + 1];
-                        // if (_bTransform) {
                         vbdata[pos] = x * m00 + y * m10 + tx;
                         vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                        // } else {
-                        //     vbdata[pos] = x + tx;
-                        //     vbdata[pos + 1] = y + ty;
-                        // }
-
                         pos += 12;
                         ci += 2;
                     }
@@ -340,11 +325,5 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
 
-        let info = this._owner.getClipInfo();
-        // global alpha
-        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, this._owner.globalAlpha);
-
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-        shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
     }
 }

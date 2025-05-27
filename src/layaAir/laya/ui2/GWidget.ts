@@ -1,6 +1,6 @@
 import { UIConfig2 } from "./UIConfig";
 import { Sprite } from "../display/Sprite";
-import { ColorFilter } from "../filters/ColorFilter";
+import { ColorFilter } from "../legacy/filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayoutChangedReason, RelationType } from "./Const";
 import { Controller } from "./Controller";

@@ -1,4 +1,4 @@
-import { ColorFilter } from "../../filters/ColorFilter";
+import { ColorFilter } from "../../legacy/filters/ColorFilter";
 import { Matrix } from "../../maths/Matrix"
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 

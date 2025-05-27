@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphic2DVBBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -22,6 +23,7 @@ import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
+import { BaseRender2DType } from "../SpriteConst";
 import { GraphicsRunner } from "./GraphicsRunner";
 
 /** @internal */
@@ -50,6 +52,7 @@ export class GraphicsRenderData {
       value.owner = null;
       value.subShader = null;
       value.renderStateIsBySprite = false;
+      value.type = 0;
       this._pool.push(value);
    }
 
@@ -249,7 +252,8 @@ export class SubStructRender {
       this._renderElement.value2DShaderData = this._shaderData;
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
       this._renderElement.materialShaderData = this._submit._internalInfo.shaderData;
-
+      this._renderElement.nodeCommonMap = ["Sprite2D"];
+      
       BlendModeHandler.initBlendMode(this._shaderData);
       this._internalInfo.enableVertexSize = true;
    }
@@ -259,6 +263,7 @@ export class SubStructRender {
       this._subRenderPass = subRenderPass;
       this._subStruct = subStruct;
       this._subStruct.spriteShaderData = this._shaderData;
+      this._subStruct.renderType = BaseRender2DType.graphics;
       this._submit.material = sprite.material;
 
       subStruct.renderDataHandler = this._handle;
@@ -266,7 +271,8 @@ export class SubStructRender {
       subStruct.renderElements = [this._renderElement];
       this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
-
+      this._renderElement.type = this._subStruct.blendMode;
+      
       let info = Render2DProcessor.runner.inv_uv;
       let view = info.indexViews[0];
       this._renderElement.geometry.bufferState = info.mesh.bufferState;
@@ -290,6 +296,7 @@ export class SubStructRender {
             vSize.w = height;
             this._internalInfo.vertexSize = vSize;
          }
+         this._renderElement.type = destRT._id << 6;
       }
       this._internalInfo.textureHost = destRT;
    }
