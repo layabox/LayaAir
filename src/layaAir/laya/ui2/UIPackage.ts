@@ -86,4 +86,4 @@ export class UIPackage {
 
 }
 
-Laya.addReadyCallback(UIPackage._init);
+Laya.addAfterInitCallback(UIPackage._init);

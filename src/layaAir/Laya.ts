@@ -85,7 +85,6 @@ export class Laya {
     private static _initCallbacks: Array<() => void | Promise<void>> = [];
     private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
     private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
-    private static _readyCallbacks: Array<() => void | Promise<void>> = [];
 
     /**
      * @en Initialize the engine. To use the engine, you need to initialize it first.
@@ -139,6 +138,8 @@ export class Laya {
             //创建离屏画布
             Browser.canvas = new HTMLCanvas(true);
             Browser.context = Browser.canvas.context as any;
+
+            return PAL.browser.start();
         });
 
         if (LayaEnv.beforeInit)
@@ -149,7 +150,7 @@ export class Laya {
 
         steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
 
-        steps.push(() => PAL.browser.start());
+        PAL.browser.onInitRender();
 
         steps.push(() => Laya.initRender2D(stageConfig));
 
@@ -292,24 +293,6 @@ export class Laya {
     }
 
     /**
-     * @en After the main package is loaded, this callback will be executed. All registered callbacks are executed in parallel.
-     * @param callback The callback function.
-     * @zh 当主包加载完成后，会执行这个回调。所有注册的回调是并行执行。
-     * @param callback 回调函数。
-     * @blueprintIgnore
-     */
-    static addReadyCallback(callback: () => void | Promise<void>): void {
-        Laya._readyCallbacks.push(callback);
-    }
-
-    /**
-     * @internal
-     */
-    static _invokeReadyCallbacks(): Promise<void> {
-        return Promise.all(Laya._readyCallbacks.map(func => func())).then(() => { });
-    }
-
-    /**
      * @en Import a native library(e.g. dll/so/dylib). If not in the Conch environment, this function will return null.
      * @param name The name of the library to import. e.g. `test.dll` 
      * @returns The imported object.
@@ -354,5 +337,4 @@ export var alertGlobalError = Laya.alertGlobalError;
 export var addInitCallback = Laya.addInitCallback;
 export var addBeforeInitCallback = Laya.addBeforeInitCallback;
 export var addAfterInitCallback = Laya.addAfterInitCallback;
-export var addReadyCallback = Laya.addReadyCallback;
 export var importNative = Laya.importNative;

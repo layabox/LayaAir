@@ -1,8 +1,11 @@
+import { PlayerConfig } from "../../Config";
 import { Laya } from "../../Laya";
 import { Event } from "../../laya/events/Event";
+import { LayaGL } from "../../laya/layagl/LayaGL";
 import { Loader } from "../../laya/net/Loader";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
+import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { Browser } from "../../laya/utils/Browser";
 import { Utils } from "../../laya/utils/Utils";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
@@ -101,6 +104,21 @@ export class MgBrowserAdapter extends BrowserAdapter {
         return downloader.cacheManager.start();
     }
 
+    onInitRender(): void {
+        if (Browser.onAlipayMiniGame || Browser.onTBMiniGame) {
+            // srgb问题
+            (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
+        }
+
+        if (Browser.onTBMiniGame) {
+            // 预乘问题
+            if (!PAL.g.isIDE) {
+                let gl = <WebGLRenderingContext>LayaGL.renderEngine._context;
+                gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+            }
+        }
+    }
+
     protected setupWasmSupport() {
         let wasmGlobal: typeof WebAssembly;
         if (Browser.onWXMiniGame)
@@ -116,14 +134,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
             WasmAdapter.Memory = wasmGlobal.Memory;
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-                return wasmGlobal.instantiate("libs/" + wasmFile, imports);
+                return wasmGlobal.instantiate((PlayerConfig.wasmSubpackage || "libs") + "/" + wasmFile, imports);
             };
         }
         else if (window.WebAssembly) {
             let shouldInit = PAL.g.setWasmTaskCompile != null; //oppo
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-                return Laya.loader.fetch("libs/" + wasmFile, "arraybuffer").then(data => {
+                return Laya.loader.fetch((PlayerConfig.wasmSubpackage || "libs") + "/" + wasmFile, "arraybuffer").then(data => {
                     if (data) {
                         if (shouldInit) {
                             shouldInit = false;

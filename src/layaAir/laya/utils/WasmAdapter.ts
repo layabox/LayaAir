@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { Browser } from "./Browser";
 
 /**
@@ -31,6 +32,8 @@ export class WasmAdapter {
             moduleArg["locateFile"] = function (path: string, scriptDirectory: string) {
                 if (WasmAdapter.locateFile != null)
                     wasmFile = WasmAdapter.locateFile(path, scriptDirectory, webDir);
+                else if (PlayerConfig.wasmSubpackage)
+                    wasmFile = PlayerConfig.wasmSubpackage + "/" + path;
                 else
                     wasmFile = scriptDirectory + path;
                 return wasmFile;

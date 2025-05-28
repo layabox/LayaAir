@@ -200,6 +200,9 @@ export class BrowserAdapter extends EventDispatcher {
         return Promise.resolve();
     }
 
+    onInitRender(): void {
+    }
+
     getScreenOrientation(): OrientationType {
         let ret = window.screen.orientation.type;
         if (ret == null) {

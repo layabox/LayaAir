@@ -1355,7 +1355,7 @@ export class Loader extends EventDispatcher {
                             return;
                         }
 
-                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(() => resolve);
+                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(() => resolve());
                     });
                 });
         }
@@ -1367,12 +1367,14 @@ export class Loader extends EventDispatcher {
 
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
             if (fileConfig == null)
-                return;
+                return null;
 
             this._parseFileConfig(fileConfig);
 
             if (loadScript && fileConfig.entry)
-                Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+                return Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+            else
+                return null;
         });
     }
 

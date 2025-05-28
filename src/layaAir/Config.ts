@@ -160,5 +160,6 @@ export const PlayerConfig: {
     spineVersion?: string,
     workerLoaderLib?: string,
     UI?: any;
+    wasmSubpackage?: string,
     [key: string]: any,
 } = {};
