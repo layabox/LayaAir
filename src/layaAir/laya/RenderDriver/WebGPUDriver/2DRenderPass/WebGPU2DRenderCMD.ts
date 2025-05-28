@@ -19,9 +19,12 @@ export class WebGPUSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
     apply(context: IRenderContext2D): void {
         let engine = WebGPURenderEngine._instance;
-        if (this.rt != engine._screenRT)
+        if (this.rt != engine._screenRT) {
             context.invertY = WebGPURenderEngine._instance._screenInvertY ? (!this.invertY) : this.invertY;
-        else context.invertY = false;
+        }
+        else {
+            context.invertY = false;
+        };
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
     }
 }

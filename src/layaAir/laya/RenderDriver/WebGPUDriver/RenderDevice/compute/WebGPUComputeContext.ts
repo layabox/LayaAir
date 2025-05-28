@@ -243,7 +243,6 @@ export class WebGPUComputeContext implements IComputeContext {
         this.bindGroupMap.clear();
 
         for (let i = 0, n = webgpuShaderData.length; i < n; i++) {
-            let propertyBindArray = computeShader.uniformSetMap.get(i);
             let shaderdata = webgpuShaderData[i];
             let uniformCommandMap = computeShader.uniformCommandMap[i];
             if (uniformCommandMap._hasUniformBuffer) {

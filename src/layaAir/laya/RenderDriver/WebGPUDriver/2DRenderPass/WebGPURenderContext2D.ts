@@ -154,8 +154,11 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._destRT = value;
             this._needStart = true;
         }
-        if (value)
-            this._viewport.set(0, 0, value._textures[0].width, value._textures[0].height);
+        const engine = WebGPURenderEngine._instance;
+
+        let tex = value ? value._textures[0] : engine._screenRT._textures[0];
+
+        this._viewport.set(0, 0, tex.width, tex.height);
     }
 
     drawRenderElementOne(node: WebGPURenderElement2D): void {
