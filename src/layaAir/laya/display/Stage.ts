@@ -1090,6 +1090,7 @@ export class Stage extends Sprite {
                 sprite._graphics._render(Render2DProcessor.runner);
             }
         }
+        
         this.passManager.apply(Render2DProcessor.rendercontext2D);
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();

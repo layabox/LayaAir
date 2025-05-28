@@ -33,7 +33,7 @@ import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
-import { SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
+import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
@@ -254,8 +254,6 @@ export class Sprite extends Node {
     _drawOriRT: RenderTexture2D;
     /** @internal 片，代替的结构 ，真正的结构划到了rt上*/
     _subStruct: IRenderStruct2D = null;
-    /** @internal */
-    protected _postProcess: PostProcess2D = null;
 
     private _layer: number = 0;
 
@@ -290,17 +288,26 @@ export class Sprite extends Node {
         this._texture && this._texture._removeReference();
         if (this._oriRenderPass) {
             ILaya.stage.passManager.removePass(this._oriRenderPass);
+            if (this._oriRenderPass.postProcess) {
+                this._oriRenderPass.postProcess.destroy();
+                this._oriRenderPass.postProcess = null;
+            }
             this._oriRenderPass.destroy();
             this._oriRenderPass = null;
         }
         this._subStructRender && this._subStructRender.destroy();
         this._subStructRender = null;
-        this._postProcess && this._postProcess.destroy();
-        this._postProcess = null;
         this._filterArr = null;
         this._texture = null;
-        this._graphics && this._ownGraphics && this._graphics.destroy();
-        this._graphics = null;
+
+        if (this._graphics) {
+            this._graphicsData.destroy();
+            if (this._ownGraphics) {
+                this._graphics.destroy();
+            }
+            this._graphics = null;
+            this._graphicsData = null;
+        }
         this._subStruct = null;
         this._struct = null;
     }
@@ -695,7 +702,9 @@ export class Sprite extends Node {
             }
         }
     }
-
+    /** @internal */
+    _graphicsData: GraphicsRenderData;
+    
     /**
      * @en The drawing object, which encapsulates the interfaces for drawing bitmaps and vector graphics. All drawing operations of Sprite are implemented through Graphics.
      * @zh 绘图对象。封装了绘制位图和矢量图的接口,Sprite 的所有绘图操作都是通过 Graphics 实现的。
@@ -723,16 +732,24 @@ export class Sprite extends Node {
     setGraphics(value: Graphics, transferOwnership: boolean) {
         if (this._graphics) {
             this._graphics._setDisplay(false);
+            this._graphics._data = null;
             this._graphics.owner = null;
             if (this._ownGraphics)
                 this._graphics.destroy();
         }
+        if (!this._graphicsData) {
+            this._graphicsData = new GraphicsRenderData();
+        }
         this._ownGraphics = transferOwnership;
         this._graphics = value;
+        
         if (value) {
+            value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
+            value._modefied = true;
         }
+
         this.repaint();
     }
 
@@ -753,7 +770,7 @@ export class Sprite extends Node {
             if (!this._oriRenderPass) {
                 this.createSubRenderPass();
             }
-            (!this._oriRenderPass.postProcess) && (this._oriRenderPass.postProcess = new PostProcess2D(this));
+            (!this._oriRenderPass.postProcess) && (this.postProcess = new PostProcess2D());
             this._oriRenderPass.postProcess.clear();
             for (var i = 0; i < this._filterArr.length; i++) {
                 this._oriRenderPass.postProcess.addEffect(this.filters[i].getEffect());
@@ -781,7 +798,13 @@ export class Sprite extends Node {
         if (!this._oriRenderPass) {
             this.createSubRenderPass();
         }
+        
+        if (this._oriRenderPass.postProcess) {
+            this._oriRenderPass.postProcess.owner = null;
+        }
+
         this._oriRenderPass.postProcess = value;
+        value.owner = this;
         this.setSubpassFlag(SUBPASSFLAG.PostProcess);
     }
 
@@ -900,6 +923,7 @@ export class Sprite extends Node {
         if (value) {
             this._renderType |= SpriteConst.CLIP;
             this._struct.setClipRect(value);
+            this._transChanged(TransformKind.Layout);
         } else {
             this._renderType &= ~SpriteConst.CLIP;
             this._struct.setClipRect(null);

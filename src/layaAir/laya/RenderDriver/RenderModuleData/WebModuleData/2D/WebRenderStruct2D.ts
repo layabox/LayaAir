@@ -118,8 +118,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    spriteShaderData: ShaderData = null;
 
-   commonUniformMap: string[] = null;
-
    private _renderDataHandler: WebRender2DDataHandle;
 
    public get renderDataHandler(): WebRender2DDataHandle {

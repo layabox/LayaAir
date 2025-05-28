@@ -8,7 +8,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DVBBlock } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DBufferBlock } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -62,13 +62,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     mask: WebRenderStruct2D | null = null;
 
-    private _vertexBufferBlocks: Graphic2DVBBlock[] = [];
-    private _needUpdateVertexBuffer: boolean = false;
+    private _vertexBufferBlocks: Graphic2DBufferBlock[] = [];
+    private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
 
-    applyVertexBufferBlock(blocks: Graphic2DVBBlock[]): void {
+    applyVertexBufferBlock(blocks: Graphic2DBufferBlock[]): void {
         this._vertexBufferBlocks = blocks;
-        this._needUpdateVertexBuffer = blocks.length > 0;
+        this._needUpdateBuffer = blocks.length > 0;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -79,7 +79,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let trans = this._owner.trans;
 
         if (
-            this._needUpdateVertexBuffer
+            this._needUpdateBuffer
             || this._modifiedFrame < trans.modifiedFrame
         ) {
            
@@ -107,9 +107,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let vbdata = null;
                 let blocks = this._vertexBufferBlocks;
                 let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
+                let indexView: Web2DGraphic2DBufferDataView = null;
                 for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
                     positions = blocks[i].positions;
                     vertexViews = blocks[i].vertexViews as Web2DGraphic2DBufferDataView[];
+                    indexView = blocks[i].indexView as Web2DGraphic2DBufferDataView;
                     vertexCount = positions.length / 2;
                     dataView = null;
                     pos = 0, ci = 0, dataViewIndex = 0;
@@ -121,7 +123,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                             dataView.modify();
                             dataViewIndex++;
                             pos = 0;
-                            vbdata = dataView.getData()[0] as Float32Array;
+                            vbdata = dataView.getData();
                         }
 
                         let x = positions[ci], y = positions[ci + 1];
@@ -130,13 +132,25 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                         pos += 12;
                         ci += 2;
                     }
+                    
+                    if(indexView){
+                        indexView.modify();
+                    }
                 }
-                this._needUpdateVertexBuffer = false;
+                this._needUpdateBuffer = false;
             }
 
             this._modifiedFrame = trans.modifiedFrame;
         }
-
+        else{
+            for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
+                let block = this._vertexBufferBlocks[i];
+                let indexView = block.indexView;
+                if(indexView){
+                    indexView.modify();
+                }
+            }
+        }
     }
 }
 
@@ -324,6 +338,5 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
     }
 }

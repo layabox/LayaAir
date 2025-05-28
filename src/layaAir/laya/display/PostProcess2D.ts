@@ -35,12 +35,29 @@ export class PostProcess2D extends EventDispatcher {
       this._enabled = value;
    }
 
-   constructor(sprite: Sprite) {
+   constructor() {
       super();
       this._context = new PostProcessRenderContext2D();
       this._context.compositeShaderData = this._compositeShaderData;
       this._context.command = new CommandBuffer2D();
-      this.on(PostProcess2D.POSTCMDCHANGE, sprite, sprite.setSubpassFlag, [SUBPASSFLAG.PostProcess]);
+   }
+
+   private _owner: Sprite;
+   /**
+    * @en The owner of the post-processing effect.
+    * @zh 后期处理效果的拥有者。
+    */
+   public get owner(): Sprite {
+      return this._owner;
+   }
+   public set owner(value: Sprite) {
+      if (this._owner) {
+         this._owner.off(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+      }
+      this._owner = value;
+      if (this._owner) {
+         this._owner.on(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+      }
    }
 
    _onChangeRender() {
@@ -109,6 +126,7 @@ export class PostProcess2D extends EventDispatcher {
    }
 
    destroy(): void {
+      this.owner = null;
       this._context.compositeShaderData.destroy();
       this._context.compositeShaderData = null;
       this._effects.forEach(effect => effect.destroy());

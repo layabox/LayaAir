@@ -98,11 +98,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    finalize: CommandBuffer2D = null;
 
-
-
    mask: WebRenderStruct2D;
 
-   private _enableBatch: boolean = false;
+   private _enableBatch: boolean = true;
    /** 需要挪出去? */
    public get enableBatch(): boolean {
       return this._enableBatch;

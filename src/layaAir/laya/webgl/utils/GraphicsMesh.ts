@@ -11,8 +11,7 @@ export type MeshBlockInfo = {
    positions?: number[],
    vertexViews?: I2DGraphicBufferDataView[],
    vertexBlocks?: number[],
-   indexViews?: I2DGraphicBufferDataView[],
-   indexBlocks?: number[],
+   indexView?: I2DGraphicBufferDataView,
 }
 
 export class GraphicsMesh {
@@ -38,13 +37,20 @@ export class GraphicsMesh {
    }
 
    constructor() {
-      // 4 * GraphicsMesh.stride / 4 1次4个点
-      this._buffer = new Graphic2DDynamicVIBuffer(GraphicsMesh.stride * 4 /** * 4 / 4 */, 6);
-      this._buffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
+      //1次4个vb 6个ib
+      this._buffer = new Graphic2DDynamicVIBuffer( 4 , GraphicsMesh.vertexDeclarition);
    }
 
+   /**
+    * @en Check vertex buffer
+    * @param vertexCount vertex count
+    * @returns vertex buffer info
+    * @zh 检查顶点缓冲区
+    * @param vertexCount 顶点数量
+    * @returns 顶点缓冲区信息
+    */
    checkVertex(vertexCount: number): MeshBlockInfo {
-      let vbResult = this._buffer.checkVertexBuffer(vertexCount * GraphicsMesh.stride);
+      let vbResult = this._buffer.checkVertexBuffer(vertexCount);
       if (!vbResult) return null;
       return {
          mesh: this,
@@ -53,25 +59,51 @@ export class GraphicsMesh {
       }
    }
 
-   checkIndex(indexCount: number): MeshBlockInfo {
-      let ibResult = this._buffer.checkIndexBuffer(indexCount);
-      if (!ibResult) return null;
-      return {
-         mesh: this,
-         indexBlocks: ibResult.indexBlocks,
-         indexViews: ibResult.indexViews
-      }
+   /**
+    * @en Check index buffer
+    * @param indexCount index count
+    * @returns index buffer info
+    * @zh 检查索引缓冲区
+    * @param indexCount 索引数量
+    * @returns 索引缓冲区信息
+    */
+   checkIndex(indexCount: number): I2DGraphicBufferDataView {
+      return this._buffer.checkIndexBuffer(indexCount);
    }
 
-   clearBlocks(vertexBlocks: number[], indexBlocks: number[]): void {
+   /**
+    * @en Clear index view map
+    * @zh 清除索引视图映射
+    */
+   // clearIndexViewMap(): void {
+   //    this._buffer.clearIndexViewMap();
+   // }
+
+   /**
+    * @en Clear blocks
+    * @param vertexBlocks vertex blocks
+    * @param indexView index view
+    * @zh 清除块
+    * @param vertexBlocks 顶点块
+    * @param indexView 索引视图
+    */
+   clearBlocks(vertexBlocks: number[], indexView: I2DGraphicBufferDataView): void {
       this._buffer.releaseVertexBlocks(vertexBlocks);
-      this._buffer.releaseIndexBlocks(indexBlocks);
+      this._buffer.releaseIndexView(indexView);
    }
 
+   /**
+    * @en Clear
+    * @zh 清除
+    */
    clear(): void {
       this._buffer.clear();
    }
 
+   /**
+    * @en Destroy
+    * @zh 销毁
+    */
    destroy(): void {
       this._buffer.destroy();
       this._buffer = null;

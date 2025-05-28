@@ -11,9 +11,10 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 export class Graphic2DDynamicVIBuffer {
     static MAX_VERTEX = 65535;
     static DEFAULT_BLOCK_SIZE = 1024;
+    static FREE_BLOCK_REFRESH_COUNT = 100;
 
     private _bufferState: IBufferState;
-    private _vertexBuffers: IVertexBuffer[] = [];
+    private _vertexBuffer: IVertexBuffer;
     private _indexBuffer: IIndexBuffer;
 
     private _wholeVertex: I2DGraphicWholeBuffer;
@@ -21,26 +22,30 @@ export class Graphic2DDynamicVIBuffer {
 
     //一个渲染元素有几个顶点
     private _vertexBlockSize: number;
-    //一个渲染元素有几个index
-    private _indexBlockSize: number;
+    // 一个顶点元素有多少个Float32
+    private _vertexBlockLength: number;
 
     //目前的vertex block Count
     private _canVBlockCount: number;
-    //目前的vertex block Count
-    private _canIBlockCount: number;
 
     private _vertexViews: I2DGraphicBufferDataView[] = [];
-    private _indexViews: I2DGraphicBufferDataView[] = [];
+
+    private _indexViews: Map<number, I2DGraphicBufferDataView[]> = new Map();
+
+    private _indexBufferLength: number = 0;
+    private _indexBufferMaxLength: number = 0;
 
     private _vertexFreeBlocks: number[] = [];
-    private _indexFreeBlocks: number[] = [];
-
 
     private _vertexDeclaration: VertexDeclaration;
+    // 一个顶点元素占用长度
+    private _vertexElementLength: number;
+    // 一个顶点元素占用的字节数
+    private _vertexStride: number;
 
 
     get vertexBuffer(): IVertexBuffer {
-        return this._vertexBuffers[0];
+        return this._vertexBuffer;
     }
 
     get indexBuffer(): IIndexBuffer {
@@ -51,63 +56,60 @@ export class Graphic2DDynamicVIBuffer {
         return this._bufferState;
     }
 
-    constructor(vertexBlockSize: number, indexBlockSize: number) {
+    constructor(vertexBlockSize: number, vertexDeclaration: VertexDeclaration) {
         this._vertexBlockSize = vertexBlockSize;//一个顶点元素
-        this._indexBlockSize = indexBlockSize;
 
-        let vertexDefaultSize = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
-        this._vertexBuffers[0] = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+        this._vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         //create I2DGraphicWholeBuffer
         this._wholeVertex = LayaGL.render2DRenderPassFactory.create2DGraphicWoleBuffer();
         this._wholeVertex.modifyType = BufferModifyType.Vertex;
-        this._wholeVertex.buffers = this._vertexBuffers;
-        this.resizeVertexBuffer(vertexDefaultSize);
+        this._wholeVertex.buffer = this._vertexBuffer;
 
-        let indexDefaultSize = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
         this._indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this._indexBuffer.indexType = IndexFormat.UInt16;
+
         this._wholeIndex = LayaGL.render2DRenderPassFactory.create2DGraphicWoleBuffer();
         this._wholeIndex.modifyType = BufferModifyType.Index;
-        this._wholeIndex.buffers = this._indexBuffer;
-        this.resizeIndexBuffer(vertexDefaultSize);
+        this._wholeIndex.buffer = this._indexBuffer;
 
         this._bufferState = LayaGL.renderDeviceFactory.createBufferState();
-    }
+        this._vertexBuffer.vertexDeclaration = vertexDeclaration;
+        this._vertexDeclaration = vertexDeclaration;
 
-    set vertexDeclaration(vertexDeclaration: VertexDeclaration) {
-        if (this._vertexDeclaration !== vertexDeclaration) {
-            this._vertexDeclaration = vertexDeclaration;
-            this._vertexBuffers[0].vertexDeclaration = vertexDeclaration;
-            this._bufferState.applyState(this._vertexBuffers, this._indexBuffer);
-        }
-    }
+        this._vertexStride = vertexDeclaration.vertexStride;
+        this._vertexElementLength = this._vertexStride / 4;
+        this._vertexBlockLength = this._vertexBlockSize * this._vertexElementLength;
 
-    get vertexDeclaration(): VertexDeclaration {
-        return this._vertexDeclaration;
+        this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
+
+        let size = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
+        this.resizeVertexBuffer(size);
+        this.resizeIndexBuffer(size);
     }
 
     resizeVertexBuffer(blockSize: number) {//size表示几个size
-        this._wholeVertex.resetData(blockSize * this._vertexBlockSize * 4);
-        this._vertexBuffers[0].setDataLength(blockSize * this._vertexBlockSize * 4);
+        let byteLength = blockSize * this._vertexBlockSize * this._vertexStride;
+        this._wholeVertex.resetData(byteLength);
+        this._vertexBuffer.setDataLength(byteLength);
         this._canVBlockCount = blockSize;
     }
 
-    resizeIndexBuffer(blockSize: number) {
-        this._wholeIndex.resetData(blockSize * this._indexBlockSize * 2);
-        this._indexBuffer._setIndexDataLength(blockSize * this._indexBlockSize * 2);
-        this._canIBlockCount = blockSize;
+    resizeIndexBuffer(size: number) {
+        let byteLength = size * 2;
+        this._wholeIndex.resetData(byteLength);
+        this._indexBuffer._setIndexDataLength(byteLength);
+        this._indexBufferMaxLength = size;
     }
-
 
     //扩展顶点范围
     vertexExtendBlock(needBlockSize: number): void {
-        let blockSize = Math.ceil(this._canVBlockCount + needBlockSize) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
+        let blockSize = Math.ceil((this._canVBlockCount + needBlockSize) / Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
         this.resizeVertexBuffer(blockSize);
     }
 
-    indexExtendBlock(needBlockSize: number): void {
-        let blockSize = Math.ceil(this._canIBlockCount + needBlockSize) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
-        this.resizeIndexBuffer(blockSize);
+    indexExtendBlock(length: number): void {
+        let nMaxLength = Math.ceil((this._indexBufferLength + length) / Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
+        this.resizeIndexBuffer(nMaxLength);
     }
 
     /**
@@ -119,10 +121,9 @@ export class Graphic2DDynamicVIBuffer {
         let requiredBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
         let requiredExtendBlockCount = requiredBlocks - (this._vertexFreeBlocks.length + (this._canVBlockCount - this._vertexViews.length));
         if (requiredExtendBlockCount > 0) {//判断是否需要扩Buffer
-
             let needBlocks = this._canVBlockCount + requiredExtendBlockCount;
-            let vertexCount = needBlocks * this._vertexBlockSize;/** Float32Array.BYTES_PER_ELEMENT */;
-            if (vertexCount > Graphic2DDynamicVIBuffer.MAX_VERTEX) {    //扩Buffer是否超过了最大范围
+            let newVertexCount = needBlocks * this._vertexBlockSize;/** Float32Array.BYTES_PER_ELEMENT */;
+            if (newVertexCount > Graphic2DDynamicVIBuffer.MAX_VERTEX) {    //扩Buffer是否超过了最大范围
                 return null;
             } else {
                 //扩Buffer
@@ -149,9 +150,9 @@ export class Graphic2DDynamicVIBuffer {
             // 为新块创建视图
             let view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
                 this._wholeVertex,
-                newBlockIndex * this._vertexBlockSize,
-                this._vertexBlockSize,
-                this._vertexDeclaration.vertexStride / 4
+                newBlockIndex * this._vertexBlockLength,
+                this._vertexBlockLength,
+                this._vertexElementLength
             );
             this._vertexViews[newBlockIndex] = view;
 
@@ -167,42 +168,34 @@ export class Graphic2DDynamicVIBuffer {
      * @param length 需要的长度
      * @returns 包含数据视图和使用的blocks的对象，如果空间不足则返回null
      */
-    checkIndexBuffer(length: number): any {
-        let requiredBlocks = Math.ceil(length / this._indexBlockSize);
+    checkIndexBuffer(length: number): I2DGraphicBufferDataView {
+        let view: I2DGraphicBufferDataView;
 
-        let usedBlocks: number[] = [];
-        let usedViews: I2DGraphicBufferDataView[] = [];
-        let remainingBlocks = requiredBlocks;
-
-        let requiredExtendBlockCount = requiredBlocks - (this._indexFreeBlocks.length + (this._canIBlockCount - this._indexViews.length));
-        if (requiredExtendBlockCount > 0) {
-            this.indexExtendBlock(requiredExtendBlockCount);
-        }
-        // 首先使用空闲块
-        while (remainingBlocks > 0 && this._indexFreeBlocks.length > 0) {
-            let block = this._indexFreeBlocks.shift();
-            usedBlocks.push(block);
-            usedViews.push(this._indexViews[block]);
-            remainingBlocks--;
+        // let views = this._indexViews.get(length);
+        // if (views && views.length > 0) {
+        //     view = views.shift();
+        // }
+        // else 
+        if (this._indexBufferLength + length > this._indexBufferMaxLength) {
+            this.indexExtendBlock(length);
         }
 
-        // 如果还需要更多块，使用新的块
-        while (remainingBlocks > 0) {
-            let newBlockIndex = this._indexViews.length;
-            usedBlocks.push(newBlockIndex);
+        // if (!view) {
             // 为新块创建视图
-            let view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
+            view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
                 this._wholeIndex,
-                newBlockIndex * this._indexBlockSize,
-                this._indexBlockSize,
+                this._indexBufferLength,
+                length,
                 1
             );
-            this._indexViews[newBlockIndex] = view;
-            usedViews.push(view);
-            remainingBlocks--;
-        }
-        // 使用第一个block的视图
-        return { buffer: this, indexViews: usedViews, indexBlocks: usedBlocks };
+            // this._wholeIndex.addDataView(view);
+            this._indexBufferLength += length;
+        // }
+        // else if (view.start === -1) {
+        //     view.start = this._indexBufferLength;
+        //     this._indexBufferLength += length;
+        // }
+        return view;
     }
 
     private _releaseBlocks(blocks: number[], list: I2DGraphicBufferDataView[], freeBlocks: number[]) {
@@ -219,12 +212,36 @@ export class Graphic2DDynamicVIBuffer {
     }
 
     /**
-     * 释放索引缓冲区块
-     * @param blocks 要释放的blocks数组
+     * 准备释放索引缓冲区块
+     * @param indexView 要回收的索引缓冲区块
      */
-    releaseIndexBlocks(blocks: number[]) {
-        this._releaseBlocks(blocks, this._indexViews, this._indexFreeBlocks);
+    // readyReleaseIndexView(indexView: I2DGraphicBufferDataView) {
+    //     let views = this._indexViews.get(indexView.length);
+    //     if (views) {
+    //         views.push(indexView);
+    //     } else {
+    //         this._indexViews.set(indexView.length, [indexView]);
+    //     }
+    // }
+
+    /**
+     * 释放索引缓冲区块
+     * @param indexView 要释放的索引缓冲区块
+     */
+    releaseIndexView(indexView: I2DGraphicBufferDataView) {
+        this._indexBufferLength -= indexView.length;
+        // this._wholeIndex.removeDataView(indexView);
+        // indexView.start = -1;
     }
+
+    /**
+     * 清除池子内的索引缓冲区块
+     */
+    // clearIndexViewMap() {
+    //     this._indexViews.forEach((views, length) => {
+    //         views.forEach(view=>this.releaseIndexView(view));
+    //     });
+    // }
 
     // /**
     //  * 上传数据到GPU
@@ -325,10 +342,7 @@ export class Graphic2DDynamicVIBuffer {
      */
     clear() {
         this._vertexViews.forEach(view => view = null);
-        this._indexViews.forEach(view => view = null);
         this._vertexFreeBlocks = [];
-        this._indexFreeBlocks = [];
-
     }
 
     /**
@@ -336,9 +350,7 @@ export class Graphic2DDynamicVIBuffer {
      */
     destroy() {
         this.clear();
-        this._vertexBuffers.forEach((buffer) => {
-            buffer.destroy();
-        })
+        this._vertexBuffer.destroy();
         this._indexBuffer.destroy();
         //wholeBuffer destroy
     }
