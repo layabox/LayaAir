@@ -5,6 +5,7 @@ import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMo
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBatch2DRender } from "./WebRender2DPass";
+import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
@@ -157,7 +158,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
             if (leftType & 32) { //或者比对材质 clip 优先忽略
                 return false;
-            }else if (left.owner.getClipInfo() === right.owner.getClipInfo()) {
+            }else if (( left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
                 return true;
             }
             return false;
