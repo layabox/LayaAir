@@ -64,6 +64,7 @@ export class DragSupport {
     private _tween: Tween;
     private _data: any;
 
+    /** @blueprintIgnore */
     constructor(owner: Sprite) {
         this.target = owner;
         this.area = new Rectangle();

@@ -99,7 +99,7 @@ export class InputManager {
     private _lastTouchTime: number;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      */
     constructor() {
         this._touches = [];
