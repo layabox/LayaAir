@@ -99,7 +99,7 @@ export class Main {
                 Laya.stage.screenMode = Stage.SCREEN_NONE;
             }
             Laya.stage.bgColor = "#ffffff";
-            Stat.show();
+            //Stat.show();
 
             //初始化socket连接
             if (Main.isOpenSocket)
