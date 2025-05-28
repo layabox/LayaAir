@@ -39,7 +39,7 @@ export class SubmitBase {
         this._internalInfo.clear();
         this.material = null;
         for (let i = 0, n = this.infos.length; i < n; i++) {
-            this.mesh.clearBlocks(this.infos[i].vertexBlocks, this.infos[i].indexBlocks);
+            this.mesh.clearBlocks(this.infos[i].vertexBlocks, this.infos[i].indexView);
         }
         this.infos.length = 0;
         this.mesh = null;

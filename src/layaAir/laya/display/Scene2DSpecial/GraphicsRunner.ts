@@ -35,6 +35,12 @@ import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
 import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { LayaGL } from "../../layagl/LayaGL";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -153,6 +159,7 @@ export class GraphicsRunner {
     }
 
     constructor() {
+        window.runner = this;
         //_ib = IndexBuffer2D.QuadrangleIB;
         this._lastTex = GraphicsRunner.defTexture;
         this._other = ContextParams.DEFAULT;
@@ -2170,6 +2177,16 @@ export class GraphicsRunner {
         return this._meshPool[this._currentMeshIndex];
     }
 
+    /**
+     * 清除未使用的indexView
+     */
+    // clearUnUsedIndexView() {
+    //     let meshes = this._meshPool;
+    //     for (let i = 0; i < meshes.length; i++) {
+    //         let mesh = meshes[i];
+    //         mesh.clearIndexViewMap();
+    //     }
+    // }
 
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
@@ -2221,7 +2238,7 @@ export class GraphicsRunner {
                 dataViewIndex++;
                 pos = 0;
                 offset = dataView.start / dataView.stride;
-                vbdata = (dataView.getData() as Float32Array[])[0]; 
+                vbdata = dataView.getData() as Float32Array; 
             }
 
             let x = vertices[ci], y = vertices[ci + 1];
@@ -2256,67 +2273,88 @@ export class GraphicsRunner {
 
         result.positions = positions;
 
-        let indexResult = result.mesh.checkIndex(indices.length);
-        let indexViews = result.indexViews = indexResult.indexViews;
-        result.indexBlocks = indexResult.indexBlocks;
-
         let indexCount = indices.length;
-        dataViewIndex = 0;
-        dataView = null;
-        let ibdata :Uint16Array;
+        let indexView = result.indexView = result.mesh.checkIndex(indexCount);
+        let ibdata :Uint16Array = indexView.getData() as Uint16Array;
         for (let i = 0; i < indexCount; i++) {
-            if (!dataView || dataView.length <= pos) {
-                dataView = indexViews[dataViewIndex];
-                dataView.modify();
-                dataViewIndex++;
-                ibdata = dataView.getData() as Uint16Array; 
-                pos = 0;
-            }
-
-            ibdata[pos] = indexsMap[indices[i]];
-            pos++;
-        }
-
-        if(dataView.length > pos){
-            for(let i = pos , n = dataView.length; i < n; i++){
-                ibdata[i] = 0;
-            }
+            ibdata[i] = indexsMap[indices[i]];
         }
     }
 
-    def_uv: MeshBlockInfo;
+    /**
+     * @en Default geometry
+     * @zh 默认的geometry
+     */
+    def_geometry: IRenderGeometryElement;
 
-    inv_uv: MeshBlockInfo;
+    /**
+     * @en Inverse geometry
+     * @zh 逆向的geometry
+     */
+    inv_geometry: IRenderGeometryElement;
 
     initDefalutMesh() {
-        if (!this.def_uv) {
-            this.def_uv = this.acquire(4);
-            this.appendData(
-                [0, 0, 1, 0, 1, 1, 0, 1],
-                _drawTexToQuad_Index,
-                this.def_uv,
-                Texture.DEF_UV,
-                0xffffffff,
-                null,
-                null,
-                true
-            );
-            this.def_uv.vertexViews[0].modify();
-            this.def_uv.indexViews[0].modify();
+        if (!this.def_geometry) {
+            let length = 4 * GraphicsMesh.stride;
+            let def_vertices = new Float32Array(length);
+            let inv_vertices = new Float32Array(length);
+            let def_uv = Texture.DEF_UV;
+            let inv_uv = Texture.INV_UV;
+            let positions = [0,0,1,0,1,1,0,1];
 
-            this.inv_uv = this.acquire(4);
-            this.appendData(
-                [0, 0, 1, 0, 1, 1, 0, 1],
-                _drawTexToQuad_Index,
-                this.inv_uv,
-                Texture.INV_UV,
-                0xffffffff,
-                null,
-                null,
-                true
-            )
-            this.inv_uv.vertexViews[0].modify();
-            this.inv_uv.indexViews[0].modify();
+            let offset = 0;
+            for (let i = 0; i < 4; i++) {
+                let index = i * GraphicsMesh.stride;
+                //pos
+                inv_vertices[index] = def_vertices[index] = positions[offset];
+                inv_vertices[index + 1] = def_vertices[index + 1] = positions[offset + 1];
+                //defalut uv
+                def_vertices[index + 2] = def_uv[offset];
+                def_vertices[index + 3] = def_uv[offset + 1];
+                //invert uv
+                inv_vertices[index + 2] = inv_uv[offset];
+                inv_vertices[index + 3] = inv_uv[offset + 1];
+                //color
+                inv_vertices[index + 4] = def_vertices[index + 4] = 1;
+                inv_vertices[index + 5] = def_vertices[index + 5] = 1;
+                inv_vertices[index + 6] =  def_vertices[index + 6] = 1;
+                inv_vertices[index + 7] = def_vertices[index + 7] = 1;
+                //a_flag
+                inv_vertices[index + 8] = def_vertices[index + 8] = 0xff;
+                
+                offset += 2;
+            }
+
+            let indices = _drawTexToQuad_Index;
+            let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Static);
+            indexBuffer.indexType = IndexFormat.UInt16;
+            indexBuffer.indexCount = indices.length;
+            indexBuffer._setIndexDataLength(indices.byteLength);
+            indexBuffer._setIndexData(indices , 0);
+
+            let defaultBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
+            defaultBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
+            defaultBuffer.setDataLength(def_vertices.byteLength);
+            defaultBuffer.setData(def_vertices.buffer , 0 ,0 , def_vertices.byteLength);
+
+            let invertBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
+            invertBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
+            invertBuffer.setDataLength(inv_vertices.byteLength);
+            invertBuffer.setData(inv_vertices.buffer , 0 ,0 , inv_vertices.byteLength);
+
+            this.def_geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            let defaultState = LayaGL.renderDeviceFactory.createBufferState();
+            defaultState.applyState([defaultBuffer] , indexBuffer);
+            this.def_geometry.bufferState = defaultState;
+            this.def_geometry.indexFormat = IndexFormat.UInt16;
+            this.def_geometry.setDrawElemenParams(6, 0);
+
+            this.inv_geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            let invertState = LayaGL.renderDeviceFactory.createBufferState();
+            invertState.applyState([invertBuffer] , indexBuffer);
+            this.inv_geometry.bufferState = invertState;
+            this.inv_geometry.indexFormat = IndexFormat.UInt16;
+            this.inv_geometry.setDrawElemenParams(6, 0);
         }
     }
 

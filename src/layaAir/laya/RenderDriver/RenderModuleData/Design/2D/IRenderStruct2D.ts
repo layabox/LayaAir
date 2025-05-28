@@ -50,8 +50,6 @@ export interface IRenderStruct2D {
 
    spriteShaderData: ShaderData;
 
-   commonUniformMap: string[];
-
    renderDataHandler: IRender2DDataHandle;
 
    globalRenderData: I2DGlobalRenderData;

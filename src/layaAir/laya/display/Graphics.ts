@@ -71,7 +71,7 @@ export class Graphics {
 
     // _texture: Texture | null = null;
     /** @internal */
-    _data: GraphicsRenderData = new GraphicsRenderData();
+    _data: GraphicsRenderData;
     // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
 
     // private _renderElements: IRenderElement2D[] = [];
@@ -109,7 +109,6 @@ export class Graphics {
         this.clear(true);
         if (this._graphicBounds) this._graphicBounds.destroy();
         this._renderDataHandle && this._renderDataHandle.destroy();
-        this._data && this._data.destroy();
         this._graphicBounds = null;
         this._vectorgraphArray = null;
         if (this.owner) {

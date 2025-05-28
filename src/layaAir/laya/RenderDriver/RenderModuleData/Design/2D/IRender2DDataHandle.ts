@@ -3,6 +3,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "./IRenderStruct2D";
@@ -29,6 +30,7 @@ export enum BufferModifyType {
     Vertex = 0,
     Index = 1,
 }
+
 export interface I2DGraphicBufferDataView {
     start: number;
     length: number;
@@ -36,21 +38,25 @@ export interface I2DGraphicBufferDataView {
     isModified: boolean;
     modifyType: BufferModifyType;
     owner: I2DGraphicWholeBuffer;
-    getData(): Float32Array[] | Uint16Array;
+    geometry: IRenderGeometryElement;
+    getData(): Float32Array | Uint16Array;
     modify(): void;
 }
 
 export interface I2DGraphicWholeBuffer {
-    buffers: IVertexBuffer[] | IIndexBuffer
-    bufferData: Float32Array[] | Uint16Array;
+    buffer: IVertexBuffer | IIndexBuffer
+    bufferData: Float32Array | Uint16Array;
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
+    addDataView(view: I2DGraphicBufferDataView): void;
+    // removeDataView(view: I2DGraphicBufferDataView): void;
     destroy(): void;
 }
 
-export type Graphic2DVBBlock = {
+export type Graphic2DBufferBlock = {
     positions: number[],
     vertexViews: I2DGraphicBufferDataView[],
+    indexView: I2DGraphicBufferDataView,
 }
 
 /**
@@ -58,7 +64,7 @@ export type Graphic2DVBBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphic2DVBBlock[]): void;
+    applyVertexBufferBlock(views: Graphic2DBufferBlock[]): void;
 }
 
 /**
