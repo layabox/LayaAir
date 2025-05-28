@@ -85,12 +85,12 @@ export abstract class SpineMeshBase {
      * @en Vertex Buffer length.
      * @zh 顶点缓冲区大小。
      */
-    protected vertexBufferLength:number = 0;
+    protected vertexBufferLength: number = 0;
     /**
      * @en Index Buffer length.
      * @zh 索引缓冲区大小。
      */
-    protected indexBufferLength:number = 0;
+    protected indexBufferLength: number = 0;
 
     /**
      * @en Create a new instance of SpineMeshBase.
@@ -121,19 +121,19 @@ export abstract class SpineMeshBase {
         this.ib = ib;
         //set renderelement2D
         this.element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        this.element.nodeCommonMap = [ "BaseRender2D","spine2D"];
+        this.element.nodeCommonMap = ["BaseRender2D", "spine2D"];
         //@ts-ignore
         this.element.canotPool = true;
         this.element.geometry = geo;
         this.element.renderStateIsBySprite = false;
     }
-   
+
     /**
      * @en The vertex declaration for the mesh.
      * @zh 网格的顶点声明。
      */
     get vertexDeclarition(): VertexDeclaration {
-        return  SpineShaderInit.SpineNormalVertexDeclaration;
+        return SpineShaderInit.SpineNormalVertexDeclaration;
     }
     /**
      * @en Add the mesh to the rendering queue.
@@ -144,6 +144,13 @@ export abstract class SpineMeshBase {
         let ib = this.ib;
         let vblen = this.verticesLength * 4;
         let iblen = this.indicesLength * 2;
+
+        if (vblen <= 0 || iblen <= 0) {
+            this.geo.clearRenderParams();
+            this.element.geometry = null;
+            return;
+        }
+
         //检查长度
         if (vblen > this.vertexBufferLength) {
             vb.setDataLength(vblen);
@@ -157,7 +164,7 @@ export abstract class SpineMeshBase {
 
         vb.setData(this.vertexArray.buffer, 0, this.vertexArray.byteOffset, vblen);
         ib._setIndexData(new Uint16Array(this.indexArray.buffer, this.indexArray.byteOffset, iblen / 2), 0);
-        
+
         this.geo.clearRenderParams();
         this.geo.setDrawElemenParams(iblen / 2, 0);
         this.element.geometry = this.geo;
