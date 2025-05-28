@@ -109,6 +109,7 @@ export class Gear {
 
             this._tween.kill();
             this._tween.recover();
+            this._tween = null;
         }
 
         if (this.compareValue(oldValue, newValue))
@@ -170,13 +171,13 @@ export class GearColor extends Gear { }
 export class GearStrColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: string, newValue: string): void {
         super.doTween(obj, key, oldValue, newValue);
-        this._tween.interp(Tween.seperateChannel);
+        this._tween && this._tween.interp(Tween.seperateChannel);
     }
 }
 
 export class GearHexColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: number, newValue: number): void {
         super.doTween(obj, key, oldValue, newValue);
-        this._tween.interp(Tween.seperateChannel, 4);
+        this._tween && this._tween.interp(Tween.seperateChannel, 4);
     }
 }
