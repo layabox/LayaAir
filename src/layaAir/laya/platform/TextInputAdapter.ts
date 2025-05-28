@@ -341,7 +341,8 @@ export class TextInputAdapter {
         style.zIndex = '1';
         PAL.browser.setStyleTransformOrigin(style, "0 0");
 
-        input.addEventListener('input', ev => this.processInputting(ev));
+        input.addEventListener('input', ev => !(<InputEvent>ev).isComposing && this.processInputting(ev));
+        input.addEventListener("compositionend", ev => this.processInputting(ev));
 
         input.addEventListener('mousemove', ev => this.stopEvent(ev), { passive: false });
         input.addEventListener('mousedown', ev => this.stopEvent(ev), { passive: false });
@@ -354,6 +355,7 @@ export class TextInputAdapter {
 
         let ele = <HTMLInputElement | HTMLTextAreaElement>ev.target;
         let value = this.validateText(ele.value);
+        ele.value = value;
         if (this.updateTargetText(value))
             this.target.event(Event.INPUT);
     }
