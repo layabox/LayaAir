@@ -141,7 +141,7 @@ export class WebRender2DPass implements IRender2DPass {
       // return true;
       return this.enable
          && !this.isSupport
-         // && (this.repaint || !this.renderTexture);
+         && (this.repaint || !this.renderTexture);
    }
 
    /**

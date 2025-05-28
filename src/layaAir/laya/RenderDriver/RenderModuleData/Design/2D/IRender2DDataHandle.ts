@@ -48,8 +48,6 @@ export interface I2DGraphicWholeBuffer {
     bufferData: Float32Array | Uint16Array;
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
-    addDataView(view: I2DGraphicBufferDataView): void;
-    // removeDataView(view: I2DGraphicBufferDataView): void;
     destroy(): void;
 }
 
