@@ -1955,6 +1955,9 @@ export class Sprite extends Node {
                 delete (<any>this)._filters;
             }
         }
+
+        if (this._mouseState === 2)
+            this.setMouseEnabledUp();
     }
 
     protected onStartListeningToType(type: string) {
