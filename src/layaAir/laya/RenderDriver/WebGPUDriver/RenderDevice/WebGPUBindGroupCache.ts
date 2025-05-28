@@ -304,9 +304,7 @@ export class WebGPUBindGroupCache {
         };
 
         const device = WebGPURenderEngine._instance.getDevice();
-        console.time("createBindGroup");
         let bindGroup: GPUBindGroup = device.createBindGroup(descriptor);
-        console.timeEnd("createBindGroup");
 
         let res = new WebGPUBindGroup(info);
         res.gpuRS = bindGroup;
