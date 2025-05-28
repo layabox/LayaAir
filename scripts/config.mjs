@@ -38,11 +38,8 @@ export const allBundles = [{
         'laya/RenderEngine/RenderShader/**/*.*',
         'laya/RenderEngine/*.*',
 
-        'laya/RenderDriver/RenderModuleData/Design/IDefineDatas.ts',
-        'laya/RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory.ts',
-        'laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
-        'laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
-
+        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+      
         'laya/loaders/**/*.*',
         'laya/maths/**/*.*',
         'laya/media/**/*.*',
@@ -125,6 +122,7 @@ export const allBundles = [{
         'laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
         'laya/RenderDriver/WebGLDriver/2DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
     ],
 },
 {
@@ -294,6 +292,12 @@ export const allBundles = [{
     name: 'tiledmap_discarded',
     input: [
         'laya/legacy/tiledmap/**/*.ts'
+    ],
+},
+{
+    name: 'filter_discarded',
+    input: [
+        'laya/legacy/filters/**/*.ts'
     ],
 },
 {

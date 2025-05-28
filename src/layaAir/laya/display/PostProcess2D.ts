@@ -77,7 +77,7 @@ export class PostProcess2D extends EventDispatcher {
      * @param classReg 注册的后期处理类型
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
-   private getEffect(classReg: any): any {
+   getEffect(classReg: any): any {
       let size: number = this._effects.length;
       for (let i = 0; i < size; i++) {
          let element = this._effects[i];
@@ -96,6 +96,28 @@ export class PostProcess2D extends EventDispatcher {
       return this._context.destination;
    }
 
+   /**
+     * @en Set the array of post-process effects.IDE main
+     * @zh 设置后期处理效果数组。
+     */
+   get effects(): PostProcess2DEffect[] {
+      return this._effects;
+   }
+
+   set effects(value: PostProcess2DEffect[]) {
+      this.clear();
+      for (var i = 0, n = value.length; i < n; i++) {
+         if (value[i])
+            this.addEffect(value[i]);
+      }
+   }
+
+   /**
+    * @en Add a post-processing effect.
+    * @param effect The post-processing effect to add.
+    * @zh 添加一个后期处理效果。
+    * @param effect 要添加的后期处理效果。
+    */
    addEffect(effect: PostProcess2DEffect) {
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
          console.error("无法增加已经存在的Effect");
@@ -105,6 +127,23 @@ export class PostProcess2D extends EventDispatcher {
       effect.effectInit(this);
    }
 
+   /**
+    * @en Remove a post-processing effect.
+    * @param effect The post-processing effect to remove.
+    * @zh 移除一个后期处理效果。
+    * @param effect 要移除的后期处理效果。
+    */
+   removeEffect(effect: PostProcess2DEffect) {
+      let index = this._effects.indexOf(effect);
+      if (index != -1) {
+         this._effects.splice(index, 1);
+      }
+   }
+
+   /**
+    * @en Render the post-processing effects.
+    * @zh 渲染后期处理效果。
+    */
    render(): void {
       this._context.command.clear(true);
       this._context.indirectTarget = this._context.source;
@@ -117,14 +156,26 @@ export class PostProcess2D extends EventDispatcher {
       }
    }
 
+   /**
+    * @en Clear all post-processing effects.
+    * @zh 清除所有后期处理效果。
+    */
    clear() {
       this._effects.length = 0;
    }
 
+   /**
+    * @en Clear the post-processing command buffer.
+    * @zh 清除后期处理指令流。
+    */
    clearCMD() {
       this._context.command.clear();
    }
 
+   /**
+    * @en Destroy the post-processing instance.
+    * @zh 销毁后期处理实例。
+    */
    destroy(): void {
       this.owner = null;
       this._context.compositeShaderData.destroy();

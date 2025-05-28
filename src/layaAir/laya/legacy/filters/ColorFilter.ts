@@ -4,27 +4,6 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { ColorEffect2D } from "../../display/effect2d/ColorEffect2D";
 
 /**
- * @en An array representing a list of contrast values.
- * @zh 表示对比度值列表的数组。
- */
-const DELTA_INDEX: any[] = [0, 0.01, 0.02, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.20, 0.21, 0.22, 0.24, 0.25, 0.27, 0.28, 0.30, 0.32, 0.34, 0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.5, 0.53, 0.56, 0.59, 0.62, 0.65, 0.68, 0.71, 0.74, 0.77, 0.80, 0.83, 0.86, 0.89, 0.92, 0.95, 0.98, 1.0, 1.06, 1.12, 1.18, 1.24, 1.30, 1.36, 1.42, 1.48, 1.54, 1.60, 1.66, 1.72, 1.78, 1.84, 1.90, 1.96, 2.0, 2.12, 2.25, 2.37, 2.50, 2.62, 2.75, 2.87, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.3, 4.7, 4.9, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0, 7.3, 7.5, 7.8, 8.0, 8.4, 8.7, 9.0, 9.4, 9.6, 9.8, 10.0];
-/**
- * @en An array representing a gray matrix.
- * @zh 表示灰色矩阵的数组。
- */
-const GRAY_MATRIX: any[] = [0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0];
-/**
- * @en An array representing an identity matrix, which signifies no effect or change.
- * @zh 表示单位矩阵的数组，它表示没有效果或变化。
- */
-const IDENTITY_MATRIX: any[] = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1];
-/**
- * @en Standard matrix length
- * @zh 标准矩阵长度。
- */
-const LENGTH: number = 25;
-
-/**
  * @deprecated use post2DProcess
  * @en The `ColorFilter` class represents a color filter that applies a 4x5 matrix transformation to the RGBA color and Alpha values of each pixel of the input image to produce a result with a new set of RGBA colors and Alpha values. This class allows for saturation adjustments, hue rotation, brightness to Alpha, and various other effects. You can apply the filter to any display object (i.e., an object that inherits from the `Sprite` class).
  * For RGBA values, the most significant byte represents the red channel value, followed by the green, blue, and Alpha channel values respectively.
@@ -62,7 +41,8 @@ export class ColorFilter extends Filter {
      * @zh 将滤镜设置为灰度滤镜。
      */
     gray(): ColorFilter {
-        return this.setByMatrix(GRAY_MATRIX);
+        this._effect2D.gray();
+        return this;
     }
 
     /**

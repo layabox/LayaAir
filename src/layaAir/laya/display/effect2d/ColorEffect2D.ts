@@ -55,7 +55,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     constructor(matrix: any[] = null) {
         super();
-        if (!matrix) this._matrix = this._copyMatrix(matrix);
+        if (!matrix) matrix = this._copyMatrix(IDENTITY_MATRIX);
         this.setByMatrix(matrix);
     }
 
