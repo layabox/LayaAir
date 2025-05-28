@@ -159,7 +159,6 @@ export class GraphicsRunner {
     }
 
     constructor() {
-        window.runner = this;
         //_ib = IndexBuffer2D.QuadrangleIB;
         this._lastTex = GraphicsRunner.defTexture;
         this._other = ContextParams.DEFAULT;
