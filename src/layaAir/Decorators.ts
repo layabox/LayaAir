@@ -330,6 +330,12 @@ export interface FPropertyDescriptor {
     customAssetFilter: string;
 
     /**
+     * @en Applicable to properties of type Node or Component. It sets a filter for the node/component types that can be selected. If not provided, all node types can be selected.
+     * @zh 对类型是Node或者Component的属性适用。设置可以选择的节点/组件类型过滤器。如果不提供，则可以选择所有节点类型。
+     */
+    nodeTypeFilters: Array<string>;
+
+    /**
      * @en Applicable to properties of type Node or Component. If not null, when deserialization is performed in the actual runtime environment, the referenced object is no longer instantiated, but its serialized data is saved as-is to the specified property.
      * @zh 对类型是Node或者Component的属性适用。如果不为null，当在实际运行环境里执行反序列化时，引用对象不再实例化，而是将它的序列化数据原样保存到指定的属性中。
      */
