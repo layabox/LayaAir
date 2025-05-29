@@ -3,6 +3,7 @@ import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderD
 import { WebGPUBuffer } from '../WebGPUBuffer';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
 import { WebGPUShaderData } from '../WebGPUShaderData';
+import { WebGPUGlobal } from '../WebGPUStatis/WebGPUGlobal';
 import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer';
 
 export interface IDeviceBufferCacheData {
@@ -15,6 +16,11 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     private _GPUBindGroupEntry: GPUBindGroupEntry;
     private _cacheShaderData: Map<WebGPUShaderData, number> = new Map();
     _destroyed: boolean = false;
+
+    objectName: string = "WebGPUDeviceBuffer";
+
+    globalId: number;
+
     constructor(type: EDeviceBufferUsage) {
         let usage = 0;
         usage |= (type & EDeviceBufferUsage.MAP_READ) ? GPUBufferUsage.MAP_READ : 0;
@@ -24,6 +30,8 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
         usage |= (type & EDeviceBufferUsage.STORAGE) ? GPUBufferUsage.STORAGE : 0;
         usage |= (type & EDeviceBufferUsage.INDIRECT) ? GPUBufferUsage.INDIRECT : 0;
         this._buffer = new WebGPUBuffer(usage);
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     private _reSetBindGroupEntry() {
