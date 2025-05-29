@@ -1,11 +1,9 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
-import { WebGPURenderEngine } from "./WebGPURenderEngine";
 
 /**
  * 绑定类型（uniformBlock，texture或sampler）
@@ -81,68 +79,6 @@ export class WebGPUBindGroupHelper {
             default:
                 return '2d';
         }
-    }
-
-    static _createBindGroupLayout(name: string, data: WebGPUUniformPropertyBindingInfo[]) {
-        let textureState = 0;
-        let textureCount = 0;
-
-        let entries: GPUBindGroupLayoutEntry[] = [];
-        if (data) {
-            let bitVal = 1;
-            for (let i = 0; i < data.length; i++) {
-                switch (data[i].type) {
-                    case WebGPUBindingInfoType.buffer:
-                        entries.push({
-                            binding: data[i].binding,
-                            visibility: data[i].visibility,
-                            buffer: data[i].buffer,
-                        });
-                        break;
-                    case WebGPUBindingInfoType.sampler:
-                        {
-                            let entry: GPUBindGroupLayoutEntry = {
-                                binding: data[i].binding,
-                                visibility: data[i].visibility,
-                                sampler: data[i].sampler,
-                            };
-                            if (entry.sampler.type != "filtering") {
-                                textureState |= bitVal;
-                            }
-                            entries.push(entry);
-                            bitVal <<= 1;
-                            textureCount++;
-                            break;
-                        }
-                    case WebGPUBindingInfoType.texture:
-                        entries.push({
-                            binding: data[i].binding,
-                            visibility: data[i].visibility,
-                            texture: data[i].texture,
-                        });
-                        break;
-                    case WebGPUBindingInfoType.storageBuffer:
-                        entries.push({
-                            binding: data[i].binding,
-                            visibility: data[i].visibility,
-                            buffer: data[i].buffer,
-                        })
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-        }
-
-        const desc: GPUBindGroupLayoutDescriptor = {
-            label: name,
-            entries: entries,
-        };
-
-        let handle = WebGPURenderEngine._instance.getDevice().createBindGroupLayout(desc);
-
-        return handle;
     }
 
     /**

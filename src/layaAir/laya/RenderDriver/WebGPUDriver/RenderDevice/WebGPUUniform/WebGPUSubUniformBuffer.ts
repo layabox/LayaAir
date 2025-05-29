@@ -5,6 +5,7 @@ import { UniformBufferAlone } from "../../../DriverDesign/RenderDevice/UniformBu
 import { UniformBufferBlock } from "../../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferBlock";
 import { WebGPURenderEngine } from "../WebGPURenderEngine";
 import { WebGPUShaderData } from "../WebGPUShaderData";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
 import { WebGPUUniformBufferBase, WebGPUUniformBufferDescriptor } from "./WebGPUUniformBufferBase";
 
@@ -37,14 +38,29 @@ export class WebGPUSubUniformBuffer extends WebGPUUniformBufferBase implements I
     }
 
     private _reSetBindGroupEntry() {
-        this._gpuBuffer = this.bufferBlock.cluster.buffer
+        this._gpuBuffer = this.bufferBlock.cluster.buffer;
+
+        let resource: GPUBufferBinding = {
+            buffer: this._gpuBuffer,
+            offset: this.bufferBlock.offset,
+            size: this.descriptor.byteLength,
+        };
+
+        let oldResource = this._GPUBindGroupEntry?.resource as GPUBufferBinding;
+
+        if (oldResource && oldResource.buffer == resource.buffer &&
+            oldResource.offset == resource.offset &&
+            oldResource.size == resource.size) {
+            return; //没有变化
+        }
+
         this._GPUBindGroupEntry = {
             binding: 0,//后续自己改
-            resource: {
-                buffer: this._gpuBuffer,
-                offset: this.bufferBlock.offset,
-                size: this.descriptor.byteLength,
-            }
+            resource: resource
+        }
+        // 更新 cache ID
+        if (oldResource) {
+            this.globalId = WebGPUGlobal.getId(this);
         }
     }
 

@@ -10,11 +10,13 @@ import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 
+const empthArray: string[] = [];
+
 export class WebGPUBindGroupLayoutInfo {
 
     private static _idCounter: number = 0;
 
-    private id: number;
+    readonly id: number;
 
     entries: GPUBindGroupLayoutEntry[];
 
@@ -56,7 +58,9 @@ export class WebGPUBindGroupCache {
 
     private layoutCache: Map<string, WebGPUBindGroupLayoutInfo> = new Map();
 
-    private getCacheKey(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, textureExitsMask: number) {
+    private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
+
+    private getInfoCacheKey(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, textureExitsMask: number) {
         let textureStates = 0;
         let textureExits = 0;
 
@@ -99,7 +103,7 @@ export class WebGPUBindGroupCache {
     // cache bindgrouplayout
     getLayoutInfo(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resources: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number) {
 
-        const cacheKey = this.getCacheKey(commands, shaderData, addition, textureExitsMask);
+        const cacheKey = this.getInfoCacheKey(commands, shaderData, addition, textureExitsMask);
         if (this.layoutCache.has(cacheKey)) {
             return this.layoutCache.get(cacheKey);
         }
@@ -201,7 +205,7 @@ export class WebGPUBindGroupCache {
     getBindGroupLayout(info: WebGPUBindGroupLayoutInfo) {
 
         let descriptor: GPUBindGroupLayoutDescriptor = {
-            label: "GPUBindGroupLayoutDescriptor",
+            label: `Layout_${info.id}`,
             entries: info.entries,
         };
 
@@ -213,11 +217,15 @@ export class WebGPUBindGroupCache {
 
     getBindGroup(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resource: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number): WebGPUBindGroup {
 
+        commands = commands || empthArray;
+
         let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask);
         if (!info.layout) {
             info.layout = this.getBindGroupLayout(info);
         }
         let layout = info.layout;
+
+        let cacheKey = `L:${info.id}V:`;
 
         let entries: GPUBindGroupEntry[] = [];
 
@@ -227,7 +235,7 @@ export class WebGPUBindGroupCache {
             let propertyID = info.properties[index];
 
             let blockName = info.values[index];
-            let value;
+            let value: WebGPUUniformBufferBase | WebGPUInternalTex;
             if (commands.indexOf(blockName) >= 0) {
                 value = shaderData._data[propertyID];
             }
@@ -237,6 +245,8 @@ export class WebGPUBindGroupCache {
 
             if (layoutEntry.buffer) {
                 let buffer = value as WebGPUUniformBufferBase;
+
+                cacheKey += `_${buffer.globalId}`;
 
                 let entry = buffer.getBindGroupEntry(layoutEntry.binding);
 
@@ -249,10 +259,13 @@ export class WebGPUBindGroupCache {
                     texture = getDefaultTexture(layoutEntry.texture);
                     tempTex.set(propertyID, texture);
                 }
+                let textureView = texture.getTextureView();
+
+                cacheKey += `_${texture.globalId}`;
 
                 let entry: GPUBindGroupEntry = {
                     binding: layoutEntry.binding,
-                    resource: texture.getTextureView(),
+                    resource: textureView,
                 };
 
                 entries.push(entry);
@@ -264,9 +277,13 @@ export class WebGPUBindGroupCache {
                     texture = tempTex.get(propertyID);
                 }
 
+                let sampler = texture.sampler;
+
+                cacheKey += `_${sampler.globalId}`;
+
                 let entry: GPUBindGroupEntry = {
                     binding: layoutEntry.binding,
-                    resource: texture.sampler.source,
+                    resource: sampler.source,
                 };
 
                 entries.push(entry);
@@ -275,6 +292,10 @@ export class WebGPUBindGroupCache {
         });
 
         tempTex.clear();
+
+        if (this.bindGroupCache.has(cacheKey)) {
+            return this.bindGroupCache.get(cacheKey);
+        }
 
         let descriptor: GPUBindGroupDescriptor = {
             label: "GPUBindGroupDescriptor" + commands?.join(","),
@@ -288,6 +309,8 @@ export class WebGPUBindGroupCache {
         let res = new WebGPUBindGroup(info);
         res.gpuRS = bindGroup;
         res.layout = layout;
+
+        this.bindGroupCache.set(cacheKey, res);
 
         return res;
     }

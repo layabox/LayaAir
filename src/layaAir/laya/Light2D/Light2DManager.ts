@@ -680,7 +680,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     private _updateLayerRenderRes(layer: number) {
         if (!this._lightRenderRes[layer])
-            this._lightRenderRes[layer] = new Light2DRenderRes(this._scene, layer, LayaGL.renderEngine._screenInvertY);
+            this._lightRenderRes[layer] = new Light2DRenderRes(this._scene, layer, false);
         this._lightRenderRes[layer].addLights(this._lightsInLayer[layer], this._needToRecover);
         this._needUpdateLightRes |= (1 << layer);
         if (Light2DManager.REUSE_CMD) {

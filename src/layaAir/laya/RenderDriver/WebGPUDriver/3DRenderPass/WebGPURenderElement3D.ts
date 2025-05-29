@@ -1,3 +1,4 @@
+import { emptyArray } from "typedoc/dist/lib/utils/array";
 import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
@@ -438,15 +439,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         {
             let shaderResource = shaderInstance.uniformSetMap.get(2);
             let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
-            if (this.owner) {
-                let commands = this.owner._commonUniformMap;
-                let shaderData = this.owner.shaderData as WebGPUShaderData;
-                let addition = this.owner.additionShaderData;
-                let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
 
-                command.setBindGroup(2, bindGroup);
-                this.bindGroupMap.set(2, bindGroup);
-            }
+            let commands = this.owner?._commonUniformMap;
+            let shaderData = this.owner?.shaderData as WebGPUShaderData;
+            let addition = this.owner?.additionShaderData;
+            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
+
+            command.setBindGroup(2, bindGroup);
+            this.bindGroupMap.set(2, bindGroup);
+
         }
         {
             let shaderResource = shaderInstance.uniformSetMap.get(3);

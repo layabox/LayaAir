@@ -77,54 +77,16 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
         this.compilete = true;
     }
 
-    /**
-     * 获取或创建计算管线
-     * @param entryPoint 入口函数名
-     * @returns 计算管线
-     */
-    public getOrcreatePipeline(entryPoint: string): GPUComputePipeline {
-        // if (!this._entryPoints.includes(entryPoint)) {
-        //     throw new Error('Entry point not found');
-        // }
-        if (this._pipelineCache.has(entryPoint)) {
-            return this._pipelineCache.get(entryPoint)!;
-        }
-
-        if (!this._shaderModule) {
-            throw new Error('Shader not compiled');
-        }
-
-        const pipeline = this._device.createComputePipeline({
-            layout: this.createPipelineLayout(),
+    getPipelineDescriptor(entryPoint: string): GPUComputePipelineDescriptor {
+        let descriptor: GPUComputePipelineDescriptor = {
+            label: this.name,
+            layout: null,
             compute: {
-                module: this._shaderModule,
+                module: this._shaderModule!,
                 entryPoint: entryPoint
             }
-        });
+        };
 
-        this._pipelineCache.set(entryPoint, pipeline);
-        return pipeline;
-    }
-
-
-
-    /**
-     * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
-     * @param device 
-     * @param name 
-     * @param entries 
-     */
-    createPipelineLayout() {
-        if (!this._gpuPipelineLayout) {
-            const bindGroupLayouts: GPUBindGroupLayout[] = [];
-            for (let i = 0; i < 4; i++) {
-                if (this.uniformSetMap.get(i)) {
-                    const group = WebGPUBindGroupHelper._createBindGroupLayout(`group${i}`, this.uniformSetMap.get(i));
-                    bindGroupLayouts.push(group);
-                }
-            }
-            this._gpuPipelineLayout = this._device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
-        }
-        return this._gpuPipelineLayout;
-    }
+        return descriptor;
+    };
 } 

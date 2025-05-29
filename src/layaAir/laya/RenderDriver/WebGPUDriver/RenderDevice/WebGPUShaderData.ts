@@ -5,17 +5,13 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
-import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Resource } from "../../../resource/Resource";
-import { Texture2D } from "../../../resource/Texture2D";
-import { TextureCube } from "../../../resource/TextureCube";
-import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
@@ -30,23 +26,10 @@ import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
-    private static _dummyTexture2D: Texture2D; //替代贴图（2D）
-    private static _dummyTextureCube: TextureCube; //替代贴图（Cube）
-
     /**
      * 全局初始化
      */
     static __init__() {
-        if (!this._dummyTexture2D) { //创建2D空白贴图（替代丢失的贴图）
-            this._dummyTexture2D = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, true, false, false);
-            this._dummyTexture2D.setPixelsData(new Uint8Array([255, 255, 255, 255]), false, false);
-            this._dummyTexture2D.lock = true;
-
-        }
-        if (!this._dummyTextureCube) { //创建Cube空白贴图（替代丢失的贴图）
-            this._dummyTextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false, false, false);
-            this._dummyTextureCube.lock = true;
-        }
         Material.__initDefine__();
     }
     /**
@@ -112,24 +95,46 @@ export class WebGPUShaderData extends ShaderData {
         buffer.needUpload && buffer.upload();
     }
 
+    private _initBufferData(uniformBuffer: WebGPUUniformBufferBase, name: string, uniformMap: Map<number, UniformProperty>) {
+        this._textureStatesMap.set(name, 0);
+
+        let valueMap = new Map<number, number>();
+
+        if (uniformBuffer.descriptor.byteLength > 0) {
+            // has buffer
+            valueMap.set(Shader3D.propertyNameToID(name), uniformBuffer.globalId);
+        }
+
+        uniformMap.forEach(uniform => {
+            let uniformId = uniform.id;
+            let data = this._data[uniformId];
+            if (data != null) {
+                uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
+            }
+            this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
+
+            this._updateTextureState(uniformId, name, data as WebGPUInternalTex);
+        });
+    }
+
     createUniformBuffer(name: string, uniformMap: WebGPUCommandUniformMap): WebGPUUniformBuffer {
         if (this._uniformBuffers.has(name)) {
             return this._uniformBuffers.get(name);
         }
         let uboBuffer = new WebGPUUniformBuffer(name, uniformMap._idata);
         this._uniformBuffers.set(name, uboBuffer);
-        this._textureStatesMap.set(name, 0);
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uboBuffer;
-        uniformMap._idata.forEach(uniform => {
-            let uniformId = uniform.id;
-            let data = this._data[uniformId];
-            if (data != null) {
-                uboBuffer.setUniformData(uniformId, uniform.uniformtype, data);
-            }
-            this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
-            this._updateTextureState(uniformId, name, data as WebGPUInternalTex);
-        });
+        // uniformMap._idata.forEach(uniform => {
+        //     let uniformId = uniform.id;
+        //     let data = this._data[uniformId];
+        //     if (data != null) {
+        //         uboBuffer.setUniformData(uniformId, uniform.uniformtype, data);
+        //     }
+        //     this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
+        //     this._updateTextureState(uniformId, name, data as WebGPUInternalTex);
+        // });
+        this._initBufferData(uboBuffer, name, uniformMap._idata);
         return uboBuffer;
     }
 
@@ -187,21 +192,22 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
-        this._textureStatesMap.set(cacheName, 0);
 
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uniformBuffer;
 
-        uniformMap.forEach(uniform => {
-            let uniformId = uniform.id;
-            let data = this._data[uniformId];
-            if (data != null) {
-                uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
-            }
-            this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
+        // uniformMap.forEach(uniform => {
+        //     let uniformId = uniform.id;
+        //     let data = this._data[uniformId];
+        //     if (data != null) {
+        //         uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
+        //     }
+        //     this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
 
-            this._updateTextureState(uniformId, cacheName, data as WebGPUInternalTex);
-        });
+        //     this._updateTextureState(uniformId, cacheName, data as WebGPUInternalTex);
+        // });
+
+        this._initBufferData(uniformBuffer, cacheName, uniformMap);
         return uniformBuffer;
     }
 

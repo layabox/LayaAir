@@ -5,13 +5,13 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { Resource } from "../../../resource/Resource";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap } from "./CommandUniformMap";
-import { IComputeContext } from "./ComputeShader/IComputeContext.ts";
+import { IComputeContext } from "./ComputeShader/IComputeContext";
 import { ComputeShaderProcessInfo, IComputeShader } from "./ComputeShader/IComputeShader";
 import { IBufferState } from "./IBufferState";
 import { IIndexBuffer } from "./IIndexBuffer";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { IShaderInstance } from "./IShaderInstance";
-import { IDeviceBuffer } from "./IDeviceBuffer";
+import { EDeviceBufferUsage, IDeviceBuffer } from "./IDeviceBuffer";
 import { IVertexBuffer } from "./IVertexBuffer";
 import { ShaderData } from "./ShaderData";
 
@@ -27,5 +27,5 @@ export interface IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData;
     createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
     createComputeContext?(): IComputeContext;
-    createDeviceBuffer?(type: number): IDeviceBuffer;
+    createDeviceBuffer?(type: EDeviceBufferUsage): IDeviceBuffer;
 }

@@ -129,6 +129,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let defineString = shaderProcessInfo.defineString;
 
             console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
+
+            this.name = `${shader.name}_s${subIndex}_p${passIndex}_d${defineString}`;
         }
 
         if (!shaderProcessInfo.is2D) {
@@ -193,9 +195,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
                 }
                 // 用过滤后的数组替换原数组
                 this.uniformSetMap.set(setIndex, filteredBindInfoArray);
-                let cacheKey = this.uniformResourcesCacheKey.get(setIndex);
-
-                // WebGPUBindGroupHelper.CacheBindGroupPropertyInfo("")
             }
         }
 

@@ -1,17 +1,18 @@
 
-import { Color } from '../../../../maths/Color.js';
-import { Matrix3x3 } from '../../../../maths/Matrix3x3.js';
-import { Matrix4x4 } from '../../../../maths/Matrix4x4.js';
-import { Vector2 } from '../../../../maths/Vector2.js';
-import { Vector3 } from '../../../../maths/Vector3.js';
-import { Vector4 } from '../../../../maths/Vector4.js';
-import { BaseTexture } from '../../../../resource/BaseTexture.js';
-import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData.js';
-import { WebGPURenderEngine } from '../WebGPURenderEngine.js';
-import { WebGPUShaderData } from '../WebGPUShaderData.js';
-import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance.js';
-import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer.js';
+import { Color } from '../../../../maths/Color';
+import { Matrix3x3 } from '../../../../maths/Matrix3x3';
+import { Matrix4x4 } from '../../../../maths/Matrix4x4';
+import { Vector2 } from '../../../../maths/Vector2';
+import { Vector3 } from '../../../../maths/Vector3';
+import { Vector4 } from '../../../../maths/Vector4';
+import { BaseTexture } from '../../../../resource/BaseTexture';
+import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
+import { WebGPUBindGroup } from '../WebGPUBindGroupCache';
+import { WebGPURenderEngine } from '../WebGPURenderEngine';
+import { WebGPUShaderData } from '../WebGPUShaderData';
+import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance';
+import { WebGPUDeviceBuffer } from './WebGPUStorageBuffer';
 
 /**
  * 命令类型枚举
@@ -106,6 +107,9 @@ export class WebGPUComputeContext implements IComputeContext {
     private _computeEncoder: GPUComputePassEncoder;
     private _commandEncoder: GPUCommandEncoder;
     private _cacheShader: WebGPUComputeShaderInstance;
+
+    bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
+
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
     }
@@ -236,8 +240,9 @@ export class WebGPUComputeContext implements IComputeContext {
     }
 
     private _bindGroup(computeShader: WebGPUComputeShaderInstance, webgpuShaderData: WebGPUShaderData[]) {
+        this.bindGroupMap.clear();
+
         for (let i = 0, n = webgpuShaderData.length; i < n; i++) {
-            let propertyBindArray = computeShader.uniformSetMap.get(i);
             let shaderdata = webgpuShaderData[i];
             let uniformCommandMap = computeShader.uniformCommandMap[i];
             if (uniformCommandMap._hasUniformBuffer) {
@@ -249,8 +254,9 @@ export class WebGPUComputeContext implements IComputeContext {
 
             let resource = computeShader.uniformSetMap.get(i);
             let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([uniformCommandMap._stateName], shaderdata, null, resource, ~0);
-
             this._computeEncoder.setBindGroup(i, bindgroup.gpuRS);
+            this.bindGroupMap.set(i, bindgroup);
+
         }
         WebGPURenderEngine._instance.gpuBufferMgr.upload();
     }
@@ -288,13 +294,12 @@ export class WebGPUComputeContext implements IComputeContext {
 
                     let shader = dispatchInfo.shader as WebGPUComputeShaderInstance;
 
-                    if (this._cacheShader != shader) {
-                        this._computeEncoder.setPipeline(shader.getOrcreatePipeline(dispatchInfo.Kernel));
-                    }
-
-
                     this._bindGroup(shader, dispatchInfo.shaderData as WebGPUShaderData[]);
 
+                    if (this._cacheShader != shader) {
+                        let pipeline = WebGPURenderEngine._instance.pipelineCache.getComputePipeline(this.bindGroupMap, shader, dispatchInfo.Kernel);
+                        this._computeEncoder.setPipeline(pipeline);
+                    }
 
                     let dispatchParams = dispatchInfo.dispatchParams;
                     // 执行计算着色器
@@ -396,5 +401,6 @@ export class WebGPUComputeContext implements IComputeContext {
      */
     destroy() {
         this.clearCMDs();
+        this.bindGroupMap.clear();
     }
 }

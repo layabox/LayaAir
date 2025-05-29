@@ -238,7 +238,7 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_COLOR2 = Shader3D.getDefineByName("COLOR2");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
-        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Buffer);
+        commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
         // commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
         // commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
         // commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);

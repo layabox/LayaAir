@@ -13,7 +13,7 @@ import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
-import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
+import { EDeviceBufferUsage, IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
@@ -42,7 +42,7 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         return new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, bufferUsageType);
     }
 
-    createDeviceBuffer(type: number): IDeviceBuffer {
+    createDeviceBuffer(type: EDeviceBufferUsage): IDeviceBuffer {
         return new WebGPUDeviceBuffer(type);
     }
 

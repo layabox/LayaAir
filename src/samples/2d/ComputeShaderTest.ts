@@ -17,7 +17,8 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer"
 import { Vector3 } from "laya/maths/Vector3";
 import { WebGPUShaderCompiler } from "laya/RenderDriver/WebGPUDriver/RenderDevice/ShaderCompiler/WebGPUShaderCompiler";
-export class Sprite_DisplayImage {
+import { EDeviceBufferUsage } from "laya/RenderDriver/DriverDesign/RenderDevice/IDeviceBuffer";
+export class ComputeShaderTest {
     Main: typeof Main = null;
     constructor(maincls: typeof Main) {
         this.Main = maincls;
@@ -29,15 +30,15 @@ export class Sprite_DisplayImage {
             Laya.stage.scaleMode = "showall";
             Laya.stage.bgColor = "#232628";
 
-            this.showApe();
+            // this.showApe();
 
-            if(false){
+            if (true) {
                 this.testComputeShader1();
             }
-        //   let shaderCompiler = new WebGPUShaderCompiler();
-        //    shaderCompiler.init().then(()=>{
-        //     console.log("compelete")
-        //    });
+            //   let shaderCompiler = new WebGPUShaderCompiler();
+            //    shaderCompiler.init().then(()=>{
+            //     console.log("compelete")
+            //    });
         });
 
     }
@@ -80,20 +81,18 @@ export class Sprite_DisplayImage {
 
         //创建ShaderData和StorageBuffer
         let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        let strotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(0);
+        let strotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
 
         let array = new Float32Array([1, 3, 5]);
         strotageBuffer.setDataLength(array.byteLength);
         strotageBuffer.setData(array, 0, 0, array.byteLength);
         shaderData.setDeviceBuffer(propertyID, strotageBuffer);
 
-        let readStrotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(1);
+        let readStrotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.MAP_READ);
         readStrotageBuffer.setDataLength(array.byteLength);
 
         //创建ComputeCommandBuffer
         let commands = new ComputeCommandBuffer();
-
-
 
         let dispatchParams = new Vector3(array.length, 1, 1);
         commands.addDispatchCommand(computeshader, "computeDoubleMulData", shaderDefine, [shaderData], dispatchParams);

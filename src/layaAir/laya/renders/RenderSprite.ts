@@ -15,6 +15,9 @@ import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { Render2DSimple } from "./Render2D";
 import { SpriteCache } from "./SpriteCache";
 
+const YUV = [0, 1, 1, 1, 1, 0, 0, 0];
+const invertYUV = [0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]
+
 /**
  * @ignore
  */
@@ -355,7 +358,13 @@ export class RenderSprite {
             let tRec = cache.cacheRect;
             context._material = sprite.graphics.material;
             let rt = cache.renderTexture;
-            rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
+
+            let uv = YUV;
+            if (LayaGL.renderEngine._screenInvertY) {
+                uv = invertYUV;
+            }
+
+            rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, uv);
             context._material = null;
         } else {
             if (!RenderSprite.cacheNormalEnable) {

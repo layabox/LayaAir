@@ -399,7 +399,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
 
     private _renderByShaderInstance(shader: WebGPUShaderInstance, context: WebGPURenderContext2D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (!shader.complete)
+        if (!shader.complete || !this.geometry)
             return
 
         this._bindGroup(context, shader, command)

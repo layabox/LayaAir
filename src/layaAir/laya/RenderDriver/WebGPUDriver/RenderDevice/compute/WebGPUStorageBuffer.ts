@@ -1,9 +1,9 @@
-import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext.ts';
-import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IDeviceBuffer.js';
+import { IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { EDeviceBufferUsage, IDeviceBuffer } from '../../../DriverDesign/RenderDevice/IDeviceBuffer';
 import { WebGPUBuffer } from '../WebGPUBuffer';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
-import { WebGPUShaderData } from '../WebGPUShaderData.js';
-import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer.js';
+import { WebGPUShaderData } from '../WebGPUShaderData';
+import { WebGPUVertexBuffer } from '../WebGPUVertexBuffer';
 
 export interface IDeviceBufferCacheData {
     gpudata: WebGPUShaderData;
@@ -15,7 +15,7 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     private _GPUBindGroupEntry: GPUBindGroupEntry;
     private _cacheShaderData: Map<WebGPUShaderData, number> = new Map();
     _destroyed: boolean = false;
-    constructor(type: number) {
+    constructor(type: EDeviceBufferUsage) {
         let usage = 0;
         usage |= (type & EDeviceBufferUsage.MAP_READ) ? GPUBufferUsage.MAP_READ : 0;
         usage |= (type & EDeviceBufferUsage.MAP_WRITE) ? GPUBufferUsage.MAP_WRITE : 0;

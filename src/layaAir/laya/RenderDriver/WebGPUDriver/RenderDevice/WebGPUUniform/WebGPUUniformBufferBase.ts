@@ -8,6 +8,7 @@ import { UniformProperty } from "../../../DriverDesign/RenderDevice/CommandUnifo
 import { wgsl } from "./StructBuffer";
 import { UniformMapType } from "../../../../RenderEngine/RenderShader/SubShader";
 import { info } from "console";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 type DataViewType = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
 
 type DataView = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;
@@ -182,9 +183,14 @@ export class WebGPUUniformBufferDescriptor {
 }
 export abstract class WebGPUUniformBufferBase {
     static device: GPUDevice;
+
+    objectName: string = 'WebGPUUniformBufferBase';
+
     descriptor: WebGPUUniformBufferDescriptor;
     bytelength: number;
     needUpload: boolean;
+
+    globalId: number = WebGPUGlobal.getId(this);
 
     protected _GPUBindGroupEntry: GPUBindGroupEntry;
 
