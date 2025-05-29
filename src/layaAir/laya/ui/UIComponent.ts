@@ -6,6 +6,8 @@ import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { TransformKind } from "../display/SpriteConst";
+import { PostProcess2D } from "../display/PostProcess2D";
+import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -193,6 +195,7 @@ export class UIComponent extends Sprite {
         }
     }
 
+    private _grayEffect: ColorEffect2D;
     /**
      * @en Whether it is grayed out.
      * @zh 是否变灰。
@@ -204,7 +207,15 @@ export class UIComponent extends Sprite {
     set gray(value: boolean) {
         if (value !== this._gray) {
             this._gray = value;
-            UIUtils.gray(this, value);
+            let postProcess = this._getPostProcess(value);
+            if (value) {
+                this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+                postProcess.addEffect(this._grayEffect);
+            }else{
+                if (postProcess) {
+                    postProcess.removeEffect(this._grayEffect);
+                }
+            }
         }
     }
 

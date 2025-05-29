@@ -767,13 +767,10 @@ export class Sprite extends Node {
         if (value) {
             this._filterArr = value;
             this._renderType |= SpriteConst.POSTPROCESS;
-            if (!this._oriRenderPass) {
-                this.createSubRenderPass();
-            }
-            (!this._oriRenderPass.postProcess) && (this.postProcess = new PostProcess2D());
-            this._oriRenderPass.postProcess.clear();
+            let postProcess = this._getPostProcess();
+            postProcess.clear();
             for (var i = 0; i < this._filterArr.length; i++) {
-                this._oriRenderPass.postProcess.addEffect(this.filters[i].getEffect());
+                postProcess.addEffect(this.filters[i].getEffect());
             }
         }
         else {
@@ -789,9 +786,19 @@ export class Sprite extends Node {
         this.repaint();
     }
 
+    protected _getPostProcess(create: boolean = true): PostProcess2D {
+        if (!this._oriRenderPass || !this._oriRenderPass.postProcess) {
+            if (create) {
+                this.postProcess = new PostProcess2D();
+            }else{
+                return null;
+            }
+        }
+        return this._oriRenderPass.postProcess;
+    }
 
     get postProcess(): PostProcess2D {
-        return this._oriRenderPass ? this._oriRenderPass.postProcess : null;
+        return this._getPostProcess(false);
     }
 
     set postProcess(value: PostProcess2D) {

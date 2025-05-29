@@ -45,10 +45,16 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             let geometry: IRenderGeometryElement;
             //geometry 相同一定是紧凑的
             let view = this._first;
+            // let totalLength = 0;
+            // let totalArr = [];
             while (view) {
                 if (!view.geometry) {
                     start = view.length;
                     length = view.length;
+
+                    // totalLength += view.length;
+                    // totalArr.push(view.length);
+
                     view.updateView(this.bufferData);//先更新偏移再提交
                     view = view._next;
                     continue;
@@ -66,6 +72,9 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
                 view.start = start + length;
                 length += view.length;
+
+                // totalLength += view.length;
+                // totalArr.push(view.length);
 
                 view.updateView(this.bufferData);
                 view = view._next;
@@ -111,7 +120,10 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
         }
     }
 
+    // private _buffers: Web2DGraphic2DBufferDataView[] = [];
     addDataView(view: Web2DGraphic2DBufferDataView) {
+        view._next = null;
+        view._prev = null;
         // this._views.push(view);
         if (!this._first) {
             this._first = view;
