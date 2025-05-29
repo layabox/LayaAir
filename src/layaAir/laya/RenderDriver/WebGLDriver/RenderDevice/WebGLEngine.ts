@@ -415,7 +415,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         }
         if (clearFlag & RenderClearFlag.Stencil) {
             this._context.clearStencil(clearStencilValue);
-            this._GLRenderState.setStencilMask(true);
+            this._GLRenderState.setStencilWrite(true);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }
         if (flag)

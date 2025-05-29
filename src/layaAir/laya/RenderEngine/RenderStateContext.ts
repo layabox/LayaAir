@@ -48,7 +48,7 @@ export class RenderStateContext {
     static blendFuncSeperateArray = new Array(4);
     /**@internal */
     static stencilOpArray = new Array<number>(3);
-    
+
     /**
      * @internal
      */
@@ -101,16 +101,19 @@ export class RenderStateContext {
      * @param gl 
      * @param value 
      */
-    static setStencilMask(value: boolean): void {
-        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilMask(value);
+    static setSetncilWrite(value: boolean): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilWrite(value);
     }
 
+    static setStencilMask(writeMask: number): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilWriteMask(writeMask);
+    }
 
     /**
      * @internal
      */
-    static setStencilFunc(fun: CompareFunction, ref: number): void {
-        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilFunc(fun, ref);
+    static setStencilFunc(fun: CompareFunction, ref: number, readMask: number): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilFunc(fun, ref, readMask);
     }
 
     /**
@@ -120,7 +123,15 @@ export class RenderStateContext {
         (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setstencilOp(fail, zfail, zpass);
     }
 
+    /** @internal */
+    static setDepthBias(value: boolean) {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setDepthBias(value);
+    }
 
+    /** @internal */
+    static setDepthBiasFactor(constant: number, slopeScale: number, clamp: number): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setDephthBiasFactor(constant, slopeScale, clamp);
+    }
 
     /**
      * @internal
