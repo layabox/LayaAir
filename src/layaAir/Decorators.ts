@@ -345,7 +345,7 @@ export interface FPropertyDescriptor {
      * @en Applicable to properties of type Node or Component. It sets a filter for the node/component types that can be selected. If not provided, all node types can be selected.
      * @zh 对类型是Node或者Component的属性适用。设置可以选择的节点/组件类型过滤器。如果不提供，则可以选择所有节点类型。
      */
-    nodeTypeFilters: Array<string>;
+    nodeTypeFilter: Array<string>;
 
     /**
      * @en Applicable to properties of type Node or Component. If not null, when deserialization is performed in the actual runtime environment, the referenced object is no longer instantiated, but its serialized data is saved as-is to the specified property.
