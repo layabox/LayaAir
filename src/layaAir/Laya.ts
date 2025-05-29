@@ -150,8 +150,6 @@ export class Laya {
 
         steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
 
-        PAL.browser.onInitRender();
-
         steps.push(() => Laya.initRender2D(stageConfig));
 
         let laya3D = <typeof Laya3D>(<any>window)["Laya3D"];
@@ -180,6 +178,8 @@ export class Laya {
     }
 
     private static initRender2D(stageConfig: IStageConfig) {
+        PAL.browser.onInitRender();
+
         stage = ((<any>window)).stage = ILaya.stage = (<Mutable<typeof Laya>>Laya).stage = new Stage();
 
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
