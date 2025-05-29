@@ -2,7 +2,7 @@ import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
 import { Input } from "./Input";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
@@ -19,7 +19,7 @@ import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import type { Scene3D } from "../d3/core/scene/Scene3D";
 import { LayaGL } from "../layagl/LayaGL";
-import type { Scene } from "./Scene";
+import { Scene } from "./Scene";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
@@ -996,10 +996,6 @@ export class Stage extends Sprite {
             this._runComponents();
             this._componentDriver.callPreRender();
 
-            //仅仅是clear
-            // context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
-            // context2D.render2D.renderEnd();
-            //Stage.clear(this._bgColor);
             //先渲染3d
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
@@ -1052,10 +1048,14 @@ export class Stage extends Sprite {
             let sprite = subpassUpdateArray[i];
             if (!sprite._subpassUpdateFlag)
                 continue;
-            
+
             sprite.updateRenderTexture();
-            sprite.updateSubRenderPassState();
             let destrt: RenderTexture2D = sprite._drawOriRT;
+            if (!destrt) {
+                continue;
+            }
+
+            sprite.updateSubRenderPassState();
             sprite._oriRenderPass.renderTexture = sprite._drawOriRT;
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
@@ -1073,30 +1073,54 @@ export class Stage extends Sprite {
         }
 
         let changeMatrixList = Array.from(this._tranMatrixUpdateList);
-        for (var i = 0, n = changeMatrixList.length; i < n; i++) {
-            let sprite = changeMatrixList[i];
-            if (sprite._struct)//有可能被删除
-            {
-                sprite._struct.renderMatrix = sprite.globalTrans.getMatrix();
-                sprite._subStruct && (sprite._subStruct.renderMatrix = sprite.globalTrans.getMatrix());
-            }
+        this._updateMatrixList(changeMatrixList , Stat.loopCount);
 
-        }
+        this._updateGraphicList();
 
-        let graphicUpdateList = Array.from(this._graphicUpdateList);
-        for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
-            let sprite = graphicUpdateList[i];
-            if (sprite._graphics) {
-                sprite._graphics._render(Render2DProcessor.runner);
-            }
-        }
-        
         this.passManager.apply(Render2DProcessor.rendercontext2D);
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
         Stat.render(0, 0)
+    }
+
+    private _updateGraphicList() {
+        let needUpdateIndexView = false;
+        let graphicUpdateList = Array.from(this._graphicUpdateList);
+        for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
+            let sprite = graphicUpdateList[i];
+            if (sprite._graphics) {
+                sprite._graphics._render(Render2DProcessor.runner);
+                needUpdateIndexView = true;
+            }
+        }
+        
+        if (needUpdateIndexView) {
+            Render2DProcessor.runner.removeAllIndexView();
+        }
+    }
+
+    private _updateMatrixList(changeMatrixList: Sprite[], frame: number ) {
+        for (var i = 0, n = changeMatrixList.length; i < n; i++) {
+            let sprite = changeMatrixList[i];
+            let trans = sprite.globalTrans;
+            if (trans._modifiedFrame == frame)
+                continue;
+
+            trans._modifiedFrame = frame;
+            trans._setFlag(TransformKind.Matrix , true , false);
+            
+            if (sprite._renderType & SpriteConst.UPDATETRANS) {
+                let matrix = trans.getMatrix();
+                if (sprite._struct)//有可能被删除
+                    sprite._struct.renderMatrix = matrix;
+                if (sprite._subStruct)
+                    sprite._subStruct.renderMatrix = matrix;
+            }
+
+            this._updateMatrixList(sprite._children , frame );
+        }
     }
 
     private _runComponents() {

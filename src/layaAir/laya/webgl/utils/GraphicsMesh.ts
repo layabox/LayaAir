@@ -11,7 +11,7 @@ export type MeshBlockInfo = {
    positions?: number[],
    vertexViews?: I2DGraphicBufferDataView[],
    vertexBlocks?: number[],
-   indexView?: I2DGraphicBufferDataView,
+   // indexView?: I2DGraphicBufferDataView,
 }
 
 export class GraphicsMesh {
@@ -75,20 +75,27 @@ export class GraphicsMesh {
     * @en Clear index view map
     * @zh 清除索引视图映射
     */
-   // clearIndexViewMap(): void {
-   //    this._buffer.clearIndexViewMap();
-   // }
+   removeAllIndexView(): void {
+      this._buffer.clearAllIndexView();
+   }
 
    /**
     * @en Clear blocks
     * @param vertexBlocks vertex blocks
-    * @param indexView index view
     * @zh 清除块
     * @param vertexBlocks 顶点块
+    */
+   clearBlocks(vertexBlocks: number[]): void {
+      this._buffer.releaseVertexBlocks(vertexBlocks);
+   }
+
+   /**
+    * @en Clear index view
+    * @param indexView index view
+    * @zh 清除索引视图
     * @param indexView 索引视图
     */
-   clearBlocks(vertexBlocks: number[], indexView: I2DGraphicBufferDataView): void {
-      this._buffer.releaseVertexBlocks(vertexBlocks);
+   clearIndexView(indexView: I2DGraphicBufferDataView): void {
       this._buffer.releaseIndexView(indexView);
    }
 

@@ -13,11 +13,16 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     modifyType: BufferModifyType;
     _needResetData: boolean;
     _inPass: boolean;
-    private _num: number = 0;
 
+    // 更新标记计数
+    _mark: number = 0;
+    
+    private _num: number = 0;
+    /** @internal */
     _first: Web2DGraphic2DBufferDataView;
+    /** @internal */
     _last: Web2DGraphic2DBufferDataView;
-    // private _views: Web2DGraphic2DBufferDataView[] = [];
+
     private _updateRange: Vector2 = new Vector2(100000000, -100000000);
     //所有的DataView
     resetData(byteLength: number) {
@@ -88,10 +93,9 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             let tempLength = this._last.start + this._last.length;
             let tempUint16Array = new Uint16Array(this.bufferData.buffer , 0 , tempLength );
             (this.buffer as IIndexBuffer)._setIndexData(tempUint16Array, 0);
-            
-            this._first = null;
-            this._last = null;
-            this._num = 0;
+            // this._first = null;
+            // this._last = null;
+            // this._num = 0;
         } else {
             if (this._needResetData) {
                 let view = this._first;
@@ -120,11 +124,10 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
         }
     }
 
-    // private _buffers: Web2DGraphic2DBufferDataView[] = [];
     addDataView(view: Web2DGraphic2DBufferDataView) {
         view._next = null;
         view._prev = null;
-        // this._views.push(view);
+        
         if (!this._first) {
             this._first = view;
         }
@@ -135,6 +138,13 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
         }
         this._last = view;
         this._num++;
+    }
+
+    clearBufferViews() {//不清理,添加时处理
+        this._first = null;
+        this._last = null;
+        this._num = 0;
+        this._mark ++;
     }
 
     //收益存疑
@@ -181,8 +191,12 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     isModified: boolean = false; // 标记数据是否被修改
     geometry: IRenderGeometryElement;
 
+    /** @internal */
     _next: Web2DGraphic2DBufferDataView;
+    /** @internal */
     _prev: Web2DGraphic2DBufferDataView;
+    /** @internal */
+    private _mark: number = 0;
 
     getData(): Float32Array | Uint16Array {
         //owner isReset  this._data;
@@ -196,8 +210,16 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     }
 
     modify() {
-        this.owner.modifyOneView(this);
-        WebRender2DPass.setBuffer(this.owner);
+        if (this.modifyType == BufferModifyType.Index) {
+            if (this._mark != this.owner._mark) {
+                this.owner.modifyOneView(this);
+                WebRender2DPass.setBuffer(this.owner);
+                this._mark = this.owner._mark;
+            }
+        }else{
+            this.owner.modifyOneView(this);
+            WebRender2DPass.setBuffer(this.owner);
+        }
     }
 
     constructor(owner: Web2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1) {

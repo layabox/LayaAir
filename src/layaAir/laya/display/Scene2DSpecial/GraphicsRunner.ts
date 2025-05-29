@@ -759,7 +759,7 @@ export class GraphicsRunner {
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
             }
 
-            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, null, rgba, null, null, false);
+            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, null, rgba, null, null, false);
             this._appendBlockInfo(vertexResult);
         }
     }
@@ -865,7 +865,7 @@ export class GraphicsRunner {
             submit._internalInfo.textureHost = texture;
 
             var rgba = this._mixRGBandAlpha(color, this._alpha);
-            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
+            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
             this._appendBlockInfo(vertexResult);
             // this._curSubmit._numEle += 6;
         }
@@ -1027,7 +1027,7 @@ export class GraphicsRunner {
             // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
-        this.appendData(ops, _drawTexToQuad_Index, vertexResult, uv, rgba, null, null, true);
+        this.appendData(ops, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
         // submit._numEle += 6;
         this._appendBlockInfo(vertexResult);
         return true;
@@ -1229,9 +1229,11 @@ export class GraphicsRunner {
         // }
         //var rgba:int = mixRGBandAlpha(0xffffffff);
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
+        let submit = this._curSubmit;
+        
         if (!sameKey) {
             //添加一个新的submit
-            var submit = this._curSubmit = this.createSubmit(mesh);
+            submit = this._curSubmit = this.createSubmit(mesh);
             submit._internalInfo.textureHost = tex;
             this._setClipInfo(submit._internalInfo);
             // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
@@ -1249,12 +1251,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, uvs, rgba, tmpMat, null, true);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, uvs, rgba, m, null, true);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
@@ -1486,7 +1488,7 @@ export class GraphicsRunner {
 
                 if (!sameKey || this._curSubmit.mesh !== mesh) {
                     //然后用新的mesh，和新的submit。
-                    this._curSubmit = this.addVGSubmit(mesh);
+                    submit = this._curSubmit = this.addVGSubmit(mesh);
                     sameKey = true;
                 }
             }
@@ -1512,7 +1514,7 @@ export class GraphicsRunner {
                 }
             }
             //填充mesh
-            this.appendData(cpath, idx, vertexResult, null, rgba, null, null, false);
+            this.appendData(cpath, idx, vertexResult, submit, null, rgba, null, null, false);
             curEleNum += idx.length;
             this._appendBlockInfo(vertexResult);
         }
@@ -1585,7 +1587,7 @@ export class GraphicsRunner {
                 mesh = vertexResult.mesh;
                 if (!sameKey || this._curSubmit.mesh !== mesh) {
                     //然后用新的mesh，和新的submit。
-                    this._curSubmit = this.addVGSubmit(mesh);
+                    submit = this._curSubmit = this.addVGSubmit(mesh);
                     sameKey = true;
                 }
             }
@@ -1621,7 +1623,7 @@ export class GraphicsRunner {
             //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
             //填充mesh
             // mesh.addVertAndIBToMesh(vertex, rgba, idx);
-            this.appendData(vertex, idx, vertexResult, null, rgba, null, null, false);
+            this.appendData(vertex, idx, vertexResult, submit, null, rgba, null, null, false);
             curEleNum += idx.length;
             this._appendBlockInfo(vertexResult);
         }
@@ -2179,17 +2181,17 @@ export class GraphicsRunner {
     /**
      * 清除未使用的indexView
      */
-    // clearUnUsedIndexView() {
-    //     let meshes = this._meshPool;
-    //     for (let i = 0; i < meshes.length; i++) {
-    //         let mesh = meshes[i];
-    //         mesh.clearIndexViewMap();
-    //     }
-    // }
+    removeAllIndexView() {
+        let meshes = this._meshPool;
+        for (let i = 0; i < meshes.length; i++) {
+            let mesh = meshes[i];
+            mesh.removeAllIndexView();
+        }
+    }
 
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
-        result: MeshBlockInfo,
+        result: MeshBlockInfo, submit: SubmitBase,
         uvs: ArrayLike<number> = null, rgba: number = 0xffffffff,
         matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false
     ) {
@@ -2214,10 +2216,16 @@ export class GraphicsRunner {
             ty = matrix.ty;
         }
 
-        let r = ((rgba >>> 16) & 0xff) / 255.0;
-        let g = ((rgba >>> 8) & 0xff) / 255.0;
-        let b = (rgba & 0xff) / 255.0;
-        let a = (rgba >>> 24) / 255.0;
+        // let color = this.sprite._spriteColor;    
+        // let r = (rgba & 0xff) / 255.0 * color.r;
+        // let g = ((rgba >>> 8) & 0xff) / 255.0 * color.g;
+        // let b = ((rgba >>> 16) & 0xff) / 255.0 * color.b;
+        // let a = (rgba >>> 24) / 255.0 * color.a;
+        let r = (rgba & 0xff) / 255.0 ;
+        let b = ((rgba >>> 16) & 0xff) / 255.0 ;
+        let g = ((rgba >>> 8) & 0xff) / 255.0 ;
+        let a = (rgba >>> 24) / 255.0 ;
+
         let ci = 0;
         let pos = 0;
         let useTexByte = useTex ? 0xff : 0;
@@ -2259,9 +2267,9 @@ export class GraphicsRunner {
                 vbdata[pos + 3] = uvminy + uvs[ci + 1] * uvv;
             }
 
-            vbdata[pos + 4] = b;
+            vbdata[pos + 4] = r;
             vbdata[pos + 5] = g;
-            vbdata[pos + 6] = r;
+            vbdata[pos + 6] = b;
             vbdata[pos + 7] = a;
             vbdata[pos + 8] = useTexByte;
             pos += 12;
@@ -2272,12 +2280,13 @@ export class GraphicsRunner {
 
         result.positions = positions;
 
+        let indexOffset = submit.indexCount;
         let indexCount = indices.length;
-        let indexView = result.indexView = result.mesh.checkIndex(indexCount);
-        let ibdata :Uint16Array = indexView.getData() as Uint16Array;
+        let ibdata = submit.indices;
         for (let i = 0; i < indexCount; i++) {
-            ibdata[i] = indexsMap[indices[i]];
+            ibdata[i + indexOffset] = indexsMap[indices[i]];
         }
+        submit.indexCount += indexCount;
     }
 
     /**

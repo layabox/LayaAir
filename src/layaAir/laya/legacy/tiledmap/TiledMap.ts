@@ -1015,7 +1015,7 @@ export class TiledMap {
             tGrid = arr[i];
             canvas.clear();
             canvas.size(1, 1);
-            tGrid.render( 0, 0);
+            // tGrid.render( 0, 0);
             tGrid.hide();
         }
         canvas.clear();

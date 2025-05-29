@@ -213,7 +213,7 @@ export class Physics2DDebugDraw extends Sprite {
         if (!LayaEnv.isPlaying) return;
 
         this._renderToGraphic();
-        super.render(x, y);
+        // super.render(x, y);
     }
 
     /**

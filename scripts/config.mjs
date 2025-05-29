@@ -80,9 +80,9 @@ export const allBundles = [{
         'laya/d3/Touch.ts',
         'laya/d3/ModuleDef.ts',
 
-        'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        // 'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         'laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
-        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+        // 'laya/RenderDriver/RenderModuleData/Design/**/*.*',
 
         'laya/d3/RenderObjs/NativeOBJ/*.*',
         'laya/d3/RenderObjs/RenderObj/*.*',

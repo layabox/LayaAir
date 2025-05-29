@@ -48,13 +48,14 @@ export interface I2DGraphicWholeBuffer {
     bufferData: Float32Array | Uint16Array;
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
+    clearBufferViews(): void;
     destroy(): void;
 }
 
 export type Graphic2DBufferBlock = {
     positions: number[],
     vertexViews: I2DGraphicBufferDataView[],
-    indexView: I2DGraphicBufferDataView,
+    // indexView: I2DGraphicBufferDataView,
 }
 
 /**
@@ -62,7 +63,7 @@ export type Graphic2DBufferBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphic2DBufferBlock[]): void;
+    applyVertexBufferBlock(views: Graphic2DBufferBlock[] , indexViews: I2DGraphicBufferDataView[]): void;
 }
 
 /**
