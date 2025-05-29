@@ -8,7 +8,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DBufferBlock, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -65,10 +65,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _vertexBufferBlocks: Graphic2DBufferBlock[] = [];
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
+    private _indexViews: I2DGraphicBufferDataView[] = [];
 
-    applyVertexBufferBlock(blocks: Graphic2DBufferBlock[]): void {
+    applyVertexBufferBlock(blocks: Graphic2DBufferBlock[] , indexViews: I2DGraphicBufferDataView[]): void {
         this._vertexBufferBlocks = blocks;
         this._needUpdateBuffer = blocks.length > 0;
+        this._indexViews = indexViews;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -107,11 +109,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let vbdata = null;
                 let blocks = this._vertexBufferBlocks;
                 let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
-                let indexView: Web2DGraphic2DBufferDataView = null;
                 for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
                     positions = blocks[i].positions;
                     vertexViews = blocks[i].vertexViews as Web2DGraphic2DBufferDataView[];
-                    indexView = blocks[i].indexView as Web2DGraphic2DBufferDataView;
                     vertexCount = positions.length / 2;
                     dataView = null;
                     pos = 0, ci = 0, dataViewIndex = 0;
@@ -132,23 +132,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                         pos += 12;
                         ci += 2;
                     }
-                    
-                    if(indexView){
-                        indexView.modify();
-                    }
                 }
                 this._needUpdateBuffer = false;
             }
 
             this._modifiedFrame = trans.modifiedFrame;
         }
-        else{
-            for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
-                let block = this._vertexBufferBlocks[i];
-                let indexView = block.indexView;
-                if(indexView){
-                    indexView.modify();
-                }
+
+        //更新indexView
+        for (let i = 0, n = this._indexViews.length; i < n; i++) {
+            let indexView = this._indexViews[i];
+            if(indexView){
+                indexView.modify();
             }
         }
     }

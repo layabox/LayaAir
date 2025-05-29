@@ -473,19 +473,19 @@ export class IndexView2D extends IndexViewUI {
                 this._oldView = new this._comboBoxDomClsArr[index](this.Main);
                 this.b_length = this._comboBoxDomClsArr.length - 1;
                 break;
-            case 19:// InputDevice
+            case 18:// InputDevice
                 this._oldView = new this._comboBoxInputDeviceClsArr[index](this.Main);
                 this.b_length = this._comboBoxInputDeviceClsArr.length - 1;
                 break;
-            case 20:// Loader
+            case 19:// Loader
                 this._oldView = new this._comboBoxLoaderClsArr[index](this.Main);
                 this.b_length = this._comboBoxLoaderClsArr.length - 1;
                 break;
-            case 21:// Demo
+            case 20:// Demo
                 this._oldView = new this._comboBoxDemoClsArr[index](this.Main);
                 this.b_length = this._comboBoxDemoClsArr.length - 1;
                 break;
-            case 22://2DRender
+            case 21://2DRender
                 this._oldView = new this._render2DTestClsArr[index](this.Main);
                 this.b_length = this._render2DTestArr.length - 1;
                 break;

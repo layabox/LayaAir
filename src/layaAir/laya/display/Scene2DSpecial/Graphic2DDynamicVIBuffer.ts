@@ -230,18 +230,14 @@ export class Graphic2DDynamicVIBuffer {
      */
     releaseIndexView(indexView: I2DGraphicBufferDataView) {
         this._indexBufferLength -= indexView.length;
-        // this._wholeIndex.removeDataView(indexView);
-        // indexView.start = -1;
     }
 
     /**
      * 清除池子内的索引缓冲区块
      */
-    // clearIndexViewMap() {
-    //     this._indexViews.forEach((views, length) => {
-    //         views.forEach(view=>this.releaseIndexView(view));
-    //     });
-    // }
+    clearAllIndexView() {
+        this._wholeIndex.clearBufferViews();
+    }
 
     // /**
     //  * 上传数据到GPU

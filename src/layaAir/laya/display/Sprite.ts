@@ -37,6 +37,7 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
@@ -236,6 +237,8 @@ export class Sprite extends Node {
     private _userBounds: Rectangle;
     private _ownGraphics: boolean;
     private _tmpBounds: Array<number>;
+    /** @internal */
+    _spriteColor: Color = new Color();
     /** @internal */
     shaderData: ShaderData;
 
@@ -704,7 +707,7 @@ export class Sprite extends Node {
     }
     /** @internal */
     _graphicsData: GraphicsRenderData;
-    
+
     /**
      * @en The drawing object, which encapsulates the interfaces for drawing bitmaps and vector graphics. All drawing operations of Sprite are implemented through Graphics.
      * @zh 绘图对象。封装了绘制位图和矢量图的接口,Sprite 的所有绘图操作都是通过 Graphics 实现的。
@@ -719,6 +722,21 @@ export class Sprite extends Node {
 
     set graphics(value: Graphics) {
         this.setGraphics(value, false);
+    }
+
+    /**
+     * @en The base color of the sprite.
+     * @zh 精灵的基础颜色。不影响子节点
+     */
+    set spriteColor(value: Color) {
+        if (value != this._spriteColor) {
+            value.cloneTo(this._spriteColor);
+        }
+        this.repaint();
+    }
+
+    get spriteColor(): Color {
+        return this._spriteColor;
     }
 
     /**
@@ -742,7 +760,7 @@ export class Sprite extends Node {
         }
         this._ownGraphics = transferOwnership;
         this._graphics = value;
-        
+
         if (value) {
             value._data = this._graphicsData;
             value.owner = this;
@@ -790,7 +808,7 @@ export class Sprite extends Node {
         if (!this._oriRenderPass || !this._oriRenderPass.postProcess) {
             if (create) {
                 this.postProcess = new PostProcess2D();
-            }else{
+            } else {
                 return null;
             }
         }
@@ -805,7 +823,7 @@ export class Sprite extends Node {
         if (!this._oriRenderPass) {
             this.createSubRenderPass();
         }
-        
+
         if (this._oriRenderPass.postProcess) {
             this._oriRenderPass.postProcess.owner = null;
         }
@@ -1382,6 +1400,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated
      * @en Update and render the display object. Called by the system.
      * @param ctx The rendering context reference.
      * @param x The X-axis coordinate.
@@ -1397,7 +1416,7 @@ export class Sprite extends Node {
      * 如果此节点的某个父节点有旋转，x、y会在那里被重置为[0,0]，然后继续累加。
      * 所以可以认为这个x、y是表示当前节点到某个有旋转的节点（或者根节点）的累加值。
      */
-    render(x: number, y: number): void {
+    render(ctx: any, x: number, y: number): void {
         //RenderSprite.renders[this._renderType]._fun(this, null, x + this._x, y + this._y);
     }
 
@@ -1612,7 +1631,7 @@ export class Sprite extends Node {
         _updateSprites(sprite);
 
         let pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
-        
+
         if (clearColor) {
             pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         } else
@@ -2049,6 +2068,9 @@ export class Sprite extends Node {
             this._struct.setRepaint();
             this.stage._addgraphicRenderElement(this);
             this.parentRepaint();
+            if (this._subpassUpdateFlag) {
+                this.setSubpassFlag(this._subpassUpdateFlag);
+            }
         }
 
         if (this._cacheStyle) {
