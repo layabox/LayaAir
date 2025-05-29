@@ -88,20 +88,6 @@ export class WebGLShaderInstance implements IShaderInstance {
         let useMaterial = Config.matUseUBO;//TODO 临时解决2D Mat
         Config.matUseUBO = (!shaderProcessInfo.is2D) && Config.matUseUBO;
 
-        {
-            let subShader = shaderPass._owner;
-            let shader = subShader.owner;
-
-            let subIndex = shader._subShaders.indexOf(subShader);
-            let passIndex = subShader._passes.indexOf(shaderPass);
-
-            let defineString = shaderProcessInfo.defineString;
-
-            console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
-
-            // this.name = `${shader.name}_s${subIndex}_p${passIndex}_d${defineString}`;
-        }
-
         let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         this._renderShaderInstance = WebGLEngine.instance.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
         Config.matUseUBO = useMaterial;

@@ -1,10 +1,8 @@
-import { emptyArray } from "typedoc/dist/lib/utils/array";
 import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -20,10 +18,9 @@ import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
+import { DepthStencilParam, getDepthStencilParamFromMaterial, getDepthStencilParamFromShader, IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
-import { WebGPU3DRenderPassFactory } from "./WebGPU3DRenderPassFactory";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 /**
@@ -64,7 +61,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     protected _invertFrontFace: boolean;
 
-    protected _stencilParam: { [key: string]: any } = {}; //模板参数
+    protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
+
     /**渲染Shader */
     protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist();
     constructor() {
@@ -203,8 +201,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
             command.setPipeline(pipeline);  //新建渲染管线
 
-            if (!command.isBundle && this._stencilParam.enable) {
-                (command as WebGPURenderCommandEncoder).setStencilReference(this._stencilParam.ref);
+            if (!command.isBundle && this.depthStencilParam.stencilEnable) {
+                (command as WebGPURenderCommandEncoder).setStencilReference(this.depthStencilParam.stencilRef);
             }
 
             this._uploadGeometry(command); //上传几何数据 draw
@@ -339,52 +337,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     private _getRenderStateDepthByShader(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT) {
-        const data = shaderData.getData();
-        const renderState = (<ShaderPass>shaderInstance._shaderPass).renderState;
-        const depthWrite = (renderState.depthWrite ?? data[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
-        const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
+        getDepthStencilParamFromShader(shaderData, shaderInstance, dest, this.depthStencilParam);
 
-        //Stencil
-        const stencilParam = this._stencilParam;
-        const stencilTest = (renderState.stencilTest ?? data[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-        if (stencilTest === RenderState.STENCILTEST_OFF)
-            stencilParam['enable'] = false;
-        else {
-            const stencilRef = renderState.stencilRef ?? data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
-            const stencilWrite = renderState.stencilWrite ?? data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
-            const stencilOp = stencilWrite ? (renderState.stencilOp ?? data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
-            stencilParam['enable'] = true;
-            stencilParam['write'] = stencilWrite;
-            stencilParam['test'] = stencilTest;
-            stencilParam['ref'] = stencilRef;
-            stencilParam['op'] = stencilOp;
-        }
-
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, this.depthStencilParam);
     }
 
     private _getRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
-        const data = shaderData.getData();
-        const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
-        const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
+        getDepthStencilParamFromMaterial(shaderData, dest, this.depthStencilParam);
 
-        //Stencil
-        const stencilParam = this._stencilParam;
-        const stencilTest = data[Shader3D.STENCIL_TEST] ?? RenderState.Default.stencilTest;
-        if (stencilTest === RenderState.STENCILTEST_OFF)
-            stencilParam['enable'] = false;
-        else {
-            const stencilRef = data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
-            const stencilWrite = data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
-            const stencilOp = stencilWrite ? (data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
-            stencilParam['enable'] = true;
-            stencilParam['write'] = stencilWrite;
-            stencilParam['test'] = stencilTest;
-            stencilParam['ref'] = stencilRef;
-            stencilParam['op'] = stencilOp;
-        }
-
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest, stencilParam);
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, this.depthStencilParam);
     }
 
     private _getCullFrontMode(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {

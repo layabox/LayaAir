@@ -89,8 +89,21 @@ export class ShaderPass extends ShaderCompileDefineBase {
             defineString: _defineStrings,
         };
 
-        if (Shader3D.debugMode)
+        if (Shader3D.debugMode) {
+            {
+                let subShader = shaderpass._owner;
+                let shader = subShader.owner;
+
+                let subIndex = shader._subShaders.indexOf(subShader);
+                let passIndex = subShader._passes.indexOf(shaderpass);
+
+                let defineString = shaderProcessInfo.defineString;
+
+                console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
+
+            }
             ShaderVariantCollection.active.add(shaderpass, _defineStrings);
+        }
 
         let shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
