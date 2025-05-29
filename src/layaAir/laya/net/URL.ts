@@ -44,7 +44,7 @@ export class URL {
         "controller": "controller.json",
         "mc": "mc.bin",
         "mcc": "mcc.json",
-        "shader": "shader.json",
+        "shader": "shader.txt",
         "fui": "fui.json",
         "glsl": "glsl.txt",
         "skel": "skel.bin",
