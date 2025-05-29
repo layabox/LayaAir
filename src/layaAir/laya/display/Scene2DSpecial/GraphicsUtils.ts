@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphic2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
@@ -78,6 +79,7 @@ export class GraphicsRenderData {
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
    private _vertexStruct: Graphic2DBufferBlock[] = [];
+   private _indexViews: I2DGraphicBufferDataView[] = [];
 
    clear(): void {
       let len = this._submits.length;
@@ -87,6 +89,7 @@ export class GraphicsRenderData {
       }
 
       this._vertexStruct.length = 0;
+      this._indexViews.length = 0;
       this._submits.length = 0;
 
       for (i = 0; i < this.touchResources.length; i++) {
@@ -118,6 +121,7 @@ export class GraphicsRenderData {
       let flength = Math.max(originLen, submitLength);
 
       let vertexStruct: Graphic2DBufferBlock[] = this._vertexStruct;
+      let indexViews: I2DGraphicBufferDataView[] = this._indexViews;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -144,40 +148,16 @@ export class GraphicsRenderData {
             geometry.clearRenderParams();
 
             let infos = submit.infos;
-
-            let start = 0;
-            let end = 0;
-            let lastView: I2DGraphicBufferDataView = null;
             for (let i = 0, n = infos.length; i < n; i++) {
                let info = infos[i];
-               let indexView = info.indexView;
-               indexView.geometry = geometry;
-               if (!lastView) {
-                  lastView = indexView;
-                  start = indexView.start;
-                  end = indexView.length + start;
-               } else {
-                  let lastEnd = lastView.length + lastView.start;
-                  if (lastEnd === indexView.start) {
-                     lastView = indexView;
-                     end = indexView.length + indexView.start;
-                  } else {
-                     geometry.setDrawElemenParams(end - start, start * 2);
-                     start = indexView.start;
-                     end = start + indexView.length;
-                     lastView = indexView;
-                  }
-               }
-
                vertexStruct.push({
                   positions: info.positions,
                   vertexViews: info.vertexViews,
-                  indexView: indexView,
                });
             }
 
+            this._updateIndexViews(submit , geometry);
             this._updateGraphicsKeys(element, submit);
-            geometry.setDrawElemenParams(end - start, start * 2);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
          }
@@ -189,7 +169,21 @@ export class GraphicsRenderData {
          struct.renderElements = this._renderElements;
       }
 
-      handle.applyVertexBufferBlock(vertexStruct);
+      handle.applyVertexBufferBlock(vertexStruct , indexViews);
+   }
+
+   private _updateIndexViews(submit: SubmitBase , geometry: IRenderGeometryElement) {
+      let indexView = submit.mesh.checkIndex( submit.indexCount );
+      indexView.geometry = geometry;
+      this._indexViews.push(indexView);
+      submit.indexView = indexView;
+      let data = indexView.getData();
+      data.set(submit.indices);
+
+      // clear
+      submit.indexCount = 0;
+      submit.indices.length = 0;
+      // geometry.setDrawElemenParams(indexView.length, indexView.start * 2);
    }
 
    // TODO
@@ -217,7 +211,7 @@ export class GraphicsRenderData {
 
    setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
       struct.renderElements = this._renderElements;
-      handle.applyVertexBufferBlock(this._vertexStruct);
+      handle.applyVertexBufferBlock(this._vertexStruct , this._indexViews);
    }
 
    createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
