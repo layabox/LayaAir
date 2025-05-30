@@ -206,7 +206,7 @@ export class ListSelection extends Selection {
                 if (!item.selected) {
                     this.clearExcept(item);
                     item.selected = true;
-                    item.event(Event.CHANGE);
+                    item.event(Event.CHANGED);
                 }
             }
             else {
@@ -222,7 +222,7 @@ export class ListSelection extends Selection {
                                 if (ii.obj instanceof GButton) {
                                     ii.obj.selected = true;
                                     if (ii.obj == item)
-                                        item.event(Event.CHANGE);
+                                        item.event(Event.CHANGED);
                                 }
                                 ii.selected = true;
                             }
@@ -231,19 +231,19 @@ export class ListSelection extends Selection {
                         }
                         else {
                             item.selected = true;
-                            item.event(Event.CHANGE);
+                            item.event(Event.CHANGED);
                         }
                     }
                 }
                 else if ((evt.ctrlKey || evt.metaKey) || this._mode == SelectionMode.MultipleBySingleClick) {
                     item.selected = !item.selected;
-                    item.event(Event.CHANGE);
+                    item.event(Event.CHANGED);
                 }
                 else {
                     if (!item.selected) {
                         this.clearExcept(item);
                         item.selected = true;
-                        item.event(Event.CHANGE);
+                        item.event(Event.CHANGED);
                     }
                     else if (evt.button == 0)
                         this.clearExcept(item);

@@ -189,7 +189,7 @@ export class Selection implements ISelection {
             if (!item.selected) {
                 this.clearExcept(item);
                 item.selected = true;
-                item.event(Event.CHANGE);
+                item.event(Event.CHANGED);
             }
         }
         else {
@@ -205,7 +205,7 @@ export class Selection implements ISelection {
                             if (obj instanceof GButton) {
                                 obj.selected = true;
                                 if (obj == item)
-                                    item.event(Event.CHANGE);
+                                    item.event(Event.CHANGED);
                             }
                         }
 
@@ -213,19 +213,19 @@ export class Selection implements ISelection {
                     }
                     else {
                         item.selected = true;
-                        item.event(Event.CHANGE);
+                        item.event(Event.CHANGED);
                     }
                 }
             }
             else if ((evt.ctrlKey || evt.metaKey) || this._mode == SelectionMode.MultipleBySingleClick) {
                 item.selected = !item.selected;
-                item.event(Event.CHANGE);
+                item.event(Event.CHANGED);
             }
             else {
                 if (!item.selected) {
                     this.clearExcept(item);
                     item.selected = true;
-                    item.event(Event.CHANGE);
+                    item.event(Event.CHANGED);
                 }
                 else if (evt.button == 0)
                     this.clearExcept(item);
