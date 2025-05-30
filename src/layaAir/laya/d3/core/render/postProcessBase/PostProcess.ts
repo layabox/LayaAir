@@ -188,7 +188,7 @@ export class PostProcess {
         var cameraTarget: RenderTexture = !internalRT ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
         var Indirect: RenderTexture[] = [
-            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), 
+            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true),
             RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)
         ];
         //var screenTexture: RenderTexture = cameraTarget;
@@ -280,7 +280,7 @@ export class PostProcess {
      * @param classReg 注册的后期处理类型
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
-    getEffect(classReg: any): any {
+    getEffect<T extends PostProcessEffect>(classReg: new () => T): T {
         let size: number = this._effects.length;
         for (let i = 0; i < size; i++) {
             let element = this._effects[i];

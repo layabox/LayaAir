@@ -1,4 +1,3 @@
-import { SUBPASSFLAG } from "../Const";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -37,7 +36,7 @@ export class PostProcess2D extends EventDispatcher {
 
    constructor() {
       super();
-      this._context = new PostProcessRenderContext2D();
+      this._context = { deferredReleaseTextures: [], OriOffset: new Vector2() } as PostProcessRenderContext2D;
       this._context.compositeShaderData = this._compositeShaderData;
       this._context.command = new CommandBuffer2D();
    }
@@ -77,7 +76,7 @@ export class PostProcess2D extends EventDispatcher {
      * @param classReg 注册的后期处理类型
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
-   getEffect(classReg: any): any {
+   getEffect<T extends PostProcess2DEffect>(classReg: new () => T): T {
       let size: number = this._effects.length;
       for (let i = 0; i < size; i++) {
          let element = this._effects[i];
@@ -144,7 +143,7 @@ export class PostProcess2D extends EventDispatcher {
     * @en Render the post-processing effects.
     * @zh 渲染后期处理效果。
     */
-   render(): void {
+   _render(): void {
       this._context.command.clear(true);
       this._context.indirectTarget = this._context.source;
       for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
@@ -185,39 +184,39 @@ export class PostProcess2D extends EventDispatcher {
    }
 }
 
-export class PostProcessRenderContext2D {
+export interface PostProcessRenderContext2D {
    /**
     * @en The original RenderTexture that is rendered to initially. Do not modify this RT.
     * @zh 原始渲染 RenderTexture (RT)，禁止改变此 RT。
     */
-   source: RenderTexture2D | null = null;
+   source: RenderTexture2D;
    /** 
     * @en forward effect target 
     * @zh 上个后期处理的结果
     */
-   indirectTarget: RenderTexture2D | null = null;
+   indirectTarget: RenderTexture2D;
    /**
     * @en The RenderTexture where the processed result should be drawn to.
     * @zh 需要将处理后的结果画入此 RenderTexture。
     */
-   destination: RenderTexture2D | null = null;//扩张的图
+   destination: RenderTexture2D;//扩张的图
    /**
     * @en The composite shader data.
     * @zh 合成着色器数据。
     */
-   compositeShaderData: ShaderData | null = null;
+   compositeShaderData: ShaderData;
    /**
     * @en The post-processing command buffer.
     * @zh 后期处理指令流。
     */
-   command: CommandBuffer2D | null = null;
+   command: CommandBuffer2D;
    /**
     * @en Temporary texture array. You can put created textures here or select an RT to use from here to save memory.
     * @zh 临时纹理数组。可以将创建的纹理放入此数组，也可以从这里选取要用的 RT 来节省显存。
     */
-   deferredReleaseTextures: RenderTexture2D[] = [];
+   deferredReleaseTextures: RenderTexture2D[];
    /**
     * 顶点偏移值，在后处理中扩张rt的时候会累加
     */
-   OriOffset: Vector2 = new Vector2();
+   OriOffset: Vector2;
 }

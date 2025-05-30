@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags, SUBPASSFLAG } from "../Const";
+import { NodeFlags, SbuPassFlag } from "../Const";
 import { Filter } from "../legacy/filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
@@ -796,7 +796,7 @@ export class Sprite extends Node {
             this._oriRenderPass.postProcess && this._oriRenderPass.postProcess.destroy();
         }
 
-        this.setSubpassFlag(SUBPASSFLAG.PostProcess);
+        this.setSubpassFlag(SbuPassFlag.PostProcess);
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
@@ -830,7 +830,7 @@ export class Sprite extends Node {
 
         this._oriRenderPass.postProcess = value;
         value.owner = this;
-        this.setSubpassFlag(SUBPASSFLAG.PostProcess);
+        this.setSubpassFlag(SbuPassFlag.PostProcess);
     }
 
     /**
@@ -865,7 +865,7 @@ export class Sprite extends Node {
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
         }
-        this.setSubpassFlag(SUBPASSFLAG.CacheAsBitmap);
+        this.setSubpassFlag(SbuPassFlag.CacheAsBitmap);
         this.repaint();
     }
 
@@ -917,11 +917,11 @@ export class Sprite extends Node {
         else {
             this._renderType &= ~SpriteConst.MASK;
         }
-        this.setSubpassFlag(SUBPASSFLAG.Mask);
+        this.setSubpassFlag(SbuPassFlag.Mask);
         this.repaint();
     }
 
-    setSubpassFlag(flag: SUBPASSFLAG) {
+    setSubpassFlag(flag: SbuPassFlag) {
         this._subpassUpdateFlag |= flag;
         this.stage._addSubPassNeedUpdateElement(this);
     }
@@ -1607,7 +1607,7 @@ export class Sprite extends Node {
                     if (process) {
                         process.setResource(child._drawOriRT);
                         process.clearCMD();
-                        process.render();
+                        process._render();
                         destrt = process._context.destination;
                     }
                     child._subStructRender.updateQuat(child._drawOriRT, destrt);
@@ -2076,7 +2076,7 @@ export class Sprite extends Node {
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
             if (this._cacheStyle.maskParent) {
-                this._cacheStyle.maskParent.setSubpassFlag(SUBPASSFLAG.Mask);
+                this._cacheStyle.maskParent.setSubpassFlag(SbuPassFlag.Mask);
                 this._cacheStyle.maskParent.repaint();
             }
         }

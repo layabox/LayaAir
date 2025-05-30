@@ -8,6 +8,7 @@ import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { I2DGlobalRenderData, IRender2DDataHandle } from "./IRender2DDataHandle";
 import { IRender2DPass } from "./IRender2DPass";
 
+/** @ignore @blueprintIgnore */
 export interface IClipInfo {
    clipMatDir: Vector4;
    clipMatPos: Vector4;
@@ -15,6 +16,7 @@ export interface IClipInfo {
    _updateFrame: number;
 };
 
+/** @ignore @blueprintIgnore */
 export interface IRenderStruct2D {
    //-----2d 渲染组织流程数据-----
    zIndex: number;

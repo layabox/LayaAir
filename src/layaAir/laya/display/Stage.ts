@@ -1064,7 +1064,7 @@ export class Stage extends Sprite {
             if (process) {
                 process.setResource(sprite._drawOriRT);
                 process.clearCMD();
-                process.render();
+                process._render();
                 destrt = process._context.destination;
             }
             sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);

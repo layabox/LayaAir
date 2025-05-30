@@ -6,6 +6,7 @@ import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderCont
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "./IRenderStruct2D";
 
+/** @ignore @blueprintIgnore */
 export interface IRender2DPass {
    enable: boolean;
    enableBatch: boolean;
@@ -32,6 +33,7 @@ export interface IRender2DPass {
    //setBuffer(buffer: I2DGraphicWholeBuffer): void;
 }
 
+/** @ignore @blueprintIgnore */
 export interface IRender2DPassManager {
    addPass(pass: IRender2DPass): void;
    removePass(pass: IRender2DPass): void;

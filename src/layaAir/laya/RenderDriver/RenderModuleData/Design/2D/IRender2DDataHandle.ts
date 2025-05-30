@@ -10,6 +10,7 @@ import { IRenderStruct2D } from "./IRenderStruct2D";
 
 /**
  * 渲染处理数据
+ * @blueprintIgnore
  */
 export interface IRender2DDataHandle {
     needUseMatrix: boolean;
@@ -19,6 +20,7 @@ export interface IRender2DDataHandle {
 
 /**
  * 全局数据
+ * @blueprintIgnore
  */
 export interface I2DGlobalRenderData {
     cullRect: Vector4;
@@ -31,6 +33,7 @@ export enum BufferModifyType {
     Index = 1,
 }
 
+/** @blueprintIgnore */
 export interface I2DGraphicBufferDataView {
     start: number;
     length: number;
@@ -43,6 +46,7 @@ export interface I2DGraphicBufferDataView {
     modify(): void;
 }
 
+/** @blueprintIgnore */
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
     bufferData: Float32Array | Uint16Array;
@@ -63,7 +67,7 @@ export type Graphic2DBufferBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphic2DBufferBlock[] , indexViews: I2DGraphicBufferDataView[]): void;
+    applyVertexBufferBlock(views: Graphic2DBufferBlock[], indexViews: I2DGraphicBufferDataView[]): void;
 }
 
 /**
