@@ -1123,6 +1123,7 @@ export class Text extends Sprite {
         this._fontSizeScale = 1;
 
         let wordWrap = this._wordWrap || this._overflow == Text.ELLIPSIS;
+        let noBreakWord = this._wordWrap;
         let padding = this._padding;
         let rectWidth: number;
         if (this._isWidthSet)
@@ -1399,9 +1400,9 @@ export class Text extends Sprite {
 
                 //如果换行位置是字母或标点符号，需要向前查找单词的边界，避免单词被拆开
                 //如果是标点符号，还需要保证不在行首
-                if ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
+                if (noBreakWord && ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
                     || (ccode >= 48 && ccode <= 57) // 0-9
-                    || (isPunc = punctuationChars.includes(ccode))) {
+                    || (isPunc = punctuationChars.includes(ccode)))) {
                     let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
@@ -1642,7 +1643,7 @@ export class Text extends Sprite {
                     cleanCmd(cmd, true);
                     cmdPool.push(cmd);
                 }
-                else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth) {
+                else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth - 10) { //10用来放省略号
                     if (cmd.obj) { //如果最后是个图片，那就删除图片，换成省略号
                         cleanCmd(cmd, true);
 
@@ -1663,10 +1664,17 @@ export class Text extends Sprite {
                         cmd.wt.splitRender = this._singleCharRender;
                     }
                     else {
-                        let i = cmd.wt.text.length - 2;
-                        if (i > 0 && isLowSurrogate(cmd.wt.text.charCodeAt(i)))
+                        let space = cmd.x + cmd.width - rectWidth;
+                        let remove = space < 5 ? 2 : space < 10 ? 1 : 0; //视剩余空间删减字符数量
+                        let min = cmd === curLine.cmd ? 1 : 0; //如果是这行的第一个元素，则至少保留一个字符
+                        let i = cmd.wt.text.length;
+                        while (i > min && remove > 0) {
+                            if (isLowSurrogate(cmd.wt.text.charCodeAt(i - 1)))
+                                i--;
                             i--;
-                        cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, i)) + ellipsisStr);
+                            remove--;
+                        }
+                        cmd.wt.setText(cmd.wt.text.substring(0, i) + ellipsisStr);
                     }
                     cmd.width = cmd.wt.width = getTextWidth2(cmd.wt.text, cmd.ctxFont, cmd.fontSize);
                     cmd.next = null;
