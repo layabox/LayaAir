@@ -1,4 +1,4 @@
-import { ILaya3D } from "../../../../../ILaya3D";
+import { ILaya } from "../../../../../ILaya";
 import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
@@ -107,7 +107,7 @@ export class VolumetricGI extends Volume {
 
     protected _onEnable(): void {
         super._onEnable();
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     private _irradiance: Texture2D;
@@ -132,7 +132,7 @@ export class VolumetricGI extends Volume {
         }
         this._irradiance = value;
         this._irradiance = value;
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     private _distance: Texture2D;
@@ -156,7 +156,7 @@ export class VolumetricGI extends Volume {
             this._dataModule.distance = null;
         }
         this._distance = value;
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     /**
@@ -170,7 +170,7 @@ export class VolumetricGI extends Volume {
     set normalBias(value: number) {
         this._params.z = value;
         this._dataModule.setParams(this._params);
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     /**
@@ -184,7 +184,7 @@ export class VolumetricGI extends Volume {
     set viewBias(value: number) {
         this._params.w = value;
         this._dataModule.setParams(this._params);
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     /**
@@ -214,7 +214,7 @@ export class VolumetricGI extends Volume {
     set intensity(value: number) {
         if (value == this._dataModule.intensity) return;
         value = Math.max(value, 0.0);
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     /**
@@ -229,7 +229,7 @@ export class VolumetricGI extends Volume {
         if (value.equal(this._probeCounts)) return;
         value.cloneTo(this._probeCounts);
         this._dataModule.setProbeCounts(value);
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
     /**
      * @en The step size between probes for volumetric global illumination.
@@ -243,7 +243,7 @@ export class VolumetricGI extends Volume {
         if (value.equal(this._probeStep)) return;
         value.cloneTo(this._probeStep);
         this._dataModule.setProbeStep(value);
-        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya.Scene3D._updateMark;
     }
 
     _reCaculateBoundBox(): void {

@@ -70,34 +70,23 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /**状态-播放中 */
     static readonly PLAYING: number = 2;
 
-    /**@internal @protected */
     protected _source: string;
-    /**@internal @protected */
     protected _templet: SpineTemplet;
-    /**@internal @protected */
     protected _timeKeeper: TimeKeeper;
-    /**@internal @protected */
     protected _skeleton: spine.Skeleton;
-    /**@internal @protected */
     protected _state: spine.AnimationState;
-    /**@internal @protected */
     protected _stateData: spine.AnimationStateData;
-    /**@internal @protected */
     protected _currentPlayTime: number = 0;
-    /** @internal */
     private _pause: boolean = true;
-    /** @internal */
-    /** @internal 动画播放的起始时间位置*/
+    /** 动画播放的起始时间位置*/
     private _playStart: number;
-    /** @internal 动画播放的结束时间位置*/
+    /** 动画播放的结束时间位置*/
     private _playEnd: number;
-    /** @internal 动画的总时间*/
+    /** 动画的总时间*/
     private _duration: number;
     /** 播放速率*/
     private _playbackRate: number = 1.0;
-    /** @internal */
     private _playAudio: boolean = true;
-    /** @internal */
     private _soundChannelArr: any[] = [];
     // 播放轨道索引
     private trackIndex: number = 0;

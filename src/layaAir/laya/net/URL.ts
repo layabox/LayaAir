@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { LayaEnv } from "../../LayaEnv";
 import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
@@ -23,7 +24,7 @@ export class URL {
      * @en Base path. If not set, it defaults to the path of the current web page. The final address will be formatted as basePath + relative URL address.
      * @zh 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath + 相对URL地址。
      */
-    static basePath: string;
+    static basePath: string = "";
     /**
      * @en Extended base path mapping table. For example, {"aa/":"http://abc.com/"}, then resources with paths starting with aa/ will be mapped to http://abc.com/.
      * @zh 扩展的基础路径映射表。例如，{"aa/":"http://abc.com/"}，则把路径以aa/开头的资源映射到http://abc.com/下。
@@ -43,20 +44,14 @@ export class URL {
         "controller": "controller.json",
         "mc": "mc.bin",
         "mcc": "mcc.json",
-        "shader": "shader.json",
+        "shader": "shader.txt",
         "fui": "fui.json",
         "glsl": "glsl.txt",
         "skel": "skel.bin",
         "lavm": "lavm.json",
+        "bp": "bp.json",
+        "tres": "tres.json"
     };
-
-    static __init__() {
-        //xiaomi 没有location
-        //Vivo location.protocol是""
-        //微信真机 location.protocol是undefined
-        if (URL.basePath == null)
-            URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
-    }
 
     /**
      * @en Initialize file extension overrides for mini-game.
@@ -66,7 +61,7 @@ export class URL {
         if (LayaEnv.isPreview)
             return;
 
-        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap, PlayerConfig.safeFileExtConversionMap);
         this.hasExtOverrides = true;
         this.usingSafeFileExts = true;
     }
@@ -148,18 +143,18 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-                if (base == null) {
-                    base = URL.basePath;
-                    for (let k in URL.basePaths) {
-                        if (url.startsWith(k)) {
+            if (base == null) {
+                base = URL.basePath;
+                for (let k in URL.basePaths) {
+                    if (url.startsWith(k)) {
                         if (k.charCodeAt(0) === 126)
                             url = url.substring(k.length);
-                            base = URL.basePaths[k];
-                            break;
-                        }
+                        base = URL.basePaths[k];
+                        break;
                     }
                 }
-                url = URL.join(base, url);
+            }
+            url = URL.join(base, url);
         }
 
         return url;

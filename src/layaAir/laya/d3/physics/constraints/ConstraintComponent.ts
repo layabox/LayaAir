@@ -12,21 +12,13 @@ import { Sprite3D } from "../../core/Sprite3D";
 export class ConstraintComponent extends Component {
     /**@internal */
     _joint: IJoint;
-    /**@internal */
     private _enableCollison: boolean = false;
-    /**@internal @protected */
     protected _physicsManager: IPhysicsManager;
-    /**@internal @protected */
     protected _ownCollider: PhysicsColliderComponent;
-    /**@internal @protected */
     protected _connectCollider: PhysicsColliderComponent;
-    /**@internal @protected */
     protected _breakForce: number = Number.MAX_VALUE;
-    /**@internal @protected */
     protected _breakTorque: number = Number.MAX_VALUE;
-    /**@internal @protected */
     protected _ownColliderLocalPos: Vector3 = new Vector3();
-    /**@internal @protected */
     protected _connectColliderLocalPos: Vector3 = new Vector3();
     private _isJointInit: boolean = false;
 
@@ -45,10 +37,6 @@ export class ConstraintComponent extends Component {
         this._joint.setBreakTorque(this._breakTorque);
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _initJoint() {
         //createJoint
         //Override it
@@ -186,10 +174,6 @@ export class ConstraintComponent extends Component {
         this._singleton = false;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onAdded(): void {
     }
 
@@ -220,10 +204,6 @@ export class ConstraintComponent extends Component {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onDestroy() {
         this._joint.destroy();
         this._isJointInit = false;

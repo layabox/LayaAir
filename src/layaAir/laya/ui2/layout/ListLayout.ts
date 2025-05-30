@@ -2,7 +2,7 @@ import { ILaya } from "../../../ILaya";
 import { Point } from "../../maths/Point";
 import { Rectangle } from "../../maths/Rectangle";
 import { GButton } from "../GButton";
-import { LayoutChangedReason, LayoutType, PageMode, StretchMode } from "../Const";
+import { LayoutChangedReason, LayoutType, StretchMode } from "../Const";
 import type { GList } from "../GList";
 import { UIConfig2 } from "../UIConfig";
 import type { GWidget } from "../GWidget";
@@ -65,7 +65,7 @@ export class ListLayout extends Layout {
             }
 
             if (this._changed != 0)
-                ILaya.timer.clear(this, this._refreshVirtualList);
+                ILaya.timer.clearCallLater(this, this._refreshVirtualList);
 
             //立即刷新
             this._refreshVirtualList();
@@ -150,46 +150,46 @@ export class ListLayout extends Layout {
         if (!this._virtual)
             return index;
 
-        // if (this._pageMode != 0) {
-        //     for (let i = this._firstIndex; i < this._realNumItems; i++) {
-        //         if (this._items[i].obj) {
-        //             index--;
-        //             if (index < 0)
-        //                 return i;
-        //         }
-        //     }
+        if (this._pageMode) {
+            for (let i = this._firstIndex; i < this._realNumItems; i++) {
+                if (this._items[i].obj) {
+                    index--;
+                    if (index < 0)
+                        return i;
+                }
+            }
 
-        //     return index;
-        // }
-        // else {
-        index += this._firstIndex;
-        if (this._loop && this._numItems > 0)
-            index = index % this._numItems;
+            return index;
+        }
+        else {
+            index += this._firstIndex;
+            if (this._loop && this._numItems > 0)
+                index = index % this._numItems;
 
-        return index;
-        //}
+            return index;
+        }
     }
 
     public itemIndexToChildIndex(index: number): number {
         if (!this._virtual)
             return index;
 
-        // if (this._pageMode != 0) {
-        //     return this.getChildIndex(this._items[index].obj);
-        // }
-        // else {
-        if (this._loop && this._numItems > 0) {
-            let j = this._firstIndex % this._numItems;
-            if (index >= j)
-                index = index - j;
-            else
-                index = this._numItems - j + index;
+        if (this._pageMode) {
+            return this._owner.getChildIndex(this._items[index].obj);
         }
-        else
-            index -= this._firstIndex;
+        else {
+            if (this._loop && this._numItems > 0) {
+                let j = this._firstIndex % this._numItems;
+                if (index >= j)
+                    index = index - j;
+                else
+                    index = this._numItems - j + index;
+            }
+            else
+                index -= this._firstIndex;
 
-        return index;
-        //}
+            return index;
+        }
     }
 
     private shouldSnapToNext(dir: number, delta: number, size: number): boolean {
@@ -203,7 +203,7 @@ export class ListLayout extends Layout {
             if (!resultPoint)
                 resultPoint = new Point();
 
-            if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+            if (this._type === LayoutType.SingleColumn || (this._pageMode ? this._type === LayoutType.FlowY : this._type === LayoutType.FlowX)) {
                 let saved = yValue;
                 s_n = yValue;
                 let index = this.getIndexOnPos1(false);
@@ -225,18 +225,6 @@ export class ListLayout extends Layout {
                         xValue += size + this._columnGap;
                 }
             }
-
-            // else {
-            //     let saved = xValue;
-            //     s_n = xValue;
-            //     let index = this.getIndexOnPos3(false);
-            //     xValue = s_n;
-            //     if (index < this._items.length && index < this._realNumItems) {
-            //         let size = this._items[index].width;
-            //         if (this.shouldSnapToNext(xDir, saved - xValue, size))
-            //             xValue += size + this._columnGap;
-            //     }
-            // }
 
             resultPoint.x = xValue;
             resultPoint.y = yValue;
@@ -293,7 +281,7 @@ export class ListLayout extends Layout {
     public _checkVirtualList(): void {
         if (this._changed != 0) {
             this._refreshVirtualList();
-            ILaya.timer.clear(this, this._refreshVirtualList);
+            ILaya.timer.clearCallLater(this, this._refreshVirtualList);
         }
     }
 
@@ -302,6 +290,20 @@ export class ListLayout extends Layout {
             this._changed = 1;
 
         ILaya.timer.callLater(this, this._refreshVirtualList);
+    }
+
+    private getColumns(): number {
+        if (this._columns > 0)
+            return this._columns;
+        else
+            return Math.max(1, Math.floor((this.viewWidth + this._columnGap) / (this._itemSize.x + this._columnGap)));
+    }
+
+    private getRows(): number {
+        if (this._rows > 0)
+            return this._rows;
+        else
+            return Math.max(1, Math.floor((this.viewHeight + this._rowGap) / (this._itemSize.y + this._rowGap)));
     }
 
     private _refreshVirtualList(): void {
@@ -320,44 +322,15 @@ export class ListLayout extends Layout {
             this._lineItemCnt2 = 1;
 
             if (this._type == LayoutType.FlowX) {
-                if (this._columns > 0)
-                    this._lineItemCnt = this._columns;
-                else {
-                    this._lineItemCnt = Math.floor((vw + this._columnGap) / (this._itemSize.x + this._columnGap));
-                    if (this._lineItemCnt <= 0)
-                        this._lineItemCnt = 1;
-                }
+                this._lineItemCnt = this.getColumns();
+                if (this._pageMode)
+                    this._lineItemCnt2 = this.getRows();
             }
             else if (this._type == LayoutType.FlowY) {
-                if (this._rows > 0)
-                    this._lineItemCnt = this._rows;
-                else {
-                    this._lineItemCnt = Math.floor((this._owner.scroller.viewHeight + this._rowGap) / (this._itemSize.y + this._rowGap));
-                    if (this._lineItemCnt <= 0)
-                        this._lineItemCnt = 1;
-                }
+                this._lineItemCnt = this.getRows();
+                if (this._pageMode)
+                    this._lineItemCnt2 = this.getColumns();
             }
-
-            // if (this._pageMode != 0) {
-            //     if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
-            //         if (this._rows > 0)
-            //             this._lineItemCnt2 = this._rows;
-            //         else {
-            //             this._lineItemCnt2 = Math.floor((vh + this._rowGap) / (this._itemSize.y + this._rowGap));
-            //             if (this._lineItemCnt2 <= 0)
-            //                 this._lineItemCnt2 = 1;
-            //         }
-            //     }
-            //     else if (this._layout == LayoutType.SingleRow || this._layout == LayoutType.FlowY) {
-            //         if (this._columns > 0)
-            //             this._lineItemCnt2 = this._columns;
-            //         else {
-            //             this._lineItemCnt2 = Math.floor((vw + this._columnGap) / (this._itemSize.x + this._columnGap));
-            //             if (this._lineItemCnt2 <= 0)
-            //                 this._lineItemCnt2 = 1;
-            //         }
-            //     }
-            // }
 
             this._itemSizes.length = 0;
             if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
@@ -381,15 +354,16 @@ export class ListLayout extends Layout {
             let len = Math.ceil(this._realNumItems / this._lineItemCnt) * this._lineItemCnt;
             let len2 = Math.min(this._lineItemCnt, this._realNumItems);
 
-            if (this._pageMode == PageMode.Horizontal) {
+            if (this._pageMode) {
                 let pageCount = Math.ceil(len / (this._lineItemCnt * this._lineItemCnt2));
-                cw = pageCount * vw;
-                ch = vh;
-            }
-            else if (this._pageMode == PageMode.Vertical) {
-                let pageCount = Math.ceil(len / (this._lineItemCnt * this._lineItemCnt2));
-                cw = vw;
-                ch = pageCount * vh;
+                if (this._type == LayoutType.SingleRow || this._type == LayoutType.FlowX) {
+                    cw = pageCount * vw;
+                    ch = vh;
+                }
+                else {
+                    cw = vw;
+                    ch = pageCount * vh;
+                }
             }
             else if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
                 for (let i = 0; i < len; i += this._lineItemCnt)
@@ -578,12 +552,38 @@ export class ListLayout extends Layout {
         return startIndex + this._lineItemCnt - 1;
     }
 
+    private getIndexOnPos4(forceUpdate: boolean): number {
+        if (this._realNumItems < this._lineItemCnt) {
+            s_n = 0;
+            return 0;
+        }
+
+        let vh = this.viewHeight;
+        let page = Math.floor(s_n / vh);
+        let startIndex = page * (this._lineItemCnt * this._lineItemCnt2);
+        let pos2 = page * vh;
+        for (let i = 0; i < this._lineItemCnt; i++) {
+            let pos3 = pos2 + this._items[startIndex + i].height + this._rowGap;
+            if (pos3 > s_n) {
+                s_n = pos2;
+                return startIndex + i;
+            }
+            pos2 = pos3;
+        }
+
+        s_n = pos2;
+        return startIndex + this._lineItemCnt - 1;
+    }
+
     private handleScroll(forceUpdate: boolean): void {
         if (this._eventLocked)
             return;
 
-        if (this._pageMode != 0) {
-            this.handleScroll3(forceUpdate);
+        if (this._pageMode) {
+            if (this._type == LayoutType.SingleRow || this._type == LayoutType.FlowX)
+                this.handleScroll3(forceUpdate);
+            else
+                this.handleScroll4(forceUpdate);
         }
         else if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
             let enterCounter: number = 0;
@@ -633,7 +633,7 @@ export class ListLayout extends Layout {
         let reuseIndex: number = forward ? lastIndex : oldFirstIndex;
         let curX: number = 0, curY: number = pos;
         let needRender: boolean;
-        let deltaHeight: number = 0;
+        let deltaSize: number = 0;
         let firstItemDeltaSize: number = 0;
         let pool = this._owner.itemPool;
         let url = pool.defaultRes.url;
@@ -716,7 +716,7 @@ export class ListLayout extends Layout {
                 Layout.refreshAllLayouts(this._owner);
 
                 if (k == 0) {
-                    deltaHeight += Math.ceil(ii.obj.height) - ii.height;
+                    deltaSize += Math.ceil(ii.obj.height) - ii.height;
                     if (curIndex == newFirstIndex && oldFirstIndex > newFirstIndex) {
                         //当内容向下滚动时，如果新出现的项目大小发生变化，需要做一个位置补偿，才不会导致滚动跳动
                         firstItemDeltaSize = Math.ceil(ii.obj.height) - ii.height;
@@ -783,8 +783,8 @@ export class ListLayout extends Layout {
             }
         }
 
-        if (deltaWidth != 0 || deltaHeight != 0 || firstItemDeltaSize != 0)
-            scroller._changeContentSizeOnScrolling(deltaWidth, deltaHeight, 0, firstItemDeltaSize);
+        if (deltaWidth != 0 || deltaSize != 0 || firstItemDeltaSize != 0)
+            scroller._changeContentSizeOnScrolling(deltaWidth, deltaSize, 0, firstItemDeltaSize);
 
         if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).y <= 0 && (<GWidget>this._owner.getChildAt(0)).y > -(<Sprite>this._owner._$container).y)//最后一页没填满！
             return true;
@@ -795,7 +795,7 @@ export class ListLayout extends Layout {
     private handleScroll2(forceUpdate: boolean): boolean {
         let pos: number = this._owner.scroller.scrollingPosX;
         let max: number = pos + this._owner.scroller.viewWidth;
-        let end: boolean = pos == this._owner.scroller.contentWidth;//这个标志表示当前需要滚动到最末，无论内容变化大小
+        let end: boolean = max == this._owner.scroller.contentWidth;//这个标志表示当前需要滚动到最末，无论内容变化大小
 
         //寻找当前位置的第一条项目
         s_n = pos;
@@ -970,8 +970,15 @@ export class ListLayout extends Layout {
         let startIndex: number = page * pageSize;
         let lastIndex: number = startIndex + pageSize * 2; //测试两页
         let needRender: boolean;
-        let partWidth: number = (vw - this._columnGap * (this._lineItemCnt - 1)) / this._lineItemCnt;
-        let partHeight: number = (vh - this._rowGap * (this._lineItemCnt2 - 1)) / this._lineItemCnt2;
+
+        let partWidth: number, partHeight: number;
+        if (this._stretchX == StretchMode.Stretch || this._stretchY == StretchMode.Stretch) {
+            if (this._lineItemCnt == this._columns)
+                partWidth = (vw - this._columnGap * (this._lineItemCnt - 1)) / this._lineItemCnt;
+            if (this._lineItemCnt2 == this._rows)
+                partHeight = (vh - this._rowGap * (this._lineItemCnt2 - 1)) / this._lineItemCnt2;
+        }
+
         let pool = this._owner.itemPool;
         let url = pool.defaultRes.url;
 
@@ -989,6 +996,170 @@ export class ListLayout extends Layout {
             }
             else {
                 if (col > startCol)
+                    continue;
+            }
+
+            this._items[i].flag = this._itemInfoVer;
+        }
+
+        let lastObj: GWidget = null;
+        let insertIndex: number = 0;
+        for (let i = startIndex; i < lastIndex; i++) {
+            if (i >= this._realNumItems)
+                continue;
+
+            let ii = this._items[i];
+            if (ii.flag != this._itemInfoVer)
+                continue;
+
+            if (ii.obj == null) {
+                //寻找看有没有可重用的
+                while (reuseIndex < virtualItemCount) {
+                    let ii2 = this._items[reuseIndex];
+                    if (ii2.obj && ii2.flag != this._itemInfoVer) {
+                        if (ii2.obj instanceof GButton)
+                            ii2.selected = ii2.obj.selected;
+                        ii.obj = ii2.obj;
+                        ii2.obj = null;
+                        break;
+                    }
+                    reuseIndex++;
+                }
+
+                if (insertIndex == -1)
+                    insertIndex = this._owner.getChildIndex(lastObj) + 1;
+
+                if (ii.obj == null) {
+                    if (this._owner.itemProvider) {
+                        url = this._owner.itemProvider(i % this._numItems);
+                        if (!url)
+                            url = pool.defaultRes.url;
+                    }
+
+                    ii.obj = pool.getObject(url);
+                    this._owner.addChildAt(ii.obj, insertIndex);
+                }
+                else {
+                    insertIndex = this._owner.setChildIndexBefore(ii.obj, insertIndex);
+                }
+                insertIndex++;
+
+                if (ii.obj instanceof GButton)
+                    ii.obj.selected = ii.selected;
+
+                needRender = true;
+            }
+            else {
+                needRender = forceUpdate;
+                insertIndex = -1;
+                lastObj = ii.obj;
+            }
+
+            if (needRender) {
+                if (partWidth != null || partHeight != null)
+                    ii.obj.size(partWidth ?? ii.obj.width, partHeight ?? ii.obj.height);
+
+                this._owner.itemRenderer(i % this._numItems, ii.obj);
+                Layout.refreshAllLayouts(this._owner);
+
+                ii.width = Math.ceil(ii.obj.width);
+                ii.height = Math.ceil(ii.obj.height);
+            }
+        }
+
+        //排列item
+        let borderX: number = (startIndex / pageSize) * vw;
+        let xx: number = borderX;
+        let yy: number = 0;
+        let lineHeight: number = 0;
+        for (let i = startIndex; i < lastIndex; i++) {
+            if (i >= this._realNumItems)
+                continue;
+
+            let ii = this._items[i];
+            if (ii.flag == this._itemInfoVer)
+                ii.obj.pos(xx, yy);
+
+            if (ii.height > lineHeight)
+                lineHeight = ii.height;
+            if (i % this._lineItemCnt == this._lineItemCnt - 1) {
+                xx = borderX;
+                yy += lineHeight + this._rowGap;
+                lineHeight = 0;
+
+                if (i == startIndex + pageSize - 1) {
+                    borderX += vw;
+                    xx = borderX;
+                    yy = 0;
+                }
+            }
+            else
+                xx += ii.width + this._columnGap;
+        }
+
+        //释放未使用的
+        for (let i = reuseIndex; i < virtualItemCount; i++) {
+            let ii = this._items[i];
+            if (ii.flag != this._itemInfoVer && ii.obj) {
+                if (ii.obj instanceof GButton)
+                    ii.selected = ii.obj.selected;
+                this._owner.removeChildToPool(ii.obj);
+                ii.obj = null;
+            }
+        }
+    }
+
+    private handleScroll4(forceUpdate: boolean): void {
+        let pos: number = this._owner.scroller.scrollingPosY;
+
+        //寻找当前位置的第一条项目
+        s_n = pos;
+        let newFirstIndex: number = this.getIndexOnPos4(forceUpdate);
+        pos = s_n;
+        if (newFirstIndex == this._firstIndex && !forceUpdate)
+            return;
+
+        let oldFirstIndex: number = this._firstIndex;
+        this._firstIndex = newFirstIndex;
+
+        //分页模式不支持不等高，所以渲染满一页就好了
+
+        let reuseIndex: number = oldFirstIndex;
+        let virtualItemCount: number = this._items.length;
+        let pageSize: number = this._lineItemCnt * this._lineItemCnt2;
+        let startRow: number = newFirstIndex % this._lineItemCnt;
+        let vw: number = this.viewWidth;
+        let vh: number = this.viewHeight;
+        let page: number = Math.floor(newFirstIndex / pageSize);
+        let startIndex: number = page * pageSize;
+        let lastIndex: number = startIndex + pageSize * 2; //测试两页
+        let needRender: boolean;
+
+        let partWidth: number, partHeight: number;
+        if (this._stretchX == StretchMode.Stretch || this._stretchY == StretchMode.Stretch) {
+            if (this._lineItemCnt2 == this._columns)
+                partWidth = (vw - this._columnGap * (this._lineItemCnt2 - 1)) / this._lineItemCnt2;
+            if (this._lineItemCnt == this._rows)
+                partHeight = (vh - this._rowGap * (this._lineItemCnt - 1)) / this._lineItemCnt;
+        }
+
+        let pool = this._owner.itemPool;
+        let url = pool.defaultRes.url;
+
+        this._itemInfoVer++;
+
+        //先标记这次要用到的项目
+        for (let i = startIndex; i < lastIndex; i++) {
+            if (i >= this._realNumItems)
+                continue;
+
+            let col = i % this._lineItemCnt;
+            if (i - startIndex < pageSize) {
+                if (col < startRow)
+                    continue;
+            }
+            else {
+                if (col > startRow)
                     continue;
             }
 
@@ -1050,14 +1221,8 @@ export class ListLayout extends Layout {
             }
 
             if (needRender) {
-                if (this._stretchX == StretchMode.Stretch || this._stretchY == StretchMode.Stretch) {
-                    if (this._lineItemCnt == this._columns && this._lineItemCnt2 == this._rows)
-                        ii.obj.size(partWidth, partHeight);
-                    else if (this._lineItemCnt == this._columns)
-                        ii.obj.size(partWidth, ii.obj.height);
-                    else if (this._lineItemCnt2 == this._rows)
-                        ii.obj.size(ii.obj.width, partHeight);
-                }
+                if (partWidth != null || partHeight != null)
+                    ii.obj.size(partWidth ?? ii.obj.width, partHeight ?? ii.obj.height);
 
                 this._owner.itemRenderer(i % this._numItems, ii.obj);
                 Layout.refreshAllLayouts(this._owner);
@@ -1068,10 +1233,10 @@ export class ListLayout extends Layout {
         }
 
         //排列item
-        let borderX: number = (startIndex / pageSize) * vw;
-        let xx: number = borderX;
-        let yy: number = 0;
-        let lineHeight: number = 0;
+        let borderY: number = (startIndex / pageSize) * vh;
+        let xx: number = 0;
+        let yy: number = borderY;
+        let lineWidth: number = 0;
         for (let i = startIndex; i < lastIndex; i++) {
             if (i >= this._realNumItems)
                 continue;
@@ -1080,21 +1245,21 @@ export class ListLayout extends Layout {
             if (ii.flag == this._itemInfoVer)
                 ii.obj.pos(xx, yy);
 
-            if (ii.height > lineHeight)
-                lineHeight = ii.height;
+            if (ii.width > lineWidth)
+                lineWidth = ii.width;
             if (i % this._lineItemCnt == this._lineItemCnt - 1) {
-                xx = borderX;
-                yy += lineHeight + this._rowGap;
-                lineHeight = 0;
+                xx += lineWidth + this._columnGap;
+                yy = borderY;
+                lineWidth = 0;
 
                 if (i == startIndex + pageSize - 1) {
-                    borderX += vw;
-                    xx = borderX;
-                    yy = 0;
+                    borderY += vh;
+                    xx = 0;
+                    yy = borderY;
                 }
             }
             else
-                xx += ii.width + this._columnGap;
+                yy += ii.height + this._rowGap;
         }
 
         //释放未使用的
@@ -1108,7 +1273,6 @@ export class ListLayout extends Layout {
             }
         }
     }
-
 }
 
 interface ItemInfo {

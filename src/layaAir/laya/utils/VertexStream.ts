@@ -1,13 +1,10 @@
+import { Mutable } from "../../ILaya";
 import { Color } from "../maths/Color";
 import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector3 } from "../maths/Vector3";
 import { Texture } from "../resource/Texture";
-import { Pool } from "./Pool";
-
-declare type Mutable<T> = {
-    -readonly [P in keyof T]: T[P]
-};
+import { IPool, Pool } from "./Pool";
 
 /**
  * @en Vertex stream is a tool for appending vertices and triangles.
@@ -45,7 +42,7 @@ export class VertexStream {
     private _vec: Vector3;
     private _epv: number = 0;
 
-    static readonly pool = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor));
+    static readonly pool: IPool<VertexStream> = Pool.createPool(VertexStream, (e: VertexStream, mainTex?: Texture, hasColor?: boolean) => e.init(mainTex, hasColor));
 
     constructor() {
         this.contentRect = new Rectangle();

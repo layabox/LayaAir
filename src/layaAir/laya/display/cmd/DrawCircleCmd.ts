@@ -13,7 +13,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @en Identifier for the DrawCircleCmd
      * @zh 绘制圆形命令的标识符
      */
-    static ID: string = "DrawCircle";
+    static readonly ID: string = "DrawCircle";
 
     /**
      * @en X-axis position of the circle center
@@ -53,7 +53,6 @@ export class DrawCircleCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawCircleCmd instance
      * @param x X-axis position of the circle center
      * @param y Y-axis position of the circle center

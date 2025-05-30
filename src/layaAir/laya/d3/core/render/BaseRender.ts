@@ -63,6 +63,7 @@ export class BaseRender extends Component {
     /**
      * @en Initialize the BaseRender class.
      * @zh 初始化 BaseRender 类。
+     * @internal
      */
     static __init__() {
         BaseRender.shaderValueInit();
@@ -629,7 +630,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @protected
      * @param context 
      */
     renderUpdate(context: RenderContext3D) {
@@ -672,6 +672,11 @@ export class BaseRender extends Component {
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         this._baseRenderNode.destroy();
+        this._baseRenderNode = null;
+        this._renderElements.forEach(element => {
+            element.destroy();
+        });
+        this._renderElements = null;
         for (let i = 0, n = this._sharedMaterials.length; i < n; i++) {
             let m = this._sharedMaterials[i];
             m && !m.destroyed && m._removeReference();

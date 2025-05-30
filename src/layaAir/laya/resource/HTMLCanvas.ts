@@ -1,64 +1,26 @@
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "../renders/Context";
-import { Browser } from "../utils/Browser";
 import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
 import { BaseTexture } from "./BaseTexture";
+import { Browser } from "../utils/Browser";
 
 /**
  * @en `HTMLCanvas` is a proxy class for the HTML Canvas, encapsulating the properties and methods of the Canvas.
  * @zh `HTMLCanvas` 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
+ * @blueprintIgnore
  */
 export class HTMLCanvas extends Resource {
 
-    private _ctx: any;
-    /**@internal */
-    _source: HTMLCanvasElement;
-    /**@internal */
-    _texture: Texture | BaseTexture;
-    protected _width: number;
-    protected _height: number;
+    protected _ctx: any;
+    protected _texture: Texture | BaseTexture;
 
-    /**
-     * @en The source of the canvas element.
-     * @zh Canvas 元素的源。
-     */
-    get source() {
-        return this._source;
-    }
+    source: HTMLCanvasElement;
+    width: number = 0;
+    height: number = 0;
 
-    /**
-     * @en The width of the canvas.
-     * @zh 画布宽度。
-     */
-    get width(): number {
-        return this._width;
-    }
-
-    set width(width: number) {
-        this._width = width;
-    }
-
-    /**
-     * @en The height of the canvas.
-     * @zh 画布高度。
-     */
-    get height(): number {
-        return this._height;
-    }
-
-    set height(height: number) {
-        this._height = height;
-    }
-
-    /**
-     * @internal 
-     */
-    _getSource() {
-        return this._source;
-    }
     /**
      * @en According to the specified type, create an HTMLCanvas instance.
      * @param createCanvas If true, creates a new canvas element. If false, uses the instance itself as the canvas source. 
@@ -67,10 +29,10 @@ export class HTMLCanvas extends Resource {
      */
     constructor(createCanvas: boolean = false) {
         super();
-        if (createCanvas)	//webgl模式下不建立。除非强制指，例如绘制文字部分
-            this._source = Browser.createElement("canvas");
+        if (createCanvas) //webgl模式下不建立。除非强制指，例如绘制文字部分
+            this.source = Browser.createElement("canvas");
         else {
-            this._source = this as unknown as HTMLCanvasElement;
+            this.source = this as unknown as HTMLCanvasElement;
         }
         this.lock = true;
     }
@@ -84,7 +46,7 @@ export class HTMLCanvas extends Resource {
             if (this._ctx.clear) {
                 this._ctx.clear();
             } else {
-                this._ctx.clearRect(0, 0, this._width, this._height);
+                this._ctx.clearRect(0, 0, this.width, this.height);
             }
         }
         if (this._texture) {
@@ -116,26 +78,18 @@ export class HTMLCanvas extends Resource {
      * @zh Canvas 渲染上下文。
      */
     get context(): Context {
-        if (this._ctx) return this._ctx;
-        //@ts-ignore
-        if (this._source == this) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
-            // @ts-ignore
+        if (this._ctx)
+            return this._ctx;
+        if (this.source == <any>this) //是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
             this._ctx = new Context();
-        } else {
-            //@ts-ignore
-            this._ctx = this._source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
-        }
+        else
+            this._ctx = this.source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
         this._ctx._canvas = this;
         return this._ctx;
     }
 
-    /**
-     * @internal
-     * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
-     * @param context Canvas 渲染上下文。
-     */
-    _setContext(context: Context): void {
-        this._ctx = context;
+    set context(value: Context) {
+        this._ctx = value;
     }
 
     /**
@@ -148,20 +102,8 @@ export class HTMLCanvas extends Resource {
      * @param other
      * @return  Canvas 渲染上下文 Context 对象。
      */
-    getContext(contextID: string, other: any = null): Context {
+    getContext(contextID: string, other?: any): Context {
         return this.context;
-    }
-
-
-    /**
-     * @en Get the memory size.
-     * @return The memory size.
-     * @zh 获取内存大小。
-     * @return 内存大小。
-     */
-    //TODO:coverage
-    getMemSize(): number {
-        return 0;//TODO:待调整
     }
 
     /**
@@ -173,20 +115,25 @@ export class HTMLCanvas extends Resource {
      * @param h 画布的高度。
      */
     size(w: number, h: number): void {
-        if (this._width != w || this._height != h || (this._source && (this._source.width != w || this._source.height != h))) {
-            this._width = w;
-            this._height = h;
+        if (this.width != w || this.height != h || (this.source && (this.source.width != w || this.source.height != h))) {
+            this.width = w;
+            this.height = h;
             this._setCPUMemory(w * h * 4);
             this._ctx && this._ctx.size && this._ctx.size(w, h);
-            if (this._source) {// && this._source instanceof HTMLCanvasElement){
-                this._source.height = h;
-                this._source.width = w;
+            if (this.source) {// && this._source instanceof HTMLCanvasElement){
+                this.source.height = h;
+                this.source.width = w;
             }
             if (this._texture) {
                 this._texture.destroy();
                 this._texture = null;
             }
         }
+    }
+
+    /** @internal */
+    _getSource() {
+        return this.source;
     }
 
     /**
@@ -211,9 +158,9 @@ export class HTMLCanvas extends Resource {
      * @param encoderOptions 质量参数，取值范围为0-1
      */
     toBase64(type: string, encoderOptions: number): string | null {
-        if (this._source) {
-                return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
-        }
-        return null;
+        if (this.source)
+            return (this.source as HTMLCanvasElement).toDataURL(type, encoderOptions);
+        else
+            return null;
     }
 }

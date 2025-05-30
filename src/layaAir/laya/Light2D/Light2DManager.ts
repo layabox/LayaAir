@@ -35,6 +35,7 @@ import { LightAndShadow } from "./Shader/LightAndShadow";
 
 /**
  * 生成2D光影图的渲染流程
+ * @blueprintIgnore
  */
 export class Light2DManager implements IElementComponentManager, ILight2DManager {
     /**

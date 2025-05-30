@@ -1,5 +1,5 @@
 import { Config3D } from "./Config3D";
-import { ILaya3D } from "./ILaya3D";
+import { ILaya } from "./ILaya";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
@@ -13,7 +13,6 @@ import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
 import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
-import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTexture } from "./laya/d3/graphics/Vertex/VertexPositionTexture";
@@ -36,11 +35,10 @@ import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUti
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
-import { Config, PlayerConfig } from "./Config";
+import { PlayerConfig } from "./Config";
 import { Physics3DStatInfo } from "./laya/Physics3D/interface/Physics3DStatInfo";
 import { PostProcess } from "./laya/d3/core/render/postProcessBase/PostProcess";
 import { ScreenQuad } from "./laya/d3/core/render/command/geometry/ScreenQuad";
-import { ReflectionProbe } from "./laya/d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer";
 
 /**
@@ -110,8 +108,8 @@ export class Laya3D {
             console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
         Config3D._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, Config3D.maxLightCount);
 
-        ILaya3D.Scene3D = Scene3D;
-        ILaya3D.Laya3D = Laya3D;
+        ILaya.Scene3D = Scene3D;
+        ILaya.Laya3D = Laya3D;
 
         VertexPositionTexture.__init__();
         PixelLineVertex.__init__();

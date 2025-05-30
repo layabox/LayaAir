@@ -493,6 +493,9 @@ export enum Ebox2DType {
 }
 
 
+/**
+ * @blueprintIgnore
+ */
 export interface IPhysics2DFactory {
     worldCount: number;
 
@@ -582,14 +585,12 @@ export interface IPhysics2DFactory {
 
     /**
      * 当前约束的反作用力(也就是为了维持约束对刚体施加的力)
-     * @param world 
      * @param joint 
      */
     get_joint_recationForce(joint: any): any;
 
     /**
      * 当前约束的反扭距(为了维持约束对刚体施加的扭矩)
-     * @param world 
      * @param joint 
      */
     get_joint_reactionTorque(joint: any): number;

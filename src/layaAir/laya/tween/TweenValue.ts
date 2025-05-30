@@ -90,9 +90,13 @@ export class TweenValue implements ITweenValue {
                 this.nums[offset] = Color.stringToHex(value);
                 break;
             default: {
-                tmpArr.length = 0;
-                type.write(tmpArr, value);
-                tmpArr.forEach((v, i) => this.nums[offset + i] = v);
+                if (offset === this.nums.length)
+                    type.write(this.nums, value);
+                else {
+                    tmpArr.length = 0;
+                    type.write(tmpArr, value);
+                    tmpArr.forEach((v, i) => this.nums[offset + i] = v);
+                }
             }
         }
     }

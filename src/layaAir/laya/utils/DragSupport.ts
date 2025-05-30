@@ -10,6 +10,7 @@ import { Browser } from "./Browser";
 /**
  * @en The `DragSupport` class is a touch sliding control.
  * @zh `DragSupport` 类是触摸滑动控件。
+ * @blueprintable
  */
 export class DragSupport {
     /**
@@ -63,6 +64,7 @@ export class DragSupport {
     private _tween: Tween;
     private _data: any;
 
+    /** @blueprintIgnore */
     constructor(owner: Sprite) {
         this.target = owner;
         this.area = new Rectangle();
@@ -293,6 +295,7 @@ export class DragSupport {
      * @param points 
      * @param max 
      * @returns 
+     * @blueprintIgnore
      */
     static computeVelocity(points: Array<number>, max?: number): Readonly<Point> {
         let now = Browser.now();

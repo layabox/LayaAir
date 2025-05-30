@@ -3,6 +3,9 @@ import { HideFlags } from "../Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { GWidget } from "./GWidget";
 
+/**
+ * @blueprintInheritable
+ */
 export class GMovieClip extends GWidget {
     readonly comp: FrameAnimation;
 

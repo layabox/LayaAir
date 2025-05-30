@@ -1,12 +1,12 @@
 import { ILaya } from "../../ILaya";
 import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
-import { Input } from "../display/Input";
 import type { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Delegate } from "../utils/Delegate";
 import { Event, ITouchInfo } from "./Event";
@@ -18,6 +18,11 @@ const _rollOverChain: Array<Node> = [];
 const _rollOutChain: Array<Node> = [];
 var _inst: InputManager;
 
+/**
+ * @en The `InputManager` class is responsible for managing input events such as mouse, touch, and keyboard events.
+ * @zh `InputManager` 类负责管理输入事件，例如鼠标、触摸和键盘事件。
+ * @blueprintable
+ */
 export class InputManager {
 
     /**
@@ -94,7 +99,7 @@ export class InputManager {
     private _lastTouchTime: number;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      */
     constructor() {
         this._touches = [];
@@ -175,13 +180,15 @@ export class InputManager {
     }
 
     /**
-     * @private
+     * @internal
      * @en Initialization.
      * @zh 初始化。
      */
-    static __init__(stage: Stage, canvas: HTMLCanvasElement): void {
+    static __init__(): void {
         let inst = _inst = new InputManager();
-        inst._stage = stage;
+        inst._stage = ILaya.stage;
+        let canvas = Browser.mainCanvas.source;
+        let passiveOption: AddEventListenerOptions = { passive: false };
 
         canvas.oncontextmenu = () => {
             return false;
@@ -190,60 +197,62 @@ export class InputManager {
             if (!Browser.onIE)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 0);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mouseup", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 1);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mousemove", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleMouse(ev, 2);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("mouseout", ev => {
             inst.handleMouse(ev, 3);
-        }, { passive: false });
+        }, passiveOption);
         // canvas.addEventListener("mouseover", ev => {
         // });
 
         canvas.addEventListener("touchstart", ev => {
-            if (!_isFirstTouch && !Input.isInputting)
+            if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 0);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchend", ev => {
-            if (!_isFirstTouch && !Input.isInputting)
+            if (!_isFirstTouch && !PAL.textInput.target)
                 (ev.cancelable) && (ev.preventDefault());
             _isFirstTouch = false;
             inst.handleTouch(ev, 1);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchmove", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 2);
-        }, { passive: false });
+        }, passiveOption);
         canvas.addEventListener("touchcancel", ev => {
             (ev.cancelable) && (ev.preventDefault());
             inst.handleTouch(ev, 3);
-        }, { passive: false });
+        }, passiveOption);
 
         canvas.addEventListener("wheel", ev => {
             inst.handleMouse(ev, 4);
-        }, { passive: false });
+        }, passiveOption);
 
-        canvas.addEventListener("pointerdown", ev => {
-            canvas.setPointerCapture(ev.pointerId);
-        });
-        canvas.addEventListener("pointerup", ev => {
-            canvas.releasePointerCapture(ev.pointerId);
-        }, true);
+        if (typeof (canvas.setPointerCapture) === 'function') {
+            canvas.addEventListener("pointerdown", ev => {
+                canvas.setPointerCapture(ev.pointerId);
+            });
+            canvas.addEventListener("pointerup", ev => {
+                canvas.releasePointerCapture(ev.pointerId);
+            }, true);
+        }
 
-        let document = <Document>Browser.document;
-        document.addEventListener("keydown", ev => {
+        let doc = Browser.document;
+        doc.addEventListener("keydown", ev => {
             inst.handleKeys(ev);
         }, true);
-        document.addEventListener("keypress", ev => {
+        doc.addEventListener("keypress", ev => {
             inst.handleKeys(ev);
         }, true);
-        document.addEventListener("keyup", ev => {
+        doc.addEventListener("keyup", ev => {
             inst.handleKeys(ev);
         }, true);
     }
@@ -312,7 +321,6 @@ export class InputManager {
                 touch.event.button = ev.button;
                 touch.downButton = ev.button;
 
-                this.handleFocus();
                 InputManager.onMouseDownCapture.invoke(touch.touchId);
 
                 if (InputManager.mouseEventsEnabled) {
@@ -445,7 +453,6 @@ export class InputManager {
                 if (!touch.began) {
                     touch.begin();
 
-                    this.handleFocus();
                     InputManager.onMouseDownCapture.invoke(touch.touchId);
 
                     if (InputManager.mouseEventsEnabled) {
@@ -501,36 +508,6 @@ export class InputManager {
         this._touches.push(touch);
 
         return touch;
-    }
-
-    private handleFocus() {
-        if (!Input.isInputting)
-            return;
-
-        let lastFocus = this._stage.focus;
-        if (!lastFocus || lastFocus.contains(this._touchTarget))
-            return;
-
-        let pre_input: Input, new_input: Input;
-        if (lastFocus instanceof Input)
-            pre_input = lastFocus;
-        else
-            pre_input = <Input>lastFocus.children.find(e => e instanceof Input);
-
-        if (!pre_input || !pre_input.focus)
-            return;
-
-        if (this._touchTarget instanceof Input)
-            new_input = this._touchTarget;
-        else
-            new_input = <Input>this._touchTarget.children.find(e => e instanceof Input);
-
-        // 新的焦点是Input的情况下，不需要blur；
-        // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
-        if (new_input && new_input.nativeInput && new_input.multiline == pre_input.multiline)
-            pre_input._focusOut();
-        else
-            pre_input.focus = false;
     }
 
     /**

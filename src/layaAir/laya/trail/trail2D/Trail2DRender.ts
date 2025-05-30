@@ -19,7 +19,6 @@ import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../renders/Context";
 
 export class Trail2DRender extends BaseRenderNode2D {
-
     static defaultTrail2DMaterial: Material;
 
     private _color: Color = new Color(1, 1, 1, 1);
@@ -162,10 +161,6 @@ export class Trail2DRender extends BaseRenderNode2D {
         return ["BaseRender2D", "TrailRender"];
     }
 
-    /**
-     * @internal
-     * @protected 
-     */
     protected _onAdded(): void {
         super._onAdded();
         this._trailFilter = new TrailBaseFilter(this._spriteShaderData);
@@ -186,7 +181,6 @@ export class Trail2DRender extends BaseRenderNode2D {
 
     /**
    * @internal
-   * @protected
    * cmd run时调用，可以用来计算matrix等获得即时context属性
    * @param context 
    * @param px 
@@ -195,12 +189,12 @@ export class Trail2DRender extends BaseRenderNode2D {
     addCMDCall(context: Context, px: number, py: number): void {
         //渲染节点数据是Global数据，使用Scene的数据  
         let mat;
-         if(this.owner.scene && !context._drawingToTexture){
+        if (this.owner.scene && !context._drawingToTexture) {
             mat = Matrix.TEMP;
-            Matrix.mul( this.owner.scene.globalTrans.getMatrix(),Laya.stage.transform,mat); 
-         }else{
+            Matrix.mul(this.owner.scene.globalTrans.getMatrix(), Laya.stage.transform, mat);
+        } else {
             mat = Matrix.EMPTY;
-         }
+        }
         let vec3 = Vector3.TEMP;
         vec3.x = mat.a;
         vec3.y = mat.c;
@@ -215,8 +209,8 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     onPreRender(): void {
-       let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000,0.016);
-       
+        let curtime = this._trailFilter._curtime += Math.min(Laya.timer.delta / 1000, 0.016);
+
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
@@ -243,7 +237,7 @@ export class Trail2DRender extends BaseRenderNode2D {
                 trailGeometry._addTrailByNextPosition(curPosV3, curtime, this.minVertexDistance, pointAtoBVector3, delLength)
             }
         }
-        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode,50);
+        trailGeometry._updateVertexBufferUV(this.colorGradient, this.textureMode, 50);
         curPosV3.cloneTo(this._trailFilter._lastPosition);
         if (trailGeometry._disappearBoundsMode) {
             //caculate bound

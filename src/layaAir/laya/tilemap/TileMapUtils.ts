@@ -3,6 +3,7 @@ import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TileShape } from "./TileMapEnum";
+import { TileSetCellData } from "./TileSetCellData";
 
 const BYTE_POS_CELL = 24;
 const BYTE_POS_GROUP = 16;
@@ -104,7 +105,7 @@ export class TileMapUtils {
         return keys.length > 0 ? keys[keys.length - 1] + 1 : 0;
     }
 
-    public static findCellData(nativeData: TileAlternativesData, rotateCount: number, flipV: boolean, flipH: boolean) {
+    public static findCellData(nativeData: TileAlternativesData, rotateCount: number, flipV: boolean, flipH: boolean): TileSetCellData {
         let datas = nativeData._tileDatas;
         for (const key in datas) {
             let data = datas[key];

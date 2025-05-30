@@ -67,7 +67,6 @@ export class MeshFilter extends Component {
 
     /**
      * @internal
-     * @protected
      */
     protected _onDestroy() {
         (this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);

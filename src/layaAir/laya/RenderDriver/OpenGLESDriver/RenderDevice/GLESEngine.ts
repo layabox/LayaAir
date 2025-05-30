@@ -71,7 +71,7 @@ export class GLESEngine implements IRenderEngine {
   addTexGammaDefine(key: number, value: RTShaderDefine): void {
     this._nativeObj.addTexGammaDefine(key, value);
   }
-  initRenderEngine(canvas: any): void {
+  initRenderEngine(canvas: HTMLCanvasElement): void {
     this._nativeObj.initRenderEngine();
     this._GLTextureContext = new GLESTextureContext(this._nativeObj.getTextureContext());
     Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);

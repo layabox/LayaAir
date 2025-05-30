@@ -39,6 +39,7 @@ const Int32ToFourCC = (value: number) => {
 
 /**
  * dds 未存储 color space 需要手动指定
+ * @blueprintIgnore
  */
 export class DDSTextureInfo {
 

@@ -6,7 +6,7 @@ import { TileSetPhysicsLayer } from "./layers/TileSetPhysicsLayer";
 import { TileMapLayer } from "./TileMapLayer";
 
 /**
- * @internal
+ * @ignore
  * 瓦片地图物理
  */
 export class TileMapPhysics {

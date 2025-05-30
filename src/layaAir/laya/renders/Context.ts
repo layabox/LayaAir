@@ -41,7 +41,6 @@ import { Earcut } from "../webgl/shapes/Earcut";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { SubmitKey } from "../webgl/submit/SubmitKey";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
-import { MeasureFont } from "../webgl/text/MeasureFont";
 import { TextRender } from "../webgl/text/TextRender";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../webgl/utils/MeshTexture";
@@ -54,143 +53,82 @@ import { IAutoExpiringResource } from "./ResNeedTouch";
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
-var _clipResult = new Vector2();
+const _clipResult = new Vector2();
+const MAXVERTNUM = 65535;
+const MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
+const SEGNUM = 32;
 
 /**
- * @private
+ * @ignore
+ * @blueprintIgnore
  */
 export class Context {
-
-    /**@internal */
-    private _canvas: HTMLCanvas;
-
-    /**@internal */
     _drawingToTexture: boolean;
-
-    private static _MAXVERTNUM = 65535;
-
-    static MAXCLIPRECT: Rectangle = null;
-
-    private _alpha = 1.0;
-
-    /**@internal */
     _material: Material = null;
-
-    /**@internal */
-    private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
-    /**@internal */
-    private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
-
-    private static SEGNUM = 32;
-    private static _contextcount = 0;
-
-    private _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
-    private _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
-    private _tempUV = new Float32Array(8);
-    private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
-
-    private _other: ContextParams | null = null;
-
-    private _path: Path | null = null;
-    /**@internal */
-    _drawCount = 1;
-    private _width = Const.MAX_CLIP_SIZE;
-    private _height = Const.MAX_CLIP_SIZE;
-    private _renderCount = 0;
-    /**@internal */
     stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
-    /**@internal */
     _curSubmit = SubmitBase.RENDERBASE;
-    /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-
-    /**@internal */
-    private _mesh: Sprite2DGeometry;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
-    private _meshQuatTex = new MeshQuadTexture();
-    private _meshVG = new MeshVG();
-    private _meshTex = new MeshTexture();
-
-    //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
-    private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
-    private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
-
-    /**@internal */
-    _clipRect = Context.MAXCLIPRECT;
-    /**@internal */
-    _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
-    /**@internal */
-    _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
-    private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
-    /**@internal */
+    _clipRect = MAXCLIPRECT;
+    _globalClipMatrix = defaultClipMatrix.clone(); //用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+    _clipInfoID = 0; //用来区分是不是clipinfo已经改变了
     _curMat: Matrix;
-    /**@internal */
     _matBuffer: Float32Array = new Float32Array(6);
-
     //计算矩阵缩放的缓存
-    /**@internal */
     _lastMatScaleX = 1.0;
-    /**@internal */
     _lastMatScaleY = 1.0;
-    private _lastMat_a = 1.0;
-    private _lastMat_b = 0.0;
-    private _lastMat_c = 0.0;
-    private _lastMat_d = 1.0;
-    /**@internal */
     _nBlendType = 0;
-    /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
-    /**@internal */
     _charSubmitCache: CharSubmitCache | null = null;
-    /**@internal */
     _saveMark: SaveMark | null = null;
-    /**@internal */
-    private _shader2D = new Shader2D();	//
-
+    _italicDeg = 0;//文字的倾斜角度
+    _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
+    _colorFiler: ColorFilter | null = null;
     /**
      * 所cacheAs精灵
      * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
      * 加载完成后，调用repaint
      */
     sprite: Sprite | null = null;
-
-    /**@internal */
-    private static _textRender: TextRender | null = null;// new TextRender();
-    /**@internal */
-    _italicDeg = 0;//文字的倾斜角度
-    /**@internal */
-    _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
-
-    private _fillColor = 0;
-    private _flushCnt = 0;
-
-    private static defTexture: Texture | null = null;	//给fillrect用
-    private static defTextureRef = 0;
-    /**@internal */
-    _colorFiler: ColorFilter | null = null;
-
-    drawTexAlign = false;		// 按照像素对齐
-    /**@internal */
-    _incache = false;			// 正处在cacheas normal过程中
-
-    private _isMain = false;				// 是否是主context
-
-    private _render2D: Render2D = null;
-
-    private _clearColor = new Color(0, 0, 0, 0);
-    private _clear = false;
-
-    private _shaderValueNeedRelease: Value2D[] = [];
-
+    drawTexAlign = false; // 按照像素对齐
     _render2DManager: RenderManager2D;
 
-    static __init__(): void {
-        Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
-        ContextParams.DEFAULT = new ContextParams();
-        if (!Context._textRender) {
-            let textRender = Context._textRender = new TextRender();
-            textRender.fontMeasure = new MeasureFont(textRender.charRender);
-        }
-    }
+    private _canvas: HTMLCanvas;
+    private _alpha = 1.0;
+    private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
+    private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
+    private _drawCount = 1;
+    private _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
+    private _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
+    private _tempUV = new Float32Array(8);
+    private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
+    private _other: ContextParams | null = null;
+    private _path: Path | null = null;
+    private _width = Const.MAX_CLIP_SIZE;
+    private _height = Const.MAX_CLIP_SIZE;
+    private _mesh: Sprite2DGeometry; //用Mesh2D代替_vb,_ib. 当前使用的mesh
+    private _meshQuatTex = new MeshQuadTexture();
+    private _meshVG = new MeshVG();
+    private _meshTex = new MeshTexture();
+    private _transedPoints: any[] = new Array(8); //临时的数组，用来计算4个顶点的转换后的位置。
+    private _temp4Points: any[] = new Array(8); //临时数组。用来保存4个顶点的位置。
+    private _lastMat_a = 1.0;
+    private _lastMat_b = 0.0;
+    private _lastMat_c = 0.0;
+    private _lastMat_d = 1.0;
+    private _shader2D = new Shader2D();	//
+    private _fillColor = 0;
+    private _flushCnt = 0;
+    private _isMain = false; // 是否是主context
+    private _render2D: Render2D = null;
+    private _clearColor = new Color(0, 0, 0, 0);
+    private _clear = false;
+    private _shaderValueNeedRelease: Value2D[] = [];
+    private _clipID_Gen = 0; //生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
+
+    static _textRender: TextRender | null = null;
+    private static _contextcount = 0;
+    private static defTexture: Texture | null = null;	//给fillrect用
+    private static defTextureRef = 0;
 
     constructor() {
         //默认值。可以外面设置
@@ -216,6 +154,9 @@ export class Context {
         this.clear();
 
         this._render2DManager = new RenderManager2D();
+        if (!Context._textRender)
+            Context._textRender = new TextRender();
+
     }
 
     //从ctx继承渲染参数
@@ -303,28 +244,24 @@ export class Context {
         this.globalAlpha *= value;
     }
 
-    /**@internal */
     _transform(mat: Matrix, pivotX: number, pivotY: number): void {
         this.translate(pivotX, pivotY);
         this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
         this.translate(-pivotX, -pivotY);
     }
 
-    /**@internal */
     _rotate(angle: number, pivotX: number, pivotY: number): void {
         this.translate(pivotX, pivotY);
         this.rotate(angle);
         this.translate(-pivotX, -pivotY);
     }
 
-    /**@internal */
     _scale(scaleX: number, scaleY: number, pivotX: number, pivotY: number): void {
         this.translate(pivotX, pivotY);
         this.scale(scaleX, scaleY);
         this.translate(-pivotX, -pivotY);
     }
 
-    /**@internal */
     _drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number, vid: number): void {
         this.beginPath();
         this.strokeStyle = lineColor;
@@ -334,7 +271,6 @@ export class Context {
         this.stroke();
     }
 
-    /**@internal */
     _drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): void {
         this.beginPath();
         //x += args[0], y += args[1];
@@ -373,7 +309,7 @@ export class Context {
             this.stroke();
         }
     }
-    /**@internal */
+
     _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
         this.beginPath(true);
         this.arc(x, y, radius, radius, 0, 2 * Math.PI, false, true, 40);
@@ -381,14 +317,14 @@ export class Context {
         //绘制
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
-    /**@internal */
+
     _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number) {
         this.beginPath(true);
         this.arc(x, y, width, height, 0, 2 * Math.PI, false, true, 40);
         this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
-    /**@internal */
+
     _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
         if (width <= 0) return;
         if (height <= 0) return;
@@ -525,7 +461,6 @@ export class Context {
     }
 
     //矢量方法	
-    /**@internal */
     _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
         //移动中心点
         //ctx.translate(x + args[0], y + args[1]);
@@ -540,7 +475,6 @@ export class Context {
         //ctx.translate(-x - args[0], -y - args[1]);
     }
 
-    /**@internal */
     _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void {
         //var points:Array = args[2];
         this.beginPath();
@@ -550,7 +484,6 @@ export class Context {
         this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
     }
 
-    /**@internal */
     _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void {
         //形成路径
         this.beginPath();
@@ -635,10 +568,10 @@ export class Context {
     destroy(): void {
         --Context._contextcount;
         this.sprite = null;
-        if(this._lastTex ==Context.defTexture){
+        if (this._lastTex == Context.defTexture) {
             this._lastTex = null;
             Context.defTextureRef--;
-            if(Context.defTextureRef<=0 && Context.defTexture){
+            if (Context.defTextureRef <= 0 && Context.defTexture) {
                 Context.defTexture.bitmap && Context.defTexture.bitmap.destroy();
                 Context.defTexture.destroy();
                 Context.defTexture = null;
@@ -656,7 +589,7 @@ export class Context {
         this._other = ContextParams.DEFAULT;
         this._alpha = 1.0;
         this._nBlendType = 0;
-        this._clipRect = Context.MAXCLIPRECT;
+        this._clipRect = MAXCLIPRECT;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
 
         this._curMat.identity();
@@ -843,7 +776,6 @@ export class Context {
         Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
     }
 
-    /**@internal */
     _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
         Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
     }
@@ -851,7 +783,7 @@ export class Context {
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
         var sameKey =
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + 4 < MAXVERTNUM &&
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE &&
                 submit._key.blendShader === this._nBlendType &&
@@ -904,7 +836,6 @@ export class Context {
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
-    /**@internal */
     private _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit = this._curSubmit;
         //这个不合并，直接渲染
@@ -1015,7 +946,6 @@ export class Context {
         }
     }
 
-    /**@internal */
     _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[] | null, color: number): boolean {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;
@@ -1029,12 +959,10 @@ export class Context {
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
     }
 
-    /**@internal */
     _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color = 0xffffffff): boolean {
         return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
-    /**@internal */
     _copyClipInfo(shaderValue: Value2D): void {
         let clipInfo = this._globalClipMatrix;
         var cm = shaderValue.clipMatDir;
@@ -1044,7 +972,7 @@ export class Context {
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
     }
-    /**@internal */
+
     _copyClipInfoToShaderData(shaderData: ShaderData) {
         let clipInfo = this._globalClipMatrix;
         Vector4.TEMP.setValue(clipInfo.a, clipInfo.b, clipInfo.c, clipInfo.d)
@@ -1135,7 +1063,6 @@ export class Context {
     }
 
     /**
-     * @internal
      * @param tex {Texture | RenderTexture }
      * @param  imgid 图片id用来比较合并的
      * @param x
@@ -1197,7 +1124,7 @@ export class Context {
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
             !this.isStopMerge(this._curSubmit) &&
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + 4 < MAXVERTNUM &&
             this._curSubmit.material == this._material
 
         if (!sameKey) {
@@ -1379,7 +1306,7 @@ export class Context {
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === webGLImg.id &&
             preKey.blendShader == this._nBlendType &&
-            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
+            this._mesh.vertexNum + vertices.length / 2 < MAXVERTNUM &&
             this._curSubmit.material == this._material;
 
         if (!sameKey) {
@@ -1440,7 +1367,7 @@ export class Context {
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
-        if (this._clipRect == Context.MAXCLIPRECT) {
+        if (this._clipRect == MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
             this._clipRect.width = width;
@@ -1555,9 +1482,7 @@ export class Context {
         this._flushCnt++;
         //charbook gc
         if (this._flushCnt % 60 == 0 && this.isMain) {
-            if (TextRender.textRenderInst) {
-                TextRender.textRenderInst.GC();
-            }
+            Context._textRender.GC();
         }
     }
 
@@ -1638,7 +1563,7 @@ export class Context {
                 }
             }
 
-            if (this._mesh.vertexNum + vertNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + vertNum > MAXVERTNUM) {
                 //;
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
@@ -1718,7 +1643,7 @@ export class Context {
             var maxVertexNum = p.path.length * 2;	//最大可能产生的顶点数。这个需要考虑考虑
             if (maxVertexNum < 2)
                 continue;
-            if (this._mesh.vertexNum + maxVertexNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + maxVertexNum > MAXVERTNUM) {
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
@@ -1862,13 +1787,13 @@ export class Context {
         var cosx = 0.0;
         if (dir >= 0) {
             fChgAng = halfAng * 2;
-            var fda = fChgAng / Context.SEGNUM;
+            var fda = fChgAng / SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
         else {
             fChgAng = -halfAng * 2;
-            fda = fChgAng / Context.SEGNUM;
+            fda = fChgAng / SEGNUM;
             sinx = Math.sin(fda);
             cosx = Math.cos(fda);
         }
@@ -1890,7 +1815,7 @@ export class Context {
         var cvy = pty1 - oriy;
         var tx = 0.0;
         var ty = 0.0;
-        for (i = 0; i < Context.SEGNUM; i++) {
+        for (i = 0; i < SEGNUM; i++) {
             var cx = cvx * cosx + cvy * sinx;
             var cy = -cvx * sinx + cvy * cosx;
             x = cx + orix;
@@ -1983,7 +1908,7 @@ export class Context {
     mixRGBandAlpha(color: number): number {
         return this._mixRGBandAlpha(color, this._alpha);
     }
-    /**@internal */
+
     _mixRGBandAlpha(color: number, alpha: number): number {
         if (alpha >= 1) {
             return color;
@@ -2289,10 +2214,8 @@ export class Context {
     }
 }
 
-
-/** @internal */
 class ContextParams {
-    static DEFAULT: ContextParams;
+    static DEFAULT: ContextParams = new ContextParams();
 
     lineWidth = 1;
     textAlign: string;

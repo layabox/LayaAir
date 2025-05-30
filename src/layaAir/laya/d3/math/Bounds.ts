@@ -322,7 +322,7 @@ export class Bounds implements IClone {
      * @zh 创建这个边界的克隆。
      * @return 一个新的 `Bounds` 实例，是当前边界的克隆。
      */
-    clone(): any {
+    clone() {
         var dest: Bounds = new Bounds(new Vector3(), new Vector3());
         this.cloneTo(dest);
         return dest;

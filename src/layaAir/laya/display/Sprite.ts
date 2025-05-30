@@ -33,6 +33,7 @@ const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
  * @zh Sprite是基本的显示图形的显示列表节点。Sprite默认不接受鼠标事件。通过graphics可以绘制图片或者矢量图，支持旋转，缩放，位移等操作。Sprite同时也是容器类，可用来添加多个子节点。
+ * @blueprintInheritable
  */
 export class Sprite extends Node {
     /**
@@ -1317,9 +1318,9 @@ export class Sprite extends Node {
         }
         //imgdata.data.set(dt);
         //画到2d画布上
-        var canv = new HTMLCanvas(true);
+        let canv = new HTMLCanvas(true);
         canv.size(canvasWidth, canvasHeight);
-        var ctx2d = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        let ctx2d = <CanvasRenderingContext2D>(canv.context as any);
         ctx2d.putImageData(imgdata, 0, 0);
         rt.destroy();
         return canv;
@@ -1638,7 +1639,7 @@ export class Sprite extends Node {
         if (this._userBounds != null)
             return this._userBounds.getBoundPoints(out);
 
-        if (this._scrollRect != null)
+        if (this._scrollRect != null && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING))
             return this._scrollRect.getBoundPoints(out);
 
         if (this._graphics != null)
@@ -1968,6 +1969,9 @@ export class Sprite extends Node {
                 delete (<any>this)._filters;
             }
         }
+
+        if (this._mouseState === 2)
+            this.setMouseEnabledUp();
     }
 
     protected onStartListeningToType(type: string) {
@@ -2069,6 +2073,28 @@ export class Sprite extends Node {
         }
         super._addComponentInstance(comp);
     }
+
+    /** @internal @blueprintEvent */
+    Sprite_bpEvent: {
+        [Event.MOUSE_DOWN]: (event: Event) => void;
+        [Event.MOUSE_UP]: (event: Event) => void;
+        [Event.MOUSE_MOVE]: (event: Event) => void;
+        [Event.MOUSE_OVER]: (event: Event) => void;
+        [Event.MOUSE_OUT]: (evente: Event) => void;
+        [Event.MOUSE_DRAG]: (event: Event) => void;
+        [Event.MOUSE_DRAG_END]: (event: Event) => void;
+        [Event.CLICK]: (event: Event) => void;
+        [Event.RIGHT_MOUSE_DOWN]: (event: Event) => void;
+        [Event.RIGHT_MOUSE_UP]: (event: Event) => void;
+        [Event.RIGHT_CLICK]: (event: Event) => void;
+        [Event.DOUBLE_CLICK]: (event: Event) => void;
+        [Event.DRAG_START]: (event: Event) => void;
+        [Event.DRAG_MOVE]: (event: Event) => void;
+        [Event.DRAG_END]: (event: Event) => void;
+
+        [SpriteGlobalTransform.CHANGED]: (type: number) => void;
+        [Event.TRANSFORM_CHANGED]: () => void;
+    };
 }
 
 const tmpRect = new Rectangle();

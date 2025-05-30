@@ -13,6 +13,9 @@ import { Loader } from "../net/Loader";
 
 const popupTargetKey = Symbol("popupTarget");
 
+/**
+ * @blueprintIgnore
+ */
 export class PopupManager {
     private _owner: GRoot;
     private _popupStack: GWidget[];

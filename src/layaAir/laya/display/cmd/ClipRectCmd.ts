@@ -5,13 +5,14 @@ import { IGraphicsCmd } from "../IGraphics";
 /**
  * @en Clip command
  * @zh 裁剪命令
+ * @blueprintIgnore
  */
 export class ClipRectCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the ClipRectCmd
      * @zh 裁剪命令的标识符
      */
-    static ID: string = "ClipRect";
+    static readonly ID: string = "ClipRect";
     /**
      * @en X-axis offset.
      * @zh X 轴偏移量。

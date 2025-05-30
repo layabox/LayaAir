@@ -23,6 +23,7 @@ import { Texture2D } from "../resource/Texture2D";
 
 /**
  * https://floyd.lbl.gov/radiance/framer.html
+ * @blueprintIgnore
  */
 export class HDRTextureInfo {
 

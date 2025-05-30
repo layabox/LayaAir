@@ -6,6 +6,8 @@ import type { GPanel } from "../GPanel";
 import type { GWidget } from "../GWidget";
 import { ISelection } from "./ISelection";
 import { UIEvent } from "../UIEvent";
+import { ControllerRef } from "../ControllerRef";
+import { NodeFlags } from "../../Const";
 
 export class Selection implements ISelection {
     public scrollItemToViewOnClick: boolean = false;
@@ -16,6 +18,7 @@ export class Selection implements ISelection {
     protected _lastIndex: number = 0;
     protected _triggerFocusEvents: boolean;
     protected _keyEvent: string;
+    protected _controller: ControllerRef;
 
     constructor(owner: GPanel) {
         this._owner = owner;
@@ -30,13 +33,7 @@ export class Selection implements ISelection {
     }
 
     public get index(): number {
-        for (let i = 0, cnt = this._owner.children.length; i < cnt; i++) {
-            let obj = this._owner.children[i];
-            if ((obj instanceof GButton) && obj.selected)
-                return i;
-        }
-
-        return -1;
+        return this._owner.children.findIndex(obj => (obj instanceof GButton) && obj.selected);
     }
 
     public set index(value: number) {
@@ -47,6 +44,21 @@ export class Selection implements ISelection {
         }
         else
             this.clear();
+    }
+
+    public get controller(): ControllerRef {
+        return this._controller;
+    }
+
+    public set controller(value: ControllerRef) {
+        if (this._controller)
+            this._controller.release();
+        this._controller = value;
+        if (value) {
+            value.validate();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
+        }
     }
 
     public get(out?: number[]): number[] {
@@ -73,17 +85,27 @@ export class Selection implements ISelection {
             this._owner.scroller?.scrollTo(index);
 
         this._lastIndex = index;
-        let obj = this._owner.getChildAt(index);
+        let obj: GWidget;
+        if (this._owner._getBit(NodeFlags.EDITING_NODE))
+            obj = <GWidget>this._owner.children.filter(child => !(<any>child._extra).isTemplateNode)[index];
+        else
+            obj = this._owner.getChildAt(index);
 
         if ((obj instanceof GButton) && !obj.selected)
             obj.selected = true;
+
+        this.syncController(index);
     }
 
     public remove(index: number): void {
         if (this._mode == SelectionMode.Disabled)
             return;
 
-        let obj = this._owner.getChildAt(index);
+        let obj: GWidget;
+        if (this._owner._getBit(NodeFlags.EDITING_NODE))
+            obj = <GWidget>this._owner.children.filter(child => !(<any>child._extra).isTemplateNode)[index];
+        else
+            obj = this._owner.getChildAt(index);
 
         if (obj instanceof GButton)
             obj.selected = false;
@@ -91,17 +113,16 @@ export class Selection implements ISelection {
 
     public clear(): void {
         for (let obj of this._owner.children) {
-            if (obj instanceof GButton)
+            if ((obj instanceof GButton) && !(<any>obj._extra).isTemplateNode)
                 obj.selected = false;
         }
     }
 
     protected clearExcept(g: GWidget): void {
         for (let obj of this._owner.children) {
-            if ((obj instanceof GButton) && obj != g)
+            if ((obj instanceof GButton) && obj != g && !(<any>obj._extra).isTemplateNode)
                 obj.selected = false;
         }
-
     }
 
     public selectAll(): void {
@@ -168,7 +189,7 @@ export class Selection implements ISelection {
             if (!item.selected) {
                 this.clearExcept(item);
                 item.selected = true;
-                item.event(Event.CHANGED);
+                item.event(Event.CHANGE);
             }
         }
         else {
@@ -184,7 +205,7 @@ export class Selection implements ISelection {
                             if (obj instanceof GButton) {
                                 obj.selected = true;
                                 if (obj == item)
-                                    item.event(Event.CHANGED);
+                                    item.event(Event.CHANGE);
                             }
                         }
 
@@ -192,19 +213,19 @@ export class Selection implements ISelection {
                     }
                     else {
                         item.selected = true;
-                        item.event(Event.CHANGED);
+                        item.event(Event.CHANGE);
                     }
                 }
             }
             else if ((evt.ctrlKey || evt.metaKey) || this._mode == SelectionMode.MultipleBySingleClick) {
                 item.selected = !item.selected;
-                item.event(Event.CHANGED);
+                item.event(Event.CHANGE);
             }
             else {
                 if (!item.selected) {
                     this.clearExcept(item);
                     item.selected = true;
-                    item.event(Event.CHANGED);
+                    item.event(Event.CHANGE);
                 }
                 else if (evt.button == 0)
                     this.clearExcept(item);
@@ -216,6 +237,9 @@ export class Selection implements ISelection {
 
         if (scroller && this.scrollItemToViewOnClick)
             scroller.scrollTo(item, true);
+
+        if (item.selected)
+            this.syncController(index);
 
         if (evt.isDblClick && (evt.target instanceof Input))
             return;
@@ -403,4 +427,32 @@ export class Selection implements ISelection {
             return -1;
     }
 
+    private selectChanged() {
+        if (this._controller)
+            this.index = this._controller.selectedIndex;
+    }
+
+    private syncController(index: number) {
+        let cc = this._controller;
+        if (cc) {
+            this._controller = null;
+            cc.selectedIndex = index;
+            this._controller = cc;
+        }
+    }
+
+    _refresh() {
+        if (this._mode === SelectionMode.None)
+            return;
+
+        if (this._controller)
+            this.index = this._controller.selectedIndex;
+        else
+            this.index = this._lastIndex;
+    }
+
+    destroy() {
+        if (this._controller)
+            this._controller.release();
+    }
 }

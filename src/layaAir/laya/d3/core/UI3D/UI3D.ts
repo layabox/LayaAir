@@ -10,7 +10,6 @@ import { Material, MaterialRenderMode } from "../../../resource/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderElement } from "../render/RenderElement";
-import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
@@ -42,7 +41,6 @@ export class UI3D extends BaseRender {
 
     //功能,将2DUI显示到3D面板上 并检测射线
     private _shellSprite: Sprite;
-    /** UISprite*/
     private _uisprite: Sprite;
 
     private _ui3DMat: Material;
@@ -73,7 +71,6 @@ export class UI3D extends BaseRender {
 
     private _camera: Camera;
 
-
     protected _worldParams: Vector4 = new Vector4();
 
     private _cameraPlaneDistance: number;
@@ -98,7 +95,6 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * IDE
      * @en The 3D rendering UI prefab.
      * @zh 3D渲染的UI预制体。
      */
@@ -124,15 +120,13 @@ export class UI3D extends BaseRender {
     }
 
     set scale(value: Vector2) {
-        if (value.x <= 0 || value.y <= 0 || (Vector2.equals(value, this._size)))
+        if (value.x <= 0 || value.y <= 0 || Vector2.equals(value, this._size))
             return;
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
         this._scale.setValue(value.x, value.y, 1);
     }
-
-
 
     /**
      * @en The UI render mode.

@@ -15,7 +15,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en Identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
      */
-    static ID: string = "Draw9GridTexture";
+    static readonly ID: string = "Draw9GridTexture";
 
     /**
      * @en The texture to be drawn
@@ -68,7 +68,11 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     percent: boolean = true;
 
     /**
-     * @private
+     * @inheritdoc
+     */
+    lock: boolean;
+
+    /**
      * @en Creates or retrieves a Draw9GridTextureCmd instance from the object pool and initializes it with the specified parameters.
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -115,7 +119,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     }
 
     /**
-     * @private
      * @en Execute the draw nine-grid texture command in the given context
      * @param context The rendering context
      * @param gx The global x coordinate
@@ -139,7 +142,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     }
 
     /**
-     * @private
      * @en The identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
      */

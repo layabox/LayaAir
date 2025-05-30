@@ -16,7 +16,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
      */
-    static ID: string = "DrawTexture";
+    static readonly ID: string = "DrawTexture";
 
     /**
      * @en The texture to be drawn.
@@ -74,6 +74,11 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @zh （可选）UV坐标。
      */
     uv: number[] | null = null;
+
+    /**
+     * @inheritdoc
+     */
+    lock: boolean;
 
     /**
      * @en Create a DrawTextureCmd instance

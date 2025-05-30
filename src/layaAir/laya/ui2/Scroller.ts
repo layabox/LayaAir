@@ -13,7 +13,7 @@ import { ITweener } from "../tween/ITween";
 import { Tween } from "../tween/Tween";
 import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
-import { LayoutType, PageMode, ScrollBarDisplay, ScrollBounceBackEffect, ScrollDirection, ScrollTouchEffect } from "./Const";
+import { LayoutType, ScrollBarDisplay, ScrollBounceBackEffect, ScrollDirection, ScrollTouchEffect } from "./Const";
 import { IScroller } from "./IScroller";
 import type { GPanel } from "./GPanel";
 import type { GScrollBar } from "./GScrollBar";
@@ -735,9 +735,11 @@ export class Scroller implements IScroller {
 
     public _setDefaultDirection() {
         let layout = this._layout;
-        if (layout.pageMode == PageMode.Horizontal || layout.type == LayoutType.SingleColumn || layout.type == LayoutType.FlowX)
+        if (layout.pageMode)
+            return;
+        if (layout.type == LayoutType.SingleColumn || layout.type == LayoutType.FlowX)
             this.direction = ScrollDirection.Vertical;
-        else if (layout.pageMode == PageMode.Vertical || layout.type == LayoutType.SingleRow || layout.type == LayoutType.FlowY)
+        else if (layout.type == LayoutType.SingleRow || layout.type == LayoutType.FlowY)
             this.direction = ScrollDirection.Horizontal;
     }
 
@@ -1734,8 +1736,11 @@ export class Scroller implements IScroller {
     }
 
     private fixDuration(axis: AxisType, oldChange: number): void {
-        if (this._tweenChange[axis] == 0 || Math.abs(this._tweenChange[axis]) >= Math.abs(oldChange))
+        if (this._tweenChange[axis] == 0 || Math.abs(this._tweenChange[axis]) >= Math.abs(oldChange)) {
+            if (oldChange == 0)
+                this._tweenDuration[axis] = TWEEN_TIME_DEFAULT;
             return;
+        }
 
         let newDuration: number = Math.abs(this._tweenChange[axis] / oldChange) * this._tweenDuration[axis];
         if (newDuration < TWEEN_TIME_DEFAULT)

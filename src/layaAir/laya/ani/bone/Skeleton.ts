@@ -24,6 +24,7 @@ import { IAniLib } from "../AniLibPack";
 import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
+import { Browser } from "../../utils/Browser";
 
 /**
  * @en Skeleton animation consists of three parts: Template, AnimationPlayer, and Skeleton.
@@ -310,7 +311,17 @@ export class Skeleton extends Sprite {
      * @param path 要加载的动画文件路径。
      * @param complete 加载完成后的回调函数。
      */
-    load(path: string, complete?: Handler): void {
+    load(path: string, complete?: Handler): void;
+    /**
+     * @en Load and create an animation directly from a path.
+     * @param path The path of the animation file to load.
+     * @param complete The callback function when the loading is complete.
+     * @zh 通过路径直接加载并创建动画。
+     * @param path 要加载的动画文件路径。
+     * @param complete 加载完成后的回调函数。
+     */
+    load(path: string, complete?: () => void): void;
+    load(path: string, complete?: Handler | (() => void)): void {
         ILaya.loader.load(path).then((templet: Templet) => {
             if (templet == null) return;
 
@@ -320,7 +331,10 @@ export class Skeleton extends Sprite {
             this.init(templet);
             this.play(0, true);
 
-            complete && complete.runWith(this);
+            if (complete instanceof Handler)
+                complete.runWith(this);
+            else if (complete)
+                complete();
         });
     }
 
@@ -1021,7 +1035,7 @@ export class Skeleton extends Sprite {
                     this._templet.showSkinByIndex(this._boneSlotDic, this._skinIndex);
                 if (this._pause) {
                     this._pause = false;
-                    this._lastTime = ILaya.Browser.now();
+                    this._lastTime = Browser.now();
                     this.timer.frameLoop(1, this, this._update, null, true);
                 }
                 this._update();
@@ -1100,7 +1114,7 @@ export class Skeleton extends Sprite {
                     }
                 }
             }
-            this._lastTime = ILaya.Browser.now();
+            this._lastTime = Browser.now();
             this.timer.frameLoop(1, this, this._update, null, true);
         }
 

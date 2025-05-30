@@ -2,6 +2,8 @@ import { EventDispatcher } from "../events/EventDispatcher";
 import type { GWidget } from "./GWidget";
 import { Event } from "../events/Event";
 import { ControllerRef } from "./ControllerRef";
+import { Mutable } from "../../ILaya";
+import { GearDisplay } from "./gear/GearDisplay";
 
 export class Controller extends EventDispatcher {
     private _selectedIndex: number;
@@ -11,7 +13,7 @@ export class Controller extends EventDispatcher {
     public owner: GWidget;
     public name: string;
 
-    public changing: boolean;
+    public readonly changing: boolean;
 
     /**
      * @internal
@@ -69,19 +71,24 @@ export class Controller extends EventDispatcher {
 
         if (this._selectedIndex != value) {
             if (value > this._pages.length - 1) {
-                console.warn("index out of bounds: " + value);
+                console.warn(`index out of bounds: ${value}`);
                 return;
             }
 
             this._previousIndex = this._selectedIndex;
             this._selectedIndex = value;
 
-            this.changing = true;
-            for (let ref of this._refs) {
-                ref.onChanged();
+            (<Mutable<this>>this).changing = true;
+            try {
+                for (let ref of this._refs) {
+                    ref.onChanged(this);
+                }
+                GearDisplay.checkAll(this);
+                this.event(Event.CHANGE);
             }
-            this.event(Event.CHANGED);
-            this.changing = false;
+            finally {
+                (<Mutable<this>>this).changing = false;
+            }
         }
     }
 
@@ -109,4 +116,9 @@ export class Controller extends EventDispatcher {
         else if (this._pages.length > 1)
             this.selectedIndex = 1;
     }
+
+    /** @internal @blueprintEvent */
+    Controller_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

@@ -4,6 +4,7 @@ import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
 import { LayaGL } from "../layagl/LayaGL";
+
 /**
  * @private
  */
@@ -48,7 +49,7 @@ export class RenderStateContext {
     static blendFuncSeperateArray = new Array(4);
     /**@internal */
     static stencilOpArray = new Array<number>(3);
-    
+
     /**
      * @internal
      */

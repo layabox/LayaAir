@@ -2,6 +2,9 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { IDefineDatas } from "./IDefineDatas";
 import { RenderState } from "./RenderState";
 
+/** 
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IShaderPassData {
     is2D: boolean;
     pipelineMode: string;

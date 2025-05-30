@@ -12,7 +12,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @en Identifier for the DrawLineCmd
      * @zh 绘制单条曲线命令的标识符
      */
-    static ID: string = "DrawLine";
+    static readonly ID: string = "DrawLine";
 
     /**
      * @en X-axis start position
@@ -52,7 +52,6 @@ export class DrawLineCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawLineCmd instance
      * @param fromX X-axis start position
      * @param fromY Y-axis start position

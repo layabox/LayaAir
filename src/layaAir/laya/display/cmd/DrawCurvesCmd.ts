@@ -13,7 +13,7 @@ export class DrawCurvesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawCurvesCmd
      * @zh 绘制曲线命令的标识符
      */
-    static ID: string = "DrawCurves";
+    static readonly ID: string = "DrawCurves";
 
     /**
      * @en X-axis position to start drawing
@@ -42,7 +42,6 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     lineWidth: number;
 
     /**
-     * @private
      * @en Create a DrawCurvesCmd instance
      * @param x X-axis position to start drawing
      * @param y Y-axis position to start drawing

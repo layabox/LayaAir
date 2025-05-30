@@ -13,7 +13,6 @@ import { Utils } from "../utils/Utils";
 export class Matrix {
 
     /**
-     * @private
      * @en An initialized Matrix object. The content of this object is not allowed to be modified.
      * @zh 一个初始化的 Matrix 对象，不允许修改此对象内容。
      */
@@ -417,7 +416,6 @@ export class Matrix {
     }
 
     /**
-     * @private
      * @en Applies a scaling transformation to the matrix. Reverse multiplication.
      * @param x The multiplier used to scale the object along the x axis.
      * @param y The multiplier used to scale the object along the y axis.
@@ -442,7 +440,6 @@ export class Matrix {
     }
 
     /**
-     * @private
      * @en Applies a rotation transformation to the Matrix object. Reverse multiplication.
      * @param angle The rotation angle in radians.
      * @zh 对 Matrix 对象应用旋转转换。反向相乘
@@ -472,7 +469,7 @@ export class Matrix {
      * @zh 返回此 Matrix 对象的副本。
      * @returns 与原始实例具有完全相同的属性的新 Matrix 实例。
      */
-    clone(): Matrix {
+    clone() {
         var dec: Matrix = new Matrix();
         dec.a = this.a;
         dec.b = this.b;

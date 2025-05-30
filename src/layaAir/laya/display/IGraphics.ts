@@ -1,7 +1,18 @@
 import { type Matrix } from "../maths/Matrix";
 import { type Context } from "../renders/Context";
 
+/**
+ * @en Graphics command interface
+ * @zh 图形命令接口
+ * @blueprintableSubclasses
+ */
 export interface IGraphicsCmd {
+    /**
+     * @en If true, do not automatically recycle.
+     * @zh 如果为true，则不自动回收
+     */
+    lock?: boolean;
+
     /**
      * 
      * @param context 
@@ -24,6 +35,9 @@ export interface IGraphicsCmd {
     get cmdID(): string;
 }
 
+/**
+ * @blueprintIgnore
+ */
 export interface IGraphicsBoundsAssembler {
     readonly width: number;
     readonly height: number;

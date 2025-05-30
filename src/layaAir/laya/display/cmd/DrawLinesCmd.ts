@@ -12,7 +12,7 @@ export class DrawLinesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawLinesCmd
      * @zh 绘制连续曲线命令的标识符
      */
-    static ID: string = "DrawLines";
+    static readonly ID: string = "DrawLines";
 
     /**
      * @en X-axis position to start drawing

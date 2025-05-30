@@ -1,5 +1,8 @@
 import { ScrollBarDisplay } from "./Const";
 
+/**
+ * @blueprintable
+ */
 export class UIConfig2 {
     //Resource using in Window.ShowModalWait for locking the window.
     public static windowModalWaiting: string;

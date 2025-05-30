@@ -19,7 +19,10 @@ export enum RenderSpriteData {
     Primitive
 }
 
-//系统自带渲染数据，不可忽视，如果不设置自定义Shader，将调用引擎本身的Shader
+/**
+ * 系统自带渲染数据，不可忽视，如果不设置自定义Shader，将调用引擎本身的Shader
+ * @blueprintIgnore
+ */
 export class Value2D {
     protected static _cache: any[] = [];
     protected static _typeClass: any = [];

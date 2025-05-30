@@ -19,6 +19,7 @@ import { AssetDb } from "../resource/AssetDb";
 import { BaseTexture } from "../resource/BaseTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { XML } from "../html/XML";
+import { Browser } from "../utils/Browser";
 
 export interface ILoadTask {
     readonly type: string;
@@ -37,18 +38,75 @@ export interface IResourceLoader {
 }
 
 export interface ILoadOptions {
+    /**
+     * @en The type of resource to load. If not specified, it will be determined based on the file extension.
+     * @zh 要加载的资源类型。如果未指定，将根据文件扩展名确定。
+     */
     type?: string;
+    /**
+     * @en Only used when the resource type cannot be determined from the extension.
+     * @zh 只有当无法从扩展名获取资源类型时，才使用这里指定的类型。
+     */
+    maybeType?: string;
+    /**
+     * @en The priority of the loading task. Higher numbers indicate higher priority. Default is 0.
+     * @zh 加载任务的优先级。数字越大，优先级越高。默认为 0。
+     */
     priority?: number;
+    /**
+     * @en The group name for resource management. Resources in the same group can be loaded together or managed collectively.
+     * @zh 资源分组名称，用于资源管理。同一组中的资源可以一起加载或进行集体管理。
+     */
     group?: string;
+    /**
+     * @en Whether to cache the resource after loading. Default is true.
+     * @zh 加载后是否缓存资源。默认为 true。
+     */
     cache?: boolean;
+    /**
+     * @en Whether to ignore the cache and always load the resource from the network. Default is false.
+     * @zh 是否忽略缓存，始终从网络加载资源。默认为 false。
+     */
     ignoreCache?: boolean;
+    /**
+     * @en Whether to retry loading if it fails. Default is true.
+     * @zh 加载失败时是否重试。默认为 true。
+     */
     noRetry?: boolean;
+    /**
+     * @en Whether not to display error messages in the console if loading fails. Default is false.
+     * @zh 加载失败时是否不在控制台显示错误信息。默认为 false。
+     */
     silent?: boolean;
+    /**
+     * @en Whether to use a worker for loading. This is only effective for IMAGE types, and only if the browser supports it. Default is false.
+     * @zh 是否使用 worker 进行加载。仅对 IMAGE 类型有效，且浏览器支持时生效。默认为 false。
+     */
     useWorkerLoader?: boolean;
+    /**
+     * @en Parameters for constructing a Texture. This is only effective for TEXTURE2D, TEXTURECUBE, and TEXTURE2DARRAY types.
+     * @zh 用于构造 Texture 的参数。仅对 TEXTURE2D、TEXTURECUBE 和 TEXTURE2DARRAY 类型有效。
+     */
     constructParams?: TextureConstructParams;
+    /**
+     * @en Parameters for setting texture properties. This is only effective for TEXTURE2D, TEXTURECUBE, and TEXTURE2DARRAY types.
+     * @zh 用于设置纹理属性的参数。仅对 TEXTURE2D、TEXTURECUBE 和 TEXTURE2DARRAY 类型有效。
+     */
     propertyParams?: TexturePropertyParams;
+    /**
+     * @en Create an image bitmap from the array buffer.
+     * @zh 从数组缓冲区创建图像位图。
+     */
     blob?: ArrayBuffer;
+    /**
+     * @en The initiator of the loading task. This can be used to track which task initiated the load, or to pass additional context information.
+     * @zh 加载任务的发起者。可以用于跟踪哪个任务发起了加载，或传递其他上下文信息。
+     */
     initiator?: ILoadTask;
+    /**
+     * @en Custom data that can be used to pass additional information or parameters to the loader.
+     * @zh 自定义数据，可以用于向加载器传递额外的信息或参数。
+     */
     [key: string]: any;
 }
 
@@ -85,121 +143,125 @@ export class Loader extends EventDispatcher {
      * @en Text type, returns a TextResource object containing a string after loading is complete.
      * @zh 文本类型，加载完成后返回包含 string 的 TextResource 对象。
      */
-    static TEXT = "text";
+    static readonly TEXT = "text";
     /**
      * @en JSON type, returns a TextResource object containing JSON data after loading is complete.
      * @zh JSON 类型，加载完成后返回包含 json 数据的 TextResource 对象。
      */
-    static JSON = "json";
+    static readonly JSON = "json";
     /**
      * @en XML type, returns a TextResource object containing domXML after loading is complete.
      * @zh XML 类型，加载完成后返回包含 domXML 的 TextResource 对象。
      */
-    static XML = "xml";
+    static readonly XML = "xml";
     /**
      * @en Binary type, returns a TextResource object containing arraybuffer after loading is complete.
      * @zh 二进制类型，加载完成后返回包含 arraybuffer 的 TextResource 对象。
      */
-    static BUFFER = "arraybuffer";
+    static readonly BUFFER = "arraybuffer";
     /**
      * @en Texture type, returns a Texture after loading is complete.
      * @zh 纹理类型，加载完成后返回 Texture。
      */
-    static IMAGE = "image";
+    static readonly IMAGE = "image";
     /**
      * @en Sound type, returns a Sound after loading is complete.
      * @zh 声音类型，加载完成后返回 Sound。
      */
-    static SOUND = "sound";
+    static readonly SOUND = "sound";
     /**
      * @en Video type, returns a VideoTexture after loading is complete.
      * @zh 视频类型，加载完成后返回 VideoTexture。
      */
-    static VIDEO = "video";
+    static readonly VIDEO = "video";
     /**
      * @en Atlas type, returns atlas JSON information (and creates small Textures within the atlas) after loading is complete.
      * @zh 图集类型，加载完成后返回图集 json 信息（并创建图集内小图 Texture）。
      */
-    static ATLAS = "atlas";
+    static readonly ATLAS = "atlas";
     /**
      * @en Bitmap font type, returns a BitmapFont after loading is complete. It will be automatically registered as a bitmap font based on the file name.
      * @zh 位图字体类型，加载完成后返回 BitmapFont，加载后，会根据文件名自动注册为位图字体。
      */
-    static FONT = "font";
+    static readonly FONT = "font";
     /**
      * @en TTF font type, returns an object after loading is complete.
      * @zh TTF 字体类型，加载完成后返回一个对象。
      */
-    static TTF = "ttf";
+    static readonly TTF = "ttf";
     /**
      * @en Hierarchy resource.
      * @zh Hierarchy 资源。
      */
-    static HIERARCHY = "HIERARCHY";
+    static readonly HIERARCHY = "HIERARCHY";
     /**
      * @en Mesh resource.
      * @zh Mesh 资源。
      */
-    static MESH = "MESH";
+    static readonly MESH = "MESH";
     /**
      * @en Material resource.
      * @zh Material 资源。
      */
-    static MATERIAL = "MATERIAL";
+    static readonly MATERIAL = "MATERIAL";
     /**
      * @en Texture2D resource. This is for compatibility, it should actually be BaseTexture.
      * @zh Texture2D 资源。这里是为了兼容，实际应该是 BaseTexture。
      */
-    static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
+    static readonly TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**
      * @en TextureCube resource. For compatibility, now TEXTURE2D type can load Texture or TextureCube.
      * @zh TextureCube 资源。兼容处理，现在 TEXTURE2D 类型可以载入 Texture 或者 TextureCube。
      */
-    static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
+    static readonly TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
     /**
      * @en TEXTURE2DARRAY resource.
      * @zh TEXTURE2DARRAY 资源。
      */
-    static TEXTURE2DARRAY = "TEXTURE2D";
+    static readonly TEXTURE2DARRAY = "TEXTURE2D";
     /**
      * @en AnimationClip resource.
      * @zh AnimationClip 资源。
      */
-    static ANIMATIONCLIP = "ANIMATIONCLIP";
+    static readonly ANIMATIONCLIP = "ANIMATIONCLIP";
     /**
      * @en Terrain height data resource.
      * @zh Terrain 高度数据资源。
      */
-    static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
+    static readonly TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     /**
      * @en Terrain resource.
      * @zh Terrain 资源。
      */
-    static TERRAINRES = "TERRAIN";
+    static readonly TERRAINRES = "TERRAIN";
     /**
      * @en Spine resource.
      * @zh Spine 资源。
      */
-    static SPINE = "SPINE";
+    static readonly SPINE = "SPINE";
     // Loader ResourceTime  
     /**
      * @en Resource download + parse time.
      * @zh 资源下载 + 解析时间。
+     * @readonly
      */
     static LoaderStat_LoadResourceTime: number;
     /**
      * @en Number of resource downloads.
      * @zh 资源下载次数。  
+     * @readonly
      */
     static LoaderStat_LoaderResourceCount: number;
     /**
      * @en Number of network file requests.
      * @zh 网络文件请求次数。
+     * @readonly
      */
     static LoaderStat_LoadRequestCount: number;//网络文件请求次数
     /**
      * @en Network download time.
      * @zh 网络下载时间。
+     * @readonly
      */
     static LoaderStat_LoadRequestTime: number;//网络下载时间
 
@@ -222,22 +284,26 @@ export class Loader extends EventDispatcher {
     /**
      * @en List of resource loaders.
      * @zh 资源加载器列表。
+     * @blueprintIgnore
      */
     static readonly extMap: { [ext: string]: Array<TypeMapEntry> } = {};
     /**
      * @en Resource type mapping table.
      * @zh 资源类型对应表。
+     * @blueprintIgnore
      */
     static readonly typeMap: { [type: string]: TypeMapEntry } = {};
     /**
      * @en Hot overload identification.
      * @zh 热重载标识。
+     * @blueprintIgnore
      */
     static readonly hotReloadableFlags: Record<number, boolean> = {};
 
     /**
      * @en If an extension corresponds to multiple loading types, you can define a mapping here, which can be used to obtain the correct loading type through the resource type recorded in the file during deserialization.
      * @zh 如果一个扩展名对应多种加载类型时，那么在可以在这里定义一个映射，用于在反序列化时，通过文件中记录的资源类型获得正确的加载类型。
+     * @blueprintIgnore
      */
     static readonly assetTypeToLoadType: Record<string, string> = {
         "Image": Loader.IMAGE,
@@ -267,6 +333,7 @@ export class Loader extends EventDispatcher {
      * @param cls 加载器类
      * @param type 类型标识。如果这种资源需要支持识别没有扩展名的情况，或者一个扩展名对应了多种资源类型的情况，那么指定 type 参数是个最优实践。
      * @param hotReloadable 是否支持热重载
+     * @blueprintIgnore
      */
     static registerLoader(exts: string[], cls: new () => IResourceLoader, type?: string, hotReloadable?: boolean) {
         let typeEntry: TypeMapEntry;
@@ -300,16 +367,19 @@ export class Loader extends EventDispatcher {
     /**
      * @en Resource group mapping table.
      * @zh 资源分组对应表。
+     * @blueprintIgnore
      */
     static groupMap: { [name: string]: Set<string> } = {};
     /**
      * @en Pool of loaded resources.
      * @zh 已加载的资源池。
+     * @blueprintIgnore
      */
     static loadedMap: { [url: string]: Array<any> } = {};
     /**
      * @en Preloaded data files. If a url has a record here, the data here will be used directly when requested, abandoning network loading.
      * @zh 预加载的数据文件。如果一个 url 在这里有记录，则请求时直接使用这里的数据，放弃网络加载。
+     * @blueprintIgnore
      */
     static preLoadedMap: { [url: string]: any } = {};
 
@@ -370,7 +440,7 @@ export class Loader extends EventDispatcher {
      * @param cache Whether to cache the resource. Default is true.
      * @param group The group name for resource management.
      * @param ignoreCache Whether to ignore the cache. Default is false.
-     * @param useWorkerLoader Whether to use worker loading (only for IMAGE and ATLAS types, and when browser supports it). Default is false.
+     * @param useWorkerLoader Whether to use worker loading (only for IMAGE types, and when browser supports it). Default is false.
      * @returns A Promise object.
      * @zh 加载资源（兼容 2.0 引擎的加载接口）。
      * @param url 要加载的单个资源地址或资源信息数组。可以是简单数组 ["a.png", "b.png"] 或复杂数组 [{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
@@ -381,7 +451,7 @@ export class Loader extends EventDispatcher {
      * @param cache 是否缓存资源。默认为 true。
      * @param group 分组名称，用于资源管理。
      * @param ignoreCache 是否忽略缓存。默认为 false。
-     * @param useWorkerLoader 是否使用 worker 加载（仅针对 IMAGE 和 ATLAS 类型，且浏览器支持时生效）。默认为 false。
+     * @param useWorkerLoader 是否使用 worker 加载（仅针对 IMAGE 类型，且浏览器支持时生效）。默认为 false。
      * @returns Promise 对象。
      */
     load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
@@ -503,7 +573,7 @@ export class Loader extends EventDispatcher {
 
     /** @internal */
     _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
+        let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type, options.maybeType);
         if (!loaderType) {
             !options.silent && Loader.warnFailed(url, type ? `unsupported load type:${type}` : !url.startsWith("res://") ? `unsupported suffix` : "", options.initiator?.url);
             return Promise.resolve(null);
@@ -803,12 +873,14 @@ export class Loader extends EventDispatcher {
      * @param type 可选的类型规范。
      * @returns 包含扩展名、主要标志、类型ID和加载器类型的URLInfo对象。
      */
-    public static getURLInfo(url: string, type?: string): URLInfo {
+    public static getURLInfo(url: string, type?: string, maybeType?: string): URLInfo {
         //先根据扩展名获得注册信息A
         let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
         let extEntry: Array<TypeMapEntry>;
         if (ext.length > 0)
             extEntry = Loader.extMap[ext];
+        if (!extEntry && !type)
+            type = maybeType;
 
         let typeId: number;
         let main: boolean;
@@ -1267,135 +1339,123 @@ export class Loader extends EventDispatcher {
             if (!remoteUrl.endsWith("/"))
                 remoteUrl += "/";
             URL.basePaths[path.length > 0 ? (path + "/") : path] = remoteUrl;
-            return this._loadSubFileConfig(path, null, progress);
+            return this._loadFileConfig(path, true, progress);
         } else {
             if (LayaEnv.isPreview)
                 return Promise.resolve();
 
-            let mini = ILaya.Browser.miniGameContext;
+            if (path.length === 0)
+                return this._loadFileConfig(path, true, progress);
+            else
+                return new Promise((resolve) => {
+                    Loader.downloader.package(path, progress, (data, error) => {
+                        if (error != null) {
+                            Loader.warn(`Failed to load package '${path}'`, error);
+                            resolve();
+                            return;
+                        }
 
-            if (mini == null) {
-                return this._loadSubFileConfig(path, null, progress);
-            }
-            else {
-                return this._loadMiniPackage(mini, path, progress).then(() =>
-                    this._loadSubFileConfig(path, mini, progress)
-                );
-            }
+                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(() => resolve());
+                    });
+                });
         }
     }
 
-    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
-        if (mini.subPkgNameSeperator)
-            packName = packName.replace(/\//g, mini.subPkgNameSeperator);
-        if (!(packName.length > 0)) return Promise.resolve();
-        return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
-            let loadTask: any = mini.loadSubpackage({
-                name: packName,
-                success: (res: any) => {
-                    resolve(res);
-                },
-                fail: (res: any) => {
-                    reject(res);
-                }
-            });
-
-            loadTask.onProgressUpdate && loadTask.onProgressUpdate((res: any) => {
-                progress && progress(res);
-            });
-        })
-    }
-
-    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<any> {
-        if (mini && mini.subPkgPathSeperator)
-            path = path.replace(/\//g, mini.subPkgPathSeperator);
+    _loadFileConfig(path: string, loadScript: boolean, onProgress: ProgressCallback): Promise<any> {
         if (path.length > 0)
             path += "/";
 
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
-            let files: Array<string> = [];
-            let col = fileConfig.files;
-            for (let k in col) {
-                if (k.length > 0) {
-                    for (let file of col[k])
-                        files.push(k + "/" + file);
-                }
+            if (fileConfig == null)
+                return null;
+
+            this._parseFileConfig(fileConfig);
+
+            if (loadScript && fileConfig.entry)
+                return Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+            else
+                return null;
+        });
+    }
+
+    _parseFileConfig(fileConfig: any) {
+        let files: Array<string> = [];
+        let col = fileConfig.files;
+        for (let k in col) {
+            if (k.length > 0) {
+                for (let file of col[k])
+                    files.push(k + "/" + file);
+            }
+            else {
+                for (let file of col[k])
+                    files.push(file);
+            }
+        }
+
+        if (fileConfig.hash) {
+            let i = 0;
+            let version = URL.version;
+            for (let k of fileConfig.hash) {
+                if (k != null)
+                    version[files[i]] = k;
+                i++;
+            }
+        }
+
+        let configs: Array<any> = fileConfig.config;
+        let len = configs.length;
+        let i = 0, j = 0, m = 0, k = 0, n = 0;
+        let indice: Array<number>;
+        let c: any;
+        let metaMap = AssetDb.inst.metaMap;
+        while (true) {
+            if (indice == null) {
+                if (i >= len)
+                    break;
+                c = configs[i];
+                indice = c.i;
+                if (Array.isArray(indice))
+                    n = indice.length;
                 else {
-                    for (let file of col[k])
-                        files.push(file);
+                    m = indice;
+                    n = 0;
+                    k = 1;
                 }
+                j = 0;
             }
-
-            if (fileConfig.hash) {
-                let i = 0;
-                let version = URL.version;
-                for (let k of fileConfig.hash) {
-                    if (k != null)
-                        version[files[i]] = k;
+            if (k == 0) {
+                if (j >= n) {
                     i++;
+                    indice = null;
+                    continue;
                 }
-            }
-
-            let configs: Array<any> = fileConfig.config;
-            let len = configs.length;
-            let i = 0, j = 0, m = 0, k = 0, n = 0;
-            let indice: Array<number>;
-            let c: any;
-            let metaMap = AssetDb.inst.metaMap;
-            while (true) {
-                if (indice == null) {
-                    if (i >= len)
-                        break;
-                    c = configs[i];
-                    indice = c.i;
-                    if (Array.isArray(indice))
-                        n = indice.length;
-                    else {
-                        m = indice;
-                        n = 0;
-                        k = 1;
-                    }
-                    j = 0;
-                }
-                if (k == 0) {
-                    if (j >= n) {
-                        i++;
-                        indice = null;
-                        continue;
-                    }
-                    k = indice[j++];
-                    if (k > 0) {
-                        m = k;
-                        k = 0;
-                    }
-                    else
-                        k = -k;
+                k = indice[j++];
+                if (k > 0) {
+                    m = k;
+                    k = 0;
                 }
                 else
-                    k--;
-
-                let file = files[m + k];
-                switch (c.t) {
-                    case 0: //图片
-                        metaMap[file] = c;
-                        break;
-                    case 1: //自动图集
-                        AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
-                        break;
-                    case 2: //Shader
-                        AssetDb.inst.shaderNameMap[c.shaderName] = file;
-                        break;
-                    case 3: //render texture
-                        Loader.preLoadedMap[URL.formatURL(file)] = c;
-                        break;
-                }
+                    k = -k;
             }
-
-            if (!mini && fileConfig.entry)
-                return ILaya.Browser.loadLib(URL.formatURL(path + fileConfig.entry));
             else
-                return Promise.resolve();
-        });
+                k--;
+
+            let file = files[m + k];
+            switch (c.t) {
+                case 0: //图片
+                    metaMap[file] = c;
+                    break;
+                case 1: //自动图集
+                    AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
+                    break;
+                case 2: //Shader
+                    AssetDb.inst.shaderNameMap[c.shaderName] = file;
+                    break;
+                case 3: //render texture
+                    Loader.preLoadedMap[URL.formatURL(file)] = c;
+                    break;
+            }
+        }
     }
 }
 
@@ -1477,7 +1537,7 @@ const dummyOptions: ILoadOptions = {};
 interface DownloadItem {
     url: string;
     originalUrl: string;
-    contentType: string;
+    contentType: keyof ContentTypeMap;
     priority: number;
     useWorkerLoader?: boolean;
     workerLoaderOptions?: Record<string, any>;

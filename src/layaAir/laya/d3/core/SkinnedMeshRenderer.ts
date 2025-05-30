@@ -29,6 +29,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     /**
       * @en Shader variable name for skinned animation.
       * @zh 着色器变量名，用于蒙皮动画。
+      * @internal
       */
     static BONES: number;
     /**

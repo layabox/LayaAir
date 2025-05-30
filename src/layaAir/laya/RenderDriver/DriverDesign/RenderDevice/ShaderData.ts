@@ -462,7 +462,7 @@ export class ShaderData implements IClone {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone(): ShaderData {
         throw new NotImplementedError();
     }
 

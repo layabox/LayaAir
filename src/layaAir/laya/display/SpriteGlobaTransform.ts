@@ -19,7 +19,7 @@ export class SpriteGlobalTransform {
      * @zh An event constant for when the global transformation information changes.
      * @zh 全局变换信息发生改变时的事件常量。
      */
-    static CHANGED = "globalTransChanged";
+    static readonly CHANGED = "globalTransChanged";
 
     constructor(sp: Sprite) {
         this._sp = sp;

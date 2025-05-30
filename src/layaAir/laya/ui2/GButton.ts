@@ -21,6 +21,9 @@ var tmpColor: Color;
 const downEffectValueC = 0.8;
 const downEffectValueS = 0.9;
 
+/**
+ * @blueprintInheritable
+ */
 export class GButton extends GLabel {
     private _mode: ButtonMode;
     private _selected: boolean = false;
@@ -148,7 +151,7 @@ export class GButton extends GLabel {
             if (this._selectedIconStr && this._iconWidget)
                 this._iconWidget.p.icon = this._selected ? this._selectedIconStr : this._iconStr;
 
-            if (this._selectedController && this._selectedPage != null) {
+            if (this._selectedController) {
                 if (this._selected) {
                     this._selectedController.selectedIndex = this._selectedPage;
                 }
@@ -180,8 +183,8 @@ export class GButton extends GLabel {
         this._selectedController = value;
         if (value) {
             value.validate();
-            value.onChanged = this._selectChanged.bind(this);
-            this._selectChanged();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
         }
     }
 
@@ -305,9 +308,8 @@ export class GButton extends GLabel {
         }
     }
 
-    private _selectChanged() {
-        if (this._selectedPage != null)
-            this.selected = this._selectedPage == this._selectedController.selectedIndex;
+    private selectChanged() {
+        this.selected = this._selectedPage == this._selectedController.selectedIndex;
     }
 
     private _rollover(): void {
@@ -367,7 +369,7 @@ export class GButton extends GLabel {
 
     private _click(evt: Event): void {
         if (this._sound)
-            SoundManager.playSound(this._sound, 1, null, null, 0, this._soundVolumeScale);
+            SoundManager.playSound(this._sound).volume = this._soundVolumeScale;
 
         let ss = (<GPanel>this.parent)?.selection;
         if (ss && ss.mode != SelectionMode.None) {
@@ -380,17 +382,17 @@ export class GButton extends GLabel {
         if (this._mode == ButtonMode.Check) {
             if (this._changeStateOnClick) {
                 this.selected = !this._selected;
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGE);
             }
         }
         else if (this._mode == ButtonMode.Radio) {
             if (this._changeStateOnClick && !this._selected) {
                 this.selected = true;
-                this.event(Event.CHANGED);
+                this.event(Event.CHANGE);
             }
         }
         else {
-            if (this._selectedController && this._selectedPage != null)
+            if (this._selectedController)
                 this._selectedController.selectedIndex = this._selectedPage;
         }
     }
@@ -401,4 +403,9 @@ export class GButton extends GLabel {
             ss.handleClick(this, evt);
         }
     }
+
+    /** @internal @blueprintEvent */
+    GButton_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

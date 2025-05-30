@@ -12,7 +12,7 @@ export class DrawPolyCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPolyCmd
      * @zh 绘制多边形命令的标识符
      */
-    static ID: string = "DrawPoly";
+    static readonly ID: string = "DrawPoly";
 
     /**
      * @en The X-axis position to start drawing.

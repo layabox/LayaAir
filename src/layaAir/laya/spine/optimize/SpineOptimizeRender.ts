@@ -166,7 +166,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      */
     changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
-        this.renderProxyMap.forEach(render=>{
+        this.renderProxyMap.forEach(render => {
             render.changeSkeleton(skeleton);
         });
         //@ts-ignore
@@ -209,7 +209,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.animatorMap.forEach((value, key) => {
             value.state = state;
         });
-        
+
         let renderOptimize = new RenderOptimize(this._nodeOwner);
         let renderNormal = new RenderNormal(this._nodeOwner);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
@@ -419,7 +419,7 @@ enum ERenderProxyType {
     RenderBake
 }
 interface IRender {
-    changeSkeleton(skeleton:spine.Skeleton):void;
+    changeSkeleton(skeleton: spine.Skeleton): void;
     change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
     leave(): void;
     render(curTime: number, boneMat: Float32Array): void;
@@ -460,12 +460,12 @@ class RenderOptimize implements IRender {
      * @zh 创建 RenderOptimize 的新实例。
      * @param renderNode Spine2D 渲染节点。
      */
-    constructor( renderNode: Spine2DRenderNode) {
+    constructor(renderNode: Spine2DRenderNode) {
         this._renderNode = renderNode;
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;
@@ -498,7 +498,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat , -this._skeleton.x, -this._skeleton.y);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -524,12 +524,12 @@ class RenderNormal implements IRender {
      * @param skeleton Spine 骨骼。
      * @param renderNode Spine2D 渲染节点。
      */
-    constructor( renderNode: Spine2DRenderNode) {
+    constructor(renderNode: Spine2DRenderNode) {
         this._renderNode = renderNode;
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
     }
 
@@ -667,7 +667,7 @@ class RenderBake implements IRender {
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;

@@ -12,6 +12,9 @@ import { GWidget } from "./GWidget";
 import { ImageRenderer } from "./render/ImageRenderer";
 import { IMeshFactory } from "./render/MeshFactory";
 
+/**
+ * @blueprintInheritable
+ */
 export class GLoader extends GWidget {
     private _src: string;
     private _align: AlignType;
@@ -198,7 +201,7 @@ export class GLoader extends GWidget {
         let loadID = ++this._loadId;
         let res = Loader.getRes(this._src);
         if (!res)
-            res = await ILaya.loader.load(this._src);
+            res = await ILaya.loader.load(this._src, { maybeType: Loader.IMAGE });
         this.onLoaded(res, loadID);
     }
 
@@ -330,4 +333,9 @@ export class GLoader extends GWidget {
         super.destroy();
         this._renderer.destroy();
     }
+
+    /** @internal @blueprintEvent */
+    GLoader_bpEvent: {
+        [Event.LOADED]: () => void;
+    };
 }

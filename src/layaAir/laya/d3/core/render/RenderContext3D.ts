@@ -14,6 +14,7 @@ import { Viewport } from "../../../maths/Viewport";
 /**
  * @en Used to implement rendering states.
  * @zh 用于实现渲染状态。
+ * @blueprintIgnore
  */
 export class RenderContext3D {
     /**

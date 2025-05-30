@@ -12,6 +12,7 @@ import { Bezier } from "../maths/Bezier";
 /**
  * @en The AnimationTemplate class is used for animation template resources.
  * @zh AnimationTemplet类用于动画模板资源。
+ * @blueprintIgnore
  */
 export class AnimationTemplet extends Resource {
     /**

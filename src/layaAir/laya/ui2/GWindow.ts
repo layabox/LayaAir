@@ -6,6 +6,9 @@ import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
 
+/**
+ * @blueprintInheritable
+ */
 export class GWindow extends GWidget {
     public bringToFontOnClick: boolean;
 

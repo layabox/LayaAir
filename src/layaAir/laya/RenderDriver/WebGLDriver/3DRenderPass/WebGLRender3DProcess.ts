@@ -1,5 +1,5 @@
 import { Config } from "../../../../Config";
-import { ILaya3D } from "../../../../ILaya3D";
+import { ILaya } from "../../../../ILaya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -128,7 +128,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             if (needDirectionShadow) {
                 this.renderpass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
-                let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+                let directionShadowMap = ILaya.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as WebGLInternalRT;
                 shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
 
@@ -141,7 +141,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
-                let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+                let spotShadowMap = ILaya.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
 

@@ -13,7 +13,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      * @en Identifier for the DrawEllipseCmd
      * @zh 绘制椭圆命令的标识符
      */
-    static ID: string = "DrawEllipse";
+    static readonly ID: string = "DrawEllipse";
     /**
      * @en X-axis position of the ellipse center
      * @zh 椭圆中心点X轴位置

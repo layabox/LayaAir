@@ -54,7 +54,7 @@ export class TipManager extends UIComponent {
         this._defaultTipHandler = value;
     }
 
-    /** @ignore */
+    /** @ignore @blueprintIgnore */
     constructor() {
         super();
         this._tipBox = new UIComponent();

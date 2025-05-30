@@ -4,7 +4,10 @@ import { rimrafSync } from "rimraf";
 import { Application, OptionDefaults } from "typedoc";
 
 const outDir = path.join(".", "docs");
-const ourTags = ["@en", "@zh", "@perfTag"];
+const ourTags = ["@en", "@zh", "@perfTag",
+    "@blueprintable", "@blueprintableSubclasses", "@blueprintIgnore", "@blueprintIgnoreSubclasses",
+    "@blueprintEvent", "@blueprintDefaultEvent", "@blueprintPure", "@blueprintInheritable"
+];
 const currentVersion = "3.3";
 
 const configVersions = [
@@ -37,8 +40,9 @@ async function main() {
         // darkHighlightTheme: "dark-plus",
         exclude: [
             "**/node_modules/**",
-            "**/*.d.ts",            
-            "**/ILaya.ts",    
+            "platforms/**",
+            "**/*.d.ts",
+            "**/ILaya.ts",
             "**/ILaya3D.ts",
             "**/AniLibPack.ts",
             "**/AnimationContent.ts",
@@ -177,7 +181,7 @@ async function main() {
         tsconfig: path.join(".", "src", "layaAir", "tsconfig.json"),
         plugin: ["@shipgirl/typedoc-plugin-versions"],
         lang: "zh", // 设置中文
-        favicon: "./favicon.ico", 
+        favicon: "./favicon.ico",
         readme: "./README.zh-CN.md",
         name: "LayaAir3引擎API"
     });

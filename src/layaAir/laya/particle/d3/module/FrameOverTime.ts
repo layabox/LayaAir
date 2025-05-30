@@ -183,7 +183,7 @@ export class FrameOverTime implements IClone {
      * @zh 克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var destFrameOverTime: FrameOverTime = new FrameOverTime();
         this.cloneTo(destFrameOverTime);
         return destFrameOverTime;

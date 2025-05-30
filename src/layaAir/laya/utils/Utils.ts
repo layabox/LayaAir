@@ -12,6 +12,7 @@ const _pi2: number = Math.PI / 180;
 /**
  * @en Utils is a utility class.
  * @zh Utils 是工具类。
+ * @blueprintable
  */
 export class Utils {
 
@@ -354,6 +355,206 @@ export class Utils {
             result += template.substring(pos1);
 
         return result;
+    }
+
+    static sleep(ms: number): Promise<void> {
+        if (ms < 1)
+            return Promise.resolve();
+        else
+            return new Promise<void>((resolve) => setTimeout(resolve, ms));
+    }
+
+    static until(predicate: () => boolean, timeoutInMs?: number): Promise<void> {
+        if (predicate())
+            return Promise.resolve();
+
+        return new Promise<void>((resolve) => {
+            let start = performance.now();
+            function timer() {
+                if (predicate())
+                    resolve();
+                else if (timeoutInMs != null && performance.now() - start > timeoutInMs)
+                    resolve();
+                else
+                    setTimeout(timer, 10);
+            }
+            setTimeout(timer, 10);
+        });
+    }
+
+    static runTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: { aborted: boolean }): Promise<T[]> {
+        let limitFunc: (numTasks: number) => boolean;
+        if (typeof (numParallelTasks) !== "number") {
+            limitFunc = numParallelTasks;
+            numParallelTasks = 0;
+        }
+
+        let total = datas.length;
+        if (numParallelTasks >= total) {
+            return Promise.all(datas.map((value, index) => {
+                if (abortToken && abortToken.aborted)
+                    return Promise.reject("aborted");
+                else
+                    return taskFunc(value, index);
+            }));
+        }
+
+        const results: T[] = new Array(total);
+        const executing: Promise<void>[] = [];
+        let i = 0;
+
+        // 递归处理任务队列
+        function processNext(): Promise<void> {
+            if (i >= total || (abortToken?.aborted)) {
+                return Promise.resolve();
+            }
+
+            const j = i++;
+            const item = datas[j];
+
+            // 创建任务 Promise
+            const p = Promise.resolve().then(() => {
+                if (abortToken?.aborted) {
+                    return Promise.reject("aborted");
+                }
+                return taskFunc(item, j);
+            }).then((result) => {
+                results[j] = result;
+                executing.splice(executing.indexOf(p), 1);
+            });
+
+            executing.push(p);
+
+            // 判断是否需要等待
+            if (limitFunc ? limitFunc(executing.length) : executing.length >= <number>numParallelTasks) {
+                return Promise.race(executing).then(processNext);
+            } else {
+                return processNext();
+            }
+        }
+
+        // 启动初始并发任务
+        const initialPromises: Promise<void>[] = [];
+        const initialCount = Math.min(numParallelTasks, total);
+
+        for (let i = 0; i < initialCount; i++) {
+            initialPromises.push(processNext());
+        }
+
+        return Promise.all(initialPromises)
+            .then(() => {
+                if (executing.length > 0)
+                    return Promise.all(executing);
+                else
+                    return null;
+            }).then(() => results);
+    }
+
+    static runAllTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: { aborted: boolean }): Promise<PromiseSettledResult<T>[]> {
+        let limitFunc: (numTasks: number) => boolean;
+        if (typeof (numParallelTasks) !== "number") {
+            limitFunc = numParallelTasks;
+            numParallelTasks = 0;
+        }
+
+        let total = datas.length;
+        if (numParallelTasks >= total) {
+            return Promise.allSettled(datas.map((value, index) => Promise.resolve().then(() => {
+                if (abortToken && abortToken.aborted)
+                    return Promise.reject("aborted");
+                else
+                    return taskFunc(value, index);
+            })));
+        }
+
+        const results: PromiseSettledResult<T>[] = new Array(total);
+        const executing: Promise<any>[] = [];
+        let i = 0;
+
+        // 递归处理任务队列
+        function processNext(): Promise<void> {
+            if (i >= total || (abortToken?.aborted)) {
+                return Promise.resolve();
+            }
+
+            const j = i++;
+            const item = datas[j];
+
+            // 创建任务 Promise
+            const p = Promise.resolve().then(() => {
+                if (abortToken && abortToken.aborted)
+                    return Promise.reject("aborted");
+                else
+                    return taskFunc(item, j);
+            }).then((result) => {
+                results[j] = { status: "fulfilled", value: result };
+                executing.splice(executing.indexOf(p), 1);
+            }).catch((reason) => {
+                results[j] = { status: "rejected", reason };
+                executing.splice(executing.indexOf(p), 1);
+            });
+
+            executing.push(p);
+
+            // 判断是否需要等待
+            if (limitFunc ? limitFunc(executing.length) : executing.length >= <number>numParallelTasks) {
+                return Promise.race(executing).then(processNext);
+            } else {
+                return processNext();
+            }
+        }
+
+        // 启动初始并发任务
+        const initialPromises: Promise<void>[] = [];
+        const initialCount = Math.min(numParallelTasks, total);
+
+        for (let i = 0; i < initialCount; i++) {
+            initialPromises.push(processNext());
+        }
+
+        return Promise.allSettled(initialPromises)
+            .then(() => {
+                if (executing.length > 0)
+                    return Promise.allSettled(executing);
+                else
+                    return null;
+            }).then(() => results);
+    }
+
+    /**
+     * @en Compares two version strings.
+     * @param ver1 The first version string.
+     * @param ver2 The second version string.
+     * @returns 1 if ver1 > ver2, -1 if ver1 < ver2, 0 if they are equal.
+     * @zh 比较两个版本字符串。
+     * @param ver1 第一个版本字符串。
+     * @param ver2 第二个版本字符串。
+     * @returns 如果 ver1 > ver2 返回 1，如果 ver1 < ver2 返回 -1，如果相等返回 0。
+     */
+    static compareVersion(ver1: string, ver2: string) {
+        let v1 = ver1.split('.')
+        let v2 = ver2.split('.')
+        const len = Math.max(v1.length, v2.length)
+
+        while (v1.length < len) {
+            v1.push('0')
+        }
+        while (v2.length < len) {
+            v2.push('0')
+        }
+
+        for (let i = 0; i < len; i++) {
+            const num1 = parseInt(v1[i])
+            const num2 = parseInt(v2[i])
+
+            if (num1 > num2) {
+                return 1
+            } else if (num1 < num2) {
+                return -1
+            }
+        }
+
+        return 0;
     }
 }
 

@@ -38,9 +38,15 @@ import { WasmAdapter } from "laya/utils/WasmAdapter";
 
 //Use Bullet physics engine
 import "laya/Physics3D/Bullet/btPhysicsCreateUtil";
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "Laya";
 
 //or Use physX physics engine
 //import "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
 
 (window as any).Laya = {};
 (window as any).Laya.WasmAdapter = WasmAdapter;
+
+Laya.addBeforeInitCallback(() => {
+    return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
+});

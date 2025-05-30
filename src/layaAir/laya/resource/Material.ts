@@ -63,43 +63,48 @@ export enum MaterialRenderMode {
 /**
  * @en The Material class is used to create materials.
  * @zh Material 类用于创建材质。
+ * @blueprintIgnoreSubclasses
  */
 export class Material extends Resource implements IClone {
     /** 
      * @en RenderQueue: Opaque
      * @zh 渲染队列：不透明。
      */
-    static RENDERQUEUE_OPAQUE: number = 2000;
+    static readonly RENDERQUEUE_OPAQUE: number = 2000;
     /** 
      * @en RenderQueue: Alpha Testing
      * @zh 渲染队列：阿尔法测试。
      */
-    static RENDERQUEUE_ALPHATEST: number = 2450;
+    static readonly RENDERQUEUE_ALPHATEST: number = 2450;
     /** 
      * @en RenderQueue: Transparent
      * @zh 渲染队列：透明。
      */
-    static RENDERQUEUE_TRANSPARENT: number = 3000;
+    static readonly RENDERQUEUE_TRANSPARENT: number = 3000;
 
     /**
      * @en Shader variables, transparent test values.
      * @zh 着色器变量,透明测试值。
+     * @readonly
      */
     static ALPHATESTVALUE: number;
 
     /**
      * @en Material grade shader macro definition, transparency testing.
      * @zh 材质级着色器宏定义,透明测试。
+     * @readonly
      */
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
     /**
      * @en Material grade shader macro definition, main texture.
      * @zh 材质级着色器宏定义,主贴图。
+     * @readonly
      */
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
     /**
      * @en Material grade shader macro definition, additive fog.
      * @zh 材质级着色器宏定义,叠加雾效。
+     * @readonly
      */
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
@@ -1319,7 +1324,7 @@ export class Material extends Resource implements IClone {
      * @zh 创建当前材质的克隆副本。
      * @returns 一个克隆自当前材质的新材质实例。
      */
-    clone(): any {
+    clone() {
         var dest: Material = new Material();
         this.cloneTo(dest);
         return dest;

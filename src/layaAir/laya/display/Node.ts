@@ -20,6 +20,7 @@ const reactiveBits = NodeFlags.DISPLAY;
  * Use the Node class to arrange the display list. A Node object can have child display objects.
  * @zh `Node` 类是可放在显示列表中的所有对象的基类。
  * 该显示列表管理 LayaAir 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
+ * @blueprintable @blueprintableSubclasses
  */
 export class Node extends EventDispatcher {
 
@@ -343,6 +344,7 @@ export class Node extends EventDispatcher {
     /**
     * @en The callback function when the node is destroyed. This is a virtual method. You can override it for custom logic when the node is about to be destroyed.
     * @zh 节点被销毁时执行的回调函数。此方法为虚方法，使用时重写覆盖即可。
+     * @blueprintDefaultEvent
     */
     onDestroy(): void {
         //trace("onDestroy node", this.name);
@@ -990,7 +992,6 @@ export class Node extends EventDispatcher {
      * @zh 节点的组件列表。
      */
     protected _components: Component[];
-    /**@private */
     private _activeChangeScripts: Component[];
 
 
@@ -1083,6 +1084,7 @@ export class Node extends EventDispatcher {
      * This is a virtual method that needs to be overridden in the subclass.
      * @zh 组件被激活后执行，此时所有节点和组件均已创建完毕，此方法只执行一次。
      * 此方法为虚方法，使用时重写覆盖即可。
+     * @blueprintDefaultEvent
      */
     onAwake(): void {
         //this.name  && trace("onAwake node ", this.name);
@@ -1093,6 +1095,7 @@ export class Node extends EventDispatcher {
     * This is a virtual method that needs to be overridden in the subclass.
     * @zh 组件被启用后执行，比如节点被添加到舞台后。
     * 此方法为虚方法，使用时重写覆盖即可。
+     * @blueprintDefaultEvent
     */
     onEnable(): void {
         //this.name  && trace("onEnable node ", this.name);
@@ -1103,6 +1106,7 @@ export class Node extends EventDispatcher {
      * This is a virtual method that needs to be overridden in the subclass.
      * @zh 组件被禁用时执行，比如从节点从舞台移除后。
      * 此方法为虚方法，使用时重写覆盖即可。
+     * @blueprintDefaultEvent
      */
     onDisable(): void {
         //trace("onDisable node", this.name);
@@ -1450,6 +1454,7 @@ export class Node extends EventDispatcher {
     /**
      * @en Called after deserialization.
      * @zh 反序列化后调用。
+     * @blueprintIgnore
      */
     onAfterDeserialize() { }
 }

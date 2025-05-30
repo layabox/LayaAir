@@ -498,9 +498,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set startLifetimeType(value: number) {
         //if (value !== _startLifetimeType){
         var i: number, n: number;
-        switch (this.startLifetimeType) {
+        switch (this._startLifetimeType) {
             case 0:
-                this._maxStartLifetime = this.startLifetimeConstant;
+                this._maxStartLifetime = this._startLifetimeConstant;
                 break;
             case 1:
                 this._maxStartLifetime = -Number.MAX_VALUE;
@@ -509,7 +509,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     this._maxStartLifetime = Math.max(this._maxStartLifetime, startLifeTimeGradient.getValueByIndex(i));
                 break;
             case 2:
-                this._maxStartLifetime = Math.max(this.startLifetimeConstantMin, this.startLifetimeConstantMax);
+                this._maxStartLifetime = Math.max(this._startLifetimeConstantMin, this._startLifetimeConstantMax);
                 break;
             case 3:
                 this._maxStartLifetime = -Number.MAX_VALUE;
@@ -1287,7 +1287,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         // lifeTime
         var time: number = 0;
-        switch (this.startLifetimeType) {
+        switch (this._startLifetimeType) {
             case 0: // 固定时间
                 time = this._startLifetimeConstant;
                 break;
@@ -1361,24 +1361,24 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         zEmisionOffsetXYZ.setValue(0, 0, 0);
         fEmisionOffsetXYZ.setValue(0, 0, 0);
 
-        if (this.shape && this.shape.enable) {
-            switch (this.shape.shapeType) {
+        if (this._shape && this._shape.enable) {
+            switch (this._shape.shapeType) {
                 case ParticleSystemShapeType.Sphere:
-                    var sphere: SphereShape = <SphereShape>this.shape;
+                    var sphere: SphereShape = <SphereShape>this._shape;
                     zDirectionSpeed.setValue(1, 1, 1);
                     fDirectionSpeed.setValue(1, 1, 1);
                     zEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
                     fEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
                     break;
                 case ParticleSystemShapeType.Hemisphere:
-                    var hemiShpere: HemisphereShape = <HemisphereShape>this.shape;
+                    var hemiShpere: HemisphereShape = <HemisphereShape>this._shape;
                     zDirectionSpeed.setValue(1, 1, 1);
                     fDirectionSpeed.setValue(1, 1, 1);
                     zEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, hemiShpere.radius);
                     fEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, 0.0);
                     break;
                 case ParticleSystemShapeType.Cone:
-                    var cone: ConeShape = <ConeShape>this.shape;
+                    var cone: ConeShape = <ConeShape>this._shape;
                     // Base || BaseShell
                     if (cone.emitType == 0 || cone.emitType == 1) {
                         // todo angle define
@@ -1406,8 +1406,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     }
                     break;
                 case ParticleSystemShapeType.Box:
-                    var box: BoxShape = <BoxShape>this.shape;
-                    if (this.shape.randomDirection != 0) {
+                    var box: BoxShape = <BoxShape>this._shape;
+                    if (this._shape.randomDirection != 0) {
                         zDirectionSpeed.setValue(1, 1, 1);
                         fDirectionSpeed.setValue(1, 1, 1);
                     }
@@ -1415,7 +1415,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
                     break;
                 case ParticleSystemShapeType.Circle:
-                    var circle: CircleShape = <CircleShape>this.shape;
+                    var circle: CircleShape = <CircleShape>this._shape;
                     zDirectionSpeed.setValue(1, 1, 1);
                     fDirectionSpeed.setValue(1, 1, 1);
                     zEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
@@ -1451,8 +1451,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         var endSizeOffset: Vector3 = _tempVector36;
         endSizeOffset.setValue(1, 1, 1);
-        if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
-            var gradientSize: GradientSize = this.sizeOverLifetime.size;
+        if (this._sizeOverLifetime && this._sizeOverLifetime.enable) {
+            var gradientSize: GradientSize = this._sizeOverLifetime.size;
             var maxSize: number = gradientSize.getMaxSizeInGradient(meshMode);
 
             endSizeOffset.setValue(maxSize, maxSize, maxSize);
@@ -1474,8 +1474,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             Vector3.scale(fDirectionSpeed, -speedOrigan, speedZOffset);
         }
 
-        if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
-            var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
+        if (this._velocityOverLifetime && this._velocityOverLifetime.enable) {
+            var gradientVelocity: GradientVelocity = this._velocityOverLifetime.velocity;
             var velocitySpeedOffset: Vector3 = _tempVector37;
             velocitySpeedOffset.setValue(0, 0, 0);
             switch (gradientVelocity.type) {
@@ -1503,7 +1503,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             }
 
             // 速度空间 world
-            if (this.velocityOverLifetime.space == 1) {
+            if (this._velocityOverLifetime.space == 1) {
                 Vector3.transformV3ToV3(velocitySpeedOffset, this._owner.transform.worldMatrix, velocitySpeedOffset);
             }
 
@@ -1576,7 +1576,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      */
     _simulationSupported(): boolean {
 
-        if (this.simulationSpace == 0 && this.emission.emissionRateOverDistance > 0) {
+        if (this.simulationSpace == 0 && this._emission.emissionRateOverDistance > 0) {
             return false;
         }
 
@@ -1627,7 +1627,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         if (this._emission.enable && this._isEmitting && !this._isPaused) {
             this._advanceTime(elapsedTime, this._currentTime);
-            if (this.emission.emissionRateOverDistance > 0) {
+            if (this._emission.emissionRateOverDistance > 0) {
                 this._advanceDistance(this._currentTime, elapsedTime);
             }
 
@@ -1658,7 +1658,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         if (this._emission.enable) {
             this._advanceTime(time, time);//TODO:如果time，time均为零brust无效
-            if (this.emission.emissionRateOverDistance > 0) {
+            if (this._emission.emissionRateOverDistance > 0) {
                 this._advanceDistance(this._currentTime, time);
             }
 
@@ -1755,7 +1755,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         for (i = 0; i < totalEmitCount; i++)
             this.emit(emitTime, elapsedTime);
         //粒子发射速率
-        var emissionRate: number = this.emission.emissionRate;
+        var emissionRate: number = this._emission.emissionRate;
         if (emissionRate > 0) {
             //每多少秒发射一个粒子
             var minEmissionTime: number = 1 / emissionRate;
@@ -1779,7 +1779,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         let position = this._owner.transform.position;
         let offsetDistance: number = Vector3.distance(position, this._emissionLastPosition);
 
-        let rateOverDistance = this.emission.emissionRateOverDistance;
+        let rateOverDistance = this._emission.emissionRateOverDistance;
 
         let distance = this._emissionDistance + offsetDistance;
 
@@ -1953,9 +1953,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._indexBuffer = null;
         this._emission = null;
         this._shape = null;
-        this.startLifeTimeGradient = null;
-        this.startLifeTimeGradientMin = null;
-        this.startLifeTimeGradientMax = null;
+        this._startLifeTimeGradient = null;
+        this._startLifeTimeGradientMin = null;
+        this._startLifeTimeGradientMax = null;
         this.startSizeConstantSeparate = null;
         this.startSizeConstantMinSeparate = null;
         this.startSizeConstantMaxSeparate = null;
@@ -2439,13 +2439,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         destObject.startDelayMax = this.startDelayMax;
 
         destObject._maxStartLifetime = this._maxStartLifetime;
-        destObject.startLifetimeType = this.startLifetimeType;
-        destObject.startLifetimeConstant = this.startLifetimeConstant;
-        this.startLifeTimeGradient.cloneTo(destObject.startLifeTimeGradient);
-        destObject.startLifetimeConstantMin = this.startLifetimeConstantMin;
-        destObject.startLifetimeConstantMax = this.startLifetimeConstantMax;
-        this.startLifeTimeGradientMin.cloneTo(destObject.startLifeTimeGradientMin);
-        this.startLifeTimeGradientMax.cloneTo(destObject.startLifeTimeGradientMax);
+        destObject.startLifetimeType = this._startLifetimeType;
+        destObject.startLifetimeConstant = this._startLifetimeConstant;
+        this._startLifeTimeGradient.cloneTo(destObject.startLifeTimeGradient);
+        destObject.startLifetimeConstantMin = this._startLifetimeConstantMin;
+        destObject.startLifetimeConstantMax = this._startLifetimeConstantMax;
+        this._startLifeTimeGradientMin.cloneTo(destObject.startLifeTimeGradientMin);
+        this._startLifeTimeGradientMax.cloneTo(destObject.startLifeTimeGradientMax);
 
         destObject.startSpeedType = this.startSpeedType;
         destObject.startSpeedConstant = this.startSpeedConstant;
@@ -2494,12 +2494,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         //TODO:可做更优判断
         (this._emission) && (destObject._emission = this._emission.clone());
-        (this.shape) && (destObject.shape = this.shape.clone());
-        (this.velocityOverLifetime) && (destObject.velocityOverLifetime = this.velocityOverLifetime.clone());
-        (this.colorOverLifetime) && (destObject.colorOverLifetime = this.colorOverLifetime.clone());
-        (this.sizeOverLifetime) && (destObject.sizeOverLifetime = this.sizeOverLifetime.clone());
-        (this.rotationOverLifetime) && (destObject.rotationOverLifetime = this.rotationOverLifetime.clone());
-        (this.textureSheetAnimation) && (destObject.textureSheetAnimation = this.textureSheetAnimation.clone());
+        (this._shape) && (destObject.shape = this._shape.clone());
+        (this._velocityOverLifetime) && (destObject.velocityOverLifetime = this._velocityOverLifetime.clone());
+        (this._colorOverLifetime) && (destObject.colorOverLifetime = this._colorOverLifetime.clone());
+        (this._sizeOverLifetime) && (destObject.sizeOverLifetime = this._sizeOverLifetime.clone());
+        (this._rotationOverLifetime) && (destObject.rotationOverLifetime = this._rotationOverLifetime.clone());
+        (this._textureSheetAnimation) && (destObject.textureSheetAnimation = this._textureSheetAnimation.clone());
         //
 
         destObject.isPerformanceMode = this.isPerformanceMode;
@@ -2520,7 +2520,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: ShurikenParticleSystem = new ShurikenParticleSystem(null);
         this.cloneTo(dest);
         return dest;

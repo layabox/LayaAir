@@ -2,37 +2,46 @@ import { Utils } from "./Utils";
 import { ILaya } from "../../ILaya";
 
 /**
+ * @internal
  * 弱引用对象
  * 注意：如果采用Object，为了防止内存泄漏，则采用定时清理缓存策略
  */
 export class WeakObject {
     /**多少时间清理一次缓存，默认10分钟清理一次*/
     static delInterval = 10 * 60 * 1000;
-    /**全局WeakObject单例*/
-    static I: WeakObject;
-    /**@private */
-    private static _maps: any[] = [];
-    /**@internal */
-    _obj: any;
 
-    /**@internal */
-    static __init__(): void {
-        WeakObject.I = new WeakObject();
-        //如果不支持，10分钟回收一次
-        ILaya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
+    private static _maps: WeakObject[];
+    private static _i: WeakObject;
+
+    /** 
+     * @en Global WeakObject singleton.
+     * @zh 全局WeakObject单例 
+     */
+    static get I(): WeakObject {
+        return this._i || (this._i = new WeakObject());
     }
 
-    /**清理缓存，回收内存*/
+    /**
+     * @en Clear cache and recycle memory. 
+     * @zh 清理缓存，回收内存 
+     */
     static clearCache(): void {
-        for (var i = 0, n = WeakObject._maps.length; i < n; i++) {
-            var obj = WeakObject._maps[i];
+        for (let i = 0, n = WeakObject._maps.length; i < n; i++) {
+            let obj = WeakObject._maps[i];
             obj._obj = {};
         }
     }
 
+    private _obj: any;
+
     constructor() {
         this._obj = {};
-        WeakObject._maps.push(this);
+        if (!WeakObject._maps) {
+            WeakObject._maps = [this];
+            ILaya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
+        }
+        else
+            WeakObject._maps.push(this);
     }
 
     /**
@@ -43,7 +52,7 @@ export class WeakObject {
     set(key: any, value: any): void {
         if (key == null) return;
         if (typeof (key) == 'string' || typeof (key) == 'number') {
-            this._obj[key as any] = value;
+            this._obj[key] = value;
         } else {
             this._obj[Utils.getGID(key)] = value;
         }
@@ -56,7 +65,7 @@ export class WeakObject {
     get(key: any): any {
         if (key == null) return null;
         if (typeof (key) == 'string' || typeof (key) == 'number')
-            return this._obj[key as any];
+            return this._obj[key];
         else
             return this._obj[Utils.getGID(key)];
     }
@@ -67,7 +76,7 @@ export class WeakObject {
     del(key: any): void {
         if (key == null) return;
         if (typeof (key) == 'string' || typeof (key) == 'number')
-            delete this._obj[key as any];
+            delete this._obj[key];
         else
             delete this._obj[Utils.getGID(key)];
     }
@@ -78,7 +87,7 @@ export class WeakObject {
     has(key: any): boolean {
         if (key == null) return false;
         if (typeof (key) == 'string' || typeof (key) == 'number')
-            return this._obj[key as any] != null;
+            return this._obj[key] != null;
         else
             return this._obj[Utils.getGID(key)] != null;
     }

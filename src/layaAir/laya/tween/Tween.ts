@@ -32,6 +32,7 @@ import { Ease } from "./Ease";
  *   .chain().duration(500).to("y", 200)
  *   .parallel().to("visible", true)
  * ```
+ * @blueprintable
  */
 export class Tween {
     private _target: any;
@@ -139,6 +140,7 @@ export class Tween {
     }
 
     /**
+     * @deprecated Use create instead.
      * @en Tweens the object's properties to the target values. This is a compatibility function, recommended to use Tween.create instead.
      * @param target The target object whose properties will be tweened.
      * @param props The list of properties to change, e.g., {x:100, y:20, ease:Ease.backOut, complete:Handler.create(this,onComplete), update:new Handler(this,onUpdate)}.
@@ -168,6 +170,7 @@ export class Tween {
     }
 
     /**
+     * @deprecated Use create instead.
      * @en From the props attribute, tween to the current state. 
      * This is a compatibility function, recommended to use Tween.create instead.
      * @param target The target object whose properties will be tweened.
@@ -247,7 +250,7 @@ export class Tween {
      * @return Tween对象。 
      */
     to(propName: string, value: any): this {
-        this.cur(true).go(propName, this._cur.target[propName], value);
+        this.cur(true).go(propName, undefined, value);
         return this;
     }
 
@@ -264,7 +267,7 @@ export class Tween {
      * @return Tween对象。 
      */
     from(propName: string, value: any): this {
-        this.cur(true).go(propName, value, this._cur.target[propName]);
+        this.cur(true).go(propName, value, undefined);
         return this;
     }
 
@@ -639,15 +642,26 @@ export class Tween {
         if (this._queue.length == 0)
             return;
 
-        let arr = this._queue.concat();
+        let arr: Array<Tweener>;
+        for (let e of this._queue) {
+            if (e > 0) {
+                let tweener = Tweener.getTween(e);
+                if (tweener) {
+                    if (!tweener._killed) {
+                        if (!arr) arr = [];
+                        arr.push(tweener);
+                    }
+                    tweener.owner = null;
+                }
+            }
+        }
+
         this._head = -1;
         this._cur = null;
         this._queue.length = 0;
 
-        forEach(arr, tween => {
-            tween.kill(complete);
-            tween.owner = null;
-        });
+        if (arr != null)
+            arr.forEach(t => t.kill(complete));
     }
 
     /**

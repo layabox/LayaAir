@@ -5,13 +5,14 @@ import { IGraphicsCmd } from "../IGraphics";
 /**
  * @en Restore command, used in conjunction with save
  * @zh 恢复命令，与save配套使用
+ * @blueprintIgnore
  */
 export class RestoreCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the RestoreCmd
      * @zh 恢复命令的标识符
      */
-    static ID: string = "Restore";
+    static readonly ID: string = "Restore";
 
     /**
      * @en Create a RestoreCmd instance

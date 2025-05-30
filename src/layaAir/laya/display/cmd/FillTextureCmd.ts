@@ -16,7 +16,7 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @en Identifier for the FillTextureCmd
      * @zh 填充贴图命令的标识符
      */
-    static ID: string = "FillTexture";
+    static readonly ID: string = "FillTexture";
 
     /**
      * @en The texture to be filled.
