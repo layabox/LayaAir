@@ -10,10 +10,11 @@ import "laya/navigation/3D/ModuleDef";
 import "laya/navigation/2D/ModuleDef";
 import "laya/trail/trail2D/ModuleDef";
 import "laya/trail/trail3D/ModuleDef";
-import "laya/particle/ModuleDef";
 import "laya/Light2D/ModuleDef";
 import "laya/Line2D/ModuleDef";
 import "laya/d3/postProcessEffect/ModuleDef";
+import "laya/particle/common/ModuleDef";
+import "laya/particle/d2/ModuleDef";
 import "laya/particle/d3/ModuleDef";
 import "laya/utils/StatUI";
 

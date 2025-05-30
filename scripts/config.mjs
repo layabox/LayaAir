@@ -326,7 +326,6 @@ export const allBundles = [{
     name: "particle",
     input: [
         'laya/particle/d2/**/*.*',
-        'laya/particle/ModuleDef.ts'
     ]
 },
 {
