@@ -84,10 +84,9 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
             // "float32-filterable",
         ];
 
-        if (Config.isAlpha && Config.premultipliedAlpha) {
+        if (Config.isAlpha) {
             gpuConfig.alphaMode = "premultiplied";
-        }
-        if (!Config.isAlpha || (Config.isAlpha && Config.premultipliedAlpha)) {
+        } else {
             gpuConfig.alphaMode = "opaque";
         }
 
