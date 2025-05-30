@@ -791,9 +791,10 @@ export class Graphics {
      * @param fillColor 填充颜色，或者填充绘图的渐变对象
      * @param lineColor （可选）边框颜色，或者填充绘图的渐变对象。默认为null。
      * @param lineWidth （可选）边框宽度。默认为1。
+     * @param percent （可选）位置和大小是否是百分比值
      */
-    drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawCircleCmd {
-        return this.addCmd(DrawCircleCmd.create(x, y, radius, fillColor, lineColor, lineWidth));
+    drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1, percent?: boolean): DrawCircleCmd {
+        return this.addCmd(DrawCircleCmd.create(x, y, radius, fillColor, lineColor, lineWidth, percent));
     }
 
     /**
