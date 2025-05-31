@@ -223,30 +223,34 @@ export class WebGPUBindGroupHelper {
                             }
                         }
                         bindingInfos.push(textureBindInfo);
-                        // 修改当前绑定信息为纹理类型
-                        let samplerBindInfo: WebGPUUniformPropertyBindingInfo = {
-                            id: 0,
-                            set: groupID,
-                            binding: bindingIndex++,
-                            name: uniformProperty.propertyName + "_Sampler",
-                            propertyId: propertyID,//TODO
-                            visibility: visibility,
-                            type: WebGPUBindingInfoType.sampler,
-                            sampler: {
-                                type: 'filtering'
-                            },
-                            texture: {
-                                sampleType: 'float',
-                                viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
-                                multisampled: false
+                        let samplerBindInfo:WebGPUUniformPropertyBindingInfo=null;
+                        if(!isComputeShader){
+                            // 修改当前绑定信息为纹理类型
+                            samplerBindInfo = {
+                                id: 0,
+                                set: groupID,
+                                binding: bindingIndex++,
+                                name: uniformProperty.propertyName + "_Sampler",
+                                propertyId: propertyID,//TODO
+                                visibility: visibility,
+                                type: WebGPUBindingInfoType.sampler,
+                                sampler: {
+                                    type: 'filtering'
+                                },
+                                texture: {
+                                    sampleType: 'float',
+                                    viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
+                                    multisampled: false
+                                }
+    
                             }
-
+                            bindingInfos.push(samplerBindInfo);                                
                         }
-                        bindingInfos.push(samplerBindInfo);
 
                         if (defaultTex) {
                             defaultTex._getGPUTextureBindingLayout(textureBindInfo.texture);
-                            defaultTex._getSampleBindingLayout(samplerBindInfo.sampler);
+                            if(!isComputeShader)
+                                defaultTex._getSampleBindingLayout(samplerBindInfo.sampler);
                         }
 
                     }

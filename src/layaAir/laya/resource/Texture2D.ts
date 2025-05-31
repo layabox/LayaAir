@@ -53,6 +53,14 @@ export interface TexturePropertyParams {
 
 export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
 
+export interface TextureCreateParam{
+    mipmap: boolean;
+    canRead: boolean;
+    sRGB: boolean;//false
+    premultiplyAlpha: boolean;// = false    
+    isStorage:boolean;//false
+}
+
 /**
  * @en The Texture2D class is used to generate 2D textures.
  * @zh Texture2D 类用于生成2D纹理。

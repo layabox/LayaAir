@@ -526,6 +526,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const canCopy = !isCompressTexture;
         let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST;
         const mipLevelCount = generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        //let isDemo = width==256 &&  height==256 && 
         if (canCopy)
             usage |= GPUTextureUsage.RENDER_ATTACHMENT;
 

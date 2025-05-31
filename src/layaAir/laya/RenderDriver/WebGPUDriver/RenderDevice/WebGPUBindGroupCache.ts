@@ -97,7 +97,7 @@ export class WebGPUBindGroupCache {
 
     // todo
     // cache bindgrouplayout
-    getLayoutInfo(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resources: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number) {
+    getLayoutInfo(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resources: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number, isCS=false) {
 
         const cacheKey = this.getCacheKey(commands, shaderData, addition, textureExitsMask);
         if (this.layoutCache.has(cacheKey)) {
@@ -146,7 +146,7 @@ export class WebGPUBindGroupCache {
                             };
                             if (value) {
                                 let tex = (value as WebGPUInternalTex);
-                                tex._getGPUTextureBindingLayout(entry.texture);
+                                tex._getGPUTextureBindingLayout(entry.texture,isCS);
                             }
                             break;
                         case WebGPUBindingInfoType.sampler:
@@ -211,9 +211,9 @@ export class WebGPUBindGroupCache {
         return layout;
     }
 
-    getBindGroup(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resource: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number): WebGPUBindGroup {
+    getBindGroup(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, resource: WebGPUUniformPropertyBindingInfo[], textureExitsMask: number, isCS=false): WebGPUBindGroup {
 
-        let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask);
+        let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask, isCS);
         if (!info.layout) {
             info.layout = this.getBindGroupLayout(info);
         }

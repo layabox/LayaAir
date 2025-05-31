@@ -287,7 +287,7 @@ export class Browser {
 
         //native
         if (!!(window as any).conch) {
-            miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
+            //miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
         }
         if (!!(window as any).conch) {
             Config.fixedFrames = false;

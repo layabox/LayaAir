@@ -212,7 +212,7 @@ export class WebGPUInternalTex implements InternalTexture {
         WebGPUStatis.addTexture(this);
     }
 
-    _getGPUTextureBindingLayout(layout: GPUTextureBindingLayout) {
+    _getGPUTextureBindingLayout(layout: GPUTextureBindingLayout, isCS=false) {
         if (this.compareMode > 0)
             layout.sampleType = 'depth';
         else if (this._webGPUFormat === WebGPUTextureFormat.depth16unorm
@@ -221,11 +221,13 @@ export class WebGPUInternalTex implements InternalTexture {
             layout.sampleType = 'unfilterable-float';
         }
         else {
-            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32)
-                layout.sampleType = 'unfilterable-float';
-            else
-                layout.sampleType = 'float';
+            if(true){
+                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+                if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32)
+                    layout.sampleType = 'unfilterable-float';
+                else
+                    layout.sampleType = 'float';
+            }
         }
     }
 
