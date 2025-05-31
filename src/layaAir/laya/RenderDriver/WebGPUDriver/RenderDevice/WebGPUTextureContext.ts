@@ -6,6 +6,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { TextureCreateParam } from "../../../resource/Texture2D";
 import { NotImplementedError } from "../../../utils/Error";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -517,7 +518,7 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number,
-        gpuFormat: WebGPUTextureFormat, layerCount: number, generateMipmap: boolean, multiSamples: number, isCompressTexture: boolean): GPUTextureDescriptor {
+        gpuFormat: WebGPUTextureFormat, layerCount: number, generateMipmap: boolean, multiSamples: number, isCompressTexture: boolean, extParam:TextureCreateParam): GPUTextureDescriptor {
         const textureSize = {
             width: width,
             height: height,
@@ -529,6 +530,9 @@ export class WebGPUTextureContext implements ITextureContext {
         //let isDemo = width==256 &&  height==256 && 
         if (canCopy)
             usage |= GPUTextureUsage.RENDER_ATTACHMENT;
+        if(extParam?.isStorage){
+            usage |= GPUTextureUsage.STORAGE_BINDING;
+        }
 
         let dimensionType: WebGPUTextureDimension;
         switch (dimension) {
@@ -588,7 +592,7 @@ export class WebGPUTextureContext implements ITextureContext {
         return (tex.mipmap && !tex.mipmapLoaded && this._canGenerateMipmapByFormat(tex.format));
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean, extParam:TextureCreateParam): InternalTexture {
         let layerCount;
         switch (dimension) {
             case TextureDimension.Tex2D:
@@ -613,7 +617,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         const pixelByteSize = this._getGPUTexturePixelByteSize(format);
         const gpuTextureFormat = this._getGPUTextureFormat(format, useSRGBExt);
-        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this._isCompressTexture(format));
+        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this._isCompressTexture(format),extParam);
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
         layerCount === 6 ? textureDescriptor.label = 'textureCube' : textureDescriptor.label = 'texture';
@@ -1303,12 +1307,12 @@ export class WebGPUTextureContext implements ITextureContext {
         }
         return compareMode;
     }
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean,extParam:TextureCreateParam): InternalTexture {
         // todo
         let multiSamples = 1;
         let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
 
-        const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
+        const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false,extParam);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         gpuColorDescriptor.label = 'renderTexture';
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(format);

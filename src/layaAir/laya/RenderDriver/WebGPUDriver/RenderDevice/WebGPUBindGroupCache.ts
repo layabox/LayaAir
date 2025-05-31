@@ -1,3 +1,4 @@
+import { format } from "path";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureCube } from "../../../resource/TextureCube";
@@ -149,6 +150,13 @@ export class WebGPUBindGroupCache {
                                 tex._getGPUTextureBindingLayout(entry.texture,isCS);
                             }
                             break;
+                        case WebGPUBindingInfoType.storageTexture:
+                            entry.storageTexture = {
+                                access : resource.storageTexture.access,
+                                format : resource.storageTexture.format,
+                                viewDimension : resource.storageTexture.viewDimension
+                            }
+                            break;
                         case WebGPUBindingInfoType.sampler:
                             entry.sampler = {
                                 type: resource.sampler.type,
@@ -206,6 +214,7 @@ export class WebGPUBindGroupCache {
         };
 
         const device = WebGPURenderEngine._instance.getDevice();
+        console.log('DEBUG createBindGroupLayout', descriptor)
         let layout = device.createBindGroupLayout(descriptor);
 
         return layout;
@@ -257,6 +266,21 @@ export class WebGPUBindGroupCache {
 
                 entries.push(entry);
             }
+            else if(layoutEntry.storageTexture){
+                let texture = value as WebGPUInternalTex;
+
+                if (!texture) {
+                    texture = getDefaultTexture(layoutEntry.texture);
+                    tempTex.set(propertyID, texture);
+                }
+
+                let entry: GPUBindGroupEntry = {
+                    binding: layoutEntry.binding,
+                    resource: texture.getTextureView(),
+                };
+
+                entries.push(entry);
+            }
             else if (layoutEntry.sampler) {
                 let texture = value as WebGPUInternalTex;
 
@@ -283,6 +307,7 @@ export class WebGPUBindGroupCache {
         };
 
         const device = WebGPURenderEngine._instance.getDevice();
+        console.log('DEBUG createBindGroup ', descriptor)
         let bindGroup: GPUBindGroup = device.createBindGroup(descriptor);
 
         let res = new WebGPUBindGroup(info);

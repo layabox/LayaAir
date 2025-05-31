@@ -54,11 +54,12 @@ export interface TexturePropertyParams {
 export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
 
 export interface TextureCreateParam{
-    mipmap: boolean;
-    canRead: boolean;
-    sRGB: boolean;//false
-    premultiplyAlpha: boolean;// = false    
-    isStorage:boolean;//false
+    format?:TextureFormat;
+    mipmap?: boolean;
+    canRead?: boolean;
+    sRGB?: boolean;//false
+    premultiplyAlpha?: boolean;// = false    
+    isStorage?:boolean;//false
 }
 
 /**
@@ -313,13 +314,21 @@ export class Texture2D extends BaseTexture {
      * @param sRGB 纹理是否使用sRGB色彩空间。
      * @param premultiplyAlpha 纹理数据是否预乘alpha通道。
      */
-    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false, premultiplyAlpha: boolean = false) {
+    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean|TextureCreateParam, canRead: boolean=true, sRGB: boolean = false, premultiplyAlpha: boolean = false) {
         super(width, height, format);
         this._dimension = TextureDimension.Tex2D;
-        this._gammaSpace = sRGB;
-        this._canRead = canRead;
-        this._premultiplyAlpha = premultiplyAlpha;
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB, premultiplyAlpha);
+        if(typeof(mipmap)=='boolean'){
+            this._gammaSpace = sRGB;
+            this._canRead = canRead;
+            this._premultiplyAlpha = premultiplyAlpha;
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB, premultiplyAlpha,null);
+        }else{
+            let cp = mipmap as TextureCreateParam;
+            if(cp.sRGB!=undefined) this._gammaSpace = cp.sRGB;
+            if(cp.canRead!=undefined) this._canRead = cp.canRead;
+            if(cp.premultiplyAlpha!=undefined) this._premultiplyAlpha = cp.premultiplyAlpha;
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, cp.mipmap, sRGB, premultiplyAlpha,cp);
+        }
         return;
     }
 

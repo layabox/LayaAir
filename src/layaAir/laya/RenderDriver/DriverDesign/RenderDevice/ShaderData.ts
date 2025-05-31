@@ -33,7 +33,8 @@ export enum ShaderDataType {
     Texture2D_float,
     Texture3D,
     TextureCube,
-    Texture2DArray
+    Texture2DArray,
+    Texture2DStorage,
 }
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3 | IDeviceBuffer;

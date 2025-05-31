@@ -19,7 +19,7 @@ export class GLESTextureContext implements ITextureContext {
         this.needBitmap = false;
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): GLESInternalTex {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean, extParam:any): GLESInternalTex {
         var tex = new GLESInternalTex(this._native.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha));
         return tex
     }

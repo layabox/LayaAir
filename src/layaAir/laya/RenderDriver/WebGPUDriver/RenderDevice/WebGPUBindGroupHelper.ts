@@ -14,7 +14,8 @@ export enum WebGPUBindingInfoType {
     buffer, //uniformBlock
     texture, //texture
     sampler, //sampler
-    storageBuffer
+    storageBuffer,
+    storageTexture,
 };
 
 /**
@@ -31,6 +32,7 @@ export interface WebGPUUniformPropertyBindingInfo {
     uniform?: any; //uniform详细内容
     buffer?: GPUBufferBindingLayout;
     texture?: GPUTextureBindingLayout;
+    storageTexture?:GPUStorageTextureBindingLayout;
     sampler?: GPUSamplerBindingLayout;
 };
 
@@ -72,6 +74,7 @@ export class WebGPUBindGroupHelper {
         switch (uniformType) {
             case ShaderDataType.Texture2D:
             case ShaderDataType.Texture2D_float:
+            case ShaderDataType.Texture2DStorage:
                 return '2d';
             case ShaderDataType.Texture3D:
                 return '3d';
@@ -122,6 +125,13 @@ export class WebGPUBindGroupHelper {
                             texture: data[i].texture,
                         });
                         break;
+                    case WebGPUBindingInfoType.storageTexture:
+                        entries.push({
+                            binding: data[i].binding,
+                            visibility: data[i].visibility,
+                            storageTexture: data[i].storageTexture,
+                        });
+                        break;
                     case WebGPUBindingInfoType.storageBuffer:
                         entries.push({
                             binding: data[i].binding,
@@ -136,6 +146,7 @@ export class WebGPUBindGroupHelper {
 
         }
 
+        console.log('DEBUG createBindGroupLayout ', entries)
         const desc: GPUBindGroupLayoutDescriptor = {
             label: name,
             entries: entries,
@@ -216,11 +227,19 @@ export class WebGPUBindGroupHelper {
                             name: uniformProperty.propertyName + "_Texture",
                             propertyId: propertyID,
                             visibility: visibility,
-                            type: WebGPUBindingInfoType.texture,
+                            type: uniformProperty.uniformtype == ShaderDataType.Texture2DStorage?WebGPUBindingInfoType.storageTexture :WebGPUBindingInfoType.texture,
                             texture: {
                                 sampleType: uniformProperty.uniformtype==ShaderDataType.Texture2D_float?'unfilterable-float': 'float',
                                 viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
                                 multisampled: false
+                            }
+                        }
+                        if( uniformProperty.uniformtype == ShaderDataType.Texture2DStorage){
+                            delete textureBindInfo.texture;
+                            textureBindInfo.storageTexture = {
+                                access:'write-only',
+                                format:'rgba32float',
+                                viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
                             }
                         }
                         bindingInfos.push(textureBindInfo);

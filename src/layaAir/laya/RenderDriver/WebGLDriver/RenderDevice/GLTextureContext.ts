@@ -559,7 +559,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean,extParam:any): InternalTexture {
 
         // todo  一些format 不支持自动生成mipmap
 

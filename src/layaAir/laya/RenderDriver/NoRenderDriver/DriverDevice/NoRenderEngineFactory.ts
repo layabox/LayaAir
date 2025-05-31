@@ -145,7 +145,7 @@ export class NoInternalRT implements InternalRenderTarget {
 
 export class NoTextureContext implements ITextureContext {
     needBitmap: boolean;
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean, extParam:any): InternalTexture {
         let internalTex = new NoInternalTexture();
         internalTex.width = width;
         internalTex.height = height;
@@ -186,14 +186,14 @@ export class NoTextureContext implements ITextureContext {
     }
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         multiSamples = 1;
-        let texture = this.createTextureInternal(TextureDimension.Tex2D, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
+        let texture = this.createTextureInternal(TextureDimension.Tex2D, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false,null);
         let renderTarget = new NoInternalRT();
         renderTarget._textures.push(texture);
         return renderTarget;
     }
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         multiSamples = 1;
-        let texture = this.createTextureInternal(TextureDimension.Cube, size, size, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
+        let texture = this.createTextureInternal(TextureDimension.Cube, size, size, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false,null);
         let renderTarget = new NoInternalRT();
         renderTarget._textures.push(texture);
         return renderTarget;
