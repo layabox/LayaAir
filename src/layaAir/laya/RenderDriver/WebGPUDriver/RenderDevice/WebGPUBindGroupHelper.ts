@@ -71,6 +71,7 @@ export class WebGPUBindGroupHelper {
     private static _getTextureType(uniformType: ShaderDataType): GPUTextureViewDimension {
         switch (uniformType) {
             case ShaderDataType.Texture2D:
+            case ShaderDataType.Texture2D_float:
                 return '2d';
             case ShaderDataType.Texture3D:
                 return '3d';
@@ -217,7 +218,7 @@ export class WebGPUBindGroupHelper {
                             visibility: visibility,
                             type: WebGPUBindingInfoType.texture,
                             texture: {
-                                sampleType: 'float',
+                                sampleType: uniformProperty.uniformtype==ShaderDataType.Texture2D_float?'unfilterable-float': 'float',
                                 viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
                                 multisampled: false
                             }

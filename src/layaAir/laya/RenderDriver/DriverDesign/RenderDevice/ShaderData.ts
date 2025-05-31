@@ -30,6 +30,7 @@ export enum ShaderDataType {
     ReadOnlyDeviceBuffer,
     DeviceBuffer,
     Texture2D,
+    Texture2D_float,
     Texture3D,
     TextureCube,
     Texture2DArray
