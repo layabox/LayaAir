@@ -45,8 +45,8 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
      * @param propertyID 
      * @param propertyName 
      */
-    addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType): void {
-        let uniform = { id: propertyID, uniformtype, propertyName, arrayLength: 0 }
+    addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType, extParam:{format:string}): void {
+        let uniform = { id: propertyID, uniformtype, propertyName, arrayLength: 0 ,extParam}
         this._idata.set(propertyID, uniform);
         if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
             this._hasUniformBuffer = true;

@@ -238,7 +238,7 @@ export class WebGPUBindGroupHelper {
                             delete textureBindInfo.texture;
                             textureBindInfo.storageTexture = {
                                 access:'write-only',
-                                format:'rgba32float',
+                                format:(uniformProperty.extParam?.textureFormat as GPUTextureFormat)||'rgba32float',
                                 viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
                             }
                         }
