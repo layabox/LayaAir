@@ -22,6 +22,7 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
         usage |= (type & EDeviceBufferUsage.COPY_SRC) ? GPUBufferUsage.COPY_SRC : 0;
         usage |= (type & EDeviceBufferUsage.COPY_DST) ? GPUBufferUsage.COPY_DST : 0;
         usage |= (type & EDeviceBufferUsage.STORAGE) ? GPUBufferUsage.STORAGE : 0;
+        usage |= (type & EDeviceBufferUsage.UNIFORM) ? GPUBufferUsage.UNIFORM:0;
         usage |= (type & EDeviceBufferUsage.INDIRECT) ? GPUBufferUsage.INDIRECT : 0;
         this._buffer = new WebGPUBuffer(usage);
     }
