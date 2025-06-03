@@ -1,14 +1,18 @@
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphic2DBufferBlock, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphics2DBufferBlock, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -55,22 +59,26 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
         }
     }
-
 }
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
     mask: WebRenderStruct2D | null = null;
 
-    private _vertexBufferBlocks: Graphic2DBufferBlock[] = [];
+    private _bufferBlocks: Graphics2DBufferBlock[] = [];
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    private _indexViews: I2DGraphicBufferDataView[] = [];
+    private _clonesViews: I2DGraphicBufferDataView[];
 
-    applyVertexBufferBlock(blocks: Graphic2DBufferBlock[] , indexViews: I2DGraphicBufferDataView[]): void {
-        this._vertexBufferBlocks = blocks;
+    applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
+        this._bufferBlocks = blocks;
         this._needUpdateBuffer = blocks.length > 0;
-        this._indexViews = indexViews;
+        this.updateCloneView();
+    }
+
+    /** @internal */
+    _getBlocks() {
+        return this._bufferBlocks;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -84,10 +92,10 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._needUpdateBuffer
             || this._modifiedFrame < trans.modifiedFrame
         ) {
-           
+
             let mat = trans.matrix;
 
-            if (!this._vertexBufferBlocks || !this._vertexBufferBlocks.length) {
+            if (!this._bufferBlocks || !this._bufferBlocks.length) {
                 //更新位置
                 if (this.mask && this.mask.trans) {
                     let maskMatrix = this.mask.renderMatrix;
@@ -107,31 +115,38 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let dataView: Web2DGraphic2DBufferDataView = null;
                 let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
                 let vbdata = null;
-                let blocks = this._vertexBufferBlocks;
+                let blocks = this._bufferBlocks;
                 let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
-                for (let i = 0, n = this._vertexBufferBlocks.length; i < n; i++) {
-                    positions = blocks[i].positions;
-                    vertexViews = blocks[i].vertexViews as Web2DGraphic2DBufferDataView[];
-                    vertexCount = positions.length / 2;
-                    dataView = null;
-                    pos = 0, ci = 0, dataViewIndex = 0;
 
-                    for (let j = 0; j < vertexCount; j++) {
+                for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
+                    let vertexs = blocks[i].vertexs;
 
-                        if (!dataView || dataView.length <= pos) {
-                            dataView = vertexViews[dataViewIndex];
-                            dataView.modify();
-                            dataViewIndex++;
-                            pos = 0;
-                            vbdata = dataView.getData();
+                    for (let index = 0, len = vertexs.length; index < len; index++) {
+                        positions = vertexs[index].positions;
+                        vertexViews = vertexs[index].vertexViews as Web2DGraphic2DBufferDataView[];
+
+                        vertexCount = positions.length / 2;
+                        dataView = null;
+                        pos = 0, ci = 0, dataViewIndex = 0;
+
+                        for (let j = 0; j < vertexCount; j++) {
+
+                            if (!dataView || dataView.length <= pos) {
+                                dataView = vertexViews[dataViewIndex];
+                                dataView.modify();
+                                dataViewIndex++;
+                                pos = 0;
+                                vbdata = dataView.getData();
+                            }
+
+                            let x = positions[ci], y = positions[ci + 1];
+                            vbdata[pos] = x * m00 + y * m10 + tx;
+                            vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                            pos += 12;
+                            ci += 2;
                         }
-
-                        let x = positions[ci], y = positions[ci + 1];
-                        vbdata[pos] = x * m00 + y * m10 + tx;
-                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                        pos += 12;
-                        ci += 2;
                     }
+
                 }
                 this._needUpdateBuffer = false;
             }
@@ -139,13 +154,52 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._modifiedFrame = trans.modifiedFrame;
         }
 
-        //更新indexView
-        for (let i = 0, n = this._indexViews.length; i < n; i++) {
-            let indexView = this._indexViews[i];
-            if(indexView){
-                indexView.modify();
+        // //更新indexView
+        // for (let i = 0, n = this._indexViews.length; i < n; i++) {
+        //     let indexView = this._indexViews[i];
+        //     if(indexView){
+        //         indexView.modify();
+        //     }
+        // }
+    }
+
+    getCloneViews(): I2DGraphicBufferDataView[] {
+        if (!this._clonesViews) {
+            this._clonesViews = [];
+            for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
+                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView);
             }
         }
+        return this._clonesViews;
+    }
+
+    updateCloneView() {
+        let cloneViews = this.getCloneViews();
+        let blockLength = this._bufferBlocks.length;
+        let length = Math.max(cloneViews.length, blockLength);
+        for (let i = 0; i < length; i++) {
+            let view = cloneViews[i]
+            let block = this._bufferBlocks[i];
+            if (block) {
+                cloneViews[i] = this._cloneView(block.indexView , view);
+            } else {
+                view.geometry.destroy();
+                if (view.owner)
+                    view.owner.removeDataView(view);
+            }
+        }
+        this._clonesViews.length = blockLength;
+    }
+
+    private _cloneView(view: I2DGraphicBufferDataView, oView: I2DGraphicBufferDataView = null) {
+        let clone = view.clone(false, false);
+        if (oView && oView.geometry) {
+            clone.geometry = oView.geometry;
+        } else {
+            clone.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            clone.geometry.indexFormat = IndexFormat.UInt16;
+        }
+        return clone;
     }
 }
 

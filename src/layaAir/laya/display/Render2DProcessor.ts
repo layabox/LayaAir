@@ -24,6 +24,7 @@ export class Render2DProcessor {
     constructor() {
         this._basePass = LayaGL.render2DRenderPassFactory.createRender2DPass();
         this._manager = LayaGL.render2DRenderPassFactory.createRender2DPassManager();
+        this._basePass.doClearColor = false;
         this._basePass.priority = 0;
         this.addPass(this._basePass);
     }

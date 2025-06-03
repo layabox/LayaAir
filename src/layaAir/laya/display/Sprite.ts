@@ -307,7 +307,9 @@ export class Sprite extends Node {
             this._graphicsData.destroy();
             if (this._ownGraphics) {
                 this._graphics.destroy();
-            }
+            }else
+                this._graphics._setDisplay(false);
+                
             this._graphics = null;
             this._graphicsData = null;
         }
@@ -1592,7 +1594,8 @@ export class Sprite extends Node {
         let runner = Render2DProcessor.runner;
 
         const _updateSprites = function (root: Sprite): void {
-            for (let i = 0, len = root.numChildren; i < len; i++) {
+
+            for (let i = 0, len = root._children.length; i < len; i++) {
                 let child = root._children[i];
 
                 if (child._subpassUpdateFlag) {

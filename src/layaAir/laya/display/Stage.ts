@@ -26,6 +26,7 @@ import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Render2DProcessor } from "./Render2DProcessor";
+import { Color } from "../maths/Color";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -244,7 +245,7 @@ export class Stage extends Sprite {
     private _isVisibility: boolean;
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-    // private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
+    private _wgColor = new Color(0, 0, 0, 0);// number[] | null = [0, 0, 0, 1];
 
     passManager: Render2DProcessor = new Render2DProcessor();
 
@@ -801,11 +802,12 @@ export class Stage extends Sprite {
         this._bgColor = value;
         if (value) {
             let colorArr = ColorUtils.create(value).arrColor;
-            this._struct.pass.setClearColor(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
+            this._wgColor.setValue(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
+            // this._struct.pass.setClearColor(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
         }
         else
-            this._struct.pass.setClearColor(0, 0, 0, 0);
-        // this._wgColor = null;
+            this._wgColor.setValue(0, 0, 0, 0);
+        //     this._struct.pass.setClearColor(0, 0, 0, 0);
 
         Stage._setStyleBgColor(value);
     }
@@ -996,6 +998,7 @@ export class Stage extends Sprite {
             this._runComponents();
             this._componentDriver.callPreRender();
 
+            Render2DProcessor.rendercontext2D.setRenderTarget(null , true , this._wgColor);
             //先渲染3d
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
@@ -1037,6 +1040,7 @@ export class Stage extends Sprite {
     private _render2d() {
 
         Stat.draw2D = 0;
+        
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
@@ -1086,18 +1090,12 @@ export class Stage extends Sprite {
     }
 
     private _updateGraphicList() {
-        let needUpdateIndexView = false;
         let graphicUpdateList = Array.from(this._graphicUpdateList);
         for (var i = 0, n = graphicUpdateList.length; i < n; i++) {
             let sprite = graphicUpdateList[i];
             if (sprite._graphics) {
                 sprite._graphics._render(Render2DProcessor.runner);
-                needUpdateIndexView = true;
             }
-        }
-        
-        if (needUpdateIndexView) {
-            Render2DProcessor.runner.removeAllIndexView();
         }
     }
 
@@ -1105,7 +1103,7 @@ export class Stage extends Sprite {
         for (var i = 0, n = changeMatrixList.length; i < n; i++) {
             let sprite = changeMatrixList[i];
             let trans = sprite.globalTrans;
-            if (trans._modifiedFrame == frame)
+            if (!trans ||trans._modifiedFrame == frame)
                 continue;
 
             trans._modifiedFrame = frame;

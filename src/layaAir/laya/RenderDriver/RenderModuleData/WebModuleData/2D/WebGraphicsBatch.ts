@@ -4,14 +4,18 @@ import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { IBatch2DRender } from "./WebRender2DPass";
+import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
+import { BatchBuffer, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
+import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
 export class WebGraphicsBatch implements IBatch2DRender {
 
-    static instance : WebGraphicsBatch = null;
+
+    static instance: WebGraphicsBatch = null;
 
     static _pool: IRenderElement2D[] = [];
 
@@ -40,12 +44,12 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
     // _recoverList = new FastSinglelist<IRenderElement2D>();
 
-    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void {
+    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
         let batchStart = -1;
         let count = 0;
         let end = length - 1;
-        for (let index = 0 ; index < end ; index ++) {
+        for (let index = 0; index < end; index++) {
             let offset = start + index;
             let cElement = elementArray[offset];
             let nElement = elementArray[offset + 1];
@@ -54,12 +58,12 @@ export class WebGraphicsBatch implements IBatch2DRender {
                 if (batchStart == -1) {
                     batchStart = index;
                     count = 2;
-                }else
-                    count ++;
+                } else
+                    count++;
             } else {
                 if (count !== 0) {
-                    this.batch(list, batchStart + start, count , recoverList);
-                }else{
+                    this.batch(list, batchStart + start, count, recoverList, buffer);
+                } else {
                     list.add(cElement);
                 }
                 count = 0;
@@ -67,22 +71,23 @@ export class WebGraphicsBatch implements IBatch2DRender {
             }
         }
 
-        if ( count !== 0) {
-            this.batch(list, batchStart + start, count , recoverList);
-        }else{
+        if (count !== 0) {
+            this.batch(list, batchStart + start, count, recoverList, buffer);
+        } else {
             list.add(elementArray[end + start]);
         }
     }
 
-    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void {
+    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
-        let staticBatchRenderElement:IRenderElement2D = WebGraphicsBatch.createRenderElement2D();
-        let drawArray : number[][] = [];
+        let staticBatchRenderElement: IRenderElement2D = WebGraphicsBatch.createRenderElement2D();
+        let drawArray: number[][] = [];
         let i = 0;
-        let drawLengths :number[] = [];
+        let drawLengths: number[] = [];
         for (i = 0; i < length; i++) {
-            let element = elementArray[start + i];
-            let geometry = element.geometry;
+            let offset = start + i;
+            let element = elementArray[offset];
+            let geometry = buffer.geometryList[offset] || element.geometry;
             if (!i) {
                 staticBatchRenderElement.geometry.bufferState = geometry.bufferState;
                 staticBatchRenderElement.materialShaderData = element.materialShaderData;
@@ -90,22 +95,22 @@ export class WebGraphicsBatch implements IBatch2DRender {
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
             }
-            
+
             geometry.getDrawDataParams(TEMP_SINGLE_LIST);
             drawArray.push(TEMP_SINGLE_LIST.elements);
             drawLengths.push(TEMP_SINGLE_LIST.length);
         }
-        
+
         let geometry = staticBatchRenderElement.geometry;
         let len = drawArray.length;
         let currentOffset = 0;
         let currentCount = 0;
         let isFirst = true;
 
-        for ( i = 0; i < len; i++) {
+        for (i = 0; i < len; i++) {
             let drawParam = drawArray[i];
             let drawLength = drawLengths[i];
-            for (let j = 0 ; j < drawLength ; j += 2) {
+            for (let j = 0; j < drawLength; j += 2) {
                 let offset = drawParam[j];
                 let count = drawParam[j + 1];
 
@@ -130,7 +135,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
         // 一次性合并完整了
         if (!isFirst) {
             geometry.setDrawElemenParams(currentCount, currentOffset);
-        }   
+        }
 
         recoverList.add(staticBatchRenderElement);
         list.add(staticBatchRenderElement);
@@ -154,11 +159,11 @@ export class WebGraphicsBatch implements IBatch2DRender {
             left.subShader === right.subShader
             && left.geometry.bufferState === right.geometry.bufferState // 同mesh
             && leftType === rightType
-        ){
+        ) {
 
             if (leftType & 32) { //或者比对材质 clip 优先忽略
                 return false;
-            }else if (( left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
+            } else if ((left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
                 return true;
             }
             return false;
@@ -190,6 +195,28 @@ export class WebGraphicsBatch implements IBatch2DRender {
         //     return false;
 
         return false;
+    }
+
+
+    batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void {
+        let handle = strcut.renderDataHandler as WebPrimitiveDataHandle;
+        let cviews = handle.getCloneViews();
+        let blocks = handle._getBlocks();
+
+        for (let i = 0, n = blocks.length; i < n; i++) {
+            let cview = cviews[i] as Web2DGraphic2DBufferDataView;
+            let block = blocks[i];
+            let vertexBuffer = block.vertexBuffer;
+            let bufferState = buffer.bindBuffer(vertexBuffer);
+            buffer.indexCount += cview.length;
+            buffer.wholeBuffer.modifyOneView(cview);
+            cview.geometry.bufferState = bufferState;
+
+            buffer.geometryList[offset + i] = cview.geometry;
+        }
+
+        WebRender2DPass.setBuffer(buffer.wholeBuffer);
+        buffer.updateBufLength();
     }
 
     /**

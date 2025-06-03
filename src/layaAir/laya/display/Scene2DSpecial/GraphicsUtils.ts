@@ -3,7 +3,7 @@ import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphic2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphics2DBufferBlock, Graphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -21,7 +21,7 @@ import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
-import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
+import { GraphicsMesh } from "../../webgl/utils/GraphicsMesh";
 import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
 import { BaseRender2DType } from "../SpriteConst";
@@ -32,13 +32,13 @@ export class GraphicsRenderData {
 
    static _pool: IRenderElement2D[] = [];
 
-   static createRenderElement2D( needGeometry: boolean = true ) {
+   static createRenderElement2D(needGeometry: boolean = true) {
       if (this._pool.length > 0) {
          let element = this._pool.pop();
          if (needGeometry) {
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             element.geometry.indexFormat = IndexFormat.UInt16;
-         }else{
+         } else {
             if (element.geometry) {
                element.geometry.destroy();
             }
@@ -78,8 +78,7 @@ export class GraphicsRenderData {
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
-   private _vertexStruct: Graphic2DBufferBlock[] = [];
-   private _indexViews: I2DGraphicBufferDataView[] = [];
+   private _bufferBlocks: Graphics2DBufferBlock[] = [];
 
    clear(): void {
       let len = this._submits.length;
@@ -88,8 +87,7 @@ export class GraphicsRenderData {
          this._submits.elements[i].clear();
       }
 
-      this._vertexStruct.length = 0;
-      this._indexViews.length = 0;
+      this._bufferBlocks.length = 0;
       this._submits.length = 0;
 
       for (i = 0; i < this.touchResources.length; i++) {
@@ -120,8 +118,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let vertexStruct: Graphic2DBufferBlock[] = this._vertexStruct;
-      let indexViews: I2DGraphicBufferDataView[] = this._indexViews;
+      let blocks: Graphics2DBufferBlock[] = this._bufferBlocks;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -143,20 +140,14 @@ export class GraphicsRenderData {
                element.materialShaderData = submit._internalInfo.shaderData;
                element.renderStateIsBySprite = submit.renderStateIsBySprite;
             }
+            
             let geometry = element.geometry;
             geometry.bufferState = submit.mesh.bufferState;
             geometry.clearRenderParams();
 
-            let infos = submit.infos;
-            for (let i = 0, n = infos.length; i < n; i++) {
-               let info = infos[i];
-               vertexStruct.push({
-                  positions: info.positions,
-                  vertexViews: info.vertexViews,
-               });
-            }
-
-            this._updateIndexViews(submit , geometry);
+            let indexView = this._updateIndexViews(submit, geometry);
+            let vertexBuffer = submit.mesh._buffer.vertexBuffer;
+            blocks.push({ vertexs : submit.vertexs , indexView , vertexBuffer });
             this._updateGraphicsKeys(element, submit);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
@@ -169,38 +160,40 @@ export class GraphicsRenderData {
          struct.renderElements = this._renderElements;
       }
 
-      handle.applyVertexBufferBlock(vertexStruct , indexViews);
+      handle.applyVertexBufferBlock(blocks);
    }
 
-   private _updateIndexViews(submit: SubmitBase , geometry: IRenderGeometryElement) {
-      let indexView = submit.mesh.checkIndex( submit.indexCount );
+   private _updateIndexViews(submit: SubmitBase, geometry: IRenderGeometryElement) {
+      let indexView = submit.mesh.checkIndex(submit.indexCount);
       indexView.geometry = geometry;
-      this._indexViews.push(indexView);
       submit.indexView = indexView;
+
       let data = indexView.getData();
       data.set(submit.indices);
 
+      indexView.modify();
       // clear
       submit.indexCount = 0;
       submit.indices.length = 0;
+      return indexView
       // geometry.setDrawElemenParams(indexView.length, indexView.start * 2);
    }
 
    // TODO
    private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
       let key = submit._key.blendShader; // max 15
- 
+
       // @ts-ignore
       element.type |= (key); // 15
 
       let useCustomMaterial = !!submit.material;
       // @ts-ignore
-      element.type |= useCustomMaterial << 4; 
+      element.type |= useCustomMaterial << 4;
 
       let mc = !useCustomMaterial && submit._internalInfo.materialClip;
       // @ts-ignore
-      element.type |= mc << 5; 
-      
+      element.type |= mc << 5;
+
       let tex = submit._internalInfo.textureHost || Texture2D.whiteTexture;
       let texKey = tex._id;
       // texKey = tex._id;
@@ -211,7 +204,7 @@ export class GraphicsRenderData {
 
    setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
       struct.renderElements = this._renderElements;
-      handle.applyVertexBufferBlock(this._vertexStruct , this._indexViews);
+      handle.applyVertexBufferBlock(this._bufferBlocks);
    }
 
    createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
@@ -220,8 +213,8 @@ export class GraphicsRenderData {
       if (elements.length > this._submits.length) {
          submit = elements[this._submits.length];
          submit.update(runner, mesh, material);
-         this._submits.length ++;
-      } else{
+         this._submits.length++;
+      } else {
          submit = SubmitBase.create(runner, mesh, material);
          this._submits.add(submit);
       }
