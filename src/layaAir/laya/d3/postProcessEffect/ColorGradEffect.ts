@@ -99,6 +99,7 @@ export class ColorGradEffect extends PostProcessEffect {
 			"u_OffsetScale": ShaderDataType.Vector4,
 			"u_MainTex": ShaderDataType.Texture2D,
 			"u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
+			"u_Lut": ShaderDataType.Texture2D,
 			"u_LutParams": ShaderDataType.Vector4
 		};
 
@@ -134,7 +135,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**@internal */
 	_lutTex: RenderTexture;
-	private _lutBuilderMat = new Material();
+	private _lutBuilderMat;
 
 
 	private _LUTShader: Shader3D;
@@ -604,6 +605,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		this.lutSize = 32;
 		this._lutBuilderMat = new Material();
+		this._lutBuilderMat.lock = true;
 	}
 
 
@@ -734,7 +736,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		super.release(postprocess);
 		postprocess._enableColorGrad = false;
 		postprocess._ColorGradEffect = null;
-
+		this._lutBuilderMat.lock = false;
 	}
 
 	/**

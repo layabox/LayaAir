@@ -25,7 +25,7 @@ void main()
     vec3 color = gl_FragColor.rgb;
     // gl_FragColor.rgb = applyLut(color, 1.0, u_Lut, u_LutParams);
     color *= u_LutParams.w;
-    color = applyLut(u_Lut, linearToLogC(color), u_LutParams.xyz);
+    color = applyLut(linearToLogC(color), u_LutParams.xyz);
 
 #ifdef CUSTOMLUT
 

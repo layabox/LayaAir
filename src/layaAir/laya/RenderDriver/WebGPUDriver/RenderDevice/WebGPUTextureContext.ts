@@ -199,7 +199,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 premultipliedAlpha: premultiplyAlpha,
                 colorSpace: texture.useSRGBLoad ? "srgb" : undefined,
             };
-            const copySize: GPUExtent3DStrict = { width: source[i].width, height: source[i].height, depthOrArrayLayers: i };
+            const copySize: GPUExtent3DStrict = { width: source[i].width, height: source[i].height, depthOrArrayLayers: 1 };
             device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
         }
         //Generate mipmap TODO
