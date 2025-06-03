@@ -214,7 +214,7 @@ export class WebGPUBindGroupCache {
         };
 
         const device = WebGPURenderEngine._instance.getDevice();
-        console.log('DEBUG createBindGroupLayout', descriptor)
+        console.log('    DEBUG createBindGroupLayout', descriptor)
         let layout = device.createBindGroupLayout(descriptor);
 
         return layout;
@@ -307,7 +307,7 @@ export class WebGPUBindGroupCache {
         };
 
         const device = WebGPURenderEngine._instance.getDevice();
-        console.log('DEBUG createBindGroup ', descriptor)
+        //console.log('DEBUG createBindGroup ', descriptor)
         let bindGroup: GPUBindGroup = device.createBindGroup(descriptor);
 
         let res = new WebGPUBindGroup(info);

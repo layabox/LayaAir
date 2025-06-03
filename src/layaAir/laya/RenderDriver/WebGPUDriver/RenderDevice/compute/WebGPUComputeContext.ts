@@ -248,6 +248,7 @@ export class WebGPUComputeContext implements IComputeContext {
             }
 
             let resource = computeShader.uniformSetMap.get(i);
+            console.log('get bindgroup for name:', computeShader.name)
             let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([uniformCommandMap._stateName], shaderdata, null, resource, ~0,true);
 
             this._computeEncoder.setBindGroup(i, bindgroup.gpuRS);

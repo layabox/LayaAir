@@ -146,7 +146,7 @@ export class WebGPUBindGroupHelper {
 
         }
 
-        console.log('DEBUG createBindGroupLayout ', entries)
+        console.log('    DEBUG createBindGroupLayout ', entries)
         const desc: GPUBindGroupLayoutDescriptor = {
             label: name,
             entries: entries,

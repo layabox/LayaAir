@@ -94,6 +94,7 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
             throw new Error('Shader not compiled');
         }
 
+        console.log('create pipeline layout for entry:', entryPoint)
         const pipeline = this._device.createComputePipeline({
             layout: this.createPipelineLayout(),
             compute: {
@@ -123,7 +124,6 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
                     bindGroupLayouts.push(group);
                 }
             }
-            console.log('DEBUG createPipelineLayout ',bindGroupLayouts)
             this._gpuPipelineLayout = this._device.createPipelineLayout({ label: "pipelineLayout", bindGroupLayouts });
         }
         return this._gpuPipelineLayout;
