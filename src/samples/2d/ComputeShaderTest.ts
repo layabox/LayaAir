@@ -33,7 +33,7 @@ export class ComputeShaderTest {
             // this.showApe();
 
             if (true) {
-                this.testComputeShader1();
+                this.testComputeShader2();
             }
             //   let shaderCompiler = new WebGPUShaderCompiler();
             //    shaderCompiler.init().then(()=>{
@@ -60,54 +60,102 @@ export class ComputeShaderTest {
     }
 
 
-    //computeShader用来把数据*2
-    private testComputeShader1() {
-        //创建ComputeShader
-        let code = `
-            @group(0) @binding(0) var<storage,read_write> data:array<f32>;
-            @compute @workgroup_size(1) fn computeDoubleMulData(
-                @builtin(global_invocation_id) id: vec3u
-            ){
-                let i = id.x;
-                data[i] = data[i] * 2.0;
-            }`
 
-        let uniformCommandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("changeArray");
-        let propertyID = Shader3D.propertyNameToID("data");
-        uniformCommandMap.addShaderUniform(propertyID, "data", ShaderDataType.DeviceBuffer);
-
-        let computeshader = ComputeShader.createComputeShader("changeArray", code, [uniformCommandMap]);
+    private testComputeShader2() {
+        let computeShader = GCA_CullComputeShader.computeshaderCodeInit();
         let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
 
-        //创建ShaderData和StorageBuffer
+
+        const InstanceCount = 1024;
+        const blockElementCount = 4;
+        const blockCount = (InstanceCount / blockElementCount) | 0;
         let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        let strotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
+        {
+            shaderData
+            let planes = new Float32Array(4 * 6);//从camear来
+            shaderData.setBuffer(Shader3D.propertyNameToID("cullPlanes"), planes);
+            //TODO cull data
+            shaderData.setInt(Shader3D.propertyNameToID("blockCount"), blockElementCount);
+            shaderData.setInt(Shader3D.propertyNameToID("cullBlockCount"), blockCount);
+        }
+        let shaderData1 = LayaGL.renderDeviceFactory.createShaderData();
+        {
+            let aabbs = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
+            aabbs.setDataLength((InstanceCount * 6) * 4); // 假设有6个AABB，每个AABB需要4个float
 
-        let array = new Float32Array([1, 3, 5]);
-        strotageBuffer.setDataLength(array.byteLength);
-        strotageBuffer.setData(array, 0, 0, array.byteLength);
-        shaderData.setDeviceBuffer(propertyID, strotageBuffer);
+            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("aabbs"), aabbs);
 
-        let readStrotageBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.MAP_READ);
-        readStrotageBuffer.setDataLength(array.byteLength);
+            let culled = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
+            culled.setDataLength((blockCount * (blockElementCount + 2)) * 4); // 假设每个实例需要4个float
 
-        //创建ComputeCommandBuffer
-        let commands = new ComputeCommandBuffer();
+            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("culled"), culled);
 
-        let dispatchParams = new Vector3(array.length, 1, 1);
-        commands.addDispatchCommand(computeshader, "computeDoubleMulData", shaderDefine, [shaderData], dispatchParams);
-        commands.addBufferToBufferCommand(strotageBuffer, readStrotageBuffer, 0, 0, array.byteLength);
-        commands.executeCMDs();
+            let indirectArgs = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
+            indirectArgs.setDataLength(blockCount * 5 * 4); // 假设每个实例需要4个float
 
-        readStrotageBuffer.readData(array.buffer, 0, 0, array.byteLength).then(() => {
-            console.log(array);
-        })
+            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("indirectArgs"), indirectArgs);
+        }
+
+        {
+            //创建ComputeCommandBuffer
+            let commands = new ComputeCommandBuffer();
+            let dispatchParams = new Vector3(1, 1, 1);
+
+            commands.addDispatchCommand(computeShader, "computeMain", shaderDefine, [shaderData, shaderData1], dispatchParams);
+
+            Laya.timer.frameLoop(1, this, () => {
+
+                commands.executeCMDs();
+            });
+
+        }
     }
 
 
+    private getCullPlane() {
+        const planes = new Float32Array(24);
+        const size = 10;
+        // 前平面 (z = 10)
+        planes[0] = 0;   // normal.x
+        planes[1] = 0;   // normal.y
+        planes[2] = 1;   // normal.z
+        planes[3] = -size; // distance
 
-    //用computeShader实现双调排序
-    private testComputeShader2() {
+        // 后平面 (z = 0)
+        planes[4] = 0;   // normal.x
+        planes[5] = 0;   // normal.y
+        planes[6] = -1;  // normal.z
+        planes[7] = 0;   // distance
+
+        // 左平面 (x = 0)
+        planes[8] = -1;  // normal.x
+        planes[9] = 0;   // normal.y
+        planes[size] = 0;  // normal.z
+        planes[11] = 0;  // distance
+
+        // 右平面 (x = size)
+        planes[12] = 1;  // normal.x
+        planes[13] = 0;  // normal.y
+        planes[14] = 0;  // normal.z
+        planes[15] = -size;// distance
+
+        // 上平面 (y = size)
+        planes[16] = 0;  // normal.x
+        planes[17] = 1;  // normal.y
+        planes[18] = 0;  // normal.z
+        planes[19] = -size;// distance
+
+        // 下平面 (y = 0)
+        planes[20] = 0;  // normal.x
+        planes[21] = -1; // normal.y
+        planes[22] = 0;  // normal.z
+        planes[23] = 0;  // distance
+
+        return planes;
+    }
+
+
+    private getOneBlockAABB(blockIndex: number) {
 
     }
 }
