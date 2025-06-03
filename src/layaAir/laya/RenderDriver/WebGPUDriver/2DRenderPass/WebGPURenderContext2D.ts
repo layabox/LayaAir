@@ -150,15 +150,30 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     setRenderTarget(value: WebGPUInternalRT, clear: boolean, clearColor: Color): void {
         this._needClearColor = clear;
         clearColor && clearColor.cloneTo(this._clearColor);
-        if (this._destRT !== value) {
+        if (!value || this._destRT !== value) {
             this._destRT = value;
             this._needStart = true;
         }
         const engine = WebGPURenderEngine._instance;
 
-        let tex = value ? value._textures[0] : engine._screenRT._textures[0];
+        let rt = value;
 
+        if (!rt) {
+            // 如果没有设置渲染目标，则使用屏幕渲染目标
+            rt = engine._screenRT;
+            // 更新 屏幕渲染目标的纹理资源
+            rt._textures[0].resource = engine._context.getCurrentTexture();
+            rt._textures[0].multiSamplers = 1;
+        }
+        let tex = rt._textures[0];
         this._viewport.set(0, 0, tex.width, tex.height);
+
+        if (this._needClearColor) {
+            const renderPassDesc = WebGPURenderPassHelper.getDescriptor(rt, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
+            this.renderCommand.startRender(renderPassDesc);
+            this.renderCommand.end();
+            WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
+        }
     }
 
     drawRenderElementOne(node: WebGPURenderElement2D): void {
@@ -201,9 +216,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
      */
     private _setScreenRT() {
         if (!this._destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
-            WebGPURenderEngine._instance._screenRT._textures[0].resource = WebGPURenderEngine._instance._context.getCurrentTexture();
-            WebGPURenderEngine._instance._screenRT._textures[0].multiSamplers = 1;
-            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, this._needClearColor, this._clearColor);
+            this.setRenderTarget(null, this._needClearColor, this._clearColor);
         }
     }
 
@@ -212,6 +225,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
      */
     private _start() {
         this._setScreenRT();
+        this._destRT = this._destRT || WebGPURenderEngine._instance._screenRT;
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this._destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
         this.renderCommand.startRender(renderPassDesc);

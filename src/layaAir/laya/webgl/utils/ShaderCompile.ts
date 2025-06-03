@@ -389,6 +389,8 @@ export class ShaderCompile {
         renderState.stencilRef = <number>obj.stencilRef;
         renderState.stencilTest = CompareFunctionMap[<string>obj.stencilTest];
         renderState.stencilWrite = <boolean>obj.stencilWrite;
+        renderState.stencilWriteMask = <number>obj.stencilWriteMask;
+        renderState.stencilReadMask = <number>obj.stencilReadMask;
         let stencilOp = <string[]>obj.stencilOp;
         let stencilFail = stencilOp ? stencilOp[0] : null;
         let stencilZFail = stencilOp ? stencilOp[1] : null;
@@ -396,6 +398,10 @@ export class ShaderCompile {
         renderState.stencilOp.x = StencilOperationMap[stencilFail];
         renderState.stencilOp.y = StencilOperationMap[stencilZFail];
         renderState.stencilOp.z = StencilOperationMap[stencilZPass];
+        renderState.depthBias = <boolean>obj.depthBias;
+        renderState.depthBiasConstant = <number>obj.depthBiasConstant;
+        renderState.depthBiasSlopeScale = <number>obj.depthBiasSlopeScale;
+        renderState.depthBiasClamp = <number>obj.depthBiasClamp;
 
         return;
     }

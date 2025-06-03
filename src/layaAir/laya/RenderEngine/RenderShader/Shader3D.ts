@@ -76,10 +76,22 @@ export class Shader3D {
     static STENCIL_TEST: number;
     /**渲染状态_模板写入 */
     static STENCIL_WRITE: number;
+    /** 渲染状态_模板写入掩码 */
+    static STENCIL_WRITE_MASK: number;
+    /** 渲染状态_模板读取掩码 */
+    static STENCIL_READ_MASK: number;
     /**渲染状态_模板写入值 */
     static STENCIL_Ref: number;
     /**渲染状态_模板写入设置 */
     static STENCIL_Op: number;
+    /**渲染状态_深度偏移 */
+    static DEPTH_BIAS: number;
+    /**渲染状态_深度偏移常量 */
+    static DEPTH_BIAS_CONSTANT: number;
+    /**渲染状态_深度偏移斜率 */
+    static DEPTH_BIAS_SLOPESCALE: number;
+    /**渲染状态_深度偏移限制 */
+    static DEPTH_BIAS_CLAMP: number;
 
     /**shader变量提交周期，自定义。*/
     static PERIOD_CUSTOM: number = 0;
@@ -125,7 +137,7 @@ export class Shader3D {
         Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
         Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
         Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
-        
+
 
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);

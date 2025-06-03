@@ -150,7 +150,7 @@ export class WebGPUPipelineCache {
 
         // 生成描述性键
         const descKey = `${shaderInstance._id}_${layout.id}_${kernal}`;
-        if (this.pipelineCache.has(descKey)) {
+        if (this.computePipelineCache.has(descKey)) {
             return this.computePipelineCache.get(descKey);
         }
 

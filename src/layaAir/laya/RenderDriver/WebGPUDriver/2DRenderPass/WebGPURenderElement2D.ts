@@ -16,7 +16,7 @@ import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
+import { DepthStencilParam, getDepthStencilParamFromMaterial, getDepthStencilParamFromShader, IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
@@ -29,8 +29,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     private _nodeCommonMap: string[];
 
     private _value2DgpuRS: WebGPUBindGroup;
-
-    private _nodeCommonMapMask: number = 0;
 
     protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist<WebGPUShaderInstance>(); //着色器缓存
 
@@ -50,6 +48,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     //@renderPipeline Interface TODO
     frontFace: FrontFace;
 
+    protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
+
     renderStateIsBySprite: boolean = true;
 
     public get nodeCommonMap(): string[] {
@@ -57,7 +57,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
     public set nodeCommonMap(value: string[]) {
         this._nodeCommonMap = value;
-        this._nodeCommonMapMask = Stat.loopCount;
     }
 
     constructor() {
@@ -238,18 +237,13 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
 
     private _getRenderStateDepthByShader(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT) {
-        const data = shaderData.getData();
-        const renderState = (<ShaderPass>shaderInstance._shaderPass).renderState;
-        const depthWrite = (renderState.depthWrite ?? data[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
-        const depthTest = (renderState.depthTest ?? data[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
+        getDepthStencilParamFromShader(shaderData, shaderInstance, dest, this.depthStencilParam);
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, this.depthStencilParam);
     }
 
     private _getRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
-        const data = shaderData.getData();
-        const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
-        const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
-        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, depthWrite, depthTest);
+        getDepthStencilParamFromMaterial(shaderData, dest, this.depthStencilParam)
+        return WebGPUDepthStencilState.getDepthStencilState(dest.depthStencilFormat, this.depthStencilParam);
     }
 
     private _getCullFrontMode(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {

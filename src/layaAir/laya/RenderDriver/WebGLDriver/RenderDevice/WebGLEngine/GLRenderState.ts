@@ -17,10 +17,14 @@ export class GLRenderState {
     //stencil
     /**@internal */
     private _stencilTest: boolean;
+    /** @internal */
+    private _stencilWrite: boolean;
     /**@internal */
     private _stencilFunc: number;
     /**@internal */
-    private _stencilMask: boolean;
+    private _stencilWriteMask: number;
+    /** @internal */
+    private _stencilReadMask: number;
     /**@internal */
     private _stencilRef: number
     /**@internal */
@@ -29,6 +33,11 @@ export class GLRenderState {
     private _stencilOp_zfail: number;
     /**@internal */
     private _stencilOp_zpass: number;
+    // depth bias
+    private _depthBias: boolean;
+    private _depthBiasConstant: number;
+    private _depthBiasSlope: number;
+    private _depthBiasClamp: number;
     //blender
     /**@internal */
     private _blend: boolean;
@@ -247,21 +256,35 @@ export class GLRenderState {
     }
 
     /**
+     * @internal
      * 模板写入开关
      * @param value 
      */
-    setStencilMask(value: boolean): void {
-        value !== this._stencilMask && (this._stencilMask = value, value ? this._gl.stencilMask(0xff) : this._gl.stencilMask(0x00));
+    setStencilWrite(value: boolean): void {
+        this._stencilWrite = value;
+    }
+
+    /** 
+     * @internal
+     * 模板写入掩码
+     */
+    setStencilWriteMask(mask: number): void {
+        mask = this._stencilWrite ? mask : 0x00; // 如果没有开启模板写入，则掩码为0
+        if (mask !== this._stencilWriteMask) {
+            this._stencilWriteMask = mask;
+            this._gl.stencilMask(mask);
+        }
     }
 
     /**
      * @internal
      */
-    setStencilFunc(fun: number, ref: number): void {
-        if (fun != this._stencilFunc || ref != this._stencilRef) {
+    setStencilFunc(fun: number, ref: number, mask: number): void {
+        if (fun != this._stencilFunc || ref != this._stencilRef || mask != this._stencilReadMask) {
             this._stencilFunc = fun;
             this._stencilRef = ref;
-            this._gl.stencilFunc(this._getGLCompareFunction(fun), ref, 0xff);
+            this._stencilReadMask = mask;
+            this._gl.stencilFunc(this._getGLCompareFunction(fun), ref, mask);
         }
     }
 
@@ -274,6 +297,35 @@ export class GLRenderState {
             this._stencilOp_zfail = zfail;
             this._stencilOp_zpass = zpass;
             this._gl.stencilOp(this._getGLStencilOperation(fail), this._getGLStencilOperation(zfail), this._getGLStencilOperation(zpass));
+        }
+    }
+    // depth bias
+
+    /**
+     * @internal
+     * 设置深度偏移
+     * @param value 
+     */
+    setDepthBias(value: boolean) {
+        if (value !== this._depthBias) {
+            this._depthBias = value;
+            value ? this._gl.enable(this._gl.POLYGON_OFFSET_FILL) : this._gl.disable(this._gl.POLYGON_OFFSET_FILL);
+        }
+    }
+
+    /**
+     * @internal
+     * 设置深度偏移因子
+     * @param constantFactor 
+     * @param slopeFactor 
+     * @param clamp 
+     */
+    setDephthBiasFactor(constantFactor: number, slopeFactor: number, clamp: number = 0.0): void {
+        if (constantFactor !== this._depthBiasConstant || slopeFactor !== this._depthBiasSlope || clamp !== this._depthBiasClamp) {
+            this._depthBiasConstant = constantFactor;
+            this._depthBiasSlope = slopeFactor;
+            this._depthBiasClamp = clamp;
+            this._gl.polygonOffset(constantFactor, slopeFactor);
         }
     }
 

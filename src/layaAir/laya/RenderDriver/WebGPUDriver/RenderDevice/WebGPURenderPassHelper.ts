@@ -1,10 +1,13 @@
 import { Color } from "../../../maths/Color";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { WebGPURenderEngine } from "./WebGPURenderEngine";
 
 export class WebGPURenderPassHelper {
     static getDescriptor(rt: WebGPUInternalRT, clearflag: RenderClearFlag,
         clearColor: Color = null, clearDepthValue: number = 1, clearStencilValue = 0): GPURenderPassDescriptor {
+
+        rt = rt ?? WebGPURenderEngine._instance._screenRT;
         this.setColorAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Color), clearColor);
         this.setDepthAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Depth), clearDepthValue, clearStencilValue);
         return rt._renderPassDescriptor;

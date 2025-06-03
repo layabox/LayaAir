@@ -184,17 +184,6 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
         this.isRender = true;
     }
 
-    _preUpdatePre(context: WebGPURenderContext3D) {
-        //编译着色器
-        this._compileShader(context);
-        // material ubo
-        let subShader = this.subShader;
-        let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader.owner.name, (subShader as any)._uniformMap);
-        if (matSubBuffer.needUpload) {
-            matSubBuffer.bufferBlock.needUpload();
-        }
-    }
-
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         //生成RenderBundle  调用
         let shaders: WebGPUShaderInstance[] = (this._shaderInstances as any).elements;
@@ -206,9 +195,9 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
             if (!shaders[j].complete)
                 continue;
             let shaderInstance = shaders[j];
-            //TODO 先创建RenderPipeline  后续讨论如何Cache RenderPipeline的方案
-            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
             this._bindGroup(context, shaderInstance, command); //绑定资源组
+
+            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
             this._uploadGeometry(command); //上传几何数据 draw
         }
 
@@ -237,9 +226,16 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
             let shaderResource = shaderInstance.uniformSetMap.get(2);
             let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
-            let spriteGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(shaderResource, this.owner, textureExitsMask);
-            command.setBindGroup(2, spriteGroup);
-            this.bindGroupMap.set(2, spriteGroup);
+            let commands = this.owner?._commonUniformMap;
+            // let shaderData = this.owner?.shaderData as WebGPUShaderData;
+            let addition = this.owner?.additionShaderData;
+
+            let shaderData = this.cullShaderData
+
+            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
+
+            command.setBindGroup(2, bindGroup);
+            this.bindGroupMap.set(2, bindGroup);
         }
         {
             let resource = shaderInstance.uniformSetMap.get(3);

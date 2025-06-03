@@ -83,6 +83,13 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
             "bgra8unorm-storage",
             // "float32-filterable",
         ];
+
+        if (Config.isAlpha) {
+            gpuConfig.alphaMode = "premultiplied";
+        } else {
+            gpuConfig.alphaMode = "opaque";
+        }
+
         const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();

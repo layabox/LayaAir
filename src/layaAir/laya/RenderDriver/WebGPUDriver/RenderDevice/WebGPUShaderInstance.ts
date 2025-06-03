@@ -119,20 +119,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         const device = engine.getDevice();
         this._shaderPass = shaderPass;
 
-        {
-            let subShader = shaderPass._owner;
-            let shader = subShader.owner;
-
-            let subIndex = shader._subShaders.indexOf(subShader);
-            let passIndex = subShader._passes.indexOf(shaderPass);
-
-            let defineString = shaderProcessInfo.defineString;
-
-            console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
-
-            this.name = `${shader.name}_s${subIndex}_p${passIndex}_d${defineString}`;
-        }
-
         if (!shaderProcessInfo.is2D) {
             this._create3D();
         } else {
