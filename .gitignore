@@ -8,3 +8,5 @@ node_modules
 .DS_Store
 build
 .history
+docTool
+docs
