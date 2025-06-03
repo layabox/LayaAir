@@ -2,11 +2,11 @@
 
 #include "Color.glsl";
 
-#include "ColorGrading.glsl";
-#include "LUT.glsl";
-
 uniform sampler2D u_Lut;
 uniform vec4 u_LutParams; // w postExposure
+
+#include "ColorGrading.glsl";
+#include "LUT.glsl";
 
 #ifdef CUSTOMLUT
 uniform sampler2D u_CustomLut;

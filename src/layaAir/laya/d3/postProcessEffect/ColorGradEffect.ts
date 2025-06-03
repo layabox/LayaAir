@@ -97,8 +97,6 @@ export class ColorGradEffect extends PostProcessEffect {
 
 		let uniformMap = {
 			"u_OffsetScale": ShaderDataType.Vector4,
-			"u_MainTex": ShaderDataType.Texture2D,
-			"u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
 			"u_Lut": ShaderDataType.Texture2D,
 			"u_LutParams": ShaderDataType.Vector4
 		};
