@@ -73,7 +73,10 @@ export class WebGPUDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
             this._buffer.setDataLength(byteLength);
             this._reSetBindGroupEntry();
         }
+    }
 
+    getSize():number{
+        return this._buffer._size;
     }
 
     copyToBuffer(buffer: WebGPUVertexBuffer | WebGPUDeviceBuffer, sourceOffset: number, destoffset: number, bytelength: number): void {

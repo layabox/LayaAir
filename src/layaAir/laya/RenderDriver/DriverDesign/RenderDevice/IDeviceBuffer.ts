@@ -18,6 +18,7 @@ export enum EDeviceBufferUsage {
 export interface IDeviceBuffer {
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void;
     setDataLength(byteLength: number): void;
+    getSize():number;
     copyToBuffer(buffer: IVertexBuffer | IDeviceBuffer, sourceOffset: number, destoffset: number, bytelength: number): void;
     copyToTexture(): void;//TODO
     readData(dest: ArrayBuffer, destOffset: number, srcOffset: number, byteLength: number): Promise<void>;
