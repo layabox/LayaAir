@@ -100,12 +100,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         //重新绑定 
         if (value) {
-            //buffer 
-            let sceneMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-            this.sceneData.createUniformBuffer("Scene3D", sceneMap);
-
-            let shadowMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow");
-            this.sceneData.createSubUniformBuffer("Shadow", "Shadow", shadowMap._idata);
+            for (let key of this._preDrawUniformMaps) {
+                let uniformMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                if (uniformMap._idata.size > 0) {
+                    this.sceneData.createSubUniformBuffer(key, key, uniformMap._idata);
+                }
+            }
         }
     }
 
