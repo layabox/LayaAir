@@ -16,7 +16,72 @@ const LargeData: number = 100000000;
 
 export class GCA_InstanceRenderElementCollect {
 
-    static clearBufferShader: ComputeShader;
+    //=============== 对象池系统 start ===============
+    // 不同批次类型的对象池
+    private static _poolMap: Map<GCA_BatchType, GCA_InstanceRenderElementCollect[]> = new Map();
+
+    /**
+     * 从对象池获取实例
+     * @param blockCount 批次类型
+     * @returns GCA_InstanceRenderElementCollect实例
+     */
+    static getFromPool(blockCount: GCA_BatchType): GCA_InstanceRenderElementCollect {
+        let pool = GCA_InstanceRenderElementCollect._poolMap.get(blockCount);
+        if (!pool) {
+            pool = [];
+            GCA_InstanceRenderElementCollect._poolMap.set(blockCount, pool);
+        }
+
+        if (pool.length > 0) {
+            const instance = pool.pop()!;
+            // 重置实例状态
+            instance._resetForReuse();
+            return instance;
+        }
+
+        // 池为空时创建新实例
+        return new GCA_InstanceRenderElementCollect(blockCount);
+    }
+
+    /**
+     * 将实例归还到对象池
+     * @param instance 要归还的实例
+     */
+    static releaseToPool(instance: GCA_InstanceRenderElementCollect): void {
+        if (!instance) return;
+
+        const pool = GCA_InstanceRenderElementCollect._poolMap.get(instance.blockCount);
+        if (!pool) return;
+
+
+        pool.push(instance);
+    }
+
+    /**
+     * 重置实例状态以供复用
+     */
+    private _resetForReuse(): void {
+        this.curBlockCount = 0;
+        this.renderElementArray.clear();
+
+        // 重置更新范围
+        this.clearBufferUpdateRange.setValue(LargeData, -LargeData);
+        this.aabbUpdateRange.setValue(LargeData, -LargeData);
+        this.instanceIndexUpdateRange.setValue(LargeData, -LargeData);
+        this.indirectUpdateRange.setValue(LargeData, -LargeData);
+        this.worldMatrixUpdateRange.setValue(LargeData, -LargeData);
+        this.customUpdateRange.setValue(LargeData, -LargeData);
+
+        // 重置空洞索引数组
+        this._holeIndex.length = 0;
+        for (let i = 0; i < this.maxBlockCount; i++) {
+            this._holeIndex[i] = this.maxBlockCount - i - 1;
+        }
+    }
+
+    //=============== 对象池系统 end ===============
+
+    private _clearBufferShader: ComputeShader;
 
     private _holeIndex: Array<number> = [];//空的Block索引数组,index从大到小
 
@@ -81,7 +146,7 @@ export class GCA_InstanceRenderElementCollect {
     //=========== GPUBuffer 属性 End=============
 
     //===========Compute Cull 属性 start==========
-    private _shaderList: ShaderData[];
+    private _shaderList: ShaderData[] = [];
     private _deviceBuffer: ShaderData;
 
     private _computeShader: ComputeShader;
@@ -97,9 +162,7 @@ export class GCA_InstanceRenderElementCollect {
     renderElementArray: Map<number, GCA_OneBatchInfo> = new Map();//GCA_InstanceRenderElementCollect
 
     constructor(blockCount: GCA_BatchType) {
-        if (!GCA_InstanceRenderElementCollect.clearBufferShader) {
-            GCA_InstanceRenderElementCollect.clearBufferShader = GCA_CullComputeShader.clearBufferComputeShaderInit();
-        }
+
 
         this.blockCount = blockCount;
         this.curBlockCount = 0;
@@ -109,6 +172,9 @@ export class GCA_InstanceRenderElementCollect {
             this._holeIndex[i] = this.maxBlockCount - i - 1;
         }
         this._createBufferAndData();
+        if (!this._clearBufferShader) {
+            this._clearBufferShader = GCA_CullComputeShader.clearBufferComputeShaderInit(this.blockCount);
+        }
         this.initComputeCommand();
         this._dispartchParams = new Vector3((GCA_Config.MaxBatchComputeCount / GCA_Config.CULLING_WORKGROUP_SIZE) | 0, 1, 1);
         this._clearBufferDispartchParams = new Vector3(this.maxBlockCount, 1, 1);
@@ -130,11 +196,20 @@ export class GCA_InstanceRenderElementCollect {
     //释放一个裁剪批次
     releaseOneBatchInfo(oneBatchInfo: GCA_OneBatchInfo): void {
         let bockIndex = oneBatchInfo.blockIndexInOwner;
-        for (let i = this._holeIndex.length - 1; i > 0; i--) {
-            if (this._holeIndex[i] > bockIndex) {
-                this._holeIndex.splice(i + 1, 0, bockIndex);//保持从大到小的数组
+        if (this._holeIndex.length == 0 || this._holeIndex[this._holeIndex.length - 1] > bockIndex) {
+            this._holeIndex.push(bockIndex);
+        } else {
+            for (let i = this._holeIndex.length - 1; i >= 0; i--) {
+                if (this._holeIndex[i] > bockIndex) {
+                    this._holeIndex.splice(i + 1, 0, bockIndex);//保持从大到小的数组
+                    break;
+                }
+                if (i == 0) {
+                    this._holeIndex.splice(0, 0, bockIndex);
+                }
             }
         }
+
 
         this.renderElementArray.delete(bockIndex);
         this.setOneBlockCullCurIns(bockIndex, 0);
@@ -163,7 +238,6 @@ export class GCA_InstanceRenderElementCollect {
     //初始化computeShader
     initComputeCommand() {
         this._shaderList.length = 2;
-        this._shaderList.push(null);//留空  
 
         this._computeShader = GCA_CullComputeShader.computeshaderCodeInit(this.blockCount);
 
@@ -181,7 +255,7 @@ export class GCA_InstanceRenderElementCollect {
     //将Compute命令加入到ComputeCommandBuffer中，最后apply变可生效结果
     insertComputeCommand(compute: ComputeCommandBuffer) {
         // clear Buffer 的操作TODO
-        compute.addDispatchCommand(GCA_InstanceRenderElementCollect.clearBufferShader, "computeMain", this._shaderDefine, [this._deviceBuffer], this._clearBufferDispartchParams)
+        compute.addDispatchCommand(this._clearBufferShader, "computeMain", this._shaderDefine, [this._deviceBuffer], this._clearBufferDispartchParams)
         compute.addDispatchCommand(this._computeShader, "computeMain", this._shaderDefine, this._shaderList, this._dispartchParams);
     }
     //=========== compute 操作 end =============
@@ -195,13 +269,17 @@ export class GCA_InstanceRenderElementCollect {
 
         //aabb
         this.aabbDeviceBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC) as WebGPUDeviceBuffer;
-        this.aabbDeviceBuffer.setDataLength((GCA_Config.MaxBatchComputeCount * 6) * 4);
-        this.wholeAABBBuffer = new Float32Array((GCA_Config.MaxBatchComputeCount * 6));
+        this.aabbDeviceBuffer.setDataLength((GCA_Config.MaxBatchComputeCount * 8) * 4);
+        this.wholeAABBBuffer = new Float32Array((GCA_Config.MaxBatchComputeCount * 8));
 
         //instanceIndex
         this.instanceIndexDeviceBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC) as WebGPUDeviceBuffer;
         this.instanceIndexDeviceBuffer.setDataLength((this.maxBlockCount * (this.blockCount + 2)) * 4);
         this.wholeInstanceIndexBuffer = new Uint32Array((this.maxBlockCount * (this.blockCount + 2)));
+        for (var i = 0; i < this.maxBlockCount; i++) {
+            this.wholeInstanceIndexBuffer[i * (this.blockCount + 2)] = i;
+        }
+        this.instanceIndexDeviceBuffer.setData(this.wholeInstanceIndexBuffer, 0, 0, this.wholeInstanceIndexBuffer.byteLength)
 
 
         //indirectDrawGeometry
@@ -212,7 +290,7 @@ export class GCA_InstanceRenderElementCollect {
         //worldMatrix
         this.worldMatrixDeviceBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST) as WebGPUDeviceBuffer;
         this.worldMatrixDeviceBuffer.setDataLength(GCA_Config.MaxBatchComputeCount * 16 * 4);
-        this.wholeWorldMatrixBuffer = new Float32Array(this.maxBlockCount * 16);
+        this.wholeWorldMatrixBuffer = new Float32Array(GCA_Config.MaxBatchComputeCount * 16);
 
         //customBuffer
         this.customDeviceBuffer = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC) as WebGPUDeviceBuffer;
@@ -226,7 +304,7 @@ export class GCA_InstanceRenderElementCollect {
             value.updateDataViews();
         }
         //更新所有的
-        if (this.clearBufferUpdateRange.x < this.clearBufferUpdateRange.y) {
+        if (this.clearBufferUpdateRange.x <= this.clearBufferUpdateRange.y) {
             this.clearBufferDeviceBuffer.setData(this.cullCurInsNumberData, 0, 0, this.maxBlockCount * 4);
             this.clearBufferUpdateRange.x = LargeData;
             this.clearBufferUpdateRange.y = -LargeData;
@@ -243,21 +321,21 @@ export class GCA_InstanceRenderElementCollect {
             this.aabbUpdateRange.y = -LargeData;
         }
 
-        //indirectBuffer update 有些是在Computeshader中更新的
-        if (this.instanceIndexUpdateRange.x < this.instanceIndexUpdateRange.y) {
-            this.instanceIndexDeviceBuffer.setData(
-                this.wholeInstanceIndexBuffer,
-                this.instanceIndexUpdateRange.x * 4,
-                this.instanceIndexUpdateRange.x * 4,
-                (this.instanceIndexUpdateRange.y - this.instanceIndexUpdateRange.x) * 4
-            );
-            this.instanceIndexUpdateRange.x = LargeData;
-            this.instanceIndexUpdateRange.y = -LargeData;
-        }
+        // //indirectBuffer update 有些是在Computeshader中更新的
+        // if (this.instanceIndexUpdateRange.x < this.instanceIndexUpdateRange.y) {
+        //     this.instanceIndexDeviceBuffer.setData(
+        //         this.wholeInstanceIndexBuffer,
+        //         this.instanceIndexUpdateRange.x * 4,
+        //         this.instanceIndexUpdateRange.x * 4,
+        //         (this.instanceIndexUpdateRange.y - this.instanceIndexUpdateRange.x) * 4
+        //     );
+        //     this.instanceIndexUpdateRange.x = LargeData;
+        //     this.instanceIndexUpdateRange.y = -LargeData;
+        // }
 
         //indirectBuffer update 有些是在Computeshader中更新的
         if (this.indirectUpdateRange.x < this.indirectUpdateRange.y) {
-            this.aabbDeviceBuffer.setData(
+            this.indirectDeviceBuffer.setData(
                 this.wholeIndirectDrawGeometryBuffer,
                 this.indirectUpdateRange.x * 4,
                 this.indirectUpdateRange.x * 4,
@@ -268,7 +346,7 @@ export class GCA_InstanceRenderElementCollect {
         }
 
         if (this.worldMatrixUpdateRange.x < this.worldMatrixUpdateRange.y) {
-            this.aabbDeviceBuffer.setData(
+            this.worldMatrixDeviceBuffer.setData(
                 this.wholeWorldMatrixBuffer,
                 this.worldMatrixUpdateRange.x * 4,
                 this.worldMatrixUpdateRange.x * 4,

@@ -5,7 +5,12 @@ import { GCA_Config } from "./GCA_Config";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class GCA_CullComputeShader {
+  static cullComputeShaderMap: Map<number, ComputeShader> = new Map();
+  static clearComputeShaderMap: Map<number, ComputeShader> = new Map();
   static computeshaderCodeInit(blockCount: number) {
+    if (GCA_CullComputeShader.cullComputeShaderMap.has(blockCount)) {
+      return GCA_CullComputeShader.cullComputeShaderMap.get(blockCount);
+    }
     let computeCode = `
         //裁剪Plane的数据
         struct Plane {
@@ -112,15 +117,18 @@ export class GCA_CullComputeShader {
     uniformMap1.addShaderUniform(Shader3D.propertyNameToID("indirectArgs"), "indirectArgs", ShaderDataType.DeviceBuffer);
 
     let computeShader = ComputeShader.createComputeShader(`GCA_CullComputeShader_${blockCount}`, computeCode, [uniformMap, uniformMap1]);
-
+    GCA_CullComputeShader.cullComputeShaderMap.set(blockCount, computeShader);
     return computeShader;
   }
 
-  static clearBufferComputeShaderInit() {
+  static clearBufferComputeShaderInit(blockCount) {
+    if (GCA_CullComputeShader.clearComputeShaderMap.has(blockCount)) {
+      return GCA_CullComputeShader.clearComputeShaderMap.get(blockCount);
+    }
     let clearBufferComputeCode = `
      struct IndirectArgs {
           drawCount: u32,
-          instanceCount: atomic<u32>,//instance渲染几个
+          instanceCount: u32,//instance渲染几个
           reserved0: u32,
           reserved1: u32,
           reserved2: u32,
@@ -130,8 +138,9 @@ export class GCA_CullComputeShader {
       @group(0) @binding(2) var<storage, read> clearBuffer: array<u32>;
     @compute @workgroup_size(1)
       fn computeMain(@builtin(global_invocation_id) gloablId: vec3u) {
+        var blockCount: u32 = ${blockCount};  
         indirectArgs[gloablId.x].instanceCount = 0u;
-        culled[gloablId.x*blockCount+2+1] = clearBuffer[gloablId.x];
+        culled[gloablId.x*(blockCount+2)+1] = clearBuffer[gloablId.x];
       }
    `
     let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("GCA_CullCompute_clearBuffer");
@@ -139,6 +148,7 @@ export class GCA_CullComputeShader {
     uniformMap.addShaderUniform(Shader3D.propertyNameToID("culled"), "culled", ShaderDataType.DeviceBuffer);
     uniformMap.addShaderUniform(Shader3D.propertyNameToID("clearBuffer"), "clearBuffer", ShaderDataType.ReadOnlyDeviceBuffer);
     let computeShader = ComputeShader.createComputeShader(`GCA_clearBufferShader`, clearBufferComputeCode, [uniformMap]);
+    GCA_CullComputeShader.clearComputeShaderMap.set(blockCount, computeShader);
     return computeShader;
   }
 }

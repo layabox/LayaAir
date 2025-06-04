@@ -100,7 +100,7 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, size);
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, byteLength);
         } else {
             offset = srcOffset;
             size = roundUp(byteLength, 4);

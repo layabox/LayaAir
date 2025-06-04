@@ -15,7 +15,7 @@ import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/Shad
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Material, MaterialRenderMode } from "laya/resource/Material";
-import { GCARenderGeometrtElement, GCARenderMask, GCAResData, IGCABVHCell, IGCAMaterialData } from "./HyBridUtil";
+import { BatchElement, GCARenderGeometrtElement, GCARenderMask, GCAResData, IGCABVHCell, IGCAMaterialData } from "./HyBridUtil";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { GCA_InsBatchAgent } from "../GCA_InsBatchAgent";
@@ -29,7 +29,7 @@ export class TestGCARender extends BaseRender {
     private alphaTestList: RenderListQueue;
     private cullPlaneData: Float32Array = new Float32Array(4 * 6);
     // //computeCommand = new ComputeCommandBuffer();
-    private useoverHeadView: boolean = true;
+    private useoverHeadView: boolean = false;
     _GCA_Agent: GCA_InsBatchAgent;
     private _useRenderBundle: boolean = false;
     private ViewCamera: Camera;
@@ -50,6 +50,7 @@ export class TestGCARender extends BaseRender {
 
     onEnable(): void {
         if (WebGPU_Bundle_CullingUtil.useRenderBundle) {
+
         }
     }
 
@@ -80,6 +81,8 @@ export class TestGCARender extends BaseRender {
     }
 
     protected _setRenderElements() {
+        this.opaqueList.elements.length = 0;
+        this._GCA_Agent.getRenderList((this._GCA_Agent as any)._forwardManager, this.opaqueList, this.alphaTestList);
         this.opaqueList.elements.elements.length = this.opaqueList.elements.length;
         if (WebGPU_Bundle_CullingUtil.useRenderBundle)
             this.renderNode.setRenderelements(this.opaqueList.elements.elements);
@@ -103,20 +106,21 @@ export class testGCAShader {
 
         //u_cullBlockData x为blockCount,y为这是第几个Block
         #ifdef GCA_StorageBuffer
-            layout(set = 2, binding = 0) readonly buffer Instances {
+            layout(set = 2, binding = 1) readonly buffer Instances {
                 mat4 instances[];
             };
 
-            layout(set = 2, binding = 1) readonly buffer culled {
+            layout(set = 2, binding = 2) readonly buffer culled {
                 uint insIndexs[];
             };
 
             struct customData{
                 vec4 color1;
                 vec4 color2;
-            }
-            layout(set = 2, binding = 2) readonly buffer customDatas {
-               customData datas[]
+            };
+
+            layout(set = 2, binding = 3) readonly buffer customDatas {
+               customData datas[];
             };
 
         #endif
@@ -131,11 +135,11 @@ export class testGCAShader {
             vec3 normal = a_Normal.xyz;
             vec2 uv = a_Texcoord0;
             uint Instanceindex = gl_InstanceIndex;
-            uint InsDataOffset = (uint)u_cullBlockData.x*(uint)u_cullBlockData.y;
+            uint InsDataOffset = uint(u_cullBlockData.x+2) * uint(u_cullBlockData.y);
             uint modelIndex =insIndexs[Instanceindex+InsDataOffset+2];
             mat4 worldmat = instances[modelIndex];
-            v_color1 = customData[modelIndex].color1;
-            v_color2 = customData[modelIndex].color2;
+            v_color1 = datas[modelIndex].color1;
+            v_color2 = datas[modelIndex].color2;
 
             vec3 normalWS = normalize((worldmat * vec4(a_Position.xyz, 0.0)).xyz);
             v_Normal = normalWS;
@@ -161,7 +165,7 @@ export class testGCAShader {
             float NDotL = max(dot(v_Normal, L), 0.0);
             vec3 surfaceColor = (u_color.rgb * ambientColor) + (u_color.rgb * NDotL);
 
-            gl_FragColor = vec4(surfaceColor,1.0);
+            gl_FragColor = vec4(u_color.xyz,1.0);
         }
         `;
         let shader = Shader3D.add("GCA_ColorShader", true, false);
@@ -226,6 +230,7 @@ export class hybridSystemUtil {
             materialData.shaderData = mat.shaderData;
             materialData.subShader = mat.shader.getSubShaderAt(0);
             materialData.cull = mat.cull;
+            materialData.renderQueue = mat.renderQueue;
             this.materialArray.push(materialData);
 
         }
@@ -272,18 +277,24 @@ export class hybridSystemUtil {
         resData.materials = matArrays;
         resData.mesh = geometrys;
         resData.meshid = meshid;
+        let batchElements = new BatchElement();
+        batchElements.matIdx = 0;
+        batchElements.subMeshIdx = 0;
+        resData.batchElements.push(batchElements);
         if (lowerMat && lowermesh) {
             resData.haslowerMat = true;
             resData.lowermat = lowerMat;
             resData.lowerMeshGeometry = lowermesh;
         }
+        GCA_InsBatchAgent.completeLoadRes(resData.id);
         return resData;
     }
 
     _creatResDatas() {
         //创建多个resData
-        for (var j = 0; j < this.meshArray.length; j++) {
-            for (var i = 1; i < this.materialArray.length; i++) {
+
+        for (var i = 1; i < this.materialArray.length; i++) {
+            for (var j = 0; j < this.meshArray.length; j++) {
                 this._createOneRes([this.materialArray[i]], [this.meshBatchArray[j]], j, this.materialArray[0], this.meshBatchArray[j]);
             }
         }

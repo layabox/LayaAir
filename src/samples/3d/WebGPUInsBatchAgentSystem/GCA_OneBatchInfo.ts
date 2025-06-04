@@ -1,9 +1,8 @@
-import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { batchInfoChangeType, GCA_BatchType } from "./GCA_InsBatchAgent";
 import { GCA_BatchRenderElement } from "./GCA_BatchRenderElement";
 import { GCA_InstanceRenderElementCollect } from "./GCA_InstanceRenderElementCollect";
 import { batchIDInfo, IGCABVHCell, IGCAMaterialData, GCAResData, GCARenderGeometrtElement } from "./HybridSystemTemp/HyBridUtil";
-import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SingletonList } from "laya/utils/SingletonList";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
@@ -13,6 +12,8 @@ import { DrawType } from "laya/RenderEngine/RenderEnum/DrawType";
 import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { WebGPURenderGeometry } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderGeometry";
+import { WebGPUBufferState } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBufferState";
+import { Vector4 } from "laya/maths/Vector4";
 
 //根据渲染批次ID,记录这个批次的渲染信息
 //功能块
@@ -20,7 +21,7 @@ import { WebGPURenderGeometry } from "laya/RenderDriver/WebGPUDriver/RenderDevic
 //2、根据ins的数据，判断是否需要更换Collect  包括ins的add remove update 有个潜规则是永远先remove 再add和update，逻辑在batchmanager中
 //3、一个BatchInfo会生成一个InstanceRenderElement，提交给GPU渲染
 export class GCA_OneBatchInfo {
-    static GCA_StorageBuffer: ShaderDefine = Shader3D.getDefineByName("GCA_StorageBuffer");
+    static GCA_StorageBuffer: ShaderDefine;
     static customdataStridMap: Map<string, number> = new Map();
     static customDataWholeStride: number = 0;
     static setCustomCommandmap(customAttributeData: Map<string, [number, ShaderDataType]>) {
@@ -64,7 +65,7 @@ export class GCA_OneBatchInfo {
     }
 
     //当前的owner
-    private _owner: GCA_InstanceRenderElementCollect;
+    _owner: GCA_InstanceRenderElementCollect;
 
     private _forwardType: GCA_BatchType;//前一个批次类型
 
@@ -82,7 +83,7 @@ export class GCA_OneBatchInfo {
 
     private _insArray: Map<number, IGCABVHCell> = new Map<number, IGCABVHCell>();//存储实例对象 key是第几个，value是实例
 
-    private _curNeedCull: number;//最大的裁剪区域，和目前有多少个insCount并不完全一致，因为数据会有空的
+    private _curNeedCull: number = 0;//最大的裁剪区域，和目前有多少个insCount并不完全一致，因为数据会有空的
     //会先收集remove  再收集add 和update，所以更新数据不会有问题
     private _chagneIndexList: SingletonList<{ index: number, type: batchInfoChangeType }> = new SingletonList();
 
@@ -100,7 +101,7 @@ export class GCA_OneBatchInfo {
 
     blockIndexInOwner: number = -1;
     //当前的ins数量
-    curInsCount: number;
+    curInsCount: number = 0;
     //最大容纳的ins数量
     maxBlockCount: GCA_BatchType;
 
@@ -109,6 +110,8 @@ export class GCA_OneBatchInfo {
     constructor(batchID: number) {
         this.batchID = batchID;
         this._createRenderElement();
+        this.curInsCount = 0;
+        this._customStride = GCA_OneBatchInfo.customDataWholeStride;
     }
 
     //=====================buffer Block start==========================
@@ -187,14 +190,12 @@ export class GCA_OneBatchInfo {
 
     //处理一个ins增加的数据
     private _insAddDataHandle(index: number) {
-        let ins = this._insArray.get(index);
         //更新aabb
         this._updateAABBData(index, false);
         //更新worldMatrix
         this._updateWorldMatrixData(index);
         //更新customData
         this._updateCustomData(index);
-
     }
 
     //处理一个ins删除的数据
@@ -248,7 +249,7 @@ export class GCA_OneBatchInfo {
             }
         }
         this._chagneIndexList.length = 0;
-        this._owner.setOneBlockCullCurIns(this.blockIndexInOwner, this._curNeedCull);
+        this._owner.setOneBlockCullCurIns(this.blockIndexInOwner, this._curNeedCull + 1);//index的最大值
     }
     //=====================buffer Block end==========================
 
@@ -256,18 +257,20 @@ export class GCA_OneBatchInfo {
     private _bindOwnerRenderData() {
         //this.spriteShaderData3D.setDeviceBuffer
         this.renderGeometry.clearRenderParams();
-        this.renderGeometry.setIndirectDrawBuffer(this._owner.indirectDeviceBuffer, this.blockIndexInOwner * 5);
+        this.renderGeometry.setIndirectDrawBuffer(this._owner.indirectDeviceBuffer, this.blockIndexInOwner * 5 * 4);
         this._updateIndirectDrawGeometry();
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_WorldMatrix"), this._owner.worldMatrixDeviceBuffer);
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_CustomData"), this._owner.customDeviceBuffer);
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_InstanceIndex"), this._owner.instanceIndexDeviceBuffer);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("instances"), this._owner.worldMatrixDeviceBuffer);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("customDatas"), this._owner.customDeviceBuffer);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("insIndexs"), this._owner.instanceIndexDeviceBuffer);
+        Vector4.TEMP.setValue(this.maxBlockCount, this.blockIndexInOwner, 0, 0);
+        this.spriteShaderData3D.setVector(Shader3D.propertyNameToID("u_cullBlockData"), Vector4.TEMP);
     }
 
     private _unbindOwnerRenderData() {
         //TODO  移除渲染资源绑定等
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_WorldMatrix"), null);
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_CustomData"), null);
-        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("storage_InstanceIndex"), null);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("instances"), null);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("customDatas"), null);
+        this.spriteShaderData3D.setDeviceBuffer(Shader3D.propertyNameToID("insIndexs"), null);
         this.renderGeometry.clearRenderParams();
     }
 
@@ -299,9 +302,11 @@ export class GCA_OneBatchInfo {
         this.renderElement.cullMode = material.cull;
         this.renderElement.materialRenderQueue = material.renderQueue;
         //geometry bind
-        let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElementIndirect);
-        geometry.bufferState = meshGeometry.bufferState;
+        let geometry = this.renderGeometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElementIndirect) as WebGPURenderGeometry;
+        geometry.bufferState = meshGeometry.bufferState as WebGPUBufferState;
         geometry.indexFormat = meshGeometry.indexFormat;
+        this._ibCount = meshGeometry.indexCount;
+        this._ibOffset = meshGeometry.indexOffset;
         this.renderElement.geometry = geometry as WebGPURenderGeometry;
     }
 
@@ -331,6 +336,7 @@ export class GCA_OneBatchInfo {
 
     //是否需要迁移到更小的批次
     private _needChangeLittle(): boolean {
+        //判断为0
         if (this.maxBlockCount == GCA_BatchType.LittleCount) {
             return false;
         }

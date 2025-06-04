@@ -60,7 +60,7 @@ export class GCA_BatchInfoManager {
     //分配OneBatchInfo
     private _patchCollect(oneBatchInfo: GCA_OneBatchInfo) {
         if (oneBatchInfo.maxBlockCount == GCA_BatchType.LittleCount) {
-            if (this._findCollect(this._littleElementCollects, oneBatchInfo)) {
+            if (!this._findCollect(this._littleElementCollects, oneBatchInfo)) {
                 let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.LittleCount);
                 collect.setCullShaderData(this._cullShaderData);
                 collect.insertOneBatchInfo(oneBatchInfo);
@@ -71,7 +71,7 @@ export class GCA_BatchInfoManager {
             }
         }
         else if (oneBatchInfo.maxBlockCount == GCA_BatchType.SomeCount) {
-            if (this._findCollect(this._someElementCollects, oneBatchInfo)) {
+            if (!this._findCollect(this._someElementCollects, oneBatchInfo)) {
                 let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.SomeCount);
                 collect.setCullShaderData(this._cullShaderData);
                 collect.insertOneBatchInfo(oneBatchInfo);
@@ -82,8 +82,9 @@ export class GCA_BatchInfoManager {
             }
         }
         else if (oneBatchInfo.maxBlockCount == GCA_BatchType.QuitCount) {
-            if (this._findCollect(this._quitCountElementCollects, oneBatchInfo)) {
+            if (!this._findCollect(this._quitCountElementCollects, oneBatchInfo)) {
                 let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.QuitCount);
+                collect.setCullShaderData(this._cullShaderData);
                 collect.insertOneBatchInfo(oneBatchInfo);
                 this._quitCountElementCollects.push(collect);
                 this._quitHoleData.y += (GCA_Config.MaxBatchComputeCount / GCA_BatchType.QuitCount) | 0
@@ -94,8 +95,9 @@ export class GCA_BatchInfoManager {
         else {
             let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.LargeCount);
             collect.insertOneBatchInfo(oneBatchInfo);
+            collect.setCullShaderData(this._cullShaderData);
             this._largeElementCollects.push(collect);
-        } ``
+        }
     }
 
     //type 1 新增 ，-1 删除 2 更新
@@ -134,7 +136,7 @@ export class GCA_BatchInfoManager {
             let changeInfo = this._changeList.elements[i];
             let batchInfo = this._batchInfoMaps.get(changeInfo.batchID);
             if (batchInfo) {
-                if (changeOneBatchInfo.indexOf(batchInfo) == -1 || newOneBatchInfo.indexOf(batchInfo) != -1) {
+                if (changeOneBatchInfo.indexOf(batchInfo) == -1 && newOneBatchInfo.indexOf(batchInfo) == -1) {
                     changeOneBatchInfo.push(batchInfo);
                 }
                 switch (changeInfo.changeType) {
@@ -156,11 +158,13 @@ export class GCA_BatchInfoManager {
             }
         }
         this._changeList.length = 0;
+        this._removeList.length = 0;
 
+        let needCheckRemoveCollectArray: GCA_InstanceRenderElementCollect[] = [];
         //处理数量变化的OneBatchInfo
         for (let i = 0; i < changeOneBatchInfo.length; i++) {
             let oneBatchInfo = changeOneBatchInfo[i];
-            if (oneBatchInfo.needChangeOwner()) {//
+            if (oneBatchInfo.needChangeOwner()) {//如果需要改变collect
                 switch (oneBatchInfo.maxBlockCount) {
                     case GCA_BatchType.LittleCount:
                         this._littleHoleData.x--;
@@ -173,11 +177,13 @@ export class GCA_BatchInfoManager {
                         break;
                 }
                 if (oneBatchInfo.maxBlockCount != GCA_BatchType.LargeCount) {
+                    needCheckRemoveCollectArray.push(oneBatchInfo._owner);
                     oneBatchInfo.removeSelfFromOwner();
+
+
                 } else {
                     throw "还没处理 一下把几千个一起删掉的情况"
                 }
-
 
                 if (oneBatchInfo.curInsCount > 0) {
                     newOneBatchInfo.push(oneBatchInfo)
@@ -191,6 +197,28 @@ export class GCA_BatchInfoManager {
             if (oneBatchInfo.curInsCount > 0) {
                 oneBatchInfo.updateBatchType();
                 this._patchCollect(oneBatchInfo);
+            }
+        }
+
+        //删除没有值的Collect
+        for (var i = 0; i < needCheckRemoveCollectArray.length; i++) {
+            let collect = needCheckRemoveCollectArray[i];
+            if (collect.renderElementArray.size == 0) {
+                switch (collect.blockCount) {
+                    case GCA_BatchType.LargeCount:
+                        this._largeElementCollects.splice(this._largeElementCollects.indexOf(collect), 1);
+                        break;
+                    case GCA_BatchType.QuitCount:
+                        this._quitCountElementCollects.splice(this._quitCountElementCollects.indexOf(collect), 1);
+                        break;
+                    case GCA_BatchType.SomeCount:
+                        this._someElementCollects.splice(this._someElementCollects.indexOf(collect), 1);
+                        break;
+                    case GCA_BatchType.LittleCount:
+                        this._littleElementCollects.splice(this._littleElementCollects.indexOf(collect), 1);
+                        break;
+                }
+                GCA_Config.factory.release_GCA_InstanceRenderElementCollect(collect);
             }
         }
 
@@ -276,5 +304,9 @@ export class GCA_BatchInfoManager {
                 }
             }
         }
+    }
+
+    destory() {
+
     }
 }

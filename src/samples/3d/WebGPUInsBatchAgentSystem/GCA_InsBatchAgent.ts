@@ -30,7 +30,9 @@ export enum batchInfoChangeType {
 //6、变化不大的时候，把所有的GCA_InstanceBatchRenderElement合并到GCA_BundleRenderElement中，组成渲染束
 export class GCA_InsBatchAgent {
 
-    private _loadedResID: number[] = [];
+    static _loadedResID: number[] = [];
+    static _AgentArray: GCA_InsBatchAgent[] = [];
+
     /**未加载完成的渲染节点 */
     private _unLoadInsArray: IGCABVHCell[] = [];
     /**已加载完成的渲染节点 */
@@ -51,6 +53,7 @@ export class GCA_InsBatchAgent {
     private _cullPlaneData: Float32Array = new Float32Array(4 * 6);
 
     constructor(hasDirShadow: boolean = true) {
+        GCA_InsBatchAgent._AgentArray.push(this);
         this._hasDirShadow = hasDirShadow;
         if (hasDirShadow) {
             this._dirShadowCullSingleList = new SingletonList<IGCABVHCell>();
@@ -212,7 +215,7 @@ export class GCA_InsBatchAgent {
      * @param ins 
      */
     addIns(ins: IGCABVHCell): void {
-        if (this._loadedResID.indexOf(ins.resId) != -1) {
+        if (GCA_InsBatchAgent._loadedResID.indexOf(ins.resId) != -1) {
             this._addOneIns(ins);
         }
         else {
@@ -225,7 +228,7 @@ export class GCA_InsBatchAgent {
      * @param ins 
      */
     removeIns(ins: IGCABVHCell): void {
-        if (this._loadedResID.indexOf(ins.resId) != -1) {
+        if (GCA_InsBatchAgent._loadedResID.indexOf(ins.resId) != -1) {
             this._removeOneIns(ins);
         }
         else {
@@ -238,11 +241,10 @@ export class GCA_InsBatchAgent {
      * @param ins 
      */
     updateIns(ins: IGCABVHCell): void {
-        if (this._loadedResID.indexOf(ins.resId) != -1) {
+        if (GCA_InsBatchAgent._loadedResID.indexOf(ins.resId) != -1) {
             this._updateOneIns(ins);
         }
     }
-
     /**
      * 设置裁剪相机，裁剪
      * @param camera 
@@ -301,22 +303,26 @@ export class GCA_InsBatchAgent {
      * @param resId 
      * @returns 
      */
-    completeLoadRes(resId: number): void {
+    static completeLoadRes(resId: number): void {
         //根据resId的值，找到所有的Ins
-        if (this._loadedResID.indexOf(resId) != -1) {
+        if (GCA_InsBatchAgent._loadedResID.indexOf(resId) != -1) {
             throw "传入了重复的资源"
         }
-        this._loadedResID.push(resId);
-        let insList: IGCABVHCell[] = [];
-        for (let i = 0; i < this._unLoadInsArray.length; i++) {//新增渲染
-            if (this._unLoadInsArray[i].resId == resId) {
-                let insData = this._unLoadInsArray[i];
-                this._addOneIns(insData);
-            } else {
-                insList.push(this._unLoadInsArray[i]);
+        GCA_InsBatchAgent._loadedResID.push(resId);
+        for (var index = 0; index < GCA_InsBatchAgent._AgentArray.length; index++) {
+            let agent = GCA_InsBatchAgent._AgentArray[index];
+
+            let insList: IGCABVHCell[] = [];
+            for (let i = 0; i < agent._unLoadInsArray.length; i++) {//新增渲染
+                if (agent._unLoadInsArray[i].resId == resId) {
+                    let insData = agent._unLoadInsArray[i];
+                    agent._addOneIns(insData);
+                } else {
+                    insList.push(agent._unLoadInsArray[i]);
+                }
             }
+            agent._unLoadInsArray = insList;
         }
-        this._unLoadInsArray = insList;
     }
 
 
@@ -325,9 +331,9 @@ export class GCA_InsBatchAgent {
      * @param resId 
      * @returns 
      */
-    releaseRes(resId: number) {
-        if (this._loadedResID.indexOf(resId) != -1) {
-            this._loadedResID.splice(this._loadedResID.indexOf(resId), 1);
+    static releaseRes(resId: number) {
+        if (GCA_InsBatchAgent._loadedResID.indexOf(resId) != -1) {
+            GCA_InsBatchAgent._loadedResID.splice(GCA_InsBatchAgent._loadedResID.indexOf(resId), 1);
         }
         //TODO 释放Ins?? 按道理  逻辑层应该删除了Ins
         return;
@@ -349,6 +355,13 @@ export class GCA_InsBatchAgent {
         //进行Gpu Cull
         //数据更新
         //
+    }
+
+
+    destroy() {
+        GCA_InsBatchAgent._AgentArray.splice(GCA_InsBatchAgent._AgentArray.indexOf(this), 1);
+        this._forwardManager.destory();
+        this._hasDirShadow && this._dirShadowManager.destory();
     }
 }
 
