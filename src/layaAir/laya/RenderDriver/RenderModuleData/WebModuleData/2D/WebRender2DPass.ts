@@ -360,6 +360,11 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    destroy(): void {
+      for (let i = 0, n = this._lists.length; i < n; i++) {
+         if (this._lists[i]) {
+            this._lists[i].destroy();
+         }
+      }
       this._lists.length = 0;
       this._lists = null;
       this.root = null;
@@ -423,6 +428,14 @@ export class BatchBuffer {
       });
       this.bufferStates.clear();
       this.geometryList.length = 0;
+   }
+
+   destroy(): void {
+      this.clear();
+      this.indexBuffer.destroy();
+      this.indexBuffer = null;
+      this.wholeBuffer.destroy();
+      this.wholeBuffer = null;
    }
 }
 
@@ -518,9 +531,10 @@ class PassRenderList {
       this.structs.remove(struct);
    }
 
-   clear(): void {
+   destroy(): void {
       this.structs.clear();
       this.clearRenderElements();
+      this._batchBuffer.destroy();
    }
 
    clearRenderElements(): void {
