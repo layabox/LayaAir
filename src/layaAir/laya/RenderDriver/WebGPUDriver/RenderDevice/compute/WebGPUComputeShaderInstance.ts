@@ -94,7 +94,7 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
             throw new Error('Shader not compiled');
         }
 
-        console.log('create pipeline layout for entry:', entryPoint)
+        //console.log('create pipeline layout for entry:', entryPoint)
         const pipeline = this._device.createComputePipeline({
             layout: this.createPipelineLayout(),
             compute: {

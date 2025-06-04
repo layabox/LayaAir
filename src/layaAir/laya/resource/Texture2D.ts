@@ -60,6 +60,7 @@ export interface TextureCreateParam{
     sRGB?: boolean;//false
     premultiplyAlpha?: boolean;// = false    
     isStorage?:boolean;//false
+    name?:string;
 }
 
 /**

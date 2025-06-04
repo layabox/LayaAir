@@ -625,7 +625,11 @@ export class WebGPUTextureContext implements ITextureContext {
         const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, generateMipmap, 1, this._isCompressTexture(format),extParam);
         if (generateMipmap)
             textureDescriptor.mipLevelCount = 1 + Math.log2(Math.max(width, height)) | 0;
-        layerCount === 6 ? textureDescriptor.label = 'textureCube' : textureDescriptor.label = 'texture';
+        if(extParam?.name){
+            textureDescriptor.label = extParam.name;
+        }else{
+            layerCount === 6 ? textureDescriptor.label = 'textureCube' : textureDescriptor.label = 'texture';
+        }
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
         const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, 1, useSRGBExt, gammaCorrection);
         internalTex.format = format;
