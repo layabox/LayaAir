@@ -2,7 +2,7 @@ import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDev
 import { batchInfoChangeType, GCA_BatchType } from "./GCA_InsBatchAgent";
 import { GCA_BatchRenderElement } from "./GCA_BatchRenderElement";
 import { GCA_InstanceRenderElementCollect } from "./GCA_InstanceRenderElementCollect";
-import { batchIDInfo, IQXBVHCell, IQXMaterialData, PerResData, QXRenderGeometrtElement } from "./HybridSystemTemp/HyBridUtil";
+import { batchIDInfo, IGCABVHCell, IGCAMaterialData, GCAResData, GCARenderGeometrtElement } from "./HybridSystemTemp/HyBridUtil";
 import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SingletonList } from "laya/utils/SingletonList";
 import { LayaGL } from "laya/layagl/LayaGL";
@@ -80,7 +80,7 @@ export class GCA_OneBatchInfo {
 
     private _holeIndex: Array<number> = [];//空的ins索引数组,index从大到小 用来记录空洞的Ins
 
-    private _insArray: Map<number, IQXBVHCell> = new Map<number, IQXBVHCell>();//存储实例对象 key是第几个，value是实例
+    private _insArray: Map<number, IGCABVHCell> = new Map<number, IGCABVHCell>();//存储实例对象 key是第几个，value是实例
 
     private _curNeedCull: number;//最大的裁剪区域，和目前有多少个insCount并不完全一致，因为数据会有空的
     //会先收集remove  再收集add 和update，所以更新数据不会有问题
@@ -134,7 +134,7 @@ export class GCA_OneBatchInfo {
     }
 
     //更新一个ins的aabb数据
-    private _updateAABBData(index: number, isRemove: boolean, insData?: IQXBVHCell) {
+    private _updateAABBData(index: number, isRemove: boolean, insData?: IGCABVHCell) {
         let aabbindex = index * 8;
         if (isRemove) {
             this._aabbDataView[aabbindex + 3] = 1;
@@ -156,7 +156,7 @@ export class GCA_OneBatchInfo {
     }
 
     //更新一个ins的世界矩阵数据
-    private _updateWorldMatrixData(index: number, insData?: IQXBVHCell) {
+    private _updateWorldMatrixData(index: number, insData?: IGCABVHCell) {
         let worldMatrixindex = index * 16;
         let ins = insData ? insData : this._insArray.get(index);
         this._worldMatrixDataView.set(ins.worldMatrix.elements, worldMatrixindex);
@@ -167,7 +167,7 @@ export class GCA_OneBatchInfo {
     }
 
     //更新一个ins的自定义数据
-    protected _updateCustomData(index: number, insData?: IQXBVHCell) {
+    protected _updateCustomData(index: number, insData?: IGCABVHCell) {
         let ins = insData ? insData : this._insArray.get(index);
         let customDataindex = index * this._customStride;
         this._customDataView.set(ins.customData.customDataArray, customDataindex);
@@ -273,7 +273,7 @@ export class GCA_OneBatchInfo {
 
     private _createRenderElement() {
         this.renderElement = new GCA_BatchRenderElement();
-        let batchInfo = PerResData._batchIDMap.get(this.batchID);
+        let batchInfo = GCAResData._batchIDMap.get(this.batchID);
         this.spriteShaderData3D = LayaGL.renderDeviceFactory.createShaderData() as WebGPUShaderData;
         this.renderElement.renderShaderData = this.spriteShaderData3D;
         this._initShaderDataValue(batchInfo);
@@ -282,8 +282,8 @@ export class GCA_OneBatchInfo {
 
     protected _initRenderElement(data: batchIDInfo) {
         let preRes = data.res;
-        let material: IQXMaterialData;
-        let meshGeometry: QXRenderGeometrtElement;
+        let material: IGCAMaterialData;
+        let meshGeometry: GCARenderGeometrtElement;
         if (data.islower) {
             material = preRes.lowermat;
             meshGeometry = preRes.lowerMeshGeometry;
@@ -374,7 +374,7 @@ export class GCA_OneBatchInfo {
     }
 
     //批次中添加一个ins
-    addOneIns(ins: IQXBVHCell) {
+    addOneIns(ins: IGCABVHCell) {
         let insertIndex = 0;
         if (this._holeIndex.length == 0) {//如果没有空洞，就插入最后，这种大概率是要换批次
             insertIndex = this.curInsCount;
@@ -390,7 +390,7 @@ export class GCA_OneBatchInfo {
     }
 
     //批次中删除一个ins
-    removeOneIns(ins: IQXBVHCell) {
+    removeOneIns(ins: IGCABVHCell) {
         for (var [key, value] of this._insArray) {
             if (value == ins) {
                 this._chagneIndexList.add({ index: key, type: batchInfoChangeType.Remove });
@@ -406,7 +406,7 @@ export class GCA_OneBatchInfo {
     }
 
     //更新一个ins的数据
-    updateOneIns(ins: IQXBVHCell) {
+    updateOneIns(ins: IGCABVHCell) {
         for (var [key, value] of this._insArray) {
             if (value == ins) {
                 this._chagneIndexList.add({ index: key, type: batchInfoChangeType.Update });

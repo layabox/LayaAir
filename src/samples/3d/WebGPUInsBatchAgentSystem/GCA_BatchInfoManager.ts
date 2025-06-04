@@ -2,14 +2,16 @@ import { Vector2 } from "laya/maths/Vector2";
 import { SingletonList } from "laya/utils/SingletonList";
 import { GCA_Config } from "./GCA_Config";
 import { GCA_BatchType, batchInfoChangeType } from "./GCA_InsBatchAgent";
-import { IQXBVHCell } from "./HybridSystemTemp/HyBridUtil";
+import { IGCABVHCell } from "./HybridSystemTemp/HyBridUtil";
 import { GCA_InstanceRenderElementCollect } from "./GCA_InstanceRenderElementCollect";
 import { GCA_OneBatchInfo } from "./GCA_OneBatchInfo";
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
 import { ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { RenderListQueue } from "laya/RenderDriver/DriverCommon/RenderListQueue";
+import { LayaGL } from "laya/layagl/LayaGL";
 export type batchInfoChangeInfo = {
-    ins: IQXBVHCell,
+    ins: IGCABVHCell,
     batchID: number,
     changeType: batchInfoChangeType
 }
@@ -40,7 +42,7 @@ export class GCA_BatchInfoManager {
 
     constructor() {
         this._computeCommandBuffer = new ComputeCommandBuffer();
-        this._cullShaderData = new ShaderData();
+        this._cullShaderData = LayaGL.renderDeviceFactory.createShaderData();
     }
 
     //查找是否可以插入一个批次信息
@@ -59,7 +61,7 @@ export class GCA_BatchInfoManager {
     private _patchCollect(oneBatchInfo: GCA_OneBatchInfo) {
         if (oneBatchInfo.maxBlockCount == GCA_BatchType.LittleCount) {
             if (this._findCollect(this._littleElementCollects, oneBatchInfo)) {
-                let collect = new GCA_InstanceRenderElementCollect(GCA_BatchType.LittleCount);
+                let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.LittleCount);
                 collect.setCullShaderData(this._cullShaderData);
                 collect.insertOneBatchInfo(oneBatchInfo);
                 this._littleElementCollects.push(collect);
@@ -70,7 +72,7 @@ export class GCA_BatchInfoManager {
         }
         else if (oneBatchInfo.maxBlockCount == GCA_BatchType.SomeCount) {
             if (this._findCollect(this._someElementCollects, oneBatchInfo)) {
-                let collect = new GCA_InstanceRenderElementCollect(GCA_BatchType.SomeCount);
+                let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.SomeCount);
                 collect.setCullShaderData(this._cullShaderData);
                 collect.insertOneBatchInfo(oneBatchInfo);
                 this._someElementCollects.push(collect);
@@ -81,7 +83,7 @@ export class GCA_BatchInfoManager {
         }
         else if (oneBatchInfo.maxBlockCount == GCA_BatchType.QuitCount) {
             if (this._findCollect(this._quitCountElementCollects, oneBatchInfo)) {
-                let collect = new GCA_InstanceRenderElementCollect(GCA_BatchType.QuitCount);
+                let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.QuitCount);
                 collect.insertOneBatchInfo(oneBatchInfo);
                 this._quitCountElementCollects.push(collect);
                 this._quitHoleData.y += (GCA_Config.MaxBatchComputeCount / GCA_BatchType.QuitCount) | 0
@@ -90,14 +92,14 @@ export class GCA_BatchInfoManager {
             }
         }
         else {
-            let collect = new GCA_InstanceRenderElementCollect(GCA_BatchType.LargeCount);
+            let collect = GCA_Config.factory.create_GCA_InstanceRenderElementCollect(GCA_BatchType.LargeCount);
             collect.insertOneBatchInfo(oneBatchInfo);
             this._largeElementCollects.push(collect);
         } ``
     }
 
     //type 1 新增 ，-1 删除 2 更新
-    addIns(ins: IQXBVHCell, batchID: number, changeType: batchInfoChangeType) {
+    addIns(ins: IGCABVHCell, batchID: number, changeType: batchInfoChangeType) {
         if (changeType == batchInfoChangeType.Remove) {
             this._removeList.add({ ins, batchID, changeType });
         }
@@ -145,7 +147,7 @@ export class GCA_BatchInfoManager {
                 }
             }
             else {
-                batchInfo = new GCA_OneBatchInfo(changeInfo.batchID);
+                batchInfo = GCA_Config.factory.create_OneBatch(changeInfo.batchID);
                 newOneBatchInfo.push(batchInfo);
                 this._batchInfoMaps.set(changeInfo.batchID, batchInfo);
                 if (changeInfo.changeType == batchInfoChangeType.Add) {
@@ -211,6 +213,7 @@ export class GCA_BatchInfoManager {
             let collect = this._largeElementCollects[i];
             collect.uploadDataToGPU();
             collect.insertComputeCommand(this._computeCommandBuffer);
+
         }
         for (let i = 0; i < this._quitCountElementCollects.length; i++) {
             let collect = this._quitCountElementCollects[i];
@@ -231,7 +234,47 @@ export class GCA_BatchInfoManager {
         this._computeCommandBuffer.executeCMDs();
     }
 
-    appendBatch() {
-        //add Render List
+    appendBatch(opaque: RenderListQueue, alphaTest: RenderListQueue) {
+        for (let i = 0; i < this._largeElementCollects.length; i++) {
+            let collect = this._largeElementCollects[i];
+            for (var [key, value] of collect.renderElementArray) {
+                if (value.renderElement.materialRenderQueue < 2500) {
+                    opaque.addRenderElement(value.renderElement);
+                } else {
+                    alphaTest.addRenderElement(value.renderElement);
+                }
+            }
+        }
+        for (let i = 0; i < this._quitCountElementCollects.length; i++) {
+            let collect = this._quitCountElementCollects[i];
+            for (var [key, value] of collect.renderElementArray) {
+                if (value.renderElement.materialRenderQueue < 2500) {
+                    opaque.addRenderElement(value.renderElement);
+                } else {
+                    alphaTest.addRenderElement(value.renderElement);
+                }
+            }
+        }
+        for (let i = 0; i < this._someElementCollects.length; i++) {
+            let collect = this._someElementCollects[i];
+            for (var [key, value] of collect.renderElementArray) {
+                if (value.renderElement.materialRenderQueue < 2500) {
+                    opaque.addRenderElement(value.renderElement);
+                } else {
+                    alphaTest.addRenderElement(value.renderElement);
+                }
+            }
+        }
+
+        for (let i = 0; i < this._littleElementCollects.length; i++) {
+            let collect = this._littleElementCollects[i];
+            for (var [key, value] of collect.renderElementArray) {
+                if (value.renderElement.materialRenderQueue < 2500) {
+                    opaque.addRenderElement(value.renderElement);
+                } else {
+                    alphaTest.addRenderElement(value.renderElement);
+                }
+            }
+        }
     }
 }

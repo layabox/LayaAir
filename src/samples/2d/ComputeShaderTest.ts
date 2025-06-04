@@ -32,9 +32,7 @@ export class ComputeShaderTest {
 
             // this.showApe();
 
-            if (true) {
-                this.testComputeShader2();
-            }
+           
             //   let shaderCompiler = new WebGPUShaderCompiler();
             //    shaderCompiler.init().then(()=>{
             //     console.log("compelete")
@@ -59,57 +57,6 @@ export class ComputeShaderTest {
         });
     }
 
-
-
-    private testComputeShader2() {
-        let computeShader = GCA_CullComputeShader.computeshaderCodeInit();
-        let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
-
-
-        const InstanceCount = 1024;
-        const blockElementCount = 4;
-        const blockCount = (InstanceCount / blockElementCount) | 0;
-        let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        {
-            shaderData
-            let planes = new Float32Array(4 * 6);//从camear来
-            shaderData.setBuffer(Shader3D.propertyNameToID("cullPlanes"), planes);
-            //TODO cull data
-            shaderData.setInt(Shader3D.propertyNameToID("blockCount"), blockElementCount);
-            shaderData.setInt(Shader3D.propertyNameToID("cullBlockCount"), blockCount);
-        }
-        let shaderData1 = LayaGL.renderDeviceFactory.createShaderData();
-        {
-            let aabbs = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
-            aabbs.setDataLength((InstanceCount * 6) * 4); // 假设有6个AABB，每个AABB需要4个float
-
-            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("aabbs"), aabbs);
-
-            let culled = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
-            culled.setDataLength((blockCount * (blockElementCount + 2)) * 4); // 假设每个实例需要4个float
-
-            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("culled"), culled);
-
-            let indirectArgs = LayaGL.renderDeviceFactory.createDeviceBuffer(EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.COPY_SRC);
-            indirectArgs.setDataLength(blockCount * 5 * 4); // 假设每个实例需要4个float
-
-            shaderData1.setDeviceBuffer(Shader3D.propertyNameToID("indirectArgs"), indirectArgs);
-        }
-
-        {
-            //创建ComputeCommandBuffer
-            let commands = new ComputeCommandBuffer();
-            let dispatchParams = new Vector3(1, 1, 1);
-
-            commands.addDispatchCommand(computeShader, "computeMain", shaderDefine, [shaderData, shaderData1], dispatchParams);
-
-            Laya.timer.frameLoop(1, this, () => {
-
-                commands.executeCMDs();
-            });
-
-        }
-    }
 
 
     private getCullPlane() {

@@ -1,4 +1,4 @@
-import { CullingMode, IQXBVHCell, PerResData, QXLodLevel, QXRenderMask } from "./HybridSystemTemp/HyBridUtil";
+import { CullingMode, IGCABVHCell, GCAResData, QXLodLevel, GCARenderMask } from "./HybridSystemTemp/HyBridUtil";
 import { SingletonList } from "laya/utils/SingletonList";
 import { ShadowCullInfo } from "laya/d3/shadowMap/ShadowSliceData";
 import { RenderListQueue } from "laya/RenderDriver/DriverCommon/RenderListQueue";
@@ -6,6 +6,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { FrustumCulling } from "laya/d3/graphics/FrustumCulling";
 import { GCA_Config } from "./GCA_Config";
 import { GCA_BatchInfoManager } from "./GCA_BatchInfoManager";
+import { Plane } from "laya/d3/math/Plane";
 
 export enum GCA_BatchType {
     LittleCount = GCA_Config.MaxBatchCountLittle,
@@ -31,7 +32,7 @@ export class GCA_InsBatchAgent {
 
     private _loadedResID: number[] = [];
     /**未加载完成的渲染节点 */
-    private _unLoadInsArray: IQXBVHCell[] = [];
+    private _unLoadInsArray: IGCABVHCell[] = [];
     /**已加载完成的渲染节点 */
     private _forwardManager: GCA_BatchInfoManager = new GCA_BatchInfoManager();
 
@@ -40,30 +41,32 @@ export class GCA_InsBatchAgent {
 
     private _lodChangeMap: Map<number, QXLodLevel> = new Map();//key为insId,value为lod等级,如果变化了需要组织batch数据的新增和删除
 
-    private _cameraCullSingleList: SingletonList<IQXBVHCell> = new SingletonList<IQXBVHCell>();
+    private _cameraCullSingleList: SingletonList<IGCABVHCell> = new SingletonList<IGCABVHCell>();
 
-    private _dirShadowCullSingleList: SingletonList<IQXBVHCell> = new SingletonList<IQXBVHCell>();
+    private _dirShadowCullSingleList: SingletonList<IGCABVHCell> = new SingletonList<IGCABVHCell>();
 
     //是否处理阴影
     private _hasDirShadow: boolean = false;
 
+    private _cullPlaneData: Float32Array = new Float32Array(4 * 6);
+
     constructor(hasDirShadow: boolean = true) {
         this._hasDirShadow = hasDirShadow;
         if (hasDirShadow) {
-            this._dirShadowCullSingleList = new SingletonList<IQXBVHCell>();
+            this._dirShadowCullSingleList = new SingletonList<IGCABVHCell>();
         }
     }
 
-    private _getNormalBatchID(ins: IQXBVHCell, elemntIdx: number, lodInfo: QXLodLevel): number {
+    private _getNormalBatchID(ins: IGCABVHCell, elemntIdx: number, lodInfo: QXLodLevel): number {
         let batchID = ins.resId * 10000000 + ins.lightmapIndex * 100000 + (ins.flipped ? 1 : 2) * 10000 +
-            ((ins.renderMask & QXRenderMask.ReceiveShadow) ? 1 : 2) * 1000 + elemntIdx * 10 + lodInfo;
-        if (!PerResData._batchIDMap.has(batchID)) {
-            PerResData._batchIDMap.set(batchID,
+            ((ins.renderMask & GCARenderMask.ReceiveShadow) ? 1 : 2) * 1000 + elemntIdx * 10 + lodInfo;
+        if (!GCAResData._batchIDMap.has(batchID)) {
+            GCAResData._batchIDMap.set(batchID,
                 {
-                    res: PerResData.getResDataById(ins.resId),
+                    res: GCAResData.getResDataById(ins.resId),
                     islower: lodInfo,
                     elementIndex: elemntIdx,
-                    isReceiveShadow: (ins.renderMask & QXRenderMask.ReceiveShadow) != 0,
+                    isReceiveShadow: (ins.renderMask & GCARenderMask.ReceiveShadow) != 0,
                     lightmapIndex: ins.lightmapIndex,
                     flipped: ins.flipped
                 });
@@ -71,12 +74,12 @@ export class GCA_InsBatchAgent {
         return batchID;
     }
 
-    private _getDirShadowBatchID(ins: IQXBVHCell, elemntIdx: number, lodInfo: QXLodLevel): number {
+    private _getDirShadowBatchID(ins: IGCABVHCell, elemntIdx: number, lodInfo: QXLodLevel): number {
         let batchID = ins.resId * 10000 + (ins.flipped ? 1 : 2) * 1000 + elemntIdx * 10 + lodInfo;
-        if (!PerResData._batchIDMap.has(batchID)) {
-            PerResData._batchIDMap.set(batchID,
+        if (!GCAResData._batchIDMap.has(batchID)) {
+            GCAResData._batchIDMap.set(batchID,
                 {
-                    res: PerResData.getResDataById(ins.resId),
+                    res: GCAResData.getResDataById(ins.resId),
                     islower: lodInfo,
                     elementIndex: elemntIdx,
                     isReceiveShadow: false,
@@ -90,13 +93,13 @@ export class GCA_InsBatchAgent {
     /**
      * 往实际的渲染节点中塞入数据
      */
-    private _addOneRenderIns(ins: IQXBVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
+    private _addOneRenderIns(ins: IGCABVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
         //塞入正常渲染
         let batchID = this._getNormalBatchID(ins, elemntIdx, lodInfo);
         this._forwardManager.addIns(ins, batchID, batchInfoChangeType.Add);
 
         //塞入阴影pass渲染
-        if (this._hasDirShadow && (ins.renderMask & QXRenderMask.CastShadow)) {
+        if (this._hasDirShadow && (ins.renderMask & GCARenderMask.CastShadow)) {
             let batchID = this._getDirShadowBatchID(ins, elemntIdx, lodInfo);
             this._dirShadowManager.addIns(ins, batchID, batchInfoChangeType.Add);
         }
@@ -105,25 +108,25 @@ export class GCA_InsBatchAgent {
     /**
      * 从实际的渲染节点中移除数据
      */
-    private _removeOneRenderIns(ins: IQXBVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
+    private _removeOneRenderIns(ins: IGCABVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
         //移除正常渲染
         let batchID = this._getNormalBatchID(ins, elemntIdx, lodInfo);
         this._forwardManager.addIns(ins, batchID, batchInfoChangeType.Remove);
 
         //移除阴影pass渲染
-        if (this._hasDirShadow && (ins.renderMask & QXRenderMask.CastShadow)) {
+        if (this._hasDirShadow && (ins.renderMask & GCARenderMask.CastShadow)) {
             let batchID = this._getDirShadowBatchID(ins, elemntIdx, lodInfo);
             this._dirShadowManager.addIns(ins, batchID, batchInfoChangeType.Remove);
         }
     }
 
-    private _updateOneRenderIns(ins: IQXBVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
+    private _updateOneRenderIns(ins: IGCABVHCell, elemntIdx: number, lodInfo: QXLodLevel) {
         //更新正常渲染
         let batchID = this._getNormalBatchID(ins, elemntIdx, lodInfo);
         this._forwardManager.addIns(ins, batchID, batchInfoChangeType.Update);
 
         //更新阴影pass渲染
-        if (this._hasDirShadow && (ins.renderMask & QXRenderMask.CastShadow)) {
+        if (this._hasDirShadow && (ins.renderMask & GCARenderMask.CastShadow)) {
             let batchID = this._getDirShadowBatchID(ins, elemntIdx, lodInfo);
             this._dirShadowManager.addIns(ins, batchID, batchInfoChangeType.Update);
         }
@@ -133,14 +136,14 @@ export class GCA_InsBatchAgent {
      * 添加一个渲染节点
      * @param insData 
      */
-    private _addOneIns(insData: IQXBVHCell) {
+    private _addOneIns(insData: IGCABVHCell) {
         let lodLevel = this._lodChangeMap.get(insData.id);
         if (!lodLevel) {//判断有没有指定LodLod
             lodLevel = QXLodLevel.High;//默认高模
             this._lodChangeMap.set(insData.id, lodLevel);
         }
         if (lodLevel == QXLodLevel.High) {
-            let res = PerResData.getResDataById(insData.resId);
+            let res = GCAResData.getResDataById(insData.resId);
             for (let j = 0; j < res.batchElements.length; j++) {
                 this._addOneRenderIns(insData, j, QXLodLevel.High);
             }
@@ -154,7 +157,7 @@ export class GCA_InsBatchAgent {
      * 移除一个渲染节点
      * @param insData 
      */
-    private _removeOneIns(insData: IQXBVHCell) {
+    private _removeOneIns(insData: IGCABVHCell) {
         if (!this._lodChangeMap.has(insData.id)) {
             console.log("没有找到对应的Ins");
             return;
@@ -162,7 +165,7 @@ export class GCA_InsBatchAgent {
         let lodLevel = this._lodChangeMap.get(insData.id);
 
         if (lodLevel == QXLodLevel.High) {
-            let res = PerResData.getResDataById(insData.resId);
+            let res = GCAResData.getResDataById(insData.resId);
             for (let j = 0; j < res.batchElements.length; j++) {
                 this._removeOneRenderIns(insData, j, QXLodLevel.High);
             }
@@ -172,7 +175,7 @@ export class GCA_InsBatchAgent {
         }
     }
 
-    private _updateOneIns(insData: IQXBVHCell) {
+    private _updateOneIns(insData: IGCABVHCell) {
         if (!this._lodChangeMap.has(insData.id)) {
             console.log("没有找到对应的Ins");
             return;
@@ -180,7 +183,7 @@ export class GCA_InsBatchAgent {
 
         let lodLevel = this._lodChangeMap.get(insData.id);
         if (lodLevel == QXLodLevel.High) {
-            let res = PerResData.getResDataById(insData.resId);
+            let res = GCAResData.getResDataById(insData.resId);
             for (let j = 0; j < res.batchElements.length; j++) {
                 this._updateOneRenderIns(insData, j, QXLodLevel.High);
             }
@@ -197,9 +200,9 @@ export class GCA_InsBatchAgent {
     setChangeInsId2LevelList(map: Map<number, QXLodLevel>): void {
         for (let [key, value] of map) {
             if (this._lodChangeMap.has(key) && this._lodChangeMap.get(key) != value) {
-                this._removeOneIns(IQXBVHCell.getInsDataById(key));
+                this._removeOneIns(IGCABVHCell.getInsDataById(key));
                 this._lodChangeMap.set(key, value);
-                this._addOneIns(IQXBVHCell.getInsDataById(key));
+                this._addOneIns(IGCABVHCell.getInsDataById(key));
             }
         }
     }
@@ -208,7 +211,7 @@ export class GCA_InsBatchAgent {
      * 添加一个渲染节点
      * @param ins 
      */
-    addIns(ins: IQXBVHCell): void {
+    addIns(ins: IGCABVHCell): void {
         if (this._loadedResID.indexOf(ins.resId) != -1) {
             this._addOneIns(ins);
         }
@@ -221,7 +224,7 @@ export class GCA_InsBatchAgent {
      * 移除一个渲染节点
      * @param ins 
      */
-    removeIns(ins: IQXBVHCell): void {
+    removeIns(ins: IGCABVHCell): void {
         if (this._loadedResID.indexOf(ins.resId) != -1) {
             this._removeOneIns(ins);
         }
@@ -234,18 +237,18 @@ export class GCA_InsBatchAgent {
      * 更新一个渲染节点
      * @param ins 
      */
-    updateIns(ins: IQXBVHCell): void {
+    updateIns(ins: IGCABVHCell): void {
         if (this._loadedResID.indexOf(ins.resId) != -1) {
             this._updateOneIns(ins);
         }
     }
 
     /**
-     * 设置裁剪相机，进行初始化裁剪
+     * 设置裁剪相机，裁剪
      * @param camera 
      * @returns 
      */
-    setCullingCamera(camera: Camera): SingletonList<IQXBVHCell> {
+    setCullingCamera(camera: Camera): SingletonList<IGCABVHCell> {
         //准备所有的渲染节点
         this._cameraCullSingleList.length = 0;
         let boundFrustum = camera.boundFrustum;
@@ -255,8 +258,20 @@ export class GCA_InsBatchAgent {
                 this._cameraCullSingleList.add(ins);
             }
         }
-        //TODO
-        //set cull Plane to GPU 
+
+        let fillCullData = (plane: Plane, index: number) => {
+            this._cullPlaneData[index] = plane.normal.x;
+            this._cullPlaneData[index + 1] = plane.normal.y;
+            this._cullPlaneData[index + 2] = plane.normal.z;
+            this._cullPlaneData[index + 3] = plane.distance;
+        }
+        fillCullData(boundFrustum.near, 0);
+        fillCullData(boundFrustum.far, 4);
+        fillCullData(boundFrustum.left, 8);
+        fillCullData(boundFrustum.right, 12);
+        fillCullData(boundFrustum.top, 16);
+        fillCullData(boundFrustum.bottom, 20);
+        this._forwardManager.setCullPlanes(this._cullPlaneData);
         this._forwardManager.applyChage();
         return this._cameraCullSingleList;
     }
@@ -267,11 +282,11 @@ export class GCA_InsBatchAgent {
      * @param cullInfo 
      * @returns 
      */
-    setCullingDir(cullInfo: ShadowCullInfo): SingletonList<IQXBVHCell> {
+    setCullingDir(cullInfo: ShadowCullInfo): SingletonList<IGCABVHCell> {
         this._dirShadowCullSingleList.length = 0;
         for (let i = 0; i < this._unLoadInsArray.length; i++) {
             let ins = this._unLoadInsArray[i];
-            if ((ins.renderMask & QXRenderMask.CastShadow) && FrustumCulling.cullingRenderBounds(ins.bounds, cullInfo)) {
+            if ((ins.renderMask & GCARenderMask.CastShadow) && FrustumCulling.cullingRenderBounds(ins.bounds, cullInfo)) {
                 this._dirShadowCullSingleList.add(ins);
             }
         }
@@ -292,7 +307,7 @@ export class GCA_InsBatchAgent {
             throw "传入了重复的资源"
         }
         this._loadedResID.push(resId);
-        let insList: IQXBVHCell[] = [];
+        let insList: IGCABVHCell[] = [];
         for (let i = 0; i < this._unLoadInsArray.length; i++) {//新增渲染
             if (this._unLoadInsArray[i].resId == resId) {
                 let insData = this._unLoadInsArray[i];
@@ -316,6 +331,10 @@ export class GCA_InsBatchAgent {
         }
         //TODO 释放Ins?? 按道理  逻辑层应该删除了Ins
         return;
+    }
+
+    getRenderList(manager: GCA_BatchInfoManager, opaque: RenderListQueue, alphaTest: RenderListQueue) {
+        manager.appendBatch(opaque, alphaTest);
     }
 
     /**

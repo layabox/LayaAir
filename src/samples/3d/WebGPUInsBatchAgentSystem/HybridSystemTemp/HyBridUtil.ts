@@ -5,13 +5,13 @@ import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDev
 import { ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 
-export enum QXRenderMask {
+export enum GCARenderMask {
     Normal = 1,
     CastShadow = 2,
     ReceiveShadow = 4
 }
 
-export class QXRenderGeometrtElement {//对应subMesh架构
+export class GCARenderGeometrtElement {//对应subMesh架构
     indexCount: number;
     indexFormat: number;
     indexOffset: number;
@@ -23,7 +23,7 @@ export class BatchElement {//对应一个渲染批次
     matIdx: number;
 }
 
-export class IQXMaterialData {//对应一个Material
+export class IGCAMaterialData {//对应一个Material
     id: number;
     shaderData: ShaderData;
     subShader: SubShader;
@@ -32,47 +32,45 @@ export class IQXMaterialData {//对应一个Material
 }
 
 export interface batchIDInfo {
-    res: PerResData,
+    res: GCAResData,
     islower: QXLodLevel,
     elementIndex: number,
     isReceiveShadow: boolean
     lightmapIndex: number,
     flipped: boolean
 }
-export class PerResData {//对应一个Ins对应的渲染资源
+export class GCAResData {//对应一个Ins对应的渲染资源
     static _countPtr: number = 0;
-    static _resDataMap: Map<number, PerResData> = new Map();
+    static _resDataMap: Map<number, GCAResData> = new Map();
     static _batchIDMap: Map<number, batchIDInfo> = new Map();
     static getResDataById(id: number) {
         return this._resDataMap.get(id);
     }
     constructor() {
-        this.id = PerResData._countPtr++;
-        PerResData._resDataMap.set(this.id, this);
+        this.id = GCAResData._countPtr++;
+        GCAResData._resDataMap.set(this.id, this);
     }
     id: number;
     isDirty: boolean = false;
-    materials: IQXMaterialData[] = [];
+    materials: IGCAMaterialData[] = [];
     batchElements: BatchElement[] = [];
-    mesh: QXRenderGeometrtElement[] = [];
+    mesh: GCARenderGeometrtElement[] = [];
     meshid: number;
     haslowerMat: boolean;
-    lowermat: IQXMaterialData;
+    lowermat: IGCAMaterialData;
     lowerMeshId: number;
-    lowerMeshGeometry: QXRenderGeometrtElement;
+    lowerMeshGeometry: GCARenderGeometrtElement;
 }
 
-var meshMap: Map<number, IRenderGeometryElement> = new Map();
-
-export class IQXBVHCell {//一个渲染节点
+export class IGCABVHCell {//一个渲染节点
     static _countPtr: number = 0;
-    static _InsDataMap: Map<number, IQXBVHCell> = new Map();
+    static _InsDataMap: Map<number, IGCABVHCell> = new Map();
     static getInsDataById(id: number) {
         return this._InsDataMap.get(id);
     }
     constructor() {
-        this.id = IQXBVHCell._countPtr++;
-        IQXBVHCell._InsDataMap.set(this.id, this);
+        this.id = IGCABVHCell._countPtr++;
+        IGCABVHCell._InsDataMap.set(this.id, this);
     }
     id: number;
     worldMatrix: Matrix4x4;
@@ -97,9 +95,3 @@ export enum CullingMode {//裁剪模式
     ShadowSpot
 }
 
-
-
-//模拟各种资源生成和流程测试
-export class hybridSystemUtil {
-
-}
