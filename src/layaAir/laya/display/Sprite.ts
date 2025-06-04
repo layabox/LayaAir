@@ -785,7 +785,6 @@ export class Sprite extends Node {
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
         if (value) {
-            this._filterArr = value;
             this._renderType |= SpriteConst.POSTPROCESS;
             let postProcess = this._getPostProcess();
             postProcess.clear();
@@ -795,9 +794,13 @@ export class Sprite extends Node {
         }
         else {
             this._renderType &= ~SpriteConst.POSTPROCESS;
-            this._oriRenderPass.postProcess && this._oriRenderPass.postProcess.destroy();
+            if (this._oriRenderPass && this._oriRenderPass.postProcess) {
+                this._oriRenderPass.postProcess.destroy();
+                this._oriRenderPass.postProcess = null;
+            }
         }
 
+        this._filterArr = value;
         this.setSubpassFlag(SbuPassFlag.PostProcess);
 
         if (value && value.length > 0) {

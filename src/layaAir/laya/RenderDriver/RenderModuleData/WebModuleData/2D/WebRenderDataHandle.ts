@@ -374,7 +374,7 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
     skeleton: spine.Skeleton;
 
     inheriteRenderData(context: IRenderContext2D): void {
-        if (!this._owner || !this._owner.spriteShaderData)
+        if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
             return
         let shaderData = this.owner.spriteShaderData;
         let trans = this.owner.renderMatrix;
