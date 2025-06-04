@@ -73,8 +73,13 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
         if (Config._uniformBlock && this.sceneData) {
-            let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-            this.sceneData.createUniformBuffer("Scene3D", sceneMap._idata);
+
+            for (let key of this._preDrawUniformMaps) {
+                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                if (uniformMap._idata.size > 0) {
+                    this.sceneData.createUniformBuffer(key, uniformMap._idata);
+                }
+            }
         }
     }
 

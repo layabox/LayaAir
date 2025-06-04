@@ -512,6 +512,7 @@ export class GLShaderInstance extends GLObject {
         //     value.upload();
         // }
         value.bind(one.location);
+        return 1;
     }
 
     /**

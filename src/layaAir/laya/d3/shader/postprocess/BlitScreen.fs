@@ -8,7 +8,7 @@ varying vec2 v_Texcoord0;
 void main()
 {
 #ifdef FXAA
-    gl_FragColor = FXAAMain(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.zw);
+    gl_FragColor = FXAAMain(v_Texcoord0, u_MainTex_TexelSize.zw);
 #else
     vec4 mainColor = texture2D(u_MainTex, v_Texcoord0);
     #ifdef Gamma_u_MainTex

@@ -278,8 +278,8 @@ function supportUniformBlock(type: ShaderDataType) {
         case ShaderDataType.Color:
         case ShaderDataType.Matrix4x4:
         case ShaderDataType.Matrix3x3:
-            return true;
         case ShaderDataType.Bool:
+            return true;
         default:
             return false;
     }

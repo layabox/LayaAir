@@ -141,8 +141,12 @@ export abstract class WebGLUniformBufferBase {
 
             switch (type) {
                 case ShaderDataType.Bool:
-                    // todo
-                    console.warn("ShaderDataType.Bool not support");
+                    if (uniform.arrayLength > 0) {
+                        console.warn("ShaderDataType.Bool array not support");
+                    }
+                    else {
+                        this.setInt(index, data ? 1 : 0);
+                    }
                     break;
                 case ShaderDataType.Int:
                     if (uniform.arrayLength > 0) {

@@ -537,6 +537,7 @@ export class Stat {
         Stat.trianglesFaces += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
         Stat.drawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
         Stat.instanceDrawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
+        Stat.uniformUpload += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount);
 
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
