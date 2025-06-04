@@ -302,19 +302,19 @@ export class Sprite extends Node {
         this._subStructRender = null;
         this._filterArr = null;
         this._texture = null;
-
         if (this._graphics) {
             this._graphicsData.destroy();
             if (this._ownGraphics) {
                 this._graphics.destroy();
-            }else
+            } else
                 this._graphics._setDisplay(false);
-                
+
             this._graphics = null;
             this._graphicsData = null;
         }
         this._subStruct = null;
         this._struct = null;
+        this._subpassUpdateFlag = 0;
     }
 
     /**
@@ -2333,7 +2333,8 @@ export class Sprite extends Node {
      * @param enable 是否启用子渲染通道。
      */
     setSubRenderPassState(enable: boolean) {
-        if (!this._oriRenderPass && enable) {
+        if (!this._oriRenderPass) {
+            if (!enable) return;
             this.createSubRenderPass();
         }
 
