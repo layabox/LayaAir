@@ -42,8 +42,6 @@ export class WebGraphicsBatch implements IBatch2DRender {
         this._pool.push(value);
     }
 
-    // _recoverList = new FastSinglelist<IRenderElement2D>();
-
     batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
         let batchStart = -1;
@@ -200,9 +198,10 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
     batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void {
         let handle = strcut.renderDataHandler as WebPrimitiveDataHandle;
-        let cviews = handle.getCloneViews();
         let blocks = handle._getBlocks();
+        if (!blocks) return
 
+        let cviews = handle.getCloneViews();
         for (let i = 0, n = blocks.length; i < n; i++) {
             let cview = cviews[i] as Web2DGraphic2DBufferDataView;
             let block = blocks[i];

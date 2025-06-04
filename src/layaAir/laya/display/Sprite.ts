@@ -784,6 +784,8 @@ export class Sprite extends Node {
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
+
+        this._filterArr = value;
         if (value) {
             this._renderType |= SpriteConst.POSTPROCESS;
             let postProcess = this._getPostProcess();
@@ -800,7 +802,6 @@ export class Sprite extends Node {
             }
         }
 
-        this._filterArr = value;
         this.setSubpassFlag(SbuPassFlag.PostProcess);
 
         if (value && value.length > 0) {

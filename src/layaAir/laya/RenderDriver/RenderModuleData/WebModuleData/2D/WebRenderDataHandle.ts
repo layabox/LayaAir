@@ -65,7 +65,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     mask: WebRenderStruct2D | null = null;
 
-    private _bufferBlocks: Graphics2DBufferBlock[] = [];
+    private _bufferBlocks: Graphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: I2DGraphicBufferDataView[];
@@ -200,6 +200,17 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             clone.geometry.indexFormat = IndexFormat.UInt16;
         }
         return clone;
+    }
+
+    destroy(): void {
+        super.destroy();
+
+        if (this._clonesViews) {
+            for (let i = 0, n = this._clonesViews.length; i < n; i++)
+                this._clonesViews[i].geometry.destroy();
+            this._clonesViews = null;
+        }
+        this._bufferBlocks = null;
     }
 }
 
