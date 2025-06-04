@@ -23,7 +23,15 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     private _vsShader: GPUShaderModule;
 
+    get vertexModule(): GPUShaderModule {
+        return this._vsShader;
+    }
+
     private _fsShader: GPUShaderModule;
+
+    get fragmentModule(): GPUShaderModule {
+        return this._fsShader;
+    }
 
     private _destroyed: boolean = false;
 
@@ -62,52 +70,52 @@ export class WebGPUShaderInstance implements IShaderInstance {
         throw new NotImplementedError();
     }
 
-    /**
-     * 获取渲染管线描述
-     */
-    getRenderPipelineDescriptor() {
-        const engine = WebGPURenderEngine._instance;
-        //设置颜色目标模式
-        let targetFormat = WebGPUTextureFormat.rgba8unorm;
-        if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
-            targetFormat = WebGPUTextureFormat.bgra8unorm;
-        }
-        const colorTargetState: GPUColorTargetState = {
-            format: targetFormat,
-            writeMask: GPUColorWrite.ALL,
-        };
+    // /**
+    //  * 获取渲染管线描述
+    //  */
+    // getRenderPipelineDescriptor() {
+    //     const engine = WebGPURenderEngine._instance;
+    //     //设置颜色目标模式
+    //     let targetFormat = WebGPUTextureFormat.rgba8unorm;
+    //     if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
+    //         targetFormat = WebGPUTextureFormat.bgra8unorm;
+    //     }
+    //     const colorTargetState: GPUColorTargetState = {
+    //         format: targetFormat,
+    //         writeMask: GPUColorWrite.ALL,
+    //     };
 
-        //设置渲染管线描述
-        const renderPipelineDescriptor: GPURenderPipelineDescriptor = {
-            label: 'render',
-            layout: 'auto',
-            vertex: {
-                buffers: [],
-                module: this._vsShader,
-                entryPoint: 'main',
-            },
-            fragment: {
-                module: this._fsShader,
-                entryPoint: 'main',
-                targets: [colorTargetState],
-            },
-            primitive: {
-                topology: 'triangle-list',
-                frontFace: 'ccw',
-                cullMode: 'back',
-            },
-            depthStencil: {
-                format: 'depth24plus-stencil8',
-                depthWriteEnabled: true,
-                depthCompare: 'less',
-            },
-            multisample: {
-                count: 1,
-            },
-        };
+    //     //设置渲染管线描述
+    //     const renderPipelineDescriptor: GPURenderPipelineDescriptor = {
+    //         label: 'render',
+    //         layout: 'auto',
+    //         vertex: {
+    //             buffers: [],
+    //             module: this._vsShader,
+    //             entryPoint: 'main',
+    //         },
+    //         fragment: {
+    //             module: this._fsShader,
+    //             entryPoint: 'main',
+    //             targets: [colorTargetState],
+    //         },
+    //         primitive: {
+    //             topology: 'triangle-list',
+    //             frontFace: 'ccw',
+    //             cullMode: 'back',
+    //         },
+    //         depthStencil: {
+    //             format: 'depth24plus-stencil8',
+    //             depthWriteEnabled: true,
+    //             depthCompare: 'less',
+    //         },
+    //         multisample: {
+    //             count: 1,
+    //         },
+    //     };
 
-        return renderPipelineDescriptor;
-    }
+    //     return renderPipelineDescriptor;
+    // }
 
     /**
      * 创建ShaderInstance
