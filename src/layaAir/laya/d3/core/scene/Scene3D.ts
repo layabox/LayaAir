@@ -53,6 +53,7 @@ import { ILaya3D } from "../../../../ILaya3D";
 import { Config } from "../../../../Config";
 import { Sprite3D } from "../Sprite3D";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
+import { Node } from "../../../display/Node";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -1124,6 +1125,9 @@ export class Scene3D extends Sprite {
         this._sceneRenderManager.removeRenderObject(render);
     }
 
+    _setBelongScene(scene: Node): void {
+        
+    }
     /**
      * @en Destroys the scene.
      * @param destroyChild Whether to destroy the child node.

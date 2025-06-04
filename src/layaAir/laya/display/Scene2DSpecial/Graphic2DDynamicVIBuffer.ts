@@ -30,8 +30,6 @@ export class Graphic2DDynamicVIBuffer {
 
     private _vertexViews: I2DGraphicBufferDataView[] = [];
 
-    private _indexViews: Map<number, I2DGraphicBufferDataView[]> = new Map();
-
     private _indexBufferLength: number = 0;
     private _indexBufferMaxLength: number = 0;
 
@@ -230,14 +228,17 @@ export class Graphic2DDynamicVIBuffer {
      */
     releaseIndexView(indexView: I2DGraphicBufferDataView) {
         this._indexBufferLength -= indexView.length;
+        // indexView 移除
+        this._wholeIndex.removeDataView(indexView);
     }
 
     /**
+     * 效果存疑
      * 清除池子内的索引缓冲区块
      */
-    clearAllIndexView() {
-        this._wholeIndex.clearBufferViews();
-    }
+    // clearAllIndexView() {
+    //     this._wholeIndex.clearBufferViews();
+    // }
 
     // /**
     //  * 上传数据到GPU

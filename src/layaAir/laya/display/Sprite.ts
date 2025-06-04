@@ -302,17 +302,19 @@ export class Sprite extends Node {
         this._subStructRender = null;
         this._filterArr = null;
         this._texture = null;
-
         if (this._graphics) {
             this._graphicsData.destroy();
             if (this._ownGraphics) {
                 this._graphics.destroy();
-            }
+            } else
+                this._graphics._setDisplay(false);
+
             this._graphics = null;
             this._graphicsData = null;
         }
         this._subStruct = null;
         this._struct = null;
+        this._subpassUpdateFlag = 0;
     }
 
     /**
@@ -783,7 +785,6 @@ export class Sprite extends Node {
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
         if (value) {
-            this._filterArr = value;
             this._renderType |= SpriteConst.POSTPROCESS;
             let postProcess = this._getPostProcess();
             postProcess.clear();
@@ -793,9 +794,13 @@ export class Sprite extends Node {
         }
         else {
             this._renderType &= ~SpriteConst.POSTPROCESS;
-            this._oriRenderPass.postProcess && this._oriRenderPass.postProcess.destroy();
+            if (this._oriRenderPass && this._oriRenderPass.postProcess) {
+                this._oriRenderPass.postProcess.destroy();
+                this._oriRenderPass.postProcess = null;
+            }
         }
 
+        this._filterArr = value;
         this.setSubpassFlag(SbuPassFlag.PostProcess);
 
         if (value && value.length > 0) {
@@ -1592,7 +1597,8 @@ export class Sprite extends Node {
         let runner = Render2DProcessor.runner;
 
         const _updateSprites = function (root: Sprite): void {
-            for (let i = 0, len = root.numChildren; i < len; i++) {
+
+            for (let i = 0, len = root._children.length; i < len; i++) {
                 let child = root._children[i];
 
                 if (child._subpassUpdateFlag) {
@@ -2330,7 +2336,8 @@ export class Sprite extends Node {
      * @param enable 是否启用子渲染通道。
      */
     setSubRenderPassState(enable: boolean) {
-        if (!this._oriRenderPass && enable) {
+        if (!this._oriRenderPass) {
+            if (!enable) return;
             this.createSubRenderPass();
         }
 

@@ -2178,17 +2178,6 @@ export class GraphicsRunner {
         return this._meshPool[this._currentMeshIndex];
     }
 
-    /**
-     * 清除未使用的indexView
-     */
-    removeAllIndexView() {
-        let meshes = this._meshPool;
-        for (let i = 0; i < meshes.length; i++) {
-            let mesh = meshes[i];
-            mesh.removeAllIndexView();
-        }
-    }
-
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo, submit: SubmitBase,

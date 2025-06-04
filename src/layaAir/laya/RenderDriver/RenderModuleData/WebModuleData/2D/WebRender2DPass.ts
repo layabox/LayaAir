@@ -18,12 +18,21 @@ import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
+import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
+import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
+import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
-   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , recoverList: FastSinglelist<IRenderElement2D>): void;
+   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D> , buffer : BatchBuffer): void;
 
    recover(list: FastSinglelist<IRenderElement2D>): void;
+
+   batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void;
 }
 
 export class Batch2DInfo {
@@ -361,6 +370,62 @@ export class WebRender2DPass implements IRender2DPass {
    }
 }
 
+/**
+ * 简单的管理indexBuffer
+ */
+export class BatchBuffer {
+
+   static _STEP_ = 1024;
+
+   indexBuffer: IIndexBuffer;
+   wholeBuffer: Web2DGraphicWholeBuffer;
+
+   indexCount: number = 0;
+   maxIndexCount: number = 0;
+
+   bufferStates: Map<IVertexBuffer, IBufferState> = new Map();
+
+   geometryList: IRenderGeometryElement[] = [];
+
+   constructor() {
+      this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
+      this.indexBuffer.indexType = IndexFormat.UInt16;
+      this.wholeBuffer = new Web2DGraphicWholeBuffer();
+      this.wholeBuffer.buffer = this.indexBuffer;
+      this.wholeBuffer.modifyType = BufferModifyType.Index;
+   }
+
+   updateBufLength() {
+      if (this.maxIndexCount <= this.indexCount) {
+         let nLength = Math.ceil(this.indexCount / BatchBuffer._STEP_) * BatchBuffer._STEP_;
+         let byteLength = nLength * 2;
+         this.indexBuffer._setIndexDataLength(byteLength);
+         this.wholeBuffer.resetData(byteLength);
+         this.maxIndexCount = nLength;
+      }
+   }
+
+   bindBuffer(buffer: IVertexBuffer) {
+      let bufferState = this.bufferStates.get(buffer);
+      if (!bufferState) {
+         bufferState = LayaGL.renderDeviceFactory.createBufferState();
+         bufferState.applyState([buffer], this.indexBuffer);
+         this.bufferStates.set(buffer, bufferState);
+      }
+      return bufferState;
+   }
+
+   clear() {
+      this.indexCount = 0;
+      this.wholeBuffer.clearBufferViews();
+      this.bufferStates.forEach((bufferState) => {
+         bufferState.destroy();
+      });
+      this.bufferStates.clear();
+      this.geometryList.length = 0;
+   }
+}
+
 class PassRenderList {
 
    _batchInfoList = new FastSinglelist<Batch2DInfo>;
@@ -375,6 +440,8 @@ class PassRenderList {
    zOrder: number = 0;
    //预想给list更新使用
    _dirtyFlag: number = 0;
+
+   private _batchBuffer = new BatchBuffer();
 
    private _recoverList = new FastSinglelist<IRenderElement2D>();
 
@@ -397,13 +464,18 @@ class PassRenderList {
             this.renderElements.add(struct.renderElements[i]);
          }
       }
+
+      if (this._currentBatch.batchFun) {
+         let offset = this._currentBatch.indexStart + this._currentBatch.elementLength - n;
+         this._currentBatch.batchFun.batchIndexBuffer(struct, this._batchBuffer, offset );
+      }
    }
 
    /**
     * 开启一个Batch
     */
    private _batchStart(type: number, elementLength: number) {
-      if (this._currentBatch && this._currentType == type /*&& this._currentElementCount == elementLength*/) {
+      if (this._currentBatch && this._currentType == type) {
          this._currentBatch.batch = !!(this._currentBatch.batchFun);
          this._currentBatch.elementLength += elementLength;
          return;
@@ -418,7 +490,6 @@ class PassRenderList {
       this._currentBatch.indexStart = this.renderElements.length;
       this._currentBatch.elementLength = elementLength;
       this._currentType = type;
-      // this._currentElementCount = elementLength;
    }
 
    /**
@@ -434,7 +505,7 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength , this._recoverList);
+            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, this._recoverList , this._batchBuffer);
          } else {
             for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
                this.renderElements.add(this.renderElements.elements[j]);
@@ -460,6 +531,8 @@ class PassRenderList {
    reset(): void {
       this.structs.length = 0;
       this.renderElements.length = 0;
+
+      this._batchBuffer.clear();
 
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let element = this._batchInfoList.elements[i];
@@ -515,5 +588,6 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    }
 }
 
+
 WebGraphicsBatch.instance = new WebGraphicsBatch;
-BatchManager.regisBatch( BaseRender2DType.graphics , WebGraphicsBatch.instance)
+BatchManager.regisBatch(BaseRender2DType.graphics, WebGraphicsBatch.instance)

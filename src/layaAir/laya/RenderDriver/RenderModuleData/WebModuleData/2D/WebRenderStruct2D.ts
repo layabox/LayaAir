@@ -101,6 +101,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Blend);
    }
 
+   private _destroyed:boolean = false;
+
    /** @internal */
    needUploadClip = true;
 
@@ -367,6 +369,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    destroy(): void {
+      this._destroyed = true;
       this._clipInfo = null;
       this._parentClipInfo = null;
       this._clipRect = null;

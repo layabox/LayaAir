@@ -11,7 +11,6 @@ export type MeshBlockInfo = {
    positions?: number[],
    vertexViews?: I2DGraphicBufferDataView[],
    vertexBlocks?: number[],
-   // indexView?: I2DGraphicBufferDataView,
 }
 
 export class GraphicsMesh {
@@ -69,14 +68,6 @@ export class GraphicsMesh {
     */
    checkIndex(indexCount: number): I2DGraphicBufferDataView {
       return this._buffer.checkIndexBuffer(indexCount);
-   }
-
-   /**
-    * @en Clear index view map
-    * @zh 清除索引视图映射
-    */
-   removeAllIndexView(): void {
-      this._buffer.clearAllIndexView();
    }
 
    /**

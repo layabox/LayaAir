@@ -44,6 +44,7 @@ export interface I2DGraphicBufferDataView {
     geometry: IRenderGeometryElement;
     getData(): Float32Array | Uint16Array;
     modify(): void;
+    clone(needOwner: boolean, create: boolean): I2DGraphicBufferDataView;
 }
 
 /** @blueprintIgnore */
@@ -52,14 +53,21 @@ export interface I2DGraphicWholeBuffer {
     bufferData: Float32Array | Uint16Array;
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
+    removeDataView(dataView: I2DGraphicBufferDataView): void;
+    // addDataView(dataView: I2DGraphicBufferDataView): void;
     clearBufferViews(): void;
     destroy(): void;
 }
 
-export type Graphic2DBufferBlock = {
+export type Graphics2DVertexBlock = {
     positions: number[],
     vertexViews: I2DGraphicBufferDataView[],
-    // indexView: I2DGraphicBufferDataView,
+}
+
+export type Graphics2DBufferBlock = {
+    vertexs: Graphics2DVertexBlock[],
+    indexView: I2DGraphicBufferDataView,
+    vertexBuffer: IVertexBuffer,
 }
 
 /**
@@ -67,7 +75,7 @@ export type Graphic2DBufferBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphic2DBufferBlock[], indexViews: I2DGraphicBufferDataView[]): void;
+    applyVertexBufferBlock(views: Graphics2DBufferBlock[]): void;
 }
 
 /**
