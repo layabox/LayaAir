@@ -25,6 +25,7 @@ export class WebGPUPipelineCache {
     private pipelineLayoutCache: Map<string, WebGPUPipelineLayout> = new Map();
 
     private pipelineCache: Map<string, GPURenderPipeline> = new Map();
+    private pipelineDecCache: Map<string, GPURenderPipelineDescriptor> = new Map();
 
     private computePipelineCache: Map<string, GPUComputePipeline> = new Map();
 
@@ -77,10 +78,12 @@ export class WebGPUPipelineCache {
         let layout = this.getPipelinelayout(bindGroups);
 
         // 生成描述性键
-        const descKey = `${info.geometry.stateCacheID}_${info.blendState.id}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${shaderInstance._id}_${layout.id}_${renderTarget.stateCacheID}`;
+        const descKey = `${info.geometry.stateCacheID}_${info.blendState.key}_${info.depthStencilState?.id || 0}_${info.cullMode}_${info.frontFace}_${shaderInstance._id}_${layout.id}_${renderTarget.stateCacheKey}_${renderTarget._textures[0]._webGPUFormat}`;
         if (this.pipelineCache.has(descKey)) {
             return this.pipelineCache.get(descKey);
         }
+
+        renderTarget._renderPassDescriptor.colorAttachments;
 
         const primitive = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
 
@@ -89,7 +92,26 @@ export class WebGPUPipelineCache {
         const primitiveState = primitive.state;
         const vertexState = info.geometry.bufferState.vertexState;
 
-        let descriptor = shaderInstance.getRenderPipelineDescriptor();
+        let descriptor: GPURenderPipelineDescriptor = {
+            label: descKey,
+            layout: layout.layout,
+            vertex: {
+                buffers: vertexState,
+                module: shaderInstance.vertexModule,
+                entryPoint: "main"
+            },
+            primitive: primitiveState,
+            depthStencil: null,
+            multisample: {
+                count: renderTarget._samples
+            },
+            fragment: {
+                module: shaderInstance.fragmentModule,
+                entryPoint: "main",
+                targets: [], // todo
+            }
+        };
+
         descriptor.vertex.buffers = vertexState;
         const textureNum = renderTarget._textures.length;
         if (renderTarget._textures[0]._webGPUFormat === 'depth16unorm'
@@ -139,6 +161,7 @@ export class WebGPUPipelineCache {
 
         let pipeline = device.createRenderPipeline(descriptor);
         this.pipelineCache.set(descKey, pipeline);
+        this.pipelineDecCache.set(descKey, descriptor);
 
         return pipeline;
     }
