@@ -301,7 +301,7 @@ export class WebGPUBindGroupCache {
         tempTex.clear();
 
         let descriptor: GPUBindGroupDescriptor = {
-            label: "GPUBindGroupDescriptor" + commands?.join(","),
+            label: "GPUBindGroupDescriptor_" + commands?.join(","),
             layout: layout,
             entries: entries,
         };
