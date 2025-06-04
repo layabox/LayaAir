@@ -307,7 +307,13 @@ export class Stat {
     /**@internal */
     public static sprite3DCount: number = 0;//TODO
     /**@internal */
-    public static drawCall: number = 0;
+    private static _drawCall: number = 0;
+    public static get drawCall(): number {
+        return Stat._drawCall;
+    }
+    public static set drawCall(value: number) {
+        Stat._drawCall = value;
+    }
     public static draw2D = 0;
     /**@internal */
     public static trianglesFaces: number = 0;
@@ -354,7 +360,13 @@ export class Stat {
     /**@internal */
     public static bufferMemory: number = 0;
     /**@internal */
-    public static uploadUniform: number = 0;
+    private static _uploadUniform: number = 0;
+    public static get uploadUniform(): number {
+        return Stat._uploadUniform;
+    }
+    public static set uploadUniform(value: number) {
+        Stat._uploadUniform = value;
+    }
 
     /**
      * @en The count of dynamic rigid bodies in the physics system.
@@ -537,7 +549,7 @@ export class Stat {
         Stat.trianglesFaces += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
         Stat.drawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
         Stat.instanceDrawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
-        Stat.uniformUpload += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount);
+        Stat.uploadUniform += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount);
 
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
