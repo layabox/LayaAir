@@ -10,10 +10,10 @@ import { WebGPURenderEngine } from "../WebGPURenderEngine";
  * 如果下一帧渲染流程中，缓存的渲染节点命中率高于一定的程度，则可以直接使用缓存的渲染指令
  */
 export class WebGPURenderBundle extends WebGPURenderEncoder {
-    static bundleDescriptorMap: Map<number, GPURenderBundleEncoderDescriptor> = new Map();
+    static bundleDescriptorMap: Map<string, GPURenderBundleEncoderDescriptor> = new Map();
     static getBundleDescriptor(rt: WebGPUInternalRT): GPURenderBundleEncoderDescriptor {
-        if (WebGPURenderBundle.bundleDescriptorMap.has(rt.stateCacheID)) {
-            return WebGPURenderBundle.bundleDescriptorMap.get(rt.stateCacheID);
+        if (WebGPURenderBundle.bundleDescriptorMap.has(rt.stateCacheKey)) {
+            return WebGPURenderBundle.bundleDescriptorMap.get(rt.stateCacheKey);
         } else {
             //create
             const texs = rt._textures;
@@ -36,7 +36,7 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
             } else desc.depthStencilFormat = rt._depthTexture ? rt._depthTexture._webGPUFormat : undefined;
             desc.sampleCount = rt._samples;
             // desc.depthReadOnly = true;//怎么理解？？
-            WebGPURenderBundle.bundleDescriptorMap.set(rt.stateCacheID, desc);
+            WebGPURenderBundle.bundleDescriptorMap.set(rt.stateCacheKey, desc);
             return desc;
         }
     }

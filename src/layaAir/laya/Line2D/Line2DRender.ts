@@ -33,6 +33,7 @@ export class Line2DRender extends BaseRenderNode2D {
             return;
         LineShader.__init__();
         let mat = Line2DRender.defaultLine2DMaterial = new Material();
+        mat.lock = true;
         mat.setShaderName("LineShader");
         mat.alphaTest = false;
         mat.depthTest = RenderState.DEPTHTEST_OFF;

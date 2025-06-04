@@ -10,6 +10,7 @@ export class WebGPURenderPassHelper {
         rt = rt ?? WebGPURenderEngine._instance._screenRT;
         this.setColorAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Color), clearColor);
         this.setDepthAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Depth), clearDepthValue, clearStencilValue);
+
         return rt._renderPassDescriptor;
     }
 

@@ -261,6 +261,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         super();
         if (!Mesh2DRender.mesh2DDefaultMaterial) {
             Mesh2DRender.mesh2DDefaultMaterial = new Material();
+            Mesh2DRender.mesh2DDefaultMaterial.lock = true;
             Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
             Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
             Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);

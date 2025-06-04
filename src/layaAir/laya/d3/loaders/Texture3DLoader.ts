@@ -59,9 +59,23 @@ export class Texture2DArrayLoader implements IResourceLoader {
                 urls.push(textures[index]);
             }
 
+
+            let options = task.options;
             return Promise.all(urls.map((url) => {
                 if (url) {
-                    return task.loader.fetch(url, "image", task.progress.createCallback(), task.options);
+                    return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(image => {
+                        if (LayaGL.textureContext.needBitmap) {
+                            if (image instanceof ImageBitmap) {
+                                return image;
+                            }
+                            else {
+                                return createImageBitmap(image, options.workerLoaderOptions || { premultiplyAlpha: premultiplyAlpha ? "premultiply" : "none" })
+                            }
+                        }
+                        else {
+                            return image;
+                        }
+                    });
                 }
                 else {
                     return Promise.resolve(null);

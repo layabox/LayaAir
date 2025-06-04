@@ -203,6 +203,9 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
     private _device: GPUDevice;
     encoder: GPURenderPassEncoder;//渲染通道编码器
     private _commandEncoder: GPUCommandEncoder;
+
+    renderPassDesc: GPURenderPassDescriptor;
+
     constructor() {
         super();
         this._engine = WebGPURenderEngine._instance;
@@ -212,6 +215,7 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
     startRender(renderPassDesc: GPURenderPassDescriptor) {
         this._commandEncoder = this._device.createCommandEncoder();
         this.encoder = this._commandEncoder.beginRenderPass(renderPassDesc);
+        this.renderPassDesc = renderPassDesc;
     }
 
     setViewport(x: number, y: number, width: number, height: number, minDepth: number, maxDepth: number) {

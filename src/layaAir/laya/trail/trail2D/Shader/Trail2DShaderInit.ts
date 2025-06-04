@@ -19,6 +19,7 @@ export class Trail2DShaderInit {
 
         //default Material
         let mat = Trail2DRender.defaultTrail2DMaterial = new Material();
+        mat.lock = true;
         mat.setShaderName("Trail2D");
         mat.alphaTest = false;
         mat.depthTest = RenderState.DEPTHTEST_OFF;
