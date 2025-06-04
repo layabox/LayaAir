@@ -186,20 +186,28 @@ export class WebGPUTextureContext implements ITextureContext {
         if (!source) return;
         const device = WebGPURenderEngine._instance.getDevice();
         for (let i = 0; i < depth; i++) {
-            const imageBitmapSource = await createImageBitmap(source[i]);
-            const image: GPUImageCopyExternalImage = { source: imageBitmapSource as ImageBitmap, flipY: invertY, origin: [0, 0] };
-
-            const textureCopyView: GPUImageCopyTextureTagged = {
+            const imageBitmapSource = source[i] as ImageBitmap;
+            const image: GPUCopyExternalImageSourceInfo = {
+                source: imageBitmapSource as ImageBitmap,
+                flipY: invertY,
+                origin: [0, 0]
+            };
+            const textureCopyView: GPUCopyExternalImageDestInfo = {
                 texture: texture.resource,
                 origin: {
                     x: 0,
                     y: 0,
+                    z: i,
                 },
                 mipLevel: 0,
                 premultipliedAlpha: premultiplyAlpha,
                 colorSpace: texture.useSRGBLoad ? "srgb" : undefined,
             };
-            const copySize: GPUExtent3DStrict = { width: source[i].width, height: source[i].height, depthOrArrayLayers: 1 };
+            const copySize: GPUExtent3DStrict = {
+                width: source[i].width,
+                height: source[i].height,
+                depthOrArrayLayers: 1,
+            };
             device.queue.copyExternalImageToTexture(image, textureCopyView, copySize);
         }
         //Generate mipmap TODO
