@@ -18,13 +18,13 @@ import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 import { GLESVertexBuffer } from "../RenderDevice/GLESVertexBuffer";
-import { GLESREnderElement2D } from "./GLESRenderElement2D";
+import { GLESRenderElement2D } from "./GLESRenderElement2D";
 
-export class GLESREnderContext2D implements IRenderContext2D {
+export class GLESRenderContext2D implements IRenderContext2D {
 
     static isCreateBlitScreenELement = false;
 
-    static blitScreenElement: GLESREnderElement2D;
+    static blitScreenElement: GLESRenderElement2D;
 
     private _tempList: any = [];
 
@@ -55,17 +55,22 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj = new (window as any).conchGLESRenderContext2D();
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
-        (!GLESREnderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
+        (!GLESRenderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
     }
-    passData: ShaderData;
+    public get passData(): ShaderData {
+        return this._nativeObj.passData;
+    }
+    public set passData(value: ShaderData) {
+        this._nativeObj.passData = value;
+    }
     private _sceneData: ShaderData;
     public get sceneData(): ShaderData {
         return this._sceneData;
     }
     public set sceneData(value: ShaderData) {
         this._sceneData = value;
-        this._nativeObj.setSceneShaderData(value?(value as GLESShaderData)._nativeObj:null);
+        this._nativeObj.setSceneShaderData(value ? (value as GLESShaderData)._nativeObj : null);
     }
 
 
@@ -140,12 +145,12 @@ export class GLESREnderContext2D implements IRenderContext2D {
         blitScreenElement.subShader = subShader;
         blitScreenElement.renderStateIsBySprite = false;
 
-        this._nativeObj.setBlitScreenElement((blitScreenElement as GLESREnderElement2D)._nativeObj);
-        GLESREnderContext2D.isCreateBlitScreenELement = true;
-        GLESREnderContext2D.blitScreenElement = blitScreenElement as GLESREnderElement2D;
+        this._nativeObj.setBlitScreenElement((blitScreenElement as GLESRenderElement2D)._nativeObj);
+        GLESRenderContext2D.isCreateBlitScreenELement = true;
+        GLESRenderContext2D.blitScreenElement = blitScreenElement as GLESRenderElement2D;
     }
 
-    drawRenderElementList(list: FastSinglelist<GLESREnderElement2D>): number {
+    drawRenderElementList(list: FastSinglelist<GLESRenderElement2D>): number {
         this._tempList.length = 0;
         let listelement = list.elements;
         listelement.forEach((element) => {
@@ -167,7 +172,7 @@ export class GLESREnderContext2D implements IRenderContext2D {
         this._nativeObj.setOffscreenView(width, height);
     }
 
-    drawRenderElementOne(node: GLESREnderElement2D): void {
+    drawRenderElementOne(node: GLESRenderElement2D): void {
         this._nativeObj.drawRenderElementOne(node._nativeObj);
     }
 

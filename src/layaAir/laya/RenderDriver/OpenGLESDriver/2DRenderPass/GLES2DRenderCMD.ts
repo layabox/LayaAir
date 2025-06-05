@@ -4,7 +4,7 @@ import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../Dri
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESInternalTex } from "../RenderDevice/GLESInternalTex";
-import { GLESREnderElement2D } from "./GLESRenderElement2D";
+import { GLESRenderElement2D } from "./GLESRenderElement2D";
 
 export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
     
@@ -72,7 +72,7 @@ export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
 export class GLESDraw2DElementCMD extends Draw2DElementCMD {
 
-    private _elemets: GLESREnderElement2D[];
+    private _elemets: GLESRenderElement2D[];
 
     _nativeObj: any;
     constructor() {
@@ -81,7 +81,7 @@ export class GLESDraw2DElementCMD extends Draw2DElementCMD {
         this._nativeObj = new (window as any).conchGLESDraw2DElementCMD();
     }
 
-    setRenderelements(value: GLESREnderElement2D[]): void {
+    setRenderelements(value: GLESRenderElement2D[]): void {
         this._elemets = value;
         this._nativeObj.clearElement();
         if (value.length == 1) {
@@ -105,7 +105,7 @@ export class GLESBlit2DQuadCMD extends Blit2DQuadCMD {
 
     protected _offsetScale: Vector4;
 
-    protected _element: GLESREnderElement2D;
+    protected _element: GLESRenderElement2D;
 
     type: RenderCMDType;
 
@@ -133,11 +133,11 @@ export class GLESBlit2DQuadCMD extends Blit2DQuadCMD {
    * @en render element
    * @zh 渲染元素
    */
-    public get element(): GLESREnderElement2D {
+    public get element(): GLESRenderElement2D {
         return this._element;
     }
 
-    public set element(value: GLESREnderElement2D) {
+    public set element(value: GLESRenderElement2D) {
         this._element = value;
         this._nativeObj.setRenderElement(value._nativeObj);
     }

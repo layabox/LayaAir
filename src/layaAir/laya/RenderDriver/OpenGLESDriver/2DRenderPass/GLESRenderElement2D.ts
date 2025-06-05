@@ -6,12 +6,18 @@ import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShade
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 
-export class GLESREnderElement2D implements IRenderElement2D {
-    type:number = 0;
+export class GLESRenderElement2D implements IRenderElement2D {
     private _geometry: GLESRenderGeometryElement;
     private _materialShaderData: GLESShaderData;
     private _value2DShaderData: GLESShaderData;
     private _subShader: SubShader;
+    set type(value: number) {
+        this._nativeObj.type = value;
+    }
+
+    get type(): number {
+        return this._nativeObj.type;
+    }
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
         this._nativeObj.setGeometry(data ? (data as any)._nativeObj : null);
@@ -58,7 +64,15 @@ export class GLESREnderElement2D implements IRenderElement2D {
     constructor() {
         this.init();
     }
-    owner: IRenderStruct2D;
+    _owner: IRenderStruct2D;
+    public get owner(): IRenderStruct2D {
+        return this._owner;
+    }
+    public set owner(value: IRenderStruct2D) {
+        this._owner = value;
+        this._nativeObj.setOwner(value ? (value as any)._nativeObj : null);
+    }
+
     private _nodeCommonMap: string[];//TODO
     public get nodeCommonMap(): string[] {
         return this._nodeCommonMap;

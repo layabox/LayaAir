@@ -6,47 +6,39 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderD
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
+import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
+import { RTPrimitiveDataHandle, RTRender2DDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
+import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
-import { GLESREnderContext2D } from "./GLESRenderContext2D";
-import { GLESREnderElement2D } from "./GLESRenderElement2D";
+import { GLESRenderContext2D } from "./GLESRenderContext2D";
+import { GLESRenderElement2D } from "./GLESRenderElement2D";
+import { RT2DGraphic2DBufferDataView, RT2DGraphicWholeBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
     create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
-        throw new Error("Method not implemented.");
+        return new RT2DGraphic2DBufferDataView(wholeBuffer as RT2DGraphicWholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
     }
-
     create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
-        throw new Error("Method not implemented.");
+        return new RT2DGraphicWholeBuffer();
     }
-
     createRender2DPassManager(): IRender2DPassManager {
-        throw new Error("Method not implemented.");
+        return new RTRender2DPassManager();
     }
-
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
-        throw new Error("Method not implemented.");
+        return new RTGlobalRenderData();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        throw new Error("Method not implemented.");
-    }
-    createRender2DPass(): IRender2DPass {
-        throw new Error("Method not implemented.");
-    }
-    createRenderStruct2D(): IRenderStruct2D {
-        throw new Error("Method not implemented.");
-    }
-    createRender2DDataHandle(): IRender2DDataHandle {
-        throw new Error("Method not implemented.");
+        return new RTRender2DSpineRenderDataHandle();
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        throw new Error("Method not implemented.");
+        return new RTPrimitiveDataHandle();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return new RTRender2DBaseRenderDataHandle();
     }
-    createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        throw new Error("Method not implemented.");
+   createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
+        return new RTRender2DMeshRenderDataHandle();
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new GLESSetRenderData();
@@ -63,13 +55,18 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
     createSetRendertarget2DCMD(): SetRendertarget2DCMD {
         return new GLESSetRendertarget2DCMD;
     }
-    createRenderElement2D(): GLESREnderElement2D {
-        return new GLESREnderElement2D();
+    createRenderElement2D(): GLESRenderElement2D {
+        return new GLESRenderElement2D();
     }
-    createRenderContext2D(): GLESREnderContext2D {
-        return new GLESREnderContext2D();
+    createRenderContext2D(): GLESRenderContext2D {
+        return new GLESRenderContext2D();
     }
-
+    createRender2DPass(): IRender2DPass {
+        return new RTRender2DPass();
+    }
+    createRenderStruct2D(): IRenderStruct2D {
+        return new RTRenderStruct2D();
+    }
 }
 
 
