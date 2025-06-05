@@ -2,6 +2,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -33,6 +34,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
         Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
+        Mesh2DRender.mesh2DDefaultMaterial.lock = true;
     }
 
 
@@ -49,6 +51,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
         this.texture = null;
     }
 
+    renderUpdate(context: IRenderContext2D): void {
+        this._updateLight();
+    }
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格

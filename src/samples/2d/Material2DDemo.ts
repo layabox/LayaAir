@@ -40,7 +40,6 @@ export class Material2DDemo {
         let customShaderSp = new Sprite();
         customShaderSp.loadImage("res/apes/monkey3.png");
         this.scene.addChild(customShaderSp);
-        this.loadCustom2DShader(customShaderSp);
 
         // 自定义2d材质使用
         Laya.loader.load("res/2DRender/customMaterial_1.lmat").then((mat: Material) => {
@@ -49,6 +48,9 @@ export class Material2DDemo {
             this.scene.addChild(customMaterialSp);
             customMaterialSp.loadImage("res/apes/monkey3.png");
             customMaterialSp.graphics.material = mat;
+
+            this.loadCustom2DShader(customShaderSp);
+
         });
     }
 
@@ -56,6 +58,8 @@ export class Material2DDemo {
         Laya.loader.load("res/2DRender/custom2DShader_0.shader").then(() => {
             let mat = new Material();
             mat.setShaderName("custom2DShader_0");
+            let define = Shader3D.getDefineByName("TEXTUREVS");
+            mat.addDefine(define);
             // 设置2D全局uniform变量
             Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID("u_GlobalColor"), "u_GlobalColor", ShaderDataType.Color);
             (this.scene as Scene).setglobalRenderData(Shader3D.propertyNameToID("u_GlobalColor"), ShaderDataType.Color, new Color(0.0, 1.0, 0.0, 1.0));

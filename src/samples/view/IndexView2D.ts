@@ -527,11 +527,11 @@ export class IndexView2D extends IndexViewUI {
                 case 3://BlendMode
                     labelStr = this._comboBoxBlendModeArr.toString();
                     break;
-                case 4://other
-                    labelStr = this._comboBoxHitTestArr.toString();
-                    break;
-                case 5://Filters
+                case 4://Filters
                     labelStr = this._comboBoxFiltersArr.toString();
+                    break;
+                case 5://other
+                    labelStr = this._comboBoxHitTestArr.toString();
                     break;
                 case 6://Sound
                     labelStr = this._comboBoxSoundArr.toString();

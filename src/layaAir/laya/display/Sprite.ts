@@ -655,9 +655,10 @@ export class Sprite extends Node {
         if (this._visible !== value) {
             this._visible = value;
             this._struct.enable = value;
-            // if(this._graphics) this._graphics._modefied = true;
-            this.repaint();
             this._processVisible();
+            
+            if (value) 
+                this.repaint();
         }
     }
 
