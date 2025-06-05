@@ -33,6 +33,7 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
+        this._nativeObj.setResetDataCallback(this.resetData.bind(this));
      }
     resetData(byteLength: number) {
         //copy Buffer
@@ -49,11 +50,10 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             }
             this.bufferData = newData;
         }
-        this._nativeObj.needResetData = true;
+        this._needResetData = true;
     }
-
-    addDataView(view: RT2DGraphic2DBufferDataView) {
-        this._nativeObj.addDataView(view ? view._nativeObj : null);
+    removeDataView(dataView: I2DGraphicBufferDataView) {
+        this._nativeObj.removeDataView(dataView ? (dataView as any)._nativeObj : null);
     }   
     clearBufferViews() {
         this._nativeObj.clearBufferViews();
@@ -123,16 +123,23 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     modify() {
         this._nativeObj.modify();   
     }
+    clone(needOwner: boolean, create: boolean): I2DGraphicBufferDataView
+    {
+        //lvtodo
+        throw new Error("RT2DGraphic2DBufferDataView.clone is not implemented");
+    }
     _nativeObj: any;
-    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1) {
+    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create = true) {
         this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride);
         this.owner = owner;
 
-        if (this.modifyType == BufferModifyType.Index) {
-            this._nativeObj._data = new Uint16Array(length);
-        } else {
-            this._nativeObj.updateView(owner.bufferData);
-            owner.addDataView(this);
+        if (create) {
+            if (this.modifyType == BufferModifyType.Index) {
+                this._nativeObj._data = new Uint16Array(length);
+            } else {
+                this._nativeObj._updateView(owner.bufferData);
+                owner._nativeObj._addDataView(this._nativeObj);
+            }
         }
     }
 }
