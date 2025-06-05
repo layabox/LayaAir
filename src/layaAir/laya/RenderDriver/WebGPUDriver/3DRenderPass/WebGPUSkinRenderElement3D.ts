@@ -15,6 +15,8 @@ import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 
+const dynamicOffsetsData = new Uint32Array(1);
+
 /**
  * 带骨骼的基本渲染单元
  */
@@ -184,9 +186,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             {
                 let bindgroup = this.bindGroupMap.get(2);
                 for (let i = 0; i < this.skinnedData.length; i++) {
-                    let skinDataOffset = [0];
-                    skinDataOffset[0] = i * this._skinnedBufferOffsetAlignment;
-                    command.setBindGroup(2, bindgroup, skinDataOffset);
+                    dynamicOffsetsData[0] = i * this._skinnedBufferOffsetAlignment;
+                    command.setBindGroupByDataOffaset(2, bindgroup, dynamicOffsetsData, 0, 1);
                     this._uploadGeometryIndex(command, i);
                 }
             }

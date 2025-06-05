@@ -67,17 +67,8 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
         this.encoder = this._device.createRenderBundleEncoder(descriptor);
     }
 
-    /**
-     * 设置绑定组
-     * @param index 
-     * @param bindGroup 
-     * @param dynamicOffsets 
-     */
-    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS) : this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets);
-    }
-
     finish(lable: string) {
+        this.onFinish();
         this._gpuBundle = this.encoder.finish({ label: lable });
     }
 

@@ -13,11 +13,44 @@ export interface IGPURenderEncoder extends GPUObjectBase,
     GPURenderCommandsMixin {
 
 }
+
+class BindGroupBindingInfo {
+    bindGroup: WebGPUBindGroup;
+    dynamicOffsetsData: Uint32Array;
+
+    constructor(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array) {
+        this.bindGroup = bindGroup;
+        this.dynamicOffsetsData = dynamicOffsetsData;
+    }
+
+    equal(bindGroup: WebGPUBindGroup, dynamicOffsetsData?: Uint32Array, dynamicOffsetsDataStart?: number, dynamicOffsetsDataLength?: number): boolean {
+        if (this.bindGroup !== bindGroup) return false;
+        if (dynamicOffsetsData && this.dynamicOffsetsData) {
+            if (dynamicOffsetsDataStart === undefined) dynamicOffsetsDataStart = 0;
+            if (dynamicOffsetsDataLength === undefined) dynamicOffsetsDataLength = dynamicOffsetsData.length;
+            for (let i = 0; i < dynamicOffsetsDataLength; i++) {
+                if (this.dynamicOffsetsData[i + dynamicOffsetsDataStart] !== dynamicOffsetsData[i]) return false;
+            }
+        } else if (dynamicOffsetsData || this.dynamicOffsetsData) {
+            return false;
+        }
+
+        return true;
+    }
+
+    destroy() {
+        this.bindGroup = null;
+        this.dynamicOffsetsData = null;
+    }
+};
+
 export abstract class WebGPURenderEncoder {
 
     readonly isBundle: boolean = false;
 
     encoder: IGPURenderEncoder;
+
+    private currentBindGroups: Map<number, BindGroupBindingInfo> = new Map();
 
     constructor(isBundle: boolean = false) {
         this.isBundle = isBundle;
@@ -37,12 +70,39 @@ export abstract class WebGPURenderEncoder {
     * @param bindGroup 
     * @param dynamicOffsets 
     */
-    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-        dynamicOffsets ? this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsets) : this.encoder.setBindGroup(index, bindGroup.gpuRS);
+    setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup) {
+
+        if (this.currentBindGroups.has(index)) {
+            const bindGroupInfo = this.currentBindGroups.get(index);
+            if (bindGroupInfo.equal(bindGroup)) {
+                return; //如果绑定组相同，则不需要重新设置
+            }
+        }
+
+        this.encoder.setBindGroup(index, bindGroup.gpuRS);
+
+        this.currentBindGroups.set(index, new BindGroupBindingInfo(bindGroup, null));
     }
 
-    setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
-        this.encoder.setBindGroup(index, bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
+    setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
+
+        if (this.currentBindGroups.has(index)) {
+            const bindGroupInfo = this.currentBindGroups.get(index);
+            if (bindGroupInfo.equal(bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength)) {
+                return; //如果绑定组和动态偏移数据相同，则不需要重新设置
+            }
+        }
+
+        this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
+
+        {
+            const dynamicOffsets = new Uint32Array(dynamicOffsetsDataLength);
+            for (let i = 0; i < dynamicOffsetsDataLength; i++) {
+                dynamicOffsets[i] = dynamicOffsetsData[i + dynamicOffsetsDataStart];
+            }
+            this.currentBindGroups.set(index, new BindGroupBindingInfo(bindGroup, dynamicOffsets));
+        }
+
     }
 
     applyGeometry(geometry: WebGPURenderGeometry) {
@@ -192,6 +252,13 @@ export abstract class WebGPURenderEncoder {
         return triangles;
     }
 
+    protected onFinish() {
+        for (let bindGroupInfo of this.currentBindGroups.values()) {
+            bindGroupInfo.destroy();
+        }
+        this.currentBindGroups.clear();
+    }
+
     abstract finish(lable: string): any;
 }
 
@@ -235,6 +302,8 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
     }
 
     finish() {
+        this.onFinish();
+        this.renderPassDesc = null;
         return this._commandEncoder.finish();
     }
 
