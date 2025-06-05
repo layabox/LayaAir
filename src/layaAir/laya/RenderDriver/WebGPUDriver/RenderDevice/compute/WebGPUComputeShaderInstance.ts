@@ -74,6 +74,12 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
         this._shaderModule = this._device.createShaderModule({
             code: code
         });
+
+        this._shaderModule.getCompilationInfo().then((value: GPUCompilationInfo) => {
+            if (value.messages.length > 0) {
+                console.warn("WebGPUComputeShaderInstance compile info:", value.messages);
+            }
+        });
         this.compilete = true;
     }
 

@@ -392,14 +392,20 @@ export class WebGPUTextureContext implements ITextureContext {
         return webgpuTextureFormat;
     }
 
-    private _getGPURenderTargetFormat(format: RenderTargetFormat, useSRGB: boolean): WebGPUTextureFormat {
+    private _getGPURenderTargetFormat(format: RenderTargetFormat, useSRGB: boolean, storage: boolean): WebGPUTextureFormat {
         const engine = WebGPURenderEngine._instance;
 
         let webgpuTextureFormat = WebGPUTextureFormat.rgba8uint;
         switch (format) {
             case RenderTargetFormat.R8G8B8://TODO
             case RenderTargetFormat.R8G8B8A8:
-                if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
+                if (!storage && engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
+                    // if (storage) {
+                    //     // let features = this._engine._config.deviceDescriptor.requiredFeatures as string[];
+                    //     // if (features?.indexOf("bgra8unorm-storage") != -1) {
+                    //     //     // bgra8unorm-storage write-only
+                    //     // }
+                    // }
                     webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.bgra8unorm_srgb;
                 }
                 else {
@@ -464,6 +470,34 @@ export class WebGPUTextureContext implements ITextureContext {
             case TextureFormat.KTXTEXTURE:
             case TextureFormat.PVRTEXTURE:
                 return true
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * https://www.w3.org/TR/webgpu/#plain-color-formats
+     * 
+     * 检测是否支持 write-only
+     */
+    private _supportStorage(format: GPUTextureFormat): boolean {
+        switch (format) {
+            case WebGPUTextureFormat.rgba8unorm:
+            case WebGPUTextureFormat.rgba16float:
+            case WebGPUTextureFormat.rgba32float:
+                return true;
+            case WebGPUTextureFormat.bgra8unorm:
+                {
+                    let requiredFeatures = this._engine._config.deviceDescriptor.requiredFeatures as string[];
+                    if (requiredFeatures.indexOf("bgra8unorm-storage") != -1) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            case WebGPUTextureFormat.bgra8unorm_srgb:
+            case WebGPUTextureFormat.rgba8unorm_srgb:
             default:
                 return false;
         }
@@ -1310,25 +1344,25 @@ export class WebGPUTextureContext implements ITextureContext {
         }
         return compareMode;
     }
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        // todo
-        let multiSamples = 1;
-        let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
+    // createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+    //     // todo
+    //     let multiSamples = 1;
+    //     let gpuColorFormat = this._getGPURenderTargetFormat(format, sRGB);
 
-        const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
-        const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
-        gpuColorDescriptor.label = 'renderTexture';
-        const pixelByteSize = this._getGPURenderTexturePixelByteSize(format);
-        let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
-        texture.format = format;
-        texture.resource = gpuColorTexture;
-        texture._webGPUFormat = gpuColorFormat;
-        texture.statisAsRenderTexture();
-        texture.gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
-        WebGPUGlobal.action(texture, 'allocMemory | texture', texture.gpuMemory);
+    //     const gpuColorDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
+    //     const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
+    //     gpuColorDescriptor.label = 'renderTexture';
+    //     const pixelByteSize = this._getGPURenderTexturePixelByteSize(format);
+    //     let texture = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, multiSamples, false, 1);
+    //     texture.format = format;
+    //     texture.resource = gpuColorTexture;
+    //     texture._webGPUFormat = gpuColorFormat;
+    //     texture.statisAsRenderTexture();
+    //     texture.gpuMemory = (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0;
+    //     WebGPUGlobal.action(texture, 'allocMemory | texture', texture.gpuMemory);
 
-        return texture;
-    }
+    //     return texture;
+    // }
     /**
      * 判断 纹理格式 本身是否是 SRGB格式
      * @param format 
@@ -1364,15 +1398,26 @@ export class WebGPUTextureContext implements ITextureContext {
         }
     }
 
-    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget {
         const useSRGBExt = this._isSRGBFormat(colorFormat) || (sRGB && this._supportSRGB(colorFormat, generateMipmap));
         let gammaCorrection = 1.0;
         // if (!useSRGBExt && sRGB)
         //     gammaCorrection = 2.2;
         const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
-        const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
+        const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB, storage);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, generateMipmap, multiSamples, false);
         gpuColorDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST;
+
+        if (storage) {
+            let supportStorage = this._supportStorage(gpuColorFormat);
+            if (supportStorage) {
+                gpuColorDescriptor.usage |= GPUTextureUsage.STORAGE_BINDING;
+            }
+            else {
+                console.warn(`WebGPU: RenderTarget format ${colorFormat} does not support storage usage.`);
+            }
+        }
+
         gpuColorDescriptor.label = 'renderTarget color';
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
         const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples, useSRGBExt);
@@ -1403,7 +1448,7 @@ export class WebGPUTextureContext implements ITextureContext {
         }
         if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
-            const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
+            const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false, storage);
             const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, generateMipmap, multiSamples, false);
             gpuDepthDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
             gpuDepthDescriptor.label = 'renderTarget depth';

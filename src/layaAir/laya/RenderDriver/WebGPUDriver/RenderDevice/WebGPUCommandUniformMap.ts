@@ -19,7 +19,11 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
 
     _stateID: number;
 
-    /** @internal */
+    /** 
+     * @internal
+     * map 中包含的纹理数量
+     * 不包括 storage texture
+     */
     _textureCount: number = 0;
 
     /** @internal */
@@ -48,7 +52,7 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
     addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType): void {
         let uniform = { id: propertyID, uniformtype, propertyName, arrayLength: 0 }
         this._idata.set(propertyID, uniform);
-        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
+        if (uniformtype < ShaderDataType.Texture2D && uniformtype != ShaderDataType.DeviceBuffer && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer && uniformtype != ShaderDataType.StorageTexture2D) {
             this._hasUniformBuffer = true;
         }
         if (uniformtype >= ShaderDataType.Texture2D) {

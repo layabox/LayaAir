@@ -204,7 +204,7 @@ export class RenderTextureLoader implements IResourceLoader {
             let rt = <RenderTexture>task.obsoluteInst;
             if (rt)
                 rt.recreate(data.width, data.height, data.colorFormat, data.depthFormat,
-                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB);
+                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB, data.storage);
             else
                 rt = new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
                     data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB);

@@ -12,7 +12,8 @@ export enum WebGPUBindingInfoType {
     buffer, //uniformBlock
     texture, //texture
     sampler, //sampler
-    storageBuffer
+    storageBuffer,
+    storageTexture
 };
 
 /**
@@ -30,6 +31,7 @@ export interface WebGPUUniformPropertyBindingInfo {
     buffer?: GPUBufferBindingLayout;
     texture?: GPUTextureBindingLayout;
     sampler?: GPUSamplerBindingLayout;
+    storageTexture?: GPUStorageTextureBindingLayout;
 };
 
 export class WebGPUBindGroupHelper {
@@ -215,6 +217,24 @@ export class WebGPUBindGroupHelper {
                             }
                         }
                         bindingInfos.push(storageBufferBindInfo);
+                    }
+
+                    if (uniformProperty.uniformtype == ShaderDataType.StorageTexture2D) {
+                        let info: WebGPUUniformPropertyBindingInfo = {
+                            id: 0,
+                            set: groupID,
+                            binding: bindingIndex++,
+                            name: uniformProperty.propertyName,
+                            propertyId: propertyID,
+                            visibility: visibility,
+                            type: WebGPUBindingInfoType.storageTexture,
+                            storageTexture: {
+                                access: 'write-only',
+                                format: 'rgba8unorm',
+                                viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype)
+                            }
+                        }
+                        bindingInfos.push(info);
                     }
                 }
             }
