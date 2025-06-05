@@ -38,7 +38,7 @@ export class InstanceAndUBO {
             Stat.show();
 
             // 加载shader
-            Laya.loader.load(["res/shaders/PBRColorBatchShader.shader", this.meshUrl, this.lsUrl], Handler.create(this, this.onShaderLoaded));
+            Laya.loader.load(["res/shaders/3d/PBRColorBatchShader.shader", this.meshUrl, this.lsUrl], Handler.create(this, this.onShaderLoaded));
         });
     }
 
