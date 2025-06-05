@@ -83,7 +83,7 @@ export class IGCABVHCell {//一个渲染节点
     customData: Record<string, any> = {};
     customDataArray: Float32Array;
     loadMask: number;//需要看Agent中有多少层的
-    loadMaskRange: Vector2 = new Vector2(0, 100);
+    loadMaskRange: Vector2 = new Vector2(0, 1000);
 }
 
 export enum QXLodLevel {//渲染节点的lod等级

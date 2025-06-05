@@ -284,14 +284,7 @@ export class GCA_InsBatchAgent {
     }
 
 
-    setLodConfig(lodConfig: number[][]) {
-        let array = new Float32Array(lodConfig.length);
-        for (var i = 0; i < lodConfig.length; i++) {
-            array[i * 2] = lodConfig[i][0];
-            array[i * 2 + 1] = lodConfig[i][1];
-        }
-        this._forwardManager.setCullPlanes
-    }
+
 
     /**
      * 设置裁剪方向光，进行初始化裁剪

@@ -44,6 +44,8 @@ export class GCASystemTest {
             camera.addComponent(CameraMoveScript);
             camera.clearColor = new Color(0.0, 0.0, 0.0, 1.0);
             console.log("test GCAAgent Demo");
+
+
             testGCAShader.initShader();
             this.testSystem._createMesh();
             this.testSystem._createMaterial();
@@ -59,7 +61,7 @@ export class GCASystemTest {
                 customData.set("color2", [1, ShaderDataType.Vector4])
                 GCA_OneBatchInfo.setCustomCommandmap(customData);
             }
-            // this.changeLodTest();
+             this.changeLodTest();
             //this.testAddIns(5,1);
             //this.testMultipleResIns()
             // this.testDynamicReduce(); // 启动动态减少测试
