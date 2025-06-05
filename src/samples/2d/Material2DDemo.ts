@@ -14,6 +14,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Color } from "laya/maths/Color";
 import { BlendModeHandler } from "laya/webgl/canvas/BlendMode";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 
 export class Material2DDemo {
     Main: typeof Main = null;
@@ -49,7 +50,6 @@ export class Material2DDemo {
             customMaterialSp.pos(200, 0);
             this.scene.addChild(customMaterialSp);
             customMaterialSp.loadImage("res/apes/monkey3.png");
-            BlendModeHandler.initBlendMode(mat.shaderData);
             customMaterialSp.graphics.material = mat;
         });
     }
