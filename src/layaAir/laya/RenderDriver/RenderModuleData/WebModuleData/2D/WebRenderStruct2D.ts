@@ -85,6 +85,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    public set alpha(value: number) {
       this._alpha = value;
+      if (this.parent) {
+         this.globalAlpha = this.parent.globalAlpha * value
+      }else
+         this.globalAlpha = value;
+         
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 

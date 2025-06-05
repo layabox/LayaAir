@@ -332,6 +332,7 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
+        this._repaint();
         if (value != null)
             value._addReference();
     }
@@ -735,7 +736,7 @@ export class Graphics {
             let submit = this._data._submits.elements[i];
             let texture = submit._internalInfo.textureHost;
             let bitmap = (texture as Texture).bitmap;
-            if ( bitmap && bitmap.destroyed) {
+            if ( bitmap && bitmap.destroyed ) {
                 return false;
             }
         }

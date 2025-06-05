@@ -19,6 +19,7 @@ import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
 import { TransformKind } from "./SpriteConst";
+import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -689,6 +690,11 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
+            if (value !== Text.VISIBLE) {
+                this.on(SpriteGlobalTransform.CHANGED , this , this.repaint);
+            }else{
+                this.off(SpriteGlobalTransform.CHANGED , this, this.repaint);
+            }
             this.markChanged();
         }
     }
@@ -1707,6 +1713,7 @@ export class Text extends Sprite {
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
+            // this.scrollRect = new Rectangle(0 , 0 , rectWidth, rectHeight);
             graphics.save();
             graphics.clipRect(0, 0, rectWidth, rectHeight);
             this.repaint();

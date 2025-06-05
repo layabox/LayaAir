@@ -133,8 +133,10 @@ export class GraphicsRenderData {
             }
 
             if (submit.material) {
+               let mShaderData = submit.material.shaderData;
+               submit._internalInfo.cloneTo(mShaderData);
                element.subShader = submit.material.shader.getSubShaderAt(0);
-               element.materialShaderData = submit.material.shaderData;
+               element.materialShaderData = mShaderData;
                element.renderStateIsBySprite = false;
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);

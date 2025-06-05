@@ -336,9 +336,11 @@ export class SpriteGlobalTransform {
         else
             this._flags &= ~type;
 
-        if (value && notify) {
+        if (value) {
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
-            this._notifyRenderSpriteTransChange();
+            if (notify) {
+                this._notifyRenderSpriteTransChange();
+            }
         }
     }
 

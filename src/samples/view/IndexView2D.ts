@@ -140,6 +140,8 @@ import { Physics_CollisionFiltering_Shapes } from "../2d/Physics_CollisionFilter
 import { Physics_CollisionEvent_Shapes } from "../2d/Physics_CollisionEvent_Shapes";
 import { Physics_Bridge_Shapes } from "../2d/Physics_Bridge_Shapes";
 import { Physics_Strandbeests_Shapes } from "../2d/Physics_Strandbeests_Shapes";
+import { Camera2D_Layer } from "../2d/Camera2D_Layer";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
 
 /**
  * 首页View 
@@ -155,7 +157,7 @@ export class IndexView2D extends IndexViewUI {
 
     //---------------------------------------------------------------------------------2D------------开始---------------------------------------------
     // 'IDE' '粒子' 去掉 
-    private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '滤镜', '点击', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', '物理', 'DOM', '输入设备', 'Loader加载', 'Demo', "2D渲染"];
+    private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '滤镜', '点击', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', '物理', 'DOM', '输入设备', 'Loader加载', 'Demo', "2D相机" , "2D渲染" ];
     /************************sprite-start***************************/
     private _comboBoxSpriteClsArr: any[] = [Sprite_DisplayImage, Sprite_Container, Sprite_RoateAndScale, Sprite_DrawPath, Sprite_MagnifyingGlass, Sprite_DrawShapes, Sprite_Cache, Sprite_NodeControl, Sprite_Pivot, Sprite_SwitchTexture, Sprite_ScreenShot, Sprite_Guide];
     private _comboBoxSpriteArr: any[] = ['显示图片', '容器', '旋转缩放', '根据数据绘制路径', '遮罩-放大镜', '绘制各种形状', '缓存为静态图像', '节点控制', '轴中心', '切换纹理', '截图', '新手指导'];
@@ -266,9 +268,14 @@ export class IndexView2D extends IndexViewUI {
     private _comboBoxHitTestArr: any[] = ['区域检测', '矩形检测'];
     /************************HitTest-end***************************/
 
+    /************************Camera2D-start***************************/
+    private _comboBoxCamera2DClsArr: any[] = [Camera2DDemo, Camera2D_Layer];
+    private _comboBoxCamera2DArr: any[] = ['2D相机', "2D相机层级"]
+    /************************Camera2D-end***************************/
+
     /************************Render2D-start***************************/
-    private _render2DTestClsArr: any[] = [Camera2DDemo, Material2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
-    private _render2DTestArr: any[] = ['2D相机', "2D自定义材质示例", '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
+    private _render2DTestClsArr: any[] = [Material2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
+    private _render2DTestArr: any[] = ["2D自定义材质示例", '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
     /************************Render2D-end***************************/
 
     private _bigIndex: number = -1;
@@ -279,7 +286,8 @@ export class IndexView2D extends IndexViewUI {
         super();
         this.Main = MainCls;
         this.box2d = box;
-        this.createChildren();
+        this.name = "Index2D"
+        PrefabImpl.legacySceneOrPrefab.createByData(this, IndexViewUI.uiView);
         this.initView();
         this.initEvent();
         this.zOrder = 99999;
@@ -485,7 +493,11 @@ export class IndexView2D extends IndexViewUI {
                 this._oldView = new this._comboBoxDemoClsArr[index](this.Main);
                 this.b_length = this._comboBoxDemoClsArr.length - 1;
                 break;
-            case 21://2DRender
+            case 21://Camera2D
+                this._oldView = new this._comboBoxCamera2DClsArr[index](this.Main);
+                this.b_length = this._comboBoxCamera2DClsArr.length - 1;
+                break;
+            case 22://2DRender
                 this._oldView = new this._render2DTestClsArr[index](this.Main);
                 this.b_length = this._render2DTestArr.length - 1;
                 break;
@@ -578,7 +590,10 @@ export class IndexView2D extends IndexViewUI {
                 case 20://Demo
                     labelStr = this._comboBoxDemoArr.toString();
                     break;
-                case 21://2DRender
+                case 21://Camera2D
+                    labelStr = this._comboBoxCamera2DArr.toString();
+                    break;
+                case 22://2DRender
                     labelStr = this._render2DTestArr.toString();
                     break;
                 default:

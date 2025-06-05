@@ -161,7 +161,11 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
             if (leftType & 32) { //或者比对材质 clip 优先忽略
                 return false;
-            } else if ((left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
+            }
+            else if (left.owner.globalAlpha !== right.owner.globalAlpha) {
+                return false;
+            } 
+            else if ((left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
                 return true;
             }
             return false;
