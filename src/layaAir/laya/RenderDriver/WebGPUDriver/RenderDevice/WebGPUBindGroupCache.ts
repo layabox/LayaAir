@@ -28,7 +28,7 @@ export class WebGPUBindGroupLayoutInfo {
 
     textureExits: number;
 
-    layout?: GPUBindGroupLayout;
+    layout: GPUBindGroupLayout;
 
     constructor(entries: GPUBindGroupLayoutEntry[], properties: number[], values: string[], textureStates: number, textureExits: number) {
         this.id = WebGPUBindGroupLayoutInfo._idCounter++;
@@ -59,6 +59,11 @@ export class WebGPUBindGroupCache {
     private layoutCache: Map<string, WebGPUBindGroupLayoutInfo> = new Map();
 
     private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
+
+    clearCache() {
+        this.bindGroupCache.clear();
+        this.layoutCache.clear();
+    }
 
     private getInfoCacheKey(commands: string[], shaderData: WebGPUShaderData, addition: Map<string, ShaderData>, textureExitsMask: number) {
         let textureStates = 0;
@@ -210,13 +215,14 @@ export class WebGPUBindGroupCache {
         }
 
         let info = new WebGPUBindGroupLayoutInfo(entries, properties, values, textureStates, textureExits);
+        if (!info.layout) {
+            info.layout = this.getBindGroupLayout(info);
+        }
 
         this.layoutCache.set(cacheKey, info);
         return info;
     }
 
-    // todo
-    // cache bindgrouplayout
     getBindGroupLayout(info: WebGPUBindGroupLayoutInfo) {
 
         let descriptor: GPUBindGroupLayoutDescriptor = {
@@ -235,9 +241,7 @@ export class WebGPUBindGroupCache {
         commands = commands || empthArray;
 
         let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask);
-        if (!info.layout) {
-            info.layout = this.getBindGroupLayout(info);
-        }
+
         let layout = info.layout;
 
         let cacheKey = `L:${info.id}V:`;

@@ -29,6 +29,13 @@ export class WebGPUPipelineCache {
 
     private computePipelineCache: Map<string, GPUComputePipeline> = new Map();
 
+    clearCache() {
+        this.pipelineCache.clear();
+        this.computePipelineCache.clear();
+        this.pipelineDecCache.clear();
+        this.pipelineLayoutCache.clear();
+    }
+
     private getPipelineLayoutCacheKey(bindGroups: Map<number, WebGPUBindGroup>) {
         // 对键进行排序以确保一致性
         const sortedKeys = Array.from(bindGroups.keys()).sort((a, b) => a - b);
