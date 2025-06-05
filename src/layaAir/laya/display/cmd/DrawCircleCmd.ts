@@ -69,9 +69,10 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @param fillColor 填充颜色
      * @param lineColor 边框颜色
      * @param lineWidth 边框宽度
+     * @param percent （可选）位置和大小是否是百分比值
      * @returns DrawCircleCmd实例
      */
-    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number): DrawCircleCmd {
+    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawCircleCmd {
         var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
         cmd.x = x;
         cmd.y = y;
@@ -79,6 +80,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
 
