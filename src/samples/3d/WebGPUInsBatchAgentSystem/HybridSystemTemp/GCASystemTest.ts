@@ -61,7 +61,7 @@ export class GCASystemTest {
                 customData.set("color2", [1, ShaderDataType.Vector4])
                 GCA_OneBatchInfo.setCustomCommandmap(customData);
             }
-             this.changeLodTest();
+            // this.changeLodTest();
             //this.testAddIns(5,1);
             //this.testMultipleResIns()
             // this.testDynamicReduce(); // 启动动态减少测试

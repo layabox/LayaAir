@@ -1,32 +1,99 @@
 import { LayaGL } from "laya/layagl/LayaGL";
+import { WebShaderPass } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebShaderPass";
 import { WebGPURenderContext3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBundle/WebGPURenderBundle";
+import { WebGPUCommandUniformMap } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderInstance";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 
 
 export class GCA_BatchRenderElement extends WebGPURenderElement3D {
-    cullShaderData: WebGPUShaderData;
+    static CommandMap: string[] = ["GCA_RenderSprite"];
     constructor() {
         super();
-        this.cullShaderData = LayaGL.renderDeviceFactory.createShaderData() as any;
         this.isRender = true;
+
     }
 
+    /**
+     * 渲染前更新,更新所有Buffer
+     * @param context 
+     */
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        //编译着色器
+        this._compileShader(context);
+        // material ubo
+        let subShader = this.subShader;
+        let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+        if (matSubBuffer.needUpload) {
+            matSubBuffer.bufferBlock.needUpload();
+        }
 
-    // _preUpdatePre(context: WebGPURenderContext3D) {
-    //     //编译着色器
-    //     this._compileShader(context);
-    //     // material ubo
-    //     let subShader = this.subShader;
-    //     let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader.owner.name, (subShader as any)._uniformMap);
-    //     if (matSubBuffer.needUpload) {
-    //         matSubBuffer.bufferBlock.needUpload();
-    //     }
-    // }
+        //sprite ubo
+        if (this.renderShaderData) {
+            let nodemap = GCA_BatchRenderElement.CommandMap;
+            for (var i = 0, n = nodemap.length; i < n; i++) {
+                let moduleName = nodemap[i];
+                let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
+                let uniformBuffer = this.renderShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
+                if (uniformBuffer && uniformBuffer.needUpload) {
+                    uniformBuffer.bufferBlock.needUpload();
+                }
+            }
+        }
+        //additional ubo
+        if (this.owner) {
+            for (let [key, value] of this.owner.additionShaderData) {
+                let shaderData = value as WebGPUShaderData;
+                let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
+                if (uniformBuffer && uniformBuffer.needUpload) {
+                    uniformBuffer.bufferBlock.needUpload();
+                }
+            }
+        }
+        //是否反转面片
+        this._invertFrontFace = this._getInvertFront();
+        return;
+    }
+
+    /**
+   * 编译着色器
+   * @param context 
+   */
+    protected _compileShader(context: WebGPURenderContext3D) {
+        this._shaderInstances.clear();
+        let comDef = this._getShaderInstanceDefines(context);
+
+        //查找着色器对象缓存
+        var passes: ShaderPass[] = this.subShader._passes;
+        for (var j: number = 0, m: number = passes.length; j < m; j++) {
+            let pass = passes[j];
+            let passdata = <WebShaderPass>pass.moduleData;
+            if (passdata.pipelineMode !== context.pipelineMode)
+                continue;
+
+            //if (this.renderShaderData) {
+            passdata.nodeCommonMap = GCA_BatchRenderElement.CommandMap;
+            //} else {
+            //    passdata.nodeCommonMap = null;
+            //}
+
+            passdata.additionShaderData = null;
+            if (this.owner) {
+                passdata.additionShaderData = this.owner._additionShaderDataKeys;
+            }
+            (pass.moduleData as any).geo = this.geometry;
+            var shaderIns = pass.withCompile(comDef, false) as WebGPUShaderInstance;
+
+            this._shaderInstances.add(shaderIns);
+        }
+    }
+
 
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         //生成RenderBundle  调用
@@ -73,7 +140,7 @@ export class GCA_BatchRenderElement extends WebGPURenderElement3D {
             let shaderResource = shaderInstance.uniformSetMap.get(2);
             let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
-            let commands = this.owner?._commonUniformMap;
+            let commands = GCA_BatchRenderElement.CommandMap;
             let shaderData = this.renderShaderData;
             let addition = this.owner?.additionShaderData;
             let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);

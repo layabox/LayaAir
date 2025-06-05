@@ -12,6 +12,8 @@ import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/Compu
 import { IDefineDatas } from "laya/RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { Vector3 } from "laya/maths/Vector3";
 import { GCA_CullComputeShader } from "./GCA_CullComputeShader";
+import { GCA_BatchBundleElement } from "./GCA_BundleRenderElement";
+import { GCA_BatchRenderElement } from "./GCA_BatchRenderElement";
 const LargeData: number = 100000000;
 
 export class GCA_InstanceRenderElementCollect {
@@ -161,9 +163,10 @@ export class GCA_InstanceRenderElementCollect {
 
     renderElementArray: Map<number, GCA_OneBatchInfo> = new Map();//GCA_InstanceRenderElementCollect
 
+    opaqueRenderBundleElement: GCA_BatchBundleElement;
+    alphaTestRenderBundleElement: GCA_BatchBundleElement;
+
     constructor(blockCount: GCA_BatchType) {
-
-
         this.blockCount = blockCount;
         this.curBlockCount = 0;
         this.maxBlockCount = (GCA_Config.MaxBatchComputeCount / blockCount) | 0;
@@ -178,6 +181,12 @@ export class GCA_InstanceRenderElementCollect {
         this.initComputeCommand();
         this._dispartchParams = new Vector3((GCA_Config.MaxBatchComputeCount / GCA_Config.CULLING_WORKGROUP_SIZE) | 0, 1, 1);
         this._clearBufferDispartchParams = new Vector3(this.maxBlockCount, 1, 1);
+        if (GCA_Config.EnableRenderBundle && blockCount != GCA_BatchType.LargeCount) {
+            this.opaqueRenderBundleElement = GCA_Config.factory.create_GCA_BundleRenderElement();
+            this.opaqueRenderBundleElement.materialRenderQueue = 2000;
+            this.alphaTestRenderBundleElement = GCA_Config.factory.create_GCA_BundleRenderElement();
+            this.alphaTestRenderBundleElement.materialRenderQueue = 2500;
+        }
     }
     //=========== OneBatchInfo 操作 start =============
     //是否可以插入一个裁剪批次
@@ -191,6 +200,11 @@ export class GCA_InstanceRenderElementCollect {
         let insertIndex = this._holeIndex.pop();
         oneBatchInfo.setOwner(this, insertIndex);//更新数据到collect
         this.renderElementArray.set(insertIndex, oneBatchInfo);
+        if (oneBatchInfo.renderElement.materialRenderQueue < 2500 && this.opaqueRenderBundleElement) {
+            this.opaqueRenderBundleElement.addrenderElement(oneBatchInfo.renderElement);
+        } else if (this.alphaTestRenderBundleElement) {
+            this.alphaTestRenderBundleElement.addrenderElement(oneBatchInfo.renderElement);
+        }
     }
 
     //释放一个裁剪批次
@@ -212,6 +226,11 @@ export class GCA_InstanceRenderElementCollect {
 
 
         this.renderElementArray.delete(bockIndex);
+        if (oneBatchInfo.renderElement.materialRenderQueue < 2500 && this.opaqueRenderBundleElement) {
+            this.opaqueRenderBundleElement.removerenderElement(oneBatchInfo.renderElement);
+        } else if (this.alphaTestRenderBundleElement) {
+            this.alphaTestRenderBundleElement.removerenderElement(oneBatchInfo.renderElement);
+        }
         this.setOneBlockCullCurIns(bockIndex, 0);
     }
 

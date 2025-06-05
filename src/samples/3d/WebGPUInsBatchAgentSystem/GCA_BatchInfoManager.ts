@@ -279,32 +279,54 @@ export class GCA_BatchInfoManager {
         }
         for (let i = 0; i < this._quitCountElementCollects.length; i++) {
             let collect = this._quitCountElementCollects[i];
-            for (var [key, value] of collect.renderElementArray) {
-                if (value.renderElement.materialRenderQueue < 2500) {
-                    opaque.addRenderElement(value.renderElement);
-                } else {
-                    alphaTest.addRenderElement(value.renderElement);
+            if (GCA_Config.EnableRenderBundle) {
+                if (collect.alphaTestRenderBundleElement.needRender())
+                    alphaTest.addRenderElement(collect.alphaTestRenderBundleElement);
+                if (collect.opaqueRenderBundleElement.needRender())
+                    opaque.addRenderElement(collect.opaqueRenderBundleElement);
+            } else {
+                for (var [key, value] of collect.renderElementArray) {
+                    if (value.renderElement.materialRenderQueue < 2500) {
+                        opaque.addRenderElement(value.renderElement);
+                    } else {
+                        alphaTest.addRenderElement(value.renderElement);
+                    }
                 }
             }
+
         }
         for (let i = 0; i < this._someElementCollects.length; i++) {
             let collect = this._someElementCollects[i];
-            for (var [key, value] of collect.renderElementArray) {
-                if (value.renderElement.materialRenderQueue < 2500) {
-                    opaque.addRenderElement(value.renderElement);
-                } else {
-                    alphaTest.addRenderElement(value.renderElement);
+            if (GCA_Config.EnableRenderBundle) {
+                if (collect.alphaTestRenderBundleElement.needRender())
+                    alphaTest.addRenderElement(collect.alphaTestRenderBundleElement);
+                if (collect.opaqueRenderBundleElement.needRender())
+                    opaque.addRenderElement(collect.opaqueRenderBundleElement);
+            } else {
+                for (var [key, value] of collect.renderElementArray) {
+                    if (value.renderElement.materialRenderQueue < 2500) {
+                        opaque.addRenderElement(value.renderElement);
+                    } else {
+                        alphaTest.addRenderElement(value.renderElement);
+                    }
                 }
             }
         }
 
         for (let i = 0; i < this._littleElementCollects.length; i++) {
             let collect = this._littleElementCollects[i];
-            for (var [key, value] of collect.renderElementArray) {
-                if (value.renderElement.materialRenderQueue < 2500) {
-                    opaque.addRenderElement(value.renderElement);
-                } else {
-                    alphaTest.addRenderElement(value.renderElement);
+            if (GCA_Config.EnableRenderBundle) {
+                if (collect.alphaTestRenderBundleElement.needRender())
+                    alphaTest.addRenderElement(collect.alphaTestRenderBundleElement);
+                if (collect.opaqueRenderBundleElement.needRender())
+                    opaque.addRenderElement(collect.opaqueRenderBundleElement);
+            } else {
+                for (var [key, value] of collect.renderElementArray) {
+                    if (value.renderElement.materialRenderQueue < 2500) {
+                        opaque.addRenderElement(value.renderElement);
+                    } else {
+                        alphaTest.addRenderElement(value.renderElement);
+                    }
                 }
             }
         }

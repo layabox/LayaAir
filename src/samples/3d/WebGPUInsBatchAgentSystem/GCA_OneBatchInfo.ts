@@ -14,6 +14,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { WebGPURenderGeometry } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderGeometry";
 import { WebGPUBufferState } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBufferState";
 import { Vector4 } from "laya/maths/Vector4";
+import { GCA_Config } from "./GCA_Config";
 
 //根据渲染批次ID,记录这个批次的渲染信息
 //功能块
@@ -276,7 +277,7 @@ export class GCA_OneBatchInfo {
     }
 
     private _createRenderElement() {
-        this.renderElement = new GCA_BatchRenderElement();
+        this.renderElement = GCA_Config.factory.create_GCA_BatchRenderELement();
         let batchInfo = GCAResData._batchIDMap.get(this.batchID);
         this.spriteShaderData3D = LayaGL.renderDeviceFactory.createShaderData() as WebGPUShaderData;
         this.renderElement.renderShaderData = this.spriteShaderData3D;
@@ -458,6 +459,5 @@ export class GCA_OneBatchInfo {
         this._unbindOwnerRenderData();//移除collect的渲染数据绑定
         this._destroyRenderElement();
     }
-
     //===========add remove update以及批次分配处理 end===========
 }

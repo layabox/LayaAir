@@ -4,6 +4,7 @@ import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/
 import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { GCA_BatchRenderElement } from "./GCA_BatchRenderElement";
+import { WebGPUBindGroup } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBindGroupCache";
 
 export class GCA_BatchBundleElement extends WebGPURenderElement3D {
     private _renderelements: GCA_BatchRenderElement[] = [];
@@ -13,8 +14,11 @@ export class GCA_BatchBundleElement extends WebGPURenderElement3D {
     constructor() {
         super();
         this.isRender = true;
-        this.materialRenderQueue = 2000;
         this.materialShaderData = new WebGPUShaderData();
+    }
+
+    needRender() {
+        return this._renderelements.length > 0;
     }
 
     addrenderElement(element: GCA_BatchRenderElement) {
@@ -22,7 +26,25 @@ export class GCA_BatchBundleElement extends WebGPURenderElement3D {
         this._needRecreateRenderBundle = true;
     }
 
+    removerenderElement(element: GCA_BatchRenderElement) {
+        let inddex = this._renderelements.indexOf(element);
+        if (inddex != -1) {
+            this._renderelements.splice(inddex, 1);
+            this._needRecreateRenderBundle = true;
+        }
+    }
+
+    notifyRecreateRenderBundle() {
+        this._needRecreateRenderBundle = true;
+    }
+    private _cacheSceneGroup: WebGPUBindGroup;
+    private _cacheCameraGroup: WebGPUBindGroup;
+
     _preUpdatePre(context: WebGPURenderContext3D) {
+        if (context._sceneBindGroup != this._cacheSceneGroup || context._cameraBindGroup != this._cacheCameraGroup) {
+            this._needRecreateRenderBundle = true;
+        }
+
         for (var i = 0; i < this._renderelements.length; i++) {
             this._renderelements[i]._preUpdatePre(context);
         }
@@ -36,8 +58,12 @@ export class GCA_BatchBundleElement extends WebGPURenderElement3D {
             }
             this._commadnBundle.finish("renderCullBundle");
             this._needRecreateRenderBundle = false;
+            this._cacheSceneGroup = context._sceneBindGroup;
+            this._cacheCameraGroup = context._cameraBindGroup;
         }
         (command as WebGPURenderCommandEncoder).excuteBundle([this._commadnBundle._gpuBundle])
         return 0;
     }
+
+
 }
