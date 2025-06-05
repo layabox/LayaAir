@@ -15,13 +15,12 @@ float rgb2luma(in vec3 rgb)
 vec3 textureOffsetbyScreenSize(in vec2 uv, in vec2 offset, in vec2 inverseScreenSize)
 {
     vec2 sampleruv = uv + inverseScreenSize * offset; // u_texturesize表示每个像素的偏移量
-    return texture2D(u_MainTex, sampleruv).rgb;
+    return texture2DLodEXT(u_MainTex, sampleruv, 0.0).rgb; // 使用纹理lod函数来获取纹理颜色
 }
 
 vec4 FXAAMain(in vec2 texuv, in vec2 inverseScreenSize)
 {
-
-    vec4 mainColor = texture2D(u_MainTex, texuv);
+    vec4 mainColor = texture2DLodEXT(u_MainTex, texuv, 0.0);
     vec3 colorCenter = mainColor.rgb;
     // Luma at the current fragment
     float lumaCenter = rgb2luma(colorCenter);
@@ -227,7 +226,7 @@ vec4 FXAAMain(in vec2 texuv, in vec2 inverseScreenSize)
 	}
 
     // Read the color at the new UV coordinates, and use it.
-    return texture2D(u_MainTex, finalUv);
+    return texture2DLodEXT(u_MainTex, finalUv, 0.0);
 }
 #endif//FXAA
 #endif // Color_lib
