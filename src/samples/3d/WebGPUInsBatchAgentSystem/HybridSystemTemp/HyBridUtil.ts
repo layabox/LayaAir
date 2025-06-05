@@ -1,7 +1,7 @@
 import { Bounds } from "laya/d3/math/Bounds";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector2 } from "laya/maths/Vector2";
 import { IBufferState } from "laya/RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 
@@ -82,6 +82,8 @@ export class IGCABVHCell {//一个渲染节点
     lightmapIndex: number;
     customData: Record<string, any> = {};
     customDataArray: Float32Array;
+    loadMask: number;//需要看Agent中有多少层的
+    loadMaskRange: Vector2 = new Vector2(0, 100);
 }
 
 export enum QXLodLevel {//渲染节点的lod等级

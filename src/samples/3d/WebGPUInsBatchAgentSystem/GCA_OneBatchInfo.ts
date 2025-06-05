@@ -148,10 +148,11 @@ export class GCA_OneBatchInfo {
             this._aabbDataView[aabbindex] = min.x;
             this._aabbDataView[aabbindex + 1] = min.y;
             this._aabbDataView[aabbindex + 2] = min.z;
-            this._aabbDataView[aabbindex + 3] = 0;
+            this._aabbDataView[aabbindex + 3] = ins.loadMaskRange.x;
             this._aabbDataView[aabbindex + 4] = max.x;
             this._aabbDataView[aabbindex + 5] = max.y;
             this._aabbDataView[aabbindex + 6] = max.z;
+            this._aabbDataView[aabbindex + 7] = ins.loadMaskRange.y;
         }
         let ownerOffset = this.blockIndexInOwner * this.maxBlockCount * 8;
         this._owner.aabbUpdateRange.x = Math.min(this._owner.aabbUpdateRange.x, ownerOffset + aabbindex);

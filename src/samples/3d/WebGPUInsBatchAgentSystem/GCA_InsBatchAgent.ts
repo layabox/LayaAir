@@ -50,7 +50,7 @@ export class GCA_InsBatchAgent {
     //是否处理阴影
     private _hasDirShadow: boolean = false;
 
-    private _cullPlaneData: Float32Array = new Float32Array(4 * 6);
+    private _cullPlaneData: Float32Array = new Float32Array(4 * 7);
 
     constructor(hasDirShadow: boolean = true) {
         GCA_InsBatchAgent._AgentArray.push(this);
@@ -273,9 +273,24 @@ export class GCA_InsBatchAgent {
         fillCullData(boundFrustum.right, 12);
         fillCullData(boundFrustum.top, 16);
         fillCullData(boundFrustum.bottom, 20);
+        let cameraPos = camera.transform.position;
+        this._cullPlaneData[24] = cameraPos.x;
+        this._cullPlaneData[25] = cameraPos.y;
+        this._cullPlaneData[26] = cameraPos.z;
+
         this._forwardManager.setCullPlanes(this._cullPlaneData);
         this._forwardManager.applyChage();
         return this._cameraCullSingleList;
+    }
+
+
+    setLodConfig(lodConfig: number[][]) {
+        let array = new Float32Array(lodConfig.length);
+        for (var i = 0; i < lodConfig.length; i++) {
+            array[i * 2] = lodConfig[i][0];
+            array[i * 2 + 1] = lodConfig[i][1];
+        }
+        this._forwardManager.setCullPlanes
     }
 
     /**

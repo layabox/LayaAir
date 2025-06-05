@@ -14,6 +14,9 @@ export class GCA_Config {
     static CULLING_WORKGROUP_SIZE = 64;
     static MaxBatchComputeCount: number = 1024;
     static EnableRenderBundle: boolean = false;
+    static lodConfig: number[][];
+
+
 
     static factory: GCA_BaseFactory;
 

@@ -18,11 +18,13 @@ export class GCA_CullComputeShader {
             distance: f32,      // 距离 d
         }
 
-        @group(0) @binding(0) var<uniform> cullPlanes: array<vec4<f32>, 6>;
+        
+
+        @group(0) @binding(0) var<uniform> cullPlanes: array<vec4<f32>, 7>; //第7个vec4是camera的Pos
        
         struct AABB {
-            min: vec4<f32>,//x,y,z 表示min,w大于0 表示这个地方的数据为null,裁剪直接返回false
-            max: vec4<f32>,
+            min: vec4<f32>,//x,y,z 表示min,w 是距离最小值,小于w裁剪失败
+            max: vec4<f32>,//x,y,z 表示max,w 是距离最大值,大于w裁剪失败
         }
         @group(1) @binding(0) var<storage, read> aabbs: array<AABB>;
         
@@ -68,9 +70,26 @@ export class GCA_CullComputeShader {
             return distanceToCenter > -projectionRadius;
         }
 
+
+        // 计算点到AABB的最近距离
+        fn distance_point_to_aabb(point: vec3<f32>, aabb_min: vec3<f32>, aabb_max: vec3<f32>) -> f32 {
+            // 计算点到AABB表面的最近点
+            let closest_point = clamp(point, aabb_min, aabb_max);
+            
+            // 如果点在AABB内部,返回0
+            // 否则返回点到AABB表面的距离
+            let diff = point - closest_point;
+            return length(diff);
+        }
+
+        fn isRangeVisible(aabb: AABB) -> bool{
+            let distance = distance_point_to_aabb(cullPlanes[6].xyz,aabb.min.xyz,aabb.max.xyz);
+            return distance >= aabb.min.w && distance <= aabb.max.w;
+        }
+
         fn isAABBVisible(aabb: AABB) -> bool {
         // 遍历所有cull planes
-          if(aabb.min.w > 0.0){
+          if(!isRangeVisible(aabb)){
             return false;
           }
           for (var i = 0u; i < 6u; i = i + 1u) {
@@ -83,8 +102,7 @@ export class GCA_CullComputeShader {
           return true;
         }
 
-
-         @compute @workgroup_size(${GCA_Config.CULLING_WORKGROUP_SIZE})
+        @compute @workgroup_size(${GCA_Config.CULLING_WORKGROUP_SIZE})
         fn computeMain(@builtin(global_invocation_id) gloablId: vec3u) {
           var blockCount: u32 = ${blockCount};  
           let instanceIndex = gloablId.x;
@@ -108,7 +126,7 @@ export class GCA_CullComputeShader {
         `
 
     let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("GCA_CullCompute_CullInfo");
-    uniformMap.addShaderUniformArray(Shader3D.propertyNameToID("cullPlanes"), "cullPlanes", ShaderDataType.Vector4, 6);
+    uniformMap.addShaderUniformArray(Shader3D.propertyNameToID("cullPlanes"), "cullPlanes", ShaderDataType.Vector4, 7);
 
 
     let uniformMap1 = LayaGL.renderDeviceFactory.createGlobalUniformMap("GCA_CullCompute_BufferInfoF");

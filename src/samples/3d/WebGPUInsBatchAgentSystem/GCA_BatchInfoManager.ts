@@ -114,6 +114,10 @@ export class GCA_BatchInfoManager {
         this._cullShaderData.setBuffer(Shader3D.propertyNameToID("cullPlanes"), cullDatas);
     }
 
+    setLodConfig(lodRangeArray: Float32Array) {
+        this._cullShaderData.setBuffer(Shader3D.propertyNameToID(""), lodRangeArray);
+    }
+
     //这里发起所有数据的改动
     applyChage() {
         //最后清理所有的数据
