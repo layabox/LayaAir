@@ -29,6 +29,7 @@ export enum ShaderDataType {
     Matrix3x3,
     ReadOnlyDeviceBuffer,
     DeviceBuffer,
+    StorageTexture2D,
     Texture2D,
     Texture3D,
     TextureCube,

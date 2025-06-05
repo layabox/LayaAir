@@ -255,6 +255,32 @@ export class WebGPUInternalTex implements InternalTexture {
         }
     }
 
+    _getStorageBindingLayout(layout: GPUStorageTextureBindingLayout) {
+        layout.format = this._webGPUFormat;
+
+        switch (this.dimension) {
+            case TextureDimension.Tex2D:
+                layout.viewDimension = '2d';
+                break;
+            case TextureDimension.Cube:
+                layout.viewDimension = 'cube';
+                break;
+            case TextureDimension.Tex3D:
+                layout.viewDimension = '3d';
+                break;
+            case TextureDimension.Texture2DArray:
+                layout.viewDimension = '2d-array';
+                break;
+            case TextureDimension.CubeArray:
+                layout.viewDimension = 'cube-array';
+                break;
+            case TextureDimension.Unkonw:
+            case TextureDimension.None:
+            default:
+                break;
+        }
+    }
+
     statisAsRenderTexture() {
         this._statistics_M_TextureA = GPUEngineStatisticsInfo.M_ALLRenderTexture;
         this._statistics_RC_TextureA = GPUEngineStatisticsInfo.RC_ALLRenderTexture;

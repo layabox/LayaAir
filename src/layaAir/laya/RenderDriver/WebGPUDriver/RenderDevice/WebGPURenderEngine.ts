@@ -422,7 +422,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.None, false, false, 1) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, 1, false) as WebGPUInternalRT;
         this._screenResized = true;
     }
 

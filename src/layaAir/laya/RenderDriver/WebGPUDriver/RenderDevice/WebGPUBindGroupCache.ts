@@ -96,6 +96,10 @@ export class WebGPUBindGroupCache {
 
         cacheKey = `${cacheKey}_${textureExits}_${textureStates}`;
 
+        if (texOffset > 31) {
+            console.warn("WebGPUBindGroupCache: texture bits exceed 32, this may cause issues with texture binding.");
+        }
+
         return cacheKey;
     }
 
@@ -174,6 +178,17 @@ export class WebGPUBindGroupCache {
                                 hasDynamicOffset: resource.buffer.hasDynamicOffset,
                                 minBindingSize: resource.buffer.minBindingSize,
                             };
+                            break;
+                        case WebGPUBindingInfoType.storageTexture:
+                            entry.storageTexture = {
+                                access: resource.storageTexture.access,
+                                format: resource.storageTexture.format,
+                                viewDimension: resource.storageTexture.viewDimension,
+                            };
+                            if (value) {
+                                let tex = (value as WebGPUInternalTex);
+                                tex._getStorageBindingLayout(entry.storageTexture);
+                            }
                             break;
                         default:
                             break;
@@ -287,6 +302,19 @@ export class WebGPUBindGroupCache {
                 };
 
                 entries.push(entry);
+            }
+            else if (layoutEntry.storageTexture) {
+                let texture = value as WebGPUInternalTex;
+
+                cacheKey += `_${texture.globalId}`;
+
+                let entry: GPUBindGroupEntry = {
+                    binding: layoutEntry.binding,
+                    resource: texture.getTextureView()
+                };
+
+                entries.push(entry);
+
             }
 
         });

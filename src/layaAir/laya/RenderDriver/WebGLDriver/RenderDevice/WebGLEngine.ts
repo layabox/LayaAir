@@ -192,7 +192,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
                 WebGLEngine._lastFrameBuffer.dispose();
                 WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
             }
-            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1) as WebGLInternalRT;
+            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1, false) as WebGLInternalRT;
             WebGLEngine._lastFrameBuffer_WebGLOBJ = WebGLEngine._lastFrameBuffer._framebuffer;
         }
     }
