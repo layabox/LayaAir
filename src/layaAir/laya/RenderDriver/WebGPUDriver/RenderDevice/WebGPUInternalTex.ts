@@ -248,7 +248,10 @@ export class WebGPUInternalTex implements InternalTexture {
         }
         else {
             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32) {
+            if (!supportFloatLinearFiltering && (this.format === TextureFormat.R32G32B32A32||
+                this.format === TextureFormat.R16G16B16A16||
+                this.format === TextureFormat.R32G32
+            ) {
                 if (layout.type !== 'non-filtering') {
                     layout.type = 'non-filtering';
                 }
