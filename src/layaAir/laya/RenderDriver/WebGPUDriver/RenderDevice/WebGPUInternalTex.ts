@@ -221,16 +221,22 @@ export class WebGPUInternalTex implements InternalTexture {
             layout.sampleType = 'unfilterable-float';
         }
         else {
-            if(true){
-                const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            if(isCS){
                 if (!supportFloatLinearFiltering && (this.format === TextureFormat.R32G32B32A32||
-                    this.format === TextureFormat.R32G32 ||
-                    this.format === TextureFormat.R16G16B16 ||
-                    this.format === TextureFormat.R16G16B16A16
+                    this.format === TextureFormat.R32G32||this.format===TextureFormat.R16G16B16A16
                 ))
                     layout.sampleType = 'unfilterable-float';
                 else
                     layout.sampleType = 'float';
+
+            }else{
+                if (!supportFloatLinearFiltering && (this.format === TextureFormat.R32G32B32A32|| this.format === TextureFormat.R32G32 
+                ))
+                    layout.sampleType = 'unfilterable-float';
+                else
+                    layout.sampleType = 'float';
+
             }
         }
     }
@@ -248,10 +254,7 @@ export class WebGPUInternalTex implements InternalTexture {
         }
         else {
             const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
-            if (!supportFloatLinearFiltering && (this.format === TextureFormat.R32G32B32A32||
-                this.format === TextureFormat.R16G16B16A16||
-                this.format === TextureFormat.R32G32
-            ) {
+            if (!supportFloatLinearFiltering && (this.format === TextureFormat.R32G32B32A32) {
                 if (layout.type !== 'non-filtering') {
                     layout.type = 'non-filtering';
                 }
