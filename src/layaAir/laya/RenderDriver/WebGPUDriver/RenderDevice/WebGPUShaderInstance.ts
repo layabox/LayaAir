@@ -70,53 +70,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         throw new NotImplementedError();
     }
 
-    // /**
-    //  * 获取渲染管线描述
-    //  */
-    // getRenderPipelineDescriptor() {
-    //     const engine = WebGPURenderEngine._instance;
-    //     //设置颜色目标模式
-    //     let targetFormat = WebGPUTextureFormat.rgba8unorm;
-    //     if (engine._preferredFormat == WebGPUTextureFormat.bgra8unorm) {
-    //         targetFormat = WebGPUTextureFormat.bgra8unorm;
-    //     }
-    //     const colorTargetState: GPUColorTargetState = {
-    //         format: targetFormat,
-    //         writeMask: GPUColorWrite.ALL,
-    //     };
-
-    //     //设置渲染管线描述
-    //     const renderPipelineDescriptor: GPURenderPipelineDescriptor = {
-    //         label: 'render',
-    //         layout: 'auto',
-    //         vertex: {
-    //             buffers: [],
-    //             module: this._vsShader,
-    //             entryPoint: 'main',
-    //         },
-    //         fragment: {
-    //             module: this._fsShader,
-    //             entryPoint: 'main',
-    //             targets: [colorTargetState],
-    //         },
-    //         primitive: {
-    //             topology: 'triangle-list',
-    //             frontFace: 'ccw',
-    //             cullMode: 'back',
-    //         },
-    //         depthStencil: {
-    //             format: 'depth24plus-stencil8',
-    //             depthWriteEnabled: true,
-    //             depthCompare: 'less',
-    //         },
-    //         multisample: {
-    //             count: 1,
-    //         },
-    //     };
-
-    //     return renderPipelineDescriptor;
-    // }
-
     /**
      * 创建ShaderInstance
      * @param shaderProcessInfo 
@@ -136,9 +89,12 @@ export class WebGPUShaderInstance implements IShaderInstance {
         let attriLocArray = ((shaderPass.moduleData as any).geo as WebGPURenderGeometry).bufferState._attriLocArray;
 
         let filteredAttributeMap: Record<string, [number, ShaderDataType]> = {};
+        let noUseAttributeMap: Record<string, [number, ShaderDataType]> = {};//收集没有用到的attributeMap
         for (const [key, value] of Object.entries(shaderProcessInfo.attributeMap)) {
             if (attriLocArray.has(value[0])) {
                 filteredAttributeMap[key] = value;
+            } else {
+                noUseAttributeMap[key] = value;
             }
         }
 
@@ -152,7 +108,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
          * 编译 shader 时可能检出新的 uniform
          * 将新检出的 uniform 添加到 material map 中
          */
-        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, filteredAttributeMap, this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer, appendSet);
+        const glslObj = GLSLForVulkanGenerator.process(shaderProcessInfo.defineString, [filteredAttributeMap, noUseAttributeMap], this.uniformSetMap, shaderPass.name, shaderPass._owner._uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps, useTexSet, cullTextureSetLayer, appendSet);
 
         this._generateMaterialCommandMap();
         this.uniformResourcesCacheKey.set(appendSet, [shaderPass.name]);

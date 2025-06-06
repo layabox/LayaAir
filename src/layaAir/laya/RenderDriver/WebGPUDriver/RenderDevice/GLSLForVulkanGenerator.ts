@@ -5,7 +5,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
+import { getTypeDefaultString, getTypeString, isSamplerType } from "./GLSLGeneratorHelper";
 import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
 import { WebGPUBindGroupHelper, WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
@@ -41,7 +41,21 @@ type WebGPUAttributeMapType = {
  */
 export class GLSLForVulkanGenerator {
 
-    static process(defines: string[], attributeMap: WebGPUAttributeMapType, uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
+    /**
+     * 
+     * @param defines 
+     * @param attributeMap //0:useAttributeMap  1:nouseAttributeMap
+     * @param uniformMap 
+     * @param shaderPassName 
+     * @param materialMap 
+     * @param VS 
+     * @param FS 
+     * @param useTexArray 
+     * @param checkSetNumber 
+     * @param appendSet 
+     * @returns 
+     */
+    static process(defines: string[], attributeMap: WebGPUAttributeMapType[], uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
 
         const engine = WebGPURenderEngine._instance;
 
@@ -129,7 +143,7 @@ ${fragmentCode}
             fragmentCode = resFS.preprocessed_code;
         }
 
-        const attributeStrs = attributeString(attributeMap);
+        const attributeStrs = attributeString(attributeMap[0], attributeMap[1]);
 
         const varyings = executeVaryings(fragmentCode, vertexCode);
 
@@ -336,7 +350,7 @@ function defineString(defines: { [key: string]: boolean }) {
     return res;
 }
 
-function attributeString(attributeMap: WebGPUAttributeMapType) {
+function attributeString(attributeMap: WebGPUAttributeMapType, nouseAttributeMap: WebGPUAttributeMapType) {
     let res = "";
 
     let location = 0;
@@ -364,7 +378,31 @@ function attributeString(attributeMap: WebGPUAttributeMapType) {
             else {
                 res = `${res}layout(location = ${location}) in ${type} ${key};\n`;
             }
+        }
+    }
 
+    for (const key in nouseAttributeMap) {//兼容gles可以有没有绑定的Attribute的方案
+        let type = getTypeString(nouseAttributeMap[key][1]);
+        let defaultValue = getTypeDefaultString(nouseAttributeMap[key][1]);
+        // todo
+        if (key == "a_BoneIndices") {
+            type = "uvec4";
+            defaultValue = "uvec4(0)"
+        }
+
+        nouseAttributeMap[key][0];
+        if (type != "") {
+            if (type == "mat4") {
+                res = `${res}const vec4 ${key}_0 = vec4(0.0);\n`;
+                res = `${res}const vec4 ${key}_1 = vec4(0.0);\n`;
+                res = `${res}const vec4 ${key}_2 = vec4(0.0);\n`;
+                res = `${res}const vec4 ${key}_3 = vec4(0.0);\n`;
+
+                attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3);\n`;
+            }
+            else {
+                res = `${res}const ${type} ${key} =${defaultValue};\n`;
+            }
         }
     }
 

@@ -47,6 +47,28 @@ export function getTypeString(type: ShaderDataType) {
 }
 
 /** @internal */
+export function getTypeDefaultString(type: ShaderDataType) {
+    switch (type) {
+        case ShaderDataType.Int:
+            return "0";
+        case ShaderDataType.Bool:
+            return "false";
+        case ShaderDataType.Float:
+            return "0.0";
+        case ShaderDataType.Vector2:
+            return "vec2(0.0)";
+        case ShaderDataType.Vector3:
+            return "vec3(0.0)";
+        case ShaderDataType.Vector4:
+        case ShaderDataType.Color:
+            return "vec4(0.0)";
+       
+        default:
+            return "";
+    }
+}
+
+/** @internal */
 export function isSamplerType(type: ShaderDataType) {
     switch (type) {
         case ShaderDataType.Texture2D:

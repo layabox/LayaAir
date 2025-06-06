@@ -13,7 +13,6 @@ import { IDefineDatas } from "laya/RenderDriver/RenderModuleData/Design/IDefineD
 import { Vector3 } from "laya/maths/Vector3";
 import { GCA_CullComputeShader } from "./GCA_CullComputeShader";
 import { GCA_BatchBundleElement } from "./GCA_BundleRenderElement";
-import { GCA_BatchRenderElement } from "./GCA_BatchRenderElement";
 const LargeData: number = 100000000;
 
 export class GCA_InstanceRenderElementCollect {
