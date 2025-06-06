@@ -31,10 +31,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
 
         RenderPassUtil.renderCmd(this.beforeForwardCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
-        RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
-        RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 
-       
         this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
@@ -43,13 +40,17 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
             this._opaqueTexturePass();
         }
 
+
+        RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
+        RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
+
         if (this.skyRenderNode) {
             const skyRenderElement = this.skyRenderNode.renderelements[0] as IRenderElement3D;
             if (skyRenderElement.subShader) {
                 context.drawRenderElementOne(skyRenderElement);
             }
         }
-        this.enableOpaque&&this._opaqueTexturePass();
+        this.enableOpaque && this._opaqueTexturePass();
         RenderPassUtil.renderCmd(this.beforeTransparentCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 
