@@ -7,7 +7,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { BufferModifyType, Graphic2DBufferBlock, I2DBaseRenderDataHandle, I2DGraphicBufferDataView, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, VertexBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { BufferModifyType, Graphics2DBufferBlock, I2DBaseRenderDataHandle, I2DGraphicBufferDataView, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
@@ -52,19 +52,15 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
             this._mask = value;
             this._nativeObj.setMask(value ? value._nativeObj : null);
         }   
-        private _vertexBufferBlocks: Graphic2DBufferBlock[] = [];
-        //private _needUpdateBuffer: boolean = false;
-        //private _modifiedFrame: number = -1;
-        private _indexViews: I2DGraphicBufferDataView[] = [];
-    
-        applyVertexBufferBlock(blocks: Graphic2DBufferBlock[] , indexViews: I2DGraphicBufferDataView[]): void {
-            this._vertexBufferBlocks = blocks;
-            this._indexViews = indexViews;
-            //this._needUpdateBuffer = blocks.length > 0;
-            this._nativeObj.applyVertexBufferBlock(blocks, indexViews); 
+
+        private _blocks: Graphics2DBufferBlock[] = [];
+        
+        applyVertexBufferBlock(blocks: Graphics2DBufferBlock[] ): void {
+            this._blocks = blocks;
+            this._nativeObj.applyVertexBufferBlock(blocks); 
         }
     
-        inheriteRenderData(context: IRenderContext2D): void {
+        inheriteRenderData(context: GLESRenderContext2D): void {
             this._nativeObj.inheriteRenderData(context._nativeObj);
         }
     }

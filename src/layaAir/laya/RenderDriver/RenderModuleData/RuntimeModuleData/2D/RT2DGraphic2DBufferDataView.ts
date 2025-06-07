@@ -113,8 +113,6 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         this._geometry = value;
         this._nativeObj.setGeometry(value ? value._nativeObj : null);
     }
-  
-
     
     getData(): Float32Array | Uint16Array {
         return this._nativeObj.getData();
@@ -123,13 +121,9 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     modify() {
         this._nativeObj.modify();   
     }
-    clone(needOwner: boolean, create: boolean): I2DGraphicBufferDataView
-    {
-        //lvtodo
-        throw new Error("RT2DGraphic2DBufferDataView.clone is not implemented");
-    }
+    
     _nativeObj: any;
-    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create = true) {
+    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1 , create: boolean = true) {
         this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride);
         this.owner = owner;
 
@@ -141,5 +135,10 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
                 owner._nativeObj._addDataView(this._nativeObj);
             }
         }
+    }
+
+    clone(needOwner: boolean, create: boolean): RT2DGraphic2DBufferDataView {
+        let owner = needOwner ? this.owner : null;
+        return new RT2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
     }
 }

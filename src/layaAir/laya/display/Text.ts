@@ -691,9 +691,9 @@ export class Text extends Sprite {
         if (this._overflow != value) {
             this._overflow = value;
             if (value !== Text.VISIBLE) {
-                this.on(SpriteGlobalTransform.CHANGED , this , this.repaint);
+                this.on(SpriteGlobalTransform.CHANGED , this , this.markChanged);
             }else{
-                this.off(SpriteGlobalTransform.CHANGED , this, this.repaint);
+                this.off(SpriteGlobalTransform.CHANGED , this, this.markChanged);
             }
             this.markChanged();
         }
