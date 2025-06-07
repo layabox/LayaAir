@@ -133,6 +133,40 @@ export class GraphicsShaderInfo {
       this.shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, value);
    }
 
+
+   cloneTo(shaderData:ShaderData){
+      if (this.enableVertexSize) {
+         shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_VERTEX_SIZE , this.vertexSize);
+      }
+
+      if (this.materialClip) {
+         shaderData.addDefine(ShaderDefines2D.MATERIALCLIP);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR, this.clipMatDir);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS, this.clipMatPos);
+      }
+
+      let textrueReadGamma = this.shaderData.hasDefine(ShaderDefines2D.GAMMATEXTURE);
+      if (textrueReadGamma) {
+         shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+      } else {
+         shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+      }
+
+      let tex = (this._textureHost as Texture).bitmap;
+      if (!tex) {
+         tex = this._textureHost as BaseTexture;
+      }
+      let fill = this.shaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+      if (fill) {
+         shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, this.u_TexRange);
+      }else{
+         shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
+      }
+      shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+   }
+   
    clear() {
       this.shaderData.clearData();
       this.shaderData.clearDefine();

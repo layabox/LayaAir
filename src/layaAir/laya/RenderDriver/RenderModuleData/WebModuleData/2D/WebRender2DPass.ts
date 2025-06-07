@@ -423,15 +423,19 @@ export class BatchBuffer {
    clear() {
       this.indexCount = 0;
       this.wholeBuffer.clearBufferViews();
-      this.bufferStates.forEach((bufferState) => {
-         bufferState.destroy();
-      });
-      this.bufferStates.clear();
+      // this.bufferStates.forEach((bufferState) => {
+      //    bufferState.destroy();
+      // });
+      // this.bufferStates.clear();
       this.geometryList.length = 0;
    }
 
    destroy(): void {
       this.clear();
+      this.bufferStates.forEach((bufferState) => {
+         bufferState.destroy();
+      });
+      this.bufferStates.clear();
       this.indexBuffer.destroy();
       this.indexBuffer = null;
       this.wholeBuffer.destroy();

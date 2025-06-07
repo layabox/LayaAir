@@ -172,7 +172,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         //     this._renderAlpha =  context.globalAlpha;
         // }
 
-        this._lightReceive && this._updateLight();
+        this._updateLight();
     }
 
     /**

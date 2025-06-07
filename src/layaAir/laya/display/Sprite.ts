@@ -636,7 +636,7 @@ export class Sprite extends Node {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         if (this._alpha !== value) {
             this._alpha = value;
-            this._struct.alpha = this.alpha;
+            this._struct.alpha = value;
             if (value !== 1) this._renderType |= SpriteConst.ALPHA;
             else this._renderType &= ~SpriteConst.ALPHA;
             this.repaint();
@@ -655,9 +655,10 @@ export class Sprite extends Node {
         if (this._visible !== value) {
             this._visible = value;
             this._struct.enable = value;
-            // if(this._graphics) this._graphics._modefied = true;
-            this.repaint();
             this._processVisible();
+
+            if (value)
+                this.repaint();
         }
     }
 
@@ -2069,7 +2070,6 @@ export class Sprite extends Node {
     * @param type 重新绘制类型。
     */
     repaint(): void {
-
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();

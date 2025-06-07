@@ -332,6 +332,7 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
+        this._repaint();
         if (value != null)
             value._addReference();
     }
@@ -694,6 +695,7 @@ export class Graphics {
 
         if (
             !this._modefied
+            && this._check() //校验是否都有效
             // && this._data.offsetX === x
             // && this._data.offsetY === y
         ) {
@@ -728,6 +730,18 @@ export class Graphics {
         // this._data.offsetY = y;
     }
 
+    private _check(): boolean {
+        let len = this._data._submits.length;
+        for (let i = 0; i < len; i++) {
+            let submit = this._data._submits.elements[i];
+            let texture = submit._internalInfo.textureHost;
+            let bitmap = (texture as Texture).bitmap;
+            if ( bitmap && bitmap.destroyed ) {
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * @internal
      */
@@ -751,7 +765,10 @@ export class Graphics {
         }
 
         var tex = sprite.texture;
-        if (tex._getSource()) {
+        if (tex._getSource(()=>{
+            this._modefied = true;
+            this.owner.repaint();
+        })) {
             var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
             var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
             var wRate = width / tex.sourceWidth;

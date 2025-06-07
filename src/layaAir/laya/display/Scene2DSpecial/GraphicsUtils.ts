@@ -10,6 +10,7 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
+import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
@@ -132,8 +133,10 @@ export class GraphicsRenderData {
             }
 
             if (submit.material) {
+               let mShaderData = submit.material.shaderData;
+               submit._internalInfo.cloneTo(mShaderData);
                element.subShader = submit.material.shader.getSubShaderAt(0);
-               element.materialShaderData = submit.material.shaderData;
+               element.materialShaderData = mShaderData;
                element.renderStateIsBySprite = false;
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
@@ -194,8 +197,12 @@ export class GraphicsRenderData {
       // @ts-ignore
       element.type |= mc << 5;
 
-      let tex = submit._internalInfo.textureHost || Texture2D.whiteTexture;
-      let texKey = tex._id;
+      let texture : BaseTexture = Texture2D.whiteTexture;
+      let textureHost = submit._internalInfo.textureHost;
+      if (textureHost) {
+         texture = (textureHost as Texture).bitmap || textureHost as BaseTexture ;
+      }
+      let texKey = texture.id;
       // texKey = tex._id;
       // if ( tex && tex !== Texture2D.whiteTexture) {
       // }

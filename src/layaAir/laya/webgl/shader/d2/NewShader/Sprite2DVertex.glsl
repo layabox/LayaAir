@@ -33,24 +33,25 @@ varying vec2 v_cliped;
 varying vec4 v_color;
 
 void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    // float x = pos.x - u_pivotPos.x;
-    // float y = pos.y - u_pivotPos.y;
-    // outPos.x= xDir.x*x+xDir.y*y + u_pivotPos.x +xDir.z;
-    // outPos.y= yDir.x*x+yDir.y*y + u_pivotPos.y +yDir.z;
     outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
     outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
-    // outPos.x=xDir.x*x+xDir.y*y + u_pivotPos.x +xDir.z;
-    // outPos.y=yDir.x*x+yDir.y*y + u_pivotPos.y +yDir.z;
 }
 
 void clip(inout vec2 globalPos){
-    vec2 tempPos = vec2(globalPos.x,globalPos.y);
     // 根据视口调整位置
     vec4 clipMatDir;
     vec4 clipMatPos;
     #ifdef MATERIALCLIP
         clipMatDir = u_mClipMatDir;
         clipMatPos = u_mClipMatPos;
+        // clipMatDir.x = u_mClipMatDir.x * u_NMatrix_0.x;//a
+        // clipMatDir.y = u_mClipMatDir.y * u_NMatrix_1.x;//b
+        // clipMatDir.z = u_mClipMatDir.z * u_NMatrix_0.y;//c
+        // clipMatDir.w = u_mClipMatDir.w * u_NMatrix_1.y;//d
+        // clipMatDir.xy *= u_NMatrix_0.z;
+        // vec2 tempPos;
+        // transfrom(u_mClipMatPos.xy , u_NMatrix_0 , u_NMatrix_1 , tempPos) ;
+        // clipMatPos.xyzw = tempPos.xyxy;
     #else
         clipMatDir = u_clipMatDir;
         clipMatPos = u_clipMatPos;
@@ -59,21 +60,15 @@ void clip(inout vec2 globalPos){
     vec2 cliped;
     float clipw = length(clipMatDir.xy);
     float cliph = length(clipMatDir.zw);
-    vec2 clippos = tempPos - clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+    vec2 clippos = globalPos - clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
     if(clipw>20000. && cliph>20000.)
         cliped = vec2(0.5,0.5);
     else {
         //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
         cliped =vec2( dot(clippos,clipMatDir.xy)/clipw/clipw, dot(clippos,clipMatDir.zw)/cliph/cliph);
     }
-    tempPos.xy = clippos + clipMatPos.zw;
-
-    #ifdef RENDERTEXTURE
-        transfrom(tempPos , u_InvertMat_0, u_InvertMat_1, globalPos);
-    #else
-        globalPos = tempPos;
-    #endif
-
+    
+    globalPos = clippos + clipMatPos.zw;
     v_cliped = cliped;
 }
 
@@ -89,11 +84,23 @@ void getProjectPos(in vec2 viewPos,out vec4 projectPos){
 }
 
 void getViewPos(in vec2 globalPos,out vec2 viewPos){
-    #ifdef CAMERA2D
-        viewPos.xy = (u_view2D *vec3(globalPos,1.0)).xy+u_size/2.;
+    #ifdef RENDERTEXTURE
+        vec2 tempPos;
+        transfrom(globalPos , u_InvertMat_0, u_InvertMat_1, tempPos);
+        #ifdef CAMERA2D
+            viewPos.xy = (u_view2D *vec3(tempPos,1.0)).xy+u_size/2.;
+        #else
+            viewPos.xy = tempPos;
+        #endif
     #else
-        viewPos.xy = globalPos;
+        #ifdef CAMERA2D
+            viewPos.xy = (u_view2D *vec3(globalPos,1.0)).xy+u_size/2.;
+        #else
+            viewPos.xy = globalPos;
+        #endif
     #endif
+
+    
 }
 
 #ifdef TEXTUREVS

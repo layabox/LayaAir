@@ -10,7 +10,8 @@ import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
-import { IRender2DPass } from "../../Design/2D/IRender2DPass";
+import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
+import { Stat } from "../../../../utils/Stat";
 
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
@@ -107,10 +108,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 	}
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
-		this._nativeObj.renderMatrix = value;
+		this._nativeObj.setRenderMatrix(value , Stat.loopCount);
 	}
 	get renderMatrix(): Matrix {
-		let matrix = this._nativeObj.renderMatrix;
+		let matrix = this._nativeObj.getRenderMatrix();
 		this._renderMatrix.a = matrix.a;
 		this._renderMatrix.b = matrix.b;
 		this._renderMatrix.c = matrix.c;
@@ -217,13 +218,13 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    // RenderNode
-   private _rnUpdateCall: any = null;
+   // private _rnUpdateCall: any = null;
    private _rnUpdateFun: any = null;
 
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      this._rnUpdateCall = call;
-      this._rnUpdateFun = renderUpdateFun;
+      this._rnUpdateFun = renderUpdateFun.bind(call);
+      this._nativeObj.setRenderUpdate(this._rnUpdateFun);
    }
    private _clipRect: Rectangle;
    setClipRect(rect: Rectangle): void {
@@ -268,13 +269,13 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   renderUpdate(context: IRenderContext2D): void {
+   renderUpdate(context: GLESRenderContext2D): void {
       if (this.renderDataHandler) {
          this.renderDataHandler.inheriteRenderData(context);
       }
 
       if (this._rnUpdateFun)
-         this._rnUpdateFun?.call(this._rnUpdateCall, context);
+         this._rnUpdateFun(context);
 
 
       this._nativeObj.renderUpdate(context);

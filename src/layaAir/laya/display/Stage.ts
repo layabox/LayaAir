@@ -1102,6 +1102,8 @@ export class Stage extends Sprite {
     private _updateMatrixList(changeMatrixList: Sprite[], frame: number ) {
         for (var i = 0, n = changeMatrixList.length; i < n; i++) {
             let sprite = changeMatrixList[i];
+            if (sprite.destroyed)
+                continue;
             let trans = sprite.globalTrans;
             if (!trans ||trans._modifiedFrame == frame)
                 continue;
@@ -1111,8 +1113,8 @@ export class Stage extends Sprite {
             
             if (sprite._renderType & SpriteConst.UPDATETRANS) {
                 let matrix = trans.getMatrix();
-                if (sprite._struct)//有可能被删除
-                    sprite._struct.renderMatrix = matrix;
+                // if (sprite._struct)//有可能被删除
+                sprite._struct.renderMatrix = matrix;
                 if (sprite._subStruct)
                     sprite._subStruct.renderMatrix = matrix;
             }
