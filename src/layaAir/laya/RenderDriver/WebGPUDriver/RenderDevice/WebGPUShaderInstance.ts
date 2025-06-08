@@ -12,7 +12,6 @@ import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPURenderContext2D } from "../2DRenderPass/WebGPURenderContext2D";
-import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 
 /**

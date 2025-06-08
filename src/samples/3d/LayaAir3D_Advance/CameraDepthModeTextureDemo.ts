@@ -24,7 +24,7 @@ import { DepthTextureMode } from "laya/resource/RenderTexture";
 export class CameraDepthModeTextureDemo {
     private scene: Scene3D;
     private depthPlane: MeshSprite3D;
-    private depthNormalPlane: MeshSprite3D;
+private depthNormalPlane: MeshSprite3D;
     constructor() {
         //初始化引擎
         Laya.init(0, 0).then(() => {

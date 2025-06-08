@@ -365,13 +365,13 @@ export class GCA_OneBatchInfo {
     }
     //更新Batch类型
     updateBatchType() {
-        if (this.curInsCount < GCA_BatchType.LittleCount) {
+        if (this.curInsCount <= GCA_BatchType.LittleCount) {
             this.maxBlockCount = GCA_BatchType.LittleCount;
-        } else if (this.curInsCount < GCA_BatchType.SomeCount) {
+        } else if (this.curInsCount <= GCA_BatchType.SomeCount) {
             this._forwardType = GCA_BatchType.LittleCount;
             this.maxBlockCount = GCA_BatchType.SomeCount;
 
-        } else if (this.curInsCount < GCA_BatchType.QuitCount) {
+        } else if (this.curInsCount <= GCA_BatchType.QuitCount) {
             this._forwardType = GCA_BatchType.SomeCount;
             this.maxBlockCount = GCA_BatchType.QuitCount;
 

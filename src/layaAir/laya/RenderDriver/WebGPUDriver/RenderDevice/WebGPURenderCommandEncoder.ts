@@ -50,7 +50,7 @@ export abstract class WebGPURenderEncoder {
 
     encoder: IGPURenderEncoder;
 
-    private currentBindGroups: Map<number, BindGroupBindingInfo> = new Map();
+    protected currentBindGroups: Map<number, BindGroupBindingInfo> = new Map();
 
     constructor(isBundle: boolean = false) {
         this.isBundle = isBundle;
@@ -312,6 +312,7 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
      * @param bundles 
      */
     excuteBundle(bundles: GPURenderBundle[]) {
+        this.currentBindGroups.clear();
         this.encoder.executeBundles(bundles);
     }
 
