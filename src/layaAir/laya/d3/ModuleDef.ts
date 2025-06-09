@@ -55,7 +55,7 @@ import { UI3D } from "./core/UI3D/UI3D";
 
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
-import "./loaders/Texture2DArrayLoader";
+//import "./loaders/Texture2DArrayLoader";
 // import "./loaders/MeshLoader";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/AnimationControllerLoader";
