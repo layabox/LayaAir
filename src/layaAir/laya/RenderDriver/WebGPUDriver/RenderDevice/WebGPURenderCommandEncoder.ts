@@ -52,6 +52,8 @@ export abstract class WebGPURenderEncoder {
 
     protected currentBindGroups: Map<number, BindGroupBindingInfo> = new Map();
 
+    protected currentPipeline: GPURenderPipeline = null;
+
     constructor(isBundle: boolean = false) {
         this.isBundle = isBundle;
     }
@@ -61,7 +63,12 @@ export abstract class WebGPURenderEncoder {
     * @param pipeline 
     */
     setPipeline(pipeline: GPURenderPipeline) {
+        if (this.currentPipeline && this.currentPipeline === pipeline) {
+            return; //如果管线相同，则不需要重新设置
+        }
+
         this.encoder.setPipeline(pipeline);
+        this.currentPipeline = pipeline;
     }
 
     /**
@@ -257,6 +264,7 @@ export abstract class WebGPURenderEncoder {
             bindGroupInfo.destroy();
         }
         this.currentBindGroups.clear();
+        this.currentPipeline = null;
     }
 
     abstract finish(lable: string): any;
@@ -313,6 +321,7 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
      */
     excuteBundle(bundles: GPURenderBundle[]) {
         this.currentBindGroups.clear();
+        this.currentPipeline = null;
         this.encoder.executeBundles(bundles);
     }
 
