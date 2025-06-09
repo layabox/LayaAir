@@ -105,6 +105,9 @@ export class SoundNode extends Sprite {
         if (!this._source)
             return;
 
+        if (loops == null || isNaN(loops))
+            loops = this._loop;
+
         this.stop();
 
         if (this._isMusic)
