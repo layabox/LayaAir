@@ -38,6 +38,18 @@ export class GCA_BaseFactory {
         GCA_InstanceRenderElementCollect.releaseToPool(instance);
     }
 
+    clear_Pool_InstanceRenderElementCollect() {
+        let map = GCA_InstanceRenderElementCollect._poolMap;
+        for (var [key, collects] of map) {
+            if (!collects)
+                continue;
+            for (var i = 0; i < collects.length; i++) {
+                let collect = collects[i];
+                collect.destroy();
+            }
+        }
+    }
+
     create_GCA_BatchRenderELement() {
         return new GCA_BatchRenderElement();
     }

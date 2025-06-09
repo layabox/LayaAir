@@ -19,7 +19,7 @@ export class GCA_InstanceRenderElementCollect {
 
     //=============== 对象池系统 start ===============
     // 不同批次类型的对象池
-    private static _poolMap: Map<GCA_BatchType, GCA_InstanceRenderElementCollect[]> = new Map();
+    static _poolMap: Map<GCA_BatchType, GCA_InstanceRenderElementCollect[]> = new Map();
 
     /**
      * 从对象池获取实例
@@ -383,6 +383,39 @@ export class GCA_InstanceRenderElementCollect {
             this.customUpdateRange.x = LargeData;
             this.customUpdateRange.y = -LargeData;
         }
+    }
+
+    destroy() {
+
+        this.clearBufferUpdateRange = null
+        this.clearBufferDeviceBuffer.destroy();
+        this.cullCurInsNumberData = null
+
+        this.wholeAABBBuffer = null;
+        this.aabbDeviceBuffer.destroy();
+        this.aabbUpdateRange = null;
+
+        this.wholeInstanceIndexBuffer = null;
+        this.instanceIndexDeviceBuffer.destroy();
+        this.instanceIndexUpdateRange = null;
+
+        this.wholeIndirectDrawGeometryBuffer = null;
+        this.indirectDeviceBuffer.destroy();
+        this.indirectUpdateRange = null;
+
+        this.wholeWorldMatrixBuffer = null;
+        this.worldMatrixDeviceBuffer.destroy()
+        this.worldMatrixUpdateRange = null;
+
+        this.wholeCustomBuffer = null;
+        this.customDeviceBuffer.destroy();
+        this.customUpdateRange = null;
+
+        this.renderElementArray.clear();
+        this.renderElementArray = null;
+
+        this.opaqueRenderBundleElement && this.opaqueRenderBundleElement.destroy();
+        this.alphaTestRenderBundleElement && this.alphaTestRenderBundleElement.destroy();
     }
     //=========== GPUBuffer 操作 end =============
 }

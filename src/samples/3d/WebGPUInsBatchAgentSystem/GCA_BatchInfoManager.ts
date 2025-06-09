@@ -333,6 +333,35 @@ export class GCA_BatchInfoManager {
     }
 
     destory() {
+        for (var [key, batchInfo] of this._batchInfoMaps) {
+            batchInfo.destroy();
+        }
+        this._cacheInsIdBatchID.clear();
 
+        this._removeList.destroy();
+        this._changeList.destroy();
+        for (let i = 0; i < this._largeElementCollects.length; i++) {
+            let collect = this._largeElementCollects[i];
+            GCA_Config.factory.release_GCA_InstanceRenderElementCollect(collect);
+
+        }
+        for (let i = 0; i < this._quitCountElementCollects.length; i++) {
+            let collect = this._quitCountElementCollects[i];
+            GCA_Config.factory.release_GCA_InstanceRenderElementCollect(collect);
+        }
+        for (let i = 0; i < this._someElementCollects.length; i++) {
+            let collect = this._someElementCollects[i];
+            GCA_Config.factory.release_GCA_InstanceRenderElementCollect(collect);
+        }
+
+        for (let i = 0; i < this._littleElementCollects.length; i++) {
+            let collect = this._littleElementCollects[i];
+            GCA_Config.factory.release_GCA_InstanceRenderElementCollect(collect);
+        }
+
+        this._computeCommandBuffer.clearCMDs();
+        this._computeCommandBuffer.destroy();
+
+        this._cullShaderData.destroy();
     }
 }

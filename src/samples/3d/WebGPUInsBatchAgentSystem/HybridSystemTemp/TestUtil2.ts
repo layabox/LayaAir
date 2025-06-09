@@ -134,6 +134,7 @@ export class testGCAShader {
             vec4 position = a_Position;
             vec3 normal = a_Normal.xyz;
             vec2 uv = a_Texcoord0;
+
             uint Instanceindex = gl_InstanceIndex;
             uint InsDataOffset = uint(u_cullBlockData.x+2) * uint(u_cullBlockData.y);
             uint modelIndex =insIndexs[Instanceindex+InsDataOffset+2];
@@ -141,6 +142,7 @@ export class testGCAShader {
             v_color1 = datas[modelIndex].color1;
             v_color2 = datas[modelIndex].color2;
 
+            
             vec3 normalWS = normalize((worldmat * vec4(a_Position.xyz, 0.0)).xyz);
             v_Normal = normalWS;
             vec3 positionWS = (worldmat*position).xyz;

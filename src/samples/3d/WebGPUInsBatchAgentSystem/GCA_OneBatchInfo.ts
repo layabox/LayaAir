@@ -451,6 +451,7 @@ export class GCA_OneBatchInfo {
     destroy() {
         this._owner = null;
         this._insArray.clear();
+        this._insArray = null;
         this._holeIndex.length = 0;
         this._chagneIndexList.clean();
         this._aabbDataView = null;
