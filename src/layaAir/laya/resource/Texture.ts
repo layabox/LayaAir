@@ -226,8 +226,12 @@ export class Texture extends Resource {
         }
         var rect: Rectangle = Rectangle.TEMP.setTo(x - texture.offsetX, y - texture.offsetY, width, height);
         var result = rect.intersection(_rect1.setTo(0, 0, texture.width, texture.height), _rect2);
-        if (result)
-            return Texture.create(texture, result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
+        if (result) {
+            let newTex = Texture.create(texture, result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
+            newTex._sizeGrid = texture._sizeGrid;
+            newTex._atlas = texture._atlas;
+            return newTex;
+        }
         else
             return null;
     }
@@ -604,8 +608,6 @@ export class Texture extends Resource {
         if (tex)
             return tex;
         tex = Texture.createFromTexture(this, x, y, width, height);
-        if (tex)
-            tex._sizeGrid = this._sizeGrid;
 
         if (this._clipCache.size > 100)
             this._clipCache.clear();
