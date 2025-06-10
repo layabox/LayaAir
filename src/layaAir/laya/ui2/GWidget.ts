@@ -1,6 +1,5 @@
 import { UIConfig2 } from "./UIConfig";
 import { Sprite } from "../display/Sprite";
-import { ColorFilter } from "../filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayoutChangedReason, RelationType } from "./Const";
 import { Controller } from "./Controller";
@@ -16,6 +15,8 @@ import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
+import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
+import { PostProcess2D } from "../display/PostProcess2D";
 
 /**
  * @blueprintInheritable
@@ -170,6 +171,8 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    private _grayEffect:ColorEffect2D;
+
     get grayed(): boolean {
         return this._grayed;
     }
@@ -178,23 +181,15 @@ export class GWidget extends Sprite {
         if (this._grayed != value) {
             this._grayed = value;
 
-            let cc = this.getController("grayed");
-            if (cc != null) {
-                cc.selectedIndex = value ? 1 : 0;
-                return;
-            }
-
-            let filters: any[] = this.filters || [];
-            let i = filters.indexOf(grayFilter);
+            let postProcess = this._getPostProcess(value);
             if (value) {
-                if (i == -1) {
-                    filters.push(grayFilter);
-                    this.filters = filters;
-                }
+                this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+                postProcess.addEffect(this._grayEffect);
             }
-            else if (i != -1) {
-                filters.splice(i, 1);
-                this.filters = filters;
+            else {
+                if (postProcess) {
+                    postProcess.removeEffect(this._grayEffect)
+                }
             }
         }
     }
@@ -514,9 +509,9 @@ export class GWidget extends Sprite {
     }
 }
 
-const grayFilter = new ColorFilter([
-    0.3086, 0.6094, 0.082, 0, 0,
-    0.3086, 0.6094, 0.082, 0, 0,
-    0.3086, 0.6094, 0.082, 0, 0,
-    0, 0, 0, 1, 0
-]);
+// const grayFilter = new ColorFilter([
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0, 0, 0, 1, 0
+// ]);

@@ -1,8 +1,9 @@
 import { ILaya } from "../../ILaya";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
+import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
 
 export class SpriteGlobalTransform {
     private _sp: Sprite;
@@ -13,8 +14,10 @@ export class SpriteGlobalTransform {
     private _scaleX: number = 1.0;
     private _scaleY: number = 1.0;
     private _matrix: Matrix;
-    private _cache = false;
+    private _cache: boolean;
 
+    /** @internal */
+    _modifiedFrame: number = 0;
     /**
      * @zh An event constant for when the global transformation information changes.
      * @zh 全局变换信息发生改变时的事件常量。
@@ -23,6 +26,8 @@ export class SpriteGlobalTransform {
 
     constructor(sp: Sprite) {
         this._sp = sp;
+        this.cache = true;
+        this._notifyRenderSpriteTransChange();
     }
 
     /**
@@ -34,23 +39,11 @@ export class SpriteGlobalTransform {
     }
 
     set cache(value: boolean) {
-        if (this._cache != value) {
-            this._cache = value;
-            if (value) {
-                //缓存全局变量
-                this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);
-                //更新父节点
-                let parent = this._sp._parent;
-                if (parent != null && parent != ILaya.stage)
-                    parent.globalTrans.cache = true;
-            } else {
-                //更新子节点
-                for (let child of this._sp._children) {
-                    if (child._globalTrans)
-                        child._globalTrans.cache = false;
-                }
-            }
+        if (value) {
+            //缓存全局变量
+            this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);
         }
+        this._cache = value;
     }
 
     /**
@@ -64,15 +57,13 @@ export class SpriteGlobalTransform {
         //if (this.scene == null) { return this._globalMatrix; }
         if (this._cache && !this._getFlag(TransformKind.Matrix))
             return this._matrix;
-
         let sp = this._sp;
         this._matrix.setMatrix(sp._x, sp._y, sp._scaleX, sp._scaleY, sp._rotation, sp._skewX, sp._skewY, sp._pivotX, sp._pivotY);
         if (sp._parent) {
             Matrix.mul(this._matrix, sp._parent.globalTrans.getMatrix(), this._matrix);
             this._setFlag(TransformKind.Matrix, false);
-            this._syncFlag(TransformKind.Matrix, true);
+            // this._syncFlag(TransformKind.Matrix, true);
         }
-
         return this._matrix;
     }
 
@@ -124,7 +115,6 @@ export class SpriteGlobalTransform {
     getScenePos(out: Point) {
         if (!this._sp.scene)
             return this.getPos(out);
-
         return this._sp.scene.globalTrans.getMatrixInv(tmpMarix).transformPoint(this.getPos(out));
     }
 
@@ -196,7 +186,7 @@ export class SpriteGlobalTransform {
             this._y = y;
             this._setFlag(TransformKind.Pos, false);
             this._setFlag(TransformKind.Matrix, true);
-            this._syncFlag(TransformKind.Pos | TransformKind.Matrix, true);
+            // this._syncFlag(TransformKind.Pos | TransformKind.Matrix, true);
         }
         else {
             tmpPoint.setTo(x, y);
@@ -250,7 +240,7 @@ export class SpriteGlobalTransform {
             this._rot = value;
             this._setFlag(TransformKind.Rotation, false);
             this._setFlag(TransformKind.Matrix, true);
-            this._syncFlag(TransformKind.Matrix, true);
+            // this._syncFlag(TransformKind.Matrix, true);
         }
     }
 
@@ -318,25 +308,46 @@ export class SpriteGlobalTransform {
         }
     }
 
-    private _getFlag(type: number): boolean {
+    /**
+     * @internal
+     * @en Gets a global cache flag for a specific type.
+     * @param type The type of cache flag to get.
+     * @returns Whether the cache flag is enabled.
+     * @zh 获取特定类型的全局缓存标志。
+     */
+    _getFlag(type: number): boolean {
         return (this._flags & type) != 0;
     }
 
     /**
+     * @internal
      * @en Sets a global cache flag for a specific type.
      * @param type The type of cache flag to set.
      * @param value Whether to enable the cache flag.
+     * @param notify Whether to notify.
      * @zh 设置特定类型的全局缓存标志。
      * @param type 要设置的缓存标志类型。
      * @param value 是否启用缓存标志。
+     * @param notify 是否通知。
      */
-    private _setFlag(type: number, value: boolean): void {
+    _setFlag(type: number, value: boolean , notify = true): void {
         if (value)
             this._flags |= type;
         else
             this._flags &= ~type;
+
         if (value) {
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
+            if (notify) {
+                this._notifyRenderSpriteTransChange();
+            }
+        }
+    }
+
+    private _notifyRenderSpriteTransChange() {
+        let renderType = this._sp._renderType;
+        if ((renderType & SpriteConst.UPDATETRANS) || (renderType & SpriteConst.CHILDS)) {
+            ILaya.stage._addtransChangeElement(this._sp);
         }
     }
 
@@ -347,9 +358,10 @@ export class SpriteGlobalTransform {
     private _syncFlag(flag: number, value: boolean) {
         if (this._cache) {
             for (let child of this._sp._children) {
-                if (child._globalTrans) {
-                    child._globalTrans._setFlag(flag, value);
-                    child._globalTrans._syncFlag(flag, value);
+                let globaltrans = child.globalTrans
+                if (globaltrans) {
+                    globaltrans._setFlag(flag, value);
+                    // globaltrans._syncFlag(flag, value);
                 }
             }
         }
@@ -361,8 +373,8 @@ export class SpriteGlobalTransform {
      */
     _spTransChanged(kind: TransformKind) {
         if (this._cache)
-            this._setFlag(kind | TransformKind.Matrix, true)
-        this._syncFlag(kind | TransformKind.Matrix, true);
+            this._setFlag(kind | TransformKind.Matrix, true);
+        // this._syncFlag(kind | TransformKind.Matrix, true);
     }
 
     /**

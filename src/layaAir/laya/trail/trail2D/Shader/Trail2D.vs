@@ -14,7 +14,7 @@ void main(){
     getGlobalPos(trailPos,globalPos);
     vec2 viewPos;
     getViewPos(globalPos,viewPos);
-    v_cliped = getClipedInfo(viewPos);
+    clip(viewPos);
     getProjectPos(viewPos,glPos);
     gl_Position = glPos;
 }

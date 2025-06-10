@@ -560,9 +560,9 @@ export class Stat {
         Stat.renderPassStatArray.fill(0);
     }
 
-    static render(ctx: any, x: number, y: number) {
+    static render(x: number, y: number) {
         if (Stat._show)
-            Stat._statUI.render(ctx, x, y);
+            Stat._statUI.render(x, y);
     }
 }
 

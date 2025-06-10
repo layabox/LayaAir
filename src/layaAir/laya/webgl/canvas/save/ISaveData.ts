@@ -1,5 +1,5 @@
-import { Context } from "../../../renders/Context"
+import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 export interface ISaveData {
     isSaveMark(): boolean;
-    restore(context: Context): void;
+    restore(runner: GraphicsRunner): void;
 }

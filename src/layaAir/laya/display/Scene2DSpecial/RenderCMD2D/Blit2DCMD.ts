@@ -20,7 +20,8 @@ import { Command2D } from "./Command2D";
 
 export class Blit2DCMD extends Command2D {
 
-    private static QuadGeometry: IRenderGeometryElement;
+    static QuadGeometry: IRenderGeometryElement;
+    static InvertQuadGeometry: IRenderGeometryElement
 
     private static _defaultShader: Shader3D;
 
@@ -103,9 +104,28 @@ export class Blit2DCMD extends Command2D {
         let geometry = Blit2DCMD.QuadGeometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
         geometry.setDrawArrayParams(0, 4);
         geometry.bufferState = bufferState;
+        Blit2DCMD.__initInvertGeometryElement__()
     }
 
-    private static __init__() {
+    private static __initInvertGeometryElement__() {
+        let _vertices: Float32Array = new Float32Array([
+            1, 1, 1, 0,
+            1, -1, 1, 1,
+            -1, 1, 0, 0,
+            -1, -1, 0, 1]);
+        let vertexDec = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, 0)]);
+        let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+        vertex.vertexDeclaration = vertexDec;
+        vertex.setDataLength(_vertices.buffer.byteLength);
+        vertex.setData(_vertices.buffer, 0, 0, _vertices.buffer.byteLength);
+        let bufferState = LayaGL.renderDeviceFactory.createBufferState();
+        bufferState.applyState([vertex], null);
+        let geometry = Blit2DCMD.InvertQuadGeometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
+        geometry.setDrawArrayParams(0, 4);
+        geometry.bufferState = bufferState;
+    }
+
+    static __init__() {
         Blit2DCMD.__initBlitShader__();
         Blit2DCMD.__initGeometryElement__();
         Blit2DCMD._blitShaderData = LayaGL.renderDeviceFactory.createShaderData();

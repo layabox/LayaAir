@@ -50,14 +50,6 @@ export class NativeMemory {
     get float64Array(): Float64Array {
         return this._f64data;
     }
-    /**
-     * Uint16Array Data
-     */
-    /*get uint16Array(): Uint16Array {
-        if (!(this._bufferData instanceof Uint16Array))
-            this._bufferData = new Uint16Array(this._buffer);
-        return <Uint16Array>this._bufferData;
-    }*/
 
     /**
      * Uint8Array Data
@@ -76,54 +68,6 @@ export class NativeMemory {
     get Uint32Array(): Uint32Array {
         return this._uidata;
     }
-
-    /**
-     * 设置数据
-     * @param data 数据
-     * @param stride 字节偏移
-     * //TODO 字节对齐
-     */
-    /*setData(data:Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array,stride:number):void{
-        if(data instanceof Uint8Array){
-           this.uint8Array.set(data,stride/2);
-            return;
-        }
-        else if(data instanceof Uint16Array){
-           this.uint16Array.set(data,stride/2);
-            return;
-        }else{
-           this.float32Array.set(data,stride/4);
-            return;
-        }
-    }*/
-
-    /**
-     * 设置多个参数
-     * @param offset 
-     * @param args 
-     * 考虑字节对齐
-     */
-    /*setDataByParams(offset:number,...args: number[]):void{
-        if(args)
-        {
-            for(let i=0,n:number=args.length;i<n;i++)
-            this._bufferData[i+offset]=args[i];
-        }
-    }*/
-
-    /**
-     * 扩充buffer
-     * @param size 
-     * @returns 
-     */
-    /*expand(size: number) {
-        if(size<=this._byteLength)
-            return;
-        this._byteLength = size;
-        CommonMemoryAllocater.freeMemoryBlock(this._buffer);
-        this.clear();
-        this._buffer = CommonMemoryAllocater.creatBlock(size);
-    }*/
 
     /**
      * 删除

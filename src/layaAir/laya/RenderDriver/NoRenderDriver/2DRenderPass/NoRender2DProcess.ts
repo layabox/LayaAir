@@ -10,9 +10,49 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
+
+    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
+        throw new Error("Method not implemented.");
+    }
+
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+        throw new Error("Method not implemented.");
+    }
+
+    createRender2DPassManager(): IRender2DPassManager {
+        throw new Error("Method not implemented.");
+    }
+
+    create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
+        return null;
+    }
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
+        return null;
+    }
+    createRender2DPass(): IRender2DPass {
+        return null;
+    }
+    createRenderStruct2D(): IRenderStruct2D {
+        return null;
+    }
+    createRender2DDataHandle(): IRender2DDataHandle {
+        return null;
+    }
+    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
+        return null;
+    }
+    create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
+        return null;
+    }
+    createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
+        return null;
+    }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new NoRenderSetRenderData();
     }
@@ -38,6 +78,8 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 }
 
 export class NoRenderElement2D implements IRenderElement2D {
+    type: number;
+    owner: IRenderStruct2D;
     nodeCommonMap: string[];
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
@@ -51,6 +93,7 @@ export class NoRenderElement2D implements IRenderElement2D {
 }
 
 export class NoRenderContext2D implements IRenderContext2D {
+    passData: ShaderData;
     getRenderTarget(): InternalRenderTarget {
         return null;
     }

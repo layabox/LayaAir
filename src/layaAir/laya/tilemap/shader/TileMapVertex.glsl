@@ -38,7 +38,7 @@ void getPosition(in vertexInfo info , inout vec4 pos){
     getGlobalPos(a_pos.xy,globalPos);
     vec2 viewPos;
     getViewPos(globalPos,viewPos);
-    v_cliped = getClipedInfo(viewPos);
+    clip(viewPos);
     getProjectPos(viewPos,pos);
 }
 

@@ -5,11 +5,11 @@ description
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
-import { ColorFilter } from "laya/filters/ColorFilter";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
+import { ColorFilter } from "laya/legacy/filters/ColorFilter";
 
 export class Filters_Color {
 	private ApePath: string = "res/apes/monkey2.png";
@@ -42,8 +42,8 @@ export class Filters_Color {
 		var originalApe: Sprite = this.createApe();
 
 		this.apeTexture = Laya.loader.getRes(this.ApePath);
-		originalApe.x = (Laya.stage.width - this.apeTexture.width * 3) / 2;
-		originalApe.y = (Laya.stage.height - this.apeTexture.height) / 2;
+		originalApe.x = (1280 - this.apeTexture.width * 3) / 2;
+		originalApe.y = (720 - this.apeTexture.height) / 2;
 	}
 
 	private makeRedApe(): void {

@@ -14,7 +14,7 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -35,7 +35,8 @@ export class WebglRenderContext2D implements IRenderContext2D {
     _destRT: WebGLInternalRT;
     invertY: boolean = false;
     pipelineMode: string = "Forward";
-    sceneData: WebGLShaderData;
+    passData: WebGLShaderData;
+
     _globalConfigShaderData: WebDefineDatas;
 
     private _offscreenWidth: number;

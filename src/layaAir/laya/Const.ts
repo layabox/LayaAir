@@ -68,3 +68,10 @@ export class HideFlags {
      */
     static HideAndDontSave = 0x7;
 }
+
+export enum SbuPassFlag {
+    PostProcess = 0x1,
+    CacheAsBitmap = 0x2,
+    Mask = 0x4,
+
+}

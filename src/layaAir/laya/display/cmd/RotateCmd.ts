@@ -1,7 +1,7 @@
 import { Matrix } from "../../maths/Matrix";
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Rotate command
@@ -62,16 +62,16 @@ export class RotateCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the rotate command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行旋转命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        context._rotate(this.angle, this.pivotX + gx, this.pivotY + gy);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner._rotate(this.angle, this.pivotX + gx, this.pivotY + gy);
     }
 
     /**

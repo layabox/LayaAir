@@ -1,15 +1,14 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../../renders/Context";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
-import { Texture2D } from "../../resource/Texture2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 /**
@@ -22,19 +21,39 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     static mesh2DDefaultMaterial: Material;
 
+    static __init__(){
+        if (Mesh2DRender.mesh2DDefaultMaterial) return
+
+        Mesh2DRender.mesh2DDefaultMaterial = new Material();
+        Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
+        Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
+        Mesh2DRender.mesh2DDefaultMaterial.lock = true;
+    }
+
+
     private _sharedMesh: Mesh2D;
+    declare _renderHandle: IMesh2DRenderDataHandle;
 
-    private _texture: BaseTexture = Texture2D.whiteTexture;
-    private _textureRange: Vector4;
+    protected _getRenderHandle(): IMesh2DRenderDataHandle {
+        return LayaGL.render2DRenderPassFactory.createMesh2DRenderDataHandle();
+    }
 
-    private _color: Color;
-    private _setRenderColor: Color;
+    protected _initDefaultRenderData(): void {
+        this.color = new Color();
+        this.textureRange = new Vector4(0, 0, 1, 1);
+        this.texture = null;
+    }
 
-    private _normalTexture: BaseTexture;
-    private _normal2DStrength: number = 0;
-
-    private _renderAlpha: number = -1;
-    private _textureRangeIsClip: boolean = false;
+    renderUpdate(context: IRenderContext2D): void {
+        this._updateLight();
+    }
     /**
      * @en 2D Mesh 
      * @zh 2D 渲染网格
@@ -75,16 +94,12 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染颜色
      */
     set color(value: Color) {
-        if (value != this._color && this._color.equal(value))
-            return
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._color);
-        this._renderAlpha = -1;
+        this._renderHandle.baseColor = value;
     }
 
 
     get color() {
-        return this._color;
+        return this._renderHandle.baseColor;
     }
 
     /**
@@ -92,27 +107,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set texture(value: BaseTexture) {
-        if (this._texture != null && value == this._texture)
-            return;
-
-        if (this._texture)
-            this._texture._removeReference();
-
-        this._texture = value;
-        value = value ? value : Texture2D.whiteTexture;
-        this._spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
-        if (value) {
-            value._addReference();
-            if (value.gammaCorrection != 1) {//预乘纹理特殊处理
-                this._spriteShaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
-            } else {
-                this._spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
-            }
-        }
+        this._renderHandle.baseTexture = value;
     }
 
     get texture(): BaseTexture {
-        return this._texture;
+        return this._renderHandle.baseTexture;
     }
 
     /**
@@ -120,14 +119,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 纹理范围，如果textureRangeIsClip为false，xy表示纹理偏移，zw表示缩放，如果textureRangeIsClip为true，xy表示纹理最小值，zw表示纹理最大值
      */
     set textureRange(value: Vector4) {
-        if (!value)
-            return;
-        this._spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
-        value ? value.cloneTo(this._textureRange) : null;
+        this._renderHandle.baseTextureRange = value;
     }
 
     get textureRange(): Vector4 {
-        return this._textureRange;
+        return this._renderHandle.baseTextureRange;
     }
 
     /**
@@ -135,17 +131,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
      */
     set textureRangeIsClip(value: boolean) {
-        if (this._textureRangeIsClip != value) {
-            this._textureRangeIsClip = value;
-            if (value)
-                this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
-            else
-                this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
-        }
+        this._renderHandle.textureRangeIsClip = value;
     }
 
     get textureRangeIsClip(): boolean {
-        return this._textureRangeIsClip;
+        return this._renderHandle.textureRangeIsClip;
     }
 
     /**
@@ -153,24 +143,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set normalTexture(value: BaseTexture) {
-        if (value === this._normalTexture)
-            return;
-
-        if (this._normalTexture)
-            this._normalTexture._removeReference(1)
-
-        if (value)
-            value._addReference();
-        this._normalTexture = value;
-
-        this._spriteShaderData.setTexture(BaseRenderNode2D.NORMAL2DTEXTURE, value);
-        if (this._normal2DStrength > 0 && this._normalTexture)
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
-        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+        this._renderHandle.normal2DTexture = value;
     }
 
     get normalTexture(): BaseTexture {
-        return this._normalTexture;
+        return this._renderHandle.normal2DTexture;
     }
 
     /**
@@ -178,18 +155,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 法线效果强度
      */
     set normalStrength(value: number) {
-        value = Math.max(0, Math.min(1, value)); //值应该在0~1之间
-        if (this._normal2DStrength === value)
-            return
-        this._normal2DStrength = value;
-        this._spriteShaderData.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
-        if (value > 0 && this._normalTexture)
-            this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
-        else this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+        this._renderHandle.normal2DStrength = value
     }
 
     get normalStrength() {
-        return this._normal2DStrength;
+        return this._renderHandle.normal2DStrength;
     }
 
     /**
@@ -223,61 +193,19 @@ export class Mesh2DRender extends BaseRenderNode2D {
             BaseRenderNode2D._setRenderElement2DMaterial(element, this._materials[i] ? this._materials[i] : Mesh2DRender.mesh2DDefaultMaterial);
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
+            element.owner = this._struct;
         }
-    }
+        this._struct.renderElements = this._renderElements;
 
-    /**
-     * @internal
-     * cmd run时调用，可以用来计算matrix等获得即时context属性
-     * @param context 
-     * @param px 
-     * @param py 
-     */
-    addCMDCall(context: Context, px: number, py: number): void {
-        let mat = context._curMat;
-        let vec3 = Vector3.TEMP;
-        vec3.x = mat.a;
-        vec3.y = mat.c;
-        vec3.z = px * mat.a + py * mat.c + mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
-        vec3.x = mat.b;
-        vec3.y = mat.d;
-        vec3.z = px * mat.b + py * mat.d + mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
-        this._setRenderSize(context.width, context.height)
-        context._copyClipInfoToShaderData(this._spriteShaderData);
-        if (this._renderAlpha !== context.globalAlpha) {
-            let a = context.globalAlpha * this._color.a;
-            this._setRenderColor.setValue(this._color.r * a, this._color.g * a, this._color.b * a, a);
-            this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._setRenderColor);
-            this._renderAlpha = context.globalAlpha;
-        }
-        this._lightReceive && this._updateLight();
     }
 
     /**@ignore */
     constructor() {
         super();
-        if (!Mesh2DRender.mesh2DDefaultMaterial) {
-            Mesh2DRender.mesh2DDefaultMaterial = new Material();
-            Mesh2DRender.mesh2DDefaultMaterial.setShaderName("baseRender2D");
-            Mesh2DRender.mesh2DDefaultMaterial.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
-            Mesh2DRender.mesh2DDefaultMaterial.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
-            Mesh2DRender.mesh2DDefaultMaterial.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
-        }
         this._renderElements = [];
         this._materials = [];
-        this._color = new Color();
-        this._setRenderColor = new Color();
-        this._textureRange = new Vector4(0, 0, 1, 1);
-        this.textureRange = this._textureRange;
-        this.texture = null;
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+
     }
+
+
 }

@@ -1,61 +1,97 @@
-import { Const } from "../../Const";
-import { ColorFilter } from "../../filters/ColorFilter";
-import { Context } from "../../renders/Context";
+import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
+import { Graphics2DVertexBlock, I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Material } from "../../resource/Material";
-import { Value2D } from "../shader/d2/value/Value2D";
-import { Sprite2DGeometry } from "../utils/Sprite2DGeometry";
+import { BlendModeHandler } from "../canvas/BlendMode";
+import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
+import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { SubmitKey } from "./SubmitKey";
 
 export class SubmitBase {
-    static KEY_ONCE = -1;
-    static KEY_FILLRECT = 1;
-    static KEY_DRAWTEXTURE = 2;
-    static KEY_VG = 3;
-    static KEY_TRIANGLES = 4;
 
     static RENDERBASE: SubmitBase;
     static ID = 1;
 
     clipInfoID = -1;	//用来比较clipinfo
-    blendType = -1;
+    // blendType = -1;
     protected _id = 0;
     /**@internal */
     _renderType = 0;
     //渲染key，通过key判断是否是同一个
     /**@internal */
     _key = new SubmitKey();
-    _mesh: Sprite2DGeometry;
+
+    mesh: GraphicsMesh;
+
     material: Material;
 
-    // 从VB中什么地方开始画，画到哪
-    /**@internal */
-    _startIdx = 0;		//indexbuffer 的偏移，单位是byte
-    /**@internal */
-    _numEle = 0;
+    vertexs : Graphics2DVertexBlock[] = [];
+    blockIndexs:number[] = [];
 
-    _colorFiler: ColorFilter = null;
-    shaderValue: Value2D = null;
+    indexCount: number = 0;
+
+    indices: number[] = [];
+
+    indexView: I2DGraphicBufferDataView;
+
+    /** @internal */
+    _internalInfo: GraphicsShaderInfo = null;
+
+    renderStateIsBySprite = true;
 
     constructor() {
         this._id = ++SubmitBase.ID;
     }
 
+    clear() {
+        this._key.clear();
+        this._internalInfo.clear();
+        this.material = null;
+        
+        if (this.mesh) {
+            this.mesh.clearBlocks(this.blockIndexs);
+            this.mesh.clearIndexView(this.indexView);
+            this.vertexs.length = 0;
+            this.blockIndexs.length = 0;
+            this.mesh = null;
+        }
+    }
+
+    destroy() {
+        this.clear();
+        this._internalInfo.destroy();
+        this._internalInfo = null;
+    }
+
+    appendData(info: MeshBlockInfo) {
+        this.blockIndexs.push(...info.vertexBlocks);
+        this.vertexs.push({
+            positions : info.positions,
+            vertexViews : info.vertexViews
+        })
+    }
+
+    update(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material) {
+        var blendType = runner._nBlendType;
+        let struct = runner.sprite._struct;
+        let sBlendMode = struct.blendMode;
+        this._key.blendShader = blendType;
+
+        if (runner.globalCompositeOperation != sBlendMode) {
+            BlendModeHandler.setShaderData(blendType, this._internalInfo.shaderData);
+            this.renderStateIsBySprite = false;
+        }
+
+        this.mesh = mesh;
+        this.material = material;
+    }
+
     /*
        create方法只传对submit设置的值
      */
-    static create(context: Context, mesh: Sprite2DGeometry, sv: Value2D): SubmitBase {
+    static create(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
         var o = new SubmitBase();
-        o._mesh = mesh;
-        o._key.clear();
-        o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
-        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
-        o._numEle = 0;
-        var blendType = context._nBlendType;
-        o._key.blendShader = blendType;
-        o.shaderValue = sv;
-        o.material = context._material;
-        //sv.setValue(context._shader2D);
-        o._colorFiler = context._colorFiler;
+        o._internalInfo = new GraphicsShaderInfo();
+        o.update(runner, mesh, material);
         return o;
     }
 }

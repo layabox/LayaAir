@@ -10,7 +10,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import { Area2D } from "../Area2D";
-import { Node } from "../Node";
 import { Scene } from "../Scene";
 import { Sprite } from "../Sprite";
 
@@ -23,7 +22,9 @@ export class Camera2D extends Sprite {
         let scene2DUniformMap = Scene.scene2DUniformMap;
         Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
         scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
+        // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
+
     }
 
     /**@internal */
@@ -54,8 +55,6 @@ export class Camera2D extends Sprite {
     /**@internal */
     _isMain: boolean;
     /**@internal */
-    _ownerArea: Area2D;
-    /**@internal */
     _cameraRotation: number;//angle 
 
 
@@ -84,12 +83,12 @@ export class Camera2D extends Sprite {
     public set isMain(value: boolean) {
         if (this._ownerArea) {
             if (value) {
-                this._ownerArea._setMainCamera(this);
+                (<Area2D>this._ownerArea)._setMainCamera(this);
                 this._isMain = true;
             }
             else {
-                if (this._ownerArea.mainCamera == this) {
-                    this._ownerArea._setMainCamera(null);
+                if ((<Area2D>this._ownerArea).mainCamera == this) {
+                    (<Area2D>this._ownerArea)._setMainCamera(null);
                     this._isMain = false;
                 }
             }
@@ -102,30 +101,21 @@ export class Camera2D extends Sprite {
      */
     _setUnBelongScene(): void {
         if (this._ownerArea != null) {
-            if (this._ownerArea.mainCamera == this)
-                this._ownerArea._setMainCamera(null);
+            if ((<Area2D>this._ownerArea).mainCamera == this)
+                (<Area2D>this._ownerArea)._setMainCamera(null);
             this._ownerArea = null;
         }
         super._setUnBelongScene();
     }
 
-    /**
-     * @ignore
-     * @param scene 
-     */
-    _setBelongScene(scene: Node): void {
-        super._setBelongScene(scene);
-        this._findOwnerArea();
-    }
-
-    private _findOwnerArea() {
+    protected _findOwnerArea() {
         let ele = this as any;
         while (ele) {
             if (ele === this._scene || ele === ILaya.stage) break;
             if (ele instanceof Area2D) {
                 this._ownerArea = ele;
-                if (this._isMain && !this._ownerArea.mainCamera)
-                    this._ownerArea._setMainCamera(this);
+                if (this._isMain && !(<Area2D>this._ownerArea).mainCamera)
+                    (<Area2D>this._ownerArea)._setMainCamera(this);
                 break;
             }
             ele = ele._parent;
@@ -145,7 +135,7 @@ export class Camera2D extends Sprite {
             value.cloneTo(this._zoom);
         }
     }
-    /**@internal */
+    /** @internal min_x max_x min_y max_y */
     _rect: Vector4;
 
 
@@ -241,9 +231,11 @@ export class Camera2D extends Sprite {
         this._drag_Bottom = value;
     }
 
-
-    visiableLayer: number;//TODO
-
+    /**
+     * @en The layer to be rendered
+     * @zh 渲染层
+     */
+    visiableLayer: number = -1;
 
     private _viewRect: Vector2 = new Vector2();
 
@@ -255,7 +247,6 @@ export class Camera2D extends Sprite {
      * TODO 功能
      * Camera 的cull功能
      * rotationSmooth、rotationSpeed功能
-     * visiableLayer渲染层功能
      * zoom功能
      * RenderTarget功能
      * @ignore

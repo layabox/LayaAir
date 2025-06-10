@@ -12,7 +12,74 @@ import { NotImplementedError } from "../utils/Error";
  */
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     private static _currentActive: RenderTexture2D;
-    /** @internal */
+
+    private static _pool: RenderTexture2D[] = [];
+    private static _poolMemory: number = 0;
+
+    /**
+     * @en Creates a RenderTexture instance from the pool.
+     * @param width Width of the RenderTexture.
+     * @param height Height of the RenderTexture.
+     * @param colorFormat Color format of the RenderTexture.
+     * @param depthFormat Depth format of the RenderTexture.
+     * @returns A RenderTexture instance.
+     * @zh 从对象池中创建一个RenderTexture实例。
+     * @param width 宽度。
+     * @param height 高度。
+     * @param colorFormat 颜色格式。
+     * @param depthFormat 深度格式。
+     * @returns RenderTexture实例。
+     */
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
+
+        let n = RenderTexture2D._pool.length;
+        for (let index = 0; index < n; index++) {
+            let rt = RenderTexture2D._pool[index];
+
+            if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat ) {
+                rt._inPool = false;
+                let end = RenderTexture2D._pool[n - 1];
+                RenderTexture2D._pool[index] = end;
+                RenderTexture2D._pool.length -= 1;
+                RenderTexture2D._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
+                return rt;
+            }
+        }
+
+        let rt = new RenderTexture2D(width, height, colorFormat, depthFormat);
+        rt.lock = true;
+        return rt;
+    }
+
+    /**
+     * @en Recovers the RenderTexture2D to the pool for reuse.
+     * @param rt The RenderTexture2D to recover.
+     * @zh 回收渲染纹理到对象池以便重用。
+     * @param rt 要回收的渲染纹理。
+     */
+    static recoverToPool(rt: RenderTexture2D): void {
+        if (rt._inPool || rt.destroyed)
+            return;
+        RenderTexture2D._pool.push(rt);
+        RenderTexture2D._poolMemory += (rt._renderTarget.gpuMemory / 1024 / 1024);
+        rt._inPool = true;
+    }
+
+    /**
+     * @en Clears the RenderTexture2D pool.
+     * @zh 清空渲染纹理对象池。
+     */
+    static clearPool() {
+        if (RenderTexture2D._poolMemory < 256) {
+            return;
+        }
+        for (var i in RenderTexture2D._pool) {
+            RenderTexture2D._pool[i].destroy();
+        }
+        RenderTexture2D._pool = [];
+        RenderTexture2D._poolMemory = 0;
+    }
+
     static _clearColor: Color = new Color(0, 0, 0, 0);
     /** @internal */
     static _clear: boolean = false;
@@ -46,6 +113,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     _mgrKey: number = 0;	//给WebGLRTMgr用的
     /**@internal */
     _invertY: boolean = false;
+    /** @internal */
+    _inPool:boolean = false;
     /**
      * @en Depth format.
      * @zh 深度格式。
@@ -288,4 +357,5 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this._renderTarget && this._renderTarget.dispose();
     }
 
+    
 }

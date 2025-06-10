@@ -1,6 +1,7 @@
 import { Point } from "./Point";
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
+import { MathUtils3D } from "./MathUtils3D";
 
 /**
  * @en Represents a transformation matrix that determines how to map points from one coordinate space to another.
@@ -11,6 +12,94 @@ import { Utils } from "../utils/Utils";
  * 然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。
  */
 export class Matrix {
+    /**
+     * @en Compares two matrices for equality.
+     * @param a The first matrix.
+     * @param b The second matrix.
+     * @returns true if the matrices are equal, false otherwise.
+     * @zh 比较两个矩阵是否相等。
+     * @param a 第一个矩阵。
+     * @param b 第二个矩阵。
+     * @returns 如果矩阵相等，返回 true，否则返回 false。
+     */
+    static equals(a: Matrix, b: Matrix): boolean {
+        return MathUtils3D.nearEqual(a.a,b.a) 
+        && MathUtils3D.nearEqual(a.b,b.b) 
+        && MathUtils3D.nearEqual(a.c,b.c) 
+        && MathUtils3D.nearEqual(a.d,b.d) 
+        && MathUtils3D.nearEqual(a.tx,b.tx) 
+        && MathUtils3D.nearEqual(a.ty,b.ty);
+    }
+
+    /**
+     * @en Extracts the transformation information from the matrix, including the skew in the X and Y directions.
+     * @param matrix The matrix from which to extract the transformation information.
+     * @returns An object containing the transformation information.
+     * @cn 从 Matrix.abcd txty 提取变换信息，包括X和Y方向的倾斜
+     * @param matrix 需要提取的矩阵
+     * @returns 返回一个包含变换信息的对象
+     */
+    static extractTransformInfo(matrix: Matrix) {
+        let { a, b, c, d, tx, ty } = matrix;
+        // 角度转换常量
+        let x = tx;
+        let y = ty;
+
+        // 计算缩放和旋转前，先检查行列式
+        const det = a * d - b * c;
+        const sign = det < 0 ? -1 : 1;
+
+        // 提取缩放
+        let scaleX = Math.sqrt(a * a + b * b);
+        let scaleY = sign * Math.sqrt(c * c + d * d);
+
+        // 提取旋转（角度）
+        let rotation = Utils.toAngle(Math.atan2(b, a));
+
+        // 计算X和Y方向的倾斜（使用更精确的方法）
+        // 首先，去除旋转和缩放的影响
+        let skewX = 0;
+        let skewY = 0;
+
+        if (scaleX !== 0 && scaleY !== 0) {
+            // 归一化矩阵的第一行和第二行
+            const norm_a = a / scaleX;
+            const norm_b = b / scaleX;
+            const norm_c = c / scaleY;
+            const norm_d = d / scaleY;
+
+            // 旋转角的余弦和正弦
+            const cos = norm_a;
+            const sin = norm_b;
+
+            // 计算去除旋转后的矩阵元素
+            // 旋转矩阵的逆是其转置
+            const derot_c = norm_c * cos + norm_d * sin;
+            const derot_d = -norm_c * sin + norm_d * cos;
+
+            // X方向倾斜角（Y轴与参考系Y轴的夹角）
+            skewX = Utils.toAngle(Math.atan2(derot_c, derot_d));
+
+            // Y方向倾斜角（从矩阵特性推导）
+            const dotProduct = a * c + b * d;
+            const len1 = Math.sqrt(a * a + b * b);
+            const len2 = Math.sqrt(c * c + d * d);
+
+            if (len1 !== 0 && len2 !== 0) {
+                const cosTheta = dotProduct / (len1 * len2);
+                // 防止数值误差导致的超出[-1,1]范围
+                const clampedCosTheta = Math.max(-1, Math.min(1, cosTheta));
+                skewY = Utils.toAngle(Math.PI / 2 - Math.acos(clampedCosTheta));
+            }
+        }
+
+        return {
+            x, y,
+            scaleX, scaleY,
+            rotation,
+            skewX, skewY
+        };
+    }
 
     /**
      * @en An initialized Matrix object. The content of this object is not allowed to be modified.

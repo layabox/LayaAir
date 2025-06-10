@@ -2,6 +2,9 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../RenderDevice/IRenderCMD
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "./IRender2DCMD";
 import { IRenderContext2D } from "./IRenderContext2D";
 import { IRenderElement2D } from "./IRenderElement2D";
+import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicBufferDataView } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -15,5 +18,26 @@ export interface I2DRenderPassFactory {
     createSetRendertarget2DCMD(): SetRendertarget2DCMD;
 
     createSetRenderDataCMD(): SetRenderDataCMD;
-    createSetShaderDefineCMD(): SetShaderDefineCMD ;
+
+    createSetShaderDefineCMD(): SetShaderDefineCMD;
+
+    createRender2DPass(): IRender2DPass;
+
+    createRenderStruct2D(): IRenderStruct2D;
+
+    createRender2DPassManager(): IRender2DPassManager;
+
+    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle;
+
+    create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle;
+
+    createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle;
+
+    create2DGlobalRenderDataHandle(): I2DGlobalRenderData;
+
+    createSpineRenderDataHandle(): ISpineRenderDataHandle;
+
+    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView;
+
+    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer;
 }

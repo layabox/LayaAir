@@ -84,7 +84,7 @@ export class GraphicsBounds {
         points.length = 0;
 
         let cmds = g.cmds;
-        let sp = g._sp;
+        let sp = g.owner;
         if (cmds.length == 0) return points;
 
         _assembler.allPoints = points;

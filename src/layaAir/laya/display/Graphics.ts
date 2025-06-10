@@ -1,6 +1,6 @@
 import { Sprite } from "./Sprite";
 import { GraphicsBounds } from "./GraphicsBounds";
-import { SpriteConst } from "./SpriteConst";
+import { BaseRender2DType, SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 import { ClipRectCmd } from "./cmd/ClipRectCmd"
 import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd"
@@ -27,7 +27,6 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
@@ -39,7 +38,12 @@ import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { NodeFlags } from "../Const";
+import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
+// const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -63,19 +67,27 @@ export class Graphics {
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
-    _sp: Sprite | null = null;
+    owner: Sprite | null = null;
 
-    /**@internal */
-    _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
+    // _texture: Texture | null = null;
+    /** @internal */
+    _data: GraphicsRenderData;
+    // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
+
+    // private _renderElements: IRenderElement2D[] = [];
 
     private _cmds: IGraphicsCmd[] = [];
     protected _vectorgraphArray: any[] | null = null;
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
+    protected _renderDataHandle: I2DPrimitiveDataHandle;
+    /** @internal */
+    _modefied: boolean = false;
 
     /**@ignore */
     constructor() {
         this._createData();
+        this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
 
     protected _createData(): void {
@@ -96,11 +108,12 @@ export class Graphics {
     destroy(): void {
         this.clear(true);
         if (this._graphicBounds) this._graphicBounds.destroy();
+        this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
         this._vectorgraphArray = null;
-        if (this._sp) {
-            this._sp._renderType = 0;
-            this._sp = null;
+        if (this.owner) {
+            this.owner._renderType = 0;
+            this.owner = null;
         }
         if (this._material) {
             this._material._removeReference();
@@ -124,11 +137,9 @@ export class Graphics {
         }
 
         this._cmds.length = 0;
-        this._render = this._renderEmpty;
+        // this._render = this._renderEmpty;
         this._clearData();
-        if (this._sp) {
-            this._sp._renderType &= ~SpriteConst.GRAPHICS;
-        }
+        this._checkDisplay();
         this._repaint();
     }
 
@@ -146,8 +157,9 @@ export class Graphics {
      * @zh 重绘此对象。
      */
     _repaint(): void {
+        this._modefied = true;
         this._clearBoundsCache();
-        this._sp && this._sp.repaint();
+        this.owner && this.owner.repaint();
     }
 
     /**@internal */
@@ -239,10 +251,44 @@ export class Graphics {
 
     private onCmdsChanged() {
         let len = this._cmds.length;
-        if (this._sp && len > 0)
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-        this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
+        let result = len > 0;
+        if (this.owner) {
+            result = result || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
+            this._setDisplay(result);
+        }
         this._repaint();
+    }
+
+    /** @internal */
+    _checkDisplay() {
+        if (this.owner && !this.owner.destroyed) {
+            let len = this._cmds.length;
+            let value = len > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
+            this._setDisplay(value);
+        }
+    }
+
+    _display: boolean = false;
+
+    /** @internal */
+    _setDisplay(value: boolean) {
+        if (this._display === value) return;
+        this._display = value;
+        if (value) {
+            this.owner._initShaderData();
+            this.owner._renderType |= SpriteConst.GRAPHICS;
+            this.owner._struct.renderType = BaseRender2DType.graphics;
+            this.owner._struct.renderDataHandler = this._renderDataHandle;
+            this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
+            this.owner._struct.renderElements = this._data._renderElements;
+        } else {
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
+            if (this._data._renderElements === this.owner._struct.renderElements) {
+                this.owner._struct.renderElements = [];
+            }
+            this.owner._struct.renderType = -1;
+            this.owner._struct.renderDataHandler = null;
+        }
     }
 
     /**
@@ -286,6 +332,7 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
+        this._repaint();
         if (value != null)
             value._addReference();
     }
@@ -622,12 +669,12 @@ export class Graphics {
         let tex: Texture = ILaya.loader.getRes(url);
         if (tex) {
             this.drawImage(tex, x, y, width, height);
-            complete && complete.call(this._sp);
+            complete && complete.call(this.owner);
         }
         else {
             ILaya.loader.load(url).then((tex: Texture) => {
                 this.drawImage(tex, x, y, width, height);
-                complete && complete.call(this._sp);
+                complete && complete.call(this.owner);
             });
         }
     }
@@ -635,30 +682,107 @@ export class Graphics {
     /**
      * @internal
      */
-    _renderEmpty(sprite: Sprite, context: Context, x: number, y: number): void {
-    }
+    // _renderEmpty( runner: GraphicsRunner, x: number, y: number): void {
+    // }
 
+    // _renderAll( runner: GraphicsRunner, x: number, y: number): void {
     /**
      * @internal
      */
-    _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        var cmds = this._cmds!;
-        for (let i = 0, n = cmds.length; i < n; i++) {
-            cmds[i].run(context, x, y);
+    _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
+        if (!this.owner || this.owner.destroyed)
+            return;
+
+        if (
+            !this._modefied
+            && this._check() //校验是否都有效
+            // && this._data.offsetX === x
+            // && this._data.offsetY === y
+        ) {
+            this._data.setRenderElement(this.owner._struct, this._renderDataHandle);
+            return
         }
-        context._material = null;
+
+        this._data.clear();
+        runner.clearRenderData();
+        runner.sprite = this.owner;
+        runner._graphicsData = this._data;
+        runner._material = this._material;
+
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this.owner._struct.blendMode;
+
+        var cmds = this._cmds;
+        for (let i = 0, n = cmds.length; i < n; i++) {
+            cmds[i].run(runner, x, y);
+        }
+        //sprite.texture
+        this._renderSpriteTexture(runner, x, y);
+
+        this._data.updateRenderElement(this.owner._struct, this._renderDataHandle);
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+        this._modefied = false;
+        // this._data.offsetX = x;
+        // this._data.offsetY = y;
     }
 
+    private _check(): boolean {
+        let len = this._data._submits.length;
+        for (let i = 0; i < len; i++) {
+            let submit = this._data._submits.elements[i];
+            let texture = submit._internalInfo.textureHost;
+            let bitmap = (texture as Texture).bitmap;
+            if ( bitmap && bitmap.destroyed ) {
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * @internal
      */
-    _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        this._cmds[0].run(context, x, y);
-        context._material = null;
+    // _renderOne( runner: GraphicsRunner, x: number, y: number): void {
+    //     this._data.clear();
+    //     runner.clear();
+    //     runner.sprite = this._sp;
+    //     runner._graphicsData = this._data;
+    //     runner._material = this._material;
+    //     this._cmds[0].run(runner, x, y);
+    //     this.updateRenderElement();
+    //     runner._material = null;
+    //     runner._graphicsData = null;
+    //     runner.sprite = null;
+    // }
+
+    _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
+        let sprite = this.owner;
+        if (!sprite.texture || sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
+            return
+        }
+
+        var tex = sprite.texture;
+        if (tex._getSource(()=>{
+            this._modefied = true;
+            this.owner.repaint();
+        })) {
+            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+                let px = x + tex.offsetX * wRate;
+                let py = y + tex.offsetY * hRate;
+                // let px = 0 + tex.offsetX * wRate;
+                // let py = 0 + tex.offsetY * hRate;
+                runner.drawTexture(tex, px, py, width, height, 0xffffffff);
+            }
+        }
     }
 
     /**

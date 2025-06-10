@@ -1,6 +1,6 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Save command, used in conjunction with restore
@@ -34,12 +34,12 @@ export class SaveCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the save command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @zh 执行存储命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      */
-    run(context: Context): void {
-        context.save();
+    run(runner: GraphicsRunner): void {
+        runner.save();
     }
 
     /**

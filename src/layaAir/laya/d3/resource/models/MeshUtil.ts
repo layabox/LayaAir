@@ -37,6 +37,3 @@ export class MeshUtil {
         }
     }
 }
-
-
-

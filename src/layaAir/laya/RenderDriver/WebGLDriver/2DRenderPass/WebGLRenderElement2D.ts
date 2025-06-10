@@ -3,6 +3,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
@@ -11,10 +12,11 @@ import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 
 export class WebGLRenderelement2D implements IRenderElement2D {
+    owner: WebRenderStruct2D;
     nodeCommonMap: string[];
     renderStateIsBySprite: boolean = true;
 
-
+    type:number = 0;
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     protected _shaderInstances: FastSinglelist<WebGLShaderInstance> = new FastSinglelist<WebGLShaderInstance>();
@@ -22,6 +24,13 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
     subShader: SubShader;
+
+    private getGlobalShaderData() {
+        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
+            return this.owner.globalRenderData.globalShaderData;
+        else
+            return null;
+    }
 
     protected _compileShader(context: WebglRenderContext2D) {
         var passes: ShaderPass[] = this.subShader._passes;
@@ -35,11 +44,16 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (context.sceneData) {
-                context.sceneData._defineDatas.cloneTo(comDef);
+            if (this.owner && this.owner.globalRenderData) {
+                (this.owner.globalRenderData.globalShaderData as WebGLShaderData)._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }
+
+            if (context.passData) {
+                comDef.addDefineDatas(context.passData._defineDatas);
+            }
+
             let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
             if (returnGamma) {
                 comDef.add(ShaderDefines2D.GAMMASPACE);
@@ -57,6 +71,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
                 comDef.addDefineDatas(this.value2DShaderData.getDefineData());
                 pass.nodeCommonMap = this.nodeCommonMap;
             }
+
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
@@ -84,7 +99,9 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             return
         shader.bind();
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
-        context.sceneData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.sceneData, true);
+        let global = this.getGlobalShaderData() as WebGLShaderData;
+        global && shader.uploadUniforms(shader._sceneUniformParamsMap, global, true);
+        context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
         if (this.renderStateIsBySprite || !this.materialShaderData) {

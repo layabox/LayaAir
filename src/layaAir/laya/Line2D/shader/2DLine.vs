@@ -58,7 +58,7 @@ void main(){
   
     vec2 viewPos;
     getViewPos(v_position,viewPos);
-    v_cliped = getClipedInfo(viewPos);
+    clip(viewPos);
     vec4 pos;
     getProjectPos(viewPos,pos);
     gl_Position = pos;

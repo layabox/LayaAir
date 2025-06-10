@@ -3,16 +3,8 @@ import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { Loader } from "./laya/net/Loader";
 import { Render } from "./laya/renders/Render";
-import { RenderSprite } from "./laya/renders/RenderSprite";
-import { Context } from "./laya/renders/Context";
 import { Browser } from "./laya/utils/Browser";
 import { Timer } from "./laya/utils/Timer";
-import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
-import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { MeshVG } from "./laya/webgl/utils/MeshVG";
-import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { Config } from "./Config";
@@ -20,6 +12,8 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
 import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
+import { Stat } from "./laya/utils/Stat";
+import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { Laya3D } from "./Laya3D";
@@ -35,6 +29,8 @@ import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { PAL } from "./laya/platform/PlatformAdapters";
 import { SoundManager } from "./laya/media/SoundManager";
+import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
+import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -196,31 +192,35 @@ export class Laya {
         else if (stageConfig.backgroundColor)
             stage.bgColor = stageConfig.backgroundColor;
 
-        VertexElementFormat.__init__();
+   VertexElementFormat.__init__();
         VertexMesh.__init__();
         Shader3D.init();
-        MeshQuadTexture.__int__();
-        MeshVG.__init__();
-        MeshTexture.__init__();
-        ShaderDefines2D.__init__();
-        Render.__init__();
+
+        GraphicsMesh.__init__();
+
+        Laya.render = Laya.createRender();
+        render = Laya.render;
+       ShaderDefines2D.__init__();
+       
+        
         Shader2D.__init__();
-        BlendMode._init_();
+        BlendModeHandler._init_();
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
-        Camera2D.shaderValueInit();
+        
+        GraphicsRunner.__init__();
+        Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
+        Camera2D.shaderValueInit();
+        Blit2DCMD.__init__();
+        PostProcess2D.init();
         RenderStateContext.__init__();
-        RenderSprite.__init__();
         Material.__initDefine__();
         InputManager.__init__();
         SoundManager.__init__();
 
-        //Init internal 2D Value2D
-        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
-        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
     }
 
     /**
@@ -316,7 +316,6 @@ var _erralert: number = 0;
 
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;
-ILaya.Context = Context;
 ILaya.InputManager = InputManager;
 
 /**@internal */

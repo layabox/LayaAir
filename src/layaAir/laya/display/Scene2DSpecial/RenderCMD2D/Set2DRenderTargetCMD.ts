@@ -34,7 +34,13 @@ export class Set2DRTCMD extends Command2D {
     }
     public set renderTexture(value: IRenderTarget) {
         this._renderTexture = value;
-        this._setRenderTargetCMD.rt = value ? value._renderTarget : null;
+        if (value) {
+            this._setRenderTargetCMD.rt = value._renderTarget;
+            this._setRenderTargetCMD.size.setValue(value.width,value.height);
+        }else{
+            this._setRenderTargetCMD.rt = null;
+            this._setRenderTargetCMD.size.setValue(RenderState2D.width, RenderState2D.height);
+        }
     }
 
     constructor() {
@@ -43,11 +49,11 @@ export class Set2DRTCMD extends Command2D {
     }
 
     run(): void {
-        if (this._renderTexture)
-            this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
-        else {
-            this._commandBuffer._renderSize.setValue(RenderState2D.width, RenderState2D.height);
-        }
+        // if (this._renderTexture)
+            // this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
+        // else {
+            // this._commandBuffer._renderSize.setValue(RenderState2D.width, RenderState2D.height);
+        // }
     }
 
     getRenderCMD(): SetRendertarget2DCMD {

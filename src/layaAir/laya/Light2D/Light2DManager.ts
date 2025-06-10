@@ -18,7 +18,6 @@ import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../renders/Context";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Pool } from "../utils/Pool";
@@ -176,11 +175,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 场景矩阵发生变化
      * @param context 
      */
-    private _sceneTransformChange(context: Context) {
+    private _sceneTransformChange() {
         let mat = ILaya.stage.transform; //获取Stage的矩阵
         this._stageMat0.set(mat.a, mat.c, mat.tx);
         this._stageMat1.set(mat.b, mat.d, mat.ty);
-        if (context._drawingToTexture) {
+        if (false) {//IDE 判断 是否需要画到纹理上
             this._sceneInv0.set(mat.a, mat.c, mat.tx);
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         } else {
@@ -189,11 +188,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         }
 
-        const shaderData = this._scene.sceneShaderData; //上传给着色器
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, this._sceneInv0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, this._sceneInv1);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, this._stageMat0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, this._stageMat1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, ShaderDataType.Vector3, this._sceneInv0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, ShaderDataType.Vector3, this._sceneInv1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, ShaderDataType.Vector3, this._stageMat0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, ShaderDataType.Vector3, this._stageMat1);
     }
 
     /**
@@ -791,9 +789,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @zh 渲染光影图
      * @param context 渲染上下文
      */
-    preRenderUpdate(context: Context) {
+    preRenderUpdate() {
         //处理场景矩阵变化
-        this._sceneTransformChange(context);
+        this._sceneTransformChange();
 
         //灯光状态是否更新
         const _isLightUpdate = (light: BaseLight2D) => {

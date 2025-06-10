@@ -118,5 +118,6 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     render(time: number) {
         this._owner.clear();
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
+        this._owner.owner._struct.renderElements = this._owner._renderElements;
     }
 }

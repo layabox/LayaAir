@@ -1,10 +1,10 @@
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner"
 
 /**
  * @en Draw triangles command
@@ -128,16 +128,16 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the drawing triangles command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制三角形命令
-     * @param context 渲染上下文  
+     * @param runner 渲染上下文  
      * @param gx 全局X偏移  
      * @param gy 全局Y偏移  
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color);
     }
 
     /**

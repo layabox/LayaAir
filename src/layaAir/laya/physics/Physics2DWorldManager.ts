@@ -403,6 +403,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     destroy(): void {
         Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
         Physics2D.I._emptyBody = null;
+        Laya.timer.clear(this,this._frameLoop);
         Laya.timer.callLater(this, () => {
             Physics2D.I._factory.destroyWorld(this._box2DWorld);
         })
@@ -486,10 +487,16 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._jsDraw.DrawAABB = this._debugDrawAABB.bind(this);
         }
         if (this._enableDraw) {
+            Laya.timer.frameLoop(1 , this , this._frameLoop);
             Physics2D.I._factory.appendFlags(this._jsDraw, flag);
         } else {
+            Laya.timer.clear( this , this._frameLoop);
             Physics2D.I._factory.clearFlags(this._jsDraw, flag);
         }
+    }
+
+    private _frameLoop(){
+        this._debugDraw.render(0 , 0);
     }
 
     private _scaleSizeXByScaleMode(x: number) {

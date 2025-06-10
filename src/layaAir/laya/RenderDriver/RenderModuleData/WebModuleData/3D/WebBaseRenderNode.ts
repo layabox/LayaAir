@@ -87,9 +87,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._caculateBoundingBoxFun.call(this._caculateBoundingBoxCall);
     }
 
-
-
-
     /**
      * get bounds
      */

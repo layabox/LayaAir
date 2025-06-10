@@ -1,9 +1,9 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 /**
  * @en Draw image command
@@ -90,15 +90,15 @@ export class DrawImageCmd implements IGraphicsCmd {
 
     /**
      * @en Execute the draw image command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制图片命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let tex = this.texture;
         if (!tex)
             return;
@@ -113,7 +113,7 @@ export class DrawImageCmd implements IGraphicsCmd {
         x += tex.offsetX * wRate;
         y += tex.offsetY * hRate;
 
-        context.drawTexture(this.texture, x + gx, y + gy, w, h, this.color);
+        runner.drawTexture(this.texture, x + gx, y + gy, w, h, this.color);
     }
 
     /**

@@ -8,6 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Tween } from "laya/tween/Tween";
 import { Main } from "./../Main";
+import { BlendMode } from "laya/webgl/canvas/BlendMode";
 
 export class BlendMode_Lighter {
 	// 一只凤凰的分辨率是550 * 400

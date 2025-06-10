@@ -4,7 +4,6 @@ import { Vector2 } from "../maths/Vector2";
 import { Vector3 } from "../maths/Vector3";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { Context } from "../renders/Context";
 import { Material } from "../resource/Material";
 import { Sprite } from "../display/Sprite";
 import { Grid } from "./grid/Grid";
@@ -20,11 +19,11 @@ import { Rectangle } from "../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../resource/Texture2D";
 import { TileMapDatasParse } from "./loaders/TileSetAssetLoader";
-import { NodeFlags } from "../Const";
-import { DIRTY_TYPES, DirtyFlagType, TileLayerSortMode, TileMapDirtyFlag } from "./TileMapEnum";
+import { DirtyFlagType, TileLayerSortMode } from "./TileMapEnum";
 import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
 import { Event } from "../events/Event";
 import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
+import { Area2D } from "../display/Area2D";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -219,6 +218,10 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapOccluder;
     }
 
+    protected _initDefaultRenderData(): void {
+        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+    }
+
     /**
      * @ignore
      */
@@ -235,7 +238,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     private _initialTileSet() {
@@ -266,11 +268,11 @@ export class TileMapLayer extends BaseRenderNode2D {
             let chunkDatas = this._chunkDatas[col];
             for (const row in chunkDatas) {
                 let chunkData = chunkDatas[row];
-                chunkData._mergeBuffer(mergeDatas , minVec , maxVec);
+                chunkData._mergeBuffer(mergeDatas, minVec, maxVec);
                 allDatas.push(chunkData);
             }
         }
-        
+
         let tileSize = this._renderTileSize;
         this._chunk._setChunkSize(tileSize, tileSize);
         if (minVec.x > maxVec.x || minVec.y > maxVec.y) { return; }
@@ -399,24 +401,24 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param px 
      * @param py 
      */
-    addCMDCall(context: Context, px: number, py: number): void {
-        let mat = context._curMat;
-        let vec3 = Vector3.TEMP;
-        vec3.setValue(mat.a, mat.c, px * mat.a + py * mat.c + mat.tx);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
+    addCMDCall(px: number, py: number): void {
+        // let mat = context._curMat;
+        // let vec3 = Vector3.TEMP;
+        // vec3.setValue(mat.a, mat.c, px * mat.a + py * mat.c + mat.tx);
+        // //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, vec3);
 
-        vec3.setValue(mat.b, mat.d, px * mat.b + py * mat.d + mat.ty);
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
+        // vec3.setValue(mat.b, mat.d, px * mat.b + py * mat.d + mat.ty);
+        // //this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, vec3);
 
-        this._setRenderSize(context.width, context.height)
-        context._copyClipInfoToShaderData(this._spriteShaderData);
+        // //this._setRenderSize(context.width, context.height)
+        // context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
     /**
      * 根据相机和设置做裁剪;更新所有格子的渲染数据
      * @param context 
      */
-    preRenderUpdate(context: IRenderContext2D): void {
+    renderUpdate(context: IRenderContext2D): void {
         let tileSet = this._tileSet;
         if (tileSet == null) return;
 
@@ -427,18 +429,18 @@ export class TileMapLayer extends BaseRenderNode2D {
         const renderRect = TempRectange;
         let mat = this._globalTransfrom();
 
-        let scene = this.owner.scene;
-        let camera = scene?._curCamera;
+        let scene = this.owner._ownerArea;
+        let camera = (<Area2D>scene)?.mainCamera;
         let ofx = 0, ofy = 0;
         if (camera == null) {
             renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
             mat.copyTo(clipChuckMat);
-            ofx = renderRect.width / 2; 
+            ofx = renderRect.width / 2;
             ofy = renderRect.height / 2;
         } else {
             let rect = camera._rect;
             // lx rx by ty
-            renderRect.setTo(rect.x, rect.z , rect.y - rect.x,  rect.w - rect.z);
+            renderRect.setTo(rect.x, rect.z, rect.y - rect.x, rect.w - rect.z);
             let cameraMat = camera._getCameraTransform();
             var e: Float32Array = cameraMat.elements;
             clipChuckMat.a = e[0];
@@ -453,7 +455,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._chunk._getChunkSize(oneChuckSize);
 
         //根据实际裁切框计算chunck矩阵的裁切框大小  返回 renderRect在Tilemap空间中的转换rect
-        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat , ofx , ofy, 0);
+        let chuckLocalRect = this._cliper.setClipper(renderRect, oneChuckSize, clipChuckMat, ofx, ofy, 0);
 
         this._renderElements.length = 0;
 
@@ -488,7 +490,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             this._tileMapPhysics._updateTransfrom();
             this._needUpdateDirtys[DirtyFlagType.PHYSICS] = false;
         }
-
+        this.owner._struct.renderElements = this._renderElements;
         // this._needUpdateDirtys.length = 0;
         // let sprite = this._testSprite;
         // if (!sprite) {
@@ -536,7 +538,7 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param y 
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
-    getCellData(x: number, y: number, isPixel = true) : ChunkCellInfo {
+    getCellData(x: number, y: number, isPixel = true): ChunkCellInfo {
         let tempVec3 = Vector3.TEMP;
         if (isPixel) {
             this._chunk._getChunkPosByPixel(x, y, tempVec3);
