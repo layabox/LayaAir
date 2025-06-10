@@ -57,6 +57,7 @@ import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 //import "./loaders/Texture2DArrayLoader";
 // import "./loaders/MeshLoader";
+import "./loaders/Texture3DLoader";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/AnimationControllerLoader";
 import "./core/scene/Input3D";
