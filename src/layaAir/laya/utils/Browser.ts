@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { URL } from "../net/URL";
 import { PAL } from "../platform/PlatformAdapters";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 
@@ -491,7 +492,7 @@ export class Browser {
             };
             if (async != null)
                 script.async = async;
-            script.src = src;
+            script.src = URL.postFormatURL(URL.formatURL(src));
             Browser.document.body.appendChild(script);
         });
     }

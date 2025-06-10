@@ -53,7 +53,8 @@ export class MgDownloader extends Downloader {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             if (contentType === "filePath")
                 onComplete(url);
-            this.readFile(url, contentType, onComplete);
+            else
+                this.readFile(url, contentType, onComplete);
             return;
         }
 

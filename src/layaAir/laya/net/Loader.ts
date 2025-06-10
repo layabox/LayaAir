@@ -1372,7 +1372,7 @@ export class Loader extends EventDispatcher {
             this._parseFileConfig(fileConfig);
 
             if (loadScript && fileConfig.entry)
-                return Browser.loadLib(URL.formatURL(path + fileConfig.entry));
+                return Browser.loadLib(path + fileConfig.entry);
             else
                 return null;
         });
