@@ -225,7 +225,7 @@ async function buildDeclarations() {
                 let code = declarationFile.text.slice(node.pos, node.end);
                 code = code.substring(1);
                 if (!inNamespace && code.indexOf(".") == -1
-                    && !code.startsWith("Promise") && !code === "ErrorEvent"
+                    && !code.startsWith("Promise") && code !== "ErrorEvent"
                     && code.length > 1)
                     return " Laya." + code;
                 else if (code.startsWith("glTF."))

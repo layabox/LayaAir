@@ -120,7 +120,7 @@ export class GSlider extends GWidget {
 
             if (newValue != this._value) {
                 this._value = newValue;
-                this.event(Event.CHANGE, Event.EMPTY);
+                this.event(Event.CHANGED, Event.EMPTY);
                 if (!this.canDrag)
                     return;
             }
@@ -264,7 +264,7 @@ export class GSlider extends GWidget {
 
     /** @internal @blueprintEvent */
     GSlider_bpEvent: {
-        [Event.CHANGE]: (e: Event) => void;
+        [Event.CHANGED]: (e: Event) => void;
     };
 }
 

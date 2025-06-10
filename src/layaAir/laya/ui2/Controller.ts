@@ -84,7 +84,7 @@ export class Controller extends EventDispatcher {
                     ref.onChanged(this);
                 }
                 GearDisplay.checkAll(this);
-                this.event(Event.CHANGE);
+                this.event(Event.CHANGED);
             }
             finally {
                 (<Mutable<this>>this).changing = false;
@@ -119,6 +119,6 @@ export class Controller extends EventDispatcher {
 
     /** @internal @blueprintEvent */
     Controller_bpEvent: {
-        [Event.CHANGE]: () => void;
+        [Event.CHANGED]: () => void;
     };
 }

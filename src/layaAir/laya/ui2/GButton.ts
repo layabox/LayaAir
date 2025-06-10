@@ -382,13 +382,13 @@ export class GButton extends GLabel {
         if (this._mode == ButtonMode.Check) {
             if (this._changeStateOnClick) {
                 this.selected = !this._selected;
-                this.event(Event.CHANGE);
+                this.event(Event.CHANGED);
             }
         }
         else if (this._mode == ButtonMode.Radio) {
             if (this._changeStateOnClick && !this._selected) {
                 this.selected = true;
-                this.event(Event.CHANGE);
+                this.event(Event.CHANGED);
             }
         }
         else {
@@ -406,6 +406,6 @@ export class GButton extends GLabel {
 
     /** @internal @blueprintEvent */
     GButton_bpEvent: {
-        [Event.CHANGE]: () => void;
+        [Event.CHANGED]: () => void;
     };
 }

@@ -159,7 +159,14 @@ export class Scene extends Sprite {
      * @param closeOther 是否关闭其他场景，默认为true（可选）。
      */
     open(closeOther?: boolean): void;
-    /** @deprecated */
+    /**
+     * @en Open the scene. Note: If the closed scene has not set autoDestroyAtRemoved=true, resources may not be reclaimed and need to be manually reclaimed.
+     * @param closeOther Whether to close other scenes, default is true (optional).
+     * @param param Parameters for opening the page, will be passed to the onOpened method (optional).
+     * @zh 打开场景。注意：被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收。
+     * @param closeOther 是否关闭其他场景，默认为true（可选）。
+     * @param param 打开页面的参数，会传递给onOpened方法（可选）。
+     */
     open(closeOther?: boolean, param?: any): void;
 
     open(closeOther?: boolean, param?: any): void {
@@ -515,8 +522,10 @@ export class Scene extends Sprite {
             progress = complete;
             complete = null;
         }
-        if (typeof (param) === "function")
+        if (typeof (param) === "function") {
             complete = param;
+            param = null;
+        }
 
         if (progress instanceof Handler) {
             let h = progress;
@@ -524,7 +533,7 @@ export class Scene extends Sprite {
         }
 
         return Scene._load(url, progress).then(scene => {
-            scene.open(closeOther);
+            scene.open(closeOther, param);
 
             if (complete instanceof Handler)
                 complete.runWith(scene);

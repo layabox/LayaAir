@@ -31,7 +31,7 @@ export class MgDownloader extends Downloader {
 
         let old = URL.postFormatURL;
         URL.postFormatURL = url => {
-            url = this.escapeURL(url);
+            url = this.checkSubpackagePrefix(url);
             return old.call(this, url);
         };
 
@@ -131,7 +131,7 @@ export class MgDownloader extends Downloader {
 
     protected downloadFile(url: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         let task = PAL.g.downloadFile({
-            url,
+            url: this.escapeURL(url),
             success: (res) => {
                 if (res.statusCode == null || res.statusCode === 200) {
                     let filePath = res.tempFilePath || (res as any).apFilePath; //淘宝用apFilePath
@@ -178,7 +178,7 @@ export class MgDownloader extends Downloader {
             return url;
     }
 
-    protected escapeURL(url: string): string {
+    protected checkSubpackagePrefix(url: string): string {
         if (!this.supportSubPackageMultiLevelFolders && this.subPackages) {
             for (let k in this.subPackages) {
                 if (url.startsWith(k)) {
@@ -187,7 +187,10 @@ export class MgDownloader extends Downloader {
                 }
             }
         }
+        return url;
+    }
 
+    escapeURL(url: string): string {
         if (!this.escapeZhCharsInURL)
             return url;
 

@@ -153,7 +153,7 @@ export class GPanel extends GBox {
 
     /** @internal @blueprintEvent */
     GPanel_bpEvent: {
-        [Event.CHANGE]: () => void;
+        [Event.CHANGED]: () => void;
         [UIEvent.ClickItem]: (item: GButton) => void;
         [UIEvent.Scroll]: () => void;
         [UIEvent.ScrollEnd]: () => void;

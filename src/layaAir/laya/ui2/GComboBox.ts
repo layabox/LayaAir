@@ -302,7 +302,7 @@ export class GComboBox extends GLabel {
 
         this._selectedIndex = -1;
         this.selectedIndex = this._list.getChildIndex(item);
-        this.event(Event.CHANGE);
+        this.event(Event.CHANGED);
     }
 
     private _rollover(): void {
@@ -338,7 +338,7 @@ export class GComboBox extends GLabel {
 
     /** @internal @blueprintEvent */
     GComboBox_bpEvent: {
-        [Event.CHANGE]: () => void;
+        [Event.CHANGED]: () => void;
         [UIEvent.Popup]: () => void;
     };
 }
