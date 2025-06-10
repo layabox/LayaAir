@@ -77,13 +77,13 @@ export class HTMLCanvas extends Resource {
      * @zh Canvas 渲染上下文。
      */
     get context() {
-        if (this._ctx)
-            return this._ctx;
-        if (this.source == <any>this) //是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
-            this._ctx = new Context();
-        else
-            this._ctx = this.source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
-        this._ctx._canvas = this;
+        // if (this._ctx)
+        //     return this._ctx;
+        // if (this.source == <any>this) //是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
+        //     this._ctx = new Context();
+        // else
+        //     this._ctx = this.source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
+        // this._ctx._canvas = this;
         return this._ctx;
     }
 

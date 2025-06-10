@@ -310,7 +310,7 @@ export class Line2DRender extends BaseRenderNode2D {
         this._needUpdate = true;
     }
 
-    }
+
 
     onPreRender(): void {
         if (!this._needUpdate) return;

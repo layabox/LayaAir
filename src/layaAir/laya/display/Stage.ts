@@ -7,9 +7,7 @@ import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
-import { Render } from "../renders/Render"
 import { RenderInfo } from "../renders/RenderInfo"
-import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
 import { ColorUtils } from "../utils/ColorUtils"
 import { Stat } from "../utils/Stat";
@@ -25,6 +23,7 @@ import { Tweener } from "../tween/Tweener";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
+import { PAL } from "../platform/PlatformAdapters";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -672,14 +671,6 @@ export class Stage extends Sprite {
 
     set screenMode(value: string) {
         this._screenMode = value;
-    }
-
-    /**@internal */
-    _loop(): boolean {
-        this._globalRepaintGet = this._globalRepaintSet;
-        this._globalRepaintSet = false;
-        this.render();
-        return true;
     }
 
     /**

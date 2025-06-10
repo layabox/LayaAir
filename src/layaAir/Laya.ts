@@ -23,7 +23,7 @@ import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
-import { BlendMode } from "./laya/webgl/canvas/BlendMode";
+import { BlendMode, BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
 import { Shader2D } from "./laya/webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
@@ -31,6 +31,10 @@ import { PAL } from "./laya/platform/PlatformAdapters";
 import { SoundManager } from "./laya/media/SoundManager";
 import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
 import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
+import { PostProcess2D } from "./laya/display/PostProcess2D";
+import { Render2DProcessor } from "./laya/display/Render2DProcessor";
+import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
+import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -192,24 +196,22 @@ export class Laya {
         else if (stageConfig.backgroundColor)
             stage.bgColor = stageConfig.backgroundColor;
 
-   VertexElementFormat.__init__();
+        VertexElementFormat.__init__();
         VertexMesh.__init__();
         Shader3D.init();
 
         GraphicsMesh.__init__();
+        ShaderDefines2D.__init__();
 
-        Laya.render = Laya.createRender();
-        render = Laya.render;
-       ShaderDefines2D.__init__();
-       
-        
+        Render.__init__();
+
         Shader2D.__init__();
         BlendModeHandler._init_();
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
-        
+
         GraphicsRunner.__init__();
         Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();

@@ -6,8 +6,6 @@ import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { CharRender_Canvas } from "./CharRender_Canvas"
-import { ICharRender } from "./ICharRender"
-import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { MeasureFont } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
@@ -44,7 +42,6 @@ export class TextRender extends EventDispatcher {
 
     constructor() {
         super();
-
         this.charRender = new CharRender_Canvas(2048, 2048);
         this.fontMeasure = new MeasureFont(this.charRender);
     }

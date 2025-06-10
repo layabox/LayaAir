@@ -2,7 +2,6 @@ import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
-import { Context } from "./Context";
 
 /**
  * @en The class responsible for driving the engine's main loop.
@@ -20,7 +19,6 @@ export class Render {
      */
     static lastFrame = 0;
 
-    private static _context: Context;
 
     // 全局重画标志。一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
     private static _globalRepaintSet: boolean = false;
@@ -30,10 +28,7 @@ export class Render {
      * @internal
      */
     static __init__() {
-        let ctx = new Context();
-        ctx.isMain = true;
-        Render._context = ctx;
-        Browser.mainCanvas.context = ctx;
+
         Render.frameInterval = 1000 / Config.FPS;
 
         let timeId: number = 0;
@@ -85,7 +80,7 @@ export class Render {
     static loop() {
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
-        ILaya.stage.render(Render._context, 0, 0);
+        ILaya.stage.render();
     }
 
     /**

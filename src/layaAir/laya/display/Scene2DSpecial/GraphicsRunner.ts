@@ -122,7 +122,7 @@ export class GraphicsRunner {
     private _lastMat_c = 0.0;
     private _lastMat_d = 1.0;
     /**@internal */
-    _nBlendType = BlendMode.Normal ;
+    _nBlendType = BlendMode.Normal;
     /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
     /**@internal */
@@ -153,8 +153,7 @@ export class GraphicsRunner {
         ContextParams.DEFAULT = new ContextParams();
         GraphicsRunner.defTexture = new Texture(Texture2D.whiteTexture);
         if (!GraphicsRunner._textRender) {
-            let textRender = GraphicsRunner._textRender = new TextRender();
-            textRender.fontMeasure = new MeasureFont(textRender.charRender);
+            GraphicsRunner._textRender = new TextRender();
         }
     }
 
@@ -634,7 +633,7 @@ export class GraphicsRunner {
         return this._other.textBaseline;
     }
 
-    set globalCompositeOperation( value: BlendMode) {
+    set globalCompositeOperation(value: BlendMode) {
         value == null || (this._nBlendType === value) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = value /*, _shader2D.ALPHA = 1*/);
     }
 
@@ -1184,7 +1183,7 @@ export class GraphicsRunner {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number | null, blendMode: BlendMode|string, colorNum = 0xffffffff): void {
+        matrix: Matrix, alpha: number | null, blendMode: BlendMode | string, colorNum = 0xffffffff): void {
 
         if (alpha == null) alpha = 1.0;
 
@@ -1196,7 +1195,7 @@ export class GraphicsRunner {
         }
 
         var oldcomp: BlendMode | null = null;
-        
+
         if (blendMode != null) {
             if (typeof blendMode == "string") {
                 blendMode = BlendModeHandler.NAMES[blendMode];
@@ -1230,7 +1229,7 @@ export class GraphicsRunner {
         //var rgba:int = mixRGBandAlpha(0xffffffff);
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         let submit = this._curSubmit;
-        
+
         if (!sameKey) {
             //添加一个新的submit
             submit = this._curSubmit = this.createSubmit(mesh);
@@ -2210,10 +2209,10 @@ export class GraphicsRunner {
         // let g = ((rgba >>> 8) & 0xff) / 255.0 * color.g;
         // let b = ((rgba >>> 16) & 0xff) / 255.0 * color.b;
         // let a = (rgba >>> 24) / 255.0 * color.a;
-        let r = (rgba & 0xff) / 255.0 ;
-        let b = ((rgba >>> 16) & 0xff) / 255.0 ;
-        let g = ((rgba >>> 8) & 0xff) / 255.0 ;
-        let a = (rgba >>> 24) / 255.0 ;
+        let r = (rgba & 0xff) / 255.0;
+        let b = ((rgba >>> 16) & 0xff) / 255.0;
+        let g = ((rgba >>> 8) & 0xff) / 255.0;
+        let a = (rgba >>> 24) / 255.0;
 
         let ci = 0;
         let pos = 0;
@@ -2234,7 +2233,7 @@ export class GraphicsRunner {
                 dataViewIndex++;
                 pos = 0;
                 offset = dataView.start / dataView.stride;
-                vbdata = dataView.getData() as Float32Array; 
+                vbdata = dataView.getData() as Float32Array;
             }
 
             let x = vertices[ci], y = vertices[ci + 1];
@@ -2297,7 +2296,7 @@ export class GraphicsRunner {
             let inv_vertices = new Float32Array(length);
             let def_uv = Texture.DEF_UV;
             let inv_uv = Texture.INV_UV;
-            let positions = [0,0,1,0,1,1,0,1];
+            let positions = [0, 0, 1, 0, 1, 1, 0, 1];
 
             let offset = 0;
             for (let i = 0; i < 4; i++) {
@@ -2314,11 +2313,11 @@ export class GraphicsRunner {
                 //color
                 inv_vertices[index + 4] = def_vertices[index + 4] = 1;
                 inv_vertices[index + 5] = def_vertices[index + 5] = 1;
-                inv_vertices[index + 6] =  def_vertices[index + 6] = 1;
+                inv_vertices[index + 6] = def_vertices[index + 6] = 1;
                 inv_vertices[index + 7] = def_vertices[index + 7] = 1;
                 //a_flag
                 inv_vertices[index + 8] = def_vertices[index + 8] = 0xff;
-                
+
                 offset += 2;
             }
 
@@ -2327,28 +2326,28 @@ export class GraphicsRunner {
             indexBuffer.indexType = IndexFormat.UInt16;
             indexBuffer.indexCount = indices.length;
             indexBuffer._setIndexDataLength(indices.byteLength);
-            indexBuffer._setIndexData(indices , 0);
+            indexBuffer._setIndexData(indices, 0);
 
             let defaultBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
             defaultBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
             defaultBuffer.setDataLength(def_vertices.byteLength);
-            defaultBuffer.setData(def_vertices.buffer , 0 ,0 , def_vertices.byteLength);
+            defaultBuffer.setData(def_vertices.buffer, 0, 0, def_vertices.byteLength);
 
             let invertBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
             invertBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
             invertBuffer.setDataLength(inv_vertices.byteLength);
-            invertBuffer.setData(inv_vertices.buffer , 0 ,0 , inv_vertices.byteLength);
+            invertBuffer.setData(inv_vertices.buffer, 0, 0, inv_vertices.byteLength);
 
             this.def_geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             let defaultState = LayaGL.renderDeviceFactory.createBufferState();
-            defaultState.applyState([defaultBuffer] , indexBuffer);
+            defaultState.applyState([defaultBuffer], indexBuffer);
             this.def_geometry.bufferState = defaultState;
             this.def_geometry.indexFormat = IndexFormat.UInt16;
             this.def_geometry.setDrawElemenParams(6, 0);
 
             this.inv_geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             let invertState = LayaGL.renderDeviceFactory.createBufferState();
-            invertState.applyState([invertBuffer] , indexBuffer);
+            invertState.applyState([invertBuffer], indexBuffer);
             this.inv_geometry.bufferState = invertState;
             this.inv_geometry.indexFormat = IndexFormat.UInt16;
             this.inv_geometry.setDrawElemenParams(6, 0);

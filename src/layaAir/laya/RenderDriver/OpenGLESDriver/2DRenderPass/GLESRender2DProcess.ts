@@ -29,16 +29,17 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
         return new RTGlobalRenderData();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new RTRender2DSpineRenderDataHandle();
+        return null
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return new RTPrimitiveDataHandle();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        return new RTRender2DBaseRenderDataHandle();
+        //return new RTRender2DBaseRenderDataHandle();
+        return null
     }
-   createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        return new RTRender2DMeshRenderDataHandle();
+    createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
+        return null
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new GLESSetRenderData();

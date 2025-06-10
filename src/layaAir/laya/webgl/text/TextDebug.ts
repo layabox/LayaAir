@@ -1,6 +1,5 @@
 import { ILaya } from "../../../ILaya";
 import { Sprite } from "../../display/Sprite";
-import { PAL } from "../../platform/PlatformAdapters";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { Texture } from "../../resource/Texture";
 import { CharRenderInfo } from "./CharRenderInfo";
@@ -59,7 +58,7 @@ export class TextDebug {
             console.log('--图集(id:' + id + ',当前使用率:' + (a.texture.curUsedCovRate * 1000 | 0) + '‰', '当前图集使用率:', (a.texture.curUsedCovRateAtlas * 100 | 0) + '%', '图集使用率:', (a.usedRate * 100 | 0), '%, 使用于:' + dtstr + ')--:');
             for (var k in a.charMaps) {
                 var ri: CharRenderInfo = a.charMaps[k];
-                console.log('     off:', ri.orix, ri.oriy, ' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchRef:', ri.referenceCount, '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
+                console.log('     off:', ri.orix, ri.oriy, ' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchRef:', ri.referenceCount, '位置:', ri.uv[0] * TextRenderConfig.atlasWidth | 0, ri.uv[1] * TextRenderConfig.atlasWidth | 0,
                     '字符:', ri.char, 'key:', k);
                 num++;
             }
