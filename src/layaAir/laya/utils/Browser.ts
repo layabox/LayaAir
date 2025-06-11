@@ -1,5 +1,6 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
+import { URL } from "../net/URL";
 
 /**
  * @en Browser is a browser proxy class. Encapsulate some of the features provided by the browser and native JavaScript.
@@ -646,7 +647,7 @@ export class Browser {
             script.onerror = function () {
                 reject(`load ${src} failed`);
             };
-            script.src = src;
+            script.src = URL.postFormatURL(URL.formatURL(src));
             Browser.document.body.appendChild(script);
         });
     }
