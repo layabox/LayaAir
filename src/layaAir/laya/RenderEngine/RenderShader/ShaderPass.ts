@@ -24,16 +24,12 @@ export class ShaderPass extends ShaderCompileDefineBase {
         this.moduleData.pipelineMode = value;
     }
 
-    /**@internal */
-    _nodeUniformCommonMap: Array<string>;
-
     set nodeCommonMap(value: Array<string>) {
-        this._nodeUniformCommonMap = value;
         this.moduleData.nodeCommonMap = value;
     }
 
     get nodeCommonMap(): Array<string> {
-        return this._nodeUniformCommonMap;
+        return this.moduleData.nodeCommonMap;
     }
 
     set additionShaderData(value: Array<string>) {
@@ -55,6 +51,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
     }
 
     moduleData: IShaderPassData;
+
+    get attributeLocations(): Set<number> {
+        return this.moduleData.attributeLocations;
+    }
+
+    set attributeLocations(value: Set<number>) {
+        this.moduleData.attributeLocations = value;
+    }
 
     /**
      * 渲染状态。
@@ -89,22 +93,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
             defineString: _defineStrings,
         };
 
-        if (Shader3D.debugMode) {
-            {
-                let subShader = shaderpass._owner;
-                let shader = subShader.owner;
-
-                let subIndex = shader._subShaders.indexOf(subShader);
-                let passIndex = subShader._passes.indexOf(shaderpass);
-
-                let defineString = shaderProcessInfo.defineString;
-
-                console.log(`${shader.name} subShader:${subIndex} pass:${passIndex} ${defineString}`);
-
-            }
-            ShaderVariantCollection.active.add(shaderpass, _defineStrings);
-        }
-
         let shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
         return shader;
@@ -115,7 +103,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @internal
      */
     withCompile(compileDefine: IDefineDatas, is2D: boolean = false): IShaderInstance {
-
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;

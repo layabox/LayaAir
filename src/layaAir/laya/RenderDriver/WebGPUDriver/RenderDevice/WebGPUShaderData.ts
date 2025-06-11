@@ -155,10 +155,6 @@ export class WebGPUShaderData extends ShaderData {
 
             uniformMap.forEach(uniform => {
                 let uniformId = uniform.id;
-                // let data = this._data[uniformId];
-                // if (data != null) {
-                //     buffer.setUniformData(uniformId, uniform.uniformtype, data);
-                // }
                 this._uniformBuffersPropertyMap.set(uniformId, buffer);
             });
         }

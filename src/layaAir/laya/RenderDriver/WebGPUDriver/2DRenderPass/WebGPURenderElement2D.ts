@@ -112,7 +112,10 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 pass.nodeCommonMap = this.nodeCommonMap;
             else
                 pass.nodeCommonMap = null;
-            (pass.moduleData as any).geo = this.geometry;
+
+            let attributeLocations = this.geometry.bufferState._attriLocArray;
+            pass.moduleData.attributeLocations = attributeLocations
+
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = pass.withCompile(comDef, true) as WebGPUShaderInstance;
             this._shaderInstances.add(shaderInstance);

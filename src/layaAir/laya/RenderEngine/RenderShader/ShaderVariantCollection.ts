@@ -1,135 +1,14 @@
-import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
-import { SubShader } from "./SubShader";
-
-/**
- * 着色器变种。
- */
-export class ShaderVariant {
-    /** @internal */
-    _shader: Shader3D;
-    /** @internal */
-    _subShaderIndex: number = 0;
-    /** @internal */
-    _passIndex: number = 0;
-    /** @internal */
-    _defineNames: string[];
-
-    /**
-     * 着色器。
-     */
-    public get shader(): Shader3D {
-        return this._shader;
-    }
-
-    /**
-     * 子着色器索引。
-     */
-    public get subShaderIndex(): number {
-        return this._subShaderIndex;
-    }
-
-    /**
-     * 通道索引。
-     */
-    public get passIndex(): number {
-        return this._passIndex;
-    }
-
-    /**
-     * 宏定义集合。
-     */
-    public get defineNames(): Readonly<string[]> {
-        return this._defineNames;
-    }
-
-    /**
-     * 创建着色器变种。
-     * @param shader 着色器
-     * @param subShaderIndex 子着色器索引 
-     * @param passIndex 通道索引
-     * @param defines 宏定义集合
-     */
-    constructor(shader: Shader3D, subShaderIndex: number, passIndex: number, defines: string[]) {
-        this.setValue(shader, subShaderIndex, passIndex, defines);
-    }
-
-    /**
-     * 给着色器变种赋值。
-     * @param shader 着色器
-     * @param subShaderIndex 子着色器索引 
-     * @param passIndex 通道索引
-     * @param defineNames 宏定义集合
-     */
-    setValue(shader: Shader3D, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
-        if (shader) {
-            var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
-            if (subShader) {
-                var pass: ShaderPass = subShader._passes[passIndex];
-                if (pass) {
-                    var validDefine: IDefineDatas = pass._validDefine;
-                    for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
-                        var defname: string = defineNames[i];
-                        if (!validDefine.has(Shader3D.getDefineByName(defname)))
-                            throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
-                    }
-                }
-                else {
-                    throw `ShaderVariantInfo:Shader don't have passIndex of ${passIndex}.`;
-                }
-            }
-            else {
-                throw `ShaderVariantInfo:Shader don't have subShaderIndex of ${subShaderIndex}.`;
-            }
-        }
-        else {
-            throw `ShaderVariantInfo:Shader can't be null.`;
-        }
-        this._shader = shader;
-        this._subShaderIndex = subShaderIndex;
-        this._passIndex = passIndex;
-        this._defineNames = defineNames;
-    }
-
-    /**
-     * 是否相等。
-     * @param other 其它着色器变种
-     * @return 是否相等。
-     */
-    equal(other: ShaderVariant): boolean {
-        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex)
-            return false;
-
-        var defines: string[] = this._defineNames;
-        var otherDefines: string[] = other._defineNames;
-        if (defines.length !== otherDefines.length)
-            return false;
-        for (var i: number = 0, n: number = this._defineNames.length; i < n; i++) {
-            if (defines[i] !== otherDefines[i])
-                return false;
-        }
-        return true;
-
-    }
-
-
-    /**
-     * 克隆。
-     * @return 着色器变种。 
-     */
-    clone(): ShaderVariant {
-        var dest: ShaderVariant = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
-        return dest;
-    }
-}
 
 export interface IShaderVariant {
+    is2D: boolean; // 是否是2D着色器变种
     subShaderIndex: number;
     passIndex: number;
     defines: string[];
     nodeCommonMap: string[];
     additionMap: string[];
+    attributeLocations: number[];
 }
 
 /**
@@ -138,20 +17,36 @@ export interface IShaderVariant {
 export class ShaderVariantCollection {
     static active: ShaderVariantCollection = new ShaderVariantCollection();
 
-    items: Record<string, IShaderVariant[]>;
+    private items: Record<string, IShaderVariant[]>;
 
     constructor(items?: Record<string, IShaderVariant[]>) {
         this.items = items || {};
     }
 
-    add(shaderPass: ShaderPass, defines: ReadonlyArray<string>) {
+    add(shaderPass: ShaderPass, defines: ReadonlyArray<string>, is2D: boolean) {
         let shader = shaderPass._owner._owner;
         let subShaderIndex = shader._subShaders.indexOf(shaderPass._owner);
         let passIndex = shaderPass._owner._passes.indexOf(shaderPass);
-        let nodeCommonMap = shaderPass.nodeCommonMap;
-        let additionMap = shaderPass.additionShaderData ?? [];
-        if (!nodeCommonMap) return; //兼容WGSL
-        defines = defines.filter((v) => !Shader3D._configDefineValues.has(Shader3D.getDefineByName(v)));
+        let nodeCommonMap = shaderPass.nodeCommonMap ? shaderPass.nodeCommonMap.slice().sort() : [];
+        let additionMap = shaderPass.additionShaderData ? shaderPass.additionShaderData.slice().sort() : [];
+        let attributeLocationSet = shaderPass.moduleData.attributeLocations;
+        let attributeLocations = attributeLocationSet ? Array.from(attributeLocationSet) : [];
+        // if (!nodeCommonMap) return; //兼容WGSL
+
+        let configDefs: string[] = [];
+
+        defines = defines.slice().filter((v) => {
+            let configDef = Shader3D._configDefineValues.has(Shader3D.getDefineByName(v));
+
+            if (v == "GRAPHICS_API_GLES3") {
+                configDef = true;
+            }
+
+            if (configDef) {
+                configDefs.push(v);
+            }
+            return !configDef; // 只保留非配置宏定义
+        }).sort();
 
         let col = this.items[shader._name];
         if (!col) {
@@ -162,6 +57,7 @@ export class ShaderVariantCollection {
         // Check if the variant already exists in the collection
         if (col.some(v => {
             return (
+                v.is2D === is2D &&
                 v.subShaderIndex === subShaderIndex &&
                 v.passIndex === passIndex &&
                 v.defines.length === defines.length &&
@@ -169,21 +65,25 @@ export class ShaderVariantCollection {
                 v.nodeCommonMap.length === nodeCommonMap.length &&
                 v.nodeCommonMap.every((name, index) => name === nodeCommonMap[index]) &&
                 v.additionMap.length === additionMap.length &&
-                v.additionMap.every((name, index) => name === additionMap[index])
+                v.additionMap.every((name, index) => name === additionMap[index]) &&
+                v.attributeLocations.length === attributeLocations.length &&
+                v.attributeLocations.every((location, index) => location === attributeLocations[index])
             );
         }))
             return;
 
         // If the variant does not exist, add it to the collection
         col.push({
+            is2D: is2D,
             subShaderIndex: subShaderIndex,
             passIndex: passIndex,
             defines: <any>defines,
-            nodeCommonMap: nodeCommonMap.concat(),
-            additionMap: additionMap.concat()
+            nodeCommonMap: nodeCommonMap,
+            additionMap: additionMap,
+            attributeLocations: attributeLocations
         });
 
-        console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}/${additionMap ? additionMap.join(",") : ""}`);
+        console.debug(`Shader variant: ${shader._name}/${subShaderIndex}/${passIndex}/${defines.join(",")}/${nodeCommonMap ? nodeCommonMap.join(",") : ""}/${additionMap ? additionMap.join(",") : ""}_${configDefs.join(",")}`);
     }
 
     compileAll() {
@@ -191,8 +91,10 @@ export class ShaderVariantCollection {
         for (let shaderName in items) {
             let variants = items[shaderName];
             for (let variant of variants) {
-                let suc = Shader3D.compileShaderByDefineNames(shaderName, variant.subShaderIndex, variant.passIndex, variant.defines, variant.nodeCommonMap, variant.additionMap);
+                let suc = Shader3D.compileShaderByDefineNames(shaderName, variant.subShaderIndex, variant.passIndex, variant.defines, variant.nodeCommonMap, variant.additionMap, variant.is2D, variant.attributeLocations);
+
                 let msg = `${shaderName}/${variant.subShaderIndex}/${variant.passIndex}/${variant.defines.join(",")}/${variant.nodeCommonMap ? variant.nodeCommonMap.join(",") : ""}/${variant.additionMap ? variant.additionMap.join(",") : ""}`;
+
                 if (suc)
                     console.debug("Warm up", msg);
                 else
@@ -200,4 +102,9 @@ export class ShaderVariantCollection {
             }
         }
     }
+
+    destroy() {
+        this.items = {};
+    }
+
 }

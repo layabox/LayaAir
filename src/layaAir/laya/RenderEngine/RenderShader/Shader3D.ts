@@ -194,7 +194,7 @@ export class Shader3D {
      * @param defineNames 宏定义名字集合。
      * @param   nodeCommonMap ubo集合名称集合
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], additionMap: string[]): boolean {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], additionMap: string[], is2D: boolean, attributeLocations: number[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
@@ -203,11 +203,12 @@ export class Shader3D {
                 if (pass) {
                     pass.nodeCommonMap = nodeCommonMap;
                     pass.additionShaderData = additionMap;
+                    pass.attributeLocations = new Set<number>(attributeLocations);
                     var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (let n of defineNames)
                         compileDefineDatas.add(Shader3D.getDefineByName(n));
-                    pass.withCompile(compileDefineDatas);
+                    pass.withCompile(compileDefineDatas, is2D);
                     return true;
                 }
             }

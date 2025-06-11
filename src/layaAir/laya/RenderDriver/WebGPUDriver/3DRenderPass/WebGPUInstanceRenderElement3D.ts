@@ -164,7 +164,8 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                 pass.additionShaderData = this.owner._additionShaderDataKeys;
             }
 
-            (pass.moduleData as any).geo = this.geometry;
+            let attributeLocations = this.geometry.bufferState._attriLocArray;
+            pass.moduleData.attributeLocations = attributeLocations;
 
             let shaderIns = pass.withCompile(comDef) as WebGPUShaderInstance;
             this._shaderInstances.add(shaderIns);

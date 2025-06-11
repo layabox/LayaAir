@@ -28,11 +28,23 @@ import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
 import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstance";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
         const shaderIns = new WebGPUShaderInstance(shaderPass._owner._owner.name);
+
         shaderIns._create(shaderProcessInfo, shaderPass as ShaderPass);
+
+        if (Shader3D.debugMode) {
+            let defineString = shaderProcessInfo.defineString;
+
+            let is2D = shaderProcessInfo.is2D;
+
+            ShaderVariantCollection.active.add(shaderPass, defineString, is2D);
+        }
+
         return shaderIns;
     }
     createIndexBuffer(bufferUsage: BufferUsage): IIndexBuffer {
