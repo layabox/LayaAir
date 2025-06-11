@@ -52,7 +52,7 @@ export class WebGPURenderBundle extends WebGPURenderEncoder {
     createMask: number = -1;//创建的时候生成的帧数
 
     constructor() {
-        super(false);
+        super(true);
         this._engine = WebGPURenderEngine._instance;
         this._device = this._engine.getDevice();
     }
