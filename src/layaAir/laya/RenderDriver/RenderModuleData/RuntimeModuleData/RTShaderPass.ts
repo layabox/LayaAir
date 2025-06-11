@@ -40,6 +40,10 @@ export class RTShaderPass implements IShaderPassData {
     public set nodeCommonMap(value: string[]) {
         this._nativeObj.setCommonUniformMap(value);
     }
+
+    // todo
+    attributeLocations: Set<number>;
+
     /** @internal */
     static getGlobalCompileDefine(): RTDefineDatas {
         if (!RTShaderPass._globalCompileDefine) {

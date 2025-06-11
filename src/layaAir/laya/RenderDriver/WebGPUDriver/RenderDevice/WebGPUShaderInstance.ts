@@ -85,7 +85,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._create2D();
         }
 
-        let attriLocArray = ((shaderPass.moduleData as any).geo as WebGPURenderGeometry).bufferState._attriLocArray;
+        let attriLocArray = shaderPass.moduleData.attributeLocations;
 
         let filteredAttributeMap: Record<string, [number, ShaderDataType]> = {};
         let noUseAttributeMap: Record<string, [number, ShaderDataType]> = {};//收集没有用到的attributeMap

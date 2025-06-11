@@ -35,6 +35,9 @@ export class WebShaderPass implements IShaderPassData {
     name: string;
     additionShaderData: string[];
     nodeCommonMap: string[];
+
+    attributeLocations: Set<number>;
+
     /**
     * @internal
     */

@@ -554,7 +554,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
 
 function getVaryingRegex(ioType: string): RegExp {
-    return new RegExp(`${ioType}\\s+(lowp|mediump|highp)?\\s*(\\w+)\\s+(\\w+)\\s*;`, 'g');
+    return new RegExp(`(?:(flat|smooth|noperspective)\\s+)?${ioType}\\s+(?:(lowp|mediump|highp)\\s+)?(\\w+)\\s+(\\w+)\\s*;`, 'g');
 }
 
 const vertexVaryingRegex = getVaryingRegex("out");
@@ -565,12 +565,14 @@ function findVaryings(source: string, regex: RegExp): string[] {
     let result;
 
     while ((result = regex.exec(source)) !== null) {
+        // 修饰符
+        const interpolation = result[1] ? `${result[1]} ` : '';
         // 判断是否有精度限定符
-        const precision = result[1] ? `${result[1]} ` : '';
-        const type = result[2].trim();
-        const name = result[3].trim();
+        const precision = result[2] ? `${result[2]} ` : '';
+        const type = result[3].trim();
+        const name = result[4].trim();
 
-        varyings.push(`${precision}${type} ${name};`);
+        varyings.push(`${interpolation} ${precision} ${type} ${name};`);
     }
 
     return varyings;

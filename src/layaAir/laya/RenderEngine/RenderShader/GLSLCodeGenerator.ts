@@ -98,7 +98,9 @@ export class GLSLCodeGenerator {
         let materialUniformGlsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock, "Material");
 
         if (LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) > 30) {
-            defineString.push("GRAPHICS_API_GLES3");
+            if (defineString.indexOf("GRAPHICS_API_GLES3") === -1) {
+                defineString.push("GRAPHICS_API_GLES3");
+            }
             vertexHead =
                 `#version 300 es
 #if defined(GL_FRAGMENT_PRECISION_HIGH)

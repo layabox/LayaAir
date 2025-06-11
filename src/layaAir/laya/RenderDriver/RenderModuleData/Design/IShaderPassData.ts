@@ -10,6 +10,7 @@ export interface IShaderPassData {
     renderState: RenderState;
     nodeCommonMap: string[];
     additionShaderData: string[];
+    attributeLocations?: Set<number>;
     name: string;
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void;
     getCacheShader(defines: IDefineDatas): IShaderInstance;
