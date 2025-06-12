@@ -3,7 +3,6 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 import { WebGPUBufferState } from "./WebGPUBufferState";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -69,7 +68,18 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     //缓存信息
     stateCacheKey: string = '';
     //缓存ID
-    stateCacheID: number;
+    private stateCacheID: number;
+    private _cacheBufferStateID: number;//防止bufferState改动后，geometrycacheID错误
+
+    isNeedReCreateCacheInfo() {
+        return !(this.bufferState.stateCacheID == this._cacheBufferStateID);
+    }
+
+    getStateCacheID() {
+        if (this.isNeedReCreateCacheInfo())
+            this._getCacheInfo();
+        return this.stateCacheID;
+    }
 
     get instanceCount(): number {
         return this._instanceCount;
@@ -122,6 +132,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         // 添加缓冲状态信息到缓存键
         if (this._bufferState) {
             this.stateCacheKey += `bufferState_${this._bufferState.stateCacheID}`;
+            this._cacheBufferStateID = this._bufferState.stateCacheID;
         }
 
         // 检查是否已存在相同配置的几何体

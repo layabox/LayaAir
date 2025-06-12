@@ -203,17 +203,6 @@ export class WebGPUDepthStencilState {
         let stencilWriteMask = depthStencilParam.stencilWriteMask;
         let stencilOp = depthStencilParam.stencilOp;
 
-        // if (stencilEnable == false) {
-        //     stencilTest = CompareFunction.Always;
-        //     stencilWrite = false;
-        //     stencilRef = 0;
-        //     stencilReadMask = 0xff;
-        //     stencilWriteMask = 0xff;
-        //     stencilOp.x = StencilOperation.Keep;
-        //     stencilOp.y = StencilOperation.Keep;
-        //     stencilOp.z = StencilOperation.Keep;
-        // }
-
         let stencilState = stencilEnable ? 1 : 0 + (stencilTest << 1) + ((stencilWrite ? 1 : 0) << 4) + (stencilOp.x << 5) + (stencilOp.y << 8) + (stencilOp.z << 11);
         let stencilState2 = stencilRef & 0xff + ((stencilReadMask & 0xff) << 8) + ((stencilWriteMask & 0xff) << 16);
         let stencilStateKey = `${stencilState}_${stencilState2}`;

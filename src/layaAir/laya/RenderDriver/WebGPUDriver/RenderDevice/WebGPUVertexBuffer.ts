@@ -67,7 +67,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer, IGPUBuffer {
                 offset: vertexState.elementOffset,
                 shaderLocation: parseInt(i) as GPUIndex32
             });
-            this.stateCacheKey += `${i}_${format}_`
+            this.stateCacheKey += `{${i}_${format},${vertexState.elementOffset}},`
         }
         if (WebGPUVertexBuffer._bufferLayoutConterMap.has(this.stateCacheKey)) {
             this.stateCacheID = WebGPUVertexBuffer._bufferLayoutConterMap.get(this.stateCacheKey);
