@@ -90,7 +90,7 @@ export class MaterialParser {
                         case Shader3D.BLEND_SRC_RGB:
                             mat.blendSrcRGB = property;
                             break;
-                        case Shader3D.BLEND_SRC_RGB:
+                        case Shader3D.BLEND_DST_RGB:
                             mat.blendDstRGB = property;
                             break;
                         case Shader3D.DEPTH_TEST:
