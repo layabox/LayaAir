@@ -148,10 +148,17 @@ export class FrameAnimation extends Component {
 
         if (value != null && value.length > 0) {
             this._frames.push(...value);
+
+            let dx = 0, dy = 0;
+            if (this._stretchMode === AnimationStretchMode.None) {
+                dx = this._offset.x;
+                dy = this._offset.y;
+            }
+
             let stretch = this._stretchMode === AnimationStretchMode.Fill;
             for (let tex of value) {
                 let cmd = stretch ? DrawTextureCmd.create(tex, 0, 0, 1, 1, null, 1, null, null, null, true)
-                    : DrawTextureCmd.create(tex, 0, 0);
+                    : DrawTextureCmd.create(tex, dx, dy);
                 cmd.lock = true;
                 this._drawCmds.push(cmd);
             }
