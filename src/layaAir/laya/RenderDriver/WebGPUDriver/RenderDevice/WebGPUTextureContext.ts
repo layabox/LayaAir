@@ -1527,7 +1527,7 @@ export class WebGPUTextureContext implements ITextureContext {
 
         let source: GPUTexelCopyTextureInfo = {
             texture,
-            origin: { x: xOffset, y: yOffset }
+            origin: [xOffset, yOffset]
         };
 
         commandEncoder.copyTextureToBuffer(
