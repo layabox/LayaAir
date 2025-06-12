@@ -280,6 +280,9 @@ export class Browser {
         let platform: string = win.navigator.platform;
         let miniGame: [string, string, string];
 
+        if (!!(window as any).conch) {
+            miniGame = ["nativeMiniGame", "MiniAdapter", "native"];
+        }
         //微信小游戏
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             miniGame = ["wxMiniGame", "MiniAdpter", "wx"];
