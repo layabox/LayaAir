@@ -330,9 +330,10 @@ export class Node extends EventDispatcher {
         //销毁子节点，这里要用_children，所以不能用destroyChildren
         for (let i = 0, n = this._children.length; i < n; i++) {
             let node = this._children[0];
+            this._children.shift();
             if (!node)
                 continue;
-            this._children.shift();
+
             node._setParent(null);
             if (destroyChild)
                 node.destroy();
