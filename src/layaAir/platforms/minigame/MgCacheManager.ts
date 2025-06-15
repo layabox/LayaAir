@@ -21,17 +21,22 @@ export class MgCacheManager {
      * @en Minimum space to be cleared when the cache is full
      * @zh 缓存容量满时每次清理容量值 
      */
-    minClearSpace: number = (5 * 1024 * 1024);
+    static minClearSpace: number = (5 * 1024 * 1024);
     /** 
      * @en Maximum capacity of cache directory
      * @zh 缓存目录的最大容量
      */
-    spaceLimit: number = (200 * 1024 * 1024);
+    static spaceLimit: number = (200 * 1024 * 1024);
     /**
      * @en The interval time for processing cache requests, in milliseconds
      * @zh 处理缓存请求的间隔时间，单位是毫秒
      */
-    processInterval: number = 2000;
+    static processInterval: number = 2000;
+    /**
+     * @en The interval time for saving file access time, in milliseconds. This time can be long, because it does not matter if the access time is not accurate.
+     * @zh 保存文件访问时间的间隔时间，单位是毫秒。这个时间可以很长，因为访问时间就算不对问题也不大。
+     */
+    static saveAccessTimeInterval: number = 15000; //保存文件访问时间的间隔
 
     private cacheRoot: string;
     private totalFileSize: number = 0;
@@ -43,7 +48,7 @@ export class MgCacheManager {
     private toSaveManifestRequest: number;
     private lastGroup: number = -1;
     private lastGroupUsed: number = 0;
-    private toClearAll: boolean = false;
+    private toClear: number = 0; //1-clear once,2-clear all
 
     constructor(cacheRoot: string) {
         this.cacheRoot = cacheRoot;
@@ -60,7 +65,7 @@ export class MgCacheManager {
         this.checkAndDeleteOldCacheDir();
 
         return this.createCacheDirs().then(() => this.loadAllManifests()).then(() => {
-            ILaya.systemTimer.loop(this.processInterval, this, this.process);
+            ILaya.systemTimer.loop(MgCacheManager.processInterval, this, this.process);
         });
     }
 
@@ -104,29 +109,28 @@ export class MgCacheManager {
      * @zh 清除所有缓存文件。这个方法不会立即执行，而是在后续的处理周期中执行。
      */
     clearAllCache(): void {
-        this.toClearAll = true;
+        this.toClear = 2;
     }
 
     private process() {
         if (this.running)
             return;
 
-        if (this.toClearAll) {
+        if (this.toClear != 0) {
             this.running = true;
-            this.doClearAllCache().then(() => {
-                this.running = false;
-                this.toClearAll = false;
-            });
+            this.toClear = 0;
+            if ((this.toClear & 2) !== 0)
+                this.doClearAllCache().then(() => this.running = false);
+            else
+                this.clearSpace(0).then(() => this.saveDirtyManifests()).then(() => this.running = false);
             return;
         }
 
         if (this.cacheRequest.length === 0) {
-            if (this.toSaveManifestRequest != null && Browser.now() - this.toSaveManifestRequest > 5000) { //保存最后访问时间的优先级比较低，我们5秒检查一次
+            if (this.toSaveManifestRequest != null && Browser.now() - this.toSaveManifestRequest > MgCacheManager.saveAccessTimeInterval) { //保存最后访问时间的优先级比较低，我们5秒检查一次
                 this.toSaveManifestRequest = null;
                 this.running = true;
-                this.saveDirtyManifests().then(() => {
-                    this.running = false;
-                });
+                this.saveDirtyManifests().then(() => this.running = false);
             }
             return;
         }
@@ -142,9 +146,9 @@ export class MgCacheManager {
         let needSpace = 0;
         for (let info of files)
             needSpace += info.size;
-        let toClearSpace = this.totalFileSize + needSpace - this.spaceLimit;
+        let toClearSpace = this.totalFileSize + needSpace - MgCacheManager.spaceLimit;
 
-        (toClearSpace >= 0 ? this.clearSpace(toClearSpace) : Promise.resolve())
+        this.clearSpace(toClearSpace)
             .then(() => this.addFilesToCache(files, group))
             .then(() => this.saveDirtyManifests())
             .then(() => this.running = false);
@@ -169,17 +173,6 @@ export class MgCacheManager {
         this.lastGroup = j;
         this.lastGroupUsed = fileCount;
         return j;
-    }
-
-    private deleteFile(info: ICachedFileInfo): Promise<void> {
-        this.fileCache.delete(info.url);
-        this.totalFileSize -= info.size;
-        this.cacheGroups[info.group]--;
-
-        let fielName = `${this.cacheRoot}/${info.group}/${info.fileName}`;
-        return PAL.fs.unlink(fielName).catch(err => {
-            console.error("[Cache]delete cache file", getErrorMsg(err));
-        });
     }
 
     private addFilesToCache(files: typeof this.cacheRequest, group: number): Promise<void> {
@@ -210,38 +203,80 @@ export class MgCacheManager {
 
         //先保存清单文件，再去拷贝文件，这样即使由于意外原因（比如程序关闭）没有拷贝文件，也只是会产生冗余清单记录，不会影响超出存储空间的判断
 
-        return this.saveManifest(group).then(() => {
+        return this.saveManifest(group).then(success => {
+            if (!success)
+                return;
+
             //拷贝文件
             return <any>Utils.runTasks(files, 5, ({ url, tempFilePath }) => {
                 let info = this.fileCache.get(url);
                 let saveFilePath = `${this.cacheRoot}/${group}/${info.fileName}`;
                 return PAL.fs.copyFile(tempFilePath, saveFilePath)
                     .catch(err => {
+                        let msg = getErrorMsg(err);
                         //缓存文件拷贝失败，可能是源文件被系统清掉了
-                        console.warn("[Cache]create cache file", getErrorMsg(err));
+                        console.warn("[Cache]create cache file", msg);
+
+                        //也可能是空间不足
+                        if (msg.indexOf("the maximum size of the file storage") !== -1) {
+                            this.toClear |= 1; //标记为需要清理一次缓存
+                        }
                     });
             });
         });
     }
 
     private clearSpace(sizeToClear: number): Promise<void> {
-        let t = Browser.now();
+        if (sizeToClear < 0)
+            return Promise.resolve();
 
-        sizeToClear += this.minClearSpace;
-        let totalSize = 0;
-        let arr = Array.from(this.fileCache.values());
-        arr.sort((a, b) => a.accessTime - b.accessTime);
+        sizeToClear += MgCacheManager.minClearSpace;
+
+        let allFiles = Array.from(this.fileCache.values());
+        allFiles.sort((a, b) => a.accessTime - b.accessTime);
+
+        let t = Browser.now();
+        let info: [number, number] = [0, 0]; //outInfo[0]=清理的文件数，outInfo[1]=清理的字节数
+        return this.doClearSpace(allFiles, sizeToClear, 0, info).then(() => {
+            console.log(`[Cache]cleared ${info[0]} files/${info[1]} bytes in ${Browser.now() - t}ms`);
+        });
+    }
+
+    private doClearSpace(allFiles: Array<ICachedFileInfo>, sizeToClear: number, round: number, outInfo: [number, number]): Promise<void> {
+        let sizeCleared = 0;
         let i = 0;
-        for (let n = arr.length; i < n; i++) {
-            let info = arr[i];
-            totalSize += info.size;
-            this.toSaveManifestFlags[info.group] = true;
-            if (totalSize >= sizeToClear)
+        let n = allFiles.length;
+        for (; i < n; i++) {
+            let info = allFiles[i];
+            sizeCleared += info.size;
+            if (sizeCleared >= sizeToClear)
                 break;
         }
 
-        return Utils.runTasks(arr.slice(0, i + 1), 20, (info: ICachedFileInfo) => this.deleteFile(info)).then(() => {
-            console.log(`[Cache]cleared ${arr.length} files/${totalSize} bytes in ${Browser.now() - t}ms`);
+        let arr = allFiles.splice(0, i + 1);
+
+        sizeCleared = 0;
+        return Utils.runTasks(arr, 20, (info: ICachedFileInfo) => {
+            this.fileCache.delete(info.url);
+            this.totalFileSize -= info.size;
+            this.cacheGroups[info.group]--;
+            this.toSaveManifestFlags[info.group] = true;
+
+            let fielName = `${this.cacheRoot}/${info.group}/${info.fileName}`;
+            return PAL.fs.unlink(fielName).then(() => {
+                sizeCleared += info.size;
+            }).catch(err => {
+                let msg = getErrorMsg(err);
+                if (msg.indexOf("no such file") === -1) //如果是文件不存在的错误，就不报错了
+                    console.error("[Cache]delete cache file", msg);
+            });
+        }).then(() => {
+            outInfo[0] += arr.length;
+            outInfo[1] += sizeCleared;
+            if (sizeCleared < sizeToClear && allFiles.length > 0 && round < 10) //如果清理不够，要继续，但限定轮次，避免消耗太多
+                return this.doClearSpace(allFiles, sizeToClear - sizeCleared, ++round, outInfo);
+            else
+                return null;
         });
     }
 
@@ -314,7 +349,7 @@ export class MgCacheManager {
             .map((_, index) => this.saveManifest(index)));
     }
 
-    private saveManifest(group: number): Promise<void> {
+    private saveManifest(group: number): Promise<boolean> {
         let bytes = new Byte();
         bytes.writeInt16(1); //version
         let fileCnt = 0;
@@ -342,8 +377,16 @@ export class MgCacheManager {
         return PAL.fs.writeFile(`${this.cacheRoot}/manifest-${group}.bin`, bytes.buffer).then(() => {
             this.toSaveManifestFlags[group] = false;
             console.log(`[Cache]save manifest-${group} ${fileCnt}(files)/${bytesTotal}(bytes)`);
+            return true;
         }).catch(err => {
-            console.error(`[Cache]save manifest-${group}`, getErrorMsg(err));
+            let msg = getErrorMsg(err);
+            console.error(`[Cache]save manifest-${group}`, msg);
+
+            if (msg.indexOf("the maximum size of the file storage") !== -1) {
+                this.toClear |= 1; //标记为需要清理一次缓存
+            }
+
+            return false;
         });
     }
 

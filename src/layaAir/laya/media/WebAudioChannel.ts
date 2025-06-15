@@ -39,8 +39,7 @@ export class WebAudioChannel extends SoundChannel {
     }
 
     protected onResume(): void {
-        if (this._sourceNode)
-            this.startPlay(true);
+        this.startPlay(true);
     }
 
     protected onVolumeChanged() {

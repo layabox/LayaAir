@@ -331,6 +331,9 @@ export class Node extends EventDispatcher {
         for (let i = 0, n = this._children.length; i < n; i++) {
             let node = this._children[0];
             this._children.shift();
+            if (!node)
+                continue;
+
             node._setParent(null);
             if (destroyChild)
                 node.destroy();
