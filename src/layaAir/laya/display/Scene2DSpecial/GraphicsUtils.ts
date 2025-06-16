@@ -22,6 +22,7 @@ import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { GraphicsMesh } from "../../webgl/utils/GraphicsMesh";
+import { Graphics } from "../Graphics";
 import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
 import { BaseRender2DType } from "../SpriteConst";
@@ -107,9 +108,12 @@ export class GraphicsRenderData {
    }
 
    /**
-   * 提交所有mesh的数据
-   */
-   updateRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
+    * 提交所有mesh的数据
+    * @param graphics 图形
+    * @param struct 渲染结构
+    * @param handle 渲染句柄
+    */
+   updateRenderElement(graphics: Graphics, struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
       let originLen = this._renderElements.length;
 
       let submits = this._submits;
@@ -132,7 +136,7 @@ export class GraphicsRenderData {
             }
 
             element.primitiveShaderData = submit._internalInfo.shaderData;
-            element.renderStateIsBySprite = submit.renderStateIsBySprite;
+            element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
 
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);

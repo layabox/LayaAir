@@ -62,7 +62,7 @@ export class SpriteGlobalTransform {
         if (sp._parent) {
             Matrix.mul(this._matrix, sp._parent.globalTrans.getMatrix(), this._matrix);
             this._setFlag(TransformKind.Matrix, false);
-            // this._syncFlag(TransformKind.Matrix, true);
+            this._syncFlag(TransformKind.Matrix, true);
         }
         return this._matrix;
     }
@@ -186,7 +186,7 @@ export class SpriteGlobalTransform {
             this._y = y;
             this._setFlag(TransformKind.Pos, false);
             this._setFlag(TransformKind.Matrix, true);
-            // this._syncFlag(TransformKind.Pos | TransformKind.Matrix, true);
+            this._syncFlag(TransformKind.Pos | TransformKind.Matrix, true);
         }
         else {
             tmpPoint.setTo(x, y);
@@ -240,7 +240,7 @@ export class SpriteGlobalTransform {
             this._rot = value;
             this._setFlag(TransformKind.Rotation, false);
             this._setFlag(TransformKind.Matrix, true);
-            // this._syncFlag(TransformKind.Matrix, true);
+            this._syncFlag(TransformKind.Matrix, true);
         }
     }
 
@@ -330,7 +330,7 @@ export class SpriteGlobalTransform {
      * @param value 是否启用缓存标志。
      * @param notify 是否通知。
      */
-    _setFlag(type: number, value: boolean , notify = true): void {
+    _setFlag(type: number, value: boolean, notify = true): void {
         if (value)
             this._flags |= type;
         else
@@ -338,6 +338,7 @@ export class SpriteGlobalTransform {
 
         if (value) {
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
+
             if (notify) {
                 this._notifyRenderSpriteTransChange();
             }
@@ -346,7 +347,7 @@ export class SpriteGlobalTransform {
 
     private _notifyRenderSpriteTransChange() {
         let renderType = this._sp._renderType;
-        if ((renderType & SpriteConst.UPDATETRANS) || (renderType & SpriteConst.CHILDS)) {
+        if ((renderType & SpriteConst.UPDATETRANS)) {
             ILaya.stage._addtransChangeElement(this._sp);
         }
     }
@@ -361,7 +362,7 @@ export class SpriteGlobalTransform {
                 let globaltrans = child.globalTrans
                 if (globaltrans) {
                     globaltrans._setFlag(flag, value);
-                    // globaltrans._syncFlag(flag, value);
+                    globaltrans._syncFlag(flag, value);
                 }
             }
         }
@@ -374,7 +375,7 @@ export class SpriteGlobalTransform {
     _spTransChanged(kind: TransformKind) {
         if (this._cache)
             this._setFlag(kind | TransformKind.Matrix, true);
-        // this._syncFlag(kind | TransformKind.Matrix, true);
+        this._syncFlag(kind | TransformKind.Matrix, true);
     }
 
     /**

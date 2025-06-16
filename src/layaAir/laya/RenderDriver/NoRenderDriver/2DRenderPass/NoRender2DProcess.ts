@@ -3,7 +3,7 @@ import { Color } from "../../../maths/Color";
 import { SingletonList } from "../../../utils/SingletonList";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -71,6 +71,9 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D {
         return new NoRenderElement2D()
     }
+    createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
+        return new NoRenderElement2D();
+    }
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
     }
@@ -84,6 +87,7 @@ export class NoRenderElement2D implements IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
+    primitiveShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;
     destroy(): void {
