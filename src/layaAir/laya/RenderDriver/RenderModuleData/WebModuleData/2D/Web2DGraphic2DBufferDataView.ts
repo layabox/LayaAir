@@ -84,8 +84,9 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             }
 
             let len = this._last.start + this._last.length - uploadStart;
-            let tempUint16Array = new Uint16Array(this.bufferData.buffer, uploadStart * 2, len);
-            (this.buffer as IIndexBuffer)._setIndexData(tempUint16Array, uploadStart * 2);
+            // let tempUint16Array = new Uint16Array(this.bufferData.buffer, uploadStart * 2, len);
+            // (this.buffer as IIndexBuffer)._setIndexData(tempUint16Array, uploadStart * 2);
+            this.buffer.setData(this.bufferData.buffer, uploadStart * 2, uploadStart * 2, len * 2);
             this._needResetData = false;
 
             // this.clearBufferViews();

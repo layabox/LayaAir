@@ -97,6 +97,8 @@ export class NoRenderShaderInstance implements IShaderInstance {
 }
 
 export class NoRenderIndexBuffer implements IIndexBuffer {
+    setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
+    }
     destroy(): void {
     }
     _setIndexDataLength(data: number): void {

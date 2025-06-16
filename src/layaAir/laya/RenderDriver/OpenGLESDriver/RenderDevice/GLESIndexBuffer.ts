@@ -32,5 +32,8 @@ export class GLESIndexBuffer implements IIndexBuffer {
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage){
         this._nativeObj = new (window as any).conchGLESIndexBuffer(targetType, bufferUsageType);
     }
+    setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
+        throw new Error("Method not implemented.");
+    }
 
 }

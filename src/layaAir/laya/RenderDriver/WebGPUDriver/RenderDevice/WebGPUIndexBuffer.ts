@@ -28,8 +28,17 @@ export class WebGPUIndexBuffer implements IIndexBuffer, IGPUBuffer {
         this.source.setDataLength(length);
     }
 
+    setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER) {
+        const needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
+        if (needSubData) {
+            this.source.setDataEx(buffer, dataStartIndex, dataCount, bufferOffset);
+        } else {
+            this.source.setData(buffer, bufferOffset);
+        }
+    }
+
     _setIndexData(data: Uint8Array | Uint16Array | Uint32Array, bufferOffset: number): void {
-        this.source.setDataEx(data, 0, data.byteLength, bufferOffset);
+        this.source.setData(data, bufferOffset);
     }
 
     destroy(): void {
