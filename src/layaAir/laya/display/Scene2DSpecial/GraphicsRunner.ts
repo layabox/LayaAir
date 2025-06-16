@@ -957,8 +957,12 @@ export class GraphicsRunner {
             // preKey.submitType === SubmitBase.KEY_TRIANGLES &&
             preKey.other === imgid
         ) {
+            let xoff = 0;
+            if (this._italicDeg != 0) {
+                xoff = Math.tan(this._italicDeg * Math.PI / 180) * height;
+            }
             var tv = _drawTexToDrawTri_Vert;
-            tv[0] = x; tv[1] = y; tv[2] = x + width, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
+            tv[0] = x + xoff; tv[1] = y; tv[2] = x + width + xoff, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];

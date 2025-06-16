@@ -220,6 +220,7 @@ export class Laya {
         PostProcess2D.init();
         RenderStateContext.__init__();
         Material.__initDefine__();
+        Mesh2DRender.__init__();
         InputManager.__init__();
         SoundManager.__init__();
 

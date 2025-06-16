@@ -3,7 +3,7 @@ import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../../utils/SingletonList";
-import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { BatchBuffer, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
@@ -17,13 +17,13 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
     static instance: WebGraphicsBatch = null;
 
-    static _pool: IRenderElement2D[] = [];
+    static _pool: IPrimitiveRenderElement2D[] = [];
 
     static createRenderElement2D() {
         if (this._pool.length > 0) {
             return this._pool.pop();
         }
-        let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
         element.geometry.indexFormat = IndexFormat.UInt16;
         element.nodeCommonMap = ["Sprite2D"];
@@ -31,18 +31,19 @@ export class WebGraphicsBatch implements IBatch2DRender {
         return element;
     }
 
-    static recoverRenderElement2D(value: IRenderElement2D) {
+    static recoverRenderElement2D(value: IPrimitiveRenderElement2D) {
         if (!value) return;
         value.geometry.clearRenderParams();
         value.geometry.bufferState = null;
         value.materialShaderData = null;
         value.value2DShaderData = null;
+        value.primitiveShaderData = null;
         value.subShader = null;
         value.renderStateIsBySprite = false;
         this._pool.push(value);
     }
 
-    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
+    batchRenderElement(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
         let batchStart = -1;
         let count = 0;
@@ -76,9 +77,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
         }
     }
 
-    batch(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
+    batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
-        let staticBatchRenderElement: IRenderElement2D = WebGraphicsBatch.createRenderElement2D();
+        let staticBatchRenderElement: IPrimitiveRenderElement2D = WebGraphicsBatch.createRenderElement2D();
         let drawArray: number[][] = [];
         let i = 0;
         let drawLengths: number[] = [];
@@ -89,6 +90,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             if (!i) {
                 staticBatchRenderElement.geometry.bufferState = geometry.bufferState;
                 staticBatchRenderElement.materialShaderData = element.materialShaderData;
+                staticBatchRenderElement.primitiveShaderData = element.primitiveShaderData;
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
@@ -164,7 +166,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             }
             else if (left.owner.globalAlpha !== right.owner.globalAlpha) {
                 return false;
-            } 
+            }
             else if ((left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
                 return true;
             }
@@ -225,7 +227,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
     /**
      * 
      */
-    recover(list: FastSinglelist<IRenderElement2D>): void {
+    recover(list: FastSinglelist<IPrimitiveRenderElement2D>): void {
         let length = list.length;
         let recoverArray = list.elements;
         for (let i = 0; i < length; i++) {

@@ -3,7 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
@@ -13,12 +13,16 @@ import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataH
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
+import { WebGLPrimitiveRenderElement2D } from "./WebGLPrimitiveRenderElement2D";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
 
 export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
+    }
+    createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
+        return new WebGLPrimitiveRenderElement2D();
     }
     create2DGraphicBufferDataView(wholeBuffer: Web2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
         return new Web2DGraphic2DBufferDataView(wholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);

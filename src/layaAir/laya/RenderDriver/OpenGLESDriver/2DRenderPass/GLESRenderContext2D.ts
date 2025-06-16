@@ -58,21 +58,15 @@ export class GLESRenderContext2D implements IRenderContext2D {
         (!GLESRenderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
 
     }
+
+    private _passData: ShaderData;
     public get passData(): ShaderData {
-        return this._nativeObj.passData;
+        return this._passData;
     }
     public set passData(value: ShaderData) {
-        this._nativeObj.passData = value;
+        this._passData = value;
+        this._nativeObj.setPassShaderData(value ? (value as GLESShaderData)._nativeObj : null);
     }
-    private _sceneData: ShaderData;
-    public get sceneData(): ShaderData {
-        return this._sceneData;
-    }
-    public set sceneData(value: ShaderData) {
-        this._sceneData = value;
-        this._nativeObj.setSceneShaderData(value ? (value as GLESShaderData)._nativeObj : null);
-    }
-
 
     private setBlitScreenElement() {
         let blitScreenElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();

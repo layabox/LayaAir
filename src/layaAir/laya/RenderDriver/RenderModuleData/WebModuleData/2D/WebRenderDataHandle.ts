@@ -98,8 +98,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
                 //更新位置
                 if (this.mask && this.mask.trans) {
+                    let tempMatirx = Matrix.TEMP;
                     let maskMatrix = this.mask.renderMatrix;
-                    let tempMatirx = Matrix.mul(maskMatrix, mat, Matrix.TEMP);
+                    if (this.mask.parent) {
+                        tempMatirx.copyTo(maskMatrix);
+                    } else {
+                        Matrix.mul(maskMatrix, mat, tempMatirx);
+                    }
                     this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
                     this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
                 }
@@ -181,7 +186,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let view = cloneViews[i]
             let block = this._bufferBlocks[i];
             if (block) {
-                cloneViews[i] = this._cloneView(block.indexView , view);
+                cloneViews[i] = this._cloneView(block.indexView, view);
             } else {
                 view.geometry.destroy();
                 if (view.owner)

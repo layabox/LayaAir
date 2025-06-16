@@ -134,10 +134,12 @@ export class GraphicsShaderInfo {
    }
 
 
-   cloneTo(shaderData:ShaderData){
+   clone(shaderData: ShaderData) {
+      shaderData.cloneTo(this.shaderData);
+
       if (this.enableVertexSize) {
          shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
-         shaderData.setVector(ShaderDefines2D.UNIFORM_VERTEX_SIZE , this.vertexSize);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_VERTEX_SIZE, this.vertexSize);
       }
 
       if (this.materialClip) {
@@ -161,16 +163,15 @@ export class GraphicsShaderInfo {
       if (fill) {
          shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
          shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, this.u_TexRange);
-      }else{
+      } else {
          shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
       }
       shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
    }
-   
+
    clear() {
       this.shaderData.clearData();
       this.shaderData.clearDefine();
-      this.toDefault();
    }
 
    destroy() {

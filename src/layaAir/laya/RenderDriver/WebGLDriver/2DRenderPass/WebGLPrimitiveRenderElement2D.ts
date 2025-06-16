@@ -1,36 +1,14 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
-import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { IPrimitiveRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
-import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
+import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
 
-export class WebGLRenderelement2D implements IRenderElement2D {
-    owner: WebRenderStruct2D;
-    nodeCommonMap: string[];
-    renderStateIsBySprite: boolean = true;
-
-    type: number = 0;
-    /** @internal */
-    static _compileDefine: WebDefineDatas = new WebDefineDatas();
-    protected _shaderInstances: FastSinglelist<WebGLShaderInstance> = new FastSinglelist<WebGLShaderInstance>();
-    geometry: WebGLRenderGeometryElement;
-    materialShaderData: WebGLShaderData;
-    value2DShaderData: WebGLShaderData;
-    subShader: SubShader;
-
-    protected getGlobalShaderData() {
-        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
-            return this.owner.globalRenderData.globalShaderData;
-        else
-            return null;
-    }
+export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implements IPrimitiveRenderElement2D {
+    primitiveShaderData: WebGLShaderData;
 
     protected _compileShader(context: WebglRenderContext2D) {
         var passes: ShaderPass[] = this.subShader._passes;
@@ -75,26 +53,14 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
+            if (this.primitiveShaderData)
+                comDef.addDefineDatas(this.primitiveShaderData.getDefineData());
+
             var shaderIns = pass.withCompile(comDef, true) as WebGLShaderInstance;
             this._shaderInstances.add(shaderIns);
         }
     }
-    _prepare(context: WebglRenderContext2D) {
-        this._compileShader(context);
-    }
-
-    _render(context: WebglRenderContext2D) {
-        if (this._shaderInstances.length == 1) {
-            this.renderByShaderInstance(this._shaderInstances.elements[0], context)
-        } else {
-            var passes: WebGLShaderInstance[] = this._shaderInstances.elements;
-            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
-                this.renderByShaderInstance(passes[j], context);
-            }
-        }
-    }
-
-    renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
+    renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
         if (!shader.complete)
             return
         shader.bind();
@@ -103,20 +69,20 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         global && shader.uploadUniforms(shader._sceneUniformParamsMap, global, true);
         context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
+        this.primitiveShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.primitiveShaderData, true);
+
+        let shaderData = this.value2DShaderData;
         //blend
-        if (this.renderStateIsBySprite || !this.materialShaderData) {
-            shader.uploadRenderStateBlendDepth(this.value2DShaderData);
-            shader.uploadRenderStateFrontFace(this.value2DShaderData, false, context.invertY);
-        } else {
-            shader.uploadRenderStateBlendDepth(this.materialShaderData);
-            shader.uploadRenderStateFrontFace(this.materialShaderData, false, context.invertY);
+        if (!this.renderStateIsBySprite) {
+            if (this.materialShaderData) {
+                shaderData = this.materialShaderData;
+            } else if (this.primitiveShaderData) {
+                shaderData = this.primitiveShaderData;
+            }
         }
+        shader.uploadRenderStateBlendDepth(shaderData);
+        shader.uploadRenderStateFrontFace(shaderData, false, context.invertY);
 
         WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
     }
-    destroy(): void {
-        //TODO
-    }
-
-
 }
