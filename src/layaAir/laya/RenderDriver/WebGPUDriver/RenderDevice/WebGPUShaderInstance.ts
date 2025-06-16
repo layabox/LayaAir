@@ -148,31 +148,36 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
 
         {
-            let subShader = this._shaderPass._owner;
-            let shader = subShader.owner;
-
-            let subIndex = shader._subShaders.indexOf(subShader);
-            let passIndex = subShader._passes.indexOf(this._shaderPass);
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
+                let subShader = this._shaderPass._owner;
+                let shader = subShader.owner;
+
+                let subIndex = shader._subShaders.indexOf(subShader);
+                let passIndex = subShader._passes.indexOf(this._shaderPass);
+
                 console.error(`${shader.name}_sub${subIndex}_pass${passIndex}`);
                 console.error(vertexSpvRes.info_log);
             }
-            let vertexSpirv = vertexSpvRes.spirv;
+            let vertexSpirv = new Uint8Array(vertexSpvRes.spirv.buffer, vertexSpvRes.spirv.byteOffset, vertexSpvRes.spirv.byteLength);
 
-            let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(new Uint8Array(vertexSpirv.buffer, vertexSpirv.byteOffset, vertexSpirv.byteLength), false);
-            // let vertexWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.vertex, "vertex", true);
+            let vertexWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(vertexSpirv, false);
 
             let fragmentSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.fragment, "fragment");
 
             if (!fragmentSpvRes.success) {
+                let subShader = this._shaderPass._owner;
+                let shader = subShader.owner;
+
+                let subIndex = shader._subShaders.indexOf(subShader);
+                let passIndex = subShader._passes.indexOf(this._shaderPass);
+
                 console.error(`${shader.name}_sub${subIndex}_pass${passIndex}`);
                 console.error(fragmentSpvRes.info_log);
             }
             let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);
 
             let fragmentWgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
-            // let fragmentWgsl = engine.shaderCompiler.naga.glsl_to_wgsl(glslObj.fragment, "fragment", true);
 
             this._vsShader = device.createShaderModule({ label: this.name, code: vertexWgsl });
             this._vsShader.getCompilationInfo().then(info => {
