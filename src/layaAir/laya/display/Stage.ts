@@ -870,24 +870,22 @@ export class Stage extends Sprite {
     private _updateMatrixList(changeMatrixList: Sprite[], frame: number) {
         for (var i = 0, n = changeMatrixList.length; i < n; i++) {
             let sprite = changeMatrixList[i];
-            if (sprite.destroyed)
-                continue;
             let trans = sprite.globalTrans;
-            if (!trans || trans._modifiedFrame == frame)
+            if (sprite.destroyed || !trans)
                 continue;
 
-            trans._modifiedFrame = frame;
-            trans._setFlag(TransformKind.Matrix, true, false);
+            // trans._modifiedFrame = frame;
+            // trans._setFlag(TransformKind.Matrix, true, false);
 
-            if (sprite._renderType & SpriteConst.UPDATETRANS) {
-                let matrix = trans.getMatrix();
-                // if (sprite._struct)//有可能被删除
-                sprite._struct.renderMatrix = matrix;
-                if (sprite._subStruct)
-                    sprite._subStruct.renderMatrix = matrix;
-            }
+            // if (sprite._renderType & SpriteConst.UPDATETRANS) {
+            let matrix = trans.getMatrix();
+            // if (sprite._struct)//有可能被删除
+            sprite._struct.renderMatrix = matrix;
+            if (sprite._subStruct)
+                sprite._subStruct.renderMatrix = matrix;
+            // }
 
-            this._updateMatrixList(sprite._children, frame);
+            // this._updateMatrixList(sprite._children, frame);
         }
     }
 

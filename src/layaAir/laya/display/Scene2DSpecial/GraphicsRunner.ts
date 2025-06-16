@@ -777,8 +777,7 @@ export class GraphicsRunner {
     }
 
     fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
-        if (!texture._getSource()) {
-            this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
+        if (!this._getImageSource(texture)) {
             return;
         }
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
@@ -881,9 +880,8 @@ export class GraphicsRunner {
     }
 
     drawTextures(tex: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void {
-        if (!tex._getSource()) //source内调用tex.active();
+        if (!this._getImageSource(tex)) //source内调用tex.active();
         {
-            this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
             return;
         }
 
@@ -900,15 +898,7 @@ export class GraphicsRunner {
     /**@internal */
     _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[] | null, color: number): boolean {
         // 注意sprite要保存，因为后面会被冲掉
-        var cs = this.sprite;
-        if (!tex._getSource(function (): void {
-            if (cs) {
-                if (cs._graphics) {
-                    cs._graphics._modefied = true;
-                }
-                cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
-            }
-        })) { //source内调用tex.active();
+        if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
@@ -1194,10 +1184,7 @@ export class GraphicsRunner {
 
         if (alpha == null) alpha = 1.0;
 
-        if (!tex._getSource()) { //source内调用tex.active();
-            if (this.sprite) {
-                ILaya.systemTimer.callLater(this, this._repaintSprite);
-            }
+        if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
 
@@ -1995,7 +1982,7 @@ export class GraphicsRunner {
 
     private static tmpUVRect: any[] = [0, 0, 0, 0];
     drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
-        if (!tex._getSource())
+        if (!this._getImageSource(tex))
             return;
         tx += gx;
         ty += gy;
@@ -2151,6 +2138,19 @@ export class GraphicsRunner {
                 this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
             }
         }
+    }
+
+    private _getImageSource(texture: Texture | BaseTexture) {
+        let cs = this.sprite;
+        return texture._getSource(function (): void {
+            if (cs) {
+                if (cs._graphics) {
+                    cs._graphics._modefied = true;
+                }
+                cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
+            }
+        });
+
     }
 
     private _currentMeshIndex: number;

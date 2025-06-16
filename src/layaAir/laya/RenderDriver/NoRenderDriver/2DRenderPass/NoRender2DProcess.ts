@@ -74,6 +74,9 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D {
         return new NoRenderElement2D()
     }
+    createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
+        return new NoRenderElement2D();
+    }
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
     }
@@ -87,6 +90,7 @@ export class NoRenderElement2D implements IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
+    primitiveShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;
     destroy(): void {

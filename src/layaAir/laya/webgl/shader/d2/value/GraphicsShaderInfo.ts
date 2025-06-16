@@ -134,8 +134,7 @@ export class GraphicsShaderInfo {
    }
 
 
-   clone(shaderData: ShaderData) {
-      shaderData.cloneTo(this.shaderData);
+   cloneTo(shaderData: ShaderData) {
 
       if (this.enableVertexSize) {
          shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
@@ -171,7 +170,7 @@ export class GraphicsShaderInfo {
 
    clear() {
       this.shaderData.clearData();
-      this.shaderData.clearDefine();
+      this.toDefault();
    }
 
    destroy() {
