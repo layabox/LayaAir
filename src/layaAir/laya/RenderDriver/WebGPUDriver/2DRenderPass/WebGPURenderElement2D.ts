@@ -35,7 +35,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     geometry: WebGPURenderGeometry;
 
-    type:number = 0;
+    type: number = 0;
     materialShaderData: WebGPUShaderData;
 
     value2DShaderData: WebGPUShaderData;
@@ -63,6 +63,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     constructor() {
     }
+    owner: IRenderStruct2D;
 
 
     protected _getShaderInstanceDefines(context: WebGPURenderContext2D) {
@@ -71,7 +72,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         const globalShaderDefines = context._cacheGlobalDefines;
 
         globalShaderDefines.cloneTo(comDef);
-    owner: IRenderStruct2D;
 
         if (this.value2DShaderData)
             comDef.addDefineDatas(this.value2DShaderData.getDefineData());

@@ -8,6 +8,7 @@ import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
@@ -67,6 +68,8 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _viewport: Viewport;
 
     private _clearColor: Color;
+
+    passData: ShaderData;
 
     constructor() {
         WebGPURenderContext2D._instance = this;

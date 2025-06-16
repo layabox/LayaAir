@@ -91,20 +91,14 @@ export class ColorGradEffect extends PostProcessEffect {
 
     private static lutBuilderInit() {
 
-		let uniformMap = {
-			"u_OffsetScale": ShaderDataType.Vector4,
-			"u_Lut": ShaderDataType.Texture2D,
-			"u_LutParams": ShaderDataType.Vector4
-		};
-
-		let attributeMap: { [name: string]: [number, ShaderDataType] } = {
-			"a_PositionTexcoord": [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
-		};
         let uniformMap = {
             "u_OffsetScale": ShaderDataType.Vector4,
-            "u_MainTex": ShaderDataType.Texture2D,
-            "u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
+            "u_Lut": ShaderDataType.Texture2D,
             "u_LutParams": ShaderDataType.Vector4
+        };
+
+        let attributeMap: { [name: string]: [number, ShaderDataType] } = {
+            "a_PositionTexcoord": [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
         };
 
         let shader = Shader3D.add("LUTBuilder");
@@ -136,13 +130,9 @@ export class ColorGradEffect extends PostProcessEffect {
     }
 
     private _needBuildLUT: boolean = false;
-	/**@internal */
-	_lutTex: RenderTexture;
-	private _lutBuilderMat;
     /**@internal */
     _lutTex: RenderTexture;
-    private _lutBuilderMat = new Material();
-
+    private _lutBuilderMat;
 
     private _LUTShader: Shader3D;
     private _lutShaderData: ShaderData;
@@ -597,22 +587,22 @@ export class ColorGradEffect extends PostProcessEffect {
     }
 
 
-	/** 
-	 * @en initialize the color grad effect instance.
-	 * @zh 初始化调色效果实例
-	 */
-	constructor() {
-		super();
-		this.singleton = true;
-		this.active = true;
-		this._needBuildLUT = true;
-		this._toneMapping = ToneMappingType.None;
-		this._blitlutParams = new Vector4();
-		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-		this.lutSize = 32;
-		this._lutBuilderMat = new Material();
-		this._lutBuilderMat.lock = true;
-	}
+    /** 
+     * @en initialize the color grad effect instance.
+     * @zh 初始化调色效果实例
+     */
+    constructor() {
+        super();
+        this.singleton = true;
+        this.active = true;
+        this._needBuildLUT = true;
+        this._toneMapping = ToneMappingType.None;
+        this._blitlutParams = new Vector4();
+        this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this.lutSize = 32;
+        this._lutBuilderMat = new Material();
+        this._lutBuilderMat.lock = true;
+    }
 
 
 
@@ -742,7 +732,7 @@ export class ColorGradEffect extends PostProcessEffect {
         super.release(postprocess);
         postprocess._enableColorGrad = false;
         postprocess._ColorGradEffect = null;
-		this._lutBuilderMat.lock = false;
+        this._lutBuilderMat.lock = false;
     }
 
     /**
