@@ -25,7 +25,6 @@ export class WebGPUInternalRT implements InternalRenderTarget {
 
     _renderPassDescriptor: GPURenderPassDescriptor;
 
-
     constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat,
         isCube: boolean, generateMipmap: boolean, samples: number, sRGB: boolean) {
         this._isCube = isCube;
@@ -38,8 +37,6 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         if (samples > 1)
             this._texturesResolve = [];
         this._colorStates = [];
-        this._getCacheInfo();
-        // this._renderPassDescriptor = { colorAttachments: [] };
     }
 
     private _getCacheKey(): string {
@@ -65,10 +62,11 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     }
 
     /**
+     * @internal
      * 获取附件格式ID
      * @returns 基于颜色和深度格式的唯一标识符
      */
-    private _getCacheInfo(): void {
+    _getCacheInfo(): void {
         let id = this._getCacheKey();
     }
 

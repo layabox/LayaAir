@@ -1461,7 +1461,7 @@ export class WebGPUTextureContext implements ITextureContext {
             internalRT._depthTexture.gpuMemory = width * height * multiSamples * pixelByteSize;
             WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', internalRT._depthTexture.gpuMemory);
         }
-
+        internalRT._getCacheInfo();
         return internalRT;
     }
 
