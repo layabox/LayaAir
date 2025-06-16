@@ -30,13 +30,13 @@ export class GraphicsShaderInfo {
 
    private _textureHost: Texture | BaseTexture;
 
-   set vertAlpha(value: number) {
-      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, value);
-   }
+   // set vertAlpha(value: number) {
+   //    this.shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, value);
+   // }
 
-   get vertAlpha() {
-      return this.shaderData.getNumber(ShaderDefines2D.UNIFORM_VERTALPHA);
-   }
+   // get vertAlpha() {
+   //    return this.shaderData.getNumber(ShaderDefines2D.UNIFORM_VERTALPHA);
+   // }
 
    /**@internal */
    set mmat(value: Matrix4x4) {

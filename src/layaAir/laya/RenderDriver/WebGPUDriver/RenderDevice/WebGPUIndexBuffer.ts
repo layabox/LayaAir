@@ -1,3 +1,4 @@
+import { buffer } from "stream/consumers";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { IGPUBuffer } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
@@ -28,7 +29,7 @@ export class WebGPUIndexBuffer implements IIndexBuffer, IGPUBuffer {
     }
 
     _setIndexData(data: Uint8Array | Uint16Array | Uint32Array, bufferOffset: number): void {
-        this.source.setData(data, bufferOffset);
+        this.source.setDataEx(data, 0, data.byteLength, bufferOffset);
     }
 
     destroy(): void {

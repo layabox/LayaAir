@@ -66,7 +66,9 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
+            } else {
+                WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
+            }
         } else {
             offset = srcOffset;
             size = roundUp(srcData.byteLength - offset, 4);
@@ -80,7 +82,9 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
+            } else {
+                WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
+            }
         }
     }
 

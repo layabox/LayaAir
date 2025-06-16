@@ -16,9 +16,6 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
-    createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
-        throw new Error("Method not implemented.");
-    }
 
     create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
         throw new Error("Method not implemented.");

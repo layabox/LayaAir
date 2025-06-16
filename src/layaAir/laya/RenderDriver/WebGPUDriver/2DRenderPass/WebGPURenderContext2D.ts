@@ -32,16 +32,16 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     device: GPUDevice; //GPU设备
 
     private _sceneData: WebGPUShaderData;
-    public get sceneData(): WebGPUShaderData {
+    public get passData(): WebGPUShaderData {
         return this._sceneData;
     }
-    public set sceneData(value: WebGPUShaderData) {
+    public set passData(value: WebGPUShaderData) {
         if (value == this._sceneData)
             return;
         this._sceneData = value;
         if (value) {
             let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
-            this.sceneData.createUniformBuffer("Sprite2DGlobal", unifcom);
+            this.passData.createUniformBuffer("Sprite2DGlobal", unifcom);
         }
     }
 
@@ -69,8 +69,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     private _clearColor: Color;
 
-    passData: ShaderData;
-
     constructor() {
         WebGPURenderContext2D._instance = this;
         WebGPURenderContext2D._globalConfigShaderData = Shader3D._configDefineValues;
@@ -82,14 +80,14 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     /**@internal */
     _needGlobalData() {
-        return !!this.sceneData;
+        return !!this.passData;
     }
 
     private _prepareContext() {
         //shaderDefine
         let comDef = this._cacheGlobalDefines;
-        if (this.sceneData) {
-            this.sceneData._defineDatas.cloneTo(comDef);
+        if (this.passData) {
+            this.passData._defineDatas.cloneTo(comDef);
         } else {
             WebGPURenderContext2D._globalConfigShaderData.cloneTo(comDef);
         }
@@ -106,16 +104,16 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             comDef.add(ShaderDefines2D.INVERTY);
         }
 
-        if (this.sceneData) {
+        if (this.passData) {
             let commandArray = ["Sprite2DGlobal"];
             this._sceneData.updateUBOBuffer("Sprite2DGlobal");
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
 
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.sceneData, null, resource, ~0);
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.passData, null, resource, ~0);
         }
         else {
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.sceneData, null, [], 0);
+            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.passData, null, [], 0);
         }
     }
 

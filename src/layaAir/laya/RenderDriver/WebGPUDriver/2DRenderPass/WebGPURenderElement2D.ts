@@ -27,9 +27,9 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
-    private _nodeCommonMap: string[];
+    protected _nodeCommonMap: string[];
 
-    private _value2DgpuRS: WebGPUBindGroup;
+    protected _value2DgpuRS: WebGPUBindGroup;
 
     protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist<WebGPUShaderInstance>(); //着色器缓存
 

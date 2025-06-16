@@ -21,9 +21,11 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
     }
+
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
         return new WebGLPrimitiveRenderElement2D();
     }
+
     create2DGraphicBufferDataView(wholeBuffer: Web2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
         return new Web2DGraphic2DBufferDataView(wholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
     }

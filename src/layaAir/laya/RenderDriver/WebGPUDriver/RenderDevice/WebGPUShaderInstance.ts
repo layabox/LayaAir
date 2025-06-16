@@ -261,7 +261,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
     }
 
     private _create2D(): void {
-        let shaderpass = this._shaderPass;
+        let shaderPass = this._shaderPass;
         let context = WebGPURenderContext2D._instance;
         // sprite2DGlobal
         if (context._needGlobalData()) {
@@ -275,7 +275,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this.uniformSetMap.set(0, []);
         }
 
-        this._commanMap = shaderpass.nodeCommonMap ? shaderpass.nodeCommonMap.slice() : [];
+        this._commanMap = this._commanMap.concat(shaderPass.moduleData.nodeCommonMap, shaderPass.moduleData.additionShaderData);
         this.uniformResourcesCacheKey.set(1, this._commanMap);
         this.uniformSetMap.set(1, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, this._commanMap));
 
