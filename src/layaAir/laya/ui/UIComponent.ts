@@ -8,6 +8,7 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { TransformKind } from "../display/SpriteConst";
 import { PostProcess2D } from "../display/PostProcess2D";
 import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
+import { SubPassFlag } from "../Const";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -211,12 +212,13 @@ export class UIComponent extends Sprite {
             if (value) {
                 this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
                 postProcess.addEffect(this._grayEffect);
-            }else{
+            } else {
                 if (postProcess) {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
         }
+        this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 
     /**

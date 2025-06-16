@@ -145,6 +145,7 @@ export class AutoBitmap extends Graphics {
         if (!source || !source.bitmap || !this.owner)
             return;
 
+        this.owner.clearRepaint();
         let width = this.width;
         let height = this.height;
         let sizeGrid = this._sizeGrid || source._sizeGrid;

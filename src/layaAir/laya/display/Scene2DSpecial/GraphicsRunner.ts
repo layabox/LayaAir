@@ -903,6 +903,9 @@ export class GraphicsRunner {
         var cs = this.sprite;
         if (!tex._getSource(function (): void {
             if (cs) {
+                if (cs._graphics) {
+                    cs._graphics._modefied = true;
+                }
                 cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
             }
         })) { //source内调用tex.active();
