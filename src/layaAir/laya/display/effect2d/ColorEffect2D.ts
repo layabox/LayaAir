@@ -90,7 +90,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     effectInit(postprocess: PostProcess2D): void {
         this._owner = postprocess;
-        (!this.mat) && (this.mat = new Material());
+        (!this.mat || this.mat.destroyed) && (this.mat = new Material());
         this.mat.setShaderName("ColorEffect2D");
         this.mat.setMatrix4x4("u_colorMat", this._colorMat);
         this.mat.setVector4("u_colorAlpha", this._alpha);
@@ -125,7 +125,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
             }
         }
-        
+
         this.alpha.setValue(this._alphaArray[0], this._alphaArray[1], this._alphaArray[2], this._alphaArray[3]);
         this.alpha = this.alpha;
         Matrix4x4.TEMP.cloneByArray(this._colorArray);
