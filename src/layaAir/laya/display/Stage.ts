@@ -762,7 +762,7 @@ export class Stage extends Sprite {
             this._runComponents();
             this._componentDriver.callPreRender();
 
-            Render2DProcessor.rendercontext2D.setRenderTarget(null , true , this._wgColor);
+            Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
             //先渲染3d
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i]).renderSubmit();
@@ -804,7 +804,7 @@ export class Stage extends Sprite {
     private _render2d() {
 
         Stat.draw2D = 0;
-        
+
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
@@ -817,13 +817,17 @@ export class Stage extends Sprite {
             if (!sprite._subpassUpdateFlag)
                 continue;
 
-            sprite.updateRenderTexture();
-            let destrt: RenderTexture2D = sprite._drawOriRT;
-            if (!destrt) {
-                continue;
+            sprite.updateSubRenderPassState();
+            if (!sprite._oriRenderPass) {
+                sprite._subpassUpdateFlag = 0;
+                continue
             }
 
-            sprite.updateSubRenderPassState();
+            sprite.updateRenderTexture();
+            let destrt: RenderTexture2D = sprite._drawOriRT;
+            if (!destrt)
+                continue;
+
             sprite._oriRenderPass.renderTexture = sprite._drawOriRT;
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
@@ -841,7 +845,7 @@ export class Stage extends Sprite {
         }
 
         let changeMatrixList = Array.from(this._tranMatrixUpdateList);
-        this._updateMatrixList(changeMatrixList , Stat.loopCount);
+        this._updateMatrixList(changeMatrixList, Stat.loopCount);
 
         this._updateGraphicList();
 
@@ -863,18 +867,18 @@ export class Stage extends Sprite {
         }
     }
 
-    private _updateMatrixList(changeMatrixList: Sprite[], frame: number ) {
+    private _updateMatrixList(changeMatrixList: Sprite[], frame: number) {
         for (var i = 0, n = changeMatrixList.length; i < n; i++) {
             let sprite = changeMatrixList[i];
             if (sprite.destroyed)
                 continue;
             let trans = sprite.globalTrans;
-            if (!trans ||trans._modifiedFrame == frame)
+            if (!trans || trans._modifiedFrame == frame)
                 continue;
 
             trans._modifiedFrame = frame;
-            trans._setFlag(TransformKind.Matrix , true , false);
-            
+            trans._setFlag(TransformKind.Matrix, true, false);
+
             if (sprite._renderType & SpriteConst.UPDATETRANS) {
                 let matrix = trans.getMatrix();
                 // if (sprite._struct)//有可能被删除
@@ -883,7 +887,7 @@ export class Stage extends Sprite {
                     sprite._subStruct.renderMatrix = matrix;
             }
 
-            this._updateMatrixList(sprite._children , frame );
+            this._updateMatrixList(sprite._children, frame);
         }
     }
 

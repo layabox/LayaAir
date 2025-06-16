@@ -24,8 +24,8 @@ export class SubmitBase {
 
     material: Material;
 
-    vertexs : Graphics2DVertexBlock[] = [];
-    blockIndexs:number[] = [];
+    vertexs: Graphics2DVertexBlock[] = [];
+    blockIndexs: number[] = [];
 
     indexCount: number = 0;
 
@@ -46,7 +46,7 @@ export class SubmitBase {
         this._key.clear();
         this._internalInfo.clear();
         this.material = null;
-        
+
         if (this.mesh) {
             this.mesh.clearBlocks(this.blockIndexs);
             this.mesh.clearIndexView(this.indexView);
@@ -65,8 +65,8 @@ export class SubmitBase {
     appendData(info: MeshBlockInfo) {
         this.blockIndexs.push(...info.vertexBlocks);
         this.vertexs.push({
-            positions : info.positions,
-            vertexViews : info.vertexViews
+            positions: info.positions,
+            vertexViews: info.vertexViews
         })
     }
 
@@ -75,6 +75,14 @@ export class SubmitBase {
         let struct = runner.sprite._struct;
         let sBlendMode = struct.blendMode;
         this._key.blendShader = blendType;
+
+        if (material) {
+            material.shaderData.cloneTo(this._internalInfo.shaderData);
+            this._internalInfo.toDefault();
+            this.renderStateIsBySprite = false;
+        } else {
+            this._internalInfo.toDefault();
+        }
 
         if (runner.globalCompositeOperation != sBlendMode) {
             BlendModeHandler.setShaderData(blendType, this._internalInfo.shaderData);

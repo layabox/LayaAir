@@ -139,6 +139,8 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
 
     clone(needOwner: boolean, create: boolean): RT2DGraphic2DBufferDataView {
         let owner = needOwner ? this.owner : null;
-        return new RT2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
+        let newView = new RT2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
+        newView._nativeObj._data = this._nativeObj._data;
+        return newView;
     }
 }

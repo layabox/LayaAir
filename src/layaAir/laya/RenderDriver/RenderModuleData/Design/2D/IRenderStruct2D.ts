@@ -25,7 +25,7 @@ export interface IRenderStruct2D {
 
    renderLayer: number;
 
-   parent: IRenderStruct2D;
+   parent: IRenderStruct2D | null;
 
    children: IRenderStruct2D[];
 

@@ -28,7 +28,7 @@ import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRend
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
-   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D> , buffer : BatchBuffer): void;
+   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void;
 
    recover(list: FastSinglelist<IRenderElement2D>): void;
 
@@ -291,7 +291,6 @@ export class WebRender2DPass implements IRender2DPass {
 
       context.passData = this.shaderData;
       this._setRenderSize(sizeX, sizeY);
-
    }
 
    static setBuffer(buffer: Web2DGraphicWholeBuffer): void {
@@ -316,12 +315,15 @@ export class WebRender2DPass implements IRender2DPass {
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
       if (mask && mask.trans) {
-         // globalMatrix
-         let rootMatrix = rootTrans.matrix;
          // localMatrix
          let maskMatrix = mask.trans.matrix;
-
-         Matrix.mul(maskMatrix, rootMatrix, temp);
+         if (mask.parent) {
+            maskMatrix.copyTo(temp);
+         } else {
+            // globalMatrix
+            let rootMatrix = rootTrans.matrix;
+            Matrix.mul(maskMatrix, rootMatrix, temp);
+         }
          temp.invert();
       } else {
          rootTrans.matrix.copyTo(temp);
@@ -484,7 +486,7 @@ class PassRenderList {
 
       if (this._currentBatch.batchFun) {
          let offset = this._currentBatch.indexStart + this._currentBatch.elementLength - n;
-         this._currentBatch.batchFun.batchIndexBuffer(struct, this._batchBuffer, offset );
+         this._currentBatch.batchFun.batchIndexBuffer(struct, this._batchBuffer, offset);
       }
    }
 
@@ -522,7 +524,7 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, this._recoverList , this._batchBuffer);
+            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, this._recoverList, this._batchBuffer);
          } else {
             for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
                this.renderElements.add(this.renderElements.elements[j]);

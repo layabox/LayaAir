@@ -52,7 +52,9 @@ export class GLESRenderElement2D implements IRenderElement2D {
     }
     public set subShader(value: SubShader) {
         this._subShader = value;
-        this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+        if (value) {
+            this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+        }
     }
 
     /**@internal */
@@ -80,7 +82,7 @@ export class GLESRenderElement2D implements IRenderElement2D {
     public set nodeCommonMap(value: string[]) {
         //TODO
         this._nodeCommonMap = value;
-       this._nativeObj.setCommonUniformMap(value);
+        this._nativeObj.setCommonUniformMap(value);
     }
     private _renderStateIsBySprite: boolean = true;//TODO
     public get renderStateIsBySprite(): boolean {

@@ -33,8 +33,8 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
    }
    set renderLayerMask(value: number) {
       this._nativeObj.renderLayerMask = value;
-   }  
-   private _globalShaderData: GLESShaderData;    
+   }
+   private _globalShaderData: GLESShaderData;
    get globalShaderData(): GLESShaderData {
       return this._globalShaderData;
    }
@@ -47,85 +47,85 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
 export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
-  
+
    set zIndex(value: number) {
-		this._nativeObj.zIndex = value;
-	}
-	get zIndex(): number {
-		return this._nativeObj.zIndex;
-	}
+      this._nativeObj.zIndex = value;
+   }
+   get zIndex(): number {
+      return this._nativeObj.zIndex;
+   }
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
-		this._nativeObj.rect = value;
-	}
-	get rect(): Rectangle {
-		let rect = this._nativeObj.rect;
-		this._rect.x = rect.x;
-		this._rect.y = rect.y;
-		this._rect.width = rect.width;
-		this._rect.height = rect.height;
-		return this._rect;
-	}
+      this._nativeObj.rect = value;
+   }
+   get rect(): Rectangle {
+      let rect = this._nativeObj.rect;
+      this._rect.x = rect.x;
+      this._rect.y = rect.y;
+      this._rect.width = rect.width;
+      this._rect.height = rect.height;
+      return this._rect;
+   }
    set renderLayer(value: number) {
-		this._nativeObj.renderLayer = value;
-	}
-	get renderLayer(): number {
-		return this._nativeObj.renderLayer;
-	}
-   
+      this._nativeObj.renderLayer = value;
+   }
+   get renderLayer(): number {
+      return this._nativeObj.renderLayer;
+   }
+
    private _parent: IRenderStruct2D;
    set parent(value: IRenderStruct2D) {
       this._parent = value;
-		this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
-	}
-	get parent(): IRenderStruct2D | null {
-		return this._parent;
-	}
+      this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
+   }
+   get parent(): IRenderStruct2D | null {
+      return this._parent;
+   }
    private _children: IRenderStruct2D[] = [];
    public get children(): IRenderStruct2D[] {
-       return this._children;
+      return this._children;
    }
    public set children(value: IRenderStruct2D[]) {
-       this._children = value;
-       let nativeArray = [];
-       for (var i = 0; i < nativeArray.length; i++) {
-           nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
-       }
-       this._nativeObj.setChildren(nativeArray);
+      this._children = value;
+      let nativeArray = [];
+      for (var i = 0; i < nativeArray.length; i++) {
+         nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
+      }
+      this._nativeObj.setChildren(nativeArray);
    }
    set renderType(value: number) {
-		this._nativeObj.renderType = value;
-	}
-	get renderType(): number {
-		return this._nativeObj.renderType;
-	}
+      this._nativeObj.renderType = value;
+   }
+   get renderType(): number {
+      return this._nativeObj.renderType;
+   }
 
    set renderUpdateMask(value: number) {
-		this._nativeObj.renderUpdateMask = value;
-	}
-	get renderUpdateMask(): number {
-		return this._nativeObj.renderUpdateMask;
-	}
+      this._nativeObj.renderUpdateMask = value;
+   }
+   get renderUpdateMask(): number {
+      return this._nativeObj.renderUpdateMask;
+   }
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
-		this._nativeObj.setRenderMatrix(value , Stat.loopCount);
-	}
-	get renderMatrix(): Matrix {
-		let matrix = this._nativeObj.getRenderMatrix();
-		this._renderMatrix.a = matrix.a;
-		this._renderMatrix.b = matrix.b;
-		this._renderMatrix.c = matrix.c;
-		this._renderMatrix.d = matrix.d;
-		this._renderMatrix.tx = matrix.tx;
-		this._renderMatrix.ty = matrix.ty;
-		return this._renderMatrix;
-	}
+      this._nativeObj.setRenderMatrix(value, Stat.loopCount);
+   }
+   get renderMatrix(): Matrix {
+      let matrix = this._nativeObj.getRenderMatrix();
+      this._renderMatrix.a = matrix.a;
+      this._renderMatrix.b = matrix.b;
+      this._renderMatrix.c = matrix.c;
+      this._renderMatrix.d = matrix.d;
+      this._renderMatrix.tx = matrix.tx;
+      this._renderMatrix.ty = matrix.ty;
+      return this._renderMatrix;
+   }
    set globalAlpha(value: number) {
-		this._nativeObj.globalAlpha = value;
-	}
-	get globalAlpha(): number {
-		return this._nativeObj.globalAlpha;
-	}
+      this._nativeObj.globalAlpha = value;
+   }
+   get globalAlpha(): number {
+      return this._nativeObj.globalAlpha;
+   }
 
    public get alpha(): number {
       return this._nativeObj.alpha;
@@ -153,7 +153,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    public get isRenderStruct(): boolean {
       return this._nativeObj.isRenderStruct;
-   }  
+   }
    public set isRenderStruct(value: boolean) {
       this._nativeObj.isRenderStruct = value;
    }
@@ -167,7 +167,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       }
       this._nativeObj.setRenderElements(nativeArray);
    }
-   get renderElements(): IRenderElement2D[] {   
+   get renderElements(): IRenderElement2D[] {
       return this._renderElements;
    }
 
@@ -178,7 +178,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    get spriteShaderData(): GLESShaderData {
       return this._spriteShaderData;
-   }  
+   }
    private _renderDataHandler: RTRender2DDataHandle;
 
    public get renderDataHandler(): RTRender2DDataHandle {
@@ -257,7 +257,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       } else {
          this.children.splice(index, 0, child);
       }
-      this._nativeObj.updateChildIndex((child as unknown as RTRenderStruct2D)._nativeObj, oldIndex, index); 
+      this._nativeObj.updateChildIndex((child as unknown as RTRenderStruct2D)._nativeObj, oldIndex, index);
    }
 
    removeChild(child: IRenderStruct2D): void {
@@ -265,7 +265,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       if (index !== -1) {
          child.parent = null;
          this.children.splice(index, 1);
-         this._nativeObj.removeChild((child as unknown as RTRenderStruct2D)._nativeObj); 
+         this._nativeObj.removeChild((child as unknown as RTRenderStruct2D)._nativeObj);
       }
    }
 

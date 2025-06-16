@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags, SbuPassFlag } from "../Const";
+import { NodeFlags, SubPassFlag } from "../Const";
 import { Filter } from "../legacy/filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
@@ -27,7 +27,6 @@ import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Vector3 } from "../maths/Vector3";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 
@@ -37,7 +36,6 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
@@ -804,7 +802,7 @@ export class Sprite extends Node {
             }
         }
 
-        this.setSubpassFlag(SbuPassFlag.PostProcess);
+        this.setSubpassFlag(SubPassFlag.PostProcess);
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
@@ -838,7 +836,7 @@ export class Sprite extends Node {
 
         this._oriRenderPass.postProcess = value;
         value.owner = this;
-        this.setSubpassFlag(SbuPassFlag.PostProcess);
+        this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 
     /**
@@ -873,7 +871,7 @@ export class Sprite extends Node {
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
         }
-        this.setSubpassFlag(SbuPassFlag.CacheAsBitmap);
+        this.setSubpassFlag(SubPassFlag.CacheAsBitmap);
         this.repaint();
     }
 
@@ -905,7 +903,9 @@ export class Sprite extends Node {
 
         if (this.mask) {
             this.mask._getCacheStyle().maskParent = null;
+            this.mask._struct.parent = null;
             this.mask.blendMode = null;
+            this.mask.setSubRenderPassState(false);
         }
         // this.removeChild(this.mask);
 
@@ -916,7 +916,9 @@ export class Sprite extends Node {
             value._getCacheStyle().maskParent = this;
             //if (!value._oriRenderPass) {
             value.setSubRenderPassState(true);
-            //}
+            if (value.parent) {
+                value._struct.parent = value.parent._struct;
+            }
             value._oriRenderPass.isSupport = true;
             value._oriRenderPass.doClearColor = false;
             this._renderType |= SpriteConst.MASK;
@@ -925,11 +927,11 @@ export class Sprite extends Node {
         else {
             this._renderType &= ~SpriteConst.MASK;
         }
-        this.setSubpassFlag(SbuPassFlag.Mask);
+        this.setSubpassFlag(SubPassFlag.Mask);
         this.repaint();
     }
 
-    setSubpassFlag(flag: SbuPassFlag) {
+    setSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag |= flag;
         this.stage._addSubPassNeedUpdateElement(this);
     }
@@ -2084,7 +2086,7 @@ export class Sprite extends Node {
         if (this._cacheStyle) {
             this._cacheStyle.renderTexture = null;//TODO 重用
             if (this._cacheStyle.maskParent) {
-                this._cacheStyle.maskParent.setSubpassFlag(SbuPassFlag.Mask);
+                this._cacheStyle.maskParent.setSubpassFlag(SubPassFlag.Mask);
                 this._cacheStyle.maskParent.repaint();
             }
         }

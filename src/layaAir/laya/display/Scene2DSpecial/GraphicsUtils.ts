@@ -1,6 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphics2DBufferBlock, Graphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -31,7 +30,7 @@ import { GraphicsRunner } from "./GraphicsRunner";
 /** @internal */
 export class GraphicsRenderData {
 
-   static _pool: IRenderElement2D[] = [];
+   static _pool: IPrimitiveRenderElement2D[] = [];
 
    static createRenderElement2D(needGeometry: boolean = true) {
       if (this._pool.length > 0) {
@@ -48,7 +47,7 @@ export class GraphicsRenderData {
          return element;
       }
 
-      let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+      let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
       if (needGeometry) {
          element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
          element.geometry.indexFormat = IndexFormat.UInt16;
@@ -58,7 +57,7 @@ export class GraphicsRenderData {
       return element;
    }
 
-   static recoverRenderElement2D(value: IRenderElement2D) {
+   static recoverRenderElement2D(value: IPrimitiveRenderElement2D) {
       if (!value) return;
       if (value.geometry) {
          value.geometry.clearRenderParams();
@@ -74,7 +73,7 @@ export class GraphicsRenderData {
    }
 
    /** @internal */
-   _renderElements: IRenderElement2D[] = [];
+   _renderElements: IPrimitiveRenderElement2D[] = [];
 
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
@@ -132,25 +131,23 @@ export class GraphicsRenderData {
                this._renderElements[i] = element;
             }
 
+            element.primitiveShaderData = submit._internalInfo.shaderData;
+            element.renderStateIsBySprite = submit.renderStateIsBySprite;
+
             if (submit.material) {
-               let mShaderData = submit.material.shaderData;
-               submit._internalInfo.cloneTo(mShaderData);
                element.subShader = submit.material.shader.getSubShaderAt(0);
-               element.materialShaderData = mShaderData;
-               element.renderStateIsBySprite = false;
+               element.materialShaderData = submit.material.shaderData;
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
-               element.materialShaderData = submit._internalInfo.shaderData;
-               element.renderStateIsBySprite = submit.renderStateIsBySprite;
             }
-            
+
             let geometry = element.geometry;
             geometry.bufferState = submit.mesh.bufferState;
             geometry.clearRenderParams();
 
             let indexView = this._updateIndexViews(submit, geometry);
             let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            blocks.push({ vertexs : submit.vertexs , indexView , vertexBuffer });
+            blocks.push({ vertexs: submit.vertexs, indexView, vertexBuffer });
             this._updateGraphicsKeys(element, submit);
          } else {
             GraphicsRenderData.recoverRenderElement2D(element);
@@ -184,6 +181,8 @@ export class GraphicsRenderData {
 
    // TODO
    private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
+      element.type = 0;
+
       let key = submit._key.blendShader; // max 15
 
       // @ts-ignore
@@ -197,10 +196,10 @@ export class GraphicsRenderData {
       // @ts-ignore
       element.type |= mc << 5;
 
-      let texture : BaseTexture = Texture2D.whiteTexture;
+      let texture: BaseTexture = Texture2D.whiteTexture;
       let textureHost = submit._internalInfo.textureHost;
       if (textureHost) {
-         texture = (textureHost as Texture).bitmap || textureHost as BaseTexture ;
+         texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
       }
       let texKey = texture.id;
       // texKey = tex._id;
@@ -244,7 +243,7 @@ export class SubStructRender {
    private _subStruct: IRenderStruct2D;
    private _sprite: Sprite;
 
-   private _renderElement: IRenderElement2D = null;
+   private _renderElement: IPrimitiveRenderElement2D = null;
    /** @internal 模拟sprite shaderdata */
    private _shaderData: ShaderData = null;
    private _handle: I2DPrimitiveDataHandle = null;
@@ -278,12 +277,13 @@ export class SubStructRender {
       subStruct.renderDataHandler = this._handle;
       subStruct.renderMatrix = sprite.globalTrans.getMatrix();
       subStruct.renderElements = [this._renderElement];
-      this._handle.mask = sprite.mask?._struct;
       this._renderElement.owner = this._subStruct;
       this._renderElement.type = this._subStruct.blendMode;
    }
 
    updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
+      this._handle.mask = this._sprite.mask?._struct;
+
       var tex = destRT;
       if (tex) {
          var width = destRT.sourceWidth;

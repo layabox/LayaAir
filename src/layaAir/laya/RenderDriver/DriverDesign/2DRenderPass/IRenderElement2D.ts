@@ -7,7 +7,7 @@ import { ShaderData } from "../RenderDevice/ShaderData";
  * @blueprintIgnore @blueprintIgnoreSubclasses
  */
 export interface IRenderElement2D {
-    type:number;
+    type: number;
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
@@ -17,3 +17,11 @@ export interface IRenderElement2D {
     owner: IRenderStruct2D;
     destroy(): void;
 }
+
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
+export interface IPrimitiveRenderElement2D extends IRenderElement2D {
+    primitiveShaderData: ShaderData;
+}
+

@@ -43,7 +43,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
    zIndex: number = 0;
-   
+
    rect: Rectangle = new Rectangle(0, 0, 0, 0);
 
    renderLayer: number = 1;
@@ -87,9 +87,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._alpha = value;
       if (this.parent) {
          this.globalAlpha = this.parent.globalAlpha * value
-      }else
+      } else
          this.globalAlpha = value;
-         
+
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 
@@ -106,10 +106,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Blend);
    }
 
-   private _destroyed:boolean = false;
+   private _destroyed: boolean = false;
 
    /** @internal */
-   needUploadClip = true;
+   needUploadClip = -1;
 
    /** @internal */
    needUploadAlpha = true;
@@ -147,8 +147,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set pass(value: WebRender2DPass) {
-      this._pass = value;
-      if (value) {
+      if (value !== this._pass) {
+         this._pass = value;
          if (this._parentPass) {
             value.priority = this._parentPass.priority + 1;
          }
@@ -189,22 +189,74 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       //clip处理 
       let rect = this._clipRect;
+
       if (rect) {
          let info = this._clipInfo;
          let trans = this.trans;
-         if ( trans && info._updateFrame < trans.modifiedFrame ) {
-            let mat = trans.matrix;
-            let cm = info.clipMatrix;
-            let { x, y, width, height } = rect;
-            cm.ty = x * mat.b + y * mat.d + mat.ty;
-            cm.tx = x * mat.a + y * mat.c + mat.tx;
-            cm.a = width * mat.a;
-            cm.b = width * mat.b;
-            cm.c = height * mat.c;
-            cm.d = height * mat.d;
-            info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-            info.clipMatPos.setValue(cm.tx, cm.ty, mat.tx, mat.ty);
-            info._updateFrame = trans.modifiedFrame;
+         let parentClipUpdateFrame = this._parentClipInfo && this._parentClipInfo !== _DefaultClipInfo ? this._parentClipInfo._updateFrame : -1;
+
+         if (trans) {
+            if (info._updateFrame < trans.modifiedFrame || info._updateFrame < parentClipUpdateFrame) {
+               let mat = trans.matrix;
+               let cm = info.clipMatrix;
+               let { x, y, width, height } = rect;
+               let tx = mat.tx, ty = mat.ty;
+               cm.tx = x * mat.a + y * mat.c + tx;
+               cm.ty = x * mat.b + y * mat.d + ty;
+               cm.a = width * mat.a;
+               cm.b = width * mat.b;
+               cm.c = height * mat.c;
+               cm.d = height * mat.d;
+
+               if (parentClipUpdateFrame !== -1) {
+
+                  let parentClipPos = this._parentClipInfo.clipMatPos;
+                  let offsetx = parentClipPos.z - parentClipPos.x;
+                  let offsety = parentClipPos.w - parentClipPos.y;
+                  //计算交集
+                  if (cm.a > 0 && cm.d > 0) {
+                     let parentMat = this._parentClipInfo.clipMatrix;
+                     let parentMinX = parentMat.tx;
+                     let parentMinY = parentMat.ty;
+                     let parentMaxX = parentMinX + parentMat.a;
+                     let parentMaxY = parentMinY + parentMat.d;
+
+                     let cmaxx = tx + cm.a;
+                     let cmaxy = ty + cm.d;
+
+                     if (cmaxx <= parentMinX || cmaxy <= parentMinY || tx >= parentMaxX || ty >= parentMaxY) {
+                        //超出范围了
+                        cm.a = -0.1; cm.d = -0.1;
+                     } else {
+                        if (tx < parentMinX) {
+                           cm.a -= (parentMinX - tx);
+                           tx = cm.tx = parentMinX;
+                           // offsetx += parentMinX - cm.tx;
+                        }
+                        if (cmaxx > parentMaxX) {
+                           cm.a -= (cmaxx - parentMaxX);
+                        }
+                        if (ty < parentMinY) {
+                           cm.d -= (parentMinY - ty);
+                           ty = cm.ty = parentMinY;
+                           // offsety += parentMinY - cm.ty;
+                        }
+                        if (cmaxy > parentMaxY) {
+                           cm.d -= (cmaxy - parentMaxY);
+                        }
+                        if (cm.a <= 0) cm.a = -0.1;
+                        if (cm.d <= 0) cm.d = -0.1;
+                     }
+                  }
+
+                  tx += offsetx;
+                  ty += offsety;
+               }
+               info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
+               info.clipMatPos.setValue(cm.tx, cm.ty, tx, ty);
+
+               info._updateFrame = Math.max(trans.modifiedFrame, parentClipUpdateFrame);
+            }
          }
       }
 
@@ -212,11 +264,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          let data = this.spriteShaderData;
          // clip
-         if (this.needUploadClip) {
-            let info = this.getClipInfo();
+         let info = this.getClipInfo();
+         if (this.needUploadClip < info._updateFrame) {
             data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
             data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
-            this.needUploadClip = false;
+            this.needUploadClip = info._updateFrame;
          }
 
          // global alpha
@@ -255,13 +307,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
 
    private updateChildren(type: ChildrenUpdateType): void {
-      let info: IClipInfo, blendMode: BlendMode, alpha: number; 
-      let priority: number = 0, pass: WebRender2DPass = null;  
+      let info: IClipInfo, blendMode: BlendMode, alpha: number;
+      let priority: number = 0, pass: WebRender2DPass = null;
       let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
-         this.needUploadClip = true;
+         this.needUploadClip = -1;
          updateClip = true;
       }
 
@@ -359,6 +411,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          child._parentPass = null;
          child._parentClipInfo = null;
          child._parentBlendMode = BlendMode.Invalid;
+         child.globalAlpha = child._alpha;
          child.updateChildren(ChildrenUpdateType.All);
       }
    }
@@ -368,7 +421,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.renderDataHandler.inheriteRenderData(context);
       }
 
-      if (this._rnUpdateFun){
+      if (this._rnUpdateFun) {
          this._rnUpdateFun.call(this._rnUpdateCall, context);
       }
    }

@@ -14,8 +14,13 @@ import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } fro
 import { GLESRenderContext2D } from "./GLESRenderContext2D";
 import { GLESRenderElement2D } from "./GLESRenderElement2D";
 import { RT2DGraphic2DBufferDataView, RT2DGraphicWholeBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
+import { IPrimitiveRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { GLESPrimitiveRenderElement2D } from "./GLESPrimitiveRenderElement2D";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
+    createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
+        return new GLESPrimitiveRenderElement2D();
+    }
     create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
         return new RT2DGraphic2DBufferDataView(wholeBuffer as RT2DGraphicWholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
     }
