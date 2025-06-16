@@ -163,7 +163,8 @@ export class Context {
     private _fillColor = 0;
     private _flushCnt = 0;
 
-    private defTexture: Texture | null = null;	//给fillrect用
+    private static defTexture: Texture | null = null;	//给fillrect用
+    private static defTextureRef = 0;
     /**@internal */
     _colorFiler: ColorFilter | null = null;
 
@@ -196,13 +197,14 @@ export class Context {
         this.render2D = new Render2DSimple();
         Context._contextcount++;
         //_ib = IndexBuffer2D.QuadrangleIB;
-        if (!this.defTexture) {
+        if (!Context.defTexture) {
             var defTex2d = new Texture2D(2, 2, TextureFormat.R8G8B8A8, true, false, false);
             defTex2d.setPixelsData(new Uint8Array(16), false, false);
             defTex2d.lock = true;
-            this.defTexture = new Texture(defTex2d);
+            Context.defTexture = new Texture(defTex2d);
         }
-        this._lastTex = this.defTexture;
+        this._lastTex = Context.defTexture;
+        Context.defTextureRef++;
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
         this._charSubmitCache = new CharSubmitCache(this);
@@ -633,11 +635,16 @@ export class Context {
     destroy(): void {
         --Context._contextcount;
         this.sprite = null;
-        this._charSubmitCache && this._charSubmitCache.destroy();
-        if (this.defTexture) {
-            this.defTexture.bitmap && this.defTexture.bitmap.destroy();
-            this.defTexture.destroy();
+        if(this._lastTex ==Context.defTexture){
+            this._lastTex = null;
+            Context.defTextureRef--;
+            if(Context.defTextureRef<=0 && Context.defTexture){
+                Context.defTexture.bitmap && Context.defTexture.bitmap.destroy();
+                Context.defTexture.destroy();
+                Context.defTexture = null;
+            }
         }
+        this._charSubmitCache && this._charSubmitCache.destroy();
         for (var i = 0, n = this._shaderValueNeedRelease.length; i < n; i++) {
             this._shaderValueNeedRelease[i] && this._shaderValueNeedRelease[i].release();
         }
@@ -867,7 +874,7 @@ export class Context {
                 this._copyClipInfo(submit.shaderValue);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    submit.shaderValue.textureHost = this.defTexture;
+                    submit.shaderValue.textureHost = Context.defTexture;
                 } else {
                     submit.shaderValue.textureHost = this._lastTex;
                 }

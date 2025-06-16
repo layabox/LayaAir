@@ -449,6 +449,11 @@ export class SpriteCache {
                 }
             }
 
+            if(cache){
+                //释放gpu资源
+                cache.reset();
+            }
+
             cache = sprite._cacheStyle.cacheInfo.page = new CachePage();
             cache.sprite = sprite;
             Stat.canvasNormal++;

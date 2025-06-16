@@ -332,12 +332,19 @@ export class Camera2D extends Sprite {
             }
 
             if (this.positionSmooth) {
-                let speed = Math.min(1.0, this.positionSpeed * 0.16);
-                let transX = Math.floor((this._cameraPos.x - this._cameraSmoothPos.x) * speed);
-                let transY = Math.floor((this._cameraPos.y - this._cameraSmoothPos.y) * speed);
-
-                this._cameraSmoothPos.x += transX;
-                this._cameraSmoothPos.y += transY;
+                let epsilon = 0.01;
+                let speed = Math.max( epsilon , Math.min(1.0, this.positionSpeed * 0.16));// 0.1
+                let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
+                let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
+                let transX = deltaX * speed;
+                let transY = deltaY * speed;
+                if (Math.abs(transX) < epsilon && Math.abs(transY) < epsilon) {
+                    this._cameraSmoothPos.x = this._cameraPos.x;
+                    this._cameraSmoothPos.y = this._cameraPos.y;
+                } else {
+                    this._cameraSmoothPos.x += transX;
+                    this._cameraSmoothPos.y += transY;
+                }
             } else {
                 this._cameraSmoothPos.x = this._cameraPos.x;
                 this._cameraSmoothPos.y = this._cameraPos.y;

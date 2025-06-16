@@ -570,10 +570,24 @@ export class Sprite extends Node {
         return this._visible;
     }
 
+    private _clearChildCache(sp:Sprite){
+        //由于子可能有cache，如果不设置repaint的话，后面再次显示的时候可能会错
+        if(sp.cacheAs && (sp.cacheAs=='normal'||sp.cacheAs=='bitmap')){
+            sp._repaint |= SpriteConst.REPAINT_CACHE;
+        }
+        if(sp._children){
+            let n = sp._children.length;
+            for (let i = 0 ; i < n; i++) {
+                this._clearChildCache(sp._children[i]);
+            }
+        }
+    }
+
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
             this._processVisible();
+            if(!value) this._clearChildCache(this);
         }
     }
 
