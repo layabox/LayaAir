@@ -76,14 +76,6 @@ export class SubmitBase {
         let sBlendMode = struct.blendMode;
         this._key.blendShader = blendType;
 
-        if (material) {
-            material.shaderData.cloneTo(this._internalInfo.shaderData);
-            this._internalInfo.toDefault();
-            this.renderStateIsBySprite = false;
-        } else {
-            this._internalInfo.toDefault();
-        }
-
         if (runner.globalCompositeOperation != sBlendMode) {
             BlendModeHandler.setShaderData(blendType, this._internalInfo.shaderData);
             this.renderStateIsBySprite = false;

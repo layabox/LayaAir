@@ -83,6 +83,23 @@ export class Graphics {
     protected _renderDataHandle: I2DPrimitiveDataHandle;
     /** @internal */
     _modefied: boolean = false;
+    /** @internal 是否优先使用精灵状态 */
+    _useSpriteState: boolean = true;
+
+    /**
+    * @en Whether to use sprite state.
+    * @zh graphics是否优先使用精灵状态。
+    */
+    public get useSpriteState(): boolean {
+        return this._useSpriteState;
+    }
+
+    public set useSpriteState(value: boolean) {
+        if (this._useSpriteState == value)
+            return;
+        this._useSpriteState = value;
+        this._repaint();
+    }
 
     /**@ignore */
     constructor() {
@@ -719,7 +736,7 @@ export class Graphics {
         //sprite.texture
         this._renderSpriteTexture(runner, x, y);
 
-        this._data.updateRenderElement(this.owner._struct, this._renderDataHandle);
+        this._data.updateRenderElement(this, this.owner._struct, this._renderDataHandle);
 
         runner.globalCompositeOperation = oldBlendMode;
         runner._material = null;
@@ -736,7 +753,7 @@ export class Graphics {
             let submit = this._data._submits.elements[i];
             let texture = submit._internalInfo.textureHost;
             let bitmap = (texture as Texture).bitmap;
-            if ( bitmap && bitmap.destroyed ) {
+            if (bitmap && bitmap.destroyed) {
                 return false;
             }
         }
@@ -765,7 +782,7 @@ export class Graphics {
         }
 
         var tex = sprite.texture;
-        if (tex._getSource(()=>{
+        if (tex._getSource(() => {
             this._modefied = true;
             this.owner.repaint();
         })) {
