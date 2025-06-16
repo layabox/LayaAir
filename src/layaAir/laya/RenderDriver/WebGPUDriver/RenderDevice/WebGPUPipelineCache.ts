@@ -125,11 +125,11 @@ export class WebGPUPipelineCache {
             || renderTarget._textures[0]._webGPUFormat === 'depth24plus-stencil8'
             || renderTarget._textures[0]._webGPUFormat === 'depth32float') {
             renderTarget._colorStates.length = 0;
-            renderTarget._colorStates[0] = {
-                format: renderTarget._depthTexture._webGPUFormat,
-                writeMask: GPUColorWrite.ALL,
-            };
-            blendState && (renderTarget._colorStates[0].blend = blendState);
+            // renderTarget._colorStates[0] = {
+            //     format: renderTarget._depthTexture._webGPUFormat,
+            //     writeMask: GPUColorWrite.ALL,
+            // };
+            // blendState && (renderTarget._colorStates[0].blend = blendState);
         } else {
             if (renderTarget._colorStates.length === textureNum) {
                 for (let i = renderTarget._colorStates.length - 1; i > -1; i--) {

@@ -39,7 +39,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
             this._texturesResolve = [];
         this._colorStates = [];
         this._getCacheInfo();
-        this._renderPassDescriptor = { colorAttachments: [] };
+        // this._renderPassDescriptor = { colorAttachments: [] };
     }
 
     private _getCacheKey(): string {

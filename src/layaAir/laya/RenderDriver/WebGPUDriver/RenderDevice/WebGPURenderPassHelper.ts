@@ -1,108 +1,86 @@
 import { Color } from "../../../maths/Color";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class WebGPURenderPassHelper {
+
     static getDescriptor(rt: WebGPUInternalRT, clearflag: RenderClearFlag,
         clearColor: Color = null, clearDepthValue: number = 1, clearStencilValue = 0): GPURenderPassDescriptor {
 
-        rt = rt ?? WebGPURenderEngine._instance._screenRT;
-        this.setColorAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Color), clearColor);
-        this.setDepthAttachments(rt._renderPassDescriptor, rt, !!(clearflag & RenderClearFlag.Depth), clearDepthValue, clearStencilValue);
+        clearColor = clearColor || Color.BLACK;
 
-        return rt._renderPassDescriptor;
-    }
+        let colorAttachments: GPURenderPassColorAttachment[] = [];
+        let desc: GPURenderPassDescriptor = {
+            colorAttachments: colorAttachments,
+        };
 
-    static setColorAttachments(desc: GPURenderPassDescriptor, rt: WebGPUInternalRT, clear: boolean, clearColor: Color = Color.BLACK) {
-        desc.colorAttachments = [];
-        const colorArray = desc.colorAttachments as GPURenderPassColorAttachment[];
-        if (rt._textures[0]._webGPUFormat === 'depth16unorm'
-            || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
-            || rt._textures[0]._webGPUFormat === 'depth32float') {
-            colorArray[0] = {
-                view: rt._depthTexture.getTextureView(),
-                loadOp: clear ? 'clear' : 'load',
-                storeOp: 'store',
-                clearValue: {
-                    r: clearColor.r,
-                    g: clearColor.g,
-                    b: clearColor.b,
-                    a: clearColor.a
-                }
+        let isClearColor = clearflag & RenderClearFlag.Color;
+        let isClearDepth = clearflag & RenderClearFlag.Depth;
+
+        if (rt.colorFormat == RenderTargetFormat.DEPTH_16 || rt.colorFormat == RenderTargetFormat.DEPTH_32 || rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 || rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_Plus || rt.colorFormat == RenderTargetFormat.STENCIL_8) {
+
+            let tex = rt._textures[0];
+            if (tex.multiSamplers > 1) {
+                tex = rt._texturesResolve[0];
+            }
+
+            desc.depthStencilAttachment = {
+                view: tex.getTextureView(),
+                depthClearValue: isClearDepth ? clearDepthValue : 1,
+                depthLoadOp: isClearDepth ? 'clear' : 'load',
+                depthStoreOp: 'store'
             };
-        } else {
-            colorArray.length = rt._textures.length;
-            for (let i = 0, len = rt._textures.length; i < len; i++) {
-                let attachment: GPURenderPassColorAttachment;
-                if (rt._textures[i].multiSamplers > 1)
-                    attachment = colorArray[i] = {
-                        view: rt._textures[i].getTextureView(),
-                        resolveTarget: rt._texturesResolve[i].getTextureView(),
-                        loadOp: 'clear',
-                        storeOp: 'store'
-                    };
-                else attachment = colorArray[i] = {
-                    view: rt._textures[i].getTextureView(),
-                    loadOp: 'clear',
+
+            if (rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 || rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_Plus || rt.colorFormat == RenderTargetFormat.STENCIL_8) {
+                desc.depthStencilAttachment.stencilClearValue = isClearDepth ? clearStencilValue : 0;
+                desc.depthStencilAttachment.stencilLoadOp = isClearDepth ? 'clear' : 'load';
+                desc.depthStencilAttachment.stencilStoreOp = 'store';
+            }
+        }
+        else {
+            for (let index = 0; index < rt._textures.length; index++) {
+                let tex = rt._textures[index];
+
+                let attachment: GPURenderPassColorAttachment = {
+                    view: tex.getTextureView(),
+                    loadOp: isClearColor ? 'clear' : 'load',
                     storeOp: 'store'
                 };
-                if (clear) {
-                    attachment.loadOp = 'clear';
+                if (tex.multiSamplers > 1) {
+                    attachment.resolveTarget = rt._texturesResolve[index].getTextureView();
+                }
+
+                if (isClearColor) {
                     attachment.clearValue = {
                         r: clearColor.r,
                         g: clearColor.g,
                         b: clearColor.b,
                         a: clearColor.a
                     };
-                } else attachment.loadOp = 'load';
+                }
+
+                colorAttachments.push(attachment);
+            }
+
+            if (rt._depthTexture) {
+                desc.depthStencilAttachment = {
+                    view: rt._depthTexture.getTextureView(),
+                    depthClearValue: isClearDepth ? clearDepthValue : 1,
+                    depthLoadOp: isClearDepth ? 'clear' : 'load',
+                    depthStoreOp: 'store'
+                };
+
+                if (rt.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 || rt.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_Plus || rt.depthStencilFormat == RenderTargetFormat.STENCIL_8) {
+                    desc.depthStencilAttachment.stencilClearValue = isClearDepth ? clearStencilValue : 0;
+                    desc.depthStencilAttachment.stencilLoadOp = isClearDepth ? 'clear' : 'load';
+                    desc.depthStencilAttachment.stencilStoreOp = 'store';
+                }
             }
         }
-    }
 
-    static setDepthAttachments(desc: GPURenderPassDescriptor, rt: WebGPUInternalRT, clear: boolean, clearDepthValue: number = 1, clearStencilValue = 0) {
-        if (rt._textures[0]._webGPUFormat === 'depth16unorm'
-            || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
-            || rt._textures[0]._webGPUFormat === 'depth32float') {
-            const depthStencil: GPURenderPassDepthStencilAttachment
-                = desc.depthStencilAttachment = { view: rt._textures[0].getTextureView() };
-            depthStencil.depthClearValue = clearDepthValue;
-            depthStencil.depthLoadOp = clear ? 'clear' : 'load';
-            depthStencil.depthStoreOp = 'store';
-            delete depthStencil.stencilClearValue;
-            delete depthStencil.stencilLoadOp;
-            delete depthStencil.stencilStoreOp;
-        } else if (rt._depthTexture) {
-            const hasStencil = rt._depthTexture._webGPUFormat.indexOf('stencil8') !== -1;
-            const depthStencil: GPURenderPassDepthStencilAttachment
-                = desc.depthStencilAttachment = { view: rt._depthTexture.getTextureView() };
-            if (clear) {
-                depthStencil.depthClearValue = clearDepthValue;
-                depthStencil.depthLoadOp = 'clear';
-                depthStencil.depthStoreOp = 'store';
-                if (hasStencil) {
-                    depthStencil.stencilClearValue = clearStencilValue;
-                    depthStencil.stencilLoadOp = 'clear';
-                    depthStencil.stencilStoreOp = 'store';
-                } else {
-                    delete depthStencil.stencilClearValue;
-                    delete depthStencil.stencilLoadOp;
-                    delete depthStencil.stencilStoreOp;
-                }
-            } else {
-                depthStencil.depthClearValue = clearDepthValue;
-                depthStencil.depthLoadOp = 'load';
-                depthStencil.depthStoreOp = 'store';
-                if (hasStencil) {
-                    depthStencil.stencilClearValue = clearStencilValue;
-                    depthStencil.stencilLoadOp = 'load';
-                    depthStencil.stencilStoreOp = 'store';
-                } else {
-                    delete depthStencil.stencilClearValue;
-                    delete depthStencil.stencilLoadOp;
-                    delete depthStencil.stencilStoreOp;
-                }
-            }
-        } else delete desc.depthStencilAttachment;
+        rt._renderPassDescriptor = desc;
+
+        return desc;
     }
 }

@@ -1441,11 +1441,11 @@ export class WebGPUTextureContext implements ITextureContext {
             WebGPUGlobal.action(internalRT._texturesResolve[0], 'allocMemory | texture', internalRT._texturesResolve[0].gpuMemory);
         }
 
-        if (colorFormat === RenderTargetFormat.DEPTH_16
-            || colorFormat === RenderTargetFormat.DEPTH_32
-            || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
-            depthStencilFormat = RenderTargetFormat.R8G8B8A8;
-        }
+        // if (colorFormat === RenderTargetFormat.DEPTH_16
+        //     || colorFormat === RenderTargetFormat.DEPTH_32
+        //     || colorFormat === RenderTargetFormat.DEPTHSTENCIL_24_8) {
+        //     depthStencilFormat = RenderTargetFormat.R8G8B8A8;
+        // }
         if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
             const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false, storage);
@@ -1453,7 +1453,7 @@ export class WebGPUTextureContext implements ITextureContext {
             gpuDepthDescriptor.usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
             gpuDepthDescriptor.label = 'renderTarget depth';
             const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
-            internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, multiSamples, false, 1);
+            internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, 1, false, 1);
             internalRT._depthTexture.format = depthStencilFormat;
             internalRT._depthTexture.resource = gpuDepthTexture;
             internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
