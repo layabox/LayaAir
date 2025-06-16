@@ -171,7 +171,7 @@ export class Vector4 implements IClone {
      * @zh 创建当前向量的克隆。
      * @returns 返回一个新的 Vector4 对象，其值与当前向量相同。
      */
-    clone(): any {
+    clone() {
         var destVector4: Vector4 = new Vector4();
         this.cloneTo(destVector4);
         return destVector4;

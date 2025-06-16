@@ -8,6 +8,7 @@ import { UIGroup } from "./UIGroup"
  * The default value of ths property selectedIndex is -1.
  * @zh Tab 组件用来定义选项卡按钮组。
  * 属性selectedIndex 的默认值为-1。
+ * @blueprintInheritable
  */
 export class Tab extends UIGroup {
     constructor() {

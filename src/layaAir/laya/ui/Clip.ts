@@ -2,7 +2,6 @@ import { UIComponent } from "./UIComponent";
 import { AutoBitmap } from "./AutoBitmap";
 import { UIUtils } from "./UIUtils";
 import { Styles } from "./Styles";
-import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"
@@ -10,6 +9,7 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 import { TransformKind } from "../display/SpriteConst";
+
 /**
  * @en The `Clip` class is a bitmap slice animation.
  * `Clip` can split an image into a slice animation by horizontal split count `clipX`, vertical split count `clipY`, 
@@ -21,6 +21,7 @@ import { TransformKind } from "../display/SpriteConst";
  * 或横向分割每个切片的宽度 `clipWidth` 、竖向分割每个切片的高度 `clipHeight` ，
  * 从左向右，从上到下，分割组合为一个切片动画。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
+ * @blueprintInheritable
  */
 export class Clip extends UIComponent {
     protected _sources: Texture[];
@@ -410,4 +411,9 @@ export class Clip extends UIComponent {
             super.set_dataSource(value);
     }
 
+    /** @internal @blueprintEvent */
+    Clip_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.LOADED]: () => void;
+    };
 }

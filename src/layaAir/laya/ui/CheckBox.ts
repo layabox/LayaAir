@@ -8,6 +8,7 @@ import { Button } from "./Button"
  * - `CheckBox` 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
  * - 使用 `dataSource` 赋值时，`CheckBox` 的默认属性是 `selected`。
  * - `change`事件，当按钮的选中状态（ `selected` 属性）发生改变时调度。
+ * @blueprintInheritable
  */
 export class CheckBox extends Button {
 

@@ -8,7 +8,7 @@ import { Browser } from "laya/utils/Browser";
 import { Main } from "./../Main";
 
 export class Network_ProtocolBuffer {
-	private ProtoBuf: any = Browser.window.protobuf;
+	private ProtoBuf: any = (Browser.window as any).protobuf;
 
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {

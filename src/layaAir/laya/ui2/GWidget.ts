@@ -1,10 +1,8 @@
 import { UIConfig2 } from "./UIConfig";
 import { Sprite } from "../display/Sprite";
-import { ColorFilter } from "../filters/ColorFilter";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayoutChangedReason, RelationType } from "./Const";
 import { Controller } from "./Controller";
-import { ControllerRef } from "./ControllerRef";
 import { Relation } from "./Relation";
 import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
@@ -17,7 +15,12 @@ import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
+import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
+import { PostProcess2D } from "../display/PostProcess2D";
 
+/**
+ * @blueprintInheritable
+ */
 export class GWidget extends Sprite {
     data: any;
 
@@ -30,7 +33,7 @@ export class GWidget extends Sprite {
 
     private _controllers: Record<string, Controller>;
     private _controllerCount: number;
-    private _gears: Array<Gear<any>>;
+    private _gears: Array<Gear>;
     private _relations: Array<Relation>;
     private _forceSizeFlag: boolean;
 
@@ -168,6 +171,8 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    private _grayEffect:ColorEffect2D;
+
     get grayed(): boolean {
         return this._grayed;
     }
@@ -176,17 +181,15 @@ export class GWidget extends Sprite {
         if (this._grayed != value) {
             this._grayed = value;
 
-            let filters: any[] = this.filters || [];
-            let i = filters.indexOf(grayFilter);
+            let postProcess = this._getPostProcess(value);
             if (value) {
-                if (i == -1) {
-                    filters.push(grayFilter);
-                    this.filters = filters;
-                }
+                this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+                postProcess.addEffect(this._grayEffect);
             }
-            else if (i != -1) {
-                filters.splice(i, 1);
-                this.filters = filters;
+            else {
+                if (postProcess) {
+                    postProcess.removeEffect(this._grayEffect)
+                }
             }
         }
     }
@@ -372,16 +375,29 @@ export class GWidget extends Sprite {
         return this._controllers[name];
     }
 
+    setPage(controllerName: string, pageName: string): void;
+    setPage(controllerName: string, pageIndex: number): void;
+    setPage(controllerName: string, page: number | string): void {
+        let c = this._controllers[controllerName];
+        if (!c)
+            return;
+
+        if (typeof (page) === "number")
+            c.selectedIndex = page;
+        else
+            c.selectedPage = page;
+    }
+
     protected _controllersChanged() {
         this.event(UIEvent.ControllersChanged);
     }
 
-    get gears(): Array<Gear<any>> {
+    get gears(): Array<Gear> {
         return this._gears;
     }
 
     /** @internal */
-    set gears(value: Array<Gear<any>>) {
+    set gears(value: Array<Gear>) {
         let visChanged: boolean;
         if (this._gears.length > 0) {
 
@@ -395,21 +411,21 @@ export class GWidget extends Sprite {
         value.forEach(g => g.owner = this);
 
         if (visChanged)
-            this.internalVisible = GearDisplay.check(this);
+            GearDisplay.check(this);
     }
 
     /** @internal */
-    _addGears(value: Array<Gear<any>>) {
+    _addGears(value: Array<Gear>) {
         this._gears.push(...value);
         value.forEach(g => g.owner = this);
     }
 
-    addGear(value: Gear<any>) {
+    addGear(value: Gear) {
         this._gears.push(value);
         value.owner = this;
     }
 
-    removeGear(value: Gear<any>) {
+    removeGear(value: Gear) {
         let i = this._gears.indexOf(value);
         if (i != -1) {
             this._gears.splice(i, 1);
@@ -473,9 +489,11 @@ export class GWidget extends Sprite {
         this.onConstruct();
     }
 
+    /** @blueprintIgnore */
     onConstruct() {
     }
 
+    /** @blueprintIgnore */
     onAfterDeserialize() {
         super.onAfterDeserialize();
         if (SerializeUtil.hasProp("_startPages")) {
@@ -491,9 +509,9 @@ export class GWidget extends Sprite {
     }
 }
 
-const grayFilter = new ColorFilter([
-    0.3086, 0.6094, 0.082, 0, 0,
-    0.3086, 0.6094, 0.082, 0, 0,
-    0.3086, 0.6094, 0.082, 0, 0,
-    0, 0, 0, 1, 0
-]);
+// const grayFilter = new ColorFilter([
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0.3086, 0.6094, 0.082, 0, 0,
+//     0, 0, 0, 1, 0
+// ]);

@@ -17,6 +17,7 @@ import { TransformKind } from "../display/SpriteConst";
  *  @zh Image类是用于表示位图图像或绘制图形的显示对象。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如`img.skin = "abc/xxx.png"`，其他UI组件均不支持异步加载。
  * Event.LOADED：资源加载完成后调度。
+ * @blueprintInheritable
  */
 export class Image extends UIComponent {
     protected _skin: string;
@@ -222,4 +223,9 @@ export class Image extends UIComponent {
         this.destroy(true);
         ILaya.loader.clearRes(this._skin);
     }
+
+    /** @internal @blueprintEvent */
+    Image_bpEvent: {
+        [Event.LOADED]: () => void;
+    };
 }

@@ -58,7 +58,7 @@ export class Size2DOverLifetimeModule implements IClone {
         this.y.cloneTo(destObject.y);
     }
 
-    clone(): Size2DOverLifetimeModule {
+    clone() {
         let dest = new Size2DOverLifetimeModule();
         this.cloneTo(dest);
         return dest;

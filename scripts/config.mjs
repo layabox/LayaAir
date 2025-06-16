@@ -38,11 +38,8 @@ export const allBundles = [{
         'laya/RenderEngine/RenderShader/**/*.*',
         'laya/RenderEngine/*.*',
 
-        'laya/RenderDriver/RenderModuleData/Design/IDefineDatas.ts',
-        'laya/RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory.ts',
-        'laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
-        'laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
-
+        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+      
         'laya/loaders/**/*.*',
         'laya/maths/**/*.*',
         'laya/media/**/*.*',
@@ -59,6 +56,8 @@ export const allBundles = [{
         'Config3D.ts',
         "laya/bt/**/*.*",
         'laya/physics/IPhysiscs2DFactory.ts',
+
+        'laya/platform/**/*.*',
     ],
     copy: ['jsLibs/laya.workerloader.js']
 },
@@ -83,9 +82,9 @@ export const allBundles = [{
         'laya/d3/Touch.ts',
         'laya/d3/ModuleDef.ts',
 
-        'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        // 'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         'laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
-        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+        // 'laya/RenderDriver/RenderModuleData/Design/**/*.*',
 
         'laya/d3/RenderObjs/NativeOBJ/*.*',
         'laya/d3/RenderObjs/RenderObj/*.*',
@@ -125,6 +124,7 @@ export const allBundles = [{
         'laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
         'laya/RenderDriver/WebGLDriver/2DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
     ],
 },
 {
@@ -297,6 +297,12 @@ export const allBundles = [{
     ],
 },
 {
+    name: 'filter_discarded',
+    input: [
+        'laya/legacy/filters/**/*.ts'
+    ],
+},
+{
     name: "trailCommon",
     input: [
         'laya/trail/trailCommon/**/*.*',
@@ -324,7 +330,6 @@ export const allBundles = [{
     name: "particle",
     input: [
         'laya/particle/d2/**/*.*',
-        'laya/particle/ModuleDef.ts'
     ]
 },
 {
@@ -362,5 +367,68 @@ export const allBundles = [{
     input: [
         'laya/d3/postProcessEffect/**/*.*'
     ]
-}
-];
+},
+//Adaptation libraries
+{
+    name: 'adapter-native',
+    input: [
+        'platforms/native/**/*.*',
+        'platforms/minigame/WasmUtils.ts',
+    ],
+},
+{
+    name: 'adapter-alipay',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/alipay/**/*.*'
+    ],
+},
+{
+    name: 'adapter-huawei',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/huawei/**/*.*'
+    ],
+},
+{
+    name: 'adapter-bytedance',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bytedance/**/*.*'
+    ],
+},
+{
+    name: 'adapter-oppo',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/oppo/**/*.*'
+    ],
+},
+{
+    name: 'adapter-taobao',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/taobao/**/*.*'
+    ],
+},
+{
+    name: 'adapter-vivo',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/vivo/**/*.*'
+    ],
+},
+{
+    name: 'adapter-weixin',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/weixin/**/*.*'
+    ],
+},
+{
+    name: 'adapter-xiaomi',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/xiaomi/**/*.*'
+    ],
+}];

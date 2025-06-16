@@ -18,6 +18,7 @@ interface ITreeDataSource {
 /**
  * @en The `Tree` UI component allows users to view hierarchical data arranged in an expandable tree format.
  * @zh `Tree` UI组件使用户可以查看排列为可扩展树的层次结构数据。
+ * @blueprintInheritable
  */
 export class Tree extends Box {
     protected _list: List;
@@ -471,4 +472,9 @@ export class Tree extends Box {
         this._source = null;
         this._renderHandler = null;
     }
+
+    /** @internal @blueprintEvent */
+    Tree_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

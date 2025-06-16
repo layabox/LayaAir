@@ -66,7 +66,7 @@ export class FanShape extends Base2DShape {
         destObject.length = this.length;
     }
 
-    clone(): FanShape {
+    clone() {
         let destObject = new FanShape();
         this.cloneTo(destObject);
         return destObject;

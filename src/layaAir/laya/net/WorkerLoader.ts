@@ -1,5 +1,4 @@
 import { PlayerConfig } from "../../Config";
-import { EventDispatcher } from "../events/EventDispatcher"
 
 /**
  * @en Image loader that uses a Web Worker for asynchronous loading.
@@ -14,8 +13,8 @@ export class WorkerLoader {
     static workerPath: string = "libs/laya.workerloader.js";
 
     private static _worker: Worker;
-    private static _dispatcher: EventDispatcher;
     private static _enable: boolean = false;
+    private static _queue: Record<string, Array<Function>> = {};
 
     /**
      * @en Check if worker is supported
@@ -44,7 +43,6 @@ export class WorkerLoader {
                 if (!WorkerLoader._worker) {
                     WorkerLoader._worker = new Worker(PlayerConfig.workerLoaderLib || WorkerLoader.workerPath);
                     WorkerLoader._worker.onmessage = WorkerLoader.workerMessage;
-                    WorkerLoader._dispatcher = new EventDispatcher();
                 }
             }
             WorkerLoader._enable = value;
@@ -61,16 +59,20 @@ export class WorkerLoader {
      * @param options 加载的附加选项。
      * @return 返回解析后的加载图像。
      */
-    static load(url: string, options: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            WorkerLoader._worker.postMessage({ url, options });
-            WorkerLoader._dispatcher.once(url, (data: any) => {
-                if (data.imageBitmap)
-                    resolve(data.imageBitmap);
-                else
-                    reject(data.msg);
+    static load(url: string, options?: ImageBitmapOptions): Promise<any> {
+        let callbacks = WorkerLoader._queue[url];
+        if (callbacks) {
+            return new Promise((resolve, reject) => {
+                callbacks.push(resolve, reject);
             });
-        });
+        }
+        else {
+            WorkerLoader._queue[url] = callbacks = [];
+            return new Promise((resolve, reject) => {
+                callbacks.push(resolve, reject);
+                WorkerLoader._worker.postMessage({ url, options });
+            });
+        }
     }
 
     /**
@@ -84,10 +86,14 @@ export class WorkerLoader {
         if (data) {
             switch (data.type) {
                 case "Image":
-                    WorkerLoader._dispatcher.event(data.url, data);
-                    break;
-                case "Disable":
-                    WorkerLoader.enable = false;
+                    let callbacks = WorkerLoader._queue[data.url];
+                    if (callbacks) {
+                        delete WorkerLoader._queue[data.url];
+                        let param = data.imageBitmap ? data.imageBitmap : data.msg;
+                        for (let i = data.imageBitmap ? 0 : 1; i < callbacks.length; i += 2) {
+                            callbacks[i](param);
+                        }
+                    }
                     break;
             }
         }

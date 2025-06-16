@@ -8,8 +8,8 @@ import { Node } from "../../../display/Node";
 import { Scene3D } from "./Scene3D";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
-import { Render } from "../../../renders/Render";
 import { Viewport } from "../../../maths/Viewport";
+import { Browser } from "../../../utils/Browser";
 
 const _vec2 = new Vector2();
 const _ray = new Ray(new Vector3(), new Vector3());
@@ -23,8 +23,8 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
     var pageX = x;
     var pageY = y;
 
-    var normalWidth = x / Render._mainCanvas.width;
-    var normalHeight = y / Render._mainCanvas.height;
+    var normalWidth = x / Browser.mainCanvas.width;
+    var normalHeight = y / Browser.mainCanvas.height;
 
     x = this._stage.width * normalWidth;
     y = this._stage.height * normalHeight;

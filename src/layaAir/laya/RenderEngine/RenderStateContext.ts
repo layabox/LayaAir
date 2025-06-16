@@ -4,6 +4,7 @@ import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
 import { LayaGL } from "../layagl/LayaGL";
+
 /**
  * @private
  */

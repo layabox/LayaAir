@@ -9,6 +9,7 @@ import { Transform3D } from "../Transform3D";
 /**
  * @en RenderElement class is used to implement rendering elements.
  * @zh RenderElement 类用于实现渲染元素。
+ * @blueprintIgnore @blueprintIgnoreSubclasses
  */
 export class RenderElement {
     /**

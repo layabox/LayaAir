@@ -30,7 +30,13 @@ export enum ENodeCustomData {
     custom_1,
     custom_2
 }
-//3D Render Node
+
+
+/**
+ * 3D Render Node
+ * @ignore
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IBaseRenderNode {
     renderNodeType: number;//Flag
     transform: Transform3D;

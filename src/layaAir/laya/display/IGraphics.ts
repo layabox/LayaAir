@@ -1,14 +1,25 @@
 import { type Matrix } from "../maths/Matrix";
-import { type Context } from "../renders/Context";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 
+/**
+ * @en Graphics command interface
+ * @zh 图形命令接口
+ * @blueprintableSubclasses
+ */
 export interface IGraphicsCmd {
     /**
+     * @en If true, do not automatically recycle.
+     * @zh 如果为true，则不自动回收
+     */
+    lock?: boolean;
+
+    /**
      * 
-     * @param context 
+     * @param runner 
      * @param gx 
      * @param gy 
      */
-    run(context: Context, gx: number, gy: number): void;
+    run(runner: GraphicsRunner, gx: number, gy: number): void;
     /**
      * @zh 如有回收，实现这个函数
      */
@@ -24,6 +35,9 @@ export interface IGraphicsCmd {
     get cmdID(): string;
 }
 
+/**
+ * @blueprintIgnore
+ */
 export interface IGraphicsBoundsAssembler {
     readonly width: number;
     readonly height: number;

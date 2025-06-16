@@ -5,6 +5,7 @@ const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 /**
  * @en Represents a parser for spine attachments.
  * @zh 表示一个spine附件解析器。
+ * @blueprintIgnore
  */
 export class AttachmentParse {
     /**

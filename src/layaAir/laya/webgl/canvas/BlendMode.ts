@@ -1,75 +1,67 @@
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
-//export type BlendFunc = (gl:WebGLRenderingContext)=>void
-export class BlendMode {
-    static activeBlendFunction: Function = null;
+export enum BlendMode {
+    Invalid = 0,
+    Normal,
+    Add ,    
+    Multiply,
+    Screen,
+    Overlay ,
+    Light,
+    Lighter,
+    Mask,
+    DestinationOut ,
+    AddOld ,
+    LighterOld ,
+    SourceAlpha ,
+}
+
+export class BlendModeHandler {
+
     /** @internal 这个不直接暴露给开发者*/
-    static NAMES = [
-        "normal",
-        "add",
-        "multiply",
-        "screen",
-        "overlay",
-        "light",
-        "mask",
-        "destination-out",
-        "add_old"];
+    static NAMES : Record<string , BlendMode >= {
+        "normal": BlendMode.Normal,
+        "add" : BlendMode.Add,
+        "multiply" : BlendMode.Multiply,
+        "screen" : BlendMode.Screen,
+        "overlay" : BlendMode.Overlay,
+        "light" : BlendMode.Light,
+        "lighter" : BlendMode.Lighter,
+        "mask" : BlendMode.Mask,
+        "destination-out" : BlendMode.DestinationOut,
+        "add_old" : BlendMode.AddOld,
+        "source_alpha" : BlendMode.SourceAlpha
+    
+    }
 
     /** @internal */
     static TOINT: { [key: string]: number } = {
-        "normal": 0,
-        "add": 1,
-        "multiply": 2,
-        "screen": 3,
-        "overlay": 4,
-        "light": 5,
-        "mask": 6,
-        "destination-out": 7,
-        "lighter": 1,
-        "lighter_old": 8,
-        "add_old": 8
+        [BlendMode.Normal]: 0,
+        [BlendMode.Add]: 1,
+        [BlendMode.Multiply]: 2,
+        [BlendMode.Screen]: 3,
+        [BlendMode.Overlay]: 4,
+        [BlendMode.Light]: 5,
+        [BlendMode.Mask]: 6,
+        [BlendMode.DestinationOut]: 7,
+        [BlendMode.Lighter]: 1,
+        [BlendMode.LighterOld]: 8,
+        [BlendMode.AddOld]: 8,
+        [BlendMode.SourceAlpha]: 9,
     };
 
-    static NORMAL = "normal";					//0
-    static MASK = "mask";					//6
-    static LIGHTER = "lighter";					//1  
-
-    static fns: any[];
-    static targetFns: any[];
     /**@internal */
     static _init_(): void {
-        BlendMode.fns = [
-            BlendMode.BlendNormal,      //0
-            BlendMode.BlendAdd,         //1
-            BlendMode.BlendMultiply,    //2
-            BlendMode.BlendScreen,      //3
-            BlendMode.BlendOverlay,     //4
-            BlendMode.BlendLight,       //5
-            BlendMode.BlendMask,        //6
-            BlendMode.BlendDestinationOut,   //7
-            BlendMode.BlendAddOld,         //8
-            BlendMode.BlendSourceAlpha,            //9
-        ];
-
-        BlendMode.targetFns = [
-            BlendMode.BlendNormalTarget,    //0
-            BlendMode.BlendAddTarget,       //1
-            BlendMode.BlendMultiplyTarget,  //2
-            BlendMode.BlendScreenTarget,    //3
-            BlendMode.BlendOverlayTarget,   //4
-            BlendMode.BlendLightTarget,     //5
-            BlendMode.BlendMask,            //6
-            BlendMode.BlendDestinationOut,  //7
-            BlendMode.BlendAddTargetOld,    //8
-            BlendMode.BlendSourceAlpha             //9
-        ];
     }
 
     static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
         RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
@@ -134,6 +126,51 @@ export class BlendMode {
     }
     static BlendSourceAlpha(): void {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
+    }
+
+    static setShaderData(blendType: BlendMode | string, shaderData: ShaderData, premultipliedAlpha = true): void {
+        if (typeof blendType === "string") {
+            blendType = BlendModeHandler.NAMES[blendType];
+        }
+        let type = BlendModeHandler.TOINT[blendType];
+        switch (type) {
+            case 1://add
+            case 3://screen
+            case 5://light
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
+            case 2://BlendMultiply
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            case 6://mask
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+                break;
+            case 7://destination
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                break;
+            case 9:// not premul alpha
+                shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+                break;
+            default:// premul alpha
+                shaderData.setInt(Shader3D.BLEND_SRC, premultipliedAlpha ? RenderState.BLENDPARAM_ONE : RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        }
+    }
+
+    static initBlendMode(shaderData: ShaderData): void {
+        shaderData.setBool(Shader3D.DEPTH_WRITE, false);
+        shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        shaderData.setNumber(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        shaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
     }
 }
 

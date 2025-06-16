@@ -89,6 +89,7 @@ export class GridSprite extends Sprite {
             }
         }
     }
+    
 
     /**
      * @en Hide the current GridSprite and remove all animations bound to it.

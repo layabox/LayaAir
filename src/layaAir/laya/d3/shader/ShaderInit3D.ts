@@ -59,7 +59,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("ShadingVertex.glsl", ShadingVertexGLSL);
 		Shader3D.addInclude("ShadingFrag.glsl", ShadingFragGLSL);
 
-		Shader3D.addInclude("OutputTransform.glsl", OutputTransformGLSL);
+	
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

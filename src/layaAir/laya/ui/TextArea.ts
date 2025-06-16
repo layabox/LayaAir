@@ -9,6 +9,7 @@ import { TransformKind } from "../display/SpriteConst";
 /**
  * @en The TextArea class is used to create a multi-line text area display object for displaying and inputting text.
  * @zh TextArea 类用于创建多行的文本域显示对象，以显示和输入文本。
+ * @blueprintInheritable
  */
 export class TextArea extends TextInput {
     protected _scrollType: ScrollType = 0;

@@ -4,12 +4,12 @@ description
  */
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
-import { GlowFilter } from "laya/filters/GlowFilter";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage";
+import { GlowFilter } from "laya/legacy/filters/GlowFilter";
 
 export class Filters_Glow {
 	private apePath: string = "res/apes/monkey2.png";

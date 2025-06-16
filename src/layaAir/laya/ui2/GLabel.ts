@@ -3,6 +3,9 @@ import { GTextInput } from "./GTextInput";
 import { GWidget } from "./GWidget";
 import { WidgetRef } from "./WidgetRef";
 
+/**
+ * @blueprintInheritable
+ */
 export class GLabel extends GWidget {
     protected _titleWidget: WidgetRef;
     protected _iconWidget: WidgetRef;

@@ -6,7 +6,11 @@ import { LayoutType, SelectionMode, TreeClickToExpandType } from "./Const";
 import { GPanel } from "./GPanel";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "./GWidget";
+import { Sprite } from "../display/Sprite";
 
+/**
+ * @blueprintInheritable
+ */
 export class GTree extends GPanel {
 
     public treeNodeRender: (node: GTreeNode, obj: any) => void;
@@ -199,13 +203,13 @@ export class GTree extends GPanel {
         let cnt = endIndex - startIndex;
         if (insertIndex < startIndex) {
             for (let i = 0; i < cnt; i++) {
-                let obj = this.getChildAt(startIndex + i);
+                let obj = this.getChildAt(startIndex + i) as Sprite;
                 this._setChildIndex(obj, startIndex + i, insertIndex + i);
             }
         }
         else {
             for (let i = 0; i < cnt; i++) {
-                let obj = this.getChildAt(startIndex);
+                let obj = this.getChildAt(startIndex) as Sprite;
                 this._setChildIndex(obj, startIndex, insertIndex - 1);
             }
         }

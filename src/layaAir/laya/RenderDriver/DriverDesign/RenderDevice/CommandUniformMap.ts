@@ -7,12 +7,15 @@ export type UniformProperty = {
     arrayLength: number
 };
 
+/**
+ * @blueprintIgnore
+ */
 export class CommandUniformMap {
 
     constructor(stateName: string) {
 
     }
-    
+
     /**
      * 增加一个Uniform参数
      * @param propertyID 

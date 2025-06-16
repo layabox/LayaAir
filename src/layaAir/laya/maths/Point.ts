@@ -12,7 +12,6 @@ export class Point {
      */
     static readonly TEMP: Point = new Point();
     /**
-     * @private
      * @en Global empty point object (x=0, y=0), the content of this object is not allowed to be modified.
      * @zh 全局空的point对象(x=0，y=0)，不允许修改此对象内容。
      */

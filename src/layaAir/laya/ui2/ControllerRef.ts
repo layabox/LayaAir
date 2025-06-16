@@ -9,7 +9,7 @@ export class ControllerRef {
     private _inst: Controller;
     private _inited: boolean;
 
-    public onChanged: Function;
+    public onChanged: (initiator: Controller) => void;
 
     constructor(target: GWidget, name: string);
     constructor(inst: Controller);
@@ -101,7 +101,7 @@ export class ControllerRef {
             if (c)
                 this._inst._refs.add(this);
             if (!noEmit)
-                this.onChanged();
+                this.onChanged(c);
         }
     }
 }

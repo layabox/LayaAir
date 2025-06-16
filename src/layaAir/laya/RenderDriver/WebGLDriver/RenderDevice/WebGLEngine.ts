@@ -257,9 +257,9 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
      * create GL
      * @param canvas 
      */
-    initRenderEngine(canvas: any) {
+    initRenderEngine(canvas: HTMLCanvasElement) {
         let names;
-        let gl;
+        let gl: WebGLRenderingContext | WebGL2RenderingContext;
         switch (this._webglMode) {
             case WebGLMode.Auto:
                 names = ["webgl2", "experimental-webgl2", "webgl", "experimental-webgl"];
@@ -271,9 +271,9 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
                 names = ["webgl2", "experimental-webgl2"];
                 break;
         }
-        for (var i: number = 0; i < names.length; i++) {
+        for (let i: number = 0; i < names.length; i++) {
             try {
-                gl = canvas.getContext(names[i], this._config);
+                gl = <WebGLRenderingContext | WebGL2RenderingContext>canvas.getContext(names[i], this._config);
                 // gl.drawingBufferColorSpace = "display-p3";
             } catch (e) {
             }

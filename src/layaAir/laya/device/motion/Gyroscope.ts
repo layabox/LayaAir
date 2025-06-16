@@ -1,7 +1,7 @@
 import { RotationInfo } from "./RotationInfo";
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { ILaya } from "../../../ILaya";
+import { PAL } from "../../platform/PlatformAdapters";
 
 /**
  * @en Use Gyroscope.instance to obtain the unique Gyroscope reference. Do not call the constructor directly.
@@ -18,7 +18,6 @@ import { ILaya } from "../../../ILaya";
  * 浏览器兼容性信息，请参阅：(http://caniuse.com/#search=deviceorientation)。
  */
 export class Gyroscope extends EventDispatcher {
-    private static info: RotationInfo = new RotationInfo();
 
     /**
      * Gyroscope的唯一引用。
@@ -30,39 +29,18 @@ export class Gyroscope extends EventDispatcher {
      * @zh 获取 Gyroscope 的单例实例。
      */
     static get instance(): Gyroscope {
-        Gyroscope._instance = Gyroscope._instance || new Gyroscope(0);
+        Gyroscope._instance = Gyroscope._instance || new Gyroscope();
         return Gyroscope._instance;
     }
 
-    /**
-     * @en Constructor method of gyroscope.
-     * @param singleton An internal parameter used to enforce the singleton pattern.
-     * @zh 陀螺仪的构造方法
-     * @param singleton 一个内部参数，用于强制实现单例模式。
-     */
-    constructor(singleton: number) {
-        super();
-        this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
-    }
-
     protected onStartListeningToType(type: string) {
-        if (type == Event.CHANGE)
-            ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
+        if (type === Event.CHANGE)
+            PAL.device.on("deviceorientation", this, this.onDeviceOrientation);
         return this;
     }
 
-    private onDeviceOrientationChange(e: any): void {
-        Gyroscope.info.alpha = e.alpha;
-        Gyroscope.info.beta = e.beta;
-        Gyroscope.info.gamma = e.gamma;
-
-        // 在Safari中
-        if (e.webkitCompassHeading) {
-            Gyroscope.info.alpha = e.webkitCompassHeading * -1;
-            Gyroscope.info.compassAccuracy = e.webkitCompassAccuracy;
-        }
-
-        this.event(Event.CHANGE, [e.absolute, Gyroscope.info]);
+    private onDeviceOrientation(absolute: boolean, orientationInfo: RotationInfo): void {
+        this.event(Event.CHANGE, [absolute, orientationInfo]);
     }
 }
 

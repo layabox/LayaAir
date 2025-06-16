@@ -12,6 +12,7 @@ import { TransformKind } from "../display/SpriteConst";
 /**
  * @en Panel is a panel container class.
  * @zh Panel 是一个面板容器类。
+ * @blueprintInheritable
  */
 export class Panel extends Box {
     protected _content: Box;

@@ -39,6 +39,7 @@ export interface IHierarchyParserAPI {
 /**
  * @en This class is used to import prefabs.
  * @zh 该类用于导入预制体。
+ * @blueprintIgnore
  */
 export class PrefabImpl extends Prefab {
 

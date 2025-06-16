@@ -4,25 +4,24 @@ import { TileSetCellGroup } from "../TileSetCellGroup";
 import { URL } from "../../net/URL";
 import { Byte } from "../../utils/Byte";
 import { ObjDecoder } from "../../loaders/ObjDecoder";
+import { PrefabImpl } from "../../resource/PrefabImpl";
+import { Utils } from "../../utils/Utils";
 
 class TileSetLoader implements IResourceLoader {
     load(task: ILoadTask): Promise<any> {
-        
+
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
             if (!data.groups) data.groups = [];
             const groups = data.groups;
-            let basePath = URL.getPath(task.url);
-            let urls :Array<ILoadURL> = [];
+            let urls: Array<ILoadURL> = [];
             for (let i = 0, len = groups.length; i < len; i++) {
-                let atlas = groups[i].atlas;
-                if (atlas&&atlas.path) {
-                    atlas.path = URL.join(basePath, atlas.path);
-                    urls.push({url:atlas.path,type:Loader.TEXTURE2D,propertyParams:{premultiplyAlpha:true}});
-                }else{
-                    urls.push({ url: "res://" + groups[i].atlas._$uuid, type: Loader.TEXTURE2D, propertyParams: { premultiplyAlpha: true } });
+                let url = groups[i].atlas._$uuid;
+                if (Utils.isUUID(url)) {
+                    url = "res://" + url;
                 }
+                urls.push({ url: url, type: Loader.TEXTURE2D });
             }
             return this.load2(task, data, urls);
         });
@@ -34,7 +33,7 @@ class TileSetLoader implements IResourceLoader {
         delete options.ignoreCache;
         return task.loader.load(urls, options, task.progress.createCallback()).then(() => {
             let tileSet = new TileSet();
-            tileSet.tileShape = data.tileShape?data.tileShape:0;
+            tileSet.tileShape = data.tileShape ? data.tileShape : 0;
             for (let i = 0, len = data.groups.length; i < len; i++) {
                 this.createGroup(tileSet, data.groups[i]);
             }
@@ -57,15 +56,15 @@ class TileSetLoader implements IResourceLoader {
         group.name = data.name;
         tileSet.addTileSetCellGroup(group);
         ObjDecoder.decodeObj(data, group);
-        if(data.atlas.path){
+        if (data.atlas.path) {
             group.atlas = Loader.getBaseTexture(data.atlas.path);
         }
-       
+
     }
 }
 
-export class TileMapDatasParse{
-    static read(buffer:ArrayBuffer){
+export class TileMapDatasParse {
+    static read(buffer: ArrayBuffer) {
         let byte = new Byte(buffer);
         byte.pos = 0;
         let version = byte.readUTFString();
@@ -73,18 +72,18 @@ export class TileMapDatasParse{
         let chunkNum = byte.readUint32();
         let chunks = [];
         for (let i = 0; i < chunkNum; i++) {
-            let x = byte.readFloat32();            
+            let x = byte.readFloat32();
             let y = byte.readFloat32();
             let length = byte.readUint32();
 
-            let tiles:number[] = [];
+            let tiles: number[] = [];
             for (let j = 0; j < length; j++) {
                 let localId = byte.readUint32();
-                let gid = byte.readUint32();  
-                tiles.push(localId , gid);              
+                let gid = byte.readUint32();
+                tiles.push(localId, gid);
             }
 
-            let chunkInfos = {x,y,length,tiles};
+            let chunkInfos = { x, y, length, tiles };
             chunks.push(chunkInfos);
         }
         return chunks;

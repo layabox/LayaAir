@@ -1,7 +1,7 @@
 import { ISaveData } from "./ISaveData";
 import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
-import { Context } from "../../../renders/Context"
+import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
 export class SaveTranslate implements ISaveData {
 
@@ -11,16 +11,16 @@ export class SaveTranslate implements ISaveData {
     _mat: Matrix = new Matrix();
     isSaveMark(): boolean { return false; }
 
-    restore(context: Context): void {
-        this._mat.copyTo(context._curMat);
+    restore(runner: GraphicsRunner): void {
+        this._mat.copyTo(runner._curMat);
         SaveTranslate.POOL[SaveTranslate.POOL._length++] = this;
     }
 
-    static save(context: Context): void {
+    static save(runner: GraphicsRunner): void {
         var no: any = SaveTranslate.POOL;
         var o: SaveTranslate = no._length > 0 ? no[--no._length] : (new SaveTranslate());
-        context._curMat.copyTo(o._mat);
-        var _save: any = context._save;
+        runner._curMat.copyTo(o._mat);
+        var _save: any = runner._save;
         _save[_save._length++] = o;
     }
 

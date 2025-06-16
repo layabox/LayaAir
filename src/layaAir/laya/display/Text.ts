@@ -19,6 +19,7 @@ import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
 import { TransformKind } from "./SpriteConst";
+import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -34,31 +35,32 @@ export class Text extends Sprite {
      * @en Visible without any clipping.
      * @zh visible不进行任何裁切。
      */
-    static VISIBLE: string = "visible";
+    static readonly VISIBLE: string = "visible";
     /**
      * @en Scroll does not display character pixels outside the text area and supports the scroll interface.
      * @zh scroll 不显示文本域外的字符像素，并且支持 scroll 接口。
      */
-    static SCROLL: string = "scroll";
+    static readonly SCROLL: string = "scroll";
     /**
      * @en Hidden does not display characters beyond the text area.
      * @zh hidden 不显示超出文本域的字符。
      */
-    static HIDDEN: string = "hidden";
+    static readonly HIDDEN: string = "hidden";
     /**
      * @en Shrink the entire text to fit the text box when it exceeds the text area.
      * @zh shrink 超出文本域时，文本整体缩小以适应文本框。
      */
-    static SHRINK: string = "shrink";
+    static readonly SHRINK: string = "shrink";
     /**
      * @en Ellipsis truncates the text and displays an ellipsis at the end when it exceeds the text area.
      * @zh ellipsis 超出文本域时，文本被截断，并且文本最后显示省略号。
      */
-    static ELLIPSIS: string = "ellipsis";
+    static readonly ELLIPSIS: string = "ellipsis";
 
     /**
      * @en Language pack, a collection of key:value pairs, indexed by key, replaced with target value language.
      * @zh 语言包，是一个包含key:value的集合，用key索引，替换为目标value语言。
+     * @blueprintIgnore
      */
     static langPacks: Record<string, string>;
     /**
@@ -139,7 +141,7 @@ export class Text extends Sprite {
      * @zh 表示使用此文本格式的文本字段是否自动换行。
      * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
      */
-    protected _wordWrap: boolean;
+    protected _wordWrap: boolean = false;
 
     /**
      * @internal
@@ -148,7 +150,7 @@ export class Text extends Sprite {
      * @zh 指定文本字段是否是密码文本字段。
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
      */
-    protected _asPassword: boolean;
+    protected _asPassword: boolean = false;
 
     protected _htmlParseOptions: HtmlParseOptions;
 
@@ -175,13 +177,13 @@ export class Text extends Sprite {
     protected _bitmapFont: BitmapFont;
     protected _scrollPos: Point | null;
     protected _bgDrawCmd: DrawRectCmd;
-    protected _html: boolean;
-    protected _ubb: boolean;
+    protected _html: boolean = false;
+    protected _ubb: boolean = false;
     protected _lines: Array<ITextLine>;
     protected _elements: Array<HtmlElement>
     protected _objContainer: Sprite;
     protected _maxWidth: number = 0;
-    protected _hideText: boolean;
+    protected _hideText: boolean = false;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
 
@@ -264,7 +266,7 @@ export class Text extends Sprite {
      * @ignore
      */
     protected _getBoundPointsM(ifRotate?: boolean, out?: number[]): number[] {
-        return Rectangle.TEMP.setTo(0, 0, this.width, this.height).getBoundPoints(out);
+        return Rectangle.TEMP.setTo(0, 0, this._isWidthSet ? this._width : this._textWidth, this._isHeightSet ? this._height : this._textHeight).getBoundPoints(out);
     }
 
     /**
@@ -386,10 +388,12 @@ export class Text extends Sprite {
             let fontObj = ILaya.loader.getRes(value);
             if (!fontObj || fontObj.obsolute) {
                 ILaya.loader.load(value).then(fontObj => {
-                    if (!fontObj || this._realFont != t)
+                    if (this._realFont != t)
                         return;
 
-                    if (fontObj instanceof BitmapFont)
+                    if (!fontObj)
+                        this._realFont = "arial";
+                    else if (fontObj instanceof BitmapFont)
                         this._bitmapFont = fontObj;
                     else
                         this._realFont = fontObj.family;
@@ -411,6 +415,14 @@ export class Text extends Sprite {
             if (this._text)
                 this.markChanged();
         }
+    }
+
+    /**
+     * @en The actual font name used for rendering.
+     * @zh 实际用于渲染的字体名称。
+     */
+    get realFont() {
+        return this._realFont;
     }
 
     /**
@@ -689,6 +701,11 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
+            if (value !== Text.VISIBLE) {
+                this.on(SpriteGlobalTransform.CHANGED , this , this.markChanged);
+            }else{
+                this.off(SpriteGlobalTransform.CHANGED , this, this.markChanged);
+            }
             this.markChanged();
         }
     }
@@ -976,6 +993,24 @@ export class Text extends Sprite {
     }
 
     /**
+     * @en Hide the text. This is commonly used for input text field when it is focused.
+     * @zh 隐藏文本。常用于输入文本框处于焦点时。
+     */
+    hideText(value: boolean) {
+        this._hideText = value;
+        if (value) {
+            if (this._bgDrawCmd)
+                this.graphics.removeCmd(this._bgDrawCmd);
+            this.graphics.clear(true);
+            this.drawBg();
+        }
+        else {
+            this.markChanged();
+            this.typeset();
+        }
+    }
+
+    /**
      * 排版文本。
      * 进行宽高计算，渲染、重绘文本。
      */
@@ -1060,6 +1095,7 @@ export class Text extends Sprite {
         this._fontSizeScale = 1;
 
         let wordWrap = this._wordWrap || this._overflow == Text.ELLIPSIS;
+        let noBreakWord = this._wordWrap;
         let padding = this._padding;
         let rectWidth: number;
         if (this._isWidthSet)
@@ -1190,7 +1226,7 @@ export class Text extends Sprite {
         };
 
         let moveCmds = (cmd: ITextCmd) => {
-            while (cmd.linkEnd) { //跳过空链接的结束符
+            while (cmd.linkEnd && cmd.next) { //跳过空链接的结束符
                 cmd = cmd.next;
             }
             if (!cmd)
@@ -1325,7 +1361,7 @@ export class Text extends Sprite {
                 tw = getTextWidth(cc);
                 wordWidth += tw;
 
-                if (wordWidth < remainWidth || j === startIndex && lineX === 0) { //一行如果连一个字符都放不下，强制放一个
+                if (wordWidth <= remainWidth || j === startIndex && lineX === 0) { //一行如果连一个字符都放不下，强制放一个
                     if (cc.length > 1) //emoji
                         j++;
                     continue;
@@ -1336,9 +1372,9 @@ export class Text extends Sprite {
 
                 //如果换行位置是字母或标点符号，需要向前查找单词的边界，避免单词被拆开
                 //如果是标点符号，还需要保证不在行首
-                if ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
+                if (noBreakWord && ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
                     || (ccode >= 48 && ccode <= 57) // 0-9
-                    || (isPunc = punctuationChars.includes(ccode))) {
+                    || (isPunc = punctuationChars.includes(ccode)))) {
                     let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
@@ -1579,7 +1615,7 @@ export class Text extends Sprite {
                     cleanCmd(cmd, true);
                     cmdPool.push(cmd);
                 }
-                else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth) {
+                else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth - 10) { //10用来放省略号
                     if (cmd.obj) { //如果最后是个图片，那就删除图片，换成省略号
                         cleanCmd(cmd, true);
 
@@ -1600,10 +1636,17 @@ export class Text extends Sprite {
                         cmd.wt.splitRender = this._singleCharRender;
                     }
                     else {
-                        let i = cmd.wt.text.length - 2;
-                        if (i > 0 && isLowSurrogate(cmd.wt.text.charCodeAt(i)))
+                        let space = cmd.x + cmd.width - rectWidth;
+                        let remove = space < 5 ? 2 : space < 10 ? 1 : 0; //视剩余空间删减字符数量
+                        let min = cmd === curLine.cmd ? 1 : 0; //如果是这行的第一个元素，则至少保留一个字符
+                        let i = cmd.wt.text.length;
+                        while (i > min && remove > 0) {
+                            if (isLowSurrogate(cmd.wt.text.charCodeAt(i - 1)))
+                                i--;
                             i--;
-                        cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, i)) + ellipsisStr);
+                            remove--;
+                        }
+                        cmd.wt.setText(cmd.wt.text.substring(0, i) + ellipsisStr);
                     }
                     cmd.width = cmd.wt.width = getTextWidth2(cmd.wt.text, cmd.ctxFont, cmd.fontSize);
                     cmd.next = null;
@@ -1707,6 +1750,7 @@ export class Text extends Sprite {
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
+            // this.scrollRect = new Rectangle(0 , 0 , rectWidth, rectHeight);
             graphics.save();
             graphics.clipRect(0, 0, rectWidth, rectHeight);
             this.repaint();
@@ -1846,6 +1890,7 @@ export interface ITextCmd {
     prev: ITextCmd;
 }
 
+/**  @blueprintIgnore */
 export interface ITextLine {
     x: number;
     y: number;

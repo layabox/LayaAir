@@ -5,6 +5,9 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "./IBufferState";
 import { IDeviceBuffer } from "./IDeviceBuffer";
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IRenderGeometryElement {
     bufferState: IBufferState;
     mode: MeshTopology;

@@ -10,7 +10,6 @@ import { Pool } from "../utils/Pool";
 export class Rectangle implements IClone {
 
     /**
-     * @private
      * @en Global empty rectangle area with x=0, y=0, width=0, height=0. The content of this object is not allowed to be modified.
      * @zh 全局空的矩形区域，x=0, y=0, width=0, height=0。不允许修改此对象内容。
      */
@@ -233,6 +232,7 @@ export class Rectangle implements IClone {
         out || (out = new Rectangle());
         this.cloneTo(out);
         if (width <= 0 || height <= 0) return out;
+        if (this.width <= 0 || this.height <= 0) return out.setTo(x, y, width, height);
 
         out.addPoint(x, y);
         out.addPoint(x + width, y + height);

@@ -1,6 +1,7 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
+import { NodeFlags } from "../Const";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
@@ -136,8 +137,8 @@ export class FrameAnimation extends Component {
     }
 
     set frames(value: ReadonlyArray<Texture>) {
-        if (this._drawCmd) {
-            this.owner.graphics.removeCmd(this._drawCmd);
+        if (this._drawCmd && this.owner._graphics) {
+            this.owner._graphics.removeCmd(this._drawCmd);
             this._drawCmd = null;
         }
         for (let cmd of this._drawCmds)
@@ -147,10 +148,18 @@ export class FrameAnimation extends Component {
 
         if (value != null && value.length > 0) {
             this._frames.push(...value);
+
+            let dx = 0, dy = 0;
+            if (this._stretchMode === AnimationStretchMode.None) {
+                dx = this._offset.x;
+                dy = this._offset.y;
+            }
+
             let stretch = this._stretchMode === AnimationStretchMode.Fill;
             for (let tex of value) {
                 let cmd = stretch ? DrawTextureCmd.create(tex, 0, 0, 1, 1, null, 1, null, null, null, true)
-                    : DrawTextureCmd.create(tex, 0, 0);
+                    : DrawTextureCmd.create(tex, dx, dy);
+                cmd.lock = true;
                 this._drawCmds.push(cmd);
             }
 
@@ -376,14 +385,14 @@ export class FrameAnimation extends Component {
 
         this.frames = null;
         if (this._atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.off("reload", this, this.onAtlasReload);
             this._atlas = null;
         }
     }
 
     /**
-     * @hidden
+     * @ignore
      */
     onUpdate(): void {
         if (!this._playing || this._count == 0)
@@ -505,7 +514,7 @@ export class FrameAnimation extends Component {
 
     private load() {
         if (this._atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.off("reload", this, this.onAtlasReload);
             this._atlas = null;
         }
@@ -565,7 +574,7 @@ export class FrameAnimation extends Component {
 
         this._atlas = atlas;
         if (atlas) {
-            if (!LayaEnv.isPlaying)
+            if (this.owner._getBit(NodeFlags.EDITING_NODE))
                 this._atlas.on("reload", this, this.onAtlasReload);
 
             let ani = atlas.animation;

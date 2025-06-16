@@ -11,6 +11,9 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
 
+/**
+ * @blueprintInheritable
+ */
 export class GList extends GPanel {
     public itemRenderer: (index: number, item: any) => void;
     public itemProvider: (index: number) => string;
@@ -170,10 +173,13 @@ export class GList extends GPanel {
                 child.hideFlags |= HideFlags.HideAndDontSave;
                 child.text = m.title;
                 child.icon = m.icon;
-                if (m.selectedTitle && (child instanceof GButton))
-                    child.selectedTitle = m.selectedTitle;
-                if (m.selectedIcon && (child instanceof GButton))
-                    child.selectedIcon = m.selectedIcon;
+                if (child instanceof GButton) {
+                    if (m.selectedTitle)
+                        child.selectedTitle = m.selectedTitle;
+                    if (m.selectedIcon)
+                        child.selectedIcon = m.selectedIcon;
+                    child.selected = false;
+                }
                 if (m.name != null)
                     child.name = m.name;
                 this.addChild(child);
@@ -181,6 +187,8 @@ export class GList extends GPanel {
             else
                 this.addItemFromPool();
         }
+
+        this.selection._refresh();
     }
 }
 

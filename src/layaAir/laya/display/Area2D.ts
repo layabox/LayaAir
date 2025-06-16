@@ -1,19 +1,25 @@
-import { Context } from "../renders/Context";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { Sprite } from "./Sprite";
-import { Scene } from "./Scene";
 import { Node } from "./Node";
 import { Point } from "../maths/Point";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { NodeFlags } from "../Const";
+import { Vector4 } from "../maths/Vector4";
+import { LayaGL } from "../layagl/LayaGL";
+import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
+const TEMP_Vector4 = new Vector4(0, 0, 0, 0);
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
-    declare _scene: Scene;
-
+    declare _scene: any;
+    /**@internal */
+    _globalRenderData: I2DGlobalRenderData;
     constructor() {
         super();
         this._setBit(NodeFlags.AREA_2D, true);
+        this._initShaderData();
+        this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
+        this._globalRenderData.globalShaderData = this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
     get mainCamera(): Camera2D {
@@ -24,21 +30,15 @@ export class Area2D extends Sprite {
         if (camera == this._mainCamera)
             return;
         this._mainCamera && (this._mainCamera._isMain = false);
-        this._mainCamera = camera;
-        if (this._mainCamera) {
-            this._mainCamera._isMain = true;
-        }
-    }
 
-    _preRenderUpdate(context: Context) {
-        let shaderData = this._scene.sceneShaderData;
-        if (this._mainCamera) {
-            context.drawLeftData();
-            if (shaderData) {
-                shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
-            }
+        if (camera) {
+            camera._isMain = true;
+            this.shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+        } else {
+            this.shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
         }
+        
+        this._mainCamera = camera;
     }
 
     /**
@@ -47,19 +47,14 @@ export class Area2D extends Sprite {
      * @param x 
      * @param y 
      */
-    render(ctx: Context, x: number, y: number): void {
-        this._preRenderUpdate(ctx);
-        this._scene._curCamera = this.mainCamera;
-        super.render(ctx, x, y);
+    render(): void {
         if (this._mainCamera) {
-            let shaderData = this._scene.sceneShaderData;
-            ctx.drawLeftData();
-            if (shaderData) {
-                shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+            if (this.shaderData) {
+                this._globalRenderData.renderLayerMask = this._mainCamera.visiableLayer;
+                this._globalRenderData.cullRect = this._mainCamera._rect;
+                this.shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
             }
         }
-        this._scene._curCamera = null;
-
     }
 
     _setBelongScene(scene: Node): void {

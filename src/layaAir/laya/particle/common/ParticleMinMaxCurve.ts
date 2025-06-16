@@ -99,7 +99,7 @@ export class ParticleMinMaxCurve implements IClone {
         dest.curveMax = this.curveMax.clone();
     }
 
-    clone(): ParticleMinMaxCurve {
+    clone() {
         let dest = new ParticleMinMaxCurve();
         this.cloneTo(dest);
         return dest;

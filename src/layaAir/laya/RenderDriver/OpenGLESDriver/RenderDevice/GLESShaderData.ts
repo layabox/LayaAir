@@ -367,7 +367,7 @@ export class GLESShaderData extends ShaderData {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: GLESShaderData = new GLESShaderData();
         this.cloneTo(dest);
         return dest;

@@ -602,7 +602,7 @@ export class Quaternion implements IClone {
      * @zh 克隆四元数。
      * @returns 一个与当前四元数值相同的新四元数。
      */
-    clone(): any {
+    clone() {
         var dest: Quaternion = new Quaternion();
         this.cloneTo(dest);
         return dest;

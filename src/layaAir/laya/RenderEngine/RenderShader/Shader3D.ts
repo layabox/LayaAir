@@ -40,7 +40,8 @@ export enum ShaderFeatureType {
 }
 
 /**
- * <code>Shader3D</code> 类用于创建Shader3D。
+ * Shader3D类用于创建Shader3D。
+ * @blueprintIgnore
  */
 export class Shader3D {
     static _configDefineValues: IDefineDatas;

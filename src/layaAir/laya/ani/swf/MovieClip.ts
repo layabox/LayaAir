@@ -314,6 +314,7 @@ export class MovieClip extends Sprite {
                             sp = _idOfSprite[key] = new Sprite();
                             var spp: Sprite = new Sprite();
                             spp.loadImage(this.basePath + pid + ".png");
+                            spp.name = pid + "";
                             this._loadedImage[this.basePath + pid + ".png"] = true;
                             sp.addChild(spp);
                             spp.size(_data.getFloat32(), _data.getFloat32());

@@ -1,12 +1,16 @@
 import { Event } from "../events/Event";
+import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
-import { ImgUtils } from "../utils/ImgUtils";
+import { ProgressCallback } from "./BatchProgress";
 import { HttpRequest } from "./HttpRequest";
 import { WorkerLoader } from "./WorkerLoader";
+
+export type DownloadCompleteCallback = (data: any, error?: string) => void;
 
 /**
  * @en Downloader class responsible for handling various types of resource downloads.
  * @zh Downloader类负责处理各种类型的资源下载。
+ * @blueprintIgnore
  */
 export class Downloader {
     /**
@@ -25,7 +29,7 @@ export class Downloader {
      * @param onProgress 下载进度的回调函数。
      * @param onComplete 下载完成时的回调函数。
      */
-    common(owner: any, url: string, originalUrl: string, contentType: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
+    common(owner: any, url: string, originalUrl: string, contentType: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         let http = this.getRequestInst();
         http.on(Event.COMPLETE, () => {
             let data = http.data;
@@ -40,7 +44,7 @@ export class Downloader {
         });
         if (onProgress)
             http.on(Event.PROGRESS, onProgress);
-        http.send(url, null, "get", <any>contentType);
+        http.send(url, null, "get", contentType);
         owner.$ref = http; //保持引用避免gc掉
     }
 
@@ -58,7 +62,7 @@ export class Downloader {
      * @param onProgress 下载进度的回调函数。
      * @param onComplete 下载完成时的回调函数。
      */
-    image(owner: any, url: string, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
+    image(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         let image: HTMLImageElement = new Browser.window.Image();
         image.crossOrigin = "";
         image.onload = () => {
@@ -89,9 +93,12 @@ export class Downloader {
      * @param onProgress 下载进度的回调函数。
      * @param onComplete 下载完成时的回调函数。
      */
-    imageWithBlob(owner: any, blob: ArrayBuffer, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
-        let url = ImgUtils.arrayBufferToURL(originalUrl, blob);
-        this.image(owner, url, originalUrl, onProgress, onComplete);
+    imageWithBlob(owner: any, blob: ArrayBuffer, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
+        let url = PAL.browser.createBufferURL(blob);
+        if (url)
+            this.image(owner, url, originalUrl, onProgress, onComplete);
+        else
+            onComplete(null, "Blob URL creation not supported.");
     }
 
     /**
@@ -108,7 +115,7 @@ export class Downloader {
      * @param onProgress 下载进度的回调函数。
      * @param onComplete 下载完成时的回调函数。
      */
-    imageWithWorker(owner: any, url: string, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): void {
+    imageWithWorker(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         WorkerLoader.enable = true;
         if (WorkerLoader.enable) {
             WorkerLoader.load(url, owner.workerLoaderOptions)
@@ -133,7 +140,7 @@ export class Downloader {
      * @param onProgress 下载进度的回调函数。
      * @param onComplete 下载完成时的回调函数。
      */
-    audio(owner: any, url: string, originalUrl: string, onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void) {
+    audio(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback) {
         let audio = (<HTMLAudioElement>Browser.createElement("audio"));
         audio.crossOrigin = "";
         audio.oncanplaythrough = () => {
@@ -148,6 +155,10 @@ export class Downloader {
         };
         audio.src = url;
         owner.$ref = audio; //保持引用避免gc掉
+    }
+
+    package(path: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback) {
+        onComplete(null);
     }
 
     /**

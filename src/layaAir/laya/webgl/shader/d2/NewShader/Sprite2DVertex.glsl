@@ -1,4 +1,3 @@
-#include "Sprite2DShaderInfo.glsl";
 
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
@@ -9,71 +8,116 @@
     vec4 transedPos;
 #endif
 
-#ifdef PRIMITIVEMESH
-    uniform vec4 u_clipMatDir;
-    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-    uniform vec2 u_size;
-    uniform float u_VertAlpha;
-    varying vec2 v_cliped;
-    varying vec4 v_color;
-    // attribute vec4 a_position;
-    // attribute vec4 a_attribColor;
-
-    void getVertexInfo(inout vertexInfo info){
-        info.color = a_attribColor;
-        info.color.a*=u_VertAlpha;
-        float clipw = length(u_clipMatDir.xy);
-        float cliph = length(u_clipMatDir.zw);
-        #ifdef WORLDMAT
-            vec2 clippos = transedPos.xy - u_clipMatPos.xy;
-        #else
-        vec2 clippos = a_position.xy - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
-        #endif
-
-        if(clipw>20000. && cliph>20000.)
-            info.cliped = vec2(0.5,0.5);
-        else {
-            //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
-            info.cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
-        }
-    }
-
-    void getPosition(inout vec4 pos){
-        pos = vec4(a_position.xy,0.,1.);
-        #ifdef WORLDMAT
-            pos = u_mmat*pos;
-            transedPos=pos;
-  			#ifdef CAMERA2D
-            	pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
-        	#endif  
-            pos = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,pos.z,1.0);
-        #else
-  			#ifdef CAMERA2D
-           	 pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
-       		#endif  
-            pos = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,pos.z,1.0);
-        #endif
-
-        #ifdef INVERTY
-            pos.y = -pos.y;
-        #endif
-    }
+#ifdef RENDERTEXTURE
+    uniform vec3 u_InvertMat_0;
+    uniform vec3 u_InvertMat_1;
 #endif
 
-#ifdef TEXTUREVS
+#ifdef VERTEX_SIZE
+    uniform vec4 u_vertexSize;
+#endif
+
+uniform vec3 u_NMatrix_0;
+uniform vec3 u_NMatrix_1;
+
+uniform vec2 u_size;
+#ifdef MATERIALCLIP
+    uniform vec4 u_mClipMatDir;
+    uniform vec4 u_mClipMatPos;
+#else
     uniform vec4 u_clipMatDir;
-    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-    uniform vec2 u_size;
+    uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+#endif
+// uniform vec2 u_pivotPos;
+varying vec2 v_cliped;
+varying vec4 v_color;
+
+void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
+    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
+    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
+}
+
+void clip(inout vec2 globalPos){
+    // 根据视口调整位置
+    vec4 clipMatDir;
+    vec4 clipMatPos;
+    #ifdef MATERIALCLIP
+        clipMatDir = u_mClipMatDir;
+        clipMatPos = u_mClipMatPos;
+        // clipMatDir.x = u_mClipMatDir.x * u_NMatrix_0.x;//a
+        // clipMatDir.y = u_mClipMatDir.y * u_NMatrix_1.x;//b
+        // clipMatDir.z = u_mClipMatDir.z * u_NMatrix_0.y;//c
+        // clipMatDir.w = u_mClipMatDir.w * u_NMatrix_1.y;//d
+        // clipMatDir.xy *= u_NMatrix_0.z;
+        // vec2 tempPos;
+        // transfrom(u_mClipMatPos.xy , u_NMatrix_0 , u_NMatrix_1 , tempPos) ;
+        // clipMatPos.xyzw = tempPos.xyxy;
+    #else
+        clipMatDir = u_clipMatDir;
+        clipMatPos = u_clipMatPos;
+    #endif
+
+    vec2 cliped;
+    float clipw = length(clipMatDir.xy);
+    float cliph = length(clipMatDir.zw);
+    vec2 clippos = globalPos - clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
+    if(clipw>20000. && cliph>20000.)
+        cliped = vec2(0.5,0.5);
+    else {
+        //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
+        cliped =vec2( dot(clippos,clipMatDir.xy)/clipw/clipw, dot(clippos,clipMatDir.zw)/cliph/cliph);
+    }
+    
+    globalPos = clippos + clipMatPos.zw;
+    v_cliped = cliped;
+}
+
+void getGlobalPos(in vec2 localPos,out vec2 globalPos){
+    transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
+}
+
+void getProjectPos(in vec2 viewPos,out vec4 projectPos){
+    projectPos= vec4((viewPos.x/u_size.x-0.5)*2.0,(0.5-viewPos.y/u_size.y)*2.0,0.,1.0);
+    #ifdef INVERTY
+        projectPos.y = -projectPos.y;
+    #endif
+}
+
+void getViewPos(in vec2 globalPos,out vec2 viewPos){
+    #ifdef RENDERTEXTURE
+        vec2 tempPos;
+        transfrom(globalPos , u_InvertMat_0, u_InvertMat_1, tempPos);
+        #ifdef CAMERA2D
+            viewPos.xy = (u_view2D *vec3(tempPos,1.0)).xy+u_size/2.;
+        #else
+            viewPos.xy = tempPos;
+        #endif
+    #else
+        #ifdef CAMERA2D
+            viewPos.xy = (u_view2D *vec3(globalPos,1.0)).xy+u_size/2.;
+        #else
+            viewPos.xy = globalPos;
+        #endif
+    #endif
+
+    
+}
+
+#ifdef TEXTUREVS
+    
+    struct vertexInfo {
+        vec2 pos;
+        vec4 color;
+        vec2 cliped;
+        vec4 texcoordAlpha;
+        float useTex;
+    };
+
     uniform float u_VertAlpha;
-    varying vec2 v_cliped;
-    varying vec4 v_color;
 	//texture和fillrect使用的。
     // attribute vec4 a_posuv;
     // attribute vec4 a_attribColor;
     // attribute vec4 a_attribFlags;
-    #ifdef MVP3D
-        uniform mat4 u_MvpMatrix;
-    #endif
 
     varying vec4 v_texcoordAlpha;
     varying float v_useTex;
@@ -87,66 +131,38 @@
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r;
+        vec2 pos;
+        #ifdef VERTEX_SIZE
+            pos = (a_posuv.xy*u_vertexSize.zw ) +u_vertexSize.xy;//xy偏移，zw 顶点扩展宽高
+        #else
+            pos = a_posuv.xy;
+        #endif
+        info.pos = pos;
+    }
 
+    vec4 getPosition(in vec2 positionOS){
+        vec2 globalPos;
+        #ifdef VERTEX_SIZE
+            getGlobalPos(positionOS , globalPos);
+        #else
+            globalPos = positionOS;
+        #endif
        
+        clip(globalPos);
+
+        vec2 viewPos;
+        getViewPos(globalPos,viewPos);
+        vec4 pos;
+        getProjectPos(viewPos,pos);
+        return pos;
     }
 
-    void getPosition(inout vec4 glPosition){
-        vec4 pos = vec4(a_posuv.xy,0.,1.);
-        #ifdef WORLDMAT
-            pos= u_mmat * pos;
-            transedPos=pos;//vec4(pos.x,pos.y,0.0,1.0);
-        #endif
-
-        #ifdef CAMERA2D
-            pos.xy = (u_view2D *vec3(pos.x,pos.y,1.0)).xy+u_size/2.;
-        #endif  
-        
-        //clip
-    	float clipw = length(u_clipMatDir.xy);
-    	float cliph = length(u_clipMatDir.zw);
-	    vec2 clpos = u_clipMatPos.xy;
-        #ifdef WORLDMAT
-            vec2 clippos = transedPos.xy - clpos;
-        #else
-        vec2 clippos = pos.xy- clpos;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
-        #endif
-        if(clipw>20000. && cliph>20000.)
-            v_cliped = vec2(0.5,0.5);
-        else {
-            //转成0到1之间。/clipw/clipw 表示clippos与normalize之后的clip朝向点积之后，再除以clipw
-            v_cliped = vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
-        }
-        
-        vec4 pos1 = vec4((pos.x/u_size.x-0.5)*2.0,(0.5-pos.y/u_size.y)*2.0,0.,1.0);
-        
-        
-        #ifdef MVP3D
-            glPosition = u_MvpMatrix * pos1;
-        #else
-            glPosition = pos1;
-        #endif
-        
-        #ifdef INVERTY
-            glPosition.y = -glPosition.y;
-        #endif
-
-      
-    }
 #endif
 
 #ifdef BASERENDER2D
     varying vec2 v_texcoord;
-    varying vec4 v_color;
-    varying vec2 v_cliped;
 
-    uniform vec3 u_NMatrix_0;
-    uniform vec3 u_NMatrix_1;
-    uniform vec2 u_baseRenderSize2D;
     uniform vec4 u_baseRenderColor;
-   
-    uniform vec4 u_clipMatDir;
-    uniform vec2 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
     
     struct vertexInfo {
         vec4 color;
@@ -184,23 +200,6 @@
         }
     #endif
 
-    void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-        outPos.x=xDir.x*pos.x+xDir.y*pos.y+xDir.z;
-        outPos.y=yDir.x*pos.x+yDir.y*pos.y+yDir.z;
-    }
-
-    void getGlobalPos(in vec2 localPos,out vec2 globalPos){
-        transfrom(localPos,u_NMatrix_0,u_NMatrix_1,globalPos);
-    }
-
-    void getViewPos(in vec2 globalPos,out vec2 viewPos){
-        #ifdef CAMERA2D
-            viewPos.xy = (u_view2D *vec3(globalPos,1.0)).xy+u_baseRenderSize2D/2.;
-        #else
-            viewPos.xy = globalPos;
-        #endif
-    }
-
     vec4 linearToGamma(in vec4 value)
     {
         return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))),value.a);
@@ -235,34 +234,16 @@
             info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
         #endif
     }
-
-    vec2 getClipedInfo(vec2 screenPos){
-        vec2 cliped;
-        float clipw = length(u_clipMatDir.xy);
-        float cliph = length(u_clipMatDir.zw);
-        vec2 clippos = screenPos - u_clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
-        if(clipw>20000. && cliph>20000.)
-            cliped = vec2(0.5,0.5);
-        else {
-            //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
-            cliped =vec2( dot(clippos,u_clipMatDir.xy)/clipw/clipw, dot(clippos,u_clipMatDir.zw)/cliph/cliph);
-        }
-        return cliped;
-    }
-
-    void getProjectPos(in vec2 viewPos,out vec4 projectPos){
-        projectPos= vec4((viewPos.x/u_baseRenderSize2D.x-0.5)*2.0,(0.5-viewPos.y/u_baseRenderSize2D.y)*2.0,0.,1.0);
-        #ifdef INVERTY
-            projectPos.y = -projectPos.y;
-        #endif
-    }
-
-    void getPosition(inout vec4 pos){
+    
+    vec4 getPosition(in vec2 positionOS){
         vec2 globalPos;
-        getGlobalPos(a_position.xy,globalPos);
+        getGlobalPos(positionOS,globalPos);
+        clip(globalPos);
+
         vec2 viewPos;
         getViewPos(globalPos,viewPos);
-        v_cliped = getClipedInfo(viewPos);
+        vec4 pos;
         getProjectPos(viewPos,pos);
+        return pos;
     }
 #endif

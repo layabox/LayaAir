@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { IIndexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -114,6 +115,7 @@ export class LoadModel2DV01 {
 
         let vertexBuffers:IVertexBuffer[] = [];
         var vertexCount: number  = 0;
+        let vertices:ArrayBuffer[]=[];
         for (i = 0; i < vertexBufferCount; i++) {
             var vbStart: number = offset + reader.getUint32();
             var byteLength: number = reader.getUint32();
@@ -123,7 +125,7 @@ export class LoadModel2DV01 {
             var vertexData = arrayBuffer.slice(vbStart, vbStart + byteLength);
             // var floatData = new Float32Array(vertexData);
             // var uint8Data = new Uint8Array(vertexData);
-          
+            vertices[i] = vertexData;
             var vertexBuffer: IVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer( BufferUsage.Static);
             vertexBuffer.vertexDeclaration = vertexDeclaration;
             vertexBuffer.setDataLength(byteLength);
@@ -162,6 +164,12 @@ export class LoadModel2DV01 {
         indexBuffer._setIndexData(ibDatas,0);
 
         mesh._setBuffers(vertexBuffers, indexBuffer);
+
+        // if (LayaEnv.isPreview) {
+            mesh.canRead = true;
+            mesh._vertices = vertices;
+            mesh._indices = ibDatas;
+        // }
 
         memorySize += ibDatas.byteLength;
         mesh._setCPUMemory(memorySize);

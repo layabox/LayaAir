@@ -5,28 +5,29 @@ import { UIComponent } from "./UIComponent";
 /**
  * @en The `HBox` class is a horizontal layout container.
  * @zh `HBox` 是一个水平布局容器类。
+ * @blueprintInheritable
  */
 export class HBox extends LayoutBox {
     /**
      * @en No alignment.
      * @zh 无对齐。
      */
-    static NONE: string = "none";
+    static readonly NONE: string = "none";
     /**
      * @en Align to the top.
      * @zh 居顶部对齐。
      */
-    static TOP: string = "top";
+    static readonly TOP: string = "top";
     /**
      * @en Align to the center.
      * @zh 居中对齐。
      */
-    static MIDDLE: string = "middle";
+    static readonly MIDDLE: string = "middle";
     /**
      * @en Align to the bottom.
      * @zh 居底部对齐。
      */
-    static BOTTOM: string = "bottom";
+    static readonly BOTTOM: string = "bottom";
 
     /**
      * @ignore

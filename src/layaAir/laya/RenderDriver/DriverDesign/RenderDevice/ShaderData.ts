@@ -12,7 +12,6 @@ import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
-import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
 import { IDeviceBuffer } from "./IDeviceBuffer";
 
 export enum ShaderDataType {
@@ -474,7 +473,7 @@ export class ShaderData implements IClone {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone(): ShaderData {
         throw new NotImplementedError();
     }
 

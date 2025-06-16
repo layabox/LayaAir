@@ -226,7 +226,7 @@ export class RenderTextureLoader implements IResourceLoader {
 
 export class VideoTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        let inst = <VideoTexture>task.obsoluteInst || new VideoTexture();
+        let inst = <VideoTexture>task.obsoluteInst || VideoTexture.createInstance();
         inst.source = task.url;
         return Promise.resolve(inst);
     }

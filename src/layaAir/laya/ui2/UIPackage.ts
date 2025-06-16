@@ -11,6 +11,9 @@ import { GSlider } from "./GSlider";
 import { GTextInput } from "./GTextInput";
 import { UIConfig2 } from "./UIConfig";
 
+/**
+ * @blueprintable
+ */
 export class UIPackage {
 
     static createButton(): GButton {
@@ -83,4 +86,4 @@ export class UIPackage {
 
 }
 
-Laya.addReadyCallback(UIPackage._init);
+Laya.addAfterInitCallback(UIPackage._init);

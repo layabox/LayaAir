@@ -1,5 +1,8 @@
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export interface IIndexBuffer {
     destroy(): void;
     _setIndexDataLength(data: number): void;

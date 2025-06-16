@@ -85,7 +85,7 @@ export class TextureSheetAnimationModule implements IClone {
         destObject.cycles = this.cycles;
     }
 
-    clone(): TextureSheetAnimationModule {
+    clone() {
         var dest = new TextureSheetAnimationModule();
         this.cloneTo(dest);
         return dest;

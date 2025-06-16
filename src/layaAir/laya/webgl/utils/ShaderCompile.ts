@@ -82,7 +82,7 @@ const StencilOperationMap: Record<string, StencilOperation> = {
 }
 
 /**
- * @private
+ * @ignore
  * <code>ShaderCompile</code> 类用于实现Shader编译。
  */
 export class ShaderCompile {
@@ -201,9 +201,6 @@ export class ShaderCompile {
         });
     }
 
-    /**
-     * @private
-     */
     private static _compileToTree(parent: ShaderNode, script: string, defs: Set<string>, includes: Array<IncludeItem>, basePath: string): void {
         let node: ShaderNode, preNode: ShaderNode;
         let text: string, name: string, fname: string;

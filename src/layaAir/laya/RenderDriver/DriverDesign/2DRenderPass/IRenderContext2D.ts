@@ -5,11 +5,14 @@ import { IRenderCMD } from "../RenderDevice/IRenderCMD";
 import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderElement2D } from "./IRenderElement2D";
 
+/**
+ * @blueprintIgnore
+ */
 export interface IRenderContext2D {
 
     invertY: boolean;
     pipelineMode: string;
-    sceneData: ShaderData;
+    passData: ShaderData;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void;
     getRenderTarget(): InternalRenderTarget;
     setOffscreenView(width: number, height: number): void;

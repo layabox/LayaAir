@@ -88,6 +88,7 @@ const GL_DATATYPE_HALF_FLOAT = 0x140b;
 /**
  * https://www.khronos.org/registry/KTX/specs/1.0/ktxspec_v1.html
  * https://www.khronos.org/registry/KTX/specs/2.0/ktxspec_v2.html
+ * @blueprintIgnore
  */
 export class KTXTextureInfo {
 

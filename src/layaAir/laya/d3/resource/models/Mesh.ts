@@ -25,7 +25,7 @@ import { Config } from "../../../../Config";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { NotReadableError } from "../../../utils/Error";
-import { ILaya3D } from "../../../../ILaya3D";
+
 /**
  * @internal
  */
@@ -790,7 +790,7 @@ export class Mesh extends Resource implements IClone {
         if (this._convexMesh == null) {
             return null;
         }
-        let util = ILaya3D.Laya3D._PhysicsCreateUtil;
+        let util = ILaya.Laya3D._PhysicsCreateUtil;
         if (this.__convexMesh == null && util && util.getPhysicsCapable(EPhysicsCapable.Physics_CreateCorveMesh)) {
             this.__convexMesh = util.createCorveMesh(this);
         }
@@ -888,7 +888,7 @@ export class Mesh extends Resource implements IClone {
      * @zh 克隆当前网格。
      * @return 当前网格的克隆副本。
      */
-    clone(): any {//[实现IClone接口]
+    clone() {//[实现IClone接口]
         var dest: Mesh = new Mesh();
         this.cloneTo(dest);
         return dest;

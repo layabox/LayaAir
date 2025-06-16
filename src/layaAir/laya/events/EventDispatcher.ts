@@ -6,13 +6,13 @@ const eventPool: Array<Event> = [];
 /**
  * @en The `EventDispatcher` class is the base class for all classes that dispatch events.
  * @zh `EventDispatcher` 类是可调度事件的所有类的基类。
+ * @blueprintable
  */
 export class EventDispatcher {
     /**@private */
     private _events: Record<string, Delegate>;
 
     /**
-     * @protected
      * @en Start listening to a specific event type.
      * This method is called when a new event listener is added.
      * @param type The event type to listen to.
@@ -198,10 +198,15 @@ export class EventDispatcher {
      * @returns 此 EventDispatcher 对象。
      */
     offAll(type?: string): EventDispatcher {
-        if (type == null)
-            this._events = null;
+        if (!this._events)
+            return this;
+
+        if (type == null) {
+            for (let type in this._events)
+                this._events[type].clear();
+        }
         else {
-            let listeners = this._events && this._events[type];
+            let listeners = this._events[type];
             if (listeners)
                 listeners.clear();
         }

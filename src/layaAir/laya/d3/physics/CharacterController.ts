@@ -142,9 +142,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set centerOffset(value: Vector3) {
         this._offset = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).localOffset = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_offset)) {
             this._collider.setShapelocalOffset(this._offset);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).localOffset = value);
         }
     }
 

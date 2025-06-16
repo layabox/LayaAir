@@ -7,6 +7,7 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 import { Stat } from "../../../utils/Stat";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
@@ -34,6 +35,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     geometry: WebGPURenderGeometry;
 
+    type:number = 0;
     materialShaderData: WebGPUShaderData;
 
     value2DShaderData: WebGPUShaderData;
@@ -69,6 +71,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         const globalShaderDefines = context._cacheGlobalDefines;
 
         globalShaderDefines.cloneTo(comDef);
+    owner: IRenderStruct2D;
 
         if (this.value2DShaderData)
             comDef.addDefineDatas(this.value2DShaderData.getDefineData());

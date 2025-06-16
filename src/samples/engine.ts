@@ -10,10 +10,11 @@ import "laya/navigation/3D/ModuleDef";
 import "laya/navigation/2D/ModuleDef";
 import "laya/trail/trail2D/ModuleDef";
 import "laya/trail/trail3D/ModuleDef";
-import "laya/particle/ModuleDef";
 import "laya/Light2D/ModuleDef";
 import "laya/Line2D/ModuleDef";
 import "laya/d3/postProcessEffect/ModuleDef";
+import "laya/particle/common/ModuleDef";
+import "laya/particle/d2/ModuleDef";
 import "laya/particle/d3/ModuleDef";
 import "laya/utils/StatUI";
 
@@ -38,9 +39,15 @@ import { WasmAdapter } from "laya/utils/WasmAdapter";
 
 //Use Bullet physics engine
 import "laya/Physics3D/Bullet/btPhysicsCreateUtil";
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "Laya";
 
 //or Use physX physics engine
 //import "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
 
 (window as any).Laya = {};
 (window as any).Laya.WasmAdapter = WasmAdapter;
+
+Laya.addBeforeInitCallback(() => {
+    return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
+});

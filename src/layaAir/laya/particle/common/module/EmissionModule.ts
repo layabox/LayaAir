@@ -17,7 +17,7 @@ export class EmissionBurst implements IClone {
         destObject.count = this.count;
     }
 
-    clone(): EmissionBurst {
+    clone() {
         var dest = new EmissionBurst();
         this.cloneTo(dest);
         return dest;
@@ -90,7 +90,7 @@ export class EmissionModule implements IClone {
         }
     }
 
-    clone(): EmissionModule {
+    clone() {
         let dest = new EmissionModule();
         this.cloneTo(dest);
         return dest;

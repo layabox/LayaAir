@@ -16,7 +16,7 @@ export interface ICollider {
      * @en Indicates whether the collider can be enabled. It's true only when placed in the scene and the physics component is effective.
      * @zh 是否可以启用，只有放入scene中且物理组件生效才会为true。
      */
-    active:boolean;
+    active: boolean;
     /**
      * @en Index in the physics update list.
      * @zh 在物理更新列表中的索引。
@@ -152,4 +152,12 @@ export interface ICollider {
      * @param events 要过滤的事件数组。
      */
     setEventFilter?(events: string[]): void;
+
+    /**
+     * @en Set whether the collider allows sleep.
+     * @param value Whether the collider allows sleep.
+     * @zh 设置碰撞器是否允许睡眠。
+     * @param value 是否允许睡眠。
+     */
+    allowSleep(value: boolean): void;
 }

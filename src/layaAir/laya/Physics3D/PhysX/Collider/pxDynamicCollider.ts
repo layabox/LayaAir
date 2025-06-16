@@ -202,6 +202,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this.setCollisionDetectionMode(this._collisionDetectionMode);
         this.setSolverIterations(this._solverIterations);
         this.setSleepThreshold(this._sleepThreshold);
+        this.setWorldPosition(this.owner.transform.position);
     }
 
     /**
@@ -212,8 +213,9 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setWorldPosition(value: Vector3): void {
         const transform = this._pxActor.getGlobalPose();
+        _tempTranslation.setValue(value.x, value.y, value.z);
         _tempRotation.setValue(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-        this._pxActor.setGlobalPose(this._transformTo(value, _tempRotation), true);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, _tempRotation), true);
     }
 
     /**
@@ -225,7 +227,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     setWorldRotation(value: Quaternion): void {
         const transform = this._pxActor.getGlobalPose();
         _tempTranslation.setValue(transform.translation.x, transform.translation.y, transform.translation.z);
-        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, value), true);
+        _tempRotation.setValue(value.x, value.y, value.z, value.w);
+        this._pxActor.setGlobalPose(this._transformTo(_tempTranslation, _tempRotation), true);
     }
 
     /**
@@ -354,6 +357,14 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
     /**
+     * @en Whether it is sleeping.
+     * @zh 是否处于睡眠状态。
+     */
+    isSleeping(): boolean {
+        return this._pxActor.isSleeping();
+    }
+
+    /**
      * @en Set the sleep threshold of the dynamic collider.
      * @param value The sleep threshold value.
      * @zh 设置动态碰撞体的睡眠阈值。
@@ -422,6 +433,20 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
                 this._physicsManager._dynamicUpdateList.add(this);
             this._pxActor.setRigidBodyFlag(pxStatics._physX.PxRigidBodyFlag.eKINEMATIC, false);
+        }
+    }
+
+    allowSleep(value: boolean): void {
+        if (this.IsKinematic)
+            return;
+        if (this._pxActor) {
+            if (value) {
+                this.setSleepThreshold(this._sleepThreshold);
+                this._pxActor.setWakeCounter(0.4);
+            } else {
+                this.setSleepThreshold(0.0);
+                this._pxActor.setWakeCounter(Number.MAX_VALUE);
+            }
         }
     }
 

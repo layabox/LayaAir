@@ -1,6 +1,4 @@
 import { Laya } from "../../../Laya";
-import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { IBatch2DRender, RenderManager2D } from "../../NodeRender2D/RenderManager2D";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -13,13 +11,14 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { FastSinglelist } from "../../utils/SingletonList";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { SpineShaderInit } from "../material/SpineShaderInit";
 
 /**
  * @en SpineInstanceBatch used for efficient rendering Spine instances.
  * @zh SpineInstanceBatch 用于高效渲染 Spine 实例。
  */
-export class SpineInstanceBatch implements IBatch2DRender{
+export class SpineInstanceBatch {
     /**
      * @en The instance of SpineInstanceBatch.
      * @zh SpineInstanceBatch 的实例。
@@ -61,7 +60,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
      * @param start 列表中的起始索引。
      * @param length 要处理的元素数量。
      */
-    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number): void {
+    batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number , elementCount:number = 1): void {
         let elementArray = list.elements;
         let batchStart = -1;
         for (let i = 0; i < length - 1; i++) {
@@ -175,8 +174,8 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
             }
 
-            let nMatrix_0= shaderData.getVector3(BaseRenderNode2D.NMATRIX_0);
-            let nMatrix_1 = shaderData.getVector3(BaseRenderNode2D.NMATRIX_1);
+            let nMatrix_0= shaderData.getVector3(ShaderDefines2D.UNIFORM_NMATRIX_0);
+            let nMatrix_1 = shaderData.getVector3(ShaderDefines2D.UNIFORM_NMATRIX_1);
             let nMatrixOffset = instanceCount * 6;
             nMatrixData[nMatrixOffset] = nMatrix_0.x;
             nMatrixData[nMatrixOffset + 1] = nMatrix_0.y;
@@ -232,7 +231,7 @@ export class SpineInstanceBatch implements IBatch2DRender{
 
 Laya.addAfterInitCallback(function() {
     SpineInstanceBatch.instance = new SpineInstanceBatch;
-    RenderManager2D.regisBatch(BaseRender2DType.spineSimple,SpineInstanceBatch.instance);
+    //RenderManager2D.regisBatch(BaseRender2DType.spineSimple,SpineInstanceBatch.instance);
 })
 
 export interface SpineInstanceInfo {

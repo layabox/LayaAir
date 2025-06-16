@@ -17,7 +17,7 @@ export class ColorOverLifetimeModule implements IClone {
         this.color.cloneTo(destObject.color);
     }
 
-    clone(): ColorOverLifetimeModule {
+    clone() {
         var dest = new ColorOverLifetimeModule();
         this.cloneTo(dest);
         return dest;

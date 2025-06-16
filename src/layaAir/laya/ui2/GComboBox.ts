@@ -14,6 +14,9 @@ import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { NodeFlags } from "../Const";
 
+/**
+ * @blueprintInheritable
+ */
 export class GComboBox extends GLabel {
     public popupDirection: PopupDirection = 0;
     public visibleItemCount: number = 0;
@@ -170,8 +173,8 @@ export class GComboBox extends GLabel {
         this._selectedController = value;
         if (value) {
             value.validate();
-            value.onChanged = this._selectChanged.bind(this);
-            this._selectChanged();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
         }
     }
 
@@ -234,7 +237,7 @@ export class GComboBox extends GLabel {
         }
     }
 
-    private _selectChanged() {
+    private selectChanged() {
         this.selectedIndex = this._selectedController.selectedIndex;
     }
 
@@ -250,7 +253,7 @@ export class GComboBox extends GLabel {
     }
 
     protected setCurrentState() {
-        let p = (this._dropdown && this._dropdown.parent) ? ButtonStatus.Down : (this._over ? ButtonStatus.Over : ButtonStatus.Up);
+        let p = (this._dropdown && this._dropdown.displayedInStage) ? ButtonStatus.Down : (this._over ? ButtonStatus.Over : ButtonStatus.Up);
         this.setState(this.grayed ? ButtonStatus.Disabled : p);
     }
 
@@ -332,4 +335,10 @@ export class GComboBox extends GLabel {
             this.setCurrentState();
         }
     }
+
+    /** @internal @blueprintEvent */
+    GComboBox_bpEvent: {
+        [Event.CHANGED]: () => void;
+        [UIEvent.Popup]: () => void;
+    };
 }

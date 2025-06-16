@@ -35,7 +35,7 @@ export class Box2DShape extends Base2DShape {
         destObject.randomDirection = this.randomDirection;
     }
 
-    clone(): Box2DShape {
+    clone() {
         let destObject = new Box2DShape();
         this.cloneTo(destObject);
         return destObject;

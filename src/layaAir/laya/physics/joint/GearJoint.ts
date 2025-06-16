@@ -18,17 +18,43 @@ export class GearJoint extends JointBase {
     /**@internal 两个齿轮角速度比例，默认1*/
     private _ratio: number = 1;
 
+    private _joint1: RevoluteJoint | PrismaticJoint;
+
+    private _joint2: RevoluteJoint | PrismaticJoint;
+
     /**
      * @en The first joint to be connected, which can be a RevoluteJoint or a PrismaticJoint, effective only on the first setting.
      * @zh [首次设置有效]要绑定的第一个关节，类型可以是旋转关节（RevoluteJoint）或者棱形关节（PrismaticJoint）。
      */
-    joint1: RevoluteJoint | PrismaticJoint;
+    set joint1(value: RevoluteJoint | PrismaticJoint) {
+        if (value instanceof RevoluteJoint || value instanceof PrismaticJoint) {
+            this._joint1 = value;
+        } else {
+            console.warn("joint1 must be a RevoluteJoint or PrismaticJoint");
+            this._joint1 = null;
+        }
+    }
+
+    get joint1(): RevoluteJoint | PrismaticJoint {
+        return this._joint1;
+    }
 
     /**
      * @en The second joint to be connected, which can be a RevoluteJoint or a PrismaticJoint, effective only on the first setting.
      * @zh [首次设置有效]要绑定的第二个关节，类型可以是旋转关节（RevoluteJoint）或者棱形关节（PrismaticJoint）。
      */
-    joint2: RevoluteJoint | PrismaticJoint;
+    set joint2(value: RevoluteJoint | PrismaticJoint) {
+        if (value instanceof RevoluteJoint || value instanceof PrismaticJoint) {
+            this._joint2 = value;
+        } else {
+            console.warn("joint2 must be a RevoluteJoint or PrismaticJoint");
+            this._joint2 = null;
+        }
+    }
+
+    get joint2(): RevoluteJoint | PrismaticJoint {
+        return this._joint2;
+    }
 
     /**
      * @en Specifies whether the two connected bodies should collide with each other. Default is false, effective only on the first setting.

@@ -1,4 +1,4 @@
-import { Context } from "../../../renders/Context";
+import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 import { ISaveData } from "./ISaveData";
 import { SaveBase } from "./SaveBase";
 
@@ -17,17 +17,17 @@ export class SaveMark implements ISaveData {
         return true;
     }
 
-    restore(context: Context): void {
-        context._saveMark = this._preSaveMark;
+    restore(runner: GraphicsRunner): void {
+        runner._saveMark = this._preSaveMark;
         SaveMark.POOL[SaveMark.POOL._length++] = this;
     }
 
-    static Create(context: Context): SaveMark {
+    static Create(runner: GraphicsRunner): SaveMark {
         var no: any = SaveMark.POOL;
         var o: SaveMark = no._length > 0 ? no[--no._length] : (new SaveMark());
         o._saveuse = 0;
-        o._preSaveMark = context._saveMark;
-        context._saveMark = o;
+        o._preSaveMark = runner._saveMark;
+        runner._saveMark = o;
         return o;
     }
 }

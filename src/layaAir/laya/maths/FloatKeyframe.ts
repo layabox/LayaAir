@@ -69,7 +69,7 @@ export class FloatKeyframe extends Keyframe {
       * @en Clones.
       * @zh 克隆
       */
-     clone(): FloatKeyframe {
+     clone() {
           let f = new FloatKeyframe();
           this.cloneTo(f);
           return f;

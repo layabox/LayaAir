@@ -6,6 +6,9 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { TransformKind } from "../display/SpriteConst";
 import { Translations } from "./Translations";
 
+/**
+ * @blueprintInheritable
+ */
 export class GTextField extends GWidget {
     readonly textIns: Text;
 

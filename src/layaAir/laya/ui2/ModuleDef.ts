@@ -37,6 +37,7 @@ import { FlipMesh } from "./render/FlipMesh";
 import { RegularPolygonMesh } from "./render/RegularPolygonMesh";
 import { GMovieClip } from "./GMovieClip";
 import { TileMesh } from "./render/TileMesh";
+import { Selection } from "./selection/Selection";
 
 let r = ClassUtils.regClass;
 r("GWidget", GWidget);
@@ -69,6 +70,7 @@ r("GearColor", GearColor);
 r("GearStrColor", GearStrColor);
 r("GearHexColor", GearHexColor);
 r("GearTweenConfig", GearTweenConfig);
+r("Selection", Selection);
 r("Scroller", Scroller);
 r("Layout", Layout);
 r("StretchParam", StretchParam);

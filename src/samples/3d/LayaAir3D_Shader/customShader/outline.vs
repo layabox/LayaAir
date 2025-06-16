@@ -1,8 +1,3 @@
-// attribute vec4 a_Position;
-// attribute vec3 a_Normal;
-
-// uniform mat4 u_MvpMatrix;
-
 #include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";

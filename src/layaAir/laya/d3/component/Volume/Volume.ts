@@ -54,7 +54,7 @@ export class Volume extends Component {
     protected _primitiveBounds: Bounds;
     /**包围盒 */
     protected _bounds: Bounds;
-    /**@internal @protected cache number of around Volume */
+    /**@internal cache number of around Volume */
     protected _aroundVolumeCacheNum: number = 0;
     /**around Volume */
     protected _aroundVolume: Volume[];

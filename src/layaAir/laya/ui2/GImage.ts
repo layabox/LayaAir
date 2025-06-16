@@ -9,6 +9,9 @@ import { GWidget } from "./GWidget";
 import { ImageRenderer } from "./render/ImageRenderer";
 import { IMeshFactory } from "./render/MeshFactory";
 
+/**
+ * @blueprintInheritable
+ */
 export class GImage extends GWidget {
     private _src: string = "";
     private _color: string;
@@ -44,7 +47,7 @@ export class GImage extends GWidget {
             if (tex)
                 this.onLoaded(tex, loadID);
             else
-                ILaya.loader.load(value).then(res => this.onLoaded(res, loadID));
+                ILaya.loader.load(value, Loader.IMAGE).then(res => this.onLoaded(res, loadID));
         }
         else
             this.onLoaded(null, loadID);
@@ -156,4 +159,9 @@ export class GImage extends GWidget {
 
         this._renderer.destroy();
     }
+
+    /** @internal @blueprintEvent */
+    GImage_bpEvent: {
+        [Event.LOADED]: () => void;
+    };
 }

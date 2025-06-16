@@ -443,7 +443,7 @@ export class Matrix3x3 implements IClone {
      * @zh 克隆矩阵。
      * @returns 矩阵的克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: Matrix3x3 = new Matrix3x3(false);
         dest.elements = this.elements.slice();
         return dest;

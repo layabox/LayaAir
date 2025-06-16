@@ -3,12 +3,12 @@ import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
 import { Node } from "../display/Node"
 import { Pool } from "../utils/Pool"
-import { Utils } from "../utils/Utils";
 import { ComponentDriver } from "./ComponentDriver";
 
 /**
  * @en The Component class is used to create the base class for components.
  * @zh Component 类用于创建组件的基类。
+ * @blueprintable @blueprintableSubclasses
  */
 export class Component {
     /**
@@ -40,18 +40,21 @@ export class Component {
     /**
      * @en Whether the script can run in the IDE environment.
      * @zh 是否可以在 IDE 环境中运行。
+     * @blueprintIgnore
      */
     runInEditor: boolean;
 
     /**
      * @en The path of the script file.
      * @zh 脚本文件的路径。
+     * @blueprintIgnore
      */
     scriptPath: string;
 
     /**
      * @en Extra data of the node.
      * @zh 组件的额外数据。IDE内部使用。
+     * @blueprintIgnore
      */
     _extra: IComponentExtra;
 
@@ -144,10 +147,12 @@ export class Component {
 
     /**
      * @ignore
+     * @blueprintIgnore
      */
     _isScript(): boolean {
         return false;
     }
+
     /**
      * @internal
      */
@@ -325,6 +330,7 @@ export class Component {
     /**
      * @en Called after the component is added to a node. Unlike Awake, onAdded is called even if the node is not active.
      * @zh 组件被添加到节点后调用，与 onAwake 不同的是，即使节点未激活也会调用 onAdded。
+     * @blueprintDefaultEvent
      */
     onAdded(): void {
     }
@@ -340,6 +346,7 @@ export class Component {
     /**
      * @en Executed after the component is activated. At this point, all nodes and components have been created. This method is executed only once.
      * @zh 组件被激活后执行，此时所有节点和组件均已创建完毕，此方法只执行一次。
+     * @blueprintDefaultEvent
      */
     onAwake(): void {
     }
@@ -347,6 +354,7 @@ export class Component {
     /**
      * @en Executed after the component is enabled, such as when the node is added to the stage.
      * @zh 组件被启用后执行，比如节点被添加到舞台后。
+     * @blueprintDefaultEvent
      */
     onEnable(): void {
     }
@@ -354,36 +362,42 @@ export class Component {
     /**
      * @en Executed once, before the first update.
      * @zh 在第一次执行 update 之前执行，只会执行一次。
+     * @blueprintEvent
      */
     onStart?(): void;
 
     /**
      * @en Executed every frame during the update phase. Avoid writing complex loop logic or using the getComponent method here.
      * @zh 每帧更新时执行，在 update 阶段。尽量不要在这里写大循环逻辑或使用 getComponent 方法。
+     * @blueprintEvent
      */
     onUpdate?(): void;
 
     /**
      * @en Executed every frame during the late update phase, after the update phase.
      * @zh 每帧更新时执行，在 late update 阶段，update 阶段之后。
+     * @blueprintEvent
      */
     onLateUpdate?(): void;
 
     /**
      * @en Executed before rendering.
      * @zh 渲染之前执行。
+     * @blueprintEvent
      */
     onPreRender?(): void;
 
     /**
      * @en Executed after rendering.
      * @zh 渲染之后执行。
+     * @blueprintEvent
      */
     onPostRender?(): void;
 
     /**
      * @en Executed when the component is disabled, such as when the node is removed from the stage.
      * @zh 组件被禁用时执行，比如从节点从舞台移除后。
+     * @blueprintDefaultEvent
      */
     onDisable(): void {
     }
@@ -391,6 +405,7 @@ export class Component {
     /**
      * @en Executed when the node is destroyed manually.
      * @zh 手动调用节点销毁时执行。
+     * @blueprintDefaultEvent
      */
     onDestroy(): void {
     }

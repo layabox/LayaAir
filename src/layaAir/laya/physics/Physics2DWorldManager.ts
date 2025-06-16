@@ -364,11 +364,9 @@ export class Physics2DWorldManager implements IElementComponentManager {
 
     /**
      * @zh 查询物理世界中对射线路径上的所有形状，可以获取最近点、任意点、还是 n 点。射线投射会忽略包含起点的形状。
-     * @param 
      * @param startPos 射线开始位置
      * @param endPos 射线结束位置
      * @en Query the physical world for all shapes on a ray path, either the closest point, any point, or n points. Ray casting ignores shapes that contain the starting point.
-     * @param 
      * @param startPos ray start position
      * @param endPos ray end position
      */
@@ -405,6 +403,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     destroy(): void {
         Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
         Physics2D.I._emptyBody = null;
+        Laya.timer.clear(this,this._frameLoop);
         Laya.timer.callLater(this, () => {
             Physics2D.I._factory.destroyWorld(this._box2DWorld);
         })
@@ -488,10 +487,16 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._jsDraw.DrawAABB = this._debugDrawAABB.bind(this);
         }
         if (this._enableDraw) {
+            Laya.timer.frameLoop(1 , this , this._frameLoop);
             Physics2D.I._factory.appendFlags(this._jsDraw, flag);
         } else {
+            Laya.timer.clear( this , this._frameLoop);
             Physics2D.I._factory.clearFlags(this._jsDraw, flag);
         }
+    }
+
+    private _frameLoop(){
+        this._debugDraw.render(0 , 0);
     }
 
     private _scaleSizeXByScaleMode(x: number) {

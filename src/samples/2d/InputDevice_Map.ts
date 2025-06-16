@@ -18,7 +18,7 @@ export class InputDevice_Map {
 	// 百度地图
 	private map: any;
 	private marker: any;
-	private BMap: any = Browser.window.BMap;
+	private BMap: any = (Browser.window as any).BMap;
 	private convertor: any = new this.BMap.Convertor();
 
 	// Div

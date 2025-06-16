@@ -356,7 +356,7 @@ export class BoundsImpl implements IClone {
      * @zh 创建当前包围体的克隆。
      * @return 一个新的 `BoundsImpl` 实例，是当前包围体的克隆。
      */
-    clone(): any {
+    clone() {
         var dest: BoundsImpl = new BoundsImpl(new Vector3(), new Vector3());
         this.cloneTo(dest);
         return dest;

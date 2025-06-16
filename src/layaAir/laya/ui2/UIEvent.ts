@@ -1,4 +1,4 @@
-
+/** @blueprintable */
 export enum UIEvent {
     /**
      * @en A container with a layout, when the content size of the container changes, the container will emit this event.

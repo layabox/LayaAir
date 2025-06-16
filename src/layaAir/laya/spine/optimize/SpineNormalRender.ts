@@ -64,10 +64,10 @@ export class SpineNormalRender implements ISpineOptimizeRender {
 
         this._spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
         let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-        color.setValue(scolor.r, scolor.g, scolor.b , scolor.a );
+        color.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
         if (renderNode._renderAlpha !== undefined) {
             color.a *= renderNode._renderAlpha;
-        }else
+        } else
             color.a *= renderNode.owner.alpha;
         renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
 
@@ -118,5 +118,6 @@ export class SpineNormalRender implements ISpineOptimizeRender {
     render(time: number) {
         this._owner.clear();
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
+        this._owner.owner._struct.renderElements = this._owner._renderElements;
     }
 }

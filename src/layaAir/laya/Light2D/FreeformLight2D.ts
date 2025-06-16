@@ -26,6 +26,7 @@ import { RenderTexture } from "../resource/RenderTexture";
  * 自定义形状灯光
  */
 export class FreeformLight2D extends BaseLight2D {
+    /** @readonly */
     static FALLOF_WIDTH: number = 100; //渐变区的宽度系数
     private _falloffRange: number = 1; //灯光衰减范围 0-10
 

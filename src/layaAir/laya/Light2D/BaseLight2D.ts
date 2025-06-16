@@ -54,23 +54,32 @@ export enum ShadowFilterType {
 export class BaseLight2D extends Component {
     /**
      * 光影图
+     * @readonly
      */
     static LIGHTANDSHADOW: number;
+    /** @readonly */
     static LIGHTANDSHADOW_ADDMODE: number;
+    /** @readonly */
     static LIGHTANDSHADOW_SUBMODE: number;
     /**
      * 灯光高度值
+     * @readonly
      */
     static LIGHTANDSHADOW_LIGHT_DIRECTION: number;
     /**
      * 光影图尺寸和偏移
+     * @readonly
      */
     static LIGHTANDSHADOW_PARAM: number;
     /**
      * 环境光
+     * @readonly
      */
     static LIGHTANDSHADOW_AMBIENT: number;
 
+    /**
+     * @internal
+     */
     static idCounter: number = 0; //灯光对象计数器
 
     declare owner: Sprite;

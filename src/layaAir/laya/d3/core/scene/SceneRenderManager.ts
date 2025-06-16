@@ -8,6 +8,7 @@ import { RenderContext3D } from "../render/RenderContext3D";
 /**
  * @en The class is used to implement scene rendering node management.
  * @zh 该类用于实现场景渲染节点的管理。
+ * @blueprintIgnore
  */
 export class SceneRenderManager {
     /**@internal */
