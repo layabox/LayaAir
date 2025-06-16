@@ -1601,6 +1601,9 @@ export class Sprite extends Node {
         renderout._invertY = flipY;
         let runner = Render2DProcessor.runner;
 
+        let passSet = new Set<IRender2DPass>();
+        let processor = new Render2DProcessor();
+
         const _updateSprites = function (root: Sprite): void {
 
             for (let i = 0, len = root._children.length; i < len; i++) {
@@ -1630,6 +1633,7 @@ export class Sprite extends Node {
                     let matrix = child.globalTrans.getMatrix();
                     child._struct.renderMatrix = matrix;
                     child._subStruct && (child._subStruct.renderMatrix = matrix);
+                    passSet.add(child._struct.pass);
                 }
 
                 if (child._graphics) {
@@ -1641,20 +1645,28 @@ export class Sprite extends Node {
 
         _updateSprites(sprite);
 
-        let pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+        let pass = processor.basePass;
 
         if (clearColor) {
             pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         } else
             pass.setClearColor(0, 0, 0, 0);
+
         pass.renderTexture = renderout;
         pass.root = sprite._struct;
         pass.renderOffset.x = offsetX;
         pass.renderOffset.y = offsetY;
-        // renderout
-        // 设置 invMatrix
-        pass.fowardRender(Render2DProcessor.rendercontext2D);
 
+        let arrays = Array.from(passSet);
+        for (let i = 0, n = arrays.length; i < n; i++) {
+            let pass = arrays[i];
+            if (pass.priority > 0) {
+                processor.addPass(pass);
+            }
+        }
+
+        processor.apply(Render2DProcessor.rendercontext2D);
+        processor.clear();
         pass.destroy();
         return renderout;
     }
@@ -2119,10 +2131,17 @@ export class Sprite extends Node {
      * @param type 重新绘制类型。默认为 SpriteConst.REPAINT_CACHE。
      */
     parentRepaint(): void {
-        var p: Sprite = this._parent;
-        if (p && !(p._needRepaint())) {
-            p._struct.setRepaint();
-            p.parentRepaint();
+        let p: Sprite = this._parent;
+        if (!p) return
+        let pStruct = p._struct;
+        let pass = pStruct ? pStruct.pass : null;
+        if (pStruct && pass) {
+            if (pass.priority > 0) {
+                p.parentRepaint();
+                if (pass.root == pStruct && !p._needRepaint()) {
+                    pStruct.setRepaint();
+                }
+            }
         }
     }
 
@@ -2350,12 +2369,21 @@ export class Sprite extends Node {
 
         if (enable && !this._oriRenderPass.enable) {
             let parent = this._struct.parent;
+            // let originPass = this._struct.pass;
             this._struct.pass = this._oriRenderPass;
             if (parent) {
                 let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);
                 parent.addChild(this._subStruct, index);
+            } else {
+                //todo
             }
+            // else if (originPass) {
+            //     this._oriRenderPass.priority = originPass.priority + 1;
+            //     originPass.root = this._subStruct;
+            //     this._struct.pass = this._oriRenderPass;
+            // }
+
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
@@ -2363,6 +2391,8 @@ export class Sprite extends Node {
                 let index = parent.children.indexOf(this._subStruct);
                 parent.removeChild(this._subStruct);
                 parent.addChild(this._struct, index);
+            } else { // todo
+
             }
         }
         this._oriRenderPass.enable = enable;
