@@ -35,11 +35,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
         this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        if (this.enableOpaque) {
-            this._opaqueList.renderQueue(context);
-            this._opaqueTexturePass();
-        }
-
+        this._opaqueList.renderQueue(context);
 
         RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
