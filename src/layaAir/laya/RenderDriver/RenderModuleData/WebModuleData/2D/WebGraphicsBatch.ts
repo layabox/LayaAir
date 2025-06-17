@@ -97,7 +97,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             }
 
             geometry.getDrawDataParams(TEMP_SINGLE_LIST);
-            drawArray.push(TEMP_SINGLE_LIST.elements);
+            drawArray.push(TEMP_SINGLE_LIST.elements.slice());
             drawLengths.push(TEMP_SINGLE_LIST.length);
         }
 

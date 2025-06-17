@@ -556,6 +556,7 @@ export class GraphicsRunner {
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
+        this._lastTex = GraphicsRunner.defTexture;
     }
 
     clear(): void {
