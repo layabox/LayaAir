@@ -10,7 +10,7 @@ import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Desi
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { Web2DGraphic2DBufferDataView, Web2DGraphicWholeBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBufferDataView";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
-import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
 import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
@@ -36,7 +36,7 @@ export class WebGPURender2DProcess implements I2DRenderPassFactory {
         return new WebGlobalRenderData();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        throw new Error("Method not implemented.");
+        return new WebSpineRenderDataHandle();
     }
     createRender2DPass(): IRender2DPass {
         return new WebRender2DPass();
