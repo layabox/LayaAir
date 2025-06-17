@@ -104,18 +104,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         } else {
             comDef.add(ShaderDefines2D.INVERTY);
         }
-
-        if (this.passData) {
-            let commandArray = ["Sprite2DGlobal"];
-            this._sceneData.updateUBOBuffer("Sprite2DGlobal");
-
-            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
-
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.passData, null, resource, ~0);
-        }
-        else {
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.passData, null, [], 0);
-        }
     }
 
     getRenderTarget(): InternalRenderTarget {
