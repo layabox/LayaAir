@@ -45,14 +45,14 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
 
-    //UBO Buffer Module
-    private _uniformBuffers: Map<string, WebGPUUniformBuffer>;
-
-    private _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
-
-    private _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
-
-    private _updateCacheArray: { [key: number]: any } = {};
+    /**@internal UBO Buffer Module*/
+    _uniformBuffers: Map<string, WebGPUUniformBuffer>;
+    /**@internal */
+    _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
+    /**@internal */
+    _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
+    /**@internal */
+    _updateCacheArray: { [key: number]: any } = {};
 
     private _subUboBufferNumber: number = 0;
 
