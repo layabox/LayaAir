@@ -24,7 +24,7 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
      * @param context 
      */
     protected _mainPass(context: IRenderContext3D): void {
-        context.pipelineMode = this.pipelineMode; //@ts-ignore
+        context.pipelineMode = this.pipelineMode;
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         context.setRenderTarget(this.destTarget, this.clearFlag);
         (context as WebGPURenderContext3D).clearRenderTarget();

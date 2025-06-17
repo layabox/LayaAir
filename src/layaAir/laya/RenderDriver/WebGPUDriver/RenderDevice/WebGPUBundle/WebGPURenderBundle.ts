@@ -1,3 +1,4 @@
+import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WebGPUBindGroup } from "../WebGPUBindGroupCache";
 import { WebGPUInternalRT } from "../WebGPUInternalRT";
 import { WebGPURenderEncoder } from "../WebGPURenderCommandEncoder";
@@ -10,32 +11,37 @@ import { WebGPURenderEngine } from "../WebGPURenderEngine";
  * 如果下一帧渲染流程中，缓存的渲染节点命中率高于一定的程度，则可以直接使用缓存的渲染指令
  */
 export class WebGPURenderBundle extends WebGPURenderEncoder {
+
     static bundleDescriptorMap: Map<string, GPURenderBundleEncoderDescriptor> = new Map();
+
     static getBundleDescriptor(rt: WebGPUInternalRT): GPURenderBundleEncoderDescriptor {
         if (WebGPURenderBundle.bundleDescriptorMap.has(rt.stateCacheKey)) {
             return WebGPURenderBundle.bundleDescriptorMap.get(rt.stateCacheKey);
-        } else {
-            //create
-            const texs = rt._textures;
+        }
+        else {
+            const colorFormats: GPUTextureFormat[] = [];
+
             let desc: GPURenderBundleEncoderDescriptor = {
-                colorFormats: []
+                colorFormats: colorFormats
             };
-            const colorFormats = desc.colorFormats as GPUTextureFormat[];
-            colorFormats.length = rt._textures.length;
-            for (let i = 0, len = rt._textures.length; i < len; i++) {
-                if (rt._textures[0]._webGPUFormat === 'depth16unorm'
-                    || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
-                    || rt._textures[0]._webGPUFormat === 'depth32float') {
-                    colorFormats[i] = rt._depthTexture._webGPUFormat;
-                } else colorFormats[i] = rt._textures[i]._webGPUFormat;
+
+            if (rt.colorFormat == RenderTargetFormat.DEPTH_16 || rt.colorFormat == RenderTargetFormat.DEPTH_32 || rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 || rt.colorFormat == RenderTargetFormat.DEPTHSTENCIL_24_Plus || rt.colorFormat == RenderTargetFormat.STENCIL_8) {
+                let tex = rt._textures[0];
+                if (tex.multiSamplers > 1) {
+                    tex = rt._texturesResolve[0];
+                }
+                desc.depthStencilFormat = tex._webGPUFormat;
             }
-            if (rt._textures[0]._webGPUFormat === 'depth16unorm'
-                || rt._textures[0]._webGPUFormat === 'depth24plus-stencil8'
-                || rt._textures[0]._webGPUFormat === 'depth32float') {
-                desc.depthStencilFormat = rt._textures[0]._webGPUFormat;
-            } else desc.depthStencilFormat = rt._depthTexture ? rt._depthTexture._webGPUFormat : undefined;
+            else {
+                for (let index = 0; index < rt._textures.length; index++) {
+                    let tex = rt._textures[index];
+
+                    colorFormats.push(tex._webGPUFormat);
+                }
+            }
+
             desc.sampleCount = rt._samples;
-            // desc.depthReadOnly = true;//怎么理解？？
+
             WebGPURenderBundle.bundleDescriptorMap.set(rt.stateCacheKey, desc);
             return desc;
         }
