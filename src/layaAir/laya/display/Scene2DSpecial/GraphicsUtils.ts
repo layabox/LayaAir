@@ -263,7 +263,7 @@ export class SubStructRender {
       this._renderElement = GraphicsRenderData.createRenderElement2D();
       this._renderElement.value2DShaderData = this._shaderData;
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
-      this._renderElement.materialShaderData = this._submit._internalInfo.shaderData;
+      this._renderElement.primitiveShaderData = this._submit._internalInfo.shaderData;
       this._renderElement.nodeCommonMap = ["Sprite2D"];
       this._renderElement.geometry = Render2DProcessor.runner.inv_geometry;
       BlendModeHandler.initBlendMode(this._shaderData);

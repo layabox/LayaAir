@@ -32,6 +32,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     device: GPUDevice; //GPU设备
 
     private _sceneData: WebGPUShaderData;
+
     public get passData(): WebGPUShaderData {
         return this._sceneData;
     }

@@ -20,7 +20,9 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
     }
     public set primitiveShaderData(value: WebGPUShaderData) {
         this._primitiveShaderData = value;
-        this._additionShaderData.set("Sprite2DGraphics", value);
+        if (value) {
+            this._additionShaderData.set("Sprite2DGraphics", value);
+        }
     }
 
     private _additionShaderData: Map<string, ShaderData> = new Map();
@@ -60,7 +62,9 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
             pass.moduleData.attributeLocations = attributeLocations
 
             let passData = pass.moduleData as WebShaderPass;
-            passData.additionShaderData = ["Sprite2DGraphics"]
+            if (this._additionShaderData.has("Sprite2DGraphics")) {
+                passData.additionShaderData = ["Sprite2DGraphics"]
+            }
 
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = pass.withCompile(comDef, true) as WebGPUShaderInstance;
@@ -101,7 +105,7 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
         if (this.primitiveShaderData) {
             let graphicsMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGraphics") as WebGPUCommandUniformMap;
             let subBuffer = this.primitiveShaderData.createUniformBuffer("Sprite2DGraphics", graphicsMap);
-
+            this.primitiveShaderData.updateUBOBuffer("Sprite2DGraphics");
             if (subBuffer.needUpload) {
                 subBuffer.upload();
             }
