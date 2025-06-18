@@ -826,8 +826,12 @@ export class Stage extends Sprite {
             sprite.updateRenderTexture();
             let destrt: RenderTexture2D = sprite._drawOriRT;
             if (!destrt)
+            {
+                sprite._oriRenderPass.enable = false;
                 continue;
+            }
 
+            sprite._oriRenderPass.enable = true;
             sprite._oriRenderPass.renderTexture = sprite._drawOriRT;
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
