@@ -138,19 +138,23 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     }
 
     setRenderTarget(value: WebGPUInternalRT, clear: boolean, clearColor: Color): void {
+        const engine = WebGPURenderEngine._instance;
+
         if (!this._needClearColor) {
             this._needClearColor = clear;
         }
-
         if (clear) {
             clearColor && clearColor.cloneTo(this._clearColor);
+        }
+
+        if (engine.hasScreenCleared) {
+            this._needClearColor = false;
         }
 
         if (!value || this._destRT !== value) {
             this._destRT = value;
             this._needStart = true;
         }
-        const engine = WebGPURenderEngine._instance;
 
         let rt = value;
 

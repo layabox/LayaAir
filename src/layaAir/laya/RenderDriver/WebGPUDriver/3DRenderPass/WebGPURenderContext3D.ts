@@ -363,11 +363,13 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (!this.destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
             const engine = WebGPURenderEngine._instance;
             engine._screenResized = false;
-            engine._screenRT._textures[0].resource = engine._context.getCurrentTexture();
-            engine._screenRT._textures[0].multiSamplers = 1;
-            if (this._blitFrameCount === Laya.timer.currFrame)
+            if (this._blitFrameCount === Laya.timer.currFrame) {
                 this.setRenderTarget(engine._screenRT, RenderClearFlag.Nothing);
-            else this.setRenderTarget(engine._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
+            }
+            else {
+                this.setRenderTarget(engine._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
+                engine.hasScreenCleared = true; //标记屏幕已清除
+            }
             Color.BLACK.cloneTo(this._clearColor);
             this._blitFrameCount = Laya.timer.currFrame;
             this._blitScreen = true;

@@ -426,10 +426,14 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._screenResized = true;
     }
 
+    /** @internal  */
+    hasScreenCleared: boolean = false;
+
     /**
      * 开始一帧
      */
     startFrame() {
+        this.hasScreenCleared = false;
         let rt = this._screenRT;
         rt._textures[0].resource = this._context.getCurrentTexture();
         rt._textures[0].multiSamplers = 1;
