@@ -430,6 +430,9 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
      * 开始一帧
      */
     startFrame() {
+        let rt = this._screenRT;
+        rt._textures[0].resource = this._context.getCurrentTexture();
+        rt._textures[0].multiSamplers = 1;
         this.event('startFrame');
     }
 
