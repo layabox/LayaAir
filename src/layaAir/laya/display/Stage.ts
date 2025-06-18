@@ -831,7 +831,6 @@ export class Stage extends Sprite {
                 continue;
             }
 
-            sprite._oriRenderPass.enable = true;
             sprite._oriRenderPass.renderTexture = sprite._drawOriRT;
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
