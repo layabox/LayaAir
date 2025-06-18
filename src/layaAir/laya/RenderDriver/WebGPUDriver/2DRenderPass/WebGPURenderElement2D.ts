@@ -379,15 +379,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         let globalStr = "Sprite2DGlobal";
         if (global) {
-            for (let i in global._updateCacheArray) {
-                let index = parseInt(i);
+            for (const [index, func] of global._updateCacheArray) {
                 let ubo = passData._uniformBuffersPropertyMap.get(index);
                 if (ubo) {
-                    delete passData._updateCacheArray[i];
-                    global._updateCacheArray[i].call(ubo, index, global._data[index]);
+                    // delete passData._updateCacheArray[i];
+                    passData._updateCacheArray.delete(index);
+                    func.call(ubo, index, global._data[index]);
                 }
             }
-            global._updateCacheArray = {};
+            global._updateCacheArray.clear();
         }
 
         if (passData) {
