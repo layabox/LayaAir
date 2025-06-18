@@ -371,35 +371,36 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param context 
      */
     _prepare(context: WebGPURenderContext2D) {
-        let global = this.getGlobalShaderData() as WebGPUShaderData;
         //编译着色器
         this._compileShader(context);
-
-        let passData = context.passData;
-
-        let globalStr = "Sprite2DGlobal";
-        if (global) {
-            for (let i in global._updateCacheArray) {
-                let index = parseInt(i);
-                let ubo = passData._uniformBuffersPropertyMap.get(index);
-                if (ubo) {
-                    delete passData._updateCacheArray[i];
-                    global._updateCacheArray[i].call(ubo, index, global._data[index]);
+        let shader = this._shaderInstances.elements[0];
+        if (shader) {
+            let passData = context.passData;
+            if (passData) {
+                let globalStr = "Sprite2DGlobal";
+                let global = this.getGlobalShaderData() as WebGPUShaderData;
+                if (global) {
+                    for (let i in global._updateCacheArray) {
+                        let index = parseInt(i);
+                        let ubo = passData._uniformBuffersPropertyMap.get(index);
+                        if (ubo) {
+                            delete passData._updateCacheArray[i];
+                            global._updateCacheArray[i].call(ubo, index, global._data[index]);
+                        }
+                    }
+                    global._updateCacheArray = {};
                 }
+
+                let commandArray = [globalStr];
+                passData.updateUBOBuffer(globalStr);
+                let mask = shader.uniformTextureExits.get(0);
+                let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
+                context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, passData, null, resource, mask);
             }
-            global._updateCacheArray = {};
         }
 
-        if (passData) {
-            let shader = this._shaderInstances.elements[0];
-            let commandArray = [globalStr];
-            passData.updateUBOBuffer(globalStr);
-            let mask = shader.uniformTextureExits.get(0);
-            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
-            context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, passData, null, resource, mask);
-        }
-        else {
-            context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], passData, null, [], 0);
+        if (!context._sceneBindGroup) {
+            context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], null, null, [], 0);
         }
 
 
