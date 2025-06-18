@@ -183,6 +183,9 @@ export class WebGPUShaderData extends ShaderData {
 
         //create WebGPUSubUniform
         let uniformBuffer = new WebGPUSubUniformBuffer(cacheName, uniformMap, this);
+        if (uniformBuffer.bytelength == 0) {
+            return null;
+        }
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
@@ -685,6 +688,7 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber = 0;
 
         this._textureStatesMap.clear();
+        this._updateCacheArray.clear();
     }
 
     /**

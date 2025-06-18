@@ -410,8 +410,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 let moduleName = nodemap[i];
                 let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
                 let uniformBuffer = this.value2DShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
-                if (uniformBuffer && uniformBuffer.needUpload) {
-                    uniformBuffer.bufferBlock.needUpload();
+                if (uniformBuffer) {
+                    uniformBuffer.upload();
                 }
             }
         }
@@ -420,8 +420,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         let subShader = this.subShader;
         if (this.materialShaderData) {
             let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-            if (matSubBuffer.needUpload) {
-                matSubBuffer.bufferBlock.needUpload();
+            if (matSubBuffer) {
+                matSubBuffer.upload();
             }
         }
     }
