@@ -85,6 +85,14 @@ export interface IDynamicCollider extends ICollider {
     setSleepThreshold(value: number): void;
 
     /**
+     * @en Set the angular velocity threshold for the rigid body to sleep.
+     * @param value The angular velocity threshold.
+     * @zh 设置刚体进入睡眠状态的角速度阈值。
+     * @param value 角速度阈值。
+     */
+    setSleepAngularThreshold?(value: number): void;
+
+    /**
     * @en Whether it is sleeping.
     * @zh 是否处于睡眠状态。
     */

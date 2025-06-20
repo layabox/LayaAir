@@ -127,6 +127,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_Mass, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_InertiaTensor, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_SolverIterations, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
