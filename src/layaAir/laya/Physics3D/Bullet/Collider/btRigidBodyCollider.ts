@@ -339,17 +339,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     /**
-     * @en Set the linear velocity threshold for the rigid body.
-     * @param value The linear velocity threshold vector.
-     * @zh 设置刚体线速度阈值。
-     * @param value 线速度阈值。
-     */
-    setSleepLinearVelocity(value: Vector3): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
-    }
-
-    /**
      * @en Set the angular velocity of the rigid body.
      * @param value The angular velocity vector.
      * @zh 设置刚体的角速度。
@@ -460,7 +449,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @zh 设置刚体进入睡眠状态的角速度阈值。
      * @param value 角速度阈值。
      */
-    setSleepAngularVelocity(value: number) {
+    setSleepAngularThreshold(value: number) {
         let bt = btPhysicsCreateUtil._bt;
         this._btCollider && bt.btRigidBody_setSleepingThresholds(this._btCollider, bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
