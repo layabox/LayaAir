@@ -16,7 +16,7 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
-import { BaseRenderType, IBaseRenderNode, ISkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode, IMeshRenderNode, ISkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderElement } from "./render/RenderElement";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -67,8 +67,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _cacheRootBone: Sprite3D;
     protected _worldParams = new Vector4();
 
-    /**@internal */
-    _baseRenderNode: IBaseRenderNode;
+
     //解决编译bug TODO
     private _ownerSkinRenderNode: ISkinRenderNode;
 

@@ -1,7 +1,7 @@
 import { Config3D } from "../../../Config3D"
 import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
-import { BaseRenderType, IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
+import { BaseRenderType, IBaseRenderNode, IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
@@ -14,7 +14,6 @@ import { MorphTargetChannel } from "../resource/models/MorphTarget"
 import { MeshFilter } from "./MeshFilter"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
 import { RenderableSprite3D } from "./RenderableSprite3D"
-import { Sprite3D } from "./Sprite3D"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
@@ -31,7 +30,7 @@ export class MeshRenderer extends BaseRender {
     protected _revertStaticBatchDefineUV1: boolean = false;
     protected _projectionViewWorldMatrix: Matrix4x4;
     protected _mesh: Mesh;
-
+    declare _baseRenderNode: IMeshRenderNode;
     /**
      * @internal
      */
@@ -64,7 +63,7 @@ export class MeshRenderer extends BaseRender {
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
     }
-    protected _createBaseRenderNode(): IMeshRenderNode {
+    protected _createBaseRenderNode(): IBaseRenderNode {
 
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
@@ -403,6 +402,7 @@ export class MeshRenderer extends BaseRender {
         if (!this._mesh) {
             this.boundsChange = false;
         }
+        this._baseRenderNode.ismoved = Stat.loopCount;
     }
 
     /**

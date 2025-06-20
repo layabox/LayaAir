@@ -51,6 +51,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _additionShaderDataKeys: string[];
     _additionalUpdateMask: number;
     _driverCacheData: any;//记录渲染底层共用的渲染数据
+    ismoved: number = 0;
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;

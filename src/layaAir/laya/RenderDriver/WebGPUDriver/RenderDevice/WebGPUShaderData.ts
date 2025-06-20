@@ -79,6 +79,10 @@ export class WebGPUShaderData extends ShaderData {
         this._uniformBuffersPropertyMap = new Map();
     }
 
+    private nearEqual(n1: number, n2: number): boolean {
+        return Math.abs(n1 - n2) < Number.EPSILON
+    }
+
     updateUBOBuffer(key: string) {
         let buffer = this._uniformBuffers.get(key) || this._subUniformBuffers.get(key);
         if (!buffer) {
@@ -275,6 +279,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 布尔
      */
     setBool(index: number, value: boolean) {
+        if (this._data[index] === value) return;
         this._data[index] = value;
     }
 
@@ -316,6 +321,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 浮点
      */
     setNumber(index: number, value: number) {
+        if (this.nearEqual(this._data[index], value)) return;
         this._data[index] = value;
         this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setFloat;
     }
@@ -336,6 +342,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setVector2(index: number, value: Vector2) {
         if (this._data[index]) {
+            if (Vector2.equals(this._data[index], value)) return;
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
@@ -358,6 +365,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setVector3(index: number, value: Vector3) {
         if (this._data[index]) {
+            if (Vector3.equals(this._data[index], value)) return;
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
@@ -380,6 +388,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setVector(index: number, value: Vector4) {
         if (this._data[index]) {
+            if (Vector4.equals(this._data[index], value)) return;
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
@@ -404,6 +413,7 @@ export class WebGPUShaderData extends ShaderData {
         if (!value) return;
         if (this._data[index]) {
             let gammaColor = this._gammaColorMap.get(index);
+            if (gammaColor.equal(value)) return;
             value.cloneTo(gammaColor);
             let linearColor = this._data[index];
             linearColor.x = Color.gammaToLinearSpace(value.r);

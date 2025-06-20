@@ -489,6 +489,14 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
         if (value.length > 0) {
             for (let uniform of value) {
                 switch (uniform.type) {
+                    case WebGPUBindingInfoType.storageBuffer:
+                        binding++;
+                        //TODO
+                        break;
+                    case WebGPUBindingInfoType.storageTexture:
+                        binding++;
+                        //TODO
+                        break;
                     case WebGPUBindingInfoType.buffer:
                         {
                             let uniformMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as WebGPUCommandUniformMap)._idata;

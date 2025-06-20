@@ -4,6 +4,8 @@ import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUInternalRT implements InternalRenderTarget {
+    private static _formatCounter: Map<string, number> = new Map();
+    private static _pipelineAttachIDCounter: number = 0;
     _isCube: boolean;
     _samples: number; //>1表示启用多重采样
     _generateMipmap: boolean;
@@ -15,10 +17,8 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     isSRGB: boolean = false;
     gpuMemory: number = 0;
     private _stateCacheKey: string = '';
-    public get stateCacheKey(): string {
-        this._stateCacheKey = this._getCacheKey();
-        return this._stateCacheKey;
-    }
+    stateCacheID: number;
+
 
     _colorStates: GPUColorTargetState[];
     _depthState: GPUColorTargetState;
@@ -39,7 +39,12 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         this._colorStates = [];
     }
 
-    private _getCacheKey(): string {
+    /**
+     * @internal
+     * 获取附件格式ID
+     * @returns 基于颜色和深度格式的唯一标识符
+     */
+    _getCacheInfo(): void {
         let id = "";
 
         if (this._textures && this._textures.length > 0) {
@@ -50,24 +55,22 @@ export class WebGPUInternalRT implements InternalRenderTarget {
             }
         }
         // 添加深度附件的格式
-        if (this.depthStencilFormat && this.depthStencilFormat !== RenderTargetFormat.None) {
-            id += `d_${this.depthStencilFormat}`;
+        if (this._depthTexture) {
+            id += `d_${this._depthTexture._webGPUFormat}`;
         }
         // 添加多重采样信息
         id += `_s${this._samples}`;
         // 添加sRGB信息
         id += this.isSRGB ? '_srgb' : '';
 
-        return id;
-    }
+        this._stateCacheKey = id;
 
-    /**
-     * @internal
-     * 获取附件格式ID
-     * @returns 基于颜色和深度格式的唯一标识符
-     */
-    _getCacheInfo(): void {
-        let id = this._getCacheKey();
+        if (WebGPUInternalRT._formatCounter.has(id))
+            this.stateCacheID = WebGPUInternalRT._formatCounter.get(id);
+        else {
+            this.stateCacheID = WebGPUInternalRT._pipelineAttachIDCounter++;
+            WebGPUInternalRT._formatCounter.set(id, this.stateCacheID);
+        }
     }
 
     dispose(): void {
