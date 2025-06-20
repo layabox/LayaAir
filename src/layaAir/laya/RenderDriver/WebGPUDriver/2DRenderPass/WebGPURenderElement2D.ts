@@ -11,6 +11,7 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
+import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -65,6 +66,12 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
     owner: IRenderStruct2D;
 
+    protected getGlobalShaderData() {
+        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
+            return this.owner.globalRenderData.globalShaderData;
+        else
+            return null;
+    }
 
     protected _getShaderInstanceDefines(context: WebGPURenderContext2D) {
         const comDef = WebGPURenderElement2D._compileDefine;
@@ -79,6 +86,15 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.materialShaderData)
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
+        let global = this.getGlobalShaderData();
+        if (global) {
+            comDef.addDefineDatas(global.getDefineData());
+        }
+
+        let passData = context.passData;
+        if (passData) {
+            comDef.addDefineDatas(passData.getDefineData());
+        }
 
         let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
         if (context._destRT == WebGPURenderEngine._instance._screenRT) {
@@ -357,16 +373,45 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     _prepare(context: WebGPURenderContext2D) {
         //编译着色器
         this._compileShader(context);
+        let shader = this._shaderInstances.elements[0];
+        if (shader) {
+            let passData = context.passData;
+            if (passData) {
+                let globalStr = "Sprite2DGlobal";
+                let global = this.getGlobalShaderData() as WebGPUShaderData;
+                if (global) {
+                    for (const [index, func] of global._updateCacheArray) {
+                        let ubo = passData._uniformBuffersPropertyMap.get(index);
+                        if (ubo) {
+                            passData._updateCacheArray.delete(index);
+                            func.call(ubo, index, global._data[index]);
+                        }
+                    }
+                    global._updateCacheArray.clear();
+                }
+
+                let commandArray = [globalStr];
+                passData.updateUBOBuffer(globalStr);
+                let mask = shader.uniformTextureExits.get(0);
+                let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
+                context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, passData, null, resource, mask);
+            }
+        }
+
+        if (!context._sceneBindGroup) {
+            context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], null, null, [], 0);
+        }
+
 
         //sprite ubo
         if (this.value2DShaderData && this.nodeCommonMap.length > 0) {
             let nodemap = this.nodeCommonMap;
-            for (var i = 0, n = nodemap.length; i < n; i++) {
+            for (let i = 0, n = nodemap.length; i < n; i++) {
                 let moduleName = nodemap[i];
                 let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
                 let uniformBuffer = this.value2DShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
-                if (uniformBuffer && uniformBuffer.needUpload) {
-                    uniformBuffer.bufferBlock.needUpload();
+                if (uniformBuffer) {
+                    uniformBuffer.upload();
                 }
             }
         }
@@ -375,8 +420,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         let subShader = this.subShader;
         if (this.materialShaderData) {
             let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-            if (matSubBuffer.needUpload) {
-                matSubBuffer.bufferBlock.needUpload();
+            if (matSubBuffer) {
+                matSubBuffer.upload();
             }
         }
     }

@@ -24,22 +24,18 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
      * @param context 
      */
     protected _mainPass(context: IRenderContext3D): void {
-        context.pipelineMode = this.pipelineMode; //@ts-ignore
+        context.pipelineMode = this.pipelineMode;
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         context.setRenderTarget(this.destTarget, this.clearFlag);
-        (context as WebGPURenderContext3D).clearRenderTarget();
+        // (context as WebGPURenderContext3D).clearRenderTarget();
 
         RenderPassUtil.renderCmd(this.beforeForwardCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 
-        this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
+        // this.clearFlag = RenderClearFlag.Depth | RenderClearFlag.Stencil;
 
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        if (this.enableOpaque) {
-            this._opaqueList.renderQueue(context);
-            this._opaqueTexturePass();
-        }
-
+        this._opaqueList.renderQueue(context);
 
         RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);

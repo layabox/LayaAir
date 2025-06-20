@@ -368,7 +368,7 @@ export class Scene extends Sprite {
 
         this.shaderData && this.shaderData.setShaderData(uniformIndex, type, value);
         for (var i = 0; i < this._area2Ds.length; i++) {
-            this._area2Ds[i].shaderData.setShaderData(uniformIndex, type, value);
+            this._area2Ds[i]._globalShaderData.setShaderData(uniformIndex, type, value);
         }
 
     }

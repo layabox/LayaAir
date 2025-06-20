@@ -45,14 +45,14 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _defineDatas: WebDefineDatas; //宏定义对象
 
-    //UBO Buffer Module
-    private _uniformBuffers: Map<string, WebGPUUniformBuffer>;
-
-    private _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
-
-    private _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
-
-    private _updateCacheArray: { [key: number]: any } = {};
+    /**@internal UBO Buffer Module*/
+    _uniformBuffers: Map<string, WebGPUUniformBuffer>;
+    /**@internal */
+    _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
+    /**@internal */
+    _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
+    /**@internal */
+    _updateCacheArray: Map<number, Function> = new Map();;
 
     private _subUboBufferNumber: number = 0;
 
@@ -88,14 +88,13 @@ export class WebGPUShaderData extends ShaderData {
         if (!buffer) {
             return;
         }
-        for (var i in this._updateCacheArray) {
-            let index = parseInt(i);
+        for (const [index, func] of this._updateCacheArray) {
             let ubo = this._uniformBuffersPropertyMap.get(index);
             if (ubo) {
-                (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+                func.call(ubo, index, this._data[index]);
             }
         }
-        this._updateCacheArray = {};
+        this._updateCacheArray.clear();
         buffer.needUpload && buffer.upload();
     }
 
@@ -169,18 +168,17 @@ export class WebGPUShaderData extends ShaderData {
         if (subBuffer) {
             if (this._subUboBufferNumber < 2) {
                 //update data
-                for (var i in this._updateCacheArray) {
-                    let index = parseInt(i);
+                for (const [index, func] of this._updateCacheArray) {
                     let ubo = this._uniformBuffersPropertyMap.get(index);
                     if (ubo) {
-                        (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+                        func.call(ubo, index, this._data[index]);
                     }
                 }
-                this._updateCacheArray = {};//clear
+                this._updateCacheArray.clear();
             } else {
                 uniformMap.forEach((uniform, index) => {
-                    if (this._data[index] && this._updateCacheArray[index]) {
-                        (this._updateCacheArray[index] as Function).call(subBuffer, index, this._data[index]);
+                    if (this._data[index] && this._updateCacheArray.has(index)) {
+                        (this._updateCacheArray.get(index)).call(subBuffer, index, this._data[index]);
                     }
                 });
             }
@@ -189,6 +187,9 @@ export class WebGPUShaderData extends ShaderData {
 
         //create WebGPUSubUniform
         let uniformBuffer = new WebGPUSubUniformBuffer(cacheName, uniformMap, this);
+        if (uniformBuffer.bytelength == 0) {
+            return null;
+        }
         this._subUboBufferNumber++;
         uniformBuffer.notifyGPUBufferChange();
         this._subUniformBuffers.set(cacheName, uniformBuffer);
@@ -302,7 +303,7 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         //更新状态标识符
         {
-            this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setInt;
+            this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setInt);
         }
     }
 
@@ -323,7 +324,7 @@ export class WebGPUShaderData extends ShaderData {
     setNumber(index: number, value: number) {
         if (this.nearEqual(this._data[index], value)) return;
         this._data[index] = value;
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setFloat;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setFloat);
     }
 
     /**
@@ -346,7 +347,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector2;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector2);
     }
 
     /**
@@ -369,7 +370,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector3;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector3);
     }
 
     /**
@@ -392,7 +393,7 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector4;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector4);
     }
 
     /**
@@ -430,7 +431,7 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = linearColor;
             this._gammaColorMap.set(index, value.clone());
         }
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setVector4;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector4);
     }
 
     /**
@@ -462,7 +463,7 @@ export class WebGPUShaderData extends ShaderData {
         else {
             this._data[index] = value.clone();
         }
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setMatrix3x3;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setMatrix3x3);
     }
 
     /**
@@ -485,7 +486,7 @@ export class WebGPUShaderData extends ShaderData {
         } else {
             this._data[index] = value.clone();
         }
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setMatrix4x4;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setMatrix4x4);
         //TODO
     }
 
@@ -505,7 +506,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array) {
         this._data[index] = value;
-        this._updateCacheArray[index] = WebGPUUniformBufferBase.prototype.setArrayBuffer;
+        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setArrayBuffer);
     }
 
     /**
@@ -697,6 +698,7 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber = 0;
 
         this._textureStatesMap.clear();
+        this._updateCacheArray.clear();
     }
 
     /**

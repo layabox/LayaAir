@@ -104,18 +104,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         } else {
             comDef.add(ShaderDefines2D.INVERTY);
         }
-
-        if (this.passData) {
-            let commandArray = ["Sprite2DGlobal"];
-            this._sceneData.updateUBOBuffer("Sprite2DGlobal");
-
-            let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
-
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, this.passData, null, resource, ~0);
-        }
-        else {
-            this._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], this.passData, null, [], 0);
-        }
     }
 
     getRenderTarget(): InternalRenderTarget {
@@ -150,32 +138,39 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     }
 
     setRenderTarget(value: WebGPUInternalRT, clear: boolean, clearColor: Color): void {
-        this._needClearColor = clear;
-        clearColor && clearColor.cloneTo(this._clearColor);
+        const engine = WebGPURenderEngine._instance;
+
+        if (!this._needClearColor) {
+            this._needClearColor = clear;
+        }
+        if (clear) {
+            clearColor && clearColor.cloneTo(this._clearColor);
+        }
+
+        if (engine.hasScreenCleared) {
+            this._needClearColor = false;
+        }
+
         if (!value || this._destRT !== value) {
             this._destRT = value;
             this._needStart = true;
         }
-        const engine = WebGPURenderEngine._instance;
 
         let rt = value;
 
         if (!rt) {
             // 如果没有设置渲染目标，则使用屏幕渲染目标
             rt = engine._screenRT;
-            // 更新 屏幕渲染目标的纹理资源
-            rt._textures[0].resource = engine._context.getCurrentTexture();
-            rt._textures[0].multiSamplers = 1;
         }
         let tex = rt._textures[0];
         this._viewport.set(0, 0, tex.width, tex.height);
 
-        if (this._needClearColor) {
-            const renderPassDesc = WebGPURenderPassHelper.getDescriptor(rt, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
-            this.renderCommand.startRender(renderPassDesc);
-            this.renderCommand.end();
-            WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
-        }
+        // if (this._needClearColor) {
+        //     const renderPassDesc = WebGPURenderPassHelper.getDescriptor(rt, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
+        //     this.renderCommand.startRender(renderPassDesc);
+        //     this.renderCommand.end();
+        //     WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
+        // }
     }
 
     drawRenderElementOne(node: WebGPURenderElement2D): void {

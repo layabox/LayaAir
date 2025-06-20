@@ -177,11 +177,12 @@ export class WebGPUDirectLightShadowRP {
         Vector4.TEMP.setValue(0, 0, this._shadowMapWidth, this._shadowMapHeight);
         context.setViewPort(Viewport.TEMP);
         context.setScissor(Vector4.TEMP);
-        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        context.clearRenderTarget();
+        // context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
+        // // context.clearRenderTarget();
 
-        //渲染阴影深度信息
-        context.setClearData(RenderClearFlag.Nothing, Color.BLACK, 1, 0);
+        // //渲染阴影深度信息
+        // context.setClearData(RenderClearFlag.Nothing, Color.BLACK, 1, 0);
+        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         for (let i = 0, n = this._cascadeCount; i < n; i++) {
             const sliceData = this._shadowSliceDatas[i];
             this._getShadowBias(sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
@@ -218,6 +219,8 @@ export class WebGPUDirectLightShadowRP {
 
             this._renderQueue.renderQueue(context);
             this._applyCasterPassCommandBuffer(context);
+
+            context.setClearData(RenderClearFlag.Nothing, Color.BLACK, 1, 0);
         }
         this._applyRenderData(context.sceneData, context.cameraData);
 

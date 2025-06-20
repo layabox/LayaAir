@@ -270,6 +270,7 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         value = value ? value : Color.BLACK;
         value.cloneTo(this._baseColor);
         this._renderAlpha = -1;
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
     }
 
     public get baseTexture(): BaseTexture {

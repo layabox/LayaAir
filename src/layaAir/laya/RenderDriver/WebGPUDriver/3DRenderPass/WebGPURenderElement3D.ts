@@ -149,8 +149,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         // material ubo
         let subShader = this.subShader;
         let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-        if (matSubBuffer.needUpload) {
-            matSubBuffer.bufferBlock.needUpload();
+        if (matSubBuffer) {
+            matSubBuffer.upload();
         }
 
         //sprite ubo
@@ -160,8 +160,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 let moduleName = nodemap[i];
                 let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
                 let uniformBuffer = this.renderShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
-                if (uniformBuffer && uniformBuffer.needUpload) {
-                    uniformBuffer.bufferBlock.needUpload();
+                if (uniformBuffer) {
+                    uniformBuffer.upload();
                 }
             }
         }
@@ -171,8 +171,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 let shaderData = value as WebGPUShaderData;
                 let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
                 let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
-                if (uniformBuffer && uniformBuffer.needUpload) {
-                    uniformBuffer.bufferBlock.needUpload();
+                if (uniformBuffer) {
+                    uniformBuffer.upload();
                 }
             }
         }
