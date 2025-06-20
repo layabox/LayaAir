@@ -259,7 +259,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         }
     }
 
-    isOnGround(): boolean {
+    isGrounded(): boolean {
         var bt = btPhysicsCreateUtil._bt;
         return bt.btKinematicCharacterController_onGround(this._btKinematicCharacter) == 1 ? true : false;
     }

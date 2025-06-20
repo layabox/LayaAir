@@ -141,5 +141,5 @@ export interface ICharacterController extends ICollider {
    * @zh 是否在地面上。
    * @returns 是否在地面上。
    */
-  isOnGround?(): boolean;
+  isGrounded?(): boolean;
 }

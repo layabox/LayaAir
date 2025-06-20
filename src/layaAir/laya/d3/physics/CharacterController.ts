@@ -326,8 +326,8 @@ export class CharacterController extends PhysicsColliderComponent {
      * @zh 是否在地面上。
      * @returns 是否在地面上。
      */
-    isOnGround(): boolean {
-        return this._collider ? this._collider.isOnGround() : false;
+    isGrounded(): boolean {
+        return this._collider ? this._collider.isGrounded() : false;
     }
 
     /**
