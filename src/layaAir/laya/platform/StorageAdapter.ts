@@ -9,19 +9,13 @@ export class StorageAdapter {
     protected _supported: boolean;
 
     constructor() {
+        this._storage = Browser.window.localStorage;
         this._supported = this.checkSupport();
     }
 
     protected checkSupport(): boolean {
-        try {
-            this._storage = Browser.window.localStorage;
-            this._storage.setItem('laya', '1');
-            this._storage.removeItem('laya');
-            return true;
-        } catch (e) {
-            console.log('LocalStorage is not supprot or browser is private mode.');
-            return false;
-        }
+        return this._storage != null && typeof (this._storage.getItem) === 'function' &&
+            typeof (this._storage.setItem) === 'function';
     }
 
     getItem(key: string): string | null {

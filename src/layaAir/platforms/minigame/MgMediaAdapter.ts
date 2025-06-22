@@ -15,7 +15,7 @@ export class MgMediaAdapter extends MediaAdapter {
         this.longAudioClass = MgInnerAudioChannel;
         this.shortAudioClass = MgWebAudioChannel;
 
-        this.videoPlayerClass = PAL.g.createVideo ? MgVideoPlayer : null;
+        this.videoPlayerClass = PAL.hasAPI("createVideo") ? MgVideoPlayer : null;
         this.videoTextureClass = null;
     }
 }

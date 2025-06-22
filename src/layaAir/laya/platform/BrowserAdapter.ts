@@ -10,7 +10,7 @@ import { PAL } from "./PlatformAdapters";
  */
 export class BrowserAdapter extends EventDispatcher {
     requestFrame: Function;
-    webSocketClass: new () => IWebSocket;
+    webSocketClass: new () => IWebSocket = _WebSocket;
 
     protected _visibilityStateKey: string;
     protected _pixelRatio: number = 1;
@@ -291,7 +291,8 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     setCursor(cursor: string): void {
-        Browser.document.body.style.cursor = cursor;
+        if (Browser.isDomSupported)
+            Browser.document.body.style.cursor = cursor;
     }
 
     get supportArrayBufferURL(): boolean {
@@ -350,8 +351,11 @@ export class BrowserAdapter extends EventDispatcher {
             = (style as any).oTransform = value;
     }
 
-    createWebSocket(): IWebSocket {
-        return new (this.webSocketClass || _WebSocket)();
+    createWebSocket(): IWebSocket | null {
+        if (this.webSocketClass)
+            return new this.webSocketClass();
+        else
+            return null;
     }
 }
 

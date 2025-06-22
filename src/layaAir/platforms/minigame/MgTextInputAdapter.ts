@@ -4,18 +4,26 @@ import { PAL } from "../../laya/platform/PlatformAdapters";
 import { TextInputAdapter } from "../../laya/platform/TextInputAdapter";
 
 export class MgTextInputAdapter extends TextInputAdapter {
+    static enabled: boolean = true;
 
     constructor() {
         super();
 
         this._editInline = false;
 
-        PAL.g.onKeyboardInput(this.onKeyboardInput.bind(this));
-        PAL.g.onKeyboardConfirm(this.onKeyboardConfirm.bind(this));
-        PAL.g.onKeyboardComplete(this.onKeyboardComplete.bind(this));
+        MgTextInputAdapter.enabled = PAL.hasAPI("onKeyboardInput");
+
+        if (MgTextInputAdapter.enabled) {
+            PAL.g.onKeyboardInput(this.onKeyboardInput.bind(this));
+            PAL.g.onKeyboardConfirm(this.onKeyboardConfirm.bind(this));
+            PAL.g.onKeyboardComplete(this.onKeyboardComplete.bind(this));
+        }
     }
 
     setText(value: string): void {
+        if (!MgTextInputAdapter.enabled)
+            return;
+
         PAL.g.updateKeyboard({ value });
     }
 
@@ -25,7 +33,7 @@ export class MgTextInputAdapter extends TextInputAdapter {
 
     protected onCanShowKeyboard(): Promise<void> {
         let target = this.target;
-        if (!target.editable)
+        if (!target.editable || !MgTextInputAdapter.enabled)
             return Promise.resolve();
 
         return new Promise<any>((resolve, reject) => {
@@ -42,7 +50,7 @@ export class MgTextInputAdapter extends TextInputAdapter {
     }
 
     protected onEnd(target: Input, complete: boolean, switching: boolean): Promise<void> {
-        if (complete || switching) //如果是键盘自己收回，或者是切换输入框的情况，无需调用关闭键盘
+        if (complete || switching || !MgTextInputAdapter.enabled) //如果是键盘自己收回，或者是切换输入框的情况，无需调用关闭键盘
             return Promise.resolve();
 
         return new Promise<any>((resolve, reject) => {

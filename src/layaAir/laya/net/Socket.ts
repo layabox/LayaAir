@@ -167,6 +167,10 @@ export class Socket extends EventDispatcher {
         }
 
         this._socket = PAL.browser.createWebSocket();
+        if (this._socket == null) {
+            console.warn("WebSocket is not supported in this platform.");
+            return;
+        }
         this._socket.onOpen = () => {
             this._connected = true;
             this.event(Event.OPEN);
