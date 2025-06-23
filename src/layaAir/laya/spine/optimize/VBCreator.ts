@@ -43,15 +43,24 @@ export abstract class VBCreator implements IGetBone {
      */
     boneMat: Float32Array;
 
+    /**
+     * @en The Max Length of the vertex buffer.
+     * @zh 顶点缓冲区的最大长度。
+     */
+    maxVertexCount: number;
+
     private boneMaxId: number = 0;
 
     /**
      * @en Create a new instance of the VBCreator.
      * @param autoNew Whether to automatically create a new vertex buffer. Default is true.
+     * @parma maxVertexCount The maximum number of vertices in the vertex buffer.
      * @zh 创建 VBCreator 的新实例。
      * @param autoNew 是否自动创建新的顶点缓冲区。默认为true。
+     * @param maxVertexCount 顶点缓冲区中的最大顶点数。
      */
-    constructor(autoNew: boolean = true) {
+    constructor(autoNew: boolean = true, maxVertexCount: number = 0) {
+        this.maxVertexCount = maxVertexCount;
         this.init(autoNew);
     }
 
@@ -66,9 +75,29 @@ export abstract class VBCreator implements IGetBone {
         this.slotVBMap = new Map();
         this.boneArray = [];
         if (autoNew) {
-            this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
+            this._updateBuffer();
+            // this.vb = new Float32Array(SpineMeshBase.maxVertex * this.vertexSize);
         }
         this.vbLength = 0;
+    }
+
+
+    protected _updateBuffer() {
+        let oldbuffer = this.vb;
+        this.vb = new Float32Array(this.maxVertexCount * this.vertexSize);
+        if (oldbuffer) this.vb.set(oldbuffer);
+    }
+
+    /**
+     * @en set vertex buffer length.
+     * @param maxVertexCount The Max length of Vertex count.
+     * @zh 设置顶点缓冲长度。
+     * @param maxVertexCount 顶点缓存区最大个数。
+     */
+    setBufferLength(maxVertexCount: number) {
+        if (maxVertexCount <= this.maxVertexCount) return;
+        this.maxVertexCount = maxVertexCount;
+        this._updateBuffer();
     }
 
     /**
@@ -166,70 +195,14 @@ export abstract class VBCreator implements IGetBone {
         }
         offset = this.vbLength / this.vertexSize;
         map.set(attach.attachment, { offset: offset, attachment: attach });
-        if (attach.isPath) return offset;
+        if (!attach.vertexCount) return offset;
+
+        if (offset + attach.vertexCount >= this.maxVertexCount) {//长度超标
+            this.setBufferLength(offset + attach.vertexCount);
+        }
+
         this.vbLength = this.appendVertexArray(attach, this.vb, this.vbLength, this);
         return offset;
-    }
-
-    /**
-     * @en Create index buffer for attachments.
-     * @param attachs Array of attachment parse data.
-     * @param ibCreator Index buffer creator.
-     * @param order Optional draw order array.
-     * @zh 为附件创建索引缓冲区。
-     * @param attachs 附件解析数据数组。
-     * @param ibCreator 索引缓冲区创建器。
-     * @param order 可选的绘制顺序数组。
-     */
-    createIB(attachs: AttachmentParse[], ibCreator: IBCreator, order?: number[]) {
-        let offset = 0;
-        let slotVBMap = this.slotVBMap;
-        let drawOrder;
-        let getAttach: (value: any) => AttachmentParse;
-        if (order) {
-            drawOrder = order;
-            getAttach = function (value: any) {
-                return attachs[value];
-            }
-        }
-        else {
-            drawOrder = attachs;
-            getAttach = function (value: any) {
-                return value;
-            }
-        }
-        let outRenderData = new MultiRenderData();
-        let texture;
-        let blend;
-
-        let ib = ibCreator.ib;
-        for (let i = 0, n = drawOrder.length; i < n; i++) {
-            let attach = getAttach(drawOrder[i]);
-            if (attach.attachment && !attach.isPath) {
-                let needAdd = false;
-                if (texture != attach.textureName) {
-                    texture = attach.textureName;
-                    needAdd = true;
-                }
-                if (blend != attach.blendMode) {
-                    blend = attach.blendMode;
-                    needAdd = true;
-                }
-                if (needAdd) {
-                    if (outRenderData.currentData) {
-                        outRenderData.endData(offset);
-                    }
-                    outRenderData.addData(attach.textureName, attach.blendMode, offset, 0);
-                }
-                let attachPos = slotVBMap.get(attach.slotId).get(attach.attachment);
-                offset = SlotUtils.appendIndexArray(attach, ib, attachPos.offset, offset);
-            }
-        }
-        if (texture) {
-            outRenderData.endData(offset);
-        }
-        ibCreator.outRenderData = outRenderData;
-        ibCreator.ibLength = offset;
     }
 
     /**
@@ -331,7 +304,7 @@ export abstract class VBCreator implements IGetBone {
 export class VBBoneCreator extends VBCreator {
 
     _create(): VBCreator {
-        return new VBBoneCreator(false);
+        return new VBBoneCreator(false, this.maxVertexCount);
     }
 
     /**
@@ -446,9 +419,9 @@ export class VBBoneCreator extends VBCreator {
             let bones = attchment.bones;
             let vertexCount = attachmentParse.vertexCount;
             let maxbones = (vside - 6) / 4;
-            
-            let f = 0,v = 0;
-            for (let w = 0 ; w < vertexCount; w++) {
+
+            let f = 0, v = 0;
+            for (let w = 0; w < vertexCount; w++) {
                 let len = bones[v++];
                 let slotOffset = w * (vside - 6);
                 let vertexOffset = offset + w * vside + 6;
@@ -478,7 +451,7 @@ export class VBBoneCreator extends VBCreator {
 export class VBRigBodyCreator extends VBCreator {
     /** @internal */
     _create(): VBCreator {
-        return new VBRigBodyCreator(false);
+        return new VBRigBodyCreator(false, this.maxVertexCount);
     }
 
     /**

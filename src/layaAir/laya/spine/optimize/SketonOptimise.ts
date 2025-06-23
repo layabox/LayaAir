@@ -12,6 +12,8 @@ import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
+import { t } from "../../../../../node_modules/i18next/index.v4";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 
 /**
  * @en SketonOptimise class used for skeleton optimization.
@@ -316,7 +318,6 @@ export class SkinAttach {
     /** @ignore */
     constructor() {
         this.slotAttachMap = new Map();
-        this.mainIB = new IBCreator();
         this.mainAttachMentOrder = [];
     }
 
@@ -369,6 +370,10 @@ export class SkinAttach {
         let type: ESpineRenderType = ESpineRenderType.rigidBody;
         let vertexBones = 0;
         let attachments = skinData.attachments;
+
+        let vertexCount = 0;
+        let indexCount = 0;
+
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
             let slot = slots[i];
@@ -392,12 +397,17 @@ export class SkinAttach {
                     if (tempType < type) {
                         type = tempType;
                     }
+
+                    indexCount += parse.indexCount;
+                    vertexCount += parse.vertexCount;
                     map.set(key, parse);
                 }
             }
             else if (slotAttachName) {
                 let parse = map.get(slotAttachName);
                 if (parse) {
+                    indexCount += parse.indexCount;
+                    vertexCount += parse.vertexCount;
                     vertexBones = Math.max(vertexBones , parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
@@ -421,15 +431,19 @@ export class SkinAttach {
 
         switch (this.type) {
             case ESpineRenderType.normal:
-                this.mainVB = new VBBoneCreator();
+                this.mainVB = new VBBoneCreator(true , vertexCount);
                 break;
             case ESpineRenderType.boneGPU:
-                this.mainVB = new VBBoneCreator();
+                this.mainVB = new VBBoneCreator(true , vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
-                this.mainVB = new VBRigBodyCreator();
+                this.mainVB = new VBRigBodyCreator(true , vertexCount);
                 break;
         }
+
+        this.mainIB = new IBCreator();
+        this.mainIB.updateFormat(vertexCount);
+        this.mainIB.setBufferLength(indexCount);
     }
 
     /**
@@ -459,7 +473,7 @@ export class SkinAttach {
             }
         });
         this.mainVB.initBoneMat();
-        this.mainVB.createIB(mainAttachMentOrder, this.mainIB);
+        this.mainIB.createIB(mainAttachMentOrder, this.mainVB);
     }
 
     /**
@@ -482,7 +496,9 @@ export class SkinAttach {
 }
 
 export type IBRenderData = {
-    realIb: Uint16Array;
+    realIb: Uint16Array | Uint32Array;
+    type: IndexFormat;
+    size: number;
     outRenderData: MultiRenderData;
 }
 

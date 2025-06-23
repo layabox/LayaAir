@@ -77,7 +77,12 @@ export class AttachmentParse {
      * @en The number of vertices in the attachment.
      * @zh 附件中的顶点数量。
      */
-    vertexCount: number;
+    vertexCount: number = 0;
+    /**
+     * @en The number of indices in the attachment.
+     * @zh 附件中的索引数量。
+     */
+    indexCount:number = 0;
     /**
      * @en Indicates if normal rendering is required.
      * @zh 指示是否需要正常渲染。
@@ -202,8 +207,9 @@ export class AttachmentParse {
             //debugger;
             this.attachment = null;
         }
-        if (this.uvs) {
+        if (this.textureName) {
             this.vertexCount = this.uvs.length / 2;
+            this.indexCount = this.indexArray.length;
         }
         if (attchmentColor) {
             if (attchmentColor.a != 1 || attchmentColor.r != 1 || attchmentColor.g != 1 && attchmentColor.b != 1) {

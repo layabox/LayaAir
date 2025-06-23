@@ -93,7 +93,7 @@ export class AnimationRenderProxy {
         if (nowFrame != beforeFrame) {
             //TODO
             let ib = currentSKin.getIB(nowFrame);
-            updator.updateIB(ib.realIb, ib.realIb.length, ib.outRenderData, currentSKin.mutiRenderAble);
+            updator.updateIB(ib.realIb , ib.type , ib.size , ib.realIb.length, ib.outRenderData, currentSKin.mutiRenderAble);
             this.currentTime = curTime;
             this.currentFrameIndex = nowFrame;
         }
