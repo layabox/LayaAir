@@ -857,7 +857,7 @@ export class Scene3D extends Sprite {
             if (steps > 0) {
                 let physicsManager = this._physicsManager;
                 if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
-                    physicsManager.update(Scene3D.physicsSettings.fixedTimeStep);
+                    physicsManager.update(steps * Scene3D.physicsSettings.fixedTimeStep);
                 }
                 this._physicsStepTime -= steps * Scene3D.physicsSettings.fixedTimeStep;
             }
