@@ -3,12 +3,12 @@ import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
+/** @ignore */
 export class SaveTranslate implements ISaveData {
-
-
     private static POOL: any = SaveBase._createArray();
-    /**@internal */
+
     _mat: Matrix = new Matrix();
+
     isSaveMark(): boolean { return false; }
 
     restore(runner: GraphicsRunner): void {

@@ -3,13 +3,11 @@ import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
+/** @ignore */
 export class SaveTransform implements ISaveData {
 
-
     private static POOL: any = SaveBase._createArray();
-    /**@internal */
     _savematrix: Matrix;
-    /**@internal */
     _matrix: Matrix = new Matrix();
 
     constructor() {

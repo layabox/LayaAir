@@ -1,4 +1,3 @@
-import { Context } from "vm";
 import { ILaya } from "../../../ILaya";
 import { Sprite } from "../../display/Sprite";
 import { Point } from "../../maths/Point";
@@ -993,20 +992,10 @@ export class TiledMap {
      * @param arr	要缓存的GridSprite数组。
      */
     private cacheGridsArray(arr: any[]): void {
-        var canvas: any;
-        if (!TiledMap._tempCanvas) {
+        let canvas: HTMLCanvas;
+        if (!TiledMap._tempCanvas)
             TiledMap._tempCanvas = new HTMLCanvas();
-            var tx: Context = TiledMap._tempCanvas.context;
-            if (!tx) {
-                tx = TiledMap._tempCanvas.getContext('2d');	//如果是webGL的话，这个会返回WebGLContext2D
-
-                //tx.__tx = 0;
-                //tx.__ty = 0;
-            }
-        }
         canvas = TiledMap._tempCanvas;
-        canvas.context.asBitmap = false
-
 
         var i: number, len: number;
         len = arr.length;

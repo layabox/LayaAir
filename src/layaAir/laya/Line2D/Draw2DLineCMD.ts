@@ -8,10 +8,7 @@ import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
-import { LineShader } from "./shader/Line2DShader";
-import { Sprite } from "../display/Sprite";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
 
 export class Draw2DLineCMD extends Command2D {
     private static _pool: Draw2DLineCMD[] = [];
@@ -33,8 +30,8 @@ export class Draw2DLineCMD extends Command2D {
     _line2DRender: Line2DRender;
     private _needUpdateElement: boolean;
     private _matrix: Matrix;
-    private _shaderData:ShaderData;
-    private _struct:IRenderStruct2D;
+    private _shaderData: ShaderData;
+    private _struct: IRenderStruct2D;
 
     constructor() {
         super();

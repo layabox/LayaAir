@@ -3,19 +3,15 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { Pool } from "../../../utils/Pool";
 import { Command2D } from "./Command2D";
 
 export class Set2DShaderDataCMD extends Command2D {
-    /**@internal */
-    private static _pool: Set2DShaderDataCMD[] = [];
 
+    private static _pool = Pool.createPool(Set2DShaderDataCMD);
 
-    /**
-     * @internal
-     */
     static create(shaderData: ShaderData, nameID: number, value: ShaderDataItem, shaderDataType: ShaderDataType): Set2DShaderDataCMD {
-        var cmd: Set2DShaderDataCMD;
-        cmd = Set2DShaderDataCMD._pool.length > 0 ? Set2DShaderDataCMD._pool.pop() : new Set2DShaderDataCMD();
+        let cmd = Set2DShaderDataCMD._pool.take();
         cmd.setDest(shaderData);
         cmd._setRenderDataCMD.propertyID = nameID;
         cmd._setRenderDataCMD.dataType = shaderDataType;
@@ -54,14 +50,13 @@ export class Set2DShaderDataCMD extends Command2D {
      * @override
      */
     recover(): void {
-        Set2DShaderDataCMD._pool.push(this);
+        Set2DShaderDataCMD._pool.recover(this);
         this._globalMode = false;
     }
 }
 
 export class Set2DDefineCMD extends Command2D {
-    /**@internal */
-    private static _pool: Set2DDefineCMD[] = [];
+    private static _pool = Pool.createPool(Set2DDefineCMD);
 
     /**@internal */
     _setRenderDefineCMD: SetShaderDefineCMD;
@@ -72,8 +67,7 @@ export class Set2DDefineCMD extends Command2D {
          * @internal
          */
     static create(shaderData: ShaderData, define: ShaderDefine, addDefine: boolean): Set2DDefineCMD {
-        var cmd: Set2DDefineCMD;
-        cmd = Set2DDefineCMD._pool.length > 0 ? Set2DDefineCMD._pool.pop() : new Set2DDefineCMD();
+        let cmd = Set2DDefineCMD._pool.take();
         cmd.setDest(shaderData);
         cmd._setRenderDefineCMD.add = addDefine;
         cmd._setRenderDefineCMD.define = define;
@@ -102,7 +96,7 @@ export class Set2DDefineCMD extends Command2D {
      * @override
      */
     recover(): void {
-        Set2DDefineCMD._pool.push(this);
+        Set2DDefineCMD._pool.recover(this);
         this._globalMode = false;
     }
 }

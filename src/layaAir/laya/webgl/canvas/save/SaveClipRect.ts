@@ -3,8 +3,11 @@ import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
 import { Rectangle } from "../../../maths/Rectangle"
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
+import { Const } from "../../../Const";
 
+/** @ignore */
 export class SaveClipRect implements ISaveData {
+    static MAX: Rectangle = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
 
     private static POOL: any = SaveBase._createArray();
 
@@ -17,13 +20,13 @@ export class SaveClipRect implements ISaveData {
 
     restore(runner: GraphicsRunner): void {
         if (
-            this._clipRect.width == GraphicsRunner.MAXCLIPRECT.width 
-            && this._clipRect.height == GraphicsRunner.MAXCLIPRECT.height
-            && this._clip_x == GraphicsRunner.MAXCLIPRECT.x
-            && this._clip_y == GraphicsRunner.MAXCLIPRECT.y
+            this._clipRect.width == SaveClipRect.MAX.width
+            && this._clipRect.height == SaveClipRect.MAX.height
+            && this._clip_x == SaveClipRect.MAX.x
+            && this._clip_y == SaveClipRect.MAX.y
         ) {
-            runner._clipRect = GraphicsRunner.MAXCLIPRECT;
-        }else{
+            runner._clipRect = SaveClipRect.MAX;
+        } else {
             this._clipRect.clone(runner._clipRect);
         }
         runner._clip_x = this._clip_x;

@@ -43,7 +43,6 @@ import { NodeFlags } from "../Const";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
-// const UV = [0, 0, 1, 0, 1, 1, 0, 1];
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -69,22 +68,19 @@ export class Graphics {
 
     owner: Sprite | null = null;
 
-    // _texture: Texture | null = null;
     /** @internal */
     _data: GraphicsRenderData;
-    // _render: ( runner: GraphicsRunner, x: number, y: number) => void = this._renderEmpty;
 
-    // private _renderElements: IRenderElement2D[] = [];
-
-    private _cmds: IGraphicsCmd[] = [];
-    protected _vectorgraphArray: any[] | null = null;
-    private _graphicBounds: GraphicsBounds | null = null;
-    private _material: Material;
-    protected _renderDataHandle: I2DPrimitiveDataHandle;
-    /** @internal */
-    _modefied: boolean = false;
     /** @internal 是否优先使用精灵状态 */
     _useSpriteState: boolean = true;
+
+    private _cmds: IGraphicsCmd[] = [];
+    private _graphicBounds: GraphicsBounds | null = null;
+    private _material: Material;
+    private _renderDataHandle: I2DPrimitiveDataHandle;
+    private _modefied: boolean = false;
+    private _display: boolean = false;
+
 
     /**
     * @en Whether to use sprite state.
@@ -98,7 +94,7 @@ export class Graphics {
         if (this._useSpriteState == value)
             return;
         this._useSpriteState = value;
-        this._repaint();
+        this.repaint();
     }
 
     /**@ignore */
@@ -124,10 +120,10 @@ export class Graphics {
      */
     destroy(): void {
         this.clear(true);
-        if (this._graphicBounds) this._graphicBounds.destroy();
+
+        this._graphicBounds && this._graphicBounds.destroy();
         this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
-        this._vectorgraphArray = null;
         if (this.owner) {
             this.owner._renderType = 0;
             this.owner = null;
@@ -154,34 +150,32 @@ export class Graphics {
         }
 
         this._cmds.length = 0;
-        // this._render = this._renderEmpty;
         this._clearData();
         this._checkDisplay();
-        this._repaint();
+        this.repaint();
     }
 
-    /** @ignore */
+    /** @internal */
     _clearBoundsCache(onSizeChanged?: boolean): void {
         if (this._graphicBounds) {
             if (!onSizeChanged || this._graphicBounds._affectBySize)
                 this._graphicBounds.reset();
         }
+        this._modefied = true;
+    }
+
+    /** @deprecated Use repaint */
+    _repaint(): void {
+        this.repaint();
     }
 
     /**
-     * @internal
      * @en Redraw this object.
      * @zh 重绘此对象。
      */
-    _repaint(): void {
-        this._modefied = true;
+    repaint(): void {
         this._clearBoundsCache();
         this.owner && this.owner.repaint();
-    }
-
-    /**@internal */
-    _isOnlyOne(): boolean {
-        return this._cmds.length === 1;
     }
 
     /**
@@ -248,7 +242,7 @@ export class Graphics {
         if (newCmd != null) {
             if (index !== -1) {
                 this._cmds[index] = newCmd;
-                this._repaint();
+                this.repaint();
             }
             else {
                 this._cmds.push(newCmd);
@@ -273,38 +267,36 @@ export class Graphics {
             result = result || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
             this._setDisplay(result);
         }
-        this._repaint();
+        this.repaint();
     }
 
     /** @internal */
     _checkDisplay() {
-        if (this.owner && !this.owner.destroyed) {
-            let len = this._cmds.length;
-            let value = len > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
-            this._setDisplay(value);
-        }
+        this._setDisplay(this._cmds.length > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0);
     }
-
-    _display: boolean = false;
 
     /** @internal */
     _setDisplay(value: boolean) {
-        if (this._display === value) return;
+        if (this._display === value || !this.owner || this.owner.destroyed)
+            return;
+
         this._display = value;
+        let struct = this.owner._struct;
         if (value) {
+            this._modefied = true;
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
-            this.owner._struct.renderType = BaseRender2DType.graphics;
-            this.owner._struct.renderDataHandler = this._renderDataHandle;
-            this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
-            this.owner._struct.renderElements = this._data._renderElements;
+            struct.renderType = BaseRender2DType.graphics;
+            struct.renderDataHandler = this._renderDataHandle;
+            struct.renderMatrix = this.owner.globalTrans.getMatrix();
+            struct.renderElements = this._data._renderElements;
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
-            if (this._data._renderElements === this.owner._struct.renderElements) {
-                this.owner._struct.renderElements = [];
+            if (this._data._renderElements === struct.renderElements) {
+                struct.renderElements = [];
             }
-            this.owner._struct.renderType = -1;
-            this.owner._struct.renderDataHandler = null;
+            struct.renderType = -1;
+            struct.renderDataHandler = null;
         }
     }
 
@@ -349,7 +341,7 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
-        this._repaint();
+        this.repaint();
         if (value != null)
             value._addReference();
     }
@@ -650,7 +642,7 @@ export class Graphics {
      * @param color 新的颜色
      */
     replaceTextColor(color: string): void {
-        this._repaint();
+        this.repaint();
         let cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
             let cmd = cmds[i];
@@ -699,25 +691,17 @@ export class Graphics {
     /**
      * @internal
      */
-    // _renderEmpty( runner: GraphicsRunner, x: number, y: number): void {
-    // }
-
-    // _renderAll( runner: GraphicsRunner, x: number, y: number): void {
-    /**
-     * @internal
-     */
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
         if (!this.owner || this.owner.destroyed)
             return;
 
-        if (
-            !this._modefied
+        if (!this._modefied
             && this._check() //校验是否都有效
             // && this._data.offsetX === x
             // && this._data.offsetY === y
         ) {
             this._data.setRenderElement(this.owner._struct, this._renderDataHandle);
-            return
+            return;
         }
 
         this._data.clear();
@@ -759,23 +743,8 @@ export class Graphics {
         }
         return true;
     }
-    /**
-     * @internal
-     */
-    // _renderOne( runner: GraphicsRunner, x: number, y: number): void {
-    //     this._data.clear();
-    //     runner.clear();
-    //     runner.sprite = this._sp;
-    //     runner._graphicsData = this._data;
-    //     runner._material = this._material;
-    //     this._cmds[0].run(runner, x, y);
-    //     this.updateRenderElement();
-    //     runner._material = null;
-    //     runner._graphicsData = null;
-    //     runner.sprite = null;
-    // }
 
-    _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
+    private _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
         let sprite = this.owner;
         if (!sprite.texture || sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
             return

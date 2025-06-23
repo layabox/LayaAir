@@ -70,10 +70,7 @@ export class PostProcess {
     }
 
     /**@internal */
-    private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
-
-    /**@internal */
-    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+    private _compositeShaderData: ShaderData;
 
     /**@internal */
     private _effects: PostProcessEffect[] = [];
@@ -116,7 +113,7 @@ export class PostProcess {
      */
     constructor() {
         this._context = new PostProcessRenderContext();
-        this._context.compositeShaderData = this._compositeShaderData;
+        this._context.compositeShaderData = this._compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._context.command = new CommandBuffer();
         this._depthtextureFlag = 0;
     }
@@ -259,7 +256,7 @@ export class PostProcess {
      */
     addEffect(effect: PostProcessEffect): void {
         if (effect.singleton && this.getEffect((effect as any).constructor)) {
-            console.error("无法增加已经存在的Effect");
+            console.error("the target effect is a singleton", effect);
             return;
         }
         if (!this._enableColorGrad || effect instanceof ColorGradEffect) {

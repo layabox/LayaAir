@@ -18,6 +18,7 @@ import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/
 import { LayaGL } from "../layagl/LayaGL";
 import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
+import { Camera2D } from "./Scene2DSpecial/Camera2D";
 
 /** @blueprintIgnore */
 export interface ILight2DManager {
@@ -38,6 +39,7 @@ export interface ILight2DManager {
  */
 export class Scene extends Sprite {
     static scene2DUniformMap: CommandUniformMap;
+
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**
      * @en List of scenes that have been created but not yet destroyed. This property is read-only, please do not modify it directly.
@@ -63,23 +65,27 @@ export class Scene extends Sprite {
         Scene.componentManagerMap.set(type, cla);
     }
 
+    /** @internal */
+    static __init__() {
+        Camera2D.shaderValueInit();
+
+        let scene2DUniformMap = Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
+        scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
+        // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
+    }
+
     /**
      * @en Whether to automatically destroy (destroy nodes and used resources) after the scene is closed, default is false
      * @zh 场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为 false
      */
     autoDestroyAtClosed: boolean = false;
 
-    /**@internal */
+    /** @internal */
     _idMap?: any;
-    /**
-     * @internal
-     */
+    /** @internal */
     _scene3D: Scene3D;
-
-    /**
-     * @internal
-     */
-    _area2Ds: Area2D[] = [];
+    /** @internal */
+    _area2Ds: Set<Area2D>;
 
     /**
      * @en relative layout component
@@ -95,22 +101,26 @@ export class Scene extends Sprite {
 
     /** @internal */
     _componentElementDatasMap: any = {};
+    /**@internal */
     _specialManager: Scene2DSpecialManager;
+    /**@internal */
     _light2DManager: ILight2DManager;
     /**@internal */
     _globalRenderData: I2DGlobalRenderData;
+
     constructor() {
         super();
         this._specialManager = new Scene2DSpecialManager();
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
+        this._area2Ds = new Set<Area2D>();
 
         this._scene = this;
         Scene.componentManagerMap.forEach((val, key) => {
             this._specialManager.componentElementMap.set(key, new val(this));
         });
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
-        this._globalRenderData.globalShaderData = this.shaderData = this._specialManager._shaderData;
+        this._globalRenderData.globalShaderData = this._shaderData = this._specialManager._shaderData;
         this._globalRenderData.renderLayerMask = -1;
     }
 
@@ -356,21 +366,17 @@ export class Scene extends Sprite {
      * @param y 
      */
     render(x: number, y: number): void {
-        this._preRenderUpdate(x, y)
-        for (var i = 0; i < this._area2Ds.length; i++) {
-            this._area2Ds[i].render()
+        this._preRenderUpdate(x, y);
+        for (let area of this._area2Ds) {
+            area.render();
         }
     }
 
-
-
     setglobalRenderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
-
-        this.shaderData && this.shaderData.setShaderData(uniformIndex, type, value);
-        for (var i = 0; i < this._area2Ds.length; i++) {
-            this._area2Ds[i].shaderData.setShaderData(uniformIndex, type, value);
+        this._shaderData && this._shaderData.setShaderData(uniformIndex, type, value);
+        for (let area of this._area2Ds) {
+            area._shaderData.setShaderData(uniformIndex, type, value);
         }
-
     }
 
     /**
@@ -385,8 +391,6 @@ export class Scene extends Sprite {
         if (this._light2DManager)
             this._light2DManager.preRenderUpdate();
     }
-
-
 
     /**
      * @ignore

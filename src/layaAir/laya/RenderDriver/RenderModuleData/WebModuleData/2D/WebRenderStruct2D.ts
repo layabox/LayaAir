@@ -26,7 +26,7 @@ export class WebGlobalRenderData implements I2DGlobalRenderData {
    globalShaderData: ShaderData;
 }
 
-export enum ChildrenUpdateType {
+enum ChildrenUpdateType {
    All = -1,
    Clip = 1,
    Blend = 2,
@@ -34,7 +34,7 @@ export enum ChildrenUpdateType {
    Pass = 8,
 }
 
-export class structTransform {
+interface StructTransform {
    matrix: Matrix;
    modifiedFrame: number;
 }
@@ -62,18 +62,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set renderMatrix(value: Matrix) {
-
-      if (!this.trans) {
-         //da buffer 的位置   abcd dx dy modify
-         this.trans = new structTransform();
-         this.trans.matrix = new Matrix();
+      if (this.trans) {
+         this.trans.matrix = value;
+         this.trans.modifiedFrame = Stat.loopCount;
       }
-
-      this.trans.matrix = value;
-      this.trans.modifiedFrame = Stat.loopCount;
+      else {
+         //da buffer 的位置   abcd dx dy modify
+         this.trans = { matrix: value, modifiedFrame: Stat.loopCount };
+      }
    }
 
-   trans: structTransform
+   trans: StructTransform;
 
    globalAlpha: number = 1.0;
 
@@ -86,7 +85,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set alpha(value: number) {
       this._alpha = value;
       if (this.parent) {
-         this.globalAlpha = this.parent.globalAlpha * value
+         this.globalAlpha = this.parent.globalAlpha * value;
       } else
          this.globalAlpha = value;
 
@@ -115,7 +114,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    needUploadAlpha = true;
 
    /** 是否启动 */
-   enable: boolean = true;
+   enabled: boolean = true;
 
    //渲染数据
 

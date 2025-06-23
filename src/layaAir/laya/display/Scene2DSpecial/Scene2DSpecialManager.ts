@@ -15,5 +15,5 @@ export class Scene2DSpecialManager {
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
-    
+
 }

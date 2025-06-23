@@ -8,7 +8,6 @@ import { Rectangle } from "../maths/Rectangle";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
-import { CacheStyle } from "./css/CacheStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst, TransformKind } from "./SpriteConst";
@@ -29,14 +28,12 @@ import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
-
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
 import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
-
 
 const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
 
@@ -186,16 +183,14 @@ export class Sprite extends Node {
     /**@internal */
     _renderType: number = 0;
     /**@internal */
-    _cacheStyle: CacheStyle = CacheStyle.EMPTY;
-    /**@internal */
     _graphics: Graphics;
     /**@internal */
     _renderNode: BaseRenderNode2D;
     /**@internal */
     _struct: IRenderStruct2D;
-
     /**@internal */
     _subpassUpdateFlag: number;
+
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
      * When penetrable, the engine will no longer detect this object and will recursively check its child objects until it finds the target object or misses all objects.
@@ -236,15 +231,14 @@ export class Sprite extends Node {
     private _userBounds: Rectangle;
     private _ownGraphics: boolean;
     private _tmpBounds: Array<number>;
-    /** @internal */
-    _spriteColor: Color = new Color();
-    /** @internal */
-    shaderData: ShaderData;
+    private _mask: Sprite;
+    private _maskParent: Sprite;
+    private _cacheAsBmp: boolean;
 
     declare _children: Sprite[];
     declare _$children: Sprite[];
     declare _parent: Sprite;
-    declare _scene: Sprite;
+    declare _scene: Scene;
 
     /**@internal */
     _ownerArea: Sprite;
@@ -256,6 +250,8 @@ export class Sprite extends Node {
     _drawOriRT: RenderTexture2D;
     /** @internal 片，代替的结构 ，真正的结构划到了rt上*/
     _subStruct: IRenderStruct2D = null;
+    /** @internal */
+    _shaderData: ShaderData;
 
     private _layer: number = 0;
 
@@ -268,12 +264,12 @@ export class Sprite extends Node {
 
     /** @internal */
     _initShaderData() {
-        if (this.shaderData)
-            return
+        if (this._shaderData)
+            return;
 
-        this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        BlendModeHandler.initBlendMode(this.shaderData);
-        this._struct.spriteShaderData = this.shaderData;
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
+        BlendModeHandler.initBlendMode(this._shaderData);
+        this._struct.spriteShaderData = this._shaderData;
         this._struct.isRenderStruct = true;
     }
 
@@ -285,8 +281,6 @@ export class Sprite extends Node {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._cacheStyle && this._cacheStyle.recover();
-        this._cacheStyle = null;
         this._texture && this._texture._removeReference();
         if (this._oriRenderPass) {
             ILaya.stage.passManager.removePass(this._oriRenderPass);
@@ -653,7 +647,7 @@ export class Sprite extends Node {
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
-            this._struct.enable = value;
+            this._struct.enabled = value;
             this._processVisible();
 
             if (value)
@@ -727,21 +721,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en The base color of the sprite.
-     * @zh 精灵的基础颜色。不影响子节点
-     */
-    set spriteColor(value: Color) {
-        if (value != this._spriteColor) {
-            value.cloneTo(this._spriteColor);
-        }
-        this.repaint();
-    }
-
-    get spriteColor(): Color {
-        return this._spriteColor;
-    }
-
-    /**
      * @en Set the Graphics object for drawing.
      * @param value The Graphics object to set.
      * @param transferOwnership Whether to set the Graphics object to the belonging node (i.e., transfer the ownership of the Graphics object to the Sprite). If true, the Sprite will be responsible for destroying the Graphics object when it's no longer needed.
@@ -767,7 +746,6 @@ export class Sprite extends Node {
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
-            value._modefied = true;
         }
 
         this.repaint();
@@ -788,7 +766,7 @@ export class Sprite extends Node {
         this._filterArr = value;
         if (value) {
             this._renderType |= SpriteConst.POSTPROCESS;
-            let postProcess = this._getPostProcess();
+            let postProcess = this.getPostProcess();
             postProcess.clear();
             for (var i = 0; i < this._filterArr.length; i++) {
                 postProcess.addEffect(this.filters[i].getEffect());
@@ -810,7 +788,7 @@ export class Sprite extends Node {
         this.repaint();
     }
 
-    protected _getPostProcess(create: boolean = true): PostProcess2D {
+    protected getPostProcess(create: boolean = true): PostProcess2D {
         if (!this._oriRenderPass || !this._oriRenderPass.postProcess) {
             if (create) {
                 this.postProcess = new PostProcess2D();
@@ -822,7 +800,7 @@ export class Sprite extends Node {
     }
 
     get postProcess(): PostProcess2D {
-        return this._getPostProcess(false);
+        return this.getPostProcess(false);
     }
 
     set postProcess(value: PostProcess2D) {
@@ -841,32 +819,28 @@ export class Sprite extends Node {
 
     /**
     * @en Specifies whether the display object is cached as a static image. When cacheAs is set, changes in child objects will automatically update the cache. You can also manually call the reCache method to update the cache.
-    * It is recommended to cache "complex content" that does not change frequently as a static image to greatly improve rendering performance. cacheAs has three values: "none", "normal", and "bitmap".
+    * It is recommended to cache "complex content" that does not change frequently as a static image to greatly improve rendering performance. 
     * The default is "none," which does not perform any caching.
-    * When set to "normal," command caching is used.
     * When set to "bitmap," renderTarget caching is used.
     * Disadvantages of the renderTarget caching mode: it creates additional renderTarget objects, increasing memory overhead, has a maximum cache area limit of 2048, and can increase CPU overhead with constant redrawing. Advantages: it significantly reduces draw calls and provides the highest rendering performance.
-    * Disadvantages of the command caching mode: it only reduces node traversal and command organization and does not reduce the number of draw calls, resulting in moderate performance. Advantages: it has no additional memory overhead and does not require renderTarget support.
     * @zh 指定显示对象是否缓存为静态图像，cacheAs 时，子对象发生变化，会自动重新缓存，同时也可以手动调用 reCache 方法更新缓存。
-    * 建议把不经常变化的“复杂内容”缓存为静态图像，能极大提高渲染性能。cacheAs 有 "none"，"normal" 和 "bitmap" 三个值可选。
+    * 建议把不经常变化的“复杂内容”缓存为静态图像，能极大提高渲染性能。
     * 默认为 "none"，不做任何缓存。
-    * 当值为 "normal" 时，使用命令缓存。
     * 当值为 "bitmap" 时，使用 renderTarget 缓存。
     * renderTarget 缓存模式缺点：会额外创建 renderTarget 对象，增加内存开销，缓存面积有最大 2048 限制，不断重绘时会增加 CPU 开销。优点：大幅减少 drawcall，渲染性能最高。
-    * 命令缓存模式缺点：只会减少节点遍历及命令组织，不会减少 drawcall 数，性能中等。优点：没有额外内存开销，无需 renderTarget 支持。
     */
     get cacheAs(): string {
-        return this._getCacheStyle().userSetCache;
+        return this._cacheAsBmp ? 'bitmap' : 'none';
     }
 
     set cacheAs(value: string) {
-        if (value === this._cacheStyle.userSetCache)
+        let b = value === "bitmap";
+        if (b === this._cacheAsBmp)
             return;
-        this._getCacheStyle().userSetCache = value;
 
-        if (this.mask && value === 'normal')
-            return;
-        if (value == 'bitmap' || value == 'normal') {
+        this._cacheAsBmp = b;
+
+        if (b) {
             this._renderType |= SpriteConst.CANVAS;
         } else {
             this._renderType &= ~SpriteConst.CANVAS;
@@ -876,45 +850,29 @@ export class Sprite extends Node {
     }
 
     /**
-     * @deprecated
-     * 设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。
-     */
-    get staticCache(): boolean {
-        return this._getCacheStyle().staticCache;
-    }
-
-    /**@deprecated */
-    set staticCache(value: boolean) {
-        this._getCacheStyle().staticCache = value;
-        if (!value) this.reCache();
-    }
-
-    /**
      * @en Masking allows setting an object (bitmap or vector graphic) as a mask, displaying content based on the object's shape. 
      * @zh 遮罩，可以设置一个对象（支持位图和矢量图），根据对象形状进行遮罩显示。
      */
     get mask(): Sprite {
-        return this._cacheStyle.mask;
+        return this._mask;
     }
 
     set mask(value: Sprite) {
-        if (value == this || (value && this.mask == value && value._cacheStyle.maskParent == this))
+        if (value == this || (value && this._mask == value && value._maskParent == this))
             return;
 
-        if (this.mask) {
-            this.mask._getCacheStyle().maskParent = null;
-            this.mask._struct.parent = null;
-            this.mask.blendMode = null;
-            this.mask.setSubRenderPassState(false);
+        if (this._mask) {
+            this._mask._maskParent = null;
+            this._mask._struct.parent = null;
+            this._mask.blendMode = null;
+            this._mask.setSubRenderPassState(false);
         }
-        // this.removeChild(this.mask);
 
-        this._getCacheStyle().mask = value;
+        this._mask = value;
 
         if (value) {
             value.blendMode = BlendMode.Mask;
-            value._getCacheStyle().maskParent = this;
-            //if (!value._oriRenderPass) {
+            value._maskParent = this;
             value.setSubRenderPassState(true);
             if (value.parent) {
                 value._struct.parent = value.parent._struct;
@@ -931,9 +889,13 @@ export class Sprite extends Node {
         this.repaint();
     }
 
+    /**
+     * @ignore
+     * @param flag 
+     */
     setSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag |= flag;
-        this.stage._addSubPassNeedUpdateElement(this);
+        this.stage._subpassUpdateList.add(this);
     }
 
     /**
@@ -1129,7 +1091,29 @@ export class Sprite extends Node {
      * @zh 根据 zOrder 进行重新排序。
      */
     protected updateZOrder(): void {
-        SpriteUtils.updateOrder(this) && this.repaint()
+        let array = this._$children;
+        if (!array || array.length < 2)
+            return;
+        let i: number = 1, j: number, len: number = array.length, key: number, c: Sprite, d: IRenderStruct2D;
+        let structArray = this._struct.children;
+        while (i < len) {
+            j = i;
+            c = array[j];
+            d = structArray[j];
+            key = array[j]._zOrder;
+            while (--j > -1) {
+                if (array[j]._zOrder > key) {
+                    array[j + 1] = array[j];
+                    structArray[j + 1] = structArray[j];
+                }
+                else break;
+            }
+            array[j + 1] = c;
+            structArray[j + 1] = d;
+            i++;
+        }
+        this._childChanged();
+        this.repaint();
     }
 
     /**
@@ -1158,7 +1142,6 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.TEXTURE;
             this._graphics?._checkDisplay();
         }
-        this._graphics._modefied = true;
         this.repaint();
     }
 
@@ -1385,49 +1368,30 @@ export class Sprite extends Node {
     protected _transChanged(kind: TransformKind) {
         if (this._destroyed) return;
 
-        this.parentRepaint();
-
-        if (this._oriRenderPass) this._oriRenderPass.repaint = true;
+        if (this._oriRenderPass)
+            this._oriRenderPass.repaint = true;
 
         if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
             this._tfChanged = true;
             this._renderType |= SpriteConst.TRANSFORM;
-            if ((kind & TransformKind.Size) != 0)
-                this._graphics?._clearBoundsCache(true);
+            if ((kind & TransformKind.Size) != 0 && this._graphics) {
+                this._graphics._clearBoundsCache(true);
+                this.repaint();
+            }
+            else
+                this.parentRepaint();
         }
         else {
-            let p: Sprite = this._cacheStyle.maskParent;
-            if (p)
-                p.repaint();
+            this.parentRepaint();
+            this._maskParent?.repaint();
         }
 
         if ((kind & TransformKind.TRS) != 0) {
-            this._globalTrans && this._globalTrans._spTransChanged(kind);
+            this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
         }
-    }
-
-    /**
-     * @deprecated
-     * @en Update and render the display object. Called by the system.
-     * @param ctx The rendering context reference.
-     * @param x The X-axis coordinate.
-     * @param y The Y-axis coordinate.
-     * The meaning of x and y is complex. Without rotation, it is the world position of the current node.
-     * If any parent node has rotation, x and y will be reset to [0,0] there and then accumulated again.
-     * So, x and y can be considered as the cumulative value from the current node to a node with rotation (or the root node).
-     * @zh 更新、呈现显示对象。由系统调用。
-     * @param ctx 渲染的上下文引用。
-     * @param x X轴坐标。
-     * @param y Y轴坐标。
-     * 关于上面的x、y的含义比较复杂，在没有旋转的情况下，它就是当前节点的世界坐标的位置。
-     * 如果此节点的某个父节点有旋转，x、y会在那里被重置为[0,0]，然后继续累加。
-     * 所以可以认为这个x、y是表示当前节点到某个有旋转的节点（或者根节点）的累加值。
-     */
-    render(ctx: any, x: number, y: number): void {
-        //RenderSprite.renders[this._renderType]._fun(this, null, x + this._x, y + this._y);
     }
 
     /**
@@ -1468,7 +1432,7 @@ export class Sprite extends Node {
      * @param offsetY 绘制的 Y 轴偏移量。
      * @returns HTMLCanvas 对象。
      */
-    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, isDrawRenderRect: boolean = true): HTMLCanvas {
+    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
         // if (arguments.length > 5) {
         //     throw 'drawToCanvas 接口参数不对'
         // }
@@ -1488,10 +1452,9 @@ export class Sprite extends Node {
         }
         //imgdata.data.set(dt);
         //画到2d画布上
-        let canv = new HTMLCanvas(true);
+        let canv = new HTMLCanvas();
         canv.size(canvasWidth, canvasHeight);
-        let ctx2d = <CanvasRenderingContext2D>(canv.context as any);
-        ctx2d.putImageData(imgdata, 0, 0);
+        canv.context.putImageData(imgdata, 0, 0);
         rt.destroy();
         return canv;
     }
@@ -1603,23 +1566,28 @@ export class Sprite extends Node {
 
         let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
+        let tmpDisabled: Array<IRenderStruct2D> = [];
 
-        const _updateSprites = function (root: Sprite): void {
+        const updateSprites = function (root: Sprite): void {
 
             for (let i = 0, len = root._children.length; i < len; i++) {
                 let child = root._children[i];
+                if (child._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE) && child._struct.enabled) {
+                    tmpDisabled.push(child._struct);
+                    child._struct.enabled = false;
+                }
 
                 if (child._subpassUpdateFlag) {
                     child.updateRenderTexture();
                     child.updateSubRenderPassState();
                     let destrt: RenderTexture2D = child._drawOriRT;
-                    child._oriRenderPass.renderTexture = child._drawOriRT;
+                    child._oriRenderPass.renderTexture = destrt;
                     if (child.mask) {
                         child._oriRenderPass.mask = child.mask._struct;
                     }
                     let process = child._oriRenderPass.postProcess;
                     if (process) {
-                        process.setResource(child._drawOriRT);
+                        process.setResource(destrt);
                         process.clearCMD();
                         process._render();
                         destrt = process._context.destination;
@@ -1633,17 +1601,18 @@ export class Sprite extends Node {
                     let matrix = child.globalTrans.getMatrix();
                     child._struct.renderMatrix = matrix;
                     child._subStruct && (child._subStruct.renderMatrix = matrix);
-                    passSet.add(child._struct.pass);
+                    if (child._struct.pass)
+                        passSet.add(child._struct.pass);
                 }
 
                 if (child._graphics) {
                     child._graphics._render(runner, 0, 0);
                 }
-                _updateSprites(child);
+                updateSprites(child);
             }
         }
 
-        _updateSprites(sprite);
+        updateSprites(sprite);
 
         let pass = processor.basePass;
 
@@ -1657,9 +1626,7 @@ export class Sprite extends Node {
         pass.renderOffset.x = offsetX;
         pass.renderOffset.y = offsetY;
 
-        let arrays = Array.from(passSet);
-        for (let i = 0, n = arrays.length; i < n; i++) {
-            let pass = arrays[i];
+        for (let pass of passSet) {
             if (pass.priority > 0) {
                 processor.addPass(pass);
             }
@@ -1668,6 +1635,9 @@ export class Sprite extends Node {
         processor.apply(Render2DProcessor.rendercontext2D);
         processor.clear();
         pass.destroy();
+
+        tmpDisabled.forEach((struct) => struct.enabled = true);
+
         return renderout;
     }
 
@@ -1754,7 +1724,7 @@ export class Sprite extends Node {
 
         let children = recursive ? this._children : this._$children;
         for (let child of children) {
-            if (ignoreInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE))
+            if (ignoreInvisibles && !child._struct.enabled)
                 continue;
 
             let w = child.width;
@@ -1866,7 +1836,7 @@ export class Sprite extends Node {
         let chidren = this._children;
         for (let i = 0, n = chidren.length; i < n; i++) {
             let child = chidren[i];
-            if (child._getBit(NodeFlags.ACTUAL_VISIBLE) && child._cacheStyle.maskParent != this) {
+            if (child._struct.enabled && child._maskParent != this) {
                 out.push(...child._boundPointsToParent(ifRotate));
             }
         }
@@ -2049,23 +2019,12 @@ export class Sprite extends Node {
     }
 
     /**
-    * @en Get the cache 
-    * @return The cache style (CacheStyle).
-    * @zh 获取缓存样式。
-    * @return 缓存样式 (CacheStyle)。
-    */
-    _getCacheStyle(): CacheStyle {
-        this._cacheStyle === CacheStyle.EMPTY && (this._cacheStyle = CacheStyle.create());
-        return this._cacheStyle;
-    }
-
-    /**
-     * @deprecated
      * @en Call this method to refresh the cache when cacheAs is set.
      * @zh 在设置 cacheAs 的情况下，调用此方法会重新刷新缓存。
      */
     reCache(): void {
-        this.repaint();
+        if (this._cacheAsBmp || this._mask)
+            this.repaint();
     }
 
     /**
@@ -2080,27 +2039,22 @@ export class Sprite extends Node {
 
     /**
     * @en Redraw the Sprite and invalidate its own and parent's cache after setting cacheAs.
-    * @param type The redraw type.
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
-    * @param type 重新绘制类型。
     */
     repaint(): void {
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
-            this.stage._addgraphicRenderElement(this);
+            this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
             if (this._subpassUpdateFlag) {
                 this.setSubpassFlag(this._subpassUpdateFlag);
             }
         }
 
-        if (this._cacheStyle) {
-            this._cacheStyle.renderTexture = null;//TODO 重用
-            if (this._cacheStyle.maskParent) {
-                this._cacheStyle.maskParent.setSubpassFlag(SubPassFlag.Mask);
-                this._cacheStyle.maskParent.repaint();
-            }
+        if (this._maskParent) {
+            this._maskParent.setSubpassFlag(SubPassFlag.Mask);
+            this._maskParent.repaint();
         }
     }
 
@@ -2237,15 +2191,6 @@ export class Sprite extends Node {
     }
 
     /**
-     * @ignore
-     */
-    _setDisplay(value: boolean): void {
-        if (!value && this._cacheStyle)
-            this._cacheStyle.onInvisible();
-        super._setDisplay(value);
-    }
-
-    /**
      * @internal
      * @en This method should be called when all variable state determining factors change, typically such as the visible property.
      * @return Whether the visible status is actually changed.
@@ -2253,15 +2198,15 @@ export class Sprite extends Node {
      * @return 可见状态是否真正改变了。
      */
     _processVisible(): boolean {
-        if (this._setBit(NodeFlags.ACTUAL_VISIBLE, this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE))) {
+        let b = this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE);
+        if (this._struct.enabled !== b) {
+            this._struct.enabled = b;
             this.parentRepaint();
             return true;
         }
         else
             return false;
     }
-
-
 
     /**
      * @ignore
@@ -2295,11 +2240,11 @@ export class Sprite extends Node {
             ele = ele._parent;
         }
         if (this._ownerArea == null) {
-            this._struct.globalRenderData = (this.scene)?._globalRenderData;
+            this._struct.globalRenderData = this._scene?._globalRenderData;
         }
     }
 
-    protected _setStructParent(value: Node) {
+    protected _setStructParent(value: Sprite) {
         let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
 
         if (struct.parent) {
@@ -2307,9 +2252,9 @@ export class Sprite extends Node {
             struct.parent = null;
         }
 
-        if (value && (value as Sprite)._struct) {
+        if (value && value._struct) {
             let index = value.children.indexOf(this);
-            (value as Sprite)._struct.addChild(struct, index);
+            value._struct.addChild(struct, index);
         }
     }
 
@@ -2404,7 +2349,7 @@ export class Sprite extends Node {
     protected _setParent(value: Node): void {
         super._setParent(value);
 
-        this._setStructParent(value);
+        this._setStructParent(value as Sprite);
 
         this._globalTrans._spTransChanged(TransformKind.TRS);
 

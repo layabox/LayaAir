@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../layagl/LayaGL";
+import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
@@ -82,7 +83,7 @@ export class BlurEffect2D extends PostProcess2DEffect {
       this.mat.setVector2("u_centerScale", this._centerScale);
       this.mat.setVector2("u_blurInfo", this._blurInfo);
       this.mat.setTexture("u_MainTex", context.indirectTarget);
-      context.command.setRenderTarget(this._destRT, true, PostProcess2DEffect.nullColor);
+      context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
       context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
       context.destination = this._destRT;
    }
@@ -97,7 +98,7 @@ export class BlurEffect2D extends PostProcess2DEffect {
 
    set strength(v: number) {
       if (v == this._strength) return;
-      
+
       this._strength = Math.max(Math.abs(v), 2);//<2的话，函数太细太高不适合下面的方法
       var sigma = this._strength / 3.0;//3σ以外影响很小。即当σ=1的时候，半径为3;
       var sigma2 = sigma * sigma;

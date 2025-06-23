@@ -20,7 +20,7 @@ export class NodeFlags {
     static ACTIVE = 0x1;
     static ACTIVE_INHIERARCHY = 0x2;
     static AWAKED = 0x4;
-    static ACTUAL_VISIBLE = 0x8;
+    //static ACTUAL_VISIBLE = 0x8;
     static DISPLAY = 0x10;
     static HAS_ZORDER = 0x20;
     static AREA_2D = 0x40;

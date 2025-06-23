@@ -1,19 +1,17 @@
-import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix } from "../../../maths/Matrix";
-import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { Draw2DElementCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { Pool } from "../../../utils/Pool";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Command2D } from "./Command2D";
 
 export class DrawRenderElement2DCMD extends Command2D {
-    private static _pool: DrawRenderElement2DCMD[] = [];
+    private static _pool = Pool.createPool(DrawRenderElement2DCMD);
 
     static create(element: IRenderElement2D, mat: Matrix = null): DrawRenderElement2DCMD {
-        var cmd = DrawRenderElement2DCMD._pool.length > 0 ? DrawRenderElement2DCMD._pool.pop() : new DrawRenderElement2DCMD();
+        let cmd = DrawRenderElement2DCMD._pool.take();
         cmd.renderElement = element;
         cmd._setMatrix(mat);
         return cmd;
@@ -79,7 +77,7 @@ export class DrawRenderElement2DCMD extends Command2D {
      */
     recover(): void {
         super.recover();
-        DrawRenderElement2DCMD._pool.push(this);
+        DrawRenderElement2DCMD._pool.recover(this);
     }
 
     /**

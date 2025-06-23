@@ -1,4 +1,3 @@
-import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { Bezier } from "../../maths/Bezier";
 import { Matrix } from "../../maths/Matrix";
@@ -29,7 +28,6 @@ import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../webgl/submit/SubmitKey";
-import { MeasureFont } from "../../webgl/text/MeasureFont";
 import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
@@ -50,26 +48,13 @@ const _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做
 const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 
-/**
- * @private
- */
+/** @ignore */
 export class GraphicsRunner {
-
-    private static _MAXVERTNUM = 65535;
-
-    static MAXCLIPRECT: Rectangle = null;
-
-    static clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
-    static clipMatPos = new Vector4(0, 0, 0, 0);
-
     private _alpha = 1.0;
 
-    /**@internal */
     _material: Material = null;
 
-    /**@internal */
     private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
-    /**@internal */
     private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
 
     private static SEGNUM = 32;
@@ -81,53 +66,38 @@ export class GraphicsRunner {
 
     private _path: Path | null = null;
 
-    /**@internal */
     // stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
 
-    /**@internal */
     _curSubmit: SubmitBase = null;
-    /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-    /** @internal */
     _graphicsData: GraphicsRenderData = null;	//保存当前的渲染数据。用来给shader使用。    
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
-    /**@internal */
-    _clipRect = GraphicsRunner.MAXCLIPRECT;
-    /**@internal */
+    _clipRect = SaveClipRect.MAX;
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     _clip_x: number = 0;	//clip的x坐标
     _clip_y: number = 0;	//clip的y坐标
-    /**@internal */
     _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
 
     private _meshPool: GraphicsMesh[] = [];
 
     _matrixChanged = false;	//矩阵是否改变了
-    /**@internal */
     _curMat: Matrix;
-    /**@internal */
     _matBuffer: Float32Array = new Float32Array(6);
 
     //计算矩阵缩放的缓存
-    /**@internal */
     _lastMatScaleX = 1.0;
-    /**@internal */
     _lastMatScaleY = 1.0;
     private _lastMat_a = 1.0;
     private _lastMat_b = 0.0;
     private _lastMat_c = 0.0;
     private _lastMat_d = 1.0;
-    /**@internal */
     _nBlendType = BlendMode.Normal;
-    /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
-    /**@internal */
     _saveMark: SaveMark | null = null;
-    /**@internal */
     // private _shader2D = new Shader2D();	//
 
     /**
@@ -137,11 +107,8 @@ export class GraphicsRunner {
      */
     sprite: Sprite | null = null;
 
-    /**@internal */
     private static _textRender: TextRender | null = null;// new TextRender();
-    /**@internal */
     _italicDeg = 0;//文字的倾斜角度
-    /**@internal */
     _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
 
     private static defTexture: Texture | null = null;	//给fillrect用
@@ -149,7 +116,6 @@ export class GraphicsRunner {
     drawTexAlign = false;		// 按照像素对齐
 
     static __init__(): void {
-        GraphicsRunner.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
         ContextParams.DEFAULT = new ContextParams();
         GraphicsRunner.defTexture = new Texture(Texture2D.whiteTexture);
         if (!GraphicsRunner._textRender) {
@@ -562,7 +528,7 @@ export class GraphicsRunner {
         this.clearRenderData();
         this._alpha = 1.0;
         this._nBlendType = BlendMode.Normal;
-        this._clipRect = GraphicsRunner.MAXCLIPRECT;
+        this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
@@ -906,7 +872,7 @@ export class GraphicsRunner {
 
     /**@internal */
     _setClipInfo(material: GraphicsShaderInfo): void {
-        if (this._clipRect === GraphicsRunner.MAXCLIPRECT) {
+        if (this._clipRect === SaveClipRect.MAX) {
             material.materialClip = false;
             return
         }
@@ -1281,7 +1247,7 @@ export class GraphicsRunner {
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
-        if (this._clipRect === GraphicsRunner.MAXCLIPRECT) {
+        if (this._clipRect === SaveClipRect.MAX) {
             this._clipRect = new Rectangle(x, y, width, height);
         } else {
             this._clipRect.width = width;
@@ -1385,7 +1351,7 @@ export class GraphicsRunner {
      * @param dx  需要添加的平移。这个需要在应用矩阵之前应用。
      * @param dy
      */
-    addPath(points: any[], close: boolean, convex: boolean, dx: number, dy: number): void {
+    addPath(points: number[], close: boolean, convex: boolean, dx: number, dy: number): void {
         let sz = points.length;
         for (let i = 0; i < sz - 1; i += 2) {
             points[i] += dx;
@@ -2144,10 +2110,10 @@ export class GraphicsRunner {
         let cs = this.sprite;
         return texture._getSource(function (): void {
             if (cs) {
-                if (cs._graphics) {
-                    cs._graphics._modefied = true;
-                }
-                cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
+                if (cs._graphics)
+                    cs._graphics.repaint(); //隐含了cs.repaint
+                else
+                    cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
             }
         });
 

@@ -26,14 +26,10 @@ function ImageDataPolyfill() {
         throw new Error("Failed to construct 'ImageData': 2 arguments required, but only " + arguments.length + " present.");
     }
 
-    let imgdata = (Browser.canvas.getContext("2d") as unknown as CanvasRenderingContext2D).getImageData(0, 0, width, height);
-    for (let i = 0; i < data.length; i += 4) {
-        imgdata.data[i] = data[i];
-        imgdata.data[i + 1] = data[i + 1];
-        imgdata.data[i + 2] = data[i + 2];
-        imgdata.data[i + 3] = data[i + 3];
-
-    }
+    let imgdata = Browser.canvas.context.getImageData(0, 0, width, height);
+    let arr = imgdata.data;
+    for (let i = 0, n = data.length; i < n; i++)
+        arr[i] = data[i];
     return imgdata;
 }
 

@@ -3,23 +3,25 @@ import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { IRender2DPass, IRender2DPassManager } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 
+/**
+ * @blueprintIgnore
+ */
 export class Render2DProcessor {
 
     static rendercontext2D: IRenderContext2D;
-    static runner:GraphicsRunner = null;
-    
+    static runner: GraphicsRunner;
+
     static __init__() {
         Render2DProcessor.runner = new GraphicsRunner();
         Render2DProcessor.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
     }
 
     private _manager: IRender2DPassManager;
-    
+    private _basePass: IRender2DPass;
+
     get basePass(): IRender2DPass {
         return this._basePass;
     }
-
-    private _basePass: IRender2DPass
 
     constructor() {
         this._basePass = LayaGL.render2DRenderPassFactory.createRender2DPass();
@@ -53,7 +55,7 @@ export class Render2DProcessor {
         this._manager.apply(context2D);
     }
 
-    
+
     /**
      * 清空所有 Pass
      */

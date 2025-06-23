@@ -9,8 +9,9 @@ import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
 
 export class PostProcess2D extends EventDispatcher {
-   static POSTRENDERCHANGE: string = "post_render_change";//渲染改动
-   static POSTCMDCHANGE: string = "post_cmd_change";
+   static readonly POSTRENDERCHANGE: string = "post_render_change";//渲染改动
+   static readonly POSTCMDCHANGE: string = "post_cmd_change";
+
    /**@internal */
    _effects: PostProcess2DEffect[] = [];
    /**@internal */
@@ -18,7 +19,7 @@ export class PostProcess2D extends EventDispatcher {
    /**@internal */
    _context: PostProcessRenderContext2D;
    /**@internal */
-   private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+   private _compositeShaderData: ShaderData;
 
    static init() {
       Effect2DShaderInit.colorEffect2DShaderInit();
@@ -37,7 +38,7 @@ export class PostProcess2D extends EventDispatcher {
    constructor() {
       super();
       this._context = { deferredReleaseTextures: [], OriOffset: new Vector2() } as PostProcessRenderContext2D;
-      this._context.compositeShaderData = this._compositeShaderData;
+      this._context.compositeShaderData = this._compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
       this._context.command = new CommandBuffer2D();
    }
 
@@ -119,7 +120,7 @@ export class PostProcess2D extends EventDispatcher {
     */
    addEffect(effect: PostProcess2DEffect) {
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
-         console.error("无法增加已经存在的Effect");
+         console.error("the target effect is a singleton", effect);
          return;
       }
       this._effects.push(effect);

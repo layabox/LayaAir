@@ -13,20 +13,21 @@ import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
+import { NotImplementedError } from "../../../utils/Error";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
 
     create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     createRender2DPassManager(): IRender2DPassManager {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {

@@ -141,8 +141,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._externalSkins = value;
     }
 
-    renderUpdate(context:IRenderContext2D) {
-        
+    renderUpdate(context: IRenderContext2D) {
+
         // Vector2.TEMP.setValue(context.width, context.height);
         // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
 
@@ -351,7 +351,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     spineItem: ISpineOptimizeRender;
 
     onEnable(): void {
-        this.owner.on(Event.TRANSFORM_CHANGED , this , this.onTransformChanged);
+        this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
                 this.play(this._animationName, this._loop, true);
@@ -449,8 +449,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.event(Event.READY);
 
         if (
-            LayaEnv.isPlaying 
-            && this.enabled 
+            LayaEnv.isPlaying
+            && this.enabled
             && this._animationName !== undefined
         ) {
             this.play(this._animationName, this._loop, true);
@@ -893,13 +893,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
     /** @internal */
     _updateRenderElements() {
-        let elementLength = this._renderElements.length
+        let elementLength = this._renderElements.length;
         for (let i = 0; i < elementLength; i++) {
             let element = this._renderElements[i];
             let material = this._materials[i];
             element.materialShaderData = material.shaderData;
             element.subShader = material._shader.getSubShaderAt(0);
-            element.value2DShaderData = this.owner.shaderData;
+            element.value2DShaderData = this.owner._shaderData;
         }
         this.owner._struct.renderElements = this._renderElements;
     }
@@ -924,7 +924,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                         element.geometry = subMesh;
                         element.materialShaderData = material.shaderData;
                         element.subShader = material._shader.getSubShaderAt(0);
-                        element.value2DShaderData = this.owner.shaderData;
+                        element.value2DShaderData = this.owner._shaderData;
                         element.nodeCommonMap = this._getcommonUniformMap();
                         element.owner = this.owner._struct;
                     } else {
@@ -932,20 +932,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                     }
                 }
                 this._renderElements.length = mesh.subMeshCount;
-                SpineShaderInit.changeVertexDefine(this.owner.shaderData , mesh);
+                SpineShaderInit.changeVertexDefine(this.owner._shaderData, mesh);
             } else {
                 for (let i = 0, len = this._renderElements.length; i < len; i++)
                     Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
                 this._renderElements.length = 0;
             }
-            
+
             if (this.owner._struct) {
                 this.owner._struct.renderElements = this._renderElements;
             }
 
         }
         this._mesh = mesh;
-        return hasChange
+        return hasChange;
     }
 
 }

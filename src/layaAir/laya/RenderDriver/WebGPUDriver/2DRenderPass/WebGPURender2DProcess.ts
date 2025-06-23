@@ -1,5 +1,6 @@
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { NotImplementedError } from "../../../utils/Error";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
@@ -16,61 +17,61 @@ import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
 export class WebGPURender2DProcess implements I2DRenderPassFactory {
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createRender2DPassManager(): IRender2DPassManager {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createRender2DPass(): IRender2DPass {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createRenderStruct2D(): IRenderStruct2D {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createRender2DDataHandle(): IRender2DDataHandle {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
         throw new Error("Method not implemented.");
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
-        return new WebGPUSetRenderData();
+        throw new NotImplementedError();
     }
     createSetShaderDefineCMD(): SetShaderDefineCMD {
-        return new WebGPUSetShaderDefine();
+        throw new NotImplementedError();
     }
     createBlit2DQuadCMDData(): Blit2DQuadCMD {
-        return new WebGPUBlit2DQuadCMD();
+        throw new NotImplementedError();
     }
     createDraw2DElementCMDData(): Draw2DElementCMD {
-        return new WebGPUDraw2DElementCMD();
+        throw new NotImplementedError();
     }
     createSetRendertarget2DCMD(): SetRendertarget2DCMD {
-        return new WebGPUSetRendertarget2DCMD();
+        throw new NotImplementedError();
     }
     createRenderElement2D(): IRenderElement2D {
-        return new WebGPURenderElement2D();
+        throw new NotImplementedError();
     }
     createRenderContext2D(): IRenderContext2D {
-        return new WebGPURenderContext2D();
+        throw new NotImplementedError();
     }
 }
 

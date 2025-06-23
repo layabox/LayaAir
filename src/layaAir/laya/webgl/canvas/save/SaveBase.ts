@@ -1,6 +1,7 @@
 import { ISaveData } from "./ISaveData";
 import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 
+/** @ignore */
 export class SaveBase implements ISaveData {
     static TYPE_ALPHA = 0x1;
     static TYPE_STYLE = 0x2;
@@ -20,8 +21,10 @@ export class SaveBase implements ISaveData {
     static TYPE_SHADER = 0x100000;
     static TYPE_FILTERS = 0x200000;
     static TYPE_FILTERS_TYPE = 0x400000;
+
     private static POOL: any = SaveBase._createArray();
     private static _namemap: any = SaveBase._init();
+
     private _valueName: string;
     private _value: any;
     private _dataObj: any;
@@ -30,12 +33,12 @@ export class SaveBase implements ISaveData {
     constructor() {
     }
 
-    /**@internal */
     static _createArray(): any[] {
         var value: any = [];
         value._length = 0;
         return value;
     }
+
     /**@internal */
     static _init() {
         var namemap: any = SaveBase._namemap = {};

@@ -176,7 +176,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
-      if (!struct.enable) return;
+      if (!struct.enabled) return;
 
       struct._handleInterData();
       //这里进入process2D的排序  并不帧判断
@@ -241,10 +241,11 @@ export class WebRender2DPass implements IRender2DPass {
 
       WebRender2DPass.uploadBuffer();
 
+      let enableBatch = this._enableBatch;
       for (let i = 0, len = lists.length; i < len; i++) {
          let list = lists[i];
          if (!list || !list.renderElements.length) continue;
-         this.enableBatch && list.batch();
+         enableBatch && list.batch();
          context.drawRenderElementList(list.renderElements);
       }
 
@@ -255,7 +256,6 @@ export class WebRender2DPass implements IRender2DPass {
          this.mask.pass.fowardRender(context);
          this.mask.pass.renderTexture = null;
       }
-
 
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {

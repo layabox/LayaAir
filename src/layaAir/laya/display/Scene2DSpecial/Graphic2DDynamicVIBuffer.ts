@@ -179,15 +179,15 @@ export class Graphic2DDynamicVIBuffer {
         }
 
         // if (!view) {
-            // 为新块创建视图
-            view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
-                this._wholeIndex,
-                this._indexBufferLength,
-                length,
-                1
-            );
-            // this._wholeIndex.addDataView(view);
-            this._indexBufferLength += length;
+        // 为新块创建视图
+        view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
+            this._wholeIndex,
+            this._indexBufferLength,
+            length,
+            1
+        );
+        // this._wholeIndex.addDataView(view);
+        this._indexBufferLength += length;
         // }
         // else if (view.start === -1) {
         //     view.start = this._indexBufferLength;
