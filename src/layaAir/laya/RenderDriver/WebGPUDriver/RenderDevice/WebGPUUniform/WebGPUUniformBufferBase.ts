@@ -325,8 +325,13 @@ export abstract class WebGPUUniformBufferBase {
 
             switch (type) {
                 case ShaderDataType.Bool:
-                    // todo
-                    console.warn("ShaderDataType.Bool not support");
+                    if (uniform.arrayLength > 0) {
+
+                    }
+                    else {
+                        let vaule = data as boolean;
+                        this.setInt(index, vaule ? 1 : 0);
+                    }
                     break;
                 case ShaderDataType.Int:
                     if (uniform.arrayLength > 0) {
