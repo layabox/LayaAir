@@ -2,7 +2,7 @@
     #define LUT_lib
 
 // scaleOffset = (1 / lut_width, 1 / lut_height, lut_height - 1)
-vec3 applyLut(sampler2D lut, vec3 uvw, vec3 scaleOffset)
+vec3 applyLut(vec3 uvw, vec3 scaleOffset)
 {
     uvw.z *= scaleOffset.z;
 
@@ -11,8 +11,8 @@ vec3 applyLut(sampler2D lut, vec3 uvw, vec3 scaleOffset)
     uvw.x += shift * scaleOffset.y;
 
     uvw.xyz = mix(
-	texture2DLodEXT(lut, uvw.xy, 0.0).rgb,
-	texture2DLodEXT(lut, uvw.xy + vec2(scaleOffset.y, 0.0), 0.0).rgb,
+	texture2DLodEXT(u_Lut, uvw.xy, 0.0).rgb,
+	texture2DLodEXT(u_Lut, uvw.xy + vec2(scaleOffset.y, 0.0), 0.0).rgb,
 	uvw.z - shift);
     return uvw;
 }

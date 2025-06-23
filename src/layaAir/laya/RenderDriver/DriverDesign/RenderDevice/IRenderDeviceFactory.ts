@@ -6,12 +6,16 @@ import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap } from "./CommandUniformMap";
+import { IComputeContext } from "./ComputeShader/IComputeContext";
+import { ComputeShaderProcessInfo, IComputeShader } from "./ComputeShader/IComputeShader";
 import { IBufferState } from "./IBufferState";
 import { IIndexBuffer } from "./IIndexBuffer";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { IShaderInstance } from "./IShaderInstance";
+import { EDeviceBufferUsage, IDeviceBuffer } from "./IDeviceBuffer";
 import { IVertexBuffer } from "./IVertexBuffer";
 import { ShaderData } from "./ShaderData";
+
 
 export interface IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance;
@@ -22,4 +26,7 @@ export interface IRenderDeviceFactory {
     createEngine(config: Config, canvas: HTMLCanvas): Promise<void>;
     createGlobalUniformMap(blockName: string): CommandUniformMap;
     createShaderData(ownerResource?: Resource): ShaderData;
+    createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
+    createComputeContext?(): IComputeContext;
+    createDeviceBuffer?(type: EDeviceBufferUsage): IDeviceBuffer;
 }

@@ -10,10 +10,8 @@ import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModule
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBufferState } from "../RenderDevice/WebGPUBufferState";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
-import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { WebGPUShaderData, WebGPUShaderDataElementType } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
@@ -32,16 +30,17 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
             const oriBufferState = geometry.bufferState;
             const vertexArray = oriBufferState._vertexBuffers.slice();
             let worldMatVertex = stateinfo.worldInstanceVB;
-            const size = this.MaxInstanceCount * 16 * 4;
+            let declaration = VertexMesh.instanceWorldMatrixDeclaration;
+            const size = this.MaxInstanceCount * declaration.vertexStride;
             if (!worldMatVertex || worldMatVertex.source._size < size) {
                 if (worldMatVertex) {
                     worldMatVertex.destroy();
                     worldMatVertex.source._source.destroy();
                 }
                 stateinfo.worldInstanceVB = worldMatVertex = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-                worldMatVertex.setDataLength(this.MaxInstanceCount * 16 * 4);
-                worldMatVertex.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
                 worldMatVertex.instanceBuffer = true;
+                worldMatVertex.setDataLength(size);
+                worldMatVertex.vertexDeclaration = declaration;
             }
             vertexArray.push(worldMatVertex);
             switch (renderType) {
@@ -55,9 +54,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                                 instanceLightMapVertexBuffer.source._source.destroy();
                             }
                             stateinfo.lightmapScaleOffsetVB = instanceLightMapVertexBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                            instanceLightMapVertexBuffer.instanceBuffer = true;
                             instanceLightMapVertexBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
                             instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
-                            instanceLightMapVertexBuffer.instanceBuffer = true;
                         }
                         vertexArray.push(instanceLightMapVertexBuffer);
                     }
@@ -71,9 +70,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                             instanceSimpleAnimatorBuffer.source._source.destroy();
                         }
                         stateinfo.simpleAnimatorVB = instanceSimpleAnimatorBuffer = new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+                        instanceSimpleAnimatorBuffer.instanceBuffer = true;
                         instanceSimpleAnimatorBuffer.setDataLength(this.MaxInstanceCount * 4 * 4);
                         instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-                        instanceSimpleAnimatorBuffer.instanceBuffer = true;
                     }
                     vertexArray.push(instanceSimpleAnimatorBuffer);
                     break;
@@ -116,7 +115,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     constructor() {
         super();
-        this.objectName = 'WebGPUInstanceRenderElement3D';
         this.instanceElementList = new SingletonList();
         this.drawCount = 0;
         this.updateNums = 0;
@@ -136,24 +134,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     /**
-     * 计算状态值
-     * @param shaderInstance 
-     * @param dest 
-     * @param context 
-     */
-    protected _calcStateKey(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        let stateKey = '';
-        stateKey += dest.formatId + '_';
-        stateKey += dest._samples + '_';
-        stateKey += shaderInstance._id + '_';
-        if (this.materialShaderData)
-            stateKey += this.materialShaderData.stateKey;
-        stateKey += this.geometry.bufferState.stateId + '_';
-        stateKey += 'x';
-        return stateKey;
-    }
-
-    /**
      * 着色器数据是否改变
      * @param context
      */
@@ -162,121 +142,62 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     protected _compileShader(context: WebGPURenderContext3D) {
-        if (this.renderShaderData && !this.renderShaderData.instShaderData) {
-            this.renderShaderData.instShaderData = WebGPUShaderData.create(null, WebGPUShaderDataElementType.Element3DInstance, 'sprite_inst');
-            this.renderShaderData.cloneTo(this.renderShaderData.instShaderData);
-        }
+        this._shaderInstances.clear();
 
-        //将场景或全局配置定义准备好
-        const compileDefine = WebGPURenderElement3D._compileDefine;
-        if (this._sceneData)
-            this._sceneData._defineDatas.cloneTo(compileDefine);
-        else if (context.globalConfigShaderData)
-            context.globalConfigShaderData.cloneTo(compileDefine);
+        let comDef = this._getShaderInstanceDefines(context);
+        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
-        //添加相机数据定义
-        if (this._cameraData)
-            compileDefine.addDefineDatas(this._cameraData._defineDatas);
+        let passes = this.subShader._passes;
+        for (let pass of passes) {
+            if (pass.pipelineMode !== context.pipelineMode)
+                continue;
 
-        //编译着色器，创建uniform缓冲区
-        if (this.renderShaderData)
-            compileDefine.addDefineDatas(this.renderShaderData.getDefineData());
-        if (this.materialShaderData)
-            compileDefine.addDefineDatas(this.materialShaderData._defineDatas);
-
-        compileDefine.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-        this._updateInstanceData();
-
-        //查找着色器对象缓存
-        for (let i = 0; i < this._passNum; i++) {
-            const index = this._passIndex[i];
-            const pass = this.subShader._passes[index];
-            if (!pass.moduleData.getCacheShader(compileDefine.clone())) {
-                const { uniformMap, arrayMap } = this._collectUniform(compileDefine); //@ts-ignore
-                pass.uniformMap = uniformMap; //@ts-ignore
-                pass.arrayMap = arrayMap;
+            if (this.renderShaderData) {
+                pass.nodeCommonMap = this.owner._commonUniformMap;
+            }
+            else {
+                pass.nodeCommonMap = null;
             }
 
-            //获取着色器实例，先查找缓存，如果没有则创建
-            const shaderInstance = pass.withCompile(compileDefine.clone()) as WebGPUShaderInstance;
-            this._shaderInstances[index] = shaderInstance;
-
-            //创建uniform缓冲区
-            if (i === 0) {
-                this._sceneData?._createUniformBuffer(shaderInstance.uniformInfo[0], true);
-                this._cameraData?._createUniformBuffer(shaderInstance.uniformInfo[1], true);
-                this.renderShaderData?.instShaderData?._createUniformBuffer(shaderInstance.uniformInfo[2], false);
-                this.materialShaderData?._createUniformBuffer(shaderInstance.uniformInfo[3], false);
+            pass.additionShaderData = null;
+            if (this.owner) {
+                pass.additionShaderData = this.owner._additionShaderDataKeys;
             }
+
+            let attributeLocations = this.geometry.bufferState._attriLocArray;
+            pass.moduleData.attributeLocations = attributeLocations;
+
+            let shaderIns = pass.withCompile(comDef) as WebGPUShaderInstance;
+            this._shaderInstances.add(shaderIns);
         }
-    }
 
-    /**
-     * 创建绑定组布局
-     * @param shaderInstance 
-     */
-    protected _createBindGroupLayout(shaderInstance: WebGPUShaderInstance) {
-        let entries: GPUBindGroupLayoutEntry[];
-        const bindGroupLayout = new Array(4);
-        const shaderData = new Array(4);
-        shaderData[0] = this._sceneData;
-        shaderData[1] = this._cameraData;
-        shaderData[2] = this.renderShaderData?.instShaderData;
-        shaderData[3] = this.materialShaderData;
-        const uniformSetMap = shaderInstance.uniformSetMap;
-
-        let error = false;
-        for (let i = 0; i < 4; i++) {
-            if (shaderData[i]) {
-                entries = shaderData[i].createBindGroupLayoutEntry(uniformSetMap[i]);
-                if (entries)
-                    bindGroupLayout[i] = entries;
-                else error = true;
-            } else error = true;
+        if (this._shaderInstances.length > 0) {
+            this._updateInstanceData();
         }
-        return error ? undefined : bindGroupLayout;
-    }
-
-    /**
-     * 绑定资源组
-     * @param shaderInstance 
-     * @param command 
-     * @param bundle 
-     */
-    protected _bindGroup(shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
-        const uniformSetMap = shaderInstance.uniformSetMap;
-        this._sceneData?.bindGroup(0, 'scene3D', uniformSetMap[0], command, bundle);
-        this._cameraData?.bindGroup(1, 'camera', uniformSetMap[1], command, bundle);
-        this.renderShaderData?.instShaderData?.bindGroup(2, 'sprite3D', uniformSetMap[2], command, bundle);
-        this.materialShaderData?.bindGroup(3, 'material', uniformSetMap[3], command, bundle);
-    }
-
-    /**
-     * 上传uniform数据
-     */
-    protected _uploadUniform() {
-        this._sceneData?.uploadUniform();
-        this._cameraData?.uploadUniform();
-        this.renderShaderData?.instShaderData?.uploadUniform();
-        this.materialShaderData?.uploadUniform();
     }
 
     private _updateInstanceData() {
         if (this.updateNums != 0)
             this.clearRenderData(); //?
+
+        let worldDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+        let worldMatFloatStride = worldDeclaration.vertexStride / 4;
+        const worldMatrixData = this.getUpdateData(0, worldMatFloatStride * WebGPUInstanceRenderElement3D.MaxInstanceCount);
+        this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, worldMatFloatStride);
+        const insBatches = this.instanceElementList;
+        const elements = insBatches.elements;
+        const count = insBatches.length;
+        this.drawCount = count;
+        this.geometry.instanceCount = this.drawCount;
+        for (let i = 0; i < count; i++) {
+            let element = elements[i] as WebGPURenderElement3D;
+            worldMatrixData.set(element.transform.worldMatrix.elements, i * worldMatFloatStride);
+            element.owner._worldParams.writeTo(worldMatrixData, i * worldMatFloatStride + 16);
+        }
+
         switch (this.owner.renderNodeType) {
             case BaseRenderType.MeshRender:
                 {
-                    const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
-                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                    const insBatches = this.instanceElementList;
-                    const elements = insBatches.elements;
-                    const count = insBatches.length;
-                    this.drawCount = count;
-                    this.geometry.instanceCount = this.drawCount;
-                    for (let i = 0; i < count; i++)
-                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-
                     const haveLightMap = this.renderShaderData.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP) && this.renderShaderData.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
                     if (haveLightMap) {
                         const lightMapData = this.getUpdateData(1, 4 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
@@ -294,16 +215,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
                 }
             case BaseRenderType.SimpleSkinRender:
                 {
-                    const worldMatrixData = this.getUpdateData(0, 16 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
-                    this.addUpdateBuffer(this._instanceStateInfo.worldInstanceVB, 16);
-                    const insBatches = this.instanceElementList;
-                    const elements = insBatches.elements;
-                    const count = insBatches.length;
-                    this.drawCount = count;
-                    this.geometry.instanceCount = this.drawCount;
-                    for (let i = 0; i < count; i++)
-                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-
                     const simpleAnimatorData = this.getUpdateData(1, 4 * WebGPUInstanceRenderElement3D.MaxInstanceCount);
                     for (let i = 0; i < count; i++) {
                         const simpleAnimatorParams = elements[i].renderShaderData.getVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS);
@@ -330,7 +241,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         this.geometry.drawType = DrawType.DrawElementInstance;
         this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, geometry, this.owner.renderNodeType, this.renderShaderData._defineDatas);
         this.geometry.bufferState = this._instanceStateInfo.state;
-        this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
+        //this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
     }
 
     /**
@@ -338,10 +249,10 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
      * @param command 
      * @param bundle 
      */
-    protected _uploadGeometry(command: WebGPURenderCommandEncoder, bundle: WebGPURenderBundle) {
+    protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         for (let i = 0; i < this.updateNums; i++)
             this._vertexBuffers[i]?.setData(this._updateData[i].buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
-        return super._uploadGeometry(command, bundle);
+        return super._uploadGeometry(command);
     }
 
     /**
@@ -357,37 +268,6 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         this._updateData.length = 0;
         this._updateDataNum.length = 0;
     }
-
-    // /**
-    //  * 清理单次渲染生成的数据（延迟回收内存）
-    //  */
-    // clearRenderDataAndRecover(resRecover: WebGPUResourceRecover): void {
-    //     this.drawCount = 0;
-    //     this.updateNums = 0;
-    //     this._vertexBuffers.length = 0;
-    //     this._updateData.forEach(data => {
-    //         WebGPUInstanceRenderElement3D._bufferPool.get(data.length).push(data);
-    //     });
-    //     this._updateData.length = 0;
-    //     this._updateDataNum.length = 0;
-    //     if (this._instanceStateInfo) {
-    //         if (this._instanceStateInfo.worldInstanceVB) {
-    //             this._instanceStateInfo.worldInstanceVB.destroy();
-    //             resRecover.needRecover(this._instanceStateInfo.worldInstanceVB.source);
-    //         }
-    //         if (this._instanceStateInfo.simpleAnimatorVB) {
-    //             this._instanceStateInfo.simpleAnimatorVB.destroy();
-    //             resRecover.needRecover(this._instanceStateInfo.simpleAnimatorVB.source);
-    //         }
-    //         if (this._instanceStateInfo.lightmapScaleOffsetVB) {
-    //             this._instanceStateInfo.lightmapScaleOffsetVB.destroy();
-    //             resRecover.needRecover(this._instanceStateInfo.lightmapScaleOffsetVB.source);
-    //         }
-    //         this._instanceStateInfo.worldInstanceVB = null;
-    //         this._instanceStateInfo.simpleAnimatorVB = null;
-    //         this._instanceStateInfo.lightmapScaleOffsetVB = null;
-    //     }
-    // }
 
     /**
      * 回收

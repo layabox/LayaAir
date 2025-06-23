@@ -3,6 +3,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -25,7 +26,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     value2DShaderData: WebGLShaderData;
     subShader: SubShader;
 
-    protected getGlobalShaderData() {
+    protected getGlobalShaderData(): ShaderData {
         if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
             return this.owner.globalRenderData.globalShaderData;
         else

@@ -16,7 +16,6 @@ import { WebGLSubUniformBuffer } from "../../WebGLDriver/RenderDevice/WebGLSubUn
 import { WebGLUniformBufferBase } from "../../WebGLDriver/RenderDevice/WebGLUniformBufferBase";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
 import { Config } from "../../../../Config";
 
 /**
@@ -72,8 +71,8 @@ export class WebGLShaderData extends ShaderData {
      * @returns 
      */
     createUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>): WebGLUniformBuffer {
-        if (!Config._uniformBlock || this._uniformBuffers.has(name)) {
-            return null;
+        if (this._uniformBuffers.has(name)) {
+            this._uniformBuffers.get(name);
         }
 
         this._needCacheData = true;
@@ -121,7 +120,6 @@ export class WebGLShaderData extends ShaderData {
 
 
     createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>) {
-
         let subBuffer = this._subUniformBuffers.get(cacheName);
         if (subBuffer) {
             if (this._subUboBufferNumber < 2) {
@@ -629,13 +627,13 @@ export class WebGLShaderData extends ShaderData {
     }
 
     destroy(): void {
+        if ((this as any).destroyed) {
+            return;
+        }
         this.clearData();
-
         this._defineDatas.destroy();
         this._defineDatas = null;
-
-        this._gammaColorMap.clear();
-        this._gammaColorMap = null;
+        (this as any).destroyed = true;
     }
 }
 

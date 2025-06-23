@@ -17,7 +17,7 @@ mediump vec4 combine(mediump vec4 bloom, vec2 uv)
 
 void fragUpsampleTent()
 {
-    mediump vec4 bloom = upsampleTent(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
+    mediump vec4 bloom = upsampleTent(v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
     gl_FragColor = combine(bloom, v_Texcoord0);
 }
 

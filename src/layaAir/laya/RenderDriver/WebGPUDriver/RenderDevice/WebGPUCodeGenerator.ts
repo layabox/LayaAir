@@ -12,11 +12,11 @@ import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef"
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
 import { WebGPU_GLSLProcess } from "./GLSLProcess/WebGPU_GLSLProcess";
 import { NagaWASM } from "./Naga/NagaWASM";
+import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { NameAndType, NameBooleanMap, NameNumberMap, NameStringMap } from "./WebGPUCommon";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
-import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
 /**
  * attribute列表
@@ -39,31 +39,7 @@ export type WebGPUUniformMapType = {
     }
 };
 
-/**
- * 绑定类型（uniformBlock，texture或sampler）
- */
-export enum WebGPUBindingInfoType {
-    buffer, //uniformBlock
-    texture, //texture
-    sampler, //sampler
-};
 
-/**
- * uniform详细内容（可能是uniformBlock，texture或sampler）
- */
-export interface WebGPUUniformPropertyBindingInfo {
-    id: number; //唯一编码
-    set: number; //分组编号
-    binding: number; //绑定编号
-    name: string; //名称
-    propertyId: number; //uniform内容的id
-    visibility: GPUShaderStageFlags; //GPU中的可见性
-    type: WebGPUBindingInfoType; //绑定类型
-    uniform?: WebGPUUniformBlockInfo; //uniform详细内容
-    buffer?: GPUBufferBindingLayout;
-    texture?: GPUTextureBindingLayout;
-    sampler?: GPUSamplerBindingLayout;
-};
 
 /**
  * WGSL代码转译
@@ -684,7 +660,7 @@ mat4 transpose(mat4 m)
      * @param uniforms 
      * @param arrayMap 
      */
-    private static _genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap) {
+    private static _genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap): any {
         if (uniforms.length === 0) return undefined;
         const _getUniformAlign = (type: string) => {
             switch (type) {
@@ -784,12 +760,12 @@ mat4 transpose(mat4 m)
         };
 
         const size = _calcUniformBufferSize(uniforms, arrayMap);
-        const uniformBlockInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
-        for (let i = 0, len = size.layout.length; i < len; i++) {
-            const uniform = size.layout[i];
-            uniformBlockInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
-        }
-        return uniformBlockInfo;
+        //  const uniformBlockInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
+        //  for (let i = 0, len = size.layout.length; i < len; i++) {
+        //      const uniform = size.layout[i];
+        //      uniformBlockInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+        //  }
+        return null;
     }
 
     /**

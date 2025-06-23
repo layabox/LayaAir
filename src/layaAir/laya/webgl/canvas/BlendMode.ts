@@ -5,6 +5,10 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
+/**
+ * @en BlendMode enumeration.
+ * @zh 混合模式枚举。
+ */
 export enum BlendMode {
     Invalid = 0,
     Normal,
@@ -21,6 +25,9 @@ export enum BlendMode {
     SourceAlpha,
 }
 
+/**
+ * @ignore
+ */
 export class BlendModeHandler {
 
     /** @internal 这个不直接暴露给开发者*/

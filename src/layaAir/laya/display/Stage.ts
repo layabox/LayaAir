@@ -644,7 +644,6 @@ export class Stage extends Sprite {
      */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
-        //return this._transform.getScaleX();
         return this._scaleX;
     }
 
@@ -654,7 +653,6 @@ export class Stage extends Sprite {
      */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
-        //return this._transform.getScaleY();
         return this._scaleY;
     }
 
@@ -818,8 +816,10 @@ export class Stage extends Sprite {
 
             sprite.updateRenderTexture();
             let destrt: RenderTexture2D = sprite._drawOriRT;
-            if (!destrt)
+            if (!destrt) {
+                sprite.setSubRenderPassState(false);
                 continue;
+            }
 
             sprite._oriRenderPass.renderTexture = destrt;
             if (sprite.mask) {

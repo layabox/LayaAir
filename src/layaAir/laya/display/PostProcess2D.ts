@@ -8,6 +8,10 @@ import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
 
+/**
+ * @en Post-process effects for 2D rendering.
+ * @zh 2D 渲染的后期处理效果。
+ */
 export class PostProcess2D extends EventDispatcher {
    static readonly POSTRENDERCHANGE: string = "post_render_change";//渲染改动
    static readonly POSTCMDCHANGE: string = "post_cmd_change";
@@ -21,6 +25,7 @@ export class PostProcess2D extends EventDispatcher {
    /**@internal */
    private _compositeShaderData: ShaderData;
 
+   /**@internal */
    static init() {
       Effect2DShaderInit.colorEffect2DShaderInit();
       Effect2DShaderInit.blurEffect2DShaderInit();
@@ -185,6 +190,7 @@ export class PostProcess2D extends EventDispatcher {
    }
 }
 
+/** @ignore @blueprintIgnore */
 export interface PostProcessRenderContext2D {
    /**
     * @en The original RenderTexture that is rendered to initially. Do not modify this RT.

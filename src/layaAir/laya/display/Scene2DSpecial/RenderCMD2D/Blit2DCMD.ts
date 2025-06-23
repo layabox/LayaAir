@@ -132,7 +132,7 @@ export class Blit2DCMD extends Command2D {
         Blit2DCMD._defaultShader = Shader3D.find("Blit2DCMD");
     }
 
-    private static _pool = Pool.createPool(Blit2DCMD);
+    private static readonly _pool = Pool.createPool(Blit2DCMD);
 
     /**
      * @en creat a blit2D render Command

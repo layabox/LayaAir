@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Command } from "../../../../d3/core/render/command/Command";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";

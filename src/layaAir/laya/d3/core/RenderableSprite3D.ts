@@ -6,6 +6,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Config3D } from "../../../Config3D";
 
 
 /**
@@ -125,7 +126,7 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.MorphTex, "u_MorphTargetsTex", ShaderDataType.Texture2D);
 		commandUniform.addShaderUniform(RenderableSprite3D.MorphParams, "u_MorphParams", ShaderDataType.Vector4);
 		commandUniform.addShaderUniform(RenderableSprite3D.MorphAttriOffset, "u_MorphAttrOffset", ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiceTargets, "u_MorphActiveTargets", ShaderDataType.Buffer);
+		commandUniform.addShaderUniformArray(RenderableSprite3D.MorphActiceTargets, "u_MorphActiveTargets", ShaderDataType.Vector4, Config3D.maxMorphTargetCount);
 		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiveCount, "u_MorphTargetActiveCount", ShaderDataType.Int);
 
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAPSCALEOFFSET, "u_LightmapScaleOffset", ShaderDataType.Vector4);

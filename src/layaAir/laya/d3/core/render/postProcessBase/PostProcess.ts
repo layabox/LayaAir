@@ -206,7 +206,7 @@ export class PostProcess {
         if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
-        for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
+        for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
                 if (i == n - 2) {//last effect:destination RenderTexture is CameraTarget
@@ -243,7 +243,7 @@ export class PostProcess {
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);
         var tempRenderTextures: RenderTexture[] = context.deferredReleaseTextures;
-        for (i = 0, n = tempRenderTextures.length; i < n; i++)
+        for (let i = 0, n = tempRenderTextures.length; i < n; i++)
             RenderTexture.recoverToPool(tempRenderTextures[i]);
         tempRenderTextures.length = 0;
     }

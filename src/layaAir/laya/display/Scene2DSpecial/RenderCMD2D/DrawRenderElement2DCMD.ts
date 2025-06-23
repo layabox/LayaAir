@@ -8,7 +8,7 @@ import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Command2D } from "./Command2D";
 
 export class DrawRenderElement2DCMD extends Command2D {
-    private static _pool = Pool.createPool(DrawRenderElement2DCMD);
+    private static readonly _pool = Pool.createPool(DrawRenderElement2DCMD);
 
     static create(element: IRenderElement2D, mat: Matrix = null): DrawRenderElement2DCMD {
         let cmd = DrawRenderElement2DCMD._pool.take();

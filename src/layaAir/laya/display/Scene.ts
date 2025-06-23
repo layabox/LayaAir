@@ -374,8 +374,8 @@ export class Scene extends Sprite {
 
     setglobalRenderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
         this._shaderData && this._shaderData.setShaderData(uniformIndex, type, value);
-        for (let area of this._area2Ds) {
-            area._shaderData.setShaderData(uniformIndex, type, value);
+        for (let area2D of this._area2Ds) {
+            area2D._globalShaderData.setShaderData(uniformIndex, type, value);
         }
     }
 

@@ -19,7 +19,7 @@ import { Command2D } from "./Command2D";
 
 export class DrawMesh2DCMD extends Command2D {
 
-    private static _pool = Pool.createPool(DrawMesh2DCMD);
+    private static readonly _pool = Pool.createPool(DrawMesh2DCMD);
 
     /**
      * @param mesh 

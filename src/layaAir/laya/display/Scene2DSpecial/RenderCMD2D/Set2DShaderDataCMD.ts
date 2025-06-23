@@ -8,7 +8,7 @@ import { Command2D } from "./Command2D";
 
 export class Set2DShaderDataCMD extends Command2D {
 
-    private static _pool = Pool.createPool(Set2DShaderDataCMD);
+    private static readonly _pool = Pool.createPool(Set2DShaderDataCMD);
 
     static create(shaderData: ShaderData, nameID: number, value: ShaderDataItem, shaderDataType: ShaderDataType): Set2DShaderDataCMD {
         let cmd = Set2DShaderDataCMD._pool.take();
@@ -56,7 +56,7 @@ export class Set2DShaderDataCMD extends Command2D {
 }
 
 export class Set2DDefineCMD extends Command2D {
-    private static _pool = Pool.createPool(Set2DDefineCMD);
+    private static readonly _pool = Pool.createPool(Set2DDefineCMD);
 
     /**@internal */
     _setRenderDefineCMD: SetShaderDefineCMD;

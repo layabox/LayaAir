@@ -10,31 +10,25 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
 
     private static _idCounter: number = 0;
 
-    /** @internal */
+    
     _id: number = ++WebGLRenderGeometryElement._idCounter;
 
-    /**@internal */
     bufferState: WebGLBufferState;
 
-    /**@internal */
     private _mode: MeshTopology;
 
     /**@internal 优化使用*/
     _glmode: number;
 
-    /**@internal */
     drawType: DrawType;
 
-    /**@internal */
     drawParams: FastSinglelist<number>;
 
-    /**@internal */
     instanceCount: number;
 
     /**@internal 优化*/
     _glindexFormat: number;
 
-    /**@internal */
     private _indexFormat: IndexFormat;
 
     /**
@@ -61,7 +55,6 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
         this._glmode = WebGLEngine.instance.getDrawContext().getMeshTopology(this._mode);
     }
 
-    /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
         this.mode = mode;
         this.drawParams = new FastSinglelist();
@@ -72,24 +65,20 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
         out && this.drawParams.cloneTo(out);
     }
 
-    /**@internal */
     setDrawArrayParams(first: number, count: number): void {
         this.drawParams.add(first);
         this.drawParams.add(count);
     }
 
-    /**@internal */
     setDrawElemenParams(count: number, offset: number): void {
         this.drawParams.add(offset);
         this.drawParams.add(count);
 
     }
 
-    /**@internal */
     destroy(): void {
         delete this.drawParams;
     }
-    /**@internal */
     clearRenderParams() {
         this.drawParams.length = 0;
     }

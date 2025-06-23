@@ -23,4 +23,7 @@ export enum RenderCapable {
     Texture3D,
     Texture_FloatLinearFiltering,
     Texture_HalfFloatLinearFiltering,
+    StorageBuffer,
+    ComputeShader,
+    IndirectDraw,
 }

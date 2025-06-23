@@ -1,4 +1,3 @@
-import { RenderInfo } from "../../renders/RenderInfo"
 import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import type { TextTexture } from "./TextTexture";
 

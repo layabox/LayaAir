@@ -7,7 +7,7 @@ import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Command2D } from "./Command2D";
 
 export class Set2DRTCMD extends Command2D {
-    private static _pool = Pool.createPool(Set2DRTCMD);
+    private static readonly _pool = Pool.createPool(Set2DRTCMD);
 
     static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY: boolean = true): Set2DRTCMD {
         let cmd = Set2DRTCMD._pool.take();

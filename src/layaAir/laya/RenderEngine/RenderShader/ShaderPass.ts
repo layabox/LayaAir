@@ -24,16 +24,12 @@ export class ShaderPass extends ShaderCompileDefineBase {
         this.moduleData.pipelineMode = value;
     }
 
-    /**@internal */
-    _nodeUniformCommonMap: Array<string>;
-
     set nodeCommonMap(value: Array<string>) {
-        this._nodeUniformCommonMap = value;
         this.moduleData.nodeCommonMap = value;
     }
 
     get nodeCommonMap(): Array<string> {
-        return this._nodeUniformCommonMap;
+        return this.moduleData.nodeCommonMap;
     }
 
     set additionShaderData(value: Array<string>) {
@@ -56,6 +52,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
 
     moduleData: IShaderPassData;
 
+    get attributeLocations(): Set<number> {
+        return this.moduleData.attributeLocations;
+    }
+
+    set attributeLocations(value: Set<number>) {
+        this.moduleData.attributeLocations = value;
+    }
+
     /**
      * 渲染状态。
      */
@@ -64,9 +68,10 @@ export class ShaderPass extends ShaderCompileDefineBase {
     }
 
     constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
-        super(owner, null, compiledObj);
+        super(owner, owner._owner.name, compiledObj);
         this.moduleData = LayaGL.unitRenderModuleDataFactory.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
+        this.moduleData.name = this.name;
     }
 
     /**
@@ -88,9 +93,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
             defineString: _defineStrings,
         };
 
-        if (Shader3D.debugMode)
-            ShaderVariantCollection.active.add(shaderpass, _defineStrings);
-
         let shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
         return shader;
@@ -101,11 +103,9 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @internal
      */
     withCompile(compileDefine: IDefineDatas, is2D: boolean = false): IShaderInstance {
-
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;
-        // console.log("compile");
         shader = ShaderPass.createShaderInstance(this, is2D, compileDefine);
         this.moduleData.setCacheShader(compileDefine, shader);
         return shader;

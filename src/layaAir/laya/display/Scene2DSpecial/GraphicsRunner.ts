@@ -48,7 +48,7 @@ const _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做
 const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 
-/** @ignore */
+/** @ignore @blueprintIgnore */
 export class GraphicsRunner {
     private _alpha = 1.0;
 
@@ -522,6 +522,7 @@ export class GraphicsRunner {
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
+        this._lastTex = GraphicsRunner.defTexture;
     }
 
     clear(): void {

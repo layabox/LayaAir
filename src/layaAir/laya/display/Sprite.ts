@@ -891,6 +891,7 @@ export class Sprite extends Node {
 
     /**
      * @ignore
+     * @blueprintIgnore
      * @param flag 
      */
     setSubpassFlag(flag: SubPassFlag) {
@@ -1562,6 +1563,11 @@ export class Sprite extends Node {
 
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         renderout._invertY = flipY;
+
+        if (LayaGL.renderEngine._screenInvertY) {
+            renderout._invertY = !renderout._invertY;
+        }
+
         let runner = Render2DProcessor.runner;
 
         let passSet = new Set<IRender2DPass>();

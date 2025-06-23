@@ -6,19 +6,20 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { NodeFlags } from "../Const";
 import { LayaGL } from "../layagl/LayaGL";
 import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
 
-    /**@internal */
     _globalRenderData: I2DGlobalRenderData;
+    _globalShaderData: ShaderData;
 
     constructor() {
         super();
         this._setBit(NodeFlags.AREA_2D, true);
         this._initShaderData();
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
-        this._globalRenderData.globalShaderData = this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._globalRenderData.globalShaderData = this._globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
     get mainCamera(): Camera2D {
@@ -32,9 +33,9 @@ export class Area2D extends Sprite {
 
         if (camera) {
             camera._isMain = true;
-            this._shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+            this._globalShaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
         } else {
-            this._shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+            this._globalShaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
         }
 
         this._mainCamera = camera;
@@ -48,10 +49,10 @@ export class Area2D extends Sprite {
      */
     render(): void {
         if (this._mainCamera) {
-            if (this._shaderData) {
+            if (this._globalShaderData) {
                 this._globalRenderData.renderLayerMask = this._mainCamera.visiableLayer;
                 this._globalRenderData.cullRect = this._mainCamera._rect;
-                this._shaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
+                this._globalShaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
             }
         }
     }

@@ -130,6 +130,7 @@ import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_L
 import { NavMeshDemo } from "../3d/LayaAir3D_Advance/navMeshDemo";
 import { Config } from "Config";
 import { AvatarMaskDemo } from "../3d/LayaAir3D_Animation3D/AvatarMaskDemo";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -221,6 +222,7 @@ export class IndexView3D extends IndexViewUI {
 
     constructor() {
         super();
+        PrefabImpl.legacySceneOrPrefab.createByData(this, IndexViewUI.uiView);
         this.initView3D();
         this.initEvent();
         Laya.init(0, 0).then(() => {

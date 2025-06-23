@@ -2,11 +2,13 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { SetRendertarget2DCMD, Draw2DElementCMD, Blit2DQuadCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
+import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
 import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
@@ -18,10 +20,15 @@ export class WebGPUSetRendertarget2DCMD extends SetRendertarget2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        if (this.rt)
-            context.invertY = this.invertY;
-        else context.invertY = false;
+        let engine = WebGPURenderEngine._instance;
+        if (this.rt != engine._screenRT) {
+            context.invertY = WebGPURenderEngine._instance._screenInvertY ? (!this.invertY) : this.invertY;
+        }
+        else {
+            context.invertY = false;
+        };
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
+        context.passData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this.size);
     }
 }
 
@@ -38,7 +45,7 @@ export class WebGPUDraw2DElementCMD extends Draw2DElementCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        if (this._elements.length === 1) {
+        if (this._elements.length == 1) {
             context.drawRenderElementOne(this._elements[0]);
         } else {
             this._elements.forEach(element => {

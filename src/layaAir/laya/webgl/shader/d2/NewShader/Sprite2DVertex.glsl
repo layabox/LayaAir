@@ -21,13 +21,13 @@ uniform vec3 u_NMatrix_0;
 uniform vec3 u_NMatrix_1;
 
 uniform vec2 u_size;
+
 #ifdef MATERIALCLIP
     uniform vec4 u_mClipMatDir;
     uniform vec4 u_mClipMatPos;
-#else
-    uniform vec4 u_clipMatDir;
-    uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 #endif
+uniform vec4 u_clipMatDir;
+uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
 // uniform vec2 u_pivotPos;
 varying vec2 v_cliped;
 varying vec4 v_color;

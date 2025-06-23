@@ -35,7 +35,7 @@ export class TrailShaderCommon {
         const spriteParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender");
         spriteParms.addShaderUniform(TrailShaderCommon.CURTIME, "u_CurTime", ShaderDataType.Float);
         spriteParms.addShaderUniform(TrailShaderCommon.LIFETIME, "u_LifeTime", ShaderDataType.Float);
-        spriteParms.addShaderUniform(TrailShaderCommon.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Buffer);
+        spriteParms.addShaderUniformArray(TrailShaderCommon.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Vector4, 10);
         spriteParms.addShaderUniform(TrailShaderCommon.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength", ShaderDataType.Int);
 
         TrailShaderCommon.attributeMap = {

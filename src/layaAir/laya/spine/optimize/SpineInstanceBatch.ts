@@ -370,27 +370,6 @@ export class SpineInstanceElement2DTool{
     }
 
     /**
-     * @internal
-     */
-    private static _pool: IRenderElement2D[] = [];
-
-    // static create(): IRenderElement2D {
-    //     let element = this._pool.pop() || LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        // if (!element.geometry) {
-        //     element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles,DrawType.DrawElementInstance);
-        // }
-        // return element;
-    // }
-
-    // static recover(element:IRenderElement2D){
-    //     element.value2DShaderData = null;
-    //     element.materialShaderData = null;
-    //     element.subShader = null;
-    //     element.geometry.clearRenderParams();
-    //     this._pool.push(element);
-    // }
-
-    /**
      * pool of Buffer
      */
     private static _bufferPool: Float32Array[][] = [];

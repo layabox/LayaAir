@@ -16,7 +16,13 @@ export class Config {
      */
     static useWebGL2: boolean = true;
 
-    /** @internal */
+    /**W
+     * @en 是否提供Spri-v的shader
+     * @zh
+     */
+    static useSPRIV: boolean = false;
+
+    /**@internal */
     static _uniformBlock: boolean;
 
     /** 
