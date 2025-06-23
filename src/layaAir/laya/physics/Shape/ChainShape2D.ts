@@ -67,7 +67,7 @@ export class ChainShape2D extends Physics2DShapeBase {
      * @override
      */
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
         let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);

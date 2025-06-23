@@ -37,7 +37,7 @@ export class EdgeShape2D extends Physics2DShapeBase {
     }
 
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
 
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
