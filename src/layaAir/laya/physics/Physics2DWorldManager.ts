@@ -60,8 +60,10 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     Init(data: any): void {
-        let layerIndex = parseInt(data as string);
-        let configlayer = PlayerConfig.physics2D?.addConfig[layerIndex];
+        let configlayer = PlayerConfig.physics2D?.addConfig[data];
+        if (!configlayer) {
+            configlayer = PlayerConfig.physics2D?.defaultConfig;
+        }
         if (!configlayer) return;
         this._worldDef.pixelRatio = this._pixelRatio = configlayer.pixelRatio ? configlayer.pixelRatio : Physics2DOption.pixelRatio;
         this._RePixelRatio = 1 / this._pixelRatio;
@@ -89,13 +91,14 @@ export class Physics2DWorldManager implements IElementComponentManager {
      * @param scene 
      */
     constructor(scene: Scene | Sprite) {
-        this._worldDef.pixelRatio = this._pixelRatio = Physics2DOption.pixelRatio;
+        const configlayer = PlayerConfig.physics2D?.defaultConfig
+        this._worldDef.pixelRatio = this._pixelRatio = configlayer?.pixelRatio ?? Physics2DOption.pixelRatio;
         this._RePixelRatio = 1 / this._pixelRatio;
-        this._worldDef.subStep = this._subStep = Physics2DOption.subStep;
-        this._worldDef.velocityIterations = this._velocityIterations = Physics2DOption.velocityIterations;
-        this._worldDef.positionIterations = this._positionIterations = Physics2DOption.positionIterations;
-        this._worldDef.gravity = this._gravity.setValue(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
-        this._allowWorldSleep = Physics2DOption.allowSleeping;
+        this._worldDef.subStep = this._subStep = configlayer?.subStep ?? Physics2DOption.subStep;
+        this._worldDef.velocityIterations = this._velocityIterations = configlayer?.velocityIterations ?? Physics2DOption.velocityIterations;
+        this._worldDef.positionIterations = this._positionIterations = configlayer?.positionIterations ?? Physics2DOption.positionIterations;
+        this._worldDef.gravity = this._gravity.setValue(configlayer?.gravity.x ?? Physics2DOption.gravity.x, configlayer?.gravity.y ?? Physics2DOption.gravity.y);
+        this._allowWorldSleep = configlayer?.allowSleeping ?? Physics2DOption.allowSleeping;
         this._scene = scene;
         this.setRootSprite(this._scene);
     }
@@ -125,13 +128,13 @@ export class Physics2DWorldManager implements IElementComponentManager {
         this._JSRayCastcallback = Physics2D.I._factory.createJSRayCastCallback();
         this._JSQuerycallback = Physics2D.I._factory.createJSQueryCallback();
         //debug draw
-        if (Physics2DOption.debugDraw && LayaEnv.isPlaying) {
-            this.enableDebugDraw(Physics2DOption.drawShape, EPhycis2DBlit.Shape);
-            this.enableDebugDraw(Physics2DOption.drawJoint, EPhycis2DBlit.Joint);
-            this.enableDebugDraw(Physics2DOption.drawAABB, EPhycis2DBlit.AABB);
-            this.enableDebugDraw(Physics2DOption.drawCenterOfMass, EPhycis2DBlit.CenterOfMass);
+        const configlayer = PlayerConfig.physics2D?.defaultConfig
+        if (configlayer && configlayer.debugDraw && LayaEnv.isPlaying) {
+            this.enableDebugDraw(configlayer.drawShape, EPhycis2DBlit.Shape);
+            this.enableDebugDraw(configlayer.drawJoint, EPhycis2DBlit.Joint);
+            this.enableDebugDraw(configlayer.drawAABB, EPhycis2DBlit.AABB);
+            this.enableDebugDraw(configlayer.drawCenterOfMass, EPhycis2DBlit.CenterOfMass);
         }
-
     }
 
     /**

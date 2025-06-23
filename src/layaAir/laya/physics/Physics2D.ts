@@ -77,8 +77,8 @@ export class Physics2D extends EventDispatcher {
      */
     enable(): Promise<void> {
         if (this._factory) {
-            if (PlayerConfig.physics2D != null)
-                Object.assign(Physics2DOption, PlayerConfig.physics2D);
+            if (PlayerConfig.physics2D != null && PlayerConfig.physics2D.defaultConfig != null)
+                Object.assign(Physics2DOption, PlayerConfig.physics2D.defaultConfig);
 
             return this._factory.initialize().then(() => {
                 this.start();
