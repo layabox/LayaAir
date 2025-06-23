@@ -581,22 +581,33 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let x = this.physics2DToLaya(this._scaleSizeXByScaleMode(xf.x));
         let y = this.physics2DToLaya(this._scaleSizeYByScaleMode(xf.y));
 
+        // 计算旋转后的坐标轴方向
+        let cosAngle = Math.cos(xf.angle);
+        let sinAngle = Math.sin(xf.angle);
+        
+        // X轴方向 (红色) - 旋转后的右方向
+        let xAxisEndX = x + this.physics2DToLaya(length * cosAngle);
+        let xAxisEndY = y + this.physics2DToLaya(length * sinAngle);
+        
+        // Y轴方向 (绿色) - 旋转后的上方向 (垂直于X轴)
+        let yAxisEndX = x + this.physics2DToLaya(length * (-sinAngle));
+        let yAxisEndY = y + this.physics2DToLaya(length * cosAngle);
+
+        // 绘制旋转后的X轴 (红色)
         let point0: any[] = [];
         point0.push(x);
         point0.push(y);
-        point0.push(x + this.physics2DToLaya(length));
-        point0.push(y);
+        point0.push(xAxisEndX);
+        point0.push(xAxisEndY);
         this._debugDraw.addLineDebugDrawCMD(point0, Color.RED, this._debugDraw.lineWidth);
 
+        // 绘制旋转后的Y轴 (绿色)
         let point1: any[] = [];
         point1.push(x);
         point1.push(y);
-        point1.push(x);
-        point1.push(y + this.physics2DToLaya(length));
+        point1.push(yAxisEndX);
+        point1.push(yAxisEndY);
         this._debugDraw.addLineDebugDrawCMD(point1, Color.GREEN, this._debugDraw.lineWidth);
-
-        // this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        // this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
 
         this._debugDraw.PopTransform();
     }
