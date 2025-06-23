@@ -209,6 +209,10 @@ export class Stage extends Sprite {
     /**@internal */
     _scene2Ds: Scene[] = [];
 
+    private _$originScaleX: number = 1;
+    private _$originScaleY: number = 1;
+    private _$stageScaleX: number = 1;
+    private _$stageScaleY: number = 1;
     private _frameRate: string = "fast";
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
@@ -286,9 +290,11 @@ export class Stage extends Sprite {
     protected _transChanged(kind: TransformKind) {
         super._transChanged(kind);
 
-        if ((kind & TransformKind.Size) != 0) {
-            this.designWidth = this._width;
-            this.designHeight = this._height;
+        if ((kind & (TransformKind.Size | TransformKind.Scale)) != 0) {
+            if (kind & TransformKind.Size) {
+                this.designWidth = this._width;
+                this.designHeight = this._height;
+            }
             this.updateCanvasSize(true);
         }
     }
@@ -500,10 +506,23 @@ export class Stage extends Sprite {
             mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
         }
 
+        if (this._scaleX === this._$originScaleX) {//没有用户设置行为
+            this._scaleX = this._scaleX / this._$stageScaleX;
+        }
+
+        if (this._scaleY === this._$originScaleY) {
+            this._scaleY = this._scaleY / this._$stageScaleY;
+        }
+
+        this._$stageScaleX = canvasWidth / this._width;
+        this._$stageScaleY = canvasHeight / this._height;
         //放大舞台
-        this.transform.a = formatData(canvasWidth / this._width * this.scaleX);
-        this.transform.d = formatData(canvasHeight / this._height * this.scaleY);
+        this.transform.a = formatData(this._$stageScaleX * this._scaleX);
+        this.transform.d = formatData(this._$stageScaleY * this._scaleY);
+
         this.transform = this.transform; //force call
+        this._$originScaleX = this._scaleX;
+        this._$originScaleY = this._scaleY;
 
         RenderState2D.width = canvasWidth;
         RenderState2D.height = canvasHeight;
@@ -641,7 +660,7 @@ export class Stage extends Sprite {
      */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
-        return this._transform ? this._transform.getScaleX() : 1;
+        return this._scaleX;
     }
 
     /**
@@ -650,7 +669,7 @@ export class Stage extends Sprite {
      */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
-        return this._transform ? this._transform.getScaleY() : 1;
+        return this._scaleY;
     }
 
     /**
@@ -825,8 +844,7 @@ export class Stage extends Sprite {
 
             sprite.updateRenderTexture();
             let destrt: RenderTexture2D = sprite._drawOriRT;
-            if (!destrt)
-            {
+            if (!destrt) {
                 sprite.setSubRenderPassState(false);
                 continue;
             }
