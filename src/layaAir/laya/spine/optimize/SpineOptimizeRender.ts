@@ -895,11 +895,13 @@ export class SkinRender implements IVBIBUpdate {
      * @param mutiRenderData 多重渲染数据。
      * @param isMuti 指示是否为多重渲染。
      */
-    updateIB(indexArray: Uint16Array, ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean) {
+    updateIB(indexArray: Uint16Array | Uint32Array ,  type:IndexFormat , size: number , ibLength: number, mutiRenderData: MultiRenderData, isMuti: boolean): void {
         let ib = this.ib;
-        ib._setIndexDataLength(ibLength * 2)
-        ib._setIndexData(new Uint16Array(indexArray.buffer, 0, ibLength), 0);
+        ib._setIndexDataLength(ibLength * size);
+        ib._setIndexData(indexArray, 0);
+        ib.indexType = type;
         ib.indexCount = ibLength;
+        this.geo.indexFormat = type;
         
         if (isMuti) {
             let elementsCreator = this.elementsMap.get(mutiRenderData.id);

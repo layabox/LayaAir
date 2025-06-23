@@ -173,7 +173,7 @@ export class AnimationRender {
         tempMap.clear();
         tempArray.length = 0;
         tempArray[0] = 0;
-        tempMap.set(0 , []);
+        tempMap.set(0, []);
 
         let hasClip: boolean;
         for (let i = 0, n = timeline.length; i < n; i++) {
@@ -218,8 +218,8 @@ export class AnimationRender {
                 //@ts-ignore
                 time instanceof (spine.ColorTimeline || spine.RGBATimeline)
                 //@ts-ignore
-                 || ( spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
-                ) {
+                || (spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
+            ) {
                 let rgba = time as spine.RGBATimeline;
                 let frames = rgba.frames;
                 let slotIndex = rgba.slotIndex;
@@ -541,7 +541,7 @@ export class SkinAniRenderData {
                 }
             }
         }
-        
+
         if (tempArray.length == 1 && !tempMap.get(0).length) {
             //没有修改IB的情况
             if (this.vb) {
@@ -559,7 +559,6 @@ export class SkinAniRenderData {
         }
         else {
             this.vb = this.vb || mainVB.clone();
-            let n = tempArray.length;
             for (let i = 0, n = tempArray.length; i < n; i++) {
                 let frame = tempArray[i];
                 let arr = tempMap.get(frame);
@@ -569,7 +568,7 @@ export class SkinAniRenderData {
                     }
                 }
             }
-           
+
             let tAttachMap = attachMap.slice();
             let order;
             this.vb.initBoneMat();
@@ -583,12 +582,12 @@ export class SkinAniRenderData {
                         order = newOrder;
                     }
                 }
-                let ib = AnimationRender.tempIbCreate;
-                this.vb.createIB(tAttachMap, ib, order);
-                let temp = new Uint16Array(ib.ib.buffer, 0, ib.ibLength);
-                let ibnew = new Uint16Array(temp);
-                let outRenderData = ib.outRenderData;
-                this.ibs[j] = { realIb: ibnew, outRenderData: outRenderData };
+                let tempCreator = AnimationRender.tempIbCreate;
+                tempCreator.createIB(tAttachMap, this.vb, order);
+                let ibnew = tempCreator.ib.slice(0, tempCreator.ibLength);
+                let outRenderData = tempCreator.outRenderData;
+                let data: IBRenderData = { realIb: ibnew, outRenderData: outRenderData, type: tempCreator.type, size: tempCreator.size };
+                this.ibs[j] = data;
                 if (outRenderData.renderData.length > 1) {
                     mutiRenderAble = true;
                 }
