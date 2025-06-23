@@ -33,7 +33,7 @@ export class CircleShape2D extends Physics2DShapeBase {
     }
 
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
 
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
