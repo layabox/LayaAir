@@ -26,7 +26,7 @@ export class MgDownloader extends Downloader {
 
     private subPackages: Record<string, string>;
 
-    constructor() {
+    constructor(enableCache: boolean = true) {
         super();
 
         let old = URL.postFormatURL;
@@ -41,12 +41,14 @@ export class MgDownloader extends Downloader {
         if (Browser.onWXMiniGame) //微信小游戏不需要这个
             this.escapeZhCharsInURL = false;
 
-        let cacheRoot: string;
-        if (Browser.onVVMiniGame)
-            cacheRoot = "internal://files/layaCache";
-        else
-            cacheRoot = PAL.g.env.USER_DATA_PATH + "/layaCache";
-        this.cacheManager = new MgCacheManager(cacheRoot);
+        if (enableCache) {
+            let cacheRoot: string;
+            if (Browser.onVVMiniGame)
+                cacheRoot = "internal://files/layaCache";
+            else
+                cacheRoot = PAL.g.env.USER_DATA_PATH + "/layaCache";
+            this.cacheManager = new MgCacheManager(cacheRoot);
+        }
     }
 
     common(owner: any, url: string, originalUrl: string, contentType: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
@@ -156,7 +158,7 @@ export class MgDownloader extends Downloader {
 
     protected readFile(url: string, contentType: string, onComplete: DownloadCompleteCallback) {
         let filePath = this.urlToFilePath(url);
-        PAL.fs.readFile(filePath, contentType === "arraybuffer" ? "" : "utf8").then(data => {
+        PAL.fs.readFile(filePath, contentType === "arraybuffer" ? null : "utf8").then(data => {
             switch (contentType) {
                 case "json":
                     onComplete(JSON.parse(<string>data));

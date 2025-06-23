@@ -1,4 +1,3 @@
-import { StorageAdapter } from "../platform/StorageAdapter";
 import { PAL } from "../platform/PlatformAdapters";
 
 /**
@@ -6,7 +5,6 @@ import { PAL } from "../platform/PlatformAdapters";
  * @zh `LocalStorage` 类用于没有时间限制的数据存储。
  */
 export class LocalStorage {
-    static adapter: StorageAdapter;
 
     /**
      * @en Stores a key-value pair as strings.
