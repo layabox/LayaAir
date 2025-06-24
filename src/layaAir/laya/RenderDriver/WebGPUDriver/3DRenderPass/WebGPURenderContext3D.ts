@@ -3,6 +3,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -82,6 +83,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     destRT: WebGPUInternalRT; //渲染目标
 
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
+
+    protected _passRenderInfo: Map<string, Vector2> = new Map();
+    _curPipeLineChangeFlag: Vector2 = new Vector2();
 
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
