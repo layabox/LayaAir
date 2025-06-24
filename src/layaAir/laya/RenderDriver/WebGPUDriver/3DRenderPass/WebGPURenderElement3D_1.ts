@@ -53,7 +53,20 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
 
 
-    geometry: WebGPURenderGeometry;
+    private _geometryID: number = null;
+    private _geometry: WebGPURenderGeometry;
+    public get geometry(): WebGPURenderGeometry {
+        return this._geometry;
+    }
+    public set geometry(value: WebGPURenderGeometry) {
+        if (value?.getStateCacheID() != this._geometryID) {
+            this._needUpdatePipeline();
+        }
+
+        this._geometryID = value?.getStateCacheID();
+        this._geometry = value;
+    }
+
     //override
     materialShaderData: WebGPUShaderData;
 
@@ -74,13 +87,56 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     subShader: SubShader;
 
     //@renderPipeline Interface TODO
-    blendState: WebGPUBlendStateCache;
+    private _blendStateKey: number = null;
+    private _blendState: WebGPUBlendStateCache;
+
+    public get blendState(): WebGPUBlendStateCache {
+        return this._blendState;
+    }
+    public set blendState(value: WebGPUBlendStateCache) {
+        if (value?.key != this._blendStateKey) {
+            this._needUpdatePipeline();
+        }
+        this._blendStateKey = value?.key;
+        this._blendState = value;
+    }
     //@renderPipeline Interface
-    depthStencilState: WebGPUDepthStencilStateCache;
+    private _depthStencilStateID: number = null;
+    private _depthStencilState: WebGPUDepthStencilStateCache;
+    public get depthStencilState(): WebGPUDepthStencilStateCache {
+        return this._depthStencilState;
+    }
+    public set depthStencilState(value: WebGPUDepthStencilStateCache) {
+        if (value?.id != this._depthStencilStateID) {
+            this._needUpdatePipeline();
+        }
+
+        this._depthStencilStateID = value?.id;
+        this._depthStencilState = value;
+    }
     //@renderPipeline Interface
-    cullMode: CullMode;
+    private _cullMode: CullMode;
+    public get cullMode(): CullMode {
+        return this._cullMode;
+    }
+    public set cullMode(value: CullMode) {
+        if (value !== this._cullMode) {
+            this._needUpdatePipeline();
+        }
+
+        this._cullMode = value;
+    }
     //@renderPipeline Interface
-    frontFace: FrontFace;
+    private _frontFace: FrontFace;
+    public get frontFace(): FrontFace {
+        return this._frontFace;
+    }
+    public set frontFace(value: FrontFace) {
+        if (value !== this._frontFace) {
+            this._needUpdatePipeline();
+        }
+        this._frontFace = value;
+    }
 
     protected _invertFrontFace: boolean;
 
@@ -94,6 +150,12 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     protected _pipelineChangeFlag: Vector2 = new Vector2();//TODO 更新
 
 
+    /** @internal */
+    _needUpdatePipeline() {
+        // console.log("WebGPURenderElement3D _needUpdatePipeline");
+        // todo
+        this._pipelineChangeFlag;
+    }
 
     constructor() {
     }
