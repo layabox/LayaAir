@@ -1161,16 +1161,19 @@ export class GraphicsRunner {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number | null, blendMode: BlendMode | string, colorNum = 0xffffffff, colors: Float32Array | null = null): void {
-
-        if (alpha == null) alpha = 1.0;
+        matrix?: Matrix, alpha?: number,
+        blendMode?: BlendMode | string,
+        colorNum?: number,
+        colors?: Float32Array): void {
 
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
 
-        var oldcomp: BlendMode | null = null;
+        if (alpha == null) alpha = 1.0;
+        if (colorNum == null) colorNum = 0xffffffff;
 
+        let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
             if (typeof blendMode == "string") {
                 blendMode = BlendModeHandler.NAMES[blendMode];
@@ -1521,7 +1524,7 @@ export class GraphicsRunner {
             && !this.isSameClipInfo(submit)
         // && this._curSubmit.material == this._material
 
-        let mesh: GraphicsMesh = this.getCurrentMesh();
+        let mesh = this._meshPool[this._currentMeshIndex];
 
         var curEleNum = 0;
         let m: Matrix = this._curMat;
@@ -2161,16 +2164,12 @@ export class GraphicsRunner {
         return result;
     }
 
-    public getCurrentMesh(): GraphicsMesh {
-        return this._meshPool[this._currentMeshIndex];
-    }
-
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo, submit: SubmitBase,
-        uvs: ArrayLike<number> = null, rgba: number = 0xffffffff,
-        matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false,
-        colors: ArrayLike<number> = null
+        uvs: ArrayLike<number>, rgba: number,
+        matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
+        colors?: ArrayLike<number>
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
