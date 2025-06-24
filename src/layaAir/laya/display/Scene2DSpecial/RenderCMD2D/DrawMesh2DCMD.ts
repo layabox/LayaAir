@@ -53,7 +53,7 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _mesh: Mesh2D
 
-    private _matrial: Material;
+    private _material: Material;
 
     private _color: Color;
 
@@ -95,11 +95,11 @@ export class DrawMesh2DCMD extends Command2D {
             value = Mesh2DRender.mesh2DDefaultMaterial;
         // this._mesh2DRender.sharedMaterial = value;
 
-        this._matrial = value;
+        this._material = value;
         this._needUpdateElement = true;
     }
     get material(): Material {
-        return this._matrial;
+        return this._material;
     }
 
     set mesh(value: Mesh2D) {
@@ -185,8 +185,8 @@ export class DrawMesh2DCMD extends Command2D {
                     element.geometry = subMesh;
                     element.renderStateIsBySprite = false;
                     element.value2DShaderData = this._shaderData;
-                    element.materialShaderData = this._matrial.shaderData;
-                    element.subShader = this._matrial._shader.getSubShaderAt(0);
+                    element.materialShaderData = this._material.shaderData;
+                    element.subShader = this._material._shader.getSubShaderAt(0);
                 } else {
                     element.destroy();
                 }
@@ -222,6 +222,6 @@ export class DrawMesh2DCMD extends Command2D {
         this._shaderData.destroy();
         this._shaderData = null;
         this._mesh = null
-        this._matrial = null;
+        this._material = null;
     }
 }

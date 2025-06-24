@@ -537,6 +537,20 @@ export class GraphicsRunner {
         this._save._length = 1;
     }
 
+    getCurrentScaleX(): number {
+        let scaleX = this.getMatScaleX();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleX = matrix.a;
+        return scaleX * spriteScaleX;
+    }
+
+    getCurrentScaleY(): number {
+        let scaleY = this.getMatScaleY();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleY = matrix.d;
+        return scaleY * spriteScaleY;
+    }
+
     /**
      * 获得当前矩阵的缩放值
      * 避免每次都计算getScaleX
@@ -820,7 +834,7 @@ export class GraphicsRunner {
             // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            material.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+            material.fillTexture = true;
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;
@@ -1763,8 +1777,8 @@ export class GraphicsRunner {
                 }
             }
         }
-        var sx = this.getMatScaleX();
-        var sy = this.getMatScaleY();
+        var sx = this.getCurrentScaleX();
+        var sy = this.getCurrentScaleY();
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
         let ndivs = (Math.max(cl / 5, minNum)) | 0;
