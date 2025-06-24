@@ -62,6 +62,7 @@ export class WebGPUConfig {
 export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine {
     //static _offscreenFormat: GPUTextureFormat;
     static _instance: WebGPURenderEngine;
+    static _framePassCount: number = 0;
     _isShaderDebugMode: boolean;
 
     private _canvas: HTMLCanvasElement;
@@ -445,6 +446,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
      */
     endFrame() {
         this.event('endFrame');
+        WebGPURenderEngine._framePassCount = 0;
         WebGPUShaderData.endFrame();
         if (WebGPUGlobal.useTimeQuery) {
             this.timingManager.getGPUFrameTime().then(time => {

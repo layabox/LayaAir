@@ -286,6 +286,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
 
+        WebGPURenderEngine._framePassCount++;
         this._prepareContext();
 
         const elements = list.elements;
@@ -316,6 +317,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param node 
      */
     drawRenderElementOne(node: WebGPURenderElement3D): number {
+        WebGPURenderEngine._framePassCount++;
         this._prepareContext();
         node._preUpdatePre(this);
         //数据更新
