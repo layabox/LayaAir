@@ -77,7 +77,7 @@ export function genSliceMesh(vb: VertexStream, contentRect: Readonly<Rectangle>,
     if (tileGridIndice === 0) {
         for (let cy = 0; cy < 4; cy++) {
             for (let cx = 0; cx < 4; cx++) {
-                vb.addVert(gridX[cx], gridY[cy], 0, null, gridTexX[cx], gridTexY[cy]);
+                vb.addVert(gridX[cx], gridY[cy], null, gridTexX[cx], gridTexY[cy]);
             }
         }
         vb.addTriangles(TRIANGLES_9_GRID);

@@ -18,7 +18,7 @@ export class RoundedRectMesh implements IMeshFactory {
         let centerX = x + radiusX;
         let centerY = y + radiusY;
 
-        vb.addVert(centerX, centerY, 0);
+        vb.addVert(centerX, centerY);
 
         let cnt = vb.vertCount;
         for (let i = 0; i < 4; i++) {
@@ -57,12 +57,11 @@ export class RoundedRectMesh implements IMeshFactory {
                 for (let j = 1; j <= partNumSides; j++) {
                     if (j === partNumSides) angle = startAngle + Math.PI / 2; //消除精度误差带来的不对齐
                     vb.addVert(offsetX + Math.cos(angle) * radius + radius,
-                        offsetY + Math.sin(angle) * radius + radius,
-                        0);
+                        offsetY + Math.sin(angle) * radius + radius);
                     angle += angleDelta;
                 }
             } else {
-                vb.addVert(offsetX, offsetY, 0);
+                vb.addVert(offsetX, offsetY);
             }
         }
         cnt = vb.vertCount - cnt;

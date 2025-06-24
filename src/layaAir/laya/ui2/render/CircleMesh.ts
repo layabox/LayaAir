@@ -16,12 +16,12 @@ export class CircleMesh implements IMeshFactory {
 
         const centerX = rect.x + radiusX;
         const centerY = rect.y + radiusY;
-        vb.addVert(centerX, centerY, 0);
+        vb.addVert(centerX, centerY);
 
         for (let i = 0; i < sides; i++) {
             let vx = Math.cos(angle) * radiusX + centerX;
             let vy = Math.sin(angle) * radiusY + centerY;
-            vb.addVert(vx, vy, 0);
+            vb.addVert(vx, vy);
             angle += angleDelta;
         }
 

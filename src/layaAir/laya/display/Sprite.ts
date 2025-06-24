@@ -225,7 +225,6 @@ export class Sprite extends Node {
     private _autosize: boolean = false;
     private _tfChanged: boolean;
     private _repaint: number = -1;
-    private _texture: Texture;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
     private _userBounds: Rectangle;
@@ -240,6 +239,8 @@ export class Sprite extends Node {
     declare _parent: Sprite;
     declare _scene: Scene;
 
+    /** @internal */
+    _texture: Texture;
     /**@internal */
     _ownerArea: Sprite;
     /** @internal */

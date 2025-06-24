@@ -1147,7 +1147,7 @@ export class GraphicsRunner {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number | null, blendMode: BlendMode | string, colorNum = 0xffffffff): void {
+        matrix: Matrix, alpha: number | null, blendMode: BlendMode | string, colorNum = 0xffffffff, colors: Float32Array | null = null): void {
 
         if (alpha == null) alpha = 1.0;
 
@@ -1211,12 +1211,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
@@ -2155,7 +2155,8 @@ export class GraphicsRunner {
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo, submit: SubmitBase,
         uvs: ArrayLike<number> = null, rgba: number = 0xffffffff,
-        matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false
+        matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false,
+        colors: ArrayLike<number> = null
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
@@ -2188,8 +2189,6 @@ export class GraphicsRunner {
         let g = ((rgba >>> 8) & 0xff) / 255.0;
         let a = (rgba >>> 24) / 255.0;
 
-        let ci = 0;
-        let pos = 0;
         let useTexByte = useTex ? 0xff : 0;
 
         let dataViewIndex = 0;
@@ -2200,44 +2199,54 @@ export class GraphicsRunner {
 
         let positions: number[] = [];
         let vbdata: Float32Array;
-        for (let i = 0; i < vertexCount; i++) {
+        for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
-            if (!dataView || dataView.length <= pos) {
+            if (!dataView || dataView.length <= vi) {
                 dataView = vertexViews[dataViewIndex];
                 dataViewIndex++;
-                pos = 0;
+                vi = 0;
                 offset = dataView.start / dataView.stride;
                 vbdata = dataView.getData() as Float32Array;
             }
 
-            let x = vertices[ci], y = vertices[ci + 1];
+            let x = vertices[pi], y = vertices[pi + 1];
             if (matrix) {
                 if (matrix._bTransform) {
-                    vbdata[pos] = positions[ci] = x * m00 + y * m10 + tx;
-                    vbdata[pos + 1] = positions[ci + 1] = x * m01 + y * m11 + ty;
+                    vbdata[vi] = positions[pi] = x * m00 + y * m10 + tx;
+                    vbdata[vi + 1] = positions[pi + 1] = x * m01 + y * m11 + ty;
                 } else {
-                    vbdata[pos] = positions[ci] = x + tx;
-                    vbdata[pos + 1] = positions[ci + 1] = y + ty;
+                    vbdata[vi] = positions[pi] = x + tx;
+                    vbdata[vi + 1] = positions[pi + 1] = y + ty;
                 }
             } else {
-                vbdata[pos] = positions[ci] = x;
-                vbdata[pos + 1] = positions[ci + 1] = y;
+                vbdata[vi] = positions[pi] = x;
+                vbdata[vi + 1] = positions[pi + 1] = y;
             }
 
             if (uvs) {
-                vbdata[pos + 2] = uvminx + uvs[ci] * uvu;
-                vbdata[pos + 3] = uvminy + uvs[ci + 1] * uvv;
+                vbdata[vi + 2] = uvminx + uvs[pi] * uvu;
+                vbdata[vi + 3] = uvminy + uvs[pi + 1] * uvv;
             }
 
-            vbdata[pos + 4] = r;
-            vbdata[pos + 5] = g;
-            vbdata[pos + 6] = b;
-            vbdata[pos + 7] = a;
-            vbdata[pos + 8] = useTexByte;
-            pos += 12;
-            ci += 2;
-            indexsMap[i] = offset++;
+            if (colors != null) {
+                vbdata[vi + 4] = colors[ci];
+                vbdata[vi + 5] = colors[ci + 1];
+                vbdata[vi + 6] = colors[ci + 2];
+                vbdata[vi + 7] = colors[ci + 3];
+            }
+            else {
+                vbdata[vi + 4] = r;
+                vbdata[vi + 5] = g;
+                vbdata[vi + 6] = b;
+                vbdata[vi + 7] = a;
+            }
 
+            vbdata[vi + 8] = useTexByte;
+
+            vi += 12;
+            pi += 2;
+            ci += 4;
+            indexsMap[i] = offset++;
         }
 
         result.positions = positions;
