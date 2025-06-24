@@ -820,7 +820,7 @@ export class GraphicsRunner {
             // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            material.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+            material.fillTexture = true;
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;

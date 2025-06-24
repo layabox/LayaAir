@@ -731,11 +731,11 @@ export class Sprite extends Node {
      */
     setGraphics(value: Graphics, transferOwnership: boolean) {
         if (this._graphics) {
-            this._graphics._setDisplay(false);
+            if (this._ownGraphics) this._graphics.destroy();
+            else this._graphics._setDisplay(false);
+
             this._graphics._data = null;
             this._graphics.owner = null;
-            if (this._ownGraphics)
-                this._graphics.destroy();
         }
         if (!this._graphicsData) {
             this._graphicsData = new GraphicsRenderData();
@@ -747,6 +747,7 @@ export class Sprite extends Node {
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
+            value.modified();
         }
 
         this.repaint();
@@ -1139,6 +1140,7 @@ export class Sprite extends Node {
             value._addReference();
             this._renderType |= SpriteConst.TEXTURE;
             this.graphics._setDisplay(true);
+            this.graphics.modified();
         }
         else {
             this._renderType &= ~SpriteConst.TEXTURE;
@@ -1520,6 +1522,7 @@ export class Sprite extends Node {
      * @param rt The render target.
      * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
+     * @param clearColor Optional. If provided, the texture will be cleared to this color before drawing. Default is null.
      * @returns The drawn RenderTexture2D object.
      * @zh 绘制当前对象到一个 Texture 对象上。
      * @param canvasWidth 画布宽度。
@@ -1529,10 +1532,11 @@ export class Sprite extends Node {
      * @param rt 渲染目标。
      * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
+     * @param clearColor 可选。如果提供，则在绘制前清除纹理为该颜色。默认为 null。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false): RenderTexture2D {
-        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY);
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false, clearColor: Color = null): RenderTexture2D {
+        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY, clearColor);
         return res;
     }
     /**
@@ -1625,8 +1629,8 @@ export class Sprite extends Node {
 
         if (clearColor) {
             pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-        } else
-            pass.setClearColor(0, 0, 0, 0);
+            pass.doClearColor = true;
+        }
 
         pass.renderTexture = renderout;
         pass.root = sprite._struct;

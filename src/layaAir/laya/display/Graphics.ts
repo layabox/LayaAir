@@ -120,7 +120,6 @@ export class Graphics {
      */
     destroy(): void {
         this.clear(true);
-
         this._graphicBounds && this._graphicBounds.destroy();
         this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
@@ -161,7 +160,6 @@ export class Graphics {
             if (!onSizeChanged || this._graphicBounds._affectBySize)
                 this._graphicBounds.reset();
         }
-        this._modefied = true;
     }
 
     /** @deprecated Use repaint */
@@ -174,6 +172,7 @@ export class Graphics {
      * @zh 重绘此对象。
      */
     repaint(): void {
+        this.modified();
         this._clearBoundsCache();
         this.owner && this.owner.repaint();
     }
@@ -267,6 +266,14 @@ export class Graphics {
         this.repaint();
     }
 
+    /**
+     * @en Mark as modified
+     * @zh 标记为已修改
+     */
+    modified() {
+        this._modefied = true;
+    }
+
     /** @internal */
     _checkDisplay() {
         this._setDisplay(this._cmds.length > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0);
@@ -280,7 +287,6 @@ export class Graphics {
         this._display = value;
         let struct = this.owner._struct;
         if (value) {
-            this._modefied = true;
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
             struct.renderType = BaseRender2DType.graphics;
@@ -726,8 +732,6 @@ export class Graphics {
         runner._graphicsData = null;
         runner.sprite = null;
         this._modefied = false;
-        // this._data.offsetX = x;
-        // this._data.offsetY = y;
     }
 
     private _check(): boolean {
@@ -750,8 +754,7 @@ export class Graphics {
             return;
 
         if (tex._getSource(() => {
-            this._modefied = true;
-            this.owner.repaint();
+            this.owner.graphics.repaint();
         })) {
             var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
             var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
