@@ -26,6 +26,9 @@ export class GraphicsShaderInfo {
       BlendModeHandler.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
       this.textureHost = Texture2D.whiteTexture;
+      this.enableVertexSize = false;
+      this.materialClip = false;
+      this.fillTexture = false;
    }
 
    private _textureHost: Texture | BaseTexture;
@@ -133,6 +136,17 @@ export class GraphicsShaderInfo {
       this.shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, value);
    }
 
+   public set fillTexture(value: boolean) {
+      if (value) {
+         this.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+      } else {
+         this.shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
+      }
+   }
+
+   public get fillTexture(): boolean {
+      return this.shaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+   }
 
    cloneTo(shaderData: ShaderData) {
 
@@ -169,7 +183,6 @@ export class GraphicsShaderInfo {
    }
 
    clear() {
-      this.shaderData.clearData();
       this.toDefault();
    }
 
