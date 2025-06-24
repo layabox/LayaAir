@@ -5,7 +5,6 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector2 } from "../../../maths/Vector2";
-import { FastSinglelist } from "../../../utils/SingletonList";
 import { Stat } from "../../../utils/Stat";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
@@ -16,7 +15,6 @@ import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
-import { WebGPUPipelineCache } from "../RenderDevice/WebGPUPipelineCache";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
@@ -41,11 +39,9 @@ export function compareCahceFlag(changeFlag: Vector2, cacheFlag: Vector2) {
 export class oneDrawCacheInfo {
     shaderInstance: WebGPUShaderInstance;
     pipelineMode: string;
-    nodeDefCacheFlag: Vector2 = new Vector2();//和owner的defineFlag做对比
-    matDefCacheFlag: Vector2 = new Vector2();//和material的defineFlag做对比
+
     pipeline: GPURenderPipeline;
     pipeLineCacheFlag: Vector2 = new Vector2();//和global的BindGroup引起的pipeline的更新Flag做对比
-    destRTCacheID: number;
 }
 
 /**
@@ -92,7 +88,12 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     protected _passRenderInfo: Map<string, oneDrawCacheInfo[]> = new Map();
 
+    nodeDefCacheFlag: Vector2 = new Vector2();//和owner的defineFlag做对比
+    matDefCacheFlag: Vector2 = new Vector2();//和material的defineFlag做对比
+
     protected _pipelineChangeFlag: Vector2 = new Vector2();//TODO 更新
+
+
 
     constructor() {
     }
