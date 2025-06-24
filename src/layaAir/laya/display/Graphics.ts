@@ -276,7 +276,7 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        this._setDisplay(this._cmds.length > 0 || (this.owner._renderType & SpriteConst.TEXTURE) > 0);
+        this._setDisplay(this._cmds.length > 0 || (this.owner && (this.owner._renderType & SpriteConst.TEXTURE) > 0));
     }
 
     /** @internal */

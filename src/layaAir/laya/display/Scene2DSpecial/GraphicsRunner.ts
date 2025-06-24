@@ -537,6 +537,20 @@ export class GraphicsRunner {
         this._save._length = 1;
     }
 
+    getCurrentScaleX(): number {
+        let scaleX = this.getMatScaleX();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleX = matrix.a;
+        return scaleX * spriteScaleX;
+    }
+
+    getCurrentScaleY(): number {
+        let scaleY = this.getMatScaleY();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleY = matrix.d;
+        return scaleY * spriteScaleY;
+    }
+
     /**
      * 获得当前矩阵的缩放值
      * 避免每次都计算getScaleX
@@ -1763,8 +1777,8 @@ export class GraphicsRunner {
                 }
             }
         }
-        var sx = this.getMatScaleX();
-        var sy = this.getMatScaleY();
+        var sx = this.getCurrentScaleX();
+        var sy = this.getCurrentScaleY();
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
         let ndivs = (Math.max(cl / 5, minNum)) | 0;

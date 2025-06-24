@@ -141,8 +141,8 @@ export class TextRender extends EventDispatcher {
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
         if (TextRenderConfig.scaleFontWithCtx) {
-            let sx = runner.getMatScaleX();
-            let sy = runner.getMatScaleY();
+            let sx = runner.getCurrentScaleX();
+            let sy = runner.getCurrentScaleY();
 
             if (sx < 1e-4 || sy < 1e-1)
                 return;
