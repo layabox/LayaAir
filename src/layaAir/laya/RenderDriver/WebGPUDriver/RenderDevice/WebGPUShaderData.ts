@@ -13,12 +13,14 @@ import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { isUboBufferShaderType, ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { DepthStencilParam, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache as string } from "./WebGPURenderPipelineHelper";
 import { WebGPUSubUniformBuffer } from "./WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
@@ -53,7 +55,7 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
     /**@internal */
-    _updateCacheArray: Map<number, Function> = new Map();;
+    // _updateCacheArray: Map<number, Function> = new Map();;
 
     private _subUboBufferNumber: number = 0;
 
@@ -65,6 +67,128 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     _textureData: { [key: number]: BaseTexture } = {};
+
+
+    /// blend cache
+    private _needUpdateBlendStateCache: boolean = false;
+
+    private _blendStateCache: WebGPUBlendStateCache;
+
+    public get blendStateCache(): WebGPUBlendStateCache {
+        if (this._needUpdateBlendStateCache) {
+            this.updateBlendStateCache();
+        }
+        return this._blendStateCache;
+    }
+
+    private updateBlendStateCache() {
+        this._needUpdateBlendStateCache = false;
+
+        const blend = this._data[Shader3D.BLEND] ?? RenderState.Default.blend;
+        switch (blend) {
+            case RenderState.BLEND_DISABLE:
+                this._blendStateCache = WebGPUBlendState.getBlendState(blend, RenderState.BLENDEQUATION_ADD, RenderState.BLENDPARAM_ONE, RenderState.BLENDPARAM_ZERO, RenderState.BLENDEQUATION_ADD, RenderState.BLENDPARAM_ONE, RenderState.BLENDPARAM_ZERO,);
+                break;
+            case RenderState.BLEND_ENABLE_ALL:
+                let blendEquation: any = this._data[Shader3D.BLEND_EQUATION];
+                blendEquation = blendEquation ?? RenderState.Default.blendEquation;
+                let srcBlend: any = this._data[Shader3D.BLEND_SRC];
+                srcBlend = srcBlend ?? RenderState.Default.srcBlend;
+                let dstBlend: any = this._data[Shader3D.BLEND_DST];
+                dstBlend = dstBlend ?? RenderState.Default.dstBlend;
+                this._blendStateCache = WebGPUBlendState.getBlendState(blend, blendEquation, srcBlend, dstBlend, blendEquation, srcBlend, dstBlend);
+                break;
+            case RenderState.BLEND_ENABLE_SEPERATE:
+                let blendEquationRGB: any = this._data[Shader3D.BLEND_EQUATION_RGB];
+                blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
+                let blendEquationAlpha: any = this._data[Shader3D.BLEND_EQUATION_ALPHA];
+                blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
+                let srcRGB: any = this._data[Shader3D.BLEND_SRC_RGB];
+                srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
+                let dstRGB: any = this._data[Shader3D.BLEND_DST_RGB];
+                dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
+                let srcAlpha: any = this._data[Shader3D.BLEND_SRC_ALPHA];
+                srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
+                let dstAlpha: any = this._data[Shader3D.BLEND_DST_ALPHA];
+                dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
+                this._blendStateCache = WebGPUBlendState.getBlendState(blend, blendEquationRGB, srcRGB, dstRGB, blendEquationAlpha, srcAlpha, dstAlpha);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /// depht stencil cache
+    private _needUpdateDepthStencilStateCache: boolean = false;
+
+    private _depthStencilParam: DepthStencilParam = new DepthStencilParam();
+
+    private _depthStencilStateKey: string;
+    public get depthStencilStateKey(): string {
+        if (this._needUpdateDepthStencilStateCache) {
+            this.updateDepthStencilStateCache();
+        }
+        return this._depthStencilStateKey;
+    }
+    public set depthStencilStateKey(value: string) {
+        this._depthStencilStateKey = value;
+    }
+
+    private updateDepthStencilStateCache() {
+        this._needUpdateDepthStencilStateCache = false;
+
+        const data = this._data;
+        let depthStencilParam = this._depthStencilParam;
+
+        const depthWrite = data[Shader3D.DEPTH_WRITE] ?? RenderState.Default.depthWrite;
+        const depthTest = data[Shader3D.DEPTH_TEST] ?? RenderState.Default.depthTest;
+
+        let depthBias = data[Shader3D.DEPTH_BIAS] ?? RenderState.Default.depthBias;
+        let depthBiasConstant = data[Shader3D.DEPTH_BIAS_CONSTANT] ?? RenderState.Default.depthBiasConstant;
+        let depthBiasSlopeScale = data[Shader3D.DEPTH_BIAS_SLOPESCALE] ?? RenderState.Default.depthBiasSlopeScale;
+        let depthBiasClamp = data[Shader3D.DEPTH_BIAS_CLAMP] ?? RenderState.Default.depthBiasClamp;
+
+        depthStencilParam.depthWrite = depthWrite;
+        depthStencilParam.depthTest = depthTest;
+        depthStencilParam.depthBias = depthBias;
+        depthStencilParam.depthBiasConstant = depthBiasConstant;
+        depthStencilParam.depthBiasSlopeScale = depthBiasSlopeScale;
+        depthStencilParam.depthBiasClamp = depthBiasClamp;
+
+        // stencil
+        let formatHasStencil = true;
+        const stencilTest = data[Shader3D.STENCIL_TEST] ?? RenderState.Default.stencilTest;
+        const stencilRef = data[Shader3D.STENCIL_Ref] ?? RenderState.Default.stencilRef;
+        const stencilWrite = data[Shader3D.STENCIL_WRITE] ?? RenderState.Default.stencilWrite;
+        const stencilOp = stencilWrite ? (data[Shader3D.STENCIL_Op] ?? RenderState.Default.stencilOp) : RenderState.Default.stencilOp;
+        let stencilReadMask = data[Shader3D.STENCIL_READ_MASK] ?? RenderState.Default.stencilReadMask;
+        let stencilWriteMask = stencilWrite ? (data[Shader3D.STENCIL_WRITE_MASK] ?? RenderState.Default.stencilWriteMask) : 0x00;
+
+        depthStencilParam.stencilEnable = stencilTest !== RenderState.STENCILTEST_OFF && formatHasStencil;
+        depthStencilParam.stencilTest = stencilTest;
+        depthStencilParam.stencilRef = stencilRef;
+        depthStencilParam.stencilWrite = stencilWrite;
+        depthStencilParam.stencilOp = stencilOp;
+        depthStencilParam.stencilReadMask = stencilReadMask;
+        depthStencilParam.stencilWriteMask = stencilWriteMask;
+
+        this._depthStencilStateKey = WebGPUDepthStencilState.getDepthStencilParamCacheID(depthStencilParam);
+    }
+
+    private _checkRenderState(index: number) {
+        if (isBlendProperty(index)) {
+            this._needUpdateBlendStateCache = true;
+        }
+        else if (isDepthStencilProperty(index)) {
+            this._needUpdateDepthStencilStateCache = true;
+        }
+    }
+
+    private _clearRenderStateCheck() {
+        this._needUpdateBlendStateCache = false;
+        this._needUpdateDepthStencilStateCache = false;
+    }
+
     /**
      * 不允许直接创建，只能通过对象池
      * @param ownerResource 
@@ -159,21 +283,6 @@ export class WebGPUShaderData extends ShaderData {
         }
     }
 
-    updateUBOBuffer(key: string) {
-        let buffer = this._uniformBuffers.get(key) || this._subUniformBuffers.get(key);
-        if (!buffer) {
-            return;
-        }
-        for (const [index, func] of this._updateCacheArray) {
-            let ubo = this._uniformBuffersPropertyMap.get(index);
-            if (ubo) {
-                func.call(ubo, index, this._data[index]);
-            }
-        }
-        this._updateCacheArray.clear();
-        buffer.needUpload && buffer.upload();
-    }
-
     private _initBufferData(uniformBuffer: WebGPUUniformBufferBase, name: string, uniformMap: Map<number, UniformProperty>) {
         this._textureStatesMap.set(name, 0);
 
@@ -204,15 +313,6 @@ export class WebGPUShaderData extends ShaderData {
         this._uniformBuffers.set(name, uboBuffer);
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uboBuffer;
-        // uniformMap._idata.forEach(uniform => {
-        //     let uniformId = uniform.id;
-        //     let data = this._data[uniformId];
-        //     if (data != null) {
-        //         uboBuffer.setUniformData(uniformId, uniform.uniformtype, data);
-        //     }
-        //     this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
-        //     this._updateTextureState(uniformId, name, data as WebGPUInternalTex);
-        // });
         this._initBufferData(uboBuffer, name, uniformMap._idata);
         return uboBuffer;
     }
@@ -242,22 +342,6 @@ export class WebGPUShaderData extends ShaderData {
     createSubUniformBuffer(name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): WebGPUSubUniformBuffer {
         let subBuffer = this._subUniformBuffers.get(cacheName);
         if (subBuffer) {
-            if (this._subUboBufferNumber < 2) {
-                //update data
-                for (const [index, func] of this._updateCacheArray) {
-                    let ubo = this._uniformBuffersPropertyMap.get(index);
-                    if (ubo) {
-                        func.call(ubo, index, this._data[index]);
-                    }
-                }
-                this._updateCacheArray.clear();
-            } else {
-                uniformMap.forEach((uniform, index) => {
-                    if (this._data[index] && this._updateCacheArray.has(index)) {
-                        (this._updateCacheArray.get(index)).call(subBuffer, index, this._data[index]);
-                    }
-                });
-            }
             return subBuffer;
         }
 
@@ -366,10 +450,13 @@ export class WebGPUShaderData extends ShaderData {
     setInt(index: number, value: number) {
         if (this._data[index] === value) return;
         this._data[index] = value;
-        //更新状态标识符
-        {
-            this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setInt);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setInt(index, value);
         }
+
+        this._checkRenderState(index);
     }
 
     /**
@@ -389,7 +476,13 @@ export class WebGPUShaderData extends ShaderData {
     setNumber(index: number, value: number) {
         if (this.nearEqual(this._data[index], value)) return;
         this._data[index] = value;
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setFloat);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setFloat(index, value);
+        }
+
+        this._checkRenderState(index);
     }
 
     /**
@@ -412,7 +505,11 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector2);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setVector2(index, value);
+        }
     }
 
     /**
@@ -435,7 +532,11 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector3);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setVector3(index, value);
+        }
     }
 
     /**
@@ -458,7 +559,11 @@ export class WebGPUShaderData extends ShaderData {
             value.cloneTo(this._data[index]);
         } else
             this._data[index] = value.clone();
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector4);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setVector4(index, value);
+        }
     }
 
     /**
@@ -496,7 +601,12 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = linearColor;
             this._gammaColorMap.set(index, value.clone());
         }
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setVector4);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            let color = this._data[index] as Vector4;
+            buffer.setVector4(index, color);
+        }
     }
 
     /**
@@ -528,7 +638,11 @@ export class WebGPUShaderData extends ShaderData {
         else {
             this._data[index] = value.clone();
         }
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setMatrix3x3);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setMatrix3x3(index, value);
+        }
     }
 
     /**
@@ -551,8 +665,11 @@ export class WebGPUShaderData extends ShaderData {
         } else {
             this._data[index] = value.clone();
         }
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setMatrix4x4);
-        //TODO
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setMatrix4x4(index, value);
+        }
     }
 
     /**
@@ -571,7 +688,11 @@ export class WebGPUShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array) {
         this._data[index] = value;
-        this._updateCacheArray.set(index, WebGPUUniformBufferBase.prototype.setArrayBuffer);
+
+        if (this._uniformBuffersPropertyMap.has(index)) {
+            let buffer = this._uniformBuffersPropertyMap.get(index);
+            buffer.setBuffer(index, value);
+        }
     }
 
     /**
@@ -784,7 +905,8 @@ export class WebGPUShaderData extends ShaderData {
         this._subUboBufferNumber = 0;
 
         this._textureStatesMap.clear();
-        this._updateCacheArray.clear();
+
+        this._clearRenderStateCheck();
     }
 
     /**
@@ -797,4 +919,39 @@ export class WebGPUShaderData extends ShaderData {
 
         this._gammaColorMap.clear();
     }
+}
+
+function isBlendProperty(index: number) {
+    return index == Shader3D.BLEND ||
+        index == Shader3D.BLEND_SRC ||
+        index == Shader3D.BLEND_DST ||
+        index == Shader3D.BLEND_SRC_RGB ||
+        index == Shader3D.BLEND_DST_RGB ||
+        index == Shader3D.BLEND_SRC_ALPHA ||
+        index == Shader3D.BLEND_DST_ALPHA ||
+        index == Shader3D.BLEND_EQUATION ||
+        index == Shader3D.BLEND_EQUATION_RGB ||
+        index == Shader3D.BLEND_EQUATION_ALPHA;
+}
+
+function isDephtProperty(index: number) {
+    return index == Shader3D.DEPTH_TEST ||
+        index == Shader3D.DEPTH_WRITE ||
+        index == Shader3D.DEPTH_BIAS ||
+        index == Shader3D.DEPTH_BIAS_CONSTANT ||
+        index == Shader3D.DEPTH_BIAS_SLOPESCALE ||
+        index == Shader3D.DEPTH_BIAS_CLAMP;
+}
+
+function isStencilProperty(index: number) {
+    return index == Shader3D.STENCIL_TEST ||
+        index == Shader3D.STENCIL_WRITE ||
+        index == Shader3D.STENCIL_WRITE_MASK ||
+        index == Shader3D.STENCIL_READ_MASK ||
+        index == Shader3D.STENCIL_Ref ||
+        index == Shader3D.STENCIL_Op;
+}
+
+function isDepthStencilProperty(index: number) {
+    return isDephtProperty(index) || isStencilProperty(index);
 }

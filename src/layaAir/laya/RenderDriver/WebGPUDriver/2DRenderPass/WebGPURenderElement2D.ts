@@ -378,20 +378,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             let passData = context.passData;
             if (passData) {
                 let globalStr = "Sprite2DGlobal";
-                let global = this.getGlobalShaderData() as WebGPUShaderData;
-                if (global) {
-                    for (const [index, func] of global._updateCacheArray) {
-                        let ubo = passData._uniformBuffersPropertyMap.get(index);
-                        if (ubo) {
-                            passData._updateCacheArray.delete(index);
-                            func.call(ubo, index, global._data[index]);
-                        }
-                    }
-                    global._updateCacheArray.clear();
-                }
-
                 let commandArray = [globalStr];
-                passData.updateUBOBuffer(globalStr);
                 let mask = shader.uniformTextureExits.get(0);
                 let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
                 context._sceneBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commandArray, passData, null, resource, mask);

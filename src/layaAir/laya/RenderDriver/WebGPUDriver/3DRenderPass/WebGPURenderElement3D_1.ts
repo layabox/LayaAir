@@ -187,7 +187,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     _matBindGroupLayoutFlag: Vector2;//mat change Flag
     bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
     protected _pipelineChangeFlag: Vector2 = new Vector2();//TODO 更新
-
+    private _cacheMatBlendStateID: number;
+    private _cacheMatDepthStencilID: string;
+    private _cacheMatCullMode: CullMode;
 
     /** @internal */
     _needUpdatePipeline() {
@@ -291,6 +293,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
         this._updateMatChangeFlag();
+
         //编译着色器
         this._compileShader(context);
         // material ubo
@@ -353,6 +356,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
+                this._cacheMatCullMode != this.materialShaderData.getInt(Shader3D.CULL) ||
+                this._cacheMatDepthStencilID != this.materialShaderData.depthStencilStateKey ||
+                this._cacheMatBlendStateID != this._materialShaderData.blendStateCache.id ||
                 compareCahceFlag(context._curPipeLineChangeFlag, pipelineCache) ||
                 compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
                 this.bindGroupMap.clear();
@@ -361,6 +367,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
                 this.bindGroupMap.set(2, this.nodeBindGroup);
                 this.bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
+                this._cacheMatBlendStateID = this._materialShaderData.blendStateCache.id;
+                this._cacheMatDepthStencilID = this.materialShaderData.depthStencilStateKey;
+                this._cacheMatCullMode = this.materialShaderData.getInt(Shader3D.CULL);
                 drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
             }
             command.setPipeline(drawInfo.pipeline);
@@ -399,7 +408,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     private _getBlendState(shaderInstance: WebGPUShaderInstance) {
         if ((shaderInstance._shaderPass as ShaderPass).statefirst)
             this.blendState = this._getRenderStateBlendByShader(this.materialShaderData, shaderInstance);
-        else this.blendState = this._getRenderStateBlendByMaterial(this.materialShaderData);
+        else {
+            this.blendState = this.materialShaderData.blendStateCache;
+        }
     }
 
     private _getRenderStateBlendByShader(shaderData: WebGPUShaderData, shaderInstance: WebGPUShaderInstance) {
@@ -431,51 +442,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
                 const dstRGB = (renderState.dstBlendRGB ?? data[Shader3D.BLEND_DST_RGB]) ?? RenderState.Default.dstBlendRGB;
                 const srcAlpha = (renderState.srcBlendAlpha ?? data[Shader3D.BLEND_SRC_ALPHA]) ?? RenderState.Default.srcBlendAlpha;
                 const dstAlpha = (renderState.dstBlendAlpha ?? data[Shader3D.BLEND_DST_ALPHA]) ?? RenderState.Default.dstBlendAlpha;
-                blendState = WebGPUBlendState.getBlendState(blend, blendEquationRGB, srcRGB, dstRGB, blendEquationAlpha, srcAlpha, dstAlpha);
-                break;
-            default:
-                throw 'blendState set error';
-        }
-        return blendState;
-    }
-
-    private _getRenderStateBlendByMaterial(shaderData: WebGPUShaderData) {
-        const data = shaderData.getData();
-        const blend = data[Shader3D.BLEND] ?? RenderState.Default.blend;
-        let blendState: any;
-        switch (blend) {
-            case RenderState.BLEND_DISABLE:
-                blendState = WebGPUBlendState.getBlendState(blend,
-                    RenderState.BLENDEQUATION_ADD,
-                    RenderState.BLENDPARAM_ONE,
-                    RenderState.BLENDPARAM_ZERO,
-                    RenderState.BLENDEQUATION_ADD,
-                    RenderState.BLENDPARAM_ONE,
-                    RenderState.BLENDPARAM_ZERO,
-                );
-                break;
-            case RenderState.BLEND_ENABLE_ALL:
-                let blendEquation: any = data[Shader3D.BLEND_EQUATION];
-                blendEquation = blendEquation ?? RenderState.Default.blendEquation;
-                let srcBlend: any = data[Shader3D.BLEND_SRC];
-                srcBlend = srcBlend ?? RenderState.Default.srcBlend;
-                let dstBlend: any = data[Shader3D.BLEND_DST];
-                dstBlend = dstBlend ?? RenderState.Default.dstBlend;
-                blendState = WebGPUBlendState.getBlendState(blend, blendEquation, srcBlend, dstBlend, blendEquation, srcBlend, dstBlend);
-                break;
-            case RenderState.BLEND_ENABLE_SEPERATE:
-                let blendEquationRGB: any = data[Shader3D.BLEND_EQUATION_RGB];
-                blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
-                let blendEquationAlpha: any = data[Shader3D.BLEND_EQUATION_ALPHA];
-                blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
-                let srcRGB: any = data[Shader3D.BLEND_SRC_RGB];
-                srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
-                let dstRGB: any = data[Shader3D.BLEND_DST_RGB];
-                dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
-                let srcAlpha: any = data[Shader3D.BLEND_SRC_ALPHA];
-                srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
-                let dstAlpha: any = data[Shader3D.BLEND_DST_ALPHA];
-                dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
                 blendState = WebGPUBlendState.getBlendState(blend, blendEquationRGB, srcRGB, dstRGB, blendEquationAlpha, srcAlpha, dstAlpha);
                 break;
             default:
