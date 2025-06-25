@@ -8,7 +8,6 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Stat } from "../../../utils/Stat";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
-import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
 import { WebGPUBindGroup, WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
@@ -62,10 +61,9 @@ export class oneDrawCacheInfo {
  * 基本渲染单元
  */
 export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelineInfo {
+    static _materialChangeFlagMap: Map<string, Map<WebGPUShaderData, Vector2[]>> = new Map();
 
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
-
-
 
     private _geometryID: number = null;
     private _geometry: WebGPURenderGeometry;
@@ -82,7 +80,17 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     }
 
     //override
-    materialShaderData: WebGPUShaderData;
+    private _materialRenderDataChange: boolean = false;
+    private _materialShaderData: WebGPUShaderData;
+    public get materialShaderData(): WebGPUShaderData {
+        return this._materialShaderData;
+    }
+    public set materialShaderData(value: WebGPUShaderData) {
+        if (this.materialShaderData != value) {
+            this._materialShaderData = value;
+            this._materialRenderDataChange = true;
+        }
+    }
 
     materialRenderQueue: number;
 
@@ -98,7 +106,16 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     declare owner: WebGPUBaseRenderNode;
 
-    subShader: SubShader;
+    private _subShader: SubShader;
+    public get subShader(): SubShader {
+        return this._subShader;
+    }
+    public set subShader(value: SubShader) {
+        if (this.subShader != value) {
+            this._subShader = value;
+            this._materialRenderDataChange = true;
+        }
+    }
 
     //@renderPipeline Interface TODO
     private _blendStateKey: number = null;
@@ -158,22 +175,23 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     protected _passRenderInfo: Map<string, oneDrawCacheInfo[]> = new Map();
 
-    nodeDefCacheFlag: Vector2 = new Vector2();//和owner的defineFlag做对比
-    nodeBindGroupCacheFlag: Vector2 = new Vector2();//和owner的BindGroupChangeFlag做对比
+    nodeDefCacheFlag: Vector2 = new Vector2();//cache Flag
+    nodeBindGroupCacheFlag: Vector2 = new Vector2();//cache flag
     nodeBindGroup: WebGPUBindGroup;
 
-    matDefCacheFlag: Vector2 = new Vector2();//和material的defineFlag做对比
+    matDefCacheFlag: Vector2 = new Vector2();//mat cache Flag
     matBindGroupCacheFlag: Vector2 = new Vector2();
     matBindGroup: WebGPUBindGroup;
 
+    _matBindGroupChangeFlag: Vector2;//mat change Flag
+    _matBindGroupLayoutFlag: Vector2;//mat change Flag
+    bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
     protected _pipelineChangeFlag: Vector2 = new Vector2();//TODO 更新
 
 
     /** @internal */
     _needUpdatePipeline() {
-        // console.log("WebGPURenderElement3D _needUpdatePipeline");
-        // todo
-        this._pipelineChangeFlag;
+        this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
     }
 
     constructor() {
@@ -245,7 +263,25 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
             var shaderIns = pass.withCompile(comDef, false) as WebGPUShaderInstance;
 
+        }
+    }
 
+    private _updateMatChangeFlag() {
+        if (this._materialRenderDataChange) {//MaterialShaderData变动或者shader变动
+            let shadername = this.subShader.owner.name;
+            if (!WebGPURenderElement3D_1._materialChangeFlagMap.has(shadername))
+                WebGPURenderElement3D_1._materialChangeFlagMap.set(shadername, new Map())
+            let shadermap = WebGPURenderElement3D_1._materialChangeFlagMap.get(shadername);
+            if (!shadermap.has(this.materialShaderData)) {
+                let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount)];
+                shadermap.set(this.materialShaderData, flagArray);
+                this.materialShaderData.addBindGroupChangeLink(this.subShader._owner.name, this.subShader._uniformMap)
+                this.materialShaderData.addBindGroupChangeFlag(this.subShader._owner.name, flagArray[0], flagArray[1]);
+            }
+            let flagArray = shadermap.get(this.materialShaderData);
+            this._matBindGroupChangeFlag = flagArray[0];
+            this._matBindGroupLayoutFlag = flagArray[1];
+            this._materialRenderDataChange = false;
         }
     }
 
@@ -254,6 +290,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
+        this._updateMatChangeFlag();
         //编译着色器
         this._compileShader(context);
         // material ubo
@@ -298,7 +335,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param bundle 
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-
         if (!this.isRender) {
             return 0;
         }
@@ -503,7 +539,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         }
     }
 
-    bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
+
 
     /**
      * 绑定资源组
@@ -512,7 +548,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param bundle 
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-
         {
             command.setBindGroup(0, context._sceneBindGroup);
         }
@@ -541,14 +576,13 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         }
         {
             if (this.materialShaderData) {
-                let bindgroupChangeFlag = this.materialShaderData.getBindGroupChangeFlag(this.subShader._owner.name);
-                if (compareCahceFlag(bindgroupChangeFlag, this.matBindGroupCacheFlag)) {
+                if (compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
                     this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
                     this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
-                    coverCahceFlag(this.materialShaderData.getBingGroupLayoutChangeFlag(this.subShader._owner.name), this._pipelineChangeFlag);
+                    coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
                 }
                 command.setBindGroup(3, this.matBindGroup);
             } else {

@@ -16,8 +16,6 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
 
     additionalUBOs: WebGPUUniformBufferBase[] = [];
 
-    UBOUpdateChangeFlags: Vector2 = new Vector2();
-
     declare protected _shaderData: WebGPUShaderData;
     declare protected _additionShaderData: Map<string, WebGPUShaderData>;
 
