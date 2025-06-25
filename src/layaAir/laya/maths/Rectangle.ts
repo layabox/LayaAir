@@ -337,9 +337,9 @@ export class Rectangle implements IClone {
      * @return 包含所有点的最小矩形矩形对象。
      */
     static _getWrapRec(pointList: ArrayLike<number>, rst: Rectangle | null = null): Rectangle {
-
-        if (!pointList || pointList.length < 1) return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
         rst = rst ? rst : Rectangle.create();
+        if (!pointList || pointList.length < 1)
+            return rst.setTo(0, 0, 0, 0);
         var i: number, len: number = pointList.length, minX: number, maxX: number, minY: number, maxY: number, tPoint: Point = Point.TEMP;
         minX = minY = 99999;
         maxX = maxY = -minX;
