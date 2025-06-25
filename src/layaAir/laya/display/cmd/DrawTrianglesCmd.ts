@@ -1,5 +1,4 @@
 import { Matrix } from "../../maths/Matrix"
-import { Rectangle } from "../../maths/Rectangle"
 import { Texture } from "../../resource/Texture"
 import { IMeshFactory } from "../../ui2/render/MeshFactory"
 import { ClassUtils } from "../../utils/ClassUtils"
@@ -211,10 +210,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
-        if (!this.vertices) {
-            Rectangle.TEMP.setTo(this.x, this.y, assembler.width, assembler.height).getBoundPoints(assembler.points);
+        if (!this.vertices)
             return;
-        }
 
         let vert = this.vertices;
         var vnum = vert.length;

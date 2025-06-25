@@ -129,7 +129,6 @@ export class DrawCircleCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius)
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }

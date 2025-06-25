@@ -147,7 +147,6 @@ export class FillTextureCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }

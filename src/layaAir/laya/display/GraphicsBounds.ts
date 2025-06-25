@@ -16,16 +16,14 @@ import { IGraphicsBoundsAssembler } from "./IGraphics"
 export class GraphicsBounds {
     private _bounds: Rectangle;
     private _bound2: number[];
-    private _cacheType: boolean = null;
-    _affectBySize: boolean;
+    private _cached: boolean;
 
     /**
      * @en Destroy
      * @zh 销毁
      */
     destroy(): void {
-        this._cacheType = null;
-        this._affectBySize = false;
+        this._cached = false;
         this._bounds = null;
         this._bound2 = null;
         Pool.recover("GraphicsBounds", this);
@@ -44,42 +42,36 @@ export class GraphicsBounds {
      * @zh 重置数据
      */
     reset(): void {
-        this._cacheType = null;
+        this._cached = false;
     }
 
     /**
      * @en Get the position and size information matrix (CPU intensive, frequent use may cause lag, use sparingly).
-     * @param realSize (Optional) Use the real size of the image. Default is false.
      * @returns A Rectangle object composed of position and size.
      * @zh 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 位置与宽高组成的一个Rectangle对象。
      */
-    getBounds(g: Graphics, realSize?: boolean): Readonly<Rectangle> {
-        realSize = !!realSize;
-        if (realSize !== this._cacheType) {
-            this._bound2 = this._getCmdPoints(g, realSize);
+    getBounds(g: Graphics): Readonly<Rectangle> {
+        if (!this._cached) {
+            this._bound2 = this._getCmdPoints(g);
             this._bounds = Rectangle._getWrapRec(this._bound2, this._bounds);
-            this._cacheType = realSize;
+            this._cached = true;
         }
         return this._bounds;
     }
 
     /**
      * @en Get the list of boundary points.
-     * @param realSize (Optional) Use the real size of the image. Default is false.
      * @returns An array of boundary points.
      * @zh 获取边界点列表。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 边界点的数组。
      */
-    getBoundPoints(g: Graphics, realSize?: boolean): ReadonlyArray<number> {
-        this.getBounds(g, realSize);
+    getBoundPoints(g: Graphics): ReadonlyArray<number> {
+        this.getBounds(g);
         return this._bound2;
     }
 
-    private _getCmdPoints(g: Graphics, realSize?: boolean): number[] {
-        this._affectBySize = false;
+    private _getCmdPoints(g: Graphics): number[] {
         let points = this._bound2 || (this._bound2 = []);
         points.length = 0;
 
@@ -90,7 +82,6 @@ export class GraphicsBounds {
         _assembler.allPoints = points;
         _assembler.width = sp._width; //不能用sp.width，不然在autoSize时会死循环
         _assembler.height = sp._height;
-        _assembler.affectBySize = false;
         _assembler.matrix.identity();
 
         let matrixs = _tempMatrixArrays;
@@ -126,8 +117,6 @@ export class GraphicsBounds {
         } else if (points.length > 8)
             GrahamScan.scanPList(points);
 
-        this._affectBySize = _assembler.affectBySize;
-
         return points;
     }
 }
@@ -135,7 +124,6 @@ export class GraphicsBounds {
 class GraphicsBoundsAssembler implements IGraphicsBoundsAssembler {
     width: number;
     height: number;
-    affectBySize: boolean;
     points: number[] = [];
     matrix: Matrix = new Matrix();
 
