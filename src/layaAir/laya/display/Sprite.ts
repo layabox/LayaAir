@@ -148,7 +148,7 @@ export class Sprite extends Node {
      * @en Blend mode
      * @zh 混合模式
      */
-    _blendMode: BlendMode = BlendMode.Invalid;
+    _blendMode: BlendMode = BlendMode.invalid;
     /**
      * @internal
     */
@@ -232,7 +232,7 @@ export class Sprite extends Node {
     private _tmpBounds: Array<number>;
     private _mask: Sprite;
     private _maskParent: Sprite;
-    private _cacheAsBmp: boolean;
+    private _cacheAsBmp: boolean = false;
 
     declare _children: Sprite[];
     declare _$children: Sprite[];
@@ -300,8 +300,10 @@ export class Sprite extends Node {
             this._graphicsData.destroy();
             if (this._ownGraphics) {
                 this._graphics.destroy();
-            } else
-                this._graphics._setDisplay(false);
+            } else {
+                this._graphics.owner = null;
+                this._graphics._checkDisplay();
+            }
 
             this._graphics = null;
             this._graphicsData = null;
@@ -536,7 +538,6 @@ export class Sprite extends Node {
             m.tx = m.ty = 0;
         } else {
             m.identity();
-            this._renderType &= ~SpriteConst.TRANSFORM;
         }
         return m;
     }
@@ -558,7 +559,6 @@ export class Sprite extends Node {
             m.tx = m.ty = 0;
             this._transChanged(TransformKind.TRS);
         }
-        this._renderType |= SpriteConst.TRANSFORM;
         this.parentRepaint();
     }
 
@@ -631,8 +631,6 @@ export class Sprite extends Node {
         if (this._alpha !== value) {
             this._alpha = value;
             this._struct.alpha = value;
-            if (value !== 1) this._renderType |= SpriteConst.ALPHA;
-            else this._renderType &= ~SpriteConst.ALPHA;
             this.repaint();
         }
     }
@@ -657,28 +655,18 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Specifies the blending mode to be used. Only "lighter" is currently supported.
-     * @zh 指定要使用的混合模式，目前只支持 "lighter"。
+     * @en Specifies the blending mode to be used. 
+     * @zh 指定要使用的混合模式.
      */
-    get blendMode(): BlendMode {
-        return this._blendMode;
+    get blendMode(): string {
+        return this._blendMode === 0 ? null : BlendMode[this._blendMode];
     }
 
-    set blendMode(value: BlendMode | string) {
-        if (this._blendMode != value) {
-            if (typeof value === 'string') {
-                value = BlendModeHandler.NAMES[value] || BlendMode.Invalid;
-            } else if (value == null) {
-                value = BlendMode.Invalid;
-            }
-
-            this._blendMode = value;
+    set blendMode(value: keyof typeof BlendMode) {
+        let t = BlendMode[value] ?? BlendMode.invalid;
+        if (this._blendMode != t) {
+            this._blendMode = t;
             this._initShaderData();
-            if (value)
-                this._renderType |= SpriteConst.BLEND;
-            else
-                this._renderType &= ~SpriteConst.BLEND;
-
             this._struct.blendMode = this._blendMode;
             this.parentRepaint();
         }
@@ -731,11 +719,13 @@ export class Sprite extends Node {
      */
     setGraphics(value: Graphics, transferOwnership: boolean) {
         if (this._graphics) {
-            if (this._ownGraphics) this._graphics.destroy();
-            else this._graphics._setDisplay(false);
-
-            this._graphics._data = null;
-            this._graphics.owner = null;
+            if (this._ownGraphics)
+                this._graphics.destroy();
+            else {
+                this._graphics._data = null;
+                this._graphics.owner = null;
+                this._graphics._checkDisplay();
+            }
         }
         if (!this._graphicsData) {
             this._graphicsData = new GraphicsRenderData();
@@ -747,7 +737,6 @@ export class Sprite extends Node {
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
-            value.modified();
         }
 
         this.repaint();
@@ -873,7 +862,7 @@ export class Sprite extends Node {
         this._mask = value;
 
         if (value) {
-            value.blendMode = BlendMode.Mask;
+            value.blendMode = "mask";
             value._maskParent = this;
             value.setSubRenderPassState(true);
             if (value.parent) {
@@ -882,7 +871,6 @@ export class Sprite extends Node {
             value._oriRenderPass.isSupport = true;
             value._oriRenderPass.doClearColor = false;
             this._renderType |= SpriteConst.MASK;
-
         }
         else {
             this._renderType &= ~SpriteConst.MASK;
@@ -1136,16 +1124,9 @@ export class Sprite extends Node {
 
         this._texture && this._texture._removeReference();
         this._texture = value;
-        if (value) {
+        if (value)
             value._addReference();
-            this._renderType |= SpriteConst.TEXTURE;
-            this.graphics._setDisplay(true);
-            this.graphics.modified();
-        }
-        else {
-            this._renderType &= ~SpriteConst.TEXTURE;
-            this._graphics?._checkDisplay();
-        }
+        this._graphics?._checkDisplay();
         this.repaint();
     }
 
@@ -1375,13 +1356,10 @@ export class Sprite extends Node {
         if (this._oriRenderPass)
             this._oriRenderPass.repaint = true;
 
-        if (kind != TransformKind.Pos && kind != TransformKind.Anchor) {
+        if (kind !== TransformKind.Pos && kind !== TransformKind.Anchor) {
             this._tfChanged = true;
-            this._renderType |= SpriteConst.TRANSFORM;
-            if ((kind & TransformKind.Size) != 0 && this._graphics) {
-                this._graphics._clearBoundsCache(true);
-                this.repaint();
-            }
+            if ((kind & TransformKind.Size) !== 0 && this._graphics)
+                this._graphics.repaint();
             else
                 this.parentRepaint();
         }
@@ -1390,7 +1368,7 @@ export class Sprite extends Node {
             this._maskParent?.repaint();
         }
 
-        if ((kind & TransformKind.TRS) != 0) {
+        if ((kind & TransformKind.TRS) !== 0) {
             this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
@@ -1589,21 +1567,23 @@ export class Sprite extends Node {
                 }
 
                 if (child._subpassUpdateFlag) {
-                    child.updateRenderTexture();
                     child.updateSubRenderPassState();
-                    let destrt: RenderTexture2D = child._drawOriRT;
-                    child._oriRenderPass.renderTexture = destrt;
-                    if (child.mask) {
-                        child._oriRenderPass.mask = child.mask._struct;
+                    if (child._oriRenderPass) {
+                        child.updateRenderTexture();
+                        let destrt: RenderTexture2D = child._drawOriRT;
+                        child._oriRenderPass.renderTexture = destrt;
+                        if (child.mask) {
+                            child._oriRenderPass.mask = child.mask._struct;
+                        }
+                        let process = child._oriRenderPass.postProcess;
+                        if (process) {
+                            process.setResource(destrt);
+                            process.clearCMD();
+                            process._render();
+                            destrt = process._context.destination;
+                        }
+                        child._subStructRender.updateQuat(child._drawOriRT, destrt);
                     }
-                    let process = child._oriRenderPass.postProcess;
-                    if (process) {
-                        process.setResource(destrt);
-                        process.clearCMD();
-                        process._render();
-                        destrt = process._context.destination;
-                    }
-                    child._subStructRender.updateQuat(child._drawOriRT, destrt);
                     //Mask TODO
                     child._subpassUpdateFlag = 0;
                 }
@@ -1857,18 +1837,18 @@ export class Sprite extends Node {
 
     /**
      * @en Returns the display area of the drawing object (`Graphics`) in this instance, excluding child objects.
-     * @param realSize (Optional) Use the actual size of the image, default is false.
+     * @param realSize (Optional) This parameters is not used.
      * @param out (Optional) Rectangle object for output.
      * @returns A Rectangle object representing the obtained display area.
      * @zh 返回此实例中绘图对象（`Graphics`）的显示区域，不包括子对象。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
+     * @param realSize （可选）此参数未使用。
      * @param out （可选）矩形区域输出对象。
      * @returns 一个 Rectangle 对象，表示获取到的显示区域。
      */
     getGraphicBounds(realSize?: boolean, out?: Rectangle): Rectangle {
         out = out || new Rectangle();
         if (this._graphics)
-            return out.copyFrom(this._graphics.getBounds(realSize));
+            return out.copyFrom(this._graphics.getBounds());
         else
             return out.setTo(0, 0, 0, 0);
     }
@@ -2388,10 +2368,6 @@ export class Sprite extends Node {
     protected _childChanged(child?: Sprite): void {
         super._childChanged(child);
 
-        if (this._children.length)
-            this._renderType |= SpriteConst.CHILDS;
-        else
-            this._renderType &= ~SpriteConst.CHILDS;
         if (child) {
             if (child._zOrder)
                 this._setBit(NodeFlags.HAS_ZORDER, true);

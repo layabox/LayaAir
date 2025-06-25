@@ -206,7 +206,7 @@ export class SpriteUtils {
 
     static getRTRect(sprite: Sprite, out: Rectangle): void {
         let tempRect = TEMP_RECT_1;
-        if (sprite._renderType & SpriteConst.MASK) {
+        if (sprite.mask != null) {
             SpriteUtils.getMaskRect(sprite, tempRect);
         } else {
             SpriteUtils.getSpriteRect(sprite, tempRect);

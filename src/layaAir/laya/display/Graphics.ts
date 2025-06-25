@@ -39,7 +39,6 @@ import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
-import { NodeFlags } from "../Const";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
@@ -78,7 +77,7 @@ export class Graphics {
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
     private _renderDataHandle: I2DPrimitiveDataHandle;
-    private _modefied: boolean = false;
+    private _modified: boolean = false;
     private _display: boolean = false;
 
 
@@ -123,8 +122,9 @@ export class Graphics {
         this._graphicBounds && this._graphicBounds.destroy();
         this._renderDataHandle && this._renderDataHandle.destroy();
         this._graphicBounds = null;
+        this._data = null;
         if (this.owner) {
-            this.owner._renderType = 0;
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
             this.owner = null;
         }
         if (this._material) {
@@ -140,8 +140,8 @@ export class Graphics {
      * @zh 清空绘制命令。
      * @param recoverCmds 是否回收绘图指令数组。设置为true，则对指令数组进行回收以节省内存开销。建议设置为true进行回收，但如果手动引用了数组，不建议回收。
      */
-    clear(recoverCmds: boolean = true): void {
-        if (recoverCmds) {
+    clear(recoverCmds?: boolean): void {
+        if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
                 if (!cmd.lock)
                     cmd.recover();
@@ -154,14 +154,6 @@ export class Graphics {
         this.repaint();
     }
 
-    /** @internal */
-    _clearBoundsCache(onSizeChanged?: boolean): void {
-        if (this._graphicBounds) {
-            if (!onSizeChanged || this._graphicBounds._affectBySize)
-                this._graphicBounds.reset();
-        }
-    }
-
     /** @deprecated Use repaint */
     _repaint(): void {
         this.repaint();
@@ -172,8 +164,8 @@ export class Graphics {
      * @zh 重绘此对象。
      */
     repaint(): void {
-        this.modified();
-        this._clearBoundsCache();
+        this._modified = true;
+        this._graphicBounds?.reset();
         this.owner && this.owner.repaint();
     }
 
@@ -257,36 +249,20 @@ export class Graphics {
     }
 
     private onCmdsChanged() {
-        let len = this._cmds.length;
-        let result = len > 0;
-        if (this.owner) {
-            result = result || (this.owner._renderType & SpriteConst.TEXTURE) > 0;
-            this._setDisplay(result);
-        }
+        this._checkDisplay();
         this.repaint();
-    }
-
-    /**
-     * @en Mark as modified
-     * @zh 标记为已修改
-     */
-    modified() {
-        this._modefied = true;
     }
 
     /** @internal */
     _checkDisplay() {
-        this._setDisplay(this._cmds.length > 0 || (this.owner && (this.owner._renderType & SpriteConst.TEXTURE) > 0));
-    }
-
-    /** @internal */
-    _setDisplay(value: boolean) {
-        if (this._display === value || !this.owner || this.owner.destroyed)
+        let value = this.owner && !this.owner.destroyed && (this._cmds.length > 0 || this.owner?._texture != null);
+        if (this._display === value)
             return;
 
         this._display = value;
         let struct = this.owner._struct;
         if (value) {
+            this._modified = true;
             this.owner._initShaderData();
             this.owner._renderType |= SpriteConst.GRAPHICS;
             struct.renderType = BaseRender2DType.graphics;
@@ -305,30 +281,26 @@ export class Graphics {
 
     /**
      * @en Get the position and size information matrix (CPU-intensive, frequent use may cause lag, use sparingly).
-     * @param realSize (Optional) Use the real size of the image, default is false.
      * @returns A Rectangle object composed of position and size.
      * @zh 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 位置与宽高组成的一个 Rectangle 对象。
      */
-    getBounds(realSize?: boolean): Readonly<Rectangle> {
+    getBounds(): Readonly<Rectangle> {
         if (!this._graphicBounds)
             this._graphicBounds = GraphicsBounds.create();
-        return this._graphicBounds!.getBounds(this, realSize);
+        return this._graphicBounds!.getBounds(this);
     }
 
     /**
      * @en Get the list of endpoints.
-     * @param realSize (Optional) Use the real size of the image, default is false.
      * @returns An array of endpoint coordinates.
      * @zh 获取端点列表。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 端点坐标的数组。
      */
-    getBoundPoints(realSize?: boolean): ReadonlyArray<number> {
+    getBoundPoints(): ReadonlyArray<number> {
         if (!this._graphicBounds)
             this._graphicBounds = GraphicsBounds.create();
-        return this._graphicBounds!.getBoundPoints(this, realSize);
+        return this._graphicBounds!.getBoundPoints(this);
     }
 
     /**
@@ -700,7 +672,7 @@ export class Graphics {
         if (!this.owner || this.owner.destroyed)
             return;
 
-        if (!this._modefied
+        if (!this._modified
             && this._check() //校验是否都有效
             // && this._data.offsetX === x
             // && this._data.offsetY === y
@@ -731,7 +703,7 @@ export class Graphics {
         runner._material = null;
         runner._graphicsData = null;
         runner.sprite = null;
-        this._modefied = false;
+        this._modified = false;
     }
 
     private _check(): boolean {

@@ -12,7 +12,7 @@ import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { FontInfo } from "../../utils/FontInfo";
 import { WordText } from "../../utils/WordText";
-import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendMode } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
 import { ISaveData } from "../../webgl/canvas/save/ISaveData";
@@ -22,7 +22,6 @@ import { SaveStyle } from "../../webgl/canvas/save/SaveStyle";
 import { SaveMark } from "../../webgl/canvas/save/SaveMark";
 import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
 import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
-import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
@@ -95,7 +94,7 @@ export class GraphicsRunner {
     private _lastMat_b = 0.0;
     private _lastMat_c = 0.0;
     private _lastMat_d = 1.0;
-    _nBlendType = BlendMode.Normal;
+    _nBlendType = BlendMode.normal;
     _save: ISaveData[] & { _length?: number } = null;
     _saveMark: SaveMark | null = null;
     // private _shader2D = new Shader2D();	//
@@ -528,7 +527,7 @@ export class GraphicsRunner {
     clear(): void {
         this.clearRenderData();
         this._alpha = 1.0;
-        this._nBlendType = BlendMode.Normal;
+        this._nBlendType = BlendMode.normal;
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
@@ -1122,10 +1121,12 @@ export class GraphicsRunner {
         var curMat = this._curMat;
         if (blendMode != null) {
             if (typeof blendMode == "string") {
-                blendMode = BlendModeHandler.NAMES[blendMode];
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
+                if (blendMode == null)
+                    blendMode = BlendMode.invalid;
             }
             oldcomp = this.globalCompositeOperation;
-            this.globalCompositeOperation = blendMode;
+            this.globalCompositeOperation = blendMode as BlendMode;
         }
 
         if (!transform) {
@@ -1176,10 +1177,12 @@ export class GraphicsRunner {
         let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
             if (typeof blendMode == "string") {
-                blendMode = BlendModeHandler.NAMES[blendMode];
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
+                if (blendMode == null)
+                    blendMode = BlendMode.invalid;
             }
             oldcomp = this.globalCompositeOperation;
-            this.globalCompositeOperation = blendMode;
+            this.globalCompositeOperation = blendMode as BlendMode;
         }
         //this._drawCount++;
 

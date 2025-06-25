@@ -92,11 +92,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.updateChildren(ChildrenUpdateType.Alpha);
    }
 
-   private _blendMode: BlendMode = BlendMode.Invalid;
-   private _parentBlendMode: BlendMode = BlendMode.Invalid;
+   private _blendMode: BlendMode = BlendMode.invalid;
+   private _parentBlendMode: BlendMode = BlendMode.invalid;
 
    public get blendMode(): BlendMode {
-      return this._blendMode || this._parentBlendMode || BlendMode.Normal;
+      return this._blendMode || this._parentBlendMode || BlendMode.normal;
    }
 
    public set blendMode(value: BlendMode) {
@@ -409,7 +409,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          child._parentPass = null;
          child._parentClipInfo = null;
-         child._parentBlendMode = BlendMode.Invalid;
+         child._parentBlendMode = BlendMode.invalid;
          child.globalAlpha = child._alpha;
          child.updateChildren(ChildrenUpdateType.All);
       }
