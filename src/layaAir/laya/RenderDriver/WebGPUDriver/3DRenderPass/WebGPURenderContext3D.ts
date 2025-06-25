@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector2 } from "../../../maths/Vector2";

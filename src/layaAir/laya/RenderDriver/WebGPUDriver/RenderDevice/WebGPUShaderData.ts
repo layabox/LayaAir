@@ -9,9 +9,10 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Resource } from "../../../resource/Resource";
+import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { isUboBufferShaderType, ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
@@ -81,6 +82,81 @@ export class WebGPUShaderData extends ShaderData {
 
     private nearEqual(n1: number, n2: number): boolean {
         return Math.abs(n1 - n2) < Number.EPSILON
+    }
+
+
+    private _BindGroupFlagMap: Map<number, Set<Vector2>> = new Map();//通知bindGroup改动的map列表 key是mapID
+    private _BindGroupLayoutFlagMap: Map<number, Set<Vector2>> = new Map();//通知bindGroup改动引起Layout改动的列表，key是mapID
+    private _propertyLinkBindGroupMap: { [key: number]: number[] } = {};//每一个属性变化需要通知的BindGroupChangeFlag，key是propertyID
+
+    //建立属性和BindGroup的联系
+    addBindGroupChangeLink(commandMapID: string, uniformMap: Map<number, UniformProperty>) {
+        let mapID = Shader3D.propertyNameToID(commandMapID);
+        if (this._BindGroupFlagMap.has(mapID))
+            return;
+        this._BindGroupFlagMap.set(mapID, new Set());
+        this._BindGroupLayoutFlagMap.set(mapID, new Set());
+
+        //ubo bind
+        let uboid = Shader3D.propertyNameToID(commandMapID);
+        let notifyArray = this._propertyLinkBindGroupMap[uboid];
+        if (!notifyArray)
+            notifyArray = this._propertyLinkBindGroupMap[uboid] = [];
+        notifyArray.push(mapID);
+        //other propertyBind
+        uniformMap.forEach((uniform, index) => {
+            if (!isUboBufferShaderType(uniform.uniformtype)) {
+                let notifyArray = this._propertyLinkBindGroupMap[uniform.id];
+                if (!notifyArray)
+                    notifyArray = this._propertyLinkBindGroupMap[uniform.id] = [];
+                notifyArray.push(mapID);
+            }
+        });
+
+    }
+
+    //删除属性和BindGroup的联系
+    removeBindGroupChangeLink(commandMapID: string, uniformMap: Map<number, UniformProperty>) {
+        let mapID = Shader3D.propertyNameToID(commandMapID);
+        if (!this._BindGroupFlagMap.has(mapID))
+            return;
+        this._BindGroupFlagMap.delete(mapID);
+        this._BindGroupLayoutFlagMap.delete(mapID)
+        let uboid = Shader3D.propertyNameToID(commandMapID);
+        let notifyArray = this._propertyLinkBindGroupMap[uboid];
+        if (notifyArray) {
+            let pos = notifyArray.indexOf(mapID);
+            notifyArray.splice(pos, 1);
+        }
+        //other propertyBind
+        uniformMap.forEach((uniform, index) => {
+            if (!isUboBufferShaderType(uniform.uniformtype)) {
+                let notifyArray = this._propertyLinkBindGroupMap[uniform.id];
+                if (notifyArray) {
+                    let pos = notifyArray.indexOf(mapID);
+                    notifyArray.splice(pos, 1);
+                }
+            }
+        });
+
+    }
+
+    //增加BindGroup的标记更新
+    addBindGroupChangeFlag(commandMapID: string, flag: Vector2, layoutFlag: Vector2) {
+        let mapID = Shader3D.propertyNameToID(commandMapID);
+        if (this._BindGroupFlagMap.has(mapID)) {
+            this._BindGroupFlagMap.get(mapID).add(flag);
+            this._BindGroupLayoutFlagMap.get(mapID).add(layoutFlag);
+        }
+    }
+
+    //删除BindGroup的标记更新
+    removeBindGroupChangeFlag(commandMapID: string, flag: Vector2, layoutFlag: Vector2) {
+        let mapID = Shader3D.propertyNameToID(commandMapID);
+        if (this._BindGroupFlagMap.has(mapID)) {
+            this._BindGroupFlagMap.get(mapID).delete(flag);
+            this._BindGroupLayoutFlagMap.get(mapID).delete(layoutFlag);
+        }
     }
 
     updateUBOBuffer(key: string) {
@@ -196,17 +272,6 @@ export class WebGPUShaderData extends ShaderData {
 
         let id = Shader3D.propertyNameToID(name);
         this._data[id] = uniformBuffer;
-
-        // uniformMap.forEach(uniform => {
-        //     let uniformId = uniform.id;
-        //     let data = this._data[uniformId];
-        //     if (data != null) {
-        //         uniformBuffer.setUniformData(uniformId, uniform.uniformtype, data);
-        //     }
-        //     this._uniformBuffersPropertyMap.set(uniformId, uniformBuffer);
-
-        //     this._updateTextureState(uniformId, cacheName, data as WebGPUInternalTex);
-        // });
 
         this._initBufferData(uniformBuffer, cacheName, uniformMap);
         return uniformBuffer;
@@ -575,6 +640,18 @@ export class WebGPUShaderData extends ShaderData {
             }
             this._data[index] = value;
 
+            //update Bindgroup flag
+            let bindgroupMap = this._propertyLinkBindGroupMap[index];
+            if (bindgroupMap && bindgroupMap.length > 0) {
+                for (var i = 0; i < bindgroupMap.length; i++) {
+                    let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
+                    bidngroupMap.forEach(value => {
+                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    });
+                }
+            }
+            //update BindGroupLayout flag
+
             let buffer = this._uniformBuffersPropertyMap.get(index);
             if (buffer) {
                 let name = buffer.descriptor.lable;
@@ -592,6 +669,15 @@ export class WebGPUShaderData extends ShaderData {
             this._data[index] = value;
             if (value) {
                 value._addCacheShaderData(this, index);
+            }
+            let bindgroupMap = this._propertyLinkBindGroupMap[index];
+            if (bindgroupMap && bindgroupMap.length > 0) {
+                for (var i = 0; i < bindgroupMap.length; i++) {
+                    let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
+                    bidngroupMap.forEach(value => {
+                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    });
+                }
             }
         }
     }

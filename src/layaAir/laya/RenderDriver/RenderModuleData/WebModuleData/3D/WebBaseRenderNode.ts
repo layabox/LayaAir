@@ -1,5 +1,3 @@
-
-import { stat } from "fs";
 import { RenderPassStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
@@ -16,7 +14,6 @@ import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModul
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
-import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 
 
 
@@ -43,13 +40,12 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     lightmap: WebLightmap;
     probeReflection: WebReflectionProbe;
     volumetricGI: WebVolumetricGI;
-    shaderData: ShaderData;
+
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
-    _additionalUpdateMask: number;
     _driverCacheData: any;//记录渲染底层共用的渲染数据
     ismoved: number = 0;
     private _bounds: Bounds;
@@ -58,8 +54,18 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
-    private _additionShaderData: Map<string, ShaderData>;
 
+    protected _additionShaderData: Map<string, ShaderData>;
+
+    protected _shaderData: ShaderData;
+
+    public get shaderData() {
+        return this._shaderData;
+    }
+
+    public set shaderData(value) {
+        this._shaderData = value;
+    }
 
     /**
     * context3D:GLESRenderContext3D
@@ -115,7 +121,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         else {
             this._additionShaderDataKeys = [];
         }
-        this._additionalUpdateMask = Stat.loopCount;
     }
 
     constructor() {

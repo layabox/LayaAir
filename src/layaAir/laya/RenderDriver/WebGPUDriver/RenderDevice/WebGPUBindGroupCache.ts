@@ -55,10 +55,13 @@ export class WebGPUBindGroup {
 }
 
 export class WebGPUBindGroupCache {
+    static emptyBindGroup: WebGPUBindGroup;
 
     private layoutCache: Map<string, WebGPUBindGroupLayoutInfo> = new Map();
 
     private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
+
+
 
     clearCache() {
         this.bindGroupCache.clear();

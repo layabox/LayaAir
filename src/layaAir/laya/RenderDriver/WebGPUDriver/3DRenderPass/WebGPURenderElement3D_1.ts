@@ -11,7 +11,7 @@ import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
-import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
+import { WebGPUBindGroup, WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -21,6 +21,7 @@ import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { DepthStencilParam, getDepthStencilParamFromMaterial, getDepthStencilParamFromShader, IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
+import { WebGPUBaseRenderNode } from "./WebGPUBaseRenderNode";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
@@ -34,13 +35,26 @@ export function compareCahceFlag(changeFlag: Vector2, cacheFlag: Vector2) {
     return needUpdate
 }
 
+export function coverCahceFlag(coverFlag: Vector2, oldFlag: Vector2) {
+    let needUpdate = false;
+    if (coverFlag.x > oldFlag.x)
+        needUpdate = true;
+    else if (coverFlag.x === oldFlag.x) {
+        needUpdate = coverFlag.y > oldFlag.y;
+    }
+    if (needUpdate) {
+        coverFlag.cloneTo(oldFlag);
+    }
+    return;
+}
+
 
 //记录一个RenderElement 一次DrawCall的缓存数据
 export class oneDrawCacheInfo {
     shaderInstance: WebGPUShaderInstance;
     pipelineMode: string;
-
     pipeline: GPURenderPipeline;
+    shaderChange: boolean;
     pipeLineCacheFlag: Vector2 = new Vector2();//和global的BindGroup引起的pipeline的更新Flag做对比
 }
 
@@ -69,7 +83,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     isRender: boolean;
 
-    owner: WebBaseRenderNode;
+    declare owner: WebGPUBaseRenderNode;
 
     subShader: SubShader;
 
@@ -89,7 +103,12 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     protected _passRenderInfo: Map<string, oneDrawCacheInfo[]> = new Map();
 
     nodeDefCacheFlag: Vector2 = new Vector2();//和owner的defineFlag做对比
+    nodeBindGroupCacheFlag: Vector2 = new Vector2();//和owner的BindGroupChangeFlag做对比
+    nodeBindGroup: WebGPUBindGroup;
+
     matDefCacheFlag: Vector2 = new Vector2();//和material的defineFlag做对比
+    matBindGroupCacheFlag: Vector2 = new Vector2();
+    matBindGroup: WebGPUBindGroup;
 
     protected _pipelineChangeFlag: Vector2 = new Vector2();//TODO 更新
 
@@ -226,13 +245,23 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
         for (let j: number = 0, m: number = drawCaceArray.length; j < m; j++) {
             let drawInfo = drawCaceArray[j];
-            if (!drawInfo.shaderInstance.complete)
+            let shaderInstance = drawInfo.shaderInstance;
+            if (!shaderInstance.complete)
                 return 0;
 
+            //set BindGroup
+            this._bindGroup(context, shaderInstance, command); //绑定资源组
             let pipelineCache = drawInfo.pipeLineCacheFlag;
-
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
-            if (compareCahceFlag(context._curPipeLineChangeFlag, pipelineCache) || compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
+            //2、自身属性变化引起的pipeline变化
+            if (drawInfo.shaderChange ||
+                compareCahceFlag(context._curPipeLineChangeFlag, pipelineCache) ||
+                compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
+                this.bindGroupMap.clear();
+                this.bindGroupMap.set(0, context._sceneBindGroup);
+                this.bindGroupMap.set(1, context._cameraBindGroup);
+                this.bindGroupMap.set(2, this.nodeBindGroup);
+                this.bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
                 drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
             }
@@ -261,8 +290,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
             this._getDepthStencilState(shaderInstance, dest);
             this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         }
-        // return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
-
         let pipeline = WebGPURenderEngine._instance.pipelineCache.getPipeline(this.bindGroupMap, this, shaderInstance, context.destRT);
         return pipeline;
     }
@@ -423,37 +450,48 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param bundle 
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        this.bindGroupMap.clear();
+
         {
-            let sceneGroup = context._sceneBindGroup;
-            command.setBindGroup(0, sceneGroup);
-            this.bindGroupMap.set(0, sceneGroup);
+            command.setBindGroup(0, context._sceneBindGroup);
         }
         {
             command.setBindGroup(1, context._cameraBindGroup);
-            this.bindGroupMap.set(1, context._cameraBindGroup);
         }
         {
-            let shaderResource = shaderInstance.uniformSetMap.get(2);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
+            //判断 nodePipeline是否有改变
+            if (this.owner) {
+                let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
+                if (compareCahceFlag(bindgroupChangeFlag, this.nodeBindGroupCacheFlag)) {
+                    this.nodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    let shaderResource = shaderInstance.uniformSetMap.get(2);
+                    let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
-            let commands = this.owner?._commonUniformMap;
-            let shaderData = this.owner?.shaderData as WebGPUShaderData;
-            let addition = this.owner?.additionShaderData;
-            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
-
-            command.setBindGroup(2, bindGroup);
-            this.bindGroupMap.set(2, bindGroup);
-
+                    let commands = this.owner?._commonUniformMap;
+                    let shaderData = this.owner?.shaderData as WebGPUShaderData;
+                    let addition = this.owner?.additionShaderData;
+                    this.nodeBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
+                    coverCahceFlag(this.owner.bindGroupLayoutChangeFlag, this._pipelineChangeFlag);
+                }
+            } else {
+                this.nodeBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+            }
+            command.setBindGroup(2, this.nodeBindGroup);
         }
         {
-            let shaderResource = shaderInstance.uniformSetMap.get(3);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
+            if (this.materialShaderData) {
+                let bindgroupChangeFlag = this.materialShaderData.getBindGroupChangeFlag(this.subShader._owner.name);
+                if (compareCahceFlag(bindgroupChangeFlag, this.matBindGroupCacheFlag)) {
+                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    let shaderResource = shaderInstance.uniformSetMap.get(3);
+                    let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
-
-            command.setBindGroup(3, bindgroup);
-            this.bindGroupMap.set(3, bindgroup);
+                    this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
+                    coverCahceFlag(this.materialShaderData.getBingGroupLayoutChangeFlag(this.subShader._owner.name), this._pipelineChangeFlag);
+                }
+                command.setBindGroup(3, this.matBindGroup);
+            } else {
+                this.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+            }
         }
     }
 
