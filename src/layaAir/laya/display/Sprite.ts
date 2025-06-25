@@ -1559,46 +1559,45 @@ export class Sprite extends Node {
 
         const updateSprites = function (root: Sprite): void {
 
+            if (root._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE) && root._struct.enabled) {
+                tmpDisabled.push(root._struct);
+                root._struct.enabled = false;
+            }
+
+            if (root._subpassUpdateFlag) {
+                root.updateRenderTexture();
+                root.updateSubRenderPassState();
+                let destrt: RenderTexture2D = root._drawOriRT;
+                root._oriRenderPass.renderTexture = destrt;
+                if (root.mask) {
+                    root._oriRenderPass.mask = root.mask._struct;
+                }
+                let process = root._oriRenderPass.postProcess;
+                if (process) {
+                    process.setResource(destrt);
+                    process.clearCMD();
+                    process._render();
+                    destrt = process._context.destination;
+                }
+                root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                //Mask TODO
+                root._subpassUpdateFlag = 0;
+            }
+
+            if (root._struct) {
+                let matrix = root.globalTrans.getMatrix();
+                root._struct.renderMatrix = matrix;
+                root._subStruct && (root._subStruct.renderMatrix = matrix);
+                if (root._struct.pass)
+                    passSet.add(root._struct.pass);
+            }
+
+            if (root._graphics) {
+                root._graphics._render(runner, 0, 0);
+            }
+
             for (let i = 0, len = root._children.length; i < len; i++) {
                 let child = root._children[i];
-                if (child._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE) && child._struct.enabled) {
-                    tmpDisabled.push(child._struct);
-                    child._struct.enabled = false;
-                }
-
-                if (child._subpassUpdateFlag) {
-                    child.updateSubRenderPassState();
-                    if (child._oriRenderPass) {
-                        child.updateRenderTexture();
-                        let destrt: RenderTexture2D = child._drawOriRT;
-                        child._oriRenderPass.renderTexture = destrt;
-                        if (child.mask) {
-                            child._oriRenderPass.mask = child.mask._struct;
-                        }
-                        let process = child._oriRenderPass.postProcess;
-                        if (process) {
-                            process.setResource(destrt);
-                            process.clearCMD();
-                            process._render();
-                            destrt = process._context.destination;
-                        }
-                        child._subStructRender.updateQuat(child._drawOriRT, destrt);
-                    }
-                    //Mask TODO
-                    child._subpassUpdateFlag = 0;
-                }
-
-                if (child._struct) {
-                    let matrix = child.globalTrans.getMatrix();
-                    child._struct.renderMatrix = matrix;
-                    child._subStruct && (child._subStruct.renderMatrix = matrix);
-                    if (child._struct.pass)
-                        passSet.add(child._struct.pass);
-                }
-
-                if (child._graphics) {
-                    child._graphics._render(runner, 0, 0);
-                }
                 updateSprites(child);
             }
         }

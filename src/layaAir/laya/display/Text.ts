@@ -20,6 +20,7 @@ import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
 import { TransformKind } from "./SpriteConst";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -303,6 +304,12 @@ export class Text extends Sprite {
                 this.markChanged();
             else
                 this.drawBg();
+        }
+
+        if (TextRenderConfig.scaleFontWithCtx && ((kind & TransformKind.Scale) != 0 || (kind & TransformKind.Matrix) != 0)) {
+            if (this._graphics) {
+                this._graphics.repaint();
+            }
         }
     }
 
@@ -702,9 +709,9 @@ export class Text extends Sprite {
         if (this._overflow != value) {
             this._overflow = value;
             if (value !== Text.VISIBLE) {
-                this.on(SpriteGlobalTransform.CHANGED , this , this.markChanged);
-            }else{
-                this.off(SpriteGlobalTransform.CHANGED , this, this.markChanged);
+                this.on(SpriteGlobalTransform.CHANGED, this, this.markChanged);
+            } else {
+                this.off(SpriteGlobalTransform.CHANGED, this, this.markChanged);
             }
             this.markChanged();
         }
