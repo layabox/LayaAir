@@ -274,6 +274,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
      */
     recover() {
         this.instanceElementList.clear();
+        this.cachedDefineData.length=0;
         WebGPUInstanceRenderElement3D._pool.push(this);
     }
 }

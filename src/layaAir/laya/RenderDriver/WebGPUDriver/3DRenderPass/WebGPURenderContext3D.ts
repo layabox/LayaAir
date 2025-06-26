@@ -51,6 +51,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
     /**@internal */
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
+    private _globalDefines_pass:WebDefineDatas[]=[];    //缓存不同pass的DefineData
+    // context3d的全局的defineData是否改变了
+    isDataDefChanged=true;
+
     /**@internal */
     _globalConfigShaderData: WebDefineDatas;
     /**@internal */
@@ -247,7 +251,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     private _prepareContext() {
-        let contextDef = this._cacheGlobalDefines;
+        let pass = WebGPURenderEngine._framePassCount;
+        let passDef = this._globalDefines_pass[pass];
+        if(!passDef){
+            passDef = this._globalDefines_pass[pass] = new WebDefineDatas();
+        }
+        let contextDef =  this._cacheGlobalDefines;// = passDef;//this._cacheGlobalDefines;
         if (this._sceneData) {
             this._sceneData._defineDatas.cloneTo(contextDef);
 
@@ -285,6 +294,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource, ~0);
         }
         this._getSceneCameraCacheKey();
+
+        this.isDataDefChanged = !contextDef.isEual(passDef);
+        contextDef.cloneTo(passDef);
     }
 
     /**
@@ -363,7 +375,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
 
-        WebGPURenderEngine._framePassCount++;
         this._setScreenRT(); //如果没有渲染目标，则将屏幕作为渲染目标
         this._prepareContext();
 
@@ -387,6 +398,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         this._submit(); //提交渲染命令
         //TODO 统计
+        WebGPURenderEngine._framePassCount++;
         return 0;
     }
 

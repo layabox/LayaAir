@@ -4,6 +4,8 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Vector2 } from "../../../maths/Vector2";
+import { RenderInfo } from "../../../renders/RenderInfo";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
@@ -64,6 +66,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     /**渲染Shader */
     protected _shaderInstances: FastSinglelist<WebGPUShaderInstance> = new FastSinglelist();
+    nodeDefCacheFlag: Vector2 = new Vector2();//和owner的defineFlag做对比
+    matDefCacheFlag: Vector2 = new Vector2();//和material的defineFlag做对比
+
+    //保存的当前对象的的defineData,每个pass一个
+    cachedDefineData:WebDefineDatas[]=[]; 
+
     constructor() {
     }
 
@@ -78,6 +86,42 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     protected _getShaderInstanceDefines(context: WebGPURenderContext3D) {
         let comDef = WebGPURenderElement3D._compileDefine;
+        let pass = WebGPURenderEngine._framePassCount;
+        //检查cache是否有效
+        while (this.cachedDefineData[pass]) {
+            if( context.isDataDefChanged)
+                break;
+            if (this.renderShaderData) {
+                let defData = this.renderShaderData.getDefineData();
+                if(defData._lastUpdateFrame!==this.nodeDefCacheFlag.x||defData._lastUpdatePass!==this.nodeDefCacheFlag.y){
+                    this.nodeDefCacheFlag.x = defData._lastUpdateFrame;
+                    this.nodeDefCacheFlag.y = defData._lastUpdatePass;
+                    break;
+                }
+            }else{
+                if(this.nodeDefCacheFlag.x>=0||this.nodeDefCacheFlag.y>=0){
+                    // -1表示没有。>0表示上次的有this.renderShaderData
+                    this.nodeDefCacheFlag.x = -1;
+                    this.nodeDefCacheFlag.y = -1;                    
+                    break;
+                }
+            }
+            if (this.materialShaderData) {
+                let defData = this.materialShaderData.getDefineData();
+                if(defData._lastUpdateFrame!==this.matDefCacheFlag.x||defData._lastUpdatePass!==this.matDefCacheFlag.y){
+                    this.matDefCacheFlag.x = defData._lastUpdateFrame;
+                    this.matDefCacheFlag.y = defData._lastUpdatePass;
+                    break;
+                }
+            }else{
+            }
+            if (this.owner) {
+                if(this.owner.isDefineDataChanged ){
+                    break;
+                }
+            }
+            return this.cachedDefineData[pass];;
+        }
 
         const globalShaderDefines = context._cacheGlobalDefines;
 
@@ -95,9 +139,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             let additionShaderData = this.owner.additionShaderData;
             if (additionShaderData.size > 0) {
                 for (let [key, value] of additionShaderData.entries()) {
-                    comDef.addDefineDatas(value.getDefineData());
+                    comDef.addDefineDatas(value.getDefineData() as WebDefineDatas);
                 }
             }
+        }
+
+        if(!this.cachedDefineData[pass]){
+            this.cachedDefineData[pass] = comDef.clone();
+        }else{
+            comDef.cloneTo(this.cachedDefineData[pass])
         }
         return comDef;
     }
@@ -449,6 +499,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     destroy() {
         //WebGPUGlobal.releaseId(this);
+        this.cachedDefineData.length=0;
         this._shaderInstances.length = 0;
     }
 }
