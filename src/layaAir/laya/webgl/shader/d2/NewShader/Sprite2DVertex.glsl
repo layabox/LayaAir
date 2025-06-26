@@ -135,6 +135,8 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
         vec2 cliped;
         vec4 texcoordAlpha;
         float useTex;
+        float useClip;
+        vec4 customs;
     };
 
     uniform float u_VertAlpha;
@@ -145,6 +147,8 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 
     varying vec4 v_texcoordAlpha;
     varying float v_useTex;
+    varying float v_useClip;
+    varying vec4 v_customs;
 
     void getVertexInfo(inout vertexInfo info){
        	//texcoordAlpha
@@ -155,6 +159,11 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r;
+        //useClip
+        info.useClip = a_attribFlags.g;
+        //customs
+        info.customs = a_customs;
+
         vec2 pos;
         #ifdef VERTEX_SIZE
             pos = (a_posuv.xy*u_vertexSize.zw ) +u_vertexSize.xy;//xy偏移，zw 顶点扩展宽高

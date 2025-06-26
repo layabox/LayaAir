@@ -7,8 +7,10 @@ void main() {
 	getVertexInfo(info);
 
 	v_texcoordAlpha = info.texcoordAlpha;
-	v_useTex = info.useTex;
 	v_color = info.color;
+	v_useTex = info.useTex;
+	v_useClip = info.useClip;
+	v_customs = info.customs;
 
 	gl_Position = getPosition(info.pos);
 

@@ -20,11 +20,13 @@ export class GraphicsMesh {
    static vertexDeclarition: VertexDeclaration;
 
    static __init__(): void {
-      GraphicsMesh.vertexDeclarition = new VertexDeclaration(48, [
+      GraphicsMesh.vertexDeclarition = new VertexDeclaration(64, [
          new VertexElement(0, VertexElementFormat.Vector4, 0),//pos,uv
          new VertexElement(16, VertexElementFormat.Vector4, 1),//color,alpha
          new VertexElement(32, VertexElementFormat.Vector4, 2),//
+         new VertexElement(48, VertexElementFormat.Vector4, 3),//custom
       ]);
+      
       GraphicsMesh.stride = GraphicsMesh.vertexDeclarition.vertexStride / 4;
    }
 
