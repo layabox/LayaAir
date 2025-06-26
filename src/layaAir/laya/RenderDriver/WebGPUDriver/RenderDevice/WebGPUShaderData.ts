@@ -27,6 +27,7 @@ import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
+    private static pointerCount: number;
     /**
      * 全局初始化
      */
@@ -55,6 +56,7 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _updateCacheArray: Map<number, Function> = new Map();;
 
+    _id: number = WebGPUShaderData.pointerCount++;
     private _subUboBufferNumber: number = 0;
 
     private _textureStatesMap: Map<string, number> = new Map();

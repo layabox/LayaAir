@@ -21,11 +21,34 @@ import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
+export class WebGPUGlobalPipeLineCacheInfo {
+    globalDefineData: WebDefineDatas;//用来判断宏是否改动  导致了shader变化
+    globalPipelineCacheKey: string;//包括camera scene的layout数据，包括invertY和destrt的stateCacheID
+    constructor() {
+        this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+    }
+}
+
 /**
  * WebGPU渲染上下文
  */
 export class WebGPURenderContext3D implements IRenderContext3D {
+
     static _instance: WebGPURenderContext3D;
+
+    private _globalComkeyCounter: number = 0;
+    private _globalComkeyNameMap: any = {};
+    private _globalRendercacheInfoMap: Map<number, WebGPUGlobalPipeLineCacheInfo> = new Map();
+    //全局组合生成的id
+    private globalComkeyToID(name: string): number {
+        if (this._globalComkeyNameMap[name] !== undefined) {
+            return this._globalComkeyNameMap[name];
+        } else {
+            const id = this._globalComkeyCounter++;
+            this._globalComkeyNameMap[name] = id;
+            return id;
+        }
+    }
     /**@internal */
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
     /**@internal */
@@ -84,8 +107,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
 
     protected _passRenderInfo: Map<string, Vector2> = new Map();
-    _curPipeLineChangeFlag: Vector2 = new Vector2();
-
+    _curRenderGlobalKey: number;
+    _curRenderCacheInfo: WebGPUGlobalPipeLineCacheInfo;
+    _pipelineChange: boolean;
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         this._preDrawUniformMaps = new Set<string>();
@@ -182,6 +206,37 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
+    private _getRenderPipeLine(): string {
+        //sceneShaderData
+        //CameraShaderData
+        //DestRT cacheStateID
+        //invertY
+        //根据sceneShaderData+
+        return `${this.destRT.stateCacheID},+${this.invertY ? 1 : 0}+"sceneBindgroupLayout+cameraBindGroupLayout"`;
+    }
+
+    private _getSceneCameraCacheKey() {
+        let key: string = `${this.sceneData._id ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        this._curRenderGlobalKey = this.globalComkeyToID(key);
+        let pipelineLayout = this._getRenderPipeLine();
+        if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {
+            let cacheInfo = new WebGPUGlobalPipeLineCacheInfo();
+            this._curRenderCacheInfo = cacheInfo;
+            this._cacheGlobalDefines.cloneTo(cacheInfo.globalDefineData);
+            cacheInfo.globalPipelineCacheKey = pipelineLayout;
+            this._pipelineChange = true;
+            this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo)
+        } else {
+            this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
+            if (this._curRenderCacheInfo.globalPipelineCacheKey == pipelineLayout) {
+                this._pipelineChange = false;
+            } else {
+                this._pipelineChange = true;
+                this._curRenderCacheInfo.globalPipelineCacheKey = pipelineLayout;
+            }
+        }
+    }
+
     private _prepareContext() {
         let contextDef = this._cacheGlobalDefines;
         if (this._sceneData) {
@@ -211,6 +266,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
             this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource, ~0);
         }
+        this._getSceneCameraCacheKey();
     }
 
     /**
