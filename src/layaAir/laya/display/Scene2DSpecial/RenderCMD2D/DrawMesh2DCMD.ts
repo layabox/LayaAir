@@ -1,3 +1,4 @@
+import { Const } from "../../../Const";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
@@ -67,7 +68,11 @@ export class DrawMesh2DCMD extends Command2D {
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         this._shaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, new Vector4(0, 0, 1, 1));
-
+        let temp = Vector4.TEMP.setValue(0, 0, 0, 0);
+        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, temp);
+        temp.x = temp.w = Const.MAX_CLIP_SIZE;
+        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, temp);
+        
         this._needUpdateElement = true;
         this._matrix = new Matrix();
     }
