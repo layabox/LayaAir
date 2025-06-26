@@ -24,14 +24,13 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
     }
     public set shaderData(value) {
         if (this._shaderData != value) {
+            let oldCommandMap = this._commonUniformMap.slice();
             if (this._shaderData) {
                 //移除之前的资源绑定
-                let oldCommandMap = this._commonUniformMap.slice();
                 this.setCommonUniformMap([]);
-                this._commonUniformMap = oldCommandMap;
             }
             this._shaderData = value;
-            this.setCommonUniformMap(this._commonUniformMap);
+            this.setCommonUniformMap(oldCommandMap);
         }
     }
 
