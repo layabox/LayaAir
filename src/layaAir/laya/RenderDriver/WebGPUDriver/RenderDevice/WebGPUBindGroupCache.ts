@@ -218,15 +218,12 @@ export class WebGPUBindGroupCache {
         }
 
         let info = new WebGPUBindGroupLayoutInfo(entries, properties, values, textureStates, textureExits);
-        if (!info.layout) {
-            info.layout = this.getBindGroupLayout(info);
-        }
 
         this.layoutCache.set(cacheKey, info);
         return info;
     }
 
-    getBindGroupLayout(info: WebGPUBindGroupLayoutInfo) {
+    private getBindGroupLayout(info: WebGPUBindGroupLayoutInfo) {
 
         let descriptor: GPUBindGroupLayoutDescriptor = {
             label: `Layout_${info.id}`,
@@ -244,6 +241,9 @@ export class WebGPUBindGroupCache {
         commands = commands || empthArray;
 
         let info = this.getLayoutInfo(commands, shaderData, addition, resource, textureExitsMask);
+        if (!info.layout) {
+            info.layout = this.getBindGroupLayout(info);
+        }
 
         let layout = info.layout;
 

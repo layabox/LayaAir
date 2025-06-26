@@ -207,12 +207,20 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     private _getRenderPipeLine(): string {
-        //sceneShaderData
-        //CameraShaderData
+        const engine = WebGPURenderEngine._instance;
+
+        let sceneCommands = Array.from(this._preDrawUniformMaps);
+        let sceneResources = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, sceneCommands);
+        let sceneLayoutInfo = engine.bindGroupCache.getLayoutInfo(sceneCommands, this._sceneData, null, sceneResources, ~0);
+
+        let cameraCommands = ["BaseCamera"];
+        let cameraResources = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, cameraCommands);
+        let cameraLayoutInfo = engine.bindGroupCache.getLayoutInfo(cameraCommands, this.cameraData, null, cameraResources, ~0);
+
         //DestRT cacheStateID
         //invertY
         //根据sceneShaderData+
-        return `${this.destRT.stateCacheID},+${this.invertY ? 1 : 0}+"sceneBindgroupLayout+cameraBindGroupLayout"`;
+        return `${this.destRT.stateCacheID},${this.invertY ? 1 : 0},(${sceneLayoutInfo.id},${cameraLayoutInfo.id})`;
     }
 
     private _getSceneCameraCacheKey() {

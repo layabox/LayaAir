@@ -315,6 +315,14 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         if (this._materialRenderDataChange || true) {//如果宏变了 也要弄
             this._compileShader(context);
         }
+
+        if (this._cacheMatCullMode != this.materialShaderData.getInt(Shader3D.CULL) ||
+            this._cacheMatDepthStencilID != this.materialShaderData.depthStencilStateKey ||
+            this._cacheMatBlendStateID != this._materialShaderData.blendStateCache.id) {
+            this._needUpdatePipeline();
+        }
+
+
         this._materialRenderDataChange = false;
         // material ubo
         let subShader = this.subShader;
@@ -377,9 +385,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
                 context._pipelineChange ||
-                this._cacheMatCullMode != this.materialShaderData.getInt(Shader3D.CULL) ||
-                this._cacheMatDepthStencilID != this.materialShaderData.depthStencilStateKey ||
-                this._cacheMatBlendStateID != this._materialShaderData.blendStateCache.id ||
                 compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
                 this.bindGroupMap.clear();
                 this.bindGroupMap.set(0, context._sceneBindGroup);
