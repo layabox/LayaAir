@@ -250,6 +250,14 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (this._sceneData) {
             this._sceneData._defineDatas.cloneTo(contextDef);
 
+            for (let key of this._preDrawUniformMaps) {
+                let uniformMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                if (uniformMap._idata.size > 0) {
+                    let buffer = this.sceneData.createSubUniformBuffer(key, key, uniformMap._idata);
+                    buffer.upload();
+                }
+            }
+
             let commandArray = Array.from(this._preDrawUniformMaps);
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray)
