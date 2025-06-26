@@ -224,7 +224,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     private _getSceneCameraCacheKey() {
-        let key: string = `${this.sceneData._id ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        this._pipelineChange = false;
+        let key: string = `${this.sceneData._id ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}+${this.destRT == WebGPURenderEngine._instance._screenRT ? 0 : 1}`;
         this._curRenderGlobalKey = this.globalComkeyToID(key);
         let pipelineLayout = this._getRenderPipeLine();
         if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {
