@@ -732,13 +732,15 @@ export class WebGPUShaderData extends ShaderData {
         if (this._textureStatesMap.has(mapName)) {
             let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(mapName) as WebGPUCommandUniformMap;
             if (!map._textureBits.has(index)) {
-                return;
+                return false;
             }
 
             value = value || map._defaultData.get(index)?._texture as WebGPUInternalTex;
 
             let textureBit = map._textureBits.get(index);
             let stateMask = this._textureStatesMap.get(mapName);
+
+            let oldStateMask = stateMask;
 
             let sampler: GPUSamplerBindingLayout = { type: "filtering" };
             if (value) {
@@ -753,6 +755,43 @@ export class WebGPUShaderData extends ShaderData {
             }
 
             this._textureStatesMap.set(mapName, stateMask);
+
+            return stateMask != oldStateMask;
+        }
+        return false;
+    }
+
+    bindGroupUpdateTex(index: number, value: WebGPUInternalTex) {
+        //update Bindgroup flag
+        let bindgroupMap = this._propertyLinkBindGroupMap[index];
+        if (bindgroupMap && bindgroupMap.length > 0) {
+            for (var i = 0; i < bindgroupMap.length; i++) {
+                let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
+                bidngroupMap.forEach(value => {
+                    value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                });
+            }
+        }
+
+        let layoutChange = false;
+
+        let buffer = this._uniformBuffersPropertyMap.get(index);
+        if (buffer) {
+            let name = buffer.descriptor.lable;
+            layoutChange = this._updateTextureState(index, name, value as WebGPUInternalTex);
+        }
+
+        if (layoutChange) {
+            //update BindGroupLayout flag
+            let bindgroupMap = this._propertyLinkBindGroupMap[index];
+            if (bindgroupMap && bindgroupMap.length > 0) {
+                for (var i = 0; i < bindgroupMap.length; i++) {
+                    let bidngroupMap = this._BindGroupLayoutFlagMap.get(bindgroupMap[i])
+                    bidngroupMap.forEach(value => {
+                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    });
+                }
+            }
         }
     }
 
@@ -761,9 +800,12 @@ export class WebGPUShaderData extends ShaderData {
      * @param index shader索引
      * @param value 纹理
      */
-    _setInternalTexture(index: number, value: InternalTexture) {
-        const lastValue = this._data[index];
+    _setInternalTexture(index: number, value: WebGPUInternalTex) {
+        const lastValue = this._data[index] as WebGPUInternalTex;
         if (lastValue != value) {
+            if (lastValue) {
+                lastValue.shaderDatas.delete(this);
+            }
             if (value) {
                 const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
                 if (shaderDefine) {
@@ -771,26 +813,12 @@ export class WebGPUShaderData extends ShaderData {
                         this.addDefine(shaderDefine);
                     else this.removeDefine(shaderDefine);
                 }
+
+                value.shaderDatas.set(this, index);
             }
             this._data[index] = value;
 
-            //update Bindgroup flag
-            let bindgroupMap = this._propertyLinkBindGroupMap[index];
-            if (bindgroupMap && bindgroupMap.length > 0) {
-                for (var i = 0; i < bindgroupMap.length; i++) {
-                    let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
-                    bidngroupMap.forEach(value => {
-                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
-                    });
-                }
-            }
-            //update BindGroupLayout flag
-
-            let buffer = this._uniformBuffersPropertyMap.get(index);
-            if (buffer) {
-                let name = buffer.descriptor.lable;
-                this._updateTextureState(index, name, value as WebGPUInternalTex);
-            }
+            this.bindGroupUpdateTex(index, value);
         }
     }
 
