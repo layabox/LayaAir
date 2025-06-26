@@ -29,7 +29,7 @@ import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase
  * 着色器数据
  */
 export class WebGPUShaderData extends ShaderData {
-    private static pointerCount: number;
+    private static pointerCount: number = 0;
     /**
      * 全局初始化
      */
@@ -271,8 +271,19 @@ export class WebGPUShaderData extends ShaderData {
     addBindGroupChangeFlag(commandMapID: string, flag: Vector2, layoutFlag: Vector2) {
         let mapID = Shader3D.propertyNameToID(commandMapID);
         if (this._BindGroupFlagMap.has(mapID)) {
-            this._BindGroupFlagMap.get(mapID).add(flag);
-            this._BindGroupLayoutFlagMap.get(mapID).add(layoutFlag);
+            let setBindgroup = this._BindGroupFlagMap.get(mapID);
+            if (!setBindgroup.has(flag)) {
+                flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                setBindgroup.add(flag);
+            }
+
+            let setlayout = this._BindGroupLayoutFlagMap.get(mapID);
+            if (!setlayout.has(layoutFlag)) {
+                layoutFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                setlayout.add(layoutFlag);
+            }
+
+
         }
     }
 

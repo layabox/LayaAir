@@ -4,7 +4,7 @@ import { IMeshRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
 
-export class WebMeshRenderNode extends WebBaseRenderNode implements IMeshRenderNode {
+export class WebMeshRenderNode extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
     private _cacheMoved: number = -1;
 
     constructor() {

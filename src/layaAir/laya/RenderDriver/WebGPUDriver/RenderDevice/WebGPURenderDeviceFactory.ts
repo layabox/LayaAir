@@ -31,6 +31,9 @@ import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstan
 import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
+import { WebGPUBindGroupCache } from "./WebGPUBindGroupCache";
+import { WebGPUPipelineCache } from "./WebGPUPipelineCache";
+import { WebGPUShaderCompiler } from "./ShaderCompiler/WebGPUShaderCompiler";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
@@ -110,6 +113,9 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
         if (engine.useSPRIV) {
             console.log("shader is spri-v mode");
         }
+        engine.bindGroupCache = new WebGPUBindGroupCache();
+        WebGPUBindGroupCache.emptyBindGroup = engine.bindGroupCache.getBindGroup([], null, null, [], 0);
+        engine.pipelineCache = new WebGPUPipelineCache();
         LayaGL.textureContext = engine.getTextureContext();
         WebGPUShaderData.__init__();
         WebGPUUniformBufferBase.device = engine.getDevice();

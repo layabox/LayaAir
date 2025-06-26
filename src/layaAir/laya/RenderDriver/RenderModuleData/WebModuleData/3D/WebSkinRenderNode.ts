@@ -8,7 +8,7 @@ import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPa
 import { ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
-export class WebSkinRenderNode extends WebBaseRenderNode implements ISkinRenderNode {
+export class WebSkinRenderNode extends WebBaseRenderNode.BaseRenderNodeClass implements ISkinRenderNode {
     constructor() {
         super();
         this.set_renderUpdatePreCall(this, this._renderUpdate);

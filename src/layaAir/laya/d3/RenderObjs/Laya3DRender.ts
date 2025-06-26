@@ -3,8 +3,9 @@ import { IRenderEngine3DOBJFactory } from "../../RenderDriver/DriverDesign/3DRen
 import { I3DRenderModuleFactory } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleFactory";
 
 export class Laya3DRender {
-    static Render3DModuleDataFactory: I3DRenderModuleFactory;
     static Render3DPassFactory: I3DRenderPassFactory;
+    static Render3DModuleDataFactory: I3DRenderModuleFactory;
+
     /**
      * @deprecated
      */

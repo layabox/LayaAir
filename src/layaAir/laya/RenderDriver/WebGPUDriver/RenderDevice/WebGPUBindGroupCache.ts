@@ -61,7 +61,7 @@ export class WebGPUBindGroupCache {
 
     private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
 
-
+    
 
     clearCache() {
         this.bindGroupCache.clear();

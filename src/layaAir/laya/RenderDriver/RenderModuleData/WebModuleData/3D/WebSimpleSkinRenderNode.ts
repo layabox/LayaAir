@@ -5,7 +5,7 @@ import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPa
 import { ISimpleSkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
-export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpleSkinRenderNode{
+export class WebSimpleSkinRenderNode extends WebBaseRenderNode.BaseRenderNodeClass implements ISimpleSkinRenderNode {
     _simpleAnimatorParams: Vector4;
 
     constructor() {
@@ -14,8 +14,8 @@ export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpl
         this._simpleAnimatorParams = new Vector4();
     }
 
-    setSimpleAnimatorParams(value:Vector4){
-        value.cloneTo(this._simpleAnimatorParams);  
+    setSimpleAnimatorParams(value: Vector4) {
+        value.cloneTo(this._simpleAnimatorParams);
         this.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 

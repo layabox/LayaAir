@@ -15,9 +15,13 @@ import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 
-
+interface DynamicBaseRenderClass {
+    new(): WebBaseRenderNode;
+    readonly prototype: WebBaseRenderNode
+}
 
 export class WebBaseRenderNode implements IBaseRenderNode {
+    static BaseRenderNodeClass: DynamicBaseRenderClass;
     renderNodeType: number;
     boundsChange: boolean;
     distanceForSort: number;
@@ -130,7 +134,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.lightmapDirtyFlag = -1;
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
-        this.additionShaderData = new Map();
+        this._additionShaderData = new Map();
     }
 
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {

@@ -310,24 +310,25 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
             this._passRenderInfo.set(context._curRenderGlobalKey, []);
         }
+        this._drawCacheArray = this._passRenderInfo.get(context._curRenderGlobalKey);
 
         //shader不变 宏不变，不需要重新查找shader
         if (this._materialRenderDataChange || true) {//如果宏变了 也要弄
             this._compileShader(context);
         }
 
-        if (this._cacheMatCullMode != this.materialShaderData.getInt(Shader3D.CULL) ||
-            this._cacheMatDepthStencilID != this.materialShaderData.depthStencilStateKey ||
-            this._cacheMatBlendStateID != this._materialShaderData.blendStateCache.id) {
-
-            this._cacheMatBlendStateID = this._materialShaderData.blendStateCache.id;
-            this._cacheMatDepthStencilID = this.materialShaderData.depthStencilStateKey;
-            this._cacheMatCullMode = this.materialShaderData.getInt(Shader3D.CULL);
-
+        let cullmode = this.materialShaderData.getInt(Shader3D.CULL);
+        cullmode = cullmode ? cullmode : RenderState.CULL_NONE;
+        let depthStencilID = this.materialShaderData.depthStencilStateKey;
+        let blendid = this._materialShaderData.blendStateCache ? this._materialShaderData.blendStateCache.id : -1;
+        if (this._cacheMatCullMode != cullmode ||
+            this._cacheMatDepthStencilID != depthStencilID ||
+            this._cacheMatBlendStateID != blendid) {
+            this._cacheMatBlendStateID = blendid;
+            this._cacheMatDepthStencilID = depthStencilID;
+            this._cacheMatCullMode = cullmode;
             this._needUpdatePipeline();
         }
-
-
         this._materialRenderDataChange = false;
         // material ubo
         let subShader = this.subShader;

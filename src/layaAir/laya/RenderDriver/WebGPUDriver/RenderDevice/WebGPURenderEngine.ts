@@ -126,10 +126,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
         this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
-
         this.shaderCompiler = new WebGPUShaderCompiler();
-        this.bindGroupCache = new WebGPUBindGroupCache();
-        this.pipelineCache = new WebGPUPipelineCache();
     }
 
     /**

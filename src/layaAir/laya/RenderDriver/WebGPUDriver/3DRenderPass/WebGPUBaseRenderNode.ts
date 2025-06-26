@@ -23,18 +23,30 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
         return this._shaderData;
     }
     public set shaderData(value) {
-        this._shaderData = value;
+        if (this._shaderData != value) {
+            if (this._shaderData) {
+                //移除之前的资源绑定
+                let oldCommandMap = this._commonUniformMap.slice();
+                this.setCommonUniformMap([]);
+                this._commonUniformMap = oldCommandMap;
+            }
+            this._shaderData = value;
+            this.setCommonUniformMap(this._commonUniformMap);
+        }
     }
 
     public set additionShaderData(value: Map<string, WebGPUShaderData>) {
-        if (!value)
-            for (var [key, date] of this._additionShaderData) {//全删
-                date.removeBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
-            }
-        else {
-            for (var [key, date] of this._additionShaderData) {//删部分
-                if (!value.has(key)) {
+        if (this._additionShaderData && this._additionShaderData.size > 0) {
+            if (!value)
+                for (var [key, date] of this._additionShaderData) {//全删
                     date.removeBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                }
+            else {
+
+                for (var [key, date] of this._additionShaderData) {//删部分
+                    if (!value.has(key)) {
+                        date.removeBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                    }
                 }
             }
         }
@@ -57,6 +69,10 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
         }
     }
 
+    public get additionShaderData() {
+        return this._additionShaderData;
+    }
+
     public setCommonUniformMap(value: string[]): void {
         //消除之前的影响
         //判断没有了的uniformMap,删除link
@@ -69,11 +85,13 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
         this._commonUniformMap.length = 0;
         value.forEach(element => {
             this._commonUniformMap.push(element);
-            let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(element);
-            let uniformBuffer = this.shaderData.createSubUniformBuffer(element, element, unifomrMap._idata);
-            uniformBuffer && this.spriteUBOs.push(uniformBuffer);
-            this._shaderData.addBindGroupChangeLink(element, unifomrMap._idata);
-            this.shaderData.addBindGroupChangeFlag(element, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+            if (this.shaderData) {
+                let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(element);
+                let uniformBuffer = this.shaderData.createSubUniformBuffer(element, element, unifomrMap._idata);
+                uniformBuffer && this.spriteUBOs.push(uniformBuffer);
+                this._shaderData.addBindGroupChangeLink(element, unifomrMap._idata);
+                this.shaderData.addBindGroupChangeFlag(element, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+            }
         });
     }
 
