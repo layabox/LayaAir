@@ -1124,9 +1124,12 @@ export class Sprite extends Node {
 
         this._texture && this._texture._removeReference();
         this._texture = value;
-        if (value)
+        if (value){
             value._addReference();
-        this._graphics?._checkDisplay();
+            this.graphics._checkDisplay();
+        }else{
+            this._graphics?._checkDisplay();
+        }
         this.repaint();
     }
 
