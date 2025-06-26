@@ -20,6 +20,7 @@ import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { DepthStencilParam, getDepthStencilParamFromMaterial, getDepthStencilParamFromShader, IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
+import { WebGPUUniformBufferBase } from "../RenderDevice/WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUBaseRenderNode } from "./WebGPUBaseRenderNode";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
@@ -77,6 +78,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         this._geometryID = value?.getStateCacheID();
         this._geometry = value;
     }
+
+
+    private materialUBO: WebGPUUniformBufferBase;
 
     //override
     private _materialRenderDataChange: boolean = false;
@@ -297,6 +301,9 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
             this._matBindGroupChangeFlag = flagArray[0];
             this._matBindGroupLayoutFlag = flagArray[1];
 
+
+            let subShader = this.subShader;
+            this.materialUBO = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
         }
     }
 
@@ -331,35 +338,18 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         }
         this._materialRenderDataChange = false;
         // material ubo
-        let subShader = this.subShader;
-        let matSubBuffer = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-        if (matSubBuffer) {
-            matSubBuffer.upload();
+        this.materialUBO && this.materialUBO.upload();
+
+        if (this.owner) {
+            this.owner.spriteUBOs.forEach(ubo => {
+                ubo.upload();
+            })
+
+            this.owner.additionalUBOs.forEach(ubo => {
+                ubo.upload();
+            });
         }
 
-        //sprite ubo
-        if (this.renderShaderData && this.owner._commonUniformMap.length > 0) {
-            let nodemap = this.owner._commonUniformMap;
-            for (var i = 0, n = nodemap.length; i < n; i++) {
-                let moduleName = nodemap[i];
-                let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(nodemap[i]);
-                let uniformBuffer = this.renderShaderData.createSubUniformBuffer(moduleName, moduleName, unifomrMap._idata);
-                if (uniformBuffer) {
-                    uniformBuffer.upload();
-                }
-            }
-        }
-        //additional ubo
-        if (this.owner) {
-            for (let [key, value] of this.owner.additionShaderData) {
-                let shaderData = value as WebGPUShaderData;
-                let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
-                if (uniformBuffer) {
-                    uniformBuffer.upload();
-                }
-            }
-        }
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
         return;
@@ -612,6 +602,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      */
     destroy() {
         //WebGPUGlobal.releaseId(this);
+        this.materialUBO = null;
         this._passRenderInfo.clear();
     }
 }

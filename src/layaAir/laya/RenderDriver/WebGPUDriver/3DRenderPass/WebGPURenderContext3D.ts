@@ -262,6 +262,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
 
+            let cameraMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+            let cameraBuffer = this.cameraData.createUniformBuffer("BaseCamera", cameraMap);
+            if (cameraBuffer) {
+                cameraBuffer.upload();
+            }
+
             //判断是否需要重新准备Camera的BindGroup
             let commandArray = ["BaseCamera"];
 
