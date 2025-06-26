@@ -2206,7 +2206,8 @@ export class GraphicsRunner {
         let a = (rgba >>> 24) / 255.0;
 
         let useTexByte = useTex ? 0xff : 0;
-
+        // let useClipByte = 0xff;
+        // let range = new Vector4(0.25,0.25,0.5,0.5);
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
@@ -2215,6 +2216,7 @@ export class GraphicsRunner {
 
         let positions: number[] = [];
         let vbdata: Float32Array;
+        let vertexLength = GraphicsMesh.stride;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= vi) {
@@ -2258,8 +2260,14 @@ export class GraphicsRunner {
             }
 
             vbdata[vi + 8] = useTexByte;
+            // vbdata[vi + 9] = 1;
 
-            vi += 12;
+            // vbdata[vi + 12] = range.x;
+            // vbdata[vi + 13] = range.y;
+            // vbdata[vi + 14] = range.z;
+            // vbdata[vi + 15] = range.w;
+
+            vi += vertexLength;
             pi += 2;
             ci += 4;
             indexsMap[i] = offset++;

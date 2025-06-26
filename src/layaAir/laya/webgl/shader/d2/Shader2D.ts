@@ -40,8 +40,8 @@ export class Shader2D {
     public static readonly graphicsAttribute: { [name: string]: [number, ShaderDataType] } = {
         'a_posuv': [0, ShaderDataType.Vector4],
         'a_attribColor': [1, ShaderDataType.Vector4],
-        'a_attribFlags': [2, ShaderDataType.Vector4]
-        // 
+        'a_attribFlags': [2, ShaderDataType.Vector4], // useTex, useClip
+        'a_customs': [3, ShaderDataType.Vector4] //useClip >= 0时 起效果为 裁剪范围.
     }
 
     public static readonly Render2DNodeAttribute: { [name: string]: [number, ShaderDataType] } = {
