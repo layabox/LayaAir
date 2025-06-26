@@ -216,7 +216,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
      */
     constructor() {
         this._clearColor = new Color();
-        this._globalConfigShaderData = Shader3D._configDefineValues;
+        this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
         this._preDrawUniformMaps = new Set<string>();
         this.cameraUpdateMask = 0;
         WebGLRenderContext3D._instance = this;

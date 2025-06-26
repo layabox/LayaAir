@@ -25,7 +25,7 @@ export class WebGPUGlobalPipeLineCacheInfo {
     globalDefineData: WebDefineDatas;//用来判断宏是否改动  导致了shader变化
     globalPipelineCacheKey: string;//包括camera scene的layout数据，包括invertY和destrt的stateCacheID
     constructor() {
-        this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+        this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas() as WebDefineDatas;
     }
 }
 

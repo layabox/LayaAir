@@ -43,7 +43,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
     private _offscreenHeight: number;
 
     constructor() {
-        this._globalConfigShaderData = Shader3D._configDefineValues;
+        this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
         if (LayaEnv.isConch && !WebglRenderContext2D.isCreateBlitScreenELement) {
             (!WebglRenderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
             WebglRenderContext2D.blitContext = new WebglRenderContext2D();

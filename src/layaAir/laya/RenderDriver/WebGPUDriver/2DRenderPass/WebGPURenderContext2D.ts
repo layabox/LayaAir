@@ -72,7 +72,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
 
     constructor() {
         WebGPURenderContext2D._instance = this;
-        WebGPURenderContext2D._globalConfigShaderData = Shader3D._configDefineValues;
+        WebGPURenderContext2D._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
         this.device = WebGPURenderEngine._instance.getDevice();
         this._clearColor = new Color();
         this._viewport = new Viewport();

@@ -181,7 +181,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             let additionShaderData = this.owner.additionShaderData;
             if (additionShaderData.size > 0) {
                 for (let [key, value] of additionShaderData.entries()) {
-                    comDef.addDefineDatas(value.getDefineData());
+                    comDef.addDefineDatas(value.getDefineData() as WebDefineDatas);
                 }
             }
         }

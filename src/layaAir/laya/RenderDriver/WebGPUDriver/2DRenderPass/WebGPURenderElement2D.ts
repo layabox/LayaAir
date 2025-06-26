@@ -88,7 +88,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
         let global = this.getGlobalShaderData();
         if (global) {
-            comDef.addDefineDatas(global.getDefineData());
+            comDef.addDefineDatas(global.getDefineData() as WebDefineDatas);
         }
 
         let passData = context.passData;
