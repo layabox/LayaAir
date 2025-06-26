@@ -1,3 +1,5 @@
+import { RenderInfo } from "../../../renders/RenderInfo";
+import { WebGPURenderEngine } from "../../WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { IDefineDatas } from "../Design/IDefineDatas";
 import { ShaderDefine } from "../Design/ShaderDefine";
 
@@ -16,6 +18,9 @@ export class WebDefineDatas implements IDefineDatas {
      * @internal
      */
     _length: number = 0;
+
+	_lastUpdateFrame=0;
+	_lastUpdatePass=0;
 
     /**
      * 创建一个 <code>DefineDatas</code> 实例。
@@ -43,7 +48,8 @@ export class WebDefineDatas implements IDefineDatas {
      * 添加宏定义值。
      * @param define 宏定义值。
      */
-    add(define: ShaderDefine): void {
+    add(define: ShaderDefine): boolean {
+        let changed = false;
         var index: number = define._index;
         var size: number = index + 1;
         var mask: Array<number> = this._mask;
@@ -54,27 +60,43 @@ export class WebDefineDatas implements IDefineDatas {
                 mask[maskStart] = 0;
             mask[index] = define._value;
             this._length = size;
+            changed = true;
         }
         else {
+            let last = mask[index];
             mask[index] |= define._value;
+            changed = last != mask[index];
         }
+        if (changed) {
+            this._lastUpdateFrame = RenderInfo.loopCount;
+            this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+        }
+        return changed;
     }
 
     /**
      * 移除宏定义。
      * @param define 宏定义。
      */
-    remove(define: ShaderDefine): void {
+    remove(define: ShaderDefine): boolean {
         var index: number = define._index;
         var mask: Array<number> = this._mask;
         var endIndex: number = this._length - 1;
         if (index > endIndex)//不重置Length,避免经常扩充
-            return;
+            return false;
+        let lastValue = mask[index];
         var newValue = mask[index] & ~define._value;
         if (index == endIndex && newValue === 0)
             this._length--;
         else
             mask[index] = newValue;
+
+        let changed = lastValue != newValue;
+        if (changed) {
+            this._lastUpdateFrame = RenderInfo.loopCount;
+            this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+        }
+        return changed;
     }
 
     /**
@@ -98,6 +120,9 @@ export class WebDefineDatas implements IDefineDatas {
                 mask[i] |= addMask[i];
             }
         }
+
+        this._lastUpdateFrame = RenderInfo.loopCount;
+        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
     }
 
 
@@ -121,6 +146,9 @@ export class WebDefineDatas implements IDefineDatas {
                 mask[i] = newValue;
             }
         }
+
+        this._lastUpdateFrame = RenderInfo.loopCount;
+        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
     }
 
 
@@ -140,6 +168,8 @@ export class WebDefineDatas implements IDefineDatas {
      */
     clear(): void {
         this._length = 0;
+        this._lastUpdateFrame = RenderInfo.loopCount;
+        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
     }
 
     /**
@@ -154,6 +184,9 @@ export class WebDefineDatas implements IDefineDatas {
         for (var i: number = 0; i < count; i++)
             destMask[i] = mask[i];
         destObject._length = count;
+
+        destObject._lastUpdateFrame = this._lastUpdateFrame;
+        destObject._lastUpdatePass = this._lastUpdatePass;
     }
 
     /**
@@ -168,6 +201,21 @@ export class WebDefineDatas implements IDefineDatas {
 
     destroy() {
         delete this._mask;
+    }
+
+
+    isEual(other: WebDefineDatas) {
+        if (this._lastUpdateFrame == other._lastUpdateFrame && this._lastUpdatePass == other._lastUpdatePass) {
+            return true;
+        }
+        var count = this._length;
+        if (count != other._length) return false;
+        let mask = this._mask;
+        let otherMask = other._mask;
+        for (var i = 0; i < count; i++)
+            if (mask[i] != otherMask[i])
+                return false;
+        return true;
     }
 }
 
