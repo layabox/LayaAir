@@ -10,6 +10,8 @@ import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { Pool } from "../utils/Pool";
+import { Vector4 } from "../maths/Vector4";
+import { Const } from "../Const";
 
 export class Draw2DLineCMD extends Command2D {
     private static readonly _pool = Pool.createPool(Draw2DLineCMD);
@@ -39,6 +41,10 @@ export class Draw2DLineCMD extends Command2D {
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        let temp = Vector4.TEMP.setValue(0, 0, 0, 0);
+        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, temp);
+        temp.x = temp.w = Const.MAX_CLIP_SIZE;
+        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, temp);
 
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
 
@@ -47,7 +53,9 @@ export class Draw2DLineCMD extends Command2D {
         this._line2DRender._struct = this._struct;
         this._line2DRender._spriteShaderData = this._shaderData;
         this._line2DRender._initRender();
-
+        this._line2DRender.tillOffset = null;
+        this._line2DRender.texture = null;
+        
         this._matrix = new Matrix();
 
         this._line2DRender.enableDashedMode = false;
