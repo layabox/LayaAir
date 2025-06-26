@@ -22,7 +22,7 @@ export class Widget extends Component {
     private _centerX: number = null;
     private _centerY: number = null;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     constructor() {
         super();

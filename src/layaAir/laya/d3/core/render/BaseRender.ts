@@ -204,7 +204,7 @@ export class BaseRender extends Component {
 
     _renderElements: RenderElement[] = [];
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en Whether to enable the renderer.

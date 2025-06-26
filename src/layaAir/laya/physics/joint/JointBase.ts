@@ -21,14 +21,13 @@ export class JointBase extends Component {
     /**@internal */
     protected _factory: IPhysics2DFactory;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     protected _physics2DManager: Physics2DWorldManager;
 
     protected _box2DJointDef: any;
 
     /**
-     * @readonly
      * @en [read-only] Native joint object.
      * @zh [只读]原生关节对象。
      */

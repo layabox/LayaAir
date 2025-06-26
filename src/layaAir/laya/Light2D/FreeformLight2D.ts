@@ -41,7 +41,7 @@ export class FreeformLight2D extends BaseLight2D {
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @ignore

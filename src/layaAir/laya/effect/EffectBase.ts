@@ -48,7 +48,7 @@ export class EffectBase extends Component {
     protected _comlete: Handler;
     protected _tween: Tween;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     protected _onAwake(): void {
         this.target = this.target || this.owner;

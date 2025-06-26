@@ -17,7 +17,7 @@ export class Script extends Component {
      * @en Script belonging to sprite
      * @zh 脚本所属精灵
      */
-    declare owner: Sprite | Sprite3D;
+    declare readonly owner: Sprite | Sprite3D;
 
     /**
      * @ignore

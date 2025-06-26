@@ -189,7 +189,7 @@ export class BaseRenderNode2D extends Component {
      */
     _lightRecord: boolean = false;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * 渲染层掩码，用于裁剪规则一

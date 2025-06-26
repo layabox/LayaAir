@@ -96,7 +96,7 @@ export class FrameAnimation extends Component {
     private _loadId: number = 0;
     private _changingSize: boolean;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @en Constructor method of Animation.
