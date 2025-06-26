@@ -66,16 +66,6 @@ export class FillTextureCmd {
     color: number = 0xffffffff;
 
     /**
-     * @en Create a FillTextureCmd instance
-     * @param texture The texture to be filled
-     * @param x X-axis offset
-     * @param y Y-axis offset
-     * @param width Width of the filled area
-     * @param height Height of the filled area
-     * @param type Fill type
-     * @param offset Texture offset
-     * @param color Drawing color
-     * @returns FillTextureCmd instance
      * @zh 创建绘制填充贴图的命令实例
      * @param texture 要填充的纹理
      * @param x X轴偏移量
@@ -85,19 +75,32 @@ export class FillTextureCmd {
      * @param type 填充类型
      * @param offset 贴图纹理偏移
      * @param color 绘图颜色
+     * @param percent 宽高是否采用百分比
      * @returns FillTextureCmd实例
+     * @en Create a FillTextureCmd instance
+     * @param texture The texture to be filled
+     * @param x X-axis offset
+     * @param y Y-axis offset
+     * @param width Width of the filled area
+     * @param height Height of the filled area
+     * @param type Fill type
+     * @param offset Texture offset
+     * @param color Drawing color
+     * @param percent Whether the width and height are percentages?
+     * @returns FillTextureCmd instance
      */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string): FillTextureCmd {
-        var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
+    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string, percent?: boolean): FillTextureCmd {
+        const cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
         cmd.y = y;
-        cmd.width = width;
-        cmd.height = height;
+        cmd.width = width ?? texture.width;
+        cmd.height = height ?? texture.height;
         cmd.type = type;
         cmd.offset = offset;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.percent = percent;
         return cmd;
     }
 
@@ -123,15 +126,14 @@ export class FillTextureCmd {
      * @param gy 全局Y偏移
      */
     run(context: Context, gx: number, gy: number): void {
-        if (this.texture) {
-            if (this.percent && context.sprite) {
-                let w = context.sprite.width;
-                let h = context.sprite.height;
-                context.fillTexture(this.texture, this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.type, this.offset || Point.EMPTY, this.color);
-            }
-            else
-                context.fillTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.type, this.offset || Point.EMPTY, this.color);
+        if (!this.texture) return;
+        if (this.percent && context.sprite) {
+            const  w = context.sprite.width;
+            const  h = context.sprite.height;
+            context.fillTexture(this.texture, this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.type, this.offset || Point.EMPTY, this.color);
         }
+        else
+            context.fillTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.type, this.offset || Point.EMPTY, this.color);
     }
 
     /**
