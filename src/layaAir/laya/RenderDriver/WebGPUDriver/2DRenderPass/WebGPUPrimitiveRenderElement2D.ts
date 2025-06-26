@@ -105,7 +105,6 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
         if (this.primitiveShaderData) {
             let graphicsMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGraphics") as WebGPUCommandUniformMap;
             let subBuffer = this.primitiveShaderData.createUniformBuffer("Sprite2DGraphics", graphicsMap);
-            this.primitiveShaderData.updateUBOBuffer("Sprite2DGraphics");
             if (subBuffer.needUpload) {
                 subBuffer.upload();
             }

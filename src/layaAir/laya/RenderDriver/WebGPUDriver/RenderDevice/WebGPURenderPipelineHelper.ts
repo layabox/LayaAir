@@ -173,7 +173,7 @@ export class WebGPUDepthStencilState {
         return state;
     }
 
-    private static _getDepthStencilCacheID(format: RenderTargetFormat, depthStencilParam: DepthStencilParam) {
+    static getDepthStencilParamCacheID(depthStencilParam: DepthStencilParam) {
         let depthWrite = depthStencilParam.depthWrite;
         let depthTest = depthStencilParam.depthTest;
         let depthBias = depthStencilParam.depthBias;
@@ -207,7 +207,14 @@ export class WebGPUDepthStencilState {
         let stencilState2 = stencilRef & 0xff + ((stencilReadMask & 0xff) << 8) + ((stencilWriteMask & 0xff) << 16);
         let stencilStateKey = `${stencilState}_${stencilState2}`;
 
-        return `${format}|${depthStateKey}|${stencilStateKey}`;
+        return `${depthStateKey}|${stencilStateKey}`;
+    }
+
+    private static _getDepthStencilCacheID(format: RenderTargetFormat, depthStencilParam: DepthStencilParam) {
+
+        let key = this.getDepthStencilParamCacheID(depthStencilParam);
+
+        return `${format}|${key}`;
     }
 
     private static _createDepthStencilState(format: RenderTargetFormat, depthStencilParam: DepthStencilParam): GPUDepthStencilState {

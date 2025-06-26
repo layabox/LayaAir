@@ -242,10 +242,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (this._sceneData) {
             this._sceneData._defineDatas.cloneTo(contextDef);
 
-            for (let key of this._preDrawUniformMaps) {
-                this._sceneData.updateUBOBuffer(key);
-            }
-
             let commandArray = Array.from(this._preDrawUniformMaps);
 
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray)
@@ -257,7 +253,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
-            this.cameraData.updateUBOBuffer("BaseCamera");
 
             //判断是否需要重新准备Camera的BindGroup
             let commandArray = ["BaseCamera"];

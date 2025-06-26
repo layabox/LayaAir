@@ -17,4 +17,5 @@ import "laya/platform/TextInputAdapter";
 Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
+Main.useWebGPU = true;
 new Main(true, false);
