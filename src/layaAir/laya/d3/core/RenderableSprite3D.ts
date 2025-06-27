@@ -137,25 +137,28 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.PICKCOLOR, "u_PickColor", ShaderDataType.Vector3);
 
 		//Legency Reflectexture
+
+		const legacyReflectMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("LegacyReflection");
+
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");
 		RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONTEXTURE, "u_ReflectTexture", ShaderDataType.TextureCube);
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, "u_ReflectCubeHDRParams", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.REFLECTIONTEXTURE, "u_ReflectTexture", ShaderDataType.TextureCube);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, "u_ReflectCubeHDRParams", ShaderDataType.Vector4);
 		// legacy sh
 		RenderableSprite3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAR, "u_AmbientSHAr", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHAR, "u_AmbientSHAr", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAG, "u_AmbientSHAg", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHAG, "u_AmbientSHAg", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAB, "u_AmbientSHAb", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHAB, "u_AmbientSHAb", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBR, "u_AmbientSHBr", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHBR, "u_AmbientSHBr", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBG, "u_AmbientSHBg", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHBG, "u_AmbientSHBg", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBB, "u_AmbientSHBb", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHBB, "u_AmbientSHBb", ShaderDataType.Vector4);
 		RenderableSprite3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHC, "u_AmbientSHC", ShaderDataType.Vector4);
+		legacyReflectMap.addShaderUniform(RenderableSprite3D.AMBIENTSHC, "u_AmbientSHC", ShaderDataType.Vector4);
 	}
 
 	/** @internal */
