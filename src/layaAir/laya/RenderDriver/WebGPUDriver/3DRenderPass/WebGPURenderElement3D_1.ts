@@ -181,7 +181,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
 
-    protected _passRenderInfo: Map<number, oneDrawPassCacheInfo> = new Map();
+    protected _passRenderInfo: oneDrawPassCacheInfo[] = [];
 
     nodeBindGroupCacheFlag: Vector2 = new Vector2();//cache flag
     nodeBindGroup: WebGPUBindGroup;
@@ -323,16 +323,14 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-
-        if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
-            this._drawPassInfo = new oneDrawPassCacheInfo();
-            this._passRenderInfo.set(context._curRenderGlobalKey, this._drawPassInfo);
-        } else {
-            this._drawPassInfo = this._passRenderInfo.get(context._curRenderGlobalKey);
+        let key = context._curRenderGlobalKey;
+        let cachedInfo = this._passRenderInfo;
+        if (cachedInfo.length <= key) {
+            cachedInfo[key] = new oneDrawPassCacheInfo();
         }
-        this._drawCacheArray = this._drawPassInfo.drawInfos;
+        this._drawPassInfo = cachedInfo[key];
+        this._drawCacheArray =    this._drawPassInfo.drawInfos;
         this._updateMatChangeFlag();
-
         //shader变了或者宏变了 
         let passDefineChangeFlag = this._drawPassInfo.passDefineCacheFlag;
         if (this._materialRenderDataChange || //材质是否变化
@@ -359,6 +357,25 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         this._materialRenderDataChange = false;
         // material ubo
         this.materialUBO && this.materialUBO.upload();
+
+        let owner = this.owner;
+        if (owner) {
+            if (owner.spriteUBO0) {
+                owner.spriteUBO0.upload();
+            } else {
+                owner.spriteUBOs.forEach(ubo => {
+                    ubo.upload();
+                })
+            }
+
+            if (owner.additionalUBO0) {
+                owner.additionalUBO0.upload();
+            } else {
+                owner.additionalUBOs.forEach(ubo => {
+                    ubo.upload();
+                });
+            }
+        }
 
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
@@ -406,7 +423,8 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
                 (command as WebGPURenderCommandEncoder).setStencilReference(this.depthStencilParam.stencilRef);
             }
 
-            this._uploadGeometry(command); //上传几何数据 draw
+            //this._uploadGeometry(command); //上传几何数据 draw
+            this.geometry.applyToEncoder(command.encoder)
         }
 
         return 0;
@@ -613,6 +631,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     destroy() {
         //WebGPUGlobal.releaseId(this);
         this.materialUBO = null;
-        this._passRenderInfo.clear();
+        this._passRenderInfo.length = 0;
     }
 }

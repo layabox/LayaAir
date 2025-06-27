@@ -22,11 +22,15 @@ export class WebGPUBufferState implements IBufferState {
     _bindedIndexBuffer: WebGPUIndexBuffer;
 
     _vertexBuffers: WebGPUVertexBuffer[];
+    vb0:WebGPUVertexBuffer;//只有一个_vertexBuffers的优化
 
     // attribute location Array,shader中需要排除没有用的Attribute
     _attriLocArray: Set<number> = new Set();
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
         this._vertexBuffers = vertexBuffers.slice();
+        if(vertexBuffers.length==1){
+            this.vb0=vertexBuffers[0];
+        }
         this._bindedIndexBuffer = indexBuffer;
         this._getCacheInfo();
     }

@@ -393,8 +393,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
+        let cmd = this.renderCommand;
         for (let i = 0; i < len; i++)
-            elements[i]._render(this, this.renderCommand);
+            elements[i]._render(this, cmd);
 
         this._submit(); //提交渲染命令
         //TODO 统计
