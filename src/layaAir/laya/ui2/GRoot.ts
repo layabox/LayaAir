@@ -19,6 +19,7 @@ export class GRoot extends GWidget {
         return GWidget._defaultRoot ?? (GWidget._defaultRoot = new GRoot());
     }
 
+    /** @ignore @blueprintIgnore */
     constructor() {
         super();
 

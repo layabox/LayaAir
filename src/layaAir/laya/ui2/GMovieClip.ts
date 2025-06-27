@@ -75,6 +75,14 @@ export class GMovieClip extends GWidget {
     }
 
     /**
+     * @en Whether the animation is currently playing.
+     * @zh 动画是否正在播放。
+     */
+    get isPlaying(): boolean {
+        return this.comp.isPlaying;
+    }
+
+    /**
     * @en Whether to auto-play, default is false. If set to true, the animation will automatically play after being created and added to the stage.
     * @zh 是否自动播放，默认为false。如果设置为true，则动画被创建并添加到舞台后自动播放。
     */
