@@ -13,7 +13,7 @@ import { Loader } from "../net/Loader";
 const internalEvent = "click_menu_item";
 
 /**
- * @blueprintInheritable
+ * @blueprintable
  */
 export class PopupMenu extends EventDispatcher {
 

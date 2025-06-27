@@ -5,6 +5,7 @@ import { TextFitContent } from "./Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { TransformKind } from "../display/SpriteConst";
 import { Translations } from "./Translations";
+import { Event } from "../events/Event";
 
 /**
  * @blueprintInheritable
@@ -23,6 +24,7 @@ export class GTextField extends GWidget {
         this.textIns.padding.fill(2);
         this.textIns._onPostLayout = () => this._onPostLayout();
         this.textIns._onTranslate = Translations.translate;
+        this.textIns.on(Event.LINK, (href: string) => this.event(Event.LINK, href));
         this.addChild(this.textIns);
     }
 
@@ -440,4 +442,9 @@ export class GTextField extends GWidget {
             this._fitFlag = false;
         }
     }
+
+    /** @internal @blueprintEvent */
+    GTextField_bpEvent: {
+        [Event.LINK]: (href: string) => void;
+    };
 }

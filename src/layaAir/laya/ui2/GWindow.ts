@@ -183,12 +183,21 @@ export class GWindow extends GWidget {
         return this._modalWaitPane != null && this._modalWaitPane.parent != null;
     }
 
-    protected async onInit(): Promise<void> {
+    /**
+     * @blueprintEvent
+     */
+    protected onInit(): void | Promise<void> {
     }
 
+    /**
+     * @blueprintEvent
+     */
     protected onShown(): void {
     }
 
+    /**
+     * @blueprintEvent
+     */
     protected onHide(): void {
     }
 
@@ -215,7 +224,7 @@ export class GWindow extends GWidget {
         if (!this._inited) {
             if (!this._loading) {
                 this._loading = true;
-                this.onInit().then(() => {
+                Promise.resolve(this.onInit()).then(() => {
                     this._loading = false;
                     this._inited = true;
 

@@ -18,7 +18,11 @@ export class GTextInput extends GWidget {
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.overflow = "hidden";
         this.textIns.padding.fill(2);
-        this.textIns.on(Event.KEY_DOWN, this, this._onKeyDown);
+        this.textIns.on(Event.INPUT, () => this.event(Event.INPUT));
+        this.textIns.on(Event.ENTER, () => this.event(Event.ENTER));
+        this.textIns.on(Event.CHANGE, () => this.event(Event.CHANGE));
+        this.textIns.on(Event.FOCUS, () => this.event(Event.FOCUS));
+        this.textIns.on(Event.BLUR, () => this.event(Event.BLUR));
         this.addChild(this.textIns);
     }
 
@@ -371,15 +375,12 @@ export class GTextInput extends GWidget {
         }
     }
 
-    private _onKeyDown(evt: Event): void {
-        if (!this.multiline && evt.key == "Enter") {
-            this.event(UIEvent.Submit);
-            evt.preventDefault();
-        }
-    }
-
     /** @internal @blueprintEvent */
     GTextInput_bpEvent: {
-        [UIEvent.Submit]: () => void;
+        [Event.CHANGE]: () => void;
+        [Event.INPUT]: () => void;
+        [Event.ENTER]: () => void;
+        [Event.FOCUS]: () => void;
+        [Event.BLUR]: () => void;
     };
 }
