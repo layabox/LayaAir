@@ -96,8 +96,6 @@ export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {
 export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
     baseColor: Color;
     baseTexture: BaseTexture;
-    baseTextureRange: Vector4;
-    textureRangeIsClip: boolean;
     normal2DTexture: BaseTexture;
     normal2DStrength: number;
 }
