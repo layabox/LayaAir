@@ -360,16 +360,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         // material ubo
         this.materialUBO && this.materialUBO.upload();
 
-        if (this.owner) {
-            this.owner.spriteUBOs.forEach(ubo => {
-                ubo.upload();
-            })
-
-            this.owner.additionalUBOs.forEach(ubo => {
-                ubo.upload();
-            });
-        }
-
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
         return;

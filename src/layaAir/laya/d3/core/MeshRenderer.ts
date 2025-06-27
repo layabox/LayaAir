@@ -173,6 +173,11 @@ export class MeshRenderer extends BaseRender {
     protected _applyMorphdata() {
         let mesh = this._mesh;
         let shaderData = this._baseRenderNode.shaderData;
+
+        let additionShaderData = this._baseRenderNode.additionShaderData;
+        additionShaderData.set("MorphTarget", shaderData);
+        this._baseRenderNode.additionShaderData = additionShaderData;
+
         if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
@@ -221,7 +226,6 @@ export class MeshRenderer extends BaseRender {
             // todo 
             // active count == 0 disable morph ?
         }
-
     }
 
     _setBelongScene(scene: any): void {
@@ -415,7 +419,16 @@ export class MeshRenderer extends BaseRender {
         if (!this._mesh) {
             return;
         }
-        this._mesh.morphTargetData && this._applyMorphdata();
+
+        if (this._mesh.morphTargetData) {
+            this._applyMorphdata();
+        }
+        else {
+            let additionShaderData = this._baseRenderNode.additionShaderData;
+            this._baseRenderNode.additionShaderData.delete("MorphTarget");
+            this._baseRenderNode.additionShaderData = additionShaderData;
+        }
+
         if (!this._meshChange) {
             return;
         }
