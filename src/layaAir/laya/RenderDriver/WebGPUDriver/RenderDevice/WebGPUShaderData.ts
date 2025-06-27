@@ -11,7 +11,6 @@ import { Material } from "../../../resource/Material";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
-import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { isUboBufferShaderType, ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
@@ -55,8 +54,6 @@ export class WebGPUShaderData extends ShaderData {
     _subUniformBuffers: Map<string, WebGPUSubUniformBuffer>;
     /**@internal */
     _uniformBuffersPropertyMap: Map<number, WebGPUUniformBufferBase>;
-    /**@internal */
-    // _updateCacheArray: Map<number, Function> = new Map();;
 
     _id: number = WebGPUShaderData.pointerCount++;
     private _subUboBufferNumber: number = 0;
@@ -238,7 +235,6 @@ export class WebGPUShaderData extends ShaderData {
                 notifyArray.push(mapID);
             }
         });
-
     }
 
     //删除属性和BindGroup的联系

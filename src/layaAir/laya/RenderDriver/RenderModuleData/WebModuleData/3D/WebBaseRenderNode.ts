@@ -60,9 +60,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
-    private _lastDefineDataUpdateInfo:number[] = [];
-    private _lastCheckDefineDataFrame=0;//_renderUpdatePre可能会执行多次，假设一帧之内def不变，则用这个过滤
-    isDefineDataChanged=false;
 
     protected _additionShaderData: Map<string, ShaderData>;
 
@@ -98,30 +95,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
             return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
         this._updateMark = context3D.cameraUpdateMask;
-
-        if(this._lastCheckDefineDataFrame!==RenderInfo.loopCount){
-            //假设一帧之内def不会改变
-            let addinfo = this._additionShaderData;
-            let lastInfo = this._lastDefineDataUpdateInfo;
-            let i = 0;
-            this.isDefineDataChanged = false;
-            for(let [k,v] of addinfo){
-                let d = v.getDefineData() as WebDefineDatas;
-                if(d._lastUpdateFrame !== lastInfo[i*2] ||
-                d._lastUpdatePass !== lastInfo[i*2+1]){
-                    this.isDefineDataChanged = true;
-                }
-                lastInfo[i*2]=d._lastUpdateFrame;
-                lastInfo[i*2+1]=d._lastUpdatePass;
-                i++;
-            }
-            if(i*2!==this._lastDefineDataUpdateInfo.length){
-                this._lastDefineDataUpdateInfo.length = i*2;
-                this.isDefineDataChanged = true;
-            }
-    
-            this._lastCheckDefineDataFrame = RenderInfo.loopCount;
-        }
     }
 
     _calculateBoundingBox() {
@@ -201,7 +174,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._caculateBoundingBoxCall = call;
         this._caculateBoundingBoxFun = fun;
     }
-
 
     /**
      * 视锥检测包围盒

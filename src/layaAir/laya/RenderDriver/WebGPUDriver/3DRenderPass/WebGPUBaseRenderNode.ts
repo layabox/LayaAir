@@ -12,6 +12,8 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
     //bindGroup值改动引起Layout改动的标签
     bindGroupLayoutChangeFlag: Vector2 = new Vector2();
 
+    defineDataChangeFlag: Vector2 = new Vector2();
+
     spriteUBOs: WebGPUUniformBufferBase[] = [];
 
     additionalUBOs: WebGPUUniformBufferBase[] = [];
@@ -39,12 +41,14 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             if (!value)
                 for (var [key, date] of this._additionShaderData) {//全删
                     date.removeBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                    date._defineDatas.removeChangeFlagInfo(this.defineDataChangeFlag);
                 }
             else {
 
                 for (var [key, date] of this._additionShaderData) {//删部分
                     if (!value.has(key)) {
                         date.removeBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                        date._defineDatas.removeChangeFlagInfo(this.defineDataChangeFlag);
                     }
                 }
             }
@@ -60,6 +64,7 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
                 uniformBuffer && this.additionalUBOs.push(uniformBuffer);
                 shaderdate.addBindGroupChangeLink(key, unifomrMap._idata);
                 shaderdate.addBindGroupChangeFlag(key, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                shaderdate._defineDatas.addChangeFlagInfo(this.defineDataChangeFlag);
             }
         }
         else {
@@ -89,9 +94,11 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
                 let uniformBuffer = this.shaderData.createSubUniformBuffer(element, element, unifomrMap._idata);
                 uniformBuffer && this.spriteUBOs.push(uniformBuffer);
                 this._shaderData.addBindGroupChangeLink(element, unifomrMap._idata);
-                this.shaderData.addBindGroupChangeFlag(element, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                this._shaderData.addBindGroupChangeFlag(element, this.bindGroupChangeFlag, this.bindGroupLayoutChangeFlag);
+                this._shaderData._defineDatas.addChangeFlagInfo(this.defineDataChangeFlag);
             }
         });
+
     }
 
     /**

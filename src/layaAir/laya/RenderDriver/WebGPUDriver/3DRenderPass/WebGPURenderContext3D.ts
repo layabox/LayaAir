@@ -6,6 +6,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { Stat } from "../../../utils/Stat";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
@@ -24,6 +25,8 @@ import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 export class WebGPUGlobalPipeLineCacheInfo {
     globalDefineData: WebDefineDatas;//用来判断宏是否改动  导致了shader变化
     globalPipelineCacheKey: string;//包括camera scene的layout数据，包括invertY和destrt的stateCacheID
+    globalDefineChangeFlag: Vector2 = new Vector2();
+    pipeLineChangeFlag: Vector2 = new Vector2();
     constructor() {
         this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas() as WebDefineDatas;
     }
@@ -51,9 +54,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
     /**@internal */
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
-    private _globalDefines_pass:WebDefineDatas[]=[];    //缓存不同pass的DefineData
-    // context3d的全局的defineData是否改变了
-    isDataDefChanged=true;
+
 
     /**@internal */
     _globalConfigShaderData: WebDefineDatas;
@@ -113,6 +114,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     protected _passRenderInfo: Map<string, Vector2> = new Map();
     _curRenderGlobalKey: number;
     _curRenderCacheInfo: WebGPUGlobalPipeLineCacheInfo;
+    _curDefineChangeFlag: Vector2;
     _pipelineChange: boolean;
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
@@ -221,8 +223,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         let cameraResources = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(1, cameraCommands);
         let cameraLayoutInfo = engine.bindGroupCache.getLayoutInfo(cameraCommands, this.cameraData, null, cameraResources, ~0);
 
-        //DestRT cacheStateID
-        //invertY
         //根据sceneShaderData+
         return `${this.destRT.stateCacheID},${this.invertY ? 1 : 0},(${sceneLayoutInfo.id},${cameraLayoutInfo.id})`;
     }
@@ -236,8 +236,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             let cacheInfo = new WebGPUGlobalPipeLineCacheInfo();
             this._curRenderCacheInfo = cacheInfo;
             this._cacheGlobalDefines.cloneTo(cacheInfo.globalDefineData);
+            this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
             cacheInfo.globalPipelineCacheKey = pipelineLayout;
             this._pipelineChange = true;
+
             this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo)
         } else {
             this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
@@ -246,17 +248,18 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             } else {
                 this._pipelineChange = true;
                 this._curRenderCacheInfo.globalPipelineCacheKey = pipelineLayout;
+                this._curRenderCacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            }
+            if (!this._curRenderCacheInfo.globalDefineData.isEual(this._cacheGlobalDefines)) {
+                this._cacheGlobalDefines.cloneTo(this._curRenderCacheInfo.globalDefineData);
+                this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
             }
         }
+        this._curDefineChangeFlag = this._curRenderCacheInfo.globalDefineChangeFlag
     }
 
     private _prepareContext() {
-        let pass = WebGPURenderEngine._framePassCount;
-        let passDef = this._globalDefines_pass[pass];
-        if(!passDef){
-            passDef = this._globalDefines_pass[pass] = new WebDefineDatas();
-        }
-        let contextDef =  this._cacheGlobalDefines;// = passDef;//this._cacheGlobalDefines;
+        let contextDef = this._cacheGlobalDefines;// = passDef;//this._cacheGlobalDefines;
         if (this._sceneData) {
             this._sceneData._defineDatas.cloneTo(contextDef);
 
@@ -294,9 +297,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource, ~0);
         }
         this._getSceneCameraCacheKey();
-
-        this.isDataDefChanged = !contextDef.isEual(passDef);
-        contextDef.cloneTo(passDef);
     }
 
     /**

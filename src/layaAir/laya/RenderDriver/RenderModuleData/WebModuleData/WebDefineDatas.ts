@@ -1,4 +1,6 @@
+import { Vector2 } from "../../../maths/Vector2";
 import { RenderInfo } from "../../../renders/RenderInfo";
+import { Stat } from "../../../utils/Stat";
 import { WebGPURenderEngine } from "../../WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { IDefineDatas } from "../Design/IDefineDatas";
 import { ShaderDefine } from "../Design/ShaderDefine";
@@ -8,6 +10,8 @@ import { ShaderDefine } from "../Design/ShaderDefine";
  * <code>DefineDatas</code> 类用于创建宏定义数据集合。
  */
 export class WebDefineDatas implements IDefineDatas {
+
+    private _changeFlags: Set<Vector2> = new Set();
 
     /**
      * @internal
@@ -19,14 +23,11 @@ export class WebDefineDatas implements IDefineDatas {
      */
     _length: number = 0;
 
-	_lastUpdateFrame=0;
-	_lastUpdatePass=0;
 
     /**
      * 创建一个 <code>DefineDatas</code> 实例。
      */
     constructor() {
-
     }
 
     /**
@@ -68,8 +69,7 @@ export class WebDefineDatas implements IDefineDatas {
             changed = last != mask[index];
         }
         if (changed) {
-            this._lastUpdateFrame = RenderInfo.loopCount;
-            this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+            this._notifyChangeFlag();
         }
         return changed;
     }
@@ -93,8 +93,7 @@ export class WebDefineDatas implements IDefineDatas {
 
         let changed = lastValue != newValue;
         if (changed) {
-            this._lastUpdateFrame = RenderInfo.loopCount;
-            this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+            this._notifyChangeFlag();
         }
         return changed;
     }
@@ -121,8 +120,7 @@ export class WebDefineDatas implements IDefineDatas {
             }
         }
 
-        this._lastUpdateFrame = RenderInfo.loopCount;
-        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+        this._notifyChangeFlag();
     }
 
 
@@ -146,9 +144,7 @@ export class WebDefineDatas implements IDefineDatas {
                 mask[i] = newValue;
             }
         }
-
-        this._lastUpdateFrame = RenderInfo.loopCount;
-        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+        this._notifyChangeFlag();
     }
 
 
@@ -163,13 +159,38 @@ export class WebDefineDatas implements IDefineDatas {
         return (this._mask[index] & define._value) !== 0;
     }
 
+
+
+    private _notifyChangeFlag() {
+        if (this._changeFlags.size > 0) {
+            for (var i = 0, n = this._changeFlags.size; i < n; i++) {
+                this._changeFlags.forEach(value => {
+                    value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+                });
+            }
+        }
+    }
+
+    addChangeFlagInfo(flag: Vector2) {
+        if (!this._changeFlags.has(flag)) {
+            flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._changeFlags.add(flag);
+        }
+    }
+
+    removeChangeFlagInfo(flag: Vector2) {
+        if (this._changeFlags.has(flag)) {
+            flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._changeFlags.delete(flag);
+        }
+    }
+
     /**
      * 清空宏定义。
      */
     clear(): void {
         this._length = 0;
-        this._lastUpdateFrame = RenderInfo.loopCount;
-        this._lastUpdatePass = WebGPURenderEngine._framePassCount;
+        this._notifyChangeFlag();
     }
 
     /**
@@ -185,8 +206,7 @@ export class WebDefineDatas implements IDefineDatas {
             destMask[i] = mask[i];
         destObject._length = count;
 
-        destObject._lastUpdateFrame = this._lastUpdateFrame;
-        destObject._lastUpdatePass = this._lastUpdatePass;
+        destObject._notifyChangeFlag();
     }
 
     /**
@@ -205,9 +225,6 @@ export class WebDefineDatas implements IDefineDatas {
 
 
     isEual(other: WebDefineDatas) {
-        if (this._lastUpdateFrame == other._lastUpdateFrame && this._lastUpdatePass == other._lastUpdatePass) {
-            return true;
-        }
         var count = this._length;
         if (count != other._length) return false;
         let mask = this._mask;
