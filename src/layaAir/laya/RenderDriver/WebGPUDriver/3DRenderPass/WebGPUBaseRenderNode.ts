@@ -1,5 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector2 } from "../../../maths/Vector2";
+import { IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
@@ -104,4 +105,18 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             value[i].owner = this;
         }
     }
+
+
+    _renderUpdatePre(context3D: IRenderContext3D): void {
+        super._renderUpdatePre(context3D);
+
+        this.spriteUBOs.forEach(ubo => {
+            ubo.upload();
+        });
+        this.additionalUBOs.forEach(ubo => {
+            ubo.upload();
+        });
+
+    }
+
 }
