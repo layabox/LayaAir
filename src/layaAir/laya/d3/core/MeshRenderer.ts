@@ -174,10 +174,6 @@ export class MeshRenderer extends BaseRender {
         let mesh = this._mesh;
         let shaderData = this._baseRenderNode.shaderData;
 
-        let additionShaderData = this._baseRenderNode.additionShaderData;
-        additionShaderData.set("MorphTarget", shaderData);
-        this._baseRenderNode.additionShaderData = additionShaderData;
-
         if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
@@ -319,6 +315,8 @@ export class MeshRenderer extends BaseRender {
                 shaderData.setVector(RenderableSprite3D.MorphParams, morphData.params);
 
                 shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveData);
+
+
             }
         }
 
@@ -329,7 +327,7 @@ export class MeshRenderer extends BaseRender {
             this._morphTargetValues = {};
         }
 
-        if (mesh && mesh.morphTargetData) {
+        if (mesh && mesh.morphTargetData && LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
 
             let morphData = mesh.morphTargetData;
 
@@ -343,6 +341,15 @@ export class MeshRenderer extends BaseRender {
                 this.morphtargetChannels[index] = channel;
                 this._morphTargetValues[channel.name] = 0;
             }
+
+            let additionShaderData = this._baseRenderNode.additionShaderData;
+            additionShaderData.set("MorphTarget", shaderData);
+            this._baseRenderNode.additionShaderData = additionShaderData;
+        }
+        else {
+            let additionShaderData = this._baseRenderNode.additionShaderData;
+            additionShaderData.delete("MorphTarget");
+            this._baseRenderNode.additionShaderData = additionShaderData;
         }
 
     }
@@ -422,11 +429,6 @@ export class MeshRenderer extends BaseRender {
 
         if (this._mesh.morphTargetData) {
             this._applyMorphdata();
-        }
-        else {
-            let additionShaderData = this._baseRenderNode.additionShaderData;
-            this._baseRenderNode.additionShaderData.delete("MorphTarget");
-            this._baseRenderNode.additionShaderData = additionShaderData;
         }
 
         if (!this._meshChange) {
