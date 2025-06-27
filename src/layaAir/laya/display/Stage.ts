@@ -215,10 +215,6 @@ export class Stage extends Sprite {
     /** @internal */
     readonly _scene2Ds: Scene[] = [];
 
-    private _$originScaleX: number = 1;
-    private _$originScaleY: number = 1;
-    private _$stageScaleX: number = 1;
-    private _$stageScaleY: number = 1;
     private _frameRate: string = "fast";
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
@@ -232,7 +228,7 @@ export class Stage extends Sprite {
     private _needUpdateCanvasSize: boolean = false;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
      * @zh 场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。
      * */
@@ -510,23 +506,7 @@ export class Stage extends Sprite {
         }
 
         //放大舞台
-        // this.scale(formatData(canvasWidth / this._width), formatData(canvasHeight / this._height));
-
-        if (this._scaleX === this._$originScaleX) {//没有用户设置行为
-            this._scaleX = this._scaleX / this._$stageScaleX;
-        }
-
-        if (this._scaleY === this._$originScaleY) {
-            this._scaleY = this._scaleY / this._$stageScaleY;
-        }
-
-        this._$stageScaleX = canvasWidth / this._width;
-        this._$stageScaleY = canvasHeight / this._height;
-        //放大舞台
-        this.scale(formatData(this._$stageScaleX * this._scaleX), formatData(this._$stageScaleY * this._scaleY));
-
-        this._$originScaleX = this._scaleX;
-        this._$originScaleY = this._scaleY;
+        this.scale(formatData(canvasWidth / this._width), formatData(canvasHeight / this._height));
 
         RenderState2D.width = canvasWidth;
         RenderState2D.height = canvasHeight;
@@ -831,7 +811,7 @@ export class Stage extends Sprite {
             sprite.updateSubRenderPassState();
             if (!sprite._oriRenderPass) {
                 sprite._subpassUpdateFlag = 0;
-                continue
+                continue;
             }
 
             sprite.updateRenderTexture();
