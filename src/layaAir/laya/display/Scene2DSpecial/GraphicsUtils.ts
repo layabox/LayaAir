@@ -78,10 +78,10 @@ export class GraphicsRenderData {
       this._bufferBlocks.length = 0;
       this._submits.length = 0;
 
-      for (i = 0; i < this.touchResources.length; i++) {
-         this.touchResources[i].referenceCount--;
-      }
-      this.touchResources.length = 0;
+      // for (i = 0; i < this.touchResources.length; i++) {
+      //    this.touchResources[i].referenceCount--;
+      // }
+      // this.touchResources.length = 0;
    }
 
    destroy(): void {
@@ -167,7 +167,6 @@ export class GraphicsRenderData {
       submit.indexCount = 0;
       submit.indices.length = 0;
       return indexView
-      // geometry.setDrawElemenParams(indexView.length, indexView.start * 2);
    }
 
    // TODO
@@ -192,7 +191,8 @@ export class GraphicsRenderData {
       if (textureHost) {
          texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
       }
-      let texKey = texture.id;
+
+      let texKey = texture == Texture2D.whiteTexture ? 0 : texture.id;
       // texKey = tex._id;
       // if ( tex && tex !== Texture2D.whiteTexture) {
       // }
@@ -219,11 +219,11 @@ export class GraphicsRenderData {
       return submit;
    }
 
-   touchResources: IAutoExpiringResource[] = [];
+   // touchResources: IAutoExpiringResource[] = [];
 
    touchRes(res: IAutoExpiringResource) {
-      res.referenceCount++;
-      this.touchResources.push(res);
+      // res.referenceCount++;
+      // this.touchResources.push(res);
    }
 
 }

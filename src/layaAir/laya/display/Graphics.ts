@@ -255,7 +255,7 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        let value = this.owner && !this.owner.destroyed && (this._cmds.length > 0 || this.owner?._texture != null);
+        let value = this.owner && !this.owner.destroyed && !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
         if (this._display === value)
             return;
 
@@ -271,7 +271,7 @@ export class Graphics {
             struct.renderElements = this._data._renderElements;
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
-            if (this._data._renderElements === struct.renderElements) {
+            if (struct.renderElements === this._data._renderElements) {
                 struct.renderElements = [];
             }
             struct.renderType = -1;
@@ -669,7 +669,7 @@ export class Graphics {
      * @internal
      */
     _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
-        if (!this.owner || this.owner.destroyed)
+        if (!this.owner || this.owner.destroyed || this.owner._struct.renderType !== BaseRender2DType.graphics)
             return;
 
         if (!this._modified

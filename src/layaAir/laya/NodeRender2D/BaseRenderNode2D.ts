@@ -292,6 +292,8 @@ export class BaseRenderNode2D extends Component {
         this._spriteShaderData = this._struct.spriteShaderData;
         this.owner._struct.renderDataHandler = this._renderHandle;
         this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
+        this.owner._struct.renderElements = this._renderElements;
+        this.owner._struct.renderType = this._renderType;
         this._initDefaultRenderData && this._initDefaultRenderData();
     }
 

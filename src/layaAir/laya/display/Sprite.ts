@@ -1165,6 +1165,11 @@ export class Sprite extends Node {
             this._struct.set_renderNodeUpdateCall(null, null);
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
+
+        if (this._renderType & SpriteConst.GRAPHICS) {
+            this._graphics._checkDisplay();
+            this.repaint();
+        }
     }
 
     /**
