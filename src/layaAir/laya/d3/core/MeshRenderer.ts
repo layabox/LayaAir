@@ -255,8 +255,6 @@ export class MeshRenderer extends BaseRender {
         let shaderData = this._baseRenderNode.shaderData;
         let oldMesh = this._mesh;
 
-        let hasMorphTarget = mesh && mesh.morphTargetData;
-
         // todo
         // config max count
         const maxMorphTargetCount = Config3D.maxMorphTargetCount;
