@@ -11,6 +11,9 @@ import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
 import { LayaEnv } from "LayaEnv";
+import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
+import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPU3DRenderPassFactory";
+import { WebGPURenderDeviceFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderDeviceFactory";
 import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory";
 import { GLESRender2DProcess } from "laya/RenderDriver/OpenGLESDriver/2DRenderPass/GLESRender2DProcess";
 import { GLES3DRenderPassFactory } from "laya/RenderDriver/OpenGLESDriver/3DRenderPass/GLES3DRenderPassFactory";
@@ -24,9 +27,6 @@ import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRender
 import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
-import { WebGPU3DRenderPassFactory } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPU3DRenderPassFactory";
-import { WebGPURenderDeviceFactory } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderDeviceFactory";
 
 export class Main {
     static useWebGPU: boolean = false;
@@ -152,6 +152,5 @@ export class Main {
         Main._indexView.bottom = (window as any).viewtop || 50;
         Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
         Main._indexView.switchFunc(0, 0);//切换到指定case
-
     }
 }
