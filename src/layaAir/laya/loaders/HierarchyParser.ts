@@ -23,6 +23,7 @@ export class HierarchyParser {
         let dataList: Array<any> = [];
         let allNodes: Array<Node> = [];
         let outNodes: Array<Node> = [];
+        let toDestroy: Array<Node> = [];
         let scene: Scene;
 
         let inPrefab: boolean;
@@ -174,7 +175,8 @@ export class HierarchyParser {
             let i = allNodes.indexOf(node);
             let nodeData = dataList[i];
 
-            node.destroy();
+            node.removeSelf();
+            toDestroy.push(node);
             allNodes[i] = null;
 
             if (!overrideData)
@@ -418,6 +420,11 @@ export class HierarchyParser {
                     errors.push(error);
                 }
             }
+        }
+
+        for (let node of toDestroy) {
+            if (!node._destroyed)
+                node.destroy();
         }
 
         if (inPrefab && prefabNodeDict && topNode) //记录下nodeMap，上层创建prefab时使用
