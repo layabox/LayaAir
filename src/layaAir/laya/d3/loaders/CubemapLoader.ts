@@ -81,12 +81,12 @@ export class CubemapLoader implements IResourceLoader {
                     return null;
                 }
                 let format: TextureFormat = <TextureFormat>byte.readUint8();
-                let mipCount: number = byte.getUint8();
+                let mipCount: number = byte.readUint8();
                 let size: number = byte.readUint16();
-                let filterMode: FilterMode = <FilterMode>byte.getUint8();
-                let wrapModeU: WrapMode = <WrapMode>byte.getUint8();
-                let wrapModev: WrapMode = <WrapMode>byte.getUint8();
-                let anisoLevel: FilterMode = byte.getUint8();
+                let filterMode: FilterMode = <FilterMode>byte.readUint8();
+                let wrapModeU: WrapMode = <WrapMode>byte.readUint8();
+                let wrapModev: WrapMode = <WrapMode>byte.readUint8();
+                let anisoLevel: FilterMode = byte.readUint8();
 
                 let tex: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
                 tex.setPixelsData(null, false, false);
