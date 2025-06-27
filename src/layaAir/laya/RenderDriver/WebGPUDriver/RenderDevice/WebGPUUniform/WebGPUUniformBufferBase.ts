@@ -7,7 +7,7 @@ import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { UniformProperty } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
 import { wgsl } from "./StructBuffer";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
-import { DataView, DataViewType } from "../../../../../ILaya";
+import { TypedArrayType, TypedArrayConstructor } from "../../../../../ILaya";
 
 type uniformInfo = { offset: number, size: number };
 
@@ -18,9 +18,9 @@ export type WebGPUUnifrom = {
      */
     offset: number;
 
-    dataView: DataViewType;
+    dataView: TypedArrayConstructor;
 
-    view: DataView;//实际数据位置
+    view: TypedArrayType;//实际数据位置
 
     /**
      * element size (eg: vec2: 2, vec4: 4, mat4: 16)
@@ -141,7 +141,7 @@ export class WebGPUUniformBufferDescriptor {
             let offset, viewByteLength, size, alignStride;
             size = this._getsize(value.uniformtype);
             if (!size) continue;
-            let tsc: DataViewType = Float32Array;
+            let tsc: TypedArrayConstructor = Float32Array;
             if (value.uniformtype == ShaderDataType.Int || value.uniformtype == ShaderDataType.Bool)
                 tsc = Int32Array;
 
