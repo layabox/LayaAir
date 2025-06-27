@@ -1,4 +1,4 @@
-import { DataView, DataViewType, Mutable } from "../../ILaya";
+import { TypedArrayType, TypedArrayConstructor, Mutable } from "../../ILaya";
 import { Color } from "../maths/Color";
 import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
@@ -9,6 +9,7 @@ import { IPool, Pool } from "./Pool";
 /**
  * @en Vertex stream is a tool for appending vertices and triangles.
  * @zh 顶点流工具，用于顶点数据和三角形数据的添加。
+ * @blueprintIgnore
  */
 export class VertexStream {
     /**
@@ -283,7 +284,7 @@ export class VertexStream {
         this._indices = this.resizeBuf(Uint16Array, ip, this._indices);
     }
 
-    private resizeBuf<T extends DataView>(type: DataViewType, sz: number, oldData?: DataView): T {
+    private resizeBuf<T extends TypedArrayType>(type: TypedArrayConstructor, sz: number, oldData?: TypedArrayType): T {
         let newBuf = new ArrayBuffer(type.BYTES_PER_ELEMENT * sz);
         let newDataView = new type(newBuf);
         oldData && newDataView.set(oldData);
