@@ -184,8 +184,8 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     private _clearRenderStateCheck() {
-        this._needUpdateBlendStateCache = false;
-        this._needUpdateDepthStencilStateCache = false;
+        this._needUpdateBlendStateCache = true;
+        this._needUpdateDepthStencilStateCache = true;
     }
 
     /**
