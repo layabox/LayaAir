@@ -404,7 +404,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
                 return 0;
 
             //set BindGroup
-            this._bindGroup(context, shaderInstance, command); //绑定资源组
+            this._bindGroup(context, drawInfo, command); //绑定资源组
             let pipelineCache = drawInfo.pipeLineCacheFlag;
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
@@ -562,7 +562,10 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param command 
      * @param bundle 
      */
-    protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+
+        let shaderInstance = info.shaderInstance;
+
         {
             command.setBindGroup(0, context._sceneBindGroup);
         }
@@ -573,7 +576,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
             //判断 nodePipeline是否有改变
             if (this.owner) {
                 let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
-                if (compareCahceFlag(bindgroupChangeFlag, this.nodeBindGroupCacheFlag)) {
+                if (info.shaderChange || compareCahceFlag(bindgroupChangeFlag, this.nodeBindGroupCacheFlag)) {
                     this.nodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(2);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
@@ -591,7 +594,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
         }
         {
             if (this.materialShaderData) {
-                if (compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
+                if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
                     this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
