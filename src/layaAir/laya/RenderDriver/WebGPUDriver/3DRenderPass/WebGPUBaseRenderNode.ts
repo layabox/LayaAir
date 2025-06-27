@@ -112,18 +112,4 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             value[i].owner = this;
         }
     }
-
-
-    _renderUpdatePre(context3D: IRenderContext3D): void {
-        super._renderUpdatePre(context3D);
-
-        this.spriteUBOs.forEach(ubo => {
-            ubo.upload();
-        });
-        this.additionalUBOs.forEach(ubo => {
-            ubo.upload();
-        });
-
-    }
-
 }
