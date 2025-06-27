@@ -74,8 +74,10 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             this._additionShaderDataKeys = [];
             this.additionalUBOs.length = 0;
         }
-        if(this.additionalUBOs){
+        if(this.additionalUBOs.length==1){
             this.additionalUBO0 = this.additionalUBOs[0];
+        }else{
+            this.additionalUBO0 = null;
         }
     }
 
@@ -106,6 +108,8 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
         });
         if(this.spriteUBOs.length==1){
             this.spriteUBO0 = this.spriteUBOs[0];
+        }else{
+            this.spriteUBO0 = null;
         }
     }
 

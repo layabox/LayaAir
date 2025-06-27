@@ -181,7 +181,7 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
 
     protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
 
-    protected _passRenderInfo: oneDrawPassCacheInfo[] = [];
+    protected _passRenderInfo: Map<number, oneDrawPassCacheInfo> = new Map();
 
     nodeBindGroupCacheFlag: Vector2 = new Vector2();//cache flag
     nodeBindGroup: WebGPUBindGroup;
@@ -323,14 +323,16 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-        let key = context._curRenderGlobalKey;
-        let cachedInfo = this._passRenderInfo;
-        if (cachedInfo.length <= key) {
-            cachedInfo[key] = new oneDrawPassCacheInfo();
+
+        if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
+            this._drawPassInfo = new oneDrawPassCacheInfo();
+            this._passRenderInfo.set(context._curRenderGlobalKey, this._drawPassInfo);
+        } else {
+            this._drawPassInfo = this._passRenderInfo.get(context._curRenderGlobalKey);
         }
-        this._drawPassInfo = cachedInfo[key];
-        this._drawCacheArray =    this._drawPassInfo.drawInfos;
+        this._drawCacheArray = this._drawPassInfo.drawInfos;
         this._updateMatChangeFlag();
+
         //shader变了或者宏变了 
         let passDefineChangeFlag = this._drawPassInfo.passDefineCacheFlag;
         if (this._materialRenderDataChange || //材质是否变化
@@ -631,6 +633,6 @@ export class WebGPURenderElement3D_1 implements IRenderElement3D, IRenderPipelin
     destroy() {
         //WebGPUGlobal.releaseId(this);
         this.materialUBO = null;
-        this._passRenderInfo.length = 0;
+        this._passRenderInfo.clear();
     }
 }
