@@ -1,4 +1,5 @@
 import { Matrix } from "../../maths/Matrix"
+import { Vector4 } from "../../maths/Vector4"
 import { Texture } from "../../resource/Texture"
 import { IMeshFactory } from "../../ui2/render/MeshFactory"
 import { ClassUtils } from "../../utils/ClassUtils"
@@ -189,8 +190,10 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
                 console.error(e);
             }
 
+            let uv = this.texture.uvrect;
+
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
-                this.matrix, this.alpha, this.blendMode, null, vb.getColors());
+                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), Vector4.TEMP.setValue(uv[0], uv[1], uv[0] + uv[2], uv[1] + uv[3]));
         }
         else {
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices,

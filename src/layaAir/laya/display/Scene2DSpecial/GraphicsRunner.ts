@@ -1100,22 +1100,6 @@ export class GraphicsRunner {
         this._curSubmit = SubmitBase.RENDERBASE;
     }
 
-    private _repaintSprite(): void {
-        this.sprite && this.sprite.repaint();
-    }
-
-    /**
-     * 
-     * @param tex
-     * @param x			
-     * @param y
-     * @param width
-     * @param height
-     * @param transform	图片本身希望的矩阵
-     * @param tx			节点的位置
-     * @param ty
-     * @param alpha
-     */
     drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: BlendMode | string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: BlendMode;
         var curMat = this._curMat;
@@ -1165,7 +1149,8 @@ export class GraphicsRunner {
         matrix?: Matrix, alpha?: number,
         blendMode?: BlendMode | string,
         colorNum?: number,
-        colors?: Float32Array): void {
+        colors?: Float32Array,
+        uvRange?: Vector4): void {
 
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
@@ -1231,12 +1216,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors, uvRange);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors, uvRange);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
@@ -2172,7 +2157,8 @@ export class GraphicsRunner {
         result: MeshBlockInfo, submit: SubmitBase,
         uvs: ArrayLike<number>, rgba: number,
         matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
-        colors?: ArrayLike<number>
+        colors?: ArrayLike<number>,
+        uvRange?: Vector4
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
@@ -2206,8 +2192,7 @@ export class GraphicsRunner {
         let a = (rgba >>> 24) / 255.0;
 
         let useTexByte = useTex ? 0xff : 0;
-        // let useClipByte = 0xff;
-        // let range = new Vector4(0.25,0.25,0.5,0.5);
+        let useClipByte = uvRange ? 0xff : 0;
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
@@ -2260,12 +2245,14 @@ export class GraphicsRunner {
             }
 
             vbdata[vi + 8] = useTexByte;
-            // vbdata[vi + 9] = 1;
+            vbdata[vi + 9] = useClipByte;
 
-            // vbdata[vi + 12] = range.x;
-            // vbdata[vi + 13] = range.y;
-            // vbdata[vi + 14] = range.z;
-            // vbdata[vi + 15] = range.w;
+            if (uvRange) {
+                vbdata[vi + 12] = uvRange.x;
+                vbdata[vi + 13] = uvRange.y;
+                vbdata[vi + 14] = uvRange.z;
+                vbdata[vi + 15] = uvRange.w;
+            }
 
             vi += vertexLength;
             pi += 2;
