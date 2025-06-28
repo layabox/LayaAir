@@ -51,6 +51,7 @@ export class Tweener implements ITweener {
     onUpdate: TweenCallback;
     onStart: TweenCallback;
     onComplete: TweenCallback;
+    onCompleteResolvers: Array<Function>;
     onUpdateCaller: any;
     onStartCaller: any;
     onCompleteCaller: any;
@@ -227,7 +228,8 @@ export class Tweener implements ITweener {
 
             this.callCompleteCallback();
         }
-
+        else if (this.onCompleteResolvers)
+            this.onCompleteResolvers.forEach(f => f());
         this._killed = true;
     }
 
@@ -271,7 +273,7 @@ export class Tweener implements ITweener {
         this.lifecycleOwner = null;
         this.userData = null;
         _propsPool.recover(this.props);
-        this.onStart = this.onUpdate = this.onComplete = null;
+        this.onStart = this.onUpdate = this.onComplete = this.onCompleteResolvers = null;
         this.onStartCaller = this.onUpdateCaller = this.onCompleteCaller = null;
     }
 
@@ -422,6 +424,8 @@ export class Tweener implements ITweener {
                 console.error("error in complete callback > ", err);
             }
         }
+        if (this.onCompleteResolvers)
+            this.onCompleteResolvers.forEach(f => f());
     }
 
     static _pool: IPool<Tweener> = Pool.createPool(Tweener, e => e.init(), e => e.reset());
