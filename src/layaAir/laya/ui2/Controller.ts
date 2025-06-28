@@ -10,7 +10,9 @@ export class Controller extends EventDispatcher {
     private _previousIndex: number;
     private _pages: string[];
 
+    /** @readonly */
     public owner: GWidget;
+    /** @readonly */
     public name: string;
 
     public readonly changing: boolean;

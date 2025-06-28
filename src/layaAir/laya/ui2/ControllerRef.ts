@@ -9,7 +9,8 @@ export class ControllerRef {
     private _inst: Controller;
     private _inited: boolean;
 
-    public onChanged: (initiator: Controller) => void;
+    /** @internal */
+    onChanged: (initiator: Controller) => void;
 
     constructor(target: GWidget, name: string);
     constructor(inst: Controller);

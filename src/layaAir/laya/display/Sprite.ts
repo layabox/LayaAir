@@ -176,7 +176,7 @@ export class Sprite extends Node {
     /**
      * @internal 
      */
-    private _globalTrans: SpriteGlobalTransform;
+    _globalTrans: SpriteGlobalTransform;
 
     //以下变量为系统调用，请不要直接使用
 
@@ -189,7 +189,7 @@ export class Sprite extends Node {
     /**@internal */
     _struct: IRenderStruct2D;
     /**@internal */
-    _subpassUpdateFlag: number;
+    _subpassUpdateFlag: number = 0;
 
     /**
      * @en For non-UI component display object nodes (container objects or display objects without image resources), specifies whether the mouse events penetrate this object's collision detection. `true` means the object is penetrable, `false` means it is not penetrable.
@@ -233,10 +233,15 @@ export class Sprite extends Node {
     private _mask: Sprite;
     private _maskParent: Sprite;
     private _cacheAsBmp: boolean = false;
+    private _layer: number = 0;
 
+    /** @internal */
     declare _children: Sprite[];
+    /** @internal */
     declare _$children: Sprite[];
+    /** @internal */
     declare _parent: Sprite;
+    /** @internal */
     declare _scene: Scene;
 
     /** @internal */
@@ -244,17 +249,15 @@ export class Sprite extends Node {
     /**@internal */
     _ownerArea: Sprite;
     /** @internal */
-    _subStructRender: SubStructRender = null;
+    _subStructRender: SubStructRender;
     /** @internal  渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效*/
-    _oriRenderPass: IRender2DPass = null;
+    _oriRenderPass: IRender2DPass;
     /**@internal 渲染真实sprite所需的rt大小 */
     _drawOriRT: RenderTexture2D;
     /** @internal 片，代替的结构 ，真正的结构划到了rt上*/
-    _subStruct: IRenderStruct2D = null;
+    _subStruct: IRenderStruct2D;
     /** @internal */
     _shaderData: ShaderData;
-
-    private _layer: number = 0;
 
     /** @ignore */
     constructor() {
@@ -290,11 +293,8 @@ export class Sprite extends Node {
                 this._oriRenderPass.postProcess = null;
             }
             this._oriRenderPass.destroy();
-            this._oriRenderPass = null;
         }
         this._subStructRender && this._subStructRender.destroy();
-        this._subStructRender = null;
-        this._filterArr = null;
         this._texture = null;
         if (this._graphics) {
             this._graphicsData.destroy();
@@ -308,7 +308,6 @@ export class Sprite extends Node {
             this._graphics = null;
             this._graphicsData = null;
         }
-        this._subStruct = null;
         this._struct = null;
         this._subpassUpdateFlag = 0;
     }
@@ -648,9 +647,6 @@ export class Sprite extends Node {
             this._visible = value;
             this._struct.enabled = value;
             this._processVisible();
-
-            if (value)
-                this.repaint();
         }
     }
 
@@ -1104,7 +1100,6 @@ export class Sprite extends Node {
             i++;
         }
         this._childChanged();
-        this.repaint();
     }
 
     /**
@@ -1985,13 +1980,11 @@ export class Sprite extends Node {
     loadImage(url: string, complete?: Handler): this {
         if (!url) {
             this.texture = null;
-            this.repaint();
             complete && complete.run();
         } else {
             let tex = ILaya.loader.getRes(url);
             if (tex) {
                 this.texture = tex;
-                this.repaint();
                 complete && complete.run();
             }
             else {
@@ -1999,7 +1992,6 @@ export class Sprite extends Node {
                     url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
                     this.texture = tex;
-                    this.repaint();
                     complete && complete.run();
                 });
             }
@@ -2202,6 +2194,8 @@ export class Sprite extends Node {
         let b = this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE);
         if (this._struct.enabled !== b) {
             this._struct.enabled = b;
+            if (b)
+                this.repaint();
             this.parentRepaint();
             return true;
         }

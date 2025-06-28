@@ -1,7 +1,7 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
@@ -24,6 +24,7 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
+import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -512,6 +513,23 @@ export class Stage extends Sprite {
         RenderState2D.height = canvasHeight;
         (<typeof Laya3D>(<any>window)['Laya3D'])?._changeWebGLSize(canvasWidth, canvasHeight);
         LayaGL.renderEngine.resizeOffScreen(canvasWidth, canvasHeight);
+
+        //执行高清字体策略
+        if (TextRenderConfig.scaleFontWithCtx) {
+            let fontScale = Math.max(Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleX)),
+                Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleY)));
+            if (TextRenderConfig.fontScale !== fontScale) {
+                TextRenderConfig.fontScale = fontScale;
+
+                const repaintTexts = (p: Sprite) => {
+                    for (let child of p._children) {
+                        if ((child._renderType & SpriteConst.TEXT) !== 0)
+                            child.repaint();
+                    }
+                };
+                repaintTexts(this);
+            }
+        }
 
         this.visible = true;
         this.repaint();

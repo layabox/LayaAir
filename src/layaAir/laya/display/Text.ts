@@ -18,8 +18,10 @@ import { HtmlParser } from "../html/HtmlParser";
 import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
+import { Node } from "./Node";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -188,6 +190,7 @@ export class Text extends Sprite {
     protected _hideText: boolean = false;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
+    private _fontGlobalScale: number;
 
     /**
      * @internal
@@ -211,6 +214,7 @@ export class Text extends Sprite {
     constructor() {
         super();
 
+        this._renderType |= SpriteConst.TEXT;
         this._textStyle = new TextStyle();
         this._textStyle.fontSize = Config.defaultFontSize;
         this._text = "";
@@ -1741,6 +1745,8 @@ export class Text extends Sprite {
         graphics.clear(true);
         this.drawBg();
 
+        this._fontGlobalScale = TextRenderConfig.fontScale;
+
         let padding = this._padding;
         let paddingLeft = padding[3];
         let paddingTop = padding[0];
@@ -1873,6 +1879,15 @@ export class Text extends Sprite {
         }
         else if (cmd) {
             this.graphics.removeCmd(cmd);
+        }
+    }
+
+    /** @ignore */
+    protected _setParent(value: Node): void {
+        super._setParent(value);
+
+        if (value && this._fontGlobalScale != null && this._fontGlobalScale !== TextRenderConfig.fontScale) {
+            this.repaint();
         }
     }
 

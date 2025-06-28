@@ -3,10 +3,10 @@ import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Point } from "../maths/Point";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { NodeFlags } from "../Const";
 import { LayaGL } from "../layagl/LayaGL";
 import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { SpriteConst } from "./SpriteConst";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -16,7 +16,7 @@ export class Area2D extends Sprite {
 
     constructor() {
         super();
-        this._setBit(NodeFlags.AREA_2D, true);
+        this._renderType |= SpriteConst.AREA2D;
         this._initShaderData();
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this._globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);

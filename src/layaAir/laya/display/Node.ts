@@ -67,12 +67,12 @@ export class Node extends EventDispatcher {
     _$container: Node;
     /** 
      * @internal
-     * 当节点具有_$container节点后，它的子节点的_parent属性会指向_$container，而_$parent属性指向本节点
+     * 当节点具有_$container节点后，_$container的孩子节点的_$parent属性指向本节点
      */
     _$parent: Node;
     /** 
      * @internal
-     * 当节点具有_$container节点后，它的子节点的_children属性会指向_$container的_children，而_$children属性指向本节点的_children
+     * 当节点具有_$container节点后，它的_$children属性会指向_$container的_children
      */
     _$children: Node[];
 

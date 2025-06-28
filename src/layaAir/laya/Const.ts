@@ -23,7 +23,7 @@ export class NodeFlags {
     //static ACTUAL_VISIBLE = 0x8;
     static DISPLAY = 0x10;
     static HAS_ZORDER = 0x20;
-    static AREA_2D = 0x40;
+    //static = 0x40;
     static DISPLAYED_INSTAGE = 0x80;
     static DRAWCALL_OPTIMIZE = 0x100;
     static CHECK_INPUT = 0x200;
