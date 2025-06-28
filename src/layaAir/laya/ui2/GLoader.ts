@@ -195,9 +195,11 @@ export class GLoader extends GWidget {
 
     protected loadContent() {
         let loadID = ++this._loadId;
-        let res = Loader.getRes(this._src);
+        let res = Loader.getRes(this._src, Loader.IMAGE);
         if (!res)
             ILaya.loader.load(this._src, { maybeType: Loader.IMAGE }).then(res => this.onLoaded(res, loadID));
+        else
+            this.onLoaded(res, loadID);
     }
 
     protected onLoaded(value: Texture | AtlasResource, loadID: number) {

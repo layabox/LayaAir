@@ -7,7 +7,7 @@ import { Relation } from "./Relation";
 import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
 import { GearDisplay } from "./gear/GearDisplay";
-import { NodeFlags } from "../Const";
+import { NodeFlags, SubPassFlag } from "../Const";
 import { UIEvent } from "./UIEvent";
 import { ILaya } from "../../ILaya";
 import { IGraphicsCmd } from "../display/IGraphics";
@@ -176,7 +176,8 @@ export class GWidget extends Sprite {
     }
 
     set grayed(value: boolean) {
-        if (this._grayed != value) {
+        value = !!value
+        if (this._grayed !== value) {
             this._grayed = value;
 
             let postProcess = this.getPostProcess(value);
@@ -190,6 +191,7 @@ export class GWidget extends Sprite {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
+            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
     }
 

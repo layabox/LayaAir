@@ -43,7 +43,7 @@ const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_S
 const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
 var _clipResult = new Vector2();
-const _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
+const _drawTexToDrawTri_Vert = new Float32Array(8);// 从速度考虑，不做成static了
 const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 
@@ -106,25 +106,19 @@ export class GraphicsRunner {
      */
     sprite: Sprite | null = null;
 
-    private static _textRender: TextRender | null = null;// new TextRender();
+    _textRender: TextRender | null = null;// new TextRender();
     _italicDeg = 0;//文字的倾斜角度
     _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
 
-    private static defTexture: Texture | null = null;	//给fillrect用
+    _defTexture: Texture | null = null;	//给fillrect用
 
     drawTexAlign = false;		// 按照像素对齐
 
-    static __init__(): void {
-        ContextParams.DEFAULT = new ContextParams();
-        GraphicsRunner.defTexture = new Texture(Texture2D.whiteTexture);
-        if (!GraphicsRunner._textRender) {
-            GraphicsRunner._textRender = new TextRender();
-        }
-    }
-
     constructor() {
         //_ib = IndexBuffer2D.QuadrangleIB;
-        this._lastTex = GraphicsRunner.defTexture;
+        this._defTexture = new Texture(Texture2D.whiteTexture);
+        this._lastTex = this._defTexture;
+        this._textRender = new TextRender();
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
         // this._charSubmitCache = new CharSubmitCache(this);
@@ -521,7 +515,7 @@ export class GraphicsRunner {
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
-        this._lastTex = GraphicsRunner.defTexture;
+        this._lastTex = this._defTexture;
     }
 
     clear(): void {
@@ -678,22 +672,22 @@ export class GraphicsRunner {
     }
 
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
-        GraphicsRunner._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
+        this._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
     }
     // 与fillText的区别是没有border信息
     drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
-        GraphicsRunner._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
+        this._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
     }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-        GraphicsRunner._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
+        this._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
     }
     fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
-        GraphicsRunner._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
+        this._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
     }
 
     /**@internal */
     _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        GraphicsRunner._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
+        this._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
     }
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
@@ -729,7 +723,7 @@ export class GraphicsRunner {
                 this._setClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
                 if (!this._lastTex || this._lastTex.destroyed) {
-                    material.textureHost = GraphicsRunner.defTexture;
+                    material.textureHost = this._defTexture;
                 } else {
                     material.textureHost = this._lastTex;
                 }
@@ -2353,7 +2347,7 @@ export class GraphicsRunner {
 
 /** @internal */
 class ContextParams {
-    static DEFAULT: ContextParams;
+    static readonly DEFAULT: Readonly<ContextParams> = new ContextParams();
 
     lineWidth = 1;
     textAlign: string;

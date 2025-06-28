@@ -152,7 +152,7 @@ export class Image extends UIComponent {
         if (url) {
             if (this._skinBaseUrl)
                 url = URL.formatURL(url, this._skinBaseUrl);
-            let source = Loader.getRes(url);
+            let source = Loader.getRes(url, Loader.IMAGE);
             if (source) {
                 this.source = source;
                 return Promise.resolve();

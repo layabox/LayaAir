@@ -207,6 +207,7 @@ export class UIComponent extends Sprite {
     }
 
     set gray(value: boolean) {
+        value = !!value;
         if (value !== this._gray) {
             this._gray = value;
             let postProcess = this.getPostProcess(value);
@@ -219,8 +220,8 @@ export class UIComponent extends Sprite {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
+            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
-        this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 
     /**

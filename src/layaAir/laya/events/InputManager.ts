@@ -3,6 +3,7 @@ import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
 import type { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -579,7 +580,7 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if (sp._getBit(NodeFlags.AREA_2D)) {
+        if ((sp._renderType & SpriteConst.AREA2D) !== 0) {
             (<Area2D>sp).transformPoint(x, y, Point.TEMP);
             x = Point.TEMP.x;
             y = Point.TEMP.y;

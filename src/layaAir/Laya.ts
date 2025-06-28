@@ -212,7 +212,6 @@ export class Laya {
         HalfFloatUtils.__init__();
 
         Scene.__init__();
-        GraphicsRunner.__init__();
         Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Blit2DCMD.__init__();
