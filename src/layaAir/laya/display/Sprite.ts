@@ -1158,7 +1158,7 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
 
-        if (this._renderType & SpriteConst.GRAPHICS) {
+        if (this._graphics) {
             this._graphics._checkDisplay();
             this.repaint();
         }

@@ -1424,7 +1424,7 @@ export class Animator extends Component {
                 var state: AnimatorState = animatorStates[j].clone();
                 var cloneLayer: AnimatorControllerLayer = dest.getControllerLayer(i);
                 cloneLayer.addState(state);
-                (j == 0) && (cloneLayer.defaultState = state);
+                (j === 0) && (cloneLayer.defaultState = state);
             }
         }
         dest.controller = this._controller;

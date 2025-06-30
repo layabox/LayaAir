@@ -55,7 +55,7 @@ export class RegularPolygonMesh implements IMeshFactory {
         }
         else {
             for (let i = 0; i < this.sides; i++)
-                vb.addTriangle(0, i + 1, (i == this.sides - 1) ? 1 : i + 2);
+                vb.addTriangle(0, i + 1, (i === this.sides - 1) ? 1 : i + 2);
         }
     }
 }

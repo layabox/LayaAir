@@ -1087,7 +1087,7 @@ export class ListLayout extends Layout {
                 yy += lineHeight + this._rowGap;
                 lineHeight = 0;
 
-                if (i == startIndex + pageSize - 1) {
+                if (i === startIndex + pageSize - 1) {
                     borderX += vw;
                     xx = borderX;
                     yy = 0;
@@ -1252,7 +1252,7 @@ export class ListLayout extends Layout {
                 yy = borderY;
                 lineWidth = 0;
 
-                if (i == startIndex + pageSize - 1) {
+                if (i === startIndex + pageSize - 1) {
                     borderY += vh;
                     xx = 0;
                     yy = borderY;

@@ -103,7 +103,7 @@ export class Controller extends EventDispatcher {
 
     public set selectedPage(value: string) {
         let i = this._pages.indexOf(value);
-        if (i == -1)
+        if (i === -1)
             i = 0;
         this.selectedIndex = i;
     }

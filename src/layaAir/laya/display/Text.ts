@@ -1596,7 +1596,7 @@ export class Text extends Sprite {
                 i = 1;
             else {
                 i = this._lines.findIndex(line => line.y + line.height > rectHeight);
-                if (i == 0) i = 1;
+                if (i === 0) i = 1;
             }
             let linesDeleted = false;
             if (i != -1 && this._lines.length > i) {

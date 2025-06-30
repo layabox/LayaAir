@@ -353,7 +353,7 @@ export class Loader extends EventDispatcher {
             let entry = Loader.extMap[ext];
             if (entry && type) { //这个扩展名已经被注册为其他资源类型
                 let i = entry.findIndex(e => e.typeId == typeEntry.typeId);
-                if (i == -1) //注册为次类型
+                if (i === -1) //注册为次类型
                     entry.push(typeEntry);
                 else //覆盖旧的设置
                     entry[i].loaderType = cls;
@@ -898,7 +898,7 @@ export class Loader extends EventDispatcher {
             if (extEntry) {
                 if (extEntry[0].typeId === typeId //优化，大部分情况均为如此
                     || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1) {
-                    main = i == 0;
+                    main = i === 0;
                     loaderType = extEntry[i].loaderType;
                 }
                 else {
@@ -1162,7 +1162,7 @@ export class Loader extends EventDispatcher {
             }
             else {
                 let i = entry.indexOf(checkObj);
-                if (i == -1)
+                if (i === -1)
                     return;
 
                 if (entry.length == 4 && entry[0] == null)

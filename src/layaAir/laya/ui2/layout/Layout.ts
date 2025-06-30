@@ -244,7 +244,7 @@ export class Layout implements ILayout {
             for (; i < cnt; i++) {
                 obj = children[i];
                 if (yValue < obj.y) {
-                    if (i == 0) {
+                    if (i === 0) {
                         yValue = 0;
                         break;
                     }
@@ -259,7 +259,7 @@ export class Layout implements ILayout {
                 }
             }
 
-            if (i == cnt)
+            if (i === cnt)
                 yValue = obj.y;
         }
 
@@ -269,7 +269,7 @@ export class Layout implements ILayout {
             for (; i < cnt; i++) {
                 obj = children[i];
                 if (xValue < obj.x) {
-                    if (i == 0) {
+                    if (i === 0) {
                         xValue = 0;
                         break;
                     }
@@ -284,7 +284,7 @@ export class Layout implements ILayout {
                 }
             }
 
-            if (i == cnt)
+            if (i === cnt)
                 xValue = obj.x;
         }
 
@@ -572,7 +572,7 @@ export class Layout implements ILayout {
                     mh = child.height;
 
                 ci++;
-                if (ci == cols && !singleRow || i == cnt - 1)
+                if (ci === cols && !singleRow || i === cnt - 1)
                     newLine(i + 1);
             }
 
@@ -741,7 +741,7 @@ export class Layout implements ILayout {
                     mw = child.width;
 
                 ri++;
-                if (ri == rows && !singleColumn || i == cnt - 1)
+                if (ri === rows && !singleColumn || i === cnt - 1)
                     newLine(i + 1);
             }
 
