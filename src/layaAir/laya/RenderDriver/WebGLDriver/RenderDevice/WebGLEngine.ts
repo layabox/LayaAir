@@ -55,7 +55,10 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
+    _framePassCount: number = 0;
+
     private _lost: boolean = false;
+
     public get lost(): boolean {
         return this._lost;
     }

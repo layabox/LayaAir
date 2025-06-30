@@ -203,7 +203,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 //this._bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.shaderChange = false;
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
-                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             }
             command.setPipeline(drawInfo.pipeline);
             if (!command.isBundle && this.depthStencilParam.stencilEnable) {

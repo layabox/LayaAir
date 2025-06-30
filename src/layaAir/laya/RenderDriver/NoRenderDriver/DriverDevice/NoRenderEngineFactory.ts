@@ -20,6 +20,7 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 
 export class NoRenderEngine implements IRenderEngine {
+    _framePassCount: number = 0;
     _context: any;
     _isShaderDebugMode: boolean;
     _enableStatistics: boolean;
