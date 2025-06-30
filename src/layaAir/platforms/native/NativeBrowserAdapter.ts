@@ -1,4 +1,4 @@
-import { Config } from "../../Config";
+import { Config, PlayerConfig } from "../../Config";
 import { Laya } from "../../Laya";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
@@ -14,7 +14,7 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         PAL.g = (window as any).conch;
 
         WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-            return Laya.loader.fetch("libs/" + wasmFile, "arraybuffer").then(data => {
+            return Laya.loader.fetch((PlayerConfig.wasmSubpackage || "libs") + "/" + wasmFile, "arraybuffer").then(data => {
                 if (data) {
                     let module = new window.WebAssembly.Module(data);
                     let instance = new window.WebAssembly.Instance(module, imports);
