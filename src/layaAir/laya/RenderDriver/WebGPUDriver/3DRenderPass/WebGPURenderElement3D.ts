@@ -174,7 +174,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     public set renderShaderData(value: WebGPUShaderData) {
         if (this._renderShaderData != value) {
             this._renderShaderData = value;
-            this._renderNodeChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._renderNodeChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
         }
     }
 
@@ -353,7 +353,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
 
         if (this._renderShaderData && compareCahceFlag(this._renderNodeChangeFlag, this._drawPassInfo.nodeCacheFlag)) {
-            this._drawPassInfo.nodeCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._drawPassInfo.nodeCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._spriteRenderDataChange = true;
         } else {
             this._spriteRenderDataChange = false;
@@ -616,7 +616,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             if (this.owner) {
                 let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
                 if (info.shaderChange || this._spriteRenderDataChange || compareCahceFlag(bindgroupChangeFlag, info.renderNodeBindGroupCacheFlag)) {
-                    info.renderNodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    info.renderNodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(2);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
@@ -634,7 +634,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         {
             if (this._materialShaderData) {
                 if (info.shaderChange || this._materialRenderDataChange || compareCahceFlag(this._matBindGroupChangeFlag, info.matBindGroupCacheFlag)) {
-                    info.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    info.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
