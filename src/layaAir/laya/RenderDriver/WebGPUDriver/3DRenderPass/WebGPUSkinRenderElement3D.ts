@@ -140,32 +140,23 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         {
             command.setBindGroup(1, context._cameraBindGroup);
         }
-        {//TODO?
-            let resource = shaderInstance.uniformSetMap.get(2);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
-            let shaderData = this.owner.shaderData as WebGPUShaderData;
-            shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
 
-            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner, textureExitsMask);
-            // command.setBindGroup(2, bindgroup);
-            this._bindGroupMap.set(2, bindGroup);
-        }
 
-        {
-            if (this.materialShaderData) {
-                if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
-                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
-                    let shaderResource = shaderInstance.uniformSetMap.get(3);
-                    let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
+        // {
+        //     if (this.materialShaderData) {
+        //         if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
+        //             this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+        //             let shaderResource = shaderInstance.uniformSetMap.get(3);
+        //             let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-                    this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
-                    coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
-                }
-                command.setBindGroup(3, this.matBindGroup);
-            } else {
-                this.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
-            }
-        }
+        //             this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
+        //             coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
+        //         }
+        //         command.setBindGroup(3, this.matBindGroup);
+        //     } else {
+        //         this.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+        //     }
+        // }
     }
 
     /**
@@ -190,6 +181,16 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             //set BindGroup
             this._bindGroup(context, drawInfo, command); //绑定资源组
             let pipelineCache = drawInfo.pipeLineCacheFlag;
+            {//TODO?
+                let resource = shaderInstance.uniformSetMap.get(2);
+                let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
+                let shaderData = this.owner.shaderData as WebGPUShaderData;
+                shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
+
+                let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner, textureExitsMask);
+                // command.setBindGroup(2, bindgroup);
+                this._bindGroupMap.set(2, bindGroup);
+            }
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
@@ -198,8 +199,8 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 this._bindGroupMap.clear();
                 this._bindGroupMap.set(0, context._sceneBindGroup);
                 this._bindGroupMap.set(1, context._cameraBindGroup);
-                this._bindGroupMap.set(2, this.nodeBindGroup);
-                this._bindGroupMap.set(3, this.matBindGroup);
+                //this._bindGroupMap.set(2, this.nodeBindGroup);
+                //this._bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.shaderChange = false;
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
                 drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);

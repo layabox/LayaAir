@@ -48,6 +48,7 @@ export function coverCahceFlag(coverFlag: Vector2, oldFlag: Vector2) {
 
 export class oneDrawPassCacheInfo {
     matCacheFlag: Vector2 = new Vector2();
+    nodeCacheFlag: Vector2 = new Vector2();
     passDefineCacheFlag: Vector2 = new Vector2();
     drawInfos: oneDrawCacheInfo[] = [];
 }
@@ -59,6 +60,11 @@ export class oneDrawCacheInfo {
     shaderChange: boolean;
     pipeLineCacheFlag: Vector2 = new Vector2();//和global的BindGroup引起的pipeline的更新Flag做对比
     defineCacheFlag: Vector2 = new Vector2();//define的改动cache数据
+
+    nodeBindGroup: WebGPUBindGroup;
+    renderNodeBindGroupCacheFlag: Vector2 = new Vector2();
+    matBindGroup: WebGPUBindGroup;
+    matBindGroupCacheFlag: Vector2 = new Vector2();
 }
 
 /**
@@ -69,41 +75,30 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
-    private _geometryID: number = null;
-    private _geometry: WebGPURenderGeometry;
-    public get geometry(): WebGPURenderGeometry {
-        return this._geometry;
-    }
-    public set geometry(value: WebGPURenderGeometry) {
-        if (value?.getStateCacheID() != this._geometryID) {
-            this._needUpdatePipeline();
-        }
+    protected _geometryID: number = null;
 
-        this._geometryID = value?.getStateCacheID();
-        this._geometry = value;
-    }
+    protected _geometry: WebGPURenderGeometry;
 
+    protected _materialUBO: WebGPUUniformBufferBase;
+    //material是否改变
+    protected _materialRenderDataChange: boolean = false;
+    //spriteRenderNode是否改变
+    protected _spriteRenderDataChange: boolean = false;
 
-    private materialUBO: WebGPUUniformBufferBase;
+    protected _materialShaderData: WebGPUShaderData;
 
-    //override
-    private _materialRenderDataChange: boolean = false;
-    private _materialShaderData: WebGPUShaderData;
-    public get materialShaderData(): WebGPUShaderData {
-        return this._materialShaderData;
-    }
-    public set materialShaderData(value: WebGPUShaderData) {
-        if (this.materialShaderData != value) {
-            this._materialShaderData = value;
-            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
-        }
-    }
+    protected _renderShaderData: WebGPUShaderData;
+
+    protected _subShader: SubShader;
+
+    protected _invertFrontFace: boolean;
+
+    //生成pipeline的时候使用
+    protected _bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
 
     materialRenderQueue: number;
 
     materialId: number;
-
-    renderShaderData: WebGPUShaderData;
 
     transform: Transform3D;
 
@@ -113,24 +108,92 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     declare owner: WebGPUBaseRenderNode;
 
-    private _subShader: SubShader;
+
+    private _blendStateKey: number = null;
+    private _blendState: WebGPUBlendStateCache;
+    private _depthStencilStateID: number = null;
+    private _depthStencilState: WebGPUDepthStencilStateCache;
+    private _cullMode: CullMode;
+    private _frontFace: FrontFace;
+
+
+
+
+    protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
+    //cache Data
+    //缓存每个pass的渲染信息
+    protected _passRenderInfo: Map<number, oneDrawPassCacheInfo> = new Map();
+    protected _drawPassInfo: oneDrawPassCacheInfo;//当前渲染pass的渲染数据组信息
+    protected _drawCacheArray: oneDrawCacheInfo[];//当前渲染pass的渲染数据
+
+    //renderElement本身资源改动
+    protected _matChangeFlag: Vector2 = new Vector2();//记录material改动
+    protected _renderNodeChangeFlag: Vector2 = new Vector2();
+    protected _pipelineChangeFlag: Vector2 = new Vector2();
+
+    //记录mat自身资源改动
+    protected _matDefChangeFlag: Vector2;
+    protected _matBindGroupChangeFlag: Vector2;
+    protected _matBindGroupLayoutFlag: Vector2;
+
+    //记录混合信息的cache信息
+    protected _cacheMatBlendStateID: number;
+    protected _cacheMatDepthStencilID: string;
+    protected _cacheMatCullMode: CullMode;
+
+
+
+
+    public get geometry(): WebGPURenderGeometry {
+        return this._geometry;
+    }
+
+    public set geometry(value: WebGPURenderGeometry) {
+        if (value?.getStateCacheID() != this._geometryID) {
+            this._needUpdatePipeline();
+        }
+        this._geometryID = value?.getStateCacheID();
+        this._geometry = value;
+    }
+
+    public get materialShaderData(): WebGPUShaderData {
+        return this._materialShaderData;
+    }
+
+    public set materialShaderData(value: WebGPUShaderData) {
+        if (this._materialShaderData != value) {
+            this._materialShaderData = value;
+            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+        }
+    }
+
+    public get renderShaderData(): WebGPUShaderData {
+        return this._renderShaderData;
+    }
+
+    public set renderShaderData(value: WebGPUShaderData) {
+        if (this._renderShaderData != value) {
+            this._renderShaderData = value;
+            this._renderNodeChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+        }
+    }
+
     public get subShader(): SubShader {
         return this._subShader;
     }
+
     public set subShader(value: SubShader) {
-        if (this.subShader != value) {
+        if (this._subShader != value) {
             this._subShader = value;
             this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
         }
     }
 
-    //@renderPipeline Interface TODO
-    private _blendStateKey: number = null;
-    private _blendState: WebGPUBlendStateCache;
 
     public get blendState(): WebGPUBlendStateCache {
         return this._blendState;
     }
+
     public set blendState(value: WebGPUBlendStateCache) {
         if (value?.key != this._blendStateKey) {
             this._needUpdatePipeline();
@@ -138,25 +201,23 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._blendStateKey = value?.key;
         this._blendState = value;
     }
-    //@renderPipeline Interface
-    private _depthStencilStateID: number = null;
-    private _depthStencilState: WebGPUDepthStencilStateCache;
+
     public get depthStencilState(): WebGPUDepthStencilStateCache {
         return this._depthStencilState;
     }
+
     public set depthStencilState(value: WebGPUDepthStencilStateCache) {
         if (value?.id != this._depthStencilStateID) {
             this._needUpdatePipeline();
         }
-
         this._depthStencilStateID = value?.id;
         this._depthStencilState = value;
     }
-    //@renderPipeline Interface
-    private _cullMode: CullMode;
+
     public get cullMode(): CullMode {
         return this._cullMode;
     }
+
     public set cullMode(value: CullMode) {
         if (value !== this._cullMode) {
             this._needUpdatePipeline();
@@ -164,11 +225,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
         this._cullMode = value;
     }
-    //@renderPipeline Interface
-    private _frontFace: FrontFace;
+
     public get frontFace(): FrontFace {
         return this._frontFace;
     }
+
     public set frontFace(value: FrontFace) {
         if (value !== this._frontFace) {
             this._needUpdatePipeline();
@@ -176,38 +237,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._frontFace = value;
     }
 
-    protected _invertFrontFace: boolean;
-
-    protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
-
-    protected _passRenderInfo: Map<number, oneDrawPassCacheInfo> = new Map();
-
-    nodeBindGroupCacheFlag: Vector2 = new Vector2();//cache flag
-    nodeBindGroup: WebGPUBindGroup;
-
-
-    matBindGroupCacheFlag: Vector2 = new Vector2();
-    matBindGroup: WebGPUBindGroup;
-
-    protected _matChangeFlag: Vector2 = new Vector2();//记录material变化时间
-    protected _matDefChangeFlag: Vector2;//记录宏的变化时间
-    protected _matBindGroupChangeFlag: Vector2;//记录Material的bindGroup的记录时间
-    protected _matBindGroupLayoutFlag: Vector2;//记录Material的BindGroupLayout的记录时间
-
-    protected _bindGroupMap: Map<number, WebGPUBindGroup> = new Map();
-    protected _pipelineChangeFlag: Vector2 = new Vector2();
-    protected _drawCacheArray: oneDrawCacheInfo[];
-    private _drawPassInfo: oneDrawPassCacheInfo;
-    private _cacheMatBlendStateID: number;
-    private _cacheMatDepthStencilID: string;
-    private _cacheMatCullMode: CullMode;
-
-    /** @internal */
-    _needUpdatePipeline() {
-        this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+    constructor() {
     }
 
-    constructor() {
+    /** @internal */
+    protected _needUpdatePipeline() {
+        this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
     }
 
     /**
@@ -226,12 +261,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
         globalShaderDefines.cloneTo(comDef);
 
-        if (this.renderShaderData) {
-            comDef.addDefineDatas(this.renderShaderData.getDefineData());
+        if (this._renderShaderData) {
+            comDef.addDefineDatas(this._renderShaderData.getDefineData());
         }
 
-        if (this.materialShaderData) {
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
+        if (this._materialShaderData) {
+            comDef.addDefineDatas(this._materialShaderData._defineDatas);
         }
 
         if (this.owner) {
@@ -260,7 +295,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             if (passdata.pipelineMode !== context.pipelineMode)
                 continue;
 
-            if (this.renderShaderData) {
+            if (this._renderShaderData) {
                 passdata.nodeCommonMap = this.owner._commonUniformMap;
             } else {
                 passdata.nodeCommonMap = null;
@@ -271,7 +306,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 passdata.additionShaderData = this.owner._additionShaderDataKeys;
             }
 
-            let attributeLocations = this.geometry.bufferState._attriLocArray;
+            let attributeLocations = this._geometry.bufferState._attriLocArray;
             pass.moduleData.attributeLocations = attributeLocations;
 
             var shaderIns = pass.withCompile(comDef, false) as WebGPUShaderInstance;
@@ -292,37 +327,44 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         this._drawCacheArray.length = renderCount;
     }
 
-    private _updateMatChangeFlag() {
+    protected _updateMatChangeFlag() {
         if (compareCahceFlag(this._matChangeFlag, this._drawPassInfo.matCacheFlag)) {//MaterialShaderData变动或者shader变动
             this._materialRenderDataChange = true;
             this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
-            let shadername = this.subShader.owner.name;
+            let shadername = this._subShader.owner.name;
             if (!WebGPURenderElement3D._matChangeFlagMap.has(shadername))
                 WebGPURenderElement3D._matChangeFlagMap.set(shadername, new Map())
             let shadermap = WebGPURenderElement3D._matChangeFlagMap.get(shadername);
-            if (!shadermap.has(this.materialShaderData._id)) {
+            if (!shadermap.has(this._materialShaderData._id)) {
                 let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount)];
-                shadermap.set(this.materialShaderData._id, flagArray);
-                this.materialShaderData.addBindGroupChangeLink(this.subShader._owner.name, this.subShader._uniformMap)
-                this.materialShaderData.addBindGroupChangeFlag(this.subShader._owner.name, flagArray[0], flagArray[1]);
-                this.materialShaderData._defineDatas.addChangeFlagInfo(flagArray[2]);
+                shadermap.set(this._materialShaderData._id, flagArray);
+                this._materialShaderData.addBindGroupChangeLink(this._subShader._owner.name, this._subShader._uniformMap)
+                this._materialShaderData.addBindGroupChangeFlag(this._subShader._owner.name, flagArray[0], flagArray[1]);
+                this._materialShaderData._defineDatas.addChangeFlagInfo(flagArray[2]);
             }
-            let flagArray = shadermap.get(this.materialShaderData._id);
+            let flagArray = shadermap.get(this._materialShaderData._id);
             this._matBindGroupChangeFlag = flagArray[0];
             this._matBindGroupLayoutFlag = flagArray[1];
             this._matDefChangeFlag = flagArray[2];
-            let subShader = this.subShader;
-            this.materialUBO = this.materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+            let subShader = this._subShader;
+            this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+        } else {
+            this._materialRenderDataChange = false;
+        }
+
+        if (this._renderShaderData && compareCahceFlag(this._renderNodeChangeFlag, this._drawPassInfo.nodeCacheFlag)) {
+            this._drawPassInfo.nodeCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._spriteRenderDataChange = true;
+        } else {
+            this._spriteRenderDataChange = false;
         }
     }
-
 
     /**
      * 渲染前更新,更新所有Buffer
      * @param context 
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
-
         if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
             this._drawPassInfo = new oneDrawPassCacheInfo();
             this._passRenderInfo.set(context._curRenderGlobalKey, this._drawPassInfo);
@@ -338,14 +380,14 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag) ||//material宏是否变化
             (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag) ||//sprite是否宏变化
                 compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag)) //判断场景中的宏是否变化
-        ) {//如果宏变了 也要弄
+        ) {
             passDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
             this._compileShader(context);
         }
 
-        let cullmode = this.materialShaderData.getInt(Shader3D.CULL);
+        let cullmode = this._materialShaderData.getInt(Shader3D.CULL);
         cullmode = cullmode ? cullmode : RenderState.CULL_NONE;
-        let depthStencilID = this.materialShaderData.depthStencilStateKey;
+        let depthStencilID = this._materialShaderData.depthStencilStateKey;
         let blendid = this._materialShaderData.blendStateCache ? this._materialShaderData.blendStateCache.id : -1;
         if (this._cacheMatCullMode != cullmode ||
             this._cacheMatDepthStencilID != depthStencilID ||
@@ -355,9 +397,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._cacheMatCullMode = cullmode;
             this._needUpdatePipeline();
         }
-        this._materialRenderDataChange = false;
         // material ubo
-        this.materialUBO && this.materialUBO.upload();
+        this._materialUBO && this._materialUBO.upload();
 
         let owner = this.owner;
         if (owner) {
@@ -413,8 +454,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._bindGroupMap.clear();
                 this._bindGroupMap.set(0, context._sceneBindGroup);
                 this._bindGroupMap.set(1, context._cameraBindGroup);
-                this._bindGroupMap.set(2, this.nodeBindGroup);
-                this._bindGroupMap.set(3, this.matBindGroup);
+                this._bindGroupMap.set(2, drawInfo.nodeBindGroup);
+                this._bindGroupMap.set(3, drawInfo.matBindGroup);
                 drawInfo.shaderChange = false;
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
                 drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
@@ -425,7 +466,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
 
             //this._uploadGeometry(command); //上传几何数据 draw
-            this.geometry.applyToEncoder(command.encoder)
+            this._geometry.applyToEncoder(command.encoder)
         }
 
         return 0;
@@ -440,10 +481,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param stateKey 
      */
     protected _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D) {
-        if (this.materialShaderData) {
+        if (this._materialShaderData) {
             this._getBlendState(shaderInstance);
             this._getDepthStencilState(shaderInstance, dest);
-            this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
+            this._getCullFrontMode(this._materialShaderData, shaderInstance, this._invertFrontFace, context.invertY);
         }
         let pipeline = WebGPURenderEngine._instance.pipelineCache.getPipeline(this._bindGroupMap, this, shaderInstance, context.destRT);
         return pipeline;
@@ -455,9 +496,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     private _getBlendState(shaderInstance: WebGPUShaderInstance) {
         if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-            this.blendState = this._getRenderStateBlendByShader(this.materialShaderData, shaderInstance);
+            this.blendState = this._getRenderStateBlendByShader(this._materialShaderData, shaderInstance);
         else {
-            this.blendState = this.materialShaderData.blendStateCache;
+            this.blendState = this._materialShaderData.blendStateCache;
         }
     }
 
@@ -506,8 +547,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _getDepthStencilState(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT): void {
         if (dest._depthTexture) {
             if ((shaderInstance._shaderPass as ShaderPass).statefirst)
-                this.depthStencilState = this._getRenderStateDepthByShader(this.materialShaderData, shaderInstance, dest);
-            else this.depthStencilState = this._getRenderStateDepthByMaterial(this.materialShaderData, dest);
+                this.depthStencilState = this._getRenderStateDepthByShader(this._materialShaderData, shaderInstance, dest);
+            else this.depthStencilState = this._getRenderStateDepthByMaterial(this._materialShaderData, dest);
         } else this.depthStencilState = null;
     }
 
@@ -574,36 +615,37 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             //判断 nodePipeline是否有改变
             if (this.owner) {
                 let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
-                if (info.shaderChange || compareCahceFlag(bindgroupChangeFlag, this.nodeBindGroupCacheFlag)) {
-                    this.nodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                if (info.shaderChange || this._spriteRenderDataChange || compareCahceFlag(bindgroupChangeFlag, info.renderNodeBindGroupCacheFlag)) {
+                    info.renderNodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(2);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
                     let commands = this.owner?._commonUniformMap;
                     let shaderData = this.owner?.shaderData as WebGPUShaderData;
                     let addition = this.owner?.additionShaderData;
-                    this.nodeBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
+                    info.nodeBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
                     coverCahceFlag(this.owner.bindGroupLayoutChangeFlag, this._pipelineChangeFlag);
                 }
             } else {
-                this.nodeBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+                info.nodeBindGroup = WebGPUBindGroupCache.emptyBindGroup;
             }
-            command.setBindGroup(2, this.nodeBindGroup);
+            command.setBindGroup(2, info.nodeBindGroup);
         }
         {
-            if (this.materialShaderData) {
-                if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
-                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            if (this._materialShaderData) {
+                if (info.shaderChange || this._materialRenderDataChange || compareCahceFlag(this._matBindGroupChangeFlag, info.matBindGroupCacheFlag)) {
+                    info.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-                    this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
+                    info.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this._subShader._owner.name], this._materialShaderData, null, shaderResource, textureExitsMask);
                     coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
                 }
-                command.setBindGroup(3, this.matBindGroup);
+                command.setBindGroup(3, info.matBindGroup);
             } else {
-                this.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+                info.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
             }
+            command.setBindGroup(3, info.matBindGroup);
         }
     }
 
@@ -615,7 +657,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;
         if (command) {
-            triangles += command.applyGeometry(this.geometry);
+            triangles += command.applyGeometry(this._geometry);
         }
         return triangles;
     }
@@ -623,7 +665,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _uploadGeometryIndex(command: WebGPURenderCommandEncoder | WebGPURenderBundle, index: number) {
         let triangles = 0;
         if (command) {
-            triangles += command.applyGeometryIndex(this.geometry, index);
+            triangles += command.applyGeometryIndex(this._geometry, index);
         }
         return triangles;
     }
@@ -633,7 +675,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     destroy() {
         //WebGPUGlobal.releaseId(this);
-        this.materialUBO = null;
+        this._materialUBO = null;
         this._passRenderInfo.clear();
     }
 }
