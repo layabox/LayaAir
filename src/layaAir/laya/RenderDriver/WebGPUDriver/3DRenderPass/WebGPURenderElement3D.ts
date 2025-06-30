@@ -352,6 +352,28 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
     }
 
+    protected _updateNodeUBO() {
+        let owner = this.owner;
+        if (owner) {
+            if (owner.spriteUBO0) {
+                owner.spriteUBO0.upload();
+            } else {
+                owner.spriteUBOs.forEach(ubo => {
+                    ubo.upload();
+                })
+            }
+
+            if (owner.additionalUBO0) {
+                owner.additionalUBO0.upload();
+            } else {
+                owner.additionalUBOs.forEach(ubo => {
+                    ubo.upload();
+                });
+            }
+        }
+    }
+
+
     /**
      * 渲染前更新,更新所有Buffer
      * @param context 
@@ -389,27 +411,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._cacheMatCullMode = cullmode;
             this._needUpdatePipeline();
         }
+
+        this._updateNodeUBO();
+
         // material ubo
         this._materialUBO && this._materialUBO.upload();
 
-        let owner = this.owner;
-        if (owner) {
-            if (owner.spriteUBO0) {
-                owner.spriteUBO0.upload();
-            } else {
-                owner.spriteUBOs.forEach(ubo => {
-                    ubo.upload();
-                })
-            }
 
-            if (owner.additionalUBO0) {
-                owner.additionalUBO0.upload();
-            } else {
-                owner.additionalUBOs.forEach(ubo => {
-                    ubo.upload();
-                });
-            }
-        }
 
         //是否反转面片
         this._invertFrontFace = this._getInvertFront();
@@ -461,7 +469,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._geometry.applyToEncoder(command.encoder)
         }
 
-        return 0;
+        return 1;
     }
 
     /**

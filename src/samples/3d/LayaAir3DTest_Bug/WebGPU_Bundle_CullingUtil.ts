@@ -184,8 +184,8 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
         this.isRender = true;
     }
 
-    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        return 0;
+    //_render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+      //  return 0;
         // //生成RenderBundle  调用
         // let shaders: WebGPUShaderInstance[] = (this._shaderInstances as any).elements;
         // if (!this.isRender) {
@@ -203,7 +203,7 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
         // }
 
         // return 0;
-    }
+    //}
 
     /**
       * 绑定资源组
@@ -273,18 +273,18 @@ export class webgpuRenderBundleElement extends WebGPURenderElement3D {
         }
     }
 
-    _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        if (this._needRecreateRenderBundle) {
-            this._commadnBundle.startRender(context.destRT, "renderCullBundle");
-            for (var i = 0; i < this._renderelements.length; i++) {
-                this._renderelements[i]._render(context, this._commadnBundle);
-            }
-            this._commadnBundle.finish("renderCullBundle");
-            this._needRecreateRenderBundle = false;
-        }
-        (command as WebGPURenderCommandEncoder).excuteBundle([this._commadnBundle._gpuBundle])
-        return 0;
-    }
+   // _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    //     if (this._needRecreateRenderBundle) {
+    //         this._commadnBundle.startRender(context.destRT, "renderCullBundle");
+    //         for (var i = 0; i < this._renderelements.length; i++) {
+    //             this._renderelements[i]._render(context, this._commadnBundle);
+    //         }
+    //         this._commadnBundle.finish("renderCullBundle");
+    //         this._needRecreateRenderBundle = false;
+    //     }
+    //     (command as WebGPURenderCommandEncoder).excuteBundle([this._commadnBundle._gpuBundle])
+    //     return 0;
+    // }
 }
 
 export class BundleCullingRender extends BaseRender {

@@ -12,7 +12,6 @@ import { WebGPUBufferState } from "../RenderDevice/WebGPUBufferState";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUVertexBuffer } from "../RenderDevice/WebGPUVertexBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
