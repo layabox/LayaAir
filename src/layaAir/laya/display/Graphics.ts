@@ -271,6 +271,8 @@ export class Graphics {
             return;
 
         this._display = value;
+        if (!this.owner) return;
+
         let struct = this.owner._struct;
         if (value) {
             this._modified = true;
@@ -720,6 +722,7 @@ export class Graphics {
         for (let i = 0; i < len; i++) {
             let submit = this._data._submits.elements[i];
             let texture = submit._internalInfo.textureHost;
+            if (!texture) continue;
             let bitmap = (texture as Texture).bitmap;
             if (bitmap && bitmap.destroyed) {
                 return false;
