@@ -310,10 +310,12 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.volumetricGI = null;
         this.renderelements.length = 0;
         this.renderelements = null;
-        this._commonUniformMap.length = 0;
-        this._commonUniformMap = null;
         this.shaderData && this.shaderData.destroy();
         this.shaderData = null;
+
+        this._commonUniformMap.length = 0;
+        this._commonUniformMap = null;
+
         this.additionShaderData.clear();
         this.additionShaderData = null;
         this._additionShaderDataKeys.length = 0;
