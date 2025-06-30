@@ -5,6 +5,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawImageCmd";
+
 /**
  * @en Draw image command
  * @zh 绘制图片命令
@@ -14,7 +16,7 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @en Identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
      */
-    static readonly ID: string = "DrawImage";
+    static readonly ID: string = className;
 
     /**
      * @en Texture to be drawn
@@ -67,7 +69,7 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @returns 绘制图片命令实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
-        let cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
+        let cmd: DrawImageCmd = Pool.getItemByClass(className, DrawImageCmd);
         cmd.texture = texture;
         texture && texture._addReference();
         cmd.x = x ?? 0;
@@ -85,7 +87,7 @@ export class DrawImageCmd implements IGraphicsCmd {
     recover(): void {
         this.texture && this.texture._removeReference();
         this.texture = null;
-        Pool.recover("DrawImageCmd", this);
+        Pool.recover(className, this);
     }
 
     /**

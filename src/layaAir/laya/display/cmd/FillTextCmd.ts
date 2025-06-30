@@ -10,6 +10,8 @@ import { Render } from "../../renders/Render";
 import { Browser } from "../../utils/Browser";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "FillTextCmd";
+
 /**
  * @en Draw text command
  * @zh 绘制文字命令
@@ -19,7 +21,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @en Identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
      */
-    static readonly ID: string = "FillText";
+    static readonly ID: string = className;
 
     /**
      * @en The x position of the start of the text (relative to the canvas).
@@ -109,7 +111,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @returns 绘制文本的命令实例
      */
     static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stroke: number, strokeColor: string | null): FillTextCmd {
-        var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
+        var cmd: FillTextCmd = Pool.getItemByClass(className, FillTextCmd);
         cmd._text = null;
         cmd._wordText = null;
         cmd.x = x;
@@ -145,7 +147,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        Pool.recover("FillTextCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -249,4 +251,4 @@ export class FillTextCmd implements IGraphicsCmd {
 
 }
 
-ClassUtils.regClass("FillTextCmd", FillTextCmd);
+ClassUtils.regClass(className, FillTextCmd);

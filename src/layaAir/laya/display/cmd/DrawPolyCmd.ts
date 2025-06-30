@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawPolyCmd";
+
 /**
  * @en Draw a polygon
  * @zh 绘制多边形
@@ -12,7 +14,7 @@ export class DrawPolyCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPolyCmd
      * @zh 绘制多边形命令的标识符
      */
-    static readonly ID: string = "DrawPoly";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -63,7 +65,7 @@ export class DrawPolyCmd implements IGraphicsCmd {
      * @param lineWidth 边框宽度
      */
     static create(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number): DrawPolyCmd {
-        var cmd: DrawPolyCmd = Pool.getItemByClass("DrawPolyCmd", DrawPolyCmd);
+        var cmd: DrawPolyCmd = Pool.getItemByClass(className, DrawPolyCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.points = points;
@@ -81,7 +83,7 @@ export class DrawPolyCmd implements IGraphicsCmd {
         this.points = null;
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawPolyCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -117,4 +119,4 @@ export class DrawPolyCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawPolyCmd", DrawPolyCmd);
+ClassUtils.regClass(className, DrawPolyCmd);

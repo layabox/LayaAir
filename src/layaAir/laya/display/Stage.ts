@@ -823,7 +823,7 @@ export class Stage extends Sprite {
 
         //subpass 分析  for
         for (let sprite of this._subpassUpdateList) {
-            if (!sprite._subpassUpdateFlag)
+            if (sprite._destroyed || !sprite._subpassUpdateFlag)
                 continue;
 
             sprite.updateSubRenderPassState();
@@ -875,7 +875,7 @@ export class Stage extends Sprite {
     private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {
         for (let sprite of changeMatrixList) {
             let trans = sprite.globalTrans;
-            if (sprite.destroyed || !trans)
+            if (sprite._destroyed || !trans)
                 continue;
 
             // trans._modifiedFrame = frame;

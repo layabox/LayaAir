@@ -2,6 +2,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "AlphaCmd";
+
 /**
  * @en Alpha command.
  * @zh 透明命令
@@ -12,7 +14,7 @@ export class AlphaCmd implements IGraphicsCmd {
      * @en Identifier for the AlphaCmd
      * @zh 透明命令的标识符
      */
-    static readonly ID: string = "Alpha";
+    static readonly ID: string = className;
 
     /**
      * @en The opacity level of the command.
@@ -29,7 +31,7 @@ export class AlphaCmd implements IGraphicsCmd {
      * @returns 一个已用给定 alpha 值初始化的 AlphaCmd 实例。
      */
     static create(alpha: number): AlphaCmd {
-        var cmd: AlphaCmd = Pool.getItemByClass("AlphaCmd", AlphaCmd);
+        var cmd: AlphaCmd = Pool.getItemByClass(className, AlphaCmd);
         cmd.alpha = alpha;
         return cmd;
     }
@@ -39,7 +41,7 @@ export class AlphaCmd implements IGraphicsCmd {
      * @zh 将 `AlphaCmd` 实例回收到对象池以供重用。
      */
     recover(): void {
-        Pool.recover("AlphaCmd", this);
+        Pool.recover(className, this);
     }
 
     /**

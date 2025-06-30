@@ -387,7 +387,8 @@ export class Loader extends EventDispatcher {
     private _queue: Array<DownloadItem>;
     private _downloadings: Set<DownloadItem>;
     private _tempTime: number;
-    /** @ignore */
+
+    /** @ignore @blueprintIgnore */
     constructor() {
         super();
 

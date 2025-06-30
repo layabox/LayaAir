@@ -7,6 +7,8 @@ import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawTextureCmd";
+
 /**
  * @en Draw a single texture
  * @zh 绘制单个贴图
@@ -16,7 +18,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
      */
-    static readonly ID: string = "DrawTexture";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -76,11 +78,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
     uv: number[] | null = null;
 
     /**
-     * @inheritdoc
-     */
-    lock: boolean;
-
-    /**
      * @en Create a DrawTextureCmd instance
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -107,7 +104,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @returns DrawTextureCmd实例
      */
     static create(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string, uv?: number[], percent?: boolean): DrawTextureCmd {
-        let cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
+        let cmd: DrawTextureCmd = Pool.getItemByClass(className, DrawTextureCmd);
         cmd.texture = texture;
         texture && texture._addReference();
         cmd.x = x ?? 0;
@@ -118,7 +115,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.matrix = matrix;
         cmd.alpha = alpha ?? 1;
         cmd.blendMode = blendMode;
-        cmd.uv = uv || null;
+        cmd.uv = uv;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
@@ -131,7 +128,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
-        Pool.recover("DrawTextureCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -189,4 +186,4 @@ export class DrawTextureCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawTextureCmd", DrawTextureCmd);
+ClassUtils.regClass(className, DrawTextureCmd);

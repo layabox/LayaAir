@@ -22,6 +22,7 @@ import { SpriteConst, TransformKind } from "./SpriteConst";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { Node } from "./Node";
+import { IGraphicsCmd } from "./IGraphics";
 
 /**
  * @en The Text class is used to create display objects to show text.
@@ -264,6 +265,9 @@ export class Text extends Sprite {
     destroy(destroyChild: boolean = true): void {
         recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
+
+        if (this._bgDrawCmd) //去除lock标志，让它在destroy时被回收
+            (this._bgDrawCmd as IGraphicsCmd).lock = false;
 
         super.destroy(destroyChild);
     }
@@ -1005,10 +1009,7 @@ export class Text extends Sprite {
     hideText(value: boolean) {
         this._hideText = value;
         if (value) {
-            if (this._bgDrawCmd)
-                this.graphics.removeCmd(this._bgDrawCmd);
-            this.graphics.clear(true);
-            this.drawBg();
+            this.graphics.clear(true, this._bgDrawCmd);
         }
         else {
             this.markChanged();
@@ -1041,10 +1042,7 @@ export class Text extends Sprite {
         }
 
         if (!text) {
-            if (this._bgDrawCmd)
-                this.graphics.removeCmd(this._bgDrawCmd);
-            this.graphics.clear(true);
-            this.drawBg();
+            this.graphics.clear(true, this._bgDrawCmd);
 
             this._textWidth = this._textHeight = 0;
             this._scrollPos = null;
@@ -1740,10 +1738,7 @@ export class Text extends Sprite {
      */
     protected renderText(): void {
         let graphics = this.graphics;
-        if (this._bgDrawCmd)
-            this.graphics.removeCmd(this._bgDrawCmd);
-        graphics.clear(true);
-        this.drawBg();
+        graphics.clear(true, this._bgDrawCmd);
 
         this._fontGlobalScale = TextRenderConfig.fontScale;
 
@@ -1862,6 +1857,7 @@ export class Text extends Sprite {
                 cmd.x = cmd.y = 0;
                 cmd.width = cmd.height = 1;
                 cmd.percent = true;
+                (cmd as IGraphicsCmd).lock = true;
                 this._bgDrawCmd = cmd;
             }
             cmd.fillColor = this._bgColor;
@@ -1878,7 +1874,8 @@ export class Text extends Sprite {
             }
         }
         else if (cmd) {
-            this.graphics.removeCmd(cmd);
+            this.graphics.removeCmd(cmd, true);
+            this._bgDrawCmd = null;
         }
     }
 

@@ -296,20 +296,8 @@ export class Sprite extends Node {
         }
         this._subStructRender && this._subStructRender.destroy();
         this._texture = null;
-        if (this._graphics) {
-            this._graphicsData.destroy();
-            if (this._ownGraphics) {
-                this._graphics.destroy();
-            } else {
-                this._graphics.owner = null;
-                this._graphics._checkDisplay();
-            }
-
-            this._graphics = null;
-            this._graphicsData = null;
-        }
+        this.setGraphics(null);
         this._struct = null;
-        this._subpassUpdateFlag = 0;
     }
 
     /**
@@ -713,29 +701,38 @@ export class Sprite extends Node {
      * @param value 要设置的 Graphics 对象。
      * @param transferOwnership 是否将 Graphics 对象设置到所属节点上(即将 Graphics 对象的所有权转移给 Sprite)。如果为 true,则 Sprite 将负责在不再需要 Graphics 对象时销毁它。
      */
-    setGraphics(value: Graphics, transferOwnership: boolean) {
-        if (this._graphics) {
+    setGraphics(value: Graphics, transferOwnership?: boolean) {
+        let g = this._graphics;
+        this._graphics = null; //避免graphics.destroy时重复进入这个函数
+        if (g) {
             if (this._ownGraphics)
-                this._graphics.destroy();
+                g.destroy();
             else {
-                this._graphics._data = null;
-                this._graphics.owner = null;
-                this._graphics._checkDisplay();
+                g._data = null;
+                g.owner = null;
+                g._checkDisplay();
             }
-        }
-        if (!this._graphicsData) {
-            this._graphicsData = new GraphicsRenderData();
         }
         this._ownGraphics = transferOwnership;
         this._graphics = value;
 
         if (value) {
+            if (!this._graphicsData)
+                this._graphicsData = new GraphicsRenderData();
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
         }
+        else {
+            if (this._graphicsData) {
+                this._graphicsData.destroy();
+                this._graphicsData = null;
+            }
+            this._renderType &= ~SpriteConst.GRAPHICS;
+        }
 
-        this.repaint();
+        if (!this._destroyed)
+            this.repaint();
     }
 
     /**

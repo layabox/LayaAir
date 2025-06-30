@@ -272,10 +272,12 @@ export class GWidget extends Sprite {
 
     set background(value: IGraphicsCmd) {
         if (this._background)
-            this._graphics.removeCmd(this._background);
+            this.graphics.removeCmd(this._background, true);
         this._background = value;
-        if (value)
+        if (value) {
+            value.lock = true;
             this.graphics.addCmd(value, 0);
+        }
     }
 
     get draggable(): boolean {
@@ -405,7 +407,6 @@ export class GWidget extends Sprite {
     set gears(value: Array<Gear>) {
         let visChanged: boolean;
         if (this._gears.length > 0) {
-
             this._gears.filter(g => !value.includes(g)).forEach(g => {
                 if (g instanceof GearDisplay)
                     visChanged = true;
@@ -439,6 +440,9 @@ export class GWidget extends Sprite {
     }
 
     destroy(): void {
+        if (this._background) //去除lock标志，让它在destroy时被回收
+            this._background.lock = false;
+
         super.destroy();
 
         for (let k in this._controllers)

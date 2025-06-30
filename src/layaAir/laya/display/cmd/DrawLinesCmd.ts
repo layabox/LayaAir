@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawLinesCmd";
+
 /**
  * @en Draw continuous curves command
  * @zh 绘制连续曲线命令
@@ -12,7 +14,7 @@ export class DrawLinesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawLinesCmd
      * @zh 绘制连续曲线命令的标识符
      */
-    static readonly ID: string = "DrawLines";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis position to start drawing
@@ -57,7 +59,7 @@ export class DrawLinesCmd implements IGraphicsCmd {
      * @returns DrawLinesCmd 实例
      */
     static create(x: number, y: number, points: any[], lineColor: any, lineWidth: number): DrawLinesCmd {
-        var cmd: DrawLinesCmd = Pool.getItemByClass("DrawLinesCmd", DrawLinesCmd);
+        var cmd: DrawLinesCmd = Pool.getItemByClass(className, DrawLinesCmd);
         //TODO 线段需要缓存
         cmd.x = x;
         cmd.y = y;
@@ -74,7 +76,7 @@ export class DrawLinesCmd implements IGraphicsCmd {
     recover(): void {
         this.points = null;
         this.lineColor = null;
-        Pool.recover("DrawLinesCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -110,4 +112,4 @@ export class DrawLinesCmd implements IGraphicsCmd {
 }
 
 
-ClassUtils.regClass("DrawLinesCmd", DrawLinesCmd);
+ClassUtils.regClass(className, DrawLinesCmd);

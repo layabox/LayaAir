@@ -2,6 +2,7 @@ import { NodeFlags } from "../../Const";
 import { Draw9GridTextureCmd } from "../../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../../display/cmd/DrawTextureCmd";
 import { DrawTrianglesCmd } from "../../display/cmd/DrawTrianglesCmd";
+import { IGraphicsCmd } from "../../display/IGraphics";
 import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
 import { Texture } from "../../resource/Texture";
@@ -26,6 +27,10 @@ export class ImageRenderer {
             if (this._owner._getBit(NodeFlags.EDITING_NODE))
                 this._tex.off("reload", this, this.onTextureReload);
             this._tex = null;
+        }
+        if (this._drawCmd) {
+            this._owner._graphics?.removeCmd(this._drawCmd, true);
+            this._drawCmd = null;
         }
     }
 
@@ -92,7 +97,7 @@ export class ImageRenderer {
             cmd = Draw9GridTextureCmd.create(this._tex, 0, 0, 1, 1, this._tex._sizeGrid, true);
         else
             cmd = DrawTextureCmd.create(this._tex, 0, 0, 1, 1, null, 1, null, null, null, true);
-        cmd.lock = true;
+        (cmd as IGraphicsCmd).lock = true;
         cmd.color = this._color.getABGR();
         this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, cmd, true);
     }

@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawLineCmd";
+
 /**
  * @en Draw bend line command
  * @zh 绘制单条曲线命令
@@ -12,7 +14,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @en Identifier for the DrawLineCmd
      * @zh 绘制单条曲线命令的标识符
      */
-    static readonly ID: string = "DrawLine";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis start position
@@ -70,7 +72,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @returns DrawLineCmd 实例
      */
     static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
-        var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
+        var cmd: DrawLineCmd = Pool.getItemByClass(className, DrawLineCmd);
         cmd.fromX = fromX;
         cmd.fromY = fromY;
         cmd.toX = toX;
@@ -85,7 +87,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池
      */
     recover(): void {
-        Pool.recover("DrawLineCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -143,4 +145,4 @@ export class DrawLineCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawLineCmd", DrawLineCmd);
+ClassUtils.regClass(className, DrawLineCmd);
