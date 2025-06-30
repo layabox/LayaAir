@@ -28,7 +28,7 @@ export enum FillOrigin {
 export class ProgressMesh implements IMeshFactory {
     origin: number = 0;
     amount: number = 0.6;
-    clockwise: boolean = false;
+    clockwise: boolean = true;
 
     private _method: number = 5;
 
