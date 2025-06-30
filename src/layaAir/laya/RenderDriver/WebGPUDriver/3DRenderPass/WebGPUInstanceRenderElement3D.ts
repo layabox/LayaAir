@@ -142,36 +142,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
     }
 
     protected _compileShader(context: WebGPURenderContext3D) {
-        this._shaderInstances.clear();
-
-        let comDef = this._getShaderInstanceDefines(context);
-        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-
-        let passes = this.subShader._passes;
-        for (let pass of passes) {
-            if (pass.pipelineMode !== context.pipelineMode)
-                continue;
-
-            if (this.renderShaderData) {
-                pass.nodeCommonMap = this.owner._commonUniformMap;
-            }
-            else {
-                pass.nodeCommonMap = null;
-            }
-
-            pass.additionShaderData = null;
-            if (this.owner) {
-                pass.additionShaderData = this.owner._additionShaderDataKeys;
-            }
-
-            let attributeLocations = this.geometry.bufferState._attriLocArray;
-            pass.moduleData.attributeLocations = attributeLocations;
-
-            let shaderIns = pass.withCompile(comDef) as WebGPUShaderInstance;
-            this._shaderInstances.add(shaderIns);
-        }
-
-        if (this._shaderInstances.length > 0) {
+        this.renderShaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+        super._compileShader(context);
+        if (this._drawCacheArray.length > 0) {
             this._updateInstanceData();
         }
     }
@@ -274,7 +247,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
      */
     recover() {
         this.instanceElementList.clear();
-        this.cachedDefineData.length=0;
+
         WebGPUInstanceRenderElement3D._pool.push(this);
     }
 }

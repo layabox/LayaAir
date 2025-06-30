@@ -12,7 +12,7 @@ import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevic
 import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { WebGPURenderContext3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderContext3D";
-import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
+import { oneDrawCacheInfo, WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
@@ -185,23 +185,24 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
     }
 
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        //生成RenderBundle  调用
-        let shaders: WebGPUShaderInstance[] = (this._shaderInstances as any).elements;
-        if (!this.isRender) {
-            return 0;
-        }
-
-        for (let j: number = 0, m: number = (this as any)._shaderInstances.length; j < m; j++) {
-            if (!shaders[j].complete)
-                continue;
-            let shaderInstance = shaders[j];
-            this._bindGroup(context, shaderInstance, command); //绑定资源组
-
-            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
-            this._uploadGeometry(command); //上传几何数据 draw
-        }
-
         return 0;
+        // //生成RenderBundle  调用
+        // let shaders: WebGPUShaderInstance[] = (this._shaderInstances as any).elements;
+        // if (!this.isRender) {
+        //     return 0;
+        // }
+
+        // for (let j: number = 0, m: number = (this as any)._shaderInstances.length; j < m; j++) {
+        //     if (!shaders[j].complete)
+        //         continue;
+        //     let shaderInstance = shaders[j];
+        //     this._bindGroup(context, shaderInstance, command); //绑定资源组
+
+        //     command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));  //新建渲染管线
+        //     this._uploadGeometry(command); //上传几何数据 draw
+        // }
+
+        // return 0;
     }
 
     /**
@@ -210,41 +211,41 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
       * @param command 
       * @param bundle 
       */
-    protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 
-        {
-            let sceneGroup = context._sceneBindGroup;
-            command.setBindGroup(0, sceneGroup);
-            this.bindGroupMap.set(0, sceneGroup);
-        }
-        {
-            let cameraGroup = context._cameraBindGroup;
-            command.setBindGroup(1, cameraGroup);
-            this.bindGroupMap.set(1, cameraGroup);
-        }
-        {
-            let shaderResource = shaderInstance.uniformSetMap.get(2);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
+        // {
+        //     let sceneGroup = context._sceneBindGroup;
+        //     command.setBindGroup(0, sceneGroup);
+        //     this.bindGroupMap.set(0, sceneGroup);
+        // }
+        // {
+        //     let cameraGroup = context._cameraBindGroup;
+        //     command.setBindGroup(1, cameraGroup);
+        //     this.bindGroupMap.set(1, cameraGroup);
+        // }
+        // {
+        //     let shaderResource = shaderInstance.uniformSetMap.get(2);
+        //     let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
-            let commands = this.owner?._commonUniformMap;
-            // let shaderData = this.owner?.shaderData as WebGPUShaderData;
-            let addition = this.owner?.additionShaderData;
+        //     let commands = this.owner?._commonUniformMap;
+        //     // let shaderData = this.owner?.shaderData as WebGPUShaderData;
+        //     let addition = this.owner?.additionShaderData;
 
-            let shaderData = this.cullShaderData
+        //     let shaderData = this.cullShaderData
 
-            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
+        //     let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup(commands, shaderData, addition, shaderResource, textureExitsMask);
 
-            command.setBindGroup(2, bindGroup);
-            this.bindGroupMap.set(2, bindGroup);
-        }
-        {
-            let resource = shaderInstance.uniformSetMap.get(3);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, resource, textureExitsMask);
+        //     command.setBindGroup(2, bindGroup);
+        //     this.bindGroupMap.set(2, bindGroup);
+        // }
+        // {
+        //     let resource = shaderInstance.uniformSetMap.get(3);
+        //     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
+        //     let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader.owner.name], this.materialShaderData, null, resource, textureExitsMask);
 
-            command.setBindGroup(3, bindgroup);
-            this.bindGroupMap.set(3, bindgroup);
-        }
+        //     command.setBindGroup(3, bindgroup);
+        //     this.bindGroupMap.set(3, bindgroup);
+        // }
     }
 }
 

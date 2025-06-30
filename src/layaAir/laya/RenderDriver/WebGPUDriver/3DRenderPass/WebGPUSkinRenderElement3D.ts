@@ -1,8 +1,11 @@
+import { info } from "console";
 import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Stat } from "../../../utils/Stat";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
@@ -12,7 +15,7 @@ import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUSubUniformBuffer } from "../RenderDevice/WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
-import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
+import { compareCahceFlag, coverCahceFlag, oneDrawCacheInfo, WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 
 const dynamicOffsetsData = new Uint32Array(1);
@@ -128,25 +131,40 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         return;
     }
 
-    protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
-        this.bindGroupMap.clear();
+    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+        let shaderInstance = info.shaderInstance;
+
         {
-            let sceneGroup = context._sceneBindGroup;
-            command.setBindGroup(0, sceneGroup);
-            this.bindGroupMap.set(0, sceneGroup);
+            command.setBindGroup(0, context._sceneBindGroup);
         }
         {
             command.setBindGroup(1, context._cameraBindGroup);
-            this.bindGroupMap.set(1, context._cameraBindGroup);
         }
+        {//TODO?
+            let resource = shaderInstance.uniformSetMap.get(2);
+            let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
+            let shaderData = this.owner.shaderData as WebGPUShaderData;
+            shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
+
+            let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner, textureExitsMask);
+            // command.setBindGroup(2, bindgroup);
+            this._bindGroupMap.set(2, bindGroup);
+        }
+
         {
-            let shaderResource = shaderInstance.uniformSetMap.get(3);
-            let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
+            if (this.materialShaderData) {
+                if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
+                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    let shaderResource = shaderInstance.uniformSetMap.get(3);
+                    let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
-            let bindgroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
-
-            command.setBindGroup(3, bindgroup);
-            this.bindGroupMap.set(3, bindgroup);
+                    this.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this.subShader._owner.name], this.materialShaderData, null, shaderResource, textureExitsMask);
+                    coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
+                }
+                command.setBindGroup(3, this.matBindGroup);
+            } else {
+                this.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
+            }
         }
     }
 
@@ -161,38 +179,44 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             return 0;
         }
 
-        let shaders = this._shaderInstances.elements;
+        if (this._drawCacheArray && this._drawCacheArray.length == 0) return 0;
 
-        for (let j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
-            let shaderInstance = shaders[j];
+        for (let j: number = 0, m: number = this._drawCacheArray.length; j < m; j++) {
+            let drawInfo = this._drawCacheArray[j];
+            let shaderInstance = drawInfo.shaderInstance;
+            if (!shaderInstance.complete)
+                return 0;
 
-            if (!shaderInstance.complete) {
-                continue;
+            //set BindGroup
+            this._bindGroup(context, drawInfo, command); //绑定资源组
+            let pipelineCache = drawInfo.pipeLineCacheFlag;
+            //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
+            //2、自身属性变化引起的pipeline变化
+            if (drawInfo.shaderChange ||
+                context._pipelineChange ||
+                compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
+                this._bindGroupMap.clear();
+                this._bindGroupMap.set(0, context._sceneBindGroup);
+                this._bindGroupMap.set(1, context._cameraBindGroup);
+                this._bindGroupMap.set(2, this.nodeBindGroup);
+                this._bindGroupMap.set(3, this.matBindGroup);
+                drawInfo.shaderChange = false;
+                drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
+                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
             }
-            this._bindGroup(context, shaderInstance, command);
-            {
-                let resource = shaderInstance.uniformSetMap.get(2);
-                let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
-                let shaderData = this.owner.shaderData as WebGPUShaderData;
-                shaderData._cacheSubUniformBuffer(this.skinnedBuffer, "SkinSprite3D", "SkinSprite3D", this.skinnedUniformMap);
-
-                let bindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroupByNode(resource, this.owner, textureExitsMask);
-                // command.setBindGroup(2, bindgroup);
-                this.bindGroupMap.set(2, bindGroup);
+            command.setPipeline(drawInfo.pipeline);
+            if (!command.isBundle && this.depthStencilParam.stencilEnable) {
+                (command as WebGPURenderCommandEncoder).setStencilReference(this.depthStencilParam.stencilRef);
             }
 
-            command.setPipeline(this._getWebGPURenderPipeline(shaderInstance, context.destRT, context));
-
-            {
-                let bindgroup = this.bindGroupMap.get(2);
+            {//TODO??
+                let bindgroup = this._bindGroupMap.get(2);
                 for (let i = 0; i < this.skinnedData.length; i++) {
                     dynamicOffsetsData[0] = i * this._skinnedBufferOffsetAlignment;
                     command.setBindGroupByDataOffaset(2, bindgroup, dynamicOffsetsData, 0, 1);
                     this._uploadGeometryIndex(command, i);
                 }
             }
-
-
         }
 
 

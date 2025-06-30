@@ -22,7 +22,6 @@ import { WebGPUSetRenderTargetCMD } from "./WebGPURenderCMD/WebGPUSetRenderTarge
 import { WebGPUSetViewportCMD } from "./WebGPURenderCMD/WebGPUSetViewportCMD";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
-import { WebGPURenderElement3D_1 } from "./WebGPURenderElement3D_1";
 import { WebGPUSkinRenderElement3D } from "./WebGPUSkinRenderElement3D";
 WebBaseRenderNode.BaseRenderNodeClass = WebGPUBaseRenderNode;
 /**
@@ -42,7 +41,7 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGPURenderContext3D();
     }
     createRenderElement3D(): IRenderElement3D {
-        return new WebGPURenderElement3D_1();
+        return new WebGPURenderElement3D();
     }
 
     createInstanceRenderElement3D(): WebGPUInstanceRenderElement3D {
