@@ -16,6 +16,7 @@ import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
 import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
+import { SpriteConst } from "../display/SpriteConst";
 
 /**
  * @blueprintInheritable
@@ -184,13 +185,16 @@ export class GWidget extends Sprite {
             if (value) {
                 this._grayEffect ||= new ColorEffect2D();
                 this._grayEffect.gray();
+                this._renderType |= SpriteConst.POSTPROCESS;
                 postProcess.addEffect(this._grayEffect);
             }
             else {
+                this._renderType &= ~SpriteConst.POSTPROCESS;
                 if (postProcess) {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
+
             this.setSubpassFlag(SubPassFlag.PostProcess);
         }
     }
