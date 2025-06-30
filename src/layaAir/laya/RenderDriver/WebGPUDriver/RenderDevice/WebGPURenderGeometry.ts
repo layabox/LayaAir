@@ -68,7 +68,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     private _drawType: DrawType;
     set drawType(v:DrawType){
         this._drawType = v;
-        this.updateApplyFunc();
     }
 
     get drawType(){
@@ -84,8 +83,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     //缓存ID
     private stateCacheID: number;
     private _cacheBufferStateID: number;//防止bufferState改动后，geometrycacheID错误
-
-    applyToEncoder:(enc:IGPURenderEncoder)=>number;
 
     isNeedReCreateCacheInfo() {
         return !(this.bufferState.stateCacheID == this._cacheBufferStateID);
@@ -118,7 +115,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     public set bufferState(value: WebGPUBufferState) {
         this._bufferState = value;
         this._getCacheInfo();
-        this.updateApplyFunc();
     }
 
     get indexFormat(): IndexFormat {
@@ -236,51 +232,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         obj._drawIndirectInfo = this._drawIndirectInfo?.slice();
     }
 
-    updateApplyFunc(){
-        let vb0 = this.bufferState?.vb0;
-        if(this._drawType==DrawType.DrawArray && vb0){
-            this.applyToEncoder = this.apply_1vb_1array;
-        }else if(this._drawType==DrawType.DrawElement &&vb0){
-            this.applyToEncoder = this.apply_1vb_1element;
-        }else{
-            this.applyToEncoder = this.applyDefault;
-        }
-    }
 
-    apply_1vb_1element(encoder:IGPURenderEncoder){
-        const bufferState = this.bufferState;
-        const indexBuffer = bufferState._bindedIndexBuffer;
-        let enc = encoder;
-        let vb = bufferState.vb0.source;
-        enc.setVertexBuffer(0, vb._source, 0, vb._size)
-        let indexByte = this.gpuIndexByte;
-        enc.setIndexBuffer(indexBuffer.source._source, this.gpuIndexFormat, 0, indexBuffer.source._size);
-
-        let info0 = this._drawElementInfo0;
-        let count = info0.elementCount;
-        enc.drawIndexed(count, 1, info0.elementStart / indexByte, 0);
-        return count / 3;
-    }
-
-    apply_1vb_1array(encoder:IGPURenderEncoder){
-        const bufferState = this.bufferState;
-        let enc = encoder;
-        let vb = bufferState.vb0.source;
-        enc.setVertexBuffer(0, vb._source, 0, vb._size)
-
-        let triangles =0;
-        let _drawArrayInfo = this._drawArrayInfo;
-        for (let i = _drawArrayInfo.length - 1; i > -1; i--) {
-            let count = _drawArrayInfo[i].count;
-            let start = _drawArrayInfo[i].start;
-            triangles += count - 2;
-            enc.draw(count, 1, start, 0);
-        }
-
-        return triangles;
-    }
-
-    applyDefault(encoder:IGPURenderEncoder){
+    applyToEncoder(encoder:IGPURenderEncoder){
         const bufferState = this.bufferState;
         const drawType = this.drawType;
 
@@ -321,8 +274,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
                         triangles += count - 2;
                         enc.draw(count, 1, start, 0);
                     }
-
-                    this.applyToEncoder = this.apply_1vb_1array;
                 }
                 break;
             case DrawType.DrawElement:
@@ -332,8 +283,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
                         count = info0.elementCount;
                         enc.drawIndexed(count, 1, info0.elementStart / indexByte, 0);
                         triangles += count / 3;
-                        //TODO 万一中间又增加了不满足单个vb怎么办
-                        this.applyToEncoder = this.apply_1vb_1element;
                     }else{
                         let _drawElementInfo = this._drawElementInfo;
                         for (let i = _drawElementInfo.length - 1; i > -1; i--) {
