@@ -46,12 +46,14 @@ export class HttpRequest extends EventDispatcher {
         let http = this._http;
         http.open(method, url, true);
 
+        let hasContentType = headers && headers.indexOf("Content-Type") !== -1; // 判断 headers 中是否已包含 Content-Type
+
         if (data) {
             if (typeof (data) == 'string') {
-                http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                if (!hasContentType) http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             }
             else {
-                http.setRequestHeader("Content-Type", "application/json");
+                if (!hasContentType) http.setRequestHeader("Content-Type", "application/json");
                 if (!(data instanceof ArrayBuffer))
                     data = JSON.stringify(data);
             }
