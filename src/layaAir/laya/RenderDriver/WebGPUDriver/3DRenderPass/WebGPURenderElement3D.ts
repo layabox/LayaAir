@@ -435,7 +435,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             return 0;
         }
 
-        if (this._drawCacheArray && this._drawCacheArray.length == 0) return 0;
+        if (!this._drawCacheArray || this._drawCacheArray.length == 0) return 0;
 
         for (let j: number = 0, m: number = this._drawCacheArray.length; j < m; j++) {
             let drawInfo = this._drawCacheArray[j];
@@ -465,7 +465,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 (command as WebGPURenderCommandEncoder).setStencilReference(this.depthStencilParam.stencilRef);
             }
 
-            //this._uploadGeometry(command); //上传几何数据 draw
+            // this._uploadGeometry(command); //上传几何数据 draw
             this._geometry.applyToEncoder(command.encoder)
         }
 
