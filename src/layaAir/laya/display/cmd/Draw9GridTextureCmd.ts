@@ -6,6 +6,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "Draw9GridTextureCmd";
+
 /**
  * @en Draw a texture with nine-grid information
  * @zh 绘制带九宫格信息的图片
@@ -15,7 +17,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en Identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
      */
-    static readonly ID: string = "Draw9GridTexture";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn
@@ -68,11 +70,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     percent: boolean = true;
 
     /**
-     * @inheritdoc
-     */
-    lock: boolean;
-
-    /**
      * @en Creates or retrieves a Draw9GridTextureCmd instance from the object pool and initializes it with the specified parameters.
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -95,7 +92,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @returns 一个已用给定参数初始化的 Draw9GridTextureCmd 实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent?: boolean, color?: string): Draw9GridTextureCmd {
-        let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
+        let cmd: Draw9GridTextureCmd = Pool.getItemByClass(className, Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
@@ -115,7 +112,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     recover(): void {
         this.texture?._removeReference();
         this.texture = null;
-        Pool.recover("Draw9GridTextureCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -162,4 +159,4 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 }
 
 const EMPTY_SIZE_GRID = [0, 0, 0, 0, 0];
-ClassUtils.regClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
+ClassUtils.regClass(className, Draw9GridTextureCmd);

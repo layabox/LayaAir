@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawEllipseCmd";
+
 /**
  * @en Draw ellipse command
  * @zh 绘制椭圆命令
@@ -13,7 +15,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      * @en Identifier for the DrawEllipseCmd
      * @zh 绘制椭圆命令的标识符
      */
-    static readonly ID: string = "DrawEllipse";
+    static readonly ID: string = className;
     /**
      * @en X-axis position of the ellipse center
      * @zh 椭圆中心点X轴位置
@@ -80,7 +82,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      * @returns DrawEllipseCmd实例
      */
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
-        var cmd = Pool.getItemByClass("DrawEllipseCmd", DrawEllipseCmd);
+        var cmd = Pool.getItemByClass(className, DrawEllipseCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -99,7 +101,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawEllipseCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -145,4 +147,4 @@ export class DrawEllipseCmd implements IGraphicsCmd {
 
 }
 
-ClassUtils.regClass("DrawEllipseCmd", DrawEllipseCmd);
+ClassUtils.regClass(className, DrawEllipseCmd);

@@ -51,6 +51,7 @@ import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 export class Graphics {
 
     /**
+     * @internal
      * @en Add global Uniform Data Map
      * @param propertyID The ID of the property
      * @param propertyKey The key of the property
@@ -65,6 +66,7 @@ export class Graphics {
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
+    /** @readonly */
     owner: Sprite | null = null;
 
     /** @internal */
@@ -98,19 +100,7 @@ export class Graphics {
 
     /**@ignore */
     constructor() {
-        this._createData();
         this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
-    }
-
-    protected _createData(): void {
-
-    }
-
-    protected _clearData(): void {
-
-    }
-
-    protected _destroyData(): void {
     }
 
     /**
@@ -118,38 +108,46 @@ export class Graphics {
      * @zh 销毁此对象。
      */
     destroy(): void {
-        this.clear(true);
-        this._graphicBounds && this._graphicBounds.destroy();
-        this._renderDataHandle && this._renderDataHandle.destroy();
-        this._graphicBounds = null;
-        this._data = null;
-        if (this.owner) {
-            this.owner._renderType &= ~SpriteConst.GRAPHICS;
-            this.owner = null;
+        if (this.owner && this.owner._graphics === this)
+            this.owner.setGraphics(null, false);
+        for (let cmd of this._cmds) {
+            if (!cmd.lock)
+                cmd.recover();
         }
+        this._cmds.length = 0;
         if (this._material) {
             this._material._removeReference();
             this._material = null;
         }
-        this._destroyData();
+        this._graphicBounds && this._graphicBounds.destroy();
+        this._graphicBounds = null;
+        this._renderDataHandle && this._renderDataHandle.destroy();
+        this._data = null;
+        this.owner = null;
     }
 
     /**
      * @en Clear drawing commands.
      * @param recoverCmds Whether to recycle the drawing instruction array. If set to true, the instruction array will be recycled to save memory. It is recommended to set it to true for recycling, but if you manually reference the array, recycling is not recommended.
+     * @param exclude (Optional) Exclude a specific command from being cleared. Default is null.
      * @zh 清空绘制命令。
      * @param recoverCmds 是否回收绘图指令数组。设置为true，则对指令数组进行回收以节省内存开销。建议设置为true进行回收，但如果手动引用了数组，不建议回收。
+     * @param exclude （可选）排除特定命令不被清除。默认为null。
      */
-    clear(recoverCmds?: boolean): void {
+    clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
         if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
-                if (!cmd.lock)
+                if (!cmd.lock && cmd != exclude)
                     cmd.recover();
             }
         }
 
-        this._cmds.length = 0;
-        this._clearData();
+        if (exclude) {
+            this._cmds[0] = exclude;
+            this._cmds.length = 1;
+        }
+        else
+            this._cmds.length = 0;
         this._checkDisplay();
         this.repaint();
     }
@@ -177,9 +175,16 @@ export class Graphics {
         return this._cmds;
     }
 
-    set cmds(value) {
+    set cmds(value: IGraphicsCmd[]) {
+        if (this._cmds.length > 0) {
+            this._cmds.filter(cmd => !value.includes(cmd)).forEach(cmd => {
+                if (!cmd.lock)
+                    cmd.recover();
+            });
+        }
         this._cmds = value;
-        this.onCmdsChanged();
+        this._checkDisplay();
+        this.repaint();
     }
 
     /**
@@ -190,31 +195,38 @@ export class Graphics {
      * @param cmd 要被添加的命令。
      * @param index （可选）插入的索引。
      */
-    addCmd(cmd: any, index?: number): any {
-        if (cmd == null) {
-            console.warn("null cmd");
-            return;
-        }
+    addCmd<T extends IGraphicsCmd>(cmd: T, index?: number): T {
+        if (cmd == null)
+            throw new Error("null cmd");
 
         if (index == null || index >= this._cmds.length)
             this._cmds.push(cmd);
         else
             this._cmds.splice(index, 0, cmd);
-        this.onCmdsChanged();
+        this._checkDisplay();
+        this.repaint();
         return cmd;
     }
 
     /**
      * @en Remove a specific command from the command list.
      * @param cmd The command to be removed.
+     * @param recover (Optional) Whether to recycle the command. Default is false.
      * @zh 从命令列表中移除特定的命令。
      * @param cmd 要移除的命令。
+     * @param recover （可选）是否回收命令。默认为false。
      */
-    removeCmd(cmd: any) {
+    removeCmd(cmd: IGraphicsCmd, recover?: boolean) {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-            this.onCmdsChanged();
+            this._checkDisplay();
+            this.repaint();
+        }
+
+        if (recover) {
+            cmd.lock = false;
+            cmd.recover();
         }
     }
 
@@ -228,29 +240,28 @@ export class Graphics {
      * @param newCmd 新命令。
      * @param recover （可选）是否回收旧命令。默认为false。
      */
-    replaceCmd(oldCmd: any, newCmd: any, recover?: boolean) {
+    replaceCmd<T extends IGraphicsCmd>(oldCmd: IGraphicsCmd, newCmd: T, recover?: boolean): T {
         let index = this._cmds.indexOf(oldCmd);
         if (newCmd != null) {
             if (index !== -1)
                 this._cmds[index] = newCmd;
             else
                 this._cmds.push(newCmd);
-            this.onCmdsChanged();
+            this._checkDisplay();
+            this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this.onCmdsChanged();
+            this._checkDisplay();
+            this.repaint();
         }
 
-        if (oldCmd && recover)
+        if (oldCmd && recover) {
+            oldCmd.lock = false;
             oldCmd.recover();
+        }
 
         return newCmd;
-    }
-
-    private onCmdsChanged() {
-        this._checkDisplay();
-        this.repaint();
     }
 
     /** @internal */

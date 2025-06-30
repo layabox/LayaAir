@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawPathCmd";
+
 /**
  * @en Draw vector graphics based on the path
  * @zh 根据路径绘制矢量图形
@@ -12,7 +14,7 @@ export class DrawPathCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPathCmd
      * @zh 根据路径绘制矢量图形命令的标识符
      */
-    static readonly ID: string = "DrawPath";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -57,7 +59,7 @@ export class DrawPathCmd implements IGraphicsCmd {
      * @return DrawPathCmd 实例
      */
     static create(x: number, y: number, paths: any[], brush: any, pen: any): DrawPathCmd {
-        var cmd: DrawPathCmd = Pool.getItemByClass("DrawPathCmd", DrawPathCmd);
+        var cmd: DrawPathCmd = Pool.getItemByClass(className, DrawPathCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.paths = paths;
@@ -74,7 +76,7 @@ export class DrawPathCmd implements IGraphicsCmd {
         this.paths = null;
         this.brush = null;
         this.pen = null;
-        Pool.recover("DrawPathCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -118,4 +120,4 @@ export class DrawPathCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawPathCmd", DrawPathCmd);
+ClassUtils.regClass(className, DrawPathCmd);

@@ -9,6 +9,8 @@ import { VertexStream } from "../../utils/VertexStream"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner"
 
+const className = "DrawTrianglesCmd";
+
 /**
  * @en Draw triangles command
  * @zh 绘制三角形命令
@@ -18,7 +20,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
      */
-    static readonly ID: string = "DrawTriangles";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -75,10 +77,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 用于创建网格的工厂。
      */
     mesh: IMeshFactory;
-    /**
-     * @inheritdoc
-     */
-    lock: boolean;
 
     /**
      * @en Create a DrawTrianglesCmd instance
@@ -108,7 +106,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      */
     static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
         matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
-        var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
+        var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
@@ -136,7 +134,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @returns 绘制三角形命令实例
      */
     static create2(texture: Texture, mesh: IMeshFactory, color?: string | number): DrawTrianglesCmd {
-        var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
+        var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = 0;
@@ -158,7 +156,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.indices = null;
         this.matrix = null;
         this.mesh = null;
-        Pool.recover("DrawTrianglesCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -236,4 +234,4 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawTrianglesCmd", DrawTrianglesCmd);
+ClassUtils.regClass(className, DrawTrianglesCmd);

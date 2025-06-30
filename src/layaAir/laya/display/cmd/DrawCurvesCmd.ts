@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawCurvesCmd";
+
 /**
  * @en Draw curves command
  * @zh 绘制曲线命令
@@ -13,7 +15,7 @@ export class DrawCurvesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawCurvesCmd
      * @zh 绘制曲线命令的标识符
      */
-    static readonly ID: string = "DrawCurves";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis position to start drawing
@@ -58,7 +60,7 @@ export class DrawCurvesCmd implements IGraphicsCmd {
      * @returns DrawCurvesCmd实例
      */
     static create(x: number, y: number, points: any[], lineColor: any, lineWidth: number): DrawCurvesCmd {
-        var cmd: DrawCurvesCmd = Pool.getItemByClass("DrawCurvesCmd", DrawCurvesCmd);
+        var cmd: DrawCurvesCmd = Pool.getItemByClass(className, DrawCurvesCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.points = points;
@@ -74,7 +76,7 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     recover(): void {
         this.points = null;
         this.lineColor = null;
-        Pool.recover("DrawCurvesCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -109,4 +111,4 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawCurvesCmd", DrawCurvesCmd);
+ClassUtils.regClass(className, DrawCurvesCmd);

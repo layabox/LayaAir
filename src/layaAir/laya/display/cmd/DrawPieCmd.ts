@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawPieCmd";
+
 /**
  * @en Draw a pie chart
  * @zh 绘制扇形
@@ -12,7 +14,7 @@ export class DrawPieCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPieCmd
      * @zh 绘制扇形命令的标识符
      */
-    static readonly ID: string = "DrawPie";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -72,7 +74,7 @@ export class DrawPieCmd implements IGraphicsCmd {
      * @returns 绘制扇形命令实例
      */
     static create(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number): DrawPieCmd {
-        var cmd: DrawPieCmd = Pool.getItemByClass("DrawPieCmd", DrawPieCmd);
+        var cmd: DrawPieCmd = Pool.getItemByClass(className, DrawPieCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.radius = radius;
@@ -91,7 +93,7 @@ export class DrawPieCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawPieCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -187,4 +189,4 @@ export class DrawPieCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawPieCmd", DrawPieCmd);
+ClassUtils.regClass(className, DrawPieCmd);

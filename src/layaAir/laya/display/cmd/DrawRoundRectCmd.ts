@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawRoundRectCmd";
+
 /**
  * @en Draw a rounded rectangle
  * @zh 绘制圆角矩形
@@ -13,7 +15,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @en Identifier for the DrawRoundRectCmd
      * @zh 绘制圆角矩形命令的标识符
      */
-    static readonly ID: string = "DrawRoundRect";
+    static readonly ID: string = className;
     /**
      * @en The X-axis position of the rounded rectangle.
      * @zh 圆角矩形的 X 轴位置。
@@ -108,7 +110,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @returns DrawRoundRectCmd 实例
      */
     static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRoundRectCmd {
-        var cmd = Pool.getItemByClass("DrawRoundRectCmd", DrawRoundRectCmd);
+        var cmd = Pool.getItemByClass(className, DrawRoundRectCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -130,7 +132,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawRoundRectCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -177,4 +179,4 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
 
 }
 
-ClassUtils.regClass("DrawRoundRectCmd", DrawRoundRectCmd);
+ClassUtils.regClass(className, DrawRoundRectCmd);

@@ -3,6 +3,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "TransformCmd";
+
 /**
  * @en Transform command
  * @zh 矩阵变换命令
@@ -13,7 +15,7 @@ export class TransformCmd implements IGraphicsCmd {
      * @en Identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
      */
-    static readonly ID: string = "Transform";
+    static readonly ID: string = className;
 
     /**
      * @en The transformation matrix.
@@ -44,7 +46,7 @@ export class TransformCmd implements IGraphicsCmd {
      * @returns 矩阵变换命令实例
      */
     static create(matrix: Matrix, pivotX: number, pivotY: number): TransformCmd {
-        var cmd: TransformCmd = Pool.getItemByClass("TransformCmd", TransformCmd);
+        var cmd: TransformCmd = Pool.getItemByClass(className, TransformCmd);
         cmd.matrix = matrix;
         cmd.pivotX = pivotX;
         cmd.pivotY = pivotY;
@@ -57,7 +59,7 @@ export class TransformCmd implements IGraphicsCmd {
      */
     recover(): void {
         this.matrix = null;
-        Pool.recover("TransformCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
