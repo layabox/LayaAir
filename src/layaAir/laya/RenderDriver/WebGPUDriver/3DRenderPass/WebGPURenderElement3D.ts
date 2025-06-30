@@ -47,9 +47,9 @@ export function coverCahceFlag(coverFlag: Vector2, oldFlag: Vector2) {
 
 
 export class oneDrawPassCacheInfo {
-    matCacheFlag: Vector2 = new Vector2();
-    nodeCacheFlag: Vector2 = new Vector2();
-    passDefineCacheFlag: Vector2 = new Vector2();
+    matCacheFlag: Vector2 = new Vector2(-1, -1);
+    nodeCacheFlag: Vector2 = new Vector2(-1, -1);
+    passDefineCacheFlag: Vector2 = new Vector2(-1, -1);
     drawInfos: oneDrawCacheInfo[] = [];
 }
 
@@ -58,13 +58,13 @@ export class oneDrawCacheInfo {
     shaderInstance: WebGPUShaderInstance;
     pipeline: GPURenderPipeline;
     shaderChange: boolean;
-    pipeLineCacheFlag: Vector2 = new Vector2();//和global的BindGroup引起的pipeline的更新Flag做对比
-    defineCacheFlag: Vector2 = new Vector2();//define的改动cache数据
+    pipeLineCacheFlag: Vector2 = new Vector2(-1, -1);//和global的BindGroup引起的pipeline的更新Flag做对比
+    defineCacheFlag: Vector2 = new Vector2(-1, -1);//define的改动cache数据
 
     nodeBindGroup: WebGPUBindGroup;
-    renderNodeBindGroupCacheFlag: Vector2 = new Vector2();
+    renderNodeBindGroupCacheFlag: Vector2 = new Vector2(-1, -1);
     matBindGroup: WebGPUBindGroup;
-    matBindGroupCacheFlag: Vector2 = new Vector2();
+    matBindGroupCacheFlag: Vector2 = new Vector2(-1, -1);
 }
 
 /**
@@ -107,17 +107,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     isRender: boolean;
 
     declare owner: WebGPUBaseRenderNode;
-
-
     private _blendStateKey: number = null;
     private _blendState: WebGPUBlendStateCache;
     private _depthStencilStateID: number = null;
     private _depthStencilState: WebGPUDepthStencilStateCache;
     private _cullMode: CullMode;
     private _frontFace: FrontFace;
-
-
-
 
     protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
     //cache Data
@@ -140,9 +135,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _cacheMatBlendStateID: number;
     protected _cacheMatDepthStencilID: string;
     protected _cacheMatCullMode: CullMode;
-
-
-
 
     public get geometry(): WebGPURenderGeometry {
         return this._geometry;
