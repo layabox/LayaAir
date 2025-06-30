@@ -5,7 +5,7 @@ import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { TransformKind } from "../display/SpriteConst";
+import { SpriteConst, TransformKind } from "../display/SpriteConst";
 import { PostProcess2D } from "../display/PostProcess2D";
 import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
 import { SubPassFlag } from "../Const";
@@ -214,8 +214,10 @@ export class UIComponent extends Sprite {
             if (value) {
                 this._grayEffect ||= new ColorEffect2D();
                 this._grayEffect.gray();
+                this._renderType |= SpriteConst.POSTPROCESS;
                 postProcess.addEffect(this._grayEffect);
             } else {
+                this._renderType &= ~SpriteConst.POSTPROCESS;
                 if (postProcess) {
                     postProcess.removeEffect(this._grayEffect);
                 }
