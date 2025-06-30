@@ -1,3 +1,4 @@
+import { SubPassFlag } from "../Const";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -129,6 +130,7 @@ export class PostProcess2D extends EventDispatcher {
          return;
       }
       this._effects.push(effect);
+      this._owner.setSubpassFlag(SubPassFlag.PostProcess);
       effect.effectInit(this);
    }
 
@@ -140,8 +142,9 @@ export class PostProcess2D extends EventDispatcher {
     */
    removeEffect(effect: PostProcess2DEffect) {
       let index = this._effects.indexOf(effect);
-      if (index != -1) {
+      if (index !== -1) {
          this._effects.splice(index, 1);
+         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
       }
    }
 

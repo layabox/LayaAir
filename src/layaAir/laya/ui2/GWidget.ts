@@ -177,7 +177,7 @@ export class GWidget extends Sprite {
     }
 
     set grayed(value: boolean) {
-        value = !!value
+        value = !!value;
         if (this._grayed !== value) {
             this._grayed = value;
 
@@ -194,8 +194,6 @@ export class GWidget extends Sprite {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
-
-            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
     }
 

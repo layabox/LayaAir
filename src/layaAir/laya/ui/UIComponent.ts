@@ -222,7 +222,6 @@ export class UIComponent extends Sprite {
                     postProcess.removeEffect(this._grayEffect);
                 }
             }
-            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
     }
 
