@@ -16,6 +16,8 @@ export interface IRenderEngine {
 
     _enableStatistics: boolean;
 
+    _framePassCount: number;
+
     _remapZ: boolean;
     _screenInvertY: boolean;
     _lodTextureSample: boolean;

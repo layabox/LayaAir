@@ -269,13 +269,13 @@ export class WebGPUShaderData extends ShaderData {
         if (this._BindGroupFlagMap.has(mapID)) {
             let setBindgroup = this._BindGroupFlagMap.get(mapID);
             if (!setBindgroup.has(flag)) {
-                flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                 setBindgroup.add(flag);
             }
 
             let setlayout = this._BindGroupLayoutFlagMap.get(mapID);
             if (!setlayout.has(layoutFlag)) {
-                layoutFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                layoutFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                 setlayout.add(layoutFlag);
             }
 
@@ -764,7 +764,7 @@ export class WebGPUShaderData extends ShaderData {
             for (var i = 0; i < bindgroupMap.length; i++) {
                 let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
                 bidngroupMap.forEach(value => {
-                    value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                 });
             }
         }
@@ -784,7 +784,7 @@ export class WebGPUShaderData extends ShaderData {
                 for (var i = 0; i < bindgroupMap.length; i++) {
                     let bidngroupMap = this._BindGroupLayoutFlagMap.get(bindgroupMap[i])
                     bidngroupMap.forEach(value => {
-                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                        value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     });
                 }
             }
@@ -833,7 +833,7 @@ export class WebGPUShaderData extends ShaderData {
                 for (var i = 0; i < bindgroupMap.length; i++) {
                     let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
                     bidngroupMap.forEach(value => {
-                        value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                        value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     });
                 }
             }

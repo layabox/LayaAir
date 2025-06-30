@@ -236,7 +236,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             let cacheInfo = new WebGPUGlobalPipeLineCacheInfo();
             this._curRenderCacheInfo = cacheInfo;
             this._cacheGlobalDefines.cloneTo(cacheInfo.globalDefineData);
-            this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+            this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
             cacheInfo.globalPipelineCacheKey = pipelineLayout;
             this._pipelineChange = true;
 
@@ -248,11 +248,11 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             } else {
                 this._pipelineChange = true;
                 this._curRenderCacheInfo.globalPipelineCacheKey = pipelineLayout;
-                this._curRenderCacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                this._curRenderCacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             }
             if (!this._curRenderCacheInfo.globalDefineData.isEual(this._cacheGlobalDefines)) {
                 this._cacheGlobalDefines.cloneTo(this._curRenderCacheInfo.globalDefineData);
-                this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+                this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
             }
         }
         this._curDefineChangeFlag = this._curRenderCacheInfo.globalDefineChangeFlag
@@ -399,7 +399,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
         this._submit(); //提交渲染命令
         //TODO 统计
-        WebGPURenderEngine._framePassCount++;
+        WebGPURenderEngine._instance._framePassCount++;
         return 0;
     }
 
@@ -408,7 +408,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param node 
      */
     drawRenderElementOne(node: WebGPURenderElement3D): number {
-        WebGPURenderEngine._framePassCount++;
+        WebGPURenderEngine._instance._framePassCount++;
         this._setScreenRT();
         this._prepareContext();
         node._preUpdatePre(this);

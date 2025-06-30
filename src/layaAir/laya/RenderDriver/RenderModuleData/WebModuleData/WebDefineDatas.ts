@@ -165,7 +165,7 @@ export class WebDefineDatas implements IDefineDatas {
         if (this._changeFlags.size > 0) {
             for (var i = 0, n = this._changeFlags.size; i < n; i++) {
                 this._changeFlags.forEach(value => {
-                    value.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+                    value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
                 });
             }
         }
@@ -173,14 +173,14 @@ export class WebDefineDatas implements IDefineDatas {
 
     addChangeFlagInfo(flag: Vector2) {
         if (!this._changeFlags.has(flag)) {
-            flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._changeFlags.add(flag);
         }
     }
 
     removeChangeFlagInfo(flag: Vector2) {
         if (this._changeFlags.has(flag)) {
-            flag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._changeFlags.delete(flag);
         }
     }

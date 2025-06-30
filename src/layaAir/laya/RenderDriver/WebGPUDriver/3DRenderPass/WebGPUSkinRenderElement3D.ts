@@ -154,7 +154,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         {
             if (this.materialShaderData) {
                 if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
-                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
@@ -202,7 +202,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                 this._bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.shaderChange = false;
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
-                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             }
             command.setPipeline(drawInfo.pipeline);
             if (!command.isBundle && this.depthStencilParam.stencilEnable) {

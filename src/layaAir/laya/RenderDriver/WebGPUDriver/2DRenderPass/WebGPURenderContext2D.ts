@@ -113,7 +113,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement2D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
-        WebGPURenderEngine._framePassCount++;
+        WebGPURenderEngine._instance._framePassCount++;
         if (this._needStart) {
             this._start();
             this._needStart = false;
@@ -178,7 +178,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._start();
             this._needStart = false;
         }
-        WebGPURenderEngine._framePassCount++;
+        WebGPURenderEngine._instance._framePassCount++;
         this._prepareContext();
         //如果使用全局上下文，先清除上下文缓存
         // if (WebGPUGlobal.useGlobalContext)

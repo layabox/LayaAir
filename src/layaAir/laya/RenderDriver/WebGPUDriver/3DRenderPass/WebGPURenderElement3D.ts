@@ -95,7 +95,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     public set materialShaderData(value: WebGPUShaderData) {
         if (this.materialShaderData != value) {
             this._materialShaderData = value;
-            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount)
+            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
         }
     }
 
@@ -120,7 +120,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     public set subShader(value: SubShader) {
         if (this.subShader != value) {
             this._subShader = value;
-            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._matChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
         }
     }
 
@@ -204,7 +204,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     /** @internal */
     _needUpdatePipeline() {
-        this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+        this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
     }
 
     constructor() {
@@ -295,13 +295,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _updateMatChangeFlag() {
         if (compareCahceFlag(this._matChangeFlag, this._drawPassInfo.matCacheFlag)) {//MaterialShaderData变动或者shader变动
             this._materialRenderDataChange = true;
-            this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             let shadername = this.subShader.owner.name;
             if (!WebGPURenderElement3D._matChangeFlagMap.has(shadername))
                 WebGPURenderElement3D._matChangeFlagMap.set(shadername, new Map())
             let shadermap = WebGPURenderElement3D._matChangeFlagMap.get(shadername);
             if (!shadermap.has(this.materialShaderData._id)) {
-                let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._framePassCount)];
+                let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)];
                 shadermap.set(this.materialShaderData._id, flagArray);
                 this.materialShaderData.addBindGroupChangeLink(this.subShader._owner.name, this.subShader._uniformMap)
                 this.materialShaderData.addBindGroupChangeFlag(this.subShader._owner.name, flagArray[0], flagArray[1]);
@@ -339,7 +339,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag) ||//sprite是否宏变化
                 compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag)) //判断场景中的宏是否变化
         ) {//如果宏变了 也要弄
-            passDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+            passDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._compileShader(context);
         }
 
@@ -417,7 +417,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this._bindGroupMap.set(3, this.matBindGroup);
                 drawInfo.shaderChange = false;
                 drawInfo.pipeline = this._getWebGPURenderPipeline(drawInfo.shaderInstance, context.destRT, context);
-                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                drawInfo.pipeLineCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             }
             command.setPipeline(drawInfo.pipeline);
             if (!command.isBundle && this.depthStencilParam.stencilEnable) {
@@ -575,7 +575,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             if (this.owner) {
                 let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
                 if (info.shaderChange || compareCahceFlag(bindgroupChangeFlag, this.nodeBindGroupCacheFlag)) {
-                    this.nodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    this.nodeBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(2);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(2);
 
@@ -593,7 +593,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         {
             if (this.materialShaderData) {
                 if (info.shaderChange || compareCahceFlag(this._matBindGroupChangeFlag, this.matBindGroupCacheFlag)) {
-                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._framePassCount);
+                    this.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
 
