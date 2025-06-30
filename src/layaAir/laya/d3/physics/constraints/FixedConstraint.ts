@@ -33,6 +33,7 @@ export class FixedConstraint extends ConstraintComponent {
      * @protected
      */
     protected _onEnable(): void {
+        super._onEnable();
         if (this._joint)
             this._joint.isEnable(true);
     }
@@ -42,6 +43,7 @@ export class FixedConstraint extends ConstraintComponent {
      * @protected
      */
     protected _onDisable(): void {
+        super._onDisable();
         if (this._joint)
             this._joint.isEnable(false);
     }

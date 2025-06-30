@@ -273,7 +273,7 @@ export class btCollider implements ICollider {
      * @param value 碰撞组的值。
      */
     setCollisionGroup(value: number) {
-        if (value != this._collisionGroup && this._btColliderShape) {
+        if (value != this._collisionGroup && this._btColliderShape && this._physicsManager) {
             this._collisionGroup = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
@@ -287,7 +287,7 @@ export class btCollider implements ICollider {
      * @param value 碰撞掩码的值。
      */
     setCanCollideWith(value: number) {
-        if (value != this._canCollideWith && this._btColliderShape) {
+        if (value != this._canCollideWith && this._btColliderShape && this._physicsManager) {
             this._canCollideWith = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);

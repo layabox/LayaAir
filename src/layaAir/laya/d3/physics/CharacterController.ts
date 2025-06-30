@@ -50,15 +50,20 @@ export class CharacterController extends PhysicsColliderComponent {
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+            if (this.colliderShape) {
+                //需要销毁重新创建，否则无法绑定到collider上
+                this.colliderShape.destroy();
+            }
             this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
+            this.colliderShape.localOffset = this._offset;
             this._collider.component = this;
         } else {
             console.error("CharacterController: cant enable CharacterController");
         }
     }
 
-    protected _onAdded(): void {
-        super._onAdded();
+    protected _onEnable(): void {
+        super._onEnable();
         this.radius = this._radius;
         this.height = this._height;
         this.gravity = this._gravity;
@@ -94,9 +99,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set radius(value: number) {
         this._radius = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).radius = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Radius)) {
             this._collider.setRadius(this._radius);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).radius = value);
         }
     }
 
@@ -110,9 +115,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set height(value: number) {
         this._height = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).length = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_Height)) {
             this._collider.setHeight(this._height);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).length = value);
         }
     }
 
@@ -140,9 +145,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
     set centerOffset(value: Vector3) {
         this._offset = value;
+        this._colliderShape && ((this._colliderShape as CapsuleColliderShape).localOffset = value);
         if (this._collider && this.collider.getCapable(ECharacterCapable.Character_offset)) {
             this._collider.setShapelocalOffset(this._offset);
-            this._colliderShape && ((this._colliderShape as CapsuleColliderShape).localOffset = value);
         }
     }
 
@@ -274,6 +279,7 @@ export class CharacterController extends PhysicsColliderComponent {
      */
     constructor() {
         super();
+        this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
     }
 
     /**
