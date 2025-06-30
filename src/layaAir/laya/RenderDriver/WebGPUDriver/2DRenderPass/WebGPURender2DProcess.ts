@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { NotImplementedError } from "../../../utils/Error";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
@@ -13,7 +12,12 @@ import { Web2DGraphic2DBufferDataView, Web2DGraphicWholeBuffer } from "../../Ren
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
+import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
+import { WebGPUBlit2DQuadCMD, WebGPUDraw2DElementCMD, WebGPUSetRendertarget2DCMD } from "./WebGPU2DRenderCMD";
 import { WebGPUPrimitiveRenderElement2D } from "./WebGPUPrimitiveRenderElement2D";
+import { WebGPURenderContext2D } from "./WebGPURenderContext2D";
+import { WebGPURenderElement2D } from "./WebGPURenderElement2D";
 
 export class WebGPURender2DProcess implements I2DRenderPassFactory {
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
@@ -40,7 +44,6 @@ export class WebGPURender2DProcess implements I2DRenderPassFactory {
     createRenderStruct2D(): IRenderStruct2D {
         return new WebRenderStruct2D();
     }
-
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return new WebPrimitiveDataHandle();
     }
@@ -51,25 +54,25 @@ export class WebGPURender2DProcess implements I2DRenderPassFactory {
         return new WebMesh2DRenderDataHandle();
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
-        throw new NotImplementedError();
+        return new WebGPUSetRenderData();
     }
     createSetShaderDefineCMD(): SetShaderDefineCMD {
-        throw new NotImplementedError();
+        return new WebGPUSetShaderDefine();
     }
     createBlit2DQuadCMDData(): Blit2DQuadCMD {
-        throw new NotImplementedError();
+        return new WebGPUBlit2DQuadCMD();
     }
     createDraw2DElementCMDData(): Draw2DElementCMD {
-        throw new NotImplementedError();
+        return new WebGPUDraw2DElementCMD();
     }
     createSetRendertarget2DCMD(): SetRendertarget2DCMD {
-        throw new NotImplementedError();
+        return new WebGPUSetRendertarget2DCMD();
     }
     createRenderElement2D(): IRenderElement2D {
-        throw new NotImplementedError();
+        return new WebGPURenderElement2D();
     }
     createRenderContext2D(): IRenderContext2D {
-        throw new NotImplementedError();
+        return new WebGPURenderContext2D();
     }
 }
 
