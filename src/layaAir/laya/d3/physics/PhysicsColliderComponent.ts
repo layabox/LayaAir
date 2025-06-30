@@ -87,6 +87,9 @@ export class PhysicsColliderComponent extends Component {
     protected _collider: ICollider;
     /**@internal */
     protected _eventsArray: string[];
+    private _isColliderInit: boolean = false;
+
+    declare owner: Sprite3D;
 
     /**
      * @en The collider object. Used to access the underlying physics engine's collider object and directly operate on the underlying physics engine's collision characteristics.
@@ -326,14 +329,6 @@ export class PhysicsColliderComponent extends Component {
      * @protected
      */
     protected _onAdded(): void {
-        if (!this.owner.scene) {
-            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
-        } else {
-            this.initCollider();
-            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
-        }
-        this.owner.off(Event._Add_Script, this, this._setEventFilter);
-        this.owner.on(Event._Add_Script, this, this._setEventFilter);
     }
 
     /**
@@ -341,14 +336,20 @@ export class PhysicsColliderComponent extends Component {
      * @protected
      */
     protected _onEnable(): void {
-        (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        if (!this._isColliderInit) {
+            this.initCollider();
+            this._isColliderInit = true;
+        }
+        this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        this._physicsManager = (<Scene3D>this.owner._scene)._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
         this._collider && (this._collider.componentEnable = true);
         if (this._colliderShape) {
             this._physicsManager.setActiveCollider(this.collider, true);
             this._physicsManager.addCollider(this._collider);
         }
+        this.owner.on(Event._Add_Script, this, this._setEventFilter);
+        this._setEventFilter();
     }
 
     /**
@@ -363,6 +364,8 @@ export class PhysicsColliderComponent extends Component {
             this._physicsManager.setActiveCollider(this.collider, false);
         }
         this._physicsManager = null;
+
+        this.owner.off(Event._Add_Script, this, this._setEventFilter);
     }
 
     /**
@@ -370,9 +373,10 @@ export class PhysicsColliderComponent extends Component {
      * @protected
      */
     protected _onDestroy() {
-        this._collider.destroy();
         this._colliderShape && this._colliderShape.destroy();
+        this._collider && this._collider.destroy();
         this._collider = null;
+        this._isColliderInit = false;
         this._colliderShape = null;
         this._physicsManager = null;
     }

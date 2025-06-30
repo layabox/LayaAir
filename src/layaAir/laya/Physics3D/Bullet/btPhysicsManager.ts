@@ -1419,8 +1419,12 @@ export class btPhysicsManager implements IPhysicsManager {
             throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
         this._bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, character._btCollider);
         this._bt.btDynamicsWorld_removeAction(this._btCollisionWorld, character._btKinematicCharacter);
-        var characters: btCharacterCollider[] = this._characters;
-        characters.splice(characters.indexOf(character), 1);
+
+        let characters: btCharacterCollider[] = this._characters;
+        let index = characters.indexOf(character)
+        if (index != -1) {
+            characters.splice(index, 1);
+        }
     }
 
     // /**
