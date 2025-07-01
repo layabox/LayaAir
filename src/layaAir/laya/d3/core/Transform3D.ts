@@ -98,6 +98,7 @@ export class Transform3D extends EventDispatcher {
             (scale.z < 0) && (isInvert = !isInvert);
             this._faceInvert = isInvert;
             this._frontFaceValue = this._faceInvert ? -1 : 1;
+            this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
         }
         return this._faceInvert;
     }
@@ -847,7 +848,6 @@ export class Transform3D extends EventDispatcher {
             else {
                 this._localScale.cloneTo(this._scale);
             }
-            this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
         }
         return this._scale;
     }
@@ -882,7 +882,6 @@ export class Transform3D extends EventDispatcher {
         this.localScale = this._localScale;
         if (this._scale !== value)
             value.cloneTo(this._scale);
-        this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
     }
 
     /**
