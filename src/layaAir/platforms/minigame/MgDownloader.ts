@@ -121,10 +121,10 @@ export class MgDownloader extends Downloader {
         let loadTask = PAL.g.loadSubpackage({
             name: packageName,
             success: () => {
-                onComplete(null);
+                onComplete({ loadScript: false });
             },
             fail: err => {
-                onComplete(null, getErrorMsg(err));
+                onComplete({ loadScript: false }, getErrorMsg(err));
             },
             complete: null
         });
