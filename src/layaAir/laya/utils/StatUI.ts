@@ -13,7 +13,7 @@ export class StatUI {
     private _sp: Sprite;
     private _view: Array<StatUIParams>;
     private _show = false;
-    private _pass : IRender2DPass
+    private _pass: IRender2DPass
 
     private createUI(): void {
         this._pass = LayaGL.render2DRenderPassFactory.createRender2DPass();
@@ -21,7 +21,7 @@ export class StatUI {
         this._pass.root = this._sp._struct;
         this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
-        
+
         sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
         Laya.stage.on(Event.RESIZE, this, () => {
             this._sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
@@ -113,17 +113,8 @@ export class StatUI {
         }
     }
 
-    /**
-     * @en Render the performance statistics.
-     * @param ctx The rendering context.
-     * @param x The X-axis render position.
-     * @param y The Y-axis render position.
-     * @zh 渲染性能统计信息。
-     * @param ctx 渲染上下文。
-     * @param x X轴显示位置。
-     * @param y Y轴显示位置。
-     */
-    render(x: number, y: number) {
+    /** @internal */
+    render() {
         this._show && this._pass && this._pass.fowardRender(Render2DProcessor.rendercontext2D);
     }
 }

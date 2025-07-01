@@ -3,6 +3,7 @@ import { Controller } from "./Controller";
 import { UIEvent } from "./UIEvent";
 import type { GWidget } from "./GWidget";
 
+/** @ignore */
 export class ControllerRef {
     private _target: GWidget;
     private _name: string;
@@ -26,41 +27,41 @@ export class ControllerRef {
         this._inst = null;
     }
 
-    public get target() {
+    get target() {
         return this._target;
     }
 
-    public get name() {
+    get name() {
         return this._name;
     }
 
-    public get inst() {
+    get inst() {
         return this._inst;
     }
 
-    public get selectedIndex(): number {
+    get selectedIndex(): number {
         return this._inst ? this._inst.selectedIndex : -1;
     }
 
-    public set selectedIndex(value: number) {
+    set selectedIndex(value: number) {
         if (this._inst)
             this._inst.selectedIndex = value;
     }
 
-    public get selectedPage(): string {
+    get selectedPage(): string {
         return this._inst ? this._inst.selectedPage : "";
     }
 
-    public set selectedPage(value: string) {
+    set selectedPage(value: string) {
         if (this._inst)
             this._inst.selectedPage = value;
     }
 
-    public get previousIndex(): number {
+    get previousIndex(): number {
         return this._inst ? this._inst.selectedIndex : 0;
     }
 
-    public set oppositeIndex(value: number) {
+    set oppositeIndex(value: number) {
         if (this._inst)
             this._inst.oppositeIndex = value;
     }

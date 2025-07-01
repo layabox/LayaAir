@@ -16,6 +16,7 @@ export class Relation {
     private _ty: number;
     private _tw: number;
     private _th: number;
+
     /** @internal */
     _sw: number;
     /** @internal */
@@ -25,11 +26,11 @@ export class Relation {
         this._data = [];
     }
 
-    public get owner(): GWidget {
+    get owner(): GWidget {
         return this._owner;
     }
 
-    public set owner(value: GWidget) {
+    set owner(value: GWidget) {
         this._owner = value;
         if (this._target) {
             if (this._owner)
@@ -39,7 +40,7 @@ export class Relation {
         }
     }
 
-    public set target(value: GWidget | Scene) {
+    set target(value: GWidget | Scene) {
         if (this._target != value) {
             if (this._target)
                 this.unsetTarget();
@@ -49,19 +50,19 @@ export class Relation {
         }
     }
 
-    public get target(): GWidget | Scene {
+    get target(): GWidget | Scene {
         return this._target;
     }
 
-    public get data(): Array<number> {
+    get data(): Array<number> {
         return this._data;
     }
 
-    public set data(value: Array<number>) {
+    set data(value: Array<number>) {
         this._data = value;
     }
 
-    public add(type: RelationType, percent: boolean): void {
+    add(type: RelationType, percent: boolean): void {
         if (type == RelationType.Size) {
             this.add(RelationType.Width, percent);
             this.add(RelationType.Height, percent);
@@ -82,7 +83,7 @@ export class Relation {
             this._data.push(type, percent ? 1 : 0);
     }
 
-    public remove(type: RelationType): void {
+    remove(type: RelationType): void {
         if (type == RelationType.Size) {
             this.remove(RelationType.Width);
             this.remove(RelationType.Height);
@@ -117,7 +118,7 @@ export class Relation {
             this._target.off(UIEvent.InstanceReload, this, this.instReload);
     }
 
-    public applyOnSelfResized(): void {
+    applyOnSelfResized(): void {
         if (this._data.length == 0)
             return;
 

@@ -19,13 +19,18 @@ import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
 import { SpriteConst } from "../display/SpriteConst";
 
 /**
+ * @en GWidget is the base class for all UI widgets in the New UI system.
+ * @zh GWidget 是新 UI 系统中所有 UI 小部件的基类。
  * @blueprintInheritable
  */
 export class GWidget extends Sprite {
+    /**
+     * @en The data associated with this widget, which can be used to store custom information.
+     * @zh 与此小部件关联的数据，可用于存储自定义信息。
+     */
     data: any;
 
     private _tooltips: string;
-    private _asGroup: boolean = false;
     private _grayed: boolean = false;
     private _grayEffect: ColorEffect2D;
     private _background: IGraphicsCmd;
@@ -49,10 +54,14 @@ export class GWidget extends Sprite {
     /** @internal */
     _deltaHeight: number = 0;
 
+    /** @ignore */
     _giveWidth: number = 0;
+    /** @ignore */
     _giveHeight: number = 0;
 
+    /** @ignore */
     sourceWidth: number = 0;
+    /** @ignore */
     sourceHeight: number = 0;
 
     /** @internal */
@@ -70,6 +79,10 @@ export class GWidget extends Sprite {
         this._initialize();
     }
 
+    /**
+     * @en The leftmost x-coordinate of the widget, calculated based on the anchor point.
+     * @zh 小部件最左侧的 x 坐标，根据锚点计算。
+     */
     get left(): number {
         return this._x - this._width * this._anchorX;
     }
@@ -78,6 +91,10 @@ export class GWidget extends Sprite {
         this.pos(value + this._width * this._anchorX, this.y);
     }
 
+    /**
+     * @en The topmost y-coordinate of the widget, calculated based on the anchor point.
+     * @zh 小部件最上方的 y 坐标，根据锚点
+     */
     get top(): number {
         return this._y - this._height * this._anchorY;
     }
@@ -86,12 +103,30 @@ export class GWidget extends Sprite {
         this.pos(this._x, value + this._height * this._anchorY);
     }
 
+    /**
+     * @en Sets the position of the widget based on its anchor point.
+     * @param xv The x-coordinate to set.
+     * @param yv The y-coordinate to set.
+     * @zh 根据锚点设置小部件的位置。
+     * @param xv 要设置的 x 坐标.
+     * @param yv 要设置的 y 坐标.
+     */
     setLeftTop(xv: number, yv: number): void {
         xv = xv != null ? xv + this._width * this._anchorX : this._x;
         yv = yv != null ? yv + this._height * this._anchorY : this._y;
         this.pos(xv, yv);
     }
 
+    /**
+     * @en Centers the widget within the specified target or its parent.
+     * If no target is specified, it will center within the parent or stage.
+     * @param target The target widget or scene to center within. If not provided, it defaults to the parent or stage.
+     * @returns Returns the current GWidget instance for method chaining.
+     * @zh 在指定的目标或其父级中居中小部件。
+     * 如果未指定目标，则默认在父级或舞台中居中。
+     * @param target 要在其中居中的目标小部件或场景。如果未提供，则默认为父级或舞台。
+     * @returns 返回当前的 GWidget 实例，以便进行方法链调用。
+     */
     center(target?: GWidget): this {
         let r: Sprite = target;
         if (!r) {
@@ -106,6 +141,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /** @ignore */
     pos(x: number, y: number): this {
         if (this._x != x || this._y != y) {
             super.pos(x, y);
@@ -118,6 +154,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /** @ignore */
     size(wv: number, hv: number, changeByLayout?: boolean): this {
         if (this._width == wv && this._height == hv) {
             if (this._forceSizeFlag)
@@ -160,6 +197,16 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /**
+     * @en Makes the widget fill the entire size of the specified target or its parent.
+     * If no target is specified, it will fill the parent or stage.
+     * @param target The target widget or scene to fill. If not provided, it defaults to the parent or stage.
+     * @returns Returns the current GWidget instance for method chaining.
+     * @zh 使小部件填充指定目标或其父级的整个大小。
+     * 如果未指定目标，则默认填充父级或舞台。
+     * @param target 要填充的目标小部件或场景。如果未提供，则默认为父级或舞台。
+     * @returns 返回当前的 GWidget 实例，以便进行方法链调用。 
+     */
     makeFullSize(target?: GWidget): this {
         let r: Sprite = target;
         if (!r) {
@@ -172,6 +219,10 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /**
+     * @en Indicates whether the widget is grayed out.
+     * @zh 指示小部件是否被灰显。
+     */
     get grayed(): boolean {
         return this._grayed;
     }
@@ -197,6 +248,10 @@ export class GWidget extends Sprite {
         }
     }
 
+    /**
+     * @en Indicates whether the widget is enabled.
+     * @zh 指示小部件是否启用。
+     */
     get enabled(): boolean {
         return !this.grayed && this.mouseEnabled;
     }
@@ -221,10 +276,18 @@ export class GWidget extends Sprite {
         }
     }
 
-    get treeNode(): GTreeNode {
+    /**
+     * @en The tree node associated with this widget.
+     * @zh 与此小部件关联的树节点。
+     */
+    get treeNode(): GTreeNode | null {
         return this._treeNode;
     }
 
+    /**
+     * @en The tooltips text displayed when the mouse hovers over the widget.
+     * @zh 鼠标悬停在小部件上时显示的工具提示文本。
+     */
     get tooltips(): string {
         return this._tooltips;
     }
@@ -250,6 +313,10 @@ export class GWidget extends Sprite {
         GWidget._defaultRoot.popupMgr.hideTooltips();
     }
 
+    /**
+     * @en The text content of the widget.
+     * @zh 小部件的文本内容。
+     */
     get text(): string {
         return "";
     }
@@ -257,6 +324,10 @@ export class GWidget extends Sprite {
     set text(value: string) {
     }
 
+    /**
+     * @en The icon of the widget.
+     * @zh 小部件的图标。
+     */
     get icon(): string {
         return null;
     }
@@ -264,6 +335,10 @@ export class GWidget extends Sprite {
     set icon(value: string) {
     }
 
+    /**
+     * @en The background graphics command of the widget.
+     * @zh 小部件的背景图形命令。
+     */
     get background(): IGraphicsCmd {
         return this._background;
     }
@@ -278,6 +353,10 @@ export class GWidget extends Sprite {
         }
     }
 
+    /**
+     * @en Indicates whether the widget can be dragged.
+     * @zh 指示小部件是否可以被拖动。
+     */
     get draggable(): boolean {
         return this._draggable;
     }
@@ -295,6 +374,10 @@ export class GWidget extends Sprite {
         }
     }
 
+    /**
+     * @en The relations of the widget, which define how it relates to other widgets or scenes.
+     * @zh 小部件的关系，定义它与其他小部件或场景的关系。
+     */
     get relations(): Array<Relation> {
         return this._relations;
     }
@@ -315,6 +398,18 @@ export class GWidget extends Sprite {
         }
     }
 
+    /**
+     * @en Adds a relation to the widget.
+     * @param target The target widget or scene to relate to. 
+     * @param type The type of relation to add, such as size, position, etc. 
+     * @param percent Optional. If true, the relation is treated as a percentage of the target's size. 
+     * @returns Returns the current GWidget instance for method chaining.
+     * @zh 向小部件添加关联。
+     * @param target 要关联的目标小部件或场景。 
+     * @param type 要添加的关系类型，例如大小、位置等。
+     * @param percent 可选。如果为 true，则将关系视为目标大小的百分比。
+     * @returns 返回当前的 GWidget 实例，以便进行方法链调用。
+     */
     addRelation(target: GWidget | Scene, type: RelationType, percent?: boolean): this {
         let item = this._relations.find(i => i.target == target);
         if (!item) {
@@ -327,6 +422,16 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /**
+     * @en Removes a relation from the widget.
+     * @param target The target widget or scene to remove the relation from.
+     * @param type The type of relation to remove, such as size, position, etc.
+     * @returns Returns the current GWidget instance for method chaining.
+     * @zh 从小部件中移除关联。
+     * @param target 要从中移除关联的目标小部件或场景。
+     * @param type 要移除的关系类型，例如大小、位置等。
+     * @returns 返回当前的 GWidget 实例，以便进行方法链调用。
+     */
     removeRelation(target: GWidget | Scene, type: RelationType): this {
         let item = this._relations.find(i => i.target == target);
         if (item)
@@ -334,15 +439,29 @@ export class GWidget extends Sprite {
         return this;
     }
 
+    /**
+     * @en Clears all relations of the widget.
+     * @returns Returns the current GWidget instance for method chaining.
+     * @zh 清除小部件的所有关联。
+     * @returns 返回当前的 GWidget 实例，以便进行方法链调用。
+     */
     clearRelations(): this {
         this._relations.length = 0;
         return this;
     }
 
+    /**
+     * @en The controllers of the widget.
+     * @zh 小部件的控制器。
+     */
     get controllers(): Readonly<Record<string, Controller>> {
         return this._controllers;
     }
 
+    /**
+     * @en The number of controllers associated with the widget.
+     * @zh 与小部件关联的控制器数量。
+     */
     get controllerCount(): number {
         return this._controllerCount;
     }
@@ -360,6 +479,16 @@ export class GWidget extends Sprite {
         this._controllersChanged();
     }
 
+    /**
+     * @en Adds a new controller to the widget.
+     * @param name The name of the controller to add. 
+     * @param pageCount Optional. The number of pages in the controller. If not provided, it defaults to 0. 
+     * @returns Returns the newly created Controller instance.
+     * @zh 向小部件添加一个新的控制器。
+     * @param name 要添加的控制器的名称。
+     * @param pageCount 可选。控制器中的页面数量。如果未提供，则默认为为 0。
+     * @returns 返回新创建的 Controller 实例。
+     */
     addController(name: string, pageCount?: number): Controller {
         if (this._controllers[name]) {
             console.warn(`controller ${name} already exists`);
@@ -376,12 +505,38 @@ export class GWidget extends Sprite {
         return c;
     }
 
-    getController(name: string): Controller {
+    /**
+     * @en Gets a controller by its name.
+     * @param name The name of the controller to retrieve. 
+     * @returns The Controller instance associated with the specified name, or null if not found.
+     * @zh 根据名称获取控制器。
+     * @param name 要检索的控制器的名称。
+     * @returns 与指定名称关联的 Controller 实例，如果未找到则返回 null。 
+     */
+    getController(name: string): Controller | null {
         return this._controllers[name];
     }
 
+    /**
+     * @en Sets the current page of a controller by its name.
+     * @param controllerName The name of the controller whose page is to be set.
+     * @param pageName The name of the page to set as the current page.
+     * @zh 根据名称设置控制器的当前页面。
+     * @param controllerName 要设置页面的控制器名称。
+     * @param pageName 要设置为当前页面的页面名称。
+     */
     setPage(controllerName: string, pageName: string): void;
+
+    /**
+     * @en Sets the current page of a controller by its index.
+     * @param controllerName The name of the controller whose page is to be set. 
+     * @param pageIndex The index of the page to set as the current page.
+     * @zh 根据索引设置控制器的当前页面。
+     * @param controllerName 要设置页面的控制器名称。
+     * @param pageIndex 要设置为当前页面的页面索引。
+     */
     setPage(controllerName: string, pageIndex: number): void;
+
     setPage(controllerName: string, page: number | string): void {
         let c = this._controllers[controllerName];
         if (!c)
@@ -397,6 +552,9 @@ export class GWidget extends Sprite {
         this.event(UIEvent.ControllersChanged);
     }
 
+    /**
+     * @en The gears of the widget.
+     */
     get gears(): Array<Gear> {
         return this._gears;
     }
@@ -424,11 +582,23 @@ export class GWidget extends Sprite {
         value.forEach(g => g.owner = this);
     }
 
+    /**
+     * @en Adds a new gear to the widget.
+     * @param value The gear to add to the widget.
+     * @zh 向小部件添加一个新的齿轮。
+     * @param value 要添加到小部件的齿轮。 
+     */
     addGear(value: Gear) {
         this._gears.push(value);
         value.owner = this;
     }
 
+    /**
+     * @en Removes a gear from the widget.
+     * @param value The gear to remove from the widget.
+     * @zh 从小部件中移除一个齿轮。
+     * @param value 要从小部件中移除的齿轮。 
+     */
     removeGear(value: Gear) {
         let i = this._gears.indexOf(value);
         if (i != -1) {
@@ -437,6 +607,7 @@ export class GWidget extends Sprite {
         }
     }
 
+    /** @ignore */
     destroy(): void {
         if (this._background) //去除lock标志，让它在destroy时被回收
             this._background.lock = false;
@@ -458,10 +629,7 @@ export class GWidget extends Sprite {
         this.setLayoutChangedFlag(LayoutChangedReason.Hierarchy);
     }
 
-    /**
-     * @ignore
-     * @returns 
-     */
+    /** @ignore */
     _processVisible(): boolean {
         if (super._processVisible()) {
             if (this.parent?._nodeType == 2)
@@ -472,15 +640,13 @@ export class GWidget extends Sprite {
             return false;
     }
 
+    /**
+     * @en Sets the layout changed flag for the widget.
+     * @param reason Optional. The reason for the layout change, such as size, position, etc.
+     * @zh 设置小部件的布局更改标志。
+     * @param reason 可选。布局更改的原因，例如大小、位置等。 
+     */
     setLayoutChangedFlag(reason?: LayoutChangedReason): void {
-    }
-
-    get asGroup(): boolean {
-        return !!this._asGroup;
-    }
-
-    set asGroup(value: boolean) {
-        this._asGroup = !!value;
     }
 
     /** @internal */
@@ -496,11 +662,17 @@ export class GWidget extends Sprite {
         this.onConstruct();
     }
 
-    /** @blueprintIgnore */
+    /** 
+     * @en Called when the widget is constructed.
+     * This method is invoked after the widget is created and its properties are initialized.
+     * @zh 当小部件被构造时调用。
+     * 此方法在小部件创建并初始化其属性后调用。
+     * @blueprintIgnore 
+     */
     onConstruct() {
     }
 
-    /** @blueprintIgnore */
+    /** @ignore @blueprintIgnore */
     onAfterDeserialize() {
         super.onAfterDeserialize();
         if (SerializeUtil.hasProp("_startPages")) {

@@ -74,8 +74,7 @@ export abstract class WebGPURenderEncoder {
     /**
     * 设置绑定组
     * @param index 
-    * @param bindGroup 
-    * @param dynamicOffsets 
+    * @param bindGroup
     */
     setBindGroup(index: GPUIndex32, bindGroup: WebGPUBindGroup) {
 

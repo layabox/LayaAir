@@ -642,11 +642,11 @@ export class Sprite extends Node {
      * @en Specifies the blending mode to be used. 
      * @zh 指定要使用的混合模式.
      */
-    get blendMode(): string {
-        return this._blendMode === 0 ? null : BlendMode[this._blendMode];
+    get blendMode(): keyof typeof BlendMode | null {
+        return this._blendMode === 0 ? null : <any>BlendMode[this._blendMode];
     }
 
-    set blendMode(value: keyof typeof BlendMode) {
+    set blendMode(value: keyof typeof BlendMode | null) {
         let t = BlendMode[value] ?? BlendMode.invalid;
         if (this._blendMode != t) {
             this._blendMode = t;
@@ -2070,9 +2070,7 @@ export class Sprite extends Node {
 
     /**
      * @en Repaint the parent node. When `cacheAs` is enabled, set all parent object caches to invalid.
-     * @param type The type of repaint. Default is SpriteConst.REPAINT_CACHE.
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
-     * @param type 重新绘制类型。默认为 SpriteConst.REPAINT_CACHE。
      */
     parentRepaint(): void {
         let p: Sprite = this._parent;

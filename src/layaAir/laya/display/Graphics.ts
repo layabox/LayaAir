@@ -411,7 +411,6 @@ export class Graphics {
      * @param alpha (Optional) Alpha value. Default is 1.
      * @param color (Optional) Color transformation. Default is null.
      * @param blendMode (Optional) Blend mode. Default is null.
-     * @param colors (Optional) Color array. Default is null.
      * @zh 绘制一组三角形
      * @param texture 要使用的纹理
      * @param x X轴偏移量
@@ -423,7 +422,6 @@ export class Graphics {
      * @param alpha （可选）alpha值。默认为1。
      * @param color （可选）颜色变换。默认为null。
      * @param blendMode （可选）混合模式。默认为null。
-     * @param colors （可选）颜色数组。默认为null。
      */
     drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
         alpha: number = 1, color: string | number = null, blendMode: string | null = null): DrawTrianglesCmd {

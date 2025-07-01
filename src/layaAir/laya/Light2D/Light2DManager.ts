@@ -173,7 +173,6 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * 场景矩阵发生变化
-     * @param context 
      */
     private _sceneTransformChange() {
         let mat = ILaya.stage.transform; //获取Stage的矩阵
@@ -785,9 +784,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * @en Render light and shader texture
-     * @param context Render context
      * @zh 渲染光影图
-     * @param context 渲染上下文
      */
     preRenderUpdate() {
         //处理场景矩阵变化

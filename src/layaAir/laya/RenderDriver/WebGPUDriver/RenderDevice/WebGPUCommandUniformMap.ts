@@ -46,8 +46,6 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
     /**
      * 增加一个Uniform参数，如果Uniform属性是Array，请使用addShaderUniformArray
      * @internal
-     * @param propertyID 
-     * @param propertyName 
      */
     addShaderUniform(propertyID: number, propertyName: string, uniformtype: ShaderDataType): void {
         let uniform = { id: propertyID, uniformtype, propertyName, arrayLength: 0 }

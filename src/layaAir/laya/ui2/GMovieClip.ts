@@ -4,9 +4,15 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { GWidget } from "./GWidget";
 
 /**
+ * @en GMovieClip is a widget that displays a frame animation, allowing for playback control and customization.
+ * @zh GMovieClip 是一个显示帧动画的小部件，允许进行播放控制和自定义。
  * @blueprintInheritable
  */
 export class GMovieClip extends GWidget {
+    /**
+     * @en The FrameAnimation component used for the movie clip.
+     * @zh 用于电影剪辑的 FrameAnimation 组件。
+     */
     readonly comp: FrameAnimation;
 
     private _color: string;
@@ -20,19 +26,24 @@ export class GMovieClip extends GWidget {
         this.comp.stretchMode = AnimationStretchMode.ResizeToFit;
     }
 
-    public get src(): string {
+    /**
+     * @en The source URL of the animation resource.
+     * @zh 动画资源的源 URL。
+     */
+    get src(): string {
         return this.comp.source;
     }
 
-    public set src(value: string) {
+    set src(value: string) {
         this.comp.source = value;
     }
 
-    public get icon(): string {
+    /** @ignore */
+    get icon(): string {
         return this.src;
     }
 
-    public set icon(value: string) {
+    set icon(value: string) {
         this.src = value;
     }
 

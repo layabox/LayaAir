@@ -59,13 +59,12 @@ export class BatchManager {
 
    /**
     * 注册渲染节点之间的合批
-    * @param firstRenderElementType 
-    * @param lastRenderElementType 
+    * @param renderElementType 
     * @param batch 
     */
-   static regisBatch(renderElementType: number, batch: IBatch2DRender): void {
+   static registerBatch(renderElementType: number, batch: IBatch2DRender): void {
       if (BatchManager._batchMapManager[renderElementType])
-         throw "Overlapping batch optimization";
+         throw new Error("Overlapping batch optimization");
       else
          BatchManager._batchMapManager[renderElementType] = batch;
    }
@@ -598,4 +597,4 @@ export class WebRender2DPassManager implements IRender2DPassManager {
 
 
 WebGraphicsBatch.instance = new WebGraphicsBatch;
-BatchManager.regisBatch(BaseRender2DType.graphics, WebGraphicsBatch.instance)
+BatchManager.registerBatch(BaseRender2DType.graphics, WebGraphicsBatch.instance)

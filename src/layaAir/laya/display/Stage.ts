@@ -729,13 +729,7 @@ export class Stage extends Sprite {
 
     /**
      * @en Render all display objects on the stage
-     * @param context2D The rendering context
-     * @param x The x-axis coordinate
-     * @param y The y-axis coordinate
      * @zh 渲染舞台上的所有显示对象
-     * @param context2D 渲染的上下文
-     * @param x 横轴坐标
-     * @param y 纵轴坐标
      */
     render(): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
@@ -869,7 +863,7 @@ export class Stage extends Sprite {
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
-        Stat.render(0, 0);
+        Stat.render();
     }
 
     private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {

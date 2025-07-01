@@ -22,8 +22,8 @@ export interface IRenderGeometryElement {
     setDrawArrayParams(first: number, count: number): void;
     /**
      * 设置索引渲染数量和偏移，参数会累加，此参数只在DrawType为DrawElement和DrawElementInstance中有用
-     * @param first 
      * @param count 
+     * @param offset 
      */
     setDrawElemenParams(count: number, offset: number): void;
     /**

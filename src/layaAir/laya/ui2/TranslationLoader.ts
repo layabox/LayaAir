@@ -1,6 +1,7 @@
 import { IResourceLoader, ILoadTask } from "../net/Loader";
 import { Translations } from "./Translations";
 
+/** @ignore */
 export class TranslationsLoader implements IResourceLoader {
     load(task: ILoadTask) {
         let url = task.url;

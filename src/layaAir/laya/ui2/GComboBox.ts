@@ -15,11 +15,21 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { NodeFlags } from "../Const";
 
 /**
+ * @en GComboBox is a dropdown list that allows users to select an item from a list of options.
+ * @zh GComboBox 是一个下拉列表，允许用户从选项列表中选择一个项目。
  * @blueprintInheritable
  */
 export class GComboBox extends GLabel {
-    public popupDirection: PopupDirection = 0;
-    public visibleItemCount: number = 0;
+    /**
+     * @en The direction in which the popup dropdown will appear.
+     * @zh 弹出下拉列表将出现的方向。
+     */
+    popupDirection: PopupDirection = 0;
+    /**
+     * @en The number of items visible in the dropdown list.
+     * @zh 下拉列表中可见的项目数量。
+     */
+    visibleItemCount: number = 0;
 
     private _items: string[];
     private _icons: string[];
@@ -52,11 +62,15 @@ export class GComboBox extends GLabel {
         this.on(Event.MOUSE_UP, this, this._mouseup);
     }
 
-    public get items(): string[] {
+    /**
+     * @en The list of items in the dropdown.
+     * @zh 下拉列表中的项目列表。
+     */
+    get items(): string[] {
         return this._items;
     }
 
-    public set items(value: string[]) {
+    set items(value: string[]) {
         let arr = this._items;
         arr.length = 0;
         if (value)
@@ -84,11 +98,15 @@ export class GComboBox extends GLabel {
         }
     }
 
-    public get icons(): string[] {
+    /**
+     * @en The list of icons corresponding to the items in the dropdown.
+     * @zh 下拉列表中项目对应的图标列表。
+     */
+    get icons(): string[] {
         return this._icons;
     }
 
-    public set icons(value: string[]) {
+    set icons(value: string[]) {
         let arr = this._icons;
         arr.length = 0;
         if (value)
@@ -102,22 +120,30 @@ export class GComboBox extends GLabel {
             this.icon = arr[this._selectedIndex];
     }
 
-    public get values(): string[] {
+    /**
+     * @en The list of values corresponding to the items in the dropdown.
+     * @zh 下拉列表中项目对应的值列表。
+     */
+    get values(): string[] {
         return this._values;
     }
 
-    public set values(value: string[]) {
+    set values(value: string[]) {
         this._values.length = 0;
         if (value)
             this._values.push(...value);
         this._itemsUpdated = true;
     }
 
-    public get selectedIndex(): number {
+    /**
+     * @en The index of the currently selected item in the dropdown.
+     * @zh 当前选中下拉列表项目的索引。
+     */
+    get selectedIndex(): number {
         return this._selectedIndex;
     }
 
-    public set selectedIndex(val: number) {
+    set selectedIndex(val: number) {
         if (this._selectedIndex == val)
             return;
 
@@ -138,36 +164,52 @@ export class GComboBox extends GLabel {
             this._selectedController.selectedIndex = val;
     }
 
-    public get value(): string {
+    /**
+     * @en The value of the currently selected item in the dropdown.
+     * @zh 当前选中下拉列表项目的值。
+     */
+    get value(): string {
         return this._values[this._selectedIndex];
     }
 
-    public set value(val: string) {
+    set value(val: string) {
         let index = this._values.indexOf(val);
         if (index == -1 && val == null)
             index = this._values.indexOf("");
         this.selectedIndex = index;
     }
 
-    public get dropdownRes(): Prefab {
+    /**
+     * @en The prefab resource used for the dropdown.
+     * @zh 用于下拉列表的预制资源。
+     */
+    get dropdownRes(): Prefab {
         return this._dropdownRes;
     }
 
-    public set dropdownRes(value: Prefab) {
+    set dropdownRes(value: Prefab) {
         this._dropdownRes = value;
         if (!this._getBit(NodeFlags.EDITING_NODE))
             this.createDropdown();
     }
 
-    public get dropdown(): GWidget {
+    /**
+     * @en The dropdown widget that displays the list of items.
+     * @zh 显示项目列表的下拉精灵。
+     */
+    get dropdown(): GWidget {
         return this._dropdown;
     }
 
-    public get selectedController(): ControllerRef {
+    /**
+     * @zh 控制器可以与下拉框联动，当下拉框选择发生改变时，控制器也同时跳转到相同索引的页面。反之亦然，如果控制器跳转到某个页面，那么下拉框也同时选定相同索引的项目。
+     * @en The controller that can be linked with the dropdown. When the selection in the dropdown changes, the controller will also jump to the same index page, and vice versa. If the controller jumps to a certain page, the dropdown will also select the item at the same index.
+     */
+    get selectedController(): ControllerRef {
         return this._selectedController;
     }
 
-    public set selectedController(value: ControllerRef) {
+    set selectedController(value: ControllerRef) {
         if (this._selectedController)
             this._selectedController.release();
         this._selectedController = value;
@@ -178,7 +220,8 @@ export class GComboBox extends GLabel {
         }
     }
 
-    public destroy(): void {
+    /** @ignore */
+    destroy(): void {
         if (this._dropdown) {
             this._dropdown.destroy();
             this._dropdown = null;
@@ -190,7 +233,11 @@ export class GComboBox extends GLabel {
         super.destroy();
     }
 
-    public updateList() {
+    /**
+     * @en This method is automatically called to update the dropdown list when it is popped up.
+     * @zh 下拉列表弹出时，会自动调用这个方法更新下拉列表。
+     */
+    updateList(): void {
         if (!this._dropdown.stage)
             return;
 

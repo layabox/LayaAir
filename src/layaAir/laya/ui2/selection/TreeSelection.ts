@@ -15,15 +15,15 @@ export class TreeSelection extends Selection implements ITreeSelection {
     /** @internal */
     _expandedStatusInEvt: boolean;
 
-    public get clickToExpand(): TreeClickToExpandType {
+    get clickToExpand(): TreeClickToExpandType {
         return this._clickToExpand;
     }
 
-    public set clickToExpand(value: TreeClickToExpandType) {
+    set clickToExpand(value: TreeClickToExpandType) {
         this._clickToExpand = value;
     }
 
-    public getSelectedNode(): GTreeNode {
+    getSelectedNode(): GTreeNode {
         let i = this.index;
         if (i != -1)
             return (<GWidget>this._owner.getChildAt(i))._treeNode;
@@ -31,7 +31,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
             return null;
     }
 
-    public getSelectedNodes(out?: Array<GTreeNode>): Array<GTreeNode> {
+    getSelectedNodes(out?: Array<GTreeNode>): Array<GTreeNode> {
         if (!out)
             out = [];
 
@@ -46,7 +46,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
         return ret;
     }
 
-    public selectNode(node: GTreeNode, scrollItToView?: boolean): void {
+    selectNode(node: GTreeNode, scrollItToView?: boolean): void {
         let parentNode = node.parent;
         while (parentNode && parentNode != this._owner.rootNode) {
             parentNode.expanded = true;
@@ -59,14 +59,14 @@ export class TreeSelection extends Selection implements ITreeSelection {
         this.add(this._owner.getChildIndex(node.cell), scrollItToView);
     }
 
-    public unselectNode(node: GTreeNode): void {
+    unselectNode(node: GTreeNode): void {
         if (!node.cell)
             return;
 
         this.remove(this._owner.getChildIndex(node.cell));
     }
 
-    public handleClick(item: GButton, evt: Event): void {
+    handleClick(item: GButton, evt: Event): void {
         let scroller = this._owner.scroller;
         if (scroller?.isDragged)
             return;
@@ -89,7 +89,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
         super.handleClick(item, evt);
     }
 
-    public handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number): number {
         if (dir == 3 || dir == 7) {
             let i = this.index;
             if (i != -1) {

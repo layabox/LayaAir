@@ -153,8 +153,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
     /**
      * 渲染
      * @param context 
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (!this.isRender) {

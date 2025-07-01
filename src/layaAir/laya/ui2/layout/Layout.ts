@@ -45,11 +45,11 @@ export class Layout implements ILayout {
         this._stretchParamsY = [];
     }
 
-    public get type(): LayoutType {
+    get type(): LayoutType {
         return this._type;
     }
 
-    public set type(value: LayoutType) {
+    set type(value: LayoutType) {
         if (this._type != value) {
             this._type = value;
             if (!SerializeUtil.isDeserializing) {
@@ -70,106 +70,106 @@ export class Layout implements ILayout {
         }
     }
 
-    public get rows(): number {
+    get rows(): number {
         return this._rows;
     }
 
-    public set rows(value: number) {
+    set rows(value: number) {
         if (this._rows != value) {
             this._rows = value;
             this.setChangedFlag();
         }
     }
 
-    public get columns(): number {
+    get columns(): number {
         return this._columns;
     }
 
-    public set columns(value: number) {
+    set columns(value: number) {
         if (this._columns != value) {
             this._columns = value;
             this.setChangedFlag();
         }
     }
 
-    public get rowGap(): number {
+    get rowGap(): number {
         return this._rowGap;
     }
 
-    public set rowGap(value: number) {
+    set rowGap(value: number) {
         if (this._rowGap != value) {
             this._rowGap = value;
             this.setChangedFlag();
         }
     }
 
-    public get columnGap(): number {
+    get columnGap(): number {
         return this._columnGap;
     }
 
-    public set columnGap(value: number) {
+    set columnGap(value: number) {
         if (this._columnGap != value) {
             this._columnGap = value;
             this.setChangedFlag();
         }
     }
 
-    public get padding(): Array<number> {
+    get padding(): Array<number> {
         return this._padding;
     }
 
-    public set padding(value: Array<number>) {
+    set padding(value: Array<number>) {
         if (value == null || !Array.isArray(value)) value = [0, 0, 0, 0];
         this._padding = value;
         this.setChangedFlag();
         (<GPanel>this._owner).scroller?._ownerSizeChanged();
     }
 
-    public get align(): AlignType {
+    get align(): AlignType {
         return this._align;
     }
 
-    public set align(value: AlignType) {
+    set align(value: AlignType) {
         if (this._align != value) {
             this._align = value;
             this.setChangedFlag();
         }
     }
 
-    public get valign(): VAlignType {
+    get valign(): VAlignType {
         return this._valign;
     }
 
-    public set valign(value: VAlignType) {
+    set valign(value: VAlignType) {
         if (this._valign != value) {
             this._valign = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchX(): StretchMode {
+    get stretchX(): StretchMode {
         return this._stretchX;
     }
 
-    public set stretchX(value: StretchMode) {
+    set stretchX(value: StretchMode) {
         if (this._stretchX != value) {
             this._stretchX = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchY(): StretchMode {
+    get stretchY(): StretchMode {
         return this._stretchY;
     }
 
-    public set stretchY(value: StretchMode) {
+    set stretchY(value: StretchMode) {
         if (this._stretchY != value) {
             this._stretchY = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchParamsX(): Array<StretchParam> {
+    get stretchParamsX(): Array<StretchParam> {
         return this._stretchParamsX;
     }
 
@@ -179,41 +179,41 @@ export class Layout implements ILayout {
         this._stretchParamsX.push(...value);
     }
 
-    public get stretchParamsY(): Array<StretchParam> {
+    get stretchParamsY(): Array<StretchParam> {
         return this._stretchParamsY;
     }
 
     /** @internal */
-    public set stretchParamsY(value: Array<StretchParam>) {
+    set stretchParamsY(value: Array<StretchParam>) {
         this._stretchParamsY.length = 0;
         this._stretchParamsY.push(...value);
     }
 
-    public get foldInvisibles(): boolean {
+    get foldInvisibles(): boolean {
         return this._foldInvisibles;
     }
 
-    public set foldInvisibles(value: boolean) {
+    set foldInvisibles(value: boolean) {
         if (this._foldInvisibles != value) {
             this._foldInvisibles = value;
             this.setChangedFlag();
         }
     }
 
-    public get minChildSize(): number {
+    get minChildSize(): number {
         return this._minChildSize;
     }
-    public set minChildSize(value: number) {
+    set minChildSize(value: number) {
         if (this._minChildSize != value) {
             this._minChildSize = value;
             this.setChangedFlag();
         }
     }
 
-    public get pageMode(): boolean {
+    get pageMode(): boolean {
         return this._pageMode;
     }
-    public set pageMode(value: boolean) {
+    set pageMode(value: boolean) {
         if (this._pageMode != value) {
             this._pageMode = value;
             this.setChangedFlag();
@@ -223,7 +223,7 @@ export class Layout implements ILayout {
     /**
      * dir正数表示右移或者下移，负数表示左移或者上移
      */
-    public getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
+    getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
         if (!resultPoint)
             resultPoint = new Point();
 
@@ -293,7 +293,7 @@ export class Layout implements ILayout {
         return resultPoint;
     }
 
-    public setChangedFlag(reason?: LayoutChangedReason) {
+    setChangedFlag(reason?: LayoutChangedReason) {
         if (this._layoutChanged)
             return;
 
@@ -323,7 +323,7 @@ export class Layout implements ILayout {
         }
     }
 
-    public refresh(force?: boolean) {
+    refresh(force?: boolean) {
         if (this._owner.destroyed || this._disabled) {
             this._layoutChanged = false;
             return;
@@ -361,43 +361,43 @@ export class Layout implements ILayout {
         this._childSizeChangedFlag = false;
     }
 
-    public get viewWidth(): number {
+    get viewWidth(): number {
         let v = (<GPanel>this._owner).scroller?.viewWidth;
         if (v == null)
             v = this._owner.width - this._padding[3] - this._padding[1];
         return v;
     }
 
-    public set viewWidth(value: number) {
+    set viewWidth(value: number) {
         if ((<GPanel>this._owner).scroller)
             (<GPanel>this._owner).scroller.setViewSize(value, (<GPanel>this._owner).scroller.viewHeight);
         else
             this._owner.width = value + this._padding[3] + this._padding[1];
     }
 
-    public get viewHeight(): number {
+    get viewHeight(): number {
         let v = (<GPanel>this._owner).scroller?.viewHeight;
         if (v == null)
             v = this._owner.height - this._padding[0] - this._padding[2];
         return v;
     }
 
-    public set viewHeight(value: number) {
+    set viewHeight(value: number) {
         if ((<GPanel>this._owner).scroller)
             (<GPanel>this._owner).scroller.setViewSize((<GPanel>this._owner).scroller.viewWidth, value);
         else
             this._owner.height = value + this._padding[0] + this._padding[2];
     }
 
-    public get contentWidth() {
+    get contentWidth() {
         return this._contentWidth;
     }
 
-    public get contentHeight() {
+    get contentHeight() {
         return this._contentHeight;
     }
 
-    public setContentSize(aw: number, ah: number): void {
+    setContentSize(aw: number, ah: number): void {
         this._contentWidth = aw;
         this._contentHeight = ah;
 
@@ -419,7 +419,7 @@ export class Layout implements ILayout {
         this._owner.event(UIEvent.ContentSizeChanged);
     }
 
-    public resizeToFit(childCount?: number, minSize?: number): void {
+    resizeToFit(childCount?: number, minSize?: number): void {
         this.refresh();
 
         let curCount: number = this._owner.numChildren;

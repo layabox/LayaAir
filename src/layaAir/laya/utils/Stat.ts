@@ -573,9 +573,9 @@ export class Stat {
         Stat.renderPassStatArray.fill(0);
     }
 
-    static render(x: number, y: number) {
+    static render() {
         if (Stat._show)
-            Stat._statUI.render(x, y);
+            Stat._statUI.render();
     }
 }
 

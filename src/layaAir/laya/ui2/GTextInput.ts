@@ -3,12 +3,17 @@ import { Input } from "../display/Input";
 import { HideFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
-import { UIEvent } from "./UIEvent";
 
 /**
+ * @en GTextInput is a widget that provides a text input field with various formatting options.
+ * @zh GTextInput 是一个提供文本输入字段的小部件，支持多种格式选项。
  * @blueprintInheritable
  */
 export class GTextInput extends GWidget {
+    /**
+     * @en The Text component used for rendering the text.
+     * @zh 用于渲染文本的 Text 组件。
+     */
     readonly textIns: Input;
 
     constructor() {
@@ -368,6 +373,7 @@ export class GTextInput extends GWidget {
         this.textIns.focus = false;
     }
 
+    /** @ignore */
     protected _transChanged(kind: TransformKind): void {
         super._transChanged(kind);
         if ((kind & TransformKind.Size) != 0) {

@@ -123,9 +123,9 @@ export class GCA_BatchRenderElement extends WebGPURenderElement3D {
 
     /**
      * 绑定资源组
+     * @param context
      * @param shaderInstance 
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         this.bindGroupMap.clear();
@@ -166,8 +166,7 @@ export class GCA_BatchRenderElement extends WebGPURenderElement3D {
     // /**
     //   * 绑定资源组
     //   * @param shaderInstance 
-    //   * @param command 
-    //   * @param bundle 
+    //   * @param command
     //   */
     // protected _bindGroup(context: WebGPURenderContext3D, shaderInstance: WebGPUShaderInstance, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 

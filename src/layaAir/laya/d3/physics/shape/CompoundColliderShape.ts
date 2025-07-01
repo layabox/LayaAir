@@ -50,7 +50,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
     /**
      * @en add a child collider shape.
-     * @param shape.
+     * @param shape The shape to be added as a child collider.
      * @zh 添加一个子碰撞器形状。
      * @param shape 子碰撞器形状。
      */
@@ -66,7 +66,7 @@ export class CompoundColliderShape extends Physics3DColliderShape {
 
     /**
      * @en remove a child collider shape.
-     * @param shape.
+     * @param shape The shape to be removed from the child collider.
      * @zh 移除一个子碰撞器形状。
      * @param shape 子碰撞器形状。
      */

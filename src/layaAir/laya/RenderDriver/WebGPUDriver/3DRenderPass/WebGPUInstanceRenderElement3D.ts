@@ -246,8 +246,7 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     /**
      * 上传几何数据
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         for (let i = 0; i < this.updateNums; i++)
