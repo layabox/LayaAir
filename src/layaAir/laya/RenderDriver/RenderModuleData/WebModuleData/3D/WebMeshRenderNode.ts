@@ -3,8 +3,8 @@ import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPa
 import { IMeshRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
-
-export class WebMeshRenderNode extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
+export function WebMeshRenderNode(){//这么封装是为了避免此时WebBaseRenderNode.BaseRenderNodeClass还没有赋值
+return class extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
     private _cacheMoved: number = -1;
 
     constructor() {
@@ -34,4 +34,5 @@ export class WebMeshRenderNode extends WebBaseRenderNode.BaseRenderNodeClass imp
         }
     }
 
+} as any;   //这是为了不让ts报错，否则返回类的函数里的类必须全部是public的
 }
