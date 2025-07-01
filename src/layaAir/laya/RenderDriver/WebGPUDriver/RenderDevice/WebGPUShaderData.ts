@@ -69,7 +69,7 @@ export class WebGPUShaderData extends ShaderData {
 
 
     /// blend cache
-    private _needUpdateBlendStateCache: boolean = false;
+    private _needUpdateBlendStateCache: boolean = true;
 
     private _blendStateCache: WebGPUBlendStateCache;
 
@@ -113,6 +113,7 @@ export class WebGPUShaderData extends ShaderData {
                 this._blendStateCache = WebGPUBlendState.getBlendState(blend, blendEquationRGB, srcRGB, dstRGB, blendEquationAlpha, srcAlpha, dstAlpha);
                 break;
             default:
+                console.warn("WebGPUShaderData: unknown blend state: " + blend);
                 break;
         }
     }
