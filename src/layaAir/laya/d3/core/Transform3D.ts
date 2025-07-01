@@ -93,11 +93,7 @@ export class Transform3D extends EventDispatcher {
     get _isFrontFaceInvert(): boolean {
         if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             var scale: Vector3 = this.getWorldLossyScale();
-            var isInvert: boolean = scale.x < 0;
-            (scale.y < 0) && (isInvert = !isInvert);
-            (scale.z < 0) && (isInvert = !isInvert);
-            this._faceInvert = isInvert;
-            this._frontFaceValue = this._faceInvert ? -1 : 1;
+            this._updateFaceInvertFromScale(scale);
         }
         return this._faceInvert;
     }
@@ -847,9 +843,18 @@ export class Transform3D extends EventDispatcher {
             else {
                 this._localScale.cloneTo(this._scale);
             }
+            this._updateFaceInvertFromScale(this._scale);
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
         }
         return this._scale;
+    }
+
+    private _updateFaceInvertFromScale(scale: Vector3): void {
+        var isInvert: boolean = scale.x < 0;
+        (scale.y < 0) && (isInvert = !isInvert);
+        (scale.z < 0) && (isInvert = !isInvert);
+        this._faceInvert = isInvert;
+        this._frontFaceValue = this._faceInvert ? -1 : 1;
     }
 
     /**
@@ -882,6 +887,7 @@ export class Transform3D extends EventDispatcher {
         this.localScale = this._localScale;
         if (this._scale !== value)
             value.cloneTo(this._scale);
+        this._updateFaceInvertFromScale(value);
         this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
     }
 
