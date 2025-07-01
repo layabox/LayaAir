@@ -34,6 +34,13 @@ class BatchContext {
     bufferState: any = null;
 
     shaderData: any = null;
+
+    type: number = 0;
+    
+    lowType: number = 0;
+
+    globalRenderData: any = null;
+
     /**
      * 重置批次上下文
      */
@@ -44,6 +51,9 @@ class BatchContext {
         this.subShader = null;
         this.bufferState = null;
         this.shaderData = null;
+        this.type = 0;
+        this.lowType = 0;
+        this.globalRenderData = null;
     }
 
     /**
@@ -56,44 +66,57 @@ class BatchContext {
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.subShader = element.subShader;
         this.bufferState = element.geometry.bufferState;
+        this.type = element.type;
+        this.lowType = element.type & 63;
+        this.globalRenderData = element.owner.globalRenderData;
     }
 
     /**
      * 检查元素是否与批次兼容
      */
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        if (this.subShader !== element.subShader || 
-            this.bufferState !== element.geometry.bufferState) {
-            return false;
-        }
-
+        // 快速检查：最容易变化的属性先检查
         let elementType = element.type;
+        
+        // clip检查：如果元素有clip标记，立即返回false
         if (elementType & 32) {
             return false;
         }
 
-        if (this.globalAlpha !== element.owner.globalAlpha) {
-            return false;
-        }
-
-        if (this.clipInfo !== (element.owner as WebRenderStruct2D).getClipInfo()) {
-            return false;
-        }
-
-        // 纹理ID检查
+        let elementLowType = elementType & 63;
         let elementTexId = elementType & (~63);
+        let elementOwner = element.owner as WebRenderStruct2D;
+
+        // 检查低位类型（最常见的不匹配）
+        if (this.lowType !== elementLowType) {
+            return false;
+        }
+
+        // 检查透明度（数值比较，较快）
+        if (this.globalAlpha !== elementOwner.globalAlpha) {
+            return false;
+        }
+
+        // 检查对象引用（指针比较，较快）
+        if (this.subShader !== element.subShader || 
+            this.bufferState !== element.geometry.bufferState ||
+            this.clipInfo !== elementOwner.getClipInfo() ||
+            elementOwner.globalRenderData !== this.globalRenderData) {
+            return false;
+        }
+
+        // 纹理ID检查（放在最后，因为可能需要更新状态）
         if (this.textureId === 0) {
-            // 批次还没有确定贴图，可以接受任何贴图
-            this.textureId = elementTexId;
-            this.shaderData = element.primitiveShaderData;
+            // 批次还没有确定贴图，接受任何贴图并更新状态
+            if (elementTexId !== 0) {
+                this.textureId = elementTexId;
+                this.shaderData = element.primitiveShaderData;
+            }
             return true;
         }
 
-        if (elementTexId !== 0 && elementTexId !== this.textureId) {
-            return false;
-        }
-
-        return true;
+        // 批次已有确定的贴图ID，检查是否匹配
+        return elementTexId === 0 || elementTexId === this.textureId;
     }
 }
 

@@ -186,16 +186,14 @@ export class GraphicsRenderData {
       // @ts-ignore
       element.type |= mc << 5;
 
-      let texture: BaseTexture = Texture2D.whiteTexture;
+      let texture: BaseTexture = null;
       let textureHost = submit._internalInfo.textureHost;
       if (textureHost) {
          texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
       }
 
-      let texKey = texture == Texture2D.whiteTexture ? 0 : texture.id;
-      // texKey = tex._id;
-      // if ( tex && tex !== Texture2D.whiteTexture) {
-      // }
+      let texKey = texture ? texture.id : 0;
+  
       element.type |= texKey << 6;
    }
 

@@ -1119,6 +1119,7 @@ export class Sprite extends Node {
         if (value) {
             value._addReference();
             this.graphics._checkDisplay();
+            this.graphics.modified();
         } else {
             this._graphics?._checkDisplay();
         }
@@ -2032,6 +2033,7 @@ export class Sprite extends Node {
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
     */
     repaint(): void {
+
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();

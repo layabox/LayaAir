@@ -264,6 +264,15 @@ export class Graphics {
         return newCmd;
     }
 
+    /**
+     * @en Mark as modified
+     * @zh 标记为已修改
+     */
+    modified() {
+        this._modified = true;
+    }
+
+
     /** @internal */
     _checkDisplay() {
         let value = this.owner && !this.owner.destroyed && !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
@@ -271,6 +280,8 @@ export class Graphics {
             return;
 
         this._display = value;
+        if (!this.owner) return;
+
         let struct = this.owner._struct;
         if (value) {
             this._modified = true;
@@ -720,6 +731,7 @@ export class Graphics {
         for (let i = 0; i < len; i++) {
             let submit = this._data._submits.elements[i];
             let texture = submit._internalInfo.textureHost;
+            if (!texture) continue;
             let bitmap = (texture as Texture).bitmap;
             if (bitmap && bitmap.destroyed) {
                 return false;

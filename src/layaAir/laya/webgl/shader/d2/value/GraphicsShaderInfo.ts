@@ -25,7 +25,7 @@ export class GraphicsShaderInfo {
       this.vertexSize = Vector4.ZERO;
       BlendModeHandler.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
-      this.textureHost = Texture2D.whiteTexture;
+      this.textureHost = null;
       this.enableVertexSize = false;
       this.materialClip = false;
       this.fillTexture = false;

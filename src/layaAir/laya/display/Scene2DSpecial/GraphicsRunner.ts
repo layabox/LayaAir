@@ -118,7 +118,7 @@ export class GraphicsRunner {
     constructor() {
         //_ib = IndexBuffer2D.QuadrangleIB;
         this._defTexture = new Texture(Texture2D.whiteTexture);
-        this._lastTex = this._defTexture;
+        // this._lastTex = this._defTexture;
         this._textRender = new TextRender();
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
@@ -516,7 +516,7 @@ export class GraphicsRunner {
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
-        this._lastTex = this._defTexture;
+        this._lastTex = null;
     }
 
     clear(): void {
@@ -723,11 +723,7 @@ export class GraphicsRunner {
                 // this.fillShaderValue(submit.shaderValue);
                 this._setClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
-                if (!this._lastTex || this._lastTex.destroyed) {
-                    material.textureHost = this._defTexture;
-                } else {
-                    material.textureHost = this._lastTex;
-                }
+                material.textureHost = this._lastTex;
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
