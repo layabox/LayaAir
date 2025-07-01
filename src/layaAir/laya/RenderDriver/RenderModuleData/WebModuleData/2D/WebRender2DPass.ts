@@ -583,6 +583,10 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    }
 
    addPass(pass: WebRender2DPass): void {
+      if (this._passes.indexOf(pass) !== -1) {
+         return;
+      }
+      
       this._passes.push(pass);
       this._modefy = true;
    }
