@@ -142,7 +142,9 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     protected _compileShader(context: WebGPURenderContext3D) {
         this.renderShaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
         super._compileShader(context);
+
         if (this._drawCacheArray.length > 0) {
             this._updateInstanceData();
         }
@@ -253,6 +255,8 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         });
         this._updateData.length = 0;
         this._updateDataNum.length = 0;
+
+        this.renderShaderData.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
     }
 
     /**
