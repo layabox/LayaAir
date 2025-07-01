@@ -1,8 +1,5 @@
-import { PlayerConfig } from "../../Config";
-import { LayaEnv } from "../../LayaEnv";
 import { URL } from "../net/URL";
 import { Browser } from "./Browser";
-import { Utils } from "./Utils";
 
 /**
  * @ignore
@@ -45,13 +42,9 @@ export class WasmAdapter {
     }
 
     static locateFileDefault(path: string, scriptDirectory?: string): string {
-        if (LayaEnv.isPreview)
-            return scriptDirectory ? scriptDirectory + path : path;
-
-        path = URL.formatURL(path, '');
-        if (PlayerConfig.wasmSubpackage)
-            return PlayerConfig.wasmSubpackage + "/" + Utils.getBaseName(path);
-
-        return path;
+        if (URL.urlMapping[path])
+            return URL.formatURL(path, '');
+        else
+            return scriptDirectory != null ? scriptDirectory + path : path;
     }
 }
