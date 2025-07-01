@@ -5,8 +5,8 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
 import { GWidget } from "./GWidget";
-import { ImageRenderer } from "./render/ImageRenderer";
-import { IMeshFactory } from "./render/MeshFactory";
+import { ImageRenderer } from "./ImageRenderer";
+import { IMeshFactory } from "../display/mesh/MeshFactory";
 
 /**
  * @en GImage is a widget that displays an image resource.

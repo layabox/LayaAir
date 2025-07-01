@@ -1,12 +1,12 @@
-import { NodeFlags } from "../../Const";
-import { Draw9GridTextureCmd } from "../../display/cmd/Draw9GridTextureCmd";
-import { DrawTextureCmd } from "../../display/cmd/DrawTextureCmd";
-import { DrawTrianglesCmd } from "../../display/cmd/DrawTrianglesCmd";
-import { IGraphicsCmd } from "../../display/IGraphics";
-import { Sprite } from "../../display/Sprite";
-import { Color } from "../../maths/Color";
-import { Texture } from "../../resource/Texture";
-import { IMeshFactory } from "./MeshFactory";
+import { NodeFlags } from "../Const";
+import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
+import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { DrawTrianglesCmd } from "../display/cmd/DrawTrianglesCmd";
+import { IGraphicsCmd } from "../display/IGraphics";
+import { Sprite } from "../display/Sprite";
+import { Color } from "../maths/Color";
+import { Texture } from "../resource/Texture";
+import { IMeshFactory } from "../display/mesh/MeshFactory";
 
 export class ImageRenderer {
     _meshFactory: IMeshFactory;

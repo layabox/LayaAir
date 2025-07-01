@@ -1,4 +1,5 @@
 import { MathUtil } from "../../maths/MathUtil";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
@@ -34,3 +35,5 @@ export class CircleMesh implements IMeshFactory {
     }
 
 }
+
+ClassUtils.regClass("CircleMesh", CircleMesh);

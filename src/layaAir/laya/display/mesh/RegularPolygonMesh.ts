@@ -1,5 +1,6 @@
 import { Color } from "../../maths/Color";
 import { MathUtils3D } from "../../maths/MathUtils3D";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
@@ -59,3 +60,5 @@ export class RegularPolygonMesh implements IMeshFactory {
         }
     }
 }
+
+ClassUtils.regClass("RegularPolygonMesh", RegularPolygonMesh);

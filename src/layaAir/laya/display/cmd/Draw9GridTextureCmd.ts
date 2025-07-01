@@ -1,6 +1,6 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { Texture } from "../../resource/Texture"
-import { genSliceMesh } from "../../ui2/render/MeshFactory";
+import { genSliceMesh } from "../mesh/MeshFactory";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"

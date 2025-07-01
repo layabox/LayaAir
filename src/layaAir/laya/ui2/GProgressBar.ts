@@ -6,7 +6,7 @@ import { MathUtil } from "../maths/MathUtil";
 import { NodeFlags } from "../Const";
 import { GImage } from "./GImage";
 import { GLoader } from "./GLoader";
-import { ProgressMesh } from "./render/ProgressMesh";
+import { ProgressMesh } from "../display/mesh/ProgressMesh";
 
 /**
  * @en GProgressBar is a widget that displays a progress bar.

@@ -9,8 +9,8 @@ import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
 import { GWidget } from "./GWidget";
-import { ImageRenderer } from "./render/ImageRenderer";
-import { IMeshFactory } from "./render/MeshFactory";
+import { ImageRenderer } from "./ImageRenderer";
+import { IMeshFactory } from "../display/mesh/MeshFactory";
 
 /**
  * @en GLoader is a widget that displays an image or animation resource.

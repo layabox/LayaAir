@@ -1,7 +1,7 @@
 import { Matrix } from "../../maths/Matrix"
 import { Vector4 } from "../../maths/Vector4"
 import { Texture } from "../../resource/Texture"
-import { IMeshFactory } from "../../ui2/render/MeshFactory"
+import { IMeshFactory } from "../mesh/MeshFactory"
 import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"

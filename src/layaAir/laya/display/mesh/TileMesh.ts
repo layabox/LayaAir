@@ -1,5 +1,6 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { genTileMesh, IMeshFactory } from "./MeshFactory";
 
@@ -31,3 +32,5 @@ export class TileMesh implements IMeshFactory {
         }
     }
 }
+
+ClassUtils.regClass("TileMesh", TileMesh);
