@@ -394,6 +394,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         }
 
         let cmd = this.renderCommand;
+        cmd.setBindGroup(0, this._sceneBindGroup);
+        cmd.setBindGroup(1, this._cameraBindGroup);
+
         for (let i = 0; i < len; i++)
             elements[i]._render(this, cmd);
 
@@ -420,6 +423,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
+        this.renderCommand.setBindGroup(0,this._sceneBindGroup)
+        this.renderCommand.setBindGroup(1,this._cameraBindGroup)
         node._render(this, this.renderCommand);
         this._submit();
         //TODO 统计

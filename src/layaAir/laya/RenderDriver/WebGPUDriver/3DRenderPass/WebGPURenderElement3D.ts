@@ -606,12 +606,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
         let shaderInstance = info.shaderInstance;
         {
-            command.setBindGroup(0, context._sceneBindGroup);
-        }
-        {
-            command.setBindGroup(1, context._cameraBindGroup);
-        }
-        {
             //判断 nodePipeline是否有改变
             if (this.owner) {
                 let bindgroupChangeFlag = this.owner.bindGroupChangeFlag;
