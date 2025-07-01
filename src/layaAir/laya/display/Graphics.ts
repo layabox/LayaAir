@@ -264,6 +264,15 @@ export class Graphics {
         return newCmd;
     }
 
+    /**
+     * @en Mark as modified
+     * @zh 标记为已修改
+     */
+    modified() {
+        this._modified = true;
+    }
+
+
     /** @internal */
     _checkDisplay() {
         let value = this.owner && !this.owner.destroyed && !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
