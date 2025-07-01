@@ -561,7 +561,11 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    private _passes: WebRender2DPass[] = [];
 
    removePass(pass: WebRender2DPass): void {
-      this._passes.splice(this._passes.indexOf(pass), 1);
+      let index = this._passes.indexOf(pass);
+      if (index === -1) {
+         return;
+      }
+      this._passes.splice(index, 1);
       this._modefy = true;
    }
 
@@ -583,6 +587,10 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    }
 
    addPass(pass: WebRender2DPass): void {
+      if (this._passes.indexOf(pass) !== -1) {
+         return;
+      }
+      
       this._passes.push(pass);
       this._modefy = true;
    }

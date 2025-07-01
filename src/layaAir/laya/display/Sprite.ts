@@ -2220,6 +2220,13 @@ export class Sprite extends Node {
         this._findOwnerArea();
     }
 
+    protected _onAdded(): void {
+        super._onAdded();
+        if (this._oriRenderPass && this.displayedInStage) {
+            ILaya.stage.passManager.addPass(this._oriRenderPass);
+        }
+    }
+
     protected _findOwnerArea() {
         let ele = this as any;
         while (ele) {
@@ -2251,9 +2258,8 @@ export class Sprite extends Node {
     }
 
     private createSubRenderPass() {
-        let rtPass = ILaya.stage.passManager;
         let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
-        rtPass.addPass(subPass);
+        
         subPass.root = this._struct;
         subPass.enable = false;
         subPass.setClearColor(0, 0, 0, 0);
@@ -2266,6 +2272,10 @@ export class Sprite extends Node {
         this._oriRenderPass = subPass;
 
         subStruct.renderMatrix = this.globalTrans.getMatrix();
+
+        if (this.displayedInStage) {
+            ILaya.stage.passManager.addPass(subPass);
+        }
     }
 
     //TODO
@@ -2352,6 +2362,18 @@ export class Sprite extends Node {
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
+    }
+
+
+    _setDisplay(value: boolean): void {
+        super._setDisplay(value);
+        if (this._oriRenderPass) {
+            if (value) {
+                ILaya.stage.passManager.addPass(this._oriRenderPass);
+            } else {
+                ILaya.stage.passManager.removePass(this._oriRenderPass);
+            }
+        }
     }
 
     /**

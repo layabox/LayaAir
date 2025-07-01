@@ -57,13 +57,13 @@ export class PostProcess2D extends EventDispatcher {
       return this._owner;
    }
    public set owner(value: Sprite) {
-      // if (this._owner) {
-      //    this._owner.off(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
-      // }
+      if (this._owner) {
+         this._owner.off(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+      }
       this._owner = value;
-      // if (this._owner) {
-      //    this._owner.on(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
-      // }
+      if (this._owner) {
+         this._owner.on(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+      }
    }
 
    /**
@@ -71,9 +71,9 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 刷新渲染
     */
    _onChangeRender() {
-      this.event(PostProcess2D.POSTRENDERCHANGE);
-      // this.owner.setSubpassFlag(SubPassFlag.PostProcess);
-      // this.owner.repaint();
+      // this.event(PostProcess2D.POSTRENDERCHANGE);
+      this.owner.setSubpassFlag(SubPassFlag.PostProcess);
+      this.owner.repaint();
    }
 
    _onChangeRenderCmd() {

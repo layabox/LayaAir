@@ -235,15 +235,6 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
             this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
     }
-}
-
-export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
-    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-    private _baseTexture: BaseTexture;
-    private _normal2DTexture: BaseTexture;
-    private _renderAlpha = -1;
-
 
     public get owner(): WebRenderStruct2D {
         return this._owner;
@@ -259,6 +250,14 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         }
 
     }
+}
+
+export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
+    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
+    private _baseColor: Color = new Color(1, 1, 1, 1);
+    private _baseTexture: BaseTexture;
+    private _normal2DTexture: BaseTexture;
+    private _renderAlpha = -1;
 
     public get baseColor(): Color {
         return this._baseColor;

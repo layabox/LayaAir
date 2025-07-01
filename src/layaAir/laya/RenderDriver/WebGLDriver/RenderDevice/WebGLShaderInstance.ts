@@ -33,9 +33,9 @@ export class WebGLShaderInstance implements IShaderInstance {
     _renderShaderInstance: GLShaderInstance;
 
     /**@internal */
-    _sceneUniformParamsMap: CommandEncoder;
+    _sceneUniformParamsMap: CommandEncoder;//2D pass
     /**@internal */
-    _cameraUniformParamsMap: CommandEncoder;
+    _cameraUniformParamsMap: CommandEncoder;//global
     /**@internal */
     _spriteUniformParamsMap: CommandEncoder;
     /**@internal */
@@ -154,8 +154,11 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._sprite2DUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
         this._sceneUniformParamsMap = new CommandEncoder();
+        this._cameraUniformParamsMap = new CommandEncoder();
         //const sprite2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D") as WebGLCommandUniformMap;//分开，根据不同的Render
-        const sceneParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;//分开，根据不同的Render
+        const passParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DPass") as WebGLCommandUniformMap;//分开，根据不同的Render
+        const globalParams = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;
+
         let i, n;
         let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
         for (i = 0, n = data.length; i < n; i++) {
@@ -163,8 +166,19 @@ export class WebGLShaderInstance implements IShaderInstance {
             if (this.hasSpritePtrID(one.dataOffset)) {
                 this._sprite2DUniformParamsMap.addShaderUniform(one);
             }
-            else if (sceneParms.hasPtrID(one.dataOffset)) {
+            else if (passParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);
+            }
+            else if (globalParams.hasPtrID(one.dataOffset)) {
+                this._cameraUniformParamsMap.addShaderUniform(one);
+            }
+            else if (this._hasAdditionShaderData(one.dataOffset)) {
+                let str = this._hasAdditionShaderData(one.dataOffset);
+                if (!this._additionUniformParamsMaps.get(str)) {
+                    let commandEncoder = new CommandEncoder();
+                    this._additionUniformParamsMaps.set(str, commandEncoder);
+                }
+                this._additionUniformParamsMaps.get(str).addShaderUniform(one);
             }
             else {
                 this._materialUniformParamsMap.addShaderUniform(one);

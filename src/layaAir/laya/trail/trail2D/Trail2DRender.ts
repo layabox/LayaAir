@@ -187,7 +187,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         let trailGeometry = this._trailFilter._trialGeometry;
         this._spriteShaderData.setNumber(TrailShaderCommon.CURTIME, curtime);
         let globalPos = Point.TEMP;
-        this.owner.globalTrans.getScenePos(globalPos);
+        this.owner.globalTrans.getPos(globalPos);
         let curPosV3 = Vector3.TEMP;
         curPosV3.set(globalPos.x, globalPos.y, 0);
 
