@@ -95,14 +95,19 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         }
     }
 
+    protected _uploadGlobalAndPass(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
+        let global = this.getGlobalShaderData() as WebGLShaderData;
+        global && shader.uploadUniforms(shader._cameraUniformParamsMap, global, true);
+        context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
+    }
+
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
         if (!shader.complete)
             return
         shader.bind();
+        this._uploadGlobalAndPass(shader, context);
+
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
-        let global = this.getGlobalShaderData() as WebGLShaderData;
-        global && shader.uploadUniforms(shader._sceneUniformParamsMap, global, true);
-        context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
         //blend
         if (this.renderStateIsBySprite || !this.materialShaderData) {

@@ -66,7 +66,6 @@ export class Shader2D {
         let subShader = new SubShader(Shader2D.graphicsAttribute, {}, {});
         Shader2D.graphicsShader.addSubShader(subShader);
         subShader.addShaderPass(texture_vs, texture_ps);
-
         //primitiveShader
         // Shader2D.primitiveShader = Shader3D.add("Sprite2DPrimitive", false, false);
         // Shader2D.primitiveShader.shaderType = ShaderFeatureType.D2_primitive;
