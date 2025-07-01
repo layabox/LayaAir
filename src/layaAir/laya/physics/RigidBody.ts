@@ -156,7 +156,7 @@ export class RigidBody extends ColliderBase {
 
     set allowRotation(value: boolean) {
         this._allowRotation = value;
-        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, !value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, value);
     }
 
     /**

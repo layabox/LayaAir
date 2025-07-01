@@ -413,6 +413,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._debugDraw.removeSelf();
             this._debugDraw.destroy();
             this._debugDraw = null;
+            this._jsDraw = null;
         }
         Physics2D.I._factory.worldMap.delete(this._box2DWorld._indexInMap);
         this._box2DWorld = null;
@@ -584,11 +585,11 @@ export class Physics2DWorldManager implements IElementComponentManager {
         // 计算旋转后的坐标轴方向
         let cosAngle = Math.cos(xf.angle);
         let sinAngle = Math.sin(xf.angle);
-        
+
         // X轴方向 (红色) - 旋转后的右方向
         let xAxisEndX = x + this.physics2DToLaya(length * cosAngle);
         let xAxisEndY = y + this.physics2DToLaya(length * sinAngle);
-        
+
         // Y轴方向 (绿色) - 旋转后的上方向 (垂直于X轴)
         let yAxisEndX = x + this.physics2DToLaya(length * (-sinAngle));
         let yAxisEndY = y + this.physics2DToLaya(length * cosAngle);
