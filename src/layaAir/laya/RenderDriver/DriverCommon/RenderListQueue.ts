@@ -43,10 +43,42 @@ export class RenderListQueue {
     renderQueue(context: IRenderContext3D) {
         this._batchQueue(); //合并的地方
         const count = this._elements.length;
-        this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
+        if(true){
+            this._quickSort.sort(this._elements, this._isTransparent,0,count-1);
+        }else{
+            if(this._isTransparent){
+                this.sort_trans(this._elements);
+            }else{
+                this.sort_opaque(this._elements);
+            }
+        }
         context.drawRenderElementList(this._elements);
         this._batch.clearRenderData();
     }
+
+    private sort_trans(elements: FastSinglelist<IRenderElement3D>) {
+        elements.elements.sort((a, b) => {
+            const renderQueue = a.materialRenderQueue - b.materialRenderQueue;
+            if (renderQueue === 0) {
+                const sort = b.owner.distanceForSort - a.owner.distanceForSort;
+                return sort;
+                return sort + b.owner.sortingFudge - a.owner.sortingFudge;//这个排序矫正值有用么？为什么不直接加到distanceForSort
+            }
+            return renderQueue;
+        });
+    }
+    private sort_opaque(elements: FastSinglelist<IRenderElement3D>) {
+        elements.elements.sort((a, b) => {
+            const renderQueue = a.materialRenderQueue - b.materialRenderQueue;
+            if (renderQueue === 0) {
+                const sort = a.owner.distanceForSort - b.owner.distanceForSort;
+                return sort;
+                return sort + a.owner.sortingFudge - b.owner.sortingFudge;  //这个排序矫正值有用么？为什么不直接加到distanceForSort
+            }
+            return renderQueue;
+        });
+    }
+
 
     /**
      * 清空队列
