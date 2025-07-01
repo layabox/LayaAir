@@ -40,12 +40,13 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
-const tmpuv1: any[] = [0, 0, 0, 0, 0, 0, 0, 0];
+//const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
-var _clipResult = new Vector2();
+//var _clipResult = new Vector2();
 const _drawTexToDrawTri_Vert = new Float32Array(8);// 从速度考虑，不做成static了
 const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
+//const tmpUVRect: number[] = [0, 0, 0, 0];
 
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
@@ -1144,7 +1145,7 @@ export class GraphicsRunner {
         blendMode?: BlendMode | string,
         colorNum?: number,
         colors?: Float32Array,
-        uvRange?: Vector4): void {
+        uvRange?: ArrayLike<number>): void {
 
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
@@ -1860,251 +1861,251 @@ export class GraphicsRunner {
         return this._path || (this._path = new Path());
     }
 
-    /**
-     * 专用函数。通过循环创建来水平填充
-     * @param tex
-     * @param bmpid
-     * @param uv		希望循环的部分的uv
-     * @param oriw
-     * @param orih
-     * @param x
-     * @param y
-     * @param w
-     */
-    private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
-        if (oriw <= 0)
-            return;//console.error('_fillTexture_h error: oriw must>0');
+    // /**
+    //  * 专用函数。通过循环创建来水平填充
+    //  * @param tex
+    //  * @param bmpid
+    //  * @param uv		希望循环的部分的uv
+    //  * @param oriw
+    //  * @param orih
+    //  * @param x
+    //  * @param y
+    //  * @param w
+    //  */
+    // private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number, color: number): void {
+    //     if (oriw <= 0)
+    //         return;//console.error('_fillTexture_h error: oriw must>0');
 
-        var stx = x;
-        var num = Math.floor(w / oriw);
-        var left = w % oriw;
-        for (var i = 0; i < num; i++) {
-            this._inner_drawTexture(tex, imgid, stx, y, oriw, orih, this._curMat, uv, 1, false, color);
-            stx += oriw;
-        }
-        // 最后剩下的
-        if (left > 0) {
-            var du = uv[2] - uv[0];
-            var uvr = uv[0] + du * (left / oriw);
-            var tuv: any[] = tmpuv1;
-            tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uvr; tuv[3] = uv[3];
-            tuv[4] = uvr; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false, color);
-        }
-    }
+    //     var stx = x;
+    //     var num = Math.floor(w / oriw);
+    //     var left = w % oriw;
+    //     for (var i = 0; i < num; i++) {
+    //         this._inner_drawTexture(tex, imgid, stx, y, oriw, orih, this._curMat, uv, 1, false, color);
+    //         stx += oriw;
+    //     }
+    //     // 最后剩下的
+    //     if (left > 0) {
+    //         var du = uv[2] - uv[0];
+    //         var uvr = uv[0] + du * (left / oriw);
+    //         var tuv: any[] = tmpuv1;
+    //         tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uvr; tuv[3] = uv[3];
+    //         tuv[4] = uvr; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
+    //         this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false, color);
+    //     }
+    // }
 
-    /**
-     * 专用函数。通过循环创建来垂直填充
-     * @param tex
-     * @param imgid
-     * @param uv
-     * @param oriw
-     * @param orih
-     * @param x
-     * @param y
-     * @param h
-     */
-    private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
-        if (orih <= 0)
-            return; //console.error('_fillTexture_v error: orih must>0');
-        var sty = y;
-        var num = Math.floor(h / orih);
-        var left = h % orih;
-        for (var i = 0; i < num; i++) {
-            this._inner_drawTexture(tex, imgid, x, sty, oriw, orih, this._curMat, uv, 1, false, color);
-            sty += orih;
-        }
-        // 最后剩下的
-        if (left > 0) {
-            var dv = uv[7] - uv[1];
-            var uvb = uv[1] + dv * (left / orih);
-            var tuv: any[] = tmpuv1;
-            tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3];
-            tuv[4] = uv[4]; tuv[5] = uvb; tuv[6] = uv[6]; tuv[7] = uvb;
-            this._inner_drawTexture(tex, imgid, x, sty, oriw, left, this._curMat, tuv, 1, false, color);
-        }
-    }
+    // /**
+    //  * 专用函数。通过循环创建来垂直填充
+    //  * @param tex
+    //  * @param imgid
+    //  * @param uv
+    //  * @param oriw
+    //  * @param orih
+    //  * @param x
+    //  * @param y
+    //  * @param h
+    //  */
+    // private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number, color: number): void {
+    //     if (orih <= 0)
+    //         return; //console.error('_fillTexture_v error: orih must>0');
+    //     var sty = y;
+    //     var num = Math.floor(h / orih);
+    //     var left = h % orih;
+    //     for (var i = 0; i < num; i++) {
+    //         this._inner_drawTexture(tex, imgid, x, sty, oriw, orih, this._curMat, uv, 1, false, color);
+    //         sty += orih;
+    //     }
+    //     // 最后剩下的
+    //     if (left > 0) {
+    //         var dv = uv[7] - uv[1];
+    //         var uvb = uv[1] + dv * (left / orih);
+    //         var tuv: any[] = tmpuv1;
+    //         tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3];
+    //         tuv[4] = uv[4]; tuv[5] = uvb; tuv[6] = uv[6]; tuv[7] = uvb;
+    //         this._inner_drawTexture(tex, imgid, x, sty, oriw, left, this._curMat, tuv, 1, false, color);
+    //     }
+    // }
 
-    private _gridCut(left: number, right: number, width: number, out: Vector2) {
-        let c = (left + right) / 2;
-        let d = (left + right - width) / 2;
-        let ll = 0, lr = left;
-        let rl = left, rr = left + right;
-        let cl = c - d, cr = c + d;
-        //扣掉的部分与左右两部分相交
-        let hl = Math.max(ll, cl);
-        let hr = Math.min(lr, cr);
-        if (hr > hl) {
-            left -= (hr - hl);
-        }
-        hl = Math.max(rl, cl);
-        hr = Math.min(rr, cr);
-        if (hr > hl) {
-            right -= (hr - hl);
-        }
-        out.x = left;
-        out.y = right;
-    }
+    // private _gridCut(left: number, right: number, width: number, out: Vector2) {
+    //     let c = (left + right) / 2;
+    //     let d = (left + right - width) / 2;
+    //     let ll = 0, lr = left;
+    //     let rl = left, rr = left + right;
+    //     let cl = c - d, cr = c + d;
+    //     //扣掉的部分与左右两部分相交
+    //     let hl = Math.max(ll, cl);
+    //     let hr = Math.min(lr, cr);
+    //     if (hr > hl) {
+    //         left -= (hr - hl);
+    //     }
+    //     hl = Math.max(rl, cl);
+    //     hr = Math.min(rr, cr);
+    //     if (hr > hl) {
+    //         right -= (hr - hl);
+    //     }
+    //     out.x = left;
+    //     out.y = right;
+    // }
 
-    private static tmpUVRect: any[] = [0, 0, 0, 0];
-    drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
-        if (!this._getImageSource(tex))
-            return;
-        tx += gx;
-        ty += gy;
+    // drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: number[], gx: number, gy: number, color: number): void {
+    //     if (!this._getImageSource(tex))
+    //         return;
 
-        var uv = tex.uv, w = tex.bitmap.width, h = tex.bitmap.height;
+    //     tx += gx;
+    //     ty += gy;
 
-        var top = sizeGrid[0];
-        var left = sizeGrid[3];
-        var right = sizeGrid[1];
-        var bottom = sizeGrid[2];
-        var repeat = sizeGrid[4];
+    //     var uv = tex.uv, w = tex.bitmap.width, h = tex.bitmap.height;
 
-        if (width === tex.width) {
-            left = right = 0;
-        }
-        if (height === tex.height) {
-            top = bottom = 0;
-        }
+    //     var top = sizeGrid[0];
+    //     var left = sizeGrid[3];
+    //     var right = sizeGrid[1];
+    //     var bottom = sizeGrid[2];
+    //     var repeat = sizeGrid[4];
 
-        var imgid = (tex.bitmap as Texture2D).id;
-        var mat: Matrix = this._curMat;
-        var tuv = this._tempUV;
+    //     if (width === tex.width) {
+    //         left = right = 0;
+    //     }
+    //     if (height === tex.height) {
+    //         top = bottom = 0;
+    //     }
 
-        //当width过小的情况
-        let hasmidx = true;
-        if (left + right > width) {
-            hasmidx = false;
-            //有时候用户会把左右切割的大小不一致,如果平分裁剪,会导致左右的半圆对不上,假设用户的图片左右两边的半圆是相同的
-            //那么更好的方法是优先裁剪长的那一段
-            this._gridCut(left, right, width, _clipResult);
-            left = _clipResult.x;
-            right = _clipResult.y;
-        }
+    //     var imgid = (tex.bitmap as Texture2D).id;
+    //     var mat: Matrix = this._curMat;
+    //     var tuv = this._tempUV;
 
-        let hasmidy = true;
-        if (top + bottom > height) {
-            hasmidy = false;
-            this._gridCut(top, bottom, height, _clipResult);
-            top = _clipResult.x;
-            bottom = _clipResult.y;
-        }
+    //     //当width过小的情况
+    //     let hasmidx = true;
+    //     if (left + right > width) {
+    //         hasmidx = false;
+    //         //有时候用户会把左右切割的大小不一致,如果平分裁剪,会导致左右的半圆对不上,假设用户的图片左右两边的半圆是相同的
+    //         //那么更好的方法是优先裁剪长的那一段
+    //         this._gridCut(left, right, width, _clipResult);
+    //         left = _clipResult.x;
+    //         right = _clipResult.y;
+    //     }
 
-        var d_top = top / h;
-        var d_left = left / w;
-        var d_right = right / w;
-        var d_bottom = bottom / h;
+    //     let hasmidy = true;
+    //     if (top + bottom > height) {
+    //         hasmidy = false;
+    //         this._gridCut(top, bottom, height, _clipResult);
+    //         top = _clipResult.x;
+    //         bottom = _clipResult.y;
+    //     }
+
+    //     var d_top = top / h;
+    //     var d_left = left / w;
+    //     var d_right = right / w;
+    //     var d_bottom = bottom / h;
 
 
 
-        // 整图的uv
-        // 一定是方的，所以uv只要左上右下就行
-        var uvl = uv[0];
-        var uvt = uv[1];
-        var uvr = uv[4];
-        var uvb = uv[5];
+    //     // 整图的uv
+    //     // 一定是方的，所以uv只要左上右下就行
+    //     var uvl = uv[0];
+    //     var uvt = uv[1];
+    //     var uvr = uv[4];
+    //     var uvb = uv[5];
 
-        // 小图的uv
-        var uvl_ = uvl;
-        var uvt_ = uvt;
-        var uvr_ = uvr;
-        var uvb_ = uvb;
+    //     // 小图的uv
+    //     var uvl_ = uvl;
+    //     var uvt_ = uvt;
+    //     var uvr_ = uvr;
+    //     var uvb_ = uvb;
 
-        //绘制四个角
-        // 构造uv
-        if (left && top) {
-            uvr_ = uvl + d_left;
-            uvb_ = uvt + d_top;
-            tuv[0] = uvl, tuv[1] = uvt, tuv[2] = uvr_, tuv[3] = uvt,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color);
-        }
-        if (right && top) {
-            uvl_ = uvr - d_right; uvt_ = uvt;
-            uvr_ = uvr; uvb_ = uvt + d_top;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color);
-        }
-        if (left && bottom) {
-            uvl_ = uvl; uvt_ = uvb - d_bottom;
-            uvr_ = uvl + d_left; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color);
-        }
-        if (right && bottom) {
-            uvl_ = uvr - d_right; uvt_ = uvb - d_bottom;
-            uvr_ = uvr; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
-        }
-        //绘制上下两个边
-        if (top && hasmidx) {
-            uvl_ = uvl + d_left; uvt_ = uvt;
-            uvr_ = uvr - d_right; uvb_ = uvt + d_top;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, top, left + tx, ty, width - left - right, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color);
-            }
+    //     //绘制四个角
+    //     // 构造uv
+    //     if (left && top) {
+    //         uvr_ = uvl + d_left;
+    //         uvb_ = uvt + d_top;
+    //         tuv[0] = uvl, tuv[1] = uvt, tuv[2] = uvr_, tuv[3] = uvt,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color);
+    //     }
+    //     if (right && top) {
+    //         uvl_ = uvr - d_right; uvt_ = uvt;
+    //         uvr_ = uvr; uvb_ = uvt + d_top;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color);
+    //     }
+    //     if (left && bottom) {
+    //         uvl_ = uvl; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvl + d_left; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color);
+    //     }
+    //     if (right && bottom) {
+    //         uvl_ = uvr - d_right; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvr; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
+    //     }
+    //     //绘制上下两个边
+    //     if (top && hasmidx) {
+    //         uvl_ = uvl + d_left; uvt_ = uvt;
+    //         uvr_ = uvr - d_right; uvb_ = uvt + d_top;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, top, left + tx, ty, width - left - right, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color);
+    //         }
 
-        }
-        if (bottom && hasmidx) {
-            uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
-            uvr_ = uvr - d_right; uvb_ = uvb;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, bottom, left + tx, height - bottom + ty, width - left - right, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color);
-            }
-        }
-        //绘制左右两边
-        if (left && hasmidy) {
-            uvl_ = uvl; uvt_ = uvt + d_top;
-            uvr_ = uvl + d_left; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_v(tex, imgid, tuv, left, tex.height - top - bottom, tx, top + ty, height - top - bottom, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-        if (right && hasmidy) {
-            uvl_ = uvr - d_right; uvt_ = uvt + d_top;
-            uvr_ = uvr; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                this._fillTexture_v(tex, imgid, tuv, right, tex.height - top - bottom, width - right + tx, top + ty, height - top - bottom, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-        //绘制中间
-        if (hasmidx && hasmidy) {
-            uvl_ = uvl + d_left; uvt_ = uvt + d_top;
-            uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
-            tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
-                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            if (repeat) {
-                var tuvr: any[] = GraphicsRunner.tmpUVRect;
-                tuvr[0] = uvl_; tuvr[1] = uvt_;
-                tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
-                // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
-                this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
-            } else {
-                this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
-            }
-        }
-    }
+    //     }
+    //     if (bottom && hasmidx) {
+    //         uvl_ = uvl + d_left; uvt_ = uvb - d_bottom;
+    //         uvr_ = uvr - d_right; uvb_ = uvb;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, bottom, left + tx, height - bottom + ty, width - left - right, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     //绘制左右两边
+    //     if (left && hasmidy) {
+    //         uvl_ = uvl; uvt_ = uvt + d_top;
+    //         uvr_ = uvl + d_left; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_v(tex, imgid, tuv, left, tex.height - top - bottom, tx, top + ty, height - top - bottom, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     if (right && hasmidy) {
+    //         uvl_ = uvr - d_right; uvt_ = uvt + d_top;
+    //         uvr_ = uvr; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             this._fillTexture_v(tex, imgid, tuv, right, tex.height - top - bottom, width - right + tx, top + ty, height - top - bottom, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    //     //绘制中间
+    //     if (hasmidx && hasmidy) {
+    //         uvl_ = uvl + d_left; uvt_ = uvt + d_top;
+    //         uvr_ = uvr - d_right; uvb_ = uvb - d_bottom;
+    //         tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
+    //             tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
+    //         if (repeat) {
+    //             let tuvr = tmpUVRect;
+    //             tuvr[0] = uvl_; tuvr[1] = uvt_;
+    //             tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
+    //             // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
+    //             this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
+    //         } else {
+    //             this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
+    //         }
+    //     }
+    // }
 
     private _getImageSource(texture: Texture | BaseTexture) {
         let cs = this.sprite;
@@ -2152,7 +2153,7 @@ export class GraphicsRunner {
         uvs: ArrayLike<number>, rgba: number,
         matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
         colors?: ArrayLike<number>,
-        uvRange?: Vector4
+        uvRange?: ArrayLike<number>,
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
@@ -2175,11 +2176,6 @@ export class GraphicsRunner {
             ty = matrix.ty;
         }
 
-        // let color = this.sprite._spriteColor;    
-        // let r = (rgba & 0xff) / 255.0 * color.r;
-        // let g = ((rgba >>> 8) & 0xff) / 255.0 * color.g;
-        // let b = ((rgba >>> 16) & 0xff) / 255.0 * color.b;
-        // let a = (rgba >>> 24) / 255.0 * color.a;
         let r = (rgba & 0xff) / 255.0;
         let b = ((rgba >>> 16) & 0xff) / 255.0;
         let g = ((rgba >>> 8) & 0xff) / 255.0;
@@ -2242,10 +2238,10 @@ export class GraphicsRunner {
             vbdata[vi + 9] = useClipByte;
 
             if (uvRange) {
-                vbdata[vi + 12] = uvRange.x;
-                vbdata[vi + 13] = uvRange.y;
-                vbdata[vi + 14] = uvRange.z;
-                vbdata[vi + 15] = uvRange.w;
+                vbdata[vi + 12] = uvRange[0];
+                vbdata[vi + 13] = uvRange[1];
+                vbdata[vi + 14] = uvRange[2];
+                vbdata[vi + 15] = uvRange[3];
             }
 
             vi += vertexLength;
