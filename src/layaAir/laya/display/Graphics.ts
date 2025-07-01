@@ -164,7 +164,7 @@ export class Graphics {
     repaint(): void {
         this._modified = true;
         this._graphicBounds?.reset();
-        this.owner && this.owner.repaint();
+        this.owner?.repaint();
     }
 
     /**
@@ -264,23 +264,16 @@ export class Graphics {
         return newCmd;
     }
 
-    /**
-     * @en Mark as modified
-     * @zh 标记为已修改
-     */
-    modified() {
-        this._modified = true;
-    }
-
-
     /** @internal */
     _checkDisplay() {
-        let value = this.owner && !this.owner.destroyed && !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
+        if (!this.owner || this.owner.destroyed)
+            return;
+
+        let value = !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
         if (this._display === value)
             return;
 
         this._display = value;
-        if (!this.owner) return;
 
         let struct = this.owner._struct;
         if (value) {

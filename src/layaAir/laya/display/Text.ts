@@ -309,6 +309,9 @@ export class Text extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
+            if (this._scrollRect != null)
+                this.scrollRect = this._scrollRect.setTo(0, 0, this._width, this._height);
+
             if (!this._updatingLayout)
                 this.markChanged();
             else
@@ -711,12 +714,10 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            if (value !== Text.VISIBLE) {
-                this.on(SpriteGlobalTransform.CHANGED, this, this.markChanged);
-            } else {
-                this.off(SpriteGlobalTransform.CHANGED, this, this.markChanged);
-            }
-            this.markChanged();
+            if (value !== Text.VISIBLE)
+                this.scrollRect = new Rectangle(0, 0, this.width, this.height);
+            else
+                this.scrollRect = null;
         }
     }
 
@@ -1719,9 +1720,7 @@ export class Text extends Sprite {
             this._objContainer.size(this._width, this._height);
 
             if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
-                if (!this._objContainer.scrollRect)
-                    this._objContainer.scrollRect = new Rectangle();
-                this._objContainer.scrollRect.setTo(0, 0, this._width, this._height);
+                this._objContainer.scrollRect = (this._objContainer.scrollRect || new Rectangle()).setTo(0, 0, this._width, this._height);
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1751,12 +1750,6 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
-
-        if (clipped) {
-            graphics.save();
-            graphics.clipRect(0, 0, rectWidth, rectHeight);
-            this.repaint();
-        }
 
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
@@ -1840,9 +1833,6 @@ export class Text extends Sprite {
                 linkStartX = paddingLeft;
             }
         }
-
-        if (clipped)
-            graphics.restore();
     }
 
     /**

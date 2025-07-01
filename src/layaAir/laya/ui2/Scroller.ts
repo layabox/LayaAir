@@ -1067,6 +1067,8 @@ export class Scroller implements IScroller {
             mh += this._hScrollBar.height;
         this._maskContainer.size(mw, mh);
         this._cachedScrollRect.setTo(0, 0, mw, mh);
+        if (this._maskContainer._scrollRect != null)
+            this._maskContainer.scrollRect = this._cachedScrollRect;
 
         if (this._dir == ScrollDirection.Horizontal || this._dir == ScrollDirection.Both)
             this._overlapSize.x = Math.ceil(Math.max(0, this._contentSize.x - this._viewSize.x));

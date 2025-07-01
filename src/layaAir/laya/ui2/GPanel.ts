@@ -21,7 +21,6 @@ import { GButton } from "./GButton";
 export class GPanel extends GBox {
     private _clipping: boolean;
     private _scroller: IScroller;
-    private _cachedScrollRect: Rectangle;
     private _maskContainer: Sprite;
 
     protected _selection: ISelection;
@@ -94,9 +93,7 @@ export class GPanel extends GBox {
             this._clipping = value;
 
             if (this._clipping) {
-                if (!this._cachedScrollRect)
-                    this._cachedScrollRect = new Rectangle(0, 0, this.width, this.height);
-                this.scrollRect = this._cachedScrollRect;
+                this.scrollRect = new Rectangle(0, 0, this.width, this.height);
             }
             else
                 this.scrollRect = null;
@@ -156,8 +153,8 @@ export class GPanel extends GBox {
     }
 
     protected _sizeChanged(changeByLayout?: boolean): void {
-        if (this._cachedScrollRect)
-            this._cachedScrollRect.setTo(0, 0, this.width, this.height);
+        if (this._scrollRect)
+            this.scrollRect = this._scrollRect.setTo(0, 0, this.width, this.height);
 
         //这里不调用super，因为layout.refresh需要在scroller后处理
         if (this._scroller)

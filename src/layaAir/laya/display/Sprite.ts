@@ -904,11 +904,13 @@ export class Sprite extends Node {
         if (value) {
             this._renderType |= SpriteConst.CLIP;
             this._struct.setClipRect(value);
-            this._transChanged(TransformKind.Layout);
         } else {
             this._renderType &= ~SpriteConst.CLIP;
             this._struct.setClipRect(null);
         }
+        if (this._oriRenderPass)
+            this._oriRenderPass.repaint = true;
+        this._globalTrans._spTransChanged(TransformKind.Layout);
         this.repaint();
     }
 
@@ -1119,11 +1121,11 @@ export class Sprite extends Node {
         if (value) {
             value._addReference();
             this.graphics._checkDisplay();
-            this.graphics.modified();
+            this._graphics.repaint();
         } else {
             this._graphics?._checkDisplay();
+            this.repaint();
         }
-        this.repaint();
     }
 
     /**
@@ -2033,7 +2035,6 @@ export class Sprite extends Node {
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
     */
     repaint(): void {
-
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
@@ -2259,7 +2260,7 @@ export class Sprite extends Node {
 
     private createSubRenderPass() {
         let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
-        
+
         subPass.root = this._struct;
         subPass.enable = false;
         subPass.setClearColor(0, 0, 0, 0);
