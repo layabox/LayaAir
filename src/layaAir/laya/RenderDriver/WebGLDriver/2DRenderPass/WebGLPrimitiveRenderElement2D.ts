@@ -61,6 +61,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
         }
     }
 
+
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
         if (!shader.complete)
             return
@@ -69,7 +70,9 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
 
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
-        this.primitiveShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.primitiveShaderData, true);
+
+        let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
+        this.primitiveShaderData && shader.uploadUniforms(encoder, this.primitiveShaderData, true);
 
         let shaderData = this.value2DShaderData;
         //blend
