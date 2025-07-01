@@ -1,20 +1,16 @@
-import { info } from "console";
 import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
-import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
-import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUSubUniformBuffer } from "../RenderDevice/WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 import { compareCahceFlag, coverCahceFlag, oneDrawCacheInfo, WebGPURenderElement3D } from "./WebGPURenderElement3D";
-import { WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
 
 
 const dynamicOffsetsData = new Uint32Array(1);

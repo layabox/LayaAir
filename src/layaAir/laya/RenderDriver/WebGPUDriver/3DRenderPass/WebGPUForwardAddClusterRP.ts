@@ -25,8 +25,8 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
      */
     protected _mainPass(context: IRenderContext3D): void {
         context.pipelineMode = this.pipelineMode;
-        context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         context.setRenderTarget(this.destTarget, this.clearFlag);
+        context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         // (context as WebGPURenderContext3D).clearRenderTarget();
 
         RenderPassUtil.renderCmd(this.beforeForwardCmds, context);
@@ -46,7 +46,9 @@ export class WebGPUForwardAddClusterRP extends ForwardAddClusterRP {
                 context.drawRenderElementOne(skyRenderElement);
             }
         }
+
         this.enableOpaque && this._opaqueTexturePass();
+
         RenderPassUtil.renderCmd(this.beforeTransparentCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
 

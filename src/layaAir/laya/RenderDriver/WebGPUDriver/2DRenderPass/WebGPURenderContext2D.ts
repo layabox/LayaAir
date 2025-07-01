@@ -224,8 +224,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _start() {
         this._setScreenRT();
         this._destRT = this._destRT || WebGPURenderEngine._instance._screenRT;
-        const renderPassDesc: GPURenderPassDescriptor
-            = WebGPURenderPassHelper.getDescriptor(this._destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
+        const renderPassDesc: GPURenderPassDescriptor = WebGPURenderPassHelper.getDescriptor(this._destRT, this._needClearColor ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);
         this.renderCommand.startRender(renderPassDesc);
         this.renderCommand.setViewport(this._viewport.x, this._viewport.y, this._viewport.width, this._viewport.height, 0, 1);
         this._needClearColor = false;
