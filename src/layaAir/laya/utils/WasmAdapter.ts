@@ -1,5 +1,8 @@
 import { PlayerConfig } from "../../Config";
+import { LayaEnv } from "../../LayaEnv";
+import { URL } from "../net/URL";
 import { Browser } from "./Browser";
+import { Utils } from "./Utils";
 
 /**
  * @ignore
@@ -32,14 +35,23 @@ export class WasmAdapter {
             moduleArg["locateFile"] = function (path: string, scriptDirectory: string) {
                 if (WasmAdapter.locateFile != null)
                     wasmFile = WasmAdapter.locateFile(path, scriptDirectory, webDir);
-                else if (PlayerConfig.wasmSubpackage)
-                    wasmFile = PlayerConfig.wasmSubpackage + "/" + path;
                 else
-                    wasmFile = scriptDirectory + path;
+                    wasmFile = WasmAdapter.locateFileDefault(path, scriptDirectory);
                 return wasmFile;
             }
 
             return module(moduleArg);
         };
+    }
+
+    static locateFileDefault(path: string, scriptDirectory?: string): string {
+        if (LayaEnv.isPreview)
+            return scriptDirectory ? scriptDirectory + path : path;
+
+        path = URL.formatURL(path, '');
+        if (PlayerConfig.wasmSubpackage)
+            return PlayerConfig.wasmSubpackage + "/" + Utils.getBaseName(path);
+
+        return path;
     }
 }

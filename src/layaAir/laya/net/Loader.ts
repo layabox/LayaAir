@@ -1455,6 +1455,9 @@ export class Loader extends EventDispatcher {
                 case 3: //render texture
                     Loader.preLoadedMap[URL.formatURL(file)] = c;
                     break;
+                case 4: //url mapping
+                    URL.urlMapping[Utils.getBaseName(file)] = file;
+                    break;
             }
         }
     }
