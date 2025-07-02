@@ -42,7 +42,6 @@ export interface IGraphicsBoundsAssembler {
     readonly width: number;
     readonly height: number;
     readonly points: number[];
-    affectBySize: boolean;
     flushPoints(dx?: number, dy?: number, matrix?: Matrix): void;
     concatMatrix(matrix: Readonly<Matrix>): void;
 }

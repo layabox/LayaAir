@@ -193,10 +193,6 @@ export class GLoader extends GWidget {
         this._renderer.setMesh(value);
     }
 
-    public updateMesh() {
-        this._renderer.updateMesh();
-    }
-
     protected async loadContent() {
         let loadID = ++this._loadId;
         let res = Loader.getRes(this._src);
@@ -302,7 +298,6 @@ export class GLoader extends GWidget {
         }
 
         this._content.size(cw, ch);
-        this._renderer.updateMesh(false);
 
         let nx: number, ny: number;
         if (this._align == AlignType.Center)

@@ -21,7 +21,7 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
     protected _navMeshLink: NavMesh2DLink[] = [];
     protected _transfrom: Matrix4x4 = new Matrix4x4();
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @en Modified areas of the navigation mesh surface.

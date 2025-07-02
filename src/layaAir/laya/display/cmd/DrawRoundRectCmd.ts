@@ -171,7 +171,6 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }

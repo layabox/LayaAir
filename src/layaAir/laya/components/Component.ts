@@ -1,4 +1,4 @@
-import { ILaya } from "../../ILaya";
+import { ILaya, Mutable } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
 import { Node } from "../display/Node"
@@ -27,7 +27,7 @@ export class Component {
      * @en Gets the owner Node to which the component belongs.
      * @zh 获取组件所属的 Node 节点。
      */
-    owner: Node;
+    readonly owner: Node;
     /** @internal */
     _enabled: boolean = true;
 
@@ -160,7 +160,7 @@ export class Component {
         this._enabled = true;
         this._status = 0;
         this._enableState = false;
-        this.owner = null;
+        (<Mutable<this>>this).owner = null;
     }
 
     /**
@@ -174,7 +174,7 @@ export class Component {
         if (this._status != 0) {
             throw new Error('reuse a destroyed component');
         }
-        this.owner = node;
+        (<Mutable<this>>this).owner = node;
 
         if (this._isScript())
             node._setBit(NodeFlags.HAS_SCRIPT, true);

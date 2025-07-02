@@ -599,7 +599,7 @@ export class Skeleton extends Sprite {
                 let tPathConstraint = this._pathDic[tBoneData.name];
                 if (tPathConstraint) {
                     let tByte: Byte = new Byte(tBoneData.extenData);
-                    switch (tByte.getByte()) {
+                    switch (tByte.readByte()) {
                         case 1://position
                             tPathConstraint.position = origDt[tStartIndex++];
                             break;

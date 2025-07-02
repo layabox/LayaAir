@@ -175,7 +175,7 @@ export class GProgressBar extends GWidget {
         let mesh = (<GImage | GLoader>bar).mesh;
         if (mesh instanceof ProgressMesh) {
             mesh.amount = amount;
-            (<GImage | GLoader>bar).updateMesh();
+            bar.graphics.repaint();
             return true;
         }
         else

@@ -25,9 +25,11 @@ import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
  * @en The Text class is used to create display objects to show text.
  * Note: If the runtime system cannot find the specified font, it will render the text with the system default font, which may cause display anomalies. (Usually, it displays normally on computers, but may display abnormally on some mobile devices due to the lack of the set font.)
  *  - Event.CHANGE event dispatched after the text content changes.
+ *  - Event.LINK event dispatched when a link is clicked.
  * @zh Text类用于创建显示对象以显示文本。
  * 注意：如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
  *  - Event.CHANGE 事件表示文本内容发生改变后调度。
+ *  - Event.LINK 事件表示点击链接时调度。
  */
 export class Text extends Sprite {
 
@@ -702,9 +704,9 @@ export class Text extends Sprite {
         if (this._overflow != value) {
             this._overflow = value;
             if (value !== Text.VISIBLE) {
-                this.on(SpriteGlobalTransform.CHANGED , this , this.markChanged);
-            }else{
-                this.off(SpriteGlobalTransform.CHANGED , this, this.markChanged);
+                this.on(SpriteGlobalTransform.CHANGED, this, this.markChanged);
+            } else {
+                this.off(SpriteGlobalTransform.CHANGED, this, this.markChanged);
             }
             this.markChanged();
         }
@@ -1873,7 +1875,14 @@ export class Text extends Sprite {
             this.graphics.removeCmd(cmd);
         }
     }
+
+    /** @internal @blueprintEvent */
+    Text_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.LINK]: (href: string) => void;
+    }
 }
+
 export interface ITextCmd {
     x: number;
     y: number;

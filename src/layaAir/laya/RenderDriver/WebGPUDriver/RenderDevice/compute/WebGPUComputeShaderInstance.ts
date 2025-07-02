@@ -33,7 +33,7 @@ export class WebGPUComputeShaderInstance implements IComputeShader {
         this.name = name;
     }
     HasKernel(kernel: string): boolean {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
 

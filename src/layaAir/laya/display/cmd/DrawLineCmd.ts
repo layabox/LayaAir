@@ -131,8 +131,6 @@ export class DrawLineCmd implements IGraphicsCmd {
             fromY *= assembler.height;
             toX *= assembler.width;
             toY *= assembler.height;
-
-            assembler.affectBySize = true;
         }
 
         if (fromX == toX) {

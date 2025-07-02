@@ -120,7 +120,6 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * @readonly
      * @en The minimum bounds of the navigation mesh
      * @zh 导航网格的最小边界 
      */
@@ -129,7 +128,6 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * @readonly
      * @en The maximum bounds of the navigation mesh
      * @zh 导航网格的最大边界 
      */

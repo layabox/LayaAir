@@ -228,7 +228,7 @@ export class Stage extends Sprite {
     private _needUpdateCanvasSize: boolean = false;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
      * @zh 场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。
      * */
@@ -818,7 +818,7 @@ export class Stage extends Sprite {
             sprite.updateSubRenderPassState();
             if (!sprite._oriRenderPass) {
                 sprite._subpassUpdateFlag = 0;
-                continue
+                continue;
             }
 
             sprite.updateRenderTexture();

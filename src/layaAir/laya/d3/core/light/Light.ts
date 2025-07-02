@@ -62,7 +62,7 @@ export class Light extends Component {
      */
     color: Color;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en The light intensity.

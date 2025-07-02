@@ -26,9 +26,10 @@ uniform vec2 u_size;
     uniform vec4 u_mClipMatDir;
     uniform vec4 u_mClipMatPos;
 #endif
+
 uniform vec4 u_clipMatDir;
 uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-// uniform vec2 u_pivotPos;
+
 varying vec2 v_cliped;
 varying vec4 v_color;
 
@@ -44,14 +45,39 @@ void clip(inout vec2 globalPos){
     #ifdef MATERIALCLIP
         clipMatDir = u_mClipMatDir;
         clipMatPos = u_mClipMatPos;
-        // clipMatDir.x = u_mClipMatDir.x * u_NMatrix_0.x;//a
-        // clipMatDir.y = u_mClipMatDir.y * u_NMatrix_1.x;//b
-        // clipMatDir.z = u_mClipMatDir.z * u_NMatrix_0.y;//c
-        // clipMatDir.w = u_mClipMatDir.w * u_NMatrix_1.y;//d
-        // clipMatDir.xy *= u_NMatrix_0.z;
-        // vec2 tempPos;
-        // transfrom(u_mClipMatPos.xy , u_NMatrix_0 , u_NMatrix_1 , tempPos) ;
-        // clipMatPos.xyzw = tempPos.xyxy;
+
+        float tx = clipMatPos.z;
+        float ty = clipMatPos.w;
+        float cmaxx = tx + clipMatDir.x;
+        float cmaxy = ty + clipMatDir.w;
+        //计算交集
+        float parentMinX = u_clipMatPos.x;
+        float parentMinY = u_clipMatPos.y;
+        float offsetx = u_clipMatPos.z - parentMinX;
+        float offsety = u_clipMatPos.w - parentMinY;
+        float parentMaxX = parentMinX + u_clipMatDir.x;
+        float parentMaxY = parentMinY + u_clipMatDir.w;
+
+        if (tx < parentMinX) {
+            clipMatDir.x -= (parentMinX - tx);
+            tx = clipMatPos.x = parentMinX;
+        }
+
+        if (cmaxx > parentMaxX) {
+            clipMatDir.x -= (cmaxx - parentMaxX);
+        }
+
+        if (ty < parentMinY) {
+            clipMatDir.w -= (parentMinY - ty);
+            ty = clipMatPos.y = parentMinY;
+            // offsety += parentMinY - cm.ty;
+        }
+        
+        if (cmaxy > parentMaxY) {
+            clipMatDir.w -= (cmaxy - parentMaxY);
+        }
+
+        clipMatPos.zw = vec2(tx + offsetx,ty + offsety);
     #else
         clipMatDir = u_clipMatDir;
         clipMatPos = u_clipMatPos;
@@ -99,8 +125,6 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
             viewPos.xy = globalPos;
         #endif
     #endif
-
-    
 }
 
 #ifdef TEXTUREVS
@@ -111,6 +135,8 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
         vec2 cliped;
         vec4 texcoordAlpha;
         float useTex;
+        float useClip;
+        vec4 customs;
     };
 
     uniform float u_VertAlpha;
@@ -121,6 +147,8 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 
     varying vec4 v_texcoordAlpha;
     varying float v_useTex;
+    varying float v_useClip;
+    varying vec4 v_customs;
 
     void getVertexInfo(inout vertexInfo info){
        	//texcoordAlpha
@@ -131,6 +159,11 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 	    info.color.xyz*= info.color.w;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r;
+        //useClip
+        info.useClip = a_attribFlags.g;
+        //customs
+        info.customs = a_customs;
+
         vec2 pos;
         #ifdef VERTEX_SIZE
             pos = (a_posuv.xy*u_vertexSize.zw ) +u_vertexSize.xy;//xy偏移，zw 顶点扩展宽高

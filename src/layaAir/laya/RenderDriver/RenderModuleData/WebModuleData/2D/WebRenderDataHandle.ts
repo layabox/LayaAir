@@ -122,6 +122,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 let vbdata = null;
                 let blocks = this._bufferBlocks;
                 let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
+                let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
 
                 for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
                     let vertexs = blocks[i].vertexs;
@@ -147,7 +148,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                             let x = positions[ci], y = positions[ci + 1];
                             vbdata[pos] = x * m00 + y * m10 + tx;
                             vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                            pos += 12;
+                            pos += stride;
                             ci += 2;
                         }
                     }

@@ -10,7 +10,7 @@ import { Light2DManager } from "./Light2DManager";
  * 精灵灯光
  */
 export class SpriteLight2D extends BaseLight2D {
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @ignore

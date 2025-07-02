@@ -208,7 +208,7 @@ export class LODGroup extends Component {
      */
     private _nowRate: number;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en Constructor method of LODGroup.

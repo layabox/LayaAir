@@ -1,5 +1,4 @@
 import { Graphic2DDynamicVIBuffer } from "../../display/Scene2DSpecial/Graphic2DDynamicVIBuffer";
-import { LayaGL } from "../../layagl/LayaGL";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
@@ -13,6 +12,7 @@ export type MeshBlockInfo = {
    vertexBlocks?: number[],
 }
 
+/** @ignore */
 export class GraphicsMesh {
    //顶点结构大小。每个mesh的顶点结构是固定的。
    static stride = 0;
@@ -20,11 +20,13 @@ export class GraphicsMesh {
    static vertexDeclarition: VertexDeclaration;
 
    static __init__(): void {
-      GraphicsMesh.vertexDeclarition = new VertexDeclaration(48, [
+      GraphicsMesh.vertexDeclarition = new VertexDeclaration(64, [
          new VertexElement(0, VertexElementFormat.Vector4, 0),//pos,uv
          new VertexElement(16, VertexElementFormat.Vector4, 1),//color,alpha
          new VertexElement(32, VertexElementFormat.Vector4, 2),//
+         new VertexElement(48, VertexElementFormat.Vector4, 3),//custom
       ]);
+      
       GraphicsMesh.stride = GraphicsMesh.vertexDeclarition.vertexStride / 4;
    }
 
@@ -37,7 +39,7 @@ export class GraphicsMesh {
 
    constructor() {
       //1次4个vb 6个ib
-      this._buffer = new Graphic2DDynamicVIBuffer( 4 , GraphicsMesh.vertexDeclarition);
+      this._buffer = new Graphic2DDynamicVIBuffer(4, GraphicsMesh.vertexDeclarition);
    }
 
    /**

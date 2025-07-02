@@ -344,8 +344,7 @@ export class SpriteGlobalTransform {
     }
 
     private _notifyRenderSpriteTransChange() {
-        let renderType = this._sp._renderType;
-        if ((renderType & SpriteConst.UPDATETRANS)) {
+        if ((this._sp._renderType & SpriteConst.UPDATETRANS)) {
             ILaya.stage._tranMatrixUpdateList.add(this._sp);
         }
     }

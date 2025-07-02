@@ -8,60 +8,43 @@ import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 /**
  * @en BlendMode enumeration.
  * @zh 混合模式枚举。
+ * @blueprintable
  */
 export enum BlendMode {
-    Invalid = 0,
-    Normal,
-    Add,
-    Multiply,
-    Screen,
-    Overlay,
-    Light,
-    Lighter,
-    Mask,
-    DestinationOut,
-    AddOld,
-    LighterOld,
-    SourceAlpha,
-}
+    invalid = 0,
+    normal,
+    add,
+    multiply,
+    screen,
+    overlay,
+    light,
+    lighter,
+    mask,
+    destinationOut,
+    addOld,
+    lighterOld,
+    sourceAlpha,
+};
+
+const TOINT: Record<string, number> = {
+    [BlendMode.normal]: 0,
+    [BlendMode.add]: 1,
+    [BlendMode.multiply]: 2,
+    [BlendMode.screen]: 3,
+    [BlendMode.overlay]: 4,
+    [BlendMode.light]: 5,
+    [BlendMode.mask]: 6,
+    [BlendMode.destinationOut]: 7,
+    [BlendMode.lighter]: 1,
+    [BlendMode.lighterOld]: 8,
+    [BlendMode.addOld]: 8,
+    [BlendMode.sourceAlpha]: 9,
+};
 
 /**
  * @ignore
  */
 export class BlendModeHandler {
-
-    /** @internal 这个不直接暴露给开发者*/
-    static NAMES: Record<string, BlendMode> = {
-        "normal": BlendMode.Normal,
-        "add": BlendMode.Add,
-        "multiply": BlendMode.Multiply,
-        "screen": BlendMode.Screen,
-        "overlay": BlendMode.Overlay,
-        "light": BlendMode.Light,
-        "lighter": BlendMode.Lighter,
-        "mask": BlendMode.Mask,
-        "destination-out": BlendMode.DestinationOut,
-        "add_old": BlendMode.AddOld,
-        "source_alpha": BlendMode.SourceAlpha
-
-    }
-
-    /** @internal */
-    static TOINT: { [key: string]: number } = {
-        [BlendMode.Normal]: 0,
-        [BlendMode.Add]: 1,
-        [BlendMode.Multiply]: 2,
-        [BlendMode.Screen]: 3,
-        [BlendMode.Overlay]: 4,
-        [BlendMode.Light]: 5,
-        [BlendMode.Mask]: 6,
-        [BlendMode.DestinationOut]: 7,
-        [BlendMode.Lighter]: 1,
-        [BlendMode.LighterOld]: 8,
-        [BlendMode.AddOld]: 8,
-        [BlendMode.SourceAlpha]: 9,
-    };
-
     /**@internal */
     static _init_(): void {
     }
@@ -135,11 +118,8 @@ export class BlendModeHandler {
         RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
     }
 
-    static setShaderData(blendType: BlendMode | string, shaderData: ShaderData, premultipliedAlpha = true): void {
-        if (typeof blendType === "string") {
-            blendType = BlendModeHandler.NAMES[blendType];
-        }
-        let type = BlendModeHandler.TOINT[blendType];
+    static setShaderData(blendType: BlendMode, shaderData: ShaderData, premultipliedAlpha = true): void {
+        let type = TOINT[blendType];
         switch (type) {
             case 1://add
             case 3://screen

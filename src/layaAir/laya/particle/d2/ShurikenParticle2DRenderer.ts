@@ -189,7 +189,7 @@ function gradientDataNumberConstant(gradient: GradientDataNumber, value: number)
 
 export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     private _particleSystem: ShurikenParticle2DSystem;
 

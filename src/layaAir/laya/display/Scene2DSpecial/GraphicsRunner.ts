@@ -12,7 +12,7 @@ import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { FontInfo } from "../../utils/FontInfo";
 import { WordText } from "../../utils/WordText";
-import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendMode } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
 import { ISaveData } from "../../webgl/canvas/save/ISaveData";
@@ -22,7 +22,6 @@ import { SaveStyle } from "../../webgl/canvas/save/SaveStyle";
 import { SaveMark } from "../../webgl/canvas/save/SaveMark";
 import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
 import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
-import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
@@ -95,7 +94,7 @@ export class GraphicsRunner {
     private _lastMat_b = 0.0;
     private _lastMat_c = 0.0;
     private _lastMat_d = 1.0;
-    _nBlendType = BlendMode.Normal;
+    _nBlendType = BlendMode.normal;
     _save: ISaveData[] & { _length?: number } = null;
     _saveMark: SaveMark | null = null;
     // private _shader2D = new Shader2D();	//
@@ -528,13 +527,27 @@ export class GraphicsRunner {
     clear(): void {
         this.clearRenderData();
         this._alpha = 1.0;
-        this._nBlendType = BlendMode.Normal;
+        this._nBlendType = BlendMode.normal;
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
+    }
+
+    getCurrentScaleX(): number {
+        let scaleX = this.getMatScaleX();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleX = matrix.a;
+        return scaleX * spriteScaleX;
+    }
+
+    getCurrentScaleY(): number {
+        let scaleY = this.getMatScaleY();
+        let matrix = this.sprite.globalTrans.getMatrix();
+        let spriteScaleY = matrix.d;
+        return scaleY * spriteScaleY;
     }
 
     /**
@@ -820,7 +833,7 @@ export class GraphicsRunner {
             // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            material.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+            material.fillTexture = true;
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;
@@ -1087,31 +1100,17 @@ export class GraphicsRunner {
         this._curSubmit = SubmitBase.RENDERBASE;
     }
 
-    private _repaintSprite(): void {
-        this.sprite && this.sprite.repaint();
-    }
-
-    /**
-     * 
-     * @param tex
-     * @param x			
-     * @param y
-     * @param width
-     * @param height
-     * @param transform	图片本身希望的矩阵
-     * @param tx			节点的位置
-     * @param ty
-     * @param alpha
-     */
     drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: BlendMode | string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: BlendMode;
         var curMat = this._curMat;
         if (blendMode != null) {
             if (typeof blendMode == "string") {
-                blendMode = BlendModeHandler.NAMES[blendMode];
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
+                if (blendMode == null)
+                    blendMode = BlendMode.invalid;
             }
             oldcomp = this.globalCompositeOperation;
-            this.globalCompositeOperation = blendMode;
+            this.globalCompositeOperation = blendMode as BlendMode;
         }
 
         if (!transform) {
@@ -1147,22 +1146,28 @@ export class GraphicsRunner {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number | null, blendMode: BlendMode | string, colorNum = 0xffffffff, colors: Float32Array | null = null): void {
-
-        if (alpha == null) alpha = 1.0;
+        matrix?: Matrix, alpha?: number,
+        blendMode?: BlendMode | string,
+        colorNum?: number,
+        colors?: Float32Array,
+        uvRange?: Vector4): void {
 
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
 
-        var oldcomp: BlendMode | null = null;
+        if (alpha == null) alpha = 1.0;
+        if (colorNum == null) colorNum = 0xffffffff;
 
+        let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
             if (typeof blendMode == "string") {
-                blendMode = BlendModeHandler.NAMES[blendMode];
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
+                if (blendMode == null)
+                    blendMode = BlendMode.invalid;
             }
             oldcomp = this.globalCompositeOperation;
-            this.globalCompositeOperation = blendMode;
+            this.globalCompositeOperation = blendMode as BlendMode;
         }
         //this._drawCount++;
 
@@ -1211,12 +1216,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors, uvRange);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors, uvRange);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
@@ -1507,7 +1512,7 @@ export class GraphicsRunner {
             && !this.isSameClipInfo(submit)
         // && this._curSubmit.material == this._material
 
-        let mesh: GraphicsMesh = this.getCurrentMesh();
+        let mesh = this._meshPool[this._currentMeshIndex];
 
         var curEleNum = 0;
         let m: Matrix = this._curMat;
@@ -1763,8 +1768,8 @@ export class GraphicsRunner {
                 }
             }
         }
-        var sx = this.getMatScaleX();
-        var sy = this.getMatScaleY();
+        var sx = this.getCurrentScaleX();
+        var sy = this.getCurrentScaleY();
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
         let ndivs = (Math.max(cl / 5, minNum)) | 0;
@@ -2147,16 +2152,13 @@ export class GraphicsRunner {
         return result;
     }
 
-    public getCurrentMesh(): GraphicsMesh {
-        return this._meshPool[this._currentMeshIndex];
-    }
-
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo, submit: SubmitBase,
-        uvs: ArrayLike<number> = null, rgba: number = 0xffffffff,
-        matrix: Matrix = null, uvrect: ArrayLike<number> = null, useTex = false,
-        colors: ArrayLike<number> = null
+        uvs: ArrayLike<number>, rgba: number,
+        matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
+        colors?: ArrayLike<number>,
+        uvRange?: Vector4
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
@@ -2190,7 +2192,7 @@ export class GraphicsRunner {
         let a = (rgba >>> 24) / 255.0;
 
         let useTexByte = useTex ? 0xff : 0;
-
+        let useClipByte = uvRange ? 0xff : 0;
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
@@ -2199,6 +2201,7 @@ export class GraphicsRunner {
 
         let positions: number[] = [];
         let vbdata: Float32Array;
+        let vertexLength = GraphicsMesh.stride;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= vi) {
@@ -2242,8 +2245,16 @@ export class GraphicsRunner {
             }
 
             vbdata[vi + 8] = useTexByte;
+            vbdata[vi + 9] = useClipByte;
 
-            vi += 12;
+            if (uvRange) {
+                vbdata[vi + 12] = uvRange.x;
+                vbdata[vi + 13] = uvRange.y;
+                vbdata[vi + 14] = uvRange.z;
+                vbdata[vi + 15] = uvRange.w;
+            }
+
+            vi += vertexLength;
             pi += 2;
             ci += 4;
             indexsMap[i] = offset++;

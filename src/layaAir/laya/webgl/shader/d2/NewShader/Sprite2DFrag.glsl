@@ -45,7 +45,9 @@ varying vec2 v_cliped;
     varying vec4 v_texcoordAlpha;
     varying vec4 v_color;
     varying float v_useTex;
-    
+    varying float v_useClip;
+    varying vec4 v_customs;
+
     //uniform
     uniform sampler2D u_spriteTexture;
 
@@ -69,6 +71,15 @@ varying vec2 v_cliped;
     void setglColor(in vec4 color){
         if (v_useTex <= 0.)
             color = vec4(1., 1., 1., 1.);
+        else if (v_useClip > 0.){
+            vec4 clampedRange = v_customs;
+            clampedRange.xy = max(v_customs.xy, vec2(0.0, 0.0));
+            clampedRange.zw = min(v_customs.xy+v_customs.zw, vec2(1.0, 1.0));
+            vec2 inRange = step(clampedRange.xy, v_texcoordAlpha.xy) * step(v_texcoordAlpha.xy, clampedRange.zw);
+            float useTexture = inRange.x * inRange.y;
+            if (useTexture <= 0.)
+                discard;
+        }
 
         color.a *= v_color.w;
         // color.rgb*=v_color.w;

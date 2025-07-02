@@ -80,7 +80,7 @@ export class TileMapLayer extends BaseRenderNode2D {
     _grid: Grid;
 
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
     /**
      * @internal
      */

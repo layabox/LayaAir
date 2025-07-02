@@ -36,7 +36,7 @@ export class SpotLight2D extends BaseLight2D {
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     constructor(innerRadius: number = 100, outerRadius: number = 200, innerAngle: number = 90, outerAngle: number = 120, falloff: number = 1) {
         super();
