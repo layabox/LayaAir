@@ -8,7 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
-import { BlurFilter } from "laya/legacy/filters/BlurFilter";
+import { BlurFilter } from "laya/filters/BlurFilter";
 
 export class Filters_Blur {
 	private apePath: string = "res/apes/monkey2.png";
