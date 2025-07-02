@@ -51,10 +51,6 @@ varying vec2 v_cliped;
     //uniform
     uniform sampler2D u_spriteTexture;
 
-    #ifdef COLOR_ADD
-        uniform vec4 u_colorAdd;
-    #endif
-
     #ifdef FILLTEXTURE
         uniform vec4 u_TexRange; // startu,startv,urange, vrange
     #endif
@@ -94,11 +90,6 @@ varying vec2 v_cliped;
         #endif
         color.rgb *= transColor.rgb;
         gl_FragColor = color;
-
-        #ifdef COLOR_ADD
-            gl_FragColor = vec4(u_colorAdd.rgb, u_colorAdd.a * gl_FragColor.a);
-            gl_FragColor.xyz *= u_colorAdd.a;
-        #endif
     }
 #endif
 

@@ -33,17 +33,6 @@ export class GraphicsShaderInfo {
 
    private _textureHost: Texture | BaseTexture;
 
-   /**@internal */
-   set mmat(value: Matrix4x4) {
-      this.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_MMAT, value);
-   }
-
-   /**@internal */
-   get mmat() {
-      return this.shaderData.getMatrix4x4(ShaderDefines2D.UNIFORM_MMAT);
-   }
-
-
    public get textureHost(): Texture | BaseTexture {
       return this._textureHost
    }
