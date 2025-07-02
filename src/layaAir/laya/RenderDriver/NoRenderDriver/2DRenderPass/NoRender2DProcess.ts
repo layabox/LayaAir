@@ -89,7 +89,6 @@ export class NoRenderElement2D implements IRenderElement2D {
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
     primitiveShaderData: ShaderData;
-    globalShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;
     destroy(): void {

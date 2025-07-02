@@ -11,7 +11,6 @@ export interface IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
-    globalShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;//渲染节点的renderState根据哪个ShaderData来
     nodeCommonMap: Array<string>;

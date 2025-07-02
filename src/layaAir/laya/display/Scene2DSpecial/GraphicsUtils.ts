@@ -54,7 +54,6 @@ export class GraphicsRenderData {
       }
       element.materialShaderData = null;
       element.value2DShaderData = null;
-      element.globalShaderData = null;
       element.primitiveShaderData = null;
       element.owner = null;
       element.subShader = null;
@@ -108,8 +107,6 @@ export class GraphicsRenderData {
 
       let blocks: Graphics2DBufferBlock[] = this._bufferBlocks;
 
-      let globalShaderData = struct.globalRenderData?.globalShaderData;
-
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
          let element = this._renderElements[i];
@@ -121,7 +118,6 @@ export class GraphicsRenderData {
                this._renderElements[i] = element;
             }
 
-            element.globalShaderData = globalShaderData;
             element.primitiveShaderData = submit._internalInfo.shaderData;
             element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
             
