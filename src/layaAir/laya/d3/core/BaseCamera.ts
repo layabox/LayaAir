@@ -388,7 +388,7 @@ export class BaseCamera extends Sprite3D {
      */
     _sortCamerasByRenderingOrder(): void {
         if (this.displayedInStage) {
-            var cameraPool: BaseCamera[] = this.scene._cameraPool;//TODO:可优化，从队列中移除再加入
+            var cameraPool: BaseCamera[] = this._scene._cameraPool;//TODO:可优化，从队列中移除再加入
             var n: number = cameraPool.length - 1;
             for (var i: number = 0; i < n; i++) {
                 if (cameraPool[i].renderingOrder > cameraPool[n].renderingOrder) {

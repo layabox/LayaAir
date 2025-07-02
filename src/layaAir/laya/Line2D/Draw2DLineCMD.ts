@@ -8,16 +8,14 @@ import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
-import { LineShader } from "./shader/Line2DShader";
-import { Sprite } from "../display/Sprite";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { SpriteGlobalTransform } from "../display/SpriteGlobaTransform";
+import { Pool } from "../utils/Pool";
 
 export class Draw2DLineCMD extends Command2D {
-    private static _pool: Draw2DLineCMD[] = [];
+    private static readonly _pool = Pool.createPool(Draw2DLineCMD);
 
     static create(pointArray: number[], mat: Matrix, color: Color = Color.WHITE, lineWidth: number = 3) {
-        var cmd = Draw2DLineCMD._pool.length > 0 ? Draw2DLineCMD._pool.pop() : new Draw2DLineCMD();
+        var cmd = Draw2DLineCMD._pool.take();
         // cmd.color = color;
         // cmd.positions = pointArray;
         // cmd.lineWidth = lineWidth;
@@ -33,8 +31,8 @@ export class Draw2DLineCMD extends Command2D {
     _line2DRender: Line2DRender;
     private _needUpdateElement: boolean;
     private _matrix: Matrix;
-    private _shaderData:ShaderData;
-    private _struct:IRenderStruct2D;
+    private _shaderData: ShaderData;
+    private _struct: IRenderStruct2D;
 
     constructor() {
         super();
@@ -101,7 +99,7 @@ export class Draw2DLineCMD extends Command2D {
      * @zh 回收渲染命令以供重用。
      */
     recover(): void {
-        Draw2DLineCMD._pool.push(this);
+        Draw2DLineCMD._pool.recover(this);
         super.recover();
     }
 

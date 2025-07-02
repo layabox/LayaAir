@@ -4,7 +4,7 @@ import { IComputeShader } from "./IComputeShader";
 
 export class ComputeShader {
     /**@internal */
-    static _CompileShader: { [key: string]: ComputeShader } = {};
+    static _CompileShader: Record<string, ComputeShader> = {};
     static createComputeShader(name: string, code: string, other: any) {
         if (!ComputeShader._CompileShader[name]) {
             return new ComputeShader(name, code, other);
@@ -13,7 +13,7 @@ export class ComputeShader {
     }
 
     /** @internal */
-    protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: IComputeShader } } } = {};
+    protected _cacheSharders: any = {};
     /** @internal */
     protected _cacheShaderHierarchy: number = 1;
 
@@ -27,7 +27,7 @@ export class ComputeShader {
     }
 
     private setCacheShader(compileDefine: IDefineDatas, shader: IComputeShader): void {
-        var cacheShaders: any = this._cacheSharders;
+        var cacheShaders = this._cacheSharders;
         var mask: Array<number> = compileDefine._mask;
         var endIndex: number = compileDefine._length - 1;
         var maxEndIndex: number = this._cacheShaderHierarchy - 1;
@@ -43,7 +43,7 @@ export class ComputeShader {
 
     getCacheShader(compileDefine: IDefineDatas): IComputeShader {
         //compileDefine._intersectionDefineDatas(this._validDefine);//去掉没有用到的宏对变量的影响
-        var cacheShaders: any = this._cacheSharders;
+        var cacheShaders = this._cacheSharders;
         var maskLength: number = compileDefine._length;
         if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
             this._resizeCacheShaderMap(cacheShaders, 0, maskLength);

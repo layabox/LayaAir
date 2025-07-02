@@ -1,7 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
-import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 
@@ -54,7 +53,7 @@ export class SpriteGlobalTransform {
      */
     getMatrix() {
         if (this._matrix == null) this._matrix = new Matrix();
-        //if (this.scene == null) { return this._globalMatrix; }
+        //if (this._scene == null) { return this._globalMatrix; }
         if (this._cache && !this._getFlag(TransformKind.Matrix))
             return this._matrix;
         let sp = this._sp;
@@ -338,7 +337,6 @@ export class SpriteGlobalTransform {
 
         if (value) {
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
-
             if (notify) {
                 this._notifyRenderSpriteTransChange();
             }
@@ -348,7 +346,7 @@ export class SpriteGlobalTransform {
     private _notifyRenderSpriteTransChange() {
         let renderType = this._sp._renderType;
         if ((renderType & SpriteConst.UPDATETRANS)) {
-            ILaya.stage._addtransChangeElement(this._sp);
+            ILaya.stage._tranMatrixUpdateList.add(this._sp);
         }
     }
 

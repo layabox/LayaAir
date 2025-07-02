@@ -6,6 +6,7 @@ import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Stat } from "../../../utils/Stat";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -211,7 +212,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         this._pipelineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
     }
 
-    protected getGlobalShaderData() {
+    protected getGlobalShaderData(): ShaderData {
         if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
             return this.owner.globalRenderData.globalShaderData;
         else

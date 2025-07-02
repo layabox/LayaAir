@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../layagl/LayaGL";
+import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
@@ -331,7 +332,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
             this._destRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
         }
         this.mat.setTexture("u_MainTex", context.indirectTarget);
-        context.command.setRenderTarget(this._destRT, true, PostProcess2DEffect.nullColor);
+        context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
         context.destination = this._destRT;
     }

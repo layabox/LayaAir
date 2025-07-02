@@ -396,7 +396,7 @@ export class CommandBuffer {
      * @param subShader SubShader索引，默认值为0。
      */
     blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD, this);
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
@@ -422,7 +422,7 @@ export class CommandBuffer {
             shader = material._shader;
             shaderData = material.shaderData
         }
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD, this);
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
@@ -444,7 +444,7 @@ export class CommandBuffer {
      * @param subShader SubShader索引，默认值为0。
      */
     blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE, this);
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_TRIANGLE, this);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }

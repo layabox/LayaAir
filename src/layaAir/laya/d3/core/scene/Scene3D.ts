@@ -1188,14 +1188,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @internal
-     */
-    render(): void {
-        return;//3d的render由外面直接调rendersubmit
-
-    }
-
-    /**
      * @en The rendering entry.
      * @zh 渲染入口
      */

@@ -11,7 +11,7 @@ import { OutOfRangeError } from "../utils/Error";
 import { type Stage } from "./Stage";
 
 const ARRAY_EMPTY: any[] = [];
-const initBits = NodeFlags.ACTIVE | NodeFlags.ACTUAL_VISIBLE;
+const initBits = NodeFlags.ACTIVE;
 const reactiveBits = NodeFlags.DISPLAY;
 
 /**
@@ -1130,7 +1130,7 @@ export class Node extends EventDispatcher {
     * @param scene 节点所属的场景。
     */
     _setBelongScene(scene: Node): void {
-        if (!this._scene || this.scene != scene) {
+        if (!this._scene || this._scene != scene) {
             this._scene = scene;
             this._onActiveInScene();
             for (let child of this._children)

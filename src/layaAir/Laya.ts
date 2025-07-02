@@ -12,8 +12,6 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
 import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
-import { Stat } from "./laya/utils/Stat";
-import { RenderPassStatisticsInfo } from "./laya/RenderEngine/RenderEnum/RenderStatInfo";
 import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { Laya3D } from "./Laya3D";
@@ -23,7 +21,7 @@ import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
-import { BlendMode, BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
+import { BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
 import { Shader2D } from "./laya/webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
@@ -35,6 +33,7 @@ import { PostProcess2D } from "./laya/display/PostProcess2D";
 import { Render2DProcessor } from "./laya/display/Render2DProcessor";
 import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
 import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
+import { Scene } from "./laya/display/Scene";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -137,7 +136,7 @@ export class Laya {
 
             //创建离屏画布
             Browser.canvas = new HTMLCanvas(true);
-            Browser.context = Browser.canvas.context as any;
+            Browser.context = Browser.canvas.context;
 
             return PAL.browser.start();
         });
@@ -212,18 +211,18 @@ export class Laya {
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
 
+        Scene.__init__();
         GraphicsRunner.__init__();
         Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
-        Camera2D.shaderValueInit();
         Blit2DCMD.__init__();
         PostProcess2D.init();
         RenderStateContext.__init__();
         Material.__initDefine__();
         Mesh2DRender.__init__();
+
         InputManager.__init__();
         SoundManager.__init__();
-
     }
 
     /**

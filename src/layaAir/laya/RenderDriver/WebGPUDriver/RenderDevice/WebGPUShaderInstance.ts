@@ -152,7 +152,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
                 let subShader = this._shaderPass._owner;
-                let shader = subShader.owner;
+                let shader = subShader._owner;
 
                 let subIndex = shader._subShaders.indexOf(subShader);
                 let passIndex = subShader._passes.indexOf(this._shaderPass);
@@ -168,7 +168,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
             if (!fragmentSpvRes.success) {
                 let subShader = this._shaderPass._owner;
-                let shader = subShader.owner;
+                let shader = subShader._owner;
 
                 let subIndex = shader._subShaders.indexOf(subShader);
                 let passIndex = subShader._passes.indexOf(this._shaderPass);
@@ -184,7 +184,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._vsShader.getCompilationInfo().then(info => {
                 if (info.messages.length > 0) {
                     let subShader = this._shaderPass._owner;
-                    let shader = subShader.owner;
+                    let shader = subShader._owner;
                     let subIndex = shader._subShaders.indexOf(subShader);
                     let passIndex = subShader._passes.indexOf(this._shaderPass);
                     console.group(`Vertex shader compilation details for ${shader.name}_s${subIndex}_p${passIndex}:`);
@@ -199,7 +199,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             this._fsShader.getCompilationInfo().then(info => {
                 if (info.messages.length > 0) {
                     let subShader = this._shaderPass._owner;
-                    let shader = subShader.owner;
+                    let shader = subShader._owner;
                     let subIndex = shader._subShaders.indexOf(subShader);
                     let passIndex = subShader._passes.indexOf(this._shaderPass);
                     console.group(`Fragment shader compilation details for ${shader.name}_s${subIndex}_p${passIndex}:`);

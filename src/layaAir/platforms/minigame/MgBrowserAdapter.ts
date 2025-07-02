@@ -14,13 +14,13 @@ import { MgDownloader } from "./MgDownloader";
 import { MgWebSocket } from "./MgWebSocket";
 
 export class MgBrowserAdapter extends BrowserAdapter {
-    webSocketClass = MgWebSocket;
-
     static beforeInit: () => void;
     static afterInit: () => void;
 
-    private _visible: boolean;
-    private _orientation: OrientationType;
+    protected _visible: boolean = true;
+    protected _orientation: OrientationType = "portrait-primary";
+    protected _supportSetCursor: boolean;
+    protected _supportCreateArrayBufferURL: boolean;
 
     protected init() {
         if (!console.time) { //有些平台，例如taobao没有这个
@@ -34,15 +34,22 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         MgBrowserAdapter.beforeInit?.();
 
-        let platform: string = "";
+        this._supportSetCursor = PAL.hasAPI("setCursor");
+        this._supportCreateArrayBufferURL = PAL.hasAPI("createBufferURL");
+        if (PAL.hasAPI("connectSocket"))
+            this.webSocketClass = MgWebSocket;
+        else
+            this.webSocketClass = null;
 
-        if (PAL.g.getSystemInfoSync) {
-            let systemInfo = PAL.g.getSystemInfoSync();
+        let platform: string = "";
+        let systemInfo = PAL.hasAPI("getSystemInfoSync") ? PAL.g.getSystemInfoSync() : null;
+
+        if (systemInfo) {
             this._pixelRatio = systemInfo.pixelRatio;
             this._orientation = systemInfo.deviceOrientation === "landscape" ? "landscape-primary" : "portrait-primary";
             platform = systemInfo.platform || "";
         }
-        else if (PAL.g.getWindowInfo) {
+        else if (PAL.hasAPI("getWindowInfo")) {
             let windowInfo = PAL.g.getWindowInfo();
             this._pixelRatio = windowInfo.pixelRatio;
             if (PAL.g.getDeviceInfo) {
@@ -57,10 +64,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         this.setPlatform("", platform);
 
-        const { SDKVersion } = PAL.g.getAppBaseInfo ? PAL.g.getAppBaseInfo() : PAL.g.getSystemInfoSync();
+        systemInfo = systemInfo || <any>{};
+
+        const { SDKVersion } = PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : systemInfo;
         Browser.SDKVersion = SDKVersion || "";
 
-        const { system } = PAL.g.getDeviceInfo ? PAL.g.getDeviceInfo() : PAL.g.getSystemInfoSync();
+        const { system } = PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : systemInfo;
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
@@ -76,7 +85,6 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
             TextRenderConfig.useImageData = true;
 
-        this._visible = true;
         PAL.g.onShow(() => {
             this._visible = true;
             this.event(Event.VISIBILITY_CHANGE, true);
@@ -87,8 +95,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.event(Event.VISIBILITY_CHANGE, false);
             this.event(Event.BLUR);
         });
-
-        if (PAL.g.onWindowResize) {
+        if (PAL.hasAPI("onWindowResize")) {
             PAL.g.onWindowResize(result => {
                 this.event(Event.RESIZE);
             });
@@ -96,12 +103,17 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     start(): Promise<void> {
-        let downloader = Loader.downloader = new MgDownloader();
+        let downloader = Loader.downloader = new MgDownloader(
+            PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile")
+        );
         this.setupWasmSupport();
 
         MgBrowserAdapter.afterInit?.();
 
-        return downloader.cacheManager.start();
+        if (downloader.cacheManager)
+            return downloader.cacheManager.start();
+        else
+            return Promise.resolve();
     }
 
     onInitRender(): void {
@@ -190,7 +202,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     setCursor(cursor: string): void {
-        if (!PAL.g.setCursor)
+        if (!this._supportSetCursor)
             return;
 
         let arr = cursor.split(" ");
@@ -209,7 +221,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     get supportArrayBufferURL(): boolean {
-        return PAL.g.createBufferURL != null && PAL.g.revokeBufferURL != null;
+        return this._supportCreateArrayBufferURL;
     }
 
     createBufferURL(data: ArrayBuffer): string {
@@ -231,13 +243,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
         if (enabled) {
-            if (PAL.g.onError)
+            if (PAL.hasAPI("onError"))
                 PAL.g.onError(func);
             if (PAL.g.onUnhandledRejection)
                 PAL.g.onUnhandledRejection(func);
         }
         else {
-            if (PAL.g.offError)
+            if (PAL.hasAPI("offError"))
                 PAL.g.offError(func);
             if (PAL.g.offUnhandledRejection)
                 PAL.g.offUnhandledRejection(func);

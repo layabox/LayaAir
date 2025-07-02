@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../layagl/LayaGL";
+import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
@@ -223,7 +224,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._blitmat.setTexture("u_MainTex", context.indirectTarget);
         this._blitcenterScale.setValue(width / texwidth, height / texheight);
         this._blitmat.setVector2("u_centerScale", this._blitcenterScale);
-        context.command.setRenderTarget(this._blitExtendRT, true, PostProcess2DEffect.nullColor);
+        context.command.setRenderTarget(this._blitExtendRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._blitElement, Matrix.EMPTY);
 
         //glow rt
@@ -232,7 +233,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._sv_blurInfo2.x = width;
         this._sv_blurInfo2.y = height;
         this._glowMat.setVector4("u_blurInfo2", this._sv_blurInfo2);
-        context.command.setRenderTarget(this._destRT, true, PostProcess2DEffect.nullColor);
+        context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._glowElement, Matrix.EMPTY);
 
         //composite

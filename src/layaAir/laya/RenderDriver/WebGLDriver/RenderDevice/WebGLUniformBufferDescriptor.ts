@@ -1,9 +1,6 @@
+import { DataView, DataViewType } from "../../../../ILaya";
 import { IClone } from "../../../utils/IClone";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-
-type DataViewType = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
-
-type DataView = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;
 
 export type WebGLUniform = {
     index: number;

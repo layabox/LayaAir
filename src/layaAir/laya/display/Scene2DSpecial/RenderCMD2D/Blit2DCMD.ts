@@ -16,6 +16,7 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture2D } from "../../../resource/Texture2D";
+import { Pool } from "../../../utils/Pool";
 import { Command2D } from "./Command2D";
 
 export class Blit2DCMD extends Command2D {
@@ -85,7 +86,6 @@ export class Blit2DCMD extends Command2D {
         blitPass.renderState.srcBlend = RenderState.BLENDPARAM_ONE;
         blitPass.renderState.dstBlend = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
         blitPass.renderState.cull = RenderState.CULL_NONE;
-
     }
 
     private static __initGeometryElement__() {
@@ -132,7 +132,7 @@ export class Blit2DCMD extends Command2D {
         Blit2DCMD._defaultShader = Shader3D.find("Blit2DCMD");
     }
 
-    private static _pool: any[] = [];
+    private static readonly _pool = Pool.createPool(Blit2DCMD);
 
     /**
      * @en creat a blit2D render Command
@@ -153,8 +153,7 @@ export class Blit2DCMD extends Command2D {
     static create(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null) {
         if (!Blit2DCMD._blitShaderData)
             Blit2DCMD.__init__();
-        var cmd: Blit2DCMD;
-        cmd = Blit2DCMD._pool.length > 0 ? Blit2DCMD._pool.pop() : new Blit2DCMD();
+        let cmd = Blit2DCMD._pool.take();
         cmd.source = source;
         cmd.dest = dest;
         cmd.offsetScale = offsetScale;
@@ -263,4 +262,8 @@ export class Blit2DCMD extends Command2D {
         this._context = null;
     }
 
+    recover(): void {
+        super.recover();
+        Blit2DCMD._pool.recover(this);
+    }
 }

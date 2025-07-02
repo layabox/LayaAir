@@ -10,14 +10,14 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
         super();
 
         this.fs = PAL.g.getFileSystemManager();
-        this.hasAccess = typeof (this.fs.access) === "function";
+        this.hasAccess = PAL.hasAPI(this.fs, "access");
     }
 
     readFile(path: string, encoding?: string): Promise<ArrayBuffer | string> {
         return new Promise((resolve, reject) => {
             this.fs.readFile({
                 filePath: path,
-                encoding: <any>encoding ?? "",
+                encoding: <any>encoding ?? undefined,
                 success: (res) => resolve(res.data),
                 fail: (err) => reject(err)
             });
@@ -29,7 +29,7 @@ export class MgFileSystemAdapter extends FileSystemAdapter {
             this.fs.writeFile({
                 filePath: path,
                 data: data,
-                encoding: <any>encoding,
+                encoding: <any>encoding ?? undefined,
                 success: () => resolve(),
                 fail: (err) => reject(err)
             });

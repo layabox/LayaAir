@@ -2,16 +2,15 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { SetRendertarget2DCMD } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { Pool } from "../../../utils/Pool";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Command2D } from "./Command2D";
 
 export class Set2DRTCMD extends Command2D {
-    /**@internal */
-    private static _pool: any[] = [];
+    private static readonly _pool = Pool.createPool(Set2DRTCMD);
 
     static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY: boolean = true): Set2DRTCMD {
-        var cmd: Set2DRTCMD;
-        cmd = Set2DRTCMD._pool.length > 0 ? Set2DRTCMD._pool.pop() : new Set2DRTCMD();
+        let cmd = Set2DRTCMD._pool.take();
         cmd.renderTexture = renderTexture;
         cmd._setRenderTargetCMD.clearColor = clearColor;
         cmd._setRenderTargetCMD.clearColorValue = colorValue;
@@ -19,10 +18,7 @@ export class Set2DRTCMD extends Command2D {
         return cmd;
     }
 
-    /**@internal */
     private _renderTexture: IRenderTarget = null;
-
-    /**@internal */
     _setRenderTargetCMD: SetRendertarget2DCMD;
 
     /**
@@ -36,8 +32,8 @@ export class Set2DRTCMD extends Command2D {
         this._renderTexture = value;
         if (value) {
             this._setRenderTargetCMD.rt = value._renderTarget;
-            this._setRenderTargetCMD.size.setValue(value.width,value.height);
-        }else{
+            this._setRenderTargetCMD.size.setValue(value.width, value.height);
+        } else {
             this._setRenderTargetCMD.rt = null;
             this._setRenderTargetCMD.size.setValue(RenderState2D.width, RenderState2D.height);
         }
@@ -50,9 +46,9 @@ export class Set2DRTCMD extends Command2D {
 
     run(): void {
         // if (this._renderTexture)
-            // this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
+        // this._commandBuffer._renderSize.setValue(this._renderTexture._renderTarget._textures[0].width, this._renderTexture._renderTarget._textures[0].height)
         // else {
-            // this._commandBuffer._renderSize.setValue(RenderState2D.width, RenderState2D.height);
+        // this._commandBuffer._renderSize.setValue(RenderState2D.width, RenderState2D.height);
         // }
     }
 
@@ -61,7 +57,7 @@ export class Set2DRTCMD extends Command2D {
     }
 
     recover(): void {
-        Set2DRTCMD._pool.push(this);
+        Set2DRTCMD._pool.recover(this);
         this._renderTexture = null;
     }
 }

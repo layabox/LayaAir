@@ -2,6 +2,7 @@ import { GraphicsRunner } from "../../../display/Scene2DSpecial/GraphicsRunner";
 import { ISaveData } from "./ISaveData";
 import { SaveBase } from "./SaveBase";
 
+/** @ignore */
 export class SaveMark implements ISaveData {
 
     private static POOL: any = SaveBase._createArray();

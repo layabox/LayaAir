@@ -143,11 +143,11 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._nativeObj.blendMode = value;
    }
 
-   public get enable(): boolean {
+   public get enabled(): boolean {
       return this._nativeObj.enable;
    }
 
-   public set enable(value: boolean) {
+   public set enabled(value: boolean) {
       this._nativeObj.enable = value;
    }
 

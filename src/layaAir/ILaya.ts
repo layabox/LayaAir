@@ -31,3 +31,7 @@ export class ILaya {
 export declare type Mutable<T> = {
     -readonly [P in keyof T]: T[P]
 };
+
+export type DataViewType = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
+
+export type DataView = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;

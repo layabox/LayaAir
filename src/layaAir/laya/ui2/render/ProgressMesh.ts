@@ -131,29 +131,29 @@ function fillRadial90(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: F
     let xMax = flipX ? -vertRect.x : vertRect.right;
     let yMax = flipY ? -vertRect.y : vertRect.bottom;
 
-    vb.addVert(xMin, yMin, 0);
+    vb.addVert(xMin, yMin);
 
     if (clockwise)
-        vb.addVert(xMax, yMin, 0);
+        vb.addVert(xMax, yMin);
 
     if (y > vertRect.bottom) {
         if (thresold)
-            vb.addVert(x2, yMax, 0);
+            vb.addVert(x2, yMax);
         else
-            vb.addVert(xMax, yMax, 0);
+            vb.addVert(xMax, yMax);
     } else
-        vb.addVert(xMax, y2, 0);
+        vb.addVert(xMax, y2);
 
     if (x > vertRect.right) {
         if (thresold)
-            vb.addVert(xMax, y2, 0);
+            vb.addVert(xMax, y2);
         else
-            vb.addVert(xMax, yMax, 0);
+            vb.addVert(xMax, yMax);
     } else
-        vb.addVert(x2, yMax, 0);
+        vb.addVert(x2, yMax);
 
     if (!clockwise)
-        vb.addVert(xMin, yMax, 0);
+        vb.addVert(xMin, yMax);
 
     if (flipX === flipY) {
         vb.addTriangle(0, 1, 2);

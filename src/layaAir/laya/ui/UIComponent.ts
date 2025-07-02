@@ -48,6 +48,8 @@ export class UIComponent extends Sprite {
      */
     protected _widget: Widget = Widget.EMPTY;
 
+    private _grayEffect: ColorEffect2D;
+
     /**
     * @en The vertical distance in pixels from the top edge of the component to the top edge of its parent.
     * This property is used for relative layout, which means the component's position is always relative to its parent's top edge.
@@ -196,7 +198,6 @@ export class UIComponent extends Sprite {
         }
     }
 
-    private _grayEffect: ColorEffect2D;
     /**
      * @en Whether it is grayed out.
      * @zh 是否变灰。
@@ -208,9 +209,10 @@ export class UIComponent extends Sprite {
     set gray(value: boolean) {
         if (value !== this._gray) {
             this._gray = value;
-            let postProcess = this._getPostProcess(value);
+            let postProcess = this.getPostProcess(value);
             if (value) {
-                this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+                this._grayEffect ||= new ColorEffect2D();
+                this._grayEffect.gray();
                 postProcess.addEffect(this._grayEffect);
             } else {
                 if (postProcess) {

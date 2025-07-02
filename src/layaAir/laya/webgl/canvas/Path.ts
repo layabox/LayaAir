@@ -1,21 +1,14 @@
 
+/** @ignore */
 export class Path {
-
-    //public var _rect:Rectangle;
-    /**@internal */
     _lastOriX: number = 0;	//moveto等的原始位置。没有经过内部矩阵变换的
-    /**@internal */
     _lastOriY: number = 0;
-    paths: any[] = [];	//所有的路径。{@type renderPath[] }
-    private _curPath: renderPath = null;
-
-
-    constructor() {
-    }
+    paths: RenderPath[] = [];	//所有的路径
+    private _curPath: RenderPath = null;
 
     beginPath(convex: boolean): void {
         this.paths.length = 1;
-        this._curPath = this.paths[0] = new renderPath();
+        this._curPath = this.paths[0] = new RenderPath();
         this._curPath.convex = convex;
         //_curPath.path = [];
     }
@@ -25,7 +18,7 @@ export class Path {
     }
 
     newPath(): void {
-        this._curPath = new renderPath();
+        this._curPath = new RenderPath();
         this.paths.push(this._curPath);
     }
 
@@ -35,15 +28,15 @@ export class Path {
     }
 
     //直接添加一个完整的path
-    push(points: any[], convex: boolean): void {
+    push(points: number[], convex: boolean): void {
         if (!this._curPath) {
-            this._curPath = new renderPath();
+            this._curPath = new RenderPath();
             this.paths.push(this._curPath);
         } else if (this._curPath.path.length > 0) {
-            this._curPath = new renderPath();
+            this._curPath = new RenderPath();
             this.paths.push(this._curPath);
         }
-        var rp: renderPath = this._curPath;
+        var rp: RenderPath = this._curPath;
         rp.path = points.slice();//TODO 这个可能多次slice了
         rp.convex = convex;
     }
@@ -55,7 +48,7 @@ export class Path {
 
 
 
-class renderPath {
+class RenderPath {
     path: any[] = []; //[x,y,x,y,....]的数组
     loop: boolean = false;
     convex: boolean = false;

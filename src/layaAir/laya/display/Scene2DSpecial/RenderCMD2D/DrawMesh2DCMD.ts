@@ -12,13 +12,14 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
 import { Texture2D } from "../../../resource/Texture2D";
+import { Pool } from "../../../utils/Pool";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Mesh2DRender } from "../Mesh2DRender";
 import { Command2D } from "./Command2D";
 
 export class DrawMesh2DCMD extends Command2D {
 
-    private static _pool: DrawMesh2DCMD[] = [];
+    private static readonly _pool = Pool.createPool(DrawMesh2DCMD);
 
     /**
      * @param mesh 
@@ -29,7 +30,7 @@ export class DrawMesh2DCMD extends Command2D {
      * @returns 
      */
     static create(mesh: Mesh2D, mat: Matrix, texture: BaseTexture, color: Color, material: Material): DrawMesh2DCMD {
-        var cmd = DrawMesh2DCMD._pool.length > 0 ? DrawMesh2DCMD._pool.pop() : new DrawMesh2DCMD();
+        let cmd = DrawMesh2DCMD._pool.take();
         cmd.mesh = mesh;
         cmd.material = material || Mesh2DRender.mesh2DDefaultMaterial;
         cmd.texture = texture;
@@ -42,30 +43,30 @@ export class DrawMesh2DCMD extends Command2D {
 
     // private _mesh2DRender: Mesh2DRender;
 
-    private _renderElements : IRenderElement2D[] = [];
+    private _renderElements: IRenderElement2D[] = [];
 
-    private _shaderData:ShaderData;
+    private _shaderData: ShaderData;
 
     private _needUpdateElement: boolean;
 
     private _matrix: Matrix;
 
-    private _mesh:Mesh2D
+    private _mesh: Mesh2D
 
-    private _matrial:Material;
+    private _matrial: Material;
 
-    private _color:Color;
+    private _color: Color;
 
-    private _renderColor = new Color(1,1,1,1);
+    private _renderColor = new Color(1, 1, 1, 1);
 
-    private _texture:BaseTexture;
+    private _texture: BaseTexture;
 
     constructor() {
         super();
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        this._shaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, new Vector4(0,0,1,1));
+        this._shaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, new Vector4(0, 0, 1, 1));
 
         this._needUpdateElement = true;
         this._matrix = new Matrix();
@@ -106,19 +107,19 @@ export class DrawMesh2DCMD extends Command2D {
             return;
 
         if (this._mesh) {
-            let defines:ShaderDefine[] = [];
+            let defines: ShaderDefine[] = [];
             VertexMesh2D.getMeshDefine(this._mesh, defines);
             for (var i: number = 0, n: number = defines.length; i < n; i++)
                 this._shaderData.removeDefine(defines[i]);
         }
-        
+
         if (value) {
-            let defines:ShaderDefine[] = [];
+            let defines: ShaderDefine[] = [];
             VertexMesh2D.getMeshDefine(value, defines);
             for (var i: number = 0, n: number = defines.length; i < n; i++)
                 this._shaderData.addDefine(defines[i]);
         }
-        
+
         this._mesh = value;
         this._needUpdateElement = true;
     }
@@ -129,14 +130,14 @@ export class DrawMesh2DCMD extends Command2D {
 
     set texture(value: BaseTexture) {
         value = value ? value : Texture2D.whiteTexture;
-        
+
         if (value.gammaCorrection != 1) {//预乘纹理特殊处理
             this._shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
         } else {
             this._shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
         }
         this._texture = value;
-        this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE,value);
+        this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
     }
     get texture(): BaseTexture {
         return this._texture;
@@ -145,7 +146,7 @@ export class DrawMesh2DCMD extends Command2D {
     set color(value: Color) {
         this._color = value;
         let a = value.a;
-        let renderColor:Color = this._renderColor;
+        let renderColor: Color = this._renderColor;
         renderColor.setValue(value.r * a, value.g * a, value.b * a, a);
         this._shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, renderColor);
     }
@@ -172,13 +173,13 @@ export class DrawMesh2DCMD extends Command2D {
             // this._drawElementData.setRenderelements(this._mesh2DRender._renderElements)
             let elementLength = this._renderElements.length;
             let subMeshCount = this._mesh.subMeshCount;
-            let length = Math.max(elementLength , subMeshCount);
+            let length = Math.max(elementLength, subMeshCount);
             for (let i = 0; i < length; i++) {
                 let subMesh = this._mesh.getSubMesh(i);
                 let element = this._renderElements[i];
                 if (subMesh) {
                     if (!element) {
-                        element = this._renderElements[i]  = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+                        element = this._renderElements[i] = LayaGL.render2DRenderPassFactory.createRenderElement2D();
                     }
                     element.nodeCommonMap = ["BaseRender2D"];
                     element.geometry = subMesh;
@@ -186,8 +187,8 @@ export class DrawMesh2DCMD extends Command2D {
                     element.value2DShaderData = this._shaderData;
                     element.materialShaderData = this._matrial.shaderData;
                     element.subShader = this._matrial._shader.getSubShaderAt(0);
-                }else{
-                    element.destroy();    
+                } else {
+                    element.destroy();
                 }
             }
             this._renderElements.length = length;
@@ -195,7 +196,7 @@ export class DrawMesh2DCMD extends Command2D {
             this._needUpdateElement = false;
         }
         // this._mesh2DRender.addCMDCall()
-       // this._mesh2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
+        // this._mesh2DRender._setRenderSize(this._commandBuffer._renderSize.x, this._commandBuffer._renderSize.y);
     }
 
     /**
@@ -205,7 +206,7 @@ export class DrawMesh2DCMD extends Command2D {
      * @zh 回收渲染命令以供重用。
      */
     recover(): void {
-        DrawMesh2DCMD._pool.push(this);
+        DrawMesh2DCMD._pool.recover(this);
         super.recover();
         this.material = null;
         this.texture = null;

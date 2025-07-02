@@ -23,17 +23,17 @@ export class RegularPolygonMesh implements IMeshFactory {
 
         const centerX = radius + vb.contentRect.x;
         const centerY = radius + vb.contentRect.y;
-        vb.addVert(centerX, centerY, 0, this.centerColor || color);
+        vb.addVert(centerX, centerY, this.centerColor || color);
         for (let i = 0; i < this.sides; i++) {
             let r = radius;
             if (this.distances != null)
                 r *= this.distances[i] ?? 1;
             let xv = centerX + Math.cos(angle) * (r - lineWidth);
             let yv = centerY + Math.sin(angle) * (r - lineWidth);
-            vb.addVert(xv, yv, 0, color);
+            vb.addVert(xv, yv, color);
             if (lineWidth > 0) {
-                vb.addVert(xv, yv, 0, lineColor);
-                vb.addVert(Math.cos(angle) * r + centerX, Math.sin(angle) * r + centerY, 0, lineColor);
+                vb.addVert(xv, yv, lineColor);
+                vb.addVert(Math.cos(angle) * r + centerX, Math.sin(angle) * r + centerY, lineColor);
             }
             angle += angleDelta;
         }

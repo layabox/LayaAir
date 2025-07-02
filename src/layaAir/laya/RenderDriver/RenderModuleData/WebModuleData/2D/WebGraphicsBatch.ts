@@ -2,9 +2,9 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { BatchBuffer, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
@@ -13,35 +13,27 @@ import { WebRenderStruct2D } from "./WebRenderStruct2D";
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
 export class WebGraphicsBatch implements IBatch2DRender {
-
-
     static instance: WebGraphicsBatch = null;
 
-    static _pool: IPrimitiveRenderElement2D[] = [];
-
-    static createRenderElement2D() {
-        if (this._pool.length > 0) {
-            return this._pool.pop();
-        }
-        let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-        element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-        element.geometry.indexFormat = IndexFormat.UInt16;
-        element.nodeCommonMap = ["Sprite2D"];
-        element.renderStateIsBySprite = false;
-        return element;
-    }
-
-    static recoverRenderElement2D(value: IPrimitiveRenderElement2D) {
-        if (!value) return;
-        value.geometry.clearRenderParams();
-        value.geometry.bufferState = null;
-        value.materialShaderData = null;
-        value.value2DShaderData = null;
-        value.primitiveShaderData = null;
-        value.subShader = null;
-        value.renderStateIsBySprite = false;
-        this._pool.push(value);
-    }
+    static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(
+        () => { //create
+            let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
+            element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            element.geometry.indexFormat = IndexFormat.UInt16;
+            element.nodeCommonMap = ["Sprite2D"];
+            element.renderStateIsBySprite = false;
+            return element;
+        },
+        null,
+        (element: IPrimitiveRenderElement2D) => { //reset
+            element.geometry.clearRenderParams();
+            element.geometry.bufferState = null;
+            element.materialShaderData = null;
+            element.value2DShaderData = null;
+            element.primitiveShaderData = null;
+            element.subShader = null;
+            element.renderStateIsBySprite = false;
+        });
 
     batchRenderElement(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
@@ -79,7 +71,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
     batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
         let elementArray = list.elements;
-        let staticBatchRenderElement: IPrimitiveRenderElement2D = WebGraphicsBatch.createRenderElement2D();
+        let staticBatchRenderElement = WebGraphicsBatch._pool.take();
         let drawArray: number[][] = [];
         let i = 0;
         let drawLengths: number[] = [];
@@ -232,7 +224,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let recoverArray = list.elements;
         for (let i = 0; i < length; i++) {
             let info = recoverArray[i];
-            WebGraphicsBatch.recoverRenderElement2D(info);
+            WebGraphicsBatch._pool.recover(info);
         }
         list.length = 0;
     }

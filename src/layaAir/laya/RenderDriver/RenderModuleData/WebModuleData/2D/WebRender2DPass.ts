@@ -25,6 +25,7 @@ import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetTyp
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IPool, Pool } from "../../../../utils/Pool";
 
 export interface IBatch2DRender {
    /**合批范围，合批的RenderElement2D直接add进list中 */
@@ -35,27 +36,14 @@ export interface IBatch2DRender {
    batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void;
 }
 
-export class Batch2DInfo {
+class Batch2DInfo {
    batchFun: IBatch2DRender = null;
    batch: boolean = false;
    indexStart: number = -1;
    elementLength: number = 0;
    elementCount: number = 0;
 
-   constructor() {
-   }
-
-   static _pool: Batch2DInfo[] = [];
-   static create(): Batch2DInfo {
-      if (this._pool.length != 0) {
-         return this._pool.pop();
-      } else
-         return new Batch2DInfo();
-   }
-
-   static recover(info: Batch2DInfo) {
-      this._pool.push(info);
-   }
+   static readonly _pool: IPool<Batch2DInfo> = Pool.createPool(Batch2DInfo);
 }
 
 /**
@@ -241,10 +229,11 @@ export class WebRender2DPass implements IRender2DPass {
 
       WebRender2DPass.uploadBuffer();
 
+      let enableBatch = this._enableBatch;
       for (let i = 0, len = lists.length; i < len; i++) {
          let list = lists[i];
          if (!list || !list.renderElements.length) continue;
-         this.enableBatch && list.batch();
+         enableBatch && list.batch();
          context.drawRenderElementList(list.renderElements);
       }
 
@@ -255,7 +244,6 @@ export class WebRender2DPass implements IRender2DPass {
          this.mask.pass.fowardRender(context);
          this.mask.pass.renderTexture = null;
       }
-
 
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
@@ -503,7 +491,7 @@ class PassRenderList {
       if (this._currentBatch) {
          this._batchInfoList.add(this._currentBatch);
       }
-      this._currentBatch = Batch2DInfo.create();
+      this._currentBatch = Batch2DInfo._pool.take();
       this._currentBatch.batch = false;
       this._currentBatch.batchFun = BatchManager._batchMapManager[type];
       this._currentBatch.indexStart = this.renderElements.length;
@@ -559,7 +547,7 @@ class PassRenderList {
          if (element.batch) {
             element.batchFun.recover(this._recoverList);
          }
-         Batch2DInfo.recover(element);
+         Batch2DInfo._pool.recover(element);
       }
       this._batchInfoList.length = 0;
       this._currentBatch = null;

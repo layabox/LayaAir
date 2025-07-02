@@ -43,7 +43,7 @@ export interface IRenderStruct2D {
 
    blendMode: BlendMode;
    /** 是否启动 */
-   enable: boolean;
+   enabled: boolean;
 
    //渲染数据
    isRenderStruct: boolean;

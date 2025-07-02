@@ -5,38 +5,45 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
+/**
+ * @en BlendMode enumeration.
+ * @zh 混合模式枚举。
+ */
 export enum BlendMode {
     Invalid = 0,
     Normal,
-    Add ,    
+    Add,
     Multiply,
     Screen,
-    Overlay ,
+    Overlay,
     Light,
     Lighter,
     Mask,
-    DestinationOut ,
-    AddOld ,
-    LighterOld ,
-    SourceAlpha ,
+    DestinationOut,
+    AddOld,
+    LighterOld,
+    SourceAlpha,
 }
 
+/**
+ * @ignore
+ */
 export class BlendModeHandler {
 
     /** @internal 这个不直接暴露给开发者*/
-    static NAMES : Record<string , BlendMode >= {
+    static NAMES: Record<string, BlendMode> = {
         "normal": BlendMode.Normal,
-        "add" : BlendMode.Add,
-        "multiply" : BlendMode.Multiply,
-        "screen" : BlendMode.Screen,
-        "overlay" : BlendMode.Overlay,
-        "light" : BlendMode.Light,
-        "lighter" : BlendMode.Lighter,
-        "mask" : BlendMode.Mask,
-        "destination-out" : BlendMode.DestinationOut,
-        "add_old" : BlendMode.AddOld,
-        "source_alpha" : BlendMode.SourceAlpha
-    
+        "add": BlendMode.Add,
+        "multiply": BlendMode.Multiply,
+        "screen": BlendMode.Screen,
+        "overlay": BlendMode.Overlay,
+        "light": BlendMode.Light,
+        "lighter": BlendMode.Lighter,
+        "mask": BlendMode.Mask,
+        "destination-out": BlendMode.DestinationOut,
+        "add_old": BlendMode.AddOld,
+        "source_alpha": BlendMode.SourceAlpha
+
     }
 
     /** @internal */

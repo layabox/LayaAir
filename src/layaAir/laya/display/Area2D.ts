@@ -4,18 +4,14 @@ import { Node } from "./Node";
 import { Point } from "../maths/Point";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { NodeFlags } from "../Const";
-import { Vector4 } from "../maths/Vector4";
 import { LayaGL } from "../layagl/LayaGL";
 import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
-const TEMP_Vector4 = new Vector4(0, 0, 0, 0);
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
-    declare _scene: any;
-    /**@internal */
-    _globalRenderData: I2DGlobalRenderData;
 
+    _globalRenderData: I2DGlobalRenderData;
     _globalShaderData: ShaderData;
 
     constructor() {
@@ -41,7 +37,7 @@ export class Area2D extends Sprite {
         } else {
             this._globalShaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
         }
-        
+
         this._mainCamera = camera;
     }
 
@@ -63,7 +59,7 @@ export class Area2D extends Sprite {
 
     _setBelongScene(scene: Node): void {
         super._setBelongScene(scene);
-        this._scene._area2Ds.push(this);
+        this._scene._area2Ds.add(this);
     }
 
     /**
@@ -72,12 +68,7 @@ export class Area2D extends Sprite {
       * @zh 从所属场景中移除节点。
       */
     _setUnBelongScene(): void {
-        let areaArray = this._scene._area2Ds;
-        let index = areaArray.indexOf(this);
-        if (index != -1) {
-            areaArray.splice(index, 1);
-        }
-
+        this._scene._area2Ds.delete(this);
         super._setUnBelongScene();
     }
 

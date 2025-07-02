@@ -1,18 +1,15 @@
 import { Laya } from "../../../Laya";
-import { HideFlags, NodeFlags } from "../../Const";
+import { NodeFlags } from "../../Const";
 import { Draw9GridTextureCmd } from "../../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../../display/cmd/DrawTextureCmd";
-import { Mesh2DRender } from "../../display/Scene2DSpecial/Mesh2DRender";
+import { DrawTrianglesCmd } from "../../display/cmd/DrawTrianglesCmd";
 import { Sprite } from "../../display/Sprite";
 import { Color } from "../../maths/Color";
-import { Vector4 } from "../../maths/Vector4";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
 import { Texture } from "../../resource/Texture";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
-const defaultVertice = new Float32Array(new Array(36).fill(0));
+const defaultVertice = new Float32Array(new Array(8).fill(0));
 const defaultIndices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
 export class ImageRenderer {
@@ -22,9 +19,7 @@ export class ImageRenderer {
     _onReload: Function;
 
     private _owner: Sprite;
-    private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd;
-    private _meshRender: Mesh2DRender;
-    private _mesh: Mesh2D;
+    private _drawCmd: DrawTextureCmd | Draw9GridTextureCmd | DrawTrianglesCmd;
     private _isChanged: boolean = false;
 
     constructor(owner: Sprite) {
@@ -33,10 +28,6 @@ export class ImageRenderer {
     }
 
     destroy() {
-        if (this._mesh) {
-            this._mesh.destroy();
-            this._mesh = null;
-        }
         if (this._tex) {
             if (this._owner._getBit(NodeFlags.EDITING_NODE))
                 this._tex.off("reload", this, this.onTextureReload);
@@ -53,19 +44,10 @@ export class ImageRenderer {
             if (this._owner._getBit(NodeFlags.EDITING_NODE))
                 value.on("reload", this, this.onTextureReload);
 
-            if (this._meshFactory) {
-                this._meshRender.sharedMesh = this._mesh;
-                this.changeTexture();
-            }
-            else
-                this.createCmd();
+            this.createCmd();
         }
         else {
-            if (this._meshFactory) {
-                this._meshRender.texture = null;
-                this._meshRender.sharedMesh = null;
-            }
-            else if (this._drawCmd)
+            if (this._drawCmd)
                 this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, null, true);
         }
     }
@@ -77,30 +59,12 @@ export class ImageRenderer {
         }
         this._meshFactory = value;
         if (value) {
-            if (!this._meshRender) {
-                let declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV,COLOR"], false)[0];
-                this._mesh = Mesh2D.createMesh2DByPrimitive([defaultVertice], [declaration],
-                    defaultIndices, IndexFormat.UInt16,
-                    [{ length: defaultIndices.length, start: 0 }]);
-                this._mesh.lock = true;
-
-                this._meshRender = this._owner.addComponent(Mesh2DRender);
-                this._meshRender.hideFlags |= HideFlags.HideAndDontSave;
-            }
-
-            this._meshRender.sharedMesh = this._mesh;
-            this._meshRender.color = this._color;
-
             if (this._drawCmd)
                 this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, null, true);
             if (this._tex)
-                this.changeTexture();
+                this.updateMesh();
         }
         else {
-            if (this._meshRender) {
-                this._meshRender.texture = null;
-                this._meshRender.sharedMesh = null;
-            }
             if (this._tex && !this._drawCmd)
                 this.createCmd();
         }
@@ -108,10 +72,10 @@ export class ImageRenderer {
 
     setColor(value: string) {
         this._color.parse(value);
-        if (this._meshFactory)
-            this._meshRender.color = this._color;
-        else if (this._drawCmd)
+        if (this._drawCmd) {
             this._drawCmd.color = this._color.getABGR();
+            this._owner.graphics.repaint();
+        }
     }
 
     updateMesh(delay?: boolean): void {
@@ -136,8 +100,12 @@ export class ImageRenderer {
     }
 
     private createCmd() {
-        let cmd: DrawTextureCmd | Draw9GridTextureCmd;
-        if (this._tex._sizeGrid)
+        let cmd: DrawTextureCmd | Draw9GridTextureCmd | DrawTrianglesCmd;
+        if (this._meshFactory) {
+            cmd = DrawTrianglesCmd.create(this._tex, 0, 0, defaultVertice, defaultVertice, defaultIndices);
+            this.updateMesh();
+        }
+        else if (this._tex._sizeGrid)
             cmd = Draw9GridTextureCmd.create(this._tex, 0, 0, 1, 1, this._tex._sizeGrid, true, null);
         else
             cmd = DrawTextureCmd.create(this._tex, 0, 0, 1, 1, null, 1, null, null, null, true);
@@ -146,21 +114,13 @@ export class ImageRenderer {
         this._drawCmd = this._owner.graphics.replaceCmd(this._drawCmd, cmd, true);
     }
 
-    private changeTexture() {
-        this._meshRender.texture = this._tex.bitmap;
-        let uv = this._tex.uvrect;
-        this._meshRender.textureRange = Vector4.TEMP.setValue(uv[0], uv[1], uv[0] + uv[2], uv[1] + uv[3]);
-        this._meshRender.textureRangeIsClip = !(uv[0] === 0 && uv[1] === 0 && uv[2] === 1 && uv[3] === 1);
-        this.updateMesh();
-    }
-
     private _updateMesh() {
         this._isChanged = false;
         let tex = this._tex;
         if (!this._meshFactory || !tex)
             return;
 
-        let vb = VertexStream.pool.take(tex, true);
+        let vb = VertexStream.pool.take(tex);
         vb.contentRect.setTo(0, 0, this._owner.width, this._owner.height);
 
         try {
@@ -169,30 +129,13 @@ export class ImageRenderer {
             console.error(e);
         }
 
-        let mesh = this._mesh;
-
-        let c = vb.getVertices();
-        let offsetX = -this._owner.pivotX;
-        let offsetY = -this._owner.pivotY;
-        if (offsetX != 0 || offsetY != 0) {
-            for (let i = 0, n = c.length, step = vb.vertexStride; i < n; i += step) {
-                c[i] += offsetX;
-                c[i + 1] += offsetY;
-            }
-        }
-        mesh._vertexBuffers[0].setDataLength(c.byteLength);
-        mesh._vertexBuffers[0].setData(<ArrayBuffer>c.buffer, 0, 0, c.byteLength);
-
-        let c2 = vb.getIndices();
-        mesh._indexBuffer._setIndexDataLength(c2.byteLength);
-        mesh._indexBuffer._setIndexData(c2, 0);
-
-        mesh._setBuffers(mesh._vertexBuffers, mesh._indexBuffer);
-        mesh._subMeshes[0].clearRenderParams();
-        mesh._subMeshes[0].setDrawElemenParams(c2.length, 0);
+        let cmd = (<DrawTrianglesCmd>this._drawCmd);
+        cmd.vertices = vb.getVertices();
+        cmd.uvs = vb.getUVs();
+        cmd.indices = vb.getIndices();
+        cmd.colors = vb.getColors();
+        this._owner.graphics.repaint();
 
         VertexStream.pool.recover(vb);
-
-        this._meshRender.sharedMesh = mesh;
     }
 }

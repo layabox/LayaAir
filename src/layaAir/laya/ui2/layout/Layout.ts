@@ -438,7 +438,7 @@ export class Layout implements ILayout {
             let obj: GWidget = null;
             while (i >= 0) {
                 obj = this._owner.getChildAt(i);
-                if ((!this._foldInvisibles || obj._getBit(NodeFlags.ACTUAL_VISIBLE)) && !obj._getBit(NodeFlags.ESCAPE_LAYOUT))
+                if ((!this._foldInvisibles || obj._struct.enabled) && !obj._getBit(NodeFlags.ESCAPE_LAYOUT))
                     break;
                 i--;
             }
@@ -818,7 +818,7 @@ export class Layout implements ILayout {
             if (child._nodeType !== 2)
                 continue;
 
-            if (this._foldInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE) || child._getBit(NodeFlags.ESCAPE_LAYOUT))
+            if (this._foldInvisibles && !child._struct.enabled || child._getBit(NodeFlags.ESCAPE_LAYOUT))
                 data.invisibles[data.invisibleCnt++] = i;
             else
                 data.children[j++] = child;

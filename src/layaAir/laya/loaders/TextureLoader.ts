@@ -16,6 +16,7 @@ import { VideoTexture } from "../media/VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -201,13 +202,19 @@ export class RenderTextureLoader implements IResourceLoader {
             if (!data)
                 return null;
 
+            if (data.width == null) data.width = 256;
+            if (data.height == null) data.height = 256;
+            if (data.colorFormat == null) data.colorFormat = RenderTargetFormat.R8G8B8A8;
+            if (data.depthFormat == null) data.depthFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
+            if (data.multiSamples == null) data.multiSamples = 1;
+
             let rt = <RenderTexture>task.obsoluteInst;
             if (rt)
                 rt.recreate(data.width, data.height, data.colorFormat, data.depthFormat,
-                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB, data.storage);
+                    !!data.generateMipmap, data.multiSamples, !!data.generateDepthTexture, !!data.sRGB, !!data.storage);
             else
                 rt = new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
-                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB);
+                    !!data.generateMipmap, data.multiSamples, !!data.generateDepthTexture, !!data.sRGB, !!data.storage);
 
             if (null != data.anisoLevel)
                 rt.anisoLevel = data.anisoLevel;

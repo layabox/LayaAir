@@ -59,11 +59,13 @@ export interface I2DGraphicWholeBuffer {
     destroy(): void;
 }
 
+/** @blueprintIgnore */
 export type Graphics2DVertexBlock = {
     positions: number[],
     vertexViews: I2DGraphicBufferDataView[],
 }
 
+/** @blueprintIgnore */
 export type Graphics2DBufferBlock = {
     vertexs: Graphics2DVertexBlock[],
     indexView: I2DGraphicBufferDataView,
@@ -72,6 +74,7 @@ export type Graphics2DBufferBlock = {
 
 /**
  * primitive渲染数据处理
+ * @blueprintIgnore
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
@@ -80,6 +83,7 @@ export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
 
 /**
  * 基础组件数据处理
+ * @blueprintIgnore
  */
 export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {
     lightReceive: boolean;
@@ -87,6 +91,7 @@ export interface I2DBaseRenderDataHandle extends IRender2DDataHandle {
 
 /**
  * mesh2D数据处理类
+ * @blueprintIgnore
  */
 export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
     baseColor: Color;
@@ -99,6 +104,7 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
 
 /**
  * spine数据处理类
+ * @blueprintIgnore
  */
 export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
     skeleton: spine.Skeleton;

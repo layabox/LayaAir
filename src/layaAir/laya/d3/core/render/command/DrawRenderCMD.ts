@@ -1,5 +1,6 @@
 import { DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Material } from "../../../../resource/Material";
+import { Pool } from "../../../../utils/Pool";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../BaseRender";
 import { Command } from "./Command";
@@ -10,15 +11,14 @@ import { CommandBuffer } from "./CommandBuffer";
  * @zh 表示一个绘制渲染命令。
  */
 export class DrawRenderCMD extends Command {
-    /**@internal */
-    private static _pool: any[] = [];
+    private static readonly _pool = Pool.createPool(DrawRenderCMD);
 
     /**
      * @internal
      */
     static create(render: BaseRender, material: Material, subMeshIndex: number, commandBuffer: CommandBuffer): DrawRenderCMD {
         var cmd: DrawRenderCMD;
-        cmd = DrawRenderCMD._pool.length > 0 ? DrawRenderCMD._pool.pop() : new DrawRenderCMD();
+        cmd = DrawRenderCMD._pool.take();
         cmd.render = render;
         cmd.material = material;
         cmd.subMeshIndex = subMeshIndex;
@@ -123,7 +123,7 @@ export class DrawRenderCMD extends Command {
      * @zh 回收渲染命令以供重用。
      */
     recover(): void {
-        DrawRenderCMD._pool.push(this);
+        DrawRenderCMD._pool.recover(this);
         super.recover();
         this.material = null;
         this.render.sharedMaterials[this.subMeshIndex] = this._prematerial;

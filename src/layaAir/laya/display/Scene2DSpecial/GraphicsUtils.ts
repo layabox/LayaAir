@@ -2,7 +2,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, I2DGraphicBufferDataView, Graphics2DBufferBlock, Graphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, Graphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -14,11 +14,10 @@ import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
+import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
-import { Stat } from "../../utils/Stat";
 import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
-import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { GraphicsMesh } from "../../webgl/utils/GraphicsMesh";
@@ -31,47 +30,35 @@ import { GraphicsRunner } from "./GraphicsRunner";
 /** @internal */
 export class GraphicsRenderData {
 
-   static _pool: IPrimitiveRenderElement2D[] = [];
-
-   static createRenderElement2D(needGeometry: boolean = true) {
-      if (this._pool.length > 0) {
-         let element = this._pool.pop();
-         if (needGeometry) {
-            element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            element.geometry.indexFormat = IndexFormat.UInt16;
-         } else {
-            if (element.geometry) {
-               element.geometry.destroy();
-            }
-            element.geometry = null;
-         }
-         return element;
-      }
-
+   static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(() => { //create
       let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-      if (needGeometry) {
-         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-         element.geometry.indexFormat = IndexFormat.UInt16;
-      }
       element.renderStateIsBySprite = false;
       element.nodeCommonMap = ["Sprite2D"];
       return element;
-   }
 
-   static recoverRenderElement2D(value: IPrimitiveRenderElement2D) {
-      if (!value) return;
-      if (value.geometry) {
-         value.geometry.clearRenderParams();
-         value.geometry.bufferState = null;
+   }, (element: IPrimitiveRenderElement2D, needGeometry?: boolean) => { //init
+      if (needGeometry || needGeometry == null) {
+         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+         element.geometry.indexFormat = IndexFormat.UInt16;
+      } else {
+         if (element.geometry) {
+            element.geometry.destroy();
+            element.geometry = null;
+         }
       }
-      value.materialShaderData = null;
-      value.value2DShaderData = null;
-      value.owner = null;
-      value.subShader = null;
-      value.renderStateIsBySprite = false;
-      value.type = 0;
-      this._pool.push(value);
-   }
+
+   }, (element: IPrimitiveRenderElement2D) => { //reset
+      if (element.geometry) {
+         element.geometry.clearRenderParams();
+         element.geometry.bufferState = null;
+      }
+      element.materialShaderData = null;
+      element.value2DShaderData = null;
+      element.owner = null;
+      element.subShader = null;
+      element.renderStateIsBySprite = false;
+      element.type = 0;
+   });
 
    /** @internal */
    _renderElements: IPrimitiveRenderElement2D[] = [];
@@ -129,7 +116,7 @@ export class GraphicsRenderData {
          let element = this._renderElements[i];
          if (i < submitLength) {
             if (!element) {
-               element = GraphicsRenderData.createRenderElement2D();
+               element = GraphicsRenderData._pool.take();
                element.value2DShaderData = struct.spriteShaderData;
                element.owner = struct;
                this._renderElements[i] = element;
@@ -154,7 +141,7 @@ export class GraphicsRenderData {
             blocks.push({ vertexs: submit.vertexs, indexView, vertexBuffer });
             this._updateGraphicsKeys(element, submit);
          } else {
-            GraphicsRenderData.recoverRenderElement2D(element);
+            GraphicsRenderData._pool.recover(element);
          }
       }
 
@@ -260,7 +247,7 @@ export class SubStructRender {
       this._submit = new SubmitBase;
       this._internalInfo = new GraphicsShaderInfo();
       this._submit._internalInfo = this._internalInfo;
-      this._renderElement = GraphicsRenderData.createRenderElement2D();
+      this._renderElement = GraphicsRenderData._pool.take();
       this._renderElement.value2DShaderData = this._shaderData;
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
       this._renderElement.primitiveShaderData = this._submit._internalInfo.shaderData;
@@ -311,7 +298,7 @@ export class SubStructRender {
 
    destroy(): void {
       this._renderElement.geometry = null;
-      GraphicsRenderData.recoverRenderElement2D(this._renderElement);
+      GraphicsRenderData._pool.recover(this._renderElement);
       this._submit.destroy();
       this._submit = null;
       this._internalInfo = null;

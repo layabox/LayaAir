@@ -160,7 +160,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         ];
     }
     destroy(): void {
-        // throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**
@@ -995,14 +995,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        const area2DArrays = this._scene._area2Ds;
-        if (area2DArrays.length > 0) {
+        if (this._scene._area2Ds.size > 0) {
             let xL = 10000000;
             let xR = -10000000;
             let yB = 10000000;
             let yT = -10000000;
-            for (let i = 0; i < area2DArrays.length; i++) {
-                const camera = area2DArrays[i].mainCamera;
+            for (let area of this._scene._area2Ds) {
+                const camera = area.mainCamera;
                 if (camera) {
                     let rect = camera._rect;
                     xL = Math.min(xL, rect.x);

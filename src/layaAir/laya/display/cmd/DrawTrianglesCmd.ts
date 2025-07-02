@@ -68,6 +68,15 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 颜色变换。
      */
     color: number | null;
+    /**
+     * @en Color array.
+     * @zh 颜色数组。
+     */
+    colors: Float32Array | null;
+    /**
+     * @inheritdoc
+     */
+    lock: boolean;
 
     /**
      * @en Create a DrawTrianglesCmd instance
@@ -96,7 +105,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @returns 绘制三角形命令实例
      */
     static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
-        matrix: Matrix | null, alpha: number, color: string | number, blendMode: string | null): DrawTrianglesCmd {
+        matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string, colors?: Float32Array): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -106,8 +115,9 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.uvs = uvs;
         cmd.indices = indices;
         cmd.matrix = matrix;
-        cmd.alpha = alpha;
+        cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.colors = colors;
         cmd.blendMode = blendMode;
         return cmd;
     }
@@ -123,6 +133,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.uvs = null;
         this.indices = null;
         this.matrix = null;
+        this.colors = null;
         Pool.recover("DrawTrianglesCmd", this);
     }
 
@@ -137,7 +148,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移  
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color);
+        runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color, this.colors);
     }
 
     /**

@@ -606,7 +606,7 @@ export class InputManager {
                 && child._nodeType !== 1
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR))
                     : (child._mouseState === 2 || child._mouseState === 0 && child._getBit(NodeFlags.CHECK_INPUT)))
-                && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
+                && child._struct.enabled) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
                 let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);

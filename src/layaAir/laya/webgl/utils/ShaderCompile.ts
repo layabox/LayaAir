@@ -20,7 +20,7 @@ export interface IShaderCompiledObj {
 type IncludeItem = { name: string, node: ShaderNode, codeName: string, file: IncludeFile };
 
 const _clearCR: RegExp = new RegExp("\r", "g");
-const _removeAnnotation: RegExp = new RegExp("(/\\*([^*]|[\\r\\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)", "g");
+//const _removeAnnotation: RegExp = new RegExp("(/\\*([^*]|[\\r\\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)", "g");
 const _reg: RegExp = new RegExp("(\".*\")|('.*')|([#\\w\\*-\\.+/()=<>{}\\\\]+)|([,;:\\\\])", "g");
 const _splitToWordExps: RegExp = new RegExp("[(\".*\")]+|[('.*')]+|([ \\t=\\+\\-*/&%!<>!%\(\),;])", "g");
 const _splitToWordExps3: RegExp = new RegExp("[ \\t=\\+\\-*/&%!<>!%\(\),;\\|]", "g");
@@ -86,12 +86,12 @@ const StencilOperationMap: Record<string, StencilOperation> = {
  * <code>ShaderCompile</code> 类用于实现Shader编译。
  */
 export class ShaderCompile {
-    static IFDEF_NO: number = 0;
-    static IFDEF_YES: number = 1;
-    static IFDEF_ELSE: number = 2;
-    static IFDEF_PARENT: number = 3;
+    static readonly IFDEF_NO: number = 0;
+    static readonly IFDEF_YES: number = 1;
+    static readonly IFDEF_ELSE: number = 2;
+    static readonly IFDEF_PARENT: number = 3;
 
-    static includes: Record<string, IncludeFile> = {};
+    static readonly includes: Record<string, IncludeFile> = {};
 
     static loadIncludeFileSync: (fileName: string) => void;
 
@@ -399,10 +399,5 @@ export class ShaderCompile {
         renderState.depthBiasConstant = <number>obj.depthBiasConstant;
         renderState.depthBiasSlopeScale = <number>obj.depthBiasSlopeScale;
         renderState.depthBiasClamp = <number>obj.depthBiasClamp;
-
-        return;
     }
 }
-
-
-

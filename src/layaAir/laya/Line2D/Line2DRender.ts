@@ -20,8 +20,9 @@ import { LineShader } from "./shader/Line2DShader";
 import { Vector4 } from "../maths/Vector4";
 
 
+const defaultDashedValue: Vector3 = new Vector3(20, 1, 0);
+
 export class Line2DRender extends BaseRenderNode2D {
-    private static defaultDashedValue: Vector3 = new Vector3(20, 1, 0);
     private static defaultLine2DMaterial: Material;
 
     /**
@@ -230,7 +231,7 @@ export class Line2DRender extends BaseRenderNode2D {
         if (this._isdashed) {
             this._spriteShaderData.setVector3(LineShader.DASHED, this._dashedValue);
         } else {
-            this._spriteShaderData.setVector3(LineShader.DASHED, Line2DRender.defaultDashedValue);
+            this._spriteShaderData.setVector3(LineShader.DASHED, defaultDashedValue);
         }
     }
 

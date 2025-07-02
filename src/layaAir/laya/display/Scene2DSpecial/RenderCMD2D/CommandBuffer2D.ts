@@ -46,7 +46,7 @@ export class CommandBuffer2D {
      * @internal
      */
     // _renderSize: Vector2 = new Vector2();
-    shaderData :ShaderData; 
+    shaderData: ShaderData;
 
     /** @ignore */
     constructor(name?: string) {
@@ -95,8 +95,8 @@ export class CommandBuffer2D {
         let lastPass = this._context.passData;
         if (lastPass) {
             lastPass.cloneTo(this.shaderData);
-        }else{
-            this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE,Vector2.TEMP.setValue(
+        } else {
+            this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, Vector2.TEMP.setValue(
                 RenderState2D.width, RenderState2D.height
             ));
         }

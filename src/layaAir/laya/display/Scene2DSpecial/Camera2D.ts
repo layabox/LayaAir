@@ -1,30 +1,21 @@
 import { ILaya } from "../../../ILaya";
-import { LayaGL } from "../../layagl/LayaGL";
+import { NodeFlags } from "../../Const";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
-import { Area2D } from "../Area2D";
-import { Scene } from "../Scene";
+import type { Area2D } from "../Area2D";
 import { Sprite } from "../Sprite";
 
 export class Camera2D extends Sprite {
     /**@internal */
     static shaderValueInit() {
-        if (!Scene.scene2DUniformMap) {
-            Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
-        }
-        let scene2DUniformMap = Scene.scene2DUniformMap;
         Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
-        scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
-        // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
-
     }
 
     /**@internal */
@@ -112,7 +103,7 @@ export class Camera2D extends Sprite {
         let ele = this as any;
         while (ele) {
             if (ele === this._scene || ele === ILaya.stage) break;
-            if (ele instanceof Area2D) {
+            if (ele._getBit(NodeFlags.AREA_2D)) {
                 this._ownerArea = ele;
                 if (this._isMain && !(<Area2D>this._ownerArea).mainCamera)
                     (<Area2D>this._ownerArea)._setMainCamera(this);
@@ -324,7 +315,7 @@ export class Camera2D extends Sprite {
 
             if (this.positionSmooth) {
                 let epsilon = 0.01;
-                let speed = Math.max( epsilon , Math.min(1.0, this.positionSpeed * 0.16));// 0.1
+                let speed = Math.max(epsilon, Math.min(1.0, this.positionSpeed * 0.16));// 0.1
                 let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
                 let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
                 let transX = deltaX * speed;

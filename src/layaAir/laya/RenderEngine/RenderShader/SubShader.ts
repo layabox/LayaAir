@@ -66,7 +66,6 @@ export class SubShader {
      */
     readonly _uniformMap: Map<number, UniformProperty>;
 
-    /**@internal */
     _owner: Shader3D;
     /**@internal */
     _flags: any = {};
@@ -74,11 +73,6 @@ export class SubShader {
     moduleData: ISubshaderData;
     /**@internal */
     _passes: ShaderPass[] = [];
-
-    get owner() {
-        return this._owner;
-    }
-    
 
     /**
      * 创建一个 <code>SubShader</code> 实例。

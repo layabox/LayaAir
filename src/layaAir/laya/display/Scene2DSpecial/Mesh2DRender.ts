@@ -21,7 +21,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     static mesh2DDefaultMaterial: Material;
 
-    static __init__(){
+    static __init__() {
         if (Mesh2DRender.mesh2DDefaultMaterial) return
 
         Mesh2DRender.mesh2DDefaultMaterial = new Material();

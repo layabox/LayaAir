@@ -16,7 +16,6 @@ import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
 import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
-import { PostProcess2D } from "../display/PostProcess2D";
 
 /**
  * @blueprintInheritable
@@ -27,6 +26,7 @@ export class GWidget extends Sprite {
     private _tooltips: string;
     private _asGroup: boolean = false;
     private _grayed: boolean = false;
+    private _grayEffect: ColorEffect2D;
     private _background: IGraphicsCmd;
 
     private _draggable: boolean = false;
@@ -171,8 +171,6 @@ export class GWidget extends Sprite {
         return this;
     }
 
-    private _grayEffect:ColorEffect2D;
-
     get grayed(): boolean {
         return this._grayed;
     }
@@ -181,14 +179,15 @@ export class GWidget extends Sprite {
         if (this._grayed != value) {
             this._grayed = value;
 
-            let postProcess = this._getPostProcess(value);
+            let postProcess = this.getPostProcess(value);
             if (value) {
-                this._grayEffect ||= new ColorEffect2D([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
+                this._grayEffect ||= new ColorEffect2D();
+                this._grayEffect.gray();
                 postProcess.addEffect(this._grayEffect);
             }
             else {
                 if (postProcess) {
-                    postProcess.removeEffect(this._grayEffect)
+                    postProcess.removeEffect(this._grayEffect);
                 }
             }
         }
@@ -508,10 +507,3 @@ export class GWidget extends Sprite {
         }
     }
 }
-
-// const grayFilter = new ColorFilter([
-//     0.3086, 0.6094, 0.082, 0, 0,
-//     0.3086, 0.6094, 0.082, 0, 0,
-//     0.3086, 0.6094, 0.082, 0, 0,
-//     0, 0, 0, 1, 0
-// ]);
