@@ -38,7 +38,7 @@ export class WebDefineDatas implements IDefineDatas {
         var mask: Array<number> = this._mask;
         for (var i: number = this._length - 1; i >= 0; i--) {
             var value: number = mask[i] & unionMask[i];
-            if (value == 0 && i == this._length - 1)
+            if (value === 0 && i === this._length - 1)
                 this._length--;
             else
                 mask[i] = value;

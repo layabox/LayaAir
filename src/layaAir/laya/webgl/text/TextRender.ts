@@ -17,9 +17,9 @@ import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
 export class TextRender extends EventDispatcher {
     readonly charRender: CharRender_Canvas;
     readonly fontMeasure: MeasureFont;
-    readonly mapFont: Record<string, number> = {};		// 把font名称映射到数字
-    readonly textAtlases: TextAtlas[] = [];		// 所有的大图集
-    readonly isoTextures: TextTexture[] = [];	// 所有的独立贴图
+    readonly mapFont: Record<string, number> = {}; // 把font名称映射到数字
+    readonly textAtlases: TextAtlas[] = []; // 所有的大图集
+    readonly isoTextures: TextTexture[] = []; // 所有的独立贴图
 
     /**
      * fontSizeInfo
@@ -136,20 +136,11 @@ export class TextRender extends EventDispatcher {
     }
 
     _fast_filltext(runner: GraphicsRunner, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        if (data && !(data.length >= 1)) return;	// length有可能是 undefined
+        if (data && !(data.length >= 1)) 
+            return; // length有可能是 undefined
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
-        this.fontScaleX = this.fontScaleY = 1.0;
-        if (TextRenderConfig.scaleFontWithCtx) {
-            let sx = runner.getCurrentScaleX();
-            let sy = runner.getCurrentScaleY();
-
-            if (sx < 1e-4 || sy < 1e-1)
-                return;
-
-            if (sx > 1) this.fontScaleX = Math.min(TextRenderConfig.maxFontScale, sx);
-            if (sy > 1) this.fontScaleY = Math.min(TextRenderConfig.maxFontScale, sy);
-        }
+        this.fontScaleX = this.fontScaleY = TextRenderConfig.fontScale;
 
         font._italic && (runner._italicDeg = 13);
         //准备bmp

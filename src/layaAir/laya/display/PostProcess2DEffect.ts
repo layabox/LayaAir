@@ -14,9 +14,6 @@ export abstract class PostProcess2DEffect {
    get singleton() {
       return this._singleton;
    }
-   set singleton(value: boolean) {
-      this._singleton = value;
-   }
 
    /**
     * @en Whether the effect is enabled.
@@ -27,7 +24,11 @@ export abstract class PostProcess2DEffect {
    }
 
    set active(value: boolean) {
-      this._active = value;
+      if (this._active != value) {
+         this._active = value;
+         if (this._owner)
+            this._owner._onChangeRender();
+      }
    }
 
    /**

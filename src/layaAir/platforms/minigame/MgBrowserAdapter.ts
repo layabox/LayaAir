@@ -146,14 +146,16 @@ export class MgBrowserAdapter extends BrowserAdapter {
             WasmAdapter.Memory = wasmGlobal.Memory;
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-                return wasmGlobal.instantiate((PlayerConfig.wasmSubpackage || "libs") + "/" + wasmFile, imports);
+                wasmFile = WasmAdapter.locateFileDefault(wasmFile);
+                return wasmGlobal.instantiate(wasmFile, imports);
             };
         }
         else if (window.WebAssembly) {
             let shouldInit = PAL.g.setWasmTaskCompile != null; //oppo
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
-                return Laya.loader.fetch((PlayerConfig.wasmSubpackage || "libs") + "/" + wasmFile, "arraybuffer").then(data => {
+                wasmFile = WasmAdapter.locateFileDefault(wasmFile);
+                return Laya.loader.fetch(wasmFile, "arraybuffer").then(data => {
                     if (data) {
                         if (shouldInit) {
                             shouldInit = false;

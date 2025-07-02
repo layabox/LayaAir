@@ -907,7 +907,7 @@ export class Scene3D extends Sprite {
                     // 	this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
                     // 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
                     // }
-                    if (i == 0) {
+                    if (i === 0) {
                         this._sunColor = dirLight.color;
                         this._sundir = dir;
                     }
@@ -1009,7 +1009,7 @@ export class Scene3D extends Sprite {
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
                 shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight.direction);
                 shaderValues.setInt(Scene3D.LIGHTMODE, dirLight._lightmapBakedType);
-                if (i == 0) {
+                if (i === 0) {
                     this._sunColor = dirLight.color;
                     this._sundir = dirLight.direction;
                 }

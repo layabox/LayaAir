@@ -1,14 +1,11 @@
 import { Widget } from "../components/Widget";
 import { UIEvent } from "./UIEvent";
-import { UIUtils } from "./UIUtils";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
 import { TransformKind } from "../display/SpriteConst";
-import { PostProcess2D } from "../display/PostProcess2D";
-import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
-import { SubPassFlag } from "../Const";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -47,8 +44,6 @@ export class UIComponent extends Sprite {
      * @zh 相对布局组件
      */
     protected _widget: Widget = Widget.EMPTY;
-
-    private _grayEffect: ColorEffect2D;
 
     /**
     * @en The vertical distance in pixels from the top edge of the component to the top edge of its parent.
@@ -207,20 +202,22 @@ export class UIComponent extends Sprite {
     }
 
     set gray(value: boolean) {
+        value = !!value;
         if (value !== this._gray) {
             this._gray = value;
             let postProcess = this.getPostProcess(value);
             if (value) {
-                this._grayEffect ||= new ColorEffect2D();
-                this._grayEffect.gray();
-                postProcess.addEffect(this._grayEffect);
+                let effect = postProcess.getEffect(GrayscaleEffect2D);
+                if (!effect)
+                    effect = postProcess.addEffect(new GrayscaleEffect2D());
             } else {
                 if (postProcess) {
-                    postProcess.removeEffect(this._grayEffect);
+                    let effect = postProcess.getEffect(GrayscaleEffect2D);
+                    if (effect)
+                        postProcess.removeEffect(effect);
                 }
             }
         }
-        this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 
     /**
@@ -250,6 +247,7 @@ export class UIComponent extends Sprite {
      * 它将依次调用一系列初始化方法。继承该类的子类可以直接重写这些方法,实现自己的初始化逻辑。
      * 如果不需要这些初始化方法,可以将 `createChildren` 设置为 `false`,以跳过它们并减少不必要的开销。
      * @param createChildren 是否执行子对象初始化方法,默认为 true。
+     * @blueprintIgnore
      */
     constructor(createChildren = true) {
         super();

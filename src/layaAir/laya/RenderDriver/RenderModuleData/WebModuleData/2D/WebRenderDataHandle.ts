@@ -101,7 +101,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     let tempMatirx = Matrix.TEMP;
                     let maskMatrix = this.mask.renderMatrix;
                     if (this.mask.parent) {
-                        tempMatirx.copyTo(maskMatrix);
+                        maskMatrix.copyTo(tempMatirx);
                     } else {
                         Matrix.mul(maskMatrix, mat, tempMatirx);
                     }
@@ -235,17 +235,6 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
             this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         }
     }
-}
-
-export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
-    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-    private _baseTexture: BaseTexture;
-    private _textureRangeIsClip: boolean;
-    private _baseTextureRange: Vector4 = new Vector4();
-    private _normal2DTexture: BaseTexture;
-    private _renderAlpha = -1;
-
 
     public get owner(): WebRenderStruct2D {
         return this._owner;
@@ -261,6 +250,14 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         }
 
     }
+}
+
+export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
+    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
+    private _baseColor: Color = new Color(1, 1, 1, 1);
+    private _baseTexture: BaseTexture;
+    private _normal2DTexture: BaseTexture;
+    private _renderAlpha = -1;
 
     public get baseColor(): Color {
         return this._baseColor;
@@ -294,29 +291,6 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             } else {
                 this._owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
-        }
-    }
-
-    public get baseTextureRange(): Vector4 {
-        return this._baseTextureRange;
-    }
-    public set baseTextureRange(value: Vector4) {
-        if (!value)
-            return;
-        this._owner.spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
-        value ? value.cloneTo(this._baseTextureRange) : null;
-    }
-
-    public get textureRangeIsClip(): boolean {
-        return this._textureRangeIsClip;
-    }
-    public set textureRangeIsClip(value: boolean) {
-        if (this._textureRangeIsClip != value) {
-            this._textureRangeIsClip = value;
-            if (value)
-                this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
-            else
-                this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
         }
     }
 

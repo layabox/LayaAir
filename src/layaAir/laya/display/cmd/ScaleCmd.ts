@@ -2,6 +2,9 @@ import { Matrix } from "../../maths/Matrix";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "ScaleCmd";
+
 /**
  * @en Scale command
  * @zh 缩放命令
@@ -12,7 +15,7 @@ export class ScaleCmd implements IGraphicsCmd {
      * @en Identifier for the ScaleCmd
      * @zh 缩放命令的标识符
      */
-    static readonly ID: string = "Scale";
+    static readonly ID: string = className;
 
     /**
      * @en Horizontal scaling value.
@@ -50,7 +53,7 @@ export class ScaleCmd implements IGraphicsCmd {
      * @returns 缩放命令实例
      */
     static create(scaleX: number, scaleY: number, pivotX: number, pivotY: number): ScaleCmd {
-        var cmd: ScaleCmd = Pool.getItemByClass("ScaleCmd", ScaleCmd);
+        var cmd: ScaleCmd = Pool.getItemByClass(className, ScaleCmd);
         cmd.scaleX = scaleX;
         cmd.scaleY = scaleY;
         cmd.pivotX = pivotX;
@@ -63,8 +66,7 @@ export class ScaleCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-
-        Pool.recover("ScaleCmd", this);
+        Pool.recover(className, this);
     }
 
     /**

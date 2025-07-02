@@ -1,4 +1,5 @@
-import { BlurEffect2D } from "../../display/effect2d/BlurEffect2D";
+import { BlurEffect2D } from "../display/effect2d/BlurEffect2D";
+import { ClassUtils } from "../utils/ClassUtils";
 import { Filter } from "./Filter";
 
 /**
@@ -28,8 +29,7 @@ export class BlurFilter extends Filter {
      */
     constructor(strength = 4) {
         super();
-        this._effect2D = new BlurEffect2D();
-        this.strength = strength;
+        this._effect2D = new BlurEffect2D(strength);
     }
 
     /**
@@ -48,3 +48,4 @@ export class BlurFilter extends Filter {
 
 }
 
+ClassUtils.regClass("BlurFilter", BlurFilter);

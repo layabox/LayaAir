@@ -228,8 +228,6 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
         this._particleSystem = new ShurikenParticle2DSystem();
         // this.particleSystem.shape = new Shape2DModule();
-
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {

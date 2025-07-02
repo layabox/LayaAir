@@ -75,8 +75,6 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 
     /**
      * 增加一个UniformArray参数
-     * @param propertyID 
-     * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
 

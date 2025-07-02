@@ -1,6 +1,7 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { VertexStream } from "../../utils/VertexStream";
 
+/** @blueprintInheritable */
 export interface IMeshFactory {
     onPopulateMesh(vb: VertexStream): void;
 }

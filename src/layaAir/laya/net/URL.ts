@@ -18,7 +18,7 @@ export class URL {
      * @en URL address version mapping table. For example, {"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}. By default, after formatting through formatURL, it will automatically generate an address like "aaa/bb-1342a.png".
      * @zh URL地址版本映射表。例如，{"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}。默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb-1342a.png"的地址。
      */
-    static version: Record<string, string> = {};
+    static readonly version: Record<string, string> = {};
 
     /**
      * @en Base path. If not set, it defaults to the path of the current web page. The final address will be formatted as basePath + relative URL address.
@@ -30,6 +30,12 @@ export class URL {
      * @zh 扩展的基础路径映射表。例如，{"aa/":"http://abc.com/"}，则把路径以aa/开头的资源映射到http://abc.com/下。
      */
     static basePaths: Record<string, string> = {};
+
+    /**
+     * @en URL mapping table. For example, {"aa/bb.png":"cc/dd.png"}. This is used to map URLs to different paths.
+     * @zh URL映射表。例如，{"aa/bb.png":"cc/dd.png"}。用于将URL映射到不同的路径。
+     */
+    static readonly urlMapping: Record<string, string> = {};
 
     private _url: string;
     private _path: string;
@@ -97,9 +103,7 @@ export class URL {
      * @en Custom URL formatting function. For example: customFormat = function(url:String):String{}
      * @zh 自定义URL格式化的方式。例如：customFormat = function(url:String):String{}
      */
-    static customFormat: Function = function (url: string): string {
-        return url;
-    }
+    static customFormat: (url: string) => string;
 
     /**
      * 指以'~/'开头的的url路径的映射。
@@ -133,7 +137,10 @@ export class URL {
         }
 
         if (url.indexOf(":") == -1 && url.charCodeAt(0) !== 47) { //已经format过
-            //自定义路径格式化
+            let url2 = URL.urlMapping[url];
+            if (url2)
+                url = url2;
+
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
 

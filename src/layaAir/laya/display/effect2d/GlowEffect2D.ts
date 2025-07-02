@@ -8,6 +8,7 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { PostProcess2D, PostProcessRenderContext2D } from "../PostProcess2D";
 import { PostProcess2DEffect } from "../PostProcess2DEffect";
@@ -27,25 +28,26 @@ export class GlowEffect2D extends PostProcess2DEffect {
     private _blitExtendRT: RenderTexture2D;
     private _destRT: RenderTexture2D;
 
-    /**滤镜的颜色*/
-    private _colorUtils: ColorUtils;
-
     private _sv_blurInfo1: Vector4 = new Vector4();
-    public get sv_blurInfo1(): Vector4 {
+    private _sv_blurInfo2: Vector4 = new Vector4(0, 0, 1, 0);
+    private _color: string;
+    private _colorVec: Vector4 = new Vector4();
+
+    get sv_blurInfo1(): Vector4 {
         return this._sv_blurInfo1;
     }
-    public set sv_blurInfo1(value: Vector4) {
+    set sv_blurInfo1(value: Vector4) {
         if (value !== this._sv_blurInfo1) {
             value.cloneTo(this._sv_blurInfo1);
         }
         this._glowMat && (this._glowMat.setVector4("u_blurInfo1", this._sv_blurInfo1));
         this._owner && this._owner._onChangeRender();
     }
-    private _sv_blurInfo2: Vector4 = new Vector4(0, 0, 1, 0);
-    public get sv_blurInfo2(): Vector4 {
+
+    get sv_blurInfo2(): Vector4 {
         return this._sv_blurInfo2;
     }
-    public set sv_blurInfo2(value: Vector4) {
+    set sv_blurInfo2(value: Vector4) {
         if (value !== this._sv_blurInfo2) {
             value.cloneTo(this._sv_blurInfo2);
         }
@@ -54,43 +56,21 @@ export class GlowEffect2D extends PostProcess2DEffect {
 
     }
 
-    private _color: Vector4 = new Vector4();
-
-    public get color(): Vector4 {
+    /**
+     * @en color value
+     * @zh 颜色值
+     */
+    get color(): string {
         return this._color;
     }
-    public set color(value: Vector4) {
+    set color(value: string) {
         this._color = value;
-        this._glowMat && (this._glowMat.setVector4("u_color", this._color));
+        this._colorVec.fromArray(ColorUtils.create(value).arrColor);
+        this._glowMat && (this._glowMat.setVector4("u_color", this._colorVec));
         this._owner && this._owner._onChangeRender();
     }
 
     /**
-     * @private
-     * @en Gets X color value
-     * @zh 获取颜色值
-     */
-    get strColor(): string {
-        return this._colorUtils.strColor;
-    }
-
-    /**
-     * @private
-     * @en Sets X color value
-     * @zh 设置颜色值
-     */
-    set strColor(value: string) {
-        if (this._colorUtils && value == this._colorUtils.strColor)
-            return;
-
-        this._colorUtils = new ColorUtils(value);
-        let color = this._colorUtils.arrColor;
-        this.color.setValue(color[0], color[1], color[2], color[3])
-        this.color = this.color;
-    }
-
-    /**
-     * @private
      * @en Gest fuzzy value
      * @zh 获取模糊值
      */
@@ -99,7 +79,6 @@ export class GlowEffect2D extends PostProcess2DEffect {
     }
 
     /**
-     * @private
      * @en Sets fuzzy value
      * @zh 设置模糊值
      */
@@ -109,20 +88,18 @@ export class GlowEffect2D extends PostProcess2DEffect {
     }
 
     /**
-     * @private
      * @en Gets Y offset value
      * @zh 获取Y偏移值
      */
-    get offY(): number {
+    get offsetY(): number {
         return this._sv_blurInfo1.w;
     }
 
     /**
-     * @private
      * @en Sets Y offset value
      * @zh 设置Y偏移值
      */
-    set offY(value: number) {
+    set offsetY(value: number) {
         if (value !== this._sv_blurInfo1.w) {
             this._sv_blurInfo1.w = value;
             this.sv_blurInfo1 = this._sv_blurInfo1;
@@ -130,34 +107,33 @@ export class GlowEffect2D extends PostProcess2DEffect {
     }
 
     /**
-     * @private
      * @en Gets X offset value
      * @zh 获取X偏移值
      */
-    get offX(): number {
+    get offsetX(): number {
         return this._sv_blurInfo1.z;
     }
 
     /**
-     * @private
      * @en Sets X offset value
      * @zh 设置X偏移值
      */
-    set offX(value: number) {
+    set offsetX(value: number) {
         if (value !== this._sv_blurInfo1.z) {
             this._sv_blurInfo1.z = value;
             this.sv_blurInfo1 = this._sv_blurInfo1;
         }
     }
 
-    constructor(color: string, blur = 4, offX = 6, offY = 6) {
+    constructor(color?: string, blur?: number, offX?: number, offY?: number) {
         super();
-        this.strColor = color || "#000";
-        this.blur = Math.min(blur, 20);
-        this.offX = offX;
-        this.offY = offY;
+        this.color = color || "#000";
+        this.blur = blur ?? 4;
+        this.offsetX = offX ?? 6;
+        this.offsetY = offY ?? 6;
     }
 
+    /** @ignore */
     effectInit(postprocess: PostProcess2D): void {
         this._owner = postprocess;
         //blitmat
@@ -175,7 +151,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         //glowmat
         (!this._glowMat) && (this._glowMat = new Material());
         this._glowMat.setShaderName("glow2D");
-        this._glowMat.setVector4("u_color", this._color);
+        this._glowMat.setVector4("u_color", this._colorVec);
         this._glowMat.setVector4("u_blurInfo1", this.sv_blurInfo1);
         if (!this._glowElement) {
             this._glowElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
@@ -200,7 +176,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         }
     }
 
-
+    /** @ignore */
     render(context: PostProcessRenderContext2D): void {
         let marginLeft = 50;
         let marginTop = 50;
@@ -243,7 +219,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         context.destination = this._destRT;
     }
 
-
+    /** @ignore */
     destroy() {
         this._destRT && this._destRT.destroy();
         this._blitExtendRT && this._blitExtendRT.destroy();
@@ -264,3 +240,5 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._compositeElement = null;
     }
 }
+
+ClassUtils.regClass("GlowEffect2D", GlowEffect2D);

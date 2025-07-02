@@ -5,6 +5,11 @@ import { Event } from "../events/Event";
 
 const MIN_GRIP_SIZE = 20;
 
+/**
+ * @en GScrollBar is a widget that provides a scroll bar interface for scrolling content.
+ * @zh GScrollBar 是一个提供滚动内容的滚动条界面的小部件。
+ * @blueprintInheritable
+ */
 export class GScrollBar extends GWidget {
     private _gripButton: GWidget;
     private _arrowButton1: GWidget;
@@ -28,12 +33,13 @@ export class GScrollBar extends GWidget {
         this.on(Event.MOUSE_DOWN, this, this._barTouchBegin);
     }
 
-    public setOwner(target: IScroller, vertical: boolean): void {
+    /** @ignore */
+    setOwner(target: IScroller, vertical: boolean): void {
         this._target = target;
         this._vertical = vertical;
     }
 
-    public setDisplayPerc(value: number) {
+    setDisplayPerc(value: number) {
         if (this._vertical) {
             if (!this._fixedGripSize)
                 this._gripButton.height = Math.max(Math.floor(value * this._bar.height), Math.min(MIN_GRIP_SIZE, this._bar.height));
@@ -48,7 +54,7 @@ export class GScrollBar extends GWidget {
         this._gripButton.visible = value != 0 && value != 1;
     }
 
-    public setScrollPerc(val: number) {
+    setScrollPerc(val: number) {
         this._scrollPerc = val;
         if (this._vertical)
             this._gripButton.y = this._bar.y + (this._bar.height - this._gripButton.height) * this._scrollPerc;
@@ -56,22 +62,22 @@ export class GScrollBar extends GWidget {
             this._gripButton.x = this._bar.x + (this._bar.width - this._gripButton.width) * this._scrollPerc;
     }
 
-    public get minSize(): number {
+    get minSize(): number {
         if (this._vertical)
             return (this._arrowButton1 ? this._arrowButton1.height : 0) + (this._arrowButton2 ? this._arrowButton2.height : 0);
         else
             return (this._arrowButton1 ? this._arrowButton1.width : 0) + (this._arrowButton2 ? this._arrowButton2.width : 0);
     }
 
-    public get gripDragging(): boolean {
+    get gripDragging(): boolean {
         return this._gripDragging;
     }
 
-    public get fixedGripSize(): boolean {
+    get fixedGripSize(): boolean {
         return this._fixedGripSize;
     }
 
-    public set fixedGripSize(value: boolean) {
+    set fixedGripSize(value: boolean) {
         this._fixedGripSize = value;
     }
 
@@ -91,6 +97,7 @@ export class GScrollBar extends GWidget {
         super._onConstruct(inPrefab);
     }
 
+    /** @ignore */
     _setup(arrowButton1: GWidget, arrowButton2: GWidget, bar: GWidget, grip: GWidget): void {
         this._arrowButton1 = arrowButton1;
         this._arrowButton2 = arrowButton2;

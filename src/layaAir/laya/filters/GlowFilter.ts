@@ -1,6 +1,6 @@
-import { GlowEffect2D } from "../../display/effect2d/GlowEffect2D";
-import { PostProcess2DEffect } from "../../display/PostProcess2DEffect";
-import { ColorUtils } from "../../utils/ColorUtils";
+import { GlowEffect2D } from "../display/effect2d/GlowEffect2D";
+import { PostProcess2DEffect } from "../display/PostProcess2DEffect";
+import { ClassUtils } from "../utils/ClassUtils";
 import { Filter } from "./Filter";
 
 /**
@@ -33,64 +33,57 @@ export class GlowFilter extends Filter {
     }
 
     /**
-     * @private
      * @en Gets Y offset value
      * @zh 获取Y偏移值
      */
     get offY(): number {
-        return this._effect2D.offY;
+        return this._effect2D.offsetY;
     }
 
     /**
-     * @private
      * @en Sets Y offset value
      * @zh 设置Y偏移值
      */
     set offY(value: number) {
-        this._effect2D.offY = value;
+        this._effect2D.offsetY = value;
         this.onChange();
     }
 
     /**
-     * @private
      * @en Gets X offset value
      * @zh 获取X偏移值
      */
     get offX(): number {
-        return this._effect2D.offX;
+        return this._effect2D.offsetX;
     }
 
     /**
-     * @private
      * @en Sets X offset value
      * @zh 设置X偏移值
      */
     set offX(value: number) {
-        this._effect2D.offX = value;
+        this._effect2D.offsetX = value;
         this.onChange();
     }
 
     /**
-     * @private
      * @en Gets X color value
      * @zh 获取颜色值
      */
     get color(): string {
-        return this._effect2D.strColor;
+        return this._effect2D.color;
     }
 
     /**
-     * @private
      * @en Sets X color value
      * @zh 设置颜色值
      */
     set color(value: string) {
-        this._effect2D.strColor = value;
+        this._effect2D.color = value;
         this.onChange();
     }
 
     /**
-     * @private
      * @en Gest fuzzy value
      * @zh 获取模糊值
      */
@@ -99,7 +92,6 @@ export class GlowFilter extends Filter {
     }
 
     /**
-     * @private
      * @en Sets fuzzy value
      * @zh 设置模糊值
      */
@@ -110,3 +102,4 @@ export class GlowFilter extends Filter {
 
 }
 
+ClassUtils.regClass("GlowFilter", GlowFilter);   

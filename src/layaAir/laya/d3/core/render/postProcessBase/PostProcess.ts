@@ -209,14 +209,14 @@ export class PostProcess {
         for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
-                if (i == n - 2) {//last effect:destination RenderTexture is CameraTarget
+                if (i === n - 2) {//last effect:destination RenderTexture is CameraTarget
                     context.indirectTarget = context.destination;
                     context.destination = cameraTarget;
                 } else {
                     context.indirectTarget = context.destination;
                     context.destination = Indirect[(i + 1) % 2];
                 }
-            } else if (i == n - 1) {//兼容最后一个Effect Active为false
+            } else if (i === n - 1) {//兼容最后一个Effect Active为false
                 context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
             }
         }
@@ -254,10 +254,10 @@ export class PostProcess {
      * @zh 添加后期处理效果。
      * @param effect 后期处理效果
      */
-    addEffect(effect: PostProcessEffect): void {
+    addEffect<T extends PostProcessEffect>(effect: T): T | null {
         if (effect.singleton && this.getEffect((effect as any).constructor)) {
             console.error("the target effect is a singleton", effect);
-            return;
+            return null;
         }
         if (!this._enableColorGrad || effect instanceof ColorGradEffect) {
             this._effects.push(effect);
@@ -267,6 +267,8 @@ export class PostProcess {
 
         this.recaculateCameraFlag();
         effect.effectInit(this);
+
+        return effect;
     }
 
     /**
@@ -278,14 +280,7 @@ export class PostProcess {
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
     getEffect<T extends PostProcessEffect>(classReg: new () => T): T {
-        let size: number = this._effects.length;
-        for (let i = 0; i < size; i++) {
-            let element = this._effects[i];
-            if (element instanceof classReg) {
-                return element;
-            }
-        }
-        return null
+        return this._effects.find(effect => effect instanceof classReg) as T || null;
     }
 
     /**

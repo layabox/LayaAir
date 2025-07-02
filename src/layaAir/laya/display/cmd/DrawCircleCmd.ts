@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawCircleCmd";
+
 /**
  * @en Draw circle command
  * @zh 绘制圆形命令
@@ -13,7 +15,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @en Identifier for the DrawCircleCmd
      * @zh 绘制圆形命令的标识符
      */
-    static readonly ID: string = "DrawCircle";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis position of the circle center
@@ -72,7 +74,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @returns DrawCircleCmd实例
      */
     static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawCircleCmd {
-        var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
+        var cmd: DrawCircleCmd = Pool.getItemByClass(className, DrawCircleCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.radius = radius;
@@ -90,7 +92,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawCircleCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -134,4 +136,4 @@ export class DrawCircleCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawCircleCmd", DrawCircleCmd);
+ClassUtils.regClass(className, DrawCircleCmd);

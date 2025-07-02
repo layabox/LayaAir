@@ -15,20 +15,20 @@ export class GearDisplay extends Gear {
         this.propPath = "internalVisible";
     }
 
-    public get pages() {
+    get pages() {
         return this._pages;
     }
 
-    public set pages(value: Array<number>) {
+    set pages(value: Array<number>) {
         this._pages = value;
         this.onChanged(null);
     }
 
-    public get condition() {
+    get condition() {
         return this._condition;
     }
 
-    public set condition(value: number) {
+    set condition(value: number) {
         this._condition = value;
         this.onChanged(null);
     }
@@ -48,7 +48,7 @@ export class GearDisplay extends Gear {
             pendings.add(this._owner);
     }
 
-    public static check(owner: GWidget, cc?: Controller, allowDelay?: boolean) {
+    static check(owner: GWidget, cc?: Controller, allowDelay?: boolean) {
         let r: boolean;
         let delay: number = 0;
         let gd: GearDisplay;
@@ -78,7 +78,7 @@ export class GearDisplay extends Gear {
             owner.internalVisible = r;
     }
 
-    public static checkAll(cc: Controller) {
+    static checkAll(cc: Controller) {
         if (pendings.size == 0)
             return;
 

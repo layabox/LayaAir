@@ -25,24 +25,13 @@ export class GraphicsShaderInfo {
       this.vertexSize = Vector4.ZERO;
       BlendModeHandler.initBlendMode(this.shaderData);
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
-      this.textureHost = Texture2D.whiteTexture;
+      this.textureHost = null;
       this.enableVertexSize = false;
       this.materialClip = false;
       this.fillTexture = false;
    }
 
    private _textureHost: Texture | BaseTexture;
-
-   /**@internal */
-   set mmat(value: Matrix4x4) {
-      this.shaderData.setMatrix4x4(ShaderDefines2D.UNIFORM_MMAT, value);
-   }
-
-   /**@internal */
-   get mmat() {
-      return this.shaderData.getMatrix4x4(ShaderDefines2D.UNIFORM_MMAT);
-   }
-
 
    public get textureHost(): Texture | BaseTexture {
       return this._textureHost

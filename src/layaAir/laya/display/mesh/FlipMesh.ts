@@ -1,4 +1,5 @@
 import { Rectangle } from "../../maths/Rectangle";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { genSliceMesh, IMeshFactory } from "./MeshFactory";
 
@@ -44,3 +45,5 @@ export class FlipMesh implements IMeshFactory {
         tmpUV.recover();
     }
 }
+
+ClassUtils.regClass("FlipMesh", FlipMesh);

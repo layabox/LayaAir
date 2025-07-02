@@ -65,7 +65,8 @@ export interface IComputeContext {
     /**
      * 添加修改ShaderData值的命令
      * @param shaderData 要修改的ShaderData
-     * @param propertyName 属性名称
+     * @param propertyID 属性名称
+     * @param shaderDataType ShaderData的类型
      * @param value 要设置的值
      */
     addSetShaderDataCommand(shaderData: ShaderData, propertyID: number, shaderDataType: ShaderDataType, value: ShaderDataItem): void;

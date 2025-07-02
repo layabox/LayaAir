@@ -9,7 +9,7 @@ import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
-import { ColorFilter } from "laya/legacy/filters/ColorFilter";
+import { ColorFilter } from "laya/filters/ColorFilter";
 
 export class Filters_Color {
 	private ApePath: string = "res/apes/monkey2.png";

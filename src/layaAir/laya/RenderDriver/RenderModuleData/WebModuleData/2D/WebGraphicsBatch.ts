@@ -5,12 +5,120 @@ import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMo
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
 import { BatchBuffer, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
+
+/**
+ * @internal
+ * 批次上下文，用于跟踪批次的状态信息
+ */
+class BatchContext {
+    /** 批次使用的贴图ID */
+    textureId: number = 0;
+    
+    /** 批次的透明度 */
+    globalAlpha: number = 1;
+    
+    /** 批次的clip信息 */
+    clipInfo: any = null;
+    
+    /** 批次的shader */
+    subShader: any = null;
+    
+    /** 批次的bufferState */
+    bufferState: any = null;
+
+    shaderData: any = null;
+
+    type: number = 0;
+    
+    lowType: number = 0;
+
+    globalRenderData: any = null;
+
+    /**
+     * 重置批次上下文
+     */
+    reset(): void {
+        this.textureId = 0;
+        this.globalAlpha = 1;
+        this.clipInfo = null;
+        this.subShader = null;
+        this.bufferState = null;
+        this.shaderData = null;
+        this.type = 0;
+        this.lowType = 0;
+        this.globalRenderData = null;
+    }
+
+    /**
+     * 从渲染元素初始化批次上下文
+     */
+    initFromElement(element: IPrimitiveRenderElement2D): void {
+        this.textureId = element.type & (~63);
+        this.shaderData = element.primitiveShaderData;
+        this.globalAlpha = element.owner.globalAlpha;
+        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
+        this.subShader = element.subShader;
+        this.bufferState = element.geometry.bufferState;
+        this.type = element.type;
+        this.lowType = element.type & 63;
+        this.globalRenderData = element.owner.globalRenderData;
+    }
+
+    /**
+     * 检查元素是否与批次兼容
+     */
+    isCompatible(element: IPrimitiveRenderElement2D): boolean {
+        // 快速检查：最容易变化的属性先检查
+        let elementType = element.type;
+        
+        // clip检查：如果元素有clip标记，立即返回false
+        if (elementType & 32) {
+            return false;
+        }
+
+        let elementLowType = elementType & 63;
+        let elementTexId = elementType & (~63);
+        let elementOwner = element.owner as WebRenderStruct2D;
+
+        // 检查低位类型（最常见的不匹配）
+        if (this.lowType !== elementLowType) {
+            return false;
+        }
+
+        // 检查透明度（数值比较，较快）
+        if (this.globalAlpha !== elementOwner.globalAlpha) {
+            return false;
+        }
+
+        // 检查对象引用（指针比较，较快）
+        if (this.subShader !== element.subShader || 
+            this.bufferState !== element.geometry.bufferState ||
+            this.clipInfo !== elementOwner.getClipInfo() ||
+            elementOwner.globalRenderData !== this.globalRenderData) {
+            return false;
+        }
+
+        // 纹理ID检查（放在最后，因为可能需要更新状态）
+        if (this.textureId === 0) {
+            // 批次还没有确定贴图，接受任何贴图并更新状态
+            if (elementTexId !== 0) {
+                this.textureId = elementTexId;
+                this.shaderData = element.primitiveShaderData;
+            }
+            return true;
+        }
+
+        // 批次已有确定的贴图ID，检查是否匹配
+        return elementTexId === 0 || elementTexId === this.textureId;
+    }
+}
 
 export class WebGraphicsBatch implements IBatch2DRender {
     static instance: WebGraphicsBatch = null;
@@ -40,41 +148,82 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let batchStart = -1;
         let count = 0;
         let end = length - 1;
-        for (let index = 0; index < end; index++) {
+        let batchContext = new BatchContext(); // 批次上下文
+        
+        for (let index = 0; index <= end; index++) {
             let offset = start + index;
-            let cElement = elementArray[offset];
-            let nElement = elementArray[offset + 1];
+            let element = elementArray[offset];
 
-            if (this.check(cElement, nElement)) {
+            if (this.canAddToBatch(element, batchContext)) {
                 if (batchStart == -1) {
+                    // 开始新批次
                     batchStart = index;
-                    count = 2;
-                } else
-                    count++;
-            } else {
-                if (count !== 0) {
-                    this.batch(list, batchStart + start, count, recoverList, buffer);
+                    count = 1;
+                    batchContext.initFromElement(element);
                 } else {
-                    list.add(cElement);
+                    // 添加到当前批次
+                    count++;
                 }
-                count = 0;
+            } else {
+                // 无法加入当前批次，结束当前批次
+                if (count > 1) {
+                    this.batch(list, batchStart + start, count, recoverList, buffer , batchContext);
+                } else if (count === 1) {
+                    list.add(elementArray[batchStart + start]);
+                }
+                
+                // 重置批次状态
+                batchContext.reset();
                 batchStart = -1;
+                count = 0;
+                
+                // 尝试用当前元素开始新批次
+                if (this.canAddToBatch(element, batchContext)) {
+                    batchStart = index;
+                    count = 1;
+                    batchContext.initFromElement(element);
+                } else {
+                    // 当前元素无法形成批次（可能有clip等），直接添加
+                    list.add(element);
+                }
             }
         }
 
-        if (count !== 0) {
-            this.batch(list, batchStart + start, count, recoverList, buffer);
-        } else {
-            list.add(elementArray[end + start]);
+        // 处理最后的批次
+        if (count > 1) {
+            this.batch(list, batchStart + start, count, recoverList, buffer, batchContext);
+        } else if (count === 1) {
+            list.add(elementArray[batchStart + start]);
         }
     }
 
-    batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
+    /**
+     * @en Check if an element can be added to the current batch.
+     * @param element The render element to check.
+     * @param batchContext The batch context for current batch.
+     * @returns True if the element can be added to the batch, false otherwise.
+     * @zh 检测元素是否可以加入当前批次。
+     * @param element 要检测的渲染元素。
+     * @param batchContext 当前批次的上下文。
+     * @returns 如果元素可以加入批次则返回 true，否则返回 false。
+     */
+    canAddToBatch(element: IPrimitiveRenderElement2D, batchContext: BatchContext): boolean {
+        if (batchContext.subShader === null) {
+            let elementType = element.type;
+            // 有clip标记的元素不能批次化
+            if (elementType & 32) return false;
+            return true;
+        }
+        return batchContext.isCompatible(element);
+    }
+
+    batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer, batchContext: BatchContext): void {
         let elementArray = list.elements;
         let staticBatchRenderElement = WebGraphicsBatch._pool.take();
         let drawArray: number[][] = [];
         let i = 0;
         let drawLengths: number[] = [];
+
         for (i = 0; i < length; i++) {
             let offset = start + i;
             let element = elementArray[offset];
@@ -82,10 +231,10 @@ export class WebGraphicsBatch implements IBatch2DRender {
             if (!i) {
                 staticBatchRenderElement.geometry.bufferState = geometry.bufferState;
                 staticBatchRenderElement.materialShaderData = element.materialShaderData;
-                staticBatchRenderElement.primitiveShaderData = element.primitiveShaderData;
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
+                staticBatchRenderElement.primitiveShaderData = batchContext.shaderData;
             }
 
             geometry.getDrawDataParams(TEMP_SINGLE_LIST);
@@ -132,67 +281,6 @@ export class WebGraphicsBatch implements IBatch2DRender {
         recoverList.add(staticBatchRenderElement);
         list.add(staticBatchRenderElement);
     }
-
-    /**
-     * @en Check if two render elements can be merged.
-     * @param left The left render element to compare.
-     * @param right The right render element to compare.
-     * @returns True if the elements can be merged, false otherwise.
-     * @zh 检测两个渲染元素是否可以合并。
-     * @param left 要比较的左侧渲染元素。
-     * @param right 要比较的右侧渲染元素。
-     * @returns 如果元素可以合并则返回 true，否则返回 false。
-     */
-    check(left: IRenderElement2D, right: IRenderElement2D): boolean {
-        let leftType = left.type;
-        let rightType = right.type;
-
-        if (
-            left.subShader === right.subShader
-            && left.geometry.bufferState === right.geometry.bufferState // 同mesh
-            && leftType === rightType
-        ) {
-
-            if (leftType & 32) { //或者比对材质 clip 优先忽略
-                return false;
-            }
-            else if (left.owner.globalAlpha !== right.owner.globalAlpha) {
-                return false;
-            }
-            else if ((left.owner as WebRenderStruct2D).getClipInfo() === (right.owner as WebRenderStruct2D).getClipInfo()) {
-                return true;
-            }
-            return false;
-        }
-        // BlendMode  3 ,  use Custom Matierl 4 , 
-        // if ((leftType & 31) !== (rightType & 31))
-        //     return false;
-
-        // let lUseMaterial = leftType & 16;
-        // let rUseMaterial = rightType & 16;
-        // // use custom material
-        // //A或者B一方使用自定义材质，使用的自定义材质且材质id不同
-        // if (lUseMaterial !== rUseMaterial || lUseMaterial)
-        //     return false;            
-        // // clip or 
-        // if ((leftType & 32) !== (rightType & 32)) {
-        //     return false;
-        // }
-        // // tex
-        // let leftTexId = leftType & 63;
-        // let rightTexId = rightType & 63;
-        // // 双方都使用贴图且不同 , 有一方没使用贴图就不能继续
-        // // 待考虑
-        // if (
-        //     leftTexId !== 0
-        //     && rightTexId !== 0
-        //     && leftTexId !== rightTexId
-        // )
-        //     return false;
-
-        return false;
-    }
-
 
     batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void {
         let handle = strcut.renderDataHandler as WebPrimitiveDataHandle;

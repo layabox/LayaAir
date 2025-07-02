@@ -593,7 +593,7 @@ export class ColorGradEffect extends PostProcessEffect {
      */
     constructor() {
         super();
-        this.singleton = true;
+        this._singleton = true;
         this.active = true;
         this._needBuildLUT = true;
         this._toneMapping = ToneMappingType.None;

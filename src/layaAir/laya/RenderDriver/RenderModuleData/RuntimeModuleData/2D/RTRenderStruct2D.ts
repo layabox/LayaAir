@@ -223,19 +223,20 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      this._rnUpdateFun = renderUpdateFun.bind(call);
-      this._nativeObj.setRenderUpdate(this._rnUpdateFun);
+      if (renderUpdateFun) {
+      	this._rnUpdateFun = renderUpdateFun.bind(call);
+      	this._nativeObj.setRenderUpdate(this._rnUpdateFun);
+      }
+      else {
+         this._rnUpdateFun = null;
+         this._nativeObj.setRenderUpdate(null);
+      }
    }
-   private _clipRect: Rectangle;
    setClipRect(rect: Rectangle): void {
-      this._clipRect = rect;
       this._nativeObj.setClipRect(rect);
    }
 
    setRepaint(): void {
-      if (this.pass) {
-         this.pass.repaint = true;
-      }
       this._nativeObj.setRepaint();
    }
 
@@ -270,18 +271,18 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    renderUpdate(context: GLESRenderContext2D): void {
-      if (this.renderDataHandler) {
-         this.renderDataHandler.inheriteRenderData(context);
-      }
-
-      if (this._rnUpdateFun)
-         this._rnUpdateFun(context);
-
-
       this._nativeObj.renderUpdate(context);
    }
 
    destroy(): void {
       this._nativeObj.destroy();
+
+      this._renderElements.length = 0;
+      this._renderElements = null;
+      this._spriteShaderData = null;
+      this._parent = null;
+      this._children.length = 0;
+      this._children = null;
+      this._pass = null;
    }
 }

@@ -1,6 +1,7 @@
 import { LayaEnv } from "../../../LayaEnv";
 import { MathUtil } from "../../maths/MathUtil";
 import { Rectangle } from "../../maths/Rectangle";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
@@ -28,7 +29,7 @@ export enum FillOrigin {
 export class ProgressMesh implements IMeshFactory {
     origin: number = 0;
     amount: number = 0.6;
-    clockwise: boolean = false;
+    clockwise: boolean = true;
 
     private _method: number = 5;
 
@@ -76,6 +77,8 @@ export class ProgressMesh implements IMeshFactory {
         }
     }
 }
+
+ClassUtils.regClass("ProgressMesh", ProgressMesh);
 
 function fillHorizontal(vb: VertexStream, vertRect: Readonly<Rectangle>, origin: number, amount: number): void {
     const tmpRect = Rectangle.create();

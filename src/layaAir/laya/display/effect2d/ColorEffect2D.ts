@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../layagl/LayaGL";
+import { SerializeUtil } from "../../loaders/SerializeUtil";
 import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -10,6 +11,7 @@ import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFo
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { PostProcess2D, PostProcessRenderContext2D } from "../PostProcess2D";
 import { PostProcess2DEffect } from "../PostProcess2DEffect";
@@ -39,36 +41,29 @@ const LENGTH: number = 25;
 
 export class ColorEffect2D extends PostProcess2DEffect {
     private _colorMat: Matrix4x4 = new Matrix4x4();
-    private mat: Material;
+    private _mat: Material;
     private _renderElement: IRenderElement2D;
     private _destRT: RenderTexture2D;
     private _centerScale: Vector2 = new Vector2();
     private _alpha: Vector4 = new Vector4();
     private _colorArray: Float32Array = new Float32Array(16);
     private _alphaArray: Float32Array = new Float32Array(4);
+    private _matrix: number[];
 
-    /**
-     * @internal 
-     * @en Represents the current matrix being applied by the filter.
-     * @zh 当前使用的矩阵
-     */
-    _matrix: any[];
-
-    constructor(matrix: any[] = null) {
+    constructor(matrix?: number[]) {
         super();
-        if (!matrix) matrix = this._copyMatrix(IDENTITY_MATRIX);
-        this.setByMatrix(matrix);
+        this.setByMatrix(matrix || IDENTITY_MATRIX);
     }
 
-    public get colorMat(): Matrix4x4 {
+    get colorMat(): Matrix4x4 {
         return this._colorMat;
     }
 
-    public set colorMat(value: Matrix4x4) {
+    set colorMat(value: Matrix4x4) {
         if (value != this._colorMat) {
             value.cloneTo(this._colorMat);
         }
-        this.mat && this.mat.setMatrix4x4("u_colorMat", this.colorMat);
+        this._mat && this._mat.setMatrix4x4("u_colorMat", this.colorMat);
         this._owner && this._owner._onChangeRender();
     }
 
@@ -76,35 +71,35 @@ export class ColorEffect2D extends PostProcess2DEffect {
         return this.setByMatrix(GRAY_MATRIX);
     }
 
-    public get alpha(): Vector4 {
+    get alpha(): Vector4 {
         return this._alpha;
     }
 
-    public set alpha(value: Vector4) {
+    set alpha(value: Vector4) {
         if (value != this._alpha) {
             value.cloneTo(this._alpha);
         }
-        this.mat && this.mat.setVector4("u_colorAlpha", this.alpha);
+        this._mat && this._mat.setVector4("u_colorAlpha", this.alpha);
         this._owner && this._owner._onChangeRender();
 
     }
 
     effectInit(postprocess: PostProcess2D): void {
         this._owner = postprocess;
-        (!this.mat || this.mat.destroyed) && (this.mat = new Material());
-        this.mat.setShaderName("ColorEffect2D");
-        this.mat.setMatrix4x4("u_colorMat", this._colorMat);
-        this.mat.setVector4("u_colorAlpha", this._alpha);
-        this.mat.addDefine(Shader3D.getDefineByName("COLORFILTER"));
+        (!this._mat || this._mat.destroyed) && (this._mat = new Material());
+        this._mat.setShaderName("ColorEffect2D");
+        this._mat.setMatrix4x4("u_colorMat", this._colorMat);
+        this._mat.setVector4("u_colorAlpha", this._alpha);
+        this._mat.addDefine(Shader3D.getDefineByName("COLORFILTER"));
         this._centerScale.setValue(1, 1);
-        this.mat.setVector2("u_centerScale", this._centerScale);
+        this._mat.setVector2("u_centerScale", this._centerScale);
         if (!this._renderElement) {
             this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
             this._renderElement.nodeCommonMap = null;
             this._renderElement.renderStateIsBySprite = false;
-            this._renderElement.materialShaderData = this.mat.shaderData;
-            this._renderElement.subShader = this.mat.shader.getSubShaderAt(0);
+            this._renderElement.materialShaderData = this._mat.shaderData;
+            this._renderElement.subShader = this._mat.shader.getSubShaderAt(0);
         }
     }
 
@@ -114,8 +109,13 @@ export class ColorEffect2D extends PostProcess2DEffect {
      * @zh 设置矩阵数据
      * @param matrix 由 20 个项目（排列成 4 x 5 矩阵）组成的数组
      */
-    setByMatrix(matrix: any[]): ColorEffect2D {
-        if (this._matrix != matrix) this._copyMatrix(matrix);
+    setByMatrix(matrix: number[]): ColorEffect2D {
+        if (this._matrix != matrix) {
+            if (!this._matrix) this._matrix = [];
+            for (var i: number = 0; i < LENGTH; i++) {
+                this._matrix[i] = matrix[i];
+            }
+        }
         var j: number = 0;
         var z: number = 0;
         for (var i: number = 0; i < 20; i++) {
@@ -157,8 +157,8 @@ export class ColorEffect2D extends PostProcess2DEffect {
      * @param  color 颜色值
      */
     setColor(color: string): ColorEffect2D {
-        var arr: any[] = ColorUtils.create(color).arrColor;
-        var mt: any[] = [0, 0, 0, 0, 256 * arr[0], 0, 0, 0, 0, 256 * arr[1], 0, 0, 0, 0, 256 * arr[2], 0, 0, 0, 1, 0];
+        var arr = ColorUtils.create(color).arrColor;
+        var mt: number[] = [0, 0, 0, 0, 256 * arr[0], 0, 0, 0, 0, 256 * arr[1], 0, 0, 0, 0, 256 * arr[2], 0, 0, 0, 1, 0];
         return this.setByMatrix(mt);
     }
 
@@ -260,7 +260,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
      * @zh 将滤镜重置为单位矩阵，移除所有滤镜效果。
      */
     reset(): ColorEffect2D {
-        return this.setByMatrix(this._copyMatrix(IDENTITY_MATRIX));
+        return this.setByMatrix(IDENTITY_MATRIX);
     }
 
     /**
@@ -301,19 +301,6 @@ export class ColorEffect2D extends PostProcess2DEffect {
     }
 
     /**
-     * @en Copies the matrix
-     * @zh 复制矩阵
-     */
-    private _copyMatrix(matrix: any[]): any[] {
-        var len: number = LENGTH;
-        if (!this._matrix) this._matrix = [];
-        for (var i: number = 0; i < len; i++) {
-            this._matrix[i] = matrix[i];
-        }
-        return this._matrix;
-    }
-
-    /**
      * @en Clamps the value to a specified range.
      * @param val The current value to be clamped.
      * @param limit The limit range for the value.
@@ -325,13 +312,14 @@ export class ColorEffect2D extends PostProcess2DEffect {
         return Math.min(limit, Math.max(-limit, val));
     }
 
+    /** @ignore */
     render(context: PostProcessRenderContext2D): void {
         if (!this._destRT || this._destRT.width != context.indirectTarget.width || context.indirectTarget.height != this._destRT.height) {
             if (this._destRT)
                 this._destRT.destroy();
             this._destRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
         }
-        this.mat.setTexture("u_MainTex", context.indirectTarget);
+        this._mat.setTexture("u_MainTex", context.indirectTarget);
         context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
         context.destination = this._destRT;
@@ -342,14 +330,28 @@ export class ColorEffect2D extends PostProcess2DEffect {
      * @zh 反序列化后调用。
      */
     onAfterDeserialize() {
-        let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
-        this.color(arr[0], arr[1], arr[2], arr[3]);
-        this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
+        if (SerializeUtil.hasProp("_color")) {
+            let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
+            this.color(arr[0], arr[1], arr[2], arr[3]);
+        }
+        if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
+            this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
     }
 
+    /** @ignore */
     destroy() {
         this._destRT && (this._destRT.destroy());
-        this.mat && (this.mat.destroy());
+        this._mat && (this._mat.destroy());
         this._renderElement && (this._renderElement.destroy());
     }
 }
+
+ClassUtils.regClass("ColorEffect2D", ColorEffect2D);
+
+export class GrayscaleEffect2D extends ColorEffect2D {
+    constructor() {
+        super(GRAY_MATRIX);
+    }
+}
+
+ClassUtils.regClass("GrayscaleEffect2D", GrayscaleEffect2D);

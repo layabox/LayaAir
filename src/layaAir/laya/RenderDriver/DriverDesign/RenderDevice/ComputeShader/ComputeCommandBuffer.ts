@@ -23,8 +23,18 @@ export class ComputeCommandBuffer {
     }
 
     /**
-     * 添加运行ComputeShader的命令
-     * @param cmd 计算着色器调度命令
+     * @en Adds a command to run a ComputeShader.
+     * @param computeshader The ComputeShader instance to run.
+     * @param kernel The name of the kernel in the ComputeShader.
+     * @param shaderDefine The shader define data.
+     * @param datas The list of ShaderData to pass to the shader.
+     * @param dispatchParams The dispatch parameters, typically a Vector3 representing the workgroup size
+     * @zh 添加运行ComputeShader的命令
+     * @param computeshader 计算着色器实例
+     * @param kernel 计算着色器的内核名称
+     * @param shaderDefine 着色器定义数据
+     * @param datas 需要传递给着色器的数据列表
+     * @param dispatchParams 调度参数，通常是一个Vector3，表示计算的工作组大小。
      */
     addDispatchCommand(computeshader: ComputeShader, kernel: string, shaderDefine: IDefineDatas, datas: ShaderData[], dispatchParams: Vector3): void {
         let cmd: IComputeCMD_Dispatch = {
@@ -39,7 +49,8 @@ export class ComputeCommandBuffer {
     /**
      * 添加修改ShaderData值的命令
      * @param shaderData 要修改的ShaderData
-     * @param propertyName 属性名称
+     * @param propertyID 属性名称
+     * @param shaderDataType ShaderData的类型
      * @param value 要设置的值
      */
     addSetShaderDataCommand(shaderData: ShaderData, propertyID: number, shaderDataType: ShaderDataType, value: ShaderDataItem): void {
@@ -82,7 +93,7 @@ export class ComputeCommandBuffer {
     /**
      * 添加Texture拷贝到Buffer的命令
      * @param srcTextureInfo 源纹理信息
-     * @param dest 目标缓冲区
+     * @param rc 目标缓冲区
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */

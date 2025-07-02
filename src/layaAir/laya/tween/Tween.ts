@@ -560,7 +560,7 @@ export class Tween {
 
     /**
      * @en Set a custom complete callback for the current task. The complete callback is executed when the task finishes.
-     * Note that if there are parallel tasks, the complete callback will only be called when all tasks are finished.
+     * Note that if there are parallel tasks, the complete callback will be called when the current task ends, not when all parallel tasks end.
      * If the task is killed before it ends, and the parameter complete is false, the complete callback will not be called.
      * @param callback The complete callback.
      * @param callbackThis The complete callback execution context.
@@ -577,6 +577,21 @@ export class Tween {
         cur.onComplete = callback;
         cur.onCompleteCaller = callbackThis;
         return this;
+    }
+
+    /**
+     * @en Wait for the completion of the current task. 
+     * Note that if there are parallel tasks, the Promise will resolve when the current task ends, not when all parallel tasks end.
+     * @zh 等待当前任务完成。
+     * 注意，如果有并行任务，Promise 将在当前任务结束时解析，而不是所有并行任务结束时。 
+     */
+    waitForCompletion(): Promise<void> {
+        return new Promise((resolve) => {
+            let cur = this.cur(false);
+            if (!cur.onCompleteResolvers)
+                cur.onCompleteResolvers = [];
+            cur.onCompleteResolvers.push(resolve);
+        });
     }
 
     /**

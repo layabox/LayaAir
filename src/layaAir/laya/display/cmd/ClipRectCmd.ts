@@ -2,6 +2,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "ClipRectCmd";
+
 /**
  * @en Clip command
  * @zh 裁剪命令
@@ -12,7 +14,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @en Identifier for the ClipRectCmd
      * @zh 裁剪命令的标识符
      */
-    static readonly ID: string = "ClipRect";
+    static readonly ID: string = className;
     /**
      * @en X-axis offset.
      * @zh X 轴偏移量。
@@ -49,7 +51,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @returns 一个已用给定参数初始化的 ClipRectCmd 实例。
      */
     static create(x: number, y: number, width: number, height: number): ClipRectCmd {
-        var cmd: ClipRectCmd = Pool.getItemByClass("ClipRectCmd", ClipRectCmd);
+        var cmd: ClipRectCmd = Pool.getItemByClass(className, ClipRectCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -62,8 +64,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池。
      */
     recover(): void {
-
-        Pool.recover("ClipRectCmd", this);
+        Pool.recover(className, this);
     }
 
     /**

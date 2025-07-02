@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawTexturesCmd";
+
 /**
  * @en Draw multiple textures based on coordinate sets
  * @zh 根据坐标集合绘制多个贴图
@@ -13,7 +15,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTexturesCmd
      * @zh 根据坐标集合绘制多个贴图命令的标识符
      */
-    static readonly ID: string = "DrawTextures";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -45,7 +47,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
      * @returns DrawTexturesCmd实例
      */
     static create(texture: Texture, pos: number[], colors: number[]): DrawTexturesCmd {
-        var cmd: DrawTexturesCmd = Pool.getItemByClass("DrawTexturesCmd", DrawTexturesCmd);
+        var cmd: DrawTexturesCmd = Pool.getItemByClass(className, DrawTexturesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.pos = pos;
@@ -61,7 +63,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
         this.texture._removeReference();
         this.texture = null;
         this.pos = null;
-        Pool.recover("DrawTexturesCmd", this);
+        Pool.recover(className, this);
     }
 
     /**

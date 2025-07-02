@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
+import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
 import { SpriteConst, TransformKind } from "./SpriteConst";
 
@@ -292,7 +293,7 @@ export class SpriteGlobalTransform {
     private _cachePos() {
         if (this._getFlag(TransformKind.Matrix | TransformKind.Pos)) {
             this._setFlag(TransformKind.Pos, false);
-            let p = this.getMatrix().transformPoint(tmpPoint.setTo(this._sp.pivotX, this._sp.pivotY));
+            let p = this.getMatrix().transformPoint(tmpPoint.setTo(0, 0));
             this._x = p.x;
             this._y = p.y;
         }
@@ -343,9 +344,13 @@ export class SpriteGlobalTransform {
         }
     }
 
-    private _notifyRenderSpriteTransChange() {
+    /**
+     * @internal
+     */
+    _notifyRenderSpriteTransChange() {
         if ((this._sp._renderType & SpriteConst.UPDATETRANS)) {
             ILaya.stage._tranMatrixUpdateList.add(this._sp);
+            this._modifiedFrame = Stat.loopCount;
         }
     }
 

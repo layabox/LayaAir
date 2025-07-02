@@ -1,10 +1,14 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { Texture } from "../../resource/Texture"
+import { genSliceMesh } from "../mesh/MeshFactory";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
+import { VertexStream } from "../../utils/VertexStream";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "Draw9GridTextureCmd";
 
 /**
  * @en Draw a texture with nine-grid information
@@ -15,7 +19,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @en Identifier for the Draw9GridTextureCmd
      * @zh 绘制带九宫格信息的图片命令的标识符
      */
-    static readonly ID: string = "Draw9GridTexture";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn
@@ -68,11 +72,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     percent: boolean = true;
 
     /**
-     * @inheritdoc
-     */
-    lock: boolean;
-
-    /**
      * @en Creates or retrieves a Draw9GridTextureCmd instance from the object pool and initializes it with the specified parameters.
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -95,7 +94,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @returns 一个已用给定参数初始化的 Draw9GridTextureCmd 实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent?: boolean, color?: string): Draw9GridTextureCmd {
-        let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
+        let cmd: Draw9GridTextureCmd = Pool.getItemByClass(className, Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
@@ -115,7 +114,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     recover(): void {
         this.texture?._removeReference();
         this.texture = null;
-        Pool.recover("Draw9GridTextureCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -131,13 +130,37 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     run(runner: GraphicsRunner, gx: number, gy: number): void {
         if (this.texture) {
             let sizeGrid = this.sizeGrid || this.texture._sizeGrid || EMPTY_SIZE_GRID;
+            let x = this.x;
+            let y = this.y;
+
+            let w = this.width;
+            let h = this.height;
+
             if (this.percent && runner.sprite) {
-                let w = runner.sprite.width;
-                let h = runner.sprite.height;
-                runner.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, sizeGrid, gx, gy, this.color);
+                x *= runner.sprite.width;
+                y *= runner.sprite.height;
+                w *= runner.sprite.width;
+                h *= runner.sprite.height;
             }
-            else
-                runner.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, sizeGrid, gx, gy, this.color);
+
+            let vb = VertexStream.pool.take(this.texture);
+            vb.contentRect.setTo(0, 0, w, h);
+            if (this.color)
+                vb.color.setABGR(this.color);
+
+            let gridRect = Rectangle.create();
+            let sourceWidth = vb.mainTex.sourceWidth;
+            let sourceHeight = vb.mainTex.sourceHeight;
+            gridRect.setTo(sizeGrid[3], sizeGrid[0],
+                sourceWidth - sizeGrid[1] - sizeGrid[3],
+                sourceHeight - sizeGrid[0] - sizeGrid[2]);
+
+            genSliceMesh(vb, vb.contentRect, vb.uvRect, gridRect, sizeGrid[4] === 1 ? 0xff : 0);
+
+            runner.drawTriangles(this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                null, 1, null, null, vb.getColors(), this.texture.uvrect);
+
+            VertexStream.pool.recover(vb);
         }
     }
 
@@ -162,4 +185,4 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 }
 
 const EMPTY_SIZE_GRID = [0, 0, 0, 0, 0];
-ClassUtils.regClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
+ClassUtils.regClass(className, Draw9GridTextureCmd);

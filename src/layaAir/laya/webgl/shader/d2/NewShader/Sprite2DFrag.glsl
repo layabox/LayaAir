@@ -51,10 +51,6 @@ varying vec2 v_cliped;
     //uniform
     uniform sampler2D u_spriteTexture;
 
-    #ifdef COLOR_ADD
-        uniform vec4 u_colorAdd;
-    #endif
-
     #ifdef FILLTEXTURE
         uniform vec4 u_TexRange; // startu,startv,urange, vrange
     #endif
@@ -69,31 +65,31 @@ varying vec2 v_cliped;
     }
 
     void setglColor(in vec4 color){
-        if (v_useTex <= 0.)
-            color = vec4(1., 1., 1., 1.);
-        else if (v_useClip > 0.){
-            vec4 clampedRange = v_customs;
-            clampedRange.xy = max(v_customs.xy, vec2(0.0, 0.0));
-            clampedRange.zw = min(v_customs.xy+v_customs.zw, vec2(1.0, 1.0));
-            vec2 inRange = step(clampedRange.xy, v_texcoordAlpha.xy) * step(v_texcoordAlpha.xy, clampedRange.zw);
-            float useTexture = inRange.x * inRange.y;
-            if (useTexture <= 0.)
-                discard;
-        }
+        float useTex = step( 1.0 , v_useTex);
+        color = mix(vec4(1., 1., 1., 1.), color, useTex);
+        
+        vec4 clampedRange = v_customs;
+        clampedRange.xy = max(v_customs.xy, vec2(0.0, 0.0));
+        clampedRange.zw = min(v_customs.xy + v_customs.zw, vec2(1.0, 1.0));
+        
+        // 计算是否在裁剪范围内
+        vec2 inRange = step(clampedRange.xy, v_texcoordAlpha.xy) * step(v_texcoordAlpha.xy, clampedRange.zw);
+        float useTexture = inRange.x * inRange.y;
+        
+        float useClip = step( 1.0 , v_useClip);
+        
+        float clipAlpha = mix(1.0, useTexture, useClip);
+        
+        color *= clipAlpha;
 
         color.a *= v_color.w;
-        // color.rgb*=v_color.w;
+        
         vec4 transColor = v_color;
         #ifndef GAMMASPACE
             transColor = gammaToLinear(v_color);
         #endif
         color.rgb *= transColor.rgb;
         gl_FragColor = color;
-
-        #ifdef COLOR_ADD
-            gl_FragColor = vec4(u_colorAdd.rgb, u_colorAdd.a * gl_FragColor.a);
-            gl_FragColor.xyz *= u_colorAdd.a;
-        #endif
     }
 #endif
 
@@ -101,7 +97,6 @@ varying vec2 v_cliped;
     varying vec2 v_texcoord;
     varying vec4 v_color;
     uniform sampler2D u_baseRender2DTexture;
-    uniform vec4 u_baseRender2DTextureRange;
     uniform vec4 u_baseRenderColor;
 
 #ifdef LIGHT2D_ENABLE

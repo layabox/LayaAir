@@ -47,7 +47,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     protected _initDefaultRenderData(): void {
         this.color = new Color();
-        this.textureRange = new Vector4(0, 0, 1, 1);
         this.texture = null;
     }
 
@@ -112,30 +111,6 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get texture(): BaseTexture {
         return this._renderHandle.baseTexture;
-    }
-
-    /**
-     * @en Texture range，if textureRangeIsClip is false, xy represents texture offset, zw represents scaling, if textureRangeIsClip is true, xy represents texture min, zw represents texture max
-     * @zh 纹理范围，如果textureRangeIsClip为false，xy表示纹理偏移，zw表示缩放，如果textureRangeIsClip为true，xy表示纹理最小值，zw表示纹理最大值
-     */
-    set textureRange(value: Vector4) {
-        this._renderHandle.baseTextureRange = value;
-    }
-
-    get textureRange(): Vector4 {
-        return this._renderHandle.baseTextureRange;
-    }
-
-    /**
-     * @en If textureRangeIsClip is true, the texture will be clipped to the textureRange, otherwise the texture will be stretched to the textureRange
-     * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
-     */
-    set textureRangeIsClip(value: boolean) {
-        this._renderHandle.textureRangeIsClip = value;
-    }
-
-    get textureRangeIsClip(): boolean {
-        return this._renderHandle.textureRangeIsClip;
     }
 
     /**

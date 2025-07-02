@@ -1,5 +1,4 @@
 import { ILaya } from "../../../ILaya";
-import { NodeFlags } from "../../Const";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
@@ -10,6 +9,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import type { Area2D } from "../Area2D";
 import { Sprite } from "../Sprite";
+import { SpriteConst } from "../SpriteConst";
 
 export class Camera2D extends Sprite {
     /**@internal */
@@ -103,7 +103,7 @@ export class Camera2D extends Sprite {
         let ele = this as any;
         while (ele) {
             if (ele === this._scene || ele === ILaya.stage) break;
-            if (ele._getBit(NodeFlags.AREA_2D)) {
+            if ((ele._renderType & SpriteConst.AREA2D) !== 0) {
                 this._ownerArea = ele;
                 if (this._isMain && !(<Area2D>this._ownerArea).mainCamera)
                     (<Area2D>this._ownerArea)._setMainCamera(this);

@@ -1,3 +1,4 @@
+import { SubPassFlag } from "../Const";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -7,23 +8,18 @@ import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
+import { SpriteConst } from "./SpriteConst";
 
 /**
  * @en Post-process effects for 2D rendering.
  * @zh 2D 渲染的后期处理效果。
  */
 export class PostProcess2D extends EventDispatcher {
-   static readonly POSTRENDERCHANGE: string = "post_render_change";//渲染改动
-   static readonly POSTCMDCHANGE: string = "post_cmd_change";
 
-   /**@internal */
-   _effects: PostProcess2DEffect[] = [];
-   /**@internal */
-   _enabled: boolean = true;
+   private _effects: PostProcess2DEffect[] = [];
+   private _enabled: boolean = true;
    /**@internal */
    _context: PostProcessRenderContext2D;
-   /**@internal */
-   private _compositeShaderData: ShaderData;
 
    /**@internal */
    static init() {
@@ -37,13 +33,17 @@ export class PostProcess2D extends EventDispatcher {
    }
 
    set enabled(value: boolean) {
-      this._enabled = value;
+      if (this._enabled != value) {
+         this._enabled = value;
+         this._context.command.clear(true);
+         this._onChangeRender();
+      }
    }
 
    constructor() {
       super();
       this._context = { deferredReleaseTextures: [], OriOffset: new Vector2() } as PostProcessRenderContext2D;
-      this._context.compositeShaderData = this._compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+      this._context.compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
       this._context.command = new CommandBuffer2D();
    }
 
@@ -52,26 +52,34 @@ export class PostProcess2D extends EventDispatcher {
     * @en The owner of the post-processing effect.
     * @zh 后期处理效果的拥有者。
     */
-   public get owner(): Sprite {
+   get owner(): Sprite {
       return this._owner;
    }
-   public set owner(value: Sprite) {
+   set owner(value: Sprite) {
       if (this._owner) {
-         this._owner.off(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+         this._owner._renderType &= ~SpriteConst.POSTPROCESS;
       }
       this._owner = value;
       if (this._owner) {
-         this._owner.on(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+         if (this._effects.length > 0)
+            this._owner._renderType |= SpriteConst.POSTPROCESS;
       }
    }
 
+   /**
+    * @en Refresh render
+    * @zh 刷新渲染
+    */
    _onChangeRender() {
-      //this.event(PostProcess2D.POSTRENDERCHANGE);//TODO
-      this.event(PostProcess2D.POSTCMDCHANGE);//TODO
-   }
-
-   _onChangeRenderCmd() {
-      this.event(PostProcess2D.POSTCMDCHANGE);
+      // this.event(PostProcess2D.POSTRENDERCHANGE);
+      if (this._owner) {
+         if (this._effects.length === 0 || !this._enabled)
+            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         else
+            this._owner._renderType |= SpriteConst.POSTPROCESS;
+         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+         this._owner.repaint();
+      }
    }
 
    /**
@@ -83,14 +91,7 @@ export class PostProcess2D extends EventDispatcher {
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
    getEffect<T extends PostProcess2DEffect>(classReg: new () => T): T {
-      let size: number = this._effects.length;
-      for (let i = 0; i < size; i++) {
-         let element = this._effects[i];
-         if (element instanceof classReg) {
-            return element;
-         }
-      }
-      return null
+      return this._effects.find(effect => effect instanceof classReg) as T || null;
    }
 
    setResource(value: RenderTexture2D) {
@@ -110,11 +111,13 @@ export class PostProcess2D extends EventDispatcher {
    }
 
    set effects(value: PostProcess2DEffect[]) {
-      this.clear();
-      for (var i = 0, n = value.length; i < n; i++) {
+      this._effects.filter(e => !value.includes(e)).forEach(effect => effect.destroy());
+      this._effects.length = 0;
+      for (let i = 0, n = value.length; i < n; i++) {
          if (value[i])
             this.addEffect(value[i]);
       }
+      this._onChangeRender();
    }
 
    /**
@@ -123,13 +126,16 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 添加一个后期处理效果。
     * @param effect 要添加的后期处理效果。
     */
-   addEffect(effect: PostProcess2DEffect) {
+   addEffect<T extends PostProcess2DEffect>(effect: T): T | null {
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
          console.error("the target effect is a singleton", effect);
-         return;
+         return null;
       }
       this._effects.push(effect);
       effect.effectInit(this);
+      this._onChangeRender();
+
+      return effect;
    }
 
    /**
@@ -139,9 +145,12 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要移除的后期处理效果。
     */
    removeEffect(effect: PostProcess2DEffect) {
+      effect.destroy();
+
       let index = this._effects.indexOf(effect);
-      if (index != -1) {
+      if (index !== -1) {
          this._effects.splice(index, 1);
+         this._onChangeRender();
       }
    }
 
@@ -152,6 +161,7 @@ export class PostProcess2D extends EventDispatcher {
    _render(): void {
       this._context.command.clear(true);
       this._context.indirectTarget = this._context.source;
+      this._context.destination = this._context.source;
       for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
          let effect = this._effects[i];
          if (effect.active) {
@@ -167,6 +177,7 @@ export class PostProcess2D extends EventDispatcher {
     */
    clear() {
       this._effects.length = 0;
+      this._onChangeRender();
    }
 
    /**

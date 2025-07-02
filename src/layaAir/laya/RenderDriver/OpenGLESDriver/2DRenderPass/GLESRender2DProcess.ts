@@ -7,7 +7,7 @@ import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, I
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
-import { RTPrimitiveDataHandle, RTRender2DDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
+import { RTBaseRenderDataHandle, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle, RTSpineRenderDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
@@ -34,17 +34,16 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
         return new RTGlobalRenderData();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return null
+        return new RTSpineRenderDataHandle();
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return new RTPrimitiveDataHandle();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        //return new RTRender2DBaseRenderDataHandle();
-        return null
+        return new RTBaseRenderDataHandle();
     }
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        return null
+        return new RTMesh2DRenderDataHandle();
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new GLESSetRenderData();

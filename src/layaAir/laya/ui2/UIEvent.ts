@@ -43,12 +43,6 @@ export enum UIEvent {
     ClickItem = "click_item",
 
     /**
-     * @en 'submit' is emitted when the user presses the enter key in the input box.
-     * @zh 'submit' 事件在用户在输入框按下回车键时被触发。
-     */
-    Submit = "submit",
-
-    /**
      * @en 'popup' is emitted when a popup menu or a drop-down list is displayed
      * @zh 'popup' 事件在显示弹出菜单或下拉列表时被触发
      */

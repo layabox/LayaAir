@@ -35,7 +35,7 @@ export class Matrix {
      * @en Extracts the transformation information from the matrix, including the skew in the X and Y directions.
      * @param matrix The matrix from which to extract the transformation information.
      * @returns An object containing the transformation information.
-     * @cn 从 Matrix.abcd txty 提取变换信息，包括X和Y方向的倾斜
+     * @zh 从 Matrix.abcd txty 提取变换信息，包括X和Y方向的倾斜
      * @param matrix 需要提取的矩阵
      * @returns 返回一个包含变换信息的对象
      */

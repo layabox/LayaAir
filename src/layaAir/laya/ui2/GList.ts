@@ -12,19 +12,30 @@ import { LayaEnv } from "../../LayaEnv";
 import { HideFlags } from "../Const";
 
 /**
+ * @en GList is a widget that displays a list of items, allowing for item rendering and selection.
+ * @zh GList 是一个显示项目列表的小部件，允许进行项目渲染和选择。
  * @blueprintInheritable
  */
 export class GList extends GPanel {
-    public itemRenderer: (index: number, item: any) => void;
-    public itemProvider: (index: number) => string;
+    /**
+     * @en The function used to render each item in the list.
+     * @zh 用于渲染列表中每个项目的函数。
+     */
+    itemRenderer: (index: number, item: any) => void;
+    /**
+     * @en The function used to provide the template resource for each item in the list.
+     * @zh 用于提供列表中每个项目的模板资源的函数。
+     */
+    itemProvider: (index: number) => string;
 
-    declare _layout: IListLayout;
+    declare protected _layout: IListLayout;
 
     private _pool: WidgetPool;
     private _initItemNum: number;
     private _itemData: Array<IListItemData>;
     private _isDemo: boolean;
 
+    /** @internal */
     _templateNode: GWidget;
 
     constructor() {
@@ -36,57 +47,109 @@ export class GList extends GPanel {
         this._pool = new WidgetPool();
     }
 
-    public destroy(): void {
+    /** @ignore */
+    destroy(): void {
         this._pool.clear();
 
         super.destroy();
     }
 
-    public get layout(): IListLayout {
+    /** @ignore */
+    get layout(): IListLayout {
         return <IListLayout>this._layout;
     }
 
-    public get itemTemplate(): Prefab {
+    /**
+     * @en The template resource used for items in the list.
+     * @zh 列表中项目使用的模板资源。
+     */
+    get itemTemplate(): Prefab {
         return this._pool.defaultRes;
     }
 
-    public set itemTemplate(value: Prefab) {
+    set itemTemplate(value: Prefab) {
         this._pool.defaultRes = value;
     }
 
-    public get itemPool(): WidgetPool {
+    /**
+     * @en Built-in object pool functionality for GList.
+     * @zh GList内建对象池功能。
+     */
+    get itemPool(): WidgetPool {
         return this._pool;
     }
 
-    public getFromPool(url?: string): GWidget {
-        let obj = this._pool.getObject(url);
+    /**
+     * @zh 从对象池中取出一个子项对象。
+     * @param url 资源地址，如果不传则使用默认的对象池资源。
+     * @return 返回一个 GWidget 对象。
+     * @en Get a child object from the pool.
+     * @param url The resource URL, if not provided, the default pool resource will be used.
+     * @returns A GWidget object. 
+     */
+    getFromPool(url?: string): GWidget {
+        let obj = this._pool.take(url);
         if (obj)
             obj.visible = true;
         return obj;
     }
 
-    public returnToPool(obj: GWidget): void {
-        this._pool.returnObject(obj);
+    /**
+     * @en Return an object to the pool.
+     * @param obj The GWidget object to return.
+     * @zh 将一个对象返回到对象池中。
+     * @param obj 要返回的 GWidget 对象。
+     */
+    returnToPool(obj: GWidget): void {
+        this._pool.recover(obj);
     }
 
-    public addItemFromPool(url?: string): GWidget {
+    /**
+     * @en Add an item from the pool to the list.
+     * @param url The resource URL of the item to add. If not provided, the default pool resource will be used. 
+     * @returns A GWidget object that has been added to the list.
+     * @zh 从对象池中添加一个项目到列表中。
+     * @param url 项目的资源地址，如果不传则使用默认的对象池资源。
+     * @returns 返回一个已添加到列表中的 GWidget 对象。 
+     */
+    addItemFromPool(url?: string): GWidget {
         let child = this.getFromPool(url);
         if (child instanceof GButton)
             child.selected = false;
         return this.addChild(child);
     }
 
-    public removeChildToPoolAt(index: number): void {
+    /**
+     * @en Remove a child at the specified index and return it to the pool.
+     * @param index The index of the child to remove.
+     * @zh 移除指定索引处的子项并将其返回到对象池。
+     * @param index 要移除的子项的索引。 
+     */
+    removeChildToPoolAt(index: number): void {
         let child = <GWidget>this.removeChildAt(index);
         this.returnToPool(child);
     }
 
-    public removeChildToPool(child: GWidget): void {
+    /**
+     * @en Remove a specific child from the list and return it to the pool.
+     * @param child The child widget to remove.
+     * @zh 从列表中移除特定的子项并将其返回到对象池。
+     * @param child 要移除的子项小部件。
+     */
+    removeChildToPool(child: GWidget): void {
         this.removeChild(child);
         this.returnToPool(child);
     }
 
-    public removeChildrenToPool(beginIndex?: number, endIndex?: number): void {
+    /**
+     * @en Remove a range of children from the list and return them to the pool.
+     * @param beginIndex The starting index of the range to remove. Defaults to 0. 
+     * @param endIndex The ending index of the range to remove. If not provided, it will remove all children from the beginning index to the end of the list.
+     * @zh 从列表中移除一系列子项并将它们返回到对象池。
+     * @param beginIndex 要移除的范围的起始索引。
+     * @param endIndex 要移除的范围的结束索引。如果未提供，将从起始索引移除到列表末尾的所有子项。 
+     */
+    removeChildrenToPool(beginIndex?: number, endIndex?: number): void {
         beginIndex = beginIndex || 0;
         if (endIndex == null) endIndex = -1;
         if (endIndex < 0 || endIndex >= this.children.length)
@@ -96,38 +159,75 @@ export class GList extends GPanel {
             this.removeChildToPoolAt(beginIndex);
     }
 
-    public get numItems(): number {
+    /**
+     * @en The number of items in the list. If the list not virtual, this is the number of children, else it is the number of items in the data source.
+     * @zh 列表中的项目数量。如果列表不是虚拟的，则为子项的数量，否则为数据源中的项目数量。
+     */
+    get numItems(): number {
         return this._layout.numItems;
     }
 
-    public set numItems(value: number) {
+    set numItems(value: number) {
         this._layout.numItems = value;
     }
 
-    public resizeToFit(itemCount?: number, minSize?: number): void {
+    /**
+     * @en Resize the list to fit the number of items and minimum size.
+     * @param itemCount The number of items to fit in the list. If not provided, it will use the current number of items.
+     * @param minSize The minimum size of the list. If not provided, it will use the current size of the list.
+     * @zh 调整列表大小以适应项目数量和最小大小。
+     * @param itemCount 要适应列表中的项目数量。如果未提供，将使用当前的项目数量。
+     * @param minSize 列表的最小大小。如果未提供，将使用列表的当前大小。 
+     */
+    resizeToFit(itemCount?: number, minSize?: number): void {
         this._layout.resizeToFit(itemCount, minSize);
     }
 
-    public childIndexToItemIndex(index: number): number {
+    /**
+     * @en If the list is a virtual list, this function can convert the child index to the index in the data list.
+     * @param index The index of the child in the list.
+     * @returns The index of the item in the data list. 
+     * @zh 如果列表是虚拟列表，这个函数可以将孩子索引转换到数据列表中的索引。
+     * @param index 列表中子项的索引。
+     * @returns 数据列表中项目的索引。
+     */
+    childIndexToItemIndex(index: number): number {
         return this._layout.childIndexToItemIndex(index);
     }
 
-    public itemIndexToChildIndex(index: number): number {
+    /**
+     * @en If the list is a virtual list, this function can convert the item index in the data list to the child index.
+     * @param index The index of the item in the data list. 
+     * @returns The index of the child in the list.
+     * @zh 如果列表是虚拟列表，这个函数可以将数据列表中的项目索引转换为子项索引。
+     * @param index 数据列表中项目的索引。
+     * @returns 列表中子项的索引。 
+     */
+    itemIndexToChildIndex(index: number): number {
         return this._layout.itemIndexToChildIndex(index);
     }
 
-    public refreshVirtualList(): void {
+    /**
+     * @en Refresh the virtual list.
+     * @zh 刷新虚拟列表。
+     */
+    refreshVirtualList(): void {
         this._layout.refreshVirtualList();
     }
 
-    public setVirtual(): void {
+    /**
+     * @en Set the list to be a virtual list.
+     * @zh 设置列表为虚拟列表。
+     */
+    setVirtual(): void {
         this._setVirtual(false);
     }
 
     /**
-     * Set the list to be virtual list, and has loop behavior.
+     * @en Set the list to be virtual list, and has loop behavior.
+     * @zh 设置列表为虚拟列表，并具有循环行为。
      */
-    public setVirtualAndLoop(): void {
+    setVirtualAndLoop(): void {
         this._setVirtual(true);
     }
 
@@ -147,7 +247,8 @@ export class GList extends GPanel {
         this._layout._setVirtual(loop);
     }
 
-    public onAfterDeserialize(): void {
+    /** @ignore */
+    onAfterDeserialize(): void {
         super.onAfterDeserialize();
 
         if (SerializeUtil.hasProp("_initItemNum", "_itemData") && (LayaEnv.isPreview || !this._isDemo))

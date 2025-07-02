@@ -7,6 +7,8 @@ import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "FillTextureCmd";
+
 /**
  * @en Fill texture command
  * @zh 填充贴图命令
@@ -16,7 +18,7 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @en Identifier for the FillTextureCmd
      * @zh 填充贴图命令的标识符
      */
-    static readonly ID: string = "FillTexture";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be filled.
@@ -92,7 +94,7 @@ export class FillTextureCmd implements IGraphicsCmd {
         if (width == null) width = texture.width;
         if (height == null) height = texture.height;
 
-        var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
+        var cmd: FillTextureCmd = Pool.getItemByClass(className, FillTextureCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
@@ -114,7 +116,7 @@ export class FillTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.offset = null;
-        Pool.recover("FillTextureCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -160,4 +162,4 @@ export class FillTextureCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("FillTextureCmd", FillTextureCmd);
+ClassUtils.regClass(className, FillTextureCmd);

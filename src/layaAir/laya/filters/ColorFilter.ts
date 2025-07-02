@@ -1,7 +1,7 @@
 import { Filter } from "./Filter";
-import { ColorUtils } from "../../utils/ColorUtils"
-import { Matrix4x4 } from "../../maths/Matrix4x4";
-import { ColorEffect2D } from "../../display/effect2d/ColorEffect2D";
+import { ColorUtils } from "../utils/ColorUtils"
+import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
+import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * @deprecated use post2DProcess
@@ -166,3 +166,4 @@ export class ColorFilter extends Filter {
     }
 }
 
+ClassUtils.regClass("ColorFilter", ColorFilter);

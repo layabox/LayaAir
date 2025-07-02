@@ -8,6 +8,7 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { PostProcess2D, PostProcessRenderContext2D } from "../PostProcess2D";
 import { PostProcess2DEffect } from "../PostProcess2DEffect";
 import { Blit2DCMD } from "../Scene2DSpecial/RenderCMD2D/Blit2DCMD";
@@ -21,7 +22,7 @@ var _definiteIntegralMap: { [key: number]: number } = {};
 export class BlurEffect2D extends PostProcess2DEffect {
 
    private _renderElement: IRenderElement2D;
-   private mat: Material;
+   private _mat: Material;
    private _centerScale: Vector2 = new Vector2();
    private _destRT: RenderTexture2D;
    private _shaderV1 = new Vector4();
@@ -32,40 +33,42 @@ export class BlurEffect2D extends PostProcess2DEffect {
      */
    private _strength: number;
 
-   public get shaderV1() {
+   get shaderV1() {
       return this._shaderV1;
    }
 
-   public set shaderV1(value: Vector4) {
+   set shaderV1(value: Vector4) {
       if (value != this._shaderV1) {
          value.cloneTo(this._shaderV1);
       }
-      this.mat && this.mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
+      this._mat && this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
       this._owner && this._owner._onChangeRender();
    }
 
-   constructor(strength = 4) {
+   constructor(strength?: number) {
       super();
       this._shaderV1 = new Vector4();
-      this.strength = strength;
+      this.strength = strength ?? 4;
    }
 
+   /** @ignore */
    effectInit(postprocess: PostProcess2D): void {
       this._owner = postprocess;
-      (!this.mat) && (this.mat = new Material());
-      this.mat.setShaderName("BlurEffect2D");
+      (!this._mat) && (this._mat = new Material());
+      this._mat.setShaderName("BlurEffect2D");
       if (!this._renderElement) {
          this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
          this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
          this._renderElement.nodeCommonMap = null;
          this._renderElement.renderStateIsBySprite = false;
-         this._renderElement.materialShaderData = this.mat.shaderData;
-         this._renderElement.subShader = this.mat.shader.getSubShaderAt(0);
+         this._renderElement.materialShaderData = this._mat.shaderData;
+         this._renderElement.subShader = this._mat.shader.getSubShaderAt(0);
       }
-      this.mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
-      this.mat.setVector2("u_centerScale", this._centerScale);
+      this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
+      this._mat.setVector2("u_centerScale", this._centerScale);
    }
 
+   /** @ignore */
    render(context: PostProcessRenderContext2D): void {
       let marginLeft = 50;
       let marginTop = 50;
@@ -80,9 +83,9 @@ export class BlurEffect2D extends PostProcess2DEffect {
          this._destRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
       }
       this._centerScale.setValue(width / texwidth, height / texheight);
-      this.mat.setVector2("u_centerScale", this._centerScale);
-      this.mat.setVector2("u_blurInfo", this._blurInfo);
-      this.mat.setTexture("u_MainTex", context.indirectTarget);
+      this._mat.setVector2("u_centerScale", this._centerScale);
+      this._mat.setVector2("u_blurInfo", this._blurInfo);
+      this._mat.setTexture("u_MainTex", context.indirectTarget);
       context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
       context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
       context.destination = this._destRT;
@@ -126,13 +129,15 @@ export class BlurEffect2D extends PostProcess2DEffect {
       this.shaderV1 = v1;
    }
 
-
+   /** @ignore */
    destroy() {
       this._destRT && this._destRT.destroy();
-      this.mat.destroy();
-      this.mat = null;
+      this._mat.destroy();
+      this._mat = null;
       this._renderElement?.destroy();
       this._renderElement = null;
    }
 
 }
+
+ClassUtils.regClass("BlurEffect2D", BlurEffect2D);

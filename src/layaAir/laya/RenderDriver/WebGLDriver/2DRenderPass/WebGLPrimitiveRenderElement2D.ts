@@ -53,23 +53,28 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-            if (this.primitiveShaderData)
+            if (this.primitiveShaderData) {
+                pass.additionShaderData = ["Sprite2DGraphics"];
                 comDef.addDefineDatas(this.primitiveShaderData.getDefineData());
+            }
 
             var shaderIns = pass.withCompile(comDef, true) as WebGLShaderInstance;
             this._shaderInstances.add(shaderIns);
         }
     }
+
+
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
         if (!shader.complete)
             return
         shader.bind();
+        this._uploadGlobalAndPass(shader, context);
+
         this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
-        let global = this.getGlobalShaderData() as WebGLShaderData;
-        global && shader.uploadUniforms(shader._sceneUniformParamsMap, global, true);
-        context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
-        this.primitiveShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.primitiveShaderData, true);
+
+        let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
+        this.primitiveShaderData && shader.uploadUniforms(encoder, this.primitiveShaderData, true);
 
         let shaderData = this.value2DShaderData;
         //blend

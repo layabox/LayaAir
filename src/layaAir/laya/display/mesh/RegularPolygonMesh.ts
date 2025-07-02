@@ -1,5 +1,6 @@
 import { Color } from "../../maths/Color";
 import { MathUtils3D } from "../../maths/MathUtils3D";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
@@ -55,7 +56,9 @@ export class RegularPolygonMesh implements IMeshFactory {
         }
         else {
             for (let i = 0; i < this.sides; i++)
-                vb.addTriangle(0, i + 1, (i == this.sides - 1) ? 1 : i + 2);
+                vb.addTriangle(0, i + 1, (i === this.sides - 1) ? 1 : i + 2);
         }
     }
 }
+
+ClassUtils.regClass("RegularPolygonMesh", RegularPolygonMesh);

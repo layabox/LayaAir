@@ -218,10 +218,6 @@ export class TileMapLayer extends BaseRenderNode2D {
         return this._tileMapOccluder;
     }
 
-    protected _initDefaultRenderData(): void {
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-    }
-
     /**
      * @ignore
      */

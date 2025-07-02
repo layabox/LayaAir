@@ -1,3 +1,4 @@
+import { ClassUtils } from "../../utils/ClassUtils";
 import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
@@ -70,3 +71,5 @@ export class RoundedRectMesh implements IMeshFactory {
             vb.addTriangle(0, i + 1, i === cnt - 1 ? 1 : i + 2);
     }
 }
+
+ClassUtils.regClass("RoundedRectMesh", RoundedRectMesh);

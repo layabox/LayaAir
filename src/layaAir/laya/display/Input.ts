@@ -299,4 +299,13 @@ export class Input extends Text {
         this.focus = true;
         PAL.textInput.setSelection(0, -1);
     }
+
+    /** @internal @blueprintEvent */
+    Input_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.INPUT]: () => void;
+        [Event.ENTER]: () => void;
+        [Event.FOCUS]: () => void;
+        [Event.BLUR]: () => void;
+    }
 }

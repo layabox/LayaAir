@@ -340,8 +340,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     /**
      * 提交渲染指令
      * @param context 
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     _render(context: WebGPURenderContext3D, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         if (!this.isRender) {
@@ -511,9 +510,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     /**
      * 绑定资源组
+     * @param context
      * @param shaderInstance 
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     protected _bindGroup(context: WebGPURenderContext3D, info: OneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 
@@ -557,8 +556,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     /**
      * 上传几何数据
-     * @param command 
-     * @param bundle 
+     * @param command
      */
     protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;

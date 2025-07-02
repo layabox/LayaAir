@@ -4,6 +4,8 @@ import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
+const className = "DrawRectCmd";
+
 /**
  * @en Draw a rectangle
  * @zh 绘制矩形
@@ -13,7 +15,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en Identifier for the DrawRectCmd
      * @zh 绘制矩形命令的标识符
      */
-    static readonly ID: string = "DrawRect";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -80,7 +82,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @returns DrawRectCmd实例
      */
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRectCmd {
-        var cmd: DrawRectCmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
+        var cmd: DrawRectCmd = Pool.getItemByClass(className, DrawRectCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -99,7 +101,7 @@ export class DrawRectCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawRectCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -144,5 +146,5 @@ export class DrawRectCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawRectCmd", DrawRectCmd);
+ClassUtils.regClass(className, DrawRectCmd);
 
