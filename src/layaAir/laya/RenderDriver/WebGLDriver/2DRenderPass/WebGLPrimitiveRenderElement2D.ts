@@ -53,8 +53,10 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-            if (this.primitiveShaderData)
+            if (this.primitiveShaderData) {
+                pass.additionShaderData = ["Sprite2DGraphics"];
                 comDef.addDefineDatas(this.primitiveShaderData.getDefineData());
+            }
 
             var shaderIns = pass.withCompile(comDef, true) as WebGLShaderInstance;
             this._shaderInstances.add(shaderIns);
