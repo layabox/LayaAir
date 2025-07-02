@@ -15,17 +15,11 @@ import { SpriteConst } from "./SpriteConst";
  * @zh 2D 渲染的后期处理效果。
  */
 export class PostProcess2D extends EventDispatcher {
-   static readonly POSTRENDERCHANGE: string = "post_render_change";//渲染改动
-   static readonly POSTCMDCHANGE: string = "post_cmd_change";
 
-   /**@internal */
-   _effects: PostProcess2DEffect[] = [];
-   /**@internal */
-   _enabled: boolean = true;
+   private _effects: PostProcess2DEffect[] = [];
+   private _enabled: boolean = true;
    /**@internal */
    _context: PostProcessRenderContext2D;
-   /**@internal */
-   private _compositeShaderData: ShaderData;
 
    /**@internal */
    static init() {
@@ -39,13 +33,17 @@ export class PostProcess2D extends EventDispatcher {
    }
 
    set enabled(value: boolean) {
-      this._enabled = value;
+      if (this._enabled != value) {
+         this._enabled = value;
+         this._context.command.clear(true);
+         this._onChangeRender();
+      }
    }
 
    constructor() {
       super();
       this._context = { deferredReleaseTextures: [], OriOffset: new Vector2() } as PostProcessRenderContext2D;
-      this._context.compositeShaderData = this._compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+      this._context.compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
       this._context.command = new CommandBuffer2D();
    }
 
@@ -74,12 +72,14 @@ export class PostProcess2D extends EventDispatcher {
     */
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
-      this.owner.setSubpassFlag(SubPassFlag.PostProcess);
-      this.owner.repaint();
-   }
-
-   _onChangeRenderCmd() {
-      this.event(PostProcess2D.POSTCMDCHANGE);
+      if (this._owner) {
+         if (this._effects.length === 0)
+            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         else
+            this._owner._renderType |= SpriteConst.POSTPROCESS;
+         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+         this._owner.repaint();
+      }
    }
 
    /**
@@ -111,11 +111,13 @@ export class PostProcess2D extends EventDispatcher {
    }
 
    set effects(value: PostProcess2DEffect[]) {
-      this.clear();
-      for (var i = 0, n = value.length; i < n; i++) {
+      this._effects.filter(e => !value.includes(e)).forEach(effect => effect.destroy());
+      this._effects.length = 0;
+      for (let i = 0, n = value.length; i < n; i++) {
          if (value[i])
             this.addEffect(value[i]);
       }
+      this._onChangeRender();
    }
 
    /**
@@ -131,11 +133,7 @@ export class PostProcess2D extends EventDispatcher {
       }
       this._effects.push(effect);
       effect.effectInit(this);
-
-      if (this._owner) {
-         this._owner._renderType |= SpriteConst.POSTPROCESS;
-         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
-      }
+      this._onChangeRender();
 
       return effect;
    }
@@ -147,15 +145,12 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要移除的后期处理效果。
     */
    removeEffect(effect: PostProcess2DEffect) {
+      effect.destroy();
+
       let index = this._effects.indexOf(effect);
       if (index !== -1) {
          this._effects.splice(index, 1);
-
-         if (this._owner) {
-            this._owner.setSubpassFlag(SubPassFlag.PostProcess);
-            if (this._effects.length === 0)
-               this._owner._renderType &= ~SpriteConst.POSTPROCESS;
-         }
+         this._onChangeRender();
       }
    }
 
@@ -181,10 +176,7 @@ export class PostProcess2D extends EventDispatcher {
     */
    clear() {
       this._effects.length = 0;
-      if (this._owner) {
-         this._owner._renderType &= ~SpriteConst.POSTPROCESS;
-         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
-      }
+      this._onChangeRender();
    }
 
    /**

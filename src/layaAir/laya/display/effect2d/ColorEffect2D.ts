@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../layagl/LayaGL";
+import { SerializeUtil } from "../../loaders/SerializeUtil";
 import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -47,13 +48,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
     private _alpha: Vector4 = new Vector4();
     private _colorArray: Float32Array = new Float32Array(16);
     private _alphaArray: Float32Array = new Float32Array(4);
-
-    /**
-     * @internal 
-     * @en Represents the current matrix being applied by the filter.
-     * @zh 当前使用的矩阵
-     */
-    _matrix: number[];
+    private _matrix: number[];
 
     constructor(matrix?: number[]) {
         super();
@@ -335,9 +330,12 @@ export class ColorEffect2D extends PostProcess2DEffect {
      * @zh 反序列化后调用。
      */
     onAfterDeserialize() {
-        let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
-        this.color(arr[0], arr[1], arr[2], arr[3]);
-        this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
+        if (SerializeUtil.hasProp("_color")) {
+            let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
+            this.color(arr[0], arr[1], arr[2], arr[3]);
+        }
+        if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
+            this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
     }
 
     /** @ignore */
