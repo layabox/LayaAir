@@ -3,11 +3,6 @@
  uniform mat3 u_view2D;
 #endif
 
-#ifdef WORLDMAT
-    uniform mat4 u_mmat;
-    vec4 transedPos;
-#endif
-
 #ifdef RENDERTEXTURE
     uniform vec3 u_InvertMat_0;
     uniform vec3 u_InvertMat_1;
