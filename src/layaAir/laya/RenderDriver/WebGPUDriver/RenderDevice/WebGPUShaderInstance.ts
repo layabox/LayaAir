@@ -266,7 +266,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         let context = WebGPURenderContext2D._instance;
         // sprite2DGlobal
         if (context._needGlobalData()) {
-            let globalArray = ["Sprite2DGlobal"];
+            let globalArray = ["Sprite2DPass"];
             this.uniformSetMap.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, globalArray));
             this.uniformResourcesCacheKey.set(0, globalArray);
         }

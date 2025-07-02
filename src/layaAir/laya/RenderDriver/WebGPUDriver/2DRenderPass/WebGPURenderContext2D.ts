@@ -80,12 +80,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
         if (value == this._passData)
             return;
         this._passData = value;
-        if (value) {
-            let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGPUCommandUniformMap;
-            this._passUniformBuffer = this.passData.createUniformBuffer("Sprite2DGlobal", unifcom);
-        } else {
-            this._passUniformBuffer = null;
-        }
+
     }
 
     constructor() {
@@ -119,7 +114,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             cacheInfo.globalPipelineCacheKey = pipelineLayout;
             cacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._pipelineChange = cacheInfo.pipeLineChangeFlag;
-            this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo)
+            this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo);
         } else {
             this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
             if (this._curRenderCacheInfo.globalPipelineCacheKey == pipelineLayout) {
@@ -140,7 +135,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _getRenderPipeLine(): string {
         if (this.passData) {
             const engine = WebGPURenderEngine._instance;
-            let globalCommand = ["Sprite2DGlobal"];
+            let globalCommand = ["Sprite2DPass"];
             let globalResource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, globalCommand);
             let globalLayoutInfo = engine.bindGroupCache.getLayoutInfo(globalCommand, this.passData, null, globalResource, ~0);
             return `${this._destRT.stateCacheID},(${globalLayoutInfo.id})`;
@@ -154,15 +149,18 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     private _prepareContext() {
         //shaderDefine
         let comDef = this._cacheGlobalDefines;
-        if (this.passData) {
-            this.passData._defineDatas.cloneTo(comDef);
-            this._passUniformBuffer.upload();
-            let commandArray = ["Sprite2DGlobal"];
+        if (this._passData) {
+            this._passData._defineDatas.cloneTo(comDef);
+            let commandArray = ["Sprite2DPass"];
             let resource = WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, commandArray);
+            let unifcom = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DPass") as WebGPUCommandUniformMap;
+            this._passUniformBuffer = this._passData.createUniformBuffer("Sprite2DPass", unifcom);
+            this._passUniformBuffer.upload();
             this._passBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this._passData, null, resource, ~0);
         } else {
             WebGPURenderContext2D._globalConfigShaderData.cloneTo(comDef);
             this._passBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([], null, null, [], 0);
+            this._passUniformBuffer = null;
         }
         let returnGamma: boolean = !(this._destRT) || ((this._destRT)._textures[0].gammaCorrection != 1);
         if (this._destRT == WebGPURenderEngine._instance._screenRT) {
