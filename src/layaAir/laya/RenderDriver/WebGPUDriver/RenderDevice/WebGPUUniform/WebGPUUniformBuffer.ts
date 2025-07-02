@@ -6,8 +6,11 @@ export class WebGPUUniformBuffer extends WebGPUUniformBufferBase {
     lable: string;
     private _data: Float32Array;
 
+    uniformName: string;
+
     constructor(lable: string, uniformMap: Map<number, UniformProperty>) {
         super();
+        this.uniformName = lable;
         let descriptor = this.descriptor = new WebGPUUniformBufferDescriptor(lable);
         descriptor.setUniforms(uniformMap);
         let _data = this._data = new Float32Array(descriptor.byteLength);

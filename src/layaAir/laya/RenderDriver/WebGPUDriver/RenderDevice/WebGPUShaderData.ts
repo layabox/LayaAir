@@ -356,7 +356,8 @@ export class WebGPUShaderData extends ShaderData {
         }
 
         //create WebGPUSubUniform
-        let uniformBuffer = new WebGPUSubUniformBuffer(name, uniformMap, this);
+        let uniformBuffer = new WebGPUSubUniformBuffer(cacheName, uniformMap, this);
+        uniformBuffer.uniformName = name;
         if (uniformBuffer.bytelength == 0) {
             return null;
         }
@@ -954,7 +955,7 @@ export class WebGPUShaderData extends ShaderData {
         });
         this._subUniformBuffers.forEach((buffer, name) => {
 
-            let id = Shader3D.propertyNameToID(buffer.descriptor.lable);
+            let id = Shader3D.propertyNameToID(buffer.uniformName);
             this._data[id] = buffer;
 
             buffer.descriptor.uniforms.forEach((uniform, index) => {

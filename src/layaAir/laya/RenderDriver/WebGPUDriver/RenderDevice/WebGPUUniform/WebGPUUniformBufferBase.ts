@@ -196,6 +196,8 @@ export abstract class WebGPUUniformBufferBase {
 
     protected _gpuBuffer: GPUBuffer;
 
+    abstract uniformName: string;
+
     abstract getBindGroupEntry(binding: number): GPUBindGroupEntry;
 
     abstract upload(): void;
