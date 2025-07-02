@@ -8,7 +8,8 @@ import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPa
 import { ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
-export class WebSkinRenderNode extends WebBaseRenderNode.BaseRenderNodeClass implements ISkinRenderNode {
+export function WebSkinRenderNode(){//这么封装是为了避免此时WebBaseRenderNode.BaseRenderNodeClass还没有赋值
+return class extends WebBaseRenderNode.BaseRenderNodeClass implements ISkinRenderNode {
     constructor() {
         super();
         this.set_renderUpdatePreCall(this, this._renderUpdate);
@@ -100,4 +101,5 @@ export class WebSkinRenderNode extends WebBaseRenderNode.BaseRenderNodeClass imp
         this.shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
     }
 
+} as any;//这是为了不让ts报错，否则返回类的函数里的类必须全部是public的
 }

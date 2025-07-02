@@ -142,9 +142,21 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     protected _compileShader(context: WebGPURenderContext3D) {
         this.renderShaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
         super._compileShader(context);
+
         if (this._drawCacheArray.length > 0) {
             this._updateInstanceData();
+        }
+    }
+
+    _preUpdatePre(context: WebGPURenderContext3D) {
+        super._preUpdatePre(context);
+
+        this._updateInstanceData();
+
+        for (let i = 0; i < this.updateNums; i++) {
+            this._vertexBuffers[i]?.setData(this._updateData[i].buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
         }
     }
 
@@ -204,16 +216,20 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
 
     /**
      * 设置几何对象
-     * @param geometry 
+     * @param value 
      */
-    setGeometry(geometry: WebGPURenderGeometry) {
-        if (!this.geometry)
-            this.geometry = new WebGPURenderGeometry(geometry.mode, geometry.drawType);
-        geometry.cloneTo(this.geometry);
-        this.geometry.drawType = DrawType.DrawElementInstance;
-        this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, geometry, this.owner.renderNodeType, this.renderShaderData._defineDatas);
-        this.geometry.bufferState = this._instanceStateInfo.state;
-        //this.geometry.checkDataFormat = this.geometry.bufferState.isNeedChangeFormat() ? false : true;
+    setGeometry(value: WebGPURenderGeometry) {
+        let geometry = this.geometry;
+        if (!geometry) {
+            geometry = new WebGPURenderGeometry(value.mode, value.drawType);
+        }
+        value.cloneTo(geometry);
+
+        geometry.drawType = DrawType.DrawElementInstance;
+        this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, value, this.owner.renderNodeType, this.renderShaderData._defineDatas);
+        geometry.bufferState = this._instanceStateInfo.state;
+
+        this.geometry = geometry;
     }
 
     /**
@@ -239,6 +255,8 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         });
         this._updateData.length = 0;
         this._updateDataNum.length = 0;
+
+        this.renderShaderData.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
     }
 
     /**

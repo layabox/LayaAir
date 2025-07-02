@@ -190,6 +190,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
+    rtNeedClear: boolean = false;
+    
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         this._preDrawUniformMaps = new Set<string>();
@@ -355,10 +357,20 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param clearFlag 
      */
     setRenderTarget(rt: WebGPUInternalRT, clearFlag: RenderClearFlag): void {
-        this._clearFlag = clearFlag;
         if (rt !== this.destRT) {
+            this._clearFlag = clearFlag;
             this.destRT = rt;
             this._needStart = true;
+        }
+        else {
+            if (!this.rtNeedClear) {
+                this._clearFlag = clearFlag;
+            }
+            else {
+                if (clearFlag != RenderClearFlag.Nothing) {
+                    this._clearFlag |= clearFlag;
+                }
+            }
         }
     }
 
@@ -410,10 +422,35 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param stencil 
      */
     setClearData(flag: number, color: Color, depth: number, stencil: number): number {
-        this._clearFlag = flag;
-        this._clearDepth = depth;
-        this._clearStencil = stencil;
-        color.cloneTo(this._clearColor);
+
+        if (this.rtNeedClear) {
+            if (flag == RenderClearFlag.Nothing) {
+
+            }
+            else if (flag & RenderClearFlag.Color) {
+                this._clearFlag |= RenderClearFlag.Color;
+                color.cloneTo(this._clearColor);
+            }
+            else if (flag & RenderClearFlag.Depth) {
+                this._clearFlag |= RenderClearFlag.Depth;
+                this._clearDepth = depth;
+            }
+            else if (flag & RenderClearFlag.Stencil) {
+                this._clearFlag |= RenderClearFlag.Stencil;
+                this._clearStencil = stencil;
+            }
+        }
+        else {
+            this._clearFlag = flag;
+            this._clearDepth = depth;
+            this._clearStencil = stencil;
+            color.cloneTo(this._clearColor);
+        }
+
+        if (flag != RenderClearFlag.Nothing) {
+            this.rtNeedClear = true;
+        }
+
         return 0;
     }
 
@@ -444,10 +481,16 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         }
 
         let cmd = this._renderCommand;
+        cmd.setBindGroup(0, this._sceneBindGroup);
+        cmd.setBindGroup(1, this._cameraBindGroup);
+
         for (let i = 0; i < len; i++)
             elements[i]._render(this, cmd);
 
         this._submit(); //提交渲染命令
+
+        this.rtNeedClear = false;
+
         //TODO 统计
         WebGPURenderEngine._instance._framePassCount++;
         return 0;
@@ -470,8 +513,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
-        node._render(this, this._renderCommand);
+        this.renderCommand.setBindGroup(0,this._sceneBindGroup)
+        this.renderCommand.setBindGroup(1,this._cameraBindGroup)
+        node._render(this, this.renderCommand);
         this._submit();
+        this.rtNeedClear = false;
+
         //TODO 统计
         return 0;
     }

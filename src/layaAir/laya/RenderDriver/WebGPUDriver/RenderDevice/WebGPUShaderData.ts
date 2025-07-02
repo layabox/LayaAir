@@ -69,7 +69,7 @@ export class WebGPUShaderData extends ShaderData {
 
 
     /// blend cache
-    private _needUpdateBlendStateCache: boolean = false;
+    private _needUpdateBlendStateCache: boolean = true;
 
     private _blendStateCache: WebGPUBlendStateCache;
 
@@ -113,6 +113,7 @@ export class WebGPUShaderData extends ShaderData {
                 this._blendStateCache = WebGPUBlendState.getBlendState(blend, blendEquationRGB, srcRGB, dstRGB, blendEquationAlpha, srcAlpha, dstAlpha);
                 break;
             default:
+                console.warn("WebGPUShaderData: unknown blend state: " + blend);
                 break;
         }
     }
@@ -355,7 +356,7 @@ export class WebGPUShaderData extends ShaderData {
         }
 
         //create WebGPUSubUniform
-        let uniformBuffer = new WebGPUSubUniformBuffer(cacheName, uniformMap, this);
+        let uniformBuffer = new WebGPUSubUniformBuffer(name, uniformMap, this);
         if (uniformBuffer.bytelength == 0) {
             return null;
         }
@@ -913,17 +914,7 @@ export class WebGPUShaderData extends ShaderData {
         return dest;
     }
 
-    /**
-     * 清理数据
-     */
-    clearData() {
-        for (const index in this._data) {
-            if (this._data[index] instanceof Resource)
-                this._data[index]._removeReference();
-            if (this._data[index] instanceof WebGPUDeviceBuffer)
-                this._data[index]._removeCacheShaderData(this);
-        }
-
+    clearUBO() {
         this._uniformBuffersPropertyMap.clear();
 
         this._uniformBuffers.forEach(buffer => {
@@ -935,8 +926,44 @@ export class WebGPUShaderData extends ShaderData {
             buffer.destroy();
         });
         this._subUniformBuffers.clear();
+    }
+
+    /**
+     * 清理数据
+     */
+    clearData() {
+        for (const index in this._data) {
+            if (this._data[index] instanceof Resource)
+                this._data[index]._removeReference();
+            if (this._data[index] instanceof WebGPUDeviceBuffer)
+                this._data[index]._removeCacheShaderData(this);
+        }
 
         this._data = {};
+
+        this._uniformBuffers.forEach((buffer, name) => {
+            let id = Shader3D.propertyNameToID(name);
+            this._data[id] = buffer;
+
+            buffer.descriptor.uniforms.forEach((uniform, index) => {
+                uniform.view.fill(0);
+            })
+
+            buffer.needUpload = true;
+
+        });
+        this._subUniformBuffers.forEach((buffer, name) => {
+
+            let id = Shader3D.propertyNameToID(buffer.descriptor.lable);
+            this._data[id] = buffer;
+
+            buffer.descriptor.uniforms.forEach((uniform, index) => {
+                uniform.view.fill(0);
+            })
+
+            buffer.needUpload = true;
+        });
+
         this._gammaColorMap.clear();
         this.clearDefine();
         this._subUboBufferNumber = 0;
@@ -951,6 +978,8 @@ export class WebGPUShaderData extends ShaderData {
      */
     destroy() {
         this.clearData();
+
+        this.clearUBO();
 
         this._defineDatas.destroy();
 
