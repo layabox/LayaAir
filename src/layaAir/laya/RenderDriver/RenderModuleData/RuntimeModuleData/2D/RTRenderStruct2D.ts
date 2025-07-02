@@ -277,13 +277,12 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    destroy(): void {
       this._nativeObj.destroy();
 
-      this._clipRect = null;
-      this.renderElements.length = 0;
-      this.renderElements = null;
-      this.spriteShaderData = null;
-      this.parent = null;
-      this.children.length = 0;
-      this.children = null;
-      this.pass = null;
+      this._renderElements.length = 0;
+      this._renderElements = null;
+      this._spriteShaderData = null;
+      this._parent = null;
+      this._children.length = 0;
+      this._children = null;
+      this._pass = null;
    }
 }
