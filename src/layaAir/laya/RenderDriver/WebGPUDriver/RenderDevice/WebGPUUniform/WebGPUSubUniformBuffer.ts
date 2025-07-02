@@ -21,11 +21,11 @@ export class WebGPUSubUniformBuffer extends WebGPUUniformBufferBase implements I
 
     private _owner: WebGPUShaderData;
 
-    private _uniformName: string;
+    uniformName: string;
 
     constructor(lable: string, uniformMap: Map<number, UniformProperty>, owner: WebGPUShaderData) {
         super();
-        this._uniformName = lable;
+        this.uniformName = lable;
         let descriptor = this.descriptor = new WebGPUUniformBufferDescriptor(lable);
         descriptor.setUniforms(uniformMap);
         this.bytelength = descriptor.byteLength;

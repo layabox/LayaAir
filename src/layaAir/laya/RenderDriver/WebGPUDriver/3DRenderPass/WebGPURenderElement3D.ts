@@ -288,7 +288,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
         this._drawCacheArray = this._drawPassInfo.drawInfos;
 
-        this._updateMatChangeFlag();
         if (this.geometry.getStateCacheID() != this._cacheGeometryStateID) {
             this._needUpdatePipeline();
             this._cacheGeometryStateID = this.geometry.getStateCacheID();
@@ -296,6 +295,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         //shader变了或者宏变了 
         let passDefineChangeFlag = this._drawPassInfo.passDefineCacheFlag;
         if (this._materialRenderDataChange || //材质是否变化
+            !this._matDefChangeFlag ||
             compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag) ||//material宏是否变化
             (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag)) ||//sprite是否宏变化
             compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag) ||//判断场景中的宏是否变化
@@ -305,6 +305,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._drawPassInfo.geometryStateID = this._cacheGeometryStateID;
         }
 
+        this._updateMatChangeFlag();
         if (this._materialRenderDataChange) {
             let subShader = this._subShader;
             this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
