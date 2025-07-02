@@ -438,6 +438,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._renderByShaderInstance(shaders[j], context, command);
             }
         }
+        this._globalShaderData = null;
+
         return 0;
     }
 
@@ -456,7 +458,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * 销毁
      */
     destroy() {
-        this._globalShaderData = null;
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
     }

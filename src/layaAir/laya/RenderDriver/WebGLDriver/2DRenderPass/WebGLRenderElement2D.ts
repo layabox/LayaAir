@@ -89,6 +89,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
                 this.renderByShaderInstance(passes[j], context);
             }
         }
+        this._globalShaderData = null;
     }
 
     protected _uploadGlobalAndPass(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
@@ -117,7 +118,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
     destroy(): void {
         //TODO
-        this._globalShaderData = null;
     }
 
 
