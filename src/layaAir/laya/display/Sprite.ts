@@ -2307,6 +2307,8 @@ export class Sprite extends Node {
             let parent = this._struct.parent;
             // let originPass = this._struct.pass;
             this._struct.pass = this._oriRenderPass;
+            // this._subStruct.globalRenderData = this._struct.globalRenderData;
+
             if (parent) {
                 let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);
@@ -2323,6 +2325,7 @@ export class Sprite extends Node {
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
+            // this._struct.globalRenderData = this._subStruct.globalRenderData;
             if (parent) {
                 let index = parent.children.indexOf(this._subStruct);
                 parent.removeChild(this._subStruct);

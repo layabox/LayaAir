@@ -42,6 +42,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     value2DShaderData: WebGPUShaderData;
 
+    globalShaderData: WebGPUShaderData;
+
     subShader: SubShader;
     //@renderPipeline Interface TODO
     blendState: WebGPUBlendStateCache;
@@ -67,13 +69,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     }
     owner: IRenderStruct2D;
 
-    protected getGlobalShaderData(): ShaderData {
-        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
-            return this.owner.globalRenderData.globalShaderData;
-        else
-            return null;
-    }
-
     protected _getShaderInstanceDefines(context: WebGPURenderContext2D) {
         const comDef = WebGPURenderElement2D._compileDefine;
 
@@ -87,9 +82,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.materialShaderData)
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-        let global = this.getGlobalShaderData();
-        if (global) {
-            comDef.addDefineDatas(global.getDefineData());
+        if (this.globalShaderData) {
+            comDef.addDefineDatas(this.globalShaderData.getDefineData());
         }
 
         let passData = context.passData;
@@ -379,7 +373,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             let passData = context.passData;
             if (passData) {
                 let globalStr = "Sprite2DGlobal";
-                let global = this.getGlobalShaderData() as WebGPUShaderData;
+                let global = this.globalShaderData;
                 if (global) {
                     for (const [index, func] of global._updateCacheArray) {
                         let ubo = passData._uniformBuffersPropertyMap.get(index);

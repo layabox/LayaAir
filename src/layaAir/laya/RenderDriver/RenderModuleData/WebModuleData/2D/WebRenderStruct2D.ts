@@ -136,7 +136,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._renderDataHandler.owner = this;
    }
 
-   globalRenderData: WebGlobalRenderData;
+   private _globalRenderData: WebGlobalRenderData;
+
+   public get globalRenderData(): WebGlobalRenderData {
+      return this._globalRenderData;
+   }
+
+   public set globalRenderData(value: WebGlobalRenderData) {
+      if (value && value.globalShaderData && this.renderElements) {
+         this.renderElements.forEach(element => {
+            element.globalShaderData = value.globalShaderData;
+         });
+      }
+      
+      this._globalRenderData = value;
+   }
 
    private _pass: WebRender2DPass;
    private _parentPass: WebRender2DPass;
