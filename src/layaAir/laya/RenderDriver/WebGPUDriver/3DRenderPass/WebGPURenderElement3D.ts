@@ -338,8 +338,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._matBindGroupChangeFlag = flagArray[0];
             this._matBindGroupLayoutFlag = flagArray[1];
             this._matDefChangeFlag = flagArray[2];
-            let subShader = this._subShader;
-            this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
         } else {
             this._materialRenderDataChange = false;
         }
@@ -386,6 +384,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._drawPassInfo = this._passRenderInfo.get(context._curRenderGlobalKey);
         }
         this._drawCacheArray = this._drawPassInfo.drawInfos;
+
         this._updateMatChangeFlag();
 
         //shader变了或者宏变了 
@@ -397,6 +396,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         ) {
             passDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._compileShader(context);
+        }
+
+        if (this._materialRenderDataChange) {
+            let subShader = this._subShader;
+            this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
         }
 
         let cullmode = this._materialShaderData.getInt(Shader3D.CULL);
@@ -449,7 +453,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
-                context._pipelineChange ||
+                compareCahceFlag(context._curRenderCacheInfo.pipeLineChangeFlag, pipelineCache) ||
                 compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
                 this._bindGroupMap.clear();
                 this._bindGroupMap.set(0, context._sceneBindGroup);
