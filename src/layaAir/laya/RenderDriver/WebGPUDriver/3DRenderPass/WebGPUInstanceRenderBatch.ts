@@ -20,10 +20,6 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     private _updateCountMark: number = 0;
 
     //private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
-    private _lastGC=0;
-    private static GCCheckInterval = 60;
-    private static deleteDuration = 60;
-    private _cachedDatas:BatchMark[]=[];
 
     /**
      * @ignore
@@ -52,25 +48,8 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
 
         const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = []);
         let batch = data[giId] || (data[giId] = new BatchMark());
-        //缓存管理
-        let allCache = this._cachedDatas;
-        let batchUserData = batch.userCacheData;
-        if(!batchUserData){
-            batchUserData = batch.userCacheData = {
-                element:new WebGPUInstanceRenderElement3D()
-            }
-            allCache.push(batch);
-        }
-        let curFrame = RenderInfo.loopCount;
-        batchUserData.touch = curFrame;
-        if(curFrame-this._lastGC>WebGPUInstanceRenderBatch.GCCheckInterval){
-            this._lastGC = curFrame;
-            for(let i=0,n=allCache.length;i<n;i++){
-                let userData = allCache[i].userCacheData;
-                if(userData && curFrame - userData.touch>WebGPUInstanceRenderBatch.deleteDuration){
-                    allCache[i].userCacheData = null;
-                }
-            }
+        if(!batch.element){
+            batch.element = new WebGPUInstanceRenderElement3D();
         }
         return batch;
     }
@@ -111,7 +90,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                     } else {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
-                        let instanceRenderElement: IInstanceRenderElement3D = instanceMark.userCacheData.element as WebGPUInstanceRenderElement3D 
+                        let instanceRenderElement: IInstanceRenderElement3D = instanceMark.element as WebGPUInstanceRenderElement3D 
                         if(!instanceRenderElement){
                             instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D() as WebGPUInstanceRenderElement3D;
                             this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);

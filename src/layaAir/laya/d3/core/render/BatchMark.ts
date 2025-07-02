@@ -11,7 +11,7 @@ export class BatchMark {
 	/**@internal */
 	batched: boolean = false;
 
-	//element:IRenderElement3D=null;
-	userCacheData:any = null;
+	element:IRenderElement3D=null;
+	//userCacheData:any = null;
 }
 
