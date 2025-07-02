@@ -25,7 +25,7 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     }
     public set owner(value: RTRenderStruct2D) {
         this._owner = value;
-        this._nativeObj.setOwner(this._owner);
+        this._nativeObj.setOwner(this._owner._nativeObj);
     }
     public get needUseMatrix(): boolean {
         return this._nativeObj.needUseMatrix;
@@ -96,7 +96,7 @@ export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DB
             this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         }
         this._owner = value;
-        this._nativeObj.setOwner(this._owner);
+        this._nativeObj.setOwner(this._owner._nativeObj);
 
         if (this._owner) {
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
@@ -214,7 +214,7 @@ export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements I
             shaderData.removeDefine(SpineShaderInit.SPINE_COLOR);
         }
         this._owner = value;
-        this._nativeObj.setOwner(this._owner);
+        this._nativeObj.setOwner(this._owner._nativeObj);
         if (this._owner) {
             let shaderData = this._owner.spriteShaderData;
             shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);

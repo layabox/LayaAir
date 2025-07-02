@@ -2258,7 +2258,7 @@ export class Sprite extends Node {
         }
 
         if (value && value._struct) {
-            let index = value.children.indexOf(this);
+            let index = value._children.indexOf(this);
             value._struct.addChild(struct, index);
         }
     }
