@@ -1,6 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { NodeFlags, SubPassFlag } from "../Const";
-import { Filter } from "../legacy/filters/Filter";
+import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
@@ -788,16 +788,21 @@ export class Sprite extends Node {
     }
 
     set postProcess(value: PostProcess2D) {
-        if (!this._oriRenderPass) {
-            this.createSubRenderPass();
-        }
+        if (this._oriRenderPass?.postProcess) {
+            if (this._oriRenderPass.postProcess === value)
+                return;
 
-        if (this._oriRenderPass.postProcess) {
             this._oriRenderPass.postProcess.owner = null;
+            this._oriRenderPass.postProcess = null;
         }
 
-        this._oriRenderPass.postProcess = value;
-        value.owner = this;
+        if (value) {
+            if (!this._oriRenderPass) {
+                this.createSubRenderPass();
+            }
+            value.owner = this;
+            this._oriRenderPass.postProcess = value;
+        }
         this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 

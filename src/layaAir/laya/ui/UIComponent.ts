@@ -1,14 +1,11 @@
 import { Widget } from "../components/Widget";
 import { UIEvent } from "./UIEvent";
-import { UIUtils } from "./UIUtils";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
-import { SpriteConst, TransformKind } from "../display/SpriteConst";
-import { PostProcess2D } from "../display/PostProcess2D";
-import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
-import { SubPassFlag } from "../Const";
+import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
+import { TransformKind } from "../display/SpriteConst";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -47,8 +44,6 @@ export class UIComponent extends Sprite {
      * @zh 相对布局组件
      */
     protected _widget: Widget = Widget.EMPTY;
-
-    private _grayEffect: ColorEffect2D;
 
     /**
     * @en The vertical distance in pixels from the top edge of the component to the top edge of its parent.
@@ -212,14 +207,14 @@ export class UIComponent extends Sprite {
             this._gray = value;
             let postProcess = this.getPostProcess(value);
             if (value) {
-                this._grayEffect ||= new ColorEffect2D();
-                this._grayEffect.gray();
-                this._renderType |= SpriteConst.POSTPROCESS;
-                postProcess.addEffect(this._grayEffect);
+                let effect = postProcess.getEffect(GrayscaleEffect2D);
+                if (!effect)
+                    effect = postProcess.addEffect(new GrayscaleEffect2D());
             } else {
-                this._renderType &= ~SpriteConst.POSTPROCESS;
                 if (postProcess) {
-                    postProcess.removeEffect(this._grayEffect);
+                    let effect = postProcess.getEffect(GrayscaleEffect2D);
+                    if (effect)
+                        postProcess.removeEffect(effect);
                 }
             }
         }

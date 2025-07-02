@@ -8,6 +8,7 @@ import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
+import { SpriteConst } from "./SpriteConst";
 
 /**
  * @en Post-process effects for 2D rendering.
@@ -53,16 +54,17 @@ export class PostProcess2D extends EventDispatcher {
     * @en The owner of the post-processing effect.
     * @zh 后期处理效果的拥有者。
     */
-   public get owner(): Sprite {
+   get owner(): Sprite {
       return this._owner;
    }
-   public set owner(value: Sprite) {
+   set owner(value: Sprite) {
       if (this._owner) {
-         this._owner.off(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+         this._owner._renderType &= ~SpriteConst.POSTPROCESS;
       }
       this._owner = value;
       if (this._owner) {
-         this._owner.on(PostProcess2D.POSTCMDCHANGE, this, this._onChangeRender);
+         if (this._effects.length > 0)
+            this._owner._renderType |= SpriteConst.POSTPROCESS;
       }
    }
 
@@ -89,14 +91,7 @@ export class PostProcess2D extends EventDispatcher {
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
    getEffect<T extends PostProcess2DEffect>(classReg: new () => T): T {
-      let size: number = this._effects.length;
-      for (let i = 0; i < size; i++) {
-         let element = this._effects[i];
-         if (element instanceof classReg) {
-            return element;
-         }
-      }
-      return null
+      return this._effects.find(effect => effect instanceof classReg) as T || null;
    }
 
    setResource(value: RenderTexture2D) {
@@ -129,14 +124,20 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 添加一个后期处理效果。
     * @param effect 要添加的后期处理效果。
     */
-   addEffect(effect: PostProcess2DEffect) {
+   addEffect<T extends PostProcess2DEffect>(effect: T): T | null {
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
          console.error("the target effect is a singleton", effect);
-         return;
+         return null;
       }
       this._effects.push(effect);
-      this._owner.setSubpassFlag(SubPassFlag.PostProcess);
       effect.effectInit(this);
+
+      if (this._owner) {
+         this._owner._renderType |= SpriteConst.POSTPROCESS;
+         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+      }
+
+      return effect;
    }
 
    /**
@@ -149,7 +150,12 @@ export class PostProcess2D extends EventDispatcher {
       let index = this._effects.indexOf(effect);
       if (index !== -1) {
          this._effects.splice(index, 1);
-         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+
+         if (this._owner) {
+            this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+            if (this._effects.length === 0)
+               this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         }
       }
    }
 
@@ -175,6 +181,10 @@ export class PostProcess2D extends EventDispatcher {
     */
    clear() {
       this._effects.length = 0;
+      if (this._owner) {
+         this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+      }
    }
 
    /**

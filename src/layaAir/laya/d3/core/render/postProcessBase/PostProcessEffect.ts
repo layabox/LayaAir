@@ -27,9 +27,6 @@ export class PostProcessEffect {
     get singleton() {
         return this._singleton;
     }
-    set singleton(value: boolean) {
-        this._singleton = value;
-    }
 
     /**
      * @en Whether the effect is enabled.

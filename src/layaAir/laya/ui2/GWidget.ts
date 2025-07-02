@@ -7,7 +7,7 @@ import { Relation } from "./Relation";
 import type { GTreeNode } from "./GTreeNode";
 import { Gear } from "./gear/Gear";
 import { GearDisplay } from "./gear/GearDisplay";
-import { NodeFlags, SubPassFlag } from "../Const";
+import { NodeFlags } from "../Const";
 import { UIEvent } from "./UIEvent";
 import { ILaya } from "../../ILaya";
 import { IGraphicsCmd } from "../display/IGraphics";
@@ -15,8 +15,7 @@ import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
-import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
-import { SpriteConst } from "../display/SpriteConst";
+import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
 
 /**
  * @en GWidget is the base class for all UI widgets in the New UI system.
@@ -32,7 +31,6 @@ export class GWidget extends Sprite {
 
     private _tooltips: string;
     private _grayed: boolean = false;
-    private _grayEffect: ColorEffect2D;
     private _background: IGraphicsCmd;
 
     private _draggable: boolean = false;
@@ -231,18 +229,16 @@ export class GWidget extends Sprite {
         value = !!value;
         if (this._grayed !== value) {
             this._grayed = value;
-
             let postProcess = this.getPostProcess(value);
             if (value) {
-                this._grayEffect ||= new ColorEffect2D();
-                this._grayEffect.gray();
-                this._renderType |= SpriteConst.POSTPROCESS;
-                postProcess.addEffect(this._grayEffect);
-            }
-            else {
-                this._renderType &= ~SpriteConst.POSTPROCESS;
+                let effect = postProcess.getEffect(GrayscaleEffect2D);
+                if (!effect)
+                    effect = postProcess.addEffect(new GrayscaleEffect2D());
+            } else {
                 if (postProcess) {
-                    postProcess.removeEffect(this._grayEffect);
+                    let effect = postProcess.getEffect(GrayscaleEffect2D);
+                    if (effect)
+                        postProcess.removeEffect(effect);
                 }
             }
         }

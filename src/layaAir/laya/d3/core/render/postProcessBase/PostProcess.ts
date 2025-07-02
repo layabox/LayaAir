@@ -254,10 +254,10 @@ export class PostProcess {
      * @zh 添加后期处理效果。
      * @param effect 后期处理效果
      */
-    addEffect(effect: PostProcessEffect): void {
+    addEffect<T extends PostProcessEffect>(effect: T): T | null {
         if (effect.singleton && this.getEffect((effect as any).constructor)) {
             console.error("the target effect is a singleton", effect);
-            return;
+            return null;
         }
         if (!this._enableColorGrad || effect instanceof ColorGradEffect) {
             this._effects.push(effect);
@@ -267,6 +267,8 @@ export class PostProcess {
 
         this.recaculateCameraFlag();
         effect.effectInit(this);
+
+        return effect;
     }
 
     /**
@@ -278,14 +280,7 @@ export class PostProcess {
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
     getEffect<T extends PostProcessEffect>(classReg: new () => T): T {
-        let size: number = this._effects.length;
-        for (let i = 0; i < size; i++) {
-            let element = this._effects[i];
-            if (element instanceof classReg) {
-                return element;
-            }
-        }
-        return null
+        return this._effects.find(effect => effect instanceof classReg) as T || null;
     }
 
     /**

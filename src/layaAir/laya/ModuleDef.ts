@@ -55,7 +55,8 @@ import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
 import { Area2D } from "./display/Area2D";
 import { OpenDataContextView } from "./display/OpenDataContextView";
-import { TextRender } from "./webgl/text/TextRender";
+import { PostProcess2D } from "./display/PostProcess2D";
+import { PostProcess2DEffect } from "./display/PostProcess2DEffect";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -63,7 +64,6 @@ c("Node", Node);
 c("Sprite", Sprite);
 c("Widget", Widget);
 c("Text", Text);
-c("TextRender",TextRender)
 c("Input", Input);
 c("Animation", Animation);
 c("SoundNode", SoundNode);
@@ -107,3 +107,6 @@ c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
 c("Gradient", Gradient);
 c("FloatKeyframe", FloatKeyframe);
+
+c("PostProcess2D", PostProcess2D);
+c("PostProcess2DEffect", PostProcess2DEffect);

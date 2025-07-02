@@ -297,12 +297,6 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'filter_discarded',
-    input: [
-        'laya/legacy/filters/**/*.ts'
-    ],
-},
-{
     name: "trailCommon",
     input: [
         'laya/trail/trailCommon/**/*.*',
