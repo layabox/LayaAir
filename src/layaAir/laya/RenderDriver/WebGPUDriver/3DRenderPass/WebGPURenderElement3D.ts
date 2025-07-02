@@ -13,6 +13,7 @@ import { WebGPUBindGroup, WebGPUBindGroupCache } from "../RenderDevice/WebGPUBin
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { OneDrawPassCacheInfo, OneDrawCacheInfo, compareCahceFlag, coverCahceFlag } from "../RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { DepthStencilParam, getDepthStencilParamFromMaterial, getDepthStencilParamFromShader, IRenderPipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache } from "../RenderDevice/WebGPURenderPipelineHelper";
@@ -22,50 +23,7 @@ import { WebGPUUniformBufferBase } from "../RenderDevice/WebGPUUniform/WebGPUUni
 import { WebGPUBaseRenderNode } from "./WebGPUBaseRenderNode";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
-export function compareCahceFlag(changeFlag: Vector2, cacheFlag: Vector2) {
-    let needUpdate = false;
-    if (changeFlag.x > cacheFlag.x)
-        needUpdate = true;
-    else if (changeFlag.x === cacheFlag.x) {
-        needUpdate = changeFlag.y > cacheFlag.y;
-    }
-    return needUpdate
-}
 
-export function coverCahceFlag(coverFlag: Vector2, oldFlag: Vector2) {
-    let needUpdate = false;
-    if (coverFlag.x > oldFlag.x)
-        needUpdate = true;
-    else if (coverFlag.x === oldFlag.x) {
-        needUpdate = coverFlag.y > oldFlag.y;
-    }
-    if (needUpdate) {
-        coverFlag.cloneTo(oldFlag);
-    }
-    return;
-}
-
-
-export class oneDrawPassCacheInfo {
-    matCacheFlag: Vector2 = new Vector2(-1, -1);
-    nodeCacheFlag: Vector2 = new Vector2(-1, -1);
-    passDefineCacheFlag: Vector2 = new Vector2(-1, -1);
-    drawInfos: oneDrawCacheInfo[] = [];
-}
-
-//记录一个RenderElement 一次DrawCall的缓存数据
-export class oneDrawCacheInfo {
-    shaderInstance: WebGPUShaderInstance;
-    pipeline: GPURenderPipeline;
-    shaderChange: boolean;
-    pipeLineCacheFlag: Vector2 = new Vector2(-1, -1);//和global的BindGroup引起的pipeline的更新Flag做对比
-    defineCacheFlag: Vector2 = new Vector2(-1, -1);//define的改动cache数据
-
-    nodeBindGroup: WebGPUBindGroup;
-    renderNodeBindGroupCacheFlag: Vector2 = new Vector2(-1, -1);
-    matBindGroup: WebGPUBindGroup;
-    matBindGroupCacheFlag: Vector2 = new Vector2(-1, -1);
-}
 
 /**
  * 基本渲染单元
@@ -74,10 +32,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     static _matChangeFlagMap: Map<string, Map<number, Vector2[]>> = new Map();//根据shaderpass name 来取到Map，根据shaderDataID，拿到三个change变量，1、Bindgroup，2、bindgroupLayout，3defineFlag
 
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
-
-    protected _geometryID: number = null;
-
-    protected _geometry: WebGPURenderGeometry;
 
     protected _materialUBO: WebGPUUniformBufferBase;
     //material是否改变
@@ -107,24 +61,29 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     isRender: boolean;
 
     declare owner: WebGPUBaseRenderNode;
-    private _blendStateKey: number = null;
-    private _blendState: WebGPUBlendStateCache;
-    private _depthStencilStateID: number = null;
-    private _depthStencilState: WebGPUDepthStencilStateCache;
-    private _cullMode: CullMode;
-    private _frontFace: FrontFace;
+
+    blendState: WebGPUBlendStateCache;
+
+    depthStencilState: WebGPUDepthStencilStateCache;
+
+    cullMode: CullMode;
+
+    frontFace: FrontFace;
+
+    geometry: WebGPURenderGeometry;
 
     protected depthStencilParam: DepthStencilParam = new DepthStencilParam(); //模板参数
     //cache Data
     //缓存每个pass的渲染信息
-    protected _passRenderInfo: Map<number, oneDrawPassCacheInfo> = new Map();
-    protected _drawPassInfo: oneDrawPassCacheInfo;//当前渲染pass的渲染数据组信息
-    protected _drawCacheArray: oneDrawCacheInfo[];//当前渲染pass的渲染数据
+    protected _passRenderInfo: Map<number, OneDrawPassCacheInfo> = new Map();
+    protected _drawPassInfo: OneDrawPassCacheInfo;//当前渲染pass的渲染数据组信息
+    protected _drawCacheArray: OneDrawCacheInfo[];//当前渲染pass的渲染数据
 
     //renderElement本身资源改动
     protected _matChangeFlag: Vector2 = new Vector2();//记录material改动
     protected _renderNodeChangeFlag: Vector2 = new Vector2();
     protected _pipelineChangeFlag: Vector2 = new Vector2();
+    protected _cacheGeometryStateID: number = -1;
 
     //记录mat自身资源改动
     protected _matDefChangeFlag: Vector2;
@@ -136,17 +95,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _cacheMatDepthStencilID: string;
     protected _cacheMatCullMode: CullMode;
 
-    public get geometry(): WebGPURenderGeometry {
-        return this._geometry;
-    }
 
-    public set geometry(value: WebGPURenderGeometry) {
-        if (value?.getStateCacheID() != this._geometryID) {
-            this._needUpdatePipeline();
-        }
-        this._geometryID = value?.getStateCacheID();
-        this._geometry = value;
-    }
 
     public get materialShaderData(): WebGPUShaderData {
         return this._materialShaderData;
@@ -182,52 +131,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
 
-    public get blendState(): WebGPUBlendStateCache {
-        return this._blendState;
-    }
-
-    public set blendState(value: WebGPUBlendStateCache) {
-        if (value?.key != this._blendStateKey) {
-            this._needUpdatePipeline();
-        }
-        this._blendStateKey = value?.key;
-        this._blendState = value;
-    }
-
-    public get depthStencilState(): WebGPUDepthStencilStateCache {
-        return this._depthStencilState;
-    }
-
-    public set depthStencilState(value: WebGPUDepthStencilStateCache) {
-        if (value?.id != this._depthStencilStateID) {
-            this._needUpdatePipeline();
-        }
-        this._depthStencilStateID = value?.id;
-        this._depthStencilState = value;
-    }
-
-    public get cullMode(): CullMode {
-        return this._cullMode;
-    }
-
-    public set cullMode(value: CullMode) {
-        if (value !== this._cullMode) {
-            this._needUpdatePipeline();
-        }
-
-        this._cullMode = value;
-    }
-
-    public get frontFace(): FrontFace {
-        return this._frontFace;
-    }
-
-    public set frontFace(value: FrontFace) {
-        if (value !== this._frontFace) {
-            this._needUpdatePipeline();
-        }
-        this._frontFace = value;
-    }
 
     constructor() {
     }
@@ -298,7 +201,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 passdata.additionShaderData = this.owner._additionShaderDataKeys;
             }
 
-            let attributeLocations = this._geometry.bufferState._attriLocArray;
+            let attributeLocations = this.geometry.bufferState._attriLocArray;
             pass.moduleData.attributeLocations = attributeLocations;
 
             var shaderIns = pass.withCompile(comDef, false) as WebGPUShaderInstance;
@@ -309,7 +212,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     oneInfo.shaderInstance = shaderIns;
                 }
             } else {
-                let oneInfo = new oneDrawCacheInfo();
+                let oneInfo = new OneDrawCacheInfo();
                 oneInfo.shaderChange = true;
                 oneInfo.shaderInstance = shaderIns;
                 this._drawCacheArray[renderCount] = oneInfo;
@@ -380,23 +283,27 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      */
     _preUpdatePre(context: WebGPURenderContext3D) {
         if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
-            this._drawPassInfo = new oneDrawPassCacheInfo();
+            this._drawPassInfo = new OneDrawPassCacheInfo();
             this._passRenderInfo.set(context._curRenderGlobalKey, this._drawPassInfo);
         } else {
             this._drawPassInfo = this._passRenderInfo.get(context._curRenderGlobalKey);
         }
         this._drawCacheArray = this._drawPassInfo.drawInfos;
         this._updateMatChangeFlag();
-
+        if (this.geometry.getStateCacheID() != this._cacheGeometryStateID) {
+            this._needUpdatePipeline();
+            this._cacheGeometryStateID = this.geometry.getStateCacheID();
+        }
         //shader变了或者宏变了 
         let passDefineChangeFlag = this._drawPassInfo.passDefineCacheFlag;
         if (this._materialRenderDataChange || //材质是否变化
             compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag) ||//material宏是否变化
-            (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag) ||//sprite是否宏变化
-                compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag)) //判断场景中的宏是否变化
-        ) {
+            (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag)) ||//sprite是否宏变化
+            compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag) ||//判断场景中的宏是否变化
+            this._drawPassInfo.geometryStateID != this._cacheGeometryStateID) {
             passDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._compileShader(context);
+            this._drawPassInfo.geometryStateID = this._cacheGeometryStateID;
         }
 
         let cullmode = this._materialShaderData.getInt(Shader3D.CULL);
@@ -466,7 +373,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             }
 
             //this._uploadGeometry(command); //上传几何数据 draw
-            this._geometry.applyToEncoder(command.encoder)
+            this.geometry.applyToEncoder(command.encoder)
         }
 
         return 1;
@@ -602,7 +509,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
      * @param command 
      * @param bundle 
      */
-    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, info: OneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 
         let shaderInstance = info.shaderInstance;
         {
@@ -641,7 +548,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     info.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this._subShader._owner.name], this._materialShaderData, null, shaderResource, textureExitsMask);
                     coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
                 }
-                command.setBindGroup(3, info.matBindGroup);
             } else {
                 info.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
             }
@@ -657,7 +563,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _uploadGeometry(command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let triangles = 0;
         if (command) {
-            triangles += command.applyGeometry(this._geometry);
+            triangles += command.applyGeometry(this.geometry);
         }
         return triangles;
     }
@@ -665,7 +571,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     protected _uploadGeometryIndex(command: WebGPURenderCommandEncoder | WebGPURenderBundle, index: number) {
         let triangles = 0;
         if (command) {
-            triangles += command.applyGeometryIndex(this._geometry, index);
+            triangles += command.applyGeometryIndex(this.geometry, index);
         }
         return triangles;
     }

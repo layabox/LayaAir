@@ -16,10 +16,10 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
     defineDataChangeFlag: Vector2 = new Vector2();
 
     spriteUBOs: WebGPUUniformBufferBase[] = [];
-    spriteUBO0:WebGPUUniformBufferBase;
+    spriteUBO0: WebGPUUniformBufferBase;
 
     additionalUBOs: WebGPUUniformBufferBase[] = [];
-    additionalUBO0:WebGPUUniformBufferBase;
+    additionalUBO0: WebGPUUniformBufferBase;
 
     declare protected _shaderData: WebGPUShaderData;
     declare protected _additionShaderData: Map<string, WebGPUShaderData>;
@@ -74,9 +74,9 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             this._additionShaderDataKeys = [];
             this.additionalUBOs.length = 0;
         }
-        if(this.additionalUBOs.length==1){
+        if (this.additionalUBOs.length == 1) {
             this.additionalUBO0 = this.additionalUBOs[0];
-        }else{
+        } else {
             this.additionalUBO0 = null;
         }
     }
@@ -95,6 +95,7 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
             }
         })
         this._commonUniformMap.length = 0;
+        this.spriteUBOs.length = 0;
         value.forEach(element => {
             this._commonUniformMap.push(element);
             if (this.shaderData) {
@@ -106,9 +107,9 @@ export class WebGPUBaseRenderNode extends WebBaseRenderNode {
                 this._shaderData._defineDatas.addChangeFlagInfo(this.defineDataChangeFlag);
             }
         });
-        if(this.spriteUBOs.length==1){
+        if (this.spriteUBOs.length == 1) {
             this.spriteUBO0 = this.spriteUBOs[0];
-        }else{
+        } else {
             this.spriteUBO0 = null;
         }
     }

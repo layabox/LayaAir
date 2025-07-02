@@ -16,21 +16,13 @@ import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
 import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
+import { WebGPUGlobalPipeLineCacheInfo } from "../RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
-export class WebGPUGlobalPipeLineCacheInfo {
-    globalDefineData: WebDefineDatas;//用来判断宏是否改动  导致了shader变化
-    globalPipelineCacheKey: string;//包括camera scene的layout数据，包括invertY和destrt的stateCacheID
-    globalDefineChangeFlag: Vector2 = new Vector2();
-    pipeLineChangeFlag: Vector2 = new Vector2();
-    constructor() {
-        this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas() as WebDefineDatas;
-    }
-}
 
 /**
  * WebGPU渲染上下文
@@ -40,36 +32,19 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     static _instance: WebGPURenderContext3D;
 
     private _globalComkeyCounter: number = 0;
+
     private _globalComkeyNameMap: any = {};
+
     private _globalRendercacheInfoMap: Map<number, WebGPUGlobalPipeLineCacheInfo> = new Map();
-    //全局组合生成的id
-    private globalComkeyToID(name: string): number {
-        if (this._globalComkeyNameMap[name] !== undefined) {
-            return this._globalComkeyNameMap[name];
-        } else {
-            const id = this._globalComkeyCounter++;
-            this._globalComkeyNameMap[name] = id;
-            return id;
-        }
-    }
-    /**@internal */
-    _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
 
-
-    /**@internal */
-    _globalConfigShaderData: WebDefineDatas;
-    /**@internal */
-    _preDrawUniformMaps: Set<string>;
 
     private _globalShaderData: WebGPUShaderData;
 
     private _sceneData: WebGPUShaderData;
 
     private _sceneModuleData: WebSceneNodeData;
-    _sceneBindGroup: WebGPUBindGroup;
 
     private _cameraModuleData: WebCameraNodeData;
-    _cameraBindGroup: WebGPUBindGroup;
 
     private _cameraData: WebGPUShaderData;
 
@@ -105,22 +80,25 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     private _scissorSave: Vector4 = new Vector4();
 
+    private _renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
+
+    _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
+
+    _globalConfigShaderData: WebDefineDatas;
+
+    _preDrawUniformMaps: Set<string>;
+
+    //CacheData
+    _cameraBindGroup: WebGPUBindGroup;
+    _sceneBindGroup: WebGPUBindGroup;
+    _curRenderCacheInfo: WebGPUGlobalPipeLineCacheInfo;
+    _curRenderGlobalKey: number;
+    _curDefineChangeFlag: Vector2;
+    _pipelineChange: boolean;
+
     device: GPUDevice; //GPU设备
 
     destRT: WebGPUInternalRT; //渲染目标
-
-    renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder(); //渲染命令编码器
-
-    protected _passRenderInfo: Map<string, Vector2> = new Map();
-    _curRenderGlobalKey: number;
-    _curRenderCacheInfo: WebGPUGlobalPipeLineCacheInfo;
-    _curDefineChangeFlag: Vector2;
-    _pipelineChange: boolean;
-    constructor() {
-        this.device = WebGPURenderEngine._instance.getDevice();
-        this._preDrawUniformMaps = new Set<string>();
-        WebGPURenderContext3D._instance = this;
-    }
 
     get sceneData(): WebGPUShaderData {
         return this._sceneData;
@@ -212,6 +190,23 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
+    constructor() {
+        this.device = WebGPURenderEngine._instance.getDevice();
+        this._preDrawUniformMaps = new Set<string>();
+        WebGPURenderContext3D._instance = this;
+    }
+
+    //全局组合生成的id
+    private globalComkeyToID(name: string): number {
+        if (this._globalComkeyNameMap[name] !== undefined) {
+            return this._globalComkeyNameMap[name];
+        } else {
+            const id = this._globalComkeyCounter++;
+            this._globalComkeyNameMap[name] = id;
+            return id;
+        }
+    }
+
     private _getRenderPipeLine(): string {
         const engine = WebGPURenderEngine._instance;
 
@@ -297,6 +292,61 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._cameraBindGroup = (LayaGL.renderEngine as WebGPURenderEngine).bindGroupCache.getBindGroup(commandArray, this.cameraData, null, resource, ~0);
         }
         this._getSceneCameraCacheKey();
+    }
+
+    /**
+     * 设置屏幕渲染目标
+     */
+    private _setScreenRT() {
+        if (!this.destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
+            const engine = WebGPURenderEngine._instance;
+            engine._screenResized = false;
+            if (this._blitFrameCount === Laya.timer.currFrame) {
+                this.setRenderTarget(engine._screenRT, RenderClearFlag.Nothing);
+            }
+            else {
+                this.setRenderTarget(engine._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
+                engine.hasScreenCleared = true; //标记屏幕已清除
+            }
+            Color.BLACK.cloneTo(this._clearColor);
+            this._blitFrameCount = Laya.timer.currFrame;
+            this._blitScreen = true;
+        } else this._blitScreen = false;
+    }
+
+    /**
+     * 准备录制渲染命令
+     * @param viewPortAndScissor 
+     */
+    private _start(viewPortAndScissor: boolean = true) {
+        const renderPassDesc: GPURenderPassDescriptor
+            = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+        this._renderCommand.startRender(renderPassDesc);
+        this._clearFlag = RenderClearFlag.Nothing;
+        if (viewPortAndScissor) {
+            if (this._viewPort) {
+                this._viewPort.y = this._viewPort.y | 0; //有时候会传进来小数
+                this._viewPort.width = this._viewPort.width | 0;
+                this._viewPort.height = this._viewPort.height | 0;
+                this._renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
+            }
+            if (this._scissor) {
+                this._scissor.y = this._scissor.y | 0;
+                this._renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+            }
+        }
+    }
+
+    /**
+     * 提交渲染命令
+     */
+    private _submit() {
+        const engine = WebGPURenderEngine._instance;
+        if (this._blitScreen && engine._screenResized) return; //屏幕尺寸改变，丢弃这一帧
+        this._renderCommand.end();
+        engine.upload(); //上传Uniform数据
+        this.device.queue.submit([this._renderCommand.finish()]);
+        this._needStart = true;
     }
 
     /**
@@ -393,7 +443,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
-        let cmd = this.renderCommand;
+        let cmd = this._renderCommand;
         for (let i = 0; i < len; i++)
             elements[i]._render(this, cmd);
 
@@ -420,7 +470,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
-        node._render(this, this.renderCommand);
+        node._render(this, this._renderCommand);
         this._submit();
         //TODO 统计
         return 0;
@@ -450,69 +500,14 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._submit();
     }
 
-    /**
-     * 设置屏幕渲染目标
-     */
-    private _setScreenRT() {
-        if (!this.destRT) { //如果渲染目标为空，设置成屏幕渲染目标，绘制到画布上
-            const engine = WebGPURenderEngine._instance;
-            engine._screenResized = false;
-            if (this._blitFrameCount === Laya.timer.currFrame) {
-                this.setRenderTarget(engine._screenRT, RenderClearFlag.Nothing);
-            }
-            else {
-                this.setRenderTarget(engine._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
-                engine.hasScreenCleared = true; //标记屏幕已清除
-            }
-            Color.BLACK.cloneTo(this._clearColor);
-            this._blitFrameCount = Laya.timer.currFrame;
-            this._blitScreen = true;
-        } else this._blitScreen = false;
-    }
 
-    /**
-     * 准备录制渲染命令
-     * @param viewPortAndScissor 
-     */
-    private _start(viewPortAndScissor: boolean = true) {
-        const renderPassDesc: GPURenderPassDescriptor
-            = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
-        this.renderCommand.startRender(renderPassDesc);
-        this._clearFlag = RenderClearFlag.Nothing;
-        if (viewPortAndScissor) {
-            if (this._viewPort) {
-                this._viewPort.y = this._viewPort.y | 0; //有时候会传进来小数
-                this._viewPort.width = this._viewPort.width | 0;
-                this._viewPort.height = this._viewPort.height | 0;
-                this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
-            }
-            if (this._scissor) {
-                this._scissor.y = this._scissor.y | 0;
-                this.renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
-            }
-        }
-    }
-
-    /**
-     * 提交渲染命令
-     */
-    private _submit() {
-        const engine = WebGPURenderEngine._instance;
-        if (this._blitScreen && engine._screenResized) return; //屏幕尺寸改变，丢弃这一帧
-        this.renderCommand.end();
-        engine.upload(); //上传Uniform数据
-        this.device.queue.submit([this.renderCommand.finish()]);
-        this._needStart = true;
-        //WebGPUStatis.addSubmit(); //统计提交次数
-        //TODO engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-    }
 
     /**
      * 销毁
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
-        this.renderCommand.destroy();
+        this._renderCommand.destroy();
         this.destRT = null;
     }
 }

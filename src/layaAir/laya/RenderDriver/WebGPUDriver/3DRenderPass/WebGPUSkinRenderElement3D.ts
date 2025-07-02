@@ -1,20 +1,19 @@
-import { info } from "console";
+
 import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPURenderBundle } from "../RenderDevice/WebGPUBundle/WebGPURenderBundle";
-import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
-import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUSubUniformBuffer } from "../RenderDevice/WebGPUUniform/WebGPUSubUniformBuffer";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
-import { compareCahceFlag, coverCahceFlag, oneDrawCacheInfo, WebGPURenderElement3D } from "./WebGPURenderElement3D";
+
 import { WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
+import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
+import { compareCahceFlag, coverCahceFlag, OneDrawCacheInfo } from "../RenderDevice/WebGPURenderDeviceFactory";
 
 
 const dynamicOffsetsData = new Uint32Array(1);
@@ -109,7 +108,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
         return;
     }
 
-    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, info: OneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
         let shaderInstance = info.shaderInstance;
 
         {
@@ -144,11 +143,9 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
                     info.matBindGroupCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
                     let shaderResource = shaderInstance.uniformSetMap.get(3);
                     let textureExitsMask = shaderInstance.uniformTextureExits.get(3);
-
                     info.matBindGroup = WebGPURenderEngine._instance.bindGroupCache.getBindGroup([this._subShader._owner.name], this._materialShaderData, null, shaderResource, textureExitsMask);
                     coverCahceFlag(this._matBindGroupLayoutFlag, this._pipelineChangeFlag);
                 }
-                command.setBindGroup(3, info.matBindGroup);
             } else {
                 info.matBindGroup = WebGPUBindGroupCache.emptyBindGroup;
             }

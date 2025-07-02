@@ -12,9 +12,10 @@ import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevic
 import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { WebGPURenderContext3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderContext3D";
-import { oneDrawCacheInfo, WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
+import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 import { WebGPURenderBundle } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUBundle/WebGPURenderBundle";
 import { WebGPURenderCommandEncoder } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderCommandEncoder";
+import { OneDrawCacheInfo } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderDeviceFactory";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { WebGPUShaderData } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderInstance";
@@ -211,7 +212,7 @@ export class webgpuDrawCullingELement extends WebGPURenderElement3D {
       * @param command 
       * @param bundle 
       */
-    protected _bindGroup(context: WebGPURenderContext3D, info: oneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
+    protected _bindGroup(context: WebGPURenderContext3D, info: OneDrawCacheInfo, command: WebGPURenderCommandEncoder | WebGPURenderBundle) {
 
         // {
         //     let sceneGroup = context._sceneBindGroup;

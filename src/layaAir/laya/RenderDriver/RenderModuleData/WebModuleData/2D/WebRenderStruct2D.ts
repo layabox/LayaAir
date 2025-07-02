@@ -12,6 +12,7 @@ import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode"
 import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import { Vector2 } from "../../../../maths/Vector2";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
