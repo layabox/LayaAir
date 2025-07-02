@@ -1,14 +1,14 @@
-import { LayaEnv } from "../../LayaEnv";
-import { TranslateCmd } from "../display/cmd/TranslateCmd";
+import { DrawCircleCmd } from "../display/cmd/DrawCircleCmd";
+import { DrawPolyCmd } from "../display/cmd/DrawPolyCmd";
+import { DrawRectCmd } from "../display/cmd/DrawRectCmd";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite";
-import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { ClassUtils } from "./ClassUtils";
 import { IHitArea } from "./IHitArea";
+import { Utils } from "./Utils";
 
 const _rect: Rectangle = new Rectangle();
-const _ptPoint: Point = new Point();
 
 /**
  * @en The `HitArea` class represents a mouse click area that can be defined by a series of vector shapes for clickable and non-clickable regions (currently only supports circles, rectangles, and polygons).
@@ -38,51 +38,29 @@ export class HitArea implements IHitArea {
      * @returns 如果包含指定的点，则值为 true；否则为 false。
      */
     contains(x: number, y: number, sp: Sprite): boolean {
-        if (!HitArea._isHitGraphic(x, y, sp, this._hit))
+        if (this._isHitGraphic(x, y, sp, this._unHit))
             return false;
-        return !HitArea._isHitGraphic(x, y, sp, this._unHit);
+
+        return this._isHitGraphic(x, y, sp, this._hit);
     }
 
-    /**
-     * @internal
-     * @en Has it hit Graphic
-     * @zh 是否击中Graphic
-     */
-    static _isHitGraphic(x: number, y: number, sp: Sprite, graphic: Graphics): boolean {
-        if (!graphic) return false;
-        let cmds = graphic.cmds;
-        if (cmds.length == 0) return false;
-        let len = cmds.length;
-        for (let i = 0; i < len; i++) {
-            let cmd = cmds[i];
-            if (!cmd) continue;
-            switch (cmd.cmdID) {
-                case TranslateCmd.ID:
-                    x -= (<TranslateCmd>cmd).tx;
-                    y -= (<TranslateCmd>cmd).ty;
-            }
-            if (HitArea._isHitCmd(x, y, sp, cmd)) return true;
-        }
-        return false;
+    private _isHitGraphic(x: number, y: number, sp: Sprite, g: Graphics): boolean {
+        if (!g) return false;
+        return g.cmds.findIndex(cmd => cmd && this._isHitCmd(x, y, sp, cmd)) !== -1;
     }
 
-    /**
-     * @internal
-     * @en Determines whether a point is hit within a specific drawing command.
-     * @zh 是否击中绘图指令
-     */
-    static _isHitCmd(x: number, y: number, sp: Sprite, cmd: any): boolean {
+    private _isHitCmd(x: number, y: number, sp: Sprite, cmd: any): boolean {
         if (!cmd) return false;
         var rst: boolean = false;
         switch (cmd.cmdID) {
-            case "DrawRect":
+            case DrawRectCmd.ID:
                 if (cmd.percent)
                     _rect.setTo(cmd.x * sp.width, cmd.y * sp.height, cmd.width * sp.width, cmd.height * sp.height);
                 else
                     _rect.setTo(cmd.x, cmd.y, cmd.width, cmd.height);
                 rst = _rect.contains(x, y);
                 break;
-            case "DrawCircle":
+            case DrawCircleCmd.ID:
                 let r = cmd.radius;
                 var d: number;
                 if (cmd.percent) {
@@ -97,45 +75,13 @@ export class HitArea implements IHitArea {
                 d = x * x + y * y;
                 rst = d < r * r;
                 break;
-            case "DrawPoly":
+            case DrawPolyCmd.ID:
                 x -= cmd.x;
                 y -= cmd.y;
-                rst = HitArea._ptInPolygon(x, y, cmd.points);
+                rst = Utils.testPointInPolygon(x, y, cmd.points);
                 break;
         }
         return rst;
-    }
-
-    /**
-     * @internal
-     * @en Determines whether a point is inside a polygon.
-     * @zh 坐标是否在多边形内
-     */
-    static _ptInPolygon(x: number, y: number, areaPoints: any[]): boolean {
-        var p: Point = _ptPoint;
-        p.setTo(x, y);
-        // 交点个数
-        var nCross: number = 0;
-        var p1x: number, p1y: number, p2x: number, p2y: number;
-        var len: number;
-        len = areaPoints.length;
-        for (var i: number = 0; i < len; i += 2) {
-            p1x = areaPoints[i];
-            p1y = areaPoints[i + 1];
-            p2x = areaPoints[(i + 2) % len];
-            p2y = areaPoints[(i + 3) % len];
-            //var p1:Point = areaPoints[i];
-            //var p2:Point = areaPoints[(i + 1) % areaPoints.length]; // 最后一个点与第一个点连线
-            if (p1y == p2y) continue;
-            if (p.y < Math.min(p1y, p2y)) continue;
-            if (p.y >= Math.max(p1y, p2y)) continue;
-            // 求交点的x坐标
-            var tx: number = (p.y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x;
-            // 只统计p1p2与p向右射线的交点
-            if (tx > p.x) nCross++;
-        }
-        // 交点为偶数，点在多边形之外
-        return (nCross % 2 == 1);
     }
 
     /**
@@ -169,16 +115,14 @@ export class HitArea implements IHitArea {
      * @zh 序列化后调用。
      */
     onAfterDeserialize() {
-        if (LayaEnv.isPlaying) {
-            if ((<any>this)._hitCmds) {
-                this.hit.cmds = (<any>this)._hitCmds;
-                delete (<any>this)._hitCmds;
-            }
+        if ((<any>this)._hitCmds) {
+            this.hit.cmds = (<any>this)._hitCmds;
+            delete (<any>this)._hitCmds;
+        }
 
-            if ((<any>this)._unHitCmds) {
-                this.unHit.cmds = (<any>this)._unHitCmds;
-                delete (<any>this)._unHitCmds;
-            }
+        if ((<any>this)._unHitCmds) {
+            this.unHit.cmds = (<any>this)._unHitCmds;
+            delete (<any>this)._unHitCmds;
         }
     }
 }

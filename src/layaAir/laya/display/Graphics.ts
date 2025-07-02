@@ -269,7 +269,7 @@ export class Graphics {
         if (!this.owner || this.owner.destroyed)
             return;
 
-        let value = !this.owner._renderNode && (this._cmds.length > 0 || this.owner?._texture != null);
+        let value = !this.owner._renderNode && (this._cmds.length > 0 || this.owner._texture != null);
         if (this._display === value)
             return;
 

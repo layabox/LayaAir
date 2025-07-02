@@ -744,31 +744,20 @@ export class Sprite extends Node {
         return this._filterArr;
     }
 
+    /** @deprecated */
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
 
         this._filterArr = value;
         if (value) {
-            this._renderType |= SpriteConst.POSTPROCESS;
-            let postProcess = this.getPostProcess();
+            let postProcess = this.getPostProcess(true);
             postProcess.clear();
             for (var i = 0; i < this._filterArr.length; i++) {
                 postProcess.addEffect(this.filters[i].getEffect());
             }
         }
-        else {
-            this._renderType &= ~SpriteConst.POSTPROCESS;
-            if (this._oriRenderPass && this._oriRenderPass.postProcess) {
-                this._oriRenderPass.postProcess.destroy();
-                this._oriRenderPass.postProcess = null;
-            }
-        }
-
-        this.setSubpassFlag(SubPassFlag.PostProcess);
-
-        if (value && value.length > 0) {
-            if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
-        }
+        else
+            this.postProcess = null;
         this.repaint();
     }
 
@@ -794,6 +783,7 @@ export class Sprite extends Node {
 
             this._oriRenderPass.postProcess.owner = null;
             this._oriRenderPass.postProcess = null;
+            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
 
         if (value) {
@@ -802,8 +792,8 @@ export class Sprite extends Node {
             }
             value.owner = this;
             this._oriRenderPass.postProcess = value;
+            this.setSubpassFlag(SubPassFlag.PostProcess);
         }
-        this.setSubpassFlag(SubPassFlag.PostProcess);
     }
 
     /**
@@ -2226,13 +2216,6 @@ export class Sprite extends Node {
         this._findOwnerArea();
     }
 
-    protected _onAdded(): void {
-        super._onAdded();
-        if (this._oriRenderPass && this.displayedInStage) {
-            ILaya.stage.passManager.addPass(this._oriRenderPass);
-        }
-    }
-
     protected _findOwnerArea() {
         let ele = this as any;
         while (ele) {
@@ -2370,10 +2353,7 @@ export class Sprite extends Node {
             this.setDemandTransEventUp();
     }
 
-    /**
-     * @internal
-     * @param value 
-     */
+    /** @ignore */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
         if (this._oriRenderPass) {

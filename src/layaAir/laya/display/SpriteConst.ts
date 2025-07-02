@@ -11,7 +11,7 @@ export class SpriteConst {
     static CLIP = 0x40;
     //static = 0x80;
     static GRAPHICS = 0x100;
-    static HITAREA = 0x400;
+    //static = 0x400;
     static RENDERNODE2D = 0x800;
     //static = 0x1000;
     static DRAW2RT = this.CANVAS | this.POSTPROCESS | this.MASK;
