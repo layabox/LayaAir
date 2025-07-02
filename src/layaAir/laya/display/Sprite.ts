@@ -2370,7 +2370,10 @@ export class Sprite extends Node {
             this.setDemandTransEventUp();
     }
 
-
+    /**
+     * @internal
+     * @param value 
+     */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
         if (this._oriRenderPass) {

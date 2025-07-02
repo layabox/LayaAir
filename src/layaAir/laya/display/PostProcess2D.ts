@@ -73,7 +73,7 @@ export class PostProcess2D extends EventDispatcher {
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
       if (this._owner) {
-         if (this._effects.length === 0)
+         if (this._effects.length === 0 || !this._enabled)
             this._owner._renderType &= ~SpriteConst.POSTPROCESS;
          else
             this._owner._renderType |= SpriteConst.POSTPROCESS;
@@ -161,6 +161,7 @@ export class PostProcess2D extends EventDispatcher {
    _render(): void {
       this._context.command.clear(true);
       this._context.indirectTarget = this._context.source;
+      this._context.destination = this._context.source;
       for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
          let effect = this._effects[i];
          if (effect.active) {
