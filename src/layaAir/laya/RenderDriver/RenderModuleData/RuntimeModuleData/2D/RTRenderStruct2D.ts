@@ -223,8 +223,14 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      this._rnUpdateFun = renderUpdateFun.bind(call);
-      this._nativeObj.setRenderUpdate(this._rnUpdateFun);
+      if (renderUpdateFun) {
+      	this._rnUpdateFun = renderUpdateFun.bind(call);
+      	this._nativeObj.setRenderUpdate(this._rnUpdateFun);
+      }
+      else {
+         this._rnUpdateFun = null;
+         this._nativeObj.setRenderUpdate(null);
+      }
    }
    private _clipRect: Rectangle;
    setClipRect(rect: Rectangle): void {
