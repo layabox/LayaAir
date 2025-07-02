@@ -234,7 +234,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     protected _handleMaterialChange() {
         this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
-        let shadername = this._subShader.owner.name;
+        let shadername = this._subShader._owner.name;
         if (!WebGPURenderElement3D._matChangeFlagMap.has(shadername))
             WebGPURenderElement3D._matChangeFlagMap.set(shadername, new Map())
         let shadermap = WebGPURenderElement3D._matChangeFlagMap.get(shadername);

@@ -31,7 +31,7 @@ export class DrawMeshInstancedCMD extends Command {
      * @en Maximum number of draw instances.
      * @zh 设置最大DrawInstance数。
      */
-    static readonly maxInstanceCount = 1024;
+    static maxInstanceCount = 1024;
 
     /**
      * @internal

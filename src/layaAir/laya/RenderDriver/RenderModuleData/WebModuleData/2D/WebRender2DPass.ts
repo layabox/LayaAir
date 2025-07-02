@@ -163,7 +163,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
-      if (!struct || !struct.enable) return;
+      if (!struct || !struct.enabled) return;
 
       struct._handleInterData();
       //这里进入process2D的排序  并不帧判断
