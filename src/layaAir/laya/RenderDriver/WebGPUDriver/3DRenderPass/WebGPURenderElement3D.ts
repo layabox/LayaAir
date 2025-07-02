@@ -223,34 +223,36 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     protected _updateMatChangeFlag() {
-        if (compareCahceFlag(this._matChangeFlag, this._drawPassInfo.matCacheFlag)) {//MaterialShaderData变动或者shader变动
-            this._materialRenderDataChange = true;
-            this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
-            let shadername = this._subShader.owner.name;
-            if (!WebGPURenderElement3D._matChangeFlagMap.has(shadername))
-                WebGPURenderElement3D._matChangeFlagMap.set(shadername, new Map())
-            let shadermap = WebGPURenderElement3D._matChangeFlagMap.get(shadername);
-            if (!shadermap.has(this._materialShaderData._id)) {
-                let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)];
-                shadermap.set(this._materialShaderData._id, flagArray);
-                this._materialShaderData.addBindGroupChangeLink(this._subShader._owner.name, this._subShader._uniformMap)
-                this._materialShaderData.addBindGroupChangeFlag(this._subShader._owner.name, flagArray[0], flagArray[1]);
-                this._materialShaderData._defineDatas.addChangeFlagInfo(flagArray[2]);
-            }
-            let flagArray = shadermap.get(this._materialShaderData._id);
-            this._matBindGroupChangeFlag = flagArray[0];
-            this._matBindGroupLayoutFlag = flagArray[1];
-            this._matDefChangeFlag = flagArray[2];
-        } else {
-            this._materialRenderDataChange = false;
-        }
-
+        this._materialRenderDataChange = compareCahceFlag(this._matChangeFlag, this._drawPassInfo.matCacheFlag)//MaterialShaderData变动或者shader变动
         if (this._renderShaderData && compareCahceFlag(this._renderNodeChangeFlag, this._drawPassInfo.nodeCacheFlag)) {
             this._drawPassInfo.nodeCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._spriteRenderDataChange = true;
         } else {
             this._spriteRenderDataChange = false;
         }
+    }
+
+    protected _handleMaterialChange() {
+        this._drawPassInfo.matCacheFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+        let shadername = this._subShader.owner.name;
+        if (!WebGPURenderElement3D._matChangeFlagMap.has(shadername))
+            WebGPURenderElement3D._matChangeFlagMap.set(shadername, new Map())
+        let shadermap = WebGPURenderElement3D._matChangeFlagMap.get(shadername);
+        if (!shadermap.has(this._materialShaderData._id)) {
+            let flagArray = [new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount), new Vector2(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)];
+            shadermap.set(this._materialShaderData._id, flagArray);
+            this._materialShaderData.addBindGroupChangeLink(this._subShader._owner.name, this._subShader._uniformMap)
+            this._materialShaderData.addBindGroupChangeFlag(this._subShader._owner.name, flagArray[0], flagArray[1]);
+            this._materialShaderData._defineDatas.addChangeFlagInfo(flagArray[2]);
+        }
+        let flagArray = shadermap.get(this._materialShaderData._id);
+        this._matBindGroupChangeFlag = flagArray[0];
+        this._matBindGroupLayoutFlag = flagArray[1];
+        this._matDefChangeFlag = flagArray[2];
+        let subShader = this._subShader;
+
+        this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+
     }
 
     protected _updateNodeUBO() {
@@ -288,6 +290,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         }
         this._drawCacheArray = this._drawPassInfo.drawInfos;
 
+        this._updateMatChangeFlag();
         if (this.geometry.getStateCacheID() != this._cacheGeometryStateID) {
             this._needUpdatePipeline();
             this._cacheGeometryStateID = this.geometry.getStateCacheID();
@@ -305,10 +308,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this._drawPassInfo.geometryStateID = this._cacheGeometryStateID;
         }
 
-        this._updateMatChangeFlag();
         if (this._materialRenderDataChange) {
-            let subShader = this._subShader;
-            this._materialUBO = this._materialShaderData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+            this._handleMaterialChange();
         }
 
         let cullmode = this._materialShaderData.getInt(Shader3D.CULL);
@@ -361,7 +362,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
-                compareCahceFlag(context._curRenderCacheInfo.pipeLineChangeFlag, pipelineCache) ||
+                compareCahceFlag(context._pipelineChange, pipelineCache) ||
                 compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
                 this._bindGroupMap.clear();
                 this._bindGroupMap.set(0, context._sceneBindGroup);

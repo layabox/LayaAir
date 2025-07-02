@@ -70,7 +70,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     _curRenderCacheInfo: WebGPUGlobalPipeLineCacheInfo;
     _curRenderGlobalKey: number;
     _curDefineChangeFlag: Vector2;
-    _pipelineChange: boolean
+    _pipelineChange: Vector2;
 
     get passData(): WebGPUShaderData {
         return this._passData;
@@ -108,7 +108,6 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     }
 
     private _getPassCacheKey() {
-        this._pipelineChange = false;
         let key: string = `${this.passData ? this.passData._id : -1},+${this._destRT == WebGPURenderEngine._instance._screenRT ? 0 : 1}`;
         this._curRenderGlobalKey = this.globalComkeyToID(key);
         let pipelineLayout = this._getRenderPipeLine();
@@ -118,14 +117,15 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             this._cacheGlobalDefines.cloneTo(cacheInfo.globalDefineData);
             this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
             cacheInfo.globalPipelineCacheKey = pipelineLayout;
-            this._pipelineChange = true;
+            cacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+            this._pipelineChange = cacheInfo.pipeLineChangeFlag;
             this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo)
         } else {
             this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
             if (this._curRenderCacheInfo.globalPipelineCacheKey == pipelineLayout) {
-                this._pipelineChange = false;
+                this._pipelineChange = this._curRenderCacheInfo.pipeLineChangeFlag;
             } else {
-                this._pipelineChange = true;
+                this._pipelineChange = this._curRenderCacheInfo.pipeLineChangeFlag;
                 this._curRenderCacheInfo.globalPipelineCacheKey = pipelineLayout;
                 this._curRenderCacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             }

@@ -177,7 +177,7 @@ export class WebGPUSkinRenderElement3D extends WebGPURenderElement3D implements 
             //1、context的pipeline变化(destRT和BindGroup资源引起的pipelineLayout变化)
             //2、自身属性变化引起的pipeline变化
             if (drawInfo.shaderChange ||
-                context._pipelineChange ||
+                compareCahceFlag(context._pipelineChange, pipelineCache) ||
                 compareCahceFlag(this._pipelineChangeFlag, pipelineCache)) {
                 this._bindGroupMap.clear();
                 this._bindGroupMap.set(0, context._sceneBindGroup);
