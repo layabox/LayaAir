@@ -3,8 +3,10 @@ import { BatchMark } from "../../../d3/core/render/BatchMark";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { RenderInfo } from "../../../renders/RenderInfo";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
-import { IInstanceRenderBatch, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IInstanceRenderBatch, IInstanceRenderElement3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
 import { WebGPUInstanceRenderElement3D } from "./WebGPUInstanceRenderElement3D";
 
 /**
@@ -18,6 +20,10 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
     private _updateCountMark: number = 0;
 
     //private _gpuRecover: WebGPUResourceRecover; //GPU内存回收器
+    private _lastGC=0;
+    private static GCCheckInterval = 60;
+    private static deleteDuration = 60;
+    private _cachedDatas:BatchMark[]=[];
 
     /**
      * @ignore
@@ -45,7 +51,28 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
         const giId = (reflectFlag << 10) + (lightmapFlag << 20) + lightProbeFlag;
 
         const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = []);
-        return data[giId] || (data[giId] = new BatchMark());
+        let batch = data[giId] || (data[giId] = new BatchMark());
+        //缓存管理
+        let allCache = this._cachedDatas;
+        let batchUserData = batch.userCacheData;
+        if(!batchUserData){
+            batchUserData = batch.userCacheData = {
+                element:new WebGPUInstanceRenderElement3D()
+            }
+            allCache.push(batch);
+        }
+        let curFrame = RenderInfo.loopCount;
+        batchUserData.touch = curFrame;
+        if(curFrame-this._lastGC>WebGPUInstanceRenderBatch.GCCheckInterval){
+            this._lastGC = curFrame;
+            for(let i=0,n=allCache.length;i<n;i++){
+                let userData = allCache[i].userCacheData;
+                if(userData && curFrame - userData.touch>WebGPUInstanceRenderBatch.deleteDuration){
+                    allCache[i].userCacheData = null;
+                }
+            }
+        }
+        return batch;
     }
 
     batch(elements: SingletonList<IRenderElement3D>) {
@@ -84,14 +111,17 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                     } else {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
-                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D();
-                        this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
+                        let instanceRenderElement: IInstanceRenderElement3D = instanceMark.userCacheData.element as WebGPUInstanceRenderElement3D 
+                        if(!instanceRenderElement){
+                            instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D() as WebGPUInstanceRenderElement3D;
+                            this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
+                        }
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
                         instanceRenderElement.renderShaderData = element.renderShaderData;
                         instanceRenderElement.owner = element.owner;
-                        instanceRenderElement.setGeometry(element.geometry);
+                        instanceRenderElement.setGeometry(element.geometry as WebGPURenderGeometry);
 
                         const list = instanceRenderElement.instanceElementList;
                         list.length = 0;
