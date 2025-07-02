@@ -191,7 +191,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     rtNeedClear: boolean = false;
-    
+
     constructor() {
         this.device = WebGPURenderEngine._instance.getDevice();
         this._preDrawUniformMaps = new Set<string>();
@@ -513,9 +513,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             this._start();
             this._needStart = false;
         }
-        this.renderCommand.setBindGroup(0,this._sceneBindGroup)
-        this.renderCommand.setBindGroup(1,this._cameraBindGroup)
-        node._render(this, this.renderCommand);
+        this._renderCommand.setBindGroup(0,this._sceneBindGroup)
+        this._renderCommand.setBindGroup(1,this._cameraBindGroup)
+        node._render(this, this._renderCommand);
         this._submit();
         this.rtNeedClear = false;
 

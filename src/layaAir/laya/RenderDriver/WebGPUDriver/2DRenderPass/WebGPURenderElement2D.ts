@@ -84,7 +84,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
     protected _cacheMatCullMode: CullMode;
 
     protected _additionShaderData: Map<string, WebGPUShaderData> = new Map();;
-    protected _additinalArray: string[] = [];
+    protected _additinalArray: Set<string> = new Set();
 
     //get pipeline blend State
     blendState: WebGPUBlendStateCache;
@@ -171,6 +171,37 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         });
     }
 
+    private _globalShaderData: WebGPUShaderData;
+    private _globalUboBuffer: WebGPUUniformBufferBase;
+    public get globalShaderData(): WebGPUShaderData {
+        return this._globalShaderData;
+    }
+
+    public set globalShaderData(value: WebGPUShaderData) {
+        if (this._globalShaderData == value)
+            return;
+        let key = "Sprite2DGlobal";
+        this._globalShaderData = value;
+        let oldData = this._additionShaderData.get(key);
+        if (oldData) {
+            oldData.removeBindGroupChangeFlag(key, this._value2DBindGroupChangeFlag, this._value2DBindGroupLayoutFlag);
+            oldData._defineDatas.removeChangeFlagInfo(this._value2DDefChangeFlag);
+            this._additionShaderData.delete(key);
+            this._globalUboBuffer = null;
+            this._additinalArray.delete(key);
+        }
+        if (value) {
+            this._additionShaderData.set(key, value);
+            let unifomrMap = <WebGPUCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+            this._globalUboBuffer = value.createSubUniformBuffer(key, key, unifomrMap._idata);
+            value.addBindGroupChangeLink(key, unifomrMap._idata);
+            value.addBindGroupChangeFlag(key, this._value2DBindGroupChangeFlag, this._value2DBindGroupLayoutFlag);
+            value._defineDatas.addChangeFlagInfo(this._value2DDefChangeFlag);
+            this._additinalArray.add(key);
+        }
+    }
+
+
     constructor() {
 
     }
@@ -244,7 +275,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             pass.moduleData.attributeLocations = attributeLocations;
 
             let passData = pass.moduleData;
-            passData.additionShaderData = this._additinalArray;
+            passData.additionShaderData = Array.from(this._additinalArray);;
 
             //获取着色器实例，先查找缓存，如果没有则创建
             const shaderInstance = pass.withCompile(comDef, true) as WebGPUShaderInstance;
@@ -447,7 +478,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             } else {
                 info.nodeBindGroup = WebGPUBindGroupCache.emptyBindGroup;
             }
-             command.setBindGroup(1, info.nodeBindGroup);
+            command.setBindGroup(1, info.nodeBindGroup);
         }
         {
             if (this._materialShaderData) {
@@ -547,6 +578,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 ubo.upload();
             });
         }
+        if (this._globalUboBuffer)
+            this._globalUboBuffer.upload();
     }
 
     /**
@@ -562,7 +595,11 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         }
         this._drawCacheArray = this._drawPassInfo.drawInfos;
         this._updateMatChangeFlag();
-
+        //优化 TODO
+        let globalshaderData = this.getGlobalShaderData() as WebGPUShaderData;
+        if (globalshaderData != this._globalShaderData) {
+            this.globalShaderData = globalshaderData
+        }
         if (this.geometry.getStateCacheID() != this._cacheGeometryStateID) {
             this._needUpdatePipeline();
             this._cacheGeometryStateID = this.geometry.getStateCacheID();

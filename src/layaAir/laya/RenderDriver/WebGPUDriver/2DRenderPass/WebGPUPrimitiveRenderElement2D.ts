@@ -9,20 +9,23 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
 
     private _sprite2DGraphicUBOs: WebGPUUniformBufferBase;
     private _primitiveShaderData: WebGPUShaderData;
+
     public get primitiveShaderData(): WebGPUShaderData {
         return this._primitiveShaderData;
     }
+
     public set primitiveShaderData(value: WebGPUShaderData) {
         if (this._primitiveShaderData == value)
             return;
         let primitiveAdditionalKey = "Sprite2DGraphics";
-
+        this._primitiveShaderData = value;
         let oldData = this._additionShaderData.get(primitiveAdditionalKey);
         if (oldData) {
             oldData.removeBindGroupChangeFlag(primitiveAdditionalKey, this._value2DBindGroupChangeFlag, this._value2DBindGroupLayoutFlag);
             oldData._defineDatas.removeChangeFlagInfo(this._value2DDefChangeFlag);
             this._additionShaderData.delete(primitiveAdditionalKey);
             this._sprite2DGraphicUBOs = null;
+            this._additinalArray.delete(primitiveAdditionalKey);
         }
         if (value) {
             this._additionShaderData.set(primitiveAdditionalKey, value);
@@ -31,7 +34,7 @@ export class WebGPUPrimitiveRenderElement2D extends WebGPURenderElement2D implem
             value.addBindGroupChangeLink(primitiveAdditionalKey, unifomrMap._idata);
             value.addBindGroupChangeFlag(primitiveAdditionalKey, this._value2DBindGroupChangeFlag, this._value2DBindGroupLayoutFlag);
             value._defineDatas.addChangeFlagInfo(this._value2DDefChangeFlag);
-            this._additinalArray.push(primitiveAdditionalKey);
+            this._additinalArray.add(primitiveAdditionalKey);
         }
     }
 

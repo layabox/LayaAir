@@ -289,6 +289,8 @@ export class WebGPUShaderData extends ShaderData {
         let mapID = Shader3D.propertyNameToID(commandMapID);
         if (this._BindGroupFlagMap.has(mapID)) {
             this._BindGroupFlagMap.get(mapID).delete(flag);
+            flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+            layoutFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             this._BindGroupLayoutFlagMap.get(mapID).delete(layoutFlag);
         }
     }
