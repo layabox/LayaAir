@@ -500,7 +500,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param node 
      */
     drawRenderElementOne(node: WebGPURenderElement3D): number {
-        WebGPURenderEngine._instance._framePassCount++;
+
         this._setScreenRT();
         this._prepareContext();
         node._preUpdatePre(this);
@@ -517,7 +517,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         node._render(this, this._renderCommand);
         this._submit();
         this.rtNeedClear = false;
-
+        WebGPURenderEngine._instance._framePassCount++;
         //TODO 统计
         return 0;
     }

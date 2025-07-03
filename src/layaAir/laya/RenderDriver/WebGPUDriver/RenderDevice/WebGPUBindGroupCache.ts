@@ -61,7 +61,7 @@ export class WebGPUBindGroupCache {
 
     private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
 
-    
+
 
     clearCache() {
         this.bindGroupCache.clear();
@@ -333,7 +333,7 @@ export class WebGPUBindGroupCache {
         }
 
         let descriptor: GPUBindGroupDescriptor = {
-            label: "GPUBindGroupDescriptor" + commands?.join(","),
+            label: `${cacheKey}`,
             layout: layout,
             entries: entries,
         };
