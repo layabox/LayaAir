@@ -10,6 +10,7 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindGroup } from "../RenderDevice/WebGPUBindGroupCache";
 import { WebGPUBindGroupHelper } from "../RenderDevice/WebGPUBindGroupHelper";
@@ -42,6 +43,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     value2DShaderData: WebGPUShaderData;
 
+    globalShaderData: WebGPUShaderData;
+
     subShader: SubShader;
     //@renderPipeline Interface TODO
     blendState: WebGPUBlendStateCache;
@@ -65,14 +68,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     constructor() {
     }
-    owner: IRenderStruct2D;
-
-    protected getGlobalShaderData(): ShaderData {
-        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
-            return this.owner.globalRenderData.globalShaderData;
-        else
-            return null;
-    }
+    
+    owner: WebRenderStruct2D;
 
     protected _getShaderInstanceDefines(context: WebGPURenderContext2D) {
         const comDef = WebGPURenderElement2D._compileDefine;
@@ -87,9 +84,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.materialShaderData)
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-        let global = this.getGlobalShaderData();
-        if (global) {
-            comDef.addDefineDatas(global.getDefineData());
+        if (this.globalShaderData) {
+            comDef.addDefineDatas(this.globalShaderData.getDefineData());
         }
 
         let passData = context.passData;
@@ -372,6 +368,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param context 
      */
     _prepare(context: WebGPURenderContext2D) {
+        let global = this.globalShaderData = this.owner && this.owner._globalShaderData as WebGPUShaderData;
         //编译着色器
         this._compileShader(context);
         let shader = this._shaderInstances.elements[0];
@@ -379,7 +376,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             let passData = context.passData;
             if (passData) {
                 let globalStr = "Sprite2DGlobal";
-                let global = this.getGlobalShaderData() as WebGPUShaderData;
                 if (global) {
                     for (const [index, func] of global._updateCacheArray) {
                         let ubo = passData._uniformBuffersPropertyMap.get(index);
@@ -441,6 +437,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._renderByShaderInstance(shaders[j], context, command);
             }
         }
+
         return 0;
     }
 
@@ -459,6 +456,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * 销毁
      */
     destroy() {
+        this.globalShaderData = null;
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
     }

@@ -2194,7 +2194,6 @@ export class Sprite extends Node {
         if (this._ownerArea != null) {
             this._ownerArea = null;
         }
-        this._struct.globalRenderData = null;
         super._setUnBelongScene();
     }
 
@@ -2213,13 +2212,9 @@ export class Sprite extends Node {
             if (ele === this._scene || ele === ILaya.stage) break;
             if (ele._globalRenderData) {
                 this._ownerArea = ele;
-                this._struct.globalRenderData = ele._globalRenderData;
                 break;
             }
             ele = ele._parent;
-        }
-        if (this._ownerArea == null) {
-            this._struct.globalRenderData = this._scene?._globalRenderData;
         }
     }
 
@@ -2296,8 +2291,8 @@ export class Sprite extends Node {
 
         if (enable && !this._oriRenderPass.enable) {
             let parent = this._struct.parent;
-            // let originPass = this._struct.pass;
             this._struct.pass = this._oriRenderPass;
+
             if (parent) {
                 let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);

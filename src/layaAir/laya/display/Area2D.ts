@@ -20,6 +20,7 @@ export class Area2D extends Sprite {
         this._initShaderData();
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this._globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._struct.globalRenderData = this._globalRenderData;
     }
 
     get mainCamera(): Camera2D {

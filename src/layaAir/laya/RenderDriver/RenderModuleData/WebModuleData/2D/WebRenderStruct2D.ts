@@ -32,6 +32,7 @@ enum ChildrenUpdateType {
    Blend = 2,
    Alpha = 4,
    Pass = 8,
+   Global = 16,
 }
 
 interface StructTransform {
@@ -136,7 +137,28 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._renderDataHandler.owner = this;
    }
 
-   globalRenderData: WebGlobalRenderData;
+
+   /** @internal */
+   _globalShaderData: ShaderData = null;
+
+   /** @internal */
+   private _globalRenderData: WebGlobalRenderData = null;
+   /** @internal */
+   private _parentGlobalRenderData: WebGlobalRenderData = null;
+
+   public get globalRenderData(): WebGlobalRenderData {
+      return this._globalRenderData || this._parentGlobalRenderData;
+   }
+
+   public set globalRenderData(value: WebGlobalRenderData) {
+      if (value) {
+         this._globalShaderData = value.globalShaderData;
+      } else {
+         this._globalShaderData = null;
+      }
+      this._globalRenderData = value;
+      this.updateChildren(ChildrenUpdateType.Global);
+   }
 
    private _pass: WebRender2DPass;
    private _parentPass: WebRender2DPass;
@@ -311,7 +333,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    private updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
       let priority: number = 0, pass: WebRender2DPass = null;
-      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false;
+      let globalShaderData: ShaderData = null, globalRenderData: WebGlobalRenderData = null;
+      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false, updateGlobal = false;
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
@@ -334,6 +357,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          pass = this.pass;
          priority = pass ? pass.priority + 1 : 0;
          updatePass = true;
+      }
+
+      if (type & ChildrenUpdateType.Global) {
+         updateGlobal = true;
+         globalShaderData = this._globalShaderData;
+         globalRenderData = this._globalRenderData;
       }
 
       for (const child of this.children) {
@@ -364,8 +393,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             if (child._pass && child._pass !== pass) {
                child._pass.priority = priority;
             }
-
+            //需要更新优先级
             updateChild = true;
+         }
+
+         if (updateGlobal) {
+            if (!child._globalRenderData) {
+               updateChild = true;
+               child._globalShaderData = globalShaderData;
+            }
+
+            child._parentGlobalRenderData = globalRenderData;
          }
 
          if (updateChild) {
@@ -387,6 +425,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       child._parentClipInfo = this.getClipInfo();
       child._parentBlendMode = this.blendMode;
       child._parentPass = this.pass;
+      child._parentGlobalRenderData = this.globalRenderData;
+      if (!child._globalRenderData) child._globalShaderData = this._globalShaderData;
       //效率
       child.updateChildren(ChildrenUpdateType.All);
       return;
@@ -414,6 +454,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          child._parentClipInfo = null;
          child._parentBlendMode = BlendMode.invalid;
          child.globalAlpha = child._alpha;
+         child._parentGlobalRenderData = null;
+         if (!child._globalRenderData) child._globalShaderData = null;
          child.updateChildren(ChildrenUpdateType.All);
       }
    }

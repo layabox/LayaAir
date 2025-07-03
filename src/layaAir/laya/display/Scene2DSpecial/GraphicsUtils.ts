@@ -54,6 +54,8 @@ export class GraphicsRenderData {
       }
       element.materialShaderData = null;
       element.value2DShaderData = null;
+      element.primitiveShaderData = null;
+      element.globalShaderData = null;
       element.owner = null;
       element.subShader = null;
       element.renderStateIsBySprite = false;
@@ -77,11 +79,6 @@ export class GraphicsRenderData {
 
       this._bufferBlocks.length = 0;
       this._submits.length = 0;
-
-      // for (i = 0; i < this.touchResources.length; i++) {
-      //    this.touchResources[i].referenceCount--;
-      // }
-      // this.touchResources.length = 0;
    }
 
    destroy(): void {
@@ -124,13 +121,14 @@ export class GraphicsRenderData {
 
             element.primitiveShaderData = submit._internalInfo.shaderData;
             element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
-
+            
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);
                element.materialShaderData = submit.material.shaderData;
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
             }
+
 
             let geometry = element.geometry;
             geometry.bufferState = submit.mesh.bufferState;
@@ -266,6 +264,7 @@ export class SubStructRender {
       subStruct.renderDataHandler = this._handle;
       subStruct.renderMatrix = sprite.globalTrans.getMatrix();
       subStruct.renderElements = [this._renderElement];
+
       this._renderElement.owner = this._subStruct;
       this._renderElement.type = this._subStruct.blendMode;
    }

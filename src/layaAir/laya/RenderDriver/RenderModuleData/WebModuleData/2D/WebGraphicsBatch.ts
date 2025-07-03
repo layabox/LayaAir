@@ -140,7 +140,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
             element.value2DShaderData = null;
             element.primitiveShaderData = null;
             element.subShader = null;
+            element.owner = null;
             element.renderStateIsBySprite = false;
+            element.globalShaderData = null;
         });
 
     batchRenderElement(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {
@@ -235,6 +237,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
                 staticBatchRenderElement.primitiveShaderData = batchContext.shaderData;
+                staticBatchRenderElement.owner = element.owner;
             }
 
             geometry.getDrawDataParams(TEMP_SINGLE_LIST);

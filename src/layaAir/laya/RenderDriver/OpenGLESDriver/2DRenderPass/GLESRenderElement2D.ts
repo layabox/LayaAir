@@ -10,6 +10,7 @@ export class GLESRenderElement2D implements IRenderElement2D {
     private _geometry: GLESRenderGeometryElement;
     private _materialShaderData: GLESShaderData;
     private _value2DShaderData: GLESShaderData;
+    private _globalShaderData: GLESShaderData;
     private _subShader: SubShader;
     set type(value: number) {
         this._nativeObj.type = value;
@@ -46,6 +47,14 @@ export class GLESRenderElement2D implements IRenderElement2D {
         return this._value2DShaderData;
     }
 
+    set globalShaderData(data: GLESShaderData) {
+        this._globalShaderData = data;
+        this._nativeObj.setGlobalShaderData(data ? (data as any)._nativeObj : null);
+    }
+
+    get globalShaderData(): GLESShaderData {
+        return this._globalShaderData;
+    }
 
     public get subShader(): SubShader {
         return this._subShader;
