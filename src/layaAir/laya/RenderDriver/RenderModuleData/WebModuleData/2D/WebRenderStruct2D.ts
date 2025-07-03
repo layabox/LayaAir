@@ -286,18 +286,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    setClipRect(rect: Rectangle): void {
       this._clipRect = rect;
-      this._initClipInfo();
+      rect ? this._initClipInfo() : this._clipInfo = null;
       this.updateChildren(ChildrenUpdateType.Clip);
    }
 
    private _initClipInfo(): void {
       if (!this._clipInfo) {
-         this._clipInfo = {} as any;
-         this._clipInfo.clipMatDir = new Vector4;
-         this._clipInfo.clipMatPos = new Vector4;
-         this._clipInfo.clipMatrix = new Matrix;
+         this._clipInfo = {
+            clipMatDir: new Vector4,
+            clipMatPos: new Vector4,
+            clipMatrix: new Matrix,
+            _updateFrame: -1
+         };
       }
-      this._clipInfo._updateFrame = -1;
+      else
+         this._clipInfo._updateFrame = -1;
    }
 
    getClipInfo(): IClipInfo {

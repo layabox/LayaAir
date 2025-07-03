@@ -35,7 +35,7 @@ import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 
-const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
+const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -1553,15 +1553,8 @@ export class Sprite extends Node {
 
         let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
-        let tmpDisabled: Array<IRenderStruct2D> = [];
 
         const updateSprites = function (root: Sprite): void {
-
-            if (root._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE) && root._struct.enabled) {
-                tmpDisabled.push(root._struct);
-                root._struct.enabled = false;
-            }
-
             if (root._subpassUpdateFlag) {
                 root.updateSubRenderPassState();
                 if (root._oriRenderPass) {
@@ -1626,8 +1619,6 @@ export class Sprite extends Node {
         processor.apply(Render2DProcessor.rendercontext2D);
         processor.clear();
         pass.destroy();
-
-        tmpDisabled.forEach((struct) => struct.enabled = true);
 
         return renderout;
     }
@@ -2184,7 +2175,7 @@ export class Sprite extends Node {
      * @return 可见状态是否真正改变了。
      */
     _processVisible(): boolean {
-        let b = this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE);
+        let b = this._visible && !this._getBit(hiddenBits);
         if (this._struct.enabled !== b) {
             this._struct.enabled = b;
             if (b)
