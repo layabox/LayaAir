@@ -157,10 +157,7 @@ export class GraphicsRenderData {
       indexView.geometry = geometry;
       submit.indexView = indexView;
 
-      let data = indexView.getData();
-      data.set(submit.indices);
-
-      indexView.modify();
+      indexView.setData(submit.indices);
       // clear
       submit.indexCount = 0;
       submit.indices.length = 0;

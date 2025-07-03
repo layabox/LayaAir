@@ -633,7 +633,6 @@ export class Sprite extends Node {
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
-            this._struct.enabled = value;
             this._processVisible();
         }
     }
@@ -2178,9 +2177,12 @@ export class Sprite extends Node {
         let b = this._visible && !this._getBit(hiddenBits);
         if (this._struct.enabled !== b) {
             this._struct.enabled = b;
-            if (b)
-                this.repaint();
+            if (this._subStruct) {
+                this._subStruct.enabled = b;
+            }
+            if (b) this.repaint();
             this.parentRepaint();
+            this._setDisplay(b);
             return true;
         }
         else
@@ -2292,7 +2294,7 @@ export class Sprite extends Node {
         if (enable && !this._oriRenderPass.enable) {
             let parent = this._struct.parent;
             this._struct.pass = this._oriRenderPass;
-
+            this._subStruct.enabled = this._struct.enabled;
             if (parent) {
                 let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);

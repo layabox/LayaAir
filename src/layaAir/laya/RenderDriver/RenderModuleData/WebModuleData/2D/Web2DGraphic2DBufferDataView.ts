@@ -193,7 +193,7 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     stride: number = 1;//element length
     owner: Web2DGraphicWholeBuffer;
     modifyType: BufferModifyType;
-    isModified: boolean = false; // 标记数据是否被修改
+    // isModified: boolean = false; // 标记数据是否被修改
     geometry: IRenderGeometryElement;
 
     /** @internal */
@@ -214,7 +214,13 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         return this._data;
     }
 
-    modify() {
+    setData(data: Float32Array | Uint16Array) {
+        this._data.set(data);
+        this._modify();
+    }
+
+    /** @private */
+    _modify() {
         if (this.modifyType == BufferModifyType.Index) {
             this.owner.modifyOneView(this);
             WebRender2DPass.setBuffer(this.owner);

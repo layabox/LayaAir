@@ -150,7 +150,7 @@ export class WebRender2DPass implements IRender2DPass {
          this._lists[zOrder] = new PassRenderList;
          this._lists[zOrder].zOrder = zOrder;
       }
-      this._lists[zOrder].add(object);
+      this._lists[zOrder].add(object, this._enableBatch);
    }
 
    /**
@@ -456,22 +456,32 @@ class PassRenderList {
       this.structs = new FastSinglelist<WebRenderStruct2D>();
    }
 
-   add(struct: WebRenderStruct2D): void {
+   add(struct: WebRenderStruct2D, isBatch: boolean = true): void {
       this.structs.add(struct);
 
       let n = struct.renderElements ? struct.renderElements.length : 0;
       if (n == 0) return;
       if (n == 1) {
-         this._batchStart(struct.renderType, 1);
-         this.renderElements.add(struct.renderElements[0]);
+         if (isBatch) {
+            this._batchStart(struct.renderType, 1);
+            this.renderElements.add(struct.renderElements[0]);
+         } else {
+            this.renderElements.add(struct.renderElements[0]);
+         }
       } else {
-         this._batchStart(struct.renderType, n);
-         for (var i = 0; i < n; i++) {
-            this.renderElements.add(struct.renderElements[i]);
+         if (isBatch) {
+            this._batchStart(struct.renderType, n);
+            for (var i = 0; i < n; i++) {
+               this.renderElements.add(struct.renderElements[i]);
+            }
+         } else {
+            for (var i = 0; i < n; i++) {
+               this.renderElements.add(struct.renderElements[i]);
+            }
          }
       }
-
-      if (this._currentBatch.batchFun) {
+      
+      if (isBatch && this._currentBatch.batchFun) {
          let offset = this._currentBatch.indexStart + this._currentBatch.elementLength - n;
          this._currentBatch.batchFun.batchIndexBuffer(struct, this._batchBuffer, offset);
       }
@@ -590,7 +600,7 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       if (this._passes.indexOf(pass) !== -1) {
          return;
       }
-      
+
       this._passes.push(pass);
       this._modefy = true;
    }

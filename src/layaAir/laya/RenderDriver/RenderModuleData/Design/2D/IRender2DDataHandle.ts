@@ -38,13 +38,10 @@ export interface I2DGraphicBufferDataView {
     start: number;
     length: number;
     stride: number;
-    isModified: boolean;
     modifyType: BufferModifyType;
-    owner: I2DGraphicWholeBuffer;
     geometry: IRenderGeometryElement;
     getData(): Float32Array | Uint16Array;
-    modify(): void;
-    clone(needOwner: boolean, create: boolean): I2DGraphicBufferDataView;
+    setData(data: ArrayLike<number>): void;
 }
 
 /** @blueprintIgnore */
@@ -54,8 +51,6 @@ export interface I2DGraphicWholeBuffer {
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;
-    // addDataView(dataView: I2DGraphicBufferDataView): void;
-    clearBufferViews(): void;
     destroy(): void;
 }
 
