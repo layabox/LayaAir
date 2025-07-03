@@ -90,6 +90,11 @@ export class WebGPUSubUniformBuffer extends WebGPUUniformBufferBase implements I
         this.needUpload = true;
         if (info) {
             this._reSetBindGroupEntry();
+            if (this._owner) {
+                let mapID = Shader3D.propertyNameToID(this.descriptor.lable);
+                this._owner && this._owner.bindGroupUpdateBuffer(mapID, this);
+            }
+
         }
     }
 

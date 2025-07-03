@@ -762,6 +762,20 @@ export class WebGPUShaderData extends ShaderData {
         return false;
     }
 
+    bindGroupUpdateBuffer(index: number, value: WebGPUUniformBufferBase) {
+        let bindgroupMap = this._propertyLinkBindGroupMap[index];
+        if (bindgroupMap && bindgroupMap.length > 0) {
+            for (var i = 0; i < bindgroupMap.length; i++) {
+                let bidngroupMap = this._BindGroupFlagMap.get(bindgroupMap[i])
+                bidngroupMap.forEach(value => {
+                    value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+                });
+            }
+        }
+    }
+
+
+
     bindGroupUpdateTex(index: number, value: WebGPUInternalTex) {
         //update Bindgroup flag
         let bindgroupMap = this._propertyLinkBindGroupMap[index];
