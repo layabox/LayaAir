@@ -2180,9 +2180,13 @@ export class Sprite extends Node {
             if (this._subStruct) {
                 this._subStruct.enabled = b;
             }
-            if (b) this.repaint();
+            if (b) {
+                this.repaint();
+                ILaya.stage.passManager.addPass(this._oriRenderPass);
+            } else {
+                ILaya.stage.passManager.removePass(this._oriRenderPass);
+            }
             this.parentRepaint();
-            this._setDisplay(b);
             return true;
         }
         else
