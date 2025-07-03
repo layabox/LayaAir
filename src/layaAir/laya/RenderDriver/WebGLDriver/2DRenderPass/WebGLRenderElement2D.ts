@@ -25,7 +25,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
     /** @internal */
-    protected _globalShaderData: WebGLShaderData;
+    globalShaderData: WebGLShaderData;
     subShader: SubShader;
 
     protected _compileShader(context: WebglRenderContext2D) {
@@ -40,8 +40,8 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (this._globalShaderData) {
-                this._globalShaderData._defineDatas.cloneTo(comDef);
+            if (this.globalShaderData) {
+                this.globalShaderData._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }
@@ -76,7 +76,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         }
     }
     _prepare(context: WebglRenderContext2D) {
-        this._globalShaderData = this.owner && this.owner._globalShaderData as WebGLShaderData;
+        this.globalShaderData = this.owner && this.owner._globalShaderData as WebGLShaderData;
         this._compileShader(context);
     }
 
@@ -89,11 +89,10 @@ export class WebGLRenderelement2D implements IRenderElement2D {
                 this.renderByShaderInstance(passes[j], context);
             }
         }
-        this._globalShaderData = null;
     }
 
     protected _uploadGlobalAndPass(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
-        this._globalShaderData && shader.uploadUniforms(shader._cameraUniformParamsMap, this._globalShaderData, true);
+        this.globalShaderData && shader.uploadUniforms(shader._cameraUniformParamsMap, this.globalShaderData, true);
         context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
     }
 
@@ -118,6 +117,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
     destroy(): void {
         //TODO
+        this.globalShaderData = null;
     }
 
 

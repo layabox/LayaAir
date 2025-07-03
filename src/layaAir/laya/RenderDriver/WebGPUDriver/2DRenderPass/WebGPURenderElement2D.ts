@@ -43,7 +43,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
 
     value2DShaderData: WebGPUShaderData;
 
-    protected _globalShaderData: WebGPUShaderData;
+    globalShaderData: WebGPUShaderData;
 
     subShader: SubShader;
     //@renderPipeline Interface TODO
@@ -84,8 +84,8 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this.materialShaderData)
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-        if (this._globalShaderData) {
-            comDef.addDefineDatas(this._globalShaderData.getDefineData());
+        if (this.globalShaderData) {
+            comDef.addDefineDatas(this.globalShaderData.getDefineData());
         }
 
         let passData = context.passData;
@@ -368,7 +368,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * @param context 
      */
     _prepare(context: WebGPURenderContext2D) {
-        this._globalShaderData = this.owner && this.owner._globalShaderData as WebGPUShaderData;
+        let global = this.globalShaderData = this.owner && this.owner._globalShaderData as WebGPUShaderData;
         //编译着色器
         this._compileShader(context);
         let shader = this._shaderInstances.elements[0];
@@ -376,7 +376,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             let passData = context.passData;
             if (passData) {
                 let globalStr = "Sprite2DGlobal";
-                let global = this._globalShaderData;
                 if (global) {
                     for (const [index, func] of global._updateCacheArray) {
                         let ubo = passData._uniformBuffersPropertyMap.get(index);
@@ -438,7 +437,6 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._renderByShaderInstance(shaders[j], context, command);
             }
         }
-        this._globalShaderData = null;
 
         return 0;
     }
@@ -458,6 +456,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * 销毁
      */
     destroy() {
+        this.globalShaderData = null;
         WebGPUGlobal.releaseId(this);
         this._shaderInstances.length = 0;
     }

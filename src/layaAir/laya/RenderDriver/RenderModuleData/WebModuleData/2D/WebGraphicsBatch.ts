@@ -142,6 +142,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             element.subShader = null;
             element.owner = null;
             element.renderStateIsBySprite = false;
+            element.globalShaderData = null;
         });
 
     batchRenderElement(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void {

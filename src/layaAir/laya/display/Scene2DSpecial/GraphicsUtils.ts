@@ -55,6 +55,7 @@ export class GraphicsRenderData {
       element.materialShaderData = null;
       element.value2DShaderData = null;
       element.primitiveShaderData = null;
+      element.globalShaderData = null;
       element.owner = null;
       element.subShader = null;
       element.renderStateIsBySprite = false;
