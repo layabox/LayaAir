@@ -154,7 +154,7 @@ export class GraphicsRenderData {
 
    private _updateIndexViews(submit: SubmitBase, geometry: IRenderGeometryElement) {
       let indexView = submit.mesh.checkIndex(submit.indexCount);
-      indexView.geometry = geometry;
+      indexView.setGeometry(geometry);
       submit.indexView = indexView;
 
       indexView.setData(submit.indices);

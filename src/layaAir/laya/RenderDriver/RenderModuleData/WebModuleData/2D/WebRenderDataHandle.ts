@@ -182,7 +182,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             if (block) {
                 cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DBufferDataView, view);
             } else {
-                view.geometry.destroy();
+                view._geometry.destroy();
                 if (view.owner)
                     view.owner.removeDataView(view);
             }
@@ -192,11 +192,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
         let clone = view.clone(false, false);
-        if (oView && oView.geometry) {
-            clone.geometry = oView.geometry;
+        if (oView && oView._geometry) {
+            clone._geometry = oView._geometry;
         } else {
-            clone.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            clone.geometry.indexFormat = IndexFormat.UInt16;
+            clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            clone._geometry.indexFormat = IndexFormat.UInt16;
         }
         return clone;
     }
@@ -206,7 +206,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
         if (this._clonesViews) {
             for (let i = 0, n = this._clonesViews.length; i < n; i++)
-                this._clonesViews[i].geometry.destroy();
+                this._clonesViews[i]._geometry.destroy();
             this._clonesViews = null;
         }
         this._bufferBlocks = null;

@@ -39,7 +39,7 @@ export interface I2DGraphicBufferDataView {
     length: number;
     stride: number;
     modifyType: BufferModifyType;
-    geometry: IRenderGeometryElement;
+    setGeometry(value: IRenderGeometryElement): void;
     getData(): Float32Array | Uint16Array;
     setData(data: ArrayLike<number>): void;
 }

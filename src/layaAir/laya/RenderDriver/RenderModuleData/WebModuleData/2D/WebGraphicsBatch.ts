@@ -298,9 +298,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
             let bufferState = buffer.bindBuffer(vertexBuffer);
             buffer.indexCount += cview.length;
             buffer.wholeBuffer.modifyOneView(cview);
-            cview.geometry.bufferState = bufferState;
+            cview._geometry.bufferState = bufferState;
 
-            buffer.geometryList[offset + i] = cview.geometry;
+            buffer.geometryList[offset + i] = cview._geometry;
         }
 
         WebRender2DPass.setBuffer(buffer.wholeBuffer);

@@ -113,12 +113,7 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         this._modifyType = value;
         this._nativeObj.modifyType = value;
     }
-
-    get geometry(): GLESRenderGeometryElement {
-        return this._geometry;
-    }
-
-    set geometry(value: GLESRenderGeometryElement) {
+    setGeometry(value: GLESRenderGeometryElement) {
         this._geometry = value;
         this._nativeObj.setGeometry(value ? value._nativeObj : null);
     }
@@ -132,7 +127,7 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     }
 
     constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create: boolean = true) {
-        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride);
+        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride, create);
         this._nativeObj.setOwner(owner ? owner._nativeObj : null);
         this._owner = owner;
         this._start = start;

@@ -25,7 +25,7 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     }
     public set owner(value: RTRenderStruct2D) {
         this._owner = value;
-        this._nativeObj.setOwner(this._owner._nativeObj);
+        this._nativeObj.setOwner(value ? value._nativeObj : null);
     }
     public get needUseMatrix(): boolean {
         return this._nativeObj.needUseMatrix;
@@ -55,7 +55,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         this._nativeObj.setMask(value ? value._nativeObj : null);
     }
 
-    private _blocks: Graphics2DBufferBlock[] = [];
+    private _blocks: Graphics2DBufferBlock[] = null;
 
     applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
         this._blocks = blocks;
