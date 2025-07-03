@@ -158,7 +158,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
             })
             this._nodeCommonMap.length = 0;
         }
-
+        value = value ? value : [];
         value.forEach(element => {
             this._nodeCommonMap.push(element);
             if (this._value2DShaderData) {

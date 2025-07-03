@@ -52,7 +52,7 @@ export class Main {
      * @param singleDemo  单个Demo入口
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
-        this.startTest();
+        this.startTest(is3D);
     }
     async startTest(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any){
         this._singleDemo = singleDemo;

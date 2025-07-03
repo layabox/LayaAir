@@ -228,7 +228,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     drawRenderElementList(list: FastSinglelist<WebGPURenderElement2D>): number {
         const len = list.length;
         if (len === 0) return 0; //没有需要渲染的对象
-        WebGPURenderEngine._instance._framePassCount++;
+
         if (this._needStart) {
             this._start();
             this._needStart = false;
@@ -244,6 +244,7 @@ export class WebGPURenderContext2D implements IRenderContext2D {
             elements[i]._render(this, this.renderCommand);
         }
         this._submit();
+        WebGPURenderEngine._instance._framePassCount++;
         return 0;
     }
 
@@ -282,17 +283,16 @@ export class WebGPURenderContext2D implements IRenderContext2D {
     }
 
     drawRenderElementOne(node: WebGPURenderElement2D): void {
-        WebGPURenderEngine._instance._framePassCount++;
-        this._prepareContext();
         if (this._needStart) {
             this._start();
             this._needStart = false;
         }
-
+        this._prepareContext();
         node._prepare(this);
         WebGPURenderEngine._instance.gpuBufferMgr.upload();
         node._render(this, this.renderCommand);
         this._submit();
+        WebGPURenderEngine._instance._framePassCount++;
     }
 
     runOneCMD(cmd: IRenderCMD): void {
