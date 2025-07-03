@@ -704,7 +704,8 @@ export class WebGPUShaderData extends ShaderData {
 
         if (this._uniformBuffersPropertyMap.has(index)) {
             let buffer = this._uniformBuffersPropertyMap.get(index);
-            buffer.setBuffer(index, value);
+            // buffer.setBuffer(index, value);
+            buffer.setArrayBuffer(index, value);
         }
     }
 
