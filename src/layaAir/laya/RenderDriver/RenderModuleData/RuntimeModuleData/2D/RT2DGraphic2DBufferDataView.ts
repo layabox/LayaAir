@@ -6,35 +6,42 @@ import { GLESRenderGeometryElement } from "../../../OpenGLESDriver/RenderDevice/
 
 
 export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
+
+    _nativeObj: any;
+    private _bufferData: Float32Array | Uint16Array;
+    private _buffer: IIndexBuffer | IVertexBuffer;
+    private _modifyType: BufferModifyType;
+
     get bufferData(): Float32Array | Uint16Array {
-        return this._nativeObj.bufferData;
+        return this._bufferData;
     }
     set bufferData(value: Float32Array | Uint16Array) {
+        this._bufferData = value;
         this._nativeObj.bufferData = value;
     }
     get buffer(): IIndexBuffer | IVertexBuffer {
-        return this._nativeObj.buffer;
+        return this._buffer;
     }
+
     set buffer(value: IIndexBuffer | IVertexBuffer) {
         this._nativeObj.buffer = value;
+        this._buffer = value;
     }
+
     get modifyType(): BufferModifyType {
-        return this._nativeObj.modifyType;
+        return this._modifyType;
     }
+
     set modifyType(value: BufferModifyType) {
+        this._modifyType = value;
         this._nativeObj.modifyType = value;
     }
-    get _needResetData(): boolean {
-        return this._nativeObj._needResetData;
-    }
-    set _needResetData(value: boolean) {
-        this._nativeObj._needResetData = value;
-    }   
-    _nativeObj: any;
+
     constructor() {
         this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
         this._nativeObj.setResetDataCallback(this.resetData.bind(this));
-     }
+    }
+
     resetData(byteLength: number) {
         //copy Buffer
         if (BufferModifyType.Index == this.modifyType) {
@@ -50,11 +57,12 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             }
             this.bufferData = newData;
         }
-        this._needResetData = true;
+        this._nativeObj._needResetData = true;
     }
     removeDataView(dataView: I2DGraphicBufferDataView) {
         this._nativeObj.removeDataView(dataView ? (dataView as any)._nativeObj : null);
-    }   
+    }
+
     clearBufferViews() {
         this._nativeObj.clearBufferViews();
     }
@@ -66,81 +74,76 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 }
 
 export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
+    private _data: Float32Array | Uint16Array;
+    private _owner: RT2DGraphicWholeBuffer;
+    private _start: number;
+    private _length: number;
+    private _stride: number;
+    private _modifyType: BufferModifyType;
+    private _geometry: GLESRenderGeometryElement;
+    _nativeObj: any;
+
     get start(): number {
-        return this._nativeObj.start;
+        return this._start;
     }
     set start(value: number) {
+        this._start = value;
         this._nativeObj.start = value;
     }
     get length(): number {
-        return this._nativeObj.length;
+        return this._length;
     }
     set length(value: number) {
+        this._length = value;
         this._nativeObj.length = value;
     }
-    get stride(): number {  
-        return this._nativeObj.stride;
+    get stride(): number {
+        return this._stride;
     }
     set stride(value: number) {
+        this._stride = value;
         this._nativeObj.stride = value;
     }
-    _owner: RT2DGraphicWholeBuffer;
-    get owner(): RT2DGraphicWholeBuffer {
-        return this._owner;
-    }
-    set owner(value: RT2DGraphicWholeBuffer) {
-        this._owner = value;
-        this._nativeObj.setOwner(value ? value._nativeObj : null);
-    }   
+
     get modifyType(): BufferModifyType {
-        return this._nativeObj.modifyType;
+        return this._modifyType;
     }
+
     set modifyType(value: BufferModifyType) {
+        this._modifyType = value;
         this._nativeObj.modifyType = value;
     }
-    get isModified(): boolean {
-        return this._nativeObj.isModified;
-    }
-    set isModified(value: boolean) {
-        this._nativeObj.isModified = value;
-    }
-    _geometry: GLESRenderGeometryElement;
-    get geometry(): GLESRenderGeometryElement {    
-        return this._geometry;
-    }
-    
-    set geometry(value: GLESRenderGeometryElement) {
+    setGeometry(value: GLESRenderGeometryElement) {
         this._geometry = value;
         this._nativeObj.setGeometry(value ? value._nativeObj : null);
     }
-    
+
     getData(): Float32Array | Uint16Array {
-        return this._nativeObj.getData();
+        return this._data;
     }
 
-    modify() {
-        this._nativeObj.modify();   
+    setData(data: ArrayLike<number>) {
+        this._nativeObj.setData(data);
     }
-    
-    _nativeObj: any;
-    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1 , create: boolean = true) {
-        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride);
-        this.owner = owner;
+
+    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create: boolean = true) {
+        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride, create);
+        this._nativeObj.setOwner(owner ? owner._nativeObj : null);
+        this._owner = owner;
+        this._start = start;
+        this._length = length;
+        this._stride = stride;
+        this._modifyType = type;
 
         if (create) {
-            if (this.modifyType == BufferModifyType.Index) {
-                this._nativeObj._data = new Uint16Array(length);
+            if (this._modifyType == BufferModifyType.Index) {
+                this._data = new Uint16Array(length);
+                this._nativeObj._data = this._data;
             } else {
                 this._nativeObj._updateView(owner.bufferData);
                 owner._nativeObj._addDataView(this._nativeObj);
             }
         }
     }
-
-    clone(needOwner: boolean, create: boolean): RT2DGraphic2DBufferDataView {
-        let owner = needOwner ? this.owner : null;
-        let newView = new RT2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
-        newView._nativeObj._data = this._nativeObj._data;
-        return newView;
-    }
+  
 }

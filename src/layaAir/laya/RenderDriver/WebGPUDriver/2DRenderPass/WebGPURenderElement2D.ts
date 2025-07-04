@@ -9,6 +9,7 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPURenderElement3D } from "../3DRenderPass/WebGPURenderElement3D";
 import { WebGPUBindGroup, WebGPUBindGroupCache } from "../RenderDevice/WebGPUBindGroupCache";
@@ -232,11 +233,10 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
         if (this._materialShaderData)
             comDef.addDefineDatas(this._materialShaderData._defineDatas);
 
-        //global TODO
-        // let global = this.getGlobalShaderData(); 
-        // if (global) {
-        //     comDef.addDefineDatas(global.getDefineData() as WebDefineDatas);
-        // }
+        let global = this.getGlobalShaderData();
+        if (global) {
+            comDef.addDefineDatas(global.getDefineData() as WebDefineDatas);
+        }
         if (this._additionShaderData.size > 0) {
             this._additionShaderData.forEach(element => {
                 comDef.addDefineDatas(element._defineDatas);
@@ -667,6 +667,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
                 this._renderByShaderInstance(this._drawCacheArray[j], context, command);
             }
         }
+
         return 0;
     }
 
@@ -699,6 +700,7 @@ export class WebGPURenderElement2D implements IRenderElement2D, IRenderPipelineI
      * 销毁
      */
     destroy() {
+        this.globalShaderData = null;
         WebGPUGlobal.releaseId(this);
     }
 }

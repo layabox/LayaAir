@@ -22,8 +22,8 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (this.owner && this.owner.globalRenderData) {
-                (this.owner.globalRenderData.globalShaderData as WebGLShaderData)._defineDatas.cloneTo(comDef);
+            if (this.globalShaderData) {
+                this.globalShaderData._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }

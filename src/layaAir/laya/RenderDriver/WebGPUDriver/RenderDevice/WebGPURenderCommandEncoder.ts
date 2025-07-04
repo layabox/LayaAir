@@ -1,4 +1,3 @@
-import { Laya } from "../../../../Laya";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGPUBindGroup } from "./WebGPUBindGroupCache";
@@ -40,8 +39,6 @@ class BindGroupBindingInfo {
 
     constructor(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
         this.update(bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
-
-        console.log("create BindGroupBindingInfo")
     }
 
     update(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {

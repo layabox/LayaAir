@@ -35,7 +35,7 @@ import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 
-const hiddenBits = NodeFlags.FORCE_HIDDEN | NodeFlags.NOT_IN_PAGE;
+const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -633,7 +633,6 @@ export class Sprite extends Node {
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
-            this._struct.enabled = value;
             this._processVisible();
         }
     }
@@ -1553,15 +1552,8 @@ export class Sprite extends Node {
 
         let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
-        let tmpDisabled: Array<IRenderStruct2D> = [];
 
         const updateSprites = function (root: Sprite): void {
-
-            if (root._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE) && root._struct.enabled) {
-                tmpDisabled.push(root._struct);
-                root._struct.enabled = false;
-            }
-
             if (root._subpassUpdateFlag) {
                 root.updateSubRenderPassState();
                 if (root._oriRenderPass) {
@@ -1626,8 +1618,6 @@ export class Sprite extends Node {
         processor.apply(Render2DProcessor.rendercontext2D);
         processor.clear();
         pass.destroy();
-
-        tmpDisabled.forEach((struct) => struct.enabled = true);
 
         return renderout;
     }
@@ -2184,12 +2174,20 @@ export class Sprite extends Node {
      * @return 可见状态是否真正改变了。
      */
     _processVisible(): boolean {
-        let b = this._visible && !this._getBit(hiddenBits) || this._getBit(NodeFlags.FORCE_VISIBLE);
+        let b = this._visible && !this._getBit(hiddenBits);
         if (this._struct.enabled !== b) {
             this._struct.enabled = b;
-            if (b)
-                this.repaint();
+            if (this._subStruct) {
+                this._subStruct.enabled = b;
+            }
+            if (b) this.repaint();
             this.parentRepaint();
+            if (this._oriRenderPass) {
+                if (b)
+                    ILaya.stage.passManager.addPass(this._oriRenderPass);
+                else
+                    ILaya.stage.passManager.removePass(this._oriRenderPass);
+            }
             return true;
         }
         else
@@ -2203,7 +2201,6 @@ export class Sprite extends Node {
         if (this._ownerArea != null) {
             this._ownerArea = null;
         }
-        this._struct.globalRenderData = null;
         super._setUnBelongScene();
     }
 
@@ -2222,13 +2219,9 @@ export class Sprite extends Node {
             if (ele === this._scene || ele === ILaya.stage) break;
             if (ele._globalRenderData) {
                 this._ownerArea = ele;
-                this._struct.globalRenderData = ele._globalRenderData;
                 break;
             }
             ele = ele._parent;
-        }
-        if (this._ownerArea == null) {
-            this._struct.globalRenderData = this._scene?._globalRenderData;
         }
     }
 
@@ -2305,8 +2298,8 @@ export class Sprite extends Node {
 
         if (enable && !this._oriRenderPass.enable) {
             let parent = this._struct.parent;
-            // let originPass = this._struct.pass;
             this._struct.pass = this._oriRenderPass;
+            this._subStruct.enabled = this._struct.enabled;
             if (parent) {
                 let index = parent.children.indexOf(this._struct);
                 parent.removeChild(this._struct);
