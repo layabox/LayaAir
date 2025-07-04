@@ -266,8 +266,10 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        if (!this.owner || this.owner.destroyed)
+        if (!this.owner || this.owner.destroyed){
+            this._display = false;
             return;
+        }
 
         let value = !this.owner._renderNode && (this._cmds.length > 0 || this.owner._texture != null);
         if (this._display === value)
