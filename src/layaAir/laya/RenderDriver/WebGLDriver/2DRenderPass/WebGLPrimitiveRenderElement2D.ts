@@ -65,7 +65,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
 
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
-        if (!shader.complete)
+        if (!shader.complete || !this.geometry)
             return
         shader.bind();
         this._uploadGlobalAndPass(shader, context);

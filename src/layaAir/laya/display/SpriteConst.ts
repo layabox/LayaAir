@@ -4,7 +4,6 @@
 export class SpriteConst {
     static TEXT = 0x01;
     static AREA2D = 0x02;
-    //static = 0x04;
     static CANVAS = 0x08;
     static POSTPROCESS = 0x10;
     static MASK = 0x20;
@@ -16,6 +15,14 @@ export class SpriteConst {
     //static = 0x1000;
     static DRAW2RT = this.CANVAS | this.POSTPROCESS | this.MASK;
     static UPDATETRANS = this.CANVAS | this.POSTPROCESS | this.MASK | this.CLIP | this.GRAPHICS | this.RENDERNODE2D;
+}
+
+export enum RepaintFlag {
+    Normal = 0,
+    Size = 0x01,
+    Graphics = 0x02,
+    
+    UpdateRT = Graphics | Size,
 }
 
 export enum TransformKind {
