@@ -1,5 +1,6 @@
 import { NotImplementedError } from "../../../utils/Error";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { IComputeContext } from "./ComputeShader/IComputeContext";
 import { ShaderDataItem, ShaderDataType, ShaderData } from "./ShaderData";
 
 export enum RenderCMDType {
@@ -9,7 +10,8 @@ export enum RenderCMDType {
     ChangeData,
     ChangeShaderDefine,
     ChangeViewPort,
-    ChangeRenderTarget
+    ChangeRenderTarget,
+    ComputeCommandAppatch
 }
 
 export interface IRenderCMD {
@@ -109,4 +111,17 @@ export class SetShaderDefineCMD implements IRenderCMD {
     apply(context: any): void {
         throw new NotImplementedError();
     }
+}
+
+
+export class ComputeCommandAppatchCMD implements IRenderCMD {
+
+    type: RenderCMDType;
+
+    computeContext: IComputeContext;
+
+    apply(context: any): void {
+        throw new NotImplementedError();
+    }
+
 }

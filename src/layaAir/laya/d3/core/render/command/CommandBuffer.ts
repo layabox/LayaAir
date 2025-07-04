@@ -28,6 +28,8 @@ import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/S
 import { SetRTCMD } from "./SetRenderTargetCMD";
 import { RenderElement } from "../RenderElement";
 import { DrawRenderElementCMD } from "./DrawRenderElemenetCMD";
+import { ComputeCommandBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
+import { ComputeCommandBufferCMD } from "./ComputeCommandBufferCMD";
 
 /**
  * @en The `CommandBuffer` Class used to create command buffer
@@ -445,6 +447,12 @@ export class CommandBuffer {
      */
     blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
         let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_TRIANGLE, this);
+        this._commands.push(cmd);
+        cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
+    }
+
+    appatchComputeCommand(source: ComputeCommandBuffer) {
+        let cmd = ComputeCommandBufferCMD.create(source);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }

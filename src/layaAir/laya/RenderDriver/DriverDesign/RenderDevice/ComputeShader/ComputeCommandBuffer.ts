@@ -7,7 +7,6 @@ import { ComputeShader } from "./ComputeShader";
 import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IIndexBuffer } from "../IIndexBuffer";
-
 export class ComputeCommandBuffer {
     private _context: IComputeContext;
     constructor() {
@@ -15,6 +14,14 @@ export class ComputeCommandBuffer {
             this._context = LayaGL.renderDeviceFactory.createComputeContext();
         }
     }
+
+    /**
+     * @internal
+     */
+    getResource() {
+        return this._context;
+    }
+
     /**
         * 清理所有指令
         */

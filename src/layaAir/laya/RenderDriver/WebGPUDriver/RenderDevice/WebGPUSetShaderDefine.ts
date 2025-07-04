@@ -1,5 +1,7 @@
-import { RenderCMDType, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { IComputeContext } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
+import { ComputeCommandAppatchCMD, RenderCMDType, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 
 export class WebGPUSetShaderDefine extends SetShaderDefineCMD {
@@ -41,5 +43,21 @@ export class WebGPUSetShaderDefine extends SetShaderDefineCMD {
         if (this.add)
             this._dest.addDefine(this.define);
         else this._dest.removeDefine(this.define);
+    }
+}
+
+
+export class WebGPUComputeCommandAppatchCMD extends ComputeCommandAppatchCMD {
+    type: RenderCMDType;
+
+    computeContext: WebGPUComputeContext;
+
+    constructor() {
+        super();
+        this.type = RenderCMDType.ComputeCommandAppatch;
+    }
+
+    apply(context: any): void {
+        this.computeContext.executeCMDs();
     }
 }

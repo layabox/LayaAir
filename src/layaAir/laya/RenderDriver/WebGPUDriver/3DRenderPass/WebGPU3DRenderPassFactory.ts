@@ -5,12 +5,12 @@ import { IInstanceRenderBatch, IRender3DProcess, IRenderContext3D, IRenderElemen
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { BlitQuadCMDData, DrawElementCMDData, DrawNodeCMDData, SetRenderTargetCMD, SetViewportCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
-import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ComputeCommandAppatchCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 import { WebGPUSetRenderData } from "../RenderDevice/WebGPUSetRenderData";
-import { WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
+import { WebGPUComputeCommandAppatchCMD, WebGPUSetShaderDefine } from "../RenderDevice/WebGPUSetShaderDefine";
 import { WebGPU3DRenderPass } from "./WebGPU3DRenderPass";
 import { WebGPUBaseRenderNode } from "./WebGPUBaseRenderNode";
 import { WebGPUInstanceRenderBatch } from "./WebGPUInstanceRenderBatch";
@@ -74,6 +74,10 @@ export class WebGPU3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createSetShaderDefineCMD(): SetShaderDefineCMD {
         return new WebGPUSetShaderDefine();
+    }
+
+    createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
+        return new WebGPUComputeCommandAppatchCMD();
     }
 }
 
