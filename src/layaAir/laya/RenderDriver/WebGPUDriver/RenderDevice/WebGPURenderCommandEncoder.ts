@@ -15,32 +15,93 @@ export interface IGPURenderEncoder extends GPUObjectBase,
 }
 
 class BindGroupBindingInfo {
-    bindGroup: WebGPUBindGroup;
-    dynamicOffsetsData: Uint32Array;
+    private _bindGroup: WebGPUBindGroup;
+    public get bindGroup(): WebGPUBindGroup {
+        if (this.active) {
+            return this._bindGroup;
+        }
+        else {
+            return null;
+        }
+    }
 
-    constructor(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array) {
-        this.bindGroup = bindGroup;
-        this.dynamicOffsetsData = dynamicOffsetsData;
+    private _dynamicOffsetsData: Uint32Array;
+
+    public get dynamicOffsetsData(): Uint32Array {
+        return this._dynamicOffsetsData;
+    }
+
+    private _active: boolean = true;
+    public get active(): boolean {
+        return this._active;
+    }
+
+    private hasDynamicOffsets: boolean = false;
+
+    constructor(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
+        this.update(bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
+
+        console.log("create BindGroupBindingInfo")
+    }
+
+    update(bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
+        this._active = true;
+
+        this._bindGroup = bindGroup;
+
+        if (dynamicOffsetsData) {
+            this.hasDynamicOffsets = true;
+
+            if (dynamicOffsetsDataStart === undefined) dynamicOffsetsDataStart = 0;
+            if (dynamicOffsetsDataLength === undefined) dynamicOffsetsDataLength = dynamicOffsetsData.length - dynamicOffsetsDataStart;
+
+            if (this._dynamicOffsetsData) {
+                if (this._dynamicOffsetsData.byteLength >= dynamicOffsetsDataLength * Uint32Array.BYTES_PER_ELEMENT) {
+                    this._dynamicOffsetsData = new Uint32Array(this._dynamicOffsetsData.buffer, 0, dynamicOffsetsDataLength);
+                }
+                else {
+                    this._dynamicOffsetsData = new Uint32Array(dynamicOffsetsDataLength);
+                }
+            }
+            else {
+                this._dynamicOffsetsData = new Uint32Array(dynamicOffsetsDataLength);
+            }
+
+            for (let i = 0; i < dynamicOffsetsDataLength; i++) {
+                this._dynamicOffsetsData[i] = dynamicOffsetsData[i + dynamicOffsetsDataStart];
+            }
+
+        }
+        else {
+            this.hasDynamicOffsets = false;
+        }
+
     }
 
     equal(bindGroup: WebGPUBindGroup, dynamicOffsetsData?: Uint32Array, dynamicOffsetsDataStart?: number, dynamicOffsetsDataLength?: number): boolean {
         if (this.bindGroup !== bindGroup) return false;
-        if (dynamicOffsetsData && this.dynamicOffsetsData) {
+        if (dynamicOffsetsData && this.dynamicOffsetsData && this.hasDynamicOffsets) {
             if (dynamicOffsetsDataStart === undefined) dynamicOffsetsDataStart = 0;
             if (dynamicOffsetsDataLength === undefined) dynamicOffsetsDataLength = dynamicOffsetsData.length;
             for (let i = 0; i < dynamicOffsetsDataLength; i++) {
                 if (this.dynamicOffsetsData[i + dynamicOffsetsDataStart] !== dynamicOffsetsData[i]) return false;
             }
-        } else if (dynamicOffsetsData || this.dynamicOffsetsData) {
+        } else if (dynamicOffsetsData || this.hasDynamicOffsets) {
             return false;
         }
 
         return true;
     }
 
+    clear() {
+        this._active = false;
+        this._bindGroup = null;
+        this.hasDynamicOffsets = false;
+    }
+
     destroy() {
-        this.bindGroup = null;
-        this.dynamicOffsetsData = null;
+        this.clear();
+        this._dynamicOffsetsData = null;
     }
 };
 
@@ -87,7 +148,15 @@ export abstract class WebGPURenderEncoder {
 
         this.encoder.setBindGroup(index, bindGroup.gpuRS);
 
-        this.currentBindGroups.set(index, new BindGroupBindingInfo(bindGroup, null));
+        if (this.currentBindGroups.has(index)) {
+            let info = this.currentBindGroups.get(index);
+            info.update(bindGroup, null, null, null);
+        }
+        else {
+            let info = new BindGroupBindingInfo(bindGroup, null, null, null);
+            this.currentBindGroups.set(index, info);
+        }
+
     }
 
     setBindGroupByDataOffaset(index: GPUIndex32, bindGroup: WebGPUBindGroup, dynamicOffsetsData: Uint32Array, dynamicOffsetsDataStart: GPUSize64, dynamicOffsetsDataLength: GPUSize32) {
@@ -101,18 +170,21 @@ export abstract class WebGPURenderEncoder {
 
         this.encoder.setBindGroup(index, bindGroup.gpuRS, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
 
-        {
-            const dynamicOffsets = new Uint32Array(dynamicOffsetsDataLength);
-            for (let i = 0; i < dynamicOffsetsDataLength; i++) {
-                dynamicOffsets[i] = dynamicOffsetsData[i + dynamicOffsetsDataStart];
-            }
-            this.currentBindGroups.set(index, new BindGroupBindingInfo(bindGroup, dynamicOffsets));
+
+        if (this.currentBindGroups.has(index)) {
+            let info = this.currentBindGroups.get(index);
+            info.update(bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength);
+
         }
+        else {
+            this.currentBindGroups.set(index, new BindGroupBindingInfo(bindGroup, dynamicOffsetsData, dynamicOffsetsDataStart, dynamicOffsetsDataLength));
+        }
+
 
     }
 
     applyGeometry(geometry: WebGPURenderGeometry) {
-        let triangles1=geometry.applyToEncoder(this.encoder)
+        let triangles1 = geometry.applyToEncoder(this.encoder)
         WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, triangles1);
         return triangles1;
 
@@ -128,13 +200,13 @@ export abstract class WebGPURenderEncoder {
 
         let vb0 = bufferState.vb0;
         let enc = this.encoder;
-        if(vb0){
+        if (vb0) {
             let vb = vb0.source;
             enc.setVertexBuffer(0, vb._source, 0, vb._size)
-        }else{
+        } else {
             const vertexBuffers = bufferState._vertexBuffers;
             let vbCnt = vertexBuffers.length;
-            for(let i=0; i<vbCnt; i++){
+            for (let i = 0; i < vbCnt; i++) {
                 let vb = vertexBuffers[i].source;
                 enc.setVertexBuffer(i, vb._source, 0, vb._size)
             }
@@ -164,11 +236,11 @@ export abstract class WebGPURenderEncoder {
             case DrawType.DrawElement:
                 {
                     let info0 = geometry._drawElementInfo0;
-                    if(info0){
+                    if (info0) {
                         count = info0.elementCount;
                         enc.drawIndexed(count, 1, info0.elementStart / indexByte, 0);
                         triangles += count / 3;
-                    }else{
+                    } else {
                         let _drawElementInfo = geometry._drawElementInfo;
                         for (let i = _drawElementInfo.length - 1; i > -1; i--) {
                             let info = _drawElementInfo[i];
@@ -308,9 +380,8 @@ export abstract class WebGPURenderEncoder {
 
     protected onFinish() {
         for (let bindGroupInfo of this.currentBindGroups.values()) {
-            bindGroupInfo.destroy();
+            bindGroupInfo.clear();
         }
-        this.currentBindGroups.clear();
         this.currentPipeline = null;
     }
 
@@ -367,7 +438,9 @@ export class WebGPURenderCommandEncoder extends WebGPURenderEncoder {
      * @param bundles 
      */
     excuteBundle(bundles: GPURenderBundle[]) {
-        this.currentBindGroups.clear();
+        this.currentBindGroups.forEach((info, index) => {
+            info.clear();
+        });
         this.currentPipeline = null;
         this.encoder.executeBundles(bundles);
     }
