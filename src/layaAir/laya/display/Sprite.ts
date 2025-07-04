@@ -2025,9 +2025,7 @@ export class Sprite extends Node {
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
-            if (this._subpassUpdateFlag) {
-                this.setSubpassFlag(this._subpassUpdateFlag);
-            }
+            this.setSubpassFlag(SubPassFlag.RenderTexture);
         }
 
         if (this._maskParent) {
@@ -2066,9 +2064,11 @@ export class Sprite extends Node {
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
-            if (pass.priority > 0) {
+            if (pass.renderTexture) {
                 p.parentRepaint();
                 if (pass.root == pStruct && !p._needRepaint()) {
+                    // 自动生成宽高需要刷新rt尺寸
+                    p.setSubpassFlag(SubPassFlag.RenderTexture);
                     pStruct.setRepaint();
                 }
             }
