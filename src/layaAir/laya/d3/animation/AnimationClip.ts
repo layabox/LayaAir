@@ -622,6 +622,7 @@ export class AnimationClip extends Resource {
 				outDatas.x = frameData.x;//不能设为null，会造成跳过当前帧数据
 				outDatas.y = frameData.y;
 				outDatas.z = frameData.z;
+				outDatas.w = frameData.w;
 			} else {
 				var nextKeyFrame = keyFrames[frameIndex + 1];
 				var t;
@@ -640,6 +641,7 @@ export class AnimationClip extends Resource {
 			outDatas.x = firstFrameDatas.x;
 			outDatas.y = firstFrameDatas.y;
 			outDatas.z = firstFrameDatas.z;
+			outDatas.w = firstFrameDatas.w;
 		}
 	}
 
