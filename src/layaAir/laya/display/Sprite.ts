@@ -2024,7 +2024,7 @@ export class Sprite extends Node {
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
     * @param flag 重绘类型。
     */
-    repaint(flag = RepaintFlag.Normal): void {
+    repaint(flag?: number): void {
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
@@ -2067,7 +2067,7 @@ export class Sprite extends Node {
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
      * @param flag 重绘类型。
      */
-    parentRepaint(flag: number = RepaintFlag.Normal): void {
+    parentRepaint(flag?: number): void {
         let p: Sprite = this._parent;
         if (!p) return
         let pStruct = p._struct;
