@@ -48,19 +48,19 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             let view = this._first;
             let start = 0;
             let length = 0;
-            let geometry = view.geometry;
+            let geometry = view._geometry;
             let needUpdate = false;
             let uploadStart = this._needResetData ? 0 : this._updateRange.x;
 
             // let mark = 0 ;
             while (view) {
                 // mark++;
-                if (geometry != view.geometry) {//切换geometry时，检查上一个是否需要提交
+                if (geometry != view._geometry) {//切换geometry时，检查上一个是否需要提交
                     if (needUpdate) {// 设置上一个的绘制状态
                         geometry.clearRenderParams();
                         geometry.setDrawElemenParams(length, start * 2);
                     }
-                    geometry = view.geometry;
+                    geometry = view._geometry;
                     start = start + length;
                     length = 0;
                 }
@@ -193,9 +193,12 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     stride: number = 1;//element length
     owner: Web2DGraphicWholeBuffer;
     modifyType: BufferModifyType;
-    isModified: boolean = false; // 标记数据是否被修改
-    geometry: IRenderGeometryElement;
+    // isModified: boolean = false; // 标记数据是否被修改
 
+    _geometry: IRenderGeometryElement;
+    setGeometry(value: IRenderGeometryElement): void {
+        this._geometry = value;
+    }
     /** @internal */
     _next: Web2DGraphic2DBufferDataView;
     /** @internal */
@@ -214,7 +217,13 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         return this._data;
     }
 
-    modify() {
+    setData(data: Float32Array | Uint16Array) {
+        this._data.set(data);
+        this._modify();
+    }
+
+    /** @private */
+    _modify() {
         if (this.modifyType == BufferModifyType.Index) {
             this.owner.modifyOneView(this);
             WebRender2DPass.setBuffer(this.owner);

@@ -739,7 +739,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         // context._copyClipInfoToShaderData(this._spriteShaderData);
         // this._lightReceive && this._updateLight();
 
-        //this.setParticleData(this._spriteShaderData, mat);
+        //
     }
 
     private _createRenderGeometry() {
@@ -845,6 +845,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     private _updateMark: number = -1;
     renderUpdate(context: IRenderContext2D): void {
         let ps = this.particleSystem;
+
+        this.setParticleData(this._spriteShaderData, this.owner._globalTrans.getMatrix());
+        this._updateLight();
+        
         if (this._renderElements.length <= 0) {
             return;
         }

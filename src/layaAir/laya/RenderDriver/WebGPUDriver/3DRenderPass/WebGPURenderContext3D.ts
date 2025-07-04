@@ -421,20 +421,16 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param stencil 
      */
     setClearData(flag: number, color: Color, depth: number, stencil: number): number {
-
         if (this.rtNeedClear) {
-            if (flag == RenderClearFlag.Nothing) {
-
-            }
-            else if (flag & RenderClearFlag.Color) {
+            if (flag & RenderClearFlag.Color) {
                 this._clearFlag |= RenderClearFlag.Color;
                 color.cloneTo(this._clearColor);
             }
-            else if (flag & RenderClearFlag.Depth) {
+            if (flag & RenderClearFlag.Depth) {
                 this._clearFlag |= RenderClearFlag.Depth;
                 this._clearDepth = depth;
             }
-            else if (flag & RenderClearFlag.Stencil) {
+            if (flag & RenderClearFlag.Stencil) {
                 this._clearFlag |= RenderClearFlag.Stencil;
                 this._clearStencil = stencil;
             }
@@ -500,7 +496,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param node 
      */
     drawRenderElementOne(node: WebGPURenderElement3D): number {
-        WebGPURenderEngine._instance._framePassCount++;
+
         this._setScreenRT();
         this._prepareContext();
         node._preUpdatePre(this);
@@ -517,7 +513,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         node._render(this, this._renderCommand);
         this._submit();
         this.rtNeedClear = false;
-
+        WebGPURenderEngine._instance._framePassCount++;
         //TODO 统计
         return 0;
     }
@@ -527,7 +523,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
      * @param cmds 
      */
     runCMDList(cmds: IRenderCMD[]): void {
-        cmds.forEach(cmd => cmd.apply(this));
+        cmds.forEach((cmd, index) => {
+            cmd.apply(this)
+        });
     }
 
     /**

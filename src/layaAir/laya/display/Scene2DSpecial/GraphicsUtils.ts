@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -54,6 +55,8 @@ export class GraphicsRenderData {
       }
       element.materialShaderData = null;
       element.value2DShaderData = null;
+      element.primitiveShaderData = null;
+      element.globalShaderData = null;
       element.owner = null;
       element.subShader = null;
       element.renderStateIsBySprite = false;
@@ -77,11 +80,6 @@ export class GraphicsRenderData {
 
       this._bufferBlocks.length = 0;
       this._submits.length = 0;
-
-      // for (i = 0; i < this.touchResources.length; i++) {
-      //    this.touchResources[i].referenceCount--;
-      // }
-      // this.touchResources.length = 0;
    }
 
    destroy(): void {
@@ -124,13 +122,14 @@ export class GraphicsRenderData {
 
             element.primitiveShaderData = submit._internalInfo.shaderData;
             element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
-
+            
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);
                element.materialShaderData = submit.material.shaderData;
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
             }
+
 
             let geometry = element.geometry;
             geometry.bufferState = submit.mesh.bufferState;
@@ -156,13 +155,10 @@ export class GraphicsRenderData {
 
    private _updateIndexViews(submit: SubmitBase, geometry: IRenderGeometryElement) {
       let indexView = submit.mesh.checkIndex(submit.indexCount);
-      indexView.geometry = geometry;
+      indexView.setGeometry(geometry);
       submit.indexView = indexView;
 
-      let data = indexView.getData();
-      data.set(submit.indices);
-
-      indexView.modify();
+      indexView.setData(submit.indices);
       // clear
       submit.indexCount = 0;
       submit.indices.length = 0;
@@ -266,6 +262,7 @@ export class SubStructRender {
       subStruct.renderDataHandler = this._handle;
       subStruct.renderMatrix = sprite.globalTrans.getMatrix();
       subStruct.renderElements = [this._renderElement];
+
       this._renderElement.owner = this._subStruct;
       this._renderElement.type = this._subStruct.blendMode;
    }
@@ -282,7 +279,7 @@ export class SubStructRender {
          if (width > 0 && height > 0) {
             let px = -widthExtend / 2;
             let py = -heightExtend / 2;
-            let vSize = this._internalInfo.vertexSize;
+            let vSize = Vector4.TEMP;
             vSize.x = px;
             vSize.y = py;
             vSize.z = width;

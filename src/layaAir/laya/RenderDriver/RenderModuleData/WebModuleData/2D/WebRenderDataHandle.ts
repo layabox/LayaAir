@@ -68,7 +68,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _bufferBlocks: Graphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    private _clonesViews: I2DGraphicBufferDataView[];
+    private _clonesViews: Web2DGraphic2DBufferDataView[];
 
     applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
@@ -139,7 +139,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
                             if (!dataView || dataView.length <= pos) {
                                 dataView = vertexViews[dataViewIndex];
-                                dataView.modify();
+                                dataView._modify();
                                 dataViewIndex++;
                                 pos = 0;
                                 vbdata = dataView.getData();
@@ -160,20 +160,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._modifiedFrame = trans.modifiedFrame;
         }
 
-        // //更新indexView
-        // for (let i = 0, n = this._indexViews.length; i < n; i++) {
-        //     let indexView = this._indexViews[i];
-        //     if(indexView){
-        //         indexView.modify();
-        //     }
-        // }
     }
 
-    getCloneViews(): I2DGraphicBufferDataView[] {
+    getCloneViews(): Web2DGraphic2DBufferDataView[] {
         if (!this._clonesViews) {
             this._clonesViews = [];
             for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView);
+                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView as Web2DGraphic2DBufferDataView);
             }
         }
         return this._clonesViews;
@@ -184,12 +177,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let blockLength = this._bufferBlocks.length;
         let length = Math.max(cloneViews.length, blockLength);
         for (let i = 0; i < length; i++) {
-            let view = cloneViews[i]
+            let view = cloneViews[i] as Web2DGraphic2DBufferDataView;
             let block = this._bufferBlocks[i];
             if (block) {
-                cloneViews[i] = this._cloneView(block.indexView, view);
+                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DBufferDataView, view);
             } else {
-                view.geometry.destroy();
+                view._geometry.destroy();
                 if (view.owner)
                     view.owner.removeDataView(view);
             }
@@ -197,13 +190,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         this._clonesViews.length = blockLength;
     }
 
-    private _cloneView(view: I2DGraphicBufferDataView, oView: I2DGraphicBufferDataView = null) {
+    private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
         let clone = view.clone(false, false);
-        if (oView && oView.geometry) {
-            clone.geometry = oView.geometry;
+        if (oView && oView._geometry) {
+            clone._geometry = oView._geometry;
         } else {
-            clone.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            clone.geometry.indexFormat = IndexFormat.UInt16;
+            clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            clone._geometry.indexFormat = IndexFormat.UInt16;
         }
         return clone;
     }
@@ -213,7 +206,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
         if (this._clonesViews) {
             for (let i = 0, n = this._clonesViews.length; i < n; i++)
-                this._clonesViews[i].geometry.destroy();
+                this._clonesViews[i]._geometry.destroy();
             this._clonesViews = null;
         }
         this._bufferBlocks = null;

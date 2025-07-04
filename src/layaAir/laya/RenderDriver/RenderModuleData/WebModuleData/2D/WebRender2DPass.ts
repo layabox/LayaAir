@@ -27,17 +27,23 @@ import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IPool, Pool } from "../../../../utils/Pool";
 
-export interface IBatch2DRender {
-   /**合批范围，合批的RenderElement2D直接add进list中 */
-   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, recoverList: FastSinglelist<IRenderElement2D>, buffer: BatchBuffer): void;
-
-   recover(list: FastSinglelist<IRenderElement2D>): void;
-
-   batchIndexBuffer(strcut: WebRenderStruct2D, buffer: BatchBuffer, offset: number): void;
+export interface IBatch2DContext {
+   reset(): void;
+   destroy(): void;
 }
+export interface IBatch2DRender {
+
+   createBatchContext(): IBatch2DContext;
+   /**合批范围，合批的RenderElement2D直接add进list中 */
+   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, context: IBatch2DContext): void;
+
+   prepare(strcut: WebRenderStruct2D, context: IBatch2DContext, offset: number): void;
+}
+
 
 class Batch2DInfo {
    batchFun: IBatch2DRender = null;
+   batchContext: IBatch2DContext = null;
    batch: boolean = false;
    indexStart: number = -1;
    elementLength: number = 0;
@@ -150,7 +156,7 @@ export class WebRender2DPass implements IRender2DPass {
          this._lists[zOrder] = new PassRenderList;
          this._lists[zOrder].zOrder = zOrder;
       }
-      this._lists[zOrder].add(object);
+      this._lists[zOrder].add(object, this._enableBatch);
    }
 
    /**
@@ -363,75 +369,6 @@ export class WebRender2DPass implements IRender2DPass {
       this.shaderData = null;
    }
 }
-
-/**
- * 简单的管理indexBuffer
- */
-export class BatchBuffer {
-
-   static _STEP_ = 1024;
-
-   indexBuffer: IIndexBuffer;
-   wholeBuffer: Web2DGraphicWholeBuffer;
-
-   indexCount: number = 0;
-   maxIndexCount: number = 0;
-
-   bufferStates: Map<IVertexBuffer, IBufferState> = new Map();
-
-   geometryList: IRenderGeometryElement[] = [];
-
-   constructor() {
-      this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-      this.indexBuffer.indexType = IndexFormat.UInt16;
-      this.wholeBuffer = new Web2DGraphicWholeBuffer();
-      this.wholeBuffer.buffer = this.indexBuffer;
-      this.wholeBuffer.modifyType = BufferModifyType.Index;
-   }
-
-   updateBufLength() {
-      if (this.maxIndexCount <= this.indexCount) {
-         let nLength = Math.ceil(this.indexCount / BatchBuffer._STEP_) * BatchBuffer._STEP_;
-         let byteLength = nLength * 2;
-         this.indexBuffer._setIndexDataLength(byteLength);
-         this.wholeBuffer.resetData(byteLength);
-         this.maxIndexCount = nLength;
-      }
-   }
-
-   bindBuffer(buffer: IVertexBuffer) {
-      let bufferState = this.bufferStates.get(buffer);
-      if (!bufferState) {
-         bufferState = LayaGL.renderDeviceFactory.createBufferState();
-         bufferState.applyState([buffer], this.indexBuffer);
-         this.bufferStates.set(buffer, bufferState);
-      }
-      return bufferState;
-   }
-
-   clear() {
-      this.indexCount = 0;
-      this.wholeBuffer.clearBufferViews();
-      // this.bufferStates.forEach((bufferState) => {
-      //    bufferState.destroy();
-      // });
-      // this.bufferStates.clear();
-      this.geometryList.length = 0;
-   }
-
-   destroy(): void {
-      this.clear();
-      this.bufferStates.forEach((bufferState) => {
-         bufferState.destroy();
-      });
-      this.bufferStates.clear();
-      this.indexBuffer.destroy();
-      this.indexBuffer = null;
-      this.wholeBuffer.destroy();
-      this.wholeBuffer = null;
-   }
-}
-
 class PassRenderList {
 
    _batchInfoList = new FastSinglelist<Batch2DInfo>;
@@ -447,33 +384,41 @@ class PassRenderList {
    //预想给list更新使用
    _dirtyFlag: number = 0;
 
-   private _batchBuffer = new BatchBuffer();
-
-   private _recoverList = new FastSinglelist<IRenderElement2D>();
+   private _batchContexts: IBatch2DContext[] = [];
 
    constructor() {
       this.renderElements = new FastSinglelist<IRenderElement2D>();
       this.structs = new FastSinglelist<WebRenderStruct2D>();
    }
 
-   add(struct: WebRenderStruct2D): void {
+   add(struct: WebRenderStruct2D, isBatch: boolean = true): void {
       this.structs.add(struct);
 
       let n = struct.renderElements ? struct.renderElements.length : 0;
       if (n == 0) return;
       if (n == 1) {
-         this._batchStart(struct.renderType, 1);
-         this.renderElements.add(struct.renderElements[0]);
+         if (isBatch) {
+            this._batchStart(struct.renderType, 1);
+            this.renderElements.add(struct.renderElements[0]);
+         } else {
+            this.renderElements.add(struct.renderElements[0]);
+         }
       } else {
-         this._batchStart(struct.renderType, n);
-         for (var i = 0; i < n; i++) {
-            this.renderElements.add(struct.renderElements[i]);
+         if (isBatch) {
+            this._batchStart(struct.renderType, n);
+            for (var i = 0; i < n; i++) {
+               this.renderElements.add(struct.renderElements[i]);
+            }
+         } else {
+            for (var i = 0; i < n; i++) {
+               this.renderElements.add(struct.renderElements[i]);
+            }
          }
       }
 
-      if (this._currentBatch.batchFun) {
+      if (isBatch && this._currentBatch.batchFun) {
          let offset = this._currentBatch.indexStart + this._currentBatch.elementLength - n;
-         this._currentBatch.batchFun.batchIndexBuffer(struct, this._batchBuffer, offset);
+         this._currentBatch.batchFun.prepare(struct, this._currentBatch.batchContext, offset);
       }
    }
 
@@ -493,6 +438,14 @@ class PassRenderList {
       this._currentBatch = Batch2DInfo._pool.take();
       this._currentBatch.batch = false;
       this._currentBatch.batchFun = BatchManager._batchMapManager[type];
+      if (this._currentBatch.batchFun) {
+         let context = this._batchContexts[type];
+         if (!context) {
+            context = this._currentBatch.batchFun.createBatchContext();
+            this._batchContexts[type] = context;
+         }
+         this._currentBatch.batchContext = context;
+      }
       this._currentBatch.indexStart = this.renderElements.length;
       this._currentBatch.elementLength = elementLength;
       this._currentType = type;
@@ -511,7 +464,7 @@ class PassRenderList {
       for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
          let info = this._batchInfoList.elements[i];
          if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, this._recoverList, this._batchBuffer);
+            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, info.batchContext);
          } else {
             for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
                this.renderElements.add(this.renderElements.elements[j]);
@@ -527,7 +480,10 @@ class PassRenderList {
    destroy(): void {
       this.structs.clear();
       this.clearRenderElements();
-      this._batchBuffer.destroy();
+      for (let i = 0, n = this._batchContexts.length; i < n; i++) {
+         this._batchContexts[i] && this._batchContexts[i].destroy();
+      }
+      this._batchContexts.length = 0;
    }
 
    clearRenderElements(): void {
@@ -538,20 +494,12 @@ class PassRenderList {
    reset(): void {
       this.structs.length = 0;
       this.renderElements.length = 0;
-
-      this._batchBuffer.clear();
-
-      for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
-         let element = this._batchInfoList.elements[i];
-         if (element.batch) {
-            element.batchFun.recover(this._recoverList);
-         }
-         Batch2DInfo._pool.recover(element);
+      for (let i = 0, n = this._batchContexts.length; i < n; i++) {
+         this._batchContexts[i] && this._batchContexts[i].reset();
       }
       this._batchInfoList.length = 0;
       this._currentBatch = null;
       this._currentType = -1;
-      // this._currentElementCount = 0;
    }
 }
 
@@ -590,7 +538,7 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       if (this._passes.indexOf(pass) !== -1) {
          return;
       }
-      
+
       this._passes.push(pass);
       this._modefy = true;
    }

@@ -24,14 +24,9 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     geometry: WebGLRenderGeometryElement;
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
+    /** @internal */
+    globalShaderData: WebGLShaderData;
     subShader: SubShader;
-
-    protected getGlobalShaderData(): ShaderData {
-        if (this.owner && this.owner.globalRenderData && this.owner.globalRenderData.globalShaderData)
-            return this.owner.globalRenderData.globalShaderData;
-        else
-            return null;
-    }
 
     protected _compileShader(context: WebglRenderContext2D) {
         var passes: ShaderPass[] = this.subShader._passes;
@@ -45,8 +40,8 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
             var comDef = WebGLRenderelement2D._compileDefine;
 
-            if (this.owner && this.owner.globalRenderData) {
-                (this.owner.globalRenderData.globalShaderData as WebGLShaderData)._defineDatas.cloneTo(comDef);
+            if (this.globalShaderData) {
+                this.globalShaderData._defineDatas.cloneTo(comDef);
             } else {
                 context._globalConfigShaderData.cloneTo(comDef);
             }
@@ -81,6 +76,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
         }
     }
     _prepare(context: WebglRenderContext2D) {
+        this.globalShaderData = this.owner && this.owner._globalShaderData as WebGLShaderData;
         this._compileShader(context);
     }
 
@@ -96,8 +92,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
 
     protected _uploadGlobalAndPass(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
-        let global = this.getGlobalShaderData() as WebGLShaderData;
-        global && shader.uploadUniforms(shader._cameraUniformParamsMap, global, true);
+        this.globalShaderData && shader.uploadUniforms(shader._cameraUniformParamsMap, this.globalShaderData, true);
         context.passData && shader.uploadUniforms(shader._sceneUniformParamsMap, context.passData, true);
     }
 
@@ -122,6 +117,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
     destroy(): void {
         //TODO
+        this.globalShaderData = null;
     }
 
 
