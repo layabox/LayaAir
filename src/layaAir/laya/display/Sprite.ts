@@ -2025,7 +2025,9 @@ export class Sprite extends Node {
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
-            this.setSubpassFlag(SubPassFlag.RenderTexture);
+            
+            if (this._drawOriRT)
+                this.setSubpassFlag(SubPassFlag.RenderTexture);
         }
 
         if (this._maskParent) {
@@ -2268,16 +2270,17 @@ export class Sprite extends Node {
         //this.getSelfBounds();
 
         if (rect.width === 0 || rect.height === 0)
-            return;
+            return false;
 
         let oldRT = this._drawOriRT;
         //判断待考虑
         if (oldRT && oldRT.width === rect.width && oldRT.height === rect.height)
-            return;
+            return false;
         oldRT && oldRT.destroy();
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._drawOriRT = renderTexture;
+        return true;
     }
 
     updateSubRenderPassState() {
