@@ -195,7 +195,7 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     modifyType: BufferModifyType;
     // isModified: boolean = false; // 标记数据是否被修改
 
-    private _geometry: IRenderGeometryElement;
+    _geometry: IRenderGeometryElement;
     setGeometry(value: IRenderGeometryElement): void {
         this._geometry = value;
     }

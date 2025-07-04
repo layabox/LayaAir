@@ -196,7 +196,7 @@ export const allBundles = [{
     name: 'physics2D',
     input: [
         'laya/physics/Collider2D/*.*',
-        'laya/physics/factory/*.*',
+        'laya/physics/factory/IPhysics2DFactory.ts',
         'laya/physics/Shape/*.*',
         'laya/physics/joint/*.*',
 
