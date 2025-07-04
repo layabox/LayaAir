@@ -1,6 +1,6 @@
 import { Sprite } from "./Sprite";
 import { GraphicsBounds } from "./GraphicsBounds";
-import { BaseRender2DType, SpriteConst } from "./SpriteConst";
+import { BaseRender2DType, RepaintFlag, SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 import { ClipRectCmd } from "./cmd/ClipRectCmd"
 import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd"
@@ -164,7 +164,7 @@ export class Graphics {
     repaint(): void {
         this._modified = true;
         this._graphicBounds?.reset();
-        this.owner?.repaint();
+        this.owner?.repaint(RepaintFlag.Graphics);
     }
 
     /**

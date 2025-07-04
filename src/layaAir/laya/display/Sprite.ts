@@ -10,7 +10,7 @@ import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
-import { SpriteConst, TransformKind } from "./SpriteConst";
+import { RepaintFlag, SpriteConst, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
@@ -731,7 +731,7 @@ export class Sprite extends Node {
         }
 
         if (!this._destroyed)
-            this.repaint();
+            this.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -1358,7 +1358,7 @@ export class Sprite extends Node {
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
                 this._graphics.repaint();
             else
-                this.parentRepaint();
+                this.parentRepaint(RepaintFlag.Size);
         }
         else {
             this.parentRepaint();
@@ -1370,6 +1370,9 @@ export class Sprite extends Node {
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
+        }
+        else if (kind & TransformKind.Size && (this._pivotX !== 0 || this._pivotY !== 0)) { // 有锚点宽高变化也需要刷新矩阵
+            this._globalTrans._spTransChanged(kind);
         }
     }
 
@@ -2017,22 +2020,24 @@ export class Sprite extends Node {
 
     /**
     * @en Redraw the Sprite and invalidate its own and parent's cache after setting cacheAs.
+    * @param flag repaint flag
     * @zh 重新绘制，cacheAs后，设置自己和父对象缓存失效。
+    * @param flag 重绘类型。
     */
-    repaint(): void {
+    repaint(flag = RepaintFlag.Normal): void {
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
-            this.parentRepaint();
-            
-            if (this._drawOriRT)
+            this.parentRepaint(flag);
+
+            if (this._drawOriRT && (flag & RepaintFlag.UpdateRT))
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
         }
 
         if (this._maskParent) {
             this._maskParent.setSubpassFlag(SubPassFlag.Mask);
-            this._maskParent.repaint();
+            this._maskParent.repaint(flag);
         }
     }
 
@@ -2058,19 +2063,22 @@ export class Sprite extends Node {
 
     /**
      * @en Repaint the parent node. When `cacheAs` is enabled, set all parent object caches to invalid.
+     * @param flag repaint flag
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
+     * @param flag 重绘类型。
      */
-    parentRepaint(): void {
+    parentRepaint(flag: number = RepaintFlag.Normal): void {
         let p: Sprite = this._parent;
         if (!p) return
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
             if (pass.renderTexture) {
-                p.parentRepaint();
+                p.parentRepaint(flag);
                 if (pass.root == pStruct && !p._needRepaint()) {
                     // 自动生成宽高需要刷新rt尺寸
-                    p.setSubpassFlag(SubPassFlag.RenderTexture);
+                    if (flag & RepaintFlag.UpdateRT)
+                        p.setSubpassFlag(SubPassFlag.RenderTexture);
                     pStruct.setRepaint();
                 }
             }
