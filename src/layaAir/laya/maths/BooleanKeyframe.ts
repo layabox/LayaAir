@@ -23,7 +23,7 @@ export class BooleanKeyframe extends Keyframe {
      * @en Clones.
      * @zh 克隆
      */
-    clone(): BooleanKeyframe {
+    clone() {
         let f = new BooleanKeyframe();
         this.cloneTo(f);
         return f;

@@ -1,14 +1,18 @@
 import { ILaya } from "../../ILaya";
 import { NodeFlags } from "../Const";
-import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Loader } from "../net/Loader";
 import { Texture } from "../resource/Texture";
 import { GWidget } from "./GWidget";
-import { ImageRenderer } from "./render/ImageRenderer";
-import { IMeshFactory } from "./render/MeshFactory";
+import { ImageRenderer } from "./ImageRenderer";
+import { IMeshFactory } from "../display/mesh/MeshFactory";
 
+/**
+ * @en GImage is a widget that displays an image resource.
+ * @zh GImage 是一个显示图像资源的小部件。
+ * @blueprintInheritable
+ */
 export class GImage extends GWidget {
     private _src: string = "";
     private _color: string;
@@ -26,11 +30,15 @@ export class GImage extends GWidget {
         this._renderer._onReload = () => this.onTextureReload();
     }
 
-    public get src(): string {
+    /**
+     * @en The source URL of the image resource.
+     * @zh 图像资源的源 URL。
+     */
+    get src(): string {
         return this._src;
     }
 
-    public set src(value: string) {
+    set src(value: string) {
         if (value == null)
             value = "";
         if (this._src == value)
@@ -44,38 +52,43 @@ export class GImage extends GWidget {
             if (tex)
                 this.onLoaded(tex, loadID);
             else
-                ILaya.loader.load(value).then(res => this.onLoaded(res, loadID));
+                ILaya.loader.load(value, Loader.IMAGE).then(res => this.onLoaded(res, loadID));
         }
         else
             this.onLoaded(null, loadID);
     }
 
-    public get texture(): Texture {
+    /**
+     * @en The texture of the image.
+     * @zh 图像的纹理。
+     */
+    get texture(): Texture {
         return this._renderer._tex;
     }
 
-    public set texture(value: Texture) {
+    set texture(value: Texture) {
         this._src = "instance-0";
         this.onLoaded(value, ++this._loadId);
     }
 
-    public get mesh(): IMeshFactory {
+    /**
+     * @en The mesh factory used for customizing the mesh of the image.
+     * @zh 用于自定义图像网格的网格工厂。
+     */
+    get mesh(): IMeshFactory {
         return this._renderer._meshFactory;
     }
 
-    public set mesh(value: IMeshFactory) {
+    set mesh(value: IMeshFactory) {
         this._renderer.setMesh(value);
     }
 
-    public updateMesh() {
-        this._renderer.updateMesh();
-    }
-
-    public get icon(): string {
+    /** @ignore */
+    get icon(): string {
         return this.src;
     }
 
-    public set icon(value: string) {
+    set icon(value: string) {
         this.src = value;
     }
 
@@ -140,20 +153,17 @@ export class GImage extends GWidget {
 
         if (!changeByLayout && !SerializeUtil.isDeserializing)
             this._autoSize = false;
-
-        this._renderer.updateMesh();
     }
 
-    protected _transChanged(kind: TransformKind): void {
-        super._transChanged(kind);
-
-        if (kind & TransformKind.Anchor)
-            this._renderer.updateMesh();
-    }
-
+    /** @ignore */
     destroy(): void {
         super.destroy();
 
         this._renderer.destroy();
     }
+
+    /** @internal @blueprintEvent */
+    GImage_bpEvent: {
+        [Event.LOADED]: () => void;
+    };
 }

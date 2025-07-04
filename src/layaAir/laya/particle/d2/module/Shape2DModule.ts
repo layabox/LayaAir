@@ -18,7 +18,7 @@ export class Shape2DModule implements IClone {
         this.shape.cloneTo(destObject.shape);
     }
 
-    clone(): Shape2DModule {
+    clone() {
         let destObject = new Shape2DModule();
         this.cloneTo(destObject);
         return destObject;

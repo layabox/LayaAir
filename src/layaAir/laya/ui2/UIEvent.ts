@@ -1,4 +1,4 @@
-
+/** @blueprintable */
 export enum UIEvent {
     /**
      * @en A container with a layout, when the content size of the container changes, the container will emit this event.
@@ -41,12 +41,6 @@ export enum UIEvent {
      * @zh 'click_item' 事件在用户点击列表项目时被触发
      */
     ClickItem = "click_item",
-
-    /**
-     * @en 'submit' is emitted when the user presses the enter key in the input box.
-     * @zh 'submit' 事件在用户在输入框按下回车键时被触发。
-     */
-    Submit = "submit",
 
     /**
      * @en 'popup' is emitted when a popup menu or a drop-down list is displayed

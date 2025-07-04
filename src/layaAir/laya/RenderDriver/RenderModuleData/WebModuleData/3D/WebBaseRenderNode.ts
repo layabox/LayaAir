@@ -49,6 +49,9 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
+    _additionalUpdateMask: number;
+    _driverCacheData: any;//记录渲染底层共用的渲染数据
+    ismoved: number = 0;
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
@@ -56,7 +59,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
     private _additionShaderData: Map<string, ShaderData>;
-
 
 
     /**
@@ -87,9 +89,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._caculateBoundingBoxFun.call(this._caculateBoundingBoxCall);
     }
 
-
-
-
     /**
      * get bounds
      */
@@ -116,6 +115,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         else {
             this._additionShaderDataKeys = [];
         }
+        this._additionalUpdateMask = Stat.loopCount;
     }
 
     constructor() {
@@ -180,7 +180,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
 
 
     /**
-     * @internal
      * @param value :RenderElementObj
      */
     setRenderelements(value: IRenderElement3D[]): void {
@@ -304,6 +303,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._commonUniformMap.length = 0;
         this._commonUniformMap = null;
         this.shaderData && this.shaderData.destroy();
+        this.shaderData = null;
         this.additionShaderData.clear();
         this.additionShaderData = null;
         this._additionShaderDataKeys.length = 0;

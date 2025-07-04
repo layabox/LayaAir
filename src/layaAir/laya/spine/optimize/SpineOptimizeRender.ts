@@ -1,5 +1,5 @@
 
-import { BaseRender2DType, BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { Sprite } from "../../display/Sprite";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Color } from "../../maths/Color";
@@ -17,6 +17,7 @@ import { AnimationRenderProxy } from "./AnimationRenderProxy";
 import { SketonOptimise, TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { SkinRenderUpdate } from "./SkinRenderUpdate"; // 新增导入
+import { BaseRender2DType } from "../../display/SpriteConst";
 
 /**
  * @en SpineOptimizeRender used for optimized rendering of Spine animations.
@@ -166,7 +167,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      */
     changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
-        this.renderProxyMap.forEach(render=>{
+        this.renderProxyMap.forEach(render => {
             render.changeSkeleton(skeleton);
         });
         //@ts-ignore
@@ -209,7 +210,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         this.animatorMap.forEach((value, key) => {
             value.state = state;
         });
-        
+
         let renderOptimize = new RenderOptimize(this._nodeOwner);
         let renderNormal = new RenderNormal(this._nodeOwner);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
@@ -419,7 +420,7 @@ enum ERenderProxyType {
     RenderBake
 }
 interface IRender {
-    changeSkeleton(skeleton:spine.Skeleton):void;
+    changeSkeleton(skeleton: spine.Skeleton): void;
     change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
     leave(): void;
     render(curTime: number, boneMat: Float32Array): void;
@@ -460,12 +461,12 @@ class RenderOptimize implements IRender {
      * @zh 创建 RenderOptimize 的新实例。
      * @param renderNode Spine2D 渲染节点。
      */
-    constructor( renderNode: Spine2DRenderNode) {
+    constructor(renderNode: Spine2DRenderNode) {
         this._renderNode = renderNode;
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;
@@ -498,7 +499,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat , -this._skeleton.x, -this._skeleton.y);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -524,12 +525,12 @@ class RenderNormal implements IRender {
      * @param skeleton Spine 骨骼。
      * @param renderNode Spine2D 渲染节点。
      */
-    constructor( renderNode: Spine2DRenderNode) {
+    constructor(renderNode: Spine2DRenderNode) {
         this._renderNode = renderNode;
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
     }
 
@@ -565,6 +566,7 @@ class RenderNormal implements IRender {
     render(curTime: number, boneMat: Float32Array) {
         this._renderNode.clear();
         this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
+        this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
     }
 
 }
@@ -667,7 +669,7 @@ class RenderBake implements IRender {
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
-    changeSkeleton(skeleton:spine.Skeleton){
+    changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;

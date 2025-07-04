@@ -11,6 +11,7 @@ import { Clip } from "./Clip"
  * fontClip.skin = "font1.png";//设置皮肤
  * fontClip.sheet = "abc123 456";//设置皮肤对应的内容，空格换行。此皮肤为2行5列（显示时skin会被等分为2行5列），第一行对应的文字为"abc123"，第二行为"456"
  * fontClip.value = "a1326";//显示"a1326"文字
+ * @blueprintInheritable
  */
 export class FontClip extends Clip {
     /**

@@ -13,6 +13,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -47,7 +48,7 @@ export class NoRenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new NoRenderGeometryElement();
     }
-    createEngine(config: Config, canvas: any): Promise<void> {
+    createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         return Promise.resolve();
     }
     createGlobalUniformMap(blockName: string): CommandUniformMap {
@@ -74,8 +75,6 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 
     /**
      * 增加一个UniformArray参数
-     * @param propertyID 
-     * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
 
@@ -96,6 +95,8 @@ export class NoRenderShaderInstance implements IShaderInstance {
 }
 
 export class NoRenderIndexBuffer implements IIndexBuffer {
+    setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
+    }
     destroy(): void {
     }
     _setIndexDataLength(data: number): void {
@@ -432,6 +433,8 @@ export class NoRenderShaderData extends ShaderData {
                 break;
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.Texture3D:
                 this.setTexture(uniformIndex, <BaseTexture>value);
                 break;
             case ShaderDataType.Buffer:
@@ -462,6 +465,8 @@ export class NoRenderShaderData extends ShaderData {
                 return this.getMatrix4x4(uniformIndex);
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
+            case ShaderDataType.Texture2DArray:
+            case ShaderDataType.Texture3D:
                 return this.getTexture(uniformIndex);
             case ShaderDataType.Buffer:
                 return this.getBuffer(uniformIndex);
@@ -531,7 +536,7 @@ export class NoRenderShaderData extends ShaderData {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: NoRenderShaderData = new NoRenderShaderData();
         this.cloneTo(dest);
         return dest;

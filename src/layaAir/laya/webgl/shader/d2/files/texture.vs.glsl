@@ -2,16 +2,16 @@
 #include "Sprite2DVertex.glsl";
 
 void main() {
-	vec4 pos;
 	//先计算位置，再做裁剪
-	getPosition(pos);
 	vertexInfo info;
 	getVertexInfo(info);
 
 	v_texcoordAlpha = info.texcoordAlpha;
-	v_useTex = info.useTex;
 	v_color = info.color;
+	v_useTex = info.useTex;
+	v_useClip = info.useClip;
+	v_customs = info.customs;
 
-	gl_Position = pos;
+	gl_Position = getPosition(info.pos);
 
 }

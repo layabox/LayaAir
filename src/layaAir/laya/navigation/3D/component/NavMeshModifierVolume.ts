@@ -24,7 +24,7 @@ export class NavMeshModifierVolume extends Component {
     /**@internal */
     private _size: Vector3 = new Vector3(1, 1, 1);
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en The agent type that this volume applies to.

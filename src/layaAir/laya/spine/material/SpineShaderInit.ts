@@ -224,8 +224,8 @@ export class SpineShaderInit {
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
-        SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("COLOR");
-        SpineShaderInit.SPINE_COLOR = Shader3D.getDefineByName("UV");
+        SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("UV");
+        SpineShaderInit.SPINE_COLOR = Shader3D.getDefineByName("COLOR");
         SpineShaderInit.SPINE_PREMULTIPLYALPHA = Shader3D.getDefineByName("PREMULTIPLYALPHA");
 
         SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
@@ -238,7 +238,7 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_COLOR2 = Shader3D.getDefineByName("COLOR2");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
-        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Buffer);
+        commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
         // commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
         // commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
         // commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);

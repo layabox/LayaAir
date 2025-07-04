@@ -99,7 +99,7 @@ export class ColliderBase extends Component {
      */
     label: string;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     private _isConnectedJoint: boolean = false;
 

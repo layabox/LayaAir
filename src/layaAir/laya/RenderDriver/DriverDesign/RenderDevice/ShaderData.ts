@@ -12,7 +12,7 @@ import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
-import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 
 export enum ShaderDataType {
     None,
@@ -24,15 +24,18 @@ export enum ShaderDataType {
     Vector4,
     Color,
     Matrix4x4,
+    Buffer,
+    Matrix3x3,
+    ReadOnlyDeviceBuffer,
+    DeviceBuffer,
+    StorageTexture2D,
     Texture2D,
     Texture3D,
     TextureCube,
-    Buffer,
-    Matrix3x3,
     Texture2DArray
 }
 
-export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3 | IDeviceBuffer;
 
 export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {
     let legal = false;
@@ -353,6 +356,14 @@ export class ShaderData implements IClone {
         throw new NotImplementedError();
     }
 
+    setDeviceBuffer(index: number, value: IDeviceBuffer): void {
+        throw new NotImplementedError();
+    }
+
+    getStorageBuffer(index: number): IDeviceBuffer {
+        throw new NotImplementedError();
+    }
+
     /**
      * 设置纹理。
      * @param index shader索引。
@@ -462,7 +473,7 @@ export class ShaderData implements IClone {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone(): ShaderData {
         throw new NotImplementedError();
     }
 

@@ -16,12 +16,12 @@ export class AnimatorControllerLayer implements IClone {
      * @en Blending mode: Override. 
      * @zh 混合模式：覆盖。
      */
-    static BLENDINGMODE_OVERRIDE: number = 0;
+    static readonly BLENDINGMODE_OVERRIDE: number = 0;
     /**
      * @en Blending mode: Additive. 
      * @zh 混合模式：叠加。
      */
-    static BLENDINGMODE_ADDTIVE: number = 1;
+    static readonly BLENDINGMODE_ADDTIVE: number = 1;
 
     /**@internal */
     private _defaultState: AnimatorState | null;
@@ -333,7 +333,7 @@ export class AnimatorControllerLayer implements IClone {
      * @zh 创建并返回此AnimatorControllerLayer的克隆副本。
      * @returns 一个新的AnimatorControllerLayer实例，其属性从当前实例复制。
      */
-    clone(): any {
+    clone() {
         var dest: AnimatorControllerLayer = new AnimatorControllerLayer(this.name);
         this.cloneTo(dest);
         return dest;

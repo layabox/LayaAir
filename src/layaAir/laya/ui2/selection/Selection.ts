@@ -6,40 +6,37 @@ import type { GPanel } from "../GPanel";
 import type { GWidget } from "../GWidget";
 import { ISelection } from "./ISelection";
 import { UIEvent } from "../UIEvent";
+import { ControllerRef } from "../ControllerRef";
+import { NodeFlags } from "../../Const";
 
 export class Selection implements ISelection {
-    public scrollItemToViewOnClick: boolean = false;
-    public allowSelectByRightClick: boolean = true;
+    scrollItemToViewOnClick: boolean = false;
+    allowSelectByRightClick: boolean = true;
 
     protected _owner: GPanel;
     protected _mode: SelectionMode = 0;
     protected _lastIndex: number = 0;
     protected _triggerFocusEvents: boolean;
     protected _keyEvent: string;
+    protected _controller: ControllerRef;
 
     constructor(owner: GPanel) {
         this._owner = owner;
         this._lastIndex = -1;
     }
 
-    public get mode(): SelectionMode {
+    get mode(): SelectionMode {
         return this._mode;
     }
-    public set mode(value: SelectionMode) {
+    set mode(value: SelectionMode) {
         this._mode = value;
     }
 
-    public get index(): number {
-        for (let i = 0, cnt = this._owner.children.length; i < cnt; i++) {
-            let obj = this._owner.children[i];
-            if ((obj instanceof GButton) && obj.selected)
-                return i;
-        }
-
-        return -1;
+    get index(): number {
+        return this._owner.children.findIndex(obj => (obj instanceof GButton) && obj.selected);
     }
 
-    public set index(value: number) {
+    set index(value: number) {
         if (value >= 0 && value < this._owner.numChildren) {
             if (this._mode != SelectionMode.Single)
                 this.clear();
@@ -49,7 +46,22 @@ export class Selection implements ISelection {
             this.clear();
     }
 
-    public get(out?: number[]): number[] {
+    get controller(): ControllerRef {
+        return this._controller;
+    }
+
+    set controller(value: ControllerRef) {
+        if (this._controller)
+            this._controller.release();
+        this._controller = value;
+        if (value) {
+            value.validate();
+            value.onChanged = this.selectChanged.bind(this);
+            this.selectChanged();
+        }
+    }
+
+    get(out?: number[]): number[] {
         if (!out)
             out = [];
 
@@ -62,7 +74,7 @@ export class Selection implements ISelection {
         return out;
     }
 
-    public add(index: number, scrollItToView?: boolean): void {
+    add(index: number, scrollItToView?: boolean): void {
         if (this._mode == SelectionMode.Disabled)
             return;
 
@@ -73,38 +85,47 @@ export class Selection implements ISelection {
             this._owner.scroller?.scrollTo(index);
 
         this._lastIndex = index;
-        let obj = this._owner.getChildAt(index);
+        let obj: GWidget;
+        if (this._owner._getBit(NodeFlags.EDITING_NODE))
+            obj = <GWidget>this._owner.children.filter(child => !(<any>child._extra).isTemplateNode)[index];
+        else
+            obj = this._owner.getChildAt(index);
 
         if ((obj instanceof GButton) && !obj.selected)
             obj.selected = true;
+
+        this.syncController(index);
     }
 
-    public remove(index: number): void {
+    remove(index: number): void {
         if (this._mode == SelectionMode.Disabled)
             return;
 
-        let obj = this._owner.getChildAt(index);
+        let obj: GWidget;
+        if (this._owner._getBit(NodeFlags.EDITING_NODE))
+            obj = <GWidget>this._owner.children.filter(child => !(<any>child._extra).isTemplateNode)[index];
+        else
+            obj = this._owner.getChildAt(index);
 
         if (obj instanceof GButton)
             obj.selected = false;
     }
 
-    public clear(): void {
+    clear(): void {
         for (let obj of this._owner.children) {
-            if (obj instanceof GButton)
+            if ((obj instanceof GButton) && !(<any>obj._extra).isTemplateNode)
                 obj.selected = false;
         }
     }
 
     protected clearExcept(g: GWidget): void {
         for (let obj of this._owner.children) {
-            if ((obj instanceof GButton) && obj != g)
+            if ((obj instanceof GButton) && obj != g && !(<any>obj._extra).isTemplateNode)
                 obj.selected = false;
         }
-
     }
 
-    public selectAll(): void {
+    selectAll(): void {
         for (let obj of this._owner.children) {
             if ((obj instanceof GButton) && !obj.selected) {
                 obj.selected = true;
@@ -112,7 +133,7 @@ export class Selection implements ISelection {
         }
     }
 
-    public selectReverse(): void {
+    selectReverse(): void {
         for (let obj of this._owner.children) {
             if (obj instanceof GButton) {
                 obj.selected = !obj.selected;
@@ -120,7 +141,7 @@ export class Selection implements ISelection {
         }
     }
 
-    public enableFocusEvents(enabled: boolean) {
+    enableFocusEvents(enabled: boolean) {
         if (this._triggerFocusEvents == enabled)
             return;
 
@@ -145,7 +166,7 @@ export class Selection implements ISelection {
         }
     }
 
-    public handleClick(item: GButton, evt: Event): void {
+    handleClick(item: GButton, evt: Event): void {
         let scroller = this._owner.scroller;
         if (scroller?.isDragged)
             return;
@@ -217,13 +238,16 @@ export class Selection implements ISelection {
         if (scroller && this.scrollItemToViewOnClick)
             scroller.scrollTo(item, true);
 
+        if (item.selected)
+            this.syncController(index);
+
         if (evt.isDblClick && (evt.target instanceof Input))
             return;
 
         this._owner.event(UIEvent.ClickItem, item);
     }
 
-    public enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string) {
+    enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string) {
         if (enabled) {
             //this._owner.tabStopChildren = true;
             this._keyEvent = keySelectEvent != null ? keySelectEvent : UIEvent.ClickItem;
@@ -262,7 +286,7 @@ export class Selection implements ISelection {
             evt.stopPropagation();
     }
 
-    public handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number): number {
         let curIndex = this.index;
         if (curIndex == -1) {
             if (this._owner.numChildren > 0) {
@@ -403,4 +427,32 @@ export class Selection implements ISelection {
             return -1;
     }
 
+    private selectChanged() {
+        if (this._controller)
+            this.index = this._controller.selectedIndex;
+    }
+
+    private syncController(index: number) {
+        let cc = this._controller;
+        if (cc) {
+            this._controller = null;
+            cc.selectedIndex = index;
+            this._controller = cc;
+        }
+    }
+
+    _refresh() {
+        if (this._mode === SelectionMode.None)
+            return;
+
+        if (this._controller)
+            this.index = this._controller.selectedIndex;
+        else
+            this.index = this._lastIndex;
+    }
+
+    destroy() {
+        if (this._controller)
+            this._controller.release();
+    }
 }

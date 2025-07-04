@@ -1,6 +1,7 @@
 import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
 import { Physics3DColliderShape } from "../../../d3/physics/shape/Physics3DColliderShape";
 import { Vector3 } from "../../../maths/Vector3";
+import { NotImplementedError } from "../../../utils/Error";
 import { ICompoundColliderShape } from "../../interface/Shape/ICompoundColliderShape";
 import { btStatics } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
@@ -39,7 +40,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
     }
 
     clearChildShape(): void {
-        throw new Error("Method not implemented.");
+        throw new NotImplementedError();
     }
 
     protected _getType(): number {

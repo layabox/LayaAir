@@ -9,7 +9,12 @@ import type { Tween } from "./Tween";
 /**
  * @internal
  */
-export type TweenPropInfo = { name: string; type: 0 | 1 | 2 | TweenValueAdapter, offset: number; };
+export type TweenPropInfo = {
+    name: string;
+    type: 0 | 1 | 2 | TweenValueAdapter;
+    offset: number;
+    renewFlags?: number;
+};
 
 /**
  * @internal
@@ -46,6 +51,7 @@ export class Tweener implements ITweener {
     onUpdate: TweenCallback;
     onStart: TweenCallback;
     onComplete: TweenCallback;
+    onCompleteResolvers: Array<Function>;
     onUpdateCaller: any;
     onStartCaller: any;
     onCompleteCaller: any;
@@ -139,29 +145,29 @@ export class Tweener implements ITweener {
         this.props.push(prop);
         prop.name = propName;
         prop.offset = this.startValue.nums.length;
+        if (this._active) {
+            prop.renewFlags = 0;
+            if (startValue === undefined)
+                startValue = this.target[propName];
+            if (endValue === undefined)
+                endValue = this.target[propName];
+        }
+        else
+            prop.renewFlags = startValue === undefined ? 1 : endValue === undefined ? 2 : 0;
 
-        const type = typeof (startValue);
+        const type = startValue != null ? typeof (startValue) : typeof (endValue);
         let adapter: TweenValueAdapter;
-        if (type === "number") {
+        if (type === "number")
             prop.type = 0;
-            this.startValue.nums.push(startValue as number);
-            this.endValue.nums.push(endValue as number);
-        }
-        else if (type === "string") {//for string color
-            this.startValue.nums.push(Color.stringToHex(startValue as string));
-            this.endValue.nums.push(Color.stringToHex(endValue as string));
+        else if (type === "string") //for string color
             prop.type = 2;
-        }
-        else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null) {
-            adapter.write(this.startValue.nums, startValue);
-            adapter.write(this.endValue.nums, endValue);
+        else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null)
             prop.type = adapter;
-        }
-        else { //default use boolean
-            this.startValue.nums.push(startValue ? 1 : 0);
-            this.endValue.nums.push(endValue ? 1 : 0);
+        else //default use boolean
             prop.type = 1;
-        }
+
+        this.startValue.write(prop.type, prop.offset, startValue !== undefined ? startValue : endValue);
+        this.endValue.write(prop.type, prop.offset, endValue !== undefined ? endValue : startValue);
 
         return this;
     }
@@ -174,9 +180,24 @@ export class Tweener implements ITweener {
         return this._ended == 1;
     }
 
+    get remainTime(): number {
+        if (this.breakpoint >= 0)
+            return this.delay + this.breakpoint - this._elapsedTime;
+        else if (this.repeat >= 0)
+            return this.delay + this.duration * (this.repeat + 1) - this._elapsedTime;
+        else
+            return this.delay + this.duration * 2 - this._elapsedTime;
+    }
+
     activate() {
         this._active = true;
         this._startFrame = ILaya.timer.currFrame;
+        for (let prop of this.props) {
+            if (prop.renewFlags == 1)
+                this.startValue.write(prop.type, prop.offset, this.target[prop.name]);
+            else if (prop.renewFlags == 2)
+                this.endValue.write(prop.type, prop.offset, this.target[prop.name]);
+        }
     }
 
     seek(time: number): void {
@@ -200,18 +221,15 @@ export class Tweener implements ITweener {
 
         if (complete) {
             if (this._ended == 0) {
-                if (this.breakpoint >= 0)
-                    this._elapsedTime = this.delay + this.breakpoint;
-                else if (this.repeat >= 0)
-                    this._elapsedTime = this.delay + this.duration * (this.repeat + 1);
-                else
-                    this._elapsedTime = this.delay + this.duration * 2;
+                this._elapsedTime = 0;
+                this._elapsedTime = this.remainTime;
                 this.update2();
             }
 
             this.callCompleteCallback();
         }
-
+        else if (this.onCompleteResolvers)
+            this.onCompleteResolvers.forEach(f => f());
         this._killed = true;
     }
 
@@ -255,7 +273,7 @@ export class Tweener implements ITweener {
         this.lifecycleOwner = null;
         this.userData = null;
         _propsPool.recover(this.props);
-        this.onStart = this.onUpdate = this.onComplete = null;
+        this.onStart = this.onUpdate = this.onComplete = this.onCompleteResolvers = null;
         this.onStartCaller = this.onUpdateCaller = this.onCompleteCaller = null;
     }
 
@@ -357,8 +375,7 @@ export class Tweener implements ITweener {
         }
 
         if (this.target != null) {
-            for (let i = 0, n = this.props.length; i < n; i++) {
-                let prop = this.props[i];
+            for (let prop of this.props) {
                 if (prop.name) {
                     let v = prop.type === 1 ? (this._ended === 1 ? this.endValue.read(prop.type, prop.offset)
                         : this.startValue.read(prop.type, prop.offset))
@@ -407,6 +424,8 @@ export class Tweener implements ITweener {
                 console.error("error in complete callback > ", err);
             }
         }
+        if (this.onCompleteResolvers)
+            this.onCompleteResolvers.forEach(f => f());
     }
 
     static _pool: IPool<Tweener> = Pool.createPool(Tweener, e => e.init(), e => e.reset());

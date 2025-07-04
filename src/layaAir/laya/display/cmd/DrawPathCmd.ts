@@ -1,7 +1,9 @@
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawPathCmd";
 
 /**
  * @en Draw vector graphics based on the path
@@ -12,7 +14,7 @@ export class DrawPathCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPathCmd
      * @zh 根据路径绘制矢量图形命令的标识符
      */
-    static ID: string = "DrawPath";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -57,7 +59,7 @@ export class DrawPathCmd implements IGraphicsCmd {
      * @return DrawPathCmd 实例
      */
     static create(x: number, y: number, paths: any[], brush: any, pen: any): DrawPathCmd {
-        var cmd: DrawPathCmd = Pool.getItemByClass("DrawPathCmd", DrawPathCmd);
+        var cmd: DrawPathCmd = Pool.getItemByClass(className, DrawPathCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.paths = paths;
@@ -74,21 +76,21 @@ export class DrawPathCmd implements IGraphicsCmd {
         this.paths = null;
         this.brush = null;
         this.pen = null;
-        Pool.recover("DrawPathCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the drawing command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局 X 偏移
      * @param gy 全局 Y 偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        this.paths && context._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        this.paths && runner._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
     }
 
     /**
@@ -118,4 +120,4 @@ export class DrawPathCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawPathCmd", DrawPathCmd);
+ClassUtils.regClass(className, DrawPathCmd);

@@ -1,6 +1,5 @@
 import { Laya } from "../../../../Laya";
 import { Vector2 } from "../../../maths/Vector2";
-import { Handler } from "../../../utils/Handler";
 import { Material } from "../../../resource/Material";
 import { Lightmap } from "../../core/scene/Lightmap";
 import { Bounds } from "../../math/Bounds";
@@ -128,12 +127,10 @@ export class HLODResourceGroup {
      */
     load(callFun: Function, hlod: any) {
         if (!this.loaded) {
-            Laya.loader.load(this.url, Handler.create(
-                this, (res: any) => {
-                    callFun.apply(hlod, [this]);
-                    this.loaded = true;
-                }, [this]
-            ));
+            Laya.loader.load(this.url).then((res: any) => {
+                callFun.apply(hlod, [this]);
+                this.loaded = true;
+            });
         }
     }
 

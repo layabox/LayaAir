@@ -17,4 +17,8 @@ export interface ISelection {
     handleClick(item: GWidget, evt: Event): void;
     enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string): void;
     handleArrowKey(dir: number): number;
+    destroy(): void;
+
+    /** @internal */
+    _refresh(): void;
 }

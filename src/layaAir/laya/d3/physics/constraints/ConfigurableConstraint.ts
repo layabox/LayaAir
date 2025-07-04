@@ -861,7 +861,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     /**
      * @internal
-     * @protected
      */
     protected _onEnable(): void {
         super._onEnable();
@@ -871,7 +870,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     /**
      * @internal
-     * @protected
      */
     protected _onDisable(): void {
         if (this._joint)
@@ -880,7 +878,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     /**
      * @internal
-     * @protected
      * create joint
      */
     protected _initJoint(): void {

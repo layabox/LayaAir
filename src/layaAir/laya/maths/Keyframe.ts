@@ -49,7 +49,7 @@ export class Keyframe implements IClone {
      * @zh 克隆。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: Keyframe = new Keyframe();
 
         this.cloneTo(dest);

@@ -63,43 +63,48 @@ export enum MaterialRenderMode {
 /**
  * @en The Material class is used to create materials.
  * @zh Material 类用于创建材质。
+ * @blueprintIgnoreSubclasses
  */
 export class Material extends Resource implements IClone {
     /** 
      * @en RenderQueue: Opaque
      * @zh 渲染队列：不透明。
      */
-    static RENDERQUEUE_OPAQUE: number = 2000;
+    static readonly RENDERQUEUE_OPAQUE: number = 2000;
     /** 
      * @en RenderQueue: Alpha Testing
      * @zh 渲染队列：阿尔法测试。
      */
-    static RENDERQUEUE_ALPHATEST: number = 2450;
+    static readonly RENDERQUEUE_ALPHATEST: number = 2450;
     /** 
      * @en RenderQueue: Transparent
      * @zh 渲染队列：透明。
      */
-    static RENDERQUEUE_TRANSPARENT: number = 3000;
+    static readonly RENDERQUEUE_TRANSPARENT: number = 3000;
 
     /**
      * @en Shader variables, transparent test values.
      * @zh 着色器变量,透明测试值。
+     * @readonly
      */
     static ALPHATESTVALUE: number;
 
     /**
      * @en Material grade shader macro definition, transparency testing.
      * @zh 材质级着色器宏定义,透明测试。
+     * @readonly
      */
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
     /**
      * @en Material grade shader macro definition, main texture.
      * @zh 材质级着色器宏定义,主贴图。
+     * @readonly
      */
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
     /**
      * @en Material grade shader macro definition, additive fog.
      * @zh 材质级着色器宏定义,叠加雾效。
+     * @readonly
      */
     static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
@@ -137,10 +142,16 @@ export class Material extends Resource implements IClone {
         Shader3D.BLEND_EQUATION_ALPHA = Shader3D.propertyNameToID("s_BlendEquationAlpha");
         Shader3D.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
         Shader3D.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
+        Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
+        Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
         Shader3D.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Shader3D.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
         Shader3D.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
         Shader3D.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
+        Shader3D.DEPTH_BIAS = Shader3D.propertyNameToID("s_DepthBias");
+        Shader3D.DEPTH_BIAS_CONSTANT = Shader3D.propertyNameToID("s_DepthBiasConstant");
+        Shader3D.DEPTH_BIAS_SLOPESCALE = Shader3D.propertyNameToID("s_DepthBiasSlopeScale");
+        Shader3D.DEPTH_BIAS_CLAMP = Shader3D.propertyNameToID("s_DepthBiasClamp");
     }
 
     private _matRenderNode: MaterialRenderMode;
@@ -465,6 +476,30 @@ export class Material extends Resource implements IClone {
     }
 
     /**
+     * @en Stencil write mask value
+     * @zh 模板写入掩码值
+     */
+    get stencilWriteMask(): number {
+        return this._shaderValues.getInt(Shader3D.STENCIL_WRITE_MASK);
+    }
+
+    set stencilWriteMask(value: number) {
+        this._shaderValues.setInt(Shader3D.STENCIL_WRITE_MASK, value);
+    }
+
+    /**
+     * @en Stencil read mask value
+     * @zh 模板读取掩码值
+     */
+    get stencilReadMask(): number {
+        return this._shaderValues.getInt(Shader3D.STENCIL_READ_MASK);
+    }
+
+    set stencilReadMask(value: number) {
+        this._shaderValues.setInt(Shader3D.STENCIL_READ_MASK, value);
+    }
+
+    /**
      * @en Stencil values
      * @zh 模板值
      */
@@ -486,6 +521,55 @@ export class Material extends Resource implements IClone {
 
     set stencilOp(value: Vector3) {
         this._shaderValues.setVector3(Shader3D.STENCIL_Op, value);
+    }
+
+    /**
+     * @en Whether to enable depth bias.
+     * @zh 是否启用深度偏移。
+     */
+    get depthBias(): boolean {
+        return this._shaderValues.getBool(Shader3D.DEPTH_BIAS);
+    }
+
+    set depthBias(value: boolean) {
+        this._shaderValues.setBool(Shader3D.DEPTH_BIAS, value);
+    }
+
+    /**
+     * @en The depth bias constant.
+     * @zh 深度偏移常量。
+     */
+    get depthBiasConstant(): number {
+        return this._shaderValues.getNumber(Shader3D.DEPTH_BIAS_CONSTANT);
+    }
+
+    set depthBiasConstant(value: number) {
+        this._shaderValues.setNumber(Shader3D.DEPTH_BIAS_CONSTANT, value);
+    }
+
+    /**
+     * @en The depth bias slope scale.
+     * @zh 深度偏移斜率缩放。
+     */
+    get dephtBiasSlopeScale(): number {
+        return this._shaderValues.getNumber(Shader3D.DEPTH_BIAS_SLOPESCALE);
+    }
+
+
+    set dephtBiasSlopeScale(value: number) {
+        this._shaderValues.setNumber(Shader3D.DEPTH_BIAS_SLOPESCALE, value);
+    }
+
+    /**
+     * @en The depth bias clamp.
+     * @zh 深度偏移限制。
+     */
+    get depthBiasClamp(): number {
+        return this._shaderValues.getNumber(Shader3D.DEPTH_BIAS_CLAMP);
+    }
+
+    set depthBiasClamp(value: number) {
+        this._shaderValues.setNumber(Shader3D.DEPTH_BIAS_CLAMP, value);
     }
 
     /**
@@ -604,10 +688,16 @@ export class Material extends Resource implements IClone {
         this.blendEquationAlpha = RenderState.BLENDEQUATION_ADD;
         this.depthTest = RenderState.DEPTHTEST_LEQUAL;
         this.depthWrite = true;
+        this.stencilWriteMask = 0xFF;
+        this.stencilReadMask = 0xFF;
         this.stencilRef = 1;
         this.stencilTest = RenderState.STENCILTEST_OFF;
         this.stencilWrite = false;
         this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
+        this.depthBias = false;
+        this.depthBiasConstant = 0.0;
+        this.dephtBiasSlopeScale = 0.0;
+        this.depthBiasClamp = 0.0;
         this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
     }
 
@@ -1319,7 +1409,7 @@ export class Material extends Resource implements IClone {
      * @zh 创建当前材质的克隆副本。
      * @returns 一个克隆自当前材质的新材质实例。
      */
-    clone(): any {
+    clone() {
         var dest: Material = new Material();
         this.cloneTo(dest);
         return dest;

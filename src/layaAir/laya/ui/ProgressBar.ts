@@ -13,6 +13,7 @@ import { TransformKind } from "../display/SpriteConst"
  * change event is dispatched when the value changes.
  * @zh `ProgressBar` 组件用于显示内容的加载进度。
  * change事件用于值发生改变后调度。
+ * @blueprintInheritable
  */
 export class ProgressBar extends UIComponent {
     protected _bg: Image;
@@ -222,4 +223,9 @@ export class ProgressBar extends UIComponent {
         this.changeHandler = null;
     }
 
+    /** @internal @blueprintEvent */
+    ProgressBar_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.LOADED]: () => void;
+    };
 }

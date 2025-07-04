@@ -2,22 +2,35 @@ import { EventDispatcher } from "../events/EventDispatcher";
 import type { GWidget } from "./GWidget";
 import { Event } from "../events/Event";
 import { ControllerRef } from "./ControllerRef";
+import { Mutable } from "../../ILaya";
+import { GearDisplay } from "./gear/GearDisplay";
 
+/**
+ * @en Controller class manages a set of pages, allowing for selection and change notifications.
+ * @zh 控制器类管理一组页面，允许选择和更改通知。
+ */
 export class Controller extends EventDispatcher {
     private _selectedIndex: number;
     private _previousIndex: number;
     private _pages: string[];
 
-    public owner: GWidget;
-    public name: string;
+    /** @readonly */
+    owner: GWidget;
+    /** @readonly */
+    name: string;
 
-    public changing: boolean;
+    /**
+     * @en Indicates whether the controller is currently changing.
+     * @zh 指示控制器当前是否正在更改。
+     */
+    readonly changing: boolean;
 
     /**
      * @internal
      */
     _refs: Set<ControllerRef>;
 
+    /** @ignore @blueprintIgnore */
     constructor() {
         super();
 
@@ -28,28 +41,42 @@ export class Controller extends EventDispatcher {
         this._refs = new Set();
     }
 
-    public get pages(): Array<string> {
+    /**
+     * @en Pages of the controller.
+     * @zh 控制器的页面。
+     */
+    get pages(): Array<string> {
         return this._pages;
     }
 
-    public set pages(value: Array<string>) {
+    set pages(value: Array<string>) {
         this._pages = value;
 
         if (value.length > 0 && this._selectedIndex == -1)
             this.selectedIndex = 0;
     }
 
-    public get numPages() {
+    /**
+     * @en The number of pages in the controller.
+     * @zh 控制器中的页面数量。
+     */
+    get numPages() {
         return this._pages.length;
     }
 
-    public set numPages(value: number) {
+    set numPages(value: number) {
         this._pages.length = value;
         for (let i = 0; i < value; i++)
             if (this._pages[i] == null) this._pages[i] = "";
     }
 
-    public addPage(name?: string) {
+    /**
+     * @en Adds a new page to the controller.
+     * @param name The name of the new page. If not provided, an empty string will be used.
+     * @zh 向控制器添加一个新页面。
+     * @param name 新页面的名称。如果未提供，将使用空字符串。
+     */
+    addPage(name?: string) {
         name = name || "";
         this._pages.push(name);
 
@@ -59,54 +86,80 @@ export class Controller extends EventDispatcher {
         return this;
     }
 
-    public get selectedIndex(): number {
+    /**
+     * @en Index of the currently selected page.
+     * @zh 当前选中页面的索引。
+     */
+    get selectedIndex(): number {
         return this._selectedIndex;
     }
 
-    public set selectedIndex(value: number) {
+    set selectedIndex(value: number) {
         if (this._pages.length == 0)
             return;
 
         if (this._selectedIndex != value) {
             if (value > this._pages.length - 1) {
-                console.warn("index out of bounds: " + value);
+                console.warn(`index out of bounds: ${value}`);
                 return;
             }
 
             this._previousIndex = this._selectedIndex;
             this._selectedIndex = value;
 
-            this.changing = true;
-            for (let ref of this._refs) {
-                ref.onChanged();
+            (<Mutable<this>>this).changing = true;
+            try {
+                for (let ref of this._refs) {
+                    ref.onChanged(this);
+                }
+                GearDisplay.checkAll(this);
+                this.event(Event.CHANGED);
             }
-            this.event(Event.CHANGED);
-            this.changing = false;
+            finally {
+                (<Mutable<this>>this).changing = false;
+            }
         }
     }
 
-    public get selectedPage(): string {
+    /**
+     * @en Name of the currently selected page.
+     * @zh 当前选中页面的名称。
+     */
+    get selectedPage(): string {
         if (this._selectedIndex < 0 || this._selectedIndex >= this._pages.length)
             return null;
         else
             return this._pages[this._selectedIndex];
     }
 
-    public set selectedPage(value: string) {
+    set selectedPage(value: string) {
         let i = this._pages.indexOf(value);
-        if (i == -1)
+        if (i === -1)
             i = 0;
         this.selectedIndex = i;
     }
 
-    public get previousIndex(): number {
+    /**
+     * @en Index of the previously selected page.
+     * @zh 上一个选中页面的索引。
+     */
+    get previousIndex(): number {
         return this._previousIndex;
     }
 
-    public set oppositeIndex(value: number) {
+    /**
+     * @en Index of the opposite page. ie. If the current index is 0, the opposite index will be 1, else if the current index is greate than 0, the opposite index will be 0.
+     * @zh 相反页面的索引。即如果当前索引为0，则相反索引为1；如果当前索引大于0，则相反索引为0。
+     */
+    set oppositeIndex(value: number) {
         if (value > 0)
             this.selectedIndex = 0;
         else if (this._pages.length > 1)
             this.selectedIndex = 1;
     }
+
+    /** @internal @blueprintEvent */
+    Controller_bpEvent: {
+        [Event.CHANGED]: () => void;
+    };
 }

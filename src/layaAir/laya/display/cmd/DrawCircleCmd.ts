@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawCircleCmd";
 
 /**
  * @en Draw circle command
@@ -13,7 +15,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @en Identifier for the DrawCircleCmd
      * @zh 绘制圆形命令的标识符
      */
-    static ID: string = "DrawCircle";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis position of the circle center
@@ -53,7 +55,6 @@ export class DrawCircleCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawCircleCmd instance
      * @param x X-axis position of the circle center
      * @param y Y-axis position of the circle center
@@ -69,16 +70,18 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @param fillColor 填充颜色
      * @param lineColor 边框颜色
      * @param lineWidth 边框宽度
+     * @param percent 位置和大小是否是百分比值
      * @returns DrawCircleCmd实例
      */
-    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number): DrawCircleCmd {
-        var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
+    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawCircleCmd {
+        var cmd: DrawCircleCmd = Pool.getItemByClass(className, DrawCircleCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.radius = radius;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
 
@@ -89,28 +92,28 @@ export class DrawCircleCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawCircleCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the draw circle command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制圆形命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
-        if (this.percent && context.sprite) {
-            let w = context.sprite.width;
-            let h = context.sprite.height;
-            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * Math.min(w, h) - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
+        if (this.percent && runner.sprite) {
+            let w = runner.sprite.width;
+            let h = runner.sprite.height;
+            runner._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * Math.min(w, h) - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
         }
         else
-            context._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
+            runner._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**
@@ -128,10 +131,9 @@ export class DrawCircleCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius)
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }
 }
 
-ClassUtils.regClass("DrawCircleCmd", DrawCircleCmd);
+ClassUtils.regClass(className, DrawCircleCmd);

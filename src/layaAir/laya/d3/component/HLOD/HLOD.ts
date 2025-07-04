@@ -12,6 +12,7 @@ const tempVec = new Vector3();
 /**
  * @en HLOD (Hierarchical Level of Detail) component for optimizing rendering performance.
  * @zh HLOD（分层细节层次）组件，用于优化渲染性能。
+ * @blueprintIgnore
  */
 export class HLOD extends Component {
     /**@internal */
@@ -35,7 +36,7 @@ export class HLOD extends Component {
     /**@internal */
     private _size: number;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     constructor() {
         super();

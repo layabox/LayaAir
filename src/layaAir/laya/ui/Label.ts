@@ -14,6 +14,7 @@ export type LabelFitContent = "no" | "yes" | "height";
  * `change` event is dispatched when the text content changes.
  * @zh Label 类用于创建显示对象以显示文本。
  * `change`事件用于文本内容发生改变后调度。
+ * @blueprintInheritable
  */
 export class Label extends UIComponent {
 

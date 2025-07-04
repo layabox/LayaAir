@@ -19,6 +19,7 @@ export class RTSkinRenderNode extends RTBaseRenderNode implements ISkinRenderNod
     constructor() {
         super();
     }
+    ismoved: number;
 
     computeSkinnedData(): void {
         (this.boneNums != 0) && this._nativeObj.computeSkinnedData(Stat.loopCount);

@@ -4,10 +4,17 @@ import type { GWidget } from "./GWidget";
 import type { GTree } from "./GTree";
 import type { TreeSelection } from "./selection/TreeSelection";
 import { GButton } from "./GButton";
-import { UIEvent } from "./UIEvent";
 
+/**
+ * @en Represents a node in a tree structure.
+ * @zh 表示树结构中的一个节点。
+ */
 export class GTreeNode {
-    public data: any;
+    /**
+     * @en The data associated with this tree node.
+     * @zh 与此树节点关联的数据。
+     */
+    data: any;
 
     private _parent: GTreeNode;
     private _children: Array<GTreeNode>;
@@ -23,10 +30,14 @@ export class GTreeNode {
     private _isFolder: boolean;
     private _expandCtrler: Controller;
 
-    public onExpanded?: (expand: boolean) => void;
+    /**
+     * @en The function called when the node is expanded or collapsed.
+     * @zh 当节点被展开或折叠时调用的函数。
+     */
+    onExpanded?: (expand: boolean) => void;
 
     /** @internal */
-    public _cellFromPool: boolean;
+    _cellFromPool: boolean;
 
     constructor(isFolder?: boolean, resURL?: string, addIndent?: number) {
         this._isFolder = isFolder;
@@ -37,11 +48,20 @@ export class GTreeNode {
         this._children = [];
     }
 
-    public set expanded(value: boolean) {
+    /**
+     * @en The expanded state of the node.
+     * @zh 节点的展开状态。
+     */
+    get expanded(): boolean {
+        return this._expanded;
+    }
+
+    set expanded(value: boolean) {
         this._setExpanded(value);
     }
 
-    public _setExpanded(value: boolean, byEvent?: boolean) {
+    /** @internal */
+    _setExpanded(value: boolean, byEvent?: boolean) {
         if (this._expanded != value) {
             this._expanded = value;
 
@@ -57,15 +77,15 @@ export class GTreeNode {
         }
     }
 
-    public get expanded(): boolean {
-        return this._expanded;
-    }
-
-    public get isFolder(): boolean {
+    /**
+     * @en Indicates whether this node is a folder.
+     * @zh 指示此节点是否为文件夹。
+     */
+    get isFolder(): boolean {
         return this._isFolder || this._children.length > 0;
     }
 
-    public set isFolder(value: boolean) {
+    set isFolder(value: boolean) {
         if (this._isFolder != value) {
             this._isFolder = value;
             if (this._leafController)
@@ -73,47 +93,67 @@ export class GTreeNode {
         }
     }
 
-    public get addIndent(): number {
+    /**
+     * @en Additional indentation level for this node.
+     * @zh 此节点的额外缩进级别。
+     */
+    get addIndent(): number {
         return this._addIndent;
     }
 
-    public set addIndent(value: number) {
+    set addIndent(value: number) {
         this._addIndent = value;
     }
 
-    public get parent(): GTreeNode {
+    /**
+     * @en The parent node of this tree node.
+     * @zh 此树节点的父节点。
+     */
+    get parent(): GTreeNode {
         return this._parent;
     }
 
-    public get text(): string {
+    /**
+     * @en The text content of the tree node.
+     * @zh 树节点的文本内容。
+     */
+    get text(): string {
         if (this._cell)
             return this._cell.text;
         else
             return null;
     }
 
-    public set text(value: string) {
+    set text(value: string) {
         if (this._cell)
             this._cell.text = value;
     }
 
-    public get icon(): string {
+    /**
+     * @en The icon associated with the tree node.
+     * @zh 与树节点关联的图标。
+     */
+    get icon(): string {
         if (this._cell)
             return this._cell.icon;
         else
             return null;
     }
 
-    public set icon(value: string) {
+    set icon(value: string) {
         if (this._cell)
             this._cell.icon = value;
     }
 
-    public get cell(): GWidget {
+    /**
+     * @en The display widget for this tree node.
+     * @zh 此树节点的显示小部件。
+     */
+    get cell(): GWidget {
         return this._cell;
     }
 
-    public set cell(value: GWidget) {
+    set cell(value: GWidget) {
         if (this._cell) {
             this._cell._treeNode = null;
             this._indentObj = null;
@@ -157,11 +197,17 @@ export class GTreeNode {
         }
     }
 
-    public createCell(tree?: GTree) {
+    /**
+     * @en Create a widget for this tree node.
+     * @param tree If the tree node is not yet part of a tree, you can pass the tree instance to create the widget.
+     * @zh 为此树节点创建一个小部件。
+     * @param tree 如果树节点尚未属于任何树，可以传递树实例来创建小部件。
+     */
+    createCell(tree?: GTree) {
         if (this._cell)
             return;
 
-        let child = (this._tree || tree).itemPool.getObject(this._resURL ? this._resURL : "");
+        let child = (this._tree || tree).itemPool.take(this._resURL ? this._resURL : "");
         if (!child)
             throw new Error("cannot create tree node object.");
         if (child instanceof GButton)
@@ -171,16 +217,38 @@ export class GTreeNode {
         this._cellFromPool = true;
     }
 
-    public get level(): number {
+    /**
+     * @en The level of this tree node in the tree hierarchy.
+     * @zh 此树节点在树层次结构中的级别。
+     */
+    get level(): number {
         return this._level;
     }
 
-    public addChild(child: GTreeNode): GTreeNode {
+    /**
+     * @en Add a child node to this tree node.
+     * @param child The child node to add.
+     * @returns The added child node.
+     * @zh 向此树节点添加一个子节点。
+     * @param child 要添加的子节点。
+     * @returns 添加的子节点。 
+     */
+    addChild(child: GTreeNode): GTreeNode {
         this.addChildAt(child, this._children.length);
         return child;
     }
 
-    public addChildAt(child: GTreeNode, index: number): GTreeNode {
+    /**
+     * @en Add a child node at a specific index.
+     * @param child The child node to add. 
+     * @param index The index at which to add the child node. If the index is equal to the number of children, the child will be added at the end. 
+     * @returns The added child node. 
+     * @zh 在特定索引处添加一个子节点。
+     * @param child 要添加的子节点。
+     * @param index 要添加子节点的索引。如果索引等于子节点的数量，则子节点将被添加到末尾。
+     * @returns 添加的子节点
+     */
+    addChildAt(child: GTreeNode, index: number): GTreeNode {
         if (!child)
             throw new Error("child is null");
 
@@ -217,7 +285,15 @@ export class GTreeNode {
         }
     }
 
-    public removeChild(child: GTreeNode): GTreeNode {
+    /**
+     * @en Remove a specific child node from this tree node.
+     * @param child The child node to remove. 
+     * @returns The removed child node.
+     * @zh 从此树节点中移除特定的子节点。
+     * @param child 要移除的子节点。
+     * @returns 被移除的子节点。 
+     */
+    removeChild(child: GTreeNode): GTreeNode {
         let childIndex = this._children.indexOf(child);
         if (childIndex != -1) {
             this.removeChildAt(childIndex);
@@ -225,7 +301,15 @@ export class GTreeNode {
         return child;
     }
 
-    public removeChildAt(index: number): GTreeNode {
+    /**
+     * @en Remove a child node at a specific index.
+     * @param index The index of the child node to remove.
+     * @returns The removed child node.
+     * @zh 从此树节点中移除指定索引处的子节点。
+     * @param index 要移除的子节点的索引。 
+     * @returns 被移除的子节点。 
+     */
+    removeChildAt(index: number): GTreeNode {
         if (index >= 0 && index < this.numChildren) {
             let child = this._children[index];
             this._children.splice(index, 1);
@@ -246,7 +330,15 @@ export class GTreeNode {
         }
     }
 
-    public removeChildren(beginIndex?: number, endIndex?: number): void {
+    /**
+     * @en Remove a range of children from this tree node.
+     * @param beginIndex The starting index of the range to remove. Defaults to 0
+     * @param endIndex The ending index of the range to remove. If not provided, it will remove all children from the beginning index to the end of the list.
+     * @zh 从此树节点中移除一系列子节点。
+     * @param beginIndex 要移除的范围的起始索引。默认为0。 
+     * @param endIndex 要移除的范围的结束索引。如果未提供，将从起始索引移除到列表末尾的所有子节点。 
+     */
+    removeChildren(beginIndex?: number, endIndex?: number): void {
         beginIndex = beginIndex || 0;
         if (endIndex == null) endIndex = -1;
         if (endIndex < 0 || endIndex >= this.numChildren)
@@ -256,18 +348,39 @@ export class GTreeNode {
             this.removeChildAt(beginIndex);
     }
 
-    public getChildAt(index: number): GTreeNode {
+    /**
+     * @en Get the child node at a specific index.
+     * @param index The index of the child node to retrieve.
+     * @returns The child node at the specified index.
+     * @zh 获取指定索引处的子节点。
+     * @param index 要检索的子节点的索引。 
+     * @returns 指定索引处的子节点。 
+     */
+    getChildAt(index: number): GTreeNode {
         if (index >= 0 && index < this.numChildren)
             return this._children[index];
         else
             throw new Error(`Invalid child index ${index}`);
     }
 
-    public getChildIndex(child: GTreeNode): number {
+    /**
+     * @en Get the index of a specific child node.
+     * @param child The child node to find the index of.
+     * @returns The index of the specified child node, or -1 if not found.
+     * @param child 要查找索引的子节点。 
+     * @returns 指定子节点的索引，如果未找到则返回-1。 
+     */
+    getChildIndex(child: GTreeNode): number {
         return this._children.indexOf(child);
     }
 
-    public getPrevSibling(): GTreeNode {
+    /**
+     * @en Get the previous sibling node of this tree node.
+     * @returns The previous sibling node, or null if this is the first child or has no parent.
+     * @zh 获取此树节点的前一个兄弟节点。
+     * @returns 前一个兄弟节点，如果这是第一个子节点或没有父节点，则返回null。 
+     */
+    getPrevSibling(): GTreeNode | null {
         if (this._parent == null)
             return null;
 
@@ -278,7 +391,13 @@ export class GTreeNode {
         return this._parent._children[i - 1];
     }
 
-    public getNextSibling(): GTreeNode {
+    /**
+     * @en Get the next sibling node of this tree node.
+     * @returns The next sibling node, or null if this is the last child or has no parent.
+     * @zh 获取此树节点的下一个兄弟节点。
+     * @returns 下一个兄弟节点，如果这是最后一个子节点或没有父节点，则返回null。 
+     */
+    getNextSibling(): GTreeNode | null {
         if (this._parent == null)
             return null;
 
@@ -289,7 +408,13 @@ export class GTreeNode {
         return this._parent._children[i + 1];
     }
 
-    public getLastVisibleDecendant(): GTreeNode {
+    /**
+     * @en Get the last visible descendant node of this tree node.
+     * @returns The last visible descendant node, or null if there are no visible descendants.
+     * @zh 获取此树节点的最后一个可见子孙节点。
+     * @returns 最后一个可见子孙节点，如果没有可见子孙节点，则返回null。 
+     */
+    getLastVisibleDecendant(): GTreeNode | null {
         let ret = this.findLastVisibleChild(this);
         return ret === this ? null : ret;
     }
@@ -308,7 +433,15 @@ export class GTreeNode {
         return null;
     }
 
-    public setChildIndex(child: GTreeNode, index: number): void {
+    /**
+     * @en Set the index of a child node within this tree node.
+     * @param child The child node whose index is to be set. 
+     * @param index The new index for the child node. If the index is less than 0, it will be set to 0; if greater than the number of children, it will be set to the number of children. 
+     * @zh 设置此树节点中子节点的索引。
+     * @param child 要设置索引的子节点。
+     * @param index 子节点的新索引。如果索引小于0，则设置为0；如果大于子节点数量，则设置为子节点数量。 
+     */
+    setChildIndex(child: GTreeNode, index: number): void {
         let oldIndex = this._children.indexOf(child);
         if (oldIndex == -1)
             throw new Error("Not a child of this container");
@@ -328,7 +461,15 @@ export class GTreeNode {
             this._tree._afterMoved(child);
     }
 
-    public swapChildren(child1: GTreeNode, child2: GTreeNode): void {
+    /**
+     * @en Swap the positions of two child nodes within this tree node.
+     * @param child1 The first child node to swap.
+     * @param child2 The second child node to swap.
+     * @zh 在此树节点中交换两个子节点的位置。
+     * @param child1 第一个要交换的子节点。 
+     * @param child2 第二个要交换的子节点。 
+     */
+    swapChildren(child1: GTreeNode, child2: GTreeNode): void {
         let index1 = this._children.indexOf(child1);
         let index2 = this._children.indexOf(child2);
         if (index1 == -1 || index2 == -1)
@@ -336,7 +477,15 @@ export class GTreeNode {
         this.swapChildrenAt(index1, index2);
     }
 
-    public swapChildrenAt(index1: number, index2: number): void {
+    /**
+     * @en Swap the positions of two child nodes at specific indices within this tree node.
+     * @param index1 The index of the first child node to swap.
+     * @param index2 The index of the second child node to swap.
+     * @zh 在此树节点中交换两个子节点在特定索引处的位置。
+     * @param index1 第一个要交换的子节点的索引。 
+     * @param index2 第二个要交换的子节点的索引。 
+     */
+    swapChildrenAt(index1: number, index2: number): void {
         let child1 = this._children[index1];
         let child2 = this._children[index2];
         this._children[index1] = child2;
@@ -354,15 +503,29 @@ export class GTreeNode {
         }
     }
 
-    public get numChildren(): number {
+    /**
+     * @en The number of child nodes under this tree node.
+     * @zh 此树节点下的子节点数量。
+     */
+    get numChildren(): number {
         return this._children.length;
     }
 
-    public get children(): ReadonlyArray<GTreeNode> {
+    /**
+     * @en The list of child nodes under this tree node.
+     * @returns A read-only array of child nodes.
+     * @zh 此树节点下的子节点列表。
+     * @returns 一个只读的子节点数组。
+     */
+    get children(): ReadonlyArray<GTreeNode> {
         return this._children;
     }
 
-    public expandToRoot(): void {
+    /**
+     * @en Expand this tree node and all its parent nodes up to the root.
+     * @zh 展开此树节点及其所有父节点直到根节点。
+     */
+    expandToRoot(): void {
         let p: GTreeNode = this;
         while (p) {
             p.expanded = true;
@@ -370,11 +533,16 @@ export class GTreeNode {
         }
     }
 
-    public get tree(): GTree {
+    /**
+     * @en The tree that this node belongs to.
+     * @zh 此节点所属的树。
+     */
+    get tree(): GTree {
         return this._tree;
     }
 
-    public _setTree(value: GTree): void {
+    /** @internal */
+    _setTree(value: GTree): void {
         this._tree = value;
 
         if (this._tree && this._indentObj)

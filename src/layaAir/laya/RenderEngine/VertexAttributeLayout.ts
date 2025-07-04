@@ -1,15 +1,17 @@
 import { VertexBuffer } from "./VertexBuffer";
+
 //vertex Layout cache pool
 export interface VAElement { format: string, stride: number, shaderLocation: number };
+
 export class VertexAttributeLayout {
     static IPoint: number = 0;
     static _pool: { [key: number]: VertexAttributeLayout } = {};
 
     static getVertexLayoutByPool(vertexs: VertexBuffer[]) {
-        let pool =VertexAttributeLayout._pool;
-        for(var i in pool){
+        let pool = VertexAttributeLayout._pool;
+        for (var i in pool) {
             let layout = pool[i];
-            if(layout.deepthEqaul(vertexs)){
+            if (layout.deepthEqaul(vertexs)) {
                 return layout
             }
         }
@@ -19,20 +21,20 @@ export class VertexAttributeLayout {
     /**
      * vertex attribute byte size Array
      */
-    attributeByteSize:Array<number>;
+    attributeByteSize: Array<number>;
 
     /**
      * vertex Layout des
      */
     VAElements: Array<VAElement[]>;
 
-    instanceMode:Array<boolean>;
+    instanceMode: Array<boolean>;
     /**
      * pool index
      */
     id: number;
 
-    
+
 
     /**
      * instance one VertexAttributeLayout

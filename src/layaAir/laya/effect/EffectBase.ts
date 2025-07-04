@@ -6,6 +6,7 @@ import { Component } from "../components/Component";
 /**
  * @en Effect plugin base class, managed based on the object pool.
  * @zh 效果插件基类，基于对象池管理。
+ * @blueprintIgnore @blueprintIgnoreSubclasses
  */
 export class EffectBase extends Component {
     /**
@@ -47,7 +48,7 @@ export class EffectBase extends Component {
     protected _comlete: Handler;
     protected _tween: Tween;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     protected _onAwake(): void {
         this.target = this.target || this.owner;

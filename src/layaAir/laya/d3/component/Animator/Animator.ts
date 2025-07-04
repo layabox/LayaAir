@@ -39,12 +39,12 @@ export class Animator extends Component {
      * @en Culling mode: Always animate.
      * @zh 裁剪模式：始终播放动画。
      */
-    static CULLINGMODE_ALWAYSANIMATE: number = 0;
+    static readonly CULLINGMODE_ALWAYSANIMATE: number = 0;
     /**
      * @en Culling mode: Don't animate when not visible.
      * @zh 裁剪模式：不可见时完全不播放动画。
      */
-    static CULLINGMODE_CULLCOMPLETELY: number = 2;
+    static readonly CULLINGMODE_CULLCOMPLETELY: number = 2;
 
     private _speed: number;
     private _keyframeNodeOwnerMap: any;
@@ -1424,7 +1424,7 @@ export class Animator extends Component {
                 var state: AnimatorState = animatorStates[j].clone();
                 var cloneLayer: AnimatorControllerLayer = dest.getControllerLayer(i);
                 cloneLayer.addState(state);
-                (j == 0) && (cloneLayer.defaultState = state);
+                (j === 0) && (cloneLayer.defaultState = state);
             }
         }
         dest.controller = this._controller;

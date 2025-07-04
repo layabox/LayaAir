@@ -7,9 +7,22 @@ import { Point } from "../maths/Point";
 import { ProgressTitleType } from "./Const";
 import { GWidget } from "./GWidget";
 
+/**
+ * @en GSlider is a widget that provides a slider interface for selecting a value within a range.
+ * @zh GSlider 是一个提供滑块界面的小部件，用于在范围内选择值。
+ * @blueprintInheritable
+ */
 export class GSlider extends GWidget {
-    public changeOnClick: boolean = true;
-    public canDrag: boolean = true;
+    /**
+     * @en Whether the slider changes value when clicked on the bar.
+     * @zh 是否在点击滑块条时更改值。
+     */
+    changeOnClick: boolean = true;
+    /**
+     * @en Whether the slider can be dragged to change its value.
+     * @zh 是否可以拖动滑块以更改其值。
+     */
+    canDrag: boolean = true;
 
     private _hBar: GWidget;
     private _vBar: GWidget;
@@ -42,62 +55,82 @@ export class GSlider extends GWidget {
         this.on(Event.MOUSE_DOWN, this, this._barTouchBegin);
     }
 
-    public get titleType(): ProgressTitleType {
+    /**
+     * @en The type of title displayed on the slider.
+     * @zh 滑块上显示的标题类型。
+     */
+    get titleType(): ProgressTitleType {
         return this._titleType;
     }
 
-    public set titleType(value: ProgressTitleType) {
+    set titleType(value: ProgressTitleType) {
         if (this._titleType != value) {
             this._titleType = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get wholeNumbers(): boolean {
+    /**
+     * @en If true, the slider will only stop at integer positions when dragged by the user, meaning the slider's value will always be an integer.
+     * @zh 如果为true，则当滑动条被用户滑动时，最后只会停止在整数位置上，也就是滑动条的值始终是整数。
+     */
+    get wholeNumbers(): boolean {
         return this._wholeNumbers;
     }
 
-    public set wholeNumbers(value: boolean) {
+    set wholeNumbers(value: boolean) {
         if (this._wholeNumbers != value) {
             this._wholeNumbers = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get min(): number {
+    /**
+     * @en Minimum value of the slider.
+     * @zh 滑块的最小值。
+     */
+    get min(): number {
         return this._min;
     }
 
-    public set min(value: number) {
+    set min(value: number) {
         if (this._min != value) {
             this._min = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get max(): number {
+    /**
+     * @en Maximum value of the slider.
+     * @zh 滑块的最大值。
+     */
+    get max(): number {
         return this._max;
     }
 
-    public set max(value: number) {
+    set max(value: number) {
         if (this._max != value) {
             this._max = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get value(): number {
+    /**
+     * @en Current value of the slider.
+     * @zh 滑块的当前值。
+     */
+    get value(): number {
         return this._value;
     }
 
-    public set value(value: number) {
+    set value(value: number) {
         if (this._value != value) {
             this._value = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public update(): void {
+    protected update(): void {
         this.updateWithPercent((this._value - this._min) / (this._max - this._min), false);
     }
 
@@ -190,6 +223,7 @@ export class GSlider extends GWidget {
         super._onConstruct(inPrefab);
     }
 
+    /** @ignore */
     _setup(hBar: GWidget, vBar: GWidget, grip: GWidget, title: GWidget, reverse: boolean): void {
         this._hBar = hBar;
         this._vBar = vBar;
@@ -258,6 +292,11 @@ export class GSlider extends GWidget {
             percent += delta;
         this.updateWithPercent(percent, true);
     }
+
+    /** @internal @blueprintEvent */
+    GSlider_bpEvent: {
+        [Event.CHANGED]: (e: Event) => void;
+    };
 }
 
 const s_vec2 = new Point();

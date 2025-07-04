@@ -1,5 +1,5 @@
 import { StretchParam } from "../StretchParam";
-import { AlignType, VAlignType, LayoutType, PageMode, LayoutChangedReason, StretchMode } from "../Const";
+import { AlignType, VAlignType, LayoutType, LayoutChangedReason, StretchMode } from "../Const";
 import { Point } from "../../maths/Point";
 
 export interface ILayout {
@@ -46,8 +46,8 @@ export interface ILayout {
     get minChildSize(): number;
     set minChildSize(value: number);
 
-    get pageMode(): PageMode;
-    set pageMode(value: PageMode);
+    get pageMode(): boolean;
+    set pageMode(value: boolean);
 
     get viewWidth(): number;
     set viewWidth(value: number);

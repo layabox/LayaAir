@@ -36,7 +36,7 @@ export class SpotLight2D extends BaseLight2D {
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     constructor(innerRadius: number = 100, outerRadius: number = 200, innerAngle: number = 90, outerAngle: number = 120, falloff: number = 1) {
         super();
@@ -245,7 +245,7 @@ export class SpotLight2D extends BaseLight2D {
         const tex = this._texLight = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.antiAlias ? 4 : 1);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
         if (!this._cmdRT)
-            this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, LayaGL.renderEngine._screenInvertY);
+            this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, false);
         else this._cmdRT.renderTexture = tex;
     }
 

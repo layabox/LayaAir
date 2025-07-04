@@ -4,6 +4,7 @@ import { XMLUtils } from "./XMLUtils";
 /**
  * @en The `XML` class represents an XML node with methods to manipulate and parse XML data.
  * @zh `XML` 类表示一个 XML 节点，具有操作和解析 XML 数据的方法。
+ * @blueprintIgnore
  */
 export class XML {
     /**

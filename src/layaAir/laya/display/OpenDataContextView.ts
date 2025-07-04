@@ -4,10 +4,10 @@ import { Texture2D } from "../resource/Texture2D";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
-import { Browser } from "../utils/Browser";
 import { TransformKind } from "./SpriteConst";
 import { Sprite } from "./Sprite";
 import { Widget } from "../components/Widget";
+import { PAL } from "../platform/PlatformAdapters";
 
 /**
  * @en OpenDataContext component for displaying OpenData in WeChat mini-games. Instantiate this component directly to optimally display OpenData based on the component's width, height, and position.
@@ -16,15 +16,19 @@ import { Widget } from "../components/Widget";
 export class OpenDataContextView extends Sprite {
     private _fps: number = 30;
     private _widget: Widget;
+    private _canvas: HTMLCanvasElement;
 
     /** @ignore */
     constructor() {
         super();
+
         this._width = this._height = 200;
         this._widget = Widget.EMPTY;
         let tex: Texture = new Texture(new Texture2D(this._width, this._height, TextureFormat.R8G8B8A8, false, false, true));
         tex.bitmap.lock = true;
         this.texture = tex;
+
+        this._canvas = PAL.browser.getOpenDataContextCanvas();
     }
 
     /**
@@ -38,8 +42,7 @@ export class OpenDataContextView extends Sprite {
     set fps(value: number) {
         if (this._fps != value) {
             this._fps = value;
-            if (LayaEnv.isPlaying && this.activeInHierarchy
-                && (window as any).wx && (window as any).sharedCanvas) {
+            if (LayaEnv.isPlaying && this.activeInHierarchy && this._canvas) {
                 ILaya.timer.clear(this, this._onLoop);
                 ILaya.timer.loop(1000 / value, this, this._onLoop);
             }
@@ -53,7 +56,7 @@ export class OpenDataContextView extends Sprite {
         if (!LayaEnv.isPlaying)
             return;
 
-        if ((window as any).wx && (window as any).sharedCanvas)
+        if (this._canvas)
             ILaya.timer.loop(1000 / this._fps, this, this._onLoop);
     }
     /**
@@ -158,18 +161,14 @@ export class OpenDataContextView extends Sprite {
 
     private _onLoop(): void {
         let tex = this.texture;
-        let canvas: HTMLCanvasElement = (window as any).sharedCanvas;
+        let canvas = this._canvas;
         if (tex.width != canvas.width || tex.height != canvas.height) {
             tex.bitmap.destroy();
             tex.bitmap = new Texture2D(canvas.width, canvas.height, TextureFormat.R8G8B8A8, false, false, true, true);
             tex.bitmap.lock = true;
         }
 
-        if (Browser.onMiniGame) {//小游戏保护
-            if ((canvas as any).toTempFilePath) {
-                (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
-            }
-        } else
+        if (this._canvas)
             (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
     }
 
@@ -180,9 +179,9 @@ export class OpenDataContextView extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
-            if ((window as any).sharedCanvas) {
-                (window as any).sharedCanvas.width = this._width;
-                (window as any).sharedCanvas.height = this._height;
+            if (this._canvas) {
+                this._canvas.width = this._width;
+                this._canvas.height = this._height;
             }
             if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
             this.callLater(this.updateViewPort);
@@ -215,9 +214,6 @@ export class OpenDataContextView extends Sprite {
      * @param msg 要发送的消息。
      */
     postMsg(msg: any): void {
-        if ((window as any).wx && (window as any).wx.getOpenDataContext) {
-            var openDataContext: any = (window as any).wx.getOpenDataContext();
-            openDataContext.postMessage(msg);
-        }
+        PAL.browser.postMessageToOpenDataContext(msg);
     }
 }

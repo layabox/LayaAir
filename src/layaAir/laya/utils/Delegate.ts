@@ -27,8 +27,9 @@ export class Delegate {
      * @param args 回调函数的参数
      */
     public add(callback: Function, target?: any, args?: any[]): void {
+        target = target || null;
         let arr = this._items;
-        let index = arr.findIndex((value, index, arr) => value == callback && arr[index + 1] == target);
+        let index = arr.findIndex((value, index, arr) => value === callback && arr[index + 1] === target);
         if (index != -1) {
             arr[index + 2] = args;
             arr[index + 3] = 1;
@@ -48,8 +49,9 @@ export class Delegate {
      * @param args 回调函数的参数
      */
     public once(callback: Function, target?: any, args?: any[]): void {
+        target = target || null;
         let arr = this._items;
-        let index = arr.findIndex((value, index, arr) => value == callback && arr[index + 1] == target);
+        let index = arr.findIndex((value, index, arr) => value === callback && arr[index + 1] === target);
         if (index != -1) {
             arr[index + 2] = args;
             arr[index + 3] = 2;
@@ -67,8 +69,9 @@ export class Delegate {
      * @param target 回调函数的目标对象
      */
     public remove(callback: Function, target?: any): void {
+        target = target || null;
         let arr = this._items;
-        let index = arr.findIndex((value, index, arr) => value == callback && arr[index + 1] == target);
+        let index = arr.findIndex((value, index, arr) => value === callback && arr[index + 1] === target);
         if (index != -1) {
             if (this._flag != 0) {
                 arr[index + 3] = 0;
@@ -86,7 +89,7 @@ export class Delegate {
     public clear(): void {
         let arr = this._items;
         if (this._flag != 0) {
-            arr.forEach((value, index, arr) => { if (index % ITEM_LAYOUT == 3) arr[index] = 0; });
+            arr.forEach((value, index, arr) => { if (index % ITEM_LAYOUT === 3) arr[index] = 0; });
             this._flag = 2;
         }
         else {
@@ -94,25 +97,25 @@ export class Delegate {
         }
     }
 
-   /**
-     * @en Clear all callback functions for a specific target
-     * @param target The target object
-     * @zh 清除指定目标对象的所有回调函数
-     * @param target 目标对象
-     */
+    /**
+      * @en Clear all callback functions for a specific target
+      * @param target The target object
+      * @zh 清除指定目标对象的所有回调函数
+      * @param target 目标对象
+      */
     public clearForTarget(target: any): void {
         if (!target)
             return;
 
         let arr = this._items;
         if (this._flag != 0) {
-            arr.forEach((value, index, arr) => { if ((index % ITEM_LAYOUT == 1) && arr[index] == target) arr[index + 2] = 0; });
+            arr.forEach((value, index, arr) => { if ((index % ITEM_LAYOUT === 1) && arr[index] === target) arr[index + 2] = 0; });
             this._flag = 2;
         }
         else {
             let i: number = arr.length - ITEM_LAYOUT;
             while (i >= 0) {
-                if (arr[i + 1] == target)
+                if (arr[i + 1] === target)
                     arr.splice(i, ITEM_LAYOUT);
                 i -= ITEM_LAYOUT;
             }
@@ -141,7 +144,7 @@ export class Delegate {
         let arr = this._items;
         let cnt = arr.length;
         for (let i = 0; i < cnt; i += ITEM_LAYOUT) {
-            if (0 == arr[i + 3]) continue;
+            if (arr[i + 3] === 0) continue;
             let fixedArgs = arr[i + 2];
             try {
                 if (fixedArgs != null)
@@ -152,17 +155,17 @@ export class Delegate {
             catch (err: any) {
                 console.error(err);
             }
-            if (arr[i + 3] == 2) {
+            if (arr[i + 3] === 2) {
                 arr[i + 3] = 0;
                 this._flag = 2;
             }
         }
 
-        if (this._flag == 2) {
+        if (this._flag === 2) {
             let cnt = arr.length;
             let i = 0;
             while (i < cnt) {
-                if (arr[i + 3] == 0) {
+                if (arr[i + 3] === 0) {
                     arr.splice(i, ITEM_LAYOUT);
                     cnt -= ITEM_LAYOUT;
                     continue;

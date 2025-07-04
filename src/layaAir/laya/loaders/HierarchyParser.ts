@@ -23,6 +23,7 @@ export class HierarchyParser {
         let dataList: Array<any> = [];
         let allNodes: Array<Node> = [];
         let outNodes: Array<Node> = [];
+        let toDestroy: Array<Node> = [];
         let scene: Scene;
 
         let inPrefab: boolean;
@@ -174,7 +175,8 @@ export class HierarchyParser {
             let i = allNodes.indexOf(node);
             let nodeData = dataList[i];
 
-            node.destroy();
+            node.removeSelf();
+            toDestroy.push(node);
             allNodes[i] = null;
 
             if (!overrideData)
@@ -420,6 +422,11 @@ export class HierarchyParser {
             }
         }
 
+        for (let node of toDestroy) {
+            if (!node._destroyed)
+                node.destroy();
+        }
+
         if (inPrefab && prefabNodeDict && topNode) //记录下nodeMap，上层创建prefab时使用
             prefabNodeDict.set(topNode, nodeMap);
 
@@ -433,7 +440,7 @@ export class HierarchyParser {
         let test: Record<string, string[]> = {};
         let innerUrls: (string | ILoadURL)[] = [];
 
-        function addInnerUrl(url: string, type: string) {
+        function addInnerUrl(url: string, type: string, absolutePath?: boolean) {
             if (!url)
                 return "";
             let entry = test[url];
@@ -441,6 +448,8 @@ export class HierarchyParser {
                 let url2: string;
                 if (Utils.isUUID(url))
                     url2 = "res://" + url;
+                else if (absolutePath)
+                    url2 = url;
                 else
                     url2 = URL.join(basePath, url);
                 innerUrls.push({ url: url2, type: type });
@@ -464,7 +473,7 @@ export class HierarchyParser {
                 data._$prefab = addInnerUrl(data._$prefab, Loader.HIERARCHY);
             else if ((type = data._$type) != null) {
                 if (type.endsWith(".bp"))
-                    addInnerUrl(type, null);
+                    addInnerUrl(type, null, true);
                 else if (LayaEnv.isPreview && Utils.isUUID(type)) {
                     let cls = ClassUtils.getClass(type);
                     if (cls == null || cls._$loadable)

@@ -204,9 +204,11 @@ export class Color implements IClone {
     /**
      * @en parse a color string or a hex color value.
      * @param value The color string or the hex color value. 
-     * Formats can be "#RRGGBB", "#RRGGBBAA", "rgb(r,g,b)", "rgba(r,g,b,a)".
+     * String formats can be "#RRGGBB", "#RRGGBBAA", "rgb(r,g,b)", "rgba(r,g,b,a)".
+     * Number format is a hex color value, i.e., #RRGGBB.
      * @zh 解析颜色值，可以传入一个颜色字符串或十六进制颜色值。
-     * 格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#RRGGBBAA"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
+     * 字符串格式可以是：0xRRGGBB、"#RRGGBB"、"#RGB"、"#RRGGBBAA"、"rgb(r,g,b)"、"rgba(r,g,b,a)"。
+     * 数字格式是十六进制颜色值，即#RRGGBB。
      * @param value 颜色字符串或十六进制颜色值。
      */
     parse(value: string | number | null): this {
@@ -399,7 +401,7 @@ export class Color implements IClone {
      * @zh 克隆颜色。
      * @returns 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: Color = new Color();
         this.cloneTo(dest);
         return dest;
@@ -440,6 +442,19 @@ export class Color implements IClone {
      */
     getABGR() {
         return (Math.round(this.a * 255) << 24) + (Math.round(this.b * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.r * 255);
+    }
+
+    /**
+     * @en Set the color from a hex value in 0xAABBGGRR format.
+     * @param value The hex value of the color in 0xAABBGGRR format.
+     * @zh 设置颜色值，格式为0xAABBGGRR。
+     * @param value 颜色值，格式为0xAABBGGRR。
+     */
+    setABGR(value: number) {
+        this.a = ((value >> 24) & 0xFF) / 255;
+        this.b = ((value >> 16) & 0xFF) / 255;
+        this.g = ((value >> 8) & 0xFF) / 255;
+        this.r = (value & 0xFF) / 255;
     }
 
     /**

@@ -25,6 +25,7 @@ import { PrefabImpl } from "../resource/PrefabImpl";
  * @zh List 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
  * - Event.RENDER事件: 渲染列表的单元项对象时调度。
  * - change事件: 当对象的 selectedIndex 属性发生变化时调度。
+ * @blueprintInheritable
  */
 export class List extends Box {
 
@@ -1113,5 +1114,8 @@ export class List extends Box {
         this.selectHandler = this.renderHandler = this.mouseHandler = null;
     }
 
-
+    /** @internal @blueprintEvent */
+    List_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

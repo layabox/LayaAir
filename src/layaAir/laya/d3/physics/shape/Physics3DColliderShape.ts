@@ -6,6 +6,7 @@ import { PhysicsColliderComponent } from "../PhysicsColliderComponent";
 /**
  * @en The Physics3DColliderShape class serves as the base class for creating collider shapes and is an abstract class.
  * @zh 类是用于创建形状碰撞器的父类，该类为抽象类。
+ * @blueprintable @blueprintableSubclasses
  */
 export class Physics3DColliderShape implements IClone {
 
@@ -13,17 +14,17 @@ export class Physics3DColliderShape implements IClone {
      * @en Shape orientation: along the positive X-axis.
      * @zh 形状方向：沿 X 轴正向。
      */
-    static SHAPEORIENTATION_UPX: number = 0;
+    static readonly SHAPEORIENTATION_UPX: number = 0;
     /**
      * @en Shape orientation: along the positive Y-axis.
      * @zh 形状方向：沿 Y 轴正向。
      */
-    static SHAPEORIENTATION_UPY: number = 1;
+    static readonly SHAPEORIENTATION_UPY: number = 1;
     /**
      * @en Shape orientation: along the positive Z-axis.
      * @zh 形状方向：沿 Z 轴正向。
      */
-    static SHAPEORIENTATION_UPZ: number = 2;
+    static readonly SHAPEORIENTATION_UPZ: number = 2;
 
     /**@internal */
     _shape: IColliderShape;

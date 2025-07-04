@@ -65,9 +65,9 @@ export class RTTransform3D extends Transform3D {
 
     /**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
     protected _isDefaultMatrix: boolean = false;
-    /**@internal @protected */
+    /**@internal */
     protected _faceInvert: boolean = false;
-    /**@internal @protected */
+    /**@internal */
     protected _frontFaceValue: number = 1;
 
     /**native Share Memory */

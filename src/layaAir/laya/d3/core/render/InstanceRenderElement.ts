@@ -1,9 +1,9 @@
 
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { Pool } from "../../../utils/Pool";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
-
 import { Mesh } from "../../resource/models/Mesh";
 import { RenderContext3D } from "./RenderContext3D";
 import { RenderElement } from "./RenderElement";
@@ -14,16 +14,16 @@ import { RenderElement } from "./RenderElement";
  */
 export class InstanceRenderElement extends RenderElement {
     /** @internal */
-    static maxInstanceCount: number = 1024;
-    /**@internal */
-    private static _pool: InstanceRenderElement[] = [];
+    static readonly maxInstanceCount: number = 1024;
+
+    private static readonly _pool = Pool.createPool(InstanceRenderElement);
 
     /**
      * @en Creates an instance of `InstanceRenderElement`, reusing from the pool if available.
      * @zh 创建 `InstanceRenderElement` 的实例，如果池中有可用的实例则重用。
      */
     static create(): InstanceRenderElement {
-        let elemet = InstanceRenderElement._pool.length > 0 ? InstanceRenderElement._pool.pop() : new InstanceRenderElement();
+        let elemet = InstanceRenderElement._pool.take();
         elemet._isInPool = false;
         elemet.clear();
         return elemet;

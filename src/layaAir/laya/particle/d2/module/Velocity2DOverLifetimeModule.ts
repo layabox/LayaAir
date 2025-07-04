@@ -43,7 +43,7 @@ export class Velocity2DOverLifetimeModule implements IClone {
         this.y.cloneTo(destObject.y);
     }
 
-    clone(): Velocity2DOverLifetimeModule {
+    clone() {
         let dest = new Velocity2DOverLifetimeModule();
         this.cloneTo(dest);
         return dest;

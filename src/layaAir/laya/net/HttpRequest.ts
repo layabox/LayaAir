@@ -17,7 +17,6 @@ import { XML } from "../html/XML";
  */
 export class HttpRequest extends EventDispatcher {
     protected _http = new XMLHttpRequest();
-    private static _urlEncode: Function = encodeURI;
     protected _responseType: string;
     protected _data: any;
     protected _url: string;
@@ -38,14 +37,10 @@ export class HttpRequest extends EventDispatcher {
      */
     send(url: string, data: any = null,
         method: "get" | "post" | "head" = "get",
-        responseType: "text" | "json" | "xml" | "arraybuffer" = "text",
+        responseType: string = "text",
         headers?: string[]): void {
         this._responseType = responseType;
         this._data = null;
-
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame || Browser.onBLMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame || Browser.onTBMiniGame) {
-            url = HttpRequest._urlEncode(url);
-        }
         this._url = url;
 
         let http = this._http;
@@ -72,22 +67,13 @@ export class HttpRequest extends EventDispatcher {
 
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;
-        if ((http as any).dataType) {//for Ali
+        if ((http as any).dataType) { //for Ali
             (http as any).dataType = restype;
         }
-        http.onerror = (e: any) => {
-            this._onError(e);
-        }
-        http.onabort = (e: any) => {
-            this._onAbort(e);
-        }
-        http.onprogress = (e: any) => {
-            this._onProgress(e);
-        }
-        http.onload = (e: any) => {
-            this._onLoad(e);
-        }
-
+        http.onerror = e => this._onError(e);
+        http.onabort = e => this._onAbort(e);
+        http.onprogress = e => this._onProgress(e);
+        http.onload = e => this._onLoad(e);
         http.send(data);
     }
 

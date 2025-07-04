@@ -23,7 +23,7 @@ export class Rotation2DOverLifetimeModule implements IClone {
         this.angularVelocity.cloneTo(destObject.angularVelocity);
     }
 
-    clone(): Rotation2DOverLifetimeModule {
+    clone() {
         let dest = new Rotation2DOverLifetimeModule();
         this.cloneTo(dest);
         return dest;

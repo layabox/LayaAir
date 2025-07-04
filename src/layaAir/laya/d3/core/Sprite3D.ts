@@ -28,17 +28,19 @@ export enum StaticFlag {
  */
 export class Sprite3D extends Node {
     /**
-     * @internal
      * @en Shader variable name for world matrix.
      * @zh 着色器变量名，世界矩阵。
+     * @readonly
      */
     static WORLDMATRIX: number;
     /**
      * @en Indicates the front face direction. -1 for inverted back face, 1 for normal situation.
      * @zh -1 表示翻转了背面，1 表示正常情况。
+     * @readonly
      */
     static WORLDINVERTFRONT: number;
-    /**@internal */
+
+    /** @internal */
     static sprite3DCommandUniformMap: CommandUniformMap;
 
     /**
@@ -69,6 +71,7 @@ export class Sprite3D extends Node {
      * @param position 世界位置，worldPositionStays 为 false 时生效。默认为 null。
      * @param rotation 世界旋转，worldPositionStays 为 false 时生效。默认为 null。
      * @returns 克隆实例。
+     * @blueprintIgnore
      */
     static instantiate(original: Sprite3D, parent: Node = null, worldPositionStays: boolean = true, position: Vector3 = null, rotation: Quaternion = null): Sprite3D {
         var destSprite3D: Sprite3D = (<Sprite3D>original.clone());
@@ -269,7 +272,7 @@ export class Sprite3D extends Node {
      * @zh 克隆。
      * @returns	克隆副本。
      */
-    clone(): Node {
+    clone() {
         let dstSprite3D = Sprite3D._createSprite3DInstance(this);
         Sprite3D._parseSprite3DInstance(this, dstSprite3D, this, dstSprite3D);
         return dstSprite3D;

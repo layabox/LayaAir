@@ -1,13 +1,16 @@
-import { Context } from "../../renders/Context";
 import { FontInfo } from "../../utils/FontInfo";
 import { Pool } from "../../utils/Pool";
 import { WordText } from "../../utils/WordText";
-import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 import { Rectangle } from "../../maths/Rectangle";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { Render } from "../../renders/Render";
+import { Browser } from "../../utils/Browser";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "FillTextCmd";
 
 /**
  * @en Draw text command
@@ -18,7 +21,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @en Identifier for the FillTextCmd
      * @zh 绘制文字命令的标识符
      */
-    static ID: string = "FillText";
+    static readonly ID: string = className;
 
     /**
      * @en The x position of the start of the text (relative to the canvas).
@@ -108,7 +111,7 @@ export class FillTextCmd implements IGraphicsCmd {
      * @returns 绘制文本的命令实例
      */
     static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stroke: number, strokeColor: string | null): FillTextCmd {
-        var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
+        var cmd: FillTextCmd = Pool.getItemByClass(className, FillTextCmd);
         cmd._text = null;
         cmd._wordText = null;
         cmd.x = x;
@@ -144,22 +147,22 @@ export class FillTextCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        Pool.recover("FillTextCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @private
      * @en Execute the drawing text command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制文本命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        if (ILaya.stage.isGlobalRepaint()) {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        if (Render.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
         }
         if (null == this._text) this._text = '';
@@ -170,7 +173,7 @@ export class FillTextCmd implements IGraphicsCmd {
             this._color = '#ffffff';
         }
 
-        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
+        runner._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._strokeColor, this._stroke, this._align);
     }
 
     /**
@@ -215,7 +218,7 @@ export class FillTextCmd implements IGraphicsCmd {
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
         if (!this._loosyBound) {
-            let ctx = ILaya.Browser.context;
+            let ctx = Browser.context;
             ctx.save();
             ctx.font = this.font;
             let size = ctx.measureText(this.text);
@@ -248,4 +251,4 @@ export class FillTextCmd implements IGraphicsCmd {
 
 }
 
-ClassUtils.regClass("FillTextCmd", FillTextCmd);
+ClassUtils.regClass(className, FillTextCmd);

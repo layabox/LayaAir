@@ -18,19 +18,20 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { IRenderElement3D } from "../../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { Pool } from "../../../../utils/Pool";
 
 /**
  * @en DrawMeshInstancedCMD class for instanced mesh drawing command.
  * @zh DrawMeshInstancedCMD 类，用于实例化网格绘制命令。
  */
 export class DrawMeshInstancedCMD extends Command {
-    /**@internal */
-    private static _pool: DrawMeshInstancedCMD[] = [];
+    private static readonly _pool = Pool.createPool(DrawMeshInstancedCMD);
+
     /**
      * @en Maximum number of draw instances.
      * @zh 设置最大DrawInstance数。
      */
-    static maxInstanceCount = 1024;
+    static readonly maxInstanceCount = 1024;
 
     /**
      * @internal
@@ -58,9 +59,9 @@ export class DrawMeshInstancedCMD extends Command {
     static create(mesh: Mesh, subMeshIndex: number, matrixs: Matrix4x4[], material: Material, subShaderIndex: number, instanceProperty: MaterialInstancePropertyBlock, drawnums: number, commandBuffer: CommandBuffer): DrawMeshInstancedCMD {
         var cmd: DrawMeshInstancedCMD;
         if ((matrixs && matrixs.length > DrawMeshInstancedCMD.maxInstanceCount) || drawnums > DrawMeshInstancedCMD.maxInstanceCount) {
-            throw "the number of renderings exceeds the maximum number of merges";
+            throw new Error("the number of renderings exceeds the maximum number of merges");
         }
-        cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop() : new DrawMeshInstancedCMD();
+        cmd = DrawMeshInstancedCMD._pool.take();
         cmd._matrixs = matrixs;
         cmd.material = material;
         cmd._subMeshIndex = subMeshIndex;
@@ -323,9 +324,9 @@ export class DrawMeshInstancedCMD extends Command {
      * @zh 回收命令。
      */
     recover(): void {
-        DrawMeshInstancedCMD._pool.push(this);
+        DrawMeshInstancedCMD._pool.recover(this);
         super.recover();
-        this._material && this._material._removeReference(1);
+        this._material && this._material._removeReference();
         this._material = null;
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;

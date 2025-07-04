@@ -1,3 +1,4 @@
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { DrawElementCMDData } from "../../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";

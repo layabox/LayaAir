@@ -5,8 +5,18 @@ import { TextFitContent } from "./Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { TransformKind } from "../display/SpriteConst";
 import { Translations } from "./Translations";
+import { Event } from "../events/Event";
 
+/**
+ * @en GTextField is a widget that displays text with various formatting options, including font, size, color, alignment, and more.
+ * @zh GTextField 是一个显示文本的小部件，支持多种格式选项，包括字体、大小、颜色、对齐方式等。
+ * @blueprintInheritable
+ */
 export class GTextField extends GWidget {
+    /**
+     * @en The Text component used for rendering the text.
+     * @zh 用于渲染文本的 Text 组件。
+     */
     readonly textIns: Text;
 
     private _fitContent: TextFitContent = 0;
@@ -20,6 +30,7 @@ export class GTextField extends GWidget {
         this.textIns.padding.fill(2);
         this.textIns._onPostLayout = () => this._onPostLayout();
         this.textIns._onTranslate = Translations.translate;
+        this.textIns.on(Event.LINK, (href: string) => this.event(Event.LINK, href));
         this.addChild(this.textIns);
     }
 
@@ -189,6 +200,10 @@ export class GTextField extends GWidget {
         this.textIns.wordWrap = value;
     }
 
+    /**
+     * @en The way text content fits.
+     * @zh 文本内容适应方式。
+     */
     get fitContent(): TextFitContent {
         return this._fitContent;
     }
@@ -375,11 +390,11 @@ export class GTextField extends GWidget {
      * @en Text Template
      * @zh 文本模板
      */
-    public get templateVars(): Record<string, any> {
+    get templateVars(): Record<string, any> {
         return this.textIns.templateVars;
     }
 
-    public set templateVars(value: Record<string, any> | boolean) {
+    set templateVars(value: Record<string, any> | boolean) {
         this.textIns.templateVars = value;
     }
 
@@ -393,7 +408,7 @@ export class GTextField extends GWidget {
      * @param value 值
      * @returns 当前 Text 实例。
      */
-    public setVar(name: string, value: any): this {
+    setVar(name: string, value: any): this {
         this.textIns.setVar(name, value);
 
         return this;
@@ -414,9 +429,7 @@ export class GTextField extends GWidget {
         return super.size(width, height);
     }
 
-    /**
-     * @ignore
-     */
+    /** @ignore */
     protected _transChanged(kind: TransformKind) {
         super._transChanged(kind);
 
@@ -426,6 +439,7 @@ export class GTextField extends GWidget {
             this.textIns.height = this._height;
     }
 
+    /** @ignore */
     protected _onPostLayout() {
         if ((this._fitContent == TextFitContent.Both || this._fitContent == TextFitContent.Height)
             && (!this._getBit(NodeFlags.EDITING_NODE) || this.textIns.textWidth > 0 && this.textIns.textHeight > 0)) {
@@ -437,4 +451,9 @@ export class GTextField extends GWidget {
             this._fitFlag = false;
         }
     }
+
+    /** @internal @blueprintEvent */
+    GTextField_bpEvent: {
+        [Event.LINK]: (href: string) => void;
+    };
 }

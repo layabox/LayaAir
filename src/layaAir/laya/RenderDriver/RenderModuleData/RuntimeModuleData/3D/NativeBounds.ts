@@ -207,7 +207,7 @@ export class NativeBounds implements IClone {
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): any {
+    clone() {
         var dest: NativeBounds = new NativeBounds(new Vector3(), new Vector3());
         this.cloneTo(dest);
         return dest;

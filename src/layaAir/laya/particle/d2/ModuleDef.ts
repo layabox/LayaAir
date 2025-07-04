@@ -1,0 +1,26 @@
+import { ClassUtils } from "../../utils/ClassUtils";
+import { Main2DModule } from "./module/Main2DModule";
+import { Rotation2DOverLifetimeModule } from "./module/Rotation2DOverLifetimeModule";
+import { Shape2DModule } from "./module/Shape2DModule";
+import { Base2DShape } from "./module/shapes/Base2DShape";
+import { Box2DShape } from "./module/shapes/Box2DShape";
+import { Circle2DShape } from "./module/shapes/Circle2DShape";
+import { FanShape } from "./module/shapes/FanShape";
+import { SemicircleShap } from "./module/shapes/SemicircleShap";
+import { Size2DOverLifetimeModule } from "./module/Size2DOverLifetimeModule";
+import { Velocity2DOverLifetimeModule } from "./module/Velocity2DOverLifetimeModule";
+import { ShurikenParticle2DRenderer } from "./ShurikenParticle2DRenderer";
+import { ShurikenParticle2DSystem } from "./ShurikenParticle2DSystem";
+
+ClassUtils.regClass("Base2DShape", Base2DShape);
+ClassUtils.regClass("Box2DShape", Box2DShape);
+ClassUtils.regClass("Circle2DShape", Circle2DShape);
+ClassUtils.regClass("FanShape", FanShape);
+ClassUtils.regClass("SemicircleShap", SemicircleShap);
+ClassUtils.regClass("Main2DModule", Main2DModule);
+ClassUtils.regClass("Rotation2DOverLifetimeModule", Rotation2DOverLifetimeModule);
+ClassUtils.regClass("Shape2DModule", Shape2DModule);
+ClassUtils.regClass("Size2DOverLifetimeModule", Size2DOverLifetimeModule);
+ClassUtils.regClass("Velocity2DOverLifetimeModule", Velocity2DOverLifetimeModule);
+ClassUtils.regClass("ShurikenParticle2DSystem", ShurikenParticle2DSystem);
+ClassUtils.regClass("ShurikenParticle2DRenderer", ShurikenParticle2DRenderer);

@@ -69,7 +69,7 @@ export class SketonOptimise {
      */
     defaultSkinAttach: SkinAttach;
 
-    private _tempIbCreate:IBCreator;
+    private _tempIbCreate: IBCreator;
 
     /**
      * @en Maximum number of bones.
@@ -99,7 +99,7 @@ export class SketonOptimise {
             sp = new SpineNormalRender();
         }
         else if (this.maxBoneNumber > SketonOptimise.MAX_BONES) {
-            console.warn("The number of Bones :" , this.maxBoneNumber ," > " , SketonOptimise.MAX_BONES , ", use CPU caculation");
+            console.warn("The number of Bones :", this.maxBoneNumber, " > ", SketonOptimise.MAX_BONES, ", use CPU caculation");
             sp = new SpineNormalRender();
         }
         else {
@@ -136,7 +136,7 @@ export class SketonOptimise {
      * @zh 检查并初始化主附件。
      * @param skeletonData 要检查的骨骼数据。
      */
-    checkMainAttach(skeletonData: spine.SkeletonData ) {
+    checkMainAttach(skeletonData: spine.SkeletonData) {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
         //@ts-ignore
@@ -169,13 +169,13 @@ export class SketonOptimise {
             if (i != 0) {
                 skinAttach.copyFrom(defaultSkinAttach);
             }
-            skinAttach.attachMentParse( skin , slots );
+            skinAttach.attachMentParse(skin, slots);
             this.skinAttachArray.push(skinAttach);
             // if (i != 0) {
             //     defaultSkinAttach.mainVB._cloneBones(skinAttach.mainVB)
             // }
             skinAttach.init(slots);
-            
+
             if (i == 0) {
                 defaultSkinAttach = skinAttach;
             }
@@ -200,7 +200,7 @@ export class SketonOptimise {
                 value.initAnimator(animator);
             });
             animator.skinDataArray.forEach((skinData) => {
-                if(!skinData.isNormalRender){
+                if (!skinData.isNormalRender) {
                     let boneNumber = skinData.vb.boneArray.length / 2;
                     if (boneNumber > maxBoneNumber) {
                         maxBoneNumber = boneNumber;
@@ -208,7 +208,7 @@ export class SketonOptimise {
                 }
             });
         }
-        
+
         this.maxBoneNumber = maxBoneNumber;
     }
 
@@ -217,10 +217,10 @@ export class SketonOptimise {
      * @zh 缓存骨骼数据以进行优化。
      */
     cacheBone() {
-        if(!SketonOptimise.cacheSwitch){
+        if (!SketonOptimise.cacheSwitch) {
             for (let i = 0, n = this.animators.length; i < n; i++) {
                 let animator = this.animators[i];
-                if(animator.boneFrames.length==0){
+                if (animator.boneFrames.length == 0) {
                     animator.cacheBones(this);
                 }
                 //animator.cacheBone();
@@ -228,9 +228,9 @@ export class SketonOptimise {
         }
     }
 
-    destroy(){
-        for (let i = 0 , n = this.animators.length; i < n; i++)
-            this.animators[i].destroy(); 
+    destroy() {
+        for (let i = 0, n = this.animators.length; i < n; i++)
+            this.animators[i].destroy();
         this.animators.length = 0;
     }
 
@@ -310,7 +310,7 @@ export class SkinAttach {
      * @en Used for constructing temp Mesh2D
      * @zh 用于构建临时Mesh2D
      */
-    _tempIbCreate:IBCreator;
+    _tempIbCreate: IBCreator;
     /**
      * @en Indicates if there's any normal rendering.
      * @zh 表示是否存在任何普通渲染。
@@ -325,7 +325,7 @@ export class SkinAttach {
      * @en The number of bones that affect a vertex.
      * @zh 影响一个顶点的最大骨骼数。
      */
-    vertexBones:number = 0;
+    vertexBones: number = 0;
 
     /** @ignore */
     constructor() {
@@ -380,27 +380,27 @@ export class SkinAttach {
 
                     parse.init(attach, boneIndex, i, deform, slot);
                     // if (parse.isNormalRender) this.isNormalRender = true;
-                    vertexBones = Math.max(vertexBones , parse.vertexBones);
+                    vertexBones = Math.max(vertexBones, parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
                         type = tempType;
                     }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
-                    twoColorTint = twoColorTint||!!parse.darkColor;
+                    twoColorTint = twoColorTint || !!parse.darkColor;
                     map.set(key, parse);
                 }
-            }else if (slotAttachName) {
+            } else if (slotAttachName) {
                 let parse = map.get(slotAttachName);
                 if (parse) {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
-                    vertexBones = Math.max(vertexBones , parse.vertexBones);
+                    vertexBones = Math.max(vertexBones, parse.vertexBones);
                     let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
                     if (tempType < type) {
                         type = tempType;
                     }
-                    twoColorTint = twoColorTint||!!parse.darkColor;
+                    twoColorTint = twoColorTint || !!parse.darkColor;
                 }
             }
 
@@ -417,25 +417,25 @@ export class SkinAttach {
         this.type = type;
         this.vertexBones = vertexBones;
 
-        let flag:string;
+        let flag: string;
         switch (this.type) {
             case ESpineRenderType.normal:
                 flag = "UV,COLOR,POSITION,BONE";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBBoneCreator( flag  , vertexCount);
+                this.mainVB = new VBBoneCreator(flag, vertexCount);
                 break;
             case ESpineRenderType.boneGPU:
                 flag = "UV,COLOR,POSITION,BONE";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBBoneCreator( flag , vertexCount);
+                this.mainVB = new VBBoneCreator(flag, vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
                 flag = "UV,COLOR,POSITION,RIGIDBODY";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBRigBodyCreator( flag , vertexCount);
+                this.mainVB = new VBRigBodyCreator(flag, vertexCount);
                 break;
         }
-        
+
         //皮肤的基础长度
         this.mainIB = new IBCreator();
         this.mainIB.updateFormat(vertexCount);
@@ -460,7 +460,7 @@ export class SkinAttach {
                 else {
                     attach = this.slotAttachMap.get(index).get(null);
                 }
-                if(attach.isClip) this.isNormalRender=true;
+                if (attach.isClip) this.isNormalRender = true;
                 mainAttachMentOrder.push(attach);
             }
             else {
@@ -480,12 +480,12 @@ export class SkinAttach {
      */
     initAnimator(animator: AnimationRender) {
         let skinData = animator.createSkinData(
-            this.mainVB, this.mainIB , this._tempIbCreate , this.slotAttachMap, this.mainAttachMentOrder , this.type
+            this.mainVB, this.mainIB, this._tempIbCreate, this.slotAttachMap, this.mainAttachMentOrder, this.type
         );
 
         skinData.name = this.name;
-        
-        if(this.isNormalRender){
+
+        if (this.isNormalRender) {
             skinData.isNormalRender = true;
         }
         // skinData.mainibRender = this.mainIB;
@@ -499,12 +499,12 @@ export type TSpineBakeData = {
     bonesNums: number;
     aniOffsetMap: { [key: string]: number };
     texture2d?: Texture2D;
-    simpPath?:string;
+    simpPath?: string;
 }
 
 export type SketonDynamicInfo = {
     /** 所有皮肤动画的最大顶点数 */
-    maxVertexCount:number;
+    maxVertexCount: number;
     /** 所有皮肤动画的最大索引数 */
-    maxIndexCount:number;
+    maxIndexCount: number;
 }

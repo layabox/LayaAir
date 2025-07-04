@@ -10,7 +10,7 @@ import { PolygonPoint2D } from "./PolygonPoint2D";
  */
 export class LightOccluder2D extends Component {
     private _core: LightOccluder2DCore; //遮光器内核
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @en the layer mask

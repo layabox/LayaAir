@@ -297,7 +297,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @internal
-     * @protected
      */
     protected _onEnable(): void {
         super._onEnable();
@@ -318,7 +317,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     /**
      * @internal
-     * @protected
      */
     protected _onDestroy() {
         super._onDestroy();

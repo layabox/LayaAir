@@ -70,7 +70,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param sRGB 是否sRGB空间。
      * @returns RenderTexture实例。
      */
-    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false, storage: boolean = false): RenderTexture {
 
         // todo mipmap 判断
         mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
@@ -79,7 +79,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture && rt._gammaSpace == sRGB) {
+            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture && rt._gammaSpace == sRGB && rt._storage == storage) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
@@ -89,7 +89,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             }
         }
 
-        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture, sRGB);
+        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture, sRGB, storage);
         rt.lock = true;
         return rt;
     }
@@ -263,6 +263,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return this._renderTarget._generateMipmap;
     }
 
+    private _storage: boolean = false;
+
+
     /**
      * @en Create an instance of the RenderTexture class.
      * @param width Width of the RenderTexture.
@@ -283,7 +286,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param generateDepthTexture 是否生成深度纹理。
      * @param sRGB 是否sRGB空间。
      */
-    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
+    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false, stroage: boolean = false) {
         super(width, height, colorFormat);
 
         this._gammaSpace = sRGB;
@@ -293,6 +296,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._generateMipmap = generateMipmap;
         this._multiSamples = multiSamples;
         this._generateDepthTexture = generateDepthTexture;
+        this._storage = stroage;
 
         // todo format 
         this._createRenderTarget();
@@ -304,7 +308,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      */
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
-        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, <RenderTargetFormat><any>this._format, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
+        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, <RenderTargetFormat><any>this._format, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples, this._storage);
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
@@ -335,7 +339,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param generateDepthTexture 是否生成新的深度纹理。
      * @param sRGB 是否sRGB空间。
      */
-    recreate(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
+    recreate(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false, storage: boolean = false) {
         this._width = width;
         this._height = height;
         this._format = <TextureFormat><any>colorFormat;
@@ -347,6 +351,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._generateMipmap = generateMipmap;
         this._multiSamples = multiSamples;
         this._generateDepthTexture = generateDepthTexture;
+        this._storage = storage;
 
         this._disposeResource();
 

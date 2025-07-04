@@ -1,17 +1,20 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "SaveCmd";
 
 /**
  * @en Save command, used in conjunction with restore
  * @zh 存储命令，与restore配套使用
+ * @blueprintIgnore
  */
 export class SaveCmd implements IGraphicsCmd {
     /**
      * @en Identifier for the SaveCmd
      * @zh 存储命令的标识符
      */
-    static ID: string = "Save";
+    static readonly ID: string = className;
 
     /**
      * @en Create a SaveCmd instance
@@ -20,7 +23,7 @@ export class SaveCmd implements IGraphicsCmd {
      * @returns 存储命令实例
      */
     static create(): SaveCmd {
-        return Pool.getItemByClass("SaveCmd", SaveCmd);
+        return Pool.getItemByClass(className, SaveCmd);
     }
 
     /**
@@ -28,17 +31,17 @@ export class SaveCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        Pool.recover("SaveCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the save command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @zh 执行存储命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      */
-    run(context: Context): void {
-        context.save();
+    run(runner: GraphicsRunner): void {
+        runner.save();
     }
 
     /**

@@ -1,6 +1,6 @@
 import { StretchParam } from "../StretchParam";
 import type { GBox } from "../GBox";
-import { AlignType, LayoutChangedReason, LayoutType, PageMode, StretchMode, VAlignType } from "../Const";
+import { AlignType, LayoutChangedReason, LayoutType, StretchMode, VAlignType } from "../Const";
 import type { GPanel } from "../GPanel";
 import type { GWidget } from "../GWidget";
 import { ILayout } from "./ILayout";
@@ -21,7 +21,7 @@ export class Layout implements ILayout {
     protected _columnGap: number = 0;
     protected _stretchX: StretchMode = 0;
     protected _stretchY: StretchMode = 0;
-    protected _pageMode: PageMode = 0;
+    protected _pageMode: boolean = false;
     protected _layoutChanged: boolean;
     protected _padding: Array<number>;
     protected _align: AlignType = 0;
@@ -45,11 +45,11 @@ export class Layout implements ILayout {
         this._stretchParamsY = [];
     }
 
-    public get type(): LayoutType {
+    get type(): LayoutType {
         return this._type;
     }
 
-    public set type(value: LayoutType) {
+    set type(value: LayoutType) {
         if (this._type != value) {
             this._type = value;
             if (!SerializeUtil.isDeserializing) {
@@ -70,106 +70,106 @@ export class Layout implements ILayout {
         }
     }
 
-    public get rows(): number {
+    get rows(): number {
         return this._rows;
     }
 
-    public set rows(value: number) {
+    set rows(value: number) {
         if (this._rows != value) {
             this._rows = value;
             this.setChangedFlag();
         }
     }
 
-    public get columns(): number {
+    get columns(): number {
         return this._columns;
     }
 
-    public set columns(value: number) {
+    set columns(value: number) {
         if (this._columns != value) {
             this._columns = value;
             this.setChangedFlag();
         }
     }
 
-    public get rowGap(): number {
+    get rowGap(): number {
         return this._rowGap;
     }
 
-    public set rowGap(value: number) {
+    set rowGap(value: number) {
         if (this._rowGap != value) {
             this._rowGap = value;
             this.setChangedFlag();
         }
     }
 
-    public get columnGap(): number {
+    get columnGap(): number {
         return this._columnGap;
     }
 
-    public set columnGap(value: number) {
+    set columnGap(value: number) {
         if (this._columnGap != value) {
             this._columnGap = value;
             this.setChangedFlag();
         }
     }
 
-    public get padding(): Array<number> {
+    get padding(): Array<number> {
         return this._padding;
     }
 
-    public set padding(value: Array<number>) {
+    set padding(value: Array<number>) {
         if (value == null || !Array.isArray(value)) value = [0, 0, 0, 0];
         this._padding = value;
         this.setChangedFlag();
         (<GPanel>this._owner).scroller?._ownerSizeChanged();
     }
 
-    public get align(): AlignType {
+    get align(): AlignType {
         return this._align;
     }
 
-    public set align(value: AlignType) {
+    set align(value: AlignType) {
         if (this._align != value) {
             this._align = value;
             this.setChangedFlag();
         }
     }
 
-    public get valign(): VAlignType {
+    get valign(): VAlignType {
         return this._valign;
     }
 
-    public set valign(value: VAlignType) {
+    set valign(value: VAlignType) {
         if (this._valign != value) {
             this._valign = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchX(): StretchMode {
+    get stretchX(): StretchMode {
         return this._stretchX;
     }
 
-    public set stretchX(value: StretchMode) {
+    set stretchX(value: StretchMode) {
         if (this._stretchX != value) {
             this._stretchX = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchY(): StretchMode {
+    get stretchY(): StretchMode {
         return this._stretchY;
     }
 
-    public set stretchY(value: StretchMode) {
+    set stretchY(value: StretchMode) {
         if (this._stretchY != value) {
             this._stretchY = value;
             this.setChangedFlag();
         }
     }
 
-    public get stretchParamsX(): Array<StretchParam> {
+    get stretchParamsX(): Array<StretchParam> {
         return this._stretchParamsX;
     }
 
@@ -179,41 +179,41 @@ export class Layout implements ILayout {
         this._stretchParamsX.push(...value);
     }
 
-    public get stretchParamsY(): Array<StretchParam> {
+    get stretchParamsY(): Array<StretchParam> {
         return this._stretchParamsY;
     }
 
     /** @internal */
-    public set stretchParamsY(value: Array<StretchParam>) {
+    set stretchParamsY(value: Array<StretchParam>) {
         this._stretchParamsY.length = 0;
         this._stretchParamsY.push(...value);
     }
 
-    public get foldInvisibles(): boolean {
+    get foldInvisibles(): boolean {
         return this._foldInvisibles;
     }
 
-    public set foldInvisibles(value: boolean) {
+    set foldInvisibles(value: boolean) {
         if (this._foldInvisibles != value) {
             this._foldInvisibles = value;
             this.setChangedFlag();
         }
     }
 
-    public get minChildSize(): number {
+    get minChildSize(): number {
         return this._minChildSize;
     }
-    public set minChildSize(value: number) {
+    set minChildSize(value: number) {
         if (this._minChildSize != value) {
             this._minChildSize = value;
             this.setChangedFlag();
         }
     }
 
-    public get pageMode(): PageMode {
+    get pageMode(): boolean {
         return this._pageMode;
     }
-    public set pageMode(value: PageMode) {
+    set pageMode(value: boolean) {
         if (this._pageMode != value) {
             this._pageMode = value;
             this.setChangedFlag();
@@ -223,7 +223,7 @@ export class Layout implements ILayout {
     /**
      * dir正数表示右移或者下移，负数表示左移或者上移
      */
-    public getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
+    getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
         if (!resultPoint)
             resultPoint = new Point();
 
@@ -244,7 +244,7 @@ export class Layout implements ILayout {
             for (; i < cnt; i++) {
                 obj = children[i];
                 if (yValue < obj.y) {
-                    if (i == 0) {
+                    if (i === 0) {
                         yValue = 0;
                         break;
                     }
@@ -259,7 +259,7 @@ export class Layout implements ILayout {
                 }
             }
 
-            if (i == cnt)
+            if (i === cnt)
                 yValue = obj.y;
         }
 
@@ -269,7 +269,7 @@ export class Layout implements ILayout {
             for (; i < cnt; i++) {
                 obj = children[i];
                 if (xValue < obj.x) {
-                    if (i == 0) {
+                    if (i === 0) {
                         xValue = 0;
                         break;
                     }
@@ -284,7 +284,7 @@ export class Layout implements ILayout {
                 }
             }
 
-            if (i == cnt)
+            if (i === cnt)
                 xValue = obj.x;
         }
 
@@ -293,7 +293,7 @@ export class Layout implements ILayout {
         return resultPoint;
     }
 
-    public setChangedFlag(reason?: LayoutChangedReason) {
+    setChangedFlag(reason?: LayoutChangedReason) {
         if (this._layoutChanged)
             return;
 
@@ -323,7 +323,7 @@ export class Layout implements ILayout {
         }
     }
 
-    public refresh(force?: boolean) {
+    refresh(force?: boolean) {
         if (this._owner.destroyed || this._disabled) {
             this._layoutChanged = false;
             return;
@@ -361,43 +361,43 @@ export class Layout implements ILayout {
         this._childSizeChangedFlag = false;
     }
 
-    public get viewWidth(): number {
+    get viewWidth(): number {
         let v = (<GPanel>this._owner).scroller?.viewWidth;
         if (v == null)
             v = this._owner.width - this._padding[3] - this._padding[1];
         return v;
     }
 
-    public set viewWidth(value: number) {
+    set viewWidth(value: number) {
         if ((<GPanel>this._owner).scroller)
             (<GPanel>this._owner).scroller.setViewSize(value, (<GPanel>this._owner).scroller.viewHeight);
         else
             this._owner.width = value + this._padding[3] + this._padding[1];
     }
 
-    public get viewHeight(): number {
+    get viewHeight(): number {
         let v = (<GPanel>this._owner).scroller?.viewHeight;
         if (v == null)
             v = this._owner.height - this._padding[0] - this._padding[2];
         return v;
     }
 
-    public set viewHeight(value: number) {
+    set viewHeight(value: number) {
         if ((<GPanel>this._owner).scroller)
             (<GPanel>this._owner).scroller.setViewSize((<GPanel>this._owner).scroller.viewWidth, value);
         else
             this._owner.height = value + this._padding[0] + this._padding[2];
     }
 
-    public get contentWidth() {
+    get contentWidth() {
         return this._contentWidth;
     }
 
-    public get contentHeight() {
+    get contentHeight() {
         return this._contentHeight;
     }
 
-    public setContentSize(aw: number, ah: number): void {
+    setContentSize(aw: number, ah: number): void {
         this._contentWidth = aw;
         this._contentHeight = ah;
 
@@ -419,7 +419,7 @@ export class Layout implements ILayout {
         this._owner.event(UIEvent.ContentSizeChanged);
     }
 
-    public resizeToFit(childCount?: number, minSize?: number): void {
+    resizeToFit(childCount?: number, minSize?: number): void {
         this.refresh();
 
         let curCount: number = this._owner.numChildren;
@@ -438,7 +438,7 @@ export class Layout implements ILayout {
             let obj: GWidget = null;
             while (i >= 0) {
                 obj = this._owner.getChildAt(i);
-                if ((!this._foldInvisibles || obj._getBit(NodeFlags.ACTUAL_VISIBLE)) && !obj._getBit(NodeFlags.ESCAPE_LAYOUT))
+                if ((!this._foldInvisibles || obj._struct.enabled) && !obj._getBit(NodeFlags.ESCAPE_LAYOUT))
                     break;
                 i--;
             }
@@ -474,16 +474,16 @@ export class Layout implements ILayout {
     private applyFlowX(singleRow?: boolean) {
         let rows = this._rows;
         let cols = this._columns;
+        let pageMode = this._pageMode;
         if (singleRow) {
             rows = 1;
-            if (cols == 0)
+            if (cols == 0 && !pageMode)
                 cols = 1000000;
         }
         let rowGap = this._rowGap;
         let colGap = this._columnGap;
         let stretchX = this._stretchX == StretchMode.Stretch;
         let stretchY = this._stretchY == StretchMode.Stretch;
-        let pageMode = this._pageMode;
         let align = stretchX ? 0 : this._align;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
@@ -494,6 +494,7 @@ export class Layout implements ILayout {
         let ci = 0, ri = 0;
         let cw = 0, ch = 0;
         let mh = 0;
+        let pi = 0;
 
         if (stretchX) {
             if (cols == 0 || cnt < cols)
@@ -528,14 +529,12 @@ export class Layout implements ILayout {
             else
                 cx = 0;
 
-            if (pageMode != 0) {
-                if (cy + mh > vh && cy != 0) {
-                    if (pageMode == PageMode.Horizontal)
-                        px += vw;
-                    else {
-                        py += vh;
-                        cy = 0;
-                    }
+            if (pageMode) {
+                if ((cy + mh > vh || ri === rows) && cy != 0) {
+                    px += vw;
+                    cy = 0;
+                    pi++;
+                    ri = 0;
                 }
             }
 
@@ -573,7 +572,7 @@ export class Layout implements ILayout {
                     mh = child.height;
 
                 ci++;
-                if (ci == cols && !singleRow || i == cnt - 1)
+                if (ci === cols && !singleRow || i === cnt - 1)
                     newLine(i + 1);
             }
 
@@ -633,6 +632,9 @@ export class Layout implements ILayout {
                 children[i].setLeftTop(data.posx[i] + cx, data.posy[i] + cy);
         }
 
+        if (pageMode)
+            cw = vw * (pi + 1);
+
         this.setContentSize(cw, ch);
 
         tempDataPool.recover(data);
@@ -641,16 +643,16 @@ export class Layout implements ILayout {
     private applyFlowY(singleColumn?: boolean) {
         let rows = this._rows;
         let cols = this._columns;
+        let pageMode = this._pageMode;
         if (singleColumn) {
             cols = 1;
-            if (rows == 0)
+            if (rows == 0 && !pageMode)
                 rows = 1000000;
         }
         let rowGap = this._rowGap;
         let colGap = this._columnGap;
         let stretchX = this._stretchX == StretchMode.Stretch;
         let stretchY = this._stretchY == StretchMode.Stretch;
-        let pageMode = this._pageMode;
         let valign = stretchY ? 0 : this._valign;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
@@ -661,6 +663,7 @@ export class Layout implements ILayout {
         let ci = 0, ri = 0;
         let cw = 0, ch = 0;
         let mw = 0;
+        let pi = 0;
 
         if (cnt > 0 && stretchX) {
             if (cols == 0)
@@ -695,14 +698,12 @@ export class Layout implements ILayout {
             else
                 cy = 0;
 
-            if (pageMode != 0) {
-                if (cx + mw > vw && cx != 0) {
-                    if (pageMode == PageMode.Horizontal)
-                        px += vw;
-                    else {
-                        py += vh;
-                        cx = 0;
-                    }
+            if (pageMode) {
+                if ((cx + mw > vw || ci === cols) && cx != 0) {
+                    py += vh;
+                    cx = 0;
+                    pi++;
+                    ci = 0;
                 }
             }
 
@@ -740,7 +741,7 @@ export class Layout implements ILayout {
                     mw = child.width;
 
                 ri++;
-                if (ri == rows && !singleColumn || i == cnt - 1)
+                if (ri === rows && !singleColumn || i === cnt - 1)
                     newLine(i + 1);
             }
 
@@ -802,19 +803,22 @@ export class Layout implements ILayout {
                 children[i].setLeftTop(data.posx[i] + cx, data.posy[i] + cy);
         }
 
+        if (pageMode)
+            ch = vh * (pi + 1);
+
         this.setContentSize(cw, ch);
 
         tempDataPool.recover(data);
     }
 
     protected getLayoutChildren(data: TempData) {
-        let i = 0, j = 0; 
+        let i = 0, j = 0;
         data.invisibleCnt = 0;
         for (let child of <GWidget[]>this._owner.children) {
             if (child._nodeType !== 2)
                 continue;
 
-            if (this._foldInvisibles && !child._getBit(NodeFlags.ACTUAL_VISIBLE) || child._getBit(NodeFlags.ESCAPE_LAYOUT))
+            if (this._foldInvisibles && !child._struct.enabled || child._getBit(NodeFlags.ESCAPE_LAYOUT))
                 data.invisibles[data.invisibleCnt++] = i;
             else
                 data.children[j++] = child;

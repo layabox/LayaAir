@@ -18,6 +18,7 @@ import { TransformKind } from "../display/SpriteConst";
  * - `change` event: Dispatched when the user changes the selected content in `ComboBox` component.
  * @zh `ComboBox` 组件包含一个下拉列表，用户可以从该列表中选择单个值。
  * - `change`事件：当用户更改 `ComboBox` 组件中的选定内容时调度。
+ * @blueprintInheritable
  */
 export class ComboBox extends UIComponent {
     protected _visibleNum: number = 6;
@@ -626,4 +627,9 @@ export class ComboBox extends UIComponent {
         else
             super.set_dataSource(value);
     }
+
+    /** @internal @blueprintEvent */
+    ComboBox_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

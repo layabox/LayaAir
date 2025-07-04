@@ -1,17 +1,20 @@
-import { ILaya3D } from "../../../../ILaya3D";
+import { ILaya } from "../../../../ILaya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
+import { ShadowMapFormat, ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
+import { Texture2D } from "../../../resource/Texture2D";
 import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -20,6 +23,7 @@ import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirec
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
+import { WebGPUCommandUniformMap } from "../RenderDevice/WebGPUCommandUniformMap";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPUForwardAddRP } from "./WebGPUForwardAddRP";
@@ -30,13 +34,20 @@ const offsetScale = new Vector4();
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private _renderPass: WebGPUForwardAddRP;
 
-    globalId: number;
-    objectName: string = 'WebGPU3DRenderPass';
+    private _defaultShadowMap: RenderTexture;
+
+    private _defaultDepthTex: RenderTexture;
 
     constructor() {
         this._renderPass = new WebGPUForwardAddRP();
-        this.globalId = WebGPUGlobal.getId(this);
+        this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
+        this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
+
+        let shadowMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow") as WebGPUCommandUniformMap;
+        shadowMap._defaultData.set(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+        shadowMap._defaultData.set(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
     }
+
     render3DManager: WebSceneRenderManager;
 
     /**
@@ -71,7 +82,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         }
 
         const clearValue = renderRT._texture.gammaCorrection !== 1 ? camera.clearColor : camera._linearClearColor;
-        renderPass.camera = camera._renderDataModule;
+        renderPass.camera = camera;
 
         renderPass.destTarget = renderRT._renderTarget;
         renderPass.clearFlag = clearConst;
@@ -106,8 +117,13 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
 
         renderPass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
 
+        camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
+
         const enableShadow = (Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency === 0) && Stat.enableShadow;
         this._renderPass.shadowCastPass = enableShadow;
+
+        camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+        camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
 
         if (enableShadow) {
             const shadowParams = this._renderPass.shadowParams;
@@ -120,10 +136,10 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             if (needDirectionShadow) {
                 this._renderPass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this._renderPass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
-                const directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+                const directionShadowMap = ILaya.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this._renderPass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
+                this._renderPass.shadowMap = directionShadowMap;
                 shadowParams.x = this._renderPass.directLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
 
             //聚光灯阴影
@@ -132,10 +148,10 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this._renderPass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
-                const spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+                const spotShadowMap = ILaya.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this._renderPass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
+                this._renderPass.spotShadowMap = spotShadowMap;
                 shadowParams.y = this._renderPass.spotLightShadowPass.light.shadowStrength;
-                camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
             camera.scene._shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
         }
@@ -157,6 +173,16 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             offsetScale.setValue(camera.normalizedViewport.x, camera.normalizedViewport.y, renderRT.width / dst.width, renderRT.height / dst.height);
             this._renderPass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
         }
+
+        if (this._renderPass.enableDirectLightShadow || this._renderPass.enableSpotLightShadowPass) {
+            let sceneShaderData = context.sceneData;
+            context._preDrawUniformMaps.add("Shadow");
+            let shadowUniformMap = <WebGPUCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
+            sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+        }
+        // else {
+        //     context._preDrawUniformMaps.delete("Shadow");
+        // }
     }
 
     /**
@@ -168,24 +194,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         if (camera.postProcess && camera.postProcess.enable)
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            const needDepthTex = camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture;
-            if (needDepthTex) {
-                camera.depthTexture = camera._cacheDepthTexture.depthStencilTexture; // @ts-ignore
-                Camera.depthPass._depthTexture = camera.depthTexture;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-                depthMode &= ~DepthTextureMode.Depth;
-            }
-            else {
-                Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this._renderPass.renderPass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-            }
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            this._renderPass.renderPass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
             this._renderPass.renderPass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
-            camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
         }
         this._renderPass.renderPass.depthTextureMode = depthMode;
     }
@@ -212,12 +226,21 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
                 renderPass.spotLightShadowPass.render(context, list, count);
             }
         }
-        if (renderPass.enableDirectLightShadow)
+        if (renderPass.enableDirectLightShadow) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        else context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        if (renderPass.enableSpotLightShadowPass)
+            context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._renderPass.shadowMap);
+        }
+        else {
+            context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+        }
+
+        if (renderPass.enableSpotLightShadowPass) {
             context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-        else context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+            context.sceneData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._renderPass.spotShadowMap);
+        }
+        else {
+            context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+        }
         renderPass.renderPass.render(context, list, count);
         renderPass._beforeImageEffectCMDS && this._renderCmd(renderPass._beforeImageEffectCMDS, context);
 
@@ -255,13 +278,13 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
      * @param camera 
      */
     fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
+        Camera.depthPass.cleanUp(camera);
         WebGPUStatis.startFrame();
-        this._initRenderPass(camera, context);
         this._renderDepth(camera);
+        this._initRenderPass(camera, context);
         let renderList = this.render3DManager.baseRenderList.elements;
         let count = this.render3DManager.baseRenderList.length;
         this._renderForwardAddCameraPass(context, this._renderPass, renderList, count);
-        Camera.depthPass.cleanUp();
     }
 
     /**
@@ -269,5 +292,11 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
      */
     destroy() {
         WebGPUGlobal.releaseId(this);
+
+        this._defaultShadowMap.destroy();
+        this._defaultShadowMap = null;
+
+        this._defaultDepthTex.destroy();
+        this._defaultDepthTex = null;
     }
 }

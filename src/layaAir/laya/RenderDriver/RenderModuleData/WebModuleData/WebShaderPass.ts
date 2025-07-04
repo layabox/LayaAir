@@ -32,8 +32,12 @@ export class WebShaderPass implements IShaderPassData {
         this._renderState = new RenderState();
         this._renderState.setNull();
     }
+    name: string;
     additionShaderData: string[];
     nodeCommonMap: string[];
+
+    attributeLocations: Set<number>;
+
     /**
     * @internal
     */
@@ -43,7 +47,7 @@ export class WebShaderPass implements IShaderPassData {
             for (var k in cacheMap) {
                 var shader = cacheMap[k];
                 for (var i: number = 0, n: number = resizeLength - end; i < n; i++) {
-                    if (i == n - 1)
+                    if (i === n - 1)
                         cacheMap[0] = shader;//0替代(i == 0 ? k : 0),只扩不缩
                     else
                         cacheMap = cacheMap[i == 0 ? k : 0] = {};

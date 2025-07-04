@@ -2,7 +2,7 @@ import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IS
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
@@ -18,6 +18,9 @@ export interface ShaderProcessInfo {
     //....其他数据
 }
 
+/**
+ * @blueprintIgnore @blueprintIgnoreSubclasses
+ */
 export class ShaderCompileDefineBase {
     _VS: ShaderNode;
     _PS: ShaderNode;
@@ -36,6 +39,9 @@ export class ShaderCompileDefineBase {
 
         for (let k of compiledObj.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
+
+        this._validDefine.add(Shader3D.getDefineByName("VBONEW"));
+        this._validDefine.add(Shader3D.getDefineByName("VBONEI"));
     }
 
     withCompile(compileDefine: IDefineDatas): IShaderInstance {

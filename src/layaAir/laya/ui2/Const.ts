@@ -56,12 +56,6 @@ export enum LayoutType {
     FlowY
 }
 
-export enum PageMode {
-    None,
-    Horizontal,
-    Vertical
-}
-
 export enum StretchMode {
     None,
     Stretch,

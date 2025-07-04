@@ -51,7 +51,7 @@ export class Circle2DShape extends Base2DShape {
         destObject.randomDirction = this.randomDirction;
     }
 
-    clone(): Circle2DShape {
+    clone() {
         let destObject = new Circle2DShape();
         this.cloneTo(destObject);
         return destObject;

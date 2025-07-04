@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawRectCmd";
 
 /**
  * @en Draw a rectangle
@@ -13,7 +15,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @en Identifier for the DrawRectCmd
      * @zh 绘制矩形命令的标识符
      */
-    static ID: string = "DrawRect";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -80,7 +82,7 @@ export class DrawRectCmd implements IGraphicsCmd {
      * @returns DrawRectCmd实例
      */
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRectCmd {
-        var cmd: DrawRectCmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
+        var cmd: DrawRectCmd = Pool.getItemByClass(className, DrawRectCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -99,29 +101,29 @@ export class DrawRectCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawRectCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the drawing rectangle command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制矩形命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         let lineOffset = this.lineColor ? this.lineWidth : 0;
-        if (this.percent && context.sprite) {
-            let w = context.sprite.width;
-            let h = context.sprite.height;
-            context.drawRect(this.x * w + offset + gx, this.y * h + offset + gy, this.width * w - lineOffset, this.height * h - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
+        if (this.percent && runner.sprite) {
+            let w = runner.sprite.width;
+            let h = runner.sprite.height;
+            runner.drawRect(this.x * w + offset + gx, this.y * h + offset + gy, this.width * w - lineOffset, this.height * h - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
         }
         else
-            context.drawRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
+            runner.drawRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
     }
 
     /**
@@ -139,11 +141,10 @@ export class DrawRectCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }
 }
 
-ClassUtils.regClass("DrawRectCmd", DrawRectCmd);
+ClassUtils.regClass(className, DrawRectCmd);
 

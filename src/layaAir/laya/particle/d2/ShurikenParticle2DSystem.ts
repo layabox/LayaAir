@@ -460,7 +460,7 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
         this.textureSheetAnimation.cloneTo(destObject.textureSheetAnimation);
     }
 
-    clone(): ShurikenParticle2DSystem {
+    clone() {
         let dest = new ShurikenParticle2DSystem();
         this.cloneTo(dest);
         return dest;

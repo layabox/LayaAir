@@ -1,35 +1,29 @@
 /**
  * @en The MathUtils3D class is used to create mathematical utilities.
  * @zh MathUtils3D 类用于创建数学工具。
+ * @blueprintable
  */
 export class MathUtils3D {
     /**
      * @en Tolerance for single-precision floating-point (float) zero.
      * @zh 单精度浮点(float)零的容差。
      */
-    static zeroTolerance: number = 1e-6;
+    static readonly zeroTolerance: number = 1e-6;
     /**
      * @en Default maximum value for floating-point numbers.
      * @zh 浮点数默认最大值。
      */
-    static MaxValue: number = 3.40282347e+38;
+    static readonly MaxValue: number = 3.40282347e+38;
     /**
      * @en Default minimum value for floating-point numbers.
      * @zh 浮点数默认最小值。
      */
-    static MinValue: number = -3.40282347e+38;
+    static readonly MinValue: number = -3.40282347e+38;
     /**
      * @en Coefficient for converting degrees to radians.
      * @zh 角度转弧度系数。
      */
-    static Deg2Rad: number = Math.PI / 180;
-    /**
-     * @en Constructor of MathUtils3D.
-     * @zh MathUtils3D 的构造函数。
-     */
-    constructor() {
-
-    }
+    static readonly Deg2Rad: number = Math.PI / 180;
 
     /**
      * @en Determines if a value is approximately zero within the tolerance range.
@@ -48,15 +42,13 @@ export class MathUtils3D {
      * @param n1 The first value to compare.
      * @param n2 The second value to compare.
      * @returns Whether the two values are approximately equal.
-     * @zh 两个值是否在容差的范围内近似相等Sqr Magnitude。
+     * @zh 两个值是否在容差的范围内近似相等
      * @param n1 要比较的第一个值。
      * @param n2 要比较的第二个值。
      * @returns 两个值是否近似相等。
      */
     static nearEqual(n1: number, n2: number): boolean {
-        if (MathUtils3D.isZero(n1 - n2))
-            return true;
-        return false;
+        return MathUtils3D.isZero(n1 - n2);
     }
 
     /**

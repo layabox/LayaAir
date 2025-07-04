@@ -8,9 +8,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @en Empty implementation of the renderer for optimizing Spine animations.
  * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
  */
-export class SpineEmptyRender implements ISpineOptimizeRender{
+export class SpineEmptyRender implements ISpineOptimizeRender {
     getSpineColor(): Color {
-       return Color.WHITE;
+        return Color.WHITE;
     }
     /**
      * @en Changes the skeleton.
@@ -25,7 +25,7 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
      * @en Singleton instance of SpineEmptyRender.
      * @zh SpineEmptyRender 的单例实例。
      */
-    static instance:SpineEmptyRender=new SpineEmptyRender();
+    static instance: SpineEmptyRender = new SpineEmptyRender();
     /**
      * @en Initializes the renderer.
      * @param skeleton The spine skeleton.
@@ -84,5 +84,5 @@ export class SpineEmptyRender implements ISpineOptimizeRender{
     destroy(): void {
         //throw new NotImplementedError();
     }
-    
+
 }

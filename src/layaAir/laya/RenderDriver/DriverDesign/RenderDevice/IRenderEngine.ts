@@ -21,7 +21,7 @@ export interface IRenderEngine {
     _lodTextureSample: boolean;
     _breakTextureSample: boolean;
 
-    initRenderEngine(canvas: any): void;
+    initRenderEngine(canvas: HTMLCanvasElement): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
 
     resizeOffScreen(width: number, height: number): void;
@@ -41,8 +41,6 @@ export interface IRenderEngine {
     clearStatisticsInfo(): void;
     /**@internal */
     getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
-    getUBOPointer?(name: string): number;   // TODO
-    createBuffer?(targetType: BufferTargetType, bufferUsageType: BufferUsage): GLBuffer;    // TODO
     startFrame(): void;
     endFrame(): void;
 }

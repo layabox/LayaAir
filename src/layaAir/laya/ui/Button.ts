@@ -17,6 +17,7 @@ import { TransformKind } from "../display/SpriteConst";
  * The states can be single-state, two-state (normal, pressed), or three-state (normal, hover, pressed). By default, it is three-state.
  * @zh `Button` 组件用来表示多种状态的按钮。`Button` 组件可显示文本标签、图标或同时显示两者。
  * 多种状态，可以是单态，两态（移出、按下）和三态(移出、悬停、按下)，默认是三态。
+ * @blueprintInheritable
  */
 export class Button extends UIComponent implements ISelect {
     /**
@@ -613,6 +614,10 @@ export class Button extends UIComponent implements ISelect {
             super.set_dataSource(value);
     }
 
+    /** @internal @blueprintEvent */
+    Button_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }
 
 const stateMap: any = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };

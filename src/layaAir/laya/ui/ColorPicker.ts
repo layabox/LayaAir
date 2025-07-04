@@ -14,6 +14,7 @@ import { Color } from "../maths/Color";
 /**
  * @en The `ColorPicker` component displays a color palette from which the user can select a color.
  * @zh `ColorPicker` 组件将显示包含多个颜色样本的列表，用户可以从中选择颜色。
+ * @blueprintInheritable
  */
 export class ColorPicker extends UIComponent {
 
@@ -416,4 +417,9 @@ export class ColorPicker extends UIComponent {
         this._colors = null;
         this.changeHandler = null;
     }
+
+    /** @internal @blueprintEvent */
+    ColorPicker_bpEvent: {
+        [Event.CHANGE]: () => void;
+    };
 }

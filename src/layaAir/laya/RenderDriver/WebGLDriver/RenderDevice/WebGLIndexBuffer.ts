@@ -20,7 +20,7 @@ export class WebGLIndexBuffer implements IIndexBuffer {
     private _changeMemory(bytelength: number) {
         WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_IndexBuffer, -this._glBuffer._byteLength + bytelength);
     }
-    
+
     _setIndexDataLength(data: number): void {
         this._changeMemory(data);
         var curBufSta = WebGLBufferState._curBindedBufferState;
@@ -32,6 +32,34 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         } else {
             this._glBuffer.bindBuffer()
             this._glBuffer.setDataLength(data);
+        }
+    }
+
+    setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
+        let curBufSta = WebGLBufferState._curBindedBufferState;
+        if (curBufSta) {
+            curBufSta.unBind();//避免影响VAO
+            {
+                this._glBuffer.bindBuffer()
+                var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
+                if (needSubData) {
+                    var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
+                    this._glBuffer.setData(subData, bufferOffset);
+                } else {
+                    this._glBuffer.setData(buffer, bufferOffset);
+                }
+            }
+            curBufSta.bind();
+        }
+        else {
+            this._glBuffer.bindBuffer()
+            var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
+            if (needSubData) {
+                var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
+                this._glBuffer.setData(subData, bufferOffset);
+            } else {
+                this._glBuffer.setData(buffer, bufferOffset);
+            }
         }
     }
 

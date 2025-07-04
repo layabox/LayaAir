@@ -88,7 +88,7 @@ export class BaseNavigationManager implements IElementComponentManager {
         this._init();
     }
     destroy(): void {
-        // throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**

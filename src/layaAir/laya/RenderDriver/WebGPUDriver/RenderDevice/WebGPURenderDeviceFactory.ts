@@ -5,30 +5,47 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ComputeShaderProcessInfo } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
+import { EDeviceBufferUsage, IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUBufferState } from "./WebGPUBufferState";
-import { WebGPUCodeGenerator } from "./WebGPUCodeGenerator";
 import { WebGPUCommandUniformMap } from "./WebGPUCommandUniformMap";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
 import { WebGPUConfig, WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUShaderInstance } from "./WebGPUShaderInstance";
+import { WebGPUUniformBufferBase } from "./WebGPUUniform/WebGPUUniformBufferBase";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
+import { WebGPUComputeContext } from "./compute/WebGPUComputeContext";
+import { WebGPUComputeShaderInstance } from "./compute/WebGPUComputeShaderInstance";
+import { WebGPUDeviceBuffer } from "./compute/WebGPUStorageBuffer";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
-        //@ts-ignore
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
         const shaderIns = new WebGPUShaderInstance(shaderPass._owner._owner.name);
+
         shaderIns._create(shaderProcessInfo, shaderPass as ShaderPass);
+
+        if (Shader3D.debugMode) {
+            let defineString = shaderProcessInfo.defineString;
+
+            let is2D = shaderProcessInfo.is2D;
+
+            ShaderVariantCollection.active.add(shaderPass, defineString, is2D);
+        }
+
         return shaderIns;
     }
     createIndexBuffer(bufferUsage: BufferUsage): IIndexBuffer {
@@ -37,15 +54,20 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createVertexBuffer(bufferUsageType: BufferUsage): IVertexBuffer {
         return new WebGPUVertexBuffer(BufferTargetType.ARRAY_BUFFER, bufferUsageType);
     }
+
+    createDeviceBuffer(type: EDeviceBufferUsage): IDeviceBuffer {
+        return new WebGPUDeviceBuffer(type);
+    }
+
     createBufferState(): IBufferState {
         return new WebGPUBufferState();
     }
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new WebGPURenderGeometry(mode, drawType);
     }
-    async createEngine(config: Config, canvas: any): Promise<void> {
+    async createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         const gpuConfig = new WebGPUConfig();
-        gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
+        gpuConfig.alphaMode = "opaque";
         gpuConfig.colorSpace = "srgb"; //TODO 这里感觉会出问题
         switch (Config.powerPreference) {
             case "default":
@@ -74,11 +96,23 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
             "bgra8unorm-storage",
             "float32-filterable",
         ];
-        const engine = new WebGPURenderEngine(gpuConfig, canvas._source);
+
+        if (Config.isAlpha) {
+            gpuConfig.alphaMode = "premultiplied";
+        } else {
+            gpuConfig.alphaMode = "opaque";
+        }
+
+        const engine = new WebGPURenderEngine(gpuConfig, canvas.source);
         LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
+        engine.useSPRIV = Config.useSPRIV;
+        if (engine.useSPRIV) {
+            console.log("shader is spri-v mode");
+        }
         LayaGL.textureContext = engine.getTextureContext();
-        await WebGPUCodeGenerator.init();
+        WebGPUShaderData.__init__();
+        WebGPUUniformBufferBase.device = engine.getDevice();
     }
 
     static globalBlockMap: { [key: string]: WebGPUCommandUniformMap } = {};
@@ -90,7 +124,17 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     }
 
     createShaderData(ownerResource?: Resource): ShaderData {
-        return WebGPUShaderData.create(ownerResource);
+        return new WebGPUShaderData();
+    }
+
+    createComputeContext(): WebGPUComputeContext {
+        return new WebGPUComputeContext();
+    }
+
+    createComputeShader(info: ComputeShaderProcessInfo): WebGPUComputeShaderInstance {
+        let shader = new WebGPUComputeShaderInstance(info.name);
+        shader.compile(info);
+        return shader;
     }
 }
 

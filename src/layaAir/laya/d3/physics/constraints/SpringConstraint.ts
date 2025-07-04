@@ -33,10 +33,6 @@ export class SpringConstraint extends ConstraintComponent {
         }
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onAdded(): void {
         super._onAdded();
     }

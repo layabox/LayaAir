@@ -30,10 +30,6 @@ export class TrailRenderer extends BaseRender {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
-    /**
-     * @internal
-     * @protected 
-     */
     protected _onAdded(): void {
         super._onAdded();
         this._trailFilter = new TrailFilter(this);
@@ -124,10 +120,6 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.alignment = value;
     }
 
-    /**
-     * @internal
-     * @protected
-     */
     protected _onEnable(): void {
         super._onEnable();
         this.owner._transform.position.cloneTo(this._trailFilter._lastPosition);//激活时需要重置上次位置

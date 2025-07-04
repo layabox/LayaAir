@@ -9,9 +9,14 @@ import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
 import { AlignType, LoaderFitMode, VAlignType } from "./Const";
 import { GWidget } from "./GWidget";
-import { ImageRenderer } from "./render/ImageRenderer";
-import { IMeshFactory } from "./render/MeshFactory";
+import { ImageRenderer } from "./ImageRenderer";
+import { IMeshFactory } from "../display/mesh/MeshFactory";
 
+/**
+ * @en GLoader is a widget that displays an image or animation resource.
+ * @zh GLoader 是一个显示图像或动画资源的小部件。
+ * @blueprintInheritable
+ */
 export class GLoader extends GWidget {
     private _src: string;
     private _align: AlignType;
@@ -48,11 +53,15 @@ export class GLoader extends GWidget {
         this.addChild(this._content);
     }
 
-    public get src(): string {
+    /**
+     * @en The source URL of the image or animation resource.
+     * @zh 图像或动画资源的源 URL。
+     */
+    get src(): string {
         return this._src;
     }
 
-    public set src(value: string) {
+    set src(value: string) {
         if (value == null)
             value = "";
         if (this._src == value)
@@ -64,70 +73,95 @@ export class GLoader extends GWidget {
             this.clearContent();
     }
 
-    public get icon(): string {
+    /** @ignore */
+    get icon(): string {
         return this._src;
     }
 
-    public set icon(value: string) {
+    set icon(value: string) {
         this.src = value;
     }
 
-    public get align(): AlignType {
+    /**
+     * @en The alignment of the content within the loader.
+     * @zh 加载器内内容的对齐方式。
+     */
+    get align(): AlignType {
         return this._align;
     }
 
-    public set align(value: AlignType) {
+    set align(value: AlignType) {
         if (this._align != value) {
             this._align = value;
             ILaya.timer.callLater(this, this.updateLayout);
         }
     }
 
-    public get valign(): VAlignType {
+    /**
+     * @en The vertical alignment of the content within the loader.
+     * @zh 加载器内内容的垂直对齐方式。
+     */
+    get valign(): VAlignType {
         return this._valign;
     }
 
-    public set valign(value: VAlignType) {
+    set valign(value: VAlignType) {
         if (this._valign != value) {
             this._valign = value;
             ILaya.timer.callLater(this, this.updateLayout);
         }
     }
 
-    public get fitMode(): LoaderFitMode {
+    /**
+     * @en The fit mode of the loader, which determines how the content is scaled to fit the loader's size.
+     * @zh 加载器的适配模式，决定内容如何缩放以适应加载器的大小。
+     */
+    get fitMode(): LoaderFitMode {
         return this._fitMode;
     }
 
-    public set fitMode(value: LoaderFitMode) {
+    set fitMode(value: LoaderFitMode) {
         if (this._fitMode != value) {
             this._fitMode = value;
             ILaya.timer.callLater(this, this.updateLayout);
         }
     }
 
-    public get shrinkOnly(): boolean {
+    /**
+     * @en Whether to only shrink the content to fit the loader's size, without enlarging it.
+     * @zh 是否仅缩小内容以适应加载器的大小，而不放大它。
+     */
+    get shrinkOnly(): boolean {
         return this._shrinkOnly;
     }
 
-    public set shrinkOnly(value: boolean) {
+    set shrinkOnly(value: boolean) {
         if (this._shrinkOnly != value) {
             this._shrinkOnly = value;
             ILaya.timer.callLater(this, this.updateLayout);
         }
     }
 
-    public get color(): string {
+    /**
+     * @en The color applied to the content of the loader.
+     * @zh 应用于加载器内容的颜色。
+     */
+    get color(): string {
         return this._color;
     }
 
-    public set color(value: string) {
+    set color(value: string) {
         this._color = value;
         this._renderer.setColor(value);
         if (this._ani)
             this._ani.color = this._ani.color.parse(value);
     }
 
-    get ani() {
+    /**
+     * @en The FrameAnimation component used for animations.
+     * @zh 用于动画的 FrameAnimation 组件。
+     */
+    get ani(): FrameAnimation | null {
         return this._ani;
     }
 
@@ -173,33 +207,38 @@ export class GLoader extends GWidget {
             this._ani.loop = value;
     }
 
-    public get texture(): Texture {
+    /**
+     * @en The texture of the image.
+     * @zh 图像的纹理。
+     */
+    get texture(): Texture {
         return this._renderer._tex;
     }
 
-    public set texture(value: Texture) {
+    set texture(value: Texture) {
         this._src = "instance-0";
         this.onLoaded(value, ++this._loadId);
     }
 
-    public get mesh(): IMeshFactory {
+    /**
+     * @en The mesh factory used for customizing the mesh of the image.
+     * @zh 用于自定义图像网格的网格工厂。
+     */
+    get mesh(): IMeshFactory {
         return this._renderer._meshFactory;
     }
 
-    public set mesh(value: IMeshFactory) {
+    set mesh(value: IMeshFactory) {
         this._renderer.setMesh(value);
     }
 
-    public updateMesh() {
-        this._renderer.updateMesh();
-    }
-
-    protected async loadContent() {
+    protected loadContent() {
         let loadID = ++this._loadId;
-        let res = Loader.getRes(this._src);
+        let res = Loader.getRes(this._src, Loader.IMAGE);
         if (!res)
-            res = await ILaya.loader.load(this._src);
-        this.onLoaded(res, loadID);
+            ILaya.loader.load(this._src, { maybeType: Loader.IMAGE }).then(res => this.onLoaded(res, loadID));
+        else
+            this.onLoaded(res, loadID);
     }
 
     protected onLoaded(value: Texture | AtlasResource, loadID: number) {
@@ -299,7 +338,6 @@ export class GLoader extends GWidget {
         }
 
         this._content.size(cw, ch);
-        this._renderer.updateMesh(false);
 
         let nx: number, ny: number;
         if (this._align == AlignType.Center)
@@ -326,8 +364,14 @@ export class GLoader extends GWidget {
             ILaya.timer.callLater(this, this.updateLayout);
     }
 
+    /** @ignore */
     destroy(): void {
         super.destroy();
         this._renderer.destroy();
     }
+
+    /** @internal @blueprintEvent */
+    GLoader_bpEvent: {
+        [Event.LOADED]: () => void;
+    };
 }

@@ -249,6 +249,12 @@ export interface ITweener {
     readonly breaking: boolean;
 
     /**
+     * @en The time remaining for the tweener.
+     * @zh 缓动剩余的时间。
+     */
+    readonly remainTime: number;
+
+    /**
      * @en Seek the tweener to a specified time.
      * @param time The time to seek to, in milliseconds.
      * @returns The tweener object.

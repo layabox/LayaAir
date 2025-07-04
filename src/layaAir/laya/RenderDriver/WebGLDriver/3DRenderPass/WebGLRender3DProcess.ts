@@ -1,5 +1,5 @@
 import { Config } from "../../../../Config";
-import { ILaya3D } from "../../../../ILaya3D";
+import { ILaya } from "../../../../ILaya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -128,7 +128,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             if (needDirectionShadow) {
                 this.renderpass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
-                let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+                let directionShadowMap = ILaya.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as WebGLInternalRT;
                 shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
 
@@ -141,7 +141,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = <WebSpotLight>mainSpotLight._dataModule;
-                let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+                let spotShadowMap = ILaya.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
                 shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
 
@@ -191,41 +191,31 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            let needDepthTex = camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture;
-            if (needDepthTex) {
-                camera.depthTexture = camera._cacheDepthTexture.depthStencilTexture;
-                // @ts-ignore
-                Camera.depthPass._depthTexture = camera.depthTexture;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-                depthMode &= ~DepthTextureMode.Depth;
-            }
-            else {
-                Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-            }
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
             this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, camera);
         }
         this.renderpass.renderpass.depthTextureMode = depthMode;
     }
 
     fowardRender(context: WebGLRenderContext3D, camera: Camera): void {
-        let time: number;
-        this.initRenderpass(camera, context);
+        Camera.depthPass.cleanUp(camera);
 
+        let time: number;
         this.renderDepth(camera);
+
+        this.initRenderpass(camera, context);
 
         let renderList = this.render3DManager.baseRenderList.elements;
         let count = this.render3DManager.baseRenderList.length;
 
         this.renderFowarAddCameraPass(context, this.renderpass, renderList, count);
-
-        Camera.depthPass.cleanUp();
     }
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {

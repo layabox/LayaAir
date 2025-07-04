@@ -110,7 +110,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
      * @zh 克隆一个新的 网格碰撞器 对象。
      * @return 一个新的 网格碰撞器 对象。
      */
-    clone(): any {
+    clone() {
         var dest: MeshColliderShape = new MeshColliderShape();
         this.cloneTo(dest);
         return dest;

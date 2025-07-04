@@ -20,353 +20,360 @@ export class Event {
      * @en Defines the value of the `type` property of a `mousedown` event object, triggered when pressed on a display object.
      * @zh 定义 `mousedown` 事件对象的 `type` 属性值，用于在显示对象上按下后触发。
      */
-    static MOUSE_DOWN = "mousedown";
+    static readonly MOUSE_DOWN = "mousedown";
     /**
      * @en Defines the value of the `type` property of a `mouseup` event object, triggered when released on a display object.
      * @zh 定义 `mouseup` 事件对象的 `type` 属性值，用于在显示对象抬起后触发。
      */
-    static MOUSE_UP = "mouseup";
+    static readonly MOUSE_UP = "mouseup";
     /**
      * @en Defines the value of the `type` property of a `rightmousedown` event object.
      * @zh 定义 `rightmousedown` 事件对象的 `type` 属性值。
      */
-    static RIGHT_MOUSE_DOWN = "rightmousedown";
+    static readonly RIGHT_MOUSE_DOWN = "rightmousedown";
     /**
      * @en Defines the value of the `type` property of a `rightmouseup` event object.
      * @zh 定义 `rightmouseup` 事件对象的 `type` 属性值。
      */
-    static RIGHT_MOUSE_UP = "rightmouseup";
+    static readonly RIGHT_MOUSE_UP = "rightmouseup";
     /**
      * @en Defines the value of the `type` property of a `click` event object, triggered when a mouse click completes on a display object.
      * @zh 定义 `click` 事件对象的 `type` 属性值，用于鼠标点击对象后触发。
      */
-    static CLICK = "click";
+    static readonly CLICK = "click";
     /**
      * @en Defines the value of the `type` property of a `rightclick` event object.
      * @zh 定义 `rightclick` 事件对象的 `type` 属性值。
      */
-    static RIGHT_CLICK = "rightclick";
+    static readonly RIGHT_CLICK = "rightclick";
     /**
      * @en Defines the value of the `type` property of a `mousemove` event object, triggered when mouse moves over a display object.
      * @zh 定义 `mousemove` 事件对象的 `type` 属性值，用于鼠标在对象身上进行移动后触发。
      */
-    static MOUSE_MOVE = "mousemove";
+    static readonly MOUSE_MOVE = "mousemove";
     /**
      * @en Defines the value of the `type` property of a `mouseover` event object.
      * @zh 定义 `mouseover` 事件对象的 `type` 属性值。
      */
-    static MOUSE_OVER = "mouseover";
+    static readonly MOUSE_OVER = "mouseover";
     /**
      * @en Defines the value of the `type` property of a `mouseout` event object.
      * @zh 定义 `mouseout` 事件对象的 `type` 属性值。
      */
-    static MOUSE_OUT = "mouseout";
+    static readonly MOUSE_OUT = "mouseout";
     /**
      * @en Defines the value of the `type` property of a `mousewheel` event object.
      * @zh 定义 `mousewheel` 事件对象的 `type` 属性值。
      */
-    static MOUSE_WHEEL = "mousewheel";
+    static readonly MOUSE_WHEEL = "mousewheel";
     /**
      * @en Defines the value of the `type` property of a `mouseover` event object.
      * @zh 定义 `mouseover` 事件对象的 `type` 属性值。
      */
-    static ROLL_OVER = "mouseover";
+    static readonly ROLL_OVER = "mouseover";
     /**
      * @en Defines the value of the `type` property of a `mouseout` event object, triggered when mouse leaves a display object.
      * @zh 定义 `mouseout` 事件对象的 `type` 属性值，用于鼠标离开对象后触发。
      */
-    static ROLL_OUT = "mouseout";
+    static readonly ROLL_OUT = "mouseout";
     /**
      * @en Defines the value of the `type` property of a `doubleclick` event object.
      * @zh 定义 `doubleclick` 事件对象的 `type` 属性值。
      */
-    static DOUBLE_CLICK = "doubleclick";
+    static readonly DOUBLE_CLICK = "doubleclick";
     /**
      * @en Defines the value of the `type` property of a `mousedrag` event object.
      * @zh 定义 `mousedrag` 事件对象的 `type` 属性值。
      */
-    static MOUSE_DRAG = "mousedrag";
+    static readonly MOUSE_DRAG = "mousedrag";
     /**
      * @en Defines the value of the `type` property of a `mousedragend` event object.
      * @zh 定义 `mousedragend` 事件对象的 `type` 属性值。
      */
-    static MOUSE_DRAG_END = "mousedragend";
+    static readonly MOUSE_DRAG_END = "mousedragend";
 
     /**
      * @en Defines the value of the `type` property of a `dragstart` event object, triggered when drag start.
      * @zh 定义 `dragstart` 事件对象的 `type` 属性值，用于开始拖动后触发。
      */
-    static DRAG_START = "dragstart";
+    static readonly DRAG_START = "dragstart";
     /**
      * @en Defines the value of the `type` property of a `dragmove` event object, triggered when dragging.
      * @zh 定义 `dragmove` 事件对象的 `type` 属性值，用于拖动中触发。
      */
-    static DRAG_MOVE = "dragmove";
+    static readonly DRAG_MOVE = "dragmove";
     /**
      * @en Defines the value of the `type` property of a `dragend` event object, triggered when drag end.
      * @zh 定义 `dragend` 事件对象的 `type` 属性值，用于拖动结束后触发。
      */
-    static DRAG_END = "dragend";
+    static readonly DRAG_END = "dragend";
     /**
      * @en Defines the value of the `type` property of a `drop` event object, triggered when drop occured.
      * @zh 定义 `drop` 事件对象的 `type` 属性值，用于拖动放置后触发。
      */
-    static DROP = "drop";
+    static readonly DROP = "drop";
 
     /**
      * @en Defines the value of the `type` property of a `keydown` event object.
      * @zh 定义 `keydown` 事件对象的 `type` 属性值。
      */
-    static KEY_DOWN = "keydown";
+    static readonly KEY_DOWN = "keydown";
     /**
      * @en Defines the value of the `type` property of a `keypress` event object.
      * @zh 定义 `keypress` 事件对象的 `type` 属性值。
      */
-    static KEY_PRESS = "keypress";
+    static readonly KEY_PRESS = "keypress";
     /**
      * @en Defines the value of the `type` property of a `keyup` event object.
      * @zh 定义 `keyup` 事件对象的 `type` 属性值。
      */
-    static KEY_UP = "keyup";
-
-    /**
-     * @en Same as `Event.CHANGED`.
-     * @zh 同 `Event.CHANGED`。
-     */
-    static CHANGE = "changed";
+    static readonly KEY_UP = "keyup";
 
     /**
      * @en Defines the value of the `type` property of a `change` event object.
      * @zh 定义 `change` 事件对象的 `type` 属性值。
      */
-    static CHANGED = "changed";
+    static readonly CHANGE = "change";
+
+    /**
+     * @en Defines the value of the `type` property of a `changed` event object.
+     * @zh 定义 `changed` 事件对象的 `type` 属性值。
+     */
+    static readonly CHANGED = "changed";
 
     /**
      * @en Defines the value of the `type` property of a `moved` event object.
      * @zh 定义 `moved` 事件对象的 `type` 属性值。
      */
-    static MOVED = "moved";
+    static readonly MOVED = "moved";
     /**
      * @en Defines the value of the `type` property of a `willResize` event object.
      * @zh 定义 `willResize` 事件对象的 `type` 属性值。
      */
-    static WILL_RESIZE = "willResize";
+    static readonly WILL_RESIZE = "willResize";
     /**
      * @en Defines the value of the `type` property of a `resize` event object.
      * @zh 定义 `resize` 事件对象的 `type` 属性值。
      */
-    static RESIZE = "resize";
+    static readonly RESIZE = "resize";
 
     /**
      * @en Defines the value of the `type` property of an `added` event object.
      * @zh 定义 `added` 事件对象的 `type` 属性值。
      */
-    static ADDED = "added";
+    static readonly ADDED = "added";
     /**
      * @en Defines the value of the `type` property of a `removed` event object.
      * @zh 定义 `removed` 事件对象的 `type` 属性值。
      */
-    static REMOVED = "removed";
+    static readonly REMOVED = "removed";
     /**
      * @en Defines the value of the `type` property of a `display` event object.
      * @zh 定义 `display` 事件对象的 `type` 属性值。
      */
-    static DISPLAY = "display";
+    static readonly DISPLAY = "display";
     /**
      * @en Defines the value of the `type` property of an `undisplay` event object.
      * @zh 定义 `undisplay` 事件对象的 `type` 属性值。
      */
-    static UNDISPLAY = "undisplay";
+    static readonly UNDISPLAY = "undisplay";
 
     /**
      * @en Defines the value of the `type` property of an `error` event object.
      * @zh 定义 `error` 事件对象的 `type` 属性值。
      */
-    static ERROR = "error";
+    static readonly ERROR = "error";
     /**
      * @en Defines the value of the `type` property of a `complete` event object.
      * @zh 定义 `complete` 事件对象的 `type` 属性值。
      */
-    static COMPLETE = "complete";
+    static readonly COMPLETE = "complete";
     /**
      * @en Defines the value of the `type` property of a `loaded` event object.
      * @zh 定义 `loaded` 事件对象的 `type` 属性值。
      */
-    static LOADED = "loaded";
+    static readonly LOADED = "loaded";
     /**
      * @en Defines the value of the `type` property of a `ready` event object.
      * @zh 定义 `ready` 事件对象的 `type` 属性值。
      */
-    static READY = "ready";
+    static readonly READY = "ready";
     /**
      * @en Defines the value of the `type` property of a `progress` event object.
      * @zh 定义 `progress` 事件对象的 `type` 属性值。
      */
-    static PROGRESS = "progress";
+    static readonly PROGRESS = "progress";
     /**
      * @en Defines the value of the `type` property of an `input` event object.
      * @zh 定义 `input` 事件对象的 `type` 属性值。
      */
-    static INPUT = "input";
+    static readonly INPUT = "input";
     /**
      * @en Defines the value of the `type` property of a `render` event object.
      * @zh 定义 `render` 事件对象的 `type` 属性值。
      */
-    static RENDER = "render";
+    static readonly RENDER = "render";
     /**
      * @en Defines the value of the `type` property of an `open` event object.
      * @zh 定义 `open` 事件对象的 `type` 属性值。
      */
-    static OPEN = "open";
+    static readonly OPEN = "open";
     /**
      * @en Defines the value of the `type` property of a `message` event object.
      * @zh 定义 `message` 事件对象的 `type` 属性值。
      */
-    static MESSAGE = "message";
+    static readonly MESSAGE = "message";
     /**
      * @en Defines the value of the `type` property of a `close` event object.
      * @zh 定义 `close` 事件对象的 `type` 属性值。
      */
-    static CLOSE = "close";
+    static readonly CLOSE = "close";
 
     /**
      * @en Defines the value of the `type` property of a `enterframe` event object.
      * @zh 定义 `enterframe` 事件对象的 `type` 属性值。
      */
-    static FRAME = "enterframe";
+    static readonly FRAME = "enterframe";
     /**
      * @en Defines the value of the `type` property of an `enter` event object.
      * @zh 定义 `enter` 事件对象的 `type` 属性值。
      */
-    static ENTER = "enter";
+    static readonly ENTER = "enter";
     /**
      * @en Defines the value of the `type` property of a `select` event object.
      * @zh 定义 `select` 事件对象的 `type` 属性值。
      */
-    static SELECT = "select";
+    static readonly SELECT = "select";
     /**
      * @en Defines the value of the `type` property of a `blur` event object.
      * @zh 定义 `blur` 事件对象的 `type` 属性值。
      */
-    static BLUR = "blur";
+    static readonly BLUR = "blur";
     /**
      * @en Defines the value of the `type` property of a `focus` event object.
      * @zh 定义 `focus` 事件对象的 `type` 属性值。
      */
-    static FOCUS = "focus";
+    static readonly FOCUS = "focus";
     /**
      * @en Defines the value of the `type` property of a `visibilitychange` event object.
      * @zh 定义 `visibilitychange` 事件对象的 `type` 属性值。
      */
-    static VISIBILITY_CHANGE = "visibilitychange";
+    static readonly VISIBILITY_CHANGE = "visibilitychange";
+
+    /**
+     * @en Defines the value of the `type` property of a `orientationchange` event object.
+     * @zh 定义 `orientationchange` 事件对象的 `type` 属性值。
+     */
+    static readonly ORIENTATION_CHANGE = "orientationchange";
+
     /**
      * @en Defines the value of the `type` property of a `focuschange` event object.
      * @zh 定义 `focuschange` 事件对象的 `type` 属性值。
      */
-    static FOCUS_CHANGE = "focuschange";
+    static readonly FOCUS_CHANGE = "focuschange";
     /**
      * @en Defines the value of the `type` property of a `played` event object.
      * @zh 定义 `played` 事件对象的 `type` 属性值。
      */
-    static PLAYED = "played";
+    static readonly PLAYED = "played";
     /**
      * @en Defines the value of the `type` property of a `paused` event object.
      * @zh 定义 `paused` 事件对象的 `type` 属性值。
      */
-    static PAUSED = "paused";
+    static readonly PAUSED = "paused";
     /**
      * @en Defines the value of the `type` property of a `stopped` event object.
      * @zh 定义 `stopped` 事件对象的 `type` 属性值。
      */
-    static STOPPED = "stopped";
+    static readonly STOPPED = "stopped";
     /**
      * @en Defines the value of the `type` property of a `start` event object.
      * @zh 定义 `start` 事件对象的 `type` 属性值。
      */
-    static START = "start";
+    static readonly START = "start";
     /**
      * @en Defines the value of the `type` property of an `end` event object.
      * @zh 定义 `end` 事件对象的 `type` 属性值。
      */
-    static END = "end";
+    static readonly END = "end";
     /**
      * @en Defines the value of the `type` property of a `link` event object.
      * @zh 定义 `link` 事件对象的 `type` 属性值。
      */
-    static LINK = "link";
+    static readonly LINK = "link";
     /**
      * @en Defines the value of the `type` property of a `label` event object.
      * @zh 定义 `label` 事件对象的 `type` 属性值。
      */
-    static LABEL = "label";
+    static readonly LABEL = "label";
     /**
      * @en Triggered when the full screen state changes in the browser.
      * @zh 浏览器全屏更改时触发
      */
-    static FULL_SCREEN_CHANGE = "fullscreenchange";
+    static readonly FULL_SCREEN_CHANGE = "fullscreenchange";
     /**
      * @en Triggered when the GPU device is lost.
      * @zh 显卡设备丢失时触发
      */
-    static DEVICE_LOST = "devicelost";
+    static readonly DEVICE_LOST = "devicelost";
     /**
      * @en Triggered when the world matrix is updated.
      * @zh 世界矩阵更新时触发。
      */
-    static TRANSFORM_CHANGED = "transformchanged";
+    static readonly TRANSFORM_CHANGED = "transformchanged";
     /**
      * @en Triggered when a 3D layer changes.
      * @zh 3D layer改变时触发。
      */
-    static LAYER_CHANGE = "layerChange";
+    static readonly LAYER_CHANGE = "layerChange";
     /**
     * @en Triggered when 3D Static changes.
     * @zh 3D Static改变时触发。
     */
-    static STATIC_MASK = "staticMask";
+    static readonly STATIC_MASK = "staticMask";
 
     /**
      * @en For 2D physics collision or 3D physics trigger start.
      * @zh 2D物理碰撞或3D物理触发开始。
      */
-    static TRIGGER_ENTER = "triggerenter";
+    static readonly TRIGGER_ENTER = "triggerenter";
     /**
      * @en For 2D physics collision or 3D physics trigger continues.
      * @zh 2D物理碰撞或3D物理触发持续。
      */
-    static TRIGGER_STAY = "triggerstay";
+    static readonly TRIGGER_STAY = "triggerstay";
     /**
      * @en For 2D physics collision or 3D physics trigger end.
      * @zh 2D物理碰撞或3D物理触发结束。
      */
-    static TRIGGER_EXIT = "triggerexit";
+    static readonly TRIGGER_EXIT = "triggerexit";
 
     /**
      * @en 3DPhysical collision start.
      * @zh 3D物理碰撞开始。
      */
-    static COLLISION_ENTER = "collisionenter";
+    static readonly COLLISION_ENTER = "collisionenter";
     /**
      * @en 3DPhysical collision continues.
      * @zh 3D物理碰撞持续。
      */
-    static COLLISION_STAY = "collisionstay";
+    static readonly COLLISION_STAY = "collisionstay";
     /**
      * @en 3DPhysical collision end.
      * @zh 3D物理碰撞结束。
      */
-    static COLLISION_EXIT = "collisionexit";
+    static readonly COLLISION_EXIT = "collisionexit";
     /**
      * @en Joint destruction.
      * @zh 关节破坏。
      */
-    static JOINT_BREAK = "jointbreak";
+    static readonly JOINT_BREAK = "jointbreak";
 
     /**
      * @zh 激活物理3D事件过滤器。
      * @en Activate the physics 3D event filter.
      */
-    static UPDATE_PHY_EVENT_FILTER = "physics3dEventFilter";
+    static readonly UPDATE_PHY_EVENT_FILTER = "physics3dEventFilter";
 
     /**
      * @en Checks whether the specified event type is a mouse event.

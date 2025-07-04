@@ -10,8 +10,11 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGPUShaderCompiler } from "./ShaderCompiler/WebGPUShaderCompiler";
+import { WebGPUBindGroupCache } from "./WebGPUBindGroupCache";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
+import { WebGPUPipelineCache } from "./WebGPUPipelineCache";
 import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
@@ -66,6 +69,8 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
     _context: GPUCanvasContext;
 
+    _preferredFormat: GPUTextureFormat;
+
     _screenResized: boolean = false;
     _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
@@ -95,8 +100,15 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     gpuBufferMgr: WebGPUBufferManager; //GPU大内存管理器
     timingManager: WebGPUTimingManager; //获取GPU执行时间
 
+    useSPRIV: boolean = false;
+
     globalId: number;
     objectName: string = 'WebGPURenderEngine';
+
+    shaderCompiler: WebGPUShaderCompiler;
+
+    bindGroupCache: WebGPUBindGroupCache;
+    pipelineCache: WebGPUPipelineCache;
 
     /**
      * 实例化一个webgpuEngine
@@ -113,6 +125,10 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
 
         this._initStatisticsInfo();
         this.globalId = WebGPUGlobal.getId(this);
+
+        this.shaderCompiler = new WebGPUShaderCompiler();
+        this.bindGroupCache = new WebGPUBindGroupCache();
+        this.pipelineCache = new WebGPUPipelineCache();
     }
 
     /**
@@ -140,6 +156,9 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
                 for (const extension of requestedExtensions)
                     if (this._adapterSupportedExtensions.indexOf(extension) !== -1)
                         validExtensions.push(extension);
+                    else {
+                        console.warn(`WebGPU: ${extension} is not supported by the adapter.`);
+                    }
                 deviceDescriptor.requiredFeatures = validExtensions;
             }
         }
@@ -190,20 +209,20 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     /**
      * 初始化WebGPU
      */
-    async _initAsync(): Promise<void> {
-        return await this._getAdapter()
-            .then((adapter: GPUAdapter | null) => {
-                this._initAdapter(adapter);
-                return this._getGPUdevice(this._config.deviceDescriptor);
-            })
-            .then((device: GPUDevice) => {
-                this._initDevice(device);
-                console.log('WebGPU start');
-                return Promise.resolve();
-            }, (e) => {
-                console.log(e);
-                throw 'Could not get WebGPU device';
-            })
+    async _initAsync(): Promise<any> {
+        return this._getAdapter().then((adapter: GPUAdapter | null) => {
+            this._initAdapter(adapter);
+            return this._getGPUdevice(this._config.deviceDescriptor);
+        }).then((device: GPUDevice) => {
+            this._initDevice(device);
+            console.log('WebGPU start');
+            return Promise.resolve();
+        }, (e) => {
+            console.log(e);
+            throw 'Could not get WebGPU device';
+        }).then(() => {
+            return this.shaderCompiler.init();
+        });
     }
 
     /**
@@ -219,7 +238,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
             || this._screenRT._textures[0].width !== w
             || this._screenRT._textures[0].height !== h) {
             //console.log('canvas resize =', w, h);
-            this.createScreenRT();
+            this._createScreenRT();
         }
     }
 
@@ -241,9 +260,11 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._context = this._canvas.getContext('webgpu') as GPUCanvasContext;
         if (!this._context)
             throw 'Could not get context';
-        //const preferredFormat = navigator.gpu.getPreferredCanvasFormat();
-        //console.log('preferredFormat =', preferredFormat);
-        const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
+
+        this._preferredFormat = navigator.gpu.getPreferredCanvasFormat();
+
+        const format = this._config.swapChainFormat || (this._preferredFormat == WebGPUTextureFormat.bgra8unorm ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.rgba8unorm);
+
         const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
         this._context.configure({
             device: this._device,
@@ -262,7 +283,7 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
         this._initContext();
 
         this._textureContext = new WebGPUTextureContext(this);
-        this.createScreenRT();
+        this._createScreenRT();
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
@@ -397,18 +418,25 @@ export class WebGPURenderEngine extends EventDispatcher implements IRenderEngine
     /**
      * 创建屏幕渲染目标
      */
-    createScreenRT() {
+    private _createScreenRT() {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.None, false, false, 1) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, 1, false) as WebGPUInternalRT;
         this._screenResized = true;
     }
+
+    /** @internal  */
+    hasScreenCleared: boolean = false;
 
     /**
      * 开始一帧
      */
     startFrame() {
+        this.hasScreenCleared = false;
+        let rt = this._screenRT;
+        rt._textures[0].resource = this._context.getCurrentTexture();
+        rt._textures[0].multiSamplers = 1;
         this.event('startFrame');
     }
 

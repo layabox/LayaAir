@@ -67,7 +67,7 @@ export class UniformBufferManager {
     //释放内存缓存数组
     private _removeHoleArray: Array<UniformBufferCluster> = [];
     //优化内存位置数据
-    private _optimizeBufferPosArray: Array<UniformBufferCluster> = [];
+    private _optimizeBufferPosArray: Array<UniformBufferCluster> = []; 
 
     _useBigBuffer: boolean = true; //是否使用大内存模式
 
@@ -147,18 +147,18 @@ export class UniformBufferManager {
             this._stat.timeCostCount++;
         }
 
-        if (this._useBigBuffer) {
-            if (this._removeHoleArray.length > 0) {
-                for (let i = this._removeHoleArray.length - 1; i > -1; i--)
-                    this._removeHoleArray[i].removeHole();
-                this._removeHoleArray.length = 0;
-            }
-            if (this._optimizeBufferPosArray.length > 0) {
-                for (let i = this._optimizeBufferPosArray.length - 1; i > -1; i--)
-                    this._optimizeBufferPosArray[i].optimize();
-                this._optimizeBufferPosArray.length = 0;
-            }
-        }
+        // if (this._useBigBuffer) {
+        //     if (this._removeHoleArray.length > 0) {
+        //         for (let i = this._removeHoleArray.length - 1; i > -1; i--)
+        //             this._removeHoleArray[i].removeHole();
+        //         this._removeHoleArray.length = 0;
+        //     }
+        //     if (this._optimizeBufferPosArray.length > 0) {
+        //         for (let i = this._optimizeBufferPosArray.length - 1; i > -1; i--)
+        //             this._optimizeBufferPosArray[i].optimize();
+        //         this._optimizeBufferPosArray.length = 0;
+        //     }
+        // }
     }
 
     /**

@@ -8,7 +8,7 @@
             "dom"
         ],
         "composite": true,
-        "stripInternal": true,
+        "stripInternal": false,
         "removeComments": false,
         "preserveConstEnums": false,
         "noImplicitAny": true,
@@ -25,6 +25,7 @@
     },
     "include": [
         "./**/*",
-        "../../node_modules/@webgpu/types"
+        "../../node_modules/@webgpu/types",
+        "../../node_modules/minigame-api-typings/**/*.d.ts"
     ]
 }

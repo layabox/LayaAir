@@ -6,8 +6,13 @@ import { MathUtil } from "../maths/MathUtil";
 import { NodeFlags } from "../Const";
 import { GImage } from "./GImage";
 import { GLoader } from "./GLoader";
-import { ProgressMesh } from "./render/ProgressMesh";
+import { ProgressMesh } from "../display/mesh/ProgressMesh";
 
+/**
+ * @en GProgressBar is a widget that displays a progress bar.
+ * @zh GProgressBar 是一个显示进度条的小部件。
+ * @blueprintInheritable
+ */
 export class GProgressBar extends GWidget {
     private _hBar: GWidget;
     private _vBar: GWidget;
@@ -35,44 +40,60 @@ export class GProgressBar extends GWidget {
         this._max = 100;
     }
 
-    public get titleType(): ProgressTitleType {
+    /**
+     * @en The type of title displayed on the progress bar.
+     * @zh 进度条上显示的标题类型。
+     */
+    get titleType(): ProgressTitleType {
         return this._titleType;
     }
 
-    public set titleType(value: ProgressTitleType) {
+    set titleType(value: ProgressTitleType) {
         if (this._titleType != value) {
             this._titleType = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get min(): number {
+    /**
+     * @en Minimum value of the progress bar.
+     * @zh 进度条的最小值。
+     */
+    get min(): number {
         return this._min;
     }
 
-    public set min(value: number) {
+    set min(value: number) {
         if (this._min != value) {
             this._min = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get max(): number {
+    /**
+     * @en Maximum value of the progress bar.
+     * @zh 进度条的最大值。
+     */
+    get max(): number {
         return this._max;
     }
 
-    public set max(value: number) {
+    set max(value: number) {
         if (this._max != value) {
             this._max = value;
             ILaya.timer.callLater(this, this.update);
         }
     }
 
-    public get value(): number {
+    /**
+     * @en Current value of the progress bar.
+     * @zh 进度条的当前值。
+     */
+    get value(): number {
         return this._value;
     }
 
-    public set value(value: number) {
+    set value(value: number) {
         if (this._value != value) {
             if (this._tween) {
                 this._tween.kill();
@@ -84,7 +105,17 @@ export class GProgressBar extends GWidget {
         }
     }
 
-    public tweenValue(value: number, duration: number): Tween {
+    /**
+     * @en Tweens the value of the progress bar to a target value over a specified duration.
+     * @param value The target value to tween to.
+     * @param duration The duration of the tween in milliseconds.
+     * @return Returns a Tween instance that can be used to control the tween animation.
+     * @zh 使用缓动改变进度条的值。
+     * @param value 目标值。 
+     * @param duration 缓动持续时间（毫秒）。 
+     * @return 返回一个 Tween 实例，可以用于控制缓动动画。 
+     */
+    tweenValue(value: number, duration: number): Tween {
         let oldValule: number;
 
         if (this._tween) {
@@ -103,7 +134,7 @@ export class GProgressBar extends GWidget {
             .onUpdate(tweener => this.update(tweener.value.get(null)));
     }
 
-    public update(newValue: number): void {
+    protected update(newValue: number): void {
         if (this._getBit(NodeFlags.EDITING_ROOT_NODE)) {
             this.updateTitle(this._max, this._max, 1);
             return;
@@ -172,7 +203,7 @@ export class GProgressBar extends GWidget {
         let mesh = (<GImage | GLoader>bar).mesh;
         if (mesh instanceof ProgressMesh) {
             mesh.amount = amount;
-            (<GImage | GLoader>bar).updateMesh();
+            bar.graphics.repaint();
             return true;
         }
         else
@@ -196,6 +227,7 @@ export class GProgressBar extends GWidget {
         super._onConstruct(inPrefab);
     }
 
+    /** @ignore */
     _setup(hBar: GWidget, vBar: GWidget, titleWidget: GWidget, reverse: boolean): void {
         this._hBar = hBar;
         this._vBar = vBar;

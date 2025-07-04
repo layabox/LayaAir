@@ -120,7 +120,6 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * @readonly
      * @en The minimum bounds of the navigation mesh
      * @zh 导航网格的最小边界 
      */
@@ -129,7 +128,6 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /**
-     * @readonly
      * @en The maximum bounds of the navigation mesh
      * @zh 导航网格的最大边界 
      */
@@ -190,6 +188,7 @@ export class BaseNavMeshSurface extends Component {
      * @zh 清理所有的Tile
      */
     public cleanAllTile() {
+        if (!this._oriTiles) return;
         for (var i = 0, n = this._oriTiles.length; i < n; i++) {
             let tile = this._oriTiles.getNavData(i);
             this._navMesh._removeTile(tile.x, tile.y);

@@ -6,15 +6,43 @@ import { LayoutType, SelectionMode, TreeClickToExpandType } from "./Const";
 import { GPanel } from "./GPanel";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "./GWidget";
+import { Sprite } from "../display/Sprite";
 
+/**
+ * @en GTree is a widget that displays a hierarchical tree structure, allowing for item rendering and selection.
+ * @zh GTree 是一个显示分层树结构的小部件，允许进行项目渲染和选择。
+ * @blueprintInheritable
+ */
 export class GTree extends GPanel {
 
-    public treeNodeRender: (node: GTreeNode, obj: any) => void;
-    public treeNodeWillExpand: (node: GTreeNode, expanded: boolean) => void;
+    /**
+     * @en The function used to render each tree node.
+     * @zh 用于渲染每个树节点的函数。
+     */
+    treeNodeRender: (node: GTreeNode, obj: any) => void;
+    /**
+     * @en The function called when a tree node is about to expand or collapse.
+     * @zh 当树节点即将展开或折叠时调用的函数。
+     */
+    treeNodeWillExpand: (node: GTreeNode, expanded: boolean) => void;
 
-    public readonly rootNode: GTreeNode;
-    public indent: number;
-    public scrollToViewOnExpand: boolean = false;
+    /**
+     * @en The root node of the tree.
+     * @zh 树的根节点。
+     */
+    readonly rootNode: GTreeNode;
+
+    /**
+     * @en The indent for each level. As the depth of the tree node increases, it indents to the right by the specified pixel distance. For example, if the indent is 15 pixels and the tree node is at level 3, the total indent will be 15 * 3 = 45 pixels.
+     * @zh 每级缩进。树节点的深度每增加一级，向右缩进的像素距离。例如，如果每级缩进是15像素，树节点的层级是3级，那么树节点的缩进是15*3=45像素。
+     */
+    indent: number;
+
+    /**
+     * @en Whether to scroll to the expanded node when it is expanded.
+     * @zh 是否在展开节点时滚动到该节点。
+     */
+    scrollToViewOnExpand: boolean = false;
 
     private _pool: WidgetPool;
     declare _selection: ITreeSelection;
@@ -34,31 +62,52 @@ export class GTree extends GPanel {
         this.rootNode.expanded = true;
     }
 
-    public get selection(): ITreeSelection {
+    /**
+     * @en The selection component used for managing the selection state of items in the tree.
+     * @zh 用于管理树中项目选择状态的选择组件。
+     */
+    get selection(): ITreeSelection {
         return this._selection;
     }
 
-    public get clickToExpand(): TreeClickToExpandType {
+    /**
+     * @en Whether to automatically expand or collapse the folder node when clicking on it.
+     * @zh 点击文件夹节点时是否自动展开或者折叠这个这个节点。
+     */
+    get clickToExpand(): TreeClickToExpandType {
         return this._selection.clickToExpand;
     }
 
-    public set clickToExpand(value: TreeClickToExpandType) {
+    set clickToExpand(value: TreeClickToExpandType) {
         this._selection.clickToExpand = value;
     }
 
-    public get itemTemplate(): Prefab {
+    /**
+     * @en The template resource used for items in the tree.
+     * @zh 树中项目使用的模板资源。
+     */
+    get itemTemplate(): Prefab {
         return this._pool.defaultRes;
     }
 
-    public set itemTemplate(value: Prefab) {
+    set itemTemplate(value: Prefab) {
         this._pool.defaultRes = value;
     }
 
-    public get itemPool(): WidgetPool {
+    /**
+     * @en Built-in object pool functionality for GTree.
+     * @zh GTree内建对象池功能。
+     */
+    get itemPool(): WidgetPool {
         return this._pool;
     }
 
-    public expandAll(folderNode?: GTreeNode): void {
+    /**
+     * @en Expands all child folder nodes of the specified folder node or the root node if none is specified.
+     * @param folderNode The folder node to expand. If not specified, the root node will be used.
+     * @zh 展开指定文件夹节点的所有子文件夹节点，如果未指定，则使用根节点。
+     */
+    expandAll(folderNode?: GTreeNode): void {
         if (!folderNode)
             folderNode = this.rootNode;
 
@@ -71,7 +120,13 @@ export class GTree extends GPanel {
         }
     }
 
-    public collapseAll(folderNode?: GTreeNode): void {
+    /**
+     * @en Collapses all child folder nodes of the specified folder node or the root node if none is specified.
+     * @param folderNode The folder node to collapse. If not specified, the root node will be used.
+     * @zh 折叠指定文件夹节点的所有子文件夹节点，如果未指定，则使用根节点。
+     * @param folderNode 要折叠的文件夹节点。如果未指定，则使用根节点。 
+     */
+    collapseAll(folderNode?: GTreeNode): void {
         if (!folderNode)
             folderNode = this.rootNode;
 
@@ -93,7 +148,7 @@ export class GTree extends GPanel {
     }
 
     /** @internal */
-    public _afterInserted(node: GTreeNode): void {
+    _afterInserted(node: GTreeNode): void {
         if (!node.cell)
             this.createCell(node);
 
@@ -125,12 +180,12 @@ export class GTree extends GPanel {
     }
 
     /** @internal */
-    public _afterRemoved(node: GTreeNode): void {
+    _afterRemoved(node: GTreeNode): void {
         this.removeNode(node);
     }
 
     /** @internal */
-    public _afterExpanded(node: GTreeNode, byEvent?: boolean): void {
+    _afterExpanded(node: GTreeNode, byEvent?: boolean): void {
         if (node == this.rootNode) {
             this.checkChildren(this.rootNode, 0);
             return;
@@ -162,7 +217,7 @@ export class GTree extends GPanel {
     }
 
     /** @internal */
-    public _afterCollapsed(node: GTreeNode, byEvent?: boolean): void {
+    _afterCollapsed(node: GTreeNode, byEvent?: boolean): void {
         if (node == this.rootNode) {
             this.checkChildren(this.rootNode, 0);
             return;
@@ -185,7 +240,7 @@ export class GTree extends GPanel {
     }
 
     /** @internal */
-    public _afterMoved(node: GTreeNode): void {
+    _afterMoved(node: GTreeNode): void {
         let startIndex = this.getChildIndex(node.cell);
         let endIndex: number;
         if (node.isFolder)
@@ -199,13 +254,13 @@ export class GTree extends GPanel {
         let cnt = endIndex - startIndex;
         if (insertIndex < startIndex) {
             for (let i = 0; i < cnt; i++) {
-                let obj = this.getChildAt(startIndex + i);
+                let obj = this.getChildAt(startIndex + i) as Sprite;
                 this._setChildIndex(obj, startIndex + i, insertIndex + i);
             }
         }
         else {
             for (let i = 0; i < cnt; i++) {
-                let obj = this.getChildAt(startIndex);
+                let obj = this.getChildAt(startIndex) as Sprite;
                 this._setChildIndex(obj, startIndex, insertIndex - 1);
             }
         }
@@ -255,7 +310,7 @@ export class GTree extends GPanel {
         if (node.cell) {
             node.cell.removeSelf();
             if (node._cellFromPool) {
-                this._pool.returnObject(node.cell);
+                this._pool.recover(node.cell);
                 node.cell = null;
             }
         }

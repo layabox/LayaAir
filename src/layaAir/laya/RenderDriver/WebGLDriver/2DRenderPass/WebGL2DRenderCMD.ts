@@ -2,8 +2,10 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
@@ -17,20 +19,19 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
         super();
         this.type = RenderCMDType.ChangeRenderTarget;
         this._clearColorValue = new Color();
-
     }
 
     apply(context: IRenderContext2D): void {
-
         if (this.rt) context.invertY = this.invertY;
         else context.invertY = false;
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
+        context.passData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this.size);
     }
 }
 
 export class WebGLDraw2DElementCMD extends Draw2DElementCMD {
 
-    private _elemets: WebGLRenderelement2D[];
+    private _elements: WebGLRenderelement2D[];
 
     constructor() {
         super();
@@ -38,14 +39,14 @@ export class WebGLDraw2DElementCMD extends Draw2DElementCMD {
     }
 
     setRenderelements(value: WebGLRenderelement2D[]): void {
-        this._elemets = value;
+        this._elements = value;
     }
 
     apply(context: IRenderContext2D): void {
-        if (this._elemets.length == 1) {
-            context.drawRenderElementOne(this._elemets[0]);
+        if (this._elements.length == 1) {
+            context.drawRenderElementOne(this._elements[0]);
         } else {
-            this._elemets.forEach(element => {
+            this._elements.forEach(element => {
                 context.drawRenderElementOne(element);
             });
         }

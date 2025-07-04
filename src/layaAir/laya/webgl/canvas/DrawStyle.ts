@@ -1,5 +1,6 @@
 import { ColorUtils } from "../../utils/ColorUtils"
 
+/** @ignore */
 export class DrawStyle {
     static readonly DEFAULT: Readonly<DrawStyle> = DrawStyle.create(0);
 

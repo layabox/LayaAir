@@ -100,17 +100,17 @@ const _bezierResultCache: any = {};
 const _bezierPointsCache: any = {};
 
 function _switchPoint(x: number, y: number): void {
-    let tPoint = tmpPoints.shift();
+    let tPoint = tmpPoints.pop();
     tPoint.setTo(x, y);
-    tmpPoints.push(tPoint);
+    tmpPoints.unshift(tPoint);
 }
 
 
 function getPoint2(t: number, rst: any[]): void {
     //二次贝塞尔曲线公式
-    var p1: Point = tmpPoints[0];
+    var p1: Point = tmpPoints[2];
     var p2: Point = tmpPoints[1];
-    var p3: Point = tmpPoints[2];
+    var p3: Point = tmpPoints[0];
     var lineX: number = Math.pow((1 - t), 2) * p1.x + 2 * t * (1 - t) * p2.x + Math.pow(t, 2) * p3.x;
     var lineY: number = Math.pow((1 - t), 2) * p1.y + 2 * t * (1 - t) * p2.y + Math.pow(t, 2) * p3.y;
     rst.push(lineX, lineY);
@@ -118,10 +118,10 @@ function getPoint2(t: number, rst: any[]): void {
 
 function getPoint3(t: number, rst: any[]): void {
     //三次贝塞尔曲线公式
-    var p1: Point = tmpPoints[0];
-    var p2: Point = tmpPoints[1];
-    var p3: Point = tmpPoints[2];
-    var p4: Point = tmpPoints[3];
+    var p1: Point = tmpPoints[3];
+    var p2: Point = tmpPoints[2];
+    var p3: Point = tmpPoints[1];
+    var p4: Point = tmpPoints[0];
     var lineX: number = Math.pow((1 - t), 3) * p1.x + 3 * p2.x * t * (1 - t) * (1 - t) + 3 * p3.x * t * t * (1 - t) + p4.x * Math.pow(t, 3);
     var lineY: number = Math.pow((1 - t), 3) * p1.y + 3 * p2.y * t * (1 - t) * (1 - t) + 3 * p3.y * t * t * (1 - t) + p4.y * Math.pow(t, 3);
     rst.push(lineX, lineY);

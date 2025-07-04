@@ -1,6 +1,7 @@
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
+import { URL } from "../../net/URL";
 import { Texture2DArray } from "../../resource/Texture2DArray";
 import { Utils } from "../../utils/Utils";
 
@@ -53,15 +54,28 @@ export class Texture2DArrayLoader implements IResourceLoader {
             let invertY = !!data.invertY;
 
             let textures: Array<string> = data.textures;
-
-            let urls = [];
-            for (let index = 0; index < textures.length; index++) {
-                urls.push(textures[index]);
+            let basePath: string = URL.getPath(task.url);
+            let urls: string[] = [];
+            for (let texture of textures) {
+                urls.push(URL.join(basePath, texture));
             }
 
+            let options = task.options;
             return Promise.all(urls.map((url) => {
                 if (url) {
-                    return task.loader.fetch(url, "image", task.progress.createCallback(), task.options);
+                    return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(image => {
+                        if (LayaGL.textureContext.needBitmap) {
+                            if (image instanceof ImageBitmap) {
+                                return image;
+                            }
+                            else {
+                                return createImageBitmap(image, options.workerLoaderOptions || { premultiplyAlpha: premultiplyAlpha ? "premultiply" : "none" })
+                            }
+                        }
+                        else {
+                            return image;
+                        }
+                    });
                 }
                 else {
                     return Promise.resolve(null);

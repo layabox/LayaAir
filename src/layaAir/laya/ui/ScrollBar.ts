@@ -33,6 +33,7 @@ export class ScrollBar extends UIComponent {
     /** 
      * @en Sets the global easing function for scrolling speed changes.
      * @zh 设置全局的滚动速度变化曲线函数
+     * @blueprintIgnore
      */
     public static easeFunction = Ease.sineOut;
     /**
@@ -836,4 +837,12 @@ export class ScrollBar extends UIComponent {
     private _backToNormal(value: number) {
         Tween.to(this, { value: value }, this.elasticBackTime, ScrollBar.easeFunction, Handler.create(this, this.elasticOver));
     }
+
+    /** @internal @blueprintEvent */
+    ScrollBar_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.START]: () => void;
+        [Event.END]: () => void;
+        [Event.LOADED]: () => void;
+    };
 }

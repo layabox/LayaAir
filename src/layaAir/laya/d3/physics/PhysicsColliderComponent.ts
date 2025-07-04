@@ -87,7 +87,7 @@ export class PhysicsColliderComponent extends Component {
     protected _eventsArray: string[];
     private _isColliderInit: boolean = false;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en The collider object.

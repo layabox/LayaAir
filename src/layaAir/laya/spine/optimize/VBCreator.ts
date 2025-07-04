@@ -11,6 +11,7 @@ import { SpineOptimizeConst } from "./SpineOptimizeConst";
 /**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
  * @zh 用于在spine骨骼动画系统中创建顶点缓冲区的抽象类。
+ * @blueprintIgnore
  */
 export abstract class VBCreator implements IGetBone {
     /**
@@ -37,7 +38,7 @@ export abstract class VBCreator implements IGetBone {
      * @en The Max Length of the vertex buffer.
      * @zh 顶点缓冲区的最大长度。
      */
-    maxVertexCount:number;
+    maxVertexCount: number;
     /**
      * @en Map of slot ID to attachment position data.
      * @zh 插槽ID到附件位置数据的映射。
@@ -54,24 +55,24 @@ export abstract class VBCreator implements IGetBone {
     _vertexSize = 0;
 
     /** @internal 没有骨骼的顶点数 */
-    _baseVtxCount:number = 6;
+    _baseVtxCount: number = 6;
 
-    _boneVtxCount:number = 4;
-    
+    _boneVtxCount: number = 4;
+
     /** @internal TODO 双顶点色模式 */
-    twoColorTint:boolean = false;
+    twoColorTint: boolean = false;
 
     private boneMaxId: number = 0;
 
-    private _vertexDeclaration:VertexDeclaration;
+    private _vertexDeclaration: VertexDeclaration;
 
     /**
      * @en
      * @zh
      */
-    vertexFlag:string;
+    vertexFlag: string;
 
-    constructor( vertexFlag:string , maxVertexCount :number = 0,  auto: boolean = true ) {
+    constructor(vertexFlag: string, maxVertexCount: number = 0, auto: boolean = true) {
         this.maxVertexCount = maxVertexCount;
         this.vertexFlag = vertexFlag;
 
@@ -91,28 +92,28 @@ export abstract class VBCreator implements IGetBone {
     }
 
     /**
-	 * @en set vertex buffer length.
-	 * @param maxVertexCount The Max length of Vertex count.
-	 * @zh 设置顶点缓冲长度。
-	 * @param maxVertexCount 顶点缓存区最大个数。
-	 */
-    setBufferLength(maxVertexCount:number){
+     * @en set vertex buffer length.
+     * @param maxVertexCount The Max length of Vertex count.
+     * @zh 设置顶点缓冲长度。
+     * @param maxVertexCount 顶点缓存区最大个数。
+     */
+    setBufferLength(maxVertexCount: number) {
         if (maxVertexCount <= this.maxVertexCount) return;
         this.maxVertexCount = maxVertexCount;
         this._updateBuffer();
     }
 
-    protected _updateBuffer(){
+    protected _updateBuffer() {
         let oldbuffer = this.vb;
-        this.vb = new Float32Array(this.maxVertexCount * this.vertexSize); 
+        this.vb = new Float32Array(this.maxVertexCount * this.vertexSize);
         if (oldbuffer) this.vb.set(oldbuffer);
     }
 
-    get vertexSize(): number{
+    get vertexSize(): number {
         return this._vertexSize;
     }
 
-    get vertexDeclaration():VertexDeclaration{
+    get vertexDeclaration(): VertexDeclaration {
         return this._vertexDeclaration;
     }
 
@@ -193,11 +194,11 @@ export abstract class VBCreator implements IGetBone {
         offset = this.vbLength / this.vertexSize;
         map.set(attach.attachment, { offset: offset, attachment: attach });
         if (!attach.vertexCount) return offset;
-        
+
         if (offset + attach.vertexCount >= this.maxVertexCount) {//长度超标
             this.setBufferLength(offset + attach.vertexCount);
         }
-        
+
         this.vbLength = this.appendVertexArray(attach, this.vb, this.vbLength, this);
         return offset;
     }
@@ -208,7 +209,7 @@ export abstract class VBCreator implements IGetBone {
      * @param attach 附件解析数据。
      */
     resetVB(attach: AttachmentParse) {
-        if(attach.isPath) {
+        if (attach.isPath) {
             return;
         }
         let pos = this.slotVBMap.get(attach.slotId)?.get(attach.attachment);
@@ -229,7 +230,7 @@ export abstract class VBCreator implements IGetBone {
      * @param ofx 偏移x。
      * @param ofy 偏移y。
      */
-    updateBone(bones: spine.Bone[], boneMat: Float32Array , ofx:number = 0, ofy:number = 0) {
+    updateBone(bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
         let boneArray = this.boneArray;
         for (let i = 0, n = boneArray.length; i < n; i += 2) {
             let offset = boneArray[i] * 8;
@@ -255,7 +256,7 @@ export abstract class VBCreator implements IGetBone {
      * @param frames 帧数。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array, ofx:number = 0, ofy:number = 0) {
+    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
         let boneArray = this.boneArray;
         let floor = Math.floor(frames);
         let detal;
@@ -327,7 +328,7 @@ export abstract class VBCreator implements IGetBone {
 export class VBBoneCreator extends VBCreator {
 
     _create(): VBCreator {
-        return new VBBoneCreator( this.vertexFlag ,this.maxVertexCount,  false);
+        return new VBBoneCreator(this.vertexFlag, this.maxVertexCount, false);
     }
 
     /**
@@ -351,18 +352,18 @@ export class VBBoneCreator extends VBCreator {
         let slotVertex = attachmentParse.vertexArray;
         let uvs = attachmentParse.uvs;
         let color = attachmentParse.color;
-        let c1r:number = color.r, c1g:number = color.g, c1b:number = color.b, c1a:number = color.a;
+        let c1r: number = color.r, c1g: number = color.g, c1b: number = color.b, c1a: number = color.a;
         let boneNum = this._boneVtxCount / 4;
 
         let color2 = attachmentParse.darkColor;
-        let c2r:number = 0, c2g:number = 0, c2b:number = 0, c2a:number = 1;
+        let c2r: number = 0, c2g: number = 0, c2b: number = 0, c2a: number = 1;
         if (color2) {
             c2r = color2.r;
             c2g = color2.g;
             c2b = color2.b;
             c2a = color2.a;
         }
-        
+
         if (attachmentParse.stride == 2) {
             let boneid = boneGet.getBoneId(attachmentParse.boneIndex);
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
@@ -381,7 +382,7 @@ export class VBBoneCreator extends VBCreator {
                 vertexArray[offset + 9] = boneid;
 
                 let ox = offset + 10;
-                for (let z = 0 , len = boneNum - 1; z < len; z++) {
+                for (let z = 0, len = boneNum - 1; z < len; z++) {
                     let vOffset = ox + z * 4;
                     vertexArray[vOffset] = 0;
                     vertexArray[vOffset + 1] = 0;
@@ -391,7 +392,7 @@ export class VBBoneCreator extends VBCreator {
 
                 //////// color2
                 if (this.twoColorTint) {
-                    let tColorOffset = offset + 6 + this._boneVtxCount; 
+                    let tColorOffset = offset + 6 + this._boneVtxCount;
                     vertexArray[tColorOffset] = c2r;
                     vertexArray[tColorOffset + 1] = c2g;
                     vertexArray[tColorOffset + 2] = c2b;
@@ -467,7 +468,7 @@ export class VBBoneCreator extends VBCreator {
             //bones [len, boneIndex, boneIndex.... , len , boneIndex, boneIndex....];
             //deform [deformX, deformY, deformX, deformY....];
             let f = 0, v = 0;
-            for (let w = 0 ; w < vertexCount; w++) {
+            for (let w = 0; w < vertexCount; w++) {
                 let len = bones[v++];
                 // slotVertex Offset : matrix4 [x , y , weight , boneIndex]
                 let slotOffset = w * this._boneVtxCount;
@@ -498,7 +499,7 @@ export class VBBoneCreator extends VBCreator {
 export class VBRigBodyCreator extends VBCreator {
     /** @internal */
     _create(): VBCreator {
-        return new VBRigBodyCreator(this.vertexFlag , this.maxVertexCount ,  false);
+        return new VBRigBodyCreator(this.vertexFlag, this.maxVertexCount, false);
     }
 
     /**
@@ -519,8 +520,8 @@ export class VBRigBodyCreator extends VBCreator {
         let color = attachmentParse.color;
         let color2 = attachmentParse.darkColor;
         let vside = this.vertexSize;
-        let c1r:number = color.r, c1g:number = color.g, c1b:number = color.b, c1a:number = color.a;
-        let c2r:number = 0, c2g:number = 0, c2b:number = 0, c2a:number = 1;
+        let c1r: number = color.r, c1g: number = color.g, c1b: number = color.b, c1a: number = color.a;
+        let c2r: number = 0, c2g: number = 0, c2b: number = 0, c2a: number = 1;
         if (color2) {
             c2r = color2.r;
             c2g = color2.g;
@@ -551,7 +552,7 @@ export class VBRigBodyCreator extends VBCreator {
                     vertexArray[tColorOffset + 2] = c2b;
                     vertexArray[tColorOffset + 3] = c2a;
                 }
-                
+
                 offset += vside;
             }
         } else {

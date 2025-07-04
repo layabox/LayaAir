@@ -3,6 +3,7 @@ import { Vector3 } from "./laya/maths/Vector3";
 /**
  * @en Config3D class is used to create 3D initialization configuration.
  * @zh Config3D 类用于创建3D初始化配置。
+ * @blueprintable
  */
 export class Config3D {
     /**
@@ -16,8 +17,6 @@ export class Config3D {
      * @zh 是否启用静态合并
      */
     static enableStaticBatch: boolean = true;
-
-   
 
     /**
      * @en Set 3D RT resolution multiplier

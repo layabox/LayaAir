@@ -85,6 +85,7 @@ export class ScalableAO extends PostProcessEffect {
     static deltyVector: Vector2 = new Vector2(0.0, 1.0);
 
     /**
+     * @internal
      * @en ScaleAO resource init
      * @zh 初始化AO资源
      */
@@ -208,7 +209,7 @@ export class ScalableAO extends PostProcessEffect {
     get radius() {
         return this._aoParams.y;
     }
-    
+
     set radius(value: number) {
         this._aoParams.y = value;
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);

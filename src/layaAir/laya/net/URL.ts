@@ -1,3 +1,4 @@
+import { PlayerConfig } from "../../Config";
 import { LayaEnv } from "../../LayaEnv";
 import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
@@ -17,18 +18,24 @@ export class URL {
      * @en URL address version mapping table. For example, {"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}. By default, after formatting through formatURL, it will automatically generate an address like "aaa/bb-1342a.png".
      * @zh URL地址版本映射表。例如，{"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}。默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb-1342a.png"的地址。
      */
-    static version: Record<string, string> = {};
+    static readonly version: Record<string, string> = {};
 
     /**
      * @en Base path. If not set, it defaults to the path of the current web page. The final address will be formatted as basePath + relative URL address.
      * @zh 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath + 相对URL地址。
      */
-    static basePath: string;
+    static basePath: string = "";
     /**
      * @en Extended base path mapping table. For example, {"aa/":"http://abc.com/"}, then resources with paths starting with aa/ will be mapped to http://abc.com/.
      * @zh 扩展的基础路径映射表。例如，{"aa/":"http://abc.com/"}，则把路径以aa/开头的资源映射到http://abc.com/下。
      */
     static basePaths: Record<string, string> = {};
+
+    /**
+     * @en URL mapping table. For example, {"aa/bb.png":"cc/dd.png"}. This is used to map URLs to different paths.
+     * @zh URL映射表。例如，{"aa/bb.png":"cc/dd.png"}。用于将URL映射到不同的路径。
+     */
+    static readonly urlMapping: Record<string, string> = {};
 
     private _url: string;
     private _path: string;
@@ -43,20 +50,14 @@ export class URL {
         "controller": "controller.json",
         "mc": "mc.bin",
         "mcc": "mcc.json",
-        "shader": "shader.json",
+        "shader": "shader.txt",
         "fui": "fui.json",
         "glsl": "glsl.txt",
         "skel": "skel.bin",
         "lavm": "lavm.json",
+        "bp": "bp.json",
+        "tres": "tres.json"
     };
-
-    static __init__() {
-        //xiaomi 没有location
-        //Vivo location.protocol是""
-        //微信真机 location.protocol是undefined
-        if (URL.basePath == null)
-            URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
-    }
 
     /**
      * @en Initialize file extension overrides for mini-game.
@@ -66,7 +67,7 @@ export class URL {
         if (LayaEnv.isPreview)
             return;
 
-        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap);
+        Object.assign(this.overrideFileExts, this.safeFileExtConversionMap, PlayerConfig.safeFileExtConversionMap);
         this.hasExtOverrides = true;
         this.usingSafeFileExts = true;
     }
@@ -102,9 +103,7 @@ export class URL {
      * @en Custom URL formatting function. For example: customFormat = function(url:String):String{}
      * @zh 自定义URL格式化的方式。例如：customFormat = function(url:String):String{}
      */
-    static customFormat: Function = function (url: string): string {
-        return url;
-    }
+    static customFormat: (url: string) => string;
 
     /**
      * 指以'~/'开头的的url路径的映射。
@@ -138,7 +137,10 @@ export class URL {
         }
 
         if (url.indexOf(":") == -1 && url.charCodeAt(0) !== 47) { //已经format过
-            //自定义路径格式化
+            let url2 = URL.urlMapping[url];
+            if (url2)
+                url = url2;
+
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
 
@@ -148,18 +150,18 @@ export class URL {
                 url = url.substring(0, i) + "-" + ver + url.substring(i);
             }
 
-                if (base == null) {
-                    base = URL.basePath;
-                    for (let k in URL.basePaths) {
-                        if (url.startsWith(k)) {
+            if (base == null) {
+                base = URL.basePath;
+                for (let k in URL.basePaths) {
+                    if (url.startsWith(k)) {
                         if (k.charCodeAt(0) === 126)
                             url = url.substring(k.length);
-                            base = URL.basePaths[k];
-                            break;
-                        }
+                        base = URL.basePaths[k];
+                        break;
                     }
                 }
-                url = URL.join(base, url);
+            }
+            url = URL.join(base, url);
         }
 
         return url;

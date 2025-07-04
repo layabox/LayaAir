@@ -9,22 +9,21 @@ import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { RenderContext3D } from "../RenderContext3D";
+import { Pool } from "../../../../utils/Pool";
 
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class DrawMeshCMD extends Command {
-
-    /**@internal */
-    private static _pool: DrawMeshCMD[] = [];
+    private static readonly _pool = Pool.createPool(DrawMeshCMD);
 
     /**
      * @internal
      */
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
-        cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
+        cmd = DrawMeshCMD._pool.take();
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
         cmd.material = material;
@@ -139,7 +138,7 @@ export class DrawMeshCMD extends Command {
      * @override
      */
     recover(): void {
-        DrawMeshCMD._pool.push(this);
+        DrawMeshCMD._pool.recover(this);
         super.recover();
         this._material && (this.material = null);
         this._mesh && (this.mesh = null);

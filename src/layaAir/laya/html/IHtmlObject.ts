@@ -4,6 +4,7 @@ import { Text } from "../display/Text";
 /**
  * @en The `IHtmlObject` interface defines the structure and behavior of objects that can be embedded within HTML content.
  * @zh `IHtmlObject` 接口定义了可以嵌入在 HTML 内容中的对象的结构和行为。
+ * @blueprintIgnore
  */
 export interface IHtmlObject {
     /**

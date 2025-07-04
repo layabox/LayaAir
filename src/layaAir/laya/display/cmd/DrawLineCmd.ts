@@ -1,7 +1,9 @@
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawLineCmd";
 
 /**
  * @en Draw bend line command
@@ -12,7 +14,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @en Identifier for the DrawLineCmd
      * @zh 绘制单条曲线命令的标识符
      */
-    static ID: string = "DrawLine";
+    static readonly ID: string = className;
 
     /**
      * @en X-axis start position
@@ -52,7 +54,6 @@ export class DrawLineCmd implements IGraphicsCmd {
     percent: boolean;
 
     /**
-     * @private
      * @en Create a DrawLineCmd instance
      * @param fromX X-axis start position
      * @param fromY Y-axis start position
@@ -71,7 +72,7 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @returns DrawLineCmd 实例
      */
     static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
-        var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
+        var cmd: DrawLineCmd = Pool.getItemByClass(className, DrawLineCmd);
         cmd.fromX = fromX;
         cmd.fromY = fromY;
         cmd.toX = toX;
@@ -86,28 +87,28 @@ export class DrawLineCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池
      */
     recover(): void {
-        Pool.recover("DrawLineCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the draw bend line command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制单条曲线命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth < 1 || this.lineWidth % 2 === 0) ? 0 : 0.5;
-        if (this.percent && context.sprite) {
-            let w = context.sprite.width;
-            let h = context.sprite.height;
-            context._drawLine(gx, gy, this.fromX * w + offset, this.fromY * h + offset, this.toX * w + offset, this.toY * h + offset, this.lineColor, this.lineWidth, 0);
+        if (this.percent && runner.sprite) {
+            let w = runner.sprite.width;
+            let h = runner.sprite.height;
+            runner._drawLine(gx, gy, this.fromX * w + offset, this.fromY * h + offset, this.toX * w + offset, this.toY * h + offset, this.lineColor, this.lineWidth, 0);
         }
         else
-            context._drawLine(gx, gy, this.fromX + offset, this.fromY + offset, this.toX + offset, this.toY + offset, this.lineColor, this.lineWidth, 0);
+            runner._drawLine(gx, gy, this.fromX + offset, this.fromY + offset, this.toX + offset, this.toY + offset, this.lineColor, this.lineWidth, 0);
     }
 
 
@@ -132,8 +133,6 @@ export class DrawLineCmd implements IGraphicsCmd {
             fromY *= assembler.height;
             toX *= assembler.width;
             toY *= assembler.height;
-
-            assembler.affectBySize = true;
         }
 
         if (fromX == toX) {
@@ -146,4 +145,4 @@ export class DrawLineCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawLineCmd", DrawLineCmd);
+ClassUtils.regClass(className, DrawLineCmd);

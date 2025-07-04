@@ -943,7 +943,7 @@ export class Matrix4x4 implements IClone {
      * @zh 克隆矩阵
      * @returns 一个具有相同值的新Matrix4x4对象
      */
-    clone(): any {
+    clone() {
         var dest: Matrix4x4 = new Matrix4x4(null);
         dest.elements = this.elements.slice();
         return dest;

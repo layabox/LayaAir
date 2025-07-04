@@ -12,7 +12,6 @@ import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../renders/Context";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Material } from "../resource/Material";
 import { Texture2D } from "../resource/Texture2D";
@@ -21,8 +20,9 @@ import { LineShader } from "./shader/Line2DShader";
 import { Vector4 } from "../maths/Vector4";
 
 
+const defaultDashedValue: Vector3 = new Vector3(20, 1, 0);
+
 export class Line2DRender extends BaseRenderNode2D {
-    private static defaultDashedValue: Vector3 = new Vector3(20, 1, 0);
     private static defaultLine2DMaterial: Material;
 
     /**
@@ -33,6 +33,7 @@ export class Line2DRender extends BaseRenderNode2D {
             return;
         LineShader.__init__();
         let mat = Line2DRender.defaultLine2DMaterial = new Material();
+        mat.lock = true;
         mat.setShaderName("LineShader");
         mat.alphaTest = false;
         mat.depthTest = RenderState.DEPTHTEST_OFF;
@@ -230,7 +231,7 @@ export class Line2DRender extends BaseRenderNode2D {
         if (this._isdashed) {
             this._spriteShaderData.setVector3(LineShader.DASHED, this._dashedValue);
         } else {
-            this._spriteShaderData.setVector3(LineShader.DASHED, Line2DRender.defaultDashedValue);
+            this._spriteShaderData.setVector3(LineShader.DASHED, defaultDashedValue);
         }
     }
 
@@ -241,6 +242,15 @@ export class Line2DRender extends BaseRenderNode2D {
      */
     protected _getcommonUniformMap(): Array<string> {
         return ["BaseRender2D", "Line2DRender"];
+    }
+
+    protected _initDefaultRenderData(): void {
+        this._initRender();
+        //this._spriteShaderData.addDefine(Shader3D.getDefineByName("UV"));
+        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
+        this._updateDashValue();
+        this.tillOffset = null;
+        this.texture = null;
     }
 
     /**
@@ -301,28 +311,7 @@ export class Line2DRender extends BaseRenderNode2D {
         this._needUpdate = true;
     }
 
-    /**
-     * @internal
-     * @protected
-     * cmd run时调用，可以用来计算matrix等获得即时context属性
-     * @param context 
-     * @param px 
-     * @param py 
-     */
-    addCMDCall(context: Context, px: number, py: number): void {
-        let mat = context._curMat;
-        let vec3 = Vector3.TEMP;
-        vec3.x = mat.a;
-        vec3.y = mat.c;
-        vec3.z = px * mat.a + py * mat.c + mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, vec3);
-        vec3.x = mat.b;
-        vec3.y = mat.d;
-        vec3.z = px * mat.b + py * mat.d + mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, vec3);
-        this._setRenderSize(context.width, context.height);
-        context._copyClipInfoToShaderData(this._spriteShaderData);
-    }
+
 
     onPreRender(): void {
         if (!this._needUpdate) return;
@@ -330,7 +319,8 @@ export class Line2DRender extends BaseRenderNode2D {
         this._changeGeometry();
     }
 
-    private _initRender() {
+    /** @internal */
+    _initRender() {
         let lineNums = this._maxLineNumer;
         let positionBuffer = this._positionVertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         positionBuffer.instanceBuffer = true;
@@ -365,8 +355,10 @@ export class Line2DRender extends BaseRenderNode2D {
         renderElement.value2DShaderData = this._spriteShaderData;
         renderElement.renderStateIsBySprite = false;
         renderElement.nodeCommonMap = this._getcommonUniformMap();
+        renderElement.owner = this._struct;
         BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
         this._renderElements[0] = renderElement;
+        this._struct.renderElements = this._renderElements;
 
     }
 
@@ -376,13 +368,7 @@ export class Line2DRender extends BaseRenderNode2D {
         Line2DRender._createDefaultLineMaterial();
         this._renderElements = [];
         this._materials = [];
-        this._initRender();
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        //this._spriteShaderData.addDefine(Shader3D.getDefineByName("UV"));
-        this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
-        this._updateDashValue();
-        this.tillOffset = null;
-        this.texture = null;
+
     }
 }
 

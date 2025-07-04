@@ -16,6 +16,7 @@ import { URL } from "../net/URL";
  * @zh UIGroup 是一个可以自动布局的项集合控件。
  * UIGroup 的默认项对象为 Button 类实例。
  * UIGroup是 Tab 和 RadioGroup 的基类。
+ * @blueprintInheritable
  */
 export class UIGroup extends Box {
 
@@ -564,4 +565,10 @@ export class UIGroup extends Box {
         else
             super.set_dataSource(value);
     }
+
+    /** @internal @blueprintEvent */
+    UIGroup_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.LOADED]: () => void;
+    };
 }

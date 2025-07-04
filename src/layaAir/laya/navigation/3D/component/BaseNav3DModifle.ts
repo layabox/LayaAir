@@ -17,7 +17,7 @@ export class BaseNav3DModifle extends Component {
     /**@internal */
     protected _manager: NavigationManager;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en Agent type for the navigation node

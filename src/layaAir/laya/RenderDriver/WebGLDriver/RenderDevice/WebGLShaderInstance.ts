@@ -17,7 +17,6 @@ import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Config } from "../../../../Config";
-import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { WebGLRenderContext3D } from "../3DRenderPass/WebGLRenderContext3D";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
 
@@ -34,9 +33,9 @@ export class WebGLShaderInstance implements IShaderInstance {
     _renderShaderInstance: GLShaderInstance;
 
     /**@internal */
-    _sceneUniformParamsMap: CommandEncoder;
+    _sceneUniformParamsMap: CommandEncoder;//2D pass
     /**@internal */
-    _cameraUniformParamsMap: CommandEncoder;
+    _cameraUniformParamsMap: CommandEncoder;//global
     /**@internal */
     _spriteUniformParamsMap: CommandEncoder;
     /**@internal */
@@ -88,6 +87,7 @@ export class WebGLShaderInstance implements IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
         let useMaterial = Config.matUseUBO;//TODO 临时解决2D Mat
         Config.matUseUBO = (!shaderProcessInfo.is2D) && Config.matUseUBO;
+
         let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         this._renderShaderInstance = WebGLEngine.instance.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
         Config.matUseUBO = useMaterial;
@@ -111,7 +111,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._spriteUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
 
-        let context =WebGLRenderContext3D._instance;
+        let context = WebGLRenderContext3D._instance;
 
         let preDrawUniforms = context._preDrawUniformMaps;
         let preDrawParams = [];
@@ -154,8 +154,11 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._sprite2DUniformParamsMap = new CommandEncoder();
         this._materialUniformParamsMap = new CommandEncoder();
         this._sceneUniformParamsMap = new CommandEncoder();
+        this._cameraUniformParamsMap = new CommandEncoder();
         //const sprite2DParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D") as WebGLCommandUniformMap;//分开，根据不同的Render
-        const sceneParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;//分开，根据不同的Render
+        const passParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DPass") as WebGLCommandUniformMap;//分开，根据不同的Render
+        const globalParams = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal") as WebGLCommandUniformMap;
+
         let i, n;
         let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
         for (i = 0, n = data.length; i < n; i++) {
@@ -163,8 +166,19 @@ export class WebGLShaderInstance implements IShaderInstance {
             if (this.hasSpritePtrID(one.dataOffset)) {
                 this._sprite2DUniformParamsMap.addShaderUniform(one);
             }
-            else if (sceneParms.hasPtrID(one.dataOffset)) {
+            else if (passParms.hasPtrID(one.dataOffset)) {
                 this._sceneUniformParamsMap.addShaderUniform(one);
+            }
+            else if (globalParams.hasPtrID(one.dataOffset)) {
+                this._cameraUniformParamsMap.addShaderUniform(one);
+            }
+            else if (this._hasAdditionShaderData(one.dataOffset)) {
+                let str = this._hasAdditionShaderData(one.dataOffset);
+                if (!this._additionUniformParamsMaps.get(str)) {
+                    let commandEncoder = new CommandEncoder();
+                    this._additionUniformParamsMaps.set(str, commandEncoder);
+                }
+                this._additionUniformParamsMaps.get(str).addShaderUniform(one);
             }
             else {
                 this._materialUniformParamsMap.addShaderUniform(one);
@@ -263,21 +277,35 @@ export class WebGLShaderInstance implements IShaderInstance {
             RenderStateContext.setDepthFunc(depthTest);
         }
         //Stencil
-        var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-        var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-        RenderStateContext.setStencilMask(stencilWrite);
+        var stencilWrite: boolean = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+        let stencilWriteMask = stencilWrite ? ((renderState.stencilWriteMask ?? datas[Shader3D.STENCIL_WRITE_MASK]) ?? RenderState.Default.stencilWriteMask) : 0x00;
+        RenderStateContext.setStencilMask(stencilWriteMask);
         if (stencilWrite) {
             var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
             RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
         }
+
+        var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
         if (stencilTest == RenderState.STENCILTEST_OFF) {
             RenderStateContext.setStencilTest(false);
         }
         else {
-            var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
             RenderStateContext.setStencilTest(true);
-            RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+            var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
+            let stencilReadMask = (renderState.stencilReadMask ?? datas[Shader3D.STENCIL_READ_MASK]) ?? RenderState.Default.stencilReadMask;
+            RenderStateContext.setStencilFunc(stencilTest, stencilRef, stencilReadMask);
         }
+
+        // depth bias
+        let depthBias = renderState.depthBias ?? datas[Shader3D.DEPTH_BIAS] ?? RenderState.Default.depthBias;
+        RenderStateContext.setDepthBias(depthBias);
+        if (depthBias) {
+            let depthBiasConstant = (renderState.depthBiasConstant ?? datas[Shader3D.DEPTH_BIAS_CONSTANT]) ?? RenderState.Default.depthBiasConstant;
+            let depthBiasSlopeScale = (renderState.depthBiasSlopeScale ?? datas[Shader3D.DEPTH_BIAS_SLOPESCALE]) ?? RenderState.Default.depthBiasSlopeScale;
+            let depthBiasClamp = (renderState.depthBiasClamp ?? datas[Shader3D.DEPTH_BIAS_CLAMP]) ?? RenderState.Default.depthBiasClamp;
+            RenderStateContext.setDepthBiasFactor(depthBiasConstant, depthBiasSlopeScale, depthBiasClamp);
+        }
+
         //blend
         var blend: any = (renderState.blend ?? datas[Shader3D.BLEND]) ?? RenderState.Default.blend;
         switch (blend) {
@@ -329,9 +357,10 @@ export class WebGLShaderInstance implements IShaderInstance {
         }
 
         //Stencil
-        var stencilWrite: any = datas[Shader3D.STENCIL_WRITE];
+        var stencilWrite: boolean = datas[Shader3D.STENCIL_WRITE];
         stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
-        RenderStateContext.setStencilMask(stencilWrite);
+        let stencilWriteMask: number = stencilWrite ? (datas[Shader3D.STENCIL_WRITE_MASK] ?? RenderState.Default.stencilWriteMask) : 0x00;
+        RenderStateContext.setStencilMask(stencilWriteMask);
         if (stencilWrite) {
             var stencilOp: any = datas[Shader3D.STENCIL_Op];
             stencilOp = stencilOp ?? RenderState.Default.stencilOp;
@@ -344,10 +373,24 @@ export class WebGLShaderInstance implements IShaderInstance {
             RenderStateContext.setStencilTest(false);
         }
         else {
+            let stencilReadMask: any = datas[Shader3D.STENCIL_READ_MASK] ?? RenderState.Default.stencilReadMask;
             var stencilRef: any = datas[Shader3D.STENCIL_Ref];
             stencilRef = stencilRef ?? RenderState.Default.stencilRef;
             RenderStateContext.setStencilTest(true);
-            RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+            RenderStateContext.setStencilFunc(stencilTest, stencilRef, stencilReadMask);
+        }
+
+        // depth bias
+        let depthBias = datas[Shader3D.DEPTH_BIAS] ?? RenderState.Default.depthBias;
+        RenderStateContext.setDepthBias(depthBias);
+        if (depthBias) {
+            let depthBiasConstant = datas[Shader3D.DEPTH_BIAS_CONSTANT];
+            depthBiasConstant = depthBiasConstant ?? RenderState.Default.depthBiasConstant;
+            let depthBiasSlopeScale = datas[Shader3D.DEPTH_BIAS_SLOPESCALE];
+            depthBiasSlopeScale = depthBiasSlopeScale ?? RenderState.Default.depthBiasSlopeScale;
+            let depthBiasClamp = datas[Shader3D.DEPTH_BIAS_CLAMP];
+            depthBiasClamp = depthBiasClamp ?? RenderState.Default.depthBiasClamp;
+            RenderStateContext.setDepthBiasFactor(depthBiasConstant, depthBiasSlopeScale, depthBiasClamp);
         }
 
         //blend

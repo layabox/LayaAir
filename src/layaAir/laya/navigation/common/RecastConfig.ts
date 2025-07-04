@@ -60,7 +60,7 @@ export class RecastConfig implements IClone {
     * clone
     * @returns 
     */
-    clone(): RecastConfig {
+    clone() {
         let data = new RecastConfig();
         this.cloneTo(data);
         return data;

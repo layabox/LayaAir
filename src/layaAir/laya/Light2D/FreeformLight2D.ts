@@ -26,6 +26,7 @@ import { RenderTexture } from "../resource/RenderTexture";
  * 自定义形状灯光
  */
 export class FreeformLight2D extends BaseLight2D {
+    /** @readonly */
     static FALLOF_WIDTH: number = 100; //渐变区的宽度系数
     private _falloffRange: number = 1; //灯光衰减范围 0-10
 
@@ -40,7 +41,7 @@ export class FreeformLight2D extends BaseLight2D {
     private _cmdMesh: DrawMesh2DCMD;
     private _material: Material;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @ignore
@@ -255,7 +256,7 @@ export class FreeformLight2D extends BaseLight2D {
         const tex = this._texLight = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.antiAlias ? 4 : 1);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
         if (!this._cmdRT)
-            this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, LayaGL.renderEngine._screenInvertY);
+            this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, false);
         else this._cmdRT.renderTexture = tex;
     }
 

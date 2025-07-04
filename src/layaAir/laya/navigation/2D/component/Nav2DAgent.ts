@@ -15,7 +15,7 @@ const tempVector3 = new Vector3();
 export class Nav2DAgent extends BaseNavAgent {
     private _destination: Vector2 = new Vector2();
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
     * @en The destination for the agent.

@@ -205,7 +205,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     _calculateBoundingBox() {
         let bound = this._bounds;
         for (let i = 0, n = this._batchList.length; i < n; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 this._batchList.elements[i].bounds.cloneTo(bound);
             } else {
                 Bounds.merge(bound, this._batchList.elements[i].bounds, bound);

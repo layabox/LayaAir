@@ -4,7 +4,7 @@ import { URL } from "./URL";
 
 /**
  * 自动图集管理类
- * @private
+ * @internal
  */
 export class AtlasInfoManager {
 

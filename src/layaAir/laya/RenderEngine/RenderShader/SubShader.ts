@@ -66,7 +66,6 @@ export class SubShader {
      */
     readonly _uniformMap: Map<number, UniformProperty>;
 
-    /**@internal */
     _owner: Shader3D;
     /**@internal */
     _flags: any = {};
