@@ -129,6 +129,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
                 gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
             }
         }
+
+        // webgpu 需要加载为 bitmap
+        // hw webgpu 不需要加载为 bitmap
+        if (Browser.onHWMiniGame) {
+            LayaGL.textureContext.needBitmap = false;
+        }
     }
 
     protected setupWasmSupport() {
@@ -139,6 +145,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
             wasmGlobal = (window as any).MYWebAssembly;
         else if (Browser.onTTMiniGame)
             wasmGlobal = (window as any).TTWebAssembly;
+        else if (Browser.onHWMiniGame)
+            wasmGlobal = (window as any).qg;
 
         if (wasmGlobal) {
             if (!window.WebAssembly) //让WASM库以为支持WASM
