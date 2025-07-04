@@ -293,26 +293,40 @@ export class Animator2D extends Component {
             normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
 
             if (animatorState.yoyo) {
-                // Yoyo 逻辑：计算当前是在正向还是反向播放
-                let cycleCount = Math.floor(normalizedTime);
-                let isForwardCycle = (cycleCount % 2) === 0;
-                
-                if (isForwardCycle) {
+                // Yoyo 逻辑：使用简化的稳定计算
+                let fullCycleTime = 2.0 * clipDuration; // 一个完整yoyo周期的时间
+                let currentCycleTime = playState._playAllTime % fullCycleTime; // 当前周期内的时间
+                let halfCycleTime = clipDuration; // 半个周期的时间
+
+                // 始终保持正向播放，通过时间计算实现 yoyo 效果
+                playState._frontPlay = true;
+
+                if (currentCycleTime < halfCycleTime) {
                     // 正向播放：从 clipStart 到 clipEnd
-                    playState._frontPlay = true;
-                    // 计算正向播放的归一化时间
-                    let forwardTime = normalizedTime - cycleCount;
-                    normalizedPlayTime = animatorState.clipStart + forwardTime * (animatorState.clipEnd - animatorState.clipStart);
+                    let forwardProgress = currentCycleTime / halfCycleTime;
+                    normalizedPlayTime = animatorState.clipStart + forwardProgress * (animatorState.clipEnd - animatorState.clipStart);
                 } else {
                     // 反向播放：从 clipEnd 到 clipStart
-                    playState._frontPlay = false;
-                    // 计算反向播放的归一化时间
-                    let backwardTime = normalizedTime - cycleCount;
-                    normalizedPlayTime = animatorState.clipEnd - backwardTime * (animatorState.clipEnd - animatorState.clipStart);
+                    let backwardProgress = (currentCycleTime - halfCycleTime) / halfCycleTime;
+                    normalizedPlayTime = animatorState.clipEnd - backwardProgress * (animatorState.clipEnd - animatorState.clipStart);
                 }
-                
+
                 // 确保归一化时间在有效范围内
                 normalizedPlayTime = Math.max(animatorState.clipStart, Math.min(animatorState.clipEnd, normalizedPlayTime));
+
+                // 使用更小的边界容差，减少跳跃
+                const epsilon = 0.001;
+                if (normalizedPlayTime < animatorState.clipStart + epsilon) {
+                    normalizedPlayTime = animatorState.clipStart;
+                } else if (normalizedPlayTime > animatorState.clipEnd - epsilon) {
+                    normalizedPlayTime = animatorState.clipEnd;
+                }
+
+
+                if (!playState._frontPlay && playState._normalizedPlayTime < normalizedPlayTime) {
+                    normalizedPlayTime = animatorState.clipStart;
+                }
+
                 playState._normalizedPlayTime = normalizedPlayTime;
             }
         }
@@ -327,18 +341,38 @@ export class Animator2D extends Component {
 
                 if (0 > animatorState.speed) {
                     if (animatorState.yoyo) {
-                        playState._elapsedTime = animatorState.clipEnd * pAllTime;
-                        playState._normalizedPlayTime = animatorState.clipEnd;
+                        // 在 yoyo 模式下，根据当前周期决定结束位置
+                        let yoyoTime = playState._playAllTime / clipDuration;
+                        let cycleCount = Math.floor(yoyoTime / 2);
+                        let isForwardCycle = (cycleCount % 2) === 0;
+
+                        if (isForwardCycle) {
+                            playState._elapsedTime = animatorState.clipEnd * clipDuration;
+                            playState._normalizedPlayTime = animatorState.clipEnd;
+                        } else {
+                            playState._elapsedTime = animatorState.clipStart * clipDuration;
+                            playState._normalizedPlayTime = animatorState.clipStart;
+                        }
                     } else {
-                        playState._elapsedTime = animatorState.clipStart * pAllTime;
+                        playState._elapsedTime = animatorState.clipStart * clipDuration;
                         playState._normalizedPlayTime = animatorState.clipStart;
                     }
                 } else {
                     if (animatorState.yoyo) {
-                        playState._elapsedTime = animatorState.clipStart * pAllTime;
-                        playState._normalizedPlayTime = animatorState.clipStart;
+                        // 在 yoyo 模式下，根据当前周期决定结束位置
+                        let yoyoTime = playState._playAllTime / clipDuration;
+                        let cycleCount = Math.floor(yoyoTime / 2);
+                        let isForwardCycle = (cycleCount % 2) === 0;
+
+                        if (isForwardCycle) {
+                            playState._elapsedTime = animatorState.clipEnd * clipDuration;
+                            playState._normalizedPlayTime = animatorState.clipEnd;
+                        } else {
+                            playState._elapsedTime = animatorState.clipStart * clipDuration;
+                            playState._normalizedPlayTime = animatorState.clipStart;
+                        }
                     } else {
-                        playState._elapsedTime = animatorState.clipEnd * pAllTime;
+                        playState._elapsedTime = animatorState.clipEnd * clipDuration;
                         playState._normalizedPlayTime = animatorState.clipEnd;
                     }
                 }
