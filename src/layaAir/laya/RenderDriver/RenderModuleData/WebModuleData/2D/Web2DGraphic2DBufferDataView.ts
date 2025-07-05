@@ -9,13 +9,11 @@ import { WebRender2DPass } from "./WebRender2DPass";
 
 export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
-    bufferData: Float32Array | Uint16Array;
+    _dataView: Float32Array | Uint16Array;
+    arrayBuffer: ArrayBuffer;
     modifyType: BufferModifyType;
     _needResetData: boolean;
     _inPass: boolean;
-
-    // 更新标记计数
-    // _mark: number = -1;
 
     private _num: number = 0;
     /** @internal */
@@ -26,19 +24,21 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     private _updateRange: Vector2 = new Vector2(100000000, -100000000);
     //所有的DataView
     resetData(byteLength: number) {
+
+        this.arrayBuffer = new ArrayBuffer(byteLength);
         //copy Buffer
         if (BufferModifyType.Index == this.modifyType) {
-            let newData = new Uint16Array(byteLength / 2);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
+            let newData = new Uint16Array(this.arrayBuffer);
+            if (this._dataView) {
+                newData.set(this._dataView);
             }
-            this.bufferData = newData;
+            this._dataView = newData;
         } else {
-            let newData = new Float32Array(byteLength / 4);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
+            let newData = new Float32Array(this.arrayBuffer);
+            if (this._dataView) {
+                newData.set(this._dataView);
             }
-            this.bufferData = newData;
+            this._dataView = newData;
         }
         this._needResetData = true;
     }
@@ -71,7 +71,7 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
                 if (needUpdate) {
                     view.start = start;
-                    view.updateView(this.bufferData);
+                    view.updateView(this._dataView);
                 }
 
                 length += view.length;
@@ -93,7 +93,7 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
             // let tempUint16Array = new Uint16Array(this.bufferData.buffer, uploadStart * 2, len);
             // (this.buffer as IIndexBuffer)._setIndexData(tempUint16Array, uploadStart * 2);
-            this.buffer.setData(this.bufferData.buffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
+            this.buffer.setData(this.arrayBuffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
             this._needResetData = false;
 
             // this.clearBufferViews();
@@ -101,15 +101,15 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
             if (this._needResetData) {
                 let view = this._first;
                 while (view) {
-                    view.updateView(this.bufferData);//先更新偏移再提交
+                    view.updateView(this._dataView);//先更新偏移再提交
                     view = view._next;
                 }
 
-                (this.buffer as IVertexBuffer).setData((this.bufferData as Float32Array).buffer, 0, 0, (this.bufferData as Float32Array).byteLength);
+                this.buffer.setData(this.arrayBuffer, 0, 0, this.arrayBuffer.byteLength);
                 this._needResetData = false;
             } else {
                 if (this._updateRange.y <= this._updateRange.x) return;
-                (this.buffer as IVertexBuffer).setData((this.bufferData as Float32Array).buffer, this._updateRange.x * 4, this._updateRange.x * 4, (this._updateRange.y - this._updateRange.x) * 4);
+                this.buffer.setData(this.arrayBuffer, this._updateRange.x * 4, this._updateRange.x * 4, (this._updateRange.y - this._updateRange.x) * 4);
             }
         }
         this._updateRange.setValue(100000000, -100000000);
@@ -180,7 +180,8 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     destroy() {
         this._first = null;
         this._last = null;
-        this.bufferData = null;
+        this._dataView = null;
+        this.arrayBuffer = null;
     }
 
 }
@@ -211,7 +212,7 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         if (this.modifyType == BufferModifyType.Vertex
             && this.owner._needResetData
         ) {
-            this.updateView(this.owner.bufferData);
+            this.updateView(this.owner._dataView);
         }
 
         return this._data;
@@ -244,7 +245,7 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
             if (this.modifyType == BufferModifyType.Index) {
                 this._data = new Uint16Array(length);
             } else {
-                this.updateView(owner.bufferData);
+                this.updateView(owner._dataView);
                 owner.addDataView(this);
             }
         }
@@ -253,9 +254,9 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     // 更新数据视图
     updateView(wholeData: Float32Array | Uint16Array) {
         if (this.modifyType == BufferModifyType.Index) {
-            wholeData.set(this._data, this.start);
+            wholeData.set( this._data, this.start);
         } else {
-            this._data = new (wholeData.constructor as any)(wholeData.buffer, this.start * wholeData.BYTES_PER_ELEMENT, this.length);
+            this._data = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
         }
     }
 
