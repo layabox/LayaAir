@@ -6,9 +6,10 @@ import { Vector2 } from '../../../../maths/Vector2';
 import { Vector3 } from '../../../../maths/Vector3';
 import { Vector4 } from '../../../../maths/Vector4';
 import { BaseTexture } from '../../../../resource/BaseTexture';
-import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { CopyTextureInfo, IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
 import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
 import { WebGPUBindGroup } from '../WebGPUBindGroupCache';
+import { WebGPUInternalTex } from '../WebGPUInternalTex';
 import { WebGPURenderEngine } from '../WebGPURenderEngine';
 import { WebGPUShaderData } from '../WebGPUShaderData';
 import { WebGPUComputeShaderInstance } from './WebGPUComputeShaderInstance';
@@ -85,16 +86,16 @@ interface ITextureToBufferCommand extends ICommand {
     srcTextureInfo: any;
     dest: IGPUBuffer;
     destTextureInfo: any;
-    copySize: GPUExtent3D;
+    copySize: Iterable<number>;
 }
 
 /**
  * 纹理到纹理复制命令
  */
 interface ITextureToTextureCommand extends ICommand {
-    srcTextureInfo: any;
-    destTextureInfo: any;
-    copySize: GPUExtent3D;
+    srcTextureInfo: CopyTextureInfo;
+    destTextureInfo: CopyTextureInfo;
+    copySize: Iterable<number>;
 }
 
 
@@ -196,7 +197,7 @@ export class WebGPUComputeContext implements IComputeContext {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 复制大小
      */
-    addTextureToBufferCommand(srcTextureInfo: any, dest: IGPUBuffer, destTextureInfo: any, copySize: GPUExtent3D): void {
+    addTextureToBufferCommand(srcTextureInfo: any, dest: IGPUBuffer, destTextureInfo: any, copySize: Iterable<number>): void {
         let cmdInfo: ITextureToBufferCommand = {
             type: CommandType.TextureToBuffer,
             srcTextureInfo,
@@ -213,7 +214,7 @@ export class WebGPUComputeContext implements IComputeContext {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 复制大小
      */
-    addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: GPUExtent3D): void {
+    addTextureToTextureCommand(srcTextureInfo: CopyTextureInfo, destTextureInfo: CopyTextureInfo, copySize: Iterable<number>): void {
         let cmdInfo: ITextureToTextureCommand = {
             type: CommandType.TextureToTexture,
             srcTextureInfo,
@@ -375,7 +376,7 @@ export class WebGPUComputeContext implements IComputeContext {
                     );
                     break;
                 case CommandType.BufferToTexture:
-                    //TODO
+                    //const clearBufferCmd = cmd as IBufferClearCommand;
                     break;
 
                 case CommandType.TextureToBuffer:
@@ -383,7 +384,19 @@ export class WebGPUComputeContext implements IComputeContext {
                     break;
 
                 case CommandType.TextureToTexture:
-                    //TODO
+                    const textureCopyCmd = cmd as ITextureToTextureCommand;
+                    this._endComputePass();
+                    let srcInfo = {
+                        texture: (textureCopyCmd.srcTextureInfo.texture as WebGPUInternalTex).resource,
+                        mipLevel: textureCopyCmd.srcTextureInfo.mipLevel,
+                        origin: textureCopyCmd.srcTextureInfo.origin
+                    }
+                    let desInfo = {
+                        texture: (textureCopyCmd.destTextureInfo.texture as WebGPUInternalTex).resource,
+                        mipLevel: textureCopyCmd.destTextureInfo.mipLevel,
+                        origin: textureCopyCmd.destTextureInfo.origin
+                    }
+                    this._commandEncoder.copyTextureToTexture(srcInfo, desInfo, textureCopyCmd.copySize)
                     break;
 
             }

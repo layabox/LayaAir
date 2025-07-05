@@ -1,5 +1,6 @@
 import { Vector3 } from "../../../../maths/Vector3";
 import { IDeviceBuffer } from "../IDeviceBuffer";
+import { InternalTexture } from "../InternalTexture";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
 import { IComputeShader } from "./IComputeShader";
 
@@ -38,17 +39,11 @@ export interface IComputeCMD_Dispatch {
     dispatchParams: Vector3;
 }
 
-export interface IComputeCMD_MemoryOperate {
-    type: EComputeCMDMemoryOperate;
-    src: IDeviceBuffer,
-    dest?: IDeviceBuffer,
-    sourceOffset?: number,
-    destinationOffset?: number,
-    size?: number
-    srcTextureInfo?: any;
-    destTextureInfo?: any;
+export class CopyTextureInfo {
+    texture: InternalTexture;
+    mipLevel = 0;
+    origin = new Vector3(0, 0, 0);
 }
-
 
 export interface IComputeContext {
     /**
@@ -105,7 +100,7 @@ export interface IComputeContext {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */
-    addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: any): void;
+    addTextureToTextureCommand(srcTextureInfo: CopyTextureInfo, destTextureInfo: CopyTextureInfo, copySize: Iterable<number>): void;
 
     /**
      * 清理buffer数据
