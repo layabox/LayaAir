@@ -8,24 +8,20 @@ import { GLESRenderGeometryElement } from "../../../OpenGLESDriver/RenderDevice/
 export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
     _nativeObj: any;
-    private _bufferData: Float32Array | Uint16Array;
-    private _buffer: IIndexBuffer | IVertexBuffer;
     private _modifyType: BufferModifyType;
 
     get bufferData(): Float32Array | Uint16Array {
-        return this._bufferData;
+        return this._nativeObj.bufferData;
     }
     set bufferData(value: Float32Array | Uint16Array) {
-        this._bufferData = value;
         this._nativeObj.bufferData = value;
     }
     get buffer(): IIndexBuffer | IVertexBuffer {
-        return this._buffer;
+        return this._nativeObj.buffer;
     }
 
     set buffer(value: IIndexBuffer | IVertexBuffer) {
         this._nativeObj.buffer = value;
-        this._buffer = value;
     }
 
     get modifyType(): BufferModifyType {
@@ -39,25 +35,12 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
     constructor() {
         this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
-        this._nativeObj.setResetDataCallback(this.resetData.bind(this));
+
     }
 
     resetData(byteLength: number) {
-        //copy Buffer
-        if (BufferModifyType.Index == this.modifyType) {
-            let newData = new Uint16Array(byteLength / 2);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        } else {
-            let newData = new Float32Array(byteLength / 4);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        }
-        this._nativeObj._needResetData = true;
+
+        this._nativeObj.resetData(byteLength);
     }
     removeDataView(dataView: I2DGraphicBufferDataView) {
         this._nativeObj.removeDataView(dataView ? (dataView as any)._nativeObj : null);
@@ -119,7 +102,7 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     }
 
     getData(): Float32Array | Uint16Array {
-        return this._data;
+        return this._nativeObj.getData();
     }
 
     setData(data: ArrayLike<number>) {
