@@ -10,11 +10,11 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     _nativeObj: any;
     private _modifyType: BufferModifyType;
 
-    get bufferData(): Float32Array | Uint16Array {
-        return this._nativeObj.bufferData;
+    get arrayBuffer(): ArrayBuffer {
+        return this._nativeObj.arrayBuffer;
     }
-    set bufferData(value: Float32Array | Uint16Array) {
-        this._nativeObj.bufferData = value;
+    set arrayBuffer(value: ArrayBuffer) {
+        this._nativeObj.arrayBuffer = value;
     }
     get buffer(): IIndexBuffer | IVertexBuffer {
         return this._nativeObj.buffer;
@@ -35,11 +35,9 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
     constructor() {
         this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
-
     }
 
     resetData(byteLength: number) {
-
         this._nativeObj.resetData(byteLength);
     }
     removeDataView(dataView: I2DGraphicBufferDataView) {
@@ -57,43 +55,34 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 }
 
 export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
-    private _data: Float32Array | Uint16Array;
     private _owner: RT2DGraphicWholeBuffer;
-    private _start: number;
-    private _length: number;
-    private _stride: number;
-    private _modifyType: BufferModifyType;
     private _geometry: GLESRenderGeometryElement;
     _nativeObj: any;
 
     get start(): number {
-        return this._start;
+        return this._nativeObj.start;
     }
     set start(value: number) {
-        this._start = value;
         this._nativeObj.start = value;
     }
     get length(): number {
-        return this._length;
+        return this._nativeObj.length;
     }
     set length(value: number) {
-        this._length = value;
         this._nativeObj.length = value;
     }
     get stride(): number {
-        return this._stride;
+        return this._nativeObj.stride;
     }
     set stride(value: number) {
-        this._stride = value;
         this._nativeObj.stride = value;
     }
 
     get modifyType(): BufferModifyType {
-        return this._modifyType;
+        return this._nativeObj.modifyType;
     }
 
     set modifyType(value: BufferModifyType) {
-        this._modifyType = value;
         this._nativeObj.modifyType = value;
     }
     setGeometry(value: GLESRenderGeometryElement) {
@@ -110,23 +99,9 @@ export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     }
 
     constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create: boolean = true) {
-        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride, create);
-        this._nativeObj.setOwner(owner ? owner._nativeObj : null);
         this._owner = owner;
-        this._start = start;
-        this._length = length;
-        this._stride = stride;
-        this._modifyType = type;
-
-        if (create) {
-            if (this._modifyType == BufferModifyType.Index) {
-                this._data = new Uint16Array(length);
-                this._nativeObj._data = this._data;
-            } else {
-                this._nativeObj._updateView(owner.bufferData);
-                owner._nativeObj._addDataView(this._nativeObj);
-            }
-        }
+        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(owner ? owner._nativeObj : null, type, start, length, stride, create);
+        
     }
   
 }
