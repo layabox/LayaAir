@@ -12,6 +12,12 @@ import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
  */
 export class StaticCollider extends ColliderBase {
 
+    /**
+     * @en [Read-only] Custom label.
+     * @zh [只读] 自定义标签。
+     */
+    label: string = "StaticCollider";
+
     private _shapes: Physics2DShapeBase[] = [];
 
     /**
