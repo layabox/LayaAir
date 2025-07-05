@@ -262,9 +262,6 @@ export class GLRenderState {
      */
     setStencilWrite(value: boolean): void {
         this._stencilWrite = value;
-        if (value) {
-            this.setStencilWriteMask(this._stencilWriteMask);
-        }
     }
 
     /** 
@@ -272,6 +269,7 @@ export class GLRenderState {
      * 模板写入掩码
      */
     setStencilWriteMask(mask: number): void {
+        mask = this._stencilWrite ? mask : 0x00; // 如果没有开启模板写入，则掩码为0
         if (mask !== this._stencilWriteMask) {
             this._stencilWriteMask = mask;
             this._gl.stencilMask(mask);
@@ -322,7 +320,7 @@ export class GLRenderState {
      * @param slopeFactor 
      * @param clamp 
      */
-    setDephthBiasFactor(constantFactor: number, slopeFactor: number, clamp: number = 0.0): void {
+    setDepthBiasFactor(constantFactor: number, slopeFactor: number, clamp: number = 0.0): void {
         if (constantFactor !== this._depthBiasConstant || slopeFactor !== this._depthBiasSlope || clamp !== this._depthBiasClamp) {
             this._depthBiasConstant = constantFactor;
             this._depthBiasSlope = slopeFactor;
