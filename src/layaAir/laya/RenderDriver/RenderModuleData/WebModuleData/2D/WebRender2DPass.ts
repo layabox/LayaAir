@@ -248,7 +248,7 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
       // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-      if (this.repaint || true) {
+      if (this.repaint ) {
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
