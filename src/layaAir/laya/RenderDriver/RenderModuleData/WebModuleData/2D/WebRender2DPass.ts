@@ -82,7 +82,18 @@ export class WebRender2DPass implements IRender2DPass {
    /** @internal */
    _lists: PassRenderList[] = [];
 
-   priority: number = 0;
+   private _priority: number = 0;
+
+   public get priority(): number {
+      return this._priority;
+   }
+
+   public set priority(value: number) {
+      this._priority = value;
+      if (this.mask && this.mask.pass) {
+         this.mask.pass.priority = value + 1;
+      }
+   }
 
    enable: boolean = true;
 
@@ -100,7 +111,18 @@ export class WebRender2DPass implements IRender2DPass {
 
    finalize: CommandBuffer2D = null;
 
-   mask: WebRenderStruct2D;
+   private _mask: WebRenderStruct2D;
+
+   public get mask(): WebRenderStruct2D {
+      return this._mask;
+   }
+
+   public set mask(value: WebRenderStruct2D) {
+      this._mask = value;
+      if (value) {
+         value.pass.priority = this.priority + 1;
+      }
+   }
 
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
@@ -133,7 +155,6 @@ export class WebRender2DPass implements IRender2DPass {
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
    }
-
 
    /**
      * 判断是否需要更新渲染
@@ -227,33 +248,40 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
       // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-      for (let i = 0, len = lists.length; i < len; i++)
-         lists[i]?.reset();
+      if (this.repaint || true) {
+         for (let i = 0, len = lists.length; i < len; i++)
+            lists[i]?.reset();
 
-      this.updateRenderQueue(context);
+         this.updateRenderQueue(context);
 
-      WebRender2DPass.uploadBuffer();
+         WebRender2DPass.uploadBuffer();
 
-      let enableBatch = this._enableBatch;
-      for (let i = 0, len = lists.length; i < len; i++) {
-         let list = lists[i];
-         if (!list || !list.renderElements.length) continue;
-         enableBatch && list.batch();
-         context.drawRenderElementList(list.renderElements);
+         let enableBatch = this._enableBatch;
+         for (let i = 0, len = lists.length; i < len; i++) {
+            let list = lists[i];
+            if (!list || !list.renderElements.length) continue;
+            enableBatch && list.batch();
+            context.drawRenderElementList(list.renderElements);
+         }
+
+         if (this._mask && this._mask.enabled) {
+            this._mask.renderUpdate(context);
+            context.drawRenderElementOne(this._mask.renderElements[0]);
+         }
+
+         // 处理后期处理
+         if (this.postProcess && this.postProcess.enabled) {
+            this.postProcess._context.command.apply(true);
+         }
+      } else {
+         for (let i = 0, len = lists.length; i < len; i++) {
+            let list = lists[i];
+            if (!list || !list.renderElements.length) continue;
+            context.drawRenderElementList(list.renderElements);
+         }
       }
 
       this.repaint = false;
-
-      if (this.mask && this.mask.pass.enable) {
-         this.mask.pass.renderTexture = this.renderTexture;
-         this.mask.pass.fowardRender(context);
-         this.mask.pass.renderTexture = null;
-      }
-
-      // 处理后期处理
-      if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess._context.command.apply(true);
-      }
    }
 
    //预留
@@ -308,15 +336,8 @@ export class WebRender2DPass implements IRender2DPass {
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
       if (mask && mask.trans) {
-         // localMatrix
          let maskMatrix = mask.trans.matrix;
-         if (mask.parent) {
-            maskMatrix.copyTo(temp);
-         } else {
-            // globalMatrix
-            let rootMatrix = rootTrans.matrix;
-            Matrix.mul(maskMatrix, rootMatrix, temp);
-         }
+         maskMatrix.copyTo(temp);
          temp.invert();
       } else {
          rootTrans.matrix.copyTo(temp);

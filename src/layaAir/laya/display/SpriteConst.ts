@@ -21,8 +21,8 @@ export enum RepaintFlag {
     Normal = 0,
     Size = 0x01,
     Graphics = 0x02,
-    
-    UpdateRT = Graphics | Size,
+    ChildChange = 0x04,
+    UpdateRT = Graphics | Size | ChildChange,
 }
 
 export enum TransformKind {

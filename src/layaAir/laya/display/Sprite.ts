@@ -231,7 +231,8 @@ export class Sprite extends Node {
     private _ownGraphics: boolean;
     private _tmpBounds: Array<number>;
     private _mask: Sprite;
-    private _maskParent: Sprite;
+    /** @internal */
+    _maskParent: Sprite;
     private _cacheAsBmp: boolean = false;
     private _layer: number = 0;
 
@@ -840,23 +841,19 @@ export class Sprite extends Node {
             return;
 
         if (this._mask) {
+            this._mask.cacheAs = "none";
             this._mask._maskParent = null;
-            this._mask._struct.parent = null;
-            this._mask.blendMode = null;
-            this._mask.setSubRenderPassState(false);
+            this._mask._setStructParent(this._mask._parent);
         }
 
         this._mask = value;
 
         if (value) {
-            value.blendMode = "mask";
+            value._setStructParent(null);
             value._maskParent = this;
             value.setSubRenderPassState(true);
-            if (value.parent) {
-                value._struct.parent = value.parent._struct;
-            }
-            value._oriRenderPass.isSupport = true;
-            value._oriRenderPass.doClearColor = false;
+            value.cacheAs = "bitmap";
+
             this._renderType |= SpriteConst.MASK;
         }
         else {
@@ -1358,11 +1355,11 @@ export class Sprite extends Node {
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
                 this._graphics.repaint();
             else
-                this.parentRepaint(RepaintFlag.Size);
+                this.parentRepaint();
         }
         else {
             this.parentRepaint();
-            this._maskParent?.repaint();
+            this._maskParent?.repaint(RepaintFlag.ChildChange);
         }
 
         if ((kind & TransformKind.TRS) !== 0) {
@@ -1565,7 +1562,7 @@ export class Sprite extends Node {
                     let destrt: RenderTexture2D = root._drawOriRT;
                     root._oriRenderPass.renderTexture = destrt;
                     if (root.mask) {
-                        root._oriRenderPass.mask = root.mask._struct;
+                        root._oriRenderPass.mask = root.mask._subStruct;
                     }
                     let process = root._oriRenderPass.postProcess;
                     if (process) {
@@ -2029,10 +2026,12 @@ export class Sprite extends Node {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
-            this.parentRepaint(flag);
+            this.parentRepaint();
 
-            if (this._drawOriRT && (flag & RepaintFlag.UpdateRT))
+            if (this._subpassUpdateFlag || (this._drawOriRT && flag & RepaintFlag.UpdateRT)) {
+                this._globalTrans._notifyRenderSpriteTransChange();
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
+            }
         }
 
         if (this._maskParent) {
@@ -2063,22 +2062,19 @@ export class Sprite extends Node {
 
     /**
      * @en Repaint the parent node. When `cacheAs` is enabled, set all parent object caches to invalid.
-     * @param flag repaint flag
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
-     * @param flag 重绘类型。
      */
-    parentRepaint(flag?: number): void {
+    parentRepaint(): void {
         let p: Sprite = this._parent;
         if (!p) return
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
             if (pass.renderTexture) {
-                p.parentRepaint(flag);
+                p.parentRepaint();
                 if (pass.root == pStruct && !p._needRepaint()) {
                     // 自动生成宽高需要刷新rt尺寸
-                    if (flag & RepaintFlag.UpdateRT)
-                        p.setSubpassFlag(SubPassFlag.RenderTexture);
+                    p.setSubpassFlag(SubPassFlag.RenderTexture);
                     pStruct.setRepaint();
                 }
             }
@@ -2236,6 +2232,7 @@ export class Sprite extends Node {
     }
 
     protected _setStructParent(value: Sprite) {
+        if (this._maskParent) return;
         let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
 
         if (struct.parent) {
@@ -2318,11 +2315,13 @@ export class Sprite extends Node {
             } else {
                 //todo
             }
-            // else if (originPass) {
-            //     this._oriRenderPass.priority = originPass.priority + 1;
-            //     originPass.root = this._subStruct;
-            //     this._struct.pass = this._oriRenderPass;
-            // }
+
+            if (this._maskParent) {
+                this._subStruct.blendMode = BlendMode.mask;
+                if (!this.displayedInStage) {
+                    ILaya.stage.passManager.addPass(this._oriRenderPass);
+                }
+            }
 
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
@@ -2333,6 +2332,10 @@ export class Sprite extends Node {
                 parent.addChild(this._struct, index);
             } else { // todo
 
+            }
+
+            if (this._maskParent && !this.displayedInStage) {
+                ILaya.stage.passManager.removePass(this._oriRenderPass);
             }
         }
         this._oriRenderPass.enable = enable;
