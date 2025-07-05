@@ -187,7 +187,9 @@ export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 }
 
 export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
-    private _data: Float32Array | Uint16Array;
+    private _view: Float32Array | Uint16Array;
+    /** @internal ib 时存在 */
+    private _arrayBuffer: ArrayBuffer;
     /** IB 的 start 不可信，只有在提交时百分百正确 */
     start: number;//element start
     length: number;//element length
@@ -215,11 +217,11 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
             this.updateView(this.owner._dataView);
         }
 
-        return this._data;
+        return this._view;
     }
 
     setData(data: Float32Array | Uint16Array) {
-        this._data.set(data);
+        this._view.set(data);
         this._modify();
     }
 
@@ -243,7 +245,8 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
 
         if (create) {
             if (this.modifyType == BufferModifyType.Index) {
-                this._data = new Uint16Array(length);
+                this._arrayBuffer = new ArrayBuffer(length * 2);
+                this._view = new Uint16Array(this._arrayBuffer);
             } else {
                 this.updateView(owner._dataView);
                 owner.addDataView(this);
@@ -254,9 +257,9 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     // 更新数据视图
     updateView(wholeData: Float32Array | Uint16Array) {
         if (this.modifyType == BufferModifyType.Index) {
-            wholeData.set( this._data, this.start);
+            wholeData.set( this._view, this.start);
         } else {
-            this._data = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
+            this._view = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
         }
     }
 
@@ -282,7 +285,7 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
         // start 不确定， length 是固定的
         let nview = new Web2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
         if (!create) {
-            nview._data = this._data;
+            nview._view = this._view;
         }
         return nview;
     }
