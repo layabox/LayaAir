@@ -264,6 +264,7 @@ export class RigidBody extends ColliderBase {
 
     public set shapes(shapes: Physics2DShapeBase[]) {
         this._shapes = shapes;
+        if (!shapes) return;
         shapes.forEach((shape) => {
             shape.setCollider(this);
         });

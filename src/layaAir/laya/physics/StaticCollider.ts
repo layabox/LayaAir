@@ -43,10 +43,11 @@ export class StaticCollider extends ColliderBase {
         return this._shapes;
     }
     public set shapes(value: Physics2DShapeBase[]) {
+        this._shapes = value;
+        if (!value) return;
         value.forEach((shape) => {
             shape.setCollider(this);
         });
-        this._shapes = value;
     }
 
     constructor() {
