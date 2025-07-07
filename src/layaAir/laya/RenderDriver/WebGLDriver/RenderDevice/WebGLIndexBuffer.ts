@@ -39,28 +39,18 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         let curBufSta = WebGLBufferState._curBindedBufferState;
         if (curBufSta) {
             curBufSta.unBind();//避免影响VAO
-            {
-                this._glBuffer.bindBuffer()
-                var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
-                if (needSubData) {
-                    var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
-                    this._glBuffer.setData(subData, bufferOffset);
-                } else {
-                    this._glBuffer.setData(buffer, bufferOffset);
-                }
-            }
+        }
+        this._glBuffer.bindBuffer()
+        var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
+        if (needSubData) {
+            var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
+            this._glBuffer.setData(subData, bufferOffset);
+        } else {
+            this._glBuffer.setData(buffer, bufferOffset);
+        }
+        if (curBufSta)
             curBufSta.bind();
-        }
-        else {
-            this._glBuffer.bindBuffer()
-            var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
-            if (needSubData) {
-                var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
-                this._glBuffer.setData(subData, bufferOffset);
-            } else {
-                this._glBuffer.setData(buffer, bufferOffset);
-            }
-        }
+
     }
 
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void {

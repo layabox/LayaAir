@@ -2,7 +2,6 @@ import { Camera } from "../../core/Camera";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { WebXRCameraManager } from "./WebXRCameraManager";
-import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Viewport } from "../../../maths/Viewport";
@@ -198,7 +197,7 @@ export class WebXRCamera extends Camera {
 		gl.viewport(0, 0, this._clientWidth, this._clientHeight);
 		gl.scissor(0, 0, this._clientWidth, this._clientHeight);
 		gl.clearColor(this.clearColor.r, this.clearColor.g, this.clearColor.b, this.clearColor.a);
-		RenderStateContext.setDepthMask(true);
+		gl.depthMask(true);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
 

@@ -143,7 +143,7 @@ export class Material extends Resource implements IClone {
         Shader3D.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
         Shader3D.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
         Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
-        Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
+        Shader3D.STENCIL_READ_MASK = Shader3D.propertyNameToID("s_StencilReadMask");
         Shader3D.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Shader3D.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
         Shader3D.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");

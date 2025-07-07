@@ -73,5 +73,5 @@ export enum SubPassFlag {
     PostProcess = 0x1,
     CacheAsBitmap = 0x2,
     Mask = 0x4,
-
+    RenderTexture = 0x8,
 }

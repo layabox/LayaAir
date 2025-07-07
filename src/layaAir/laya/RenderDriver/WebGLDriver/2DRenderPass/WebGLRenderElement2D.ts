@@ -97,7 +97,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D) {
-        if (!shader.complete)
+        if (!shader.complete || !this.geometry)
             return
         shader.bind();
         this._uploadGlobalAndPass(shader, context);
