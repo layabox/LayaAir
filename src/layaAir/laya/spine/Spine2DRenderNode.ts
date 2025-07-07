@@ -127,11 +127,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         return LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
     }
 
-    protected _initDefaultRenderData(): void {
-        this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
-        this._renderHandle.offset = this._offset;
-    }
-
     /**
      * @zh 外部皮肤，用于根据不同皮肤，替换对应插槽的附件。
      * @en External skins, used to replace the attachments of corresponding slots according to different skins.
@@ -358,6 +353,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     spineItem: ISpineOptimizeRender;
 
     onEnable(): void {
+        this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+        this._renderHandle.offset = this._offset;
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
@@ -426,7 +423,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 // console.log("complete:", entry);
                 this.event(Event.END);
                 if (entry.loop) { // 如果多次播放,发送complete事件
-                    this.event(Event.COMPLETE);
+                    this.complete();
                 } else { // 如果只播放一次，就发送stop事件
                     this.stop();
                 }
@@ -631,6 +628,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     event(type: string, data?: any): void {
         this.owner.event(type, data);
+    }
+
+    /**
+     * @zh 发送complete事件
+     * @en Send complete event.
+     */
+    complete(): void {
+        this.spineItem.complete();
+        this.event(Event.COMPLETE);
     }
 
     /**

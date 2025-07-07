@@ -120,4 +120,12 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
         this._owner.owner._struct.renderElements = this._owner._renderElements;
     }
+
+    /**
+     * @en Completes the animation.
+     * @zh 完成动画。
+     */
+    complete(): void {
+        //throw new NotImplementedError();
+    }
 }
