@@ -428,7 +428,10 @@ export class WebGraphicsBatch implements IBatch2DRender {
             let bufferState = buffer.bindBuffer(vertexBuffer);
             buffer.indexCount += cview.length;
             buffer.wholeBuffer.modifyOneView(cview);
-            cview._geometry.bufferState = bufferState;
+            
+            if (cview._geometry.bufferState !== bufferState) {
+                cview._geometry.bufferState = bufferState;
+            }
 
             buffer.geometryList[offset + i] = cview._geometry;
         }

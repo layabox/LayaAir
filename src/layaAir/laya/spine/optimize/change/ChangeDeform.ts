@@ -40,7 +40,7 @@ export class ChangeDeform implements IVBChange {
                 return false
 
             this._lastFrame = frame;
-            return this.updateVB(vb , slots);;
+            return this.updateVB(vb , slots);
         }else
             return false
     }

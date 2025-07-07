@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
+import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
@@ -185,7 +186,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     }
 
     private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
-        let clone :Web2DGraphic2DBufferDataView;
+        let clone: Web2DGraphic2DBufferDataView;
         if (oView && oView._geometry) {
             clone = oView;
             view.cloneView(clone);
@@ -331,6 +332,10 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
 
 export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
 
+    skeleton: spine.Skeleton;
+
+    private _offset: Vector2;
+
     public get owner(): WebRenderStruct2D {
         return this._owner;
     }
@@ -352,7 +357,13 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
     }
 
-    skeleton: spine.Skeleton;
+
+    public get offset(): Vector2 {
+        return this._offset;
+    }
+    public set offset(value: Vector2) {
+        this._offset = value;
+    }
 
     inheriteRenderData(context: IRenderContext2D): void {
         if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
@@ -360,12 +371,16 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         let shaderData = this.owner.spriteShaderData;
         let trans = this.owner.renderMatrix;
         let mat = trans;
-        let ofx = - this.skeleton.x;
-        let ofy = this.skeleton.y;
-        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
-        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        this._nMatrix_0.setValue(mat.a, mat.b, mat.tx);
-        this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
+        if (this._offset) {
+            let ofx = this._offset.x;
+            let ofy = this._offset.y;
+            this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
+            this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
+        } else {
+            this._nMatrix_0.setValue(mat.a, mat.b, mat.tx);
+            this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
+        }
+
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
     }

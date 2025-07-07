@@ -296,5 +296,6 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
     cloneView(view: Web2DGraphic2DBufferDataView) {
         view._view = this._view;
         view._arrayBuffer = this._arrayBuffer;
+        view.length = this.length;
     }
 }

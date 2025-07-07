@@ -37,7 +37,7 @@ export enum TransformKind {
 
     Size = Width | Height,
     Layout = Size | Scale | Anchor,
-    TRS = Pos | Rotation | Scale
+    TRS = Pos | Rotation | Scale | Skew
 }
 
 
