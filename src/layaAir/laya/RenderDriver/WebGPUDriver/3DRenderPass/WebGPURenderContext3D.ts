@@ -236,6 +236,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
             cacheInfo.pipeLineChangeFlag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
             cacheInfo.globalPipelineCacheKey = pipelineLayout;
             this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo);
+            this._pipelineChange = this._curRenderCacheInfo.pipeLineChangeFlag;
         } else {
             this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
             if (this._curRenderCacheInfo.globalPipelineCacheKey == pipelineLayout) {
