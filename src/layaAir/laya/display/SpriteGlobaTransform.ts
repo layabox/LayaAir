@@ -63,6 +63,9 @@ export class SpriteGlobalTransform {
             Matrix.mul(this._matrix, sp._parent.globalTrans.getMatrix(), this._matrix);
             this._setFlag(TransformKind.Matrix, false);
             // this._syncFlag(TransformKind.Matrix, true);
+        } else if (sp._maskParent) {
+            Matrix.mul(this._matrix, sp._maskParent.globalTrans.getMatrix(), this._matrix);
+            this._setFlag(TransformKind.Matrix, false);
         }
         return this._matrix;
     }

@@ -16,7 +16,7 @@ import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
-import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
@@ -121,7 +121,7 @@ export class GraphicsRenderData {
 
             element.primitiveShaderData = submit._internalInfo.shaderData;
             element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
-            
+
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);
                element.materialShaderData = submit.material.shaderData;
@@ -136,7 +136,7 @@ export class GraphicsRenderData {
 
             let indexView = this._updateIndexViews(submit, geometry);
             let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            blocks.push({ vertexs: submit.vertexs, indexView, vertexBuffer });
+            blocks.push({ vertexs: submit.vertexs, indexView: indexView, vertexBuffer: vertexBuffer });
             this._updateGraphicsKeys(element, submit);
          } else {
             GraphicsRenderData._pool.recover(element);
@@ -188,7 +188,7 @@ export class GraphicsRenderData {
       }
 
       let texKey = texture ? texture.id : 0;
-  
+
       element.type |= texKey << 6;
    }
 
@@ -268,6 +268,11 @@ export class SubStructRender {
 
    updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
       this._handle.mask = this._sprite.mask?._struct;
+
+      if (this._submit._key.blendShader !== this._subStruct.blendMode) {
+         this._submit._key.blendShader = this._subStruct.blendMode;
+         BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
+      }
 
       var tex = destRT;
       if (tex) {
