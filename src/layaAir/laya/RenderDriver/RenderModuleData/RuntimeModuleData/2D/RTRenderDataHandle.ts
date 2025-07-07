@@ -196,6 +196,7 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
 
 export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements ISpineRenderDataHandle {
     private _offset: Vector2 = new Vector2();
+    skeleton: spine.Skeleton;
 
     constructor() {
         super(new (window as any).conchRTSpineRenderDataHandle());
@@ -224,20 +225,14 @@ export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements I
 
     }
 
-    private _skeleton: spine.Skeleton;
-    public get skeleton(): spine.Skeleton {
-        return this._skeleton;
+    
+    public get offset(): Vector2 {
+        return this._offset;
     }
-    public set skeleton(value: spine.Skeleton) {
-        this._skeleton = value;
-        if (this._skeleton) {
-            this._offset.setValue(this._skeleton.x, this._skeleton.y);
-        } else {
-            this._offset.setValue(0, 0);
-        }
+    public set offset(value: Vector2) {
+        this._offset = value;
         this._nativeObj.setOffset(this._offset);
     }
-
     // inheriteRenderData(context: IRenderContext2D): void {
     //     if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
     //         return

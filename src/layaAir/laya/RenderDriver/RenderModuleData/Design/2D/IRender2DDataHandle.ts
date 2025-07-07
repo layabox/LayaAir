@@ -1,4 +1,5 @@
 import { Color } from "../../../../maths/Color";
+import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
@@ -102,4 +103,5 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
  */
 export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
     skeleton: spine.Skeleton;
+    offset: Vector2;
 }

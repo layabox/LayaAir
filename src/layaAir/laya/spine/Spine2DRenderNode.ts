@@ -24,6 +24,7 @@ import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRender2DDataHandle, ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { Vector2 } from "../maths/Vector2";
 
 /**
  * @zh Spine动画渲染节点。
@@ -93,6 +94,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
+    private _offset: Vector2 = new Vector2();
     /** @internal */
     _renderAlpha: number;
 
@@ -123,6 +125,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     protected _getRenderHandle(): ISpineRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
+    }
+
+    protected _initDefaultRenderData(): void {
+        this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+        this._renderHandle.offset = this._offset;
     }
 
     /**
@@ -813,9 +820,16 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     onTransformChanged() {
         if (this._skeleton) {
-            let trans = this.owner.globalTrans;
-            this._skeleton.x = trans.x;
-            this._skeleton.y = trans.y;
+            let matrix = this.owner.globalTrans.getMatrix();
+            this._skeleton.x = matrix.tx;
+            this._skeleton.y = matrix.ty;
+
+            if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {
+                this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+                this._renderHandle.offset = this._offset;
+            } else {
+                this._renderHandle.offset = null;
+            }
         }
     }
     /**
