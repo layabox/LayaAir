@@ -8,8 +8,6 @@ import { GLESRenderGeometryElement } from "../../../OpenGLESDriver/RenderDevice/
 export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
     _nativeObj: any;
-    private _modifyType: BufferModifyType;
-
     get arrayBuffer(): ArrayBuffer {
         return this._nativeObj.arrayBuffer;
     }
@@ -25,11 +23,10 @@ export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     }
 
     get modifyType(): BufferModifyType {
-        return this._modifyType;
+        return this._nativeObj.modifyType;
     }
 
     set modifyType(value: BufferModifyType) {
-        this._modifyType = value;
         this._nativeObj.modifyType = value;
     }
 
