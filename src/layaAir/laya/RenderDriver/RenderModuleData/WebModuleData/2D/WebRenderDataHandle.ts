@@ -170,19 +170,26 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     updateCloneView() {
         let cloneViews = this.getCloneViews();
         let blockLength = this._bufferBlocks.length;
-        let length = Math.max(cloneViews.length, blockLength);
-        for (let i = 0; i < length; i++) {
-            let view = cloneViews[i] as Web2DGraphic2DBufferDataView;
-            let block = this._bufferBlocks[i];
-            if (block) {
-                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DBufferDataView, view);
-            } else {
+        let cloneLength = cloneViews.length;
+
+        if (cloneLength > blockLength) {//超出
+            for (let i = blockLength; i < cloneLength; i++) {
+                let view = cloneViews[i];
                 view._geometry.destroy();
                 if (view.owner)
                     view.owner.removeDataView(view);
             }
         }
+
         this._clonesViews.length = blockLength;
+
+        for (let i = 0; i < blockLength; i++) {
+            let view = cloneViews[i] as Web2DGraphic2DBufferDataView;
+            let block = this._bufferBlocks[i];
+            if (block) {
+                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DBufferDataView, view);
+            }
+        }
     }
 
     private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
