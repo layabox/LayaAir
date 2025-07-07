@@ -278,15 +278,23 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
      */
     clone(cloneOwner = true, create = true) {
         if (this.modifyType !== BufferModifyType.Index) {
-            // console.log();
             return null;
         }
         let owner = cloneOwner ? this.owner : null
         // start 不确定， length 是固定的
         let nview = new Web2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
         if (!create) {
-            nview._view = this._view;
+            this.cloneView(nview);
         }
         return nview;
+    }
+
+    /**
+     * 克隆视图
+     * @param view 
+     */
+    cloneView(view: Web2DGraphic2DBufferDataView) {
+        view._view = this._view;
+        view._arrayBuffer = this._arrayBuffer;
     }
 }

@@ -185,10 +185,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     }
 
     private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
-        let clone = view.clone(false, false);
+        let clone :Web2DGraphic2DBufferDataView;
         if (oView && oView._geometry) {
-            clone._geometry = oView._geometry;
+            clone = oView;
+            view.cloneView(clone);
         } else {
+            clone = view.clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             clone._geometry.indexFormat = IndexFormat.UInt16;
         }
