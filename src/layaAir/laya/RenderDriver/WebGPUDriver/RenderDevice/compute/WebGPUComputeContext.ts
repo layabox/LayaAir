@@ -332,6 +332,7 @@ export class WebGPUComputeContext implements IComputeContext {
                             setDataCMD.shaderData.setColor(setDataCMD.propertyID, setDataCMD.value as Color);
                             break;
                         case ShaderDataType.Texture2D:
+                        case ShaderDataType.StorageTexture2D:
                             setDataCMD.shaderData.setTexture(setDataCMD.propertyID, setDataCMD.value as BaseTexture);
                             break;
                         case ShaderDataType.Vector2:

@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
+import { CopyTextureInfo, IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
 import { IDeviceBuffer } from "../IDeviceBuffer";
 import { IVertexBuffer } from "../IVertexBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
@@ -114,8 +114,8 @@ export class ComputeCommandBuffer {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */
-    addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
-        //TODO
+    addTextureToTextureCommand(srcTextureInfo: CopyTextureInfo, destTextureInfo: CopyTextureInfo, copySize: any): void {
+        this._context.addTextureToTextureCommand(srcTextureInfo,destTextureInfo,copySize);
     };
 
     /**
