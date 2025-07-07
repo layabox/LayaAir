@@ -46,7 +46,6 @@ export class BlendModeHandler {
     /**@internal */
     static _init_(): void {
     }
-
     static setShaderData(blendType: BlendMode, shaderData: ShaderData, premultipliedAlpha = true): void {
         let type = TOINT[blendType];
         switch (type) {

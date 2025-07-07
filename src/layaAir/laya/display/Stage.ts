@@ -833,25 +833,28 @@ export class Stage extends Sprite {
                 continue;
             }
 
-            sprite.updateRenderTexture();
+            let result = sprite.updateRenderTexture();
             let destrt: RenderTexture2D = sprite._drawOriRT;
             if (!destrt) {
                 sprite.setSubRenderPassState(false);
                 continue;
             }
 
-            sprite._oriRenderPass.renderTexture = destrt;
             if (sprite.mask) {
-                sprite._oriRenderPass.mask = sprite.mask._struct;
+                sprite._oriRenderPass.mask = sprite.mask._subStruct;
             }
-            let process = sprite._oriRenderPass.postProcess;
-            if (process) {
-                process.setResource(destrt);
-                process.clearCMD();
-                process._render();
-                destrt = process._context.destination;
+
+            if (result) {
+                sprite._oriRenderPass.renderTexture = destrt;
+                let process = sprite._oriRenderPass.postProcess;
+                if (process) {
+                    process.setResource(destrt);
+                    process.clearCMD();
+                    process._render();
+                    destrt = process._context.destination;
+                }
+                sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
             }
-            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
         }

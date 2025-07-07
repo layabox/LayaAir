@@ -98,15 +98,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
                 //更新位置
                 if (this.mask && this.mask.trans) {
-                    let tempMatirx = Matrix.TEMP;
                     let maskMatrix = this.mask.renderMatrix;
-                    if (this.mask.parent) {
-                        maskMatrix.copyTo(tempMatirx);
-                    } else {
-                        Matrix.mul(maskMatrix, mat, tempMatirx);
-                    }
-                    this._nMatrix_0.setValue(tempMatirx.a, tempMatirx.c, tempMatirx.tx);
-                    this._nMatrix_1.setValue(tempMatirx.b, tempMatirx.d, tempMatirx.ty);
+                    this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
+                    this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
                 }
                 else {
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
@@ -191,10 +185,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     }
 
     private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
-        let clone = view.clone(false, false);
+        let clone :Web2DGraphic2DBufferDataView;
         if (oView && oView._geometry) {
-            clone._geometry = oView._geometry;
+            clone = oView;
+            view.cloneView(clone);
         } else {
+            clone = view.clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             clone._geometry.indexFormat = IndexFormat.UInt16;
         }

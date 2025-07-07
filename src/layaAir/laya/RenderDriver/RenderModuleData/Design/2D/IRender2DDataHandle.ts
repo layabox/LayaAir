@@ -47,7 +47,8 @@ export interface I2DGraphicBufferDataView {
 /** @blueprintIgnore */
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
-    bufferData: Float32Array | Uint16Array;
+    // bufferData: Float32Array | Uint16Array;
+    arrayBuffer: ArrayBuffer;
     modifyType: BufferModifyType;
     resetData(byteLength: number): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;

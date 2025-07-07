@@ -166,6 +166,7 @@ export class OpenDataContextView extends Sprite {
             tex.bitmap.destroy();
             tex.bitmap = new Texture2D(canvas.width, canvas.height, TextureFormat.R8G8B8A8, false, false, true, true);
             tex.bitmap.lock = true;
+            this._graphics.repaint();
         }
 
         if (this._canvas)

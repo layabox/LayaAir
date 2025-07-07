@@ -12,6 +12,12 @@ import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
  */
 export class StaticCollider extends ColliderBase {
 
+    /**
+     * @en [Read-only] Custom label.
+     * @zh [只读] 自定义标签。
+     */
+    label: string = "StaticCollider";
+
     private _shapes: Physics2DShapeBase[] = [];
 
     /**
@@ -37,10 +43,11 @@ export class StaticCollider extends ColliderBase {
         return this._shapes;
     }
     public set shapes(value: Physics2DShapeBase[]) {
+        this._shapes = value;
+        if (!value) return;
         value.forEach((shape) => {
             shape.setCollider(this);
         });
-        this._shapes = value;
     }
 
     constructor() {

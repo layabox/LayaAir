@@ -206,8 +206,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
     fowardRender(context: WebGLRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
-
-        let time: number;
         this.renderDepth(camera);
 
         this.initRenderpass(camera, context);

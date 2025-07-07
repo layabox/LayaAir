@@ -376,7 +376,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          }
 
          if (updateBlend) {
-            if (child._blendMode) {//有效值
+            if (child._blendMode === BlendMode.invalid) {//有效值
                child._parentBlendMode = blendMode;
                child._updateBlendMode();
                updateChild = true;
@@ -425,7 +425,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       child._parentClipInfo = this.getClipInfo();
       child._parentBlendMode = this.blendMode;
-      child._parentPass = this.pass;
+      let parentPass = this.pass;
+      child._parentPass = parentPass;
+      if (child._pass && parentPass) {
+         child._pass.priority = parentPass.priority + 1;
+      }
       child._parentGlobalRenderData = this.globalRenderData;
       if (!child._globalRenderData) child._globalShaderData = this._globalShaderData;
       //效率
@@ -452,6 +456,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.children.splice(index, 1);
 
          child._parentPass = null;
+         if (child._pass) {
+            child._pass.priority = 0;
+         }
          child._parentClipInfo = null;
          child._parentBlendMode = BlendMode.invalid;
          child.globalAlpha = child._alpha;
