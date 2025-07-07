@@ -48,9 +48,6 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
 
         const data = this._batchOpaqueMarks[renderId] || (this._batchOpaqueMarks[renderId] = []);
         let batch = data[giId] || (data[giId] = new BatchMark());
-        if(!batch.element){
-            batch.element = new WebGPUInstanceRenderElement3D();
-        }
         return batch;
     }
 
@@ -82,6 +79,7 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                         if (instanceElements.length === maxInstanceCount) {
                             instanceMark.indexInList = elements.length;
                             instanceMark.batched = false;
+                            instanceMark._curBindElementIndex++;
                             elements.add(element);
                         } else {
                             // 加入合并队列
@@ -90,9 +88,9 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                     } else {
                         const originElement = elementArray[instanceIndex];
                         // 替换 renderElement
-                        let instanceRenderElement: IInstanceRenderElement3D = instanceMark.element as WebGPUInstanceRenderElement3D 
-                        if(!instanceRenderElement){
-                            instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D() as WebGPUInstanceRenderElement3D;
+                        let instanceRenderElement: IInstanceRenderElement3D = instanceMark._cacheRenderElement[instanceMark._curBindElementIndex] as WebGPUInstanceRenderElement3D
+                        if (!instanceRenderElement) {
+                            instanceMark._cacheRenderElement[instanceMark._curBindElementIndex] = instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D() as WebGPUInstanceRenderElement3D;
                             this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
                         }
                         instanceRenderElement.subShader = element.subShader;
@@ -111,9 +109,11 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                         instanceRenderElement._invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
                     }
                 } else {
-                    instanceMark.updateMark = this._updateCountMark;
+                    instanceMark.updateMark = this._updateCountMark;//初始化这一帧的batchMark
                     instanceMark.indexInList = elements.length;
                     instanceMark.batched = false;
+                    instanceMark._curBindElementIndex = 0;
+                    //instanceMark.element = instanceMark._cacheRenderElement[0];
                     elements.add(element);
                 }
             } else {

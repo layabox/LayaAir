@@ -11,7 +11,10 @@ export class BatchMark {
 	/**@internal */
 	batched: boolean = false;
 
-	element:IRenderElement3D=null;
+	/**@internal */
+	_curBindElementIndex: number = 0;
+
+	_cacheRenderElement: IRenderElement3D[] = [];
 	//userCacheData:any = null;
 }
 
