@@ -84,5 +84,12 @@ export class SpineEmptyRender implements ISpineOptimizeRender {
     destroy(): void {
         //throw new NotImplementedError();
     }
+    /**
+     * @en Completes the animation.
+     * @zh 完成动画。
+     */
+    complete(): void {
+        //throw new NotImplementedError();
+    }
 
 }

@@ -364,7 +364,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             }
 
             if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
-                currentRender.renderUpdate(currentSKin, -1, 0);
+                this.currentAnimation.currentFrameIndex = -1;
             }
             // old.animator.mutiRenderAble
             // let mutiRenderAble = currentSKin.mutiRenderAble;
@@ -400,6 +400,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         else {
             this.endCache();
         }
+    }
+
+    complete(): void {
+        this.currentAnimation.currentFrameIndex = -1;
     }
 
     /**
