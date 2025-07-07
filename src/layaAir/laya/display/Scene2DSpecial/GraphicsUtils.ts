@@ -136,7 +136,7 @@ export class GraphicsRenderData {
 
             let indexView = this._updateIndexViews(submit, geometry);
             let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            blocks.push({ vertexs: submit.vertexs, indexView, vertexBuffer });
+            blocks.push({ vertexs: submit.vertexs, indexView: indexView, vertexBuffer: vertexBuffer });
             this._updateGraphicsKeys(element, submit);
          } else {
             GraphicsRenderData._pool.recover(element);
