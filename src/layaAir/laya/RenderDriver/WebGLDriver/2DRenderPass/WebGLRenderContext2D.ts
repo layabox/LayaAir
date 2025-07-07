@@ -22,13 +22,13 @@ import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
-import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
+import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebglRenderContext2D implements IRenderContext2D {
     //兼容ConchWebGL
     static isCreateBlitScreenELement = false;
     //兼容ConchWebGL
-    static blitScreenElement: WebGLRenderelement2D;
+    static blitScreenElement: WebGLRenderElement2D;
     static blitContext: WebglRenderContext2D;
 
     private _clearColor: Color = new Color(0, 0, 0, 0);
@@ -146,10 +146,10 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
 
         WebglRenderContext2D.isCreateBlitScreenELement = true;
-        WebglRenderContext2D.blitScreenElement = blitScreenElement as WebGLRenderelement2D;
+        WebglRenderContext2D.blitScreenElement = blitScreenElement as WebGLRenderElement2D;
     }
 
-    drawRenderElementList(list: FastSinglelist<WebGLRenderelement2D>): number {
+    drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             let element = list.elements[i];
             element._prepare(this);//render
@@ -184,7 +184,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
         return this._destRT;
     }
 
-    drawRenderElementOne(node: WebGLRenderelement2D): void {
+    drawRenderElementOne(node: WebGLRenderElement2D): void {
         node._prepare(this);
         node._render(this);
     }
