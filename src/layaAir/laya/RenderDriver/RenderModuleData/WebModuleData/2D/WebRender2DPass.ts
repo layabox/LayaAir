@@ -274,6 +274,18 @@ export class WebRender2DPass implements IRender2DPass {
             this.postProcess._context.command.apply(true);
          }
       } else {
+
+         for (let i = 0, len = lists.length; i < len; i++) {
+            let list = lists[i];
+            if (!list || !list.renderElements.length) continue;
+            let structs = list.structs.elements;
+            for (let j = 0 , m = structs.length; j < m; j++) {
+               structs[j] && structs[j].renderUpdate(context);
+            }
+         }
+
+         WebRender2DPass.uploadBuffer();
+
          for (let i = 0, len = lists.length; i < len; i++) {
             let list = lists[i];
             if (!list || !list.renderElements.length) continue;
