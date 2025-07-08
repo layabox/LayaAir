@@ -19,7 +19,6 @@ import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
 
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
-
 /**
  * 简单的管理indexBuffer
  */
@@ -191,6 +190,7 @@ class BatchContext {
     }
 }
 
+
 export class WebGraphicsBatchContext implements IBatch2DContext {
     /** @internal */
     _batchBuffer = new BatchBuffer();
@@ -244,9 +244,10 @@ export class WebGraphicsBatchContext implements IBatch2DContext {
     }
 }
 
+
 export class WebGraphicsBatch implements IBatch2DRender {
     static instance: WebGraphicsBatch = null;
-
+    static batchCtx = new BatchContext();
     static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(
         () => { //create
             let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
@@ -279,8 +280,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let batchStart = -1;
         let count = 0;
         let end = length - 1;
-        let batchContext = new BatchContext(); // 批次上下文
-
+        let batchContext = WebGraphicsBatch.batchCtx; // 批次上下文
+        batchContext.reset();
+        
         for (let index = 0; index <= end; index++) {
             let offset = start + index;
             let element = elementArray[offset];

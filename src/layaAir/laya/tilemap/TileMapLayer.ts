@@ -299,6 +299,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
 
         allDatas.forEach(data => data._destroy());
+        this.owner?.repaint();
     }
 
     /**
@@ -313,6 +314,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             data._setRenderData(chunks[i]);
             this._setLayerDataByPos(data);
         }
+        this.owner?.repaint();
     }
 
     /**
@@ -566,6 +568,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
         chunkData._removeCell(tempVec3.z);
+        this.owner?.repaint();
     }
 
     /**

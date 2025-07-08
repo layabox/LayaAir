@@ -288,6 +288,7 @@ export class BaseRenderNode2D extends Component {
     }
 
     protected _onEnable(): void {
+        this.owner.renderNode2D = this;
         super._onEnable();
         if (this._lightReceive)
             this._addRenderToLightManager();
