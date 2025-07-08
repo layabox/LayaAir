@@ -40,7 +40,7 @@ async function main() {
     };
 
     let bundle = await rollup({
-        input: samplesBathURL + '/index.ts',
+        input: samplesBathURL + '/index_webgl.ts',
         treeshake: false, //建议忽略
         onwarn: onRollupWarn(true),
         external: ['Laya'],
