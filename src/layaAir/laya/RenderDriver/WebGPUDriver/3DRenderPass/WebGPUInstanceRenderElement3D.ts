@@ -214,22 +214,21 @@ export class WebGPUInstanceRenderElement3D extends WebGPURenderElement3D impleme
         }
     }
 
+    oriBufferStateCacheID: number;
     /**
      * 设置几何对象
      * @param value 
      */
     setGeometry(value: WebGPURenderGeometry) {
+        this.oriBufferStateCacheID = value._bufferState.stateCacheID;
         let geometry = this.geometry;
         if (!geometry) {
-            geometry = new WebGPURenderGeometry(value.mode, value.drawType);
+           this.geometry = geometry = new WebGPURenderGeometry(value.mode, value.drawType);
         }
         value.cloneTo(geometry);
-
         geometry.drawType = DrawType.DrawElementInstance;
         this._instanceStateInfo = WebGPUInstanceRenderElement3D.getInstanceBufferState(this._instanceStateInfo, value, this.owner.renderNodeType, this.renderShaderData._defineDatas);
         geometry.bufferState = this._instanceStateInfo.state;
-
-        this.geometry = geometry;
     }
 
     /**

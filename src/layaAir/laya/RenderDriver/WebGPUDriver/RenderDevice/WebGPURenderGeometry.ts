@@ -51,7 +51,7 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     private _instanceCount: number;
 
 
-    private _bufferState: WebGPUBufferState;
+    _bufferState: WebGPUBufferState;
 
     /**@internal */
     _drawArrayInfo: WebGPUDrawArrayInfo[];

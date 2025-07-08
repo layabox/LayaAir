@@ -91,14 +91,22 @@ export class WebGPUInstanceRenderBatch implements IInstanceRenderBatch {
                         let instanceRenderElement: IInstanceRenderElement3D = instanceMark._cacheRenderElement[instanceMark._curBindElementIndex] as WebGPUInstanceRenderElement3D
                         if (!instanceRenderElement) {
                             instanceMark._cacheRenderElement[instanceMark._curBindElementIndex] = instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D() as WebGPUInstanceRenderElement3D;
-                            this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
+                            instanceRenderElement.owner = element.owner;
+                            instanceRenderElement.renderShaderData = element.renderShaderData;
+                            instanceRenderElement.setGeometry(element.geometry as WebGPURenderGeometry);
+                            
+                            //this._recoverList.add(instanceRenderElement as WebGPUInstanceRenderElement3D);
                         }
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
                         instanceRenderElement.renderShaderData = element.renderShaderData;
                         instanceRenderElement.owner = element.owner;
-                        instanceRenderElement.setGeometry(element.geometry as WebGPURenderGeometry);
+                        let instanceStateID = (instanceRenderElement as WebGPUInstanceRenderElement3D).oriBufferStateCacheID;
+                        let elementStateID = (element.geometry as WebGPURenderGeometry)._bufferState.stateCacheID;
+                        if (instanceStateID != elementStateID) {
+                            instanceRenderElement.setGeometry(element.geometry as WebGPURenderGeometry);
+                        }
 
                         const list = instanceRenderElement.instanceElementList;
                         list.length = 0;
