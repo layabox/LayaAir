@@ -15,7 +15,7 @@ import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLR
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
 import { WebGLPrimitiveRenderElement2D } from "./WebGLPrimitiveRenderElement2D";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
-import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
+import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
@@ -77,7 +77,7 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     }
 
     createRenderElement2D(): IRenderElement2D {
-        return new WebGLRenderelement2D();
+        return new WebGLRenderElement2D();
     }
 
     createRenderContext2D(): IRenderContext2D {

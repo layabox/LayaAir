@@ -12,7 +12,7 @@ import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryE
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 
-export class WebGLRenderelement2D implements IRenderElement2D {
+export class WebGLRenderElement2D implements IRenderElement2D {
     owner: WebRenderStruct2D;
     nodeCommonMap: string[];
     renderStateIsBySprite: boolean = true;
@@ -38,7 +38,7 @@ export class WebGLRenderelement2D implements IRenderElement2D {
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef = WebGLRenderelement2D._compileDefine;
+            var comDef = WebGLRenderElement2D._compileDefine;
 
             if (this.globalShaderData) {
                 this.globalShaderData._defineDatas.cloneTo(comDef);

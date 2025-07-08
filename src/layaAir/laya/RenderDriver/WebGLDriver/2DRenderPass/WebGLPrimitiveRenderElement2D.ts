@@ -5,9 +5,9 @@ import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShade
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
-import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
+import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
-export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implements IPrimitiveRenderElement2D {
+export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implements IPrimitiveRenderElement2D {
     primitiveShaderData: WebGLShaderData;
 
     protected _compileShader(context: WebglRenderContext2D) {
@@ -20,7 +20,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderelement2D implemen
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef = WebGLRenderelement2D._compileDefine;
+            var comDef = WebGLRenderElement2D._compileDefine;
 
             if (this.globalShaderData) {
                 this.globalShaderData._defineDatas.cloneTo(comDef);

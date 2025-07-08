@@ -11,7 +11,7 @@ import { RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
-import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
+import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
@@ -31,14 +31,14 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
 export class WebGLDraw2DElementCMD extends Draw2DElementCMD {
 
-    private _elements: WebGLRenderelement2D[];
+    private _elements: WebGLRenderElement2D[];
 
     constructor() {
         super();
         this.type = RenderCMDType.DrawElement;
     }
 
-    setRenderelements(value: WebGLRenderelement2D[]): void {
+    setRenderelements(value: WebGLRenderElement2D[]): void {
         this._elements = value;
     }
 
@@ -103,7 +103,7 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setRenderTarget(this._dest as WebGLInternalRT, false, Color.BLACK);
-        context.drawRenderElementOne(this.element as WebGLRenderelement2D);
+        context.drawRenderElementOne(this.element as WebGLRenderElement2D);
         context.invertY = cacheInvert;
     }
 }
