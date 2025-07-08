@@ -82,7 +82,8 @@ export class WebGPUInternalTex implements InternalTexture {
                     this._webGPUSamplerParams.mipmapFilter = FilterMode.Bilinear;
                     break;
             }
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
             this._filterMode = value;
         }
     }
@@ -94,7 +95,8 @@ export class WebGPUInternalTex implements InternalTexture {
     public set wrapU(value: WrapMode) {
         if (this._wrapU !== value) {
             this._webGPUSamplerParams.wrapU = value;
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
             this._wrapU = value;
         }
     }
@@ -106,7 +108,8 @@ export class WebGPUInternalTex implements InternalTexture {
     public set wrapV(value: WrapMode) {
         if (this._wrapV !== value) {
             this._webGPUSamplerParams.wrapV = value;
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
             this._wrapV = value;
         }
     }
@@ -118,7 +121,8 @@ export class WebGPUInternalTex implements InternalTexture {
     public set wrapW(value: WrapMode) {
         if (this._wrapW !== value) {
             this._webGPUSamplerParams.wrapW = value;
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
             this._wrapW = value;
         }
     }
@@ -130,7 +134,8 @@ export class WebGPUInternalTex implements InternalTexture {
     public set anisoLevel(value: number) {
         if (this._anisoLevel !== value && this.resource) {
             this._webGPUSamplerParams.anisoLevel = value;
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
             this._anisoLevel = value;
         }
     }
@@ -142,9 +147,10 @@ export class WebGPUInternalTex implements InternalTexture {
     public set compareMode(value: TextureCompareMode) {
         if (this._compareMode !== value) {
             this._webGPUSamplerParams.comparedMode = value;
-            this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
-            this._compareMode = value;
+            let sampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+            this._changeSampler(sampler);
 
+            this._compareMode = value;
             this._onStateChange();
         }
     }
@@ -156,10 +162,18 @@ export class WebGPUInternalTex implements InternalTexture {
         wrapW: WrapMode.Repeat,
         mipmapFilter: FilterMode.Bilinear,
         filterMode: FilterMode.Bilinear,
-        anisoLevel: 1
+        anisoLevel: 4
     };
 
     private _webgpuSampler: WebGPUSampler;
+
+    private _changeSampler(sampler: WebGPUSampler) {
+        if (this._webgpuSampler !== sampler) {
+            this._webgpuSampler = sampler;
+            this._onStateChange();
+        }
+    }
+
     get sampler() {
         return this._webgpuSampler;
     }
@@ -195,6 +209,7 @@ export class WebGPUInternalTex implements InternalTexture {
         this.baseMipmapLevel = 0;
         this.useSRGBLoad = useSRGBLoader;
         this.gammaCorrection = gammaCorrection;
+        this.anisoLevel = 4;
 
         this._engine = WebGPURenderEngine._instance;
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);

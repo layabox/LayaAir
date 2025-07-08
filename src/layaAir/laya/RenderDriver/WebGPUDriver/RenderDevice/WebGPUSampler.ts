@@ -58,9 +58,6 @@ export class WebGPUSampler {
     }
 
     static getWebGPUSampler(params: WebGPUSamplerParams) {
-        if (params.filterMode == FilterMode.Point) {
-            params.anisoLevel = 1;
-        }
         const cacheKey = WebGPUSampler._getCacheSamplerKey(params);
         if (!this._cacheMap[cacheKey])
             this._cacheMap[cacheKey] = new WebGPUSampler(params);
@@ -74,7 +71,7 @@ export class WebGPUSampler {
             (params.filterMode << WebGPUSampler.pointer_filterMode) +
             (params.mipmapFilter << WebGPUSampler.pointer_mipmapFilter) +
             (params.comparedMode << WebGPUSampler.pointer_comparedMode) +
-            (params.anisoLevel << WebGPUSampler.pointer_anisoLevel);
+            ((params.mipmapFilter == FilterMode.Point ? 1 : params.anisoLevel) << WebGPUSampler.pointer_anisoLevel);
     }
 
     private _createGPUSampler(params: WebGPUSamplerParams): GPUSampler {
@@ -85,9 +82,10 @@ export class WebGPUSampler {
     }
 
     private _getSamplerDescriptor(params: WebGPUSamplerParams) {
-        if (params.anisoLevel > 1 && params.mipmapFilter === FilterMode.Point)
-            params.mipmapFilter = FilterMode.Bilinear; //支持各向异性不能设成点采样
-
+        let anisoLevel = params.anisoLevel;
+        if (params.mipmapFilter !== FilterMode.Bilinear) {
+            anisoLevel = 1;
+        }
         return {
             addressModeU: this._getSamplerAddressMode(params.wrapU),
             addressModeV: this._getSamplerAddressMode(params.wrapV),
@@ -96,7 +94,7 @@ export class WebGPUSampler {
             minFilter: this._getFilterMode(params.filterMode),
             mipmapFilter: this._getFilterMode(params.mipmapFilter),
             compare: this._getGPUCompareFunction(params.comparedMode),
-            maxAnisotropy: params.anisoLevel
+            maxAnisotropy: anisoLevel
         }
     }
 
