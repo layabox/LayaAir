@@ -84,7 +84,7 @@ export class NavMeshLink extends BaseNav3DModifle {
         this._onWorldMatNeedChange();
         Vector3.min(this._data._startPoint, this._data._endPoint, tempVec3);
         Vector3.max(this._data._startPoint, this._data._endPoint, tempVec31);
-        let surface = this._manager.getNavMeshSurfacesByBound(tempVec3, tempVec31, this._agentType);
+        let surface = this._manager.getNavMeshSurfacesByBound(tempVec3, tempVec31, this._modifierData.agentType);
         this._data._initSurface(surface);
     }
 

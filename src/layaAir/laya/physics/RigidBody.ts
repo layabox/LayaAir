@@ -156,7 +156,7 @@ export class RigidBody extends ColliderBase {
 
     set allowRotation(value: boolean) {
         this._allowRotation = value;
-        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, !value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, value);
     }
 
     /**
@@ -263,7 +263,6 @@ export class RigidBody extends ColliderBase {
     }
 
     public set shapes(shapes: Physics2DShapeBase[]) {
-        if (!shapes || shapes.length == 0) return;
         this._shapes = shapes;
         shapes.forEach((shape) => {
             shape.setCollider(this);
