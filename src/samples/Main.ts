@@ -57,11 +57,6 @@ export class Main {
     async startTest(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any){
         this._singleDemo = singleDemo;
         if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
-            if (Main.useWebGPU) {
-                await import("./importWebGPU")
-            } else {
-                await import ("./importWebGL")
-            }
             LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
