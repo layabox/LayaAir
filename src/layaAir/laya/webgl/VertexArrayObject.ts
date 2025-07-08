@@ -189,7 +189,7 @@ export class VertexArrayObject {
         var contextWasLost = this.vertexArrayObjects !== undefined;
         if (contextWasLost) {
             for (var ii = 0; ii < this.vertexArrayObjects.length; ++ii) {
-                this.vertexArrayObjects.isAlive = false;
+                this.vertexArrayObjects[ii].isAlive = false;
             }
         }
         var gl = this.gl;
