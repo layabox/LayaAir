@@ -526,6 +526,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
         chunkData._setCell(tempVec3.z, cellData);
+        this.owner?.repaint();
     }
 
     /**
