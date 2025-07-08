@@ -1,9 +1,11 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawImageCmd";
 
 /**
  * @en Draw image command
@@ -14,7 +16,7 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @en Identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
      */
-    static readonly ID: string = "DrawImage";
+    static readonly ID: string = className;
 
     /**
      * @en Texture to be drawn
@@ -67,7 +69,7 @@ export class DrawImageCmd implements IGraphicsCmd {
      * @returns 绘制图片命令实例
      */
     static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
-        let cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
+        let cmd: DrawImageCmd = Pool.getItemByClass(className, DrawImageCmd);
         cmd.texture = texture;
         texture && texture._addReference();
         cmd.x = x ?? 0;
@@ -85,20 +87,20 @@ export class DrawImageCmd implements IGraphicsCmd {
     recover(): void {
         this.texture && this.texture._removeReference();
         this.texture = null;
-        Pool.recover("DrawImageCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the draw image command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制图片命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let tex = this.texture;
         if (!tex)
             return;
@@ -113,7 +115,7 @@ export class DrawImageCmd implements IGraphicsCmd {
         x += tex.offsetX * wRate;
         y += tex.offsetY * hRate;
 
-        context.drawTexture(this.texture, x + gx, y + gy, w, h, this.color);
+        runner.drawTexture(this.texture, x + gx, y + gy, w, h, this.color);
     }
 
     /**

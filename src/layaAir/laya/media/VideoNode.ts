@@ -335,7 +335,7 @@ export class VideoNode extends Sprite {
             if (this._vtex !== vt) {
                 this._vtex = vt;
                 this._vtex.on(Event.READY, () => this._tex.setTo(this._vtex));
-                this._vtex.on("videoUpdate", this, this._repaintCachAs);
+                this._vtex.on("videoUpdate", this, this.reCache);
                 if (!this._tex)
                     this.texture = this._tex = new Texture();
             }
@@ -364,12 +364,6 @@ export class VideoNode extends Sprite {
         this._player?.destroy();
         this._player = null;
         this._api = null;
-    }
-
-    private _repaintCachAs() {
-        if (this.cacheAs != "none" || (!!this._getCacheStyle().mask)) {
-            this.repaint();
-        }
     }
 
     private onDisplay(): void {

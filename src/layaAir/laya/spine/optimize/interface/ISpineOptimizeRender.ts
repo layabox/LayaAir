@@ -14,5 +14,6 @@ export interface ISpineOptimizeRender {
     initBake(obj: TSpineBakeData): void;
     changeSkeleton(skeleton: spine.Skeleton): void;
     getSpineColor(): Color;
+    complete(): void;
     destroy(): void;
 }

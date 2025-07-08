@@ -12,7 +12,7 @@ import { GTextInput } from "./GTextInput";
 import { UIConfig2 } from "./UIConfig";
 
 /**
- * @blueprintable
+ * @ignore @blueprintable
  */
 export class UIPackage {
 

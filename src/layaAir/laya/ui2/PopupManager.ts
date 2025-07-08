@@ -33,7 +33,7 @@ export class PopupManager {
         ILaya.stage.on(Event.BLUR, this, this.checkPopups);
     }
 
-    public showPopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): void {
+    showPopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): void {
         if (this._popupStack.length > 0) {
             let k = this._popupStack.indexOf(popup);
             if (k != -1) {
@@ -63,7 +63,7 @@ export class PopupManager {
         this.validatePopupPosition(popup, target, dir);
     }
 
-    public validatePopupPosition(popup: GWidget, target: GWidget, dir: PopupDirection, offsetX?: number, offsetY?: number) {
+    validatePopupPosition(popup: GWidget, target: GWidget, dir: PopupDirection, offsetX?: number, offsetY?: number) {
         let px: number, py: number;
         let sizeW: number = 0, sizeH: number = 0;
         if (offsetX == null) offsetX = 0;
@@ -100,7 +100,7 @@ export class PopupManager {
         popup.pos(xx, yy);
     }
 
-    public togglePopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): boolean {
+    togglePopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): boolean {
         if (this._justClosedPopups.indexOf(popup) != -1)
             return false;
 
@@ -108,7 +108,7 @@ export class PopupManager {
         return true;
     }
 
-    public hidePopup(popup?: GWidget): void {
+    hidePopup(popup?: GWidget): void {
         if (popup) {
             let k = this._popupStack.indexOf(popup);
             if (k != -1) {
@@ -124,11 +124,11 @@ export class PopupManager {
         }
     }
 
-    public get hasAnyPopup(): boolean {
+    get hasAnyPopup(): boolean {
         return this._popupStack.length != 0;
     }
 
-    public isPopupJustClosed(popup: GWidget) {
+    isPopupJustClosed(popup: GWidget) {
         return this._justClosedPopups.indexOf(popup) != -1;
     }
 
@@ -145,7 +145,7 @@ export class PopupManager {
         //     this._owner.inputMgr.setFocus(focus, true);
     }
 
-    public showTooltips(msg: string, delay?: number) {
+    showTooltips(msg: string, delay?: number) {
         if (this._defaultTooltipWin == null) {
             if (!UIConfig2.tooltipsWidget) {
                 console.warn("UIConfig.tooltipsWidget not defined");
@@ -160,7 +160,7 @@ export class PopupManager {
         this.showTooltipsWin(this._defaultTooltipWin, delay);
     }
 
-    public showTooltipsWin(tooltipWin: GWidget, delay?: number): void {
+    showTooltipsWin(tooltipWin: GWidget, delay?: number): void {
         this.hideTooltips();
 
         this._tooltipWin = tooltipWin;
@@ -178,7 +178,7 @@ export class PopupManager {
         this._owner.addChild(this._tooltipWin);
     }
 
-    public hideTooltips(): void {
+    hideTooltips(): void {
         if (this._tooltipWin) {
             if (this._tooltipWin.parent)
                 this._owner.removeChild(this._tooltipWin);
@@ -186,7 +186,7 @@ export class PopupManager {
         }
     }
 
-    public checkPopups(): void {
+    checkPopups(): void {
         this._justClosedPopups.length = 0;
 
         if (this._popupStack.length > 0) {

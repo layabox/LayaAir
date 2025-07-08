@@ -8,9 +8,6 @@ import { Scene } from "./display/Scene";
 import { Sprite } from "./display/Sprite";
 import { Stage } from "./display/Stage";
 import { Text } from "./display/Text";
-import { BlurFilter } from "./filters/BlurFilter";
-import { ColorFilter } from "./filters/ColorFilter";
-import { GlowFilter } from "./filters/GlowFilter";
 import { Point } from "./maths/Point";
 import { Rectangle } from "./maths/Rectangle";
 import { SoundNode } from "./media/SoundNode";
@@ -58,7 +55,8 @@ import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
 import { Area2D } from "./display/Area2D";
 import { OpenDataContextView } from "./display/OpenDataContextView";
-import { TextRender } from "./webgl/text/TextRender";
+import { PostProcess2D } from "./display/PostProcess2D";
+import { PostProcess2DEffect } from "./display/PostProcess2DEffect";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -66,7 +64,6 @@ c("Node", Node);
 c("Sprite", Sprite);
 c("Widget", Widget);
 c("Text", Text);
-c("TextRender",TextRender)
 c("Input", Input);
 c("Animation", Animation);
 c("SoundNode", SoundNode);
@@ -79,9 +76,7 @@ c("Stage", Stage);
 c("Component", Component);
 c("Script", Script);
 c("BitmapFont", BitmapFont);
-c("BlurFilter", BlurFilter);
-c("ColorFilter", ColorFilter);
-c("GlowFilter", GlowFilter);
+
 c("Point", Point);
 c("Rectangle", Rectangle);
 c("Texture", Texture);
@@ -112,3 +107,6 @@ c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
 c("Gradient", Gradient);
 c("FloatKeyframe", FloatKeyframe);
+
+c("PostProcess2D", PostProcess2D);
+c("PostProcess2DEffect", PostProcess2DEffect);

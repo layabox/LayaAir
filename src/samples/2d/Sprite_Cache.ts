@@ -8,6 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "./../Main";
+import { Event } from "laya/events/Event";
 
 export class Sprite_Cache {
 	Main: typeof Main = null;
@@ -47,8 +48,7 @@ export class Sprite_Cache {
 		}
 
 		//缓存为静态图像
-		//			textBox.cacheAsBitmap = true;
-
+		// textBox.cacheAs = "bitmap";
 		this.Main.box2D.addChild(textBox);
 	}
 }

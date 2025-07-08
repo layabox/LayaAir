@@ -3,7 +3,7 @@ import { WebGPU_GLSLCommon } from "./WebGPU_GLSLCommon";
 /**
  * 函数参数
  */
-interface Parameter {
+export interface Parameter {
     name: string; //参数名称
     type: string; //参数类型
     inout?: string; //存储修饰符（in、out、inout、const）
@@ -122,7 +122,8 @@ export class WebGPU_GLSLFunction {
     private _parse() {
         //基本的函数正则表达式
         const headRegex = /((lowp|mediump|highp)\s+)?(\w+)\s+(\w+)\s*\((.*?)\)/; //函数头部（精度限定符、返回值类型、函数名、参数）
-        const paramRegex = /((lowp|mediump|highp)\s+)?((in|out|inout|const)\s+)?([\w]+)\s+([\w]+)\s*(\[\d*\])?/g; //函数参数
+        // const paramRegex = /((lowp|mediump|highp)\s+)?((in|out|inout|const)\s+)?([\w]+)\s+([\w]+)\s*(\[\d*\])?/g; //函数参数
+        const paramRegex = /((lowp|mediump|highp)\s+)?(((?:in|out|inout|const)\s+)+)?([\w]+)\s+([\w]+)\s*(\[\d*\])?/g;
 
         const headMatch = this.head.match(headRegex);
         if (headMatch) {
@@ -133,7 +134,10 @@ export class WebGPU_GLSLFunction {
 
             let paramMatch;
             while ((paramMatch = paramRegex.exec(paramsStr)) !== null) {
-                const [, precision, , inout, , type, name, array] = paramMatch;
+                const [, precision, , inoutFull, , type, name, array] = paramMatch;
+                // Trim the full qualifier string to handle combined qualifiers like "const in"
+                const inout = inoutFull ? inoutFull.trim() : undefined;
+
                 const isStruct = !WebGPU_GLSLFunction.variableType.includes(type);
                 const isArray = array !== undefined;
                 let arrayLength = undefined;
@@ -174,6 +178,7 @@ export class WebGPU_GLSLFunction {
         //使用正则表达式匹配函数调用，同时捕获函数名和参数部分
         //@ts-ignore
         const regex = /(\b\w+\b)\s*\(([^()]*\([^()]*\)[^()]*)*([^()]*)\)/gs;
+
         let matches: RegExpExecArray | null;
         while ((matches = regex.exec(glslCode)) !== null) {
             const name = matches[1];
@@ -242,13 +247,16 @@ export class WebGPU_GLSLFunction {
                         functionNames = ['texture', 'textureCube'];
                         replacementInCategory = `samplerCube(${textureName}, ${samplerName})`;
                     } else if (param.type === 'sampler2DShadow') {
-                        functionNames = ['textureLod'];
+                        functionNames = ['textureLod', 'texture'];
                         replacementInCategory = `sampler2DShadow(${textureName}, ${samplerName})`;
                     }
                     replacementOutOfCategory = `${textureName}, ${samplerName}`;
                     this.samplerBody = WebGPU_GLSLCommon.replaceArgumentByFunctionCategory
                         (this.samplerBody, param.name, functionNames, replacementInCategory, replacementOutOfCategory);
-                } else this.samplerParams.push(param);
+                }
+                else {
+                    this.samplerParams.push(param);
+                }
             }
 
             //处理直接调用
@@ -264,7 +272,7 @@ export class WebGPU_GLSLFunction {
             this.samplerOutput = `${this.return} ${this.name}(`;
             this.samplerOutput += this.samplerParams.map(param => {
                 let str = '';
-                if (param.inout) str += `${param.inout}`;
+                if (param.inout) str += `${param.inout} `;
                 str += `${param.type} ${param.name}`;
                 if (param.isArray) str += `[${param.arrayLength}]`;
                 return str;

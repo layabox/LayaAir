@@ -1,4 +1,7 @@
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
@@ -8,12 +11,21 @@ import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
+import { WebGPUShaderData } from "./WebGPUShaderData";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "./WebGPUStatis/WebGPUStatis";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
-    resource: GPUTexture;
+    private _resource: GPUTexture;
+    public get resource(): GPUTexture {
+        return this._resource;
+    }
+    public set resource(value: GPUTexture) {
+        this._resource = value;
+        this._gpuView = null;
+        this.getTextureView();
+    }
     dimension: TextureDimension;
     width: number;
     height: number;
@@ -39,6 +51,15 @@ export class WebGPUInternalTex implements InternalTexture {
 
     globalId: number;
     objectName: string = 'WebGPUInternalTex';
+
+    /** @internal */
+    shaderDatas: Map<WebGPUShaderData, number> = new Map();
+
+    private _onStateChange() {
+        this.shaderDatas.forEach((value, key) => {
+            key.bindGroupUpdateTex(value, this);
+        });
+    }
 
     //sampler 
     private _filterMode: FilterMode;
@@ -123,6 +144,8 @@ export class WebGPUInternalTex implements InternalTexture {
             this._webGPUSamplerParams.comparedMode = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._compareMode = value;
+
+            this._onStateChange();
         }
     }
 
@@ -201,12 +224,85 @@ export class WebGPUInternalTex implements InternalTexture {
         WebGPUStatis.addTexture(this);
     }
 
+    _getGPUTextureBindingLayout(layout: GPUTextureBindingLayout) {
+        if (this.compareMode > 0)
+            layout.sampleType = 'depth';
+        else if (this._webGPUFormat === WebGPUTextureFormat.depth16unorm
+            || this._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
+            || this._webGPUFormat === WebGPUTextureFormat.depth32float) {
+            layout.sampleType = 'unfilterable-float';
+        }
+        else {
+            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32)
+                layout.sampleType = 'unfilterable-float';
+            else
+                layout.sampleType = 'float';
+        }
+    }
+
+    _getSampleBindingLayout(layout: GPUSamplerBindingLayout) {
+        if (this.compareMode > 0)
+            layout.type = 'comparison';
+        else if (this._webGPUFormat === WebGPUTextureFormat.depth16unorm
+            || this._webGPUFormat === WebGPUTextureFormat.depth24plus_stencil8
+            || this._webGPUFormat === WebGPUTextureFormat.depth32float) {
+            if (layout.type !== 'non-filtering') {
+                layout.type = 'non-filtering';
+            }
+            this.filterMode = FilterMode.Point;
+        }
+        else {
+            const supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+            if (!supportFloatLinearFiltering && this.format === TextureFormat.R32G32B32A32) {
+                if (layout.type !== 'non-filtering') {
+                    layout.type = 'non-filtering';
+                }
+                this.filterMode = FilterMode.Point;
+            }
+            else if (layout.type !== 'filtering') {
+                layout.type = 'filtering';
+                this.filterMode = FilterMode.Bilinear;
+            }
+        }
+    }
+
+    _getStorageBindingLayout(layout: GPUStorageTextureBindingLayout) {
+        layout.format = this._webGPUFormat;
+
+        switch (this.dimension) {
+            case TextureDimension.Tex2D:
+                layout.viewDimension = '2d';
+                break;
+            case TextureDimension.Cube:
+                layout.viewDimension = 'cube';
+                break;
+            case TextureDimension.Tex3D:
+                layout.viewDimension = '3d';
+                break;
+            case TextureDimension.Texture2DArray:
+                layout.viewDimension = '2d-array';
+                break;
+            case TextureDimension.CubeArray:
+                layout.viewDimension = 'cube-array';
+                break;
+            case TextureDimension.Unkonw:
+            case TextureDimension.None:
+            default:
+                break;
+        }
+    }
+
     statisAsRenderTexture() {
         this._statistics_M_TextureA = GPUEngineStatisticsInfo.M_ALLRenderTexture;
         this._statistics_RC_TextureA = GPUEngineStatisticsInfo.RC_ALLRenderTexture;
     }
 
-    getTextureView(): GPUTextureView {
+    _gpuView: GPUTextureView;
+    getTextureView() {
+        if (this._gpuView) {
+            return this._gpuView;
+        }
         let dimension: GPUTextureViewDimension;
         switch (this.dimension) {
             case TextureDimension.Tex2D:
@@ -235,7 +331,8 @@ export class WebGPUInternalTex implements InternalTexture {
             baseMipLevel: this.baseMipmapLevel,
             mipLevelCount: this.maxMipmapLevel - this.baseMipmapLevel + 1,
         }
-        return this.resource.createView(descriptor);
+        this._gpuView = this.resource.createView(descriptor);
+        return this._gpuView;
     }
 
     private _changeTexMemory(memory: number) {
@@ -243,9 +340,6 @@ export class WebGPUInternalTex implements InternalTexture {
         if (this._statistics_M_TextureA !== GPUEngineStatisticsInfo.M_ALLRenderTexture)
             this._engine._addStatisticsInfo(this._statistics_M_TextureX, -this._gpuMemory + memory);
         this._engine._addStatisticsInfo(this._statistics_M_TextureA, -this._gpuMemory + memory);
-        // if (this._statistics_RC_TextureA !== GPUEngineStatisticsInfo.RC_ALLRenderTexture)
-        //     this._engine._addStatisticsInfo(this._statistics_RC_TextureX, -this._gpuMemory + memory);
-        // this._engine._addStatisticsInfo(this._statistics_RC_TextureA, -this._gpuMemory + memory);
     }
 
     dispose(): void {

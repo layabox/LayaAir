@@ -65,7 +65,7 @@ export class Volume extends Component {
     /**重要性 */
     protected _importance: number;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @ignore

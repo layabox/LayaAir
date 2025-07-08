@@ -32,13 +32,13 @@ mediump vec4 prefilter(mediump vec4 color, vec2 uv)
 
 void fragPrefilter13()
 {
-    mediump vec4 color = downsampleBox13Tap(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy);
+    mediump vec4 color = downsampleBox13Tap(v_Texcoord0, u_MainTex_TexelSize.xy);
     gl_FragColor = prefilter(safeHDR(color), v_Texcoord0);
 }
 
 void fragPrefilter4()
 {
-    mediump vec4 color = downsampleBox4Tap(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy);
+    mediump vec4 color = downsampleBox4Tap(v_Texcoord0, u_MainTex_TexelSize.xy);
     gl_FragColor = prefilter(safeHDR(color), v_Texcoord0);
 }
 //----------------------------------------------------------------------------------------
@@ -46,13 +46,13 @@ void fragPrefilter4()
 // Downsample
 void fragDownsample13()
 {
-    mediump vec4 color = downsampleBox13Tap(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy);
+    mediump vec4 color = downsampleBox13Tap(v_Texcoord0, u_MainTex_TexelSize.xy);
     gl_FragColor = color;
 }
 
 void fragDownsample4()
 {
-    mediump vec4 color = downsampleBox4Tap(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy);
+    mediump vec4 color = downsampleBox4Tap(v_Texcoord0, u_MainTex_TexelSize.xy);
     gl_FragColor = color;
 }
 // ----------------------------------------------------------------------------------------
@@ -69,13 +69,13 @@ mediump vec4 combine(mediump vec4 bloom, vec2 uv)
 
 void fragUpsampleTent()
 {
-    mediump vec4 bloom = upsampleTent(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
+    mediump vec4 bloom = upsampleTent(v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
     gl_FragColor = combine(bloom, v_Texcoord0);
 }
 
 void fragUpsampleBox()
 {
-    mediump vec4 bloom = upsampleBox(u_MainTex, v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
+    mediump vec4 bloom = upsampleBox(v_Texcoord0, u_MainTex_TexelSize.xy, vec4(u_SampleScale));
     gl_FragColor = combine(bloom, v_Texcoord0);
 }
 // ----------------------------------------------------------------------------------------

@@ -11,7 +11,6 @@ import { Physics2DOption } from "../../physics/Physics2DOption";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
 import { Stat } from "../../utils/Stat";
 import { ParticleMinMaxCurveMode } from "../common/ParticleMinMaxCurve";
@@ -190,7 +189,7 @@ function gradientDataNumberConstant(gradient: GradientDataNumber, value: number)
 
 export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     private _particleSystem: ShurikenParticle2DSystem;
 
@@ -229,8 +228,6 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
         this._particleSystem = new ShurikenParticle2DSystem();
         // this.particleSystem.shape = new Shape2DModule();
-
-        this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -720,29 +717,29 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         }
     }
 
-    addCMDCall(context: Context, px: number, py: number): void {
+    addCMDCall(px: number, py: number): void {
 
-        if (!this.particleSystem) {
-            return;
-        }
+        // if (!this.particleSystem) {
+        //     return;
+        // }
 
-        let mat = context._curMat;
+        // let mat = context._curMat;
 
-        nMatrix0.x = mat.a;
-        nMatrix0.y = mat.c;
-        nMatrix0.z = px * mat.a + py * mat.c + mat.tx;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_0, nMatrix0);
+        // nMatrix0.x = mat.a;
+        // nMatrix0.y = mat.c;
+        // nMatrix0.z = px * mat.a + py * mat.c + mat.tx;
+        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, nMatrix0);
 
-        nMatrix1.x = mat.b;
-        nMatrix1.y = mat.d;
-        nMatrix1.z = px * mat.b + py * mat.d + mat.ty;
-        this._spriteShaderData.setVector3(BaseRenderNode2D.NMATRIX_1, nMatrix1);
+        // nMatrix1.x = mat.b;
+        // nMatrix1.y = mat.d;
+        // nMatrix1.z = px * mat.b + py * mat.d + mat.ty;
+        // this._spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, nMatrix1);
 
-        this._setRenderSize(context.width, context.height);
-        context._copyClipInfoToShaderData(this._spriteShaderData);
-        this._lightReceive && this._updateLight();
+        // //this._setRenderSize(context.width, context.height);
+        // context._copyClipInfoToShaderData(this._spriteShaderData);
+        // this._lightReceive && this._updateLight();
 
-        this.setParticleData(this._spriteShaderData, mat);
+        //
     }
 
     private _createRenderGeometry() {
@@ -848,6 +845,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     private _updateMark: number = -1;
     renderUpdate(context: IRenderContext2D): void {
         let ps = this.particleSystem;
+
+        this.setParticleData(this._spriteShaderData, this.owner._globalTrans.getMatrix());
+        this._updateLight();
+        
         if (this._renderElements.length <= 0) {
             return;
         }

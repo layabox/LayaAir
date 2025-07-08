@@ -1,10 +1,6 @@
 #define SHADER_NAME COCFS
 
-#ifdef CAMERA_NORMALDEPTH
-uniform sampler2D u_CameraDepthNormalTexture;
-#else
-uniform sampler2D u_CameraDepthTexture;
-#endif
+#include "Camera.glsl";
 
 varying vec2 v_Texcoord0;
 

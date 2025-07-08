@@ -20,10 +20,10 @@ export class NodeFlags {
     static ACTIVE = 0x1;
     static ACTIVE_INHIERARCHY = 0x2;
     static AWAKED = 0x4;
-    static ACTUAL_VISIBLE = 0x8;
+    //static ACTUAL_VISIBLE = 0x8;
     static DISPLAY = 0x10;
     static HAS_ZORDER = 0x20;
-    static AREA_2D = 0x40;
+    //static = 0x40;
     static DISPLAYED_INSTAGE = 0x80;
     static DRAWCALL_OPTIMIZE = 0x100;
     static CHECK_INPUT = 0x200;
@@ -67,4 +67,11 @@ export class HideFlags {
      * @zh 对象隐藏且不会保存到场景或预制件中。
      */
     static HideAndDontSave = 0x7;
+}
+
+export enum SubPassFlag {
+    PostProcess = 0x1,
+    CacheAsBitmap = 0x2,
+    Mask = 0x4,
+    RenderTexture = 0x8,
 }

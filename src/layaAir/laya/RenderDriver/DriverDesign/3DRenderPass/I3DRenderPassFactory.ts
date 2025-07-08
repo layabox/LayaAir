@@ -1,9 +1,11 @@
-import { SetRenderDataCMD, SetShaderDefineCMD } from "../RenderDevice/IRenderCMD";
+import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ComputeCommandAppatchCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../RenderDevice/IRenderCMD";
 import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "./I3DRenderPass";
-import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD} from "./IRender3DCMD";
+import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "./IRender3DCMD";
 import { ISceneRenderManager } from "./ISceneRenderManager";
 
 export interface I3DRenderPassFactory {
+
     createRender3DProcess(): IRender3DProcess;
 
     createRenderContext3D(): IRenderContext3D;
@@ -32,4 +34,6 @@ export interface I3DRenderPassFactory {
     createSetRenderDataCMD(): SetRenderDataCMD;
 
     createSetShaderDefineCMD(): SetShaderDefineCMD;
+
+    createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD;
 }

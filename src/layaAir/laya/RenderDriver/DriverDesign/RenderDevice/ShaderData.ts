@@ -12,7 +12,7 @@ import { NotImplementedError } from "../../../utils/Error";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
-import { CommandUniformMap, UniformProperty } from "./CommandUniformMap";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 
 export enum ShaderDataType {
     None,
@@ -24,15 +24,28 @@ export enum ShaderDataType {
     Vector4,
     Color,
     Matrix4x4,
+    Buffer,
+    Matrix3x3,
+    ReadOnlyDeviceBuffer,
+    DeviceBuffer,
+    StorageTexture2D,
     Texture2D,
     Texture3D,
     TextureCube,
-    Buffer,
-    Matrix3x3,
     Texture2DArray
 }
 
-export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3 | IDeviceBuffer;
+
+export function isUboBufferShaderType(type: ShaderDataType): boolean {
+    return !(type === ShaderDataType.ReadOnlyDeviceBuffer ||
+        type === ShaderDataType.DeviceBuffer ||
+        type === ShaderDataType.StorageTexture2D ||
+        type === ShaderDataType.Texture2D ||
+        type === ShaderDataType.Texture3D ||
+        type === ShaderDataType.TextureCube ||
+        type === ShaderDataType.Texture2DArray)
+}
 
 export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {
     let legal = false;
@@ -350,6 +363,14 @@ export class ShaderData implements IClone {
      * @param value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
+        throw new NotImplementedError();
+    }
+
+    setDeviceBuffer(index: number, value: IDeviceBuffer): void {
+        throw new NotImplementedError();
+    }
+
+    getStorageBuffer(index: number): IDeviceBuffer {
         throw new NotImplementedError();
     }
 

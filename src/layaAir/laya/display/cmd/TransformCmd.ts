@@ -1,7 +1,9 @@
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "TransformCmd";
 
 /**
  * @en Transform command
@@ -13,7 +15,7 @@ export class TransformCmd implements IGraphicsCmd {
      * @en Identifier for the TransformCmd
      * @zh 矩阵变换命令的标识符
      */
-    static readonly ID: string = "Transform";
+    static readonly ID: string = className;
 
     /**
      * @en The transformation matrix.
@@ -44,7 +46,7 @@ export class TransformCmd implements IGraphicsCmd {
      * @returns 矩阵变换命令实例
      */
     static create(matrix: Matrix, pivotX: number, pivotY: number): TransformCmd {
-        var cmd: TransformCmd = Pool.getItemByClass("TransformCmd", TransformCmd);
+        var cmd: TransformCmd = Pool.getItemByClass(className, TransformCmd);
         cmd.matrix = matrix;
         cmd.pivotX = pivotX;
         cmd.pivotY = pivotY;
@@ -57,21 +59,21 @@ export class TransformCmd implements IGraphicsCmd {
      */
     recover(): void {
         this.matrix = null;
-        Pool.recover("TransformCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the transform command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行矩阵变换命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        context._transform(this.matrix, this.pivotX + gx, this.pivotY + gy);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner._transform(this.matrix, this.pivotX + gx, this.pivotY + gy);
     }
 
     /**

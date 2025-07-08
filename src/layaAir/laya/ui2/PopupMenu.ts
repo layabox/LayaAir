@@ -13,13 +13,13 @@ import { Loader } from "../net/Loader";
 const internalEvent = "click_menu_item";
 
 /**
- * @blueprintInheritable
+ * @blueprintable
  */
 export class PopupMenu extends EventDispatcher {
 
-    public visibleItemCount: number = 0;
-    public hideOnClickItem: boolean = true;
-    public autoSize: boolean = false;
+    visibleItemCount: number = 0;
+    hideOnClickItem: boolean = true;
+    autoSize: boolean = false;
 
     protected _content: GWidget;
     protected _list: GList;
@@ -48,18 +48,18 @@ export class PopupMenu extends EventDispatcher {
         this._list.on(UIEvent.ClickItem, this, this._clickItem);
     }
 
-    public destroy(): void {
+    destroy(): void {
         this._content.destroy();
     }
 
-    public addItem(caption: string, callback?: Function, target?: any): GWidget {
+    addItem(caption: string, callback?: Function, target?: any): GWidget {
         let item = this.createItem(caption, callback, target);
         this._list.addChild(item);
 
         return item;
     }
 
-    public addItemAt(caption: string, index: number, callback?: Function, target?: any): GWidget {
+    addItemAt(caption: string, index: number, callback?: Function, target?: any): GWidget {
         let item = this.createItem(caption, callback, target);
         this._list.addChildAt(item, index);
 
@@ -79,7 +79,7 @@ export class PopupMenu extends EventDispatcher {
         return item;
     }
 
-    public addSeperator(index?: number): void {
+    addSeperator(index?: number): void {
         if (index == undefined || index == -1)
             this._list.addItemFromPool(this._seperatorRes);
         else {
@@ -88,27 +88,27 @@ export class PopupMenu extends EventDispatcher {
         }
     }
 
-    public getItemName(index: number): string {
+    getItemName(index: number): string {
         let item = this._list.getChildAt(index);
         return item.name;
     }
 
-    public setItemText(name: string, caption: string): void {
+    setItemText(name: string, caption: string): void {
         let item = <GWidget>this._list.getChild(name);
         item.text = caption;
     }
 
-    public setItemVisible(name: string, visible: boolean): void {
+    setItemVisible(name: string, visible: boolean): void {
         let item = <GWidget>this._list.getChild(name);
         item.visible = visible;
     }
 
-    public setItemGrayed(name: string, grayed: boolean): void {
+    setItemGrayed(name: string, grayed: boolean): void {
         let item = <GWidget>this._list.getChild(name);
         item.grayed = grayed;
     }
 
-    public setItemCheckable(name: string, checkable: boolean): void {
+    setItemCheckable(name: string, checkable: boolean): void {
         let item = <GWidget>this._list.getChild(name);
         let c = item.getController("checked");
         if (c) {
@@ -121,14 +121,14 @@ export class PopupMenu extends EventDispatcher {
         }
     }
 
-    public setItemChecked(name: string, checked: boolean): void {
+    setItemChecked(name: string, checked: boolean): void {
         let item = <GWidget>this._list.getChild(name);
         let c = item.getController("checked");
         if (c)
             c.selectedIndex = checked ? 2 : 1;
     }
 
-    public isItemChecked(name: string): boolean {
+    isItemChecked(name: string): boolean {
         let item = <GWidget>this._list.getChild(name);
         let c = item.getController("checked");
         if (c)
@@ -137,7 +137,7 @@ export class PopupMenu extends EventDispatcher {
             return false;
     }
 
-    public removeItem(name: string): boolean {
+    removeItem(name: string): boolean {
         let item = this._list.getChild(name);
         if (item) {
             let index = this._list.getChildIndex(item);
@@ -148,23 +148,23 @@ export class PopupMenu extends EventDispatcher {
             return false;
     }
 
-    public clearItems(): void {
+    clearItems(): void {
         this._list.removeChildrenToPool();
     }
 
-    public get itemCount(): number {
+    get itemCount(): number {
         return this._list.numChildren;
     }
 
-    public get contentPane() {
+    get contentPane() {
         return this._content;
     }
 
-    public get list() {
+    get list() {
         return this._list;
     }
 
-    public show(target?: GWidget, dir?: PopupDirection, parentMenu?: PopupMenu): void {
+    show(target?: GWidget, dir?: PopupDirection, parentMenu?: PopupMenu): void {
         if (GRoot.inst.popupMgr.isPopupJustClosed(this._content))
             return;
 
@@ -199,7 +199,7 @@ export class PopupMenu extends EventDispatcher {
         GRoot.inst.popupMgr.togglePopup(this._content, target, dir);
     }
 
-    public hide() {
+    hide() {
         if (this._content.parent)
             GRoot.inst.popupMgr.hidePopup(this._content);
     }

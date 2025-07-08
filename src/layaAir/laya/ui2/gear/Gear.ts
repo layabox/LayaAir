@@ -19,7 +19,7 @@ export class Gear {
 
     values: Record<number, any>;
 
-    public static disableAllTweenEffect = false;
+    static disableAllTweenEffect = false;
 
     constructor() {
         this.values = {};
@@ -56,21 +56,21 @@ export class Gear {
         }
     }
 
-    public get propPath(): string {
+    get propPath(): string {
         return this._propPath;
     }
 
-    public set propPath(value: string) {
+    set propPath(value: string) {
         this._propPath = value;
         this._propPathArr = value ? value.split(".") : null;
         this.onChanged(null);
     }
 
-    public get tween(): GearTweenConfig {
+    get tween(): GearTweenConfig {
         return this._tweenCfg;
     }
 
-    public set tween(value: GearTweenConfig) {
+    set tween(value: GearTweenConfig) {
         this._tweenCfg = value;
     }
 

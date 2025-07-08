@@ -12,7 +12,7 @@ export class NavAgent extends BaseNavAgent {
     /**@internal */
     protected _destination: Vector3 = new Vector3();
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     /**
      * @en Offset of the pivot point.

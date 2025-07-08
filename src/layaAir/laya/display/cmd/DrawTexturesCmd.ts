@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawTexturesCmd";
 
 /**
  * @en Draw multiple textures based on coordinate sets
@@ -13,7 +15,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTexturesCmd
      * @zh 根据坐标集合绘制多个贴图命令的标识符
      */
-    static readonly ID: string = "DrawTextures";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -45,7 +47,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
      * @returns DrawTexturesCmd实例
      */
     static create(texture: Texture, pos: number[], colors: number[]): DrawTexturesCmd {
-        var cmd: DrawTexturesCmd = Pool.getItemByClass("DrawTexturesCmd", DrawTexturesCmd);
+        var cmd: DrawTexturesCmd = Pool.getItemByClass(className, DrawTexturesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.pos = pos;
@@ -61,21 +63,21 @@ export class DrawTexturesCmd implements IGraphicsCmd {
         this.texture._removeReference();
         this.texture = null;
         this.pos = null;
-        Pool.recover("DrawTexturesCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the drawing textures command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制多个纹理命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.drawTextures(this.texture, this.pos, gx, gy, this.colors);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.drawTextures(this.texture, this.pos, gx, gy, this.colors);
     }
 
     /**

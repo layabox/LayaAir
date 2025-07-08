@@ -273,8 +273,8 @@ export class BrowserAdapter extends EventDispatcher {
     createMainCanvas() {
         let canvas = this.createElement("canvas");
         canvas.id = "layaCanvas";
-        canvas.width = 0;
-        canvas.height = 0;
+        canvas.width = 2;
+        canvas.height = 2;
 
         let style = canvas.style;
         style.position = 'absolute';

@@ -8,7 +8,7 @@
             "dom"
         ],
         "composite": true,
-        "stripInternal": true,
+        "stripInternal": false,
         "removeComments": false,
         "preserveConstEnums": false,
         "noImplicitAny": true,

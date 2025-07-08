@@ -18,7 +18,7 @@ export class BlendState {
 }
 
 export class BlendComponent {
-    static _pool: any = {};
+    static _pool: Record<number, BlendComponent> = {};
     static getHash(blendOperationGLData: number, sourceBlendFactor: number, destinationFactor: number): number {
         return (blendOperationGLData) + (sourceBlendFactor << 3) + (destinationFactor << 7);
     }

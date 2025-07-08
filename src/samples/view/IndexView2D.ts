@@ -140,6 +140,8 @@ import { Physics_CollisionFiltering_Shapes } from "../2d/Physics_CollisionFilter
 import { Physics_CollisionEvent_Shapes } from "../2d/Physics_CollisionEvent_Shapes";
 import { Physics_Bridge_Shapes } from "../2d/Physics_Bridge_Shapes";
 import { Physics_Strandbeests_Shapes } from "../2d/Physics_Strandbeests_Shapes";
+import { Camera2D_Layer } from "../2d/Camera2D_Layer";
+import { PrefabImpl } from "laya/resource/PrefabImpl";
 
 /**
  * 首页View 
@@ -155,7 +157,7 @@ export class IndexView2D extends IndexViewUI {
 
     //---------------------------------------------------------------------------------2D------------开始---------------------------------------------
     // 'IDE' '粒子' 去掉 
-    private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '区块地图', '滤镜', '点击', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', '物理', 'DOM', '输入设备', 'Loader加载', 'Demo', "2D渲染"];
+    private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '滤镜', '点击', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', '物理', 'DOM', '输入设备', 'Loader加载', 'Demo', "2D相机" , "2D渲染" ];
     /************************sprite-start***************************/
     private _comboBoxSpriteClsArr: any[] = [Sprite_DisplayImage, Sprite_Container, Sprite_RoateAndScale, Sprite_DrawPath, Sprite_MagnifyingGlass, Sprite_DrawShapes, Sprite_Cache, Sprite_NodeControl, Sprite_Pivot, Sprite_SwitchTexture, Sprite_ScreenShot, Sprite_Guide];
     private _comboBoxSpriteArr: any[] = ['显示图片', '容器', '旋转缩放', '根据数据绘制路径', '遮罩-放大镜', '绘制各种形状', '缓存为静态图像', '节点控制', '轴中心', '切换纹理', '截图', '新手指导'];
@@ -266,9 +268,14 @@ export class IndexView2D extends IndexViewUI {
     private _comboBoxHitTestArr: any[] = ['区域检测', '矩形检测'];
     /************************HitTest-end***************************/
 
+    /************************Camera2D-start***************************/
+    private _comboBoxCamera2DClsArr: any[] = [Camera2DDemo, Camera2D_Layer];
+    private _comboBoxCamera2DArr: any[] = ['2D相机', "2D相机层级"]
+    /************************Camera2D-end***************************/
+
     /************************Render2D-start***************************/
-    private _render2DTestClsArr: any[] = [Camera2DDemo, Material2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
-    private _render2DTestArr: any[] = ['2D相机', "2D自定义材质示例", '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
+    private _render2DTestClsArr: any[] = [Material2DDemo, Light2DDemo, Line2DRenderDemo, Mesh2DRenderDemo, Trail2DRenderDemo, TileMapLayerDemo, RenderCMD2DDemo];
+    private _render2DTestArr: any[] = ["2D自定义材质示例", '2D灯光示例', '2D线段渲染器', '2D网格渲染器', '2D拖尾渲染器', '瓦块地图层级示例', '2D渲染命令示例'];
     /************************Render2D-end***************************/
 
     private _bigIndex: number = -1;
@@ -279,6 +286,8 @@ export class IndexView2D extends IndexViewUI {
         super();
         this.Main = MainCls;
         this.box2d = box;
+        this.name = "Index2D"
+        PrefabImpl.legacySceneOrPrefab.createByData(this, IndexViewUI.uiView);
         this.initView();
         this.initEvent();
         this.zOrder = 99999;
@@ -319,7 +328,6 @@ export class IndexView2D extends IndexViewUI {
         this.btn.scale(4, 4);
         this.btn.bottom = 50;
         this.btn.left = 700;
-
         this.btn.on(Event.MOUSE_DOWN, this, this.nextBtn);
     }
 
@@ -417,77 +425,77 @@ export class IndexView2D extends IndexViewUI {
                 this._oldView = new this._comboBoxBlendModeClsArr[index](this.Main);
                 this.b_length = this._comboBoxBlendModeClsArr.length - 1;
                 break;
-            case 4://TiledMap
-                // this._oldView = new this._comboBoxTiledMapClsArr[index](this.Main);
-                // this.b_length = this._comboBoxTiledMapClsArr.length - 1;
-                break;
-            case 5://Filters
+            case 4://Filters
                 this._oldView = new this._comboBoxFiltersClsArr[index](this.Main);
                 this.b_length = this._comboBoxFiltersClsArr.length - 1;
                 break;
-            case 6:// other
+            case 5:// other
                 this._oldView = new this._comboBoxHitTestClsArr[index](this.Main);
                 this.b_length = this._comboBoxHitTestClsArr.length - 1;
                 break;
-            case 7://Sound
+            case 6://Sound
                 this._oldView = new this._comboBoxSoundClsArr[index](this.Main);
                 this.b_length = this._comboBoxSoundClsArr.length - 1;
                 break;
-            case 8://Text
+            case 7://Text
                 this._oldView = new this._comboBoxTextClsArr[index](this.Main);
                 this.b_length = this._comboBoxTextClsArr.length - 1;
                 break;
-            case 9://UI
+            case 8://UI
                 this._oldView = new this._comboBoxUIClsArr[index](this.Main);
                 this.b_length = this._comboBoxUIClsArr.length - 1;
                 break;
-            case 10://Timer
+            case 9://Timer
                 this._oldView = new this._comboBoxTimerClsArr[index](this.Main);
                 this.b_length = this._comboBoxTimerClsArr.length - 1;
                 break;
-            case 11://Tween
+            case 10://Tween
                 this._oldView = new this._comboBoxTweenClsArr[index](this.Main);
                 this.b_length = this._comboBoxTweenClsArr.length - 1;
                 break;
-            case 12://Interaction
+            case 11://Interaction
                 this._oldView = new this._comboBoxInteractionClsArr[index](this.Main);
                 this.b_length = this._comboBoxInteractionClsArr.length - 1;
                 break;
-            case 13://SmartScale
+            case 12://SmartScale
                 this._oldView = new this._comboBoxSmartScaleClsArr[index](this.Main);
                 this.b_length = this._comboBoxSmartScaleClsArr.length - 1;
                 break;
-            case 14://Network
+            case 13://Network
                 this._oldView = new this._comboBoxNetworkClsArr[index](this.Main);
                 this.b_length = this._comboBoxNetworkClsArr.length - 1;
                 break;
-            case 15://Debug
+            case 14://Debug
                 this._oldView = new this._comboBoxDebugClsArr[index](this.Main);
                 this.b_length = this._comboBoxDebugClsArr.length - 1;
                 break;
-            case 16://PerformanceTest
+            case 15://PerformanceTest
                 this._oldView = new this._comboBoxPerformanceTestClsArr[index](this.Main);
                 this.b_length = this._comboBoxPerformanceTestClsArr.length - 1;
                 break;
-            case 17:// Physics
+            case 16:// Physics
                 this._oldView = new this._comboBoxPhysicsClsArr[index](this.Main);
                 this.b_length = this._comboBoxPhysicsClsArr.length - 1;
                 break;
-            case 18:// DOM
+            case 17:// DOM
                 this._oldView = new this._comboBoxDomClsArr[index](this.Main);
                 this.b_length = this._comboBoxDomClsArr.length - 1;
                 break;
-            case 19:// InputDevice
+            case 18:// InputDevice
                 this._oldView = new this._comboBoxInputDeviceClsArr[index](this.Main);
                 this.b_length = this._comboBoxInputDeviceClsArr.length - 1;
                 break;
-            case 20:// Loader
+            case 19:// Loader
                 this._oldView = new this._comboBoxLoaderClsArr[index](this.Main);
                 this.b_length = this._comboBoxLoaderClsArr.length - 1;
                 break;
-            case 21:// Demo
+            case 20:// Demo
                 this._oldView = new this._comboBoxDemoClsArr[index](this.Main);
                 this.b_length = this._comboBoxDemoClsArr.length - 1;
+                break;
+            case 21://Camera2D
+                this._oldView = new this._comboBoxCamera2DClsArr[index](this.Main);
+                this.b_length = this._comboBoxCamera2DClsArr.length - 1;
                 break;
             case 22://2DRender
                 this._oldView = new this._render2DTestClsArr[index](this.Main);
@@ -531,59 +539,59 @@ export class IndexView2D extends IndexViewUI {
                 case 3://BlendMode
                     labelStr = this._comboBoxBlendModeArr.toString();
                     break;
-                case 4://TiledMap
-                    //labelStr = this._comboBoxTiledMapArr.toString();
-                    break;
-                case 6://other
-                    labelStr = this._comboBoxHitTestArr.toString();
-                    break;
-                case 5://Filters
+                case 4://Filters
                     labelStr = this._comboBoxFiltersArr.toString();
                     break;
-                case 7://Sound
+                case 5://other
+                    labelStr = this._comboBoxHitTestArr.toString();
+                    break;
+                case 6://Sound
                     labelStr = this._comboBoxSoundArr.toString();
                     break;
-                case 8://Text
+                case 7://Text
                     labelStr = this._comboBoxTextArr.toString();
                     break;
-                case 9://UI
+                case 8://UI
                     labelStr = this._comboBoxUIArr.toString();
                     break;
-                case 10://Timer
+                case 9://Timer
                     labelStr = this._comboBoxTimerArr.toString();
                     break;
-                case 11://Tween
+                case 10://Tween
                     labelStr = this._comboBoxTweenArr.toString();
                     break;
-                case 12://Interaction
+                case 11://Interaction
                     labelStr = this._comboBoxInteractionArr.toString();
                     break;
-                case 13://SmartScale
+                case 12://SmartScale
                     labelStr = this._comboBoxSmartScaleArr.toString();
                     break;
-                case 14://Network
+                case 13://Network
                     labelStr = this._comboBoxNetworkArr.toString();
                     break;
-                case 15://Debug
+                case 14://Debug
                     labelStr = this._comboBoxDebugArr.toString();
                     break;
-                case 16://PerformanceTest
+                case 15://PerformanceTest
                     labelStr = this._comboBoxPerformanceTestArr.toString();
                     break;
-                case 17://Physics
+                case 16://Physics
                     labelStr = this._comboBoxPhysicsArr.toString();
                     break;
-                case 18://Dom
+                case 17://Dom
                     labelStr = this._comboBoxDomArr.toString();
                     break;
-                case 19://inputDevice
+                case 18://inputDevice
                     labelStr = this._comboBoxInputDeviceArr.toString();
                     break;
-                case 20://Loader
+                case 19://Loader
                     labelStr = this._comboBoxLoaderArr.toString();
                     break;
-                case 21://Demo
+                case 20://Demo
                     labelStr = this._comboBoxDemoArr.toString();
+                    break;
+                case 21://Camera2D
+                    labelStr = this._comboBoxCamera2DArr.toString();
                     break;
                 case 22://2DRender
                     labelStr = this._render2DTestArr.toString();

@@ -48,8 +48,11 @@ export class Trail2DRenderDemo {
         ape2.texture = img;
         ape.pos(500, 500);
         ape2.pos(300, 300);
+        var ape3 = new Sprite();
+        ape2.addChild(ape3);
+        ape3.pos(0,0);
 
-        this.trail2Drender = ape2.addComponent(Trail2DRender) as Trail2DRender;
+        this.trail2Drender = ape3.addComponent(Trail2DRender) as Trail2DRender;
 
         this.trail2Drender.widthMultiplier = 50;
         this.trail2Drender.time = 0.5;

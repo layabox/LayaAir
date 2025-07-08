@@ -148,14 +148,9 @@ export class TileMapLayerDemo {
             cellData.cellowner.animation_columns = 1;
             cellData.cellowner.animationFrams = [1, 1];
         }
-
         {
             let cellData = this.collectCellDataToMap(group1, new Vector2(17, 0), new Vector2(3, 3), 0, "liangtin");
         }
-
-
-
-
         return tileSet;
     }
 

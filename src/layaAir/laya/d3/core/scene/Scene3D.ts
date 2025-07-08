@@ -1,7 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
-import { Context } from "../../../renders/Context";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
@@ -53,6 +52,7 @@ import { IElementComponentManager } from "../../../components/IScenceComponentMa
 import { Config } from "../../../../Config";
 import { Sprite3D } from "../Sprite3D";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
+import { Node } from "../../../display/Node";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -272,6 +272,9 @@ export class Scene3D extends Sprite {
         if (supportFloatLinearFiltering) {
             configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR);
         }
+        let supportStorageBuffer = LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer);
+        if (supportStorageBuffer)
+            configShaderValue.add(Shader3D.SHADERDEFINE_STORAGEBUFFER)
     }
 
     /**
@@ -904,7 +907,7 @@ export class Scene3D extends Sprite {
                     // 	this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
                     // 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
                     // }
-                    if (i == 0) {
+                    if (i === 0) {
                         this._sunColor = dirLight.color;
                         this._sundir = dir;
                     }
@@ -1006,7 +1009,7 @@ export class Scene3D extends Sprite {
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
                 shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight.direction);
                 shaderValues.setInt(Scene3D.LIGHTMODE, dirLight._lightmapBakedType);
-                if (i == 0) {
+                if (i === 0) {
                     this._sunColor = dirLight.color;
                     this._sundir = dirLight.direction;
                 }
@@ -1130,6 +1133,9 @@ export class Scene3D extends Sprite {
         this._sceneRenderManager.removeRenderObject(render);
     }
 
+    _setBelongScene(scene: Node): void {
+        
+    }
     /**
      * @en Destroys the scene.
      * @param destroyChild Whether to destroy the child node.
@@ -1182,18 +1188,6 @@ export class Scene3D extends Sprite {
     }
 
     /**
-     * @internal
-     */
-    render(ctx: Context): void {
-        return;//3d的render由外面直接调rendersubmit
-        if (this._children.length > 0) {
-            //temp
-            ctx.drawLeftData();
-            this.renderSubmit();
-        }
-    }
-
-    /**
      * @en The rendering entry.
      * @zh 渲染入口
      */
@@ -1230,7 +1224,7 @@ export class Scene3D extends Sprite {
                 camera._aftRenderMainPass();
             }
         }
-        Context.set2DRenderConfig();//还原2D配置
+        // Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();
     }
 
@@ -1256,13 +1250,6 @@ export class Scene3D extends Sprite {
         cmd.recover();
         RenderTexture2D._clear = false;
         BlitFrameBufferCMD.shaderdata.removeDefine(BaseCamera.SHADERDEFINE_FXAA);
-    }
-
-    /**
-     * @internal
-     */
-    reUse(context: Context, pos: number): number {
-        return 0;
     }
 
     /**

@@ -82,7 +82,7 @@ export class BaseLight2D extends Component {
      */
     static idCounter: number = 0; //灯光对象计数器
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @internal

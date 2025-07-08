@@ -1,4 +1,5 @@
 import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
+import { Pool } from "../../../../utils/Pool";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { RenderElement } from "../RenderElement";
 import { Command } from "./Command";
@@ -8,8 +9,8 @@ import { Command } from "./Command";
  * @zh 表示一个绘制渲染元素命令。
  */
 export class DrawRenderElementCMD extends Command {
-    /**@internal */
-    private static _pool: DrawRenderElementCMD[] = [];
+    private static readonly _pool = Pool.createPool(DrawRenderElementCMD);
+
     /**
      * @en Creates a new instance of the command or retrieves one from the pool.
      * @param renderElement The render element associated with this command.
@@ -20,7 +21,7 @@ export class DrawRenderElementCMD extends Command {
      */
     static create(renderElement: RenderElement): DrawRenderElementCMD {
         var cmd: DrawRenderElementCMD;
-        cmd = DrawRenderElementCMD._pool.length > 0 ? DrawRenderElementCMD._pool.pop() : new DrawRenderElementCMD();
+        cmd = DrawRenderElementCMD._pool.take();
         cmd.renderElement = renderElement;
         return cmd;
     }
@@ -56,7 +57,7 @@ export class DrawRenderElementCMD extends Command {
      */
     recover(): void {
         super.recover();
-        DrawRenderElementCMD._pool.push(this);
+        DrawRenderElementCMD._pool.recover(this);
     }
 
     /**

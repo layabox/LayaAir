@@ -18,7 +18,6 @@ import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { Context } from "../renders/Context";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Pool } from "../utils/Pool";
@@ -161,7 +160,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         ];
     }
     destroy(): void {
-        // throw new Error("Method not implemented.");
+        //throw new NotImplementedError();
     }
 
     /**
@@ -174,13 +173,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * 场景矩阵发生变化
-     * @param context 
      */
-    private _sceneTransformChange(context: Context) {
+    private _sceneTransformChange() {
         let mat = ILaya.stage.transform; //获取Stage的矩阵
         this._stageMat0.set(mat.a, mat.c, mat.tx);
         this._stageMat1.set(mat.b, mat.d, mat.ty);
-        if (context._drawingToTexture) {
+        if (false) {//IDE 判断 是否需要画到纹理上
             this._sceneInv0.set(mat.a, mat.c, mat.tx);
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         } else {
@@ -189,11 +187,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             this._sceneInv1.set(mat.b, mat.d, mat.ty);
         }
 
-        const shaderData = this._scene.sceneShaderData; //上传给着色器
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, this._sceneInv0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, this._sceneInv1);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, this._stageMat0);
-        shaderData.setVector3(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, this._stageMat1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, ShaderDataType.Vector3, this._sceneInv0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, ShaderDataType.Vector3, this._sceneInv1);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, ShaderDataType.Vector3, this._stageMat0);
+        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, ShaderDataType.Vector3, this._stageMat1);
     }
 
     /**
@@ -681,7 +678,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      */
     private _updateLayerRenderRes(layer: number) {
         if (!this._lightRenderRes[layer])
-            this._lightRenderRes[layer] = new Light2DRenderRes(this._scene, layer, LayaGL.renderEngine._screenInvertY);
+            this._lightRenderRes[layer] = new Light2DRenderRes(this._scene, layer, false);
         this._lightRenderRes[layer].addLights(this._lightsInLayer[layer], this._needToRecover);
         this._needUpdateLightRes |= (1 << layer);
         if (Light2DManager.REUSE_CMD) {
@@ -787,13 +784,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * @en Render light and shader texture
-     * @param context Render context
      * @zh 渲染光影图
-     * @param context 渲染上下文
      */
-    preRenderUpdate(context: Context) {
+    preRenderUpdate() {
         //处理场景矩阵变化
-        this._sceneTransformChange(context);
+        this._sceneTransformChange();
 
         //灯光状态是否更新
         const _isLightUpdate = (light: BaseLight2D) => {
@@ -997,14 +992,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        const area2DArrays = this._scene._area2Ds;
-        if (area2DArrays.length > 0) {
+        if (this._scene._area2Ds.size > 0) {
             let xL = 10000000;
             let xR = -10000000;
             let yB = 10000000;
             let yT = -10000000;
-            for (let i = 0; i < area2DArrays.length; i++) {
-                const camera = area2DArrays[i].mainCamera;
+            for (let area of this._scene._area2Ds) {
+                const camera = area.mainCamera;
                 if (camera) {
                     let rect = camera._rect;
                     xL = Math.min(xL, rect.x);

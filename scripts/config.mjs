@@ -38,11 +38,8 @@ export const allBundles = [{
         'laya/RenderEngine/RenderShader/**/*.*',
         'laya/RenderEngine/*.*',
 
-        'laya/RenderDriver/RenderModuleData/Design/IDefineDatas.ts',
-        'laya/RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory.ts',
-        'laya/RenderDriver/RenderModuleData/Design/RenderState.ts',
-        'laya/RenderDriver/RenderModuleData/Design/ShaderDefine.ts',
-
+        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+      
         'laya/loaders/**/*.*',
         'laya/maths/**/*.*',
         'laya/media/**/*.*',
@@ -85,9 +82,9 @@ export const allBundles = [{
         'laya/d3/Touch.ts',
         'laya/d3/ModuleDef.ts',
 
-        'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
+        // 'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         'laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
-        'laya/RenderDriver/RenderModuleData/Design/**/*.*',
+        // 'laya/RenderDriver/RenderModuleData/Design/**/*.*',
 
         'laya/d3/RenderObjs/NativeOBJ/*.*',
         'laya/d3/RenderObjs/RenderObj/*.*',
@@ -127,6 +124,7 @@ export const allBundles = [{
         'laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
         'laya/RenderDriver/WebGLDriver/2DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
     ],
 },
 {
@@ -144,8 +142,9 @@ export const allBundles = [{
         'laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
         'laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
     ],
-    copy: ['jsLibs/naga_wasm_bg.wasm', 'jsLibs/naga_wasm.mjs']
+    copy: ['jsLibs/nagabind_bg.wasm', 'jsLibs/nagabind.js', 'jsLibs/shader_compiler_web.wasm', 'jsLibs/shader_compiler_web.js']
 },
 {
     name: 'webgpu_3D',
@@ -198,7 +197,7 @@ export const allBundles = [{
     name: 'physics2D',
     input: [
         'laya/physics/Collider2D/*.*',
-        'laya/physics/factory/*.*',
+        'laya/physics/factory/IPhysics2DFactory.ts',
         'laya/physics/Shape/*.*',
         'laya/physics/joint/*.*',
 

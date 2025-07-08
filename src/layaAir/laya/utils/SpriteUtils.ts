@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -178,34 +179,6 @@ export class SpriteUtils {
         dom.style.top = transform.y + 'px';
     }
 
-    /**
-     * @internal
-     * @en Reorders the passed array of items based on the Z property of the child items.
-     * Returns a Boolean value indicating whether the array has been reordered.
-     * @param array The array of child objects.
-     * @return A Boolean value indicating if the array has been reordered.
-     * @zh 根据子项的 Z 属性值对传入的数组列表进行重新排序。
-     * 返回一个 Boolean 值，表示是否已重新排序。
-     * @param array 子对象数组。
-     * @return Boolean 值，表示是否已重新排序。
-     */
-    static updateOrder(array: Array<Sprite>): boolean {
-        if (!array || array.length < 2) return false;
-        let i: number = 1, j: number, len: number = array.length, key: number, c: Sprite;
-        while (i < len) {
-            j = i;
-            c = array[j];
-            key = array[j]._zOrder;
-            while (--j > -1) {
-                if (array[j]._zOrder > key) array[j + 1] = array[j];
-                else break;
-            }
-            array[j + 1] = c;
-            i++;
-        }
-        return true;
-    }
-
     static localToGlobalRect(sp: Sprite, rect: Rectangle): Rectangle {
         let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y));
         let x = pt.x;
@@ -230,4 +203,68 @@ export class SpriteUtils {
         sp.localToGlobal(pt.setTo(rect.right, rect.bottom), false, targetSpace);
         return rect.setTo(x, y, x + pt.x, y + pt.y);
     }
+
+    static getRTRect(sprite: Sprite, out: Rectangle): void {
+        let tempRect = TEMP_RECT_1;
+        if (sprite.mask != null) {
+            SpriteUtils.getMaskRect(sprite, tempRect);
+        } else {
+            SpriteUtils.getSpriteRect(sprite, tempRect);
+        }
+
+        if (tempRect.width <= 0 || tempRect.height <= 0) {
+            out.setTo(0, 0, sprite.width, sprite.height);
+            return;
+        }
+        tempRect.cloneTo(out);
+    }
+
+    static getSpriteRect(sprite: Sprite, out: Rectangle): void {
+        SpriteUtils.calculateCacheRect(sprite, "bitmap", 0, 0, out);
+    }
+
+    static getMaskRect(sprite: Sprite, out: Rectangle) {
+        let mask = sprite.mask;
+        SpriteUtils.calculateCacheRect(mask, "bitmap", 0, 0, out);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
+
+        //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
+        //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
+        out.x += mask._x;
+        out.y += mask._y;
+
+        if (out.width <= 0 || out.height <= 0)
+            out.setTo(0, 0, 0, 0);
+    }
+
+    private static calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number, out: Rectangle): void {
+        let tRec: Rectangle;
+
+        //计算显示对象的绘图区域
+        if (tCacheType === "bitmap") {
+            tRec = sprite.getSelfBounds();
+            tRec.width = tRec.width;//+ extend * 2;
+            tRec.height = tRec.height;// + extend * 2;
+            tRec.x = tRec.x - sprite.pivotX;
+            tRec.y = tRec.y - sprite.pivotY;
+            //关于xy这里有些迷惑，这里看来是表示相对于sprite原点的位置。
+            //tRec.x = tRec.x ;//- extend;
+            //tRec.y = tRec.y ;//- extend;
+            tRec.x = Math.floor(tRec.x + x) - x;
+            tRec.y = Math.floor(tRec.y + y) - y;
+            tRec.width = Math.floor(tRec.width);
+            tRec.height = Math.floor(tRec.height);
+            out.copyFrom(tRec);
+        } else {
+            out.setTo(-sprite.pivotX, -sprite.pivotY, 1, 1);
+        }
+        //处理显示对象的scrollRect偏移
+        if (sprite.scrollRect) {
+            let scrollRect: Rectangle = sprite.scrollRect;
+            out.x -= scrollRect.x;
+            out.y -= scrollRect.y;
+        }
+    }
 }
+
+const TEMP_RECT_0 = new Rectangle();
+const TEMP_RECT_1 = new Rectangle();

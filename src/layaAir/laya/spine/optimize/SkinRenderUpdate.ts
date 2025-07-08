@@ -121,7 +121,7 @@ export class SkinRenderUpdate {
         
         let frameData = skindata.getFrameData(frame);
 
-        let isFirst = frame < 0;
+        let isFirst = lastFrame < 0;
         let needUpload = false;
 
         if (isFirst) {

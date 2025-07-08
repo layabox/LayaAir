@@ -89,7 +89,7 @@ export class MediaAdapter {
     }
 
     canPlayType(type: string): CanPlayTypeResult {
-        if (typeof (HTMLAudioElement) !== undefined && typeof (HTMLAudioElement.prototype.canPlayType) === "function") {
+        if (typeof (HTMLAudioElement) !== "undefined" && typeof (HTMLAudioElement.prototype.canPlayType) === "function") {
             if (!this._testElement)
                 this._testElement = Browser.createElement("audio");
             return this._testElement.canPlayType(type);

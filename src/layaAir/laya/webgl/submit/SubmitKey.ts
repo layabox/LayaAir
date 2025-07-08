@@ -1,10 +1,12 @@
+import { BlendMode } from "../canvas/BlendMode";
+
 /**
  * ...
  * @author xie
  */
 export class SubmitKey {
-    blendShader: number;
-    submitType: number;
+    blendShader: BlendMode;
+    // submitType: number;
     other: number;
 
     constructor() {
@@ -12,7 +14,7 @@ export class SubmitKey {
     }
 
     clear(): void {
-        this.submitType = -1;
+        // this.submitType = -1;
         this.blendShader = this.other = 0;
         //alpha = 1;
     }

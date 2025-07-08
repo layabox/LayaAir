@@ -1,6 +1,8 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "ClipRectCmd";
 
 /**
  * @en Clip command
@@ -12,7 +14,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @en Identifier for the ClipRectCmd
      * @zh 裁剪命令的标识符
      */
-    static readonly ID: string = "ClipRect";
+    static readonly ID: string = className;
     /**
      * @en X-axis offset.
      * @zh X 轴偏移量。
@@ -49,7 +51,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @returns 一个已用给定参数初始化的 ClipRectCmd 实例。
      */
     static create(x: number, y: number, width: number, height: number): ClipRectCmd {
-        var cmd: ClipRectCmd = Pool.getItemByClass("ClipRectCmd", ClipRectCmd);
+        var cmd: ClipRectCmd = Pool.getItemByClass(className, ClipRectCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -62,22 +64,21 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池。
      */
     recover(): void {
-
-        Pool.recover("ClipRectCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the clip rectangle command in the given context.
-     * @param context The rendering context.
+     * @param runner The rendering context.
      * @param gx The global x coordinate.
      * @param gy The global y coordinate.
      * @zh 在给定的上下文中执行裁剪矩形命令。
-     * @param context 渲染上下文。
+     * @param runner 渲染上下文。
      * @param gx 全局 x 坐标。
      * @param gy 全局 y 坐标。
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.clipRect(this.x + gx, this.y + gy, this.width, this.height);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.clipRect(this.x + gx, this.y + gy, this.width, this.height);
     }
 
     /**

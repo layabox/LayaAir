@@ -1,7 +1,9 @@
-import { Context } from "../../renders/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawPieCmd";
 
 /**
  * @en Draw a pie chart
@@ -12,7 +14,7 @@ export class DrawPieCmd implements IGraphicsCmd {
      * @en Identifier for the DrawPieCmd
      * @zh 绘制扇形命令的标识符
      */
-    static readonly ID: string = "DrawPie";
+    static readonly ID: string = className;
 
     /**
      * @en The X-axis position to start drawing.
@@ -72,7 +74,7 @@ export class DrawPieCmd implements IGraphicsCmd {
      * @returns 绘制扇形命令实例
      */
     static create(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number): DrawPieCmd {
-        var cmd: DrawPieCmd = Pool.getItemByClass("DrawPieCmd", DrawPieCmd);
+        var cmd: DrawPieCmd = Pool.getItemByClass(className, DrawPieCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.radius = radius;
@@ -91,23 +93,23 @@ export class DrawPieCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawPieCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the drawing command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局 X 偏移
      * @param gy 全局 Y 偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         let lineOffset = this.lineColor ? this.lineWidth : 0;
-        context._drawPie(this.x + offset + gx, this.y + offset + gy, this.radius - lineOffset, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
+        runner._drawPie(this.x + offset + gx, this.y + offset + gy, this.radius - lineOffset, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**
@@ -187,4 +189,4 @@ export class DrawPieCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawPieCmd", DrawPieCmd);
+ClassUtils.regClass(className, DrawPieCmd);

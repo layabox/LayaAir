@@ -68,7 +68,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     /**
      * max instance count
      */
-    static MaxInstanceCount: number = 1024;
+    static readonly MaxInstanceCount: number = 1024;
 
     /**
      * @internal

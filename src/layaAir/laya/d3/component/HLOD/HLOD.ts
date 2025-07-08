@@ -36,7 +36,7 @@ export class HLOD extends Component {
     /**@internal */
     private _size: number;
 
-    declare owner: Sprite3D;
+    declare readonly owner: Sprite3D;
 
     constructor() {
         super();

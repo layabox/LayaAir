@@ -4,7 +4,6 @@ import type { GList } from "../GList";
 import type { ListLayout } from "../layout/ListLayout";
 import { Selection } from "./Selection";
 import { GWidget } from "../GWidget";
-import { GTextInput } from "../GTextInput";
 import { Event } from "../../events/Event";
 import { Input } from "../../display/Input";
 import { UIEvent } from "../UIEvent";
@@ -19,7 +18,7 @@ export class ListSelection extends Selection {
         this._layout = <ListLayout>owner.layout;
     }
 
-    public get index(): number {
+    get index(): number {
         if (this._layout._virtual) {
             for (let i = 0; i < this._layout._realNumItems; i++) {
                 let ii = this._layout._items[i];
@@ -38,7 +37,7 @@ export class ListSelection extends Selection {
             return super.index;
     }
 
-    public set index(value: number) {
+    set index(value: number) {
         if (this._layout._virtual) {
             if (value >= 0 && value < this._layout.numItems) {
                 if (this._mode != SelectionMode.Single)
@@ -52,7 +51,7 @@ export class ListSelection extends Selection {
             super.index = value;
     }
 
-    public get(out?: number[]): number[] {
+    get(out?: number[]): number[] {
         if (this._layout._virtual) {
             if (!out)
                 out = [];
@@ -77,7 +76,7 @@ export class ListSelection extends Selection {
             return super.get(out);
     }
 
-    public add(index: number, scrollItToView?: boolean): void {
+    add(index: number, scrollItToView?: boolean): void {
         if (this._layout._virtual) {
             if (this._mode == SelectionMode.Disabled)
                 return;
@@ -104,7 +103,7 @@ export class ListSelection extends Selection {
             super.add(index, scrollItToView);
     }
 
-    public remove(index: number): void {
+    remove(index: number): void {
         if (this._layout._virtual) {
             if (this._mode == SelectionMode.Disabled)
                 return;
@@ -122,7 +121,7 @@ export class ListSelection extends Selection {
             super.remove(index);
     }
 
-    public clear(): void {
+    clear(): void {
         if (this._layout._virtual) {
             for (let i = 0; i < this._layout._realNumItems; i++) {
                 let ii = this._layout._items[i];
@@ -150,7 +149,7 @@ export class ListSelection extends Selection {
             super.clearExcept(g);
     }
 
-    public selectAll(): void {
+    selectAll(): void {
         if (this._layout._virtual) {
             this._layout._checkVirtualList();
 
@@ -166,7 +165,7 @@ export class ListSelection extends Selection {
             super.selectAll();
     }
 
-    public selectReverse(): void {
+    selectReverse(): void {
         if (this._layout._virtual) {
             this._layout._checkVirtualList();
 
@@ -182,7 +181,7 @@ export class ListSelection extends Selection {
             super.selectReverse();
     }
 
-    public handleClick(item: GButton, evt: Event): void {
+    handleClick(item: GButton, evt: Event): void {
         if (this._layout._virtual) {
             let scroller = this._owner.scroller;
             if (scroller?.isDragged)
@@ -262,7 +261,7 @@ export class ListSelection extends Selection {
             super.handleClick(item, evt);
     }
 
-    public handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number): number {
         if (this._layout._virtual) {
             let curIndex = this.index;
             if (curIndex == -1) {

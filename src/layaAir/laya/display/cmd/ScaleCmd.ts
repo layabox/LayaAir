@@ -1,7 +1,10 @@
 import { Matrix } from "../../maths/Matrix";
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "ScaleCmd";
+
 /**
  * @en Scale command
  * @zh 缩放命令
@@ -12,7 +15,7 @@ export class ScaleCmd implements IGraphicsCmd {
      * @en Identifier for the ScaleCmd
      * @zh 缩放命令的标识符
      */
-    static readonly ID: string = "Scale";
+    static readonly ID: string = className;
 
     /**
      * @en Horizontal scaling value.
@@ -50,7 +53,7 @@ export class ScaleCmd implements IGraphicsCmd {
      * @returns 缩放命令实例
      */
     static create(scaleX: number, scaleY: number, pivotX: number, pivotY: number): ScaleCmd {
-        var cmd: ScaleCmd = Pool.getItemByClass("ScaleCmd", ScaleCmd);
+        var cmd: ScaleCmd = Pool.getItemByClass(className, ScaleCmd);
         cmd.scaleX = scaleX;
         cmd.scaleY = scaleY;
         cmd.pivotX = pivotX;
@@ -63,22 +66,21 @@ export class ScaleCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-
-        Pool.recover("ScaleCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the scale command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行缩放命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
-        context._scale(this.scaleX, this.scaleY, this.pivotX + gx, this.pivotY + gy);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner._scale(this.scaleX, this.scaleY, this.pivotX + gx, this.pivotY + gy);
     }
 
     /**

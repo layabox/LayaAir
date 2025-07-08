@@ -59,12 +59,7 @@ export class BaseCamera extends Sprite3D {
     /**@internal */
     static CAMERAUNIFORMBLOCK: number;
     /**Camera Define*/
-    /**@internal */
-    static SHADERDEFINE_DEPTH: ShaderDefine;
-    /**@internal */
-    static SHADERDEFINE_DEPTHNORMALS: ShaderDefine;
-    /**@internal */
-    static SHADERDEFINE_ORTHOGRAPHIC: ShaderDefine;
+
     /**@internal */
     static SHADERDEFINE_FXAA: ShaderDefine;
 
@@ -89,9 +84,6 @@ export class BaseCamera extends Sprite3D {
      * @zh 初始化着色器信息
      */
     static shaderValueInit() {
-        BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
-        BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
-        BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
         BaseCamera.SHADERDEFINE_FXAA = Shader3D.getDefineByName("FXAA");
 
 
@@ -301,10 +293,6 @@ export class BaseCamera extends Sprite3D {
     set orthographic(vaule: boolean) {
         this._orthographic = vaule;
         this._calculateProjectionMatrix();
-        if (vaule) {
-            this._shaderValues.addDefine(BaseCamera.SHADERDEFINE_ORTHOGRAPHIC);
-        } else
-            this._shaderValues.removeDefine(BaseCamera.SHADERDEFINE_ORTHOGRAPHIC);
     }
 
     /**
@@ -400,7 +388,7 @@ export class BaseCamera extends Sprite3D {
      */
     _sortCamerasByRenderingOrder(): void {
         if (this.displayedInStage) {
-            var cameraPool: BaseCamera[] = this.scene._cameraPool;//TODO:可优化，从队列中移除再加入
+            var cameraPool: BaseCamera[] = this._scene._cameraPool;//TODO:可优化，从队列中移除再加入
             var n: number = cameraPool.length - 1;
             for (var i: number = 0; i < n; i++) {
                 if (cameraPool[i].renderingOrder > cameraPool[n].renderingOrder) {

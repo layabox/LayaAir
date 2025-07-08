@@ -1,5 +1,3 @@
-
-import { stat } from "fs";
 import { RenderPassStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
@@ -16,11 +14,16 @@ import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModul
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
-import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
+import { RenderInfo } from "../../../../renders/RenderInfo";
+import { WebDefineDatas } from "../WebDefineDatas";
 
-
+interface DynamicBaseRenderClass {
+    new(): WebBaseRenderNode;
+    readonly prototype: WebBaseRenderNode
+}
 
 export class WebBaseRenderNode implements IBaseRenderNode {
+    static BaseRenderNodeClass: DynamicBaseRenderClass;
     renderNodeType: number;
     boundsChange: boolean;
     distanceForSort: number;
@@ -43,21 +46,32 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     lightmap: WebLightmap;
     probeReflection: WebReflectionProbe;
     volumetricGI: WebVolumetricGI;
-    shaderData: ShaderData;
+
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
+    _driverCacheData: any;//记录渲染底层共用的渲染数据
+    ismoved: number = 0;
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
-    private _additionShaderData: Map<string, ShaderData>;
 
+    protected _additionShaderData: Map<string, ShaderData>;
 
+    protected _shaderData: ShaderData;
+
+    public get shaderData() {
+        return this._shaderData;
+    }
+
+    public set shaderData(value) {
+        this._shaderData = value;
+    }
 
     /**
     * context3D:GLESRenderContext3D
@@ -86,9 +100,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _calculateBoundingBox() {
         this._caculateBoundingBoxFun.call(this._caculateBoundingBoxCall);
     }
-
-
-
 
     /**
      * get bounds
@@ -125,7 +136,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.lightmapDirtyFlag = -1;
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
-        this.additionShaderData = new Map();
+        this._additionShaderData = new Map();
     }
 
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
@@ -164,7 +175,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._caculateBoundingBoxFun = fun;
     }
 
-
     /**
      * 视锥检测包围盒
      * @param boundFrustum 
@@ -180,7 +190,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
 
 
     /**
-     * @internal
      * @param value :RenderElementObj
      */
     setRenderelements(value: IRenderElement3D[]): void {
@@ -301,10 +310,12 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.volumetricGI = null;
         this.renderelements.length = 0;
         this.renderelements = null;
-        this._commonUniformMap.length = 0;
-        this._commonUniformMap = null;
         this.shaderData && this.shaderData.destroy();
         this.shaderData = null;
+
+        this._commonUniformMap.length = 0;
+        this._commonUniformMap = null;
+
         this.additionShaderData.clear();
         this.additionShaderData = null;
         this._additionShaderDataKeys.length = 0;

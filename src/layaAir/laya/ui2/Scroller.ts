@@ -38,7 +38,7 @@ const TWEEN_TIME_DEFAULT = 0.3; //惯性滚动的最小缓动时间
 const PULL_RATIO = 0.5; //下拉过顶或者上拉过底时允许超过的距离占显示区域的比例
 
 export class Scroller implements IScroller {
-    public static draggingInst: Scroller;
+    static draggingInst: Scroller;
 
     private _owner: GPanel;
     private _layout: ILayout;
@@ -124,11 +124,11 @@ export class Scroller implements IScroller {
         this._bouncebackEffect = UIConfig2.defaultScrollTouchEffect;
     }
 
-    public get owner() {
+    get owner() {
         return this._owner;
     }
 
-    public set owner(value: GPanel) {
+    set owner(value: GPanel) {
         if (this._owner == value)
             return;
 
@@ -193,63 +193,63 @@ export class Scroller implements IScroller {
         this.owner = null;
     }
 
-    public get hScrollBar(): GScrollBar {
+    get hScrollBar(): GScrollBar {
         return this._hScrollBar;
     }
 
-    public get vScrollBar(): GScrollBar {
+    get vScrollBar(): GScrollBar {
         return this._vScrollBar;
     }
 
-    public get header(): GWidget {
+    get header(): GWidget {
         return this._header;
     }
 
-    public get footer(): GWidget {
+    get footer(): GWidget {
         return this._footer;
     }
 
-    public get hScrollBarRes(): Prefab {
+    get hScrollBarRes(): Prefab {
         return this._hScrollBarRes;
     }
 
-    public set hScrollBarRes(value: Prefab) {
+    set hScrollBarRes(value: Prefab) {
         this._hScrollBarRes = value;
         this.createHzScrollBar(true);
     }
 
-    public get vScrollBarRes(): Prefab {
+    get vScrollBarRes(): Prefab {
         return this._vScrollBarRes;
     }
 
-    public set vScrollBarRes(value: Prefab) {
+    set vScrollBarRes(value: Prefab) {
         this._vScrollBarRes = value;
         this.createVtScrollBar(true);
     }
 
-    public get headerRes(): Prefab {
+    get headerRes(): Prefab {
         return this._headerRes;
     }
 
-    public set headerRes(value: Prefab) {
+    set headerRes(value: Prefab) {
         this._headerRes = value;
         this.createHeader();
     }
 
-    public get footerRes(): Prefab {
+    get footerRes(): Prefab {
         return this._footerRes;
     }
 
-    public set footerRes(value: Prefab) {
+    set footerRes(value: Prefab) {
         this._footerRes = value;
         this.createFooter();
     }
 
-    public get direction(): ScrollDirection {
+    get direction(): ScrollDirection {
         return this._dir;
     }
 
-    public set direction(value: ScrollDirection) {
+    set direction(value: ScrollDirection) {
         if (this._dir != value) {
             this._dir = value;
 
@@ -260,11 +260,11 @@ export class Scroller implements IScroller {
         }
     }
 
-    public get barDisplay(): ScrollBarDisplay {
+    get barDisplay(): ScrollBarDisplay {
         return this._barDisplay2;
     }
 
-    public set barDisplay(value: ScrollBarDisplay) {
+    set barDisplay(value: ScrollBarDisplay) {
         if (this._barDisplay2 != value) {
             this._barDisplay2 = value;
             this._barDisplay = value == ScrollBarDisplay.Default ? UIConfig2.defaultScrollBarDisplay : value;
@@ -273,43 +273,43 @@ export class Scroller implements IScroller {
         }
     }
 
-    public get barOnLeft(): boolean {
+    get barOnLeft(): boolean {
         return this._barOnLeft;
     }
 
-    public set barOnLeft(value: boolean) {
+    set barOnLeft(value: boolean) {
         if (this._barOnLeft != value) {
             this._barOnLeft = value;
             this.onSizeChanged();
         }
     }
 
-    public get barFloating(): boolean {
+    get barFloating(): boolean {
         return this._barFloating;
     }
 
-    public set barFloating(value: boolean) {
+    set barFloating(value: boolean) {
         if (this._barFloating != value) {
             this._barFloating = value;
             this.onSizeChanged();
         }
     }
 
-    public get barMargin(): Array<number> {
+    get barMargin(): Array<number> {
         return this._barMargin;
     }
 
-    public set barMargin(value: Array<number>) {
+    set barMargin(value: Array<number>) {
         if (value == null || !Array.isArray(value)) value = [0, 0, 0, 0];
         this._barMargin = value;
         this.onSizeChanged();
     }
 
-    public get bouncebackEffect(): ScrollBounceBackEffect {
+    get bouncebackEffect(): ScrollBounceBackEffect {
         return this._bouncebackEffect2;
     }
 
-    public set bouncebackEffect(value: ScrollBounceBackEffect) {
+    set bouncebackEffect(value: ScrollBounceBackEffect) {
         this._bouncebackEffect2 = value;
         if (value == ScrollBounceBackEffect.Default)
             this._bouncebackEffect = UIConfig2.defaultScrollBounceEffect;
@@ -317,11 +317,11 @@ export class Scroller implements IScroller {
             this._bouncebackEffect = value == ScrollBounceBackEffect.On;
     }
 
-    public get touchEffect(): ScrollTouchEffect {
+    get touchEffect(): ScrollTouchEffect {
         return this._touchEffect2;
     }
 
-    public set touchEffect(value: ScrollTouchEffect) {
+    set touchEffect(value: ScrollTouchEffect) {
         this._touchEffect2 = value;
         if (value == ScrollTouchEffect.Default)
             this._touchEffect = UIConfig2.defaultScrollTouchEffect;
@@ -329,112 +329,112 @@ export class Scroller implements IScroller {
             this._touchEffect = value == ScrollTouchEffect.On;
     }
 
-    public get touchEffectButton(): number {
+    get touchEffectButton(): number {
         return this._touchEffectButton;
     }
 
-    public set touchEffectButton(value: number) {
+    set touchEffectButton(value: number) {
         this._touchEffectButton = value;
     }
 
-    public get pageMode(): boolean {
+    get pageMode(): boolean {
         return this._pageMode;
     }
 
-    public set pageMode(value: boolean) {
+    set pageMode(value: boolean) {
         this._pageMode = value;
     }
 
-    public set step(value: number) {
+    set step(value: number) {
         this._step = value;
     }
 
-    public get step(): number {
+    get step(): number {
         return this._step;
     }
 
-    public get snapToItem(): boolean {
+    get snapToItem(): boolean {
         return this._snapToItem;
     }
 
-    public set snapToItem(value: boolean) {
+    set snapToItem(value: boolean) {
         this._snapToItem = value;
     }
 
-    public get inertiaDisabled(): boolean {
+    get inertiaDisabled(): boolean {
         return this._inertiaDisabled;
     }
 
-    public set inertiaDisabled(value: boolean) {
+    set inertiaDisabled(value: boolean) {
         this._inertiaDisabled = value;
     }
 
-    public get paddingMaskDisabled(): boolean {
+    get paddingMaskDisabled(): boolean {
         return this._paddingMaskDisabled;
     }
 
-    public set paddingMaskDisabled(value: boolean) {
+    set paddingMaskDisabled(value: boolean) {
         if (this._paddingMaskDisabled != value) {
             this._paddingMaskDisabled = value;
             this._processClipping();
         }
     }
 
-    public get mouseWheelDisabled(): boolean {
+    get mouseWheelDisabled(): boolean {
         return this._mouseWheelDisabled;
     }
 
-    public set mouseWheelDisabled(value: boolean) {
+    set mouseWheelDisabled(value: boolean) {
         this._mouseWheelDisabled = value;
     }
 
-    public get decelerationRate(): number {
+    get decelerationRate(): number {
         return this._decelerationRate;
     }
 
-    public set decelerationRate(value: number) {
+    set decelerationRate(value: number) {
         this._decelerationRate = value;
     }
 
-    public get isDragged(): boolean {
+    get isDragged(): boolean {
         return this._dragged;
     }
 
-    public get percX(): number {
+    get percX(): number {
         return this._overlapSize.x == 0 ? 0 : this._xPos / this._overlapSize.x;
     }
 
-    public set percX(value: number) {
+    set percX(value: number) {
         this.setPercX(value, false);
     }
 
-    public setPercX(value: number, ani?: boolean): void {
+    setPercX(value: number, ani?: boolean): void {
         this._layout.refresh();
         this.setPosX(this._overlapSize.x * MathUtil.clamp01(value), ani);
     }
 
-    public get percY(): number {
+    get percY(): number {
         return this._overlapSize.y == 0 ? 0 : this._yPos / this._overlapSize.y;
     }
 
-    public set percY(value: number) {
+    set percY(value: number) {
         this.setPercY(value, false);
     }
 
-    public setPercY(value: number, ani?: boolean): void {
+    setPercY(value: number, ani?: boolean): void {
         this._layout.refresh();
         this.setPosY(this._overlapSize.y * MathUtil.clamp01(value), ani);
     }
 
-    public get posX(): number {
+    get posX(): number {
         return this._xPos;
     }
 
-    public set posX(value: number) {
+    set posX(value: number) {
         this.setPosX(value, false);
     }
 
-    public setPosX(value: number, ani?: boolean): void {
+    setPosX(value: number, ani?: boolean): void {
         this._layout.refresh();
 
         if (this._loop == 1)
@@ -447,15 +447,15 @@ export class Scroller implements IScroller {
         }
     }
 
-    public get posY(): number {
+    get posY(): number {
         return this._yPos;
     }
 
-    public set posY(value: number) {
+    set posY(value: number) {
         this.setPosY(value, false);
     }
 
-    public setPosY(value: number, ani?: boolean): void {
+    setPosY(value: number, ani?: boolean): void {
         this._layout.refresh();
 
         if (this._loop == 1)
@@ -468,23 +468,23 @@ export class Scroller implements IScroller {
         }
     }
 
-    public get contentWidth(): number {
+    get contentWidth(): number {
         return this._contentSize.x;
     }
 
-    public get contentHeight(): number {
+    get contentHeight(): number {
         return this._contentSize.y;
     }
 
-    public get viewWidth(): number {
+    get viewWidth(): number {
         return this._viewSize.x;
     }
 
-    public get viewHeight(): number {
+    get viewHeight(): number {
         return this._viewSize.y;
     }
 
-    public setViewSize(width: number, height: number) {
+    setViewSize(width: number, height: number) {
         width = width + this._layout.padding[3] + this._layout.padding[1];
         if (this._vScrollBar && !this._barFloating)
             width += this._vScrollBar.width;
@@ -495,7 +495,7 @@ export class Scroller implements IScroller {
         this._owner.size(width, height);
     }
 
-    public get pageX(): number {
+    get pageX(): number {
         if (!this._pageMode)
             return 0;
 
@@ -506,11 +506,11 @@ export class Scroller implements IScroller {
         return page;
     }
 
-    public set pageX(value: number) {
+    set pageX(value: number) {
         this.setPageX(value, false);
     }
 
-    public get pageY(): number {
+    get pageY(): number {
         if (!this._pageMode)
             return 0;
 
@@ -521,11 +521,11 @@ export class Scroller implements IScroller {
         return page;
     }
 
-    public set pageY(value: number) {
+    set pageY(value: number) {
         this.setPageY(value, false);
     }
 
-    public setPageX(value: number, ani?: boolean): void {
+    setPageX(value: number, ani?: boolean): void {
         if (!this._pageMode)
             return;
 
@@ -535,7 +535,7 @@ export class Scroller implements IScroller {
             this.setPosX(value * this._pageSize.x, ani);
     }
 
-    public setPageY(value: number, ani?: boolean): void {
+    setPageY(value: number, ani?: boolean): void {
         if (!this._pageMode)
             return;
 
@@ -545,31 +545,31 @@ export class Scroller implements IScroller {
             this.setPosY(value * this._pageSize.y, ani);
     }
 
-    public get isBottomMost(): boolean {
+    get isBottomMost(): boolean {
         return this._yPos == this._overlapSize.y || this._overlapSize.y == 0;
     }
 
-    public get isRightMost(): boolean {
+    get isRightMost(): boolean {
         return this._xPos == this._overlapSize.x || this._overlapSize.x == 0;
     }
 
-    public get scrollingPosX(): number {
+    get scrollingPosX(): number {
         return MathUtil.clamp(-this._container.x, 0, this._overlapSize.x);
     }
 
-    public get scrollingPosY(): number {
+    get scrollingPosY(): number {
         return MathUtil.clamp(-this._container.y, 0, this._overlapSize.y);
     }
 
-    public scrollTop(ani?: boolean): void {
+    scrollTop(ani?: boolean): void {
         this.setPercY(0, ani);
     }
 
-    public scrollBottom(ani?: boolean): void {
+    scrollBottom(ani?: boolean): void {
         this.setPercY(1, ani);
     }
 
-    public scrollUp(ratio?: number, ani?: boolean): void {
+    scrollUp(ratio?: number, ani?: boolean): void {
         ratio = ratio || 1;
         if (this._pageMode)
             this.setPosY(this._yPos - this._pageSize.y * ratio, ani);
@@ -577,7 +577,7 @@ export class Scroller implements IScroller {
             this.setPosY(this._yPos - this._step * ratio, ani);;
     }
 
-    public scrollDown(ratio?: number, ani?: boolean): void {
+    scrollDown(ratio?: number, ani?: boolean): void {
         ratio = ratio || 1;
         if (this._pageMode)
             this.setPosY(this._yPos + this._pageSize.y * ratio, ani);
@@ -585,7 +585,7 @@ export class Scroller implements IScroller {
             this.setPosY(this._yPos + this._step * ratio, ani);
     }
 
-    public scrollLeft(ratio?: number, ani?: boolean): void {
+    scrollLeft(ratio?: number, ani?: boolean): void {
         ratio = ratio || 1;
         if (this._pageMode)
             this.setPosX(this._xPos - this._pageSize.x * ratio, ani);
@@ -593,7 +593,7 @@ export class Scroller implements IScroller {
             this.setPosX(this._xPos - this._step * ratio, ani);
     }
 
-    public scrollRight(ratio?: number, ani?: boolean): void {
+    scrollRight(ratio?: number, ani?: boolean): void {
         ratio = ratio || 1;
         if (this._pageMode)
             this.setPosX(this._xPos + this._pageSize.x * ratio, ani);
@@ -609,11 +609,11 @@ export class Scroller implements IScroller {
         return rect;
     }
 
-    public scrollTo(target: GWidget, ani?: boolean, setFirst?: boolean): void;
-    public scrollTo(target: GWidget, ani?: boolean, secondTarget?: GWidget): void;
-    public scrollTo(target: Rectangle, ani?: boolean, setFirst?: boolean): void;
-    public scrollTo(target: number, ani?: boolean, setFirst?: boolean): void;
-    public scrollTo(target: GWidget | Rectangle | number, ani?: boolean, setFirst?: boolean | GWidget): void {
+    scrollTo(target: GWidget, ani?: boolean, setFirst?: boolean): void;
+    scrollTo(target: GWidget, ani?: boolean, secondTarget?: GWidget): void;
+    scrollTo(target: Rectangle, ani?: boolean, setFirst?: boolean): void;
+    scrollTo(target: number, ani?: boolean, setFirst?: boolean): void;
+    scrollTo(target: GWidget | Rectangle | number, ani?: boolean, setFirst?: boolean | GWidget): void {
         this._layout.refresh();
         if (this._needRefresh)
             this.refresh();
@@ -699,7 +699,7 @@ export class Scroller implements IScroller {
             this.refresh();
     }
 
-    public isChildInView(obj: GWidget): boolean {
+    isChildInView(obj: GWidget): boolean {
         if (this._overlapSize.y > 0) {
             let dist = obj.y + this._container.y;
             if (dist < -obj.height || dist > this._viewSize.y)
@@ -715,7 +715,7 @@ export class Scroller implements IScroller {
         return true;
     }
 
-    public getFirstChildInView(): number {
+    getFirstChildInView(): number {
         let i = 0;
         for (let child of this._owner.children) {
             if (child._nodeType === 2 && this.isChildInView(<GWidget>child))
@@ -725,7 +725,7 @@ export class Scroller implements IScroller {
         return -1;
     }
 
-    public cancelDragging(): void {
+    cancelDragging(): void {
         if (Scroller.draggingInst == this)
             Scroller.draggingInst = null;
 
@@ -733,7 +733,7 @@ export class Scroller implements IScroller {
         this._dragged = false;
     }
 
-    public _setDefaultDirection() {
+    _setDefaultDirection() {
         let layout = this._layout;
         if (layout.pageMode)
             return;
@@ -856,7 +856,7 @@ export class Scroller implements IScroller {
             this._refreshBarAxis = null;
     }
 
-    public lockHeader(size: number): void {
+    lockHeader(size: number): void {
         if (this._headerLockedSize == size)
             return;
 
@@ -871,7 +871,7 @@ export class Scroller implements IScroller {
         }
     }
 
-    public lockFooter(size: number): void {
+    lockFooter(size: number): void {
         if (this._footerLockedSize == size)
             return;
 
@@ -903,7 +903,7 @@ export class Scroller implements IScroller {
             this._maskContainer.scrollRect = (!this._paddingMaskDisabled && this._owner.clipping) ? this._cachedScrollRect : null;
     }
 
-    public _ownerSizeChanged() {
+    _ownerSizeChanged() {
         this.onSizeChanged();
         this.posChanged(false);
     }
@@ -952,7 +952,7 @@ export class Scroller implements IScroller {
         this.onContentSizeChanged();
     }
 
-    public _ownerContentSizeChanged(): void {
+    _ownerContentSizeChanged(): void {
         let aWidth = this._layout.contentWidth;
         let aHeight = this._layout.contentHeight;
         if (this._contentSize.x == aWidth && this._contentSize.y == aHeight)
@@ -963,7 +963,7 @@ export class Scroller implements IScroller {
         this.onContentSizeChanged();
     }
 
-    public _changeContentSizeOnScrolling(deltaWidth: number, deltaHeight: number,
+    _changeContentSizeOnScrolling(deltaWidth: number, deltaHeight: number,
         deltaPosX: number, deltaPosY: number): void {
         let isRightmost: boolean = this._xPos != 0 && this._xPos == this._overlapSize.x;
         let isBottom: boolean = this._yPos != 0 && this._yPos == this._overlapSize.y;
@@ -1067,6 +1067,8 @@ export class Scroller implements IScroller {
             mh += this._hScrollBar.height;
         this._maskContainer.size(mw, mh);
         this._cachedScrollRect.setTo(0, 0, mw, mh);
+        if (this._maskContainer._scrollRect != null)
+            this._maskContainer.scrollRect = this._cachedScrollRect;
 
         if (this._dir == ScrollDirection.Horizontal || this._dir == ScrollDirection.Both)
             this._overlapSize.x = Math.ceil(Math.max(0, this._contentSize.x - this._viewSize.x));

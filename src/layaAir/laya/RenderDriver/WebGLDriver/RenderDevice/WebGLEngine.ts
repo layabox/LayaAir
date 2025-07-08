@@ -55,7 +55,10 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
+    _framePassCount: number = 0;
+
     private _lost: boolean = false;
+
     public get lost(): boolean {
         return this._lost;
     }
@@ -192,7 +195,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
                 WebGLEngine._lastFrameBuffer.dispose();
                 WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
             }
-            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1) as WebGLInternalRT;
+            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1, false) as WebGLInternalRT;
             WebGLEngine._lastFrameBuffer_WebGLOBJ = WebGLEngine._lastFrameBuffer._framebuffer;
         }
     }
@@ -415,7 +418,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         }
         if (clearFlag & RenderClearFlag.Stencil) {
             this._context.clearStencil(clearStencilValue);
-            this._GLRenderState.setStencilMask(true);
+            this._GLRenderState.setStencilWrite(true);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }
         if (flag)

@@ -52,7 +52,7 @@ export class Sprite_Guide {
 			//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
 			this.interactionArea = new Sprite();
 			//设置叠加模式
-			this.interactionArea.blendMode = "destination-out";
+			this.interactionArea.blendMode = "destinationOut";
 			this.guideContainer.addChild(this.interactionArea);
 
 			this.hitArea = new HitArea();

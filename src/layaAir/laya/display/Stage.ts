@@ -1,28 +1,30 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { TransformKind } from "./SpriteConst";
-import { NodeFlags } from "../Const";
-import { Event } from "../events/Event";
-import { InputManager } from "../events/InputManager";
-import { Matrix } from "../maths/Matrix";
-import { Point } from "../maths/Point";
-import { RenderInfo } from "../renders/RenderInfo";
-import { Context } from "../renders/Context";
-import { Browser } from "../utils/Browser";
-import { ColorUtils } from "../utils/ColorUtils";
+import { SpriteConst, TransformKind } from "./SpriteConst";
+import { NodeFlags } from "../Const"
+import { Event } from "../events/Event"
+import { InputManager } from "../events/InputManager"
+import { Matrix } from "../maths/Matrix"
+import { Point } from "../maths/Point"
+import { RenderInfo } from "../renders/RenderInfo"
+import { Browser } from "../utils/Browser"
+import { ColorUtils } from "../utils/ColorUtils"
 import { Stat } from "../utils/Stat";
 import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import type { Scene3D } from "../d3/core/scene/Scene3D";
-import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
-import type { Scene } from "./Scene";
+import { Scene } from "./Scene";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import type { Laya3D } from "../../Laya3D";
 import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Render2DProcessor } from "./Render2DProcessor";
+import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
+import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -203,10 +205,16 @@ export class Stage extends Sprite {
      */
     readonly _canvasTransform: Matrix = new Matrix();
 
-    /**@internal */
-    _scene3Ds: Scene3D[] = [];
-    /**@internal */
-    _scene2Ds: Scene[] = [];
+    /**
+     * @en The pass manager for 2D rendering. It manages the rendering passes and processes the rendering of 2D objects.
+     * @zh 2D渲染的Pass管理器，管理渲染Pass并处理2D对象的渲染。
+     */
+    readonly passManager: Render2DProcessor;
+
+    /** @internal */
+    readonly _scene3Ds: Scene3D[] = [];
+    /** @internal */
+    readonly _scene2Ds: Scene[] = [];
 
     private _frameRate: string = "fast";
     private _screenMode: string = "none";
@@ -221,7 +229,7 @@ export class Stage extends Sprite {
     private _needUpdateCanvasSize: boolean = false;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      * @en Stage class, there is only one stage instance in the engine. This instance can be accessed through Laya.stage.
      * @zh 场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。
      * */
@@ -235,6 +243,7 @@ export class Stage extends Sprite {
         this._isFocused = true;
         this._transform = new Matrix();
         this._componentDriver = new ComponentDriver();
+        this.passManager = new Render2DProcessor();
 
         PAL.browser.on(Event.FOCUS, () => {
             if (!this._isFocused) {
@@ -272,6 +281,9 @@ export class Stage extends Sprite {
                 this.updateCanvasSize(true);
             }
         });
+
+        this.passManager.basePass.root = this._struct;
+        this._struct.pass = this.passManager.basePass;
     }
 
     /**
@@ -346,6 +358,7 @@ export class Stage extends Sprite {
             this.updateCanvasSize();
     }
 
+    static cc=0;
     /**
      * @en Set the screen size. The scene will adapt to the screen size. This method can be called dynamically to change the game display size.
      * @param screenWidth The width of the screen.
@@ -355,6 +368,9 @@ export class Stage extends Sprite {
      * @param screenHeight 屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
+        Stage.cc++;
+        if(Stage.cc>10)
+            return;
         this._needUpdateCanvasSize = false;
         let pixelRatio = Browser.pixelRatio;
         //screen width/height是乘了dpr的，先除回去
@@ -495,14 +511,29 @@ export class Stage extends Sprite {
         }
 
         //放大舞台
-        this.transform.a = formatData(canvasWidth / this._width * this.scaleX);
-        this.transform.d = formatData(canvasHeight / this._height * this.scaleY);
-        this.transform = this.transform; //force call
+        this.scale(formatData(canvasWidth / this._width), formatData(canvasHeight / this._height));
 
         RenderState2D.width = canvasWidth;
         RenderState2D.height = canvasHeight;
         (<typeof Laya3D>(<any>window)['Laya3D'])?._changeWebGLSize(canvasWidth, canvasHeight);
         LayaGL.renderEngine.resizeOffScreen(canvasWidth, canvasHeight);
+
+        //执行高清字体策略
+        if (TextRenderConfig.scaleFontWithCtx) {
+            let fontScale = Math.max(Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleX)),
+                Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleY)));
+            if (TextRenderConfig.fontScale !== fontScale) {
+                TextRenderConfig.fontScale = fontScale;
+
+                const repaintTexts = (p: Sprite) => {
+                    for (let child of p._children) {
+                        if ((child._renderType & SpriteConst.TEXT) !== 0)
+                            child.repaint();
+                    }
+                };
+                repaintTexts(this);
+            }
+        }
 
         this.visible = true;
         this.repaint();
@@ -593,9 +624,11 @@ export class Stage extends Sprite {
         if (value) {
             let colorArr = ColorUtils.create(value).arrColor;
             this._wgColor.setValue(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
+            // this._struct.pass.setClearColor(colorArr[0], colorArr[1], colorArr[2], colorArr[3]);
         }
         else
-            this._wgColor = null;
+            this._wgColor.setValue(0, 0, 0, 0);
+        //     this._struct.pass.setClearColor(0, 0, 0, 0);
 
         if (Browser.isDomSupported)
             Browser.mainCanvas.source.style.background = value ?? "none";
@@ -633,7 +666,7 @@ export class Stage extends Sprite {
      */
     get clientScaleX(): number {
         this.needUpdateCanvasSize();
-        return this._transform ? this._transform.getScaleX() : 1;
+        return this._scaleX;
     }
 
     /**
@@ -642,7 +675,7 @@ export class Stage extends Sprite {
      */
     get clientScaleY(): number {
         this.needUpdateCanvasSize();
-        return this._transform ? this._transform.getScaleY() : 1;
+        return this._scaleY;
     }
 
     /**
@@ -700,15 +733,9 @@ export class Stage extends Sprite {
 
     /**
      * @en Render all display objects on the stage
-     * @param context2D The rendering context
-     * @param x The x-axis coordinate
-     * @param y The y-axis coordinate
      * @zh 渲染舞台上的所有显示对象
-     * @param context2D 渲染的上下文
-     * @param x 横轴坐标
-     * @param y 纵轴坐标
      */
-    render(context2D: Context, x: number, y: number): void {
+    render(): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)
@@ -743,27 +770,29 @@ export class Stage extends Sprite {
         Stat.loopCount++;
         RenderInfo.loopCount = Stat.loopCount;
         LayaGL.renderEngine.startFrame();
-        if (this.renderingEnabled) {
 
+        if (this.renderingEnabled) {
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
                 this._scene2Ds[i]._update();
             }
-            for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i])._update();
+            for (let i = 0, n = this._scene3Ds.length; i < n; i++) {
+                this._scene3Ds[i]._update();
+            }
 
             this._runComponents();
             this._componentDriver.callPreRender();
 
-            //仅仅是clear
-            context2D.render2D.renderStart(!Config.preserveDrawingBuffer, this._wgColor);
-            //context2D.render2D.renderEnd();
+            Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
 
-            //Stage.clear(this._bgColor);
             //先渲染3d
+            //performance.mark('3d-start')
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                (<any>this._scene3Ds[i]).renderSubmit();
+                this._scene3Ds[i].renderSubmit();
+
+            //performance.mark('3d-end')
+            //performance.measure('3dsumbimt', '3d-start', '3d-end')
             //再渲染2d
-            this._render2d(context2D, x, y);
+            this._render2d();
 
             this._componentDriver.callPostRender();
         }
@@ -775,18 +804,97 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.endFrame();
     }
 
+    /** @ignore */
+    _graphicUpdateList: Set<Sprite> = new Set();
+    /** @ignore */
+    _subpassUpdateList: Set<Sprite> = new Set();
+    /** @ignore */
+    _tranMatrixUpdateList: Set<Sprite> = new Set();
+
     /**
-     * @param context2D The rendering context
-     * @param x The x-axis coordinate
-     * @param y The y-axis coordinate
      * @perfTag PerformanceDefine.T_UIRender
     */
-    private _render2d(context2D: Context, x: number, y: number) {
+    private _render2d() {
         Stat.draw2D = 0;
-        context2D.startRender();
-        super.render(context2D, x, y);
-        Stat.render(context2D, x, y);
-        context2D.endRender();
+
+        // context2D.render2dmgr.runProcess([])
+        for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
+            this._scene2Ds[i].render(0, 0);
+        }
+
+        //subpass 分析  for
+        for (let sprite of this._subpassUpdateList) {
+            if (sprite._destroyed || !sprite._subpassUpdateFlag)
+                continue;
+
+            sprite.updateSubRenderPassState();
+            if (!sprite._oriRenderPass) {
+                sprite._subpassUpdateFlag = 0;
+                continue;
+            }
+
+            let result = sprite.updateRenderTexture();
+            let destrt: RenderTexture2D = sprite._drawOriRT;
+            if (!destrt) {
+                sprite.setSubRenderPassState(false);
+                continue;
+            }
+
+            if (sprite.mask) {
+                sprite._oriRenderPass.mask = sprite.mask._subStruct;
+            }
+
+            if (result) {
+                sprite._oriRenderPass.renderTexture = destrt;
+                let process = sprite._oriRenderPass.postProcess;
+                if (process) {
+                    process.setResource(destrt);
+                    process.clearCMD();
+                    process._render();
+                    destrt = process._context.destination;
+                }
+                sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
+            }
+            //Mask TODO
+            sprite._subpassUpdateFlag = 0;
+        }
+
+        this._updateMatrixList(this._tranMatrixUpdateList, Stat.loopCount);
+
+        for (let sprite of this._graphicUpdateList) {
+            if (sprite._graphics) {
+                sprite._graphics._render(Render2DProcessor.runner);
+            }
+        }
+
+        this.passManager.apply(Render2DProcessor.rendercontext2D);
+
+        this._graphicUpdateList.clear();
+        this._subpassUpdateList.clear();
+        this._tranMatrixUpdateList.clear();
+
+        Stat.render();
+    }
+
+    private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {
+        for (let sprite of changeMatrixList) {
+            let trans = sprite.globalTrans;
+            if (sprite._destroyed || !trans)
+                continue;
+
+            // trans._modifiedFrame = frame;
+            // trans._setFlag(TransformKind.Matrix, true, false);
+
+            // if (sprite._renderType & SpriteConst.UPDATETRANS) {
+            let matrix = trans.getMatrix();
+            // if (sprite._struct)//有可能被删除
+            sprite._struct.renderMatrix = matrix;
+            if (sprite._subStruct)
+                sprite._subStruct.renderMatrix = matrix;
+            // }
+
+            // this._updateMatrixList(sprite._children, frame);
+        }
     }
 
     private _runComponents() {

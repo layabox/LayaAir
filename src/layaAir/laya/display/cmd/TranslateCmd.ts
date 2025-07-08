@@ -1,7 +1,10 @@
 import { Matrix } from "../../maths/Matrix";
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "TranslateCmd";
+
 /**
  * @en Translate command
  * @zh 位移命令
@@ -12,7 +15,7 @@ export class TranslateCmd implements IGraphicsCmd {
      * @en Identifier for the TranslateCmd
      * @zh 位移命令的标识符
      */
-    static readonly ID: string = "Translate";
+    static readonly ID: string = className;
 
     /**
      * @en The value to be added to the horizontal coordinate (x).
@@ -36,7 +39,7 @@ export class TranslateCmd implements IGraphicsCmd {
      * @returns 位移命令实例
      */
     static create(tx: number, ty: number): TranslateCmd {
-        var cmd: TranslateCmd = Pool.getItemByClass("TranslateCmd", TranslateCmd);
+        var cmd: TranslateCmd = Pool.getItemByClass(className, TranslateCmd);
         cmd.tx = tx;
         cmd.ty = ty;
         return cmd;
@@ -47,8 +50,7 @@ export class TranslateCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-
-        Pool.recover("TranslateCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
@@ -57,7 +59,7 @@ export class TranslateCmd implements IGraphicsCmd {
      * @zh 执行位移命令
      * @param context 渲染上下文
      */
-    run(context: Context): void {
+    run(context: GraphicsRunner): void {
         context.translate(this.tx, this.ty);
     }
 

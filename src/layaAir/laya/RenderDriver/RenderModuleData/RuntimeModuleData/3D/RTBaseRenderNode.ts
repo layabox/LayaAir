@@ -219,6 +219,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
+    ismoved: number;//TODO Native
 
     private _worldParams: Vector4 = new Vector4();
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {

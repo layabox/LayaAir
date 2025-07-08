@@ -93,7 +93,7 @@ export class RigidBody extends ColliderBase {
      */
     label: string = "RigidBody";
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @zh 碰撞形状，可以是多个
@@ -264,6 +264,7 @@ export class RigidBody extends ColliderBase {
 
     public set shapes(shapes: Physics2DShapeBase[]) {
         this._shapes = shapes;
+        if (!shapes) return;
         shapes.forEach((shape) => {
             shape.setCollider(this);
         });

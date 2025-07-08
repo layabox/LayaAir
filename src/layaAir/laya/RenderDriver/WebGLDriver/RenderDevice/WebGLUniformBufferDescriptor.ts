@@ -1,9 +1,6 @@
+import { TypedArrayType, TypedArrayConstructor } from "../../../../ILaya";
 import { IClone } from "../../../utils/IClone";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-
-type DataViewType = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
-
-type DataView = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;
 
 export type WebGLUniform = {
     index: number;
@@ -12,9 +9,9 @@ export type WebGLUniform = {
      */
     offset: number;
 
-    dataView: DataViewType;
+    dataView: TypedArrayConstructor;
 
-    view: DataView;
+    view: TypedArrayType;
 
     /**
      * element size (eg: vec2: 2, vec4: 4, mat4: 16)
@@ -69,7 +66,7 @@ export class WebGLUniformBufferDescriptor implements IClone {
         this._maxAlignment = Math.max(this._maxAlignment, alignment);
     }
 
-    addUniformItem(index: number, size: number, alignStride: number, arraySize: number, tsc: DataViewType) {
+    addUniformItem(index: number, size: number, alignStride: number, arraySize: number, tsc: TypedArrayConstructor) {
         if (arraySize > 0) {
             alignStride = alignStride > 4 ? alignStride : 4;
             this.alignmentPadding(4);

@@ -19,8 +19,6 @@ export class GLESCommandUniformMap extends CommandUniformMap {
 
     /**
      * 增加一个UniformArray参数
-     * @param propertyID 
-     * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number): void {
         //if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)

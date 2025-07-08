@@ -1,4 +1,6 @@
+import { ILaya } from "../../ILaya";
 import { Node } from "../display/Node";
+import { Loader } from "../net/Loader";
 import { Resource } from "./Resource";
 
 /**
@@ -40,6 +42,21 @@ export class Prefab extends Resource {
      */
     create(options?: Record<string, any>, errors?: Array<any>): Node {
         return null;
+    }
+
+    /**
+     * @en Instantiate a prefab from a URL.
+     * @param url The URL of the prefab.
+     * @param options Optional parameters for instantiation.
+     * @zh 从 URL 实例化一个预制体。
+     * @param url 预制体的 URL。
+     * @param options 可选的实例化参数。 
+     * @returns A promise that resolves to the instantiated Node. 
+     */
+    static instantiate<T extends Node>(url: string, classType?: new () => T): Promise<T> {
+        return ILaya.loader.load(url, Loader.HIERARCHY).then((res: Prefab) => {
+            return res.create() as T;
+        });
     }
 }
 

@@ -1,11 +1,13 @@
 import { Matrix } from "../../maths/Matrix"
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from '../../utils/ColorUtils';
 import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawTextureCmd";
 
 /**
  * @en Draw a single texture
@@ -16,7 +18,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
      */
-    static readonly ID: string = "DrawTexture";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -76,11 +78,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
     uv: number[] | null = null;
 
     /**
-     * @inheritdoc
-     */
-    lock: boolean;
-
-    /**
      * @en Create a DrawTextureCmd instance
      * @param texture The texture to be drawn
      * @param x X-axis offset
@@ -107,7 +104,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @returns DrawTextureCmd实例
      */
     static create(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string, uv?: number[], percent?: boolean): DrawTextureCmd {
-        let cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
+        let cmd: DrawTextureCmd = Pool.getItemByClass(className, DrawTextureCmd);
         cmd.texture = texture;
         texture && texture._addReference();
         cmd.x = x ?? 0;
@@ -118,7 +115,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.matrix = matrix;
         cmd.alpha = alpha ?? 1;
         cmd.blendMode = blendMode;
-        cmd.uv = uv || null;
+        cmd.uv = uv;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
@@ -131,31 +128,31 @@ export class DrawTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
-        Pool.recover("DrawTextureCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the draw texture command.
-     * @param context The rendering context.
+     * @param runner The rendering context.
      * @param gx Starting X coordinate.
      * @param gy Starting Y coordinate.
      * @zh 执行绘制纹理命令。
-     * @param context 渲染上下文。
+     * @param runner 渲染上下文。
      * @param gx 起始 X 坐标。
      * @param gy 起始 Y 坐标。
      */
 
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let tex = this.texture;
         if (!tex)
             return;
 
         let x = this.x, y = this.y, w = this.width, h = this.height;
-        if (this.percent && context.sprite) {
-            x *= context.sprite.width;
-            y *= context.sprite.height;
-            w *= context.sprite.width;
-            h *= context.sprite.height;
+        if (this.percent && runner.sprite) {
+            x *= runner.sprite.width;
+            y *= runner.sprite.height;
+            w *= runner.sprite.width;
+            h *= runner.sprite.height;
         }
 
         let wRate = w / tex.sourceWidth;
@@ -166,7 +163,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         x += tex.offsetX * wRate;
         y += tex.offsetY * hRate;
 
-        context.drawTextureWithTransform(this.texture, x, y, w, h, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
+        runner.drawTextureWithTransform(this.texture, x, y, w, h, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
     }
 
     /**
@@ -176,7 +173,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }
@@ -190,4 +186,4 @@ export class DrawTextureCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawTextureCmd", DrawTextureCmd);
+ClassUtils.regClass(className, DrawTextureCmd);

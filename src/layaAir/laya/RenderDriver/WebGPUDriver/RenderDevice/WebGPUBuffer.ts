@@ -12,7 +12,6 @@ export class WebGPUBuffer {
     private _mappedAtCreation = false;
 
     globalId: number;
-    objectName: string = 'WebGPUBuffer';
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
         this._size = roundUp(byteSize, 4);
@@ -23,14 +22,18 @@ export class WebGPUBuffer {
             this._create();
     }
 
+    private _memorychange(bytelength: number) {
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, bytelength);
+        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, bytelength);
+    }
+
     /**
      * @param length 
      */
     setDataLength(length: number): void {
         const size = roundUp(length, 4);
         if (!this._isCreate || this._size != size) {
-            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
-            WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
+            this._releaseResource();
             this._size = size;
             this._create();
         }
@@ -44,8 +47,7 @@ export class WebGPUBuffer {
         });
         this._isCreate = true;
         WebGPUGlobal.action(this, 'allocMemory | buffer', this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, this._size);
+        this._memorychange(this._size);
     }
 
     setData(srcData: ArrayBuffer | ArrayBufferView, srcOffset: number) {
@@ -64,7 +66,9 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
+            } else {
+                WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, buffer, offset, size);
+            }
         } else {
             offset = srcOffset;
             size = roundUp(srcData.byteLength - offset, 4);
@@ -78,7 +82,9 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(0, size)).set(new Uint8Array(srcData as ArrayBuffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
+            } else {
+                WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, size);
+            }
         }
     }
 
@@ -98,7 +104,7 @@ export class WebGPUBuffer {
                 new Uint8Array(this._source.getMappedRange(dstOffset, size)).set(new Uint8Array(buffer, offset, size));
                 this._mappedAtCreation = false;
                 this._source.unmap();
-            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, size);
+            } else WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, buffer, offset, byteLength);
         } else {
             offset = srcOffset;
             size = roundUp(byteLength, 4);
@@ -116,7 +122,18 @@ export class WebGPUBuffer {
         }
     }
 
-    readDataFromBuffer(): Promise<Uint8Array> {
+    private copyArrayBuffer(source: ArrayBuffer, destination: ArrayBuffer,
+        sourceOffset = 0, destOffset = 0, length?: number): void {
+        const sourceView = new Uint8Array(source, sourceOffset);
+        const destView = new Uint8Array(destination, destOffset);
+
+        // 如果length未指定，则复制尽可能多的数据（考虑源和目标的大小限制）
+
+        // 使用 TypedArray.set 方法进行拷贝
+        destView.set(sourceView.subarray(0, length), 0);
+    }
+
+    readDataFromBuffer(dest: ArrayBuffer, destOffset: number, srcOffset: number, byteLength: number): Promise<void> {
         //TODO
         //mapAsync
         //getMappedRange
@@ -126,11 +143,11 @@ export class WebGPUBuffer {
             this._source.mapAsync(GPUMapMode.READ)
                 .then(() => {
                     //成功映射后获取 ArrayBuffer
-                    const arrayBuffer = this._source.getMappedRange();
-                    const data = new Uint8Array(arrayBuffer).slice();
+                    const arrayBuffer = this._source.getMappedRange(srcOffset, byteLength);
+                    this.copyArrayBuffer(arrayBuffer, dest, 0, destOffset, byteLength);
                     this._source.unmap();
                     //返回读取的数据
-                    resolve(data);
+                    resolve();
                 })
                 .catch(error => { //处理映射失败的情况
                     this._source.unmap(); //确保即使出错也取消映射
@@ -139,19 +156,33 @@ export class WebGPUBuffer {
         });
     }
 
-    async readFromBuffer(buffer: GPUBuffer, size: number) {
+    async readFromBuffer(buffer: GPUBuffer, offset: number, byteLength: number) {
         await buffer.mapAsync(GPUMapMode.READ);
-        const arrayBuffer = buffer.getMappedRange();
-        const data = new Float32Array(arrayBuffer).slice(0, size / 4);  // size / 4 because Float32Array elements are 4 bytes.
+        const arrayBuffer = buffer.getMappedRange(offset, byteLength);
+        const data = new Float32Array(arrayBuffer).slice(byteLength / 4);  // size / 4 because Float32Array elements are 4 bytes.
         buffer.unmap();
         return data;
     }
 
+    async writeFromBuffer(srcBuffer: ArrayBuffer, srcOffset: number, byteLength: number, dstOffset: number) {
+        await this._source.mapAsync(GPUMapMode.WRITE);
+        const arrayBuffer = this._source.getMappedRange(dstOffset, byteLength);
+        const data = new Float32Array(arrayBuffer);
+        data.set(new Float32Array(srcBuffer, srcOffset, byteLength / 4));
+        this._source.unmap();
+    }
+
+    private _releaseResource() {
+        if (this._source) {
+            this._source.destroy();
+            this._source = null;
+            this._memorychange(-this._size);
+            this._size = 0;
+        }
+    }
+
     release() {
-        //好像需要延迟删除
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._size);
-        WebGPURenderEngine._instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, -this._size);
+        this._releaseResource();
         WebGPUGlobal.releaseId(this);
-        //this._source.destroy(); //WebGPU会自动删除
     }
 }

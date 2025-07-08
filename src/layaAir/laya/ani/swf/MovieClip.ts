@@ -300,23 +300,24 @@ export class MovieClip extends Sprite {
             _data.pos = this._Pos;
         }
         while ((this._curIndex <= frameIndex) && (!this._ended)) {
-            type = _data.getUint16();
+            type = _data.readUint16();
             switch (type) {
                 case 12: //new MC
-                    key = _data.getUint16();
-                    tPos = this._ids[_data.getUint16()];
+                    key = _data.readUint16();
+                    tPos = this._ids[_data.readUint16()];
                     this._Pos = _data.pos;
                     _data.pos = tPos;
-                    if ((ttype = _data.getUint8()) == 0) {
-                        var pid: number = _data.getUint16();
+                    if ((ttype = _data.readUint8()) == 0) {
+                        var pid: number = _data.readUint16();
                         sp = _idOfSprite[key]
                         if (!sp) {
                             sp = _idOfSprite[key] = new Sprite();
                             var spp: Sprite = new Sprite();
                             spp.loadImage(this.basePath + pid + ".png");
+                            spp.name = pid + "";
                             this._loadedImage[this.basePath + pid + ".png"] = true;
                             sp.addChild(spp);
-                            spp.size(_data.getFloat32(), _data.getFloat32());
+                            spp.size(_data.readFloat32(), _data.readFloat32());
                             var mat: Matrix = _data._getMatrix();
                             spp.transform = mat;
                         }
@@ -337,48 +338,48 @@ export class MovieClip extends Sprite {
                     _data.pos = this._Pos;
                     break;
                 case 3: //addChild
-                    var node: Sprite = _idOfSprite[ /*key*/_data.getUint16()];
+                    var node: Sprite = _idOfSprite[ /*key*/_data.readUint16()];
                     if (node) {
                         this.addChild(node);
-                        node.zOrder = _data.getUint16();
+                        node.zOrder = _data.readUint16();
                         ifAdd = true;
                     }
                     break;
                 case 4: //remove
-                    node = _idOfSprite[ /*key*/_data.getUint16()];
+                    node = _idOfSprite[ /*key*/_data.readUint16()];
                     node && node.removeSelf();
                     break;
                 case 5: //setValue
-                    _idOfSprite[_data.getUint16()][MovieClip._ValueList[_data.getUint16()]] = (_data.getFloat32());
+                    _idOfSprite[_data.readUint16()][MovieClip._ValueList[_data.readUint16()]] = (_data.readFloat32());
                     break;
                 case 6: //visible
-                    _idOfSprite[_data.getUint16()].visible = ( /*visible*/_data.getUint8() > 0);
+                    _idOfSprite[_data.readUint16()].visible = ( /*visible*/_data.readUint8() > 0);
                     break;
                 case 7: //SetTransform
-                    sp = _idOfSprite[ /*key*/_data.getUint16()]; //.transform=mt;
+                    sp = _idOfSprite[ /*key*/_data.readUint16()]; //.transform=mt;
                     var mt: Matrix = sp.transform || Matrix.create();
-                    mt.setTo(_data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32());
+                    mt.setTo(_data.readFloat32(), _data.readFloat32(), _data.readFloat32(), _data.readFloat32(), _data.readFloat32(), _data.readFloat32());
                     sp.transform = mt;
                     break;
                 case 8: //pos
-                    _idOfSprite[_data.getUint16()].setPos(_data.getFloat32(), _data.getFloat32());
+                    _idOfSprite[_data.readUint16()].setPos(_data.readFloat32(), _data.readFloat32());
                     break;
                 case 9: //size
-                    _idOfSprite[_data.getUint16()].setSize(_data.getFloat32(), _data.getFloat32());
+                    _idOfSprite[_data.readUint16()].setSize(_data.readFloat32(), _data.readFloat32());
                     break;
                 case 10: //alpha
-                    _idOfSprite[ /*key*/_data.getUint16()].alpha = /*alpha*/ _data.getFloat32();
+                    _idOfSprite[ /*key*/_data.readUint16()].alpha = /*alpha*/ _data.readFloat32();
                     break;
                 case 11: //scale
-                    _idOfSprite[_data.getUint16()].setScale(_data.getFloat32(), _data.getFloat32());
+                    _idOfSprite[_data.readUint16()].setScale(_data.readFloat32(), _data.readFloat32());
                     break;
                 case 98: //event		
-                    eStr = _data.getString();
+                    eStr = _data.readString();
                     this.event(eStr);
                     if (eStr == "stop") this.stop();
                     break;
                 case 99: //FrameBegin				
-                    this._curIndex = _data.getUint16();
+                    this._curIndex = _data.readUint16();
                     ifAdd && this.updateZOrder();
                     break;
                 case 100: //cmdEnd
@@ -461,9 +462,9 @@ export class MovieClip extends Sprite {
     //TODO:coverage
     private _initData(data: Byte, basePath: string): void {
         this.basePath = basePath;
-        let len: number = data.getUint16();
-        for (let i = 0; i < len; i++) this._ids[data.getInt16()] = data.getInt32();
-        this.interval = 1000 / data.getUint16();
+        let len: number = data.readUint16();
+        for (let i = 0; i < len; i++) this._ids[data.readInt16()] = data.readInt32();
+        this.interval = 1000 / data.readUint16();
         this._setData(data, this._ids[32767]);
         this._initState();
         this.play(0);
