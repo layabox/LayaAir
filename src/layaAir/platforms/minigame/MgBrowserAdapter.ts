@@ -6,6 +6,7 @@ import { Loader } from "../../laya/net/Loader";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
+import { WebGPURenderEngine } from "../../laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Browser } from "../../laya/utils/Browser";
 import { Utils } from "../../laya/utils/Utils";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
@@ -84,6 +85,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
         //这里还有个对特定ios版本允许使用imageData的判断，已不清楚为什么
         if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
             TextRenderConfig.useImageData = true;
+
+        if (Browser.onHWMiniGame && WebGPURenderEngine) {
+            TextRenderConfig.useImageData = true;
+        }
+
+        if (Browser.onHWMiniGame) {
+            this._pixelRatio = 1;
+        }
 
         PAL.g.onShow(() => {
             this._visible = true;
