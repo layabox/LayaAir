@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Stat } from "laya/utils/Stat";
-import { CameraMoveScript } from "../../common/CameraMoveScript";
 import { hybridSystemUtil, TestGCARender, testGCAShader } from "./TestUtil2";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -15,6 +14,7 @@ import { GCA_OneBatchInfo } from "../GCA_OneBatchInfo";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { GCA_BaseFactory, GCA_Config } from "../GCA_Config";
 import { QXLodLevel } from "./HyBridUtil";
+import { CameraMoveScript } from "../../../../3d/common/CameraMoveScript";
 
 export class GCASystemTest {
     private testSystem = new hybridSystemUtil();

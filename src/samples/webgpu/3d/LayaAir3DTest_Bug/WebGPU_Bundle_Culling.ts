@@ -4,8 +4,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
-import { CameraMoveScript } from "../common/CameraMoveScript";
-import { WebGPURenderElement3D } from "laya/RenderDriver/WebGPUDriver/3DRenderPass/WebGPURenderElement3D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { IRenderGeometryElement } from "laya/RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -18,12 +16,11 @@ import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
 import { EDeviceBufferUsage, IDeviceBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/IDeviceBuffer";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Quaternion } from "laya/maths/Quaternion";
-import { BaseRender } from "laya/d3/core/render/BaseRender";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
-import { IRenderElement3D } from "laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Stat } from "laya/utils/Stat";
+import { CameraMoveScript } from "../../../3d/common/CameraMoveScript";
 
 export class WebGPU_Bundle_Culling {
     //一次渲染多少个

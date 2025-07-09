@@ -7,7 +7,6 @@ import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
@@ -32,6 +31,7 @@ import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPa
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { PostProcess } from "laya/d3/core/render/postProcessBase/PostProcess";
 import { BloomEffect } from "laya/d3/postProcessEffect/BloomEffect";
+import { CameraMoveScript } from "../../../3d/common/CameraMoveScript";
 
 export class WebGPUTest {
     useWebGPU: boolean = true;

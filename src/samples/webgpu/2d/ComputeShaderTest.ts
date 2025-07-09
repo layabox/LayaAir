@@ -8,16 +8,7 @@ import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
-import { Main } from "./../Main";
-import { UniformProperty } from "laya/RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader"
-import { LayaGL } from "laya/layagl/LayaGL";
-import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer"
-import { Vector3 } from "laya/maths/Vector3";
-import { WebGPUShaderCompiler } from "laya/RenderDriver/WebGPUDriver/RenderDevice/ShaderCompiler/WebGPUShaderCompiler";
-import { EDeviceBufferUsage } from "laya/RenderDriver/DriverDesign/RenderDevice/IDeviceBuffer";
+import { Main } from "../../Main";
 export class ComputeShaderTest {
     Main: typeof Main = null;
     constructor(maincls: typeof Main) {
