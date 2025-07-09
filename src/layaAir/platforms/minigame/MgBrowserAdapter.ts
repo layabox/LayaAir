@@ -85,6 +85,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
             TextRenderConfig.useImageData = true;
 
+        if (Browser.onHWMiniGame && !WebGLEngine) {
+            TextRenderConfig.useImageData = true;
+        }
+
+        if (Browser.onHWMiniGame) {
+            this._pixelRatio = 1;
+        }
+
         PAL.g.onShow(() => {
             this._visible = true;
             this.event(Event.VISIBILITY_CHANGE, true);

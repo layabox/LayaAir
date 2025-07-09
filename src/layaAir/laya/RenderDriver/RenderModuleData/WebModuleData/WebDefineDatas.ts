@@ -1,7 +1,6 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector2 } from "../../../maths/Vector2";
-import { RenderInfo } from "../../../renders/RenderInfo";
 import { Stat } from "../../../utils/Stat";
-import { WebGPURenderEngine } from "../../WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { IDefineDatas } from "../Design/IDefineDatas";
 import { ShaderDefine } from "../Design/ShaderDefine";
 
@@ -165,7 +164,7 @@ export class WebDefineDatas implements IDefineDatas {
         if (this._changeFlags.size > 0) {
             for (var i = 0, n = this._changeFlags.size; i < n; i++) {
                 this._changeFlags.forEach(value => {
-                    value.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount)
+                    value.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount)
                 });
             }
         }
@@ -173,14 +172,14 @@ export class WebDefineDatas implements IDefineDatas {
 
     addChangeFlagInfo(flag: Vector2) {
         if (!this._changeFlags.has(flag)) {
-            flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+            flag.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
             this._changeFlags.add(flag);
         }
     }
 
     removeChangeFlagInfo(flag: Vector2) {
         if (this._changeFlags.has(flag)) {
-            flag.setValue(Stat.loopCount, WebGPURenderEngine._instance._framePassCount);
+            flag.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
             this._changeFlags.delete(flag);
         }
     }

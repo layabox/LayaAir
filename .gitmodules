@@ -1,3 +1,6 @@
 [submodule "bin/sample-resource"]
 	path = bin/sample-resource
 	url = https://gitee.com/LayaAirIDE/sample-resource
+[submodule "src/layaAir/laya/RenderDriver/WebGPUDriver"]
+	path = src/layaAir/laya/RenderDriver/WebGPUDriver
+	url = https://github.com/layabox/WebGPUDriver.git
