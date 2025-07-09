@@ -1,6 +1,8 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "RestoreCmd";
 
 /**
  * @en Restore command, used in conjunction with save
@@ -12,7 +14,7 @@ export class RestoreCmd implements IGraphicsCmd {
      * @en Identifier for the RestoreCmd
      * @zh 恢复命令的标识符
      */
-    static readonly ID: string = "Restore";
+    static readonly ID: string = className;
 
     /**
      * @en Create a RestoreCmd instance
@@ -21,7 +23,7 @@ export class RestoreCmd implements IGraphicsCmd {
      * @returns 恢复命令实例
      */
     static create(): RestoreCmd {
-        return Pool.getItemByClass("RestoreCmd", RestoreCmd);
+        return Pool.getItemByClass(className, RestoreCmd);
     }
 
     /**
@@ -29,17 +31,17 @@ export class RestoreCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        Pool.recover("RestoreCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the restore command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @zh 执行恢复命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      */
-    run(context: Context): void {
-        context.restore();
+    run(runner: GraphicsRunner): void {
+        runner.restore();
     }
 
     /**

@@ -10,6 +10,7 @@ export class TextRenderConfig {
     static forceWholeRender = false; // 强制整句话渲染
     static scaleFontWithCtx = true; // 如果有缩放，则修改字体，以保证清晰度
     static maxFontScale = 4; //当scaleFontWithCtx为true时，最大允许放大的倍数
+    static fontScale = 1; //设定字体全局缩放，如果设置了scaleFontWithCtx，则这个值会根据舞台比例自动设置。
     static standardFontSize = 32; // 测量的时候使用的字体大小
     static destroyAtlasDt = 10; // 回收图集贴图的时间。单位是帧
     static checkCleanTextureDt = 2000; // 检查是否要真正删除纹理的时间。单位是ms

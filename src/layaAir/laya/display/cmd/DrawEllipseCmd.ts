@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
-import { Context } from "../../renders/Context";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "DrawEllipseCmd";
 
 /**
  * @en Draw ellipse command
@@ -13,7 +15,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      * @en Identifier for the DrawEllipseCmd
      * @zh 绘制椭圆命令的标识符
      */
-    static readonly ID: string = "DrawEllipse";
+    static readonly ID: string = className;
     /**
      * @en X-axis position of the ellipse center
      * @zh 椭圆中心点X轴位置
@@ -80,7 +82,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      * @returns DrawEllipseCmd实例
      */
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
-        var cmd = Pool.getItemByClass("DrawEllipseCmd", DrawEllipseCmd);
+        var cmd = Pool.getItemByClass(className, DrawEllipseCmd);
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -99,28 +101,28 @@ export class DrawEllipseCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
-        Pool.recover("DrawEllipseCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the draw ellipse command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制椭圆命令
-     * @param context 渲染上下文
+     * @param runner 渲染上下文
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(context: Context, gx: number, gy: number): void {
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
-        if (this.percent && context.sprite) {
-            let w = context.sprite.width;
-            let h = context.sprite.height;
-            context._drawEllipse(this.x * w + gx, this.y * h + gy, this.width * w - offset, this.height * h - offset, this.fillColor, this.lineColor, this.lineWidth);
+        if (this.percent && runner.sprite) {
+            let w = runner.sprite.width;
+            let h = runner.sprite.height;
+            runner._drawEllipse(this.x * w + gx, this.y * h + gy, this.width * w - offset, this.height * h - offset, this.fillColor, this.lineColor, this.lineWidth);
         }
         else {
-            context._drawEllipse(this.x + gx, this.y + gy, this.width - offset, this.height - offset, this.fillColor, this.lineColor, this.lineWidth);
+            runner._drawEllipse(this.x + gx, this.y + gy, this.width - offset, this.height - offset, this.fillColor, this.lineColor, this.lineWidth);
         }
     }
 
@@ -139,11 +141,10 @@ export class DrawEllipseCmd implements IGraphicsCmd {
         let rect = Rectangle.TEMP.setTo(this.x - this.width, this.y - this.height, this.width * 2, this.height * 2);
         if (this.percent) {
             rect.scale(assembler.width, assembler.height);
-            assembler.affectBySize = true;
         }
         rect.getBoundPoints(assembler.points);
     }
 
 }
 
-ClassUtils.regClass("DrawEllipseCmd", DrawEllipseCmd);
+ClassUtils.regClass(className, DrawEllipseCmd);

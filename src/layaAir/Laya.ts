@@ -3,17 +3,8 @@ import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { Loader } from "./laya/net/Loader";
 import { Render } from "./laya/renders/Render";
-import { RenderSprite } from "./laya/renders/RenderSprite";
-import { Context } from "./laya/renders/Context";
 import { Browser } from "./laya/utils/Browser";
 import { Timer } from "./laya/utils/Timer";
-import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
-import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { MeshVG } from "./laya/webgl/utils/MeshVG";
-import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
-import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
@@ -29,12 +20,19 @@ import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
-import { BlendMode } from "./laya/webgl/canvas/BlendMode";
+import { BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
 import { Shader2D } from "./laya/webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { PAL } from "./laya/platform/PlatformAdapters";
 import { SoundManager } from "./laya/media/SoundManager";
+import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
+import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
+import { PostProcess2D } from "./laya/display/PostProcess2D";
+import { Render2DProcessor } from "./laya/display/Render2DProcessor";
+import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
+import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
+import { Scene } from "./laya/display/Scene";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -137,7 +135,7 @@ export class Laya {
 
             //创建离屏画布
             Browser.canvas = new HTMLCanvas(true);
-            Browser.context = Browser.canvas.context as any;
+            Browser.context = Browser.canvas.context;
 
             return PAL.browser.start();
         });
@@ -199,28 +197,29 @@ export class Laya {
         VertexElementFormat.__init__();
         VertexMesh.__init__();
         Shader3D.init();
-        MeshQuadTexture.__int__();
-        MeshVG.__init__();
-        MeshTexture.__init__();
+
+        GraphicsMesh.__init__();
         ShaderDefines2D.__init__();
+
         Render.__init__();
+
         Shader2D.__init__();
-        BlendMode._init_();
+        BlendModeHandler._init_();
         Texture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
-        Camera2D.shaderValueInit();
+
+        Scene.__init__();
+        Render2DProcessor.__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
-        RenderStateContext.__init__();
-        RenderSprite.__init__();
+        Blit2DCMD.__init__();
+        PostProcess2D.init();
         Material.__initDefine__();
+        Mesh2DRender.__init__();
+
         InputManager.__init__();
         SoundManager.__init__();
-
-        //Init internal 2D Value2D
-        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
-        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
     }
 
     /**
@@ -316,7 +315,6 @@ var _erralert: number = 0;
 
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;
-ILaya.Context = Context;
 ILaya.InputManager = InputManager;
 
 /**@internal */

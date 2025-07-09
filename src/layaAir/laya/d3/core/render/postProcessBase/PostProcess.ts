@@ -70,10 +70,7 @@ export class PostProcess {
     }
 
     /**@internal */
-    private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
-
-    /**@internal */
-    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+    private _compositeShaderData: ShaderData;
 
     /**@internal */
     private _effects: PostProcessEffect[] = [];
@@ -116,7 +113,7 @@ export class PostProcess {
      */
     constructor() {
         this._context = new PostProcessRenderContext();
-        this._context.compositeShaderData = this._compositeShaderData;
+        this._context.compositeShaderData = this._compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._context.command = new CommandBuffer();
         this._depthtextureFlag = 0;
     }
@@ -187,7 +184,10 @@ export class PostProcess {
         var internalRT = camera._needInternalRenderTexture();
         var cameraTarget: RenderTexture = !internalRT ? RenderTexture.createFromPool(camera._offScreenRenderTexture.width, camera._offScreenRenderTexture.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true) : camera._internalRenderTexture;
         var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true);
-        var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)];
+        var Indirect: RenderTexture[] = [
+            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true),
+            RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1, false, true)
+        ];
         //var screenTexture: RenderTexture = cameraTarget;
         context.command!.clear();
         context.source = screenTexture;
@@ -206,17 +206,17 @@ export class PostProcess {
         if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
-        for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
+        for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
-                if (i == n - 2) {//last effect:destination RenderTexture is CameraTarget
+                if (i === n - 2) {//last effect:destination RenderTexture is CameraTarget
                     context.indirectTarget = context.destination;
                     context.destination = cameraTarget;
                 } else {
                     context.indirectTarget = context.destination;
                     context.destination = Indirect[(i + 1) % 2];
                 }
-            } else if (i == n - 1) {//兼容最后一个Effect Active为false
+            } else if (i === n - 1) {//兼容最后一个Effect Active为false
                 context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
             }
         }
@@ -243,7 +243,7 @@ export class PostProcess {
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);
         var tempRenderTextures: RenderTexture[] = context.deferredReleaseTextures;
-        for (i = 0, n = tempRenderTextures.length; i < n; i++)
+        for (let i = 0, n = tempRenderTextures.length; i < n; i++)
             RenderTexture.recoverToPool(tempRenderTextures[i]);
         tempRenderTextures.length = 0;
     }
@@ -254,10 +254,10 @@ export class PostProcess {
      * @zh 添加后期处理效果。
      * @param effect 后期处理效果
      */
-    addEffect(effect: PostProcessEffect): void {
+    addEffect<T extends PostProcessEffect>(effect: T): T | null {
         if (effect.singleton && this.getEffect((effect as any).constructor)) {
-            console.error("无法增加已经存在的Effect");
-            return;
+            console.error("the target effect is a singleton", effect);
+            return null;
         }
         if (!this._enableColorGrad || effect instanceof ColorGradEffect) {
             this._effects.push(effect);
@@ -267,6 +267,8 @@ export class PostProcess {
 
         this.recaculateCameraFlag();
         effect.effectInit(this);
+
+        return effect;
     }
 
     /**
@@ -277,15 +279,8 @@ export class PostProcess {
      * @param classReg 注册的后期处理类型
      * @returns 后期处理效果实例，如果没有找到则返回null
      */
-    getEffect(classReg: any): any {
-        let size: number = this._effects.length;
-        for (let i = 0; i < size; i++) {
-            let element = this._effects[i];
-            if (element instanceof classReg) {
-                return element;
-            }
-        }
-        return null
+    getEffect<T extends PostProcessEffect>(classReg: new () => T): T {
+        return this._effects.find(effect => effect instanceof classReg) as T || null;
     }
 
     /**

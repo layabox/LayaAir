@@ -1,6 +1,5 @@
 import type { Timer } from "./laya/utils/Timer";
 import type { Loader } from "./laya/net/Loader";
-import type { Context } from "./laya/renders/Context";
 import type { Stage } from "./laya/display/Stage";
 import type { InputManager } from "./laya/events/InputManager";
 import type { Laya } from "./Laya";
@@ -14,7 +13,6 @@ import type { Laya3D } from "./Laya3D";
 export class ILaya {
     static Laya: typeof Laya = null;
     static Loader: typeof Loader = null;
-    static Context: typeof Context = null;
     static InputManager: typeof InputManager = null;
 
     static Scene3D: typeof Scene3D = null;
@@ -33,3 +31,7 @@ export class ILaya {
 export declare type Mutable<T> = {
     -readonly [P in keyof T]: T[P]
 };
+
+export type TypedArrayConstructor = Float32ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int8ArrayConstructor | Uint8ArrayConstructor;
+
+export type TypedArrayType = Float32Array | Int32Array | Uint32Array | Int16Array | Uint16Array | Int8Array | Uint8Array;

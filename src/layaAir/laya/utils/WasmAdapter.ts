@@ -1,4 +1,4 @@
-import { PlayerConfig } from "../../Config";
+import { URL } from "../net/URL";
 import { Browser } from "./Browser";
 
 /**
@@ -32,14 +32,19 @@ export class WasmAdapter {
             moduleArg["locateFile"] = function (path: string, scriptDirectory: string) {
                 if (WasmAdapter.locateFile != null)
                     wasmFile = WasmAdapter.locateFile(path, scriptDirectory, webDir);
-                else if (PlayerConfig.wasmSubpackage)
-                    wasmFile = PlayerConfig.wasmSubpackage + "/" + path;
                 else
-                    wasmFile = scriptDirectory + path;
+                    wasmFile = WasmAdapter.locateFileDefault(path, scriptDirectory);
                 return wasmFile;
             }
 
             return module(moduleArg);
         };
+    }
+
+    static locateFileDefault(path: string, scriptDirectory?: string): string {
+        if (URL.urlMapping[path])
+            return URL.formatURL(path, '');
+        else
+            return scriptDirectory != null ? scriptDirectory + path : path;
     }
 }

@@ -21,7 +21,7 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 export class WebGLRenderContext3D implements IRenderContext3D {
     //单例
-    static _instance:WebGLRenderContext3D;
+    static _instance: WebGLRenderContext3D;
     /**
      * @internal 
     */
@@ -72,9 +72,14 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
     set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
-        if (this.sceneData) {
-            let sceneMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
-            this.sceneData.createUniformBuffer("Scene3D", sceneMap._idata);
+        if (Config._uniformBlock && this.sceneData) {
+
+            for (let key of this._preDrawUniformMaps) {
+                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                if (uniformMap._idata.size > 0) {
+                    this.sceneData.createUniformBuffer(key, uniformMap._idata);
+                }
+            }
         }
     }
 
@@ -85,7 +90,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
 
-        if (this.cameraData) {
+        if (Config._uniformBlock && this.cameraData) {
             let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
             this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata);
         }
@@ -211,7 +216,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
      */
     constructor() {
         this._clearColor = new Color();
-        this._globalConfigShaderData = Shader3D._configDefineValues;
+        this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
         this._preDrawUniformMaps = new Set<string>();
         this.cameraUpdateMask = 0;
         WebGLRenderContext3D._instance = this;

@@ -1,6 +1,8 @@
-import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+
+const className = "AlphaCmd";
 
 /**
  * @en Alpha command.
@@ -12,7 +14,7 @@ export class AlphaCmd implements IGraphicsCmd {
      * @en Identifier for the AlphaCmd
      * @zh 透明命令的标识符
      */
-    static readonly ID: string = "Alpha";
+    static readonly ID: string = className;
 
     /**
      * @en The opacity level of the command.
@@ -29,7 +31,7 @@ export class AlphaCmd implements IGraphicsCmd {
      * @returns 一个已用给定 alpha 值初始化的 AlphaCmd 实例。
      */
     static create(alpha: number): AlphaCmd {
-        var cmd: AlphaCmd = Pool.getItemByClass("AlphaCmd", AlphaCmd);
+        var cmd: AlphaCmd = Pool.getItemByClass(className, AlphaCmd);
         cmd.alpha = alpha;
         return cmd;
     }
@@ -39,21 +41,21 @@ export class AlphaCmd implements IGraphicsCmd {
      * @zh 将 `AlphaCmd` 实例回收到对象池以供重用。
      */
     recover(): void {
-        Pool.recover("AlphaCmd", this);
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the alpha command in the given context.
-     * @param context The rendering context.
+     * @param runner The rendering context.
      * @param gx The global x coordinate (unused in this method).
      * @param gy The global y coordinate (unused in this method).
      * @zh 在给定的上下文中执行 alpha 命令。
-     * @param context 渲染上下文。
+     * @param runner 渲染上下文。
      * @param gx 全局 x 坐标（本方法中未使用）。
      * @param gy 全局 y 坐标（本方法中未使用）。
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.alpha(this.alpha);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        runner.alpha(this.alpha);
     }
 
     /**

@@ -32,8 +32,6 @@ export class WebGLCommandUniformMap extends CommandUniformMap {
     /**
      * 增加一个UniformArray参数
      * @internal
-     * @param propertyID 
-     * @param propertyName 
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype: uniformtype, propertyName: propertyName, arrayLength: arrayLength });

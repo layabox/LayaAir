@@ -3,6 +3,7 @@ import { Event } from "../events/Event";
 import { GWidget } from "./GWidget";
 import { UIEvent } from "./UIEvent";
 
+/** @ignore */
 export class WidgetRef {
     p: GWidget;
 

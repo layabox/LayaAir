@@ -58,6 +58,9 @@ export class WebGPUSampler {
     }
 
     static getWebGPUSampler(params: WebGPUSamplerParams) {
+        if (params.filterMode == FilterMode.Point) {
+            params.anisoLevel = 1;
+        }
         const cacheKey = WebGPUSampler._getCacheSamplerKey(params);
         if (!this._cacheMap[cacheKey])
             this._cacheMap[cacheKey] = new WebGPUSampler(params);

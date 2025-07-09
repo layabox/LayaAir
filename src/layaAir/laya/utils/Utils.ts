@@ -556,6 +556,35 @@ export class Utils {
 
         return 0;
     }
+
+    /**
+     * @en Determines whether a point is inside a polygon.
+     * @zh 坐标是否在多边形内
+     */
+    static testPointInPolygon(x: number, y: number, areaPoints: number[]): boolean {
+        // 交点个数
+        var nCross: number = 0;
+        var p1x: number, p1y: number, p2x: number, p2y: number;
+        var len: number;
+        len = areaPoints.length;
+        for (var i: number = 0; i < len; i += 2) {
+            p1x = areaPoints[i];
+            p1y = areaPoints[i + 1];
+            p2x = areaPoints[(i + 2) % len];
+            p2y = areaPoints[(i + 3) % len];
+            //var p1:Point = areaPoints[i];
+            //var p2:Point = areaPoints[(i + 1) % areaPoints.length]; // 最后一个点与第一个点连线
+            if (p1y == p2y) continue;
+            if (y < Math.min(p1y, p2y)) continue;
+            if (y >= Math.max(p1y, p2y)) continue;
+            // 求交点的x坐标
+            var tx: number = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x;
+            // 只统计p1p2与p向右射线的交点
+            if (tx > x) nCross++;
+        }
+        // 交点为偶数，点在多边形之外
+        return (nCross % 2 == 1);
+    }
 }
 
 const objUidKey = Symbol();

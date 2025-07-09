@@ -43,7 +43,7 @@ export class SerializeUtil {
                     let k: string;
                     if (Array.isArray(od))
                         k = od[n - i - 1];
-                    else if (i == n - 1)
+                    else if (i === n - 1)
                         k = od;
 
                     if (k != null) {
@@ -101,7 +101,7 @@ export class SerializeUtil {
                     if (idPath = e._$override) {
                         let toWrite: any;
                         if (Array.isArray(idPath)) {
-                            if (j == idPath.length - 1) {
+                            if (j === idPath.length - 1) {
                                 let k = idPath[j];
                                 if (!children)
                                     data._$child = children = [];
@@ -158,7 +158,7 @@ export class SerializeUtil {
                             data._$child = children = [];
                         let k: string | string[];
                         if (j < idPath.length) { //挂接的节点在嵌套预制体内部
-                            if (j == idPath.length - 1)
+                            if (j === idPath.length - 1)
                                 k = idPath[j];
                             else
                                 k = idPath.slice(j);

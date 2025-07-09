@@ -1,7 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
-import { Scene } from "../display/Scene";
-import { Camera2D } from "../display/Scene2DSpecial/Camera2D";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Draw2DLineCMD } from "../Line2D/Draw2DLineCMD";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
@@ -10,12 +8,11 @@ import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
 import { Vector2 } from "../maths/Vector2";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { Context } from "../renders/Context"
 import { Material } from "../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { Texture2D } from "../resource/Texture2D";
-import { Physics2D } from "./Physics2D";
 import { Physics2DWorldManager } from "./Physics2DWorldManager";
+
 /**
  * @en Physical auxiliary line
  * @zh 物理辅助线
@@ -140,14 +137,13 @@ export class Physics2DDebugDraw extends Sprite {
         this._mG.clear();
         this._mG.save();
         this._mG.scale(this._physics2DWorld.getPixel_Ratio(), this._physics2DWorld.getPixel_Ratio());
-        if ((this._scene as Scene)._area2Ds.length != 0) {
-            for (let i = 0; i < (this._scene as Scene)._area2Ds.length; i++) {
-                let area = (this._scene as Scene)._area2Ds[i];
+        if (this._scene._area2Ds.size > 0) {
+            for (let area of this._scene._area2Ds) {
                 if (area && area.mainCamera) {
-                    let shaderData = (this._scene as Scene).sceneShaderData;
-                    if (shaderData) {
-                        shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                    }
+                    // let shaderData = (this._scene as Scene).sceneShaderData;
+                    // if (shaderData) {
+                    //     shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+                    // }
                     break;
                 }
             }
@@ -192,31 +188,29 @@ export class Physics2DDebugDraw extends Sprite {
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
 
-        if ((this._scene as Scene)._area2Ds.length != 0) {
-            for (let i = 0; i < (this._scene as Scene)._area2Ds.length; i++) {
-                let area = (this._scene as Scene)._area2Ds[i];
-                if (area && area.mainCamera) {
-                    let shaderData = (this._scene as Scene).sceneShaderData;
-                    if (shaderData) {
-                        shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                    }
-                    break;
-                }
+        if (this._scene._area2Ds.size > 0) {
+            for (let area of this._scene._area2Ds) {
+                // if (area && area.mainCamera) {
+                //     let shaderData = (this._scene as Scene).sceneShaderData;
+                //     if (shaderData) {
+                //         shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+                //     }
+                //     break;
+                // }
             }
         }
         this._mG.restore();
     }
 
     /**
-     * @override
      * @en Renders the object using the given context and position.
      * @zh 使用给定的上下文和位置渲染对象。
      */
-    render(ctx: Context, x: number, y: number): void {
+    render(x: number, y: number): void {
         if (!LayaEnv.isPlaying) return;
 
         this._renderToGraphic();
-        super.render(ctx, x, y);
+        // super.render(x, y);
     }
 
     /**

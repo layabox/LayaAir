@@ -60,10 +60,10 @@ export interface IBaseRenderNode {
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
+    ismoved: number;
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
     /**
-     * @internal
      * @param value 
      */
     setRenderelements(value: IRenderElement3D[]): void;
@@ -97,7 +97,7 @@ export interface IMeshRenderNode extends IBaseRenderNode {
 
 }
 
-export interface ISkinRenderNode extends IBaseRenderNode {
+export interface ISkinRenderNode extends IMeshRenderNode {
     computeSkinnedData(): void;
     setRootBoneTransfom(value: Sprite3D): void;
     setOwnerTransform(value: Sprite3D): void;

@@ -6,7 +6,6 @@ import { OutOfRangeError } from "./Error";
  * @zh Byte 类提供用于优化读取、写入以及处理二进制数据的方法和属性。Byte 类适用于需要在字节层访问数据的高级开发人员。
  */
 export class Byte {
-
     /**
      * @en Host byte order, which represents the two different sequences in which a CPU can store data: little-endian and big-endian. Use getSystemEndian to obtain the byte order of the current system.
      * BIG_ENDIAN byte order: The lower address stores, the higher bits of the value, and the higher address stores the lower bits. It is sometimes referred to as network byte order.
@@ -50,7 +49,7 @@ export class Byte {
      */
     static getSystemEndian(): string {
         if (!Byte._sysEndian) {
-            var buffer: any = new ArrayBuffer(2);
+            let buffer = new ArrayBuffer(2);
             new DataView(buffer).setInt16(0, 256, true);
             Byte._sysEndian = (new Int16Array(buffer))[0] === 256 ? Byte.LITTLE_ENDIAN : Byte.BIG_ENDIAN;
         }
@@ -77,11 +76,11 @@ export class Byte {
      * @zh 此对象的 ArrayBuffer 数据，数据只包含有效数据部分。
      */
     get buffer(): ArrayBuffer {
-        let rstBuffer: ArrayBuffer = this._d_.buffer;
+        let rstBuffer = this._d_.buffer;
         if (rstBuffer.byteLength === this._length)
-            return rstBuffer;
+            return <ArrayBuffer>rstBuffer;
         else
-            return rstBuffer.slice(0, this._length);
+            return <ArrayBuffer>rstBuffer.slice(0, this._length);
     }
 
     /**
@@ -89,11 +88,6 @@ export class Byte {
      * @zh 获取此对象的 ArrayBuffer 引用。
      */
     get rawBuffer() {
-        return this._d_.buffer;
-    }
-
-    /** @deprecated */
-    __getBuffer(): ArrayBuffer {
         return this._d_.buffer;
     }
 
@@ -135,7 +129,7 @@ export class Byte {
 
     private _resizeBuffer(len: number): void {
         try {
-            var newByteView: any = new Uint8Array(len);
+            let newByteView = new Uint8Array(len);
             if (this._u8d_ != null) {
                 if (this._u8d_.length <= len) newByteView.set(this._u8d_);
                 else newByteView.set(this._u8d_.subarray(0, len));
@@ -143,13 +137,8 @@ export class Byte {
             this._u8d_ = newByteView;
             this._d_ = new DataView(newByteView.buffer);
         } catch (err) {
-            throw "Invalid typed array length:" + len;
+            throw new Error("Invalid typed array length:" + len);
         }
-    }
-
-    /** @deprecated */
-    getString(): string {
-        return this.readString();
     }
 
     /**
@@ -161,12 +150,15 @@ export class Byte {
      * @return 读取的字符串
      */
     readString(): string {
-        return this._rUTF(this.getUint16());
+        return this._rUTF(this.readUint16());
     }
 
-    /** @deprecated */
-    getFloat32Array(start: number, len: number): any {
-        return this.readFloat32Array(start, len);
+    private readTypedArray<T extends Int8Array | Uint8Array | Int16Array | Float32Array>(start: number, len: number, type: new (ab: ArrayBuffer) => T): T {
+        let end: number = start + len;
+        end = (end > this._length) ? this._length : end;
+        let v = new type(<ArrayBuffer>this._d_.buffer.slice(start, end));
+        this._pos_ = end;
+        return v;
     }
 
     /**
@@ -175,21 +167,12 @@ export class Byte {
      * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
      * @returns The read `Float32Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Float32Array` 对象并返回此对象。
-     * @param start	开始位置。
+     * @param start 开始位置。
      * @param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-     * @return  读取的 Float32Array 对象。
+     * @return 读取的 Float32Array 对象。
      */
-    readFloat32Array(start: number, len: number): any {
-        var end: number = start + len;
-        end = (end > this._length) ? this._length : end;
-        var v: any = new Float32Array(this._d_.buffer.slice(start, end));
-        this._pos_ = end;
-        return v;
-    }
-
-    /** @deprecated */
-    getUint8Array(start: number, len: number): Uint8Array {
-        return this.readUint8Array(start, len);
+    readFloat32Array(start: number, len: number): Float32Array {
+        return this.readTypedArray(start, len, Float32Array);
     }
 
     /**
@@ -198,21 +181,26 @@ export class Byte {
      * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
      * @returns The read `Uint8Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Uint8Array` 对象并返回此对象。
-     * @param start	开始位置。
-     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-     * @return  读取的 Uint8Array 对象。
+     * @param start 开始位置。
+     * @param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @return 读取的 Uint8Array 对象。
      */
     readUint8Array(start: number, len: number): Uint8Array {
-        var end: number = start + len;
-        end = (end > this._length) ? this._length : end;
-        var v: any = new Uint8Array(this._d_.buffer.slice(start, end));
-        this._pos_ = end;
-        return v;
+        return this.readTypedArray(start, len, Uint8Array);
     }
 
-    /** @deprecated */
-    getInt16Array(start: number, len: number): any {
-        return this.readInt16Array(start, len);
+    /**
+     * @en Reads a number of bytes specified by the `len` parameter from the byte stream starting at the position indicated by the `start` parameter, and creates an `Int8Array` object from the data.
+     * @param start The starting position.
+     * @param len The number of bytes to read. If the length to be read exceeds the readable range, only the values within the readable range are returned.
+     * @returns The read `Int8Array` object.
+     * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int8Array` 对象并返回此对象。
+     * @param start 开始位置。
+     * @param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @return 读取的 Int8Array 对象。
+     */
+    readInt8Array(start: number, len: number): Int8Array {
+        return this.readTypedArray(start, len, Int8Array);
     }
 
     /**
@@ -222,20 +210,11 @@ export class Byte {
      * @returns The created `Int16Array` object.
      * @zh 从字节流中 `start` 参数指定的位置开始，读取 `len` 参数指定的字节数的数据，用于创建一个 `Int16Array` 对象并返回此对象。
      * @param start	开始读取的字节偏移量位置。
-     * @param len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-     * @return  读取的 Uint8Array 对象。
+     * @param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+     * @return 读取的 Uint8Array 对象。
      */
-    readInt16Array(start: number, len: number): any {
-        var end: number = start + len;
-        end = (end > this._length) ? this._length : end;
-        var v: any = new Int16Array(this._d_.buffer.slice(start, end));
-        this._pos_ = end;
-        return v;
-    }
-
-    /** @deprecated */
-    getFloat32(): number {
-        return this.readFloat32();
+    readInt16Array(start: number, len: number): Int16Array {
+        return this.readTypedArray(start, len, Int16Array);
     }
 
     /**
@@ -249,11 +228,6 @@ export class Byte {
         var v: number = this._d_.getFloat32(this._pos_, this._xd_);
         this._pos_ += 4;
         return v;
-    }
-
-    /** @deprecated */
-    getFloat64(): number {
-        return this.readFloat64();
     }
 
     /**
@@ -293,11 +267,6 @@ export class Byte {
         this._pos_ += 8;
     }
 
-    /** @deprecated */
-    getInt32(): number {
-        return this.readInt32();
-    }
-
     /**
      * @en Reads an Int32 value from the current position in the byte stream.
      * @returns The Int32 value that was read.
@@ -309,11 +278,6 @@ export class Byte {
         var float: number = this._d_.getInt32(this._pos_, this._xd_);
         this._pos_ += 4;
         return float;
-    }
-
-    /** @deprecated */
-    getUint32(): number {
-        return this.readUint32();
     }
 
     /**
@@ -353,11 +317,6 @@ export class Byte {
         this._pos_ += 4;
     }
 
-    /** @deprecated */
-    getInt16(): number {
-        return this.readInt16();
-    }
-
     /**
      * @en Reads an Int16 value from the current byte offset in the byte stream.
      * @returns The Int16 value that was read.
@@ -369,11 +328,6 @@ export class Byte {
         var us: number = this._d_.getInt16(this._pos_, this._xd_);
         this._pos_ += 2;
         return us;
-    }
-
-    /** @deprecated */
-    getUint16(): number {
-        return this.readUint16();
     }
 
     /**
@@ -411,11 +365,6 @@ export class Byte {
         this._ensureWrite(this._pos_ + 2);
         this._d_.setInt16(this._pos_, value, this._xd_);
         this._pos_ += 2;
-    }
-
-    /** @deprecated */
-    getUint8(): number {
-        return this.readUint8();
     }
 
     /**
@@ -460,7 +409,7 @@ export class Byte {
      * @returns 创建的 Matrix 对象。
      */
     _readMatrix(): Matrix {
-        var rst: Matrix = new Matrix(this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32());
+        var rst: Matrix = new Matrix(this.readFloat32(), this.readFloat32(), this.readFloat32(), this.readFloat32(), this.readFloat32(), this.readFloat32());
         return rst;
     }
 
@@ -471,8 +420,8 @@ export class Byte {
      */
     private _rUTF(len: number): string {
         let v: string = "", max: number = this._pos_ + len, c: number, c2: number, c3: number, f: Function = String.fromCharCode;
-        let u: any = this._u8d_, i: number = 0;
-        let strs: any[] = [];
+        let u = this._u8d_, i: number = 0;
+        let strs: string[] = [];
         let n: number = 0;
         strs.length = 1000;
         while (this._pos_ < max) {
@@ -510,10 +459,7 @@ export class Byte {
         return strs.join('');
     }
 
-    /** @deprecated */
-    getCustomString(len: number): string {
-        return this.readCustomString(len);
-    }
+
 
     /**
      * @en Reads a string of the specified length.
@@ -525,7 +471,7 @@ export class Byte {
      */
     readCustomString(len: number): string {
         var v: string = "", ulen: number = 0, c: number, c2: number, f: Function = String.fromCharCode;
-        var u: any = this._u8d_, i: number = 0;
+        var u = this._u8d_, i: number = 0;
         while (len > 0) {
             c = u[this._pos_];
             if (c < 0x80) {
@@ -667,7 +613,7 @@ export class Byte {
      * @returns 读取的字符串。
      */
     readUTFString(): string {
-        return this.readUTFBytes(this.getUint16());
+        return this.readUTFBytes(this.readUint16());
     }
 
     /**
@@ -675,12 +621,7 @@ export class Byte {
      * @zh 读取由 writeUTFString32() 方法写入的 UTF-8 字符串。
      */
     readUTFString32(): string {
-        return this.readUTFBytes(this.getUint32());
-    }
-
-    /** @deprecated */
-    getUTFString(): string {
-        return this.readUTFString();
+        return this.readUTFBytes(this.readUint32());
     }
 
     /**
@@ -688,20 +629,16 @@ export class Byte {
      * @param len The length of the buffer to read. If set to -1, all data in the buffer will be read.
      * @returns The read string.
      * @zh 读字符串，必须是 writeUTFBytes 方法写入的字符串。
-     * @param len 要读的buffer长度，默认将读取缓冲区全部数据。
+     * @param len 要读的buffer长度，默认将读取缓冲区全部数据。如果设置为 -1，则读取缓冲区中的所有数据。
      * @returns 读取的字符串。
      */
-    readUTFBytes(len: number = -1): string {
+    readUTFBytes(len?: number): string {
+        if (len == null) len = -1;
         if (len === 0) return "";
         var lastBytes: number = this.bytesAvailable;
         if (len > lastBytes) throw new OutOfRangeError(this._pos_ + len);
         len = len > 0 ? len : lastBytes;
         return this._rUTF(len);
-    }
-
-    /** @deprecated */
-    getUTFBytes(len: number = -1): string {
-        return this.readUTFBytes(len);
     }
 
     /**
@@ -727,11 +664,6 @@ export class Byte {
         return this._d_.getInt8(this._pos_++);
     }
 
-    /** @deprecated */
-    getByte(): number {
-        return this.readByte();
-    }
-
     protected _ensureWrite(lengthToEnsure: number): void {
         if (this._length < lengthToEnsure) this._length = lengthToEnsure;
         if (this._allocated_ < lengthToEnsure) this.length = lengthToEnsure;
@@ -751,11 +683,13 @@ export class Byte {
      * @param offset Arraybuffer 对象的索引的偏移量（以字节为单位）。
      * @param length 从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）。
      */
-    writeArrayBuffer(arraybuffer: any, offset: number = 0, length: number = 0): void {
+    writeArrayBuffer(arraybuffer: ArrayBufferLike, offset?: number, length?: number): void {
+        if (offset == null) offset = 0;
+        if (length == null) length = 0;
         if (offset < 0 || length < 0) throw new OutOfRangeError(offset + length);
         if (length == 0) length = arraybuffer.byteLength - offset;
         this._ensureWrite(this._pos_ + length);
-        var uint8array: any = new Uint8Array(arraybuffer);
+        let uint8array = new Uint8Array(arraybuffer);
         this._u8d_.set(uint8array.subarray(offset, offset + length), this._pos_);
         this._pos_ += length;
     }
@@ -767,10 +701,74 @@ export class Byte {
      * @param length 要读取的ArrayBuffer的长度。
      */
     readArrayBuffer(length: number): ArrayBuffer {
-        var rst: ArrayBuffer;
-        rst = this._u8d_.buffer.slice(this._pos_, this._pos_ + length);
+        let rst = this._u8d_.buffer.slice(this._pos_, this._pos_ + length);
         this._pos_ = this._pos_ + length
         return rst;
+    }
+
+    /** @deprecated */
+    __getBuffer(): ArrayBuffer {
+        return this._d_.buffer;
+    }
+    /** @deprecated */
+    getByte(): number {
+        return this.readByte();
+    }
+    /** @deprecated */
+    getUint8(): number {
+        return this.readUint8();
+    }
+    /** @deprecated */
+    getInt16(): number {
+        return this.readInt16();
+    }
+    /** @deprecated */
+    getUint16(): number {
+        return this.readUint16();
+    }
+    /** @deprecated */
+    getInt32(): number {
+        return this.readInt32();
+    }
+    /** @deprecated */
+    getUint32(): number {
+        return this.readUint32();
+    }
+    /** @deprecated */
+    getFloat32(): number {
+        return this.readFloat32();
+    }
+    /** @deprecated */
+    getFloat64(): number {
+        return this.readFloat64();
+    }
+    /** @deprecated */
+    getUint8Array(start: number, len: number): Uint8Array {
+        return this.readUint8Array(start, len);
+    }
+    /** @deprecated */
+    getInt16Array(start: number, len: number): Int16Array {
+        return this.readInt16Array(start, len);
+    }
+    /** @deprecated */
+    getFloat32Array(start: number, len: number): Float32Array {
+        return this.readFloat32Array(start, len);
+    }
+    /** @deprecated */
+    getUTFString(): string {
+        return this.readUTFString();
+    }
+    /** @deprecated */
+    getString(): string {
+        return this.readString();
+    }
+    /** @deprecated */
+    getCustomString(len: number): string {
+        return this.readCustomString(len);
+    }
+    /** @deprecated */
+    getUTFBytes(len: number = -1): string {
+        return this.readUTFBytes(len);
     }
 }
 

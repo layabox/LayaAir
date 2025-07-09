@@ -301,7 +301,7 @@ export class LensFlareEffect extends PostProcessEffect {
 
     constructor() {
         super();
-        this.singleton = false;
+        this._singleton = false;
         this._flareCMDS = [];
         this._flareCMDS.push(new LensFlareCMD());
         this._center = new Vector2();

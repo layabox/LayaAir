@@ -6,7 +6,7 @@ import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { BaseRenderType, IBaseRenderNode, ISimpleSkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode, IMeshRenderNode, ISimpleSkinRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
@@ -21,8 +21,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal */
     _bonesNums: number;
 
-    /**@internal */
-    _baseRenderNode: IBaseRenderNode;
+
     //解决编译bug TODO
     private _ownerSimpleRenderNode: ISimpleSkinRenderNode;
 

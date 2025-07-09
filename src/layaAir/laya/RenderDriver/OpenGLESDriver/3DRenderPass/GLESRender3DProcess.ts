@@ -191,37 +191,27 @@ export class GLESRender3DProcess implements IRender3DProcess {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            let needDepthTex = camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture;
-            if (needDepthTex) {
-                camera.depthTexture = camera._cacheDepthTexture.depthStencilTexture;
-                // @ts-ignore
-                Camera.depthPass._depthTexture = camera.depthTexture;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-                depthMode &= ~DepthTextureMode.Depth;
-            }
-            else {
-                Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget as GLESInternalRT;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-            }
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget as GLESInternalRT;
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
             this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget as GLESInternalRT;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, camera);
         }
-
         this.renderpass.renderpass.depthTextureMode = depthMode;
     }
 
     fowardRender(context: GLESRenderContext3D, camera: Camera): void {
+        Camera.depthPass.cleanUp(camera);
+
         this.initRenderpass(camera, context);
 
         this.renderDepth(camera);
 
         this.renderFowarAddCameraPass(context, this.renderpass);
-        Camera.depthPass.cleanUp();
     }
 
     renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP): void {

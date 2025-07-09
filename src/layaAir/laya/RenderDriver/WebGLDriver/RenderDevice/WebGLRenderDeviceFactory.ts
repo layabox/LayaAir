@@ -24,8 +24,10 @@ import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { Laya } from "../../../../Laya";
-import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 
+import { HTMLCanvas } from "../../../resource/HTMLCanvas";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
 export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData {
         return new WebGLShaderData(ownerResource);
@@ -34,6 +36,15 @@ export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
         let shaderIns = new WebGLShaderInstance();
         shaderIns._create(shaderProcessInfo, shaderPass);
+
+        if (Shader3D.debugMode) {
+            let defineString = shaderProcessInfo.defineString;
+
+            let is2D = shaderProcessInfo.is2D;
+
+            ShaderVariantCollection.active.add(shaderPass, defineString, is2D);
+        }
+
         return shaderIns;
     }
 

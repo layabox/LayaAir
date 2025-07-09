@@ -3,6 +3,7 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { IGraphicsCmd } from "../display/IGraphics";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { Color } from "../maths/Color";
@@ -96,7 +97,7 @@ export class FrameAnimation extends Component {
     private _loadId: number = 0;
     private _changingSize: boolean;
 
-    declare owner: Sprite;
+    declare readonly owner: Sprite;
 
     /**
      * @en Constructor method of Animation.
@@ -138,11 +139,13 @@ export class FrameAnimation extends Component {
 
     set frames(value: ReadonlyArray<Texture>) {
         if (this._drawCmd) {
-            this.owner.graphics.removeCmd(this._drawCmd);
+            this.owner._graphics?.removeCmd(this._drawCmd);
             this._drawCmd = null;
         }
-        for (let cmd of this._drawCmds)
+        for (let cmd of this._drawCmds) {
+            (cmd as IGraphicsCmd).lock = false;
             cmd.recover();
+        }
         this._drawCmds.length = 0;
         this._frames.length = 0;
 
@@ -159,7 +162,7 @@ export class FrameAnimation extends Component {
             for (let tex of value) {
                 let cmd = stretch ? DrawTextureCmd.create(tex, 0, 0, 1, 1, null, 1, null, null, null, true)
                     : DrawTextureCmd.create(tex, dx, dy);
-                cmd.lock = true;
+                (cmd as IGraphicsCmd).lock = true;
                 this._drawCmds.push(cmd);
             }
 

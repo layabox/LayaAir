@@ -1,5 +1,6 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { NotImplementedError } from "../../../utils/Error";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 
 
@@ -28,9 +29,18 @@ export class GLESIndexBuffer implements IIndexBuffer {
     public set indexCount(value: number) {
         this._nativeObj._indexCount = value;
     }
-    _nativeObj:any;
-    constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage){
+
+    _nativeObj: any;
+
+    private _bufferRef: any = null;
+
+    constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         this._nativeObj = new (window as any).conchGLESIndexBuffer(targetType, bufferUsageType);
+    }
+
+    setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
+        this._bufferRef = buffer;
+        this._nativeObj.setData(buffer, bufferOffset, dataStartIndex, dataCount);
     }
 
 }

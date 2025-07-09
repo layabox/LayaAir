@@ -51,7 +51,7 @@ export class LoadModelV05 {
         LoadModelV05.READ_STRINGS();
         for (var i: number = 0, n: number = LoadModelV05._BLOCK.count; i < n; i++) {
             LoadModelV05._readData.pos = LoadModelV05._BLOCK.blockStarts[i];
-            var index: number = LoadModelV05._readData.getUint16();
+            var index: number = LoadModelV05._readData.readUint16();
             var blockName: string = LoadModelV05._strings[index];
             var fn: Function = (LoadModelV05 as any)["READ_" + blockName];
             if (fn == null)
@@ -70,27 +70,27 @@ export class LoadModelV05 {
      * @internal
      */
     private static _readString(): string {
-        return LoadModelV05._strings[LoadModelV05._readData.getUint16()];
+        return LoadModelV05._strings[LoadModelV05._readData.readUint16()];
     }
 
     /**
      * @internal
      */
     private static READ_DATA(): void {
-        LoadModelV05._DATA.offset = LoadModelV05._readData.getUint32();
-        LoadModelV05._DATA.size = LoadModelV05._readData.getUint32();
+        LoadModelV05._DATA.offset = LoadModelV05._readData.readUint32();
+        LoadModelV05._DATA.size = LoadModelV05._readData.readUint32();
     }
 
     /**
      * @internal
      */
     private static READ_BLOCK(): void {
-        var count: number = LoadModelV05._BLOCK.count = LoadModelV05._readData.getUint16();
+        var count: number = LoadModelV05._BLOCK.count = LoadModelV05._readData.readUint16();
         var blockStarts: any[] = LoadModelV05._BLOCK.blockStarts = [];
         var blockLengths: any[] = LoadModelV05._BLOCK.blockLengths = [];
         for (var i: number = 0; i < count; i++) {
-            blockStarts.push(LoadModelV05._readData.getUint32());
-            blockLengths.push(LoadModelV05._readData.getUint32());
+            blockStarts.push(LoadModelV05._readData.readUint32());
+            blockLengths.push(LoadModelV05._readData.readUint32());
         }
     }
 
@@ -98,8 +98,8 @@ export class LoadModelV05 {
      * @internal
      */
     private static READ_STRINGS(): void {
-        var offset: number = LoadModelV05._readData.getUint32();
-        var count: number = LoadModelV05._readData.getUint16();
+        var offset: number = LoadModelV05._readData.readUint32();
+        var count: number = LoadModelV05._readData.readUint16();
         var prePos: number = LoadModelV05._readData.pos;
         LoadModelV05._readData.pos = offset + LoadModelV05._DATA.offset;
 
@@ -117,15 +117,15 @@ export class LoadModelV05 {
         var memorySize: number = 0;
         var name: string = LoadModelV05._readString();
         var reader: Byte = LoadModelV05._readData;
-        var arrayBuffer: ArrayBuffer = reader.__getBuffer();
+        var arrayBuffer: ArrayBuffer = reader.rawBuffer;
 
 
 
-        var vertexBufferCount: number = reader.getInt16();
+        var vertexBufferCount: number = reader.readInt16();
         var offset: number = LoadModelV05._DATA.offset;
         for (i = 0; i < vertexBufferCount; i++) {//TODO:始终为1
-            var vbStart: number = offset + reader.getUint32();
-            var vertexCount: number = reader.getUint32();
+            var vbStart: number = offset + reader.readUint32();
+            var vertexCount: number = reader.readUint32();
             var vertexFlag: string = LoadModelV05._readString();
             var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration(vertexFlag, false);
 
@@ -161,59 +161,59 @@ export class LoadModelV05 {
                             switch (subVertexFlags[k]) {
                                 case "POSITION":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.getUint16());
-                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.getUint16());
-                                    floatData[subOffset + 2] = HalfFloatUtils.convertToNumber(reader.getUint16());
+                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.readUint16());
+                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.readUint16());
+                                    floatData[subOffset + 2] = HalfFloatUtils.convertToNumber(reader.readUint16());
                                     verOffset += 12;
                                     break;
                                 case "NORMAL":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = reader.getUint8() / 127.5 - 1;
-                                    floatData[subOffset + 1] = reader.getUint8() / 127.5 - 1;
-                                    floatData[subOffset + 2] = reader.getUint8() / 127.5 - 1;
+                                    floatData[subOffset] = reader.readUint8() / 127.5 - 1;
+                                    floatData[subOffset + 1] = reader.readUint8() / 127.5 - 1;
+                                    floatData[subOffset + 2] = reader.readUint8() / 127.5 - 1;
                                     verOffset += 12;
                                     break;
                                 case "COLOR":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = reader.getUint8() / 255;
-                                    floatData[subOffset + 1] = reader.getUint8() / 255;
-                                    floatData[subOffset + 2] = reader.getUint8() / 255;
-                                    floatData[subOffset + 3] = reader.getUint8() / 255;
+                                    floatData[subOffset] = reader.readUint8() / 255;
+                                    floatData[subOffset + 1] = reader.readUint8() / 255;
+                                    floatData[subOffset + 2] = reader.readUint8() / 255;
+                                    floatData[subOffset + 3] = reader.readUint8() / 255;
                                     verOffset += 16;
                                     break;
                                 case "UV":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.getUint16());
-                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.getUint16());
+                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.readUint16());
+                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.readUint16());
                                     verOffset += 8;
                                     break;
                                 case "UV1":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.getUint16());
-                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.getUint16());
+                                    floatData[subOffset] = HalfFloatUtils.convertToNumber(reader.readUint16());
+                                    floatData[subOffset + 1] = HalfFloatUtils.convertToNumber(reader.readUint16());
                                     verOffset += 8;
                                     break;
                                 case "BLENDWEIGHT":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = reader.getUint8() / 255;
-                                    floatData[subOffset + 1] = reader.getUint8() / 255;
-                                    floatData[subOffset + 2] = reader.getUint8() / 255;
-                                    floatData[subOffset + 3] = reader.getUint8() / 255;
+                                    floatData[subOffset] = reader.readUint8() / 255;
+                                    floatData[subOffset + 1] = reader.readUint8() / 255;
+                                    floatData[subOffset + 2] = reader.readUint8() / 255;
+                                    floatData[subOffset + 3] = reader.readUint8() / 255;
                                     verOffset += 16;
                                     break;
                                 case "BLENDINDICES":
-                                    uint8Data[verOffset] = reader.getUint8();
-                                    uint8Data[verOffset + 1] = reader.getUint8();
-                                    uint8Data[verOffset + 2] = reader.getUint8();
-                                    uint8Data[verOffset + 3] = reader.getUint8();
+                                    uint8Data[verOffset] = reader.readUint8();
+                                    uint8Data[verOffset + 1] = reader.readUint8();
+                                    uint8Data[verOffset + 2] = reader.readUint8();
+                                    uint8Data[verOffset + 3] = reader.readUint8();
                                     verOffset += 4;
                                     break;
                                 case "TANGENT":
                                     subOffset = verOffset / 4;
-                                    floatData[subOffset] = reader.getUint8() / 127.5 - 1;
-                                    floatData[subOffset + 1] = reader.getUint8() / 127.5 - 1;
-                                    floatData[subOffset + 2] = reader.getUint8() / 127.5 - 1;
-                                    floatData[subOffset + 3] = reader.getUint8() / 127.5 - 1;
+                                    floatData[subOffset] = reader.readUint8() / 127.5 - 1;
+                                    floatData[subOffset + 1] = reader.readUint8() / 127.5 - 1;
+                                    floatData[subOffset + 2] = reader.readUint8() / 127.5 - 1;
+                                    floatData[subOffset + 3] = reader.readUint8() / 127.5 - 1;
                                     verOffset += 16;
                                     break;
                             }
@@ -237,8 +237,8 @@ export class LoadModelV05 {
             memorySize += floatData.length * 4;
         }
 
-        var ibStart: number = offset + reader.getUint32();
-        var ibLength: number = reader.getUint32();
+        var ibStart: number = offset + reader.readUint32();
+        var ibLength: number = reader.readUint32();
 
         var ibDatas: Uint16Array | Uint32Array;
         if (mesh.indexFormat == IndexFormat.UInt32)
@@ -260,21 +260,21 @@ export class LoadModelV05 {
             var bounds = mesh.bounds;
             var min: Vector3 = bounds.getMin();
             var max: Vector3 = bounds.getMax();
-            min.setValue(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
-            max.setValue(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+            min.setValue(reader.readFloat32(), reader.readFloat32(), reader.readFloat32());
+            max.setValue(reader.readFloat32(), reader.readFloat32(), reader.readFloat32());
             bounds.setMin(min);
             bounds.setMax(max);
             mesh.bounds = bounds;
         }
 
         var boneNames: string[] = mesh._boneNames = [];
-        var boneCount: number = reader.getUint16();
+        var boneCount: number = reader.readUint16();
         boneNames.length = boneCount;
         for (i = 0; i < boneCount; i++)
-            boneNames[i] = LoadModelV05._strings[reader.getUint16()];//[兼容性]
+            boneNames[i] = LoadModelV05._strings[reader.readUint16()];//[兼容性]
 
-        var bindPoseDataStart: number = reader.getUint32();
-        var bindPoseDataLength: number = reader.getUint32();
+        var bindPoseDataStart: number = reader.readUint32();
+        var bindPoseDataLength: number = reader.readUint32();
         var bindPoseDatas: Float32Array = new Float32Array(arrayBuffer.slice(offset + bindPoseDataStart, offset + bindPoseDataStart + bindPoseDataLength));
         var bindPoseFloatCount: number = bindPoseDatas.length;
         var bindPoseBuffer: ArrayBuffer = mesh._inverseBindPosesBuffer = new ArrayBuffer(bindPoseFloatCount * 4);//TODO:[NATIVE]临时
@@ -297,12 +297,12 @@ export class LoadModelV05 {
      */
     private static READ_SUBMESH(): boolean {
         var reader: Byte = LoadModelV05._readData;
-        var arrayBuffer: ArrayBuffer = reader.__getBuffer();
+        var arrayBuffer: ArrayBuffer = reader.rawBuffer;
         var subMesh: SubMesh = new SubMesh(LoadModelV05._mesh);
 
-        reader.getInt16();//TODO:vbIndex
-        var ibStart: number = reader.getUint32();
-        var ibCount: number = reader.getUint32();
+        reader.readInt16();//TODO:vbIndex
+        var ibStart: number = reader.readUint32();
+        var ibCount: number = reader.readUint32();
         var indexBuffer: IndexBuffer3D = LoadModelV05._mesh._indexBuffer;
         subMesh._indexBuffer = indexBuffer;
         subMesh._setIndexRange(ibStart, ibCount);
@@ -313,7 +313,7 @@ export class LoadModelV05 {
         var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
         var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;
         var boneIndicesList: Uint16Array[] = subMesh._boneIndicesList;
-        var drawCount: number = reader.getUint16();
+        var drawCount: number = reader.readUint16();
         subIndexBufferStart.length = drawCount;
         subIndexBufferCount.length = drawCount;
         boneIndicesList.length = drawCount;
@@ -322,10 +322,10 @@ export class LoadModelV05 {
         var subMeshIndex: number = LoadModelV05._subMeshes.length;
         skinnedCache.length = LoadModelV05._mesh._inverseBindPoses.length;
         for (var i: number = 0; i < drawCount; i++) {
-            subIndexBufferStart[i] = reader.getUint32();
-            subIndexBufferCount[i] = reader.getUint32();
-            var boneDicofs: number = reader.getUint32();
-            var boneDicCount: number = reader.getUint32();
+            subIndexBufferStart[i] = reader.readUint32();
+            subIndexBufferCount[i] = reader.readUint32();
+            var boneDicofs: number = reader.readUint32();
+            var boneDicCount: number = reader.readUint32();
             var boneIndices: Uint16Array = boneIndicesList[i] = new Uint16Array(arrayBuffer.slice(offset + boneDicofs, offset + boneDicofs + boneDicCount));
             for (var j: number = 0, m: number = boneIndices.length; j < m; j++) {
                 var index: number = boneIndices[j];
@@ -339,21 +339,21 @@ export class LoadModelV05 {
     private static READ_MORPH(): boolean {
 
         let reader: Byte = LoadModelV05._readData;
-        let arrayBuffer: ArrayBuffer = reader.__getBuffer();
+        let arrayBuffer: ArrayBuffer = reader.rawBuffer;
         let offset = LoadModelV05._DATA.offset;
         let mesh = LoadModelV05._mesh;
 
         let morphData = mesh.morphTargetData = new MorphTargetData();
 
-        let morphVertexDecStr = LoadModelV05._strings[reader.getUint16()];
+        let morphVertexDecStr = LoadModelV05._strings[reader.readUint16()];
 
         morphData.vertexDec = VertexMesh.getVertexDeclaration(morphVertexDecStr);
 
         let bounds = morphData.bounds;
         let min = bounds.getMin();
         let max = bounds.getMax();
-        min.set(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
-        max.set(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+        min.set(reader.readFloat32(), reader.readFloat32(), reader.readFloat32());
+        max.set(reader.readFloat32(), reader.readFloat32(), reader.readFloat32());
         bounds.setMin(min);
         bounds.setMax(max);
 
@@ -361,11 +361,11 @@ export class LoadModelV05 {
 
         for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
             let channel = new MorphTargetChannel();
-            channel.name = LoadModelV05._strings[reader.getUint16()];
+            channel.name = LoadModelV05._strings[reader.readUint16()];
             let targetCount = reader.readUint16();
             for (let targetIndex = 0; targetIndex < targetCount; targetIndex++) {
                 let target = new MorphTarget();
-                let targetName = LoadModelV05._strings[reader.getUint16()];
+                let targetName = LoadModelV05._strings[reader.readUint16()];
                 target.name = targetName;
                 target.fullWeight = reader.readFloat32();
                 let bufferStart = reader.readUint32();

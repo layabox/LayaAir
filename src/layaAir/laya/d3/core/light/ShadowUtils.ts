@@ -490,9 +490,9 @@ export class ShadowUtils {
         Matrix4x4.createOrthoOffCenter(-borderRadius, borderRadius, -borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         let offsetMat = _shadowMapScaleOffsetMatrix.elements;
-        if (LayaGL.renderEngine._screenInvertY) {
-            offsetMat = _shadowMapInvertScaleOffsetMatrix.elements;
-        }
+        // if (LayaGL.renderEngine._screenInvertY) {
+        //     offsetMat = _shadowMapInvertScaleOffsetMatrix.elements;
+        // }
         Utils3D._mulMatrixArray(offsetMat, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
 

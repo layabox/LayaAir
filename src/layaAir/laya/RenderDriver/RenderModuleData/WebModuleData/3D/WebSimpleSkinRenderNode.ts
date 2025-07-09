@@ -5,7 +5,8 @@ import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPa
 import { ISimpleSkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
-export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpleSkinRenderNode{
+export function WebSimpleSkinRenderNode(){//这么封装是为了避免此时WebBaseRenderNode.BaseRenderNodeClass还没有赋值
+return class extends WebBaseRenderNode.BaseRenderNodeClass implements ISimpleSkinRenderNode {
     _simpleAnimatorParams: Vector4;
 
     constructor() {
@@ -14,8 +15,8 @@ export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpl
         this._simpleAnimatorParams = new Vector4();
     }
 
-    setSimpleAnimatorParams(value:Vector4){
-        value.cloneTo(this._simpleAnimatorParams);  
+    setSimpleAnimatorParams(value: Vector4) {
+        value.cloneTo(this._simpleAnimatorParams);
         this.shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 
@@ -31,4 +32,5 @@ export class WebSimpleSkinRenderNode extends WebBaseRenderNode implements ISimpl
         this._applyReflection();
         shaderData.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
+} as any;//这是为了不让ts报错，否则返回类的函数里的类必须全部是public的
 }

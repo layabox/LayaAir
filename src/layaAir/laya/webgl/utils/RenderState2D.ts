@@ -1,6 +1,4 @@
-import { ColorFilter } from "../../filters/ColorFilter";
 import { Matrix } from "../../maths/Matrix"
-import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 
 const TEMPMAT4_ARRAY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
@@ -15,8 +13,8 @@ export class RenderState2D {
     static worldScissorTest = false;
 
     //public static var worldClipRect:Rectangle = new Rectangle(0, 0, _MAXSIZE, _MAXSIZE);
-    static worldShaderDefines: ShaderDefines2D;
-    static worldFilters: ColorFilter[];
+    // static worldShaderDefines: ShaderDefines2D;
+    // static worldFilters: ColorFilter[];
 
     static width = 0;
     static height = 0;

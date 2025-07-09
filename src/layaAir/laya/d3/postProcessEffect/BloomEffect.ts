@@ -364,7 +364,7 @@ export class BloomEffect extends PostProcessEffect {
      */
     constructor() {
         super();
-        this.singleton = true;
+        this._singleton = true;
         this.active = true;
         this.intensity = 1.0;
         this.threshold = 1.0;

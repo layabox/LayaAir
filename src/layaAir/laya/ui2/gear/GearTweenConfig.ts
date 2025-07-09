@@ -1,8 +1,8 @@
 import { EaseType } from "../../tween/ITween";
 
 export class GearTweenConfig {
-    public enabled: boolean = true;
-    public easeType: EaseType = "quadOut";
-    public duration: number = 300;
-    public delay: number = 0;
+    enabled: boolean = true;
+    easeType: EaseType = "quadOut";
+    duration: number = 300;
+    delay: number = 0;
 }

@@ -42,15 +42,13 @@ export class MathUtils3D {
      * @param n1 The first value to compare.
      * @param n2 The second value to compare.
      * @returns Whether the two values are approximately equal.
-     * @zh 两个值是否在容差的范围内近似相等Sqr Magnitude。
+     * @zh 两个值是否在容差的范围内近似相等
      * @param n1 要比较的第一个值。
      * @param n2 要比较的第二个值。
      * @returns 两个值是否近似相等。
      */
     static nearEqual(n1: number, n2: number): boolean {
-        if (MathUtils3D.isZero(n1 - n2))
-            return true;
-        return false;
+        return MathUtils3D.isZero(n1 - n2);
     }
 
     /**

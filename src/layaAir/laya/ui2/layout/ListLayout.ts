@@ -30,14 +30,14 @@ export class ListLayout extends Layout {
     private _offsetX: number;
     private _offsetY: number;
 
-    public get numItems(): number {
+    get numItems(): number {
         if (this._virtual)
             return this._numItems;
         else
             return this._owner.children.length;
     }
 
-    public set numItems(value: number) {
+    set numItems(value: number) {
         if (this._virtual) {
             if (this._owner.itemRenderer == null)
                 throw new Error("set itemRenderer first!");
@@ -91,11 +91,11 @@ export class ListLayout extends Layout {
         }
     }
 
-    public get itemSize(): Point {
+    get itemSize(): Point {
         return this._itemSize;
     }
 
-    public set itemSize(value: Point) {
+    set itemSize(value: Point) {
         this._itemSize.setTo(value.x, value.y);
         if (this._virtual) {
             if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX)
@@ -108,7 +108,7 @@ export class ListLayout extends Layout {
     }
 
     /** @internal */
-    public _setVirtual(loop: boolean): void {
+    _setVirtual(loop: boolean): void {
         if (this._virtual)
             return;
 
@@ -146,7 +146,7 @@ export class ListLayout extends Layout {
         ILaya.timer.callLater(this, this._refreshVirtualList);
     }
 
-    public childIndexToItemIndex(index: number): number {
+    childIndexToItemIndex(index: number): number {
         if (!this._virtual)
             return index;
 
@@ -170,7 +170,7 @@ export class ListLayout extends Layout {
         }
     }
 
-    public itemIndexToChildIndex(index: number): number {
+    itemIndexToChildIndex(index: number): number {
         if (!this._virtual)
             return index;
 
@@ -198,7 +198,7 @@ export class ListLayout extends Layout {
             || dir == 0 && delta > size / 2;
     }
 
-    public getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
+    getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
         if (this._virtual) {
             if (!resultPoint)
                 resultPoint = new Point();
@@ -234,7 +234,7 @@ export class ListLayout extends Layout {
             return super.getSnappingPosition(xValue, yValue, xDir, yDir, resultPoint);
     }
 
-    public getRectByItemIndex(index: number): Rectangle {
+    getRectByItemIndex(index: number): Rectangle {
         if (!this._virtual || this._numItems == 0)
             return new Rectangle();
 
@@ -263,7 +263,7 @@ export class ListLayout extends Layout {
         return rect;
     }
 
-    public setChangedFlag(reason?: LayoutChangedReason) {
+    setChangedFlag(reason?: LayoutChangedReason) {
         super.setChangedFlag(reason);
 
         if (this._layoutChanged && reason == null && this._virtual) {
@@ -272,20 +272,20 @@ export class ListLayout extends Layout {
         }
     }
 
-    public refresh(force?: boolean) {
+    refresh(force?: boolean) {
         if (!this._virtual)
             super.refresh(force);
     }
 
     /** @internal */
-    public _checkVirtualList(): void {
+    _checkVirtualList(): void {
         if (this._changed != 0) {
             this._refreshVirtualList();
             ILaya.timer.clearCallLater(this, this._refreshVirtualList);
         }
     }
 
-    public refreshVirtualList(): void {
+    refreshVirtualList(): void {
         if (this._changed == 0)
             this._changed = 1;
 
@@ -693,7 +693,7 @@ export class ListLayout extends Layout {
                     this._owner.setChildIndex(ii.obj, forward ? curIndex - newFirstIndex : this._owner.numChildren);
                 }
                 else {
-                    ii.obj = pool.getObject(url);
+                    ii.obj = pool.take(url);
                     if (forward)
                         this._owner.addChildAt(ii.obj, curIndex - newFirstIndex);
                     else
@@ -872,7 +872,7 @@ export class ListLayout extends Layout {
                     this._owner.setChildIndex(ii.obj, forward ? curIndex - newFirstIndex : this._owner.numChildren);
                 }
                 else {
-                    ii.obj = pool.getObject(url);
+                    ii.obj = pool.take(url);
                     if (forward)
                         this._owner.addChildAt(ii.obj, curIndex - newFirstIndex);
                     else
@@ -1036,7 +1036,7 @@ export class ListLayout extends Layout {
                             url = pool.defaultRes.url;
                     }
 
-                    ii.obj = pool.getObject(url);
+                    ii.obj = pool.take(url);
                     this._owner.addChildAt(ii.obj, insertIndex);
                 }
                 else {
@@ -1087,7 +1087,7 @@ export class ListLayout extends Layout {
                 yy += lineHeight + this._rowGap;
                 lineHeight = 0;
 
-                if (i == startIndex + pageSize - 1) {
+                if (i === startIndex + pageSize - 1) {
                     borderX += vw;
                     xx = borderX;
                     yy = 0;
@@ -1201,7 +1201,7 @@ export class ListLayout extends Layout {
                             url = pool.defaultRes.url;
                     }
 
-                    ii.obj = pool.getObject(url);
+                    ii.obj = pool.take(url);
                     this._owner.addChildAt(ii.obj, insertIndex);
                 }
                 else {
@@ -1252,7 +1252,7 @@ export class ListLayout extends Layout {
                 yy = borderY;
                 lineWidth = 0;
 
-                if (i == startIndex + pageSize - 1) {
+                if (i === startIndex + pageSize - 1) {
                     borderY += vh;
                     xx = 0;
                     yy = borderY;

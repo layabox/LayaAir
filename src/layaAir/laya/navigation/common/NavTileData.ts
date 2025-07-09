@@ -14,26 +14,26 @@ import { NavigationUtils } from "./NavigationUtils";
  * @param navData 用于存储读取数据的 NavTileData 对象。
  */
 const readNavTileCache = function (byte: Byte, navData: NavTileData) {
-    navData._dirtyFlag = byte.getFloat32();
+    navData._dirtyFlag = byte.readFloat32();
     const min: Vector3 = navData._boundMin;
-    min.x = byte.getFloat32();
-    min.y = byte.getFloat32();
-    min.z = byte.getFloat32();
+    min.x = byte.readFloat32();
+    min.y = byte.readFloat32();
+    min.z = byte.readFloat32();
     const max: Vector3 = navData._boundMax;
-    max.x = byte.getFloat32();
-    max.y = byte.getFloat32();
-    max.z = byte.getFloat32();
+    max.x = byte.readFloat32();
+    max.y = byte.readFloat32();
+    max.z = byte.readFloat32();
     let navCount: number = byte.readUint16();
     for (var i = 0; i < navCount; i++) {
         let nav = navData._oriTiles[i] = new NavTileCache();
         const min = nav._boundMin;
-        min.x = byte.getFloat32();
-        min.y = byte.getFloat32();
-        min.z = byte.getFloat32();
+        min.x = byte.readFloat32();
+        min.y = byte.readFloat32();
+        min.z = byte.readFloat32();
         const max = nav._boundMax;
-        max.x = byte.getFloat32();
-        max.y = byte.getFloat32();
-        max.z = byte.getFloat32();
+        max.x = byte.readFloat32();
+        max.y = byte.readFloat32();
+        max.z = byte.readFloat32();
 
         nav.x = byte.readUint16();
         nav.y = byte.readUint16();

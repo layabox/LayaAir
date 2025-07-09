@@ -1,10 +1,13 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { NotImplementedError } from "../../../utils/Error";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../RenderDevice/InternalTexture";
 import { IRenderCMD, RenderCMDType } from "../RenderDevice/IRenderCMD";
+import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderContext2D } from "./IRenderContext2D";
 import { IRenderElement2D } from "./IRenderElement2D";
 
@@ -26,6 +29,8 @@ export class SetRendertarget2DCMD implements IRender2DCMD {
     protected _clearColorValue: Color;
 
     protected _invertY: boolean;
+
+    size = new Vector2;
 
     /**
      * @en Flip Y Rendering

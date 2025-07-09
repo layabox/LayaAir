@@ -34,6 +34,8 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
 
   }
+  _framePassCount: number = 0;
+
   endFrame(): void {
     this._nativeObj.startFrame();
   }

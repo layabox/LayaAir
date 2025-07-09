@@ -26,20 +26,20 @@ export class AnimationClip2DParse01 {
      * @internal
      */
     private static READ_DATA() {
-        this._DATA.offset = this._reader!.getUint32();
-        this._DATA.size = this._reader!.getUint32();
+        this._DATA.offset = this._reader!.readUint32();
+        this._DATA.size = this._reader!.readUint32();
     }
 
     /**
      * @internal
      */
     private static READ_BLOCK() {
-        var count = this._BLOCK.count = this._reader!.getUint16();
+        var count = this._BLOCK.count = this._reader!.readUint16();
         var blockStarts: number[] = this._BLOCK.blockStarts = [];
         var blockLengths: number[] = this._BLOCK.blockLengths = [];
         for (var i = 0; i < count; i++) {
-            blockStarts.push(this._reader!.getUint32());
-            blockLengths.push(this._reader!.getUint32());
+            blockStarts.push(this._reader!.readUint32());
+            blockLengths.push(this._reader!.readUint32());
         }
     }
 
@@ -47,8 +47,8 @@ export class AnimationClip2DParse01 {
      * @internal
      */
     private static READ_STRINGS() {
-        var offset = this._reader!.getUint32();
-        var count = this._reader!.getUint16();
+        var offset = this._reader!.readUint32();
+        var count = this._reader!.readUint16();
         var prePos = this._reader!.pos;
         this._reader!.pos = offset + this._DATA.offset;
 
@@ -77,7 +77,7 @@ export class AnimationClip2DParse01 {
         this.READ_STRINGS();
 
         for (var i = 0, n = this._BLOCK.count; i < n; i++) {
-            var index = reader.getUint16();
+            var index = reader.readUint16();
             var blockName = this._strings[index];
             var fn: () => void = (this as any)["READ_" + blockName];
             if (!fn) {
@@ -115,16 +115,16 @@ export class AnimationClip2DParse01 {
         var node: KeyframeNode2D;
 
         var numList: number[] = [];
-        var numCount = reader.getUint16();
+        var numCount = reader.readUint16();
         numList.length = numCount;
         for (i = 0; i < numCount; i++) {
-            numList[i] = reader.getFloat32();
+            numList[i] = reader.readFloat32();
         }
 
-        var clipDur = clip._duration = numList[reader.getInt16()];
-        clip.islooping = !!reader.getByte();
-        clip._frameRate = reader.getInt16();
-        var nodeCount = reader.getInt16();
+        var clipDur = clip._duration = numList[reader.readInt16()];
+        clip.islooping = !!reader.readByte();
+        clip._frameRate = reader.readInt16();
+        var nodeCount = reader.readInt16();
 
         var nodes = clip._nodes!;
         nodes.count = nodeCount;
@@ -136,11 +136,11 @@ export class AnimationClip2DParse01 {
             nodes.setNodeByIndex(i, node);
             node._indexInList = i;
 
-            var pathLength = reader.getUint16();
+            var pathLength = reader.readUint16();
             node._setOwnerPathCount(pathLength);
 
             for (j = 0; j < pathLength; j++) {
-                node._setOwnerPathByIndex(j, this._strings[reader.getUint16()]);
+                node._setOwnerPathByIndex(j, this._strings[reader.readUint16()]);
             }
             var nodePath = node._joinOwnerPath("/");
             var mapArray = nodesMap[nodePath];
@@ -148,32 +148,32 @@ export class AnimationClip2DParse01 {
             mapArray.push(node);
 
 
-            var propertyLength = reader.getUint16();
+            var propertyLength = reader.readUint16();
             node._setPropertyCount(propertyLength);
             for (j = 0; j < propertyLength; j++) {
-                node._setPropertyByIndex(j, this._strings[reader.getUint16()]);
+                node._setPropertyByIndex(j, this._strings[reader.readUint16()]);
             }
             var fullPath = nodePath + "." + node._joinProperty(".");
             nodesDic[fullPath] = node;
             node.fullPath = fullPath;
             node.nodePath = nodePath;
 
-            var keyframeCount = reader.getUint16();
+            var keyframeCount = reader.readUint16();
             //node._setKeyframeCount(keyframeCount);
             for (j = 0; j < keyframeCount; j++) {
                 var k = new Keyframe2D();
-                k.time = numList[reader.getUint16()];
+                k.time = numList[reader.readUint16()];
                 k.data = { f: this.timeToFrame(k.time, clip._frameRate), val: 0 };
 
-                if (1 == reader.getByte()) {
-                    k.data.tweenType = this._strings[reader.getUint16()];
+                if (1 == reader.readByte()) {
+                    k.data.tweenType = this._strings[reader.readUint16()];
                 }
 
-                if (1 == reader.getByte()) {
+                if (1 == reader.readByte()) {
                     k.data.tweenInfo = {};
 
-                    k.data.tweenInfo.inTangent = numList[reader.getUint16()];
-                    k.data.tweenInfo.outTangent = numList[reader.getUint16()];
+                    k.data.tweenInfo.inTangent = numList[reader.readUint16()];
+                    k.data.tweenInfo.outTangent = numList[reader.readUint16()];
 
                     // if (Infinity == Math.abs(k.data.tweenInfo.inTangent)) {
                     //     k.data.tweenInfo.inTangent = Number.MAX_VALUE;
@@ -189,55 +189,55 @@ export class AnimationClip2DParse01 {
                     // }
 
 
-                    if (1 == reader.getByte()) {
-                        k.data.tweenInfo.inWeight = numList[reader.getUint16()];
+                    if (1 == reader.readByte()) {
+                        k.data.tweenInfo.inWeight = numList[reader.readUint16()];
                     }
 
-                    if (1 == reader.getByte()) {
-                        k.data.tweenInfo.outWeight = numList[reader.getUint16()];
+                    if (1 == reader.readByte()) {
+                        k.data.tweenInfo.outWeight = numList[reader.readUint16()];
                     }
                 }
-                var num = reader.getByte();
+                var num = reader.readByte();
                 if (0 == num) {
-                    k.data.val = numList[reader.getUint16()];
+                    k.data.val = numList[reader.readUint16()];
                 } else if (1 == num) {
-                    k.data.val = this._strings[reader.getUint16()];
+                    k.data.val = this._strings[reader.readUint16()];
                 } else if (2 == num) {
-                    k.data.val = !!reader.getByte();
+                    k.data.val = !!reader.readByte();
                 }
 
-                if (1 == reader.getByte()) {
+                if (1 == reader.readByte()) {
                     try {
-                        k.data.extend = JSON.parse(this._strings[reader.getUint16()])
+                        k.data.extend = JSON.parse(this._strings[reader.readUint16()])
                     } catch (err) { }
                 }
                 node._keyFrames.push(k);
             }
         }
-        var eventCount = reader.getUint16();
+        var eventCount = reader.readUint16();
         for (i = 0; i < eventCount; i++) {
             var event = new Animation2DEvent();
-            //event.time = Math.min(clipDur, numList[reader.getUint16()]);
-            event.time = numList[reader.getUint16()];
-            event.eventName = this._strings[reader.getUint16()];
+            //event.time = Math.min(clipDur, numList[reader.readUint16()]);
+            event.time = numList[reader.readUint16()];
+            event.eventName = this._strings[reader.readUint16()];
             var params: Array<number | string | boolean> = [];
-            var paramCount: number = reader.getUint16();
+            var paramCount: number = reader.readUint16();
             (paramCount > 0) && (event.params = params = []);
 
             for (j = 0; j < paramCount; j++) {
-                var eventType: number = reader.getByte();
+                var eventType: number = reader.readByte();
                 switch (eventType) {
                     case 0:
-                        params.push(!!reader.getByte());
+                        params.push(!!reader.readByte());
                         break;
                     case 1:
-                        params.push(reader.getInt32());
+                        params.push(reader.readInt32());
                         break;
                     case 2:
-                        params.push(numList[reader.getUint16()]);
+                        params.push(numList[reader.readUint16()]);
                         break;
                     case 3:
-                        params.push(this._strings[reader.getUint16()]);
+                        params.push(this._strings[reader.readUint16()]);
                         break;
                     default:
                         throw new Error("unknown type.");

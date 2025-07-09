@@ -1,6 +1,6 @@
 import { Sprite } from "./Sprite";
 import { GraphicsBounds } from "./GraphicsBounds";
-import { SpriteConst } from "./SpriteConst";
+import { BaseRender2DType, RepaintFlag, SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 import { ClipRectCmd } from "./cmd/ClipRectCmd"
 import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd"
@@ -27,7 +27,6 @@ import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../renders/Context"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
@@ -39,6 +38,9 @@ import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IGraphicsCmd } from "./IGraphics";
+import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
 
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
@@ -49,6 +51,7 @@ import { IGraphicsCmd } from "./IGraphics";
 export class Graphics {
 
     /**
+     * @internal
      * @en Add global Uniform Data Map
      * @param propertyID The ID of the property
      * @param propertyKey The key of the property
@@ -63,30 +66,41 @@ export class Graphics {
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 
-    _sp: Sprite | null = null;
+    /** @readonly */
+    owner: Sprite | null = null;
 
-    /**@internal */
-    _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
+    /** @internal */
+    _data: GraphicsRenderData;
+
+    /** @internal 是否优先使用精灵状态 */
+    _useSpriteState: boolean = true;
 
     private _cmds: IGraphicsCmd[] = [];
-    protected _vectorgraphArray: any[] | null = null;
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
+    private _renderDataHandle: I2DPrimitiveDataHandle;
+    private _modified: boolean = false;
+    private _display: boolean = false;
+
+
+    /**
+    * @en Whether to use sprite state.
+    * @zh graphics是否优先使用精灵状态。
+    */
+    public get useSpriteState(): boolean {
+        return this._useSpriteState;
+    }
+
+    public set useSpriteState(value: boolean) {
+        if (this._useSpriteState == value)
+            return;
+        this._useSpriteState = value;
+        this.repaint();
+    }
 
     /**@ignore */
     constructor() {
-        this._createData();
-    }
-
-    protected _createData(): void {
-
-    }
-
-    protected _clearData(): void {
-
-    }
-
-    protected _destroyData(): void {
+        this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
 
     /**
@@ -94,65 +108,63 @@ export class Graphics {
      * @zh 销毁此对象。
      */
     destroy(): void {
-        this.clear(true);
-        if (this._graphicBounds) this._graphicBounds.destroy();
-        this._graphicBounds = null;
-        this._vectorgraphArray = null;
-        if (this._sp) {
-            this._sp._renderType = 0;
-            this._sp = null;
+        if (this.owner && this.owner._graphics === this)
+            this.owner.setGraphics(null, false);
+        for (let cmd of this._cmds) {
+            if (!cmd.lock)
+                cmd.recover();
         }
+        this._cmds.length = 0;
         if (this._material) {
             this._material._removeReference();
             this._material = null;
         }
-        this._destroyData();
+        this._graphicBounds && this._graphicBounds.destroy();
+        this._graphicBounds = null;
+        this._renderDataHandle && this._renderDataHandle.destroy();
+        this._data = null;
+        this.owner = null;
     }
 
     /**
      * @en Clear drawing commands.
      * @param recoverCmds Whether to recycle the drawing instruction array. If set to true, the instruction array will be recycled to save memory. It is recommended to set it to true for recycling, but if you manually reference the array, recycling is not recommended.
+     * @param exclude (Optional) Exclude a specific command from being cleared. Default is null.
      * @zh 清空绘制命令。
      * @param recoverCmds 是否回收绘图指令数组。设置为true，则对指令数组进行回收以节省内存开销。建议设置为true进行回收，但如果手动引用了数组，不建议回收。
+     * @param exclude （可选）排除特定命令不被清除。默认为null。
      */
-    clear(recoverCmds: boolean = true): void {
-        if (recoverCmds) {
+    clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
+        if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
-                if (!cmd.lock)
+                if (!cmd.lock && cmd != exclude)
                     cmd.recover();
             }
         }
 
-        this._cmds.length = 0;
-        this._render = this._renderEmpty;
-        this._clearData();
-        if (this._sp) {
-            this._sp._renderType &= ~SpriteConst.GRAPHICS;
+        if (exclude) {
+            this._cmds[0] = exclude;
+            this._cmds.length = 1;
         }
-        this._repaint();
+        else
+            this._cmds.length = 0;
+        this._checkDisplay();
+        this.repaint();
     }
 
-    /** @ignore */
-    _clearBoundsCache(onSizeChanged?: boolean): void {
-        if (this._graphicBounds) {
-            if (!onSizeChanged || this._graphicBounds._affectBySize)
-                this._graphicBounds.reset();
-        }
+    /** @deprecated Use repaint */
+    _repaint(): void {
+        this.repaint();
     }
 
     /**
-     * @internal
      * @en Redraw this object.
      * @zh 重绘此对象。
      */
-    _repaint(): void {
-        this._clearBoundsCache();
-        this._sp && this._sp.repaint();
-    }
-
-    /**@internal */
-    _isOnlyOne(): boolean {
-        return this._cmds.length === 1;
+    repaint(): void {
+        this._modified = true;
+        this._graphicBounds?.reset();
+        this.owner?.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -163,9 +175,16 @@ export class Graphics {
         return this._cmds;
     }
 
-    set cmds(value) {
+    set cmds(value: IGraphicsCmd[]) {
+        if (this._cmds.length > 0) {
+            this._cmds.filter(cmd => !value.includes(cmd)).forEach(cmd => {
+                if (!cmd.lock)
+                    cmd.recover();
+            });
+        }
         this._cmds = value;
-        this.onCmdsChanged();
+        this._checkDisplay();
+        this.repaint();
     }
 
     /**
@@ -176,31 +195,38 @@ export class Graphics {
      * @param cmd 要被添加的命令。
      * @param index （可选）插入的索引。
      */
-    addCmd(cmd: any, index?: number): any {
-        if (cmd == null) {
-            console.warn("null cmd");
-            return;
-        }
+    addCmd<T extends IGraphicsCmd>(cmd: T, index?: number): T {
+        if (cmd == null)
+            throw new Error("null cmd");
 
         if (index == null || index >= this._cmds.length)
             this._cmds.push(cmd);
         else
             this._cmds.splice(index, 0, cmd);
-        this.onCmdsChanged();
+        this._checkDisplay();
+        this.repaint();
         return cmd;
     }
 
     /**
      * @en Remove a specific command from the command list.
      * @param cmd The command to be removed.
+     * @param recover (Optional) Whether to recycle the command. Default is false.
      * @zh 从命令列表中移除特定的命令。
      * @param cmd 要移除的命令。
+     * @param recover （可选）是否回收命令。默认为false。
      */
-    removeCmd(cmd: any) {
+    removeCmd(cmd: IGraphicsCmd, recover?: boolean) {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-            this.onCmdsChanged();
+            this._checkDisplay();
+            this.repaint();
+        }
+
+        if (recover) {
+            cmd.lock = false;
+            cmd.recover();
         }
     }
 
@@ -214,63 +240,84 @@ export class Graphics {
      * @param newCmd 新命令。
      * @param recover （可选）是否回收旧命令。默认为false。
      */
-    replaceCmd(oldCmd: any, newCmd: any, recover?: boolean) {
+    replaceCmd<T extends IGraphicsCmd>(oldCmd: IGraphicsCmd, newCmd: T, recover?: boolean): T {
         let index = this._cmds.indexOf(oldCmd);
         if (newCmd != null) {
-            if (index !== -1) {
+            if (index !== -1)
                 this._cmds[index] = newCmd;
-                this._repaint();
-            }
-            else {
+            else
                 this._cmds.push(newCmd);
-                this.onCmdsChanged();
-            }
+            this._checkDisplay();
+            this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this.onCmdsChanged();
+            this._checkDisplay();
+            this.repaint();
         }
 
-        if (oldCmd && recover)
+        if (oldCmd && recover) {
+            oldCmd.lock = false;
             oldCmd.recover();
+        }
 
         return newCmd;
     }
 
-    private onCmdsChanged() {
-        let len = this._cmds.length;
-        if (this._sp && len > 0)
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-        this._render = len === 0 ? this._renderEmpty : len === 1 ? this._renderOne : this._renderAll;
-        this._repaint();
+    /** @internal */
+    _checkDisplay() {
+        if (!this.owner || this.owner.destroyed){
+            this._display = false;
+            return;
+        }
+
+        let value = !this.owner._renderNode && (this._cmds.length > 0 || this.owner._texture != null);
+        if (this._display === value)
+            return;
+
+        this._display = value;
+
+        let struct = this.owner._struct;
+        if (value) {
+            this._modified = true;
+            this.owner._initShaderData();
+            this.owner._renderType |= SpriteConst.GRAPHICS;
+            struct.renderType = BaseRender2DType.graphics;
+            struct.renderDataHandler = this._renderDataHandle;
+            struct.renderMatrix = this.owner.globalTrans.getMatrix();
+            struct.renderElements = this._data._renderElements;
+        } else {
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
+            if (struct.renderElements === this._data._renderElements) {
+                struct.renderElements = [];
+            }
+            struct.renderType = -1;
+            struct.renderDataHandler = null;
+        }
     }
 
     /**
      * @en Get the position and size information matrix (CPU-intensive, frequent use may cause lag, use sparingly).
-     * @param realSize (Optional) Use the real size of the image, default is false.
      * @returns A Rectangle object composed of position and size.
      * @zh 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 位置与宽高组成的一个 Rectangle 对象。
      */
-    getBounds(realSize?: boolean): Readonly<Rectangle> {
+    getBounds(): Readonly<Rectangle> {
         if (!this._graphicBounds)
             this._graphicBounds = GraphicsBounds.create();
-        return this._graphicBounds!.getBounds(this, realSize);
+        return this._graphicBounds!.getBounds(this);
     }
 
     /**
      * @en Get the list of endpoints.
-     * @param realSize (Optional) Use the real size of the image, default is false.
      * @returns An array of endpoint coordinates.
      * @zh 获取端点列表。
-     * @param realSize （可选）使用图片的真实大小，默认为false。
      * @returns 端点坐标的数组。
      */
-    getBoundPoints(realSize?: boolean): ReadonlyArray<number> {
+    getBoundPoints(): ReadonlyArray<number> {
         if (!this._graphicBounds)
             this._graphicBounds = GraphicsBounds.create();
-        return this._graphicBounds!.getBoundPoints(this, realSize);
+        return this._graphicBounds!.getBoundPoints(this);
     }
 
     /**
@@ -286,6 +333,7 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
+        this.repaint();
         if (value != null)
             value._addReference();
     }
@@ -586,7 +634,7 @@ export class Graphics {
      * @param color 新的颜色
      */
     replaceTextColor(color: string): void {
-        this._repaint();
+        this.repaint();
         let cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
             let cmd = cmds[i];
@@ -622,12 +670,12 @@ export class Graphics {
         let tex: Texture = ILaya.loader.getRes(url);
         if (tex) {
             this.drawImage(tex, x, y, width, height);
-            complete && complete.call(this._sp);
+            complete && complete.call(this.owner);
         }
         else {
             ILaya.loader.load(url).then((tex: Texture) => {
                 this.drawImage(tex, x, y, width, height);
-                complete && complete.call(this._sp);
+                complete && complete.call(this.owner);
             });
         }
     }
@@ -635,30 +683,81 @@ export class Graphics {
     /**
      * @internal
      */
-    _renderEmpty(sprite: Sprite, context: Context, x: number, y: number): void {
-    }
+    _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
+        if (!this.owner || this.owner.destroyed || this.owner._struct.renderType !== BaseRender2DType.graphics)
+            return;
 
-    /**
-     * @internal
-     */
-    _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        var cmds = this._cmds!;
-        for (let i = 0, n = cmds.length; i < n; i++) {
-            cmds[i].run(context, x, y);
+        if (!this._modified
+            && this._check() //校验是否都有效
+            // && this._data.offsetX === x
+            // && this._data.offsetY === y
+        ) {
+            this._data.setRenderElement(this.owner._struct, this._renderDataHandle);
+            return;
         }
-        context._material = null;
+
+        this._data.clear();
+        runner.clearRenderData();
+        runner.sprite = this.owner;
+        runner._graphicsData = this._data;
+        runner._material = this._material;
+
+        let oldBlendMode = runner.globalCompositeOperation;
+        runner.globalCompositeOperation = this.owner._struct.blendMode;
+
+        var cmds = this._cmds;
+        for (let i = 0, n = cmds.length; i < n; i++) {
+            cmds[i].run(runner, x, y);
+        }
+        //sprite.texture
+        this._renderSpriteTexture(runner, x, y);
+
+        this._data.updateRenderElement(this, this.owner._struct, this._renderDataHandle);
+
+        runner.globalCompositeOperation = oldBlendMode;
+        runner._material = null;
+        runner._graphicsData = null;
+        runner.sprite = null;
+        this._modified = false;
     }
 
-    /**
-     * @internal
-     */
-    _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        context._material = this._material;
-        this._cmds[0].run(context, x, y);
-        context._material = null;
+    private _check(): boolean {
+        let len = this._data._submits.length;
+        for (let i = 0; i < len; i++) {
+            let submit = this._data._submits.elements[i];
+            let texture = submit._internalInfo.textureHost;
+            if (!texture) continue;
+            let bitmap = (texture as Texture).bitmap;
+            if (bitmap && bitmap.destroyed) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {
+        let sprite = this.owner;
+        let tex = sprite._texture;
+        if (!tex)
+            return;
+
+        if (tex._getSource(() => {
+            this.owner.graphics.repaint();
+        })) {
+            var width = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+                let px = x + tex.offsetX * wRate;
+                let py = y + tex.offsetY * hRate;
+                // let px = 0 + tex.offsetX * wRate;
+                // let py = 0 + tex.offsetY * hRate;
+                runner.drawTexture(tex, px, py, width, height, 0xffffffff);
+            }
+        }
     }
 
     /**

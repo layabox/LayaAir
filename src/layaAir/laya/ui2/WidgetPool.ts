@@ -4,6 +4,7 @@ import { Loader } from "../net/Loader";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "./GWidget";
 
+/** @ignore */
 export class WidgetPool {
     private _items: Record<string, Array<GWidget>>;
     private _count: number = 0;
@@ -16,7 +17,7 @@ export class WidgetPool {
         this._items = {};
     }
 
-    public clear(): void {
+    clear(): void {
         for (let i in this._items) {
             let arr = this._items[i];
             arr.forEach(obj => obj.destroy());
@@ -25,25 +26,25 @@ export class WidgetPool {
         this._count = 0;
     }
 
-    public get count(): number {
+    get count(): number {
         return this._count;
     }
 
-    public get defaultRes() {
+    get defaultRes() {
         return this._defaultRes;
     }
 
-    public set defaultRes(value: Prefab) {
+    set defaultRes(value: Prefab) {
         this._defaultRes = value;
         if (value && !value.url)
             value.url = "data:" + idCounter++;
     }
 
-    public get defaultRuntime() {
+    get defaultRuntime() {
         return this._defaultRuntime;
     }
 
-    public set defaultRuntime(value: Function) {
+    set defaultRuntime(value: Function) {
         this._defaultRuntime = value;
         if (value)
             this._createOptions = { runtime: value };
@@ -51,7 +52,7 @@ export class WidgetPool {
             this._createOptions = null;
     }
 
-    public getObject(url?: string): GWidget {
+    take(url?: string): GWidget {
         if (!url) {
             url = this._defaultRes?.url;
             if (!url) {
@@ -76,7 +77,7 @@ export class WidgetPool {
         return ret;
     }
 
-    public returnObject(obj: GWidget): void {
+    recover(obj: GWidget): void {
         let url = obj.url;
         if (!url) {
             obj.destroy();

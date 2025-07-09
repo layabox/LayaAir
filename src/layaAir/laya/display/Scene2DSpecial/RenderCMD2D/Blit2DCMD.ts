@@ -16,11 +16,13 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture2D } from "../../../resource/Texture2D";
+import { Pool } from "../../../utils/Pool";
 import { Command2D } from "./Command2D";
 
 export class Blit2DCMD extends Command2D {
 
-    private static QuadGeometry: IRenderGeometryElement;
+    static QuadGeometry: IRenderGeometryElement;
+    static InvertQuadGeometry: IRenderGeometryElement
 
     private static _defaultShader: Shader3D;
 
@@ -84,7 +86,6 @@ export class Blit2DCMD extends Command2D {
         blitPass.renderState.srcBlend = RenderState.BLENDPARAM_ONE;
         blitPass.renderState.dstBlend = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
         blitPass.renderState.cull = RenderState.CULL_NONE;
-
     }
 
     private static __initGeometryElement__() {
@@ -103,16 +104,35 @@ export class Blit2DCMD extends Command2D {
         let geometry = Blit2DCMD.QuadGeometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
         geometry.setDrawArrayParams(0, 4);
         geometry.bufferState = bufferState;
+        Blit2DCMD.__initInvertGeometryElement__()
     }
 
-    private static __init__() {
+    private static __initInvertGeometryElement__() {
+        let _vertices: Float32Array = new Float32Array([
+            1, 1, 1, 0,
+            1, -1, 1, 1,
+            -1, 1, 0, 0,
+            -1, -1, 0, 1]);
+        let vertexDec = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, 0)]);
+        let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
+        vertex.vertexDeclaration = vertexDec;
+        vertex.setDataLength(_vertices.buffer.byteLength);
+        vertex.setData(_vertices.buffer, 0, 0, _vertices.buffer.byteLength);
+        let bufferState = LayaGL.renderDeviceFactory.createBufferState();
+        bufferState.applyState([vertex], null);
+        let geometry = Blit2DCMD.InvertQuadGeometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
+        geometry.setDrawArrayParams(0, 4);
+        geometry.bufferState = bufferState;
+    }
+
+    static __init__() {
         Blit2DCMD.__initBlitShader__();
         Blit2DCMD.__initGeometryElement__();
         Blit2DCMD._blitShaderData = LayaGL.renderDeviceFactory.createShaderData();
         Blit2DCMD._defaultShader = Shader3D.find("Blit2DCMD");
     }
 
-    private static _pool: any[] = [];
+    private static readonly _pool = Pool.createPool(Blit2DCMD);
 
     /**
      * @en creat a blit2D render Command
@@ -133,8 +153,7 @@ export class Blit2DCMD extends Command2D {
     static create(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null) {
         if (!Blit2DCMD._blitShaderData)
             Blit2DCMD.__init__();
-        var cmd: Blit2DCMD;
-        cmd = Blit2DCMD._pool.length > 0 ? Blit2DCMD._pool.pop() : new Blit2DCMD();
+        let cmd = Blit2DCMD._pool.take();
         cmd.source = source;
         cmd.dest = dest;
         cmd.offsetScale = offsetScale;
@@ -243,4 +262,8 @@ export class Blit2DCMD extends Command2D {
         this._context = null;
     }
 
+    recover(): void {
+        super.recover();
+        Blit2DCMD._pool.recover(this);
+    }
 }

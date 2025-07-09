@@ -3,10 +3,10 @@ import { IRenderCMD } from "../../../RenderDriver/DriverDesign/RenderDevice/IRen
 import { CommandBuffer2D } from "./CommandBuffer2D";
 
 export class Command2D {
-    
+
     /**@internal */
     _commandBuffer: CommandBuffer2D = null;
-    
+
     /**@internal */
     _context: IRenderContext2D;
 

@@ -18,15 +18,21 @@ import { HtmlParser } from "../html/HtmlParser";
 import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
-import { TransformKind } from "./SpriteConst";
+import { SpriteConst, TransformKind } from "./SpriteConst";
+import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
+import { Node } from "./Node";
+import { IGraphicsCmd } from "./IGraphics";
 
 /**
  * @en The Text class is used to create display objects to show text.
  * Note: If the runtime system cannot find the specified font, it will render the text with the system default font, which may cause display anomalies. (Usually, it displays normally on computers, but may display abnormally on some mobile devices due to the lack of the set font.)
  *  - Event.CHANGE event dispatched after the text content changes.
+ *  - Event.LINK event dispatched when a link is clicked.
  * @zh Text类用于创建显示对象以显示文本。
  * 注意：如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
  *  - Event.CHANGE 事件表示文本内容发生改变后调度。
+ *  - Event.LINK 事件表示点击链接时调度。
  */
 export class Text extends Sprite {
 
@@ -185,6 +191,7 @@ export class Text extends Sprite {
     protected _hideText: boolean = false;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
+    private _fontGlobalScale: number;
 
     /**
      * @internal
@@ -208,6 +215,7 @@ export class Text extends Sprite {
     constructor() {
         super();
 
+        this._renderType |= SpriteConst.TEXT;
         this._textStyle = new TextStyle();
         this._textStyle.fontSize = Config.defaultFontSize;
         this._text = "";
@@ -258,6 +266,9 @@ export class Text extends Sprite {
         recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
 
+        if (this._bgDrawCmd) //去除lock标志，让它在destroy时被回收
+            (this._bgDrawCmd as IGraphicsCmd).lock = false;
+
         super.destroy(destroyChild);
     }
 
@@ -298,6 +309,9 @@ export class Text extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
+            if (this._scrollRect != null)
+                this.scrollRect = this._scrollRect.setTo(0, 0, this._width, this._height);
+
             if (!this._updatingLayout)
                 this.markChanged();
             else
@@ -700,7 +714,10 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            this.markChanged();
+            if (value !== Text.VISIBLE)
+                this.scrollRect = new Rectangle(0, 0, this.width, this.height);
+            else
+                this.scrollRect = null;
         }
     }
 
@@ -993,10 +1010,7 @@ export class Text extends Sprite {
     hideText(value: boolean) {
         this._hideText = value;
         if (value) {
-            if (this._bgDrawCmd)
-                this.graphics.removeCmd(this._bgDrawCmd);
-            this.graphics.clear(true);
-            this.drawBg();
+            this.graphics.clear(true, this._bgDrawCmd);
         }
         else {
             this.markChanged();
@@ -1029,10 +1043,7 @@ export class Text extends Sprite {
         }
 
         if (!text) {
-            if (this._bgDrawCmd)
-                this.graphics.removeCmd(this._bgDrawCmd);
-            this.graphics.clear(true);
-            this.drawBg();
+            this.graphics.clear(true, this._bgDrawCmd);
 
             this._textWidth = this._textHeight = 0;
             this._scrollPos = null;
@@ -1586,7 +1597,7 @@ export class Text extends Sprite {
                 i = 1;
             else {
                 i = this._lines.findIndex(line => line.y + line.height > rectHeight);
-                if (i == 0) i = 1;
+                if (i === 0) i = 1;
             }
             let linesDeleted = false;
             if (i != -1 && this._lines.length > i) {
@@ -1709,9 +1720,7 @@ export class Text extends Sprite {
             this._objContainer.size(this._width, this._height);
 
             if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
-                if (!this._objContainer.scrollRect)
-                    this._objContainer.scrollRect = new Rectangle();
-                this._objContainer.scrollRect.setTo(0, 0, this._width, this._height);
+                this._objContainer.scrollRect = (this._objContainer.scrollRect || new Rectangle()).setTo(0, 0, this._width, this._height);
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1728,10 +1737,9 @@ export class Text extends Sprite {
      */
     protected renderText(): void {
         let graphics = this.graphics;
-        if (this._bgDrawCmd)
-            this.graphics.removeCmd(this._bgDrawCmd);
-        graphics.clear(true);
-        this.drawBg();
+        graphics.clear(true, this._bgDrawCmd);
+
+        this._fontGlobalScale = TextRenderConfig.fontScale;
 
         let padding = this._padding;
         let paddingLeft = padding[3];
@@ -1742,12 +1750,6 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
-
-        if (clipped) {
-            graphics.save();
-            graphics.clipRect(0, 0, rectWidth, rectHeight);
-            this.repaint();
-        }
 
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
@@ -1831,9 +1833,6 @@ export class Text extends Sprite {
                 linkStartX = paddingLeft;
             }
         }
-
-        if (clipped)
-            graphics.restore();
     }
 
     /**
@@ -1848,6 +1847,7 @@ export class Text extends Sprite {
                 cmd.x = cmd.y = 0;
                 cmd.width = cmd.height = 1;
                 cmd.percent = true;
+                (cmd as IGraphicsCmd).lock = true;
                 this._bgDrawCmd = cmd;
             }
             cmd.fillColor = this._bgColor;
@@ -1864,10 +1864,27 @@ export class Text extends Sprite {
             }
         }
         else if (cmd) {
-            this.graphics.removeCmd(cmd);
+            this.graphics.removeCmd(cmd, true);
+            this._bgDrawCmd = null;
         }
     }
+
+    /** @ignore */
+    protected _setParent(value: Node): void {
+        super._setParent(value);
+
+        if (value && this._fontGlobalScale != null && this._fontGlobalScale !== TextRenderConfig.fontScale) {
+            this.repaint();
+        }
+    }
+
+    /** @internal @blueprintEvent */
+    Text_bpEvent: {
+        [Event.CHANGE]: () => void;
+        [Event.LINK]: (href: string) => void;
+    }
 }
+
 export interface ITextCmd {
     x: number;
     y: number;

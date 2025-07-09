@@ -77,10 +77,22 @@ export class Shader3D {
     static STENCIL_TEST: number;
     /**渲染状态_模板写入 */
     static STENCIL_WRITE: number;
+    /** 渲染状态_模板写入掩码 */
+    static STENCIL_WRITE_MASK: number;
+    /** 渲染状态_模板读取掩码 */
+    static STENCIL_READ_MASK: number;
     /**渲染状态_模板写入值 */
     static STENCIL_Ref: number;
     /**渲染状态_模板写入设置 */
     static STENCIL_Op: number;
+    /**渲染状态_深度偏移 */
+    static DEPTH_BIAS: number;
+    /**渲染状态_深度偏移常量 */
+    static DEPTH_BIAS_CONSTANT: number;
+    /**渲染状态_深度偏移斜率 */
+    static DEPTH_BIAS_SLOPESCALE: number;
+    /**渲染状态_深度偏移限制 */
+    static DEPTH_BIAS_CLAMP: number;
 
     /**shader变量提交周期，自定义。*/
     static PERIOD_CUSTOM: number = 0;
@@ -101,14 +113,15 @@ export class Shader3D {
     static SHADERDEFINE_FLOATTEXTURE: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR: ShaderDefine;
-    /**@internal WebGPU等平台坐标系Y翻转 */
-    static SHADERDEFINE_BLITSCREEN_INVERTY: ShaderDefine;
     /**@internal opengl webgl 需要重新映射深度值 */
     static SHADERDEFINE_REMAP_POSITIONZ: ShaderDefine;
     /**@internal 是否支持指定LOD的贴图采样 */
     static SHADERDEFINE_LOD_TEXTURE_SAMPLE: ShaderDefine;
     /**@internal 是否支持动态中断贴图采样 */
     static SHADERDEFINE_BREAK_TEXTURE_SAMPLE: ShaderDefine;
+
+    /**@internal 是否支持动态中断贴图采样 */
+    static SHADERDEFINE_STORAGEBUFFER: ShaderDefine;
 
     /**@internal */
     static _propertyNameMap: any = {};
@@ -125,6 +138,8 @@ export class Shader3D {
         Shader3D.SHADERDEFINE_REMAP_POSITIONZ = Shader3D.getDefineByName("REMAP_Z");
         Shader3D.SHADERDEFINE_LOD_TEXTURE_SAMPLE = Shader3D.getDefineByName("LOD_TEXTURE_SAMPLE");
         Shader3D.SHADERDEFINE_BREAK_TEXTURE_SAMPLE = Shader3D.getDefineByName("BREAK_TEXTURE_SAMPLE");
+
+
         if (LayaGL.renderEngine._remapZ)
             Shader3D._configDefineValues.add(Shader3D.SHADERDEFINE_REMAP_POSITIONZ);
         if (LayaGL.renderEngine._lodTextureSample)
@@ -180,7 +195,7 @@ export class Shader3D {
      * @param defineNames 宏定义名字集合。
      * @param   nodeCommonMap ubo集合名称集合
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], additionMap: string[]): boolean {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[], additionMap: string[], is2D: boolean, attributeLocations: number[]): boolean {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
@@ -189,11 +204,12 @@ export class Shader3D {
                 if (pass) {
                     pass.nodeCommonMap = nodeCommonMap;
                     pass.additionShaderData = additionMap;
+                    pass.attributeLocations = new Set<number>(attributeLocations);
                     var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (let n of defineNames)
                         compileDefineDatas.add(Shader3D.getDefineByName(n));
-                    pass.withCompile(compileDefineDatas);
+                    pass.withCompile(compileDefineDatas, is2D);
                     return true;
                 }
             }

@@ -1,10 +1,15 @@
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../renders/Context"
+import { Vector4 } from "../../maths/Vector4"
 import { Texture } from "../../resource/Texture"
+import { IMeshFactory } from "../mesh/MeshFactory"
 import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"
+import { VertexStream } from "../../utils/VertexStream"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner"
+
+const className = "DrawTrianglesCmd";
 
 /**
  * @en Draw triangles command
@@ -15,7 +20,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
      */
-    static readonly ID: string = "DrawTriangles";
+    static readonly ID: string = className;
 
     /**
      * @en The texture to be drawn.
@@ -26,12 +31,12 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @en X-axis offset.
      * @zh X轴偏移量。
      */
-    x: number;
+    x: number = 0;
     /**
      * @en Y-axis offset.
      * @zh Y轴偏移量。
      */
-    y: number;
+    y: number = 0;
     /**
      * @en Vertex array.
      * @zh 顶点数组。
@@ -57,7 +62,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 透明度值。
      */
     alpha: number;
-    //public var color:String;
     /**
      * @en Blend mode.
      * @zh 混合模式。
@@ -68,6 +72,11 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 颜色变换。
      */
     color: number | null;
+    /**
+     * @en Mesh factory for creating the mesh.
+     * @zh 用于创建网格的工厂。
+     */
+    mesh: IMeshFactory;
 
     /**
      * @en Create a DrawTrianglesCmd instance
@@ -96,8 +105,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @returns 绘制三角形命令实例
      */
     static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
-        matrix: Matrix | null, alpha: number, color: string | number, blendMode: string | null): DrawTrianglesCmd {
-        var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
+        matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
+        var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.x = x;
@@ -106,9 +115,32 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.uvs = uvs;
         cmd.indices = indices;
         cmd.matrix = matrix;
-        cmd.alpha = alpha;
+        cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
+        return cmd;
+    }
+
+    /**
+     * @en Create a DrawTrianglesCmd instance using a mesh factory
+     * @param texture The texture to be drawn
+     * @param mesh Mesh factory for creating the mesh
+     * @param color Color transformation
+     * @returns DrawTrianglesCmd instance
+     * @zh 使用网格工厂创建一个绘制三角形命令实例
+     * @param texture 要绘制的纹理
+     * @param mesh 用于创建网格的工厂
+     * @param color 颜色变换
+     * @returns 绘制三角形命令实例
+     */
+    static create2(texture: Texture, mesh: IMeshFactory, color?: string | number): DrawTrianglesCmd {
+        var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
+        cmd.texture = texture;
+        texture._addReference();
+        cmd.x = 0;
+        cmd.y = 0;
+        cmd.mesh = mesh;
+        cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
 
@@ -123,21 +155,48 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.uvs = null;
         this.indices = null;
         this.matrix = null;
-        Pool.recover("DrawTrianglesCmd", this);
+        this.mesh = null;
+        Pool.recover(className, this);
     }
 
     /**
      * @en Execute the drawing triangles command
-     * @param context The rendering context
+     * @param runner The rendering context
      * @param gx Global X offset
      * @param gy Global Y offset
      * @zh 执行绘制三角形命令
-     * @param context 渲染上下文  
+     * @param runner 渲染上下文  
      * @param gx 全局X偏移  
      * @param gy 全局Y偏移  
      */
-    run(context: Context, gx: number, gy: number): void {
-        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color);
+    run(runner: GraphicsRunner, gx: number, gy: number): void {
+        if (!this.texture)
+            return;
+
+        if (this.mesh) {
+            if (!this.mesh)
+                return;
+
+            let vb = VertexStream.pool.take(this.texture);
+            vb.contentRect.setTo(0, 0, runner.sprite.width, runner.sprite.height);
+            if (this.color)
+                vb.color.setABGR(this.color);
+
+            try {
+                this.mesh.onPopulateMesh(vb);
+            } catch (e) {
+                console.error(e);
+            }
+
+            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), this.texture.uvrect);
+
+            VertexStream.pool.recover(vb);
+        }
+        else {
+            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices,
+                this.matrix, this.alpha, this.blendMode, this.color);
+        }
     }
 
     /**
@@ -152,6 +211,9 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
+        if (!this.vertices)
+            return;
+
         let vert = this.vertices;
         var vnum = vert.length;
         if (vnum < 2) return;
@@ -172,4 +234,4 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     }
 }
 
-ClassUtils.regClass("DrawTrianglesCmd", DrawTrianglesCmd);
+ClassUtils.regClass(className, DrawTrianglesCmd);

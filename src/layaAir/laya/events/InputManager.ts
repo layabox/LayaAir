@@ -3,6 +3,7 @@ import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
 import type { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
 import { Stage } from "../display/Stage";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -579,7 +580,7 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if (sp._getBit(NodeFlags.AREA_2D)) {
+        if ((sp._renderType & SpriteConst.AREA2D) !== 0) {
             (<Area2D>sp).transformPoint(x, y, Point.TEMP);
             x = Point.TEMP.x;
             y = Point.TEMP.y;
@@ -606,7 +607,7 @@ export class InputManager {
                 && child._nodeType !== 1
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR))
                     : (child._mouseState === 2 || child._mouseState === 0 && child._getBit(NodeFlags.CHECK_INPUT)))
-                && child._getBit(NodeFlags.ACTUAL_VISIBLE)) {
+                && child._struct.enabled) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
                 let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);

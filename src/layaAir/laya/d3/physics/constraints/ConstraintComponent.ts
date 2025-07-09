@@ -22,7 +22,7 @@ export class ConstraintComponent extends Component {
     protected _connectColliderLocalPos: Vector3 = new Vector3();
     private _isJointInit: boolean = false;
 
-    declare owner : Sprite3D;
+    declare readonly owner : Sprite3D;
 
     /**
      * @en Initializes the joint instance.

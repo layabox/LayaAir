@@ -3,12 +3,17 @@ import { Input } from "../display/Input";
 import { HideFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
-import { UIEvent } from "./UIEvent";
 
 /**
+ * @en GTextInput is a widget that provides a text input field with various formatting options.
+ * @zh GTextInput 是一个提供文本输入字段的小部件，支持多种格式选项。
  * @blueprintInheritable
  */
 export class GTextInput extends GWidget {
+    /**
+     * @en The Text component used for rendering the text.
+     * @zh 用于渲染文本的 Text 组件。
+     */
     readonly textIns: Input;
 
     constructor() {
@@ -18,7 +23,11 @@ export class GTextInput extends GWidget {
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.overflow = "hidden";
         this.textIns.padding.fill(2);
-        this.textIns.on(Event.KEY_DOWN, this, this._onKeyDown);
+        this.textIns.on(Event.INPUT, () => this.event(Event.INPUT));
+        this.textIns.on(Event.ENTER, () => this.event(Event.ENTER));
+        this.textIns.on(Event.CHANGE, () => this.event(Event.CHANGE));
+        this.textIns.on(Event.FOCUS, () => this.event(Event.FOCUS));
+        this.textIns.on(Event.BLUR, () => this.event(Event.BLUR));
         this.addChild(this.textIns);
     }
 
@@ -364,6 +373,7 @@ export class GTextInput extends GWidget {
         this.textIns.focus = false;
     }
 
+    /** @ignore */
     protected _transChanged(kind: TransformKind): void {
         super._transChanged(kind);
         if ((kind & TransformKind.Size) != 0) {
@@ -371,15 +381,12 @@ export class GTextInput extends GWidget {
         }
     }
 
-    private _onKeyDown(evt: Event): void {
-        if (!this.multiline && evt.key == "Enter") {
-            this.event(UIEvent.Submit);
-            evt.preventDefault();
-        }
-    }
-
     /** @internal @blueprintEvent */
     GTextInput_bpEvent: {
-        [UIEvent.Submit]: () => void;
+        [Event.CHANGE]: () => void;
+        [Event.INPUT]: () => void;
+        [Event.ENTER]: () => void;
+        [Event.FOCUS]: () => void;
+        [Event.BLUR]: () => void;
     };
 }

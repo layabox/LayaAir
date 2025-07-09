@@ -22,6 +22,8 @@ const downEffectValueC = 0.8;
 const downEffectValueS = 0.9;
 
 /**
+ * @en GButton is a button widget that can display a title and an icon, and supports different modes such as common, check, and radio.
+ * @zh GButton 是一个按钮小部件，可以显示标题和图标，并支持不同的模式，如常规、复选和单选。
  * @blueprintInheritable
  */
 export class GButton extends GLabel {
@@ -59,85 +61,118 @@ export class GButton extends GLabel {
         this.on(Event.UNDISPLAY, this, this._removeFromStage);
     }
 
-    public destroy(): void {
+    /** @ignore */
+    destroy(): void {
         if (this._selectedController)
             this._selectedController.release();
 
         super.destroy();
     }
 
-    public get title(): string {
+    /**
+     * @en The title of the button.
+     * @zh 按钮的标题。
+     */
+    get title(): string {
         return this._titleStr;
     }
 
-    public set title(value: string) {
+    set title(value: string) {
         if (value == null)
             value = "";
         this._titleStr = value;
         super.title = (this._selected && this._selectedTitleStr) ? this._selectedTitleStr : value;
     }
 
-    public get selectedTitle(): string {
+    /**
+     * @en The title of the button when it is selected.
+     * @zh 按钮被选中时的标题。
+     */
+    get selectedTitle(): string {
         return this._selectedTitleStr;
     }
 
-    public set selectedTitle(value: string) {
+    set selectedTitle(value: string) {
         if (value == null)
             value = "";
         this._selectedTitleStr = value;
         super.title = (this._selected && this._selectedTitleStr) ? value : this._titleStr;
     }
 
-    public get icon(): string {
+    /**
+     * @en The icon of the button.
+     * @zh 按钮的图标。
+     */
+    get icon(): string {
         return this._iconStr;
     }
 
-    public set icon(value: string) {
+    set icon(value: string) {
         if (value == null)
             value = "";
         this._iconStr = value;
         super.icon = (this._selected && this._selectedIconStr) ? this._selectedIconStr : value;
     }
 
-    public get selectedIcon(): string {
+    /**
+     * @en The icon of the button when it is selected.
+     * @zh 按钮被选中时的图标。
+     */
+    get selectedIcon(): string {
         return this._selectedIconStr;
     }
 
-    public set selectedIcon(value: string) {
+    set selectedIcon(value: string) {
         if (value == null)
             value = "";
         this._selectedIconStr = value;
         super.icon = (this._selected && this._selectedIconStr) ? value : this._iconStr;
     }
 
-    public get downEffect(): ButtonDownEffect {
+    /**
+     * @en The effect applied when the button is pressed down.
+     * @zh 按钮按下时应用的效果。
+     */
+    get downEffect(): ButtonDownEffect {
         return this._downEffect;
     }
-    public set downEffect(value: ButtonDownEffect) {
+    set downEffect(value: ButtonDownEffect) {
         this._downEffect = value;
     }
 
-    public get sound(): string {
+    /**
+     * @en The sound played when the button is clicked.
+     * @zh 按钮点击时播放的声音。
+     */
+    get sound(): string {
         return this._sound;
     }
 
-    public set sound(val: string) {
-        this._sound = val;
+    set sound(value: string) {
+        this._sound = value;
     }
 
-    public get soundVolumeScale(): number {
+    /**
+     * @en The volume scale for the sound played when the button is clicked.
+     * @zh 按钮点击时播放的声音的音量缩放。 
+     */
+    get soundVolumeScale(): number {
         return this._soundVolumeScale;
     }
 
-    public set soundVolumeScale(value: number) {
+    set soundVolumeScale(value: number) {
         this._soundVolumeScale = value;
     }
 
-    public get selected(): boolean {
+    /**
+     * @en Indicates whether the button is currently selected.
+     * @zh 按钮当前是否被选中。
+     */
+    get selected(): boolean {
         return this._selected;
     }
 
-    public set selected(value: boolean) {
+    set selected(value: boolean) {
         if (this._mode == ButtonMode.Common)
             return;
 
@@ -161,11 +196,15 @@ export class GButton extends GLabel {
         }
     }
 
-    public get mode(): ButtonMode {
+    /**
+     * @en The mode of the button, which can be Common, Check, or Radio.
+     * @zh 按钮的模式，可以是 Common、Check 或 Radio。
+     */
+    get mode(): ButtonMode {
         return this._mode;
     }
 
-    public set mode(value: ButtonMode) {
+    set mode(value: ButtonMode) {
         if (this._mode != value) {
             if (value == ButtonMode.Common)
                 this.selected = false;
@@ -173,11 +212,15 @@ export class GButton extends GLabel {
         }
     }
 
-    public get selectedController(): ControllerRef {
+    /**
+     * @en The button can be linked to a controller, so when the button state changes, the controller's selected state will also change, and vice versa.
+     * @zh 按钮可以联动一个控制器，当按钮状态改变时，控制器的选中状态也会随之改变。 反之亦然。
+     */
+    get selectedController(): ControllerRef {
         return this._selectedController;
     }
 
-    public set selectedController(value: ControllerRef) {
+    set selectedController(value: ControllerRef) {
         if (this._selectedController)
             this._selectedController.release();
         this._selectedController = value;
@@ -188,29 +231,38 @@ export class GButton extends GLabel {
         }
     }
 
-    public get selectedPage(): number {
+    /**
+     * @en When the selected controller is on this page, the button will be selected.
+     * @zh 当选中控制器处于此页面时，按钮将被选中。
+     */
+    get selectedPage(): number {
         return this._selectedPage;
     }
 
-    public set selectedPage(value: number) {
+    set selectedPage(value: number) {
         this._selectedPage = value;
         if (this._selectedController)
             this.selected = this._selectedPage == this._selectedController.selectedIndex;
     }
 
-    public get changeStateOnClick(): boolean {
+    /**
+     * @en When the button is clicked, whether to automatically change the selected state. Default is true.
+     * @zh 当按钮被点击时，是否自动改变选中状态。默认是true。
+     */
+    get changeStateOnClick(): boolean {
         return this._changeStateOnClick;
     }
 
-    public set changeStateOnClick(value: boolean) {
+    set changeStateOnClick(value: boolean) {
         this._changeStateOnClick = value;
     }
 
-    public get mouseEnabled() {
+    /** @ignore */
+    get mouseEnabled() {
         return super.mouseEnabled;
     }
 
-    public set mouseEnabled(value: boolean) {
+    set mouseEnabled(value: boolean) {
         super.mouseEnabled = value;
         if (!this.mouseEnabled) {
             this._over = false;
@@ -218,20 +270,27 @@ export class GButton extends GLabel {
         }
     }
 
-    public fireClick(downEffect?: boolean, clickCall?: boolean): void {
+    /**
+     * @en Simulates a click on the button, optionally applying a down effect and triggering a click call.
+     * @param downEffect Whether to apply a down effect when simulating the click. Default is false.
+     * @param clickCall Whether to trigger the click event after the down effect. Default is true. 
+     * @returns 
+     */
+    fireClick(downEffect?: boolean, clickCall?: boolean): void {
         if (this._mode !== ButtonMode.Common)
             return;
 
-        downEffect = downEffect || false;
         if (downEffect) {
             this.setState(ButtonStatus.Over);
             Laya.timer.once(100, this, this.setState, [ButtonStatus.Down]);
             Laya.timer.once(200, null, () => {
                 this.setState(ButtonStatus.Up);
-                if (clickCall)
+                if (clickCall == null || clickCall)
                     this.event(Event.CLICK);
             });
         }
+        else if (clickCall == null || clickCall)
+            this.event(Event.CLICK);
     }
 
     protected setState(page: ButtonStatus): void {

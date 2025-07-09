@@ -105,15 +105,25 @@ export class PAL {
     /**
      * @en Check if the specified API is available in the global object.
      * @param name The name of the API to check. 
-     * @param obj The object to check against, defaults to the global object. 
      * @returns `true` if the API is available, otherwise `false`.
      * @zh 检查指定的API是否在全局对象中可用。
      * @param name 要检查的API名称。
-     * @param obj 要检查的对象，默认为全局对象。
      * @returns 如果API可用则返回`true`，否则返回`false`
      */
     static hasAPI(name: string): boolean;
+
+    /**
+     * @en Check if the specified API is available in the global object.
+     * @param obj The object to check against, defaults to the global object. 
+     * @param name The name of the API to check. 
+     * @returns `true` if the API is available, otherwise `false`.
+     * @zh 检查指定的API是否在全局对象中可用。
+     * @param obj 要检查的对象，默认为全局对象。
+     * @param name 要检查的API名称。
+     * @returns 如果API可用则返回`true`，否则返回`false`
+     */
     static hasAPI(obj: any, name: string): boolean;
+
     static hasAPI(arg0: any, arg1?: string): boolean {
         if (arg1)
             return Object.getOwnPropertyDescriptor(arg0 || PAL.g, arg1) != null;

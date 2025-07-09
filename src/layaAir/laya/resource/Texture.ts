@@ -466,39 +466,7 @@ export class Texture extends Resource {
         }
 
         // 如果无法直接获取，只能先渲染出来
-        var ctx = new ILaya.Context();
-        ctx.size(width, height);
-        let rt = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8);
-        ctx.render2D = ctx.render2D.clone(rt)
-        var uv: number[] = null;
-        if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
-            uv = (this._uv as number[]).slice();	// 复制一份uv
-            var stu = uv[0];
-            var stv = uv[1];
-            var uvw = uv[2] - stu;
-            var uvh = uv[7] - stv;
-            var uk = uvw / texw;
-            var vk = uvh / texh;
-            uv = [stu + rePosX * uk, stv + rePosY * vk,
-            stu + (rePosX + draww) * uk, stv + rePosY * vk,
-            stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
-            stu + rePosX * uk, stv + (rePosY + drawh) * vk];
-        }
-        ctx.startRender();
-        ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv, 0xffffffff);
-        ctx.endRender();
-        var dt: Uint8Array = rt.getData(0, 0, width, height) as Uint8Array;
-        ctx.destroy();
-        rt.destroy();
-        // 上下颠倒一下
-        ret = new Uint8Array(width * height * 4);
-        st = 0;
-        dst = (height - 1) * wstride;
-        for (i = height - 1; i >= 0; i--) {
-            ret.set(dt.slice(dst, dst + wstride), st);
-            st += wstride;
-            dst -= wstride;
-        }
+        //TODO
         return ret;
     }
 

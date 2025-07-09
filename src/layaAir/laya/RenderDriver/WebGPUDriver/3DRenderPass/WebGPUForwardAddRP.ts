@@ -3,6 +3,7 @@ import { WebGPUForwardAddClusterRP } from "./WebGPUForwardAddClusterRP";
 import { WebGPUDirectLightShadowRP } from "./WebGPUDirectLightShadowRP";
 import { WebGPUSpotLightShadowRP } from "./WebGPUSpotLightShadowRP";
 import { Vector4 } from "../../../maths/Vector4";
+import { RenderTexture } from "../../../resource/RenderTexture";
 
 export class WebGPUForwardAddRP {
     /**是否开启阴影 */
@@ -22,11 +23,15 @@ export class WebGPUForwardAddRP {
     /**directlight shadow */
     directLightShadowPass: WebGPUDirectLightShadowRP;
 
+    shadowMap: RenderTexture;
+
     /**enable directlight */
     enableDirectLightShadow: boolean = false;
 
     /**spot shadow */
     spotLightShadowPass: WebGPUSpotLightShadowRP;
+
+    spotShadowMap: RenderTexture;
 
     /**enable spot */
     enableSpotLightShadowPass: boolean = false;

@@ -7,10 +7,16 @@ import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
 
 /**
+ * @en GWindow is a widget that provides a window interface for displaying content.
+ * @zh GWindow 是一个提供窗口界面的小部件，用于显示内容。
  * @blueprintInheritable
  */
 export class GWindow extends GWidget {
-    public bringToFontOnClick: boolean;
+    /**
+     * @en Whether the window should be brought to the front when clicked.
+     * @zh 是否在点击时将窗口带到前面。
+     */
+    bringToFontOnClick: boolean;
 
     private _contentPane: GWidget;
     private _modalWaitPane: GWidget;
@@ -35,11 +41,19 @@ export class GWindow extends GWidget {
         this.on(Event.MOUSE_DOWN, this, this._winTouchBegin);
     }
 
-    public set contentPane(val: GWidget) {
-        if (this._contentPane != val) {
+    /**
+     * @en The content pane of the window, which contains the main content to be displayed.
+     * @zh 窗口的内容面板，包含要显示的主要内容。
+     */
+    get contentPane(): GWidget {
+        return this._contentPane;
+    }
+
+    set contentPane(value: GWidget) {
+        if (this._contentPane != value) {
             if (this._contentPane)
                 this.removeChild(this._contentPane);
-            this._contentPane = val;
+            this._contentPane = value;
             if (this._contentPane) {
                 this.addChild(this._contentPane);
                 this.size(this._contentPane.width, this._contentPane.height);
@@ -54,19 +68,23 @@ export class GWindow extends GWidget {
         }
     }
 
-    public get contentPane(): GWidget {
-        return this._contentPane;
-    }
-
-    public get frame(): GWidget {
+    /**
+     * @en The frame of the window.
+     * @zh 窗口的框架。
+     */
+    get frame(): GWidget {
         return this._frame;
     }
 
-    public get closeButton(): GWidget {
+    /**
+     * @en The button used to close the window.
+     * @zh 用于关闭窗口的按钮。
+     */
+    get closeButton(): GWidget {
         return this._closeButton;
     }
 
-    public set closeButton(value: GWidget) {
+    set closeButton(value: GWidget) {
         if (this._closeButton)
             this._closeButton.off(Event.CLICK, this, this.closeEventHandler);
         this._closeButton = value;
@@ -74,11 +92,15 @@ export class GWindow extends GWidget {
             this._closeButton.on(Event.CLICK, this, this.closeEventHandler);
     }
 
-    public get dragArea(): GWidget {
+    /**
+     * @en The area of the window that can be dragged to move the window.
+     * @zh 窗口中可以拖动以移动窗口的区域。
+     */
+    get dragArea(): GWidget {
         return this._dragArea;
     }
 
-    public set dragArea(value: GWidget) {
+    set dragArea(value: GWidget) {
         if (this._dragArea != value) {
             if (this._dragArea) {
                 this._dragArea.draggable = false;
@@ -93,55 +115,97 @@ export class GWindow extends GWidget {
         }
     }
 
-    public get contentArea(): GWidget {
+    /**
+     * @en The area of the window that contains the main content.
+     * @zh 窗口中包含主要内容的区域。
+     */
+    get contentArea(): GWidget {
         return this._contentArea;
     }
 
-    public set contentArea(value: GWidget) {
+    set contentArea(value: GWidget) {
         this._contentArea = value;
     }
 
-    public show(): void {
+    /**
+     * @en Shows the window, bringing it to the front if it is already displayed.
+     * @zh 显示窗口，如果窗口已经显示，则将其带到前面
+     */
+    show(): void {
         GWidget._defaultRoot.showWindow(this);
     }
 
-    public hide(): void {
+    /**
+     * @en Hides the window, removing it from the display.
+     * @zh 隐藏窗口，将其从显示中移除。
+     */
+    hide(): void {
         if (this.isShowing)
             this.doHideAnimation();
     }
 
-    public hideImmediately(): void {
+    /**
+     * @en Hides the window immediately without any animation.
+     * @zh 立即隐藏窗口，不进行任何动画。
+     */
+    hideImmediately(): void {
         GWidget._defaultRoot.hideWindowImmediately(this);
     }
 
-    public toggleStatus(): void {
+    /**
+     * @en Toggles the visibility of the window. If it is currently displayed, it will be hidden; if it is hidden, it will be shown.
+     * @zh 切换窗口的可见性。如果当前显示，则隐藏；如果隐藏，则显示。
+     */
+    toggleStatus(): void {
         if (this.isTop)
             this.hide();
         else
             this.show();
     }
 
-    public get isShowing(): boolean {
+    /**
+     * @en Checks if the window is currently displayed.
+     * @zh 检查窗口当前是否显示。
+     */
+    get isShowing(): boolean {
         return this.parent != null;
     }
 
-    public get isTop(): boolean {
+    /**
+     * @en Checks if the window is the topmost window in the display hierarchy.
+     * @zh 检查窗口是否是显示层次结构中的最上层窗口
+     */
+    get isTop(): boolean {
         return this.parent && this.parent.getChildIndex(this) == this.parent.numChildren - 1;
     }
 
-    public get modal(): boolean {
+    /**
+     * @en Indicates whether the window is modal, meaning it blocks interaction with other windows until it is closed.
+     * @zh 指示窗口是否为模态窗口，即在关闭之前阻止与其他窗口的交互。
+     */
+    get modal(): boolean {
         return this._modal;
     }
 
-    public set modal(val: boolean) {
+    set modal(val: boolean) {
         this._modal = val;
     }
 
-    public bringToFront(): void {
+    /**
+     * @en Brings the window to the front of the display list, making it the topmost window.
+     * @zh 将窗口带到显示列表的前面，使其成为最上层窗口。
+     */
+    bringToFront(): void {
         GWidget._defaultRoot.bringToFront(this);
     }
 
-    public showModalWait(requestingCmd?: number) {
+    /**
+     * @en Shows a modal waiting pane, which blocks interaction with the window until it is closed.
+     * @param requestingCmd Optional command ID that can be used to close the modal wait pane.
+     * @zh 显示一个模态等待面板，在关闭之前阻止与窗口的交互。
+     * @param requestingCmd 可选的命令ID，可用于关闭模态等待面板。 
+     */
+    showModalWait(requestingCmd?: number) {
         if (requestingCmd != null)
             this._requestingCmd = requestingCmd;
 
@@ -166,7 +230,13 @@ export class GWindow extends GWidget {
             this._modalWaitPane.size(this.width, this.height);
     }
 
-    public closeModalWait(requestingCmd?: number): boolean {
+    /**
+     * @en Closes the modal wait pane if it is currently displayed.
+     * @param requestingCmd Optional command ID that must match the one used to show the modal wait pane.
+     * @zh 如果模态等待面板当前显示，则关闭它。
+     * @param requestingCmd 可选的命令ID，必须与用于显示模态等待面板的命令ID匹配。
+     */
+    closeModalWait(requestingCmd?: number): boolean {
         if (requestingCmd != null) {
             if (this._requestingCmd != requestingCmd)
                 return false;
@@ -179,28 +249,60 @@ export class GWindow extends GWidget {
         return true;
     }
 
-    public get modalWaiting(): boolean {
+    /**
+     * @en Checks if the modal wait pane is currently displayed.
+     * @zh 检查模态等待面板当前是否显示。
+     */
+    get modalWaiting(): boolean {
         return this._modalWaitPane != null && this._modalWaitPane.parent != null;
     }
 
-    protected async onInit(): Promise<void> {
+    /**
+     * @en Initializes the window. This method is called when the window is first shown.
+     * It can be overridden to perform custom initialization logic.
+     * @returns A promise that resolves when the initialization is complete.
+     * @zh 初始化窗口。此方法在窗口首次显示时调用。
+     * 可以重写此方法以执行自定义初始化逻辑。
+     * @returns 一个在初始化完成时解析的 Promise。
+     * @blueprintEvent
+     */
+    protected onInit(): void | Promise<void> {
     }
 
+    /**
+     * @en Called when the window is shown. This method can be overridden to perform actions when the window becomes visible.
+     * @zh 当窗口显示时调用。可以重写此方法以在窗口变为可见时执行操作。
+     * @blueprintEvent
+     */
     protected onShown(): void {
     }
 
+    /**
+     * @en Called when the window is hidden. This method can be overridden to perform actions when the window is no longer visible.
+     * @zh 当窗口隐藏时调用。可以重写此方法以在窗口不再可见时执行操作。
+     * @blueprintEvent
+     */
     protected onHide(): void {
     }
 
+    /**
+     * @en Performs the show animation for the window. This method can be overridden to implement custom show animations.
+     * @zh 执行窗口的显示动画。可以重写此方法以实现自定义显示动画。
+     */
     protected doShowAnimation(): void {
         this.onShown();
     }
 
+    /**
+     * @en Performs the hide animation for the window. This method can be overridden to implement custom hide animations.
+     * @zh 执行窗口的隐藏动画。可以重写此方法以实现自定义隐藏动画。
+     */
     protected doHideAnimation(): void {
         this.hideImmediately();
     }
 
-    public destroy(): void {
+    /** @ignore */
+    destroy(): void {
         if (this.parent)
             this.hideImmediately();
 
@@ -215,7 +317,7 @@ export class GWindow extends GWidget {
         if (!this._inited) {
             if (!this._loading) {
                 this._loading = true;
-                this.onInit().then(() => {
+                Promise.resolve(this.onInit()).then(() => {
                     this._loading = false;
                     this._inited = true;
 

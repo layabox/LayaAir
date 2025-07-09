@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { Command } from "../../../../d3/core/render/command/Command";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Viewport } from "../../../../maths/Viewport";
@@ -6,6 +7,7 @@ import { BlitQuadCMDData } from "../../../DriverDesign/3DRenderPass/IRender3DCMD
 import { RenderCMDType } from "../../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUInternalRT } from "../../RenderDevice/WebGPUInternalRT";
+import { WebGPUInternalTex } from "../../RenderDevice/WebGPUInternalTex";
 import { WebGPURenderContext3D } from "../WebGPURenderContext3D";
 import { WebGPURenderElement3D } from "../WebGPURenderElement3D";
 
@@ -73,7 +75,7 @@ export class WebGPUBlitQuadCMDData extends BlitQuadCMDData {
     }
 
     apply(context: WebGPURenderContext3D) {
-        this.element.materialShaderData._setInternalTexture(Command.SCREENTEXTURE_ID, this._source);
+        this.element.materialShaderData._setInternalTexture(Command.SCREENTEXTURE_ID, this._source as WebGPUInternalTex);
         this.element.materialShaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setViewPort(this._viewport);
