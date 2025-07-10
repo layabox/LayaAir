@@ -22,9 +22,13 @@ export class GLESShaderData extends ShaderData {
     /**
      * @internal	
      */
-    constructor(ownerResource: Resource = null) {
+    constructor(ownerResource: Resource = null, createNativeObj: boolean = true) {
         super(ownerResource)
-        this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
+        if (createNativeObj) {
+            this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
+        } else {
+            this._nativeObj = null;
+        }
         this._textureData = {};
         this._bufferData = {};
     }
