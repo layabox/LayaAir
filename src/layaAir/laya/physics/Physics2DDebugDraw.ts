@@ -181,8 +181,7 @@ export class Physics2DDebugDraw extends Sprite {
         }
 
         for (let i = 0; i < this._linePointsList.length; i++) {
-            let point = this._linePointsList[i];
-            point = null;
+            this._linePointsList[i] = null;
         }
 
         this._cmdDrawLineList.length = 0;
