@@ -78,6 +78,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         }
         this.setRootSprite(this._scene);
         if (configlayer.debugDraw && LayaEnv.isPlaying) {
+            this._enableDraw = configlayer.debugDraw;
             this.enableDebugDraw(configlayer.drawShape, EPhycis2DBlit.Shape);
             this.enableDebugDraw(configlayer.drawJoint, EPhycis2DBlit.Joint);
             this.enableDebugDraw(configlayer.drawAABB, EPhycis2DBlit.AABB);
@@ -182,8 +183,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._scene.addChild(this._debugDraw);
             this._debugDraw.zOrder = 1000;
         }
-        this._enableDraw = enable;
-        this._enableBox2DDraw(bli);
+        this._enableBox2DDraw(enable, bli);
     }
 
 
@@ -406,7 +406,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
     destroy(): void {
         Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
         Physics2D.I._emptyBody = null;
-        Laya.timer.clear(this,this._frameLoop);
+        Laya.timer.clear(this, this._frameLoop);
         Laya.timer.callLater(this, () => {
             Physics2D.I._factory.destroyWorld(this._box2DWorld);
         })
@@ -478,8 +478,9 @@ export class Physics2DWorldManager implements IElementComponentManager {
         return outColor;
     }
 
-    private _enableBox2DDraw(flag: EPhycis2DBlit): void {
+    private _enableBox2DDraw(enable: boolean, flag: EPhycis2DBlit): void {
         if (!this._jsDraw) {
+            Laya.timer.frameLoop(1, this, this._frameLoop);
             this._jsDraw = Physics2D.I._factory.createBox2DDraw(this._box2DWorld, flag);
             this._jsDraw.DrawSegment = this._debugDrawSegment.bind(this);
             this._jsDraw.DrawPolygon = this._debugDrawPolygon.bind(this);
@@ -490,17 +491,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._jsDraw.DrawPoint = this._debugDrawPoint.bind(this);
             this._jsDraw.DrawAABB = this._debugDrawAABB.bind(this);
         }
-        if (this._enableDraw) {
-            Laya.timer.frameLoop(1 , this , this._frameLoop);
+        if (enable) {
             Physics2D.I._factory.appendFlags(this._jsDraw, flag);
         } else {
-            Laya.timer.clear( this , this._frameLoop);
             Physics2D.I._factory.clearFlags(this._jsDraw, flag);
         }
     }
 
-    private _frameLoop(){
-        this._debugDraw.render(0 , 0);
+    private _frameLoop() {
+        this._debugDraw.render(0, 0);
     }
 
     // private _scaleSizeXByScaleMode(x: number) {
