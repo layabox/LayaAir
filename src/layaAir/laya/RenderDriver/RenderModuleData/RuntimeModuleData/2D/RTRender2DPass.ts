@@ -84,11 +84,12 @@ export class RTRender2DPass implements IRender2DPass {
    public set priority(value: number) {
       this._nativeObj.priority = value;
    }
+   private _shaderData: GLESShaderData = null;
    set shaderData(value: GLESShaderData) {
-      this._nativeObj.shaderData = value;
+      this._shaderData = value;
    }
    get shaderData(): GLESShaderData {
-      return this._nativeObj.shaderData;
+      return this._shaderData;
    }  
 
    private _renderOffset: Vector2 = new Vector2();
@@ -109,9 +110,10 @@ export class RTRender2DPass implements IRender2DPass {
    }
 
    constructor() {
-      this._nativeObj = new (window as any).conchRTRender2DPass();
+      this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
+      this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
       this._nativeObj.setRenderCallback(this.renderCallBack.bind(this));
-      this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
+      
    }
 
    /**
