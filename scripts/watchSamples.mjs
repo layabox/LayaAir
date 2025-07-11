@@ -136,6 +136,7 @@ let layaFiles = [
 
 var mentry = 'multientry.ts';
 var needCompile = true;
+const target = 'es2020';
 
 function mySamplesMultiInput(options) {
 
@@ -205,7 +206,7 @@ async function start() {
         "baseUrl": "../layaAir",
     }
     watch({
-        input: samplesBathURL + '/index.ts',
+        input: samplesBathURL + '/index_webgl.ts',
         treeshake: false, //建议忽略
         onwarn: onRollupWarn(ignoreCircularDependencyWarnings),
         external: ['Laya'],
@@ -223,7 +224,7 @@ async function start() {
                 include: /\.[jt]sx?$/,
                 sourceMap: sourcemap,
                 minify: process.env.NODE_ENV === 'production',
-                target: 'esnext', // default, or 'es20XX', 'esnext'
+                target: target, // default, or 'es20XX', 'esnext'
                 tsconfig: JSON.stringify(config), // default
             }),
             glsl({
@@ -277,7 +278,7 @@ function startLaya() {
                 include: /\.[jt]sx?$/,
                 sourceMap: sourcemap,
                 minify: process.env.NODE_ENV === 'production',
-                target: 'esnext', // default, or 'es20XX', 'esnext'
+                target: target, // default, or 'es20XX', 'esnext'
                 tsconfig: './src/layaAir/tsconfig.json', // default
             }),
             glsl({

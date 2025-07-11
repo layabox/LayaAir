@@ -296,7 +296,7 @@ export class SpriteGlobalTransform {
     private _cachePos() {
         if (this._getFlag(TransformKind.Matrix | TransformKind.Pos)) {
             this._setFlag(TransformKind.Pos, false);
-            let p = this.getMatrix().transformPoint(tmpPoint.setTo(0, 0));
+            let p = this.getMatrix().transformPoint(tmpPoint.setTo(this._sp.pivotX, this._sp.pivotY));
             this._x = p.x;
             this._y = p.y;
         }

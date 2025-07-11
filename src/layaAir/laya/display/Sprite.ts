@@ -2022,6 +2022,7 @@ export class Sprite extends Node {
     * @param flag 重绘类型。
     */
     repaint(flag?: number): void {
+        if (this.destroyed) return;
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();
@@ -2181,7 +2182,7 @@ export class Sprite extends Node {
      */
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
-        if (this._struct.enabled !== b) {
+        if (this._struct && this._struct.enabled !== b) {
             this._struct.enabled = b;
             if (this._subStruct) {
                 this._subStruct.enabled = b;

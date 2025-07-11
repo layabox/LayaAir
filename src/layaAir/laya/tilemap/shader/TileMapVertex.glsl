@@ -32,15 +32,15 @@ void getVertexInfoTileMap(inout vertexInfo info){
     #endif
 }
 
-void getPosition(in vertexInfo info , inout vec4 pos){
-    vec2 a_pos=info.pos;
-    vec2 globalPos;
-    getGlobalPos(a_pos.xy,globalPos);
-    vec2 viewPos;
-    getViewPos(globalPos,viewPos);
-    clip(viewPos);
-    getProjectPos(viewPos,pos);
-}
+// void getPosition(in vertexInfo info , inout vec4 pos){
+//     vec2 a_pos=info.pos;
+//     vec2 globalPos;
+//     getGlobalPos(a_pos.xy,globalPos);
+//     vec2 viewPos;
+//     getViewPos(globalPos,viewPos);
+//     clip(viewPos);
+//     getProjectPos(viewPos,pos);
+// }
 
 void setVertexInfo(in vertexInfo info){
     v_texcoord=info.uv;
