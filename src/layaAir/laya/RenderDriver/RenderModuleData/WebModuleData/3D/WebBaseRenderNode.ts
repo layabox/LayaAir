@@ -16,6 +16,7 @@ import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 import { RenderInfo } from "../../../../renders/RenderInfo";
 import { WebDefineDatas } from "../WebDefineDatas";
+import { Vector2 } from "../../../../maths/Vector2";
 
 interface DynamicBaseRenderClass {
     new(): WebBaseRenderNode;
@@ -53,7 +54,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
     _driverCacheData: any;//记录渲染底层共用的渲染数据
-    ismoved: number = 0;
+    ismoved: Vector2 = new Vector2();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;

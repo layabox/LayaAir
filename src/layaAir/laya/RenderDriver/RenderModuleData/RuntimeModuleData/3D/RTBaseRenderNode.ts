@@ -10,6 +10,7 @@ import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { Vector2 } from "../../../../maths/Vector2";
 
 
 export class RTBaseRenderNode implements IBaseRenderNode {
@@ -21,7 +22,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public set transform(value: RTTransform3D) {
-        this._nativeObj.setTransform(value?value._nativeObj:null);
+        this._nativeObj.setTransform(value ? value._nativeObj : null);
         this._transform = value;
     }
 
@@ -219,7 +220,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
-    ismoved: number;//TODO Native
+    ismoved: Vector2 = new Vector2();//TODO Native
 
     private _worldParams: Vector4 = new Vector4();
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {

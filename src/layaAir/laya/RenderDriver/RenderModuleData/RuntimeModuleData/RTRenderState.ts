@@ -133,59 +133,53 @@ export class RTRenderState extends RenderState {
     /** 模板写入掩码 */
 
     public get stencilWriteMask(): number {
-        return this._stencilWriteMask;
+        return this._nativeObj.stencilWriteMask;
     }
     public set stencilWriteMask(value: number) {
-        this._stencilWriteMask = value;
         this._nativeObj.stencilWriteMask = value;
     }
 
     /** 模板读取掩码 */
     public get stencilReadMask(): number {
-        return this._stencilReadMask;
+        return this._nativeObj.stencilReadMask;
     }
     public set stencilReadMask(value: number) {
-        this._stencilReadMask = value;
         this._nativeObj.stencilReadMask = value;
     }
 
     /** 是否开启深度偏移 */
 
     public get depthBias(): boolean {
-        return this._depthBias;
+        return this._nativeObj.depthBias;
     }
     public set depthBias(value: boolean) {
-        this._depthBias = value;
         this._nativeObj.depthBias = value;
     }
 
     /** 深度偏移常量 */
 
     public get depthBiasConstant(): number {
-        return this._depthBiasConstant;
+        return this._nativeObj.depthBiasConstant;
     }
     public set depthBiasConstant(value: number) {
-        this._depthBiasConstant = value;
         this._nativeObj.depthBiasConstant = value;
     }
 
     /** 深度偏移斜率缩放 */
 
     public get depthBiasSlopeScale(): number {
-        return this._depthBiasSlopeScale;
+        return this._nativeObj.depthBiasSlopeScale;
     }
     public set depthBiasSlopeScale(value: number) {
-        this._depthBiasSlopeScale = value;
         this._nativeObj.depthBiasSlopeScale = value;
     }
 
     /** 深度偏移限制值 */
 
     public get depthBiasClamp(): number {
-        return this._depthBiasClamp;
+        return this._nativeObj.depthBiasClamp;
     }
     public set depthBiasClamp(value: number) {
-        this._depthBiasClamp = value;
         this._nativeObj.depthBiasClamp = value;
     }
 

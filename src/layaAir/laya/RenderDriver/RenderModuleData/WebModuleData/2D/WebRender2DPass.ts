@@ -152,6 +152,8 @@ export class WebRender2DPass implements IRender2DPass {
 
    shaderData: ShaderData = null;
 
+   destroyed: boolean = false;
+
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
    }
@@ -197,8 +199,8 @@ export class WebRender2DPass implements IRender2DPass {
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
       // 裁剪规则一：检查渲染层掩码
-      if (struct.globalRenderData
-         && (struct.renderLayer & struct.globalRenderData.renderLayerMask) === 0) {
+      if (struct._parentGlobalRenderData
+         && (struct.renderLayer & struct._parentGlobalRenderData.renderLayerMask) === 0) {
          return;
       }
 
@@ -388,6 +390,10 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    destroy(): void {
+      if (this.destroyed) {
+         return;
+      }
+      this.destroyed = true;
       for (let i = 0, n = this._lists.length; i < n; i++) {
          if (this._lists[i]) {
             this._lists[i].destroy();

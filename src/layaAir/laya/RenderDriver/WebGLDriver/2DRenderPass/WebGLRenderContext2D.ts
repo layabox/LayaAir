@@ -158,6 +158,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
             let element = list.elements[i];
             element._render(this);//render
         }
+        LayaGL.renderEngine._framePassCount++;
         return 0;
     }
 
@@ -187,6 +188,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
     drawRenderElementOne(node: WebGLRenderElement2D): void {
         node._prepare(this);
         node._render(this);
+        LayaGL.renderEngine._framePassCount++;
     }
 
 

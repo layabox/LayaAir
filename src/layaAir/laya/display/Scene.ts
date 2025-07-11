@@ -19,6 +19,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
+import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 
 /** @blueprintIgnore */
 export interface ILight2DManager {
@@ -122,6 +123,9 @@ export class Scene extends Sprite {
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this._shaderData = this._specialManager._shaderData;
         this._globalRenderData.renderLayerMask = -1;
+        this._struct.globalRenderData = this._globalRenderData;
+        this._struct.spriteShaderData = this._shaderData;
+        BlendModeHandler.initBlendMode(this._shaderData);
     }
 
     /** @internal */

@@ -3,6 +3,7 @@
 
 
 void main() {
+    clip();
     vec4 textureColor = getTextureColor(v_texcoord);
     vec4 finalColor = textureColor*v_color;
 

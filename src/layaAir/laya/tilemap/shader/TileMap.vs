@@ -9,8 +9,8 @@ void main(){
     vertexInfo info;
     getVertexInfoTileMap(info);
    
-    vec4 wordpos;
-    getPosition(info,wordpos);
+    vec4 wordpos = getPosition(info.pos);
+    
     setVertexInfo(info);
 
     #ifdef LIGHT2D_ENABLE

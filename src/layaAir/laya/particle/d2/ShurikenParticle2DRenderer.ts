@@ -783,6 +783,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             BaseRenderNode2D._setRenderElement2DMaterial(element, this.sharedMaterial);
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
+            element.owner = this._struct;
             return element;
         };
 
