@@ -13,6 +13,7 @@ import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalText
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Mesh } from "../../../../d3/resource/models/Mesh";
+import { Vector2 } from "../../../../maths/Vector2";
 export enum BaseRenderType {
     BaseRender = 0,
     MeshRender = 1,
@@ -60,7 +61,7 @@ export interface IBaseRenderNode {
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
-    ismoved: number;
+    ismoved: Vector2;
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
     /**

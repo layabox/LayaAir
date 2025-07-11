@@ -262,6 +262,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
+        LayaGL.renderEngine._framePassCount++;
         return 0;
     }
 
@@ -281,6 +282,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             bufferMgr.upload();
         }
         node._render(this);
+        LayaGL.renderEngine._framePassCount++;
         return 0;
     }
 
