@@ -27,7 +27,7 @@ export function WebMeshRenderNode() {//这么封装是为了避免此时WebBaseR
                 }
                 this._applyReflection();
                 this._applyLightProb();
-                if (this.ismoved.x > this._cacheMoved.x && this.ismoved.y > this._cacheMoved.y) {
+                if (this.ismoved.x > this._cacheMoved.x || (this.ismoved.x > this._cacheMoved.x && this.ismoved.y > this._cacheMoved.y)) {
                     let trans = this.transform;
                     this.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, trans.worldMatrix);
                     this._worldParams.x = trans.getFrontFaceValue();
