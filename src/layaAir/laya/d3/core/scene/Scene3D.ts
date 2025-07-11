@@ -784,6 +784,16 @@ export class Scene3D extends Sprite {
         });
     }
 
+    protected _setStructParent(value: Sprite) {
+        if (this._maskParent) return;
+        let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
+
+        if (struct.parent) {
+            struct.parent.removeChild(struct);
+            struct.parent = null;
+        }
+    }
+
     /**
      * @internal
      */
@@ -1134,7 +1144,7 @@ export class Scene3D extends Sprite {
     }
 
     _setBelongScene(scene: Node): void {
-        
+
     }
     /**
      * @en Destroys the scene.
