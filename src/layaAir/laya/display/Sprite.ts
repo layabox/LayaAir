@@ -1369,7 +1369,7 @@ export class Sprite extends Node {
                 notifyTransChanged(this);
         }
         else if (kind & TransformKind.Size) {
-            if (this._anchorX !== 0 || this._anchorY !== 0 || this._pivotX !== 0 || this._pivotY !== 0) {
+            if (this._anchorX !== 0 || this._anchorY !== 0) {
                 this._globalTrans._spTransChanged(kind);
             }
         }
