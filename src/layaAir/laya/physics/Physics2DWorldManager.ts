@@ -623,22 +623,34 @@ export class Physics2DWorldManager implements IElementComponentManager {
         p = Physics2D.I._factory.warpPoint(p, Ebox2DType.b2Vec2);
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
-        var hsize: any = size / 2;
+        var hsize: number = size / 2;
+        
         let outColor = this._makeStyleString(color, 1)
         let point: any[] = [];
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
+        
+        point.push(this.physics2DToLaya(p.x - hsize)); 
+        point.push(this.physics2DToLaya(p.y - hsize)); 
+        point.push(this.physics2DToLaya(p.x + hsize)); 
+        point.push(this.physics2DToLaya(p.y - hsize)); 
+
+        point.push(this.physics2DToLaya(p.x + hsize)); 
+        point.push(this.physics2DToLaya(p.y - hsize)); 
+        point.push(this.physics2DToLaya(p.x + hsize)); 
+        point.push(this.physics2DToLaya(p.y + hsize)); 
+
+        point.push(this.physics2DToLaya(p.x + hsize)); 
+        point.push(this.physics2DToLaya(p.y + hsize)); 
+        point.push(this.physics2DToLaya(p.x - hsize)); 
+        point.push(this.physics2DToLaya(p.y + hsize)); 
+
+        point.push(this.physics2DToLaya(p.x - hsize)); 
+        point.push(this.physics2DToLaya(p.y + hsize)); 
+        point.push(this.physics2DToLaya(p.x - hsize)); 
+        point.push(this.physics2DToLaya(p.y - hsize)); 
+        
         this._debugDraw.addLineDebugDrawCMD(point, outColor, this._debugDraw.lineWidth);
 
-
-
-
+        // 备用的直接绘制方法（使用drawRect）
         // this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this._makeStyleString(color, 1), null);
     }
 

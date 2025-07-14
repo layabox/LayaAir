@@ -8,6 +8,7 @@ import { RigidBody } from "../RigidBody";
 import { Point } from "../../maths/Point";
 import { Utils } from "../../utils/Utils";
 import { SpriteGlobalTransform } from "../../display/SpriteGlobaTransform";
+import { TransformKind } from "../../display/SpriteConst";
 
 /**
  * @en 2DPhysics Collider base class
@@ -318,16 +319,18 @@ export class ColliderBase extends Component {
     }
 
     /**@internal 通知rigidBody 更新shape 属性值 */
-    protected _needupdataShapeAttribute(): void {
+    protected _needupdataShapeAttribute(flag?:number): void {
         //兼容模式下使用，设置类似BoxCollider的偏移方式
         if (this._rigidbody && this._rigidbody.applyOwnerColliderComponent) {
             this.createShape(this._rigidbody);
         }
-        //非dynamic类型下可以直接设置位置
-        if (this._type != "dynamic") {
-            var sp: Sprite = this.owner;
-            this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
-            this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
+        var sp: Sprite = this.owner;
+        //非dynamic类型下设置位置
+        if (this._type != "dynamic" && (flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale))) {
+            if(flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale)){
+                this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+                this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
+            }
         }
         this.owner.event("shapeChange");
     }
