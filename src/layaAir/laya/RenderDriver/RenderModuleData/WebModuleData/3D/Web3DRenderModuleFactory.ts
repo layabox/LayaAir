@@ -16,10 +16,10 @@ import { WebMeshRenderNode } from "./WebMeshRenderNode";
 import { WebCameraNodeData, WebSceneNodeData } from "./WebModuleData";
 import { WebPointLight } from "./WebPointLight";
 import { WebReflectionProbe } from "./WebReflectionProb";
-import { WebSimpleSkinRenderNode } from "./WebSimpleSkinRenderNode";
 import { WebSkinRenderNode } from "./WebSkinRenderNode";
 import { WebSpotLight } from "./WebSpotLight";
 import { WebVolumetricGI } from "./WebVolumetricGI";
+import { WebSimpleSkinRenderNode } from "./WebSimpleSkinRenderNode";
 
 export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   createSimpleSkinRenderNode(): ISimpleSkinRenderNode {

@@ -53,7 +53,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
-    _driverCacheData: any;//记录渲染底层共用的渲染数据
     ismoved: Vector2 = new Vector2();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
