@@ -2024,7 +2024,7 @@ export class Sprite extends Node {
     * @param flag 重绘类型。
     */
     repaint(flag?: number): void {
-        if (this.destroyed) return;
+        if (this._destroyed) return;
         if ((this._repaint < Stat.loopCount)) {
             this._repaint = Stat.loopCount;
             this._struct.setRepaint();

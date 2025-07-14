@@ -81,8 +81,8 @@ export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
    /** @internal */
    _lists: PassRenderList[] = [];
-
-   private _priority: number = 0;
+   /** @internal */
+   _priority: number = 0;
 
    public get priority(): number {
       return this._priority;
@@ -250,7 +250,7 @@ export class WebRender2DPass implements IRender2DPass {
       let lists = this._lists;
       // 清理zOrder相关队列
       // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-      if (this.repaint ) {
+      if (this.repaint) {
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
@@ -281,7 +281,7 @@ export class WebRender2DPass implements IRender2DPass {
             let list = lists[i];
             if (!list || !list.renderElements.length) continue;
             let structs = list.structs.elements;
-            for (let j = 0 , m = structs.length; j < m; j++) {
+            for (let j = 0, m = structs.length; j < m; j++) {
                structs[j] && structs[j].renderUpdate(context);
             }
          }
@@ -543,7 +543,7 @@ class PassRenderList {
 }
 
 export class WebRender2DPassManager implements IRender2DPassManager {
-   private _modefy: boolean = false;
+   private _modify: boolean = false;
 
    private _passes: WebRender2DPass[] = [];
 
@@ -553,12 +553,12 @@ export class WebRender2DPassManager implements IRender2DPassManager {
          return;
       }
       this._passes.splice(index, 1);
-      this._modefy = true;
+      this._modify = true;
    }
 
    apply(context: IRenderContext2D): void {
-      if (this._modefy) {
-         this._modefy = false;
+      if (this._modify) {
+         this._modify = false;
          this._sortPassesByPriority();
       }
 
@@ -579,14 +579,14 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       }
 
       this._passes.push(pass);
-      this._modefy = true;
+      this._modify = true;
    }
 
    /**
     * 按照 priority 对 Pass 进行排序
     */
    private _sortPassesByPriority(): void {
-      this._passes.sort((a, b) => b.priority - a.priority); // 按 priority 从大到小排序
+      this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
    }
 }
 
