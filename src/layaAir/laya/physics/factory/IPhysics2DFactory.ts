@@ -721,7 +721,7 @@ export interface IPhysics2DFactory {
     /** 
      * @internal
      */
-    set_CircleShape_pos(shape: any, x: number, y: number, scale: number): void;
+    set_CircleShape_pos(shape: any, x: number, y: number, scaleX: number, scaleY: number): void;
 
     /** 
      * @internal

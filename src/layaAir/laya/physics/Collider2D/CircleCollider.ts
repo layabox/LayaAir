@@ -41,7 +41,7 @@ export class CircleCollider extends StaticCollider {
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-        Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, scale);
+        Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, this.scaleX, this.scaleY);
     }
 
 }
