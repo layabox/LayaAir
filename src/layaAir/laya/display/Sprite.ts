@@ -1368,8 +1368,10 @@ export class Sprite extends Node {
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
         }
-        else if (kind & TransformKind.Size && (this._pivotX !== 0 || this._pivotY !== 0)) { // 有锚点宽高变化也需要刷新矩阵
-            this._globalTrans._spTransChanged(kind);
+        else if (kind & TransformKind.Size) {
+            if (this._anchorX !== 0 || this._anchorY !== 0) {
+                this._globalTrans._spTransChanged(kind);
+            }
         }
     }
 

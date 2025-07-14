@@ -309,14 +309,26 @@ export class Text extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
-            if (this._scrollRect != null)
-                this.scrollRect = this._scrollRect.setTo(0, 0, this._width, this._height);
+            if (this._scrollRect != null) {
+                this._updateScrollRect();
+            }
 
             if (!this._updatingLayout)
                 this.markChanged();
             else
                 this.drawBg();
         }
+    }
+
+    /**
+     * @ignore
+     */
+    private _updateScrollRect(): void {
+        let rect = this._scrollRect || new Rectangle();
+        let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+        let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+        rect.setTo(0, 0, rectWidth, rectHeight);
+        this.scrollRect = rect;
     }
 
     /**
@@ -714,8 +726,9 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            if (value !== Text.VISIBLE)
-                this.scrollRect = new Rectangle(0, 0, this.width, this.height);
+            if (value !== Text.VISIBLE) {
+                this._updateScrollRect();
+            }
             else
                 this.scrollRect = null;
         }
@@ -1720,7 +1733,10 @@ export class Text extends Sprite {
             this._objContainer.size(this._width, this._height);
 
             if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
-                this._objContainer.scrollRect = (this._objContainer.scrollRect || new Rectangle()).setTo(0, 0, this._width, this._height);
+                let rect = this._objContainer.scrollRect || new Rectangle();
+                let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+                let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+                this._objContainer.scrollRect = rect.setTo(0, 0, rectWidth, rectHeight);
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1832,6 +1848,10 @@ export class Text extends Sprite {
                 curLink.addRect(linkStartX, y, rectWidth - linkStartX + paddingLeft, line.height);
                 linkStartX = paddingLeft;
             }
+        }
+
+        if (clipped) {
+            this._updateScrollRect();
         }
     }
 

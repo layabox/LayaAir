@@ -331,7 +331,6 @@ export class Animator2D extends Component {
             }
         }
 
-        animatorState._eventStateUpdate(normalizedPlayTime);
         let ret = this._applyTransition(layerIndex, animatorState._eventtransition(normalizedPlayTime, this.parameters, isReplay));
 
         if (!ret && isReplay) {
@@ -376,11 +375,15 @@ export class Animator2D extends Component {
                         playState._normalizedPlayTime = animatorState.clipEnd;
                     }
                 }
+
+                animatorState._eventStateUpdate(playState._normalizedPlayTime);
                 return;
             } else {
                 animatorState._eventLoop();
             }
         }
+
+        animatorState._eventStateUpdate(normalizedPlayTime);
     }
 
     /**
