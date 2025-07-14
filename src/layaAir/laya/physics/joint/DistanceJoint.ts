@@ -4,6 +4,7 @@ import { RigidBody } from "../RigidBody"
 import { EPhysics2DJoint, physics2D_DistancJointDef } from "../factory/IPhysics2DFactory";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
+import { ILaya } from "../../../ILaya";
 
 /**
  * @en Distance Joint: A joint that maintains a fixed distance between two points on two bodies.
@@ -160,7 +161,7 @@ export class DistanceJoint extends JointBase {
                 this.selfBody.owner.on("bodyCreated", this, this._createJoint);
                 return;
             }
-            def.localAnchorB.setValue(point.x, point.y);
+            def.localAnchorB.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
             this.selfBody.owner.on("shapeChange", this, this._refeahJoint);
             if (this.otherBody) {
                 def.bodyA = this.otherBody.getBox2DBody();
@@ -170,7 +171,7 @@ export class DistanceJoint extends JointBase {
                     return;
                 }
                 point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
-                def.localAnchorA.setValue(point.x, point.y);
+                def.localAnchorA.setValue(point.x * ILaya.stage.clientScaleX, point.y * ILaya.stage.clientScaleY);
                 this.otherBody.owner.on("shapeChange", this, this._refeahJoint);
             } else {
                 if (!Physics2D.I._emptyBody) {
