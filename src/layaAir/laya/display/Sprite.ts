@@ -2380,7 +2380,8 @@ export class Sprite extends Node {
      */
     _setChildIndex(node: Sprite, oldIndex: number, index: number): number {
         let out = super._setChildIndex(node, oldIndex, index);
-        this._struct.updateChildIndex(node._struct, oldIndex, out);
+        if (node._struct)
+            this._struct.updateChildIndex(node._struct, oldIndex, out);
         return out;
     }
 
@@ -2427,9 +2428,10 @@ export class Sprite extends Node {
         [Event.RIGHT_MOUSE_UP]: (event: Event) => void;
         [Event.RIGHT_CLICK]: (event: Event) => void;
         [Event.DOUBLE_CLICK]: (event: Event) => void;
-        [Event.DRAG_START]: (event: Event) => void;
-        [Event.DRAG_MOVE]: (event: Event) => void;
-        [Event.DRAG_END]: (event: Event) => void;
+        [Event.DRAG_START]: (data: any) => void;
+        [Event.DRAG_MOVE]: (data: any) => void;
+        [Event.DRAG_END]: (data: any) => void;
+        [Event.DROP]: (source: Sprite, data: any) => void;
 
         [SpriteGlobalTransform.CHANGED]: (type: number) => void;
         [Event.TRANSFORM_CHANGED]: () => void;
