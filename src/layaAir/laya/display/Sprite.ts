@@ -1114,8 +1114,12 @@ export class Sprite extends Node {
             this.graphics._checkDisplay();
             this._graphics.repaint();
         } else {
-            this._graphics?._checkDisplay();
-            this.repaint();
+            if (this._graphics) {
+                this._graphics._checkDisplay();
+                this._graphics.repaint();
+            } else {
+                this.repaint();
+            }
         }
     }
 
