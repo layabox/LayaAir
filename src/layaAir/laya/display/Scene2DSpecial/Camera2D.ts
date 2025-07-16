@@ -228,6 +228,10 @@ export class Camera2D extends Sprite {
      */
     visiableLayer: number = -1;
 
+    get cameraMatrix(): Matrix3x3 {
+        return this._cameraMatrix;
+    }
+
     private _viewRect: Vector2 = new Vector2();
 
     getCameraPos() {
