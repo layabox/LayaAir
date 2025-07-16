@@ -8,6 +8,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { HideFlags } from "../Const";
 import { ScrollType } from "./Styles";
 import { TransformKind } from "../display/SpriteConst";
+import { Node } from "../display/Node";
 
 /**
  * @en Panel is a panel container class.
@@ -31,7 +32,7 @@ export class Panel extends Box {
      */
     constructor() {
         super();
-        this.width = this.height = 100;
+        this.width = this.height = 0;
         //子对象缩放的情况下，优化会有问题，先屏蔽掉
         //_content.optimizeScrollRect = true;
     }
@@ -56,6 +57,12 @@ export class Panel extends Box {
 
         this._setContainer(this._content);
     }
+
+    // addChild<T extends Node>(node: T): T {
+    //     // node.on(Event.RESIZE , this , this.onres)
+    //     this._setScrollChanged();
+    //     return this._content.addChild(node);
+    // }
 
     /** @internal */
     _panelChildChanged(child: Sprite): void {

@@ -842,7 +842,7 @@ export class Sprite extends Node {
         if (value == this || (value && this._mask == value && value._maskParent == this))
             return;
 
-        //检查 this._maskParent 是否为 mask 的子节点或者子
+        //检查 this._maskParent 是否为 mask 的子节点或者本身
         if (value) {
             let parent = this._maskParent;
             while (parent) {
@@ -1595,6 +1595,7 @@ export class Sprite extends Node {
                         destrt = process._context.destination;
                     }
                     root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                    root._subStructRender._updateVertexSize();
                     //Mask TODO
                 }
                 root._subpassUpdateFlag = 0;
@@ -2212,12 +2213,12 @@ export class Sprite extends Node {
             }
             if (b) this.repaint();
             this.parentRepaint();
-            if (this._oriRenderPass) {
-                if (b)
-                    ILaya.stage.passManager.addPass(this._oriRenderPass);
-                else
-                    ILaya.stage.passManager.removePass(this._oriRenderPass);
-            }
+            // if (this._oriRenderPass) {
+            //     if (b)
+            //         ILaya.stage.passManager.addPass(this._oriRenderPass);
+            //     else
+            //         ILaya.stage.passManager.removePass(this._oriRenderPass);
+            // }
             return true;
         }
         else
@@ -2285,10 +2286,6 @@ export class Sprite extends Node {
         this._oriRenderPass = subPass;
 
         subStruct.renderMatrix = this.globalTrans.getMatrix();
-
-        if (this.displayedInStage) {
-            ILaya.stage.passManager.addPass(subPass);
-        }
     }
 
     updateRenderTexture() {
@@ -2355,9 +2352,9 @@ export class Sprite extends Node {
 
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
-                if (!this.displayedInStage) {
-                    ILaya.stage.passManager.addPass(this._oriRenderPass);
-                }
+                ILaya.stage.passManager.addPass(this._oriRenderPass);
+            } else if (this.displayedInStage) {
+                ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
 
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
@@ -2371,9 +2368,7 @@ export class Sprite extends Node {
 
             }
 
-            if (this._maskParent && !this.displayedInStage) {
-                ILaya.stage.passManager.removePass(this._oriRenderPass);
-            }
+            ILaya.stage.passManager.removePass(this._oriRenderPass);
         }
         this._oriRenderPass.enable = enable;
     }

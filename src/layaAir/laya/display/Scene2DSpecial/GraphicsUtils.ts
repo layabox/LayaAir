@@ -275,28 +275,39 @@ export class SubStructRender {
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
-      var tex = destRT;
-      if (tex) {
-         var width = destRT.sourceWidth;
-         var height = destRT.sourceHeight;
+      if (destRT) {
+         // var width = destRT.sourceWidth;
+         // var height = destRT.sourceHeight;
          // var widthExtend = width - oriRT.sourceWidth;
          // var heightExtend = height - oriRT.sourceHeight;
-         if (width > 0 && height > 0) {
-            let _rtRect = this._sprite._rtRect;
-            let px = _rtRect.x;
-            let py = _rtRect.y;
-            // let px = 0;
-            // let py = 0;
-            let vSize = Vector4.TEMP;
-            vSize.x = px;
-            vSize.y = py;
-            vSize.z = width;
-            vSize.w = height;
-            this._internalInfo.vertexSize = vSize;
-         }
+         // if (width > 0 && height > 0) {
+         //    let _rtRect = this._sprite._rtRect;
+         //    let px = _rtRect.x;
+         //    let py = _rtRect.y;
+         //    // let px = 0;
+         //    // let py = 0;
+         //    let vSize = Vector4.TEMP;
+         //    vSize.x = px;
+         //    vSize.y = py;
+         //    vSize.z = width;
+         //    vSize.w = height;
+         //    this._internalInfo.vertexSize = vSize;
+         // }
          this._renderElement.type = destRT._id << 6;
+      } else {
+         this._renderElement.type = 0;
       }
       this._internalInfo.textureHost = destRT;
+   }
+
+   _updateVertexSize() {
+      let _rtRect = this._sprite._rtRect;
+      let vSize = Vector4.TEMP;
+      vSize.x = _rtRect.x;
+      vSize.y = _rtRect.y;
+      vSize.z = _rtRect.width;
+      vSize.w = _rtRect.height;
+      this._internalInfo.vertexSize = vSize;
    }
 
    destroy(): void {
