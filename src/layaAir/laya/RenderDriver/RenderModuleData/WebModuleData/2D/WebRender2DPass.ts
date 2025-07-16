@@ -91,7 +91,7 @@ export class WebRender2DPass implements IRender2DPass {
    public set priority(value: number) {
       this._priority = value;
       if (this.mask && this.mask.pass) {
-         this.mask.pass.priority = value + 1;
+         this.mask.pass._priority = value + 1;
       }
    }
 
@@ -248,8 +248,9 @@ export class WebRender2DPass implements IRender2DPass {
    render(context: IRenderContext2D): void {
       let lists = this._lists;
       // 清理zOrder相关队列
-      if (true) {//如果需要重画或者直接渲染离屏，走下面流程
-         // if (this.repaint) {
+      // if (true) {//如果需要重画或者直接渲染离屏，走下面流程
+      if (this.repaint) {
+
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
