@@ -436,6 +436,8 @@ export class RigidBody extends ColliderBase {
             this.owner.event("bodyCreated");
             this.isConnectedJoint = false;
         }
+        this.angularVelocity = this._angularVelocity;
+        this.linearVelocity = this._linearVelocity;
     }
 
     /**
