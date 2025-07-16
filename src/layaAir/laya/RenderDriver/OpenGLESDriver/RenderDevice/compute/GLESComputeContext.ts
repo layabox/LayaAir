@@ -480,7 +480,7 @@ export class GLESComputeContext implements IComputeContext {
 
         if (this._nativeObj) {
             this._nativeObj.release();
-            this._nativeObj = null;
+            //this._nativeObj = null;
         }
     }
 } 

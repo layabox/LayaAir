@@ -37,7 +37,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         this._nativeObj.renderManager = value._nativeObj;
     }
     destroy(): void {
-        this._nativeObj = null;
+        //this._nativeObj = null;
         this._tempList = null;
         this.renderpass.destroy();
     }

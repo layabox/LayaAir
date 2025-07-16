@@ -65,7 +65,6 @@ export class RTScene3DRenderManager implements ISceneRenderManager {
         this._list.destroy();
         this._clearBaseRenderNode();
         this._list = null;
-        this._nativeObj = null;
     }
 
     constructor() {

@@ -1146,7 +1146,6 @@ export class Scene3D extends Sprite {
         if (this._destroyed)
             return;
         super.destroy(destroyChild);
-        this._nativeObj = null;
         this._skyRenderer.destroy();
         this._skyRenderer = null;
         this._directionLights = null;
