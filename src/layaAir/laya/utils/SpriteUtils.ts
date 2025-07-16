@@ -227,11 +227,6 @@ export class SpriteUtils {
         let mask = sprite.mask;
         SpriteUtils.calculateCacheRect(mask, "bitmap", 0, 0, out);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
 
-        //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
-        //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
-        out.x += mask._x;
-        out.y += mask._y;
-
         if (out.width <= 0 || out.height <= 0)
             out.setTo(0, 0, 0, 0);
     }
@@ -244,8 +239,8 @@ export class SpriteUtils {
             tRec = sprite.getSelfBounds();
             tRec.width = tRec.width;//+ extend * 2;
             tRec.height = tRec.height;// + extend * 2;
-            tRec.x = tRec.x - sprite.pivotX;
-            tRec.y = tRec.y - sprite.pivotY;
+            // tRec.x = tRec.x - sprite.pivotX;
+            // tRec.y = tRec.y - sprite.pivotY;
             //关于xy这里有些迷惑，这里看来是表示相对于sprite原点的位置。
             //tRec.x = tRec.x ;//- extend;
             //tRec.y = tRec.y ;//- extend;

@@ -259,6 +259,8 @@ export class Sprite extends Node {
     _subStruct: IRenderStruct2D;
     /** @internal */
     _shaderData: ShaderData;
+    /** @internal */
+    _rtRect: Rectangle = new Rectangle();
 
     /** @ignore */
     constructor() {
@@ -851,6 +853,8 @@ export class Sprite extends Node {
         if (value) {
             value._setStructParent(null);
             value._maskParent = this;
+            value._transChanged(TransformKind.Pos);
+
             value.setSubRenderPassState(true);
             value.cacheAs = "bitmap";
 
@@ -1363,8 +1367,9 @@ export class Sprite extends Node {
         }
         else {
             this.parentRepaint();
-            this._maskParent?.repaint(RepaintFlag.ChildChange);
         }
+
+        this._maskParent?.repaint(RepaintFlag.ChildChange);
 
         if ((kind & TransformKind.TRS) !== 0) {
             this._globalTrans._spTransChanged(kind);
@@ -2274,25 +2279,38 @@ export class Sprite extends Node {
         }
     }
 
-    //TODO
     updateRenderTexture() {
         //计算方式调整
-        let rect = new Rectangle;
+        let rect = Rectangle.TEMP;
         SpriteUtils.getRTRect(this, rect);
-        //this.getSelfBounds();
 
         if (rect.width === 0 || rect.height === 0)
             return false;
 
         let oldRT = this._drawOriRT;
+        let maskRect = this._rtRect;
         //判断待考虑
-        if (oldRT && oldRT.width === rect.width && oldRT.height === rect.height)
-            return false;
-        oldRT && oldRT.destroy();
+        if (oldRT) {
+            if (maskRect.width === rect.width && maskRect.height === rect.height) {
+                this._updateRenderOffset(rect);
+                return false;
+            }
+            oldRT.destroy();
+        }
+
+        this._updateRenderOffset(rect);
+
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._drawOriRT = renderTexture;
         return true;
+    }
+
+    private _updateRenderOffset(rect: Rectangle) {
+        rect.cloneTo(this._rtRect);
+        let originPass = this._oriRenderPass;
+        originPass.renderOffset.x = rect.x;
+        originPass.renderOffset.y = rect.y;
     }
 
     updateSubRenderPassState() {

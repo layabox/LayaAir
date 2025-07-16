@@ -163,7 +163,6 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      // return true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -249,8 +248,8 @@ export class WebRender2DPass implements IRender2DPass {
    render(context: IRenderContext2D): void {
       let lists = this._lists;
       // 清理zOrder相关队列
-      // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-      if (this.repaint) {
+      if (true) {//如果需要重画或者直接渲染离屏，走下面流程
+         // if (this.repaint) {
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
@@ -349,15 +348,21 @@ export class WebRender2DPass implements IRender2DPass {
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
+      let offset = this.renderOffset;
       if (mask && mask.trans) {
          let maskMatrix = mask.trans.matrix;
          maskMatrix.copyTo(temp);
-         temp.invert();
       } else {
          rootTrans.matrix.copyTo(temp);
-         temp.invert();
       }
-      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
+
+      let tx = temp.tx + temp.a * offset.x + temp.c * offset.y;
+      let ty = temp.ty + temp.b * offset.x + temp.d * offset.y;
+      temp.tx = tx;
+      temp.ty = ty;
+
+      temp.invert();
+      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }
 
 

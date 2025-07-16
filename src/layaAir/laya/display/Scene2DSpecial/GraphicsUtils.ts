@@ -279,11 +279,14 @@ export class SubStructRender {
       if (tex) {
          var width = destRT.sourceWidth;
          var height = destRT.sourceHeight;
-         var widthExtend = width - oriRT.sourceWidth;
-         var heightExtend = height - oriRT.sourceHeight;
+         // var widthExtend = width - oriRT.sourceWidth;
+         // var heightExtend = height - oriRT.sourceHeight;
          if (width > 0 && height > 0) {
-            let px = -widthExtend / 2;
-            let py = -heightExtend / 2;
+            let _rtRect = this._sprite._rtRect;
+            let px = _rtRect.x;
+            let py = _rtRect.y;
+            // let px = 0;
+            // let py = 0;
             let vSize = Vector4.TEMP;
             vSize.x = px;
             vSize.y = py;
