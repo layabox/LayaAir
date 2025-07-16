@@ -842,6 +842,18 @@ export class Sprite extends Node {
         if (value == this || (value && this._mask == value && value._maskParent == this))
             return;
 
+        //检查 this._maskParent 是否为 mask 的子节点或者子
+        if (value) {
+            let parent = this._maskParent;
+            while (parent) {
+                if (parent == value) {
+                    console.warn("Mask cannot be nested");
+                    return;
+                }
+                parent = parent._parent;
+            }
+        }
+
         if (this._mask) {
             this._mask.cacheAs = "none";
             this._mask._maskParent = null;
