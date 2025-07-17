@@ -316,7 +316,7 @@ export class SubStructRender {
    }
 
    _updateVertexSize() {
-      let _rtRect = this._sprite._rtRect;
+      let _rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
       vSize.x = _rtRect.x;
       vSize.y = _rtRect.y;
