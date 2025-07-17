@@ -1,6 +1,8 @@
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { Material } from "../../../../resource/Material";
 import { Pool } from "../../../../utils/Pool";
+import { Stat } from "../../../../utils/Stat";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../BaseRender";
 import { Command } from "./Command";
@@ -111,6 +113,7 @@ export class DrawRenderCMD extends Command {
      */
     run(): void {
         if (this.render) {
+            this.render._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
             this.render.renderUpdate(this._context);
             this._prematerial = this.render.sharedMaterials[this.subMeshIndex];
         }

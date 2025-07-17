@@ -1,4 +1,5 @@
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
+import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Vector2 } from "../../../../maths/Vector2";
 import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IMeshRenderNode } from "../../Design/3D/I3DRenderModuleData";
@@ -7,7 +8,7 @@ var CLS: any = null;
 export function WebMeshRenderNode() {//这么封装是为了避免此时WebBaseRenderNode.BaseRenderNodeClass还没有赋值
     if (!CLS)
         CLS = class extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
-            private _cacheMoved: Vector2 = new Vector2();
+            private _cacheMoved: Vector2 = new Vector2(-1, -1);
 
             constructor() {
                 super();
