@@ -4,6 +4,8 @@ import type { GWidget } from "./GWidget";
 import type { GTree } from "./GTree";
 import type { TreeSelection } from "./selection/TreeSelection";
 import { GButton } from "./GButton";
+import { Mutable } from "../../ILaya";
+import { HideFlags } from "../Const";
 
 /**
  * @en Represents a node in a tree structure.
@@ -155,7 +157,7 @@ export class GTreeNode {
 
     set cell(value: GWidget) {
         if (this._cell) {
-            this._cell._treeNode = null;
+            (this._cell as Mutable<GWidget>).treeNode = null;
             this._indentObj = null;
             this._leafController = null;
 
@@ -173,7 +175,7 @@ export class GTreeNode {
         this._cellFromPool = false;
 
         if (this._cell) {
-            this._cell._treeNode = this;
+            (this._cell as Mutable<GWidget>).treeNode = this;
 
             this._indentObj = this._cell.findChild("indent");
             if (this._tree && this._indentObj)
@@ -210,6 +212,7 @@ export class GTreeNode {
         let child = (this._tree || tree).itemPool.take(this._resURL ? this._resURL : "");
         if (!child)
             throw new Error("cannot create tree node object.");
+        child.hideFlags |= HideFlags.HideAndDontSave;
         if (child instanceof GButton)
             child.selected = false;
 

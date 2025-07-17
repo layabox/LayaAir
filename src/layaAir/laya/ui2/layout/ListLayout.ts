@@ -64,7 +64,7 @@ export class ListLayout extends Layout {
                     this._items[i].selected = false;
             }
 
-            if (this._changed != 0)
+            if (this._changed !== 0)
                 ILaya.timer.clearCallLater(this, this._refreshVirtualList);
 
             //立即刷新
@@ -98,7 +98,7 @@ export class ListLayout extends Layout {
     set itemSize(value: Point) {
         this._itemSize.setTo(value.x, value.y);
         if (this._virtual) {
-            if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX)
+            if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX)
                 this._owner.scroller.step = this._itemSize.y;
             else
                 this._owner.scroller.step = this._itemSize.x;
@@ -118,7 +118,7 @@ export class ListLayout extends Layout {
         this._itemSizes = [];
         this._owner.removeChildrenToPool();
 
-        if (this._itemSize.x == 0 && this._itemSize.y == 0) {
+        if (this._itemSize.x === 0 && this._itemSize.y === 0) {
             let obj = this._owner.getFromPool();
             if (obj == null) {
                 throw new Error("Virtual List must have a default list item resource.");
@@ -130,15 +130,17 @@ export class ListLayout extends Layout {
             this._owner.returnToPool(obj);
         }
 
-        if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+        this._owner.itemPool.clear(); //清空对象池，防止runtime对不上
+
+        if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
             this._owner.scroller.step = this._itemSize.y;
             if (this._loop)
-                (<any>this._owner.scroller)._loop = 2;
+                this._owner.scroller._loop = 2;
         }
         else {
             this._owner.scroller.step = this._itemSize.x;
             if (this._loop)
-                (<any>this._owner.scroller)._loop = 1;
+                this._owner.scroller._loop = 1;
         }
 
         this._owner.on(UIEvent.Scroll, this, this._scrolled);
@@ -195,7 +197,7 @@ export class ListLayout extends Layout {
     private shouldSnapToNext(dir: number, delta: number, size: number): boolean {
         return dir < 0 && delta > UIConfig2.defaultScrollSnappingThreshold * size
             || dir > 0 && delta > (1 - UIConfig2.defaultScrollSnappingThreshold) * size
-            || dir == 0 && delta > size / 2;
+            || dir === 0 && delta > size / 2;
     }
 
     getSnappingPosition(xValue: number, yValue: number, xDir: number, yDir: number, resultPoint?: Point): Point {
@@ -235,7 +237,7 @@ export class ListLayout extends Layout {
     }
 
     getRectByItemIndex(index: number): Rectangle {
-        if (!this._virtual || this._numItems == 0)
+        if (!this._virtual || this._numItems === 0)
             return new Rectangle();
 
         this._checkVirtualList();
@@ -249,7 +251,7 @@ export class ListLayout extends Layout {
         let rect: Rectangle;
         let ii = this._items[index];
         let pos = 0;
-        if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+        if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
             for (let i = this._lineItemCnt - 1; i < index; i += this._lineItemCnt)
                 pos += this._items[i].height + this._rowGap;
             rect = new Rectangle(0, pos, this._itemSize.x, ii.height);
@@ -279,14 +281,14 @@ export class ListLayout extends Layout {
 
     /** @internal */
     _checkVirtualList(): void {
-        if (this._changed != 0) {
+        if (this._changed !== 0) {
             this._refreshVirtualList();
             ILaya.timer.clearCallLater(this, this._refreshVirtualList);
         }
     }
 
     refreshVirtualList(): void {
-        if (this._changed == 0)
+        if (this._changed === 0)
             this._changed = 1;
 
         ILaya.timer.callLater(this, this._refreshVirtualList);
@@ -310,7 +312,7 @@ export class ListLayout extends Layout {
         if (this._owner.destroyed)
             return;
 
-        let layoutChanged: boolean = this._changed == 2;
+        let layoutChanged: boolean = this._changed === 2;
         this._changed = 0;
         this._eventLocked = true;
 
@@ -321,27 +323,27 @@ export class ListLayout extends Layout {
             this._lineItemCnt = 1;
             this._lineItemCnt2 = 1;
 
-            if (this._type == LayoutType.FlowX) {
+            if (this._type === LayoutType.FlowX) {
                 this._lineItemCnt = this.getColumns();
                 if (this._pageMode)
                     this._lineItemCnt2 = this.getRows();
             }
-            else if (this._type == LayoutType.FlowY) {
+            else if (this._type === LayoutType.FlowY) {
                 this._lineItemCnt = this.getRows();
                 if (this._pageMode)
                     this._lineItemCnt2 = this.getColumns();
             }
 
             this._itemSizes.length = 0;
-            if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
-                if (this._stretchX == StretchMode.Stretch) {
+            if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
+                if (this._stretchX === StretchMode.Stretch) {
                     for (let i = 0; i < this._lineItemCnt; i++)
                         this._itemSizes[i] = this._itemSize.x;
                     this.handleStrecth(vw, this._lineItemCnt, this._columnGap, this.stretchParamsX, this._itemSizes);
                 }
             }
             else {
-                if (this._stretchY == StretchMode.Stretch) {
+                if (this._stretchY === StretchMode.Stretch) {
                     for (let i = 0; i < this._lineItemCnt; i++)
                         this._itemSizes[i] = this._itemSize.y;
                     this.handleStrecth(vh, this._lineItemCnt, this._rowGap, this.stretchParamsY, this._itemSizes);
@@ -356,7 +358,7 @@ export class ListLayout extends Layout {
 
             if (this._pageMode) {
                 let pageCount = Math.ceil(len / (this._lineItemCnt * this._lineItemCnt2));
-                if (this._type == LayoutType.SingleRow || this._type == LayoutType.FlowX) {
+                if (this._type === LayoutType.SingleRow || this._type === LayoutType.FlowX) {
                     cw = pageCount * vw;
                     ch = vh;
                 }
@@ -365,13 +367,13 @@ export class ListLayout extends Layout {
                     ch = pageCount * vh;
                 }
             }
-            else if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+            else if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
                 for (let i = 0; i < len; i += this._lineItemCnt)
                     ch += this._items[i].height + this._rowGap;
                 if (ch > 0)
                     ch -= this._rowGap;
 
-                if (this._stretchX == StretchMode.Stretch)
+                if (this._stretchX === StretchMode.Stretch)
                     cw = vw;
                 else {
                     for (let i = 0; i < len2; i++)
@@ -386,7 +388,7 @@ export class ListLayout extends Layout {
                 if (cw > 0)
                     cw -= this._columnGap;
 
-                if (this._stretchY == StretchMode.Stretch)
+                if (this._stretchY === StretchMode.Stretch)
                     ch = vh;
                 else {
                     for (let i = 0; i < len2; i++)
@@ -400,18 +402,18 @@ export class ListLayout extends Layout {
             this._offsetY = 0;
 
             if (cw < vw) {
-                if (this._align == 1)
+                if (this._align === 1)
                     this._offsetX = (vw - cw) / 2;
-                else if (this._align == 2)
+                else if (this._align === 2)
                     this._offsetX = vw - cw;
                 if (!this._owner.scroller)
                     this._offsetX += this._padding[3];
             }
 
             if (ch < vh) {
-                if (this._valign == 1)
+                if (this._valign === 1)
                     this._offsetY = (vh - ch) / 2;
-                else if (this._valign == 2)
+                else if (this._valign === 2)
                     this._offsetY = vh - ch;
                 if (!this._owner.scroller)
                     this._offsetY += this._padding[0];
@@ -436,7 +438,7 @@ export class ListLayout extends Layout {
         }
 
         if (this._owner.numChildren > 0 && !forceUpdate) {
-            let pos2 = (<GWidget>this._owner.getChildAt(0)).y;
+            let pos2 = (<GWidget>this._owner.getChildAt(0)).top;
             if (pos2 > s_n) {
                 for (let i = this._firstIndex - this._lineItemCnt; i >= 0; i -= this._lineItemCnt) {
                     pos2 -= (this._items[i].height + this._rowGap);
@@ -486,7 +488,7 @@ export class ListLayout extends Layout {
         }
 
         if (this._owner.numChildren > 0 && !forceUpdate) {
-            let pos2 = (<GWidget>this._owner.getChildAt(0)).x;
+            let pos2 = (<GWidget>this._owner.getChildAt(0)).left;
             if (pos2 > s_n) {
                 for (let i = this._firstIndex - this._lineItemCnt; i >= 0; i -= this._lineItemCnt) {
                     pos2 -= (this._items[i].width + this._columnGap);
@@ -580,12 +582,12 @@ export class ListLayout extends Layout {
             return;
 
         if (this._pageMode) {
-            if (this._type == LayoutType.SingleRow || this._type == LayoutType.FlowX)
+            if (this._type === LayoutType.SingleRow || this._type === LayoutType.FlowX)
                 this.handleScroll3(forceUpdate);
             else
                 this.handleScroll4(forceUpdate);
         }
-        else if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+        else if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
             let enterCounter: number = 0;
             while (this.handleScroll1(forceUpdate)) {
                 enterCounter++;
@@ -615,13 +617,13 @@ export class ListLayout extends Layout {
         let scroller = this._owner.scroller;
         let pos: number = scroller.scrollingPosY;
         let max: number = pos + scroller.viewHeight;
-        let end: boolean = max == scroller.contentHeight;//这个标志表示当前需要滚动到最末，无论内容变化大小
+        let end: boolean = max === scroller.contentHeight;//这个标志表示当前需要滚动到最末，无论内容变化大小
 
         //寻找当前位置的第一条项目
         s_n = pos;
         let newFirstIndex: number = this.getIndexOnPos1(forceUpdate);
         pos = s_n;
-        if (newFirstIndex == this._firstIndex && !forceUpdate)
+        if (newFirstIndex === this._firstIndex && !forceUpdate)
             return false;
 
         let oldFirstIndex: number = this._firstIndex;
@@ -663,12 +665,12 @@ export class ListLayout extends Layout {
                 if (forward) {
                     for (let j = reuseIndex; j >= oldFirstIndex; j--) {
                         let ii2 = this._items[j];
-                        if (ii2.obj && ii2.flag != this._itemInfoVer && ii2.obj.url == url) {
+                        if (ii2.obj && ii2.flag !== this._itemInfoVer && ii2.obj.url == url) {
                             if (ii2.obj instanceof GButton)
                                 ii2.selected = ii2.obj.selected;
                             ii.obj = ii2.obj;
                             ii2.obj = null;
-                            if (j == reuseIndex)
+                            if (j === reuseIndex)
                                 reuseIndex--;
                             break;
                         }
@@ -677,12 +679,12 @@ export class ListLayout extends Layout {
                 else {
                     for (let j = reuseIndex; j <= lastIndex; j++) {
                         let ii2 = this._items[j];
-                        if (ii2.obj && ii2.flag != this._itemInfoVer && ii2.obj.url == url) {
+                        if (ii2.obj && ii2.flag !== this._itemInfoVer && ii2.obj.url == url) {
                             if (ii2.obj instanceof GButton)
                                 ii2.selected = ii2.obj.selected;
                             ii.obj = ii2.obj;
                             ii2.obj = null;
-                            if (j == reuseIndex)
+                            if (j === reuseIndex)
                                 reuseIndex++;
                             break;
                         }
@@ -709,15 +711,15 @@ export class ListLayout extends Layout {
 
             if (needRender) {
                 let k = curIndex % this._lineItemCnt;
-                if (this._stretchX == StretchMode.Stretch)
+                if (this._stretchX === StretchMode.Stretch)
                     ii.obj.size(this._itemSizes[k], ii.obj.height);
 
                 this._owner.itemRenderer(curIndex % this._numItems, ii.obj);
                 Layout.refreshAllLayouts(this._owner);
 
-                if (k == 0) {
+                if (k === 0) {
                     deltaSize += Math.ceil(ii.obj.height) - ii.height;
-                    if (curIndex == newFirstIndex && oldFirstIndex > newFirstIndex) {
+                    if (curIndex === newFirstIndex && oldFirstIndex > newFirstIndex) {
                         //当内容向下滚动时，如果新出现的项目大小发生变化，需要做一个位置补偿，才不会导致滚动跳动
                         firstItemDeltaSize = Math.ceil(ii.obj.height) - ii.height;
                     }
@@ -727,13 +729,13 @@ export class ListLayout extends Layout {
             }
 
             ii.flag = this._itemInfoVer;
-            ii.obj.pos(this._offsetX + curX, curY);
-            if (curIndex == newFirstIndex) //要显示多一条才不会穿帮
+            ii.obj.setLeftTop(this._offsetX + curX, curY);
+            if (curIndex === newFirstIndex) //要显示多一条才不会穿帮
                 max += ii.height;
 
             curX += ii.width + this._columnGap;
 
-            if (curIndex % this._lineItemCnt == this._lineItemCnt - 1) {
+            if (curIndex % this._lineItemCnt === this._lineItemCnt - 1) {
                 curX = 0;
                 curY += ii.height + this._rowGap;
             }
@@ -742,7 +744,7 @@ export class ListLayout extends Layout {
 
         for (let i = 0; i < childCount; i++) {
             let ii = this._items[oldFirstIndex + i];
-            if (ii.flag != this._itemInfoVer && ii.obj) {
+            if (ii.flag !== this._itemInfoVer && ii.obj) {
                 if (ii.obj instanceof GButton)
                     ii.selected = ii.obj.selected;
                 this._owner.removeChildToPool(ii.obj);
@@ -763,14 +765,14 @@ export class ListLayout extends Layout {
 
         let deltaWidth = 0;
         let checkOverflow: number;
-        if (this._type == LayoutType.SingleColumn && (checkOverflow = scroller._shouldCheckOverflow()) != 0) {
+        if (this._type === LayoutType.SingleColumn && (checkOverflow = scroller._shouldCheckOverflow()) !== 0) {
             let resize: boolean;
-            if ((checkOverflow & 2) != 0) {
+            if ((checkOverflow & 2) !== 0) {
                 deltaWidth = maxWidth - scroller.contentWidth;
                 resize = Math.abs(deltaWidth) >= 1;
             }
 
-            if ((checkOverflow & 1) != 0 && scroller.contentHeight < scroller.viewHeight && maxWidth <= scroller.viewWidth) {
+            if ((checkOverflow & 1) !== 0 && scroller.contentHeight < scroller.viewHeight && maxWidth <= scroller.viewWidth) {
                 maxWidth = scroller.viewWidth + scroller.vScrollBar.width;
                 resize = true;
             }
@@ -783,10 +785,10 @@ export class ListLayout extends Layout {
             }
         }
 
-        if (deltaWidth != 0 || deltaSize != 0 || firstItemDeltaSize != 0)
+        if (deltaWidth !== 0 || deltaSize !== 0 || firstItemDeltaSize !== 0)
             scroller._changeContentSizeOnScrolling(deltaWidth, deltaSize, 0, firstItemDeltaSize);
 
-        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).y <= 0 && (<GWidget>this._owner.getChildAt(0)).y > -(<Sprite>this._owner._$container).y)//最后一页没填满！
+        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).y <= 0 && (<GWidget>this._owner.getChildAt(0)).top > -(<Sprite>this._owner._$container).y)//最后一页没填满！
             return true;
         else
             return false;
@@ -795,13 +797,13 @@ export class ListLayout extends Layout {
     private handleScroll2(forceUpdate: boolean): boolean {
         let pos: number = this._owner.scroller.scrollingPosX;
         let max: number = pos + this._owner.scroller.viewWidth;
-        let end: boolean = max == this._owner.scroller.contentWidth;//这个标志表示当前需要滚动到最末，无论内容变化大小
+        let end: boolean = max === this._owner.scroller.contentWidth;//这个标志表示当前需要滚动到最末，无论内容变化大小
 
         //寻找当前位置的第一条项目
         s_n = pos;
         let newFirstIndex: number = this.getIndexOnPos2(forceUpdate);
         pos = s_n;
-        if (newFirstIndex == this._firstIndex && !forceUpdate)
+        if (newFirstIndex === this._firstIndex && !forceUpdate)
             return false;
 
         let oldFirstIndex: number = this._firstIndex;
@@ -842,12 +844,12 @@ export class ListLayout extends Layout {
                 if (forward) {
                     for (let j = reuseIndex; j >= oldFirstIndex; j--) {
                         let ii2 = this._items[j];
-                        if (ii2.obj && ii2.flag != this._itemInfoVer && ii2.obj.url == url) {
+                        if (ii2.obj && ii2.flag !== this._itemInfoVer && ii2.obj.url == url) {
                             if (ii2.obj instanceof GButton)
                                 ii2.selected = ii2.obj.selected;
                             ii.obj = ii2.obj;
                             ii2.obj = null;
-                            if (j == reuseIndex)
+                            if (j === reuseIndex)
                                 reuseIndex--;
                             break;
                         }
@@ -856,12 +858,12 @@ export class ListLayout extends Layout {
                 else {
                     for (let j = reuseIndex; j <= lastIndex; j++) {
                         let ii2 = this._items[j];
-                        if (ii2.obj && ii2.flag != this._itemInfoVer && ii2.obj.url == url) {
+                        if (ii2.obj && ii2.flag !== this._itemInfoVer && ii2.obj.url == url) {
                             if (ii2.obj instanceof GButton)
                                 ii2.selected = ii2.obj.selected;
                             ii.obj = ii2.obj;
                             ii2.obj = null;
-                            if (j == reuseIndex)
+                            if (j === reuseIndex)
                                 reuseIndex++;
                             break;
                         }
@@ -888,7 +890,7 @@ export class ListLayout extends Layout {
 
             if (needRender) {
                 let k = curIndex % this._lineItemCnt;
-                if (this._stretchY == StretchMode.Stretch)
+                if (this._stretchY === StretchMode.Stretch)
                     ii.obj.size(ii.obj.width, this._itemSizes[k]);
 
                 this._owner.itemRenderer(curIndex % this._numItems, ii.obj);
@@ -896,7 +898,7 @@ export class ListLayout extends Layout {
 
                 if (k == 0) {
                     deltaSize += Math.ceil(ii.obj.width) - ii.width;
-                    if (curIndex == newFirstIndex && oldFirstIndex > newFirstIndex) {
+                    if (curIndex === newFirstIndex && oldFirstIndex > newFirstIndex) {
                         //当内容向下滚动时，如果新出现的一个项目大小发生变化，需要做一个位置补偿，才不会导致滚动跳动
                         firstItemDeltaSize = Math.ceil(ii.obj.width) - ii.width;
                     }
@@ -906,13 +908,13 @@ export class ListLayout extends Layout {
             }
 
             ii.flag = this._itemInfoVer;
-            ii.obj.pos(curX, this._offsetY + curY);
-            if (curIndex == newFirstIndex) //要显示多一条才不会穿帮
+            ii.obj.setLeftTop(curX, this._offsetY + curY);
+            if (curIndex === newFirstIndex) //要显示多一条才不会穿帮
                 max += ii.width;
 
             curY += ii.height + this._rowGap;
 
-            if (curIndex % this._lineItemCnt == this._lineItemCnt - 1) {
+            if (curIndex % this._lineItemCnt === this._lineItemCnt - 1) {
                 curY = 0;
                 curX += ii.width + this._columnGap;
             }
@@ -921,7 +923,7 @@ export class ListLayout extends Layout {
 
         for (let i = 0; i < childCount; i++) {
             let ii = this._items[oldFirstIndex + i];
-            if (ii.flag != this._itemInfoVer && ii.obj) {
+            if (ii.flag !== this._itemInfoVer && ii.obj) {
                 if (ii.obj instanceof GButton)
                     ii.selected = ii.obj.selected;
                 this._owner.removeChildToPool(ii.obj);
@@ -936,10 +938,10 @@ export class ListLayout extends Layout {
                 this._owner.setChildIndex(obj, i);
         }
 
-        if (deltaSize != 0 || firstItemDeltaSize != 0)
+        if (deltaSize !== 0 || firstItemDeltaSize !== 0)
             this._owner.scroller._changeContentSizeOnScrolling(deltaSize, 0, firstItemDeltaSize, 0);
 
-        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).x <= 0 && (<GWidget>this._owner.getChildAt(0)).x > - (<Sprite>this._owner._$container).x)//最后一页没填满！
+        if (curIndex > 0 && this._owner.numChildren > 0 && (<Sprite>this._owner._$container).x <= 0 && (<GWidget>this._owner.getChildAt(0)).left > - (<Sprite>this._owner._$container).x)//最后一页没填满！
             return true;
         else
             return false;
@@ -952,7 +954,7 @@ export class ListLayout extends Layout {
         s_n = pos;
         let newFirstIndex: number = this.getIndexOnPos3(forceUpdate);
         pos = s_n;
-        if (newFirstIndex == this._firstIndex && !forceUpdate)
+        if (newFirstIndex === this._firstIndex && !forceUpdate)
             return;
 
         let oldFirstIndex: number = this._firstIndex;
@@ -972,10 +974,10 @@ export class ListLayout extends Layout {
         let needRender: boolean;
 
         let partWidth: number, partHeight: number;
-        if (this._stretchX == StretchMode.Stretch || this._stretchY == StretchMode.Stretch) {
-            if (this._lineItemCnt == this._columns)
+        if (this._stretchX === StretchMode.Stretch || this._stretchY === StretchMode.Stretch) {
+            if (this._lineItemCnt === this._columns)
                 partWidth = (vw - this._columnGap * (this._lineItemCnt - 1)) / this._lineItemCnt;
-            if (this._lineItemCnt2 == this._rows)
+            if (this._lineItemCnt2 === this._rows)
                 partHeight = (vh - this._rowGap * (this._lineItemCnt2 - 1)) / this._lineItemCnt2;
         }
 
@@ -1009,14 +1011,14 @@ export class ListLayout extends Layout {
                 continue;
 
             let ii = this._items[i];
-            if (ii.flag != this._itemInfoVer)
+            if (ii.flag !== this._itemInfoVer)
                 continue;
 
             if (ii.obj == null) {
                 //寻找看有没有可重用的
                 while (reuseIndex < virtualItemCount) {
                     let ii2 = this._items[reuseIndex];
-                    if (ii2.obj && ii2.flag != this._itemInfoVer) {
+                    if (ii2.obj && ii2.flag !== this._itemInfoVer) {
                         if (ii2.obj instanceof GButton)
                             ii2.selected = ii2.obj.selected;
                         ii.obj = ii2.obj;
@@ -1026,7 +1028,7 @@ export class ListLayout extends Layout {
                     reuseIndex++;
                 }
 
-                if (insertIndex == -1)
+                if (insertIndex === -1)
                     insertIndex = this._owner.getChildIndex(lastObj) + 1;
 
                 if (ii.obj == null) {
@@ -1077,12 +1079,12 @@ export class ListLayout extends Layout {
                 continue;
 
             let ii = this._items[i];
-            if (ii.flag == this._itemInfoVer)
-                ii.obj.pos(xx, yy);
+            if (ii.flag === this._itemInfoVer)
+                ii.obj.setLeftTop(xx, yy);
 
             if (ii.height > lineHeight)
                 lineHeight = ii.height;
-            if (i % this._lineItemCnt == this._lineItemCnt - 1) {
+            if (i % this._lineItemCnt === this._lineItemCnt - 1) {
                 xx = borderX;
                 yy += lineHeight + this._rowGap;
                 lineHeight = 0;
@@ -1100,7 +1102,7 @@ export class ListLayout extends Layout {
         //释放未使用的
         for (let i = reuseIndex; i < virtualItemCount; i++) {
             let ii = this._items[i];
-            if (ii.flag != this._itemInfoVer && ii.obj) {
+            if (ii.flag !== this._itemInfoVer && ii.obj) {
                 if (ii.obj instanceof GButton)
                     ii.selected = ii.obj.selected;
                 this._owner.removeChildToPool(ii.obj);
@@ -1116,7 +1118,7 @@ export class ListLayout extends Layout {
         s_n = pos;
         let newFirstIndex: number = this.getIndexOnPos4(forceUpdate);
         pos = s_n;
-        if (newFirstIndex == this._firstIndex && !forceUpdate)
+        if (newFirstIndex === this._firstIndex && !forceUpdate)
             return;
 
         let oldFirstIndex: number = this._firstIndex;
@@ -1136,10 +1138,10 @@ export class ListLayout extends Layout {
         let needRender: boolean;
 
         let partWidth: number, partHeight: number;
-        if (this._stretchX == StretchMode.Stretch || this._stretchY == StretchMode.Stretch) {
-            if (this._lineItemCnt2 == this._columns)
+        if (this._stretchX === StretchMode.Stretch || this._stretchY === StretchMode.Stretch) {
+            if (this._lineItemCnt2 === this._columns)
                 partWidth = (vw - this._columnGap * (this._lineItemCnt2 - 1)) / this._lineItemCnt2;
-            if (this._lineItemCnt == this._rows)
+            if (this._lineItemCnt === this._rows)
                 partHeight = (vh - this._rowGap * (this._lineItemCnt - 1)) / this._lineItemCnt;
         }
 
@@ -1174,14 +1176,14 @@ export class ListLayout extends Layout {
                 continue;
 
             let ii = this._items[i];
-            if (ii.flag != this._itemInfoVer)
+            if (ii.flag !== this._itemInfoVer)
                 continue;
 
             if (ii.obj == null) {
                 //寻找看有没有可重用的
                 while (reuseIndex < virtualItemCount) {
                     let ii2 = this._items[reuseIndex];
-                    if (ii2.obj && ii2.flag != this._itemInfoVer) {
+                    if (ii2.obj && ii2.flag !== this._itemInfoVer) {
                         if (ii2.obj instanceof GButton)
                             ii2.selected = ii2.obj.selected;
                         ii.obj = ii2.obj;
@@ -1191,7 +1193,7 @@ export class ListLayout extends Layout {
                     reuseIndex++;
                 }
 
-                if (insertIndex == -1)
+                if (insertIndex === -1)
                     insertIndex = this._owner.getChildIndex(lastObj) + 1;
 
                 if (ii.obj == null) {
@@ -1242,12 +1244,12 @@ export class ListLayout extends Layout {
                 continue;
 
             let ii = this._items[i];
-            if (ii.flag == this._itemInfoVer)
-                ii.obj.pos(xx, yy);
+            if (ii.flag === this._itemInfoVer)
+                ii.obj.setLeftTop(xx, yy);
 
             if (ii.width > lineWidth)
                 lineWidth = ii.width;
-            if (i % this._lineItemCnt == this._lineItemCnt - 1) {
+            if (i % this._lineItemCnt === this._lineItemCnt - 1) {
                 xx += lineWidth + this._columnGap;
                 yy = borderY;
                 lineWidth = 0;
@@ -1265,7 +1267,7 @@ export class ListLayout extends Layout {
         //释放未使用的
         for (let i = reuseIndex; i < virtualItemCount; i++) {
             let ii = this._items[i];
-            if (ii.flag != this._itemInfoVer && ii.obj) {
+            if (ii.flag !== this._itemInfoVer && ii.obj) {
                 if (ii.obj instanceof GButton)
                     ii.selected = ii.obj.selected;
                 this._owner.removeChildToPool(ii.obj);

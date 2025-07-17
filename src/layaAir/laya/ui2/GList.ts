@@ -31,9 +31,6 @@ export class GList extends GPanel {
     declare protected _layout: IListLayout;
 
     private _pool: WidgetPool;
-    private _initItemNum: number;
-    private _itemData: Array<IListItemData>;
-    private _isDemo: boolean;
 
     /** @internal */
     _templateNode: GWidget;
@@ -247,11 +244,11 @@ export class GList extends GPanel {
         this._layout._setVirtual(loop);
     }
 
-    /** @ignore */
+    /** @ignore @blueprintIgnore */
     onAfterDeserialize(): void {
         super.onAfterDeserialize();
 
-        if (SerializeUtil.hasProp("_initItemNum", "_itemData") && (LayaEnv.isPreview || !this._isDemo))
+        if (SerializeUtil.hasProp("_initItemNum", "_itemData") && (LayaEnv.isPreview || !SerializeUtil._data._isDemo))
             this._buildInitItems();
     }
 
@@ -266,14 +263,15 @@ export class GList extends GPanel {
         if (this.itemTemplate == null)
             return;
 
-        let itemData = this._itemData;
-        for (let i = 0; i < this._initItemNum; i++) {
-            let m: IListItemData = (itemData && i < itemData.length) ? itemData[i] : null;
+        let itemData: Array<IListItemData> = (this as any)._itemData;
+        for (let i = 0; i < (this as any)._initItemNum; i++) {
+            let m = (itemData && i < itemData.length) ? itemData[i] : null;
             if (m != null) {
                 let child = <GWidget>(m.res ? m.res.create() : this.getFromPool());
                 child.hideFlags |= HideFlags.HideAndDontSave;
                 child.text = m.title;
-                child.icon = m.icon;
+                if (m.icon)
+                    child.icon = m.icon;
                 if (child instanceof GButton) {
                     if (m.selectedTitle)
                         child.selectedTitle = m.selectedTitle;
