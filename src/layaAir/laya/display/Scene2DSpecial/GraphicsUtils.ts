@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -234,6 +235,8 @@ export class SubStructRender {
    private _handle: I2DPrimitiveDataHandle = null;
    private _submit: SubmitBase = null;
    private _internalInfo: GraphicsShaderInfo = null;
+   /** @internal 渲染区域 */
+   _rtRect: Rectangle = new Rectangle();
 
    constructor() {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
@@ -266,6 +269,18 @@ export class SubStructRender {
       this._renderElement.owner = this._subStruct;
       this._renderElement.type = this._subStruct.blendMode;
    }
+
+   /**
+    * @internal
+    * @param rect 
+    */
+   _updateRenderOffset(rect: Rectangle) {
+      rect.cloneTo(this._rtRect);
+      let originPass = this._subRenderPass;
+      originPass.renderOffset.x = rect.x;
+      originPass.renderOffset.y = rect.y;
+   }
+
 
    updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
       this._handle.mask = this._sprite.mask?._struct;
