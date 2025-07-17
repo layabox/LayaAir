@@ -1531,12 +1531,12 @@ export class Sprite extends Node {
      * @param clearColor 可选。如果提供，则在绘制前清除纹理为该颜色。默认为 null。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false, clearColor: Color = null): RenderTexture2D {
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color): RenderTexture2D {
         let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY, clearColor);
         return res;
     }
+
     /**
-     * @ignore
      * @en Draws the specified Sprite to a RenderTexture2D object.
      * @param sprite The Sprite to draw.
      * @param canvasWidth The width of the canvas.
@@ -1560,7 +1560,9 @@ export class Sprite extends Node {
      * @param clearColor 可选。如果为 true，则清除颜色。默认为 null。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, isDrawRenderRect: boolean = true, flipY: boolean = false, clearColor: Color = null): RenderTexture2D {
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color): RenderTexture2D {
+        if (isDrawRenderRect == null)
+            isDrawRenderRect = true;
 
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         renderout._invertY = flipY;
@@ -1869,12 +1871,12 @@ export class Sprite extends Node {
      * @en Converts the local coordinates to the global coordinates relative to the stage.
      * @param point The local coordinate point.
      * @param createNewPoint (Optional) Whether to create a new Point object as the return value. The default is false, which uses the input point object as the return value to reduce object creation overhead.
-     * @param globalNode The global node, default is Laya.stage 
+     * @param globalNode The global node, default is Laya.stage.
      * @return The converted global coordinate point.
      * @zh 把本地坐标转换为相对stage的全局坐标。
      * @param point 本地坐标点。
      * @param createNewPoint （可选）是否创建一个新的Point对象作为返回值，默认为false，使用输入的point对象返回，减少对象创建开销。
-     * @param globalNode global节点，默认为Laya.stage 
+     * @param globalNode global节点，默认为Laya.stage。
      * @return 转换后的坐标的点。
      */
     localToGlobal(point: Point, createNewPoint?: boolean, globalNode?: Sprite): Point {
@@ -2132,8 +2134,11 @@ export class Sprite extends Node {
      */
     startDrag(area?: Rectangle, hasInertia?: boolean, elasticDistance?: number, elasticBackTime?: number, data?: any, ratio?: number): void {
         let d = this.dragSupport;
-        area != null && d.area.copyFrom(area);
-        hasInertia != null && (d.hasInertia = hasInertia);
+        if (area != null)
+            d.area.copyFrom(area);
+        else
+            d.area.reset();
+        d.hasInertia = !!hasInertia;
         elasticDistance != null && (d.elasticDistance = elasticDistance);
         elasticBackTime != null && (d.elasticBackTime = elasticBackTime);
         ratio != null && (d.ratio = ratio);
@@ -2286,10 +2291,17 @@ export class Sprite extends Node {
         subStruct.renderMatrix = this.globalTrans.getMatrix();
     }
 
+    /** @internal */
     updateRenderTexture() {
         //计算方式调整
         let rect = Rectangle.TEMP;
-        SpriteUtils.getRTRect(this, rect);
+        if (this._mask) {
+            SpriteUtils.getRect(this._mask, false, rect);
+            rect.x += this._mask._pivotX;
+            rect.y += this._mask._pivotY;
+        }
+        else
+            SpriteUtils.getRect(this, false, rect);
 
         if (rect.width === 0 || rect.height === 0)
             return false;
@@ -2306,14 +2318,14 @@ export class Sprite extends Node {
         }
 
         this._subStructRender._updateRenderOffset(rect);
+
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._drawOriRT = renderTexture;
         return true;
     }
 
-
-
+    /** @internal */
     updateSubRenderPassState() {
         this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
@@ -2402,7 +2414,7 @@ export class Sprite extends Node {
     _setChildIndex(node: Sprite, oldIndex: number, index: number): number {
         let out = super._setChildIndex(node, oldIndex, index);
         if (node._struct)
-            this._struct.updateChildIndex(node._struct, oldIndex, out);
+            node._parent._struct.updateChildIndex(node._struct, oldIndex, out);
         return out;
     }
 
