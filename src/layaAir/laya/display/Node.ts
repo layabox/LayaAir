@@ -142,7 +142,7 @@ export class Node extends EventDispatcher {
         return this._destroyed;
     }
 
-    /** @ignore */
+    /** @ignore  @blueprintIgnore */
     constructor() {
         super();
 
@@ -511,7 +511,7 @@ export class Node extends EventDispatcher {
      * @returns 指定名称的子节点。
      */
     findChild<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
-        for (let c of this.children) {
+        for (let c of this._$children) {
             if (c.name == name)
                 return <T>c;
             if (!c.url) {

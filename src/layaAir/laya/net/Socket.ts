@@ -211,10 +211,18 @@ export class Socket extends EventDispatcher {
 
     /**
      * @en Send data to the server.
-     * @param data The data to be sent, which can be either a String or an ArrayBuffer.
+     * @param data The data to be sent.
      * @zh 发送数据到服务器。
-     * @param data 需要发送的数据，可以是String或者ArrayBuffer。
+     * @param data 需要发送的数据。
      */
+    send(data: string): Promise<void>;
+    /**
+     * @en Send data to the server.
+     * @param buffer The data to be sent.
+     * @zh 发送数据到服务器。
+     * @param buffer 需要发送的数据。
+     */
+    send(buffer: ArrayBuffer): Promise<void>;
     send(data: string | ArrayBuffer): Promise<void> {
         return this._socket.send(data);
     }

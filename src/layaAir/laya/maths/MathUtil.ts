@@ -1,7 +1,7 @@
 /**
  * @en The MathUtil class is a utility class for data processing.
  * @zh MathUtil 是一个数据处理工具类。
- * @blueprintable
+ * @blueprintable @blueprintPure
  */
 export class MathUtil {
 
@@ -241,6 +241,7 @@ export class MathUtil {
      * @param bigFirst 如果值为true，则按照由大到小的顺序进行排序，否则按照由小到大的顺序进行排序。
      * @param forceNum 如果值为true，则将排序的元素转为数字进行比较。
      * @return 排序函数。
+     * @blueprintIgnore
      */
     static sortByKey(key: string, bigFirst: boolean = false, forceNum: boolean = true): (a: any, b: any) => number {
         var _sortFun: Function;
