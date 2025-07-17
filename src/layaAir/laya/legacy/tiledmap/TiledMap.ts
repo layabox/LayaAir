@@ -1321,8 +1321,10 @@ export class TiledMap {
 
         this._layerArray = [];
         this._renderLayerArray = [];
-        if (this._mapSprite) {
+        if (this._mapSprite && !this._mapSprite.destroyed) {
             this._mapSprite.destroy();
+            this._mapSprite = null;
+        } else {
             this._mapSprite = null;
         }
 

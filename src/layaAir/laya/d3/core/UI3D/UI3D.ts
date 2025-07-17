@@ -457,11 +457,9 @@ export class UI3D extends BaseRender {
      * 更新Sprite的RT
      */
     _submitRT() {
-        if (this._shellSprite._needRepaint()) {
-            //判断是否需要重置
-            this._rendertexure2D && this._shellSprite.drawToRenderTexture2D(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false);
-            this._setMaterialTexture();
-        }
+        //判断是否需要重置
+        this._rendertexure2D && this._shellSprite.drawToRenderTexture2D(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false, true);
+        this._setMaterialTexture();
     }
 
     /**

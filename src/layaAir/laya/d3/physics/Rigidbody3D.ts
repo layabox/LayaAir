@@ -33,7 +33,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     /** @internal */
     private _angularFactor = new Vector3(1, 1, 1);
     /**@internal */
-    private _sleepThreshold: number;
+    private _sleepThreshold: number = 0.8;
+    /**@internal */
+    private _sleepAngularThreshold: number = 1.0;
     /**@internal */
     private _trigger: boolean = false;
     /**@internal */
@@ -243,6 +245,20 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     /**
+     * @en The angular velocity threshold below which the rigidbody will go to sleep.
+     * @zh 刚体进入睡眠状态的角速度阈值。
+     */
+    get sleepAngularThreshold(): number {
+        return this._sleepAngularThreshold;
+    }
+    set sleepAngularThreshold(value: number) {
+        this._sleepAngularThreshold = value;
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_SleepAngularVelocity)) {
+            this._collider.setSleepAngularThreshold(value);
+        }
+    }
+
+    /**
      * @en Directly sets the physical position of the rigidbody.
      * @zh 直接设置刚体的物理位置。
      */
@@ -420,6 +436,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set sleepLinearVelocity(value: number) {
         this.sleepThreshold = value;
+        this.sleepAngularThreshold = value;
     }
 
     /**
@@ -432,6 +449,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set sleepAngularVelocity(value: number) {
         this.sleepThreshold = value;
+        this.sleepAngularThreshold = value;
     }
 
     /**

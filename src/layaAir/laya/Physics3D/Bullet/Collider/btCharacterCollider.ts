@@ -229,6 +229,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);
         this._characterCapableMap.set(ECharacterCapable.Character_SimulateGravity, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_IsOnGround, true);
     }
 
     protected getColliderType(): btColliderType {
@@ -291,6 +292,11 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
             convertToBulletVec3(velocity, btVelocity);
             btStatics.bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
+    }
+
+    isGrounded(): boolean {
+        let bt = btStatics.bt;
+        return bt.btKinematicCharacterController_onGround(this._btKinematicCharacter) == 1 ? true : false;
     }
 
     /**

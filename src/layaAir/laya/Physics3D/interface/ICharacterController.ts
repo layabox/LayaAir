@@ -134,4 +134,12 @@ export interface ICharacterController extends ICollider {
    * @param value 跳跃速度
    */
   setJumpSpeed?(value: number): void;
+
+  /**
+   * @en Whether the character is on the ground.
+   * @returns Whether the character is on the ground.
+   * @zh 是否在地面上。
+   * @returns 是否在地面上。
+   */
+  isGrounded?(): boolean;
 }
