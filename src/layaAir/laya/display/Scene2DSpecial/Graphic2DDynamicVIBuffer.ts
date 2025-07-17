@@ -2,7 +2,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicWholeBuffer, I2DGraphicBufferDataView, BufferModifyType } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
@@ -28,7 +28,7 @@ export class Graphic2DDynamicVIBuffer {
     //目前的vertex block Count
     private _canVBlockCount: number;
 
-    private _vertexViews: I2DGraphicBufferDataView[] = [];
+    private _vertexViews: I2DGraphicVertexDataView[] = [];
 
     private _indexBufferLength: number = 0;
     private _indexBufferMaxLength: number = 0;
@@ -59,15 +59,13 @@ export class Graphic2DDynamicVIBuffer {
 
         this._vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
         //create I2DGraphicWholeBuffer
-        this._wholeVertex = LayaGL.render2DRenderPassFactory.create2DGraphicWoleBuffer();
-        this._wholeVertex.modifyType = BufferModifyType.Vertex;
+        this._wholeVertex = LayaGL.render2DRenderPassFactory.create2DGraphicVertexBuffer();
         this._wholeVertex.buffer = this._vertexBuffer;
 
         this._indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this._indexBuffer.indexType = IndexFormat.UInt16;
 
-        this._wholeIndex = LayaGL.render2DRenderPassFactory.create2DGraphicWoleBuffer();
-        this._wholeIndex.modifyType = BufferModifyType.Index;
+        this._wholeIndex = LayaGL.render2DRenderPassFactory.create2DGraphicIndexBuffer();
         this._wholeIndex.buffer = this._indexBuffer;
 
         this._bufferState = LayaGL.renderDeviceFactory.createBufferState();
@@ -130,7 +128,7 @@ export class Graphic2DDynamicVIBuffer {
         }
 
         let usedBlocks: number[] = [];
-        let usedViews: I2DGraphicBufferDataView[] = [];
+        let usedViews: I2DGraphicVertexDataView[] = [];
         let remainingBlocks = requiredBlocks;
 
         // 首先使用空闲块
@@ -146,7 +144,7 @@ export class Graphic2DDynamicVIBuffer {
             let newBlockIndex = this._vertexViews.length;
             usedBlocks.push(newBlockIndex);
             // 为新块创建视图
-            let view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
+            let view = LayaGL.render2DRenderPassFactory.create2DGraphicVertexDataView(
                 this._wholeVertex,
                 newBlockIndex * this._vertexBlockLength,
                 this._vertexBlockLength,
@@ -166,8 +164,8 @@ export class Graphic2DDynamicVIBuffer {
      * @param length 需要的长度
      * @returns 包含数据视图和使用的blocks的对象，如果空间不足则返回null
      */
-    checkIndexBuffer(length: number): I2DGraphicBufferDataView {
-        let view: I2DGraphicBufferDataView;
+    checkIndexBuffer(length: number): I2DGraphicIndexDataView {
+        let view: I2DGraphicIndexDataView;
 
         // let views = this._indexViews.get(length);
         // if (views && views.length > 0) {
@@ -180,11 +178,9 @@ export class Graphic2DDynamicVIBuffer {
 
         // if (!view) {
         // 为新块创建视图
-        view = LayaGL.render2DRenderPassFactory.create2DGraphicBufferDataView(
+        view = LayaGL.render2DRenderPassFactory.create2DGraphicIndexDataView(
             this._wholeIndex,
-            this._indexBufferLength,
-            length,
-            1
+            length
         );
         // this._wholeIndex.addDataView(view);
         this._indexBufferLength += length;
@@ -196,7 +192,7 @@ export class Graphic2DDynamicVIBuffer {
         return view;
     }
 
-    private _releaseBlocks(blocks: number[], list: I2DGraphicBufferDataView[], freeBlocks: number[]) {
+    private _releaseBlocks(blocks: number[], list: I2DGraphicVertexDataView[], freeBlocks: number[]) {
         if (!blocks || blocks.length === 0)
             return;
         freeBlocks.push(...blocks);
@@ -226,7 +222,7 @@ export class Graphic2DDynamicVIBuffer {
      * 释放索引缓冲区块
      * @param indexView 要释放的索引缓冲区块
      */
-    releaseIndexView(indexView: I2DGraphicBufferDataView) {
+    releaseIndexView(indexView: I2DGraphicIndexDataView) {
         this._indexBufferLength -= indexView.length;
         // indexView 移除
         this._wholeIndex.removeDataView(indexView);

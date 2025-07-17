@@ -1,17 +1,12 @@
 import { Color } from "../../../../maths/Color";
-import { Matrix } from "../../../../maths/Matrix";
-import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { BufferModifyType, Graphics2DBufferBlock, I2DBaseRenderDataHandle, I2DGraphicBufferDataView, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
-import { IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
+import { Graphics2DBufferBlock, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
-import { WebRenderStruct2D } from "../../WebModuleData/2D/WebRenderStruct2D";
 import { Vector2 } from "../../../../maths/Vector2";
 
 export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
@@ -69,7 +64,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
 
 
 export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DBaseRenderDataHandle {
-    constructor(nativeObj ?: any) {
+    constructor(nativeObj?: any) {
         super(nativeObj || new (window as any).conchRTRender2DDataHandle());
     }
 
@@ -225,7 +220,7 @@ export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements I
 
     }
 
-    
+
     public get offset(): Vector2 {
         return this._offset;
     }

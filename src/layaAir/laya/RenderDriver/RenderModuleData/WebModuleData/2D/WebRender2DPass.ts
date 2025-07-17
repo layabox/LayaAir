@@ -15,17 +15,10 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
-import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
-import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
-import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IPool, Pool } from "../../../../utils/Pool";
+import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 
 export interface IBatch2DContext {
    reset(): void;

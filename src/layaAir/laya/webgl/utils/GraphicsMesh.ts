@@ -1,6 +1,6 @@
 import { Graphic2DDynamicVIBuffer } from "../../display/Scene2DSpecial/Graphic2DDynamicVIBuffer";
 import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicVertexDataView, I2DGraphicIndexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
@@ -8,7 +8,7 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 export type MeshBlockInfo = {
    mesh: GraphicsMesh,
    positions?: number[],
-   vertexViews?: I2DGraphicBufferDataView[],
+   vertexViews?: I2DGraphicVertexDataView[],
    vertexBlocks?: number[],
 }
 
@@ -26,7 +26,7 @@ export class GraphicsMesh {
          new VertexElement(32, VertexElementFormat.Vector4, 2),//
          new VertexElement(48, VertexElementFormat.Vector4, 3),//custom
       ]);
-      
+
       GraphicsMesh.stride = GraphicsMesh.vertexDeclarition.vertexStride / 4;
    }
 
@@ -68,7 +68,7 @@ export class GraphicsMesh {
     * @param indexCount 索引数量
     * @returns 索引缓冲区信息
     */
-   checkIndex(indexCount: number): I2DGraphicBufferDataView {
+   checkIndex(indexCount: number): I2DGraphicIndexDataView {
       return this._buffer.checkIndexBuffer(indexCount);
    }
 
@@ -88,7 +88,7 @@ export class GraphicsMesh {
     * @zh 清除索引视图
     * @param indexView 索引视图
     */
-   clearIndexView(indexView: I2DGraphicBufferDataView): void {
+   clearIndexView(indexView: I2DGraphicIndexDataView): void {
       this._buffer.releaseIndexView(indexView);
    }
 
