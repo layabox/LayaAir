@@ -794,13 +794,14 @@ export class Scene3D extends Sprite {
         //Physics
         if (LayaEnv.isPlaying) {
             this._physicsStepTime += delta;
-            if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
-
+            let steps = Math.floor(this._physicsStepTime / Scene3D.physicsSettings.fixedTimeStep);
+            steps = Math.min(steps, Scene3D.physicsSettings.maxSubSteps);
+            if (steps > 0) {
                 let physicsManager = this._physicsManager;
                 if (ILaya.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
-                    physicsManager.update(this._physicsStepTime);
+                    physicsManager.update(steps * Scene3D.physicsSettings.fixedTimeStep);
                 }
-                this._physicsStepTime = 0;
+                this._physicsStepTime -= steps * Scene3D.physicsSettings.fixedTimeStep;
             }
         }
 

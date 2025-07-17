@@ -177,6 +177,7 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, true);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SimulateGravity, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_IsOnGround, true);
     }
 
     /**
@@ -252,6 +253,11 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      */
     jump?(velocity: Vector3): void {
         return this._pxController && this._pxController.move(velocity, this._minDistance, 1 / 60);
+    }
+
+    isGrounded(): boolean {
+        let flag: ECharacterCollisionFlag = this._pxController && this._pxController.move(new Vector3(0, -0.1, 0), this._minDistance, 1 / 60);
+        return (flag & ECharacterCollisionFlag.eCOLLISION_DOWN) != 0;
     }
 
     /**

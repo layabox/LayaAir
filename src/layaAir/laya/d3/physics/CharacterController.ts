@@ -53,6 +53,7 @@ export class CharacterController extends PhysicsColliderComponent {
                 this.colliderShape.destroy();
             }
             this.colliderShape = new CapsuleColliderShape(this.radius, this.height);
+            this.colliderShape.localOffset = this._offset;
             this._collider.component = this;
         } else {
             console.error("CharacterController: cant enable CharacterController");
@@ -319,6 +320,16 @@ export class CharacterController extends PhysicsColliderComponent {
                 this._collider.jump(velocity);
             }
         }
+    }
+
+    /**
+     * @en Whether the character is on the ground.
+     * @returns Whether the character is on the ground.
+     * @zh 是否在地面上。
+     * @returns 是否在地面上。
+     */
+    isOnGround(): boolean {
+        return this._collider ? this._collider.isGrounded() : false;
     }
 
     /**
