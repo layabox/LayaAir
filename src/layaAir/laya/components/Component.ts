@@ -312,6 +312,7 @@ export class Component {
 
                 if (this.onReset) {
                     this.onReset();
+                    this.owner?.offAllCaller(this);
                     this._resetComp();
                     Pool.recoverByClass(this);
                 }
