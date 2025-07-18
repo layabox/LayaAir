@@ -32,6 +32,7 @@ export interface I2DGlobalRenderData {
 /** @blueprintIgnore */
 export interface I2DGraphicBufferDataView {
     length: number;
+    setData(data: ArrayLike<number>): void;
 }
 
 /** @blueprintIgnore */
@@ -39,12 +40,10 @@ export interface I2DGraphicVertexDataView extends I2DGraphicBufferDataView {
     length: number;
     start: number;
     stride: number;
-    getData(): Float32Array;
 }
 
 export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
     length: number;
-    setData(data: ArrayLike<number>): void;
     setGeometry(value: IRenderGeometryElement): void;
 }
 

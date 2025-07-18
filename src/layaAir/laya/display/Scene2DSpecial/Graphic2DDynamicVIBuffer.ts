@@ -41,7 +41,8 @@ export class Graphic2DDynamicVIBuffer {
     private _vertexElementLength: number;
     // 一个顶点元素占用的字节数
     private _vertexStride: number;
-
+    /** @internal 临时顶点数据 */
+    _tempVertexData: Float32Array;
 
     get vertexBuffer(): IVertexBuffer {
         return this._vertexBuffer;
@@ -84,6 +85,7 @@ export class Graphic2DDynamicVIBuffer {
         this.resizeVertexBuffer(vbsize);
         let ibsize = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
         this.resizeIndexBuffer(ibsize);
+        this._tempVertexData = new Float32Array(this._vertexBlockSize * this._vertexElementLength);
     }
 
     resizeVertexBuffer(blockSize: number) {//size表示几个size

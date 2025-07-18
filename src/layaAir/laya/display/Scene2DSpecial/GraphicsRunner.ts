@@ -2186,16 +2186,20 @@ export class GraphicsRunner {
         let offset = 0;
 
         let positions: number[] = [];
-        let vbdata: Float32Array;
+        let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
         let vertexLength = GraphicsMesh.stride;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= vi) {
+
+                if (dataView) {
+                    dataView.setData(vbdata);
+                }
+
                 dataView = vertexViews[dataViewIndex];
                 dataViewIndex++;
                 vi = 0;
                 offset = dataView.start / dataView.stride;
-                vbdata = dataView.getData() as Float32Array;
             }
 
             let x = vertices[pi], y = vertices[pi + 1];
@@ -2244,6 +2248,10 @@ export class GraphicsRunner {
             pi += 2;
             ci += 4;
             indexsMap[i] = offset++;
+        }
+
+        if (dataView) {
+            dataView.setData(vbdata);
         }
 
         result.positions = positions;
