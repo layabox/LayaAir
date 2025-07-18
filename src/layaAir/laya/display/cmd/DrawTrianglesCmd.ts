@@ -8,6 +8,7 @@ import { Pool } from "../../utils/Pool"
 import { VertexStream } from "../../utils/VertexStream"
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner"
+import { Rectangle } from "../../maths/Rectangle"
 
 const className = "DrawTrianglesCmd";
 
@@ -211,26 +212,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
-        if (!this.vertices)
-            return;
-
-        let vert = this.vertices;
-        var vnum = vert.length;
-        if (vnum < 2) return;
-        var minx = vert[0];
-        var miny = vert[1];
-        var maxx = minx;
-        var maxy = miny;
-        for (var i = 2; i < vnum;) {
-            var cx = vert[i++];
-            var cy = vert[i++];
-            if (minx > cx) minx = cx;
-            if (miny > cy) miny = cy;
-            if (maxx < cx) maxx = cx;
-            if (maxy < cy) maxy = cy;
-        }
-
-        assembler.points.push(minx, miny, maxx, miny, maxx, maxy, minx, maxy);
+        Rectangle.TEMP.setTo(0, 0, assembler.width, assembler.height).getBoundPoints(assembler.points);
     }
 }
 
