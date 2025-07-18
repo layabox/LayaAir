@@ -175,13 +175,13 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             this.renderpass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
         }
 
-        if (this.renderpass.enableDirectLightShadow || this.renderpass.enableSpotLightShadowPass) {
-            let sceneShaderData = context.sceneData;
-            let shadowUniformMap = <WebGLCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
-            if (Config._uniformBlock) {
-                let shadowBuffer = sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
-            }
-        }
+        // if (this.renderpass.enableDirectLightShadow || this.renderpass.enableSpotLightShadowPass) {
+        //     let sceneShaderData = context.sceneData;
+        //     let shadowUniformMap = <WebGLCommandUniformMap>ShadowCasterPass.ShadowUniformMap;
+        //     if (Config._uniformBlock) {
+        //         let shadowBuffer = sceneShaderData.createSubUniformBuffer("Shadow", "Shadow", shadowUniformMap._idata);
+        //     }
+        // }
 
     }
 
