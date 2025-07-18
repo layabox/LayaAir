@@ -29,10 +29,9 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
     declare _prev: Web2DGraphic2DVertexDataView;
 
     getData(): Float32Array {
-        if (this.owner._needResetData) {
-            this.updateView(this.owner._dataView);
-        }
-
+        // if (this.owner._needResetData) {
+        //     this.updateView(this.owner._dataView);
+        // }
         return this._view;
     }
 
@@ -53,8 +52,10 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
     }
 
     // 更新数据视图
-    updateView(wholeData: Float32Array | Uint16Array) {
-        this._view = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
+    updateView(wholeData: Float32Array) {
+        if (!this._view || this._view.buffer !== wholeData.buffer) {
+            this._view = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
+        }
     }
 }
 

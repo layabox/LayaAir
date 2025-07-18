@@ -9,9 +9,10 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 //用来分配和设置dataView的值
 export class Graphic2DDynamicVIBuffer {
-    static MAX_VERTEX = 65535;
+    static MAX_VERTEX = 32768;
+    // static MAX_VERTEX = 1024;
     static DEFAULT_BLOCK_SIZE = 1024;
-    static FREE_BLOCK_REFRESH_COUNT = 100;
+    // static FREE_BLOCK_REFRESH_COUNT = 100;
 
     private _bufferState: IBufferState;
     private _vertexBuffer: IVertexBuffer;
@@ -78,9 +79,11 @@ export class Graphic2DDynamicVIBuffer {
 
         this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 
-        let size = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
-        this.resizeVertexBuffer(size);
-        this.resizeIndexBuffer(size);
+        //按最大顶点数初始化vb
+        let vbsize = Graphic2DDynamicVIBuffer.MAX_VERTEX / this._vertexBlockSize;
+        this.resizeVertexBuffer(vbsize);
+        let ibsize = Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
+        this.resizeIndexBuffer(ibsize);
     }
 
     resizeVertexBuffer(blockSize: number) {//size表示几个size
@@ -98,10 +101,10 @@ export class Graphic2DDynamicVIBuffer {
     }
 
     //扩展顶点范围
-    vertexExtendBlock(needBlockSize: number): void {
-        let blockSize = Math.ceil((this._canVBlockCount + needBlockSize) / Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
-        this.resizeVertexBuffer(blockSize);
-    }
+    // vertexExtendBlock(needBlockSize: number): void {
+    //     let blockSize = Math.ceil((this._canVBlockCount + needBlockSize) / Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
+    //     this.resizeVertexBuffer(blockSize);
+    // }
 
     indexExtendBlock(length: number): void {
         let nMaxLength = Math.ceil((this._indexBufferLength + length) / Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE) * Graphic2DDynamicVIBuffer.DEFAULT_BLOCK_SIZE;
@@ -117,14 +120,14 @@ export class Graphic2DDynamicVIBuffer {
         let requiredBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
         let requiredExtendBlockCount = requiredBlocks - (this._vertexFreeBlocks.length + (this._canVBlockCount - this._vertexViews.length));
         if (requiredExtendBlockCount > 0) {//判断是否需要扩Buffer
-            let needBlocks = this._canVBlockCount + requiredExtendBlockCount;
-            let newVertexCount = needBlocks * this._vertexBlockSize;/** Float32Array.BYTES_PER_ELEMENT */;
-            if (newVertexCount > Graphic2DDynamicVIBuffer.MAX_VERTEX) {    //扩Buffer是否超过了最大范围
-                return null;
-            } else {
-                //扩Buffer
-                this.vertexExtendBlock(requiredExtendBlockCount);
-            }
+            // let needBlocks = this._canVBlockCount + requiredExtendBlockCount;
+            // let newVertexCount = needBlocks * this._vertexBlockSize;/** Float32Array.BYTES_PER_ELEMENT */;
+            // if (newVertexCount > Graphic2DDynamicVIBuffer.MAX_VERTEX) {    //扩Buffer是否超过了最大范围
+            return null;
+            // } else {
+            //扩Buffer
+            // this.vertexExtendBlock(requiredExtendBlockCount);
+            // }
         }
 
         let usedBlocks: number[] = [];

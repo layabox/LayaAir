@@ -13,24 +13,24 @@ import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRend
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
 import { GLESRenderContext2D } from "./GLESRenderContext2D";
 import { GLESRenderElement2D } from "./GLESRenderElement2D";
-import { RT2DGraphic2DBufferDataView, RT2DGraphic2DIndexDataView, RT2DGraphicWholeBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
+import { RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView, RT2DGraphicIndexBuffer, RT2DGraphicVertexBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
 import { IPrimitiveRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { GLESPrimitiveRenderElement2D } from "./GLESPrimitiveRenderElement2D";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
     create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
-        return new RT2DGraphic2DBufferDataView(wholeBuffer as RT2DGraphicWholeBuffer, elementOffset, elementSize, stride);
+        return new RT2DGraphic2DVertexDataView(wholeBuffer as RT2DGraphicVertexBuffer, elementOffset, elementSize, stride);
     }
     create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
-        return new RT2DGraphic2DIndexDataView(wholeBuffer as RT2DGraphicWholeBuffer, elementSize);
+        return new RT2DGraphic2DIndexDataView(wholeBuffer as RT2DGraphicIndexBuffer, elementSize);
     }
 
     create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
-        throw new Error("Method not implemented.");
+        return new RT2DGraphicIndexBuffer();
     }
 
     create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
-        return new RT2DGraphicWholeBuffer();
+        return new RT2DGraphicVertexBuffer();
     }
 
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {

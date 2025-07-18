@@ -316,12 +316,14 @@ export class SubStructRender {
    }
 
    _updateVertexSize() {
+      let destRT = this._internalInfo.textureHost as RenderTexture2D;
+      if (!destRT) return;
+
       let _rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
       vSize.x = _rtRect.x;
       vSize.y = _rtRect.y;
 
-      let destRT = this._internalInfo.textureHost as RenderTexture2D;
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {

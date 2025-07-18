@@ -52,8 +52,9 @@ export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
     // bufferData: Float32Array | Uint16Array;
-    // arrayBuffer: ArrayBuffer;
+    arrayBuffer: ArrayBuffer;
     resetData(byteLength: number): void;
+    addDataView(dataView: I2DGraphicBufferDataView): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;
     destroy(): void;
 }

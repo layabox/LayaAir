@@ -7,7 +7,7 @@ import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
-import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBuffer";
+import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBuffer";
 import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBufferDataView";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
