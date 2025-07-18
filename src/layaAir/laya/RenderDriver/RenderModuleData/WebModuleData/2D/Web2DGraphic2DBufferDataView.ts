@@ -1,10 +1,13 @@
 
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { I2DGraphicVertexDataView, I2DGraphicIndexDataView } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGraphicVertexDataView, I2DGraphicIndexDataView, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { WebRender2DPass } from "./WebRender2DPass";
 
-export abstract class Web2DGraphicsBufferDataView {
+export abstract class Web2DGraphicsBufferDataView implements I2DGraphicBufferDataView {
+
+    abstract setData(data: ArrayLike<number>): void;
+
     /** IB 的 start 不可信，只有在提交时百分百正确 */
     start: number;//element start
     length: number;//element length

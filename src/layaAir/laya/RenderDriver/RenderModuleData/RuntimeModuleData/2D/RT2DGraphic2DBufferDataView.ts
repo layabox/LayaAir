@@ -153,6 +153,11 @@ export class RT2DGraphic2DVertexDataView implements I2DGraphicVertexDataView {
         this._nativeObj.view = this._view;
     }
 
+    setData(data: ArrayLike<number>): void {
+        this._view.set(data);
+        this._nativeObj.modify();
+    }
+
     // 更新数据视图
     updateView(wholeData: Float32Array) {
         if (!this._view || this._view.buffer !== wholeData.buffer) {
