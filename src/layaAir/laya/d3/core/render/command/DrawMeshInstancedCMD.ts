@@ -69,6 +69,11 @@ export class DrawMeshInstancedCMD extends Command {
         cmd._commandBuffer = commandBuffer;
         cmd._instanceProperty = instanceProperty;
         cmd._drawnums = drawnums;
+
+        if (!cmd._instanceBufferState) {
+            cmd._instanceBufferState = new BufferState();
+        }
+
         cmd.mesh = mesh;
         matrixs && cmd._updateWorldMatrixBuffer();
         cmd._setInstanceBuffer();
@@ -340,6 +345,7 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceRenderElementArray = [];
         delete this._instanceGeometryArray;
         this._instanceGeometryArray = [];
+        this._drawElementCMDData.setRenderelements([]);
         this.mesh = null;
 
     }
