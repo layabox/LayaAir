@@ -840,7 +840,7 @@ export class Sprite extends Node {
         if (value == this || (value && this._mask == value && value._maskParent == this))
             return;
 
-        if (value.isAncestorOf(this))
+        if (value && value.isAncestorOf(this))
             throw new Error("Mask cannot be ancestor of the masked object");
 
         if (this._mask) {
