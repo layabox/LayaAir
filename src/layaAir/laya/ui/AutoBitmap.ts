@@ -165,8 +165,8 @@ export class AutoBitmap extends Graphics {
                     stateIndex = 0;
             }
 
-            let h = source.height / stateNum;
-            source = source.getCachedClip(0, h * stateIndex, source.width, h)
+            let h = source.sourceHeight / stateNum;
+            source = source.getCachedClip(0, h * stateIndex, source.sourceWidth, h)
             if (!source)
                 return;
         }
