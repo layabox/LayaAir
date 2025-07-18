@@ -652,7 +652,10 @@ export class Sprite extends Node {
             this._blendMode = t;
             this._initShaderData();
             this._struct.blendMode = this._blendMode;
-            this.parentRepaint();
+            if (this._graphics)
+                this._graphics.repaint();
+            else
+                this.repaint();
         }
     }
 
@@ -2291,8 +2294,11 @@ export class Sprite extends Node {
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
         }
-        else
+        else {
             SpriteUtils.getRect(this, false, rect);
+            rect.x += this._pivotX;
+            rect.y += this._pivotY;
+        }
 
         if (rect.width === 0 || rect.height === 0)
             return false;
