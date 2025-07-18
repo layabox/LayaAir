@@ -69,7 +69,7 @@ export class DrawLineCmd implements IGraphicCMD {
      * @param lineWidth 线条宽度
      * @returns DrawLineCmd 实例
      */
-    static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
+    static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number, percent?: boolean): DrawLineCmd {
         var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
         cmd.fromX = fromX;
         cmd.fromY = fromY;
@@ -77,6 +77,7 @@ export class DrawLineCmd implements IGraphicCMD {
         cmd.toY = toY;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
 
