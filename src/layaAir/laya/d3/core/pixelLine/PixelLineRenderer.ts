@@ -1,4 +1,5 @@
 import { Component } from "../../../components/Component";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
@@ -6,6 +7,7 @@ import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3
 
 import { Material } from "../../../resource/Material";
 import { OutOfRangeError } from "../../../utils/Error";
+import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { UnlitMaterial } from "../material/UnlitMaterial";
@@ -107,6 +109,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     protected _onEnable(): void {
+        super._onEnable();
         this._isRenderActive = true;
         if (this._pixelLineFilter._lineCount != 0) {
             (this.owner.scene)._addRenderObject(this);
@@ -126,6 +129,16 @@ export class PixelLineRenderer extends BaseRender {
 
     protected _createBaseRenderNode(): IMeshRenderNode {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    /**
+     * @internal
+     * BaseRender motion
+     */
+    protected _onWorldMatNeedChange(flag: number): void {
+        super._onWorldMatNeedChange(flag);
+        this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+        this._baseRenderNode.ismoved = this._baseRenderNode.ismoved;
     }
 
     /**
