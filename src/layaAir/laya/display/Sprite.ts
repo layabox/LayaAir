@@ -1581,16 +1581,18 @@ export class Sprite extends Node {
                     if (root.mask) {
                         root._oriRenderPass.mask = root.mask._subStruct;
                     }
-                    let process = root._oriRenderPass.postProcess;
-                    if (process) {
-                        process.setResource(destrt);
-                        process.clearCMD();
-                        process._render();
-                        destrt = process._context.destination;
-                    }
-                    root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                    if (destrt) {
+                        let process = root._oriRenderPass.postProcess;
+                        if (process) {
+                            process.setResource(destrt);
+                            process.clearCMD();
+                            process._render();
+                            destrt = process._context.destination;
+                        }
+                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
                     root._subStructRender._updateVertexSize();
                     //Mask TODO
+                    }
                 }
                 root._subpassUpdateFlag = 0;
             }
