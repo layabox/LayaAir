@@ -93,7 +93,8 @@ export class CommandBuffer2D {
     apply(render: boolean = true, recoverContextStat: boolean = true): void {
         this.shaderData.clearData();
         let lastPass = this._context.passData;
-        if (lastPass) {
+        // lastPass destroyed
+        if (lastPass && lastPass.getDefineData()) {
             lastPass.cloneTo(this.shaderData);
         } else {
             this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, Vector2.TEMP.setValue(
