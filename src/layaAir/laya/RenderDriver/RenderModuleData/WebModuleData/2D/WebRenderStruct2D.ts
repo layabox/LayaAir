@@ -145,7 +145,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** @internal */
    private _globalRenderData: WebGlobalRenderData = null;
    /** @internal */
-   private _parentGlobalRenderData: WebGlobalRenderData = null;
+   _parentGlobalRenderData: WebGlobalRenderData = null;
 
    public get globalRenderData(): WebGlobalRenderData {
       return this._globalRenderData || this._parentGlobalRenderData;

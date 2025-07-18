@@ -10,7 +10,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { NotImplementedError } from "../../../utils/Error";
@@ -18,11 +18,17 @@ import { NotImplementedError } from "../../../utils/Error";
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
 
-    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
+    create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
+        throw new NotImplementedError();
+    }
+    create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
+        throw new NotImplementedError();
+    }
+    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
         throw new NotImplementedError();
     }
 
-    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
+    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
         throw new NotImplementedError();
     }
 
@@ -92,7 +98,7 @@ export class NoRenderElement2D implements IRenderElement2D {
     subShader: SubShader;
     renderStateIsBySprite: boolean;
     globalShaderData: ShaderData;
-    
+
     destroy(): void {
 
     }

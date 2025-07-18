@@ -552,7 +552,7 @@ export class FrameAnimation extends Component {
 
     protected loadAtlas(url: string): this {
         let loadId = ++this._loadId;
-        let atlas: AtlasResource = Loader.getRes(url);
+        let atlas: AtlasResource = Loader.getRes(url, Loader.ATLAS);
         if (atlas)
             this.onLoaded(atlas, loadId);
         else

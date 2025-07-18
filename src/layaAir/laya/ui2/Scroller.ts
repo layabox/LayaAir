@@ -23,6 +23,7 @@ import { ILayout } from "./layout/ILayout";
 import { ListLayout } from "./layout/ListLayout";
 import { UIEvent } from "./UIEvent";
 import { DragSupport } from "../utils/DragSupport";
+import { GList } from "./GList";
 
 type AxisType = "x" | "y";
 
@@ -37,9 +38,9 @@ const TWEEN_TIME_GO = 0.5; //调用SetPos(ani)时使用的缓动时间
 const TWEEN_TIME_DEFAULT = 0.3; //惯性滚动的最小缓动时间
 const PULL_RATIO = 0.5; //下拉过顶或者上拉过底时允许超过的距离占显示区域的比例
 
-export class Scroller implements IScroller {
-    static draggingInst: Scroller;
+var draggingInst: IScroller;
 
+export class Scroller implements IScroller {
     private _owner: GPanel;
     private _layout: ILayout;
     private _container: Sprite;
@@ -84,7 +85,6 @@ export class Scroller implements IScroller {
     private _slidingPoints: Array<number>;
     private _isHoldAreaDone: boolean;
     private _aniFlag: number = 0;
-    private _loop: number = 0;
     private _headerLockedSize: number = 0;
     private _footerLockedSize: number = 0;
     private _refreshEventDispatching: boolean;
@@ -102,6 +102,9 @@ export class Scroller implements IScroller {
     private _vScrollBar: GScrollBar;
     private _header: GWidget;
     private _footer: GWidget;
+
+    /** @internal */
+    _loop: number = 0;
 
     constructor() {
         this._barMargin = [0, 0, 0, 0];
@@ -135,7 +138,7 @@ export class Scroller implements IScroller {
         if (this._owner) {
             this._owner.offAllCaller(this);
 
-            if (this._tweening != 0)
+            if (this._tweening !== 0)
                 ILaya.timer.clear(this, this.tweenUpdate);
 
             if (this._hScrollBar) {
@@ -177,8 +180,6 @@ export class Scroller implements IScroller {
             this.createVtScrollBar();
 
             value.on(Event.MOUSE_DOWN, this, this._touchBegin);
-            value.on(Event.MOUSE_DRAG, this, this._touchMove);
-            value.on(Event.MOUSE_UP, this, this._touchEnd);
             value.on(Event.MOUSE_WHEEL, this, this._mouseWheel);
             value.on(Event.ROLL_OVER, this, this._rollOver);
             value.on(Event.ROLL_OUT, this, this._rollOut);
@@ -250,11 +251,11 @@ export class Scroller implements IScroller {
     }
 
     set direction(value: ScrollDirection) {
-        if (this._dir != value) {
+        if (this._dir !== value) {
             this._dir = value;
 
             if (this._refreshBarAxis != null)
-                this._refreshBarAxis = (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Vertical) ? "y" : "x";
+                this._refreshBarAxis = (this._dir === ScrollDirection.Both || this._dir === ScrollDirection.Vertical) ? "y" : "x";
             this.createHzScrollBar();
             this.createVtScrollBar();
         }
@@ -265,9 +266,9 @@ export class Scroller implements IScroller {
     }
 
     set barDisplay(value: ScrollBarDisplay) {
-        if (this._barDisplay2 != value) {
+        if (this._barDisplay2 !== value) {
             this._barDisplay2 = value;
-            this._barDisplay = value == ScrollBarDisplay.Default ? UIConfig2.defaultScrollBarDisplay : value;
+            this._barDisplay = value === ScrollBarDisplay.Default ? UIConfig2.defaultScrollBarDisplay : value;
             this.createHzScrollBar();
             this.createVtScrollBar();
         }
@@ -311,7 +312,7 @@ export class Scroller implements IScroller {
 
     set bouncebackEffect(value: ScrollBounceBackEffect) {
         this._bouncebackEffect2 = value;
-        if (value == ScrollBounceBackEffect.Default)
+        if (value === ScrollBounceBackEffect.Default)
             this._bouncebackEffect = UIConfig2.defaultScrollBounceEffect;
         else
             this._bouncebackEffect = value == ScrollBounceBackEffect.On;
@@ -323,10 +324,10 @@ export class Scroller implements IScroller {
 
     set touchEffect(value: ScrollTouchEffect) {
         this._touchEffect2 = value;
-        if (value == ScrollTouchEffect.Default)
+        if (value === ScrollTouchEffect.Default)
             this._touchEffect = UIConfig2.defaultScrollTouchEffect;
         else
-            this._touchEffect = value == ScrollTouchEffect.On;
+            this._touchEffect = value === ScrollTouchEffect.On;
     }
 
     get touchEffectButton(): number {
@@ -401,7 +402,7 @@ export class Scroller implements IScroller {
     }
 
     get percX(): number {
-        return this._overlapSize.x == 0 ? 0 : this._xPos / this._overlapSize.x;
+        return this._overlapSize.x === 0 ? 0 : this._xPos / this._overlapSize.x;
     }
 
     set percX(value: number) {
@@ -414,7 +415,7 @@ export class Scroller implements IScroller {
     }
 
     get percY(): number {
-        return this._overlapSize.y == 0 ? 0 : this._yPos / this._overlapSize.y;
+        return this._overlapSize.y === 0 ? 0 : this._yPos / this._overlapSize.y;
     }
 
     set percY(value: number) {
@@ -437,11 +438,11 @@ export class Scroller implements IScroller {
     setPosX(value: number, ani?: boolean): void {
         this._layout.refresh();
 
-        if (this._loop == 1)
+        if (this._loop === 1)
             value = this.loopCheckingNewPos(value, "x");
 
         value = MathUtil.clamp(value, 0, this._overlapSize.x);
-        if (value != this._xPos) {
+        if (value !== this._xPos) {
             this._xPos = value;
             this.posChanged(ani);
         }
@@ -458,11 +459,11 @@ export class Scroller implements IScroller {
     setPosY(value: number, ani?: boolean): void {
         this._layout.refresh();
 
-        if (this._loop == 1)
+        if (this._loop === 1)
             value = this.loopCheckingNewPos(value, "y");
 
         value = MathUtil.clamp(value, 0, this._overlapSize.y);
-        if (value != this._yPos) {
+        if (value !== this._yPos) {
             this._yPos = value;
             this.posChanged(ani);
         }
@@ -546,11 +547,11 @@ export class Scroller implements IScroller {
     }
 
     get isBottomMost(): boolean {
-        return this._yPos == this._overlapSize.y || this._overlapSize.y == 0;
+        return this._yPos === this._overlapSize.y || this._overlapSize.y === 0;
     }
 
     get isRightMost(): boolean {
-        return this._xPos == this._overlapSize.x || this._overlapSize.x == 0;
+        return this._xPos === this._overlapSize.x || this._overlapSize.x === 0;
     }
 
     get scrollingPosX(): number {
@@ -603,7 +604,7 @@ export class Scroller implements IScroller {
 
     private getRect(target: GWidget, rect: Rectangle) {
         if (target._parent != this._owner._$container)
-            SpriteUtils.transformRect(target._parent, rect.setTo(target.x, target.y, target.width, target.height), <Sprite>this._owner._$container);
+            SpriteUtils.transformRect(target._parent, rect.setTo(target.x, target.y, target.width, target.height), <Sprite>this._owner._$container, rect);
         else
             rect.setTo(target.x, target.y, target.width, target.height);
         return rect;
@@ -611,8 +612,8 @@ export class Scroller implements IScroller {
 
     scrollTo(target: GWidget, ani?: boolean, setFirst?: boolean): void;
     scrollTo(target: GWidget, ani?: boolean, secondTarget?: GWidget): void;
-    scrollTo(target: Rectangle, ani?: boolean, setFirst?: boolean): void;
-    scrollTo(target: number, ani?: boolean, setFirst?: boolean): void;
+    scrollTo(rect: Rectangle, ani?: boolean, setFirst?: boolean): void;
+    scrollTo(childIndex: number, ani?: boolean, setFirst?: boolean): void;
     scrollTo(target: GWidget | Rectangle | number, ani?: boolean, setFirst?: boolean | GWidget): void {
         this._layout.refresh();
         if (this._needRefresh)
@@ -701,13 +702,13 @@ export class Scroller implements IScroller {
 
     isChildInView(obj: GWidget): boolean {
         if (this._overlapSize.y > 0) {
-            let dist = obj.y + this._container.y;
+            let dist = obj.top + this._container.y;
             if (dist < -obj.height || dist > this._viewSize.y)
                 return false;
         }
 
         if (this._overlapSize.x > 0) {
-            let dist = obj.x + this._container.x;
+            let dist = obj.left + this._container.x;
             if (dist < -obj.width || dist > this._viewSize.x)
                 return false;
         }
@@ -726,8 +727,11 @@ export class Scroller implements IScroller {
     }
 
     cancelDragging(): void {
-        if (Scroller.draggingInst == this)
-            Scroller.draggingInst = null;
+        ILaya.stage.off(Event.MOUSE_MOVE, this, this._touchMove);
+        ILaya.stage.off(Event.MOUSE_UP, this, this._touchEnd);
+
+        if (draggingInst == this)
+            draggingInst = null;
 
         s_gestureFlag = 0;
         this._dragged = false;
@@ -737,9 +741,9 @@ export class Scroller implements IScroller {
         let layout = this._layout;
         if (layout.pageMode)
             return;
-        if (layout.type == LayoutType.SingleColumn || layout.type == LayoutType.FlowX)
+        if (layout.type === LayoutType.SingleColumn || layout.type === LayoutType.FlowX)
             this.direction = ScrollDirection.Vertical;
-        else if (layout.type == LayoutType.SingleRow || layout.type == LayoutType.FlowY)
+        else if (layout.type === LayoutType.SingleRow || layout.type === LayoutType.FlowY)
             this.direction = ScrollDirection.Horizontal;
     }
 
@@ -758,7 +762,7 @@ export class Scroller implements IScroller {
             return;
         }
 
-        if (this._barDisplay != ScrollBarDisplay.Hidden && (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Vertical)) {
+        if (this._barDisplay !== ScrollBarDisplay.Hidden && (this._dir === ScrollDirection.Both || this._dir === ScrollDirection.Vertical)) {
             if (this._vScrollBar)
                 return;
 
@@ -771,7 +775,7 @@ export class Scroller implements IScroller {
                 }
                 this._vScrollBar.hideFlags |= HideFlags.HideAndDontSave;
                 this._vScrollBar.setOwner(this, true);
-                this._vScrollBar.visible = this._barDisplay != ScrollBarDisplay.OnScroll;
+                this._vScrollBar.visible = this._barDisplay !== ScrollBarDisplay.OnScroll;
                 this._owner._addChild(this._vScrollBar);
                 this.onSizeChanged();
             }
@@ -797,7 +801,7 @@ export class Scroller implements IScroller {
             }
         }
 
-        if (this._barDisplay != ScrollBarDisplay.Hidden && (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Horizontal)) {
+        if (this._barDisplay !== ScrollBarDisplay.Hidden && (this._dir === ScrollDirection.Both || this._dir === ScrollDirection.Horizontal)) {
             if (this._hScrollBar)
                 return;
 
@@ -810,7 +814,7 @@ export class Scroller implements IScroller {
                 }
                 this._hScrollBar.hideFlags |= HideFlags.HideAndDontSave;
                 this._hScrollBar.setOwner(this, false);
-                this._hScrollBar.visible = this._barDisplay != ScrollBarDisplay.OnScroll;
+                this._hScrollBar.visible = this._barDisplay !== ScrollBarDisplay.OnScroll;
                 this._owner._addChild(this._hScrollBar);
                 this.onSizeChanged();
             }
@@ -834,7 +838,7 @@ export class Scroller implements IScroller {
         }
 
         if (this._header || this._footer)
-            this._refreshBarAxis = (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Vertical) ? "y" : "x";
+            this._refreshBarAxis = (this._dir === ScrollDirection.Both || this._dir === ScrollDirection.Vertical) ? "y" : "x";
         else
             this._refreshBarAxis = null;
     }
@@ -851,13 +855,13 @@ export class Scroller implements IScroller {
         }
 
         if (this._header || this._footer)
-            this._refreshBarAxis = (this._dir == ScrollDirection.Both || this._dir == ScrollDirection.Vertical) ? "y" : "x";
+            this._refreshBarAxis = (this._dir === ScrollDirection.Both || this._dir === ScrollDirection.Vertical) ? "y" : "x";
         else
             this._refreshBarAxis = null;
     }
 
     lockHeader(size: number): void {
-        if (this._headerLockedSize == size)
+        if (this._headerLockedSize === size)
             return;
 
         this._headerLockedSize = size;
@@ -872,7 +876,7 @@ export class Scroller implements IScroller {
     }
 
     lockFooter(size: number): void {
-        if (this._footerLockedSize == size)
+        if (this._footerLockedSize === size)
             return;
 
         this._footerLockedSize = size;
@@ -881,7 +885,7 @@ export class Scroller implements IScroller {
             this._tweenStart.setTo(this._container.x, this._container.y);
             this._tweenChange.setTo(0, 0);
             let max: number = this._overlapSize[this._refreshBarAxis];
-            if (max == 0)
+            if (max === 0)
                 max = Math.max(this._contentSize[this._refreshBarAxis] + this._footerLockedSize - this._viewSize[this._refreshBarAxis], 0);
             else
                 max += this._footerLockedSize;
@@ -892,7 +896,7 @@ export class Scroller implements IScroller {
     }
 
     _shouldCheckOverflow() {
-        if (this._barDisplay == ScrollBarDisplay.OnOverflow || this._barDisplay == ScrollBarDisplay.OnOverflowAndScroll)
+        if (this._barDisplay === ScrollBarDisplay.OnOverflow || this._barDisplay === ScrollBarDisplay.OnOverflowAndScroll)
             return (this._vScrollBar != null ? 1 : 0) + (this._hScrollBar != null ? 2 : 0);
         else
             return null;
@@ -955,7 +959,7 @@ export class Scroller implements IScroller {
     _ownerContentSizeChanged(): void {
         let aWidth = this._layout.contentWidth;
         let aHeight = this._layout.contentHeight;
-        if (this._contentSize.x == aWidth && this._contentSize.y == aHeight)
+        if (this._contentSize.x === aWidth && this._contentSize.y === aHeight)
             return;
 
         this._contentSize.x = aWidth;
@@ -965,45 +969,45 @@ export class Scroller implements IScroller {
 
     _changeContentSizeOnScrolling(deltaWidth: number, deltaHeight: number,
         deltaPosX: number, deltaPosY: number): void {
-        let isRightmost: boolean = this._xPos != 0 && this._xPos == this._overlapSize.x;
-        let isBottom: boolean = this._yPos != 0 && this._yPos == this._overlapSize.y;
+        let isRightmost: boolean = this._xPos !== 0 && this._xPos === this._overlapSize.x;
+        let isBottom: boolean = this._yPos !== 0 && this._yPos === this._overlapSize.y;
 
         this._contentSize.x += deltaWidth;
         this._contentSize.y += deltaHeight;
         this.onContentSizeChanged();
 
-        if (this._tweening == 1) {
+        if (this._tweening === 1) {
             //如果原来滚动位置是贴边，加入处理继续贴边。
-            if (deltaWidth != 0 && isRightmost && this._tweenChange.x < 0) {
+            if (deltaWidth !== 0 && isRightmost && this._tweenChange.x < 0) {
                 this._xPos = this._overlapSize.x;
                 this._tweenChange.x = -this._xPos - this._tweenStart.x;
             }
 
-            if (deltaHeight != 0 && isBottom && this._tweenChange.y < 0) {
+            if (deltaHeight !== 0 && isBottom && this._tweenChange.y < 0) {
                 this._yPos = this._overlapSize.y;
                 this._tweenChange.y = -this._yPos - this._tweenStart.y;
             }
         }
-        else if (this._tweening == 2) {
+        else if (this._tweening === 2) {
             //重新调整起始位置，确保能够顺滑滚下去
-            if (deltaPosX != 0) {
+            if (deltaPosX !== 0) {
                 this._container.x -= deltaPosX;
                 this._tweenStart.x -= deltaPosX;
                 this._xPos = -this._container.x;
             }
-            if (deltaPosY != 0) {
+            if (deltaPosY !== 0) {
                 this._container.y -= deltaPosY;
                 this._tweenStart.y -= deltaPosY;
                 this._yPos = -this._container.y;
             }
         }
         else if (this._dragged) {
-            if (deltaPosX != 0) {
+            if (deltaPosX !== 0) {
                 this._container.x -= deltaPosX;
                 this._containerPos.x -= deltaPosX;
                 this._xPos = -this._container.x;
             }
-            if (deltaPosY != 0) {
+            if (deltaPosY !== 0) {
                 this._container.y -= deltaPosY;
                 this._containerPos.y -= deltaPosY;
                 this._yPos = -this._container.y;
@@ -1011,12 +1015,12 @@ export class Scroller implements IScroller {
         }
         else {
             //如果原来滚动位置是贴边，加入处理继续贴边。
-            if (deltaWidth != 0 && isRightmost) {
+            if (deltaWidth !== 0 && isRightmost) {
                 this._xPos = this._overlapSize.x;
                 this._container.x = -this._xPos;
             }
 
-            if (deltaHeight != 0 && isBottom) {
+            if (deltaHeight !== 0 && isBottom) {
                 this._yPos = this._overlapSize.y;
                 this._container.y = -this._yPos;
             }
@@ -1027,7 +1031,7 @@ export class Scroller implements IScroller {
         if (!this._owner)
             return;
 
-        if (this._barDisplay == ScrollBarDisplay.OnOverflow || this._barDisplay == ScrollBarDisplay.OnOverflowAndScroll) {
+        if (this._barDisplay === ScrollBarDisplay.OnOverflow || this._barDisplay === ScrollBarDisplay.OnOverflowAndScroll) {
             this._vScrollNone = this._contentSize.y <= this._viewSize.y;
             this._hScrollNone = this._contentSize.x <= this._viewSize.x;
 
@@ -1045,13 +1049,13 @@ export class Scroller implements IScroller {
         }
 
         if (this._vScrollBar) {
-            if (this._contentSize.y == 0)
+            if (this._contentSize.y === 0)
                 this._vScrollBar.setDisplayPerc(0);
             else
                 this._vScrollBar.setDisplayPerc(Math.min(1, this._viewSize.y / this._contentSize.y));
         }
         if (this._hScrollBar) {
-            if (this._contentSize.x == 0)
+            if (this._contentSize.x === 0)
                 this._hScrollBar.setDisplayPerc(0);
             else
                 this._hScrollBar.setDisplayPerc(Math.min(1, this._viewSize.x / this._contentSize.x));
@@ -1070,11 +1074,11 @@ export class Scroller implements IScroller {
         if (this._maskContainer._scrollRect != null)
             this._maskContainer.scrollRect = this._cachedScrollRect;
 
-        if (this._dir == ScrollDirection.Horizontal || this._dir == ScrollDirection.Both)
+        if (this._dir === ScrollDirection.Horizontal || this._dir === ScrollDirection.Both)
             this._overlapSize.x = Math.ceil(Math.max(0, this._contentSize.x - this._viewSize.x));
         else
             this._overlapSize.x = 0;
-        if (this._dir == ScrollDirection.Vertical || this._dir == ScrollDirection.Both)
+        if (this._dir === ScrollDirection.Vertical || this._dir === ScrollDirection.Both)
             this._overlapSize.y = Math.ceil(Math.max(0, this._contentSize.y - this._viewSize.y));
         else
             this._overlapSize.y = 0;
@@ -1084,7 +1088,7 @@ export class Scroller implements IScroller {
         this._yPos = MathUtil.clamp(this._yPos, 0, this._overlapSize.y);
         if (this._refreshBarAxis) {
             let max: number = this._overlapSize[this._refreshBarAxis];
-            if (max == 0)
+            if (max === 0)
                 max = Math.max(this._contentSize[this._refreshBarAxis] + this._footerLockedSize - this._viewSize[this._refreshBarAxis], 0);
             else
                 max += this._footerLockedSize;
@@ -1106,7 +1110,7 @@ export class Scroller implements IScroller {
             }
 
             if (this._footer) {
-                if (this._refreshBarAxis == "y")
+                if (this._refreshBarAxis == "x")
                     this._footer.height = this._viewSize.y;
                 else
                     this._footer.width = this._viewSize.x;
@@ -1121,9 +1125,9 @@ export class Scroller implements IScroller {
     }
 
     private posChanged(ani: boolean): void {
-        if (this._aniFlag == 0)
+        if (this._aniFlag === 0)
             this._aniFlag = ani ? 1 : -1;
-        else if (this._aniFlag == 1 && !ani)
+        else if (this._aniFlag === 1 && !ani)
             this._aniFlag = -1;
 
         this._needRefresh = true;
@@ -1160,36 +1164,36 @@ export class Scroller implements IScroller {
     }
 
     private refresh2(): void {
-        if (this._aniFlag == 1 && !this._dragged) {
+        if (this._aniFlag === 1 && !this._dragged) {
             let posX: number;
             let posY: number;
 
             if (this._overlapSize.x > 0)
                 posX = -Math.floor(this._xPos);
             else {
-                if (this._container.x != 0)
+                if (this._container.x !== 0)
                     this._container.x = 0;
                 posX = 0;
             }
             if (this._overlapSize.y > 0)
                 posY = -Math.floor(this._yPos);
             else {
-                if (this._container.y != 0)
+                if (this._container.y !== 0)
                     this._container.y = 0;
                 posY = 0;
             }
 
-            if (posX != this._container.x || posY != this._container.y) {
+            if (posX !== this._container.x || posY !== this._container.y) {
                 this._tweenDuration.setTo(TWEEN_TIME_GO, TWEEN_TIME_GO);
                 this._tweenStart.setTo(this._container.x, this._container.y);
                 this._tweenChange.setTo(posX - this._tweenStart.x, posY - this._tweenStart.y);
                 this.startTween(1);
             }
-            else if (this._tweening != 0)
+            else if (this._tweening !== 0)
                 this.killTween();
         }
         else {
-            if (this._tweening != 0)
+            if (this._tweening !== 0)
                 this.killTween();
 
 
@@ -1200,10 +1204,10 @@ export class Scroller implements IScroller {
     }
 
     private _touchBegin(evt: Event): void {
-        if (!this._touchEffect || this._touchEffectButton != evt.button)
+        if (!this._touchEffect || this._touchEffectButton !== evt.button)
             return;
 
-        if (this._tweening != 0) {
+        if (this._tweening !== 0) {
             this.killTween();
             InputManager.cancelClick(evt.touchId);
             this._dragged = true;
@@ -1218,13 +1222,16 @@ export class Scroller implements IScroller {
         this._isHoldAreaDone = false;
         this._slidingPoints.length = 0;
         this._slidingPoints.push(pt.x, pt.y, Browser.now());
+
+        ILaya.stage.on(Event.MOUSE_MOVE, this, this._touchMove);
+        ILaya.stage.on(Event.MOUSE_UP, this, this._touchEnd);
     }
 
     private _touchMove(evt: Event): void {
         if (!this._touchEffect || this.owner.destroyed)
             return;
 
-        if (Scroller.draggingInst && Scroller.draggingInst != this) //已经有其他拖动
+        if (draggingInst?.owner?.displayedInStage && draggingInst != this) //已经有其他拖动
             return;
 
         let sensitivity: number = UIConfig2.touchScrollSensitivity;
@@ -1236,7 +1243,7 @@ export class Scroller implements IScroller {
         let diff: number;
         let sv: boolean, sh: boolean;
 
-        if (this._dir == ScrollDirection.Vertical) {
+        if (this._dir === ScrollDirection.Vertical) {
             if (!this._isHoldAreaDone) {
                 //表示正在监测垂直方向的手势
                 s_gestureFlag |= 1;
@@ -1245,7 +1252,7 @@ export class Scroller implements IScroller {
                 if (diff < sensitivity)
                     return;
 
-                if ((s_gestureFlag & 2) != 0) //已经有水平方向的手势在监测，那么我们用严格的方式检查是不是按垂直方向移动，避免冲突
+                if ((s_gestureFlag & 2) !== 0) //已经有水平方向的手势在监测，那么我们用严格的方式检查是不是按垂直方向移动，避免冲突
                 {
                     let diff2 = Math.abs(offsetX);
                     if (diff < diff2) //不通过则不允许滚动了
@@ -1255,7 +1262,7 @@ export class Scroller implements IScroller {
 
             sv = true;
         }
-        else if (this._dir == ScrollDirection.Horizontal) {
+        else if (this._dir === ScrollDirection.Horizontal) {
             if (!this._isHoldAreaDone) {
                 s_gestureFlag |= 2;
 
@@ -1263,7 +1270,7 @@ export class Scroller implements IScroller {
                 if (diff < sensitivity)
                     return;
 
-                if ((s_gestureFlag & 1) != 0) {
+                if ((s_gestureFlag & 1) !== 0) {
                     let diff2 = Math.abs(offsetY);
                     if (diff < diff2)
                         return;
@@ -1337,7 +1344,7 @@ export class Scroller implements IScroller {
             this._yPos = MathUtil.clamp(-this._container.y, 0, this._overlapSize.y);
 
         //循环滚动特别检查
-        if (this._loop != 0) {
+        if (this._loop !== 0) {
             newPosX = this._container.x;
             newPosY = this._container.y;
             if (this.loopCheckingCurrent()) {
@@ -1346,7 +1353,7 @@ export class Scroller implements IScroller {
             }
         }
 
-        Scroller.draggingInst = this;
+        draggingInst = this;
         this._isHoldAreaDone = true;
         this._dragged = true;
 
@@ -1357,8 +1364,11 @@ export class Scroller implements IScroller {
     }
 
     private _touchEnd(): void {
-        if (Scroller.draggingInst == this)
-            Scroller.draggingInst = null;
+        ILaya.stage.off(Event.MOUSE_MOVE, this, this._touchMove);
+        ILaya.stage.off(Event.MOUSE_UP, this, this._touchEnd);
+
+        if (draggingInst == this)
+            draggingInst = null;
 
         s_gestureFlag = 0;
 
@@ -1402,14 +1412,14 @@ export class Scroller implements IScroller {
                 this._refreshEventDispatching = false;
             }
 
-            if (this._headerLockedSize > 0 && s_endPos[this._refreshBarAxis] == 0) {
+            if (this._headerLockedSize > 0 && s_endPos[this._refreshBarAxis] === 0) {
                 s_endPos[this._refreshBarAxis] = this._headerLockedSize;
                 this._tweenChange.x = s_endPos.x - this._tweenStart.x;
                 this._tweenChange.y = s_endPos.y - this._tweenStart.y;
             }
-            else if (this._footerLockedSize > 0 && s_endPos[this._refreshBarAxis] == -this._overlapSize[this._refreshBarAxis]) {
+            else if (this._footerLockedSize > 0 && s_endPos[this._refreshBarAxis] === -this._overlapSize[this._refreshBarAxis]) {
                 let max: number = this._overlapSize[this._refreshBarAxis];
-                if (max == 0)
+                if (max === 0)
                     max = Math.max(this._contentSize[this._refreshBarAxis] + this._footerLockedSize - this._viewSize[this._refreshBarAxis], 0);
                 else
                     max += this._footerLockedSize;
@@ -1438,7 +1448,7 @@ export class Scroller implements IScroller {
 
             this._tweenChange.x = s_endPos.x - this._tweenStart.x;
             this._tweenChange.y = s_endPos.y - this._tweenStart.y;
-            if (this._tweenChange.x == 0 && this._tweenChange.y == 0) {
+            if (this._tweenChange.x === 0 && this._tweenChange.y === 0) {
                 this._updateScrollBarVisible();
                 return;
             }
@@ -1454,14 +1464,14 @@ export class Scroller implements IScroller {
     }
 
     private _mouseWheel(evt: Event): void {
-        if (this._mouseWheelDisabled || this._barDisplay == ScrollBarDisplay.Hidden)
+        if (this._mouseWheelDisabled || this._barDisplay === ScrollBarDisplay.Hidden)
             return;
 
         let delta: number = evt.delta;
         if (this._snapToItem && Math.abs(delta) < 1)
             delta = Math.sign(delta);
 
-        if (this._overlapSize.x > 0 && this._overlapSize.y == 0) {
+        if (this._overlapSize.x > 0 && this._overlapSize.y === 0) {
             let step: number = this._pageMode ? this._pageSize.x : this._step;
             this.setPosX(this._xPos + step * delta, false);
             evt.stopPropagation();
@@ -1475,22 +1485,22 @@ export class Scroller implements IScroller {
 
     private _rollOver() {
         this._hover = true;
-        if (this._barDisplay == ScrollBarDisplay.OnScroll || this._barDisplay == ScrollBarDisplay.OnOverflowAndScroll)
+        if (this._barDisplay === ScrollBarDisplay.OnScroll || this._barDisplay === ScrollBarDisplay.OnOverflowAndScroll)
             this._updateScrollBarVisible();
     }
 
     private _rollOut() {
         this._hover = false;
-        if (this._barDisplay == ScrollBarDisplay.OnScroll || this._barDisplay == ScrollBarDisplay.OnOverflowAndScroll)
+        if (this._barDisplay === ScrollBarDisplay.OnScroll || this._barDisplay === ScrollBarDisplay.OnOverflowAndScroll)
             this._updateScrollBarVisible();
     }
 
     private updateScrollBarPos(): void {
         if (this._vScrollBar)
-            this._vScrollBar.setScrollPerc(this._overlapSize.y == 0 ? 0 : MathUtil.clamp(-this._container.y, 0, this._overlapSize.y) / this._overlapSize.y);
+            this._vScrollBar.setScrollPerc(this._overlapSize.y === 0 ? 0 : MathUtil.clamp(-this._container.y, 0, this._overlapSize.y) / this._overlapSize.y);
 
         if (this._hScrollBar)
-            this._hScrollBar.setScrollPerc(this._overlapSize.x == 0 ? 0 : MathUtil.clamp(-this._container.x, 0, this._overlapSize.x) / this._overlapSize.x);
+            this._hScrollBar.setScrollPerc(this._overlapSize.x === 0 ? 0 : MathUtil.clamp(-this._container.x, 0, this._overlapSize.x) / this._overlapSize.x);
 
         this.checkRefreshBar();
     }
@@ -1512,11 +1522,11 @@ export class Scroller implements IScroller {
     }
 
     private updateScrollBarVisible2(bar: GScrollBar): void {
-        let flag = this._barDisplay == ScrollBarDisplay.OnScroll || this._barDisplay == ScrollBarDisplay.OnOverflowAndScroll;
+        let flag = this._barDisplay === ScrollBarDisplay.OnScroll || this._barDisplay === ScrollBarDisplay.OnOverflowAndScroll;
         if (flag)
             Tween.killAll(bar);
 
-        if (flag && !this._hover && this._tweening == 0 && !this._dragged && !bar.gripDragging) {
+        if (flag && !this._hover && this._tweening === 0 && !this._dragged && !bar.gripDragging) {
             if (bar.visible)
                 Tween.create(bar).go("alpha", 1, 0).duration(0.5).delay(0.5).then(this._barTweenComplete, this);
         }
@@ -1533,13 +1543,12 @@ export class Scroller implements IScroller {
     }
 
     private getLoopPartSize(division: number, axis: AxisType): number {
-        let list: any = this._owner; //assume it is a list
-        return (this._contentSize[axis] + (axis == "x" ? list.columnGap : list.lineGap)) / division;
+        return (this._contentSize[axis] + (axis == "x" ? (this._owner as GList).layout.columnGap : (this._owner as GList).layout.rowGap)) / division;
     }
 
     private loopCheckingCurrent(): boolean {
         let changed: boolean = false;
-        if (this._loop == 1 && this._overlapSize.x > 0) {
+        if (this._loop === 1 && this._overlapSize.x > 0) {
             if (this._xPos < 0.001) {
                 this._xPos += this.getLoopPartSize(2, "x");
                 changed = true;
@@ -1549,7 +1558,7 @@ export class Scroller implements IScroller {
                 changed = true;
             }
         }
-        else if (this._loop == 2 && this._overlapSize.y > 0) {
+        else if (this._loop === 2 && this._overlapSize.y > 0) {
             if (this._yPos < 0.001) {
                 this._yPos += this.getLoopPartSize(2, "y");
                 changed = true;
@@ -1567,10 +1576,10 @@ export class Scroller implements IScroller {
     }
 
     private loopCheckingTarget(endPos: Point): void {
-        if (this._loop == 1)
+        if (this._loop === 1)
             this.loopCheckingTarget2(endPos, "x");
 
-        if (this._loop == 2)
+        if (this._loop === 2)
             this.loopCheckingTarget2(endPos, "y");
     }
 
@@ -1596,7 +1605,7 @@ export class Scroller implements IScroller {
     }
 
     private loopCheckingNewPos(value: number, axis: AxisType): number {
-        if (this._overlapSize[axis] == 0)
+        if (this._overlapSize[axis] === 0)
             return value;
 
         let pos: number = axis == "x" ? this._xPos : this._yPos;
@@ -1709,7 +1718,7 @@ export class Scroller implements IScroller {
     private updateTargetAndDuration(start: Point, velocity: Point, axis: AxisType, outEnd: Point, outDuration: Point) {
         let pos = start[axis];
         let v = velocity[axis];
-        if (pos > 0 || this._overlapSize[axis] == 0) {
+        if (pos > 0 || this._overlapSize[axis] === 0) {
             outEnd[axis] = 0;
             outDuration[axis] = TWEEN_TIME_DEFAULT;
         }
@@ -1717,7 +1726,7 @@ export class Scroller implements IScroller {
             outEnd[axis] = -this._overlapSize[axis];
             outDuration[axis] = TWEEN_TIME_DEFAULT;
         }
-        else if (v != 0) {
+        else if (v !== 0) {
             let ratio = UIConfig2.defaultScrollDecelerationRate;
             let tmp = Math.log(ratio);
             let frames = -Math.log(Math.abs(v)) / tmp; //t = -ln(S)/ln(r)
@@ -1738,8 +1747,8 @@ export class Scroller implements IScroller {
     }
 
     private fixDuration(axis: AxisType, oldChange: number): void {
-        if (this._tweenChange[axis] == 0 || Math.abs(this._tweenChange[axis]) >= Math.abs(oldChange)) {
-            if (oldChange == 0)
+        if (this._tweenChange[axis] === 0 || Math.abs(this._tweenChange[axis]) >= Math.abs(oldChange)) {
+            if (oldChange === 0)
                 this._tweenDuration[axis] = TWEEN_TIME_DEFAULT;
             return;
         }
@@ -1759,7 +1768,7 @@ export class Scroller implements IScroller {
     }
 
     private killTween(): void {
-        if (this._tweening == 1) //取消类型为1的tween需立刻设置到终点
+        if (this._tweening === 1) //取消类型为1的tween需立刻设置到终点
         {
             this._container.pos(this._tweenStart.x + this._tweenChange.x, this._tweenStart.y + this._tweenChange.y);
             this._owner.event(UIEvent.Scroll);
@@ -1795,7 +1804,7 @@ export class Scroller implements IScroller {
 
         if (this._footer) {
             let max = this._overlapSize[this._refreshBarAxis];
-            if (pos < -max || max == 0 && this._footerLockedSize > 0) {
+            if (pos < -max || max === 0 && this._footerLockedSize > 0) {
                 if (!this._footer.parent) {
                     this._maskContainer.addChildAt(this._footer, this._maskContainer.getChildIndex(this._container));
                 }
@@ -1807,7 +1816,7 @@ export class Scroller implements IScroller {
                 else
                     pt[this._refreshBarAxis] = Math.max(Math.min(pos + this._viewSize[this._refreshBarAxis], this._viewSize[this._refreshBarAxis] - this._footerLockedSize),
                         this._viewSize[this._refreshBarAxis] - this._contentSize[this._refreshBarAxis]);
-                this._footer.pos(pt.x, pt.y);
+                this._footer.setLeftTop(pt.x, pt.y);
 
                 pt.setTo(this._footer.width, this._footer.height);
                 if (max > 0)
@@ -1828,14 +1837,14 @@ export class Scroller implements IScroller {
 
         this._container.pos(nx, ny);
 
-        if (this._tweening == 2) {
+        if (this._tweening === 2) {
             if (this._overlapSize.x > 0)
                 this._xPos = MathUtil.clamp(-nx, 0, this._overlapSize.x);
             if (this._overlapSize.y > 0)
                 this._yPos = MathUtil.clamp(-ny, 0, this._overlapSize.y);
         }
 
-        if (this._tweenChange.x == 0 && this._tweenChange.y == 0) {
+        if (this._tweenChange.x === 0 && this._tweenChange.y === 0) {
             this._tweening = 0;
             ILaya.timer.clear(this, this.tweenUpdate);
 
@@ -1855,7 +1864,7 @@ export class Scroller implements IScroller {
 
     private runTween(axis: AxisType): number {
         let newValue: number;
-        if (this._tweenChange[axis] != 0) {
+        if (this._tweenChange[axis] !== 0) {
             this._tweenTime[axis] += ILaya.timer.delta / 1000;
             if (this._tweenTime[axis] >= this._tweenDuration[axis]) {
                 newValue = this._tweenStart[axis] + this._tweenChange[axis];
@@ -1868,20 +1877,20 @@ export class Scroller implements IScroller {
 
             let threshold1: number = 0;
             let threshold2: number = -this._overlapSize[axis];
-            if (this._headerLockedSize > 0 && this._refreshBarAxis == axis)
+            if (this._headerLockedSize > 0 && this._refreshBarAxis === axis)
                 threshold1 = this._headerLockedSize;
-            if (this._footerLockedSize > 0 && this._refreshBarAxis == axis) {
+            if (this._footerLockedSize > 0 && this._refreshBarAxis === axis) {
                 let max: number = this._overlapSize[this._refreshBarAxis];
-                if (max == 0)
+                if (max === 0)
                     max = Math.max(this._contentSize[this._refreshBarAxis] + this._footerLockedSize - this._viewSize[this._refreshBarAxis], 0);
                 else
                     max += this._footerLockedSize;
                 threshold2 = -max;
             }
 
-            if (this._tweening == 2 && this._bouncebackEffect) {
+            if (this._tweening === 2 && this._bouncebackEffect) {
                 if (newValue > 20 + threshold1 && this._tweenChange[axis] > 0
-                    || newValue > threshold1 && this._tweenChange[axis] == 0)//开始回弹
+                    || newValue > threshold1 && this._tweenChange[axis] === 0)//开始回弹
                 {
                     this._tweenTime[axis] = 0;
                     this._tweenDuration[axis] = TWEEN_TIME_DEFAULT;
@@ -1889,7 +1898,7 @@ export class Scroller implements IScroller {
                     this._tweenStart[axis] = newValue;
                 }
                 else if (newValue < threshold2 - 20 && this._tweenChange[axis] < 0
-                    || newValue < threshold2 && this._tweenChange[axis] == 0)//开始回弹
+                    || newValue < threshold2 && this._tweenChange[axis] === 0)//开始回弹
                 {
                     this._tweenTime[axis] = 0;
                     this._tweenDuration[axis] = TWEEN_TIME_DEFAULT;

@@ -31,7 +31,7 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicVertexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -930,7 +930,7 @@ export class GraphicsRunner {
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, _drawTexToDrawTri_Index, m || this._curMat, alpha, null, 0xffffffff);//用tuv而不是uv会提高效率
+            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, _drawTexToDrawTri_Index, m || this._curMat, alpha, null, color);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
@@ -2182,7 +2182,7 @@ export class GraphicsRunner {
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
-        let dataView: I2DGraphicBufferDataView;
+        let dataView: I2DGraphicVertexDataView;
         let offset = 0;
 
         let positions: number[] = [];

@@ -6,7 +6,7 @@ import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { Web2DGraphic2DBufferDataView, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { IBatch2DContext, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -15,7 +15,7 @@ import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
+import { Web2DGraphicsIndexBuffer } from "./Web2DGraphic2DBuffer";
 
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
@@ -27,7 +27,7 @@ export class BatchBuffer {
     static _STEP_ = 1024;
 
     indexBuffer: IIndexBuffer;
-    wholeBuffer: Web2DGraphicWholeBuffer;
+    wholeBuffer: Web2DGraphicsIndexBuffer;
 
     indexCount: number = 0;
     maxIndexCount: number = 0;
@@ -39,9 +39,8 @@ export class BatchBuffer {
     constructor() {
         this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this.indexBuffer.indexType = IndexFormat.UInt16;
-        this.wholeBuffer = new Web2DGraphicWholeBuffer();
+        this.wholeBuffer = new Web2DGraphicsIndexBuffer();
         this.wholeBuffer.buffer = this.indexBuffer;
-        this.wholeBuffer.modifyType = BufferModifyType.Index;
     }
 
     updateBufLength() {
@@ -220,14 +219,14 @@ export class WebGraphicsBatchContext implements IBatch2DContext {
     getRenderElement(): IPrimitiveRenderElement2D {
         let elemetLength = this._list.elements.length;
         let length = this._list.length;
-        let element : IPrimitiveRenderElement2D = null;
+        let element: IPrimitiveRenderElement2D = null;
         if (elemetLength > length) {
             element = this._list.elements[length];
             this._list.length++;
             return element;
-        }else{
-           element = WebGraphicsBatch._pool.take();
-           this._list.add(element);
+        } else {
+            element = WebGraphicsBatch._pool.take();
+            this._list.add(element);
         }
         return element;
     }
@@ -282,7 +281,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let end = length - 1;
         let batchContext = WebGraphicsBatch.batchCtx; // 批次上下文
         batchContext.reset();
-        
+
         for (let index = 0; index <= end; index++) {
             let offset = start + index;
             let element = elementArray[offset];
@@ -424,13 +423,13 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let buffer = context._batchBuffer;
         let cviews = handle.getCloneViews();
         for (let i = 0, n = blocks.length; i < n; i++) {
-            let cview = cviews[i] as Web2DGraphic2DBufferDataView;
+            let cview = cviews[i] as Web2DGraphic2DIndexDataView;
             let block = blocks[i];
             let vertexBuffer = block.vertexBuffer;
             let bufferState = buffer.bindBuffer(vertexBuffer);
             buffer.indexCount += cview.length;
             buffer.wholeBuffer.modifyOneView(cview);
-            
+
             if (cview._geometry.bufferState !== bufferState) {
                 cview._geometry.bufferState = bufferState;
             }

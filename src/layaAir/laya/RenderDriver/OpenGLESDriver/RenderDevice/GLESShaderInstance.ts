@@ -49,6 +49,5 @@ export class GLESShaderInstance implements IShaderInstance {
 	 */
 	_disposeResource(): void {
 		this._nativeObj.destroy();
-		this._nativeObj = null;
 	}
 }

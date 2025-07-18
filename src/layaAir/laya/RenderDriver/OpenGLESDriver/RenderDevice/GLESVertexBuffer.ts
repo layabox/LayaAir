@@ -49,7 +49,6 @@ export class GLESVertexBuffer implements IVertexBuffer {
     }
     destroy(): void {
         this._nativeObj.destroy();
-        this._nativeObj = null;
         this._bufferRef = null;
     }
 

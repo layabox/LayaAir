@@ -10,6 +10,8 @@ import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { RenderContext3D } from "../RenderContext3D";
 import { Pool } from "../../../../utils/Pool";
+import { Stat } from "../../../../utils/Stat";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * @internal
@@ -124,6 +126,7 @@ export class DrawMeshCMD extends Command {
     run(): void {
         this._meshRender.sharedMaterial = this.material;
         this._meshRender._baseRenderNode.transform = this._transform;
+        this._meshRender._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
         this._meshRender.renderUpdate(RenderContext3D._instance);
         // todo scene ibl
         this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;

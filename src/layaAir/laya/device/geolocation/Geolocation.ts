@@ -60,7 +60,7 @@ export class Geolocation {
      * @param onSuccess 带有唯一 `Position` 参数的回调处理器。
      * @param onError 可选的。带有错误信息的回调处理器。错误代码为 Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE 和 Geolocation.TIMEOUT 之一。
      */
-    static getCurrentPosition(onSuccess: ((info: GeolocationInfo) => void), onError?: ((err: { code: number, message: string }) => void)): void;
+    static getCurrentPosition(onSuccess: (info: GeolocationInfo) => void, onError?: (err: { code: number, message: string }) => void): void;
     /** @deprecated */
     static getCurrentPosition(onSuccess: Handler, onError?: Handler): void;
     static getCurrentPosition(onSuccess: Handler | ((info: GeolocationInfo) => void), onError?: Handler | ((err: { code: number, message: string }) => void)): void {
@@ -93,7 +93,7 @@ export class Geolocation {
      * @param onSuccess 带有唯一 `Position` 参数的回调处理器。
      * @param onError 可选的。带有错误信息的回调处理器。错误代码为 Geolocation.PERMISSION_DENIED、Geolocation.POSITION_UNAVAILABLE 和 Geolocation.TIMEOUT 之一。
      */
-    static watchPosition(onSuccess: ((info: GeolocationInfo) => void), onError?: ((err: { code: number, message: string }) => void)): number;
+    static watchPosition(onSuccess: (info: GeolocationInfo) => void, onError?: (err: { code: number, message: string }) => void): number;
     /** @deprecated */
     static watchPosition(onSuccess: Handler, onError?: Handler): number;
     static watchPosition(onSuccess: Handler | ((info: GeolocationInfo) => void), onError?: Handler | ((err: { code: number, message: string }) => void)): number {

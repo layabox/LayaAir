@@ -90,18 +90,18 @@ export class RTRender2DPass implements IRender2DPass {
    }
    get shaderData(): GLESShaderData {
       return this._shaderData;
-   }  
+   }
 
    private _renderOffset: Vector2 = new Vector2();
    set renderOffset(value: Vector2) {
-		this._nativeObj.renderOffset = value;
-	}
-	get renderOffset(): Vector2 {
-		let offset = this._nativeObj.renderOffset;
-		this._renderOffset.x = offset.x;
-		this._renderOffset.y = offset.y;
-		return this._renderOffset;
-	}
+      this._nativeObj.renderOffset = value;
+   }
+   get renderOffset(): Vector2 {
+      let offset = this._nativeObj.renderOffset;
+      this._renderOffset.x = offset.x;
+      this._renderOffset.y = offset.y;
+      return this._renderOffset;
+   }
    needRender(): boolean {
       return this._nativeObj.needRender();
    }
@@ -113,7 +113,7 @@ export class RTRender2DPass implements IRender2DPass {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
       this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
       this._nativeObj.setRenderCallback(this.renderCallBack.bind(this));
-      
+
    }
 
    /**
@@ -140,7 +140,7 @@ export class RTRender2DPass implements IRender2DPass {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
-      }  
+      }
       this._nativeObj.fowardRender(context._nativeObj);
    }
 

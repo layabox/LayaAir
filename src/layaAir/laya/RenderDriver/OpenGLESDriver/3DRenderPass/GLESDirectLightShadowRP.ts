@@ -40,7 +40,6 @@ export class GLESDirectLightShadowRP {
     }
 
     destroy() {
-        this._nativeObj = null;
         this._shadowCasterCommanBuffer && (this._shadowCasterCommanBuffer.length = 0);
         this._shadowCasterCommanBuffer = null;
         this._destTarget = null;

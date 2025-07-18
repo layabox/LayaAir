@@ -15,7 +15,7 @@ export class Prefab extends Resource {
     fromDCC: boolean = false;
 
     /**
-     * @ignore
+     * @ignore @blueprintIgnore
      */
     constructor() {
         super(false);

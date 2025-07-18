@@ -29,28 +29,30 @@ export interface I2DGlobalRenderData {
     globalShaderData: ShaderData;
 }
 
-export enum BufferModifyType {
-    Vertex = 0,
-    Index = 1,
+/** @blueprintIgnore */
+export interface I2DGraphicBufferDataView {
+    length: number;
 }
 
 /** @blueprintIgnore */
-export interface I2DGraphicBufferDataView {
-    start: number;
+export interface I2DGraphicVertexDataView extends I2DGraphicBufferDataView {
     length: number;
+    start: number;
     stride: number;
-    modifyType: BufferModifyType;
-    setGeometry(value: IRenderGeometryElement): void;
-    getData(): Float32Array | Uint16Array;
+    getData(): Float32Array;
+}
+
+export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
+    length: number;
     setData(data: ArrayLike<number>): void;
+    setGeometry(value: IRenderGeometryElement): void;
 }
 
 /** @blueprintIgnore */
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
     // bufferData: Float32Array | Uint16Array;
-    arrayBuffer: ArrayBuffer;
-    modifyType: BufferModifyType;
+    // arrayBuffer: ArrayBuffer;
     resetData(byteLength: number): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;
     destroy(): void;
@@ -59,13 +61,13 @@ export interface I2DGraphicWholeBuffer {
 /** @blueprintIgnore */
 export type Graphics2DVertexBlock = {
     positions: number[],
-    vertexViews: I2DGraphicBufferDataView[],
+    vertexViews: I2DGraphicVertexDataView[],
 }
 
 /** @blueprintIgnore */
 export type Graphics2DBufferBlock = {
     vertexs: Graphics2DVertexBlock[],
-    indexView: I2DGraphicBufferDataView,
+    indexView: I2DGraphicIndexDataView,
     vertexBuffer: IVertexBuffer,
 }
 

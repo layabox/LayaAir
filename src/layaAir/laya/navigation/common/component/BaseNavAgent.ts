@@ -397,6 +397,11 @@ export class BaseNavAgent extends Component {
         this._addAgent();
     }
 
+    protected _onDisable(): void {
+        super._onDisable();
+        this._removeAgent();
+    }
+
     /**
      * @internal 
      */

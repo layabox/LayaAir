@@ -211,7 +211,7 @@ export class GLESForwardAddClusterRP {
     }
     
     destroy() {
-        this._nativeObj = null;
+        //this._nativeObj = null;
     }
 
 

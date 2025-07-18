@@ -1,4 +1,3 @@
-import { log } from "console";
 import { GeometryElement } from "../../d3/core/GeometryElement";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
@@ -1171,6 +1170,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @param render 与该粒子系统关联的 ShurikenParticleRenderer。
      * @param meshTopology 网格使用的拓扑结构，默认为 MeshTopology.Triangles。
      * @param drawType 用于渲染的绘制类型，默认为 DrawType.DrawElement。
+     * @blueprintIgnore
      */
     constructor(render: ShurikenParticleRenderer, meshTopology: MeshTopology = MeshTopology.Triangles, drawType: DrawType = DrawType.DrawElement) {
         super(meshTopology, drawType);

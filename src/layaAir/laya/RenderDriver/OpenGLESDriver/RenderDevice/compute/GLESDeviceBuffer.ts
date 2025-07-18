@@ -182,7 +182,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
         if (!this._destroyed) {
             if (this._nativeObj) {
                 this._nativeObj.release();
-                this._nativeObj = null;
+                //this._nativeObj = null;
             }
             
             this._cacheShaderData?.clear();

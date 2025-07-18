@@ -50,7 +50,7 @@ export class Layout implements ILayout {
     }
 
     set type(value: LayoutType) {
-        if (this._type != value) {
+        if (this._type !== value) {
             this._type = value;
             if (!SerializeUtil.isDeserializing) {
                 (<GPanel>this._owner).scroller?._setDefaultDirection();
@@ -75,7 +75,7 @@ export class Layout implements ILayout {
     }
 
     set rows(value: number) {
-        if (this._rows != value) {
+        if (this._rows !== value) {
             this._rows = value;
             this.setChangedFlag();
         }
@@ -86,7 +86,7 @@ export class Layout implements ILayout {
     }
 
     set columns(value: number) {
-        if (this._columns != value) {
+        if (this._columns !== value) {
             this._columns = value;
             this.setChangedFlag();
         }
@@ -97,7 +97,7 @@ export class Layout implements ILayout {
     }
 
     set rowGap(value: number) {
-        if (this._rowGap != value) {
+        if (this._rowGap !== value) {
             this._rowGap = value;
             this.setChangedFlag();
         }
@@ -108,7 +108,7 @@ export class Layout implements ILayout {
     }
 
     set columnGap(value: number) {
-        if (this._columnGap != value) {
+        if (this._columnGap !== value) {
             this._columnGap = value;
             this.setChangedFlag();
         }
@@ -130,7 +130,7 @@ export class Layout implements ILayout {
     }
 
     set align(value: AlignType) {
-        if (this._align != value) {
+        if (this._align !== value) {
             this._align = value;
             this.setChangedFlag();
         }
@@ -141,7 +141,7 @@ export class Layout implements ILayout {
     }
 
     set valign(value: VAlignType) {
-        if (this._valign != value) {
+        if (this._valign !== value) {
             this._valign = value;
             this.setChangedFlag();
         }
@@ -152,7 +152,7 @@ export class Layout implements ILayout {
     }
 
     set stretchX(value: StretchMode) {
-        if (this._stretchX != value) {
+        if (this._stretchX !== value) {
             this._stretchX = value;
             this.setChangedFlag();
         }
@@ -163,7 +163,7 @@ export class Layout implements ILayout {
     }
 
     set stretchY(value: StretchMode) {
-        if (this._stretchY != value) {
+        if (this._stretchY !== value) {
             this._stretchY = value;
             this.setChangedFlag();
         }
@@ -204,7 +204,7 @@ export class Layout implements ILayout {
         return this._minChildSize;
     }
     set minChildSize(value: number) {
-        if (this._minChildSize != value) {
+        if (this._minChildSize !== value) {
             this._minChildSize = value;
             this.setChangedFlag();
         }
@@ -229,7 +229,7 @@ export class Layout implements ILayout {
 
         let children = <GWidget[]>this._owner.children;
         let cnt = children.length;
-        if (cnt == 0) {
+        if (cnt === 0) {
             resultPoint.x = 0;
             resultPoint.y = 0;
             return resultPoint;
@@ -240,7 +240,7 @@ export class Layout implements ILayout {
         let obj: GWidget = null;
         let prev: GWidget = null;
         let i = 0;
-        if (yValue != 0) {
+        if (yValue !== 0) {
             for (; i < cnt; i++) {
                 obj = children[i];
                 if (yValue < obj.y) {
@@ -263,7 +263,7 @@ export class Layout implements ILayout {
                 yValue = obj.y;
         }
 
-        if (xValue != 0) {
+        if (xValue !== 0) {
             if (i > 0)
                 i--;
             for (; i < cnt; i++) {
@@ -299,21 +299,21 @@ export class Layout implements ILayout {
 
         let layout = this._type;
 
-        if (layout == LayoutType.None && !(<GPanel>this._owner).scroller)
+        if (layout === LayoutType.None && !(<GPanel>this._owner).scroller)
             return;
 
-        if (reason == LayoutChangedReason.Visible && !this._foldInvisibles)
+        if (reason === LayoutChangedReason.Visible && !this._foldInvisibles)
             return;
 
-        if (reason == LayoutChangedReason.Pos && layout != LayoutType.None)
+        if (reason === LayoutChangedReason.Pos && layout !== LayoutType.None)
             return;
 
-        if (reason == LayoutChangedReason.Size)
+        if (reason === LayoutChangedReason.Size)
             this._childSizeChangedFlag = true;
 
         this._layoutChanged = true;
 
-        if (_dirtyLayouts.indexOf(this) == -1) {
+        if (_dirtyLayouts.indexOf(this) === -1) {
             _dirtyLayouts.push(this);
 
             if (!_timerAdded) {
@@ -401,16 +401,16 @@ export class Layout implements ILayout {
         this._contentWidth = aw;
         this._contentHeight = ah;
 
-        if (aw != 0 && ah != 0) {
-            if (this._stretchX == StretchMode.ResizeToFit && this._stretchY == StretchMode.ResizeToFit) {
+        if (aw !== 0 && ah !== 0) {
+            if (this._stretchX === StretchMode.ResizeToFit && this._stretchY === StretchMode.ResizeToFit) {
                 if ((<GPanel>this._owner).scroller)
                     (<GPanel>this._owner).scroller.setViewSize(aw, ah);
                 else
                     this._owner.size(aw + this._padding[3] + this._padding[1], ah + this._padding[0] + this._padding[2]);
             }
-            else if (this._stretchX == StretchMode.ResizeToFit)
+            else if (this._stretchX === StretchMode.ResizeToFit)
                 this.viewWidth = aw;
-            else if (this._stretchY == StretchMode.ResizeToFit)
+            else if (this._stretchY === StretchMode.ResizeToFit)
                 this.viewHeight = ah;
         }
 
@@ -427,8 +427,8 @@ export class Layout implements ILayout {
             childCount = curCount;
         minSize = minSize || 0;
 
-        if (childCount == 0) {
-            if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX)
+        if (childCount === 0) {
+            if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX)
                 this.viewHeight = minSize;
             else
                 this.viewWidth = minSize;
@@ -443,14 +443,14 @@ export class Layout implements ILayout {
                 i--;
             }
             if (i < 0) {
-                if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX)
+                if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX)
                     this.viewHeight = minSize;
                 else
                     this.viewWidth = minSize;
             }
             else {
                 let size = 0;
-                if (this._type == LayoutType.SingleColumn || this._type == LayoutType.FlowX) {
+                if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
                     size = obj.y + obj.height;
                     if (size < minSize)
                         size = minSize;
@@ -477,13 +477,13 @@ export class Layout implements ILayout {
         let pageMode = this._pageMode;
         if (singleRow) {
             rows = 1;
-            if (cols == 0 && !pageMode)
+            if (cols === 0 && !pageMode)
                 cols = 1000000;
         }
         let rowGap = this._rowGap;
         let colGap = this._columnGap;
-        let stretchX = this._stretchX == StretchMode.Stretch;
-        let stretchY = this._stretchY == StretchMode.Stretch;
+        let stretchX = this._stretchX === StretchMode.Stretch;
+        let stretchY = this._stretchY === StretchMode.Stretch;
         let align = stretchX ? 0 : this._align;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
@@ -497,7 +497,7 @@ export class Layout implements ILayout {
         let pi = 0;
 
         if (stretchX) {
-            if (cols == 0 || cnt < cols)
+            if (cols === 0 || cnt < cols)
                 cols = cnt;
             let stretchParamsX = this.checkStretchParams(this._stretchParamsX, data);
             for (let i = 0; i < cols; i++)
@@ -506,7 +506,7 @@ export class Layout implements ILayout {
         }
 
         if (cnt > 0 && stretchY) {
-            if (rows == 0)
+            if (rows === 0)
                 rows = 1;
             for (let i = 0; i < rows; i++)
                 data.sheight[i] = this._childSizeChangedFlag ? children[0].height : children[0]._giveHeight;
@@ -516,21 +516,21 @@ export class Layout implements ILayout {
         function newLine(i: number) {
             mh = Math.ceil(mh);
 
-            if (cy != 0)
+            if (cy !== 0)
                 cy += rowGap;
 
             if (cx > cw)
                 cw = cx;
 
-            if (align == 1)
+            if (align === 1)
                 cx = (vw - cx) * 0.5;
-            else if (align == 2)
+            else if (align === 2)
                 cx = vw - cx;
             else
                 cx = 0;
 
             if (pageMode) {
-                if ((cy + mh > vh || ri === rows) && cy != 0) {
+                if ((cy + mh > vh || ri === rows) && cy !== 0) {
                     px += vw;
                     cy = 0;
                     pi++;
@@ -556,14 +556,14 @@ export class Layout implements ILayout {
                 child.size(stretchX ? data.width[ci % cols] : child._giveWidth, stretchY ? data.height[ri % rows] : child._giveHeight, true);
                 let sw = Math.ceil(child.width);
 
-                if (cols == 0 && cx + colGap + sw > vw && cx != 0) {
+                if (cols === 0 && cx + colGap + sw > vw && cx !== 0) {
                     newLine(i);
 
                     child.size(stretchX ? data.width[ci] : child._giveWidth, stretchY ? data.height[ri % rows] : child._giveHeight, true);
                     sw = Math.ceil(child.width);
                 }
 
-                if (cx != 0)
+                if (cx !== 0)
                     cx += colGap;
                 data.posx[i] = cx;
                 cx += sw;
@@ -582,36 +582,36 @@ export class Layout implements ILayout {
             if (checkOverflow == null)
                 break;
 
-            if (ch <= vh && stretchX && (checkOverflow & 1) != 0) {
+            if (ch <= vh && stretchX && (checkOverflow & 1) !== 0) {
                 vw += (<GPanel>this._owner).scroller.vScrollBar.width;
                 this.handleStrecth(vw, cols, colGap, this._stretchParamsX, data.swidth, data.width);
             }
             else
                 checkOverflow &= ~1;
-            if (cw <= vw && stretchY && (checkOverflow & 2) != 0) {
+            if (cw <= vw && stretchY && (checkOverflow & 2) !== 0) {
                 vh += (<GPanel>this._owner).scroller.hScrollBar.height;
                 this.handleStrecth(vh, rows, rowGap, this._stretchParamsY, data.sheight, data.height);
             }
             else
                 checkOverflow &= ~2;
 
-            if (checkOverflow == 0)
+            if (checkOverflow === 0)
                 break;
 
             cx = cy = px = py = ci = ri = cw = ch = mh = 0;
         }
 
         cy = 0;
-        if (ch < vh && this._stretchY != StretchMode.ResizeToFit) {
-            if (this._valign == 1)
+        if (ch < vh && this._stretchY !== StretchMode.ResizeToFit) {
+            if (this._valign === 1)
                 cy = (vh - ch) / 2;
-            else if (this._valign == 2)
+            else if (this._valign === 2)
                 cy = vh - ch;
         }
 
         cx = 0;
-        if (this._stretchX == StretchMode.ResizeToFit) {
-            if (align == 1 || align == 2) {
+        if (this._stretchX === StretchMode.ResizeToFit) {
+            if (align === 1 || align === 2) {
                 cx = Math.floor((cw - vw) / 2);
                 if (cx > 0)
                     cx = 0;
@@ -623,7 +623,7 @@ export class Layout implements ILayout {
             cy += this._padding[0];
         }
 
-        if (singleRow && !stretchY && this._valign == 3) {
+        if (singleRow && !stretchY && this._valign === 3) {
             for (let i = 0; i < cnt; i++)
                 children[i].left = data.posx[i] + cx;
         }
@@ -646,13 +646,13 @@ export class Layout implements ILayout {
         let pageMode = this._pageMode;
         if (singleColumn) {
             cols = 1;
-            if (rows == 0 && !pageMode)
+            if (rows === 0 && !pageMode)
                 rows = 1000000;
         }
         let rowGap = this._rowGap;
         let colGap = this._columnGap;
-        let stretchX = this._stretchX == StretchMode.Stretch;
-        let stretchY = this._stretchY == StretchMode.Stretch;
+        let stretchX = this._stretchX === StretchMode.Stretch;
+        let stretchY = this._stretchY === StretchMode.Stretch;
         let valign = stretchY ? 0 : this._valign;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
@@ -666,7 +666,7 @@ export class Layout implements ILayout {
         let pi = 0;
 
         if (cnt > 0 && stretchX) {
-            if (cols == 0)
+            if (cols === 0)
                 cols = 1;
             for (let i = 0; i < cols; i++)
                 data.swidth[i] = this._childSizeChangedFlag ? children[0].width : children[0]._giveWidth;
@@ -674,7 +674,7 @@ export class Layout implements ILayout {
         }
 
         if (stretchY) {
-            if (rows == 0 || cnt < rows)
+            if (rows === 0 || cnt < rows)
                 rows = cnt;
             let stretchParamsY = this.checkStretchParams(this._stretchParamsY, data);
             for (let i = 0; i < rows; i++)
@@ -685,21 +685,21 @@ export class Layout implements ILayout {
         function newLine(i: number) {
             mw = Math.ceil(mw);
 
-            if (cx != 0)
+            if (cx !== 0)
                 cx += colGap;
 
             if (cy > ch)
                 ch = cy;
 
-            if (valign == 1)
+            if (valign === 1)
                 cy = (vh - cy) * 0.5;
-            else if (valign == 2)
+            else if (valign === 2)
                 cy = vh - cy;
             else
                 cy = 0;
 
             if (pageMode) {
-                if ((cx + mw > vw || ci === cols) && cx != 0) {
+                if ((cx + mw > vw || ci === cols) && cx !== 0) {
                     py += vh;
                     cx = 0;
                     pi++;
@@ -725,14 +725,14 @@ export class Layout implements ILayout {
                 child.size(stretchX ? data.width[ci % cols] : child._giveWidth, stretchY ? data.height[ri % rows] : child._giveHeight, true);
                 let sh = Math.ceil(child.height);
 
-                if (rows == 0 && cy + rowGap + sh > vh && cy != 0) {
+                if (rows === 0 && cy + rowGap + sh > vh && cy !== 0) {
                     newLine(i);
 
                     child.size(stretchX ? data.width[ci % cols] : child._giveWidth, stretchY ? data.height[ri] : child._giveHeight, true);
                     sh = Math.ceil(child.height);
                 }
 
-                if (cy != 0)
+                if (cy !== 0)
                     cy += rowGap;
                 data.posy[i] = cy;
                 cy += sh;
@@ -751,38 +751,38 @@ export class Layout implements ILayout {
             if (checkOverflow == null)
                 break;
 
-            if (ch <= vh && stretchX && (checkOverflow & 1) != 0) {
+            if (ch <= vh && stretchX && (checkOverflow & 1) !== 0) {
                 vw += (<GPanel>this._owner).scroller.vScrollBar.width;
                 this.handleStrecth(vw, cols, colGap, this._stretchParamsX, data.swidth, data.width);
             }
             else
                 checkOverflow &= ~1;
-            if (cw <= vw && stretchY && (checkOverflow & 2) != 0) {
+            if (cw <= vw && stretchY && (checkOverflow & 2) !== 0) {
                 vh += (<GPanel>this._owner).scroller.hScrollBar.height;
                 this.handleStrecth(vh, rows, rowGap, this._stretchParamsY, data.sheight, data.height);
             }
             else
                 checkOverflow &= ~2;
 
-            if (checkOverflow == 0)
+            if (checkOverflow === 0)
                 break;
 
             cx = cy = px = py = ci = ri = cw = ch = mw = 0;
         }
 
         cx = 0;
-        if (cw < vw && this._stretchX != StretchMode.ResizeToFit) {
-            if (this._align == 1)
+        if (cw < vw && this._stretchX !== StretchMode.ResizeToFit) {
+            if (this._align === 1)
                 cx = (vw - cw) / 2;
-            else if (this._align == 2)
+            else if (this._align === 2)
                 cx = vw - cw;
             else
                 cx = 0;
         }
 
         cy = 0;
-        if (this._stretchY == StretchMode.ResizeToFit) {
-            if (valign == 1 || valign == 2) {
+        if (this._stretchY === StretchMode.ResizeToFit) {
+            if (valign === 1 || valign === 2) {
                 cy = Math.floor((ch - vh) / 2);
                 if (cy > 0)
                     cy = 0;
@@ -794,7 +794,7 @@ export class Layout implements ILayout {
             cy += this._padding[0];
         }
 
-        if (singleColumn && !stretchX && this._align == 3) {
+        if (singleColumn && !stretchX && this._align === 3) {
             for (let i = 0; i < cnt; i++)
                 children[i].top = data.posy[i] + cy;
         }
@@ -828,14 +828,14 @@ export class Layout implements ILayout {
     }
 
     protected checkStretchParams(src: Array<StretchParam>, data: TempData) {
-        if (data.invisibleCnt == 0)
+        if (data.invisibleCnt === 0)
             return src;
 
         let out = data.stretchParams;
         let j = 0, k = 0;
         let test = data.invisibles[j];
         for (let i = 0; i < src.length; i++) {
-            if (i != test)
+            if (i !== test)
                 out[k++] = src[i];
             else {
                 j++;
@@ -851,7 +851,7 @@ export class Layout implements ILayout {
     protected handleStrecth(size: number, count: number, gap: number, params: Array<StretchParam>,
         sourceSizes: Array<number>, outSizes?: Array<number>) {
         outSizes = outSizes || sourceSizes;
-        if (count == 1 && !params[0]) {
+        if (count === 1 && !params[0]) {
             outSizes[0] = size;
             return;
         }
@@ -865,7 +865,7 @@ export class Layout implements ILayout {
 
         for (let i = 0; i < count; i++) {
             let param = params[i] || defParam;
-            if (param.ratio != 0) {
+            if (param.ratio !== 0) {
                 hasRatio = true;
                 ratio += param.ratio;
             }
@@ -878,14 +878,14 @@ export class Layout implements ILayout {
             let param = params[i] || defParam;
             let itemSize = sourceSizes[i];
             if (hasRatio) {
-                if (param.ratio != 0)
+                if (param.ratio !== 0)
                     itemSize = Math.floor(lineSize * param.ratio);
                 else
                     itemSize = ratio * (itemSize / lineSize3);
             }
 
             if (!param.fixed) {
-                let min = param.min != 0 ? param.min : minChildSize;
+                let min = param.min !== 0 ? param.min : minChildSize;
                 if (itemSize < min)
                     itemSize = min;
 
@@ -910,12 +910,12 @@ export class Layout implements ILayout {
                         continue;
                     }
 
-                    let min = param.min != 0 ? param.min : minChildSize;
+                    let min = param.min !== 0 ? param.min : minChildSize;
                     let ts = outSizes[i];
                     if (ts > min
                         && (round >= 2
-                            || round == 0 && param.priority > 0
-                            || round == 1 && (param == defParam || param.ratio == 0 && param.priority >= 0))) {
+                            || round === 0 && param.priority > 0
+                            || round === 1 && (param == defParam || param.ratio === 0 && param.priority >= 0))) {
                         limit[i] = min;
                         lineSize3 += ts;
                         k++;
@@ -924,7 +924,7 @@ export class Layout implements ILayout {
                         limit[i] = null;
                 }
 
-                if (k == 0) {
+                if (k === 0) {
                     round++;
                     if (round > 2)
                         break;
@@ -942,7 +942,7 @@ export class Layout implements ILayout {
                     ps2 += ps;
                     k--;
                     if (ps2 < 0) {
-                        if (k != 0)
+                        if (k !== 0)
                             continue;
                         else
                             ps2 = Math.floor(ps2);
@@ -972,12 +972,12 @@ export class Layout implements ILayout {
                         continue;
                     }
 
-                    let max = param.max != 0 ? param.max : 1000000;
+                    let max = param.max !== 0 ? param.max : 1000000;
                     let ts = outSizes[i];
                     if (ts < max
                         && (round >= 2
-                            || round == 0 && param.priority > 0
-                            || round == 1 && (param == defParam || param.ratio == 0 && param.priority >= 0))) {
+                            || round === 0 && param.priority > 0
+                            || round === 1 && (param == defParam || param.ratio === 0 && param.priority >= 0))) {
                         limit[i] = max;
                         lineSize3 += ts;
                         k++;
@@ -986,7 +986,7 @@ export class Layout implements ILayout {
                         limit[i] = null;
                 }
 
-                if (k == 0) {
+                if (k === 0) {
                     round++;
                     if (round > 2)
                         break;
@@ -1004,7 +1004,7 @@ export class Layout implements ILayout {
                     ps2 += ps;
                     k--;
                     if (ps2 < 1) {
-                        if (k != 0)
+                        if (k !== 0)
                             continue;
                         else
                             ps2 = 1;
@@ -1026,7 +1026,7 @@ export class Layout implements ILayout {
 
     protected static refreshAllLayouts(caller?: GWidget) {
         let len = _dirtyLayouts.length;
-        if (len == 0)
+        if (len === 0)
             return;
 
         if (caller) {

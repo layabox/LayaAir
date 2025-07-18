@@ -134,6 +134,8 @@ export interface IScroller {
     destroy(): void;
 
     /** @internal */
+    _loop: number;
+    /** @internal */
     _setDefaultDirection(): void;
     /** @internal */
     _ownerSizeChanged(): void;

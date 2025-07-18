@@ -15,17 +15,10 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
-import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBufferDataView";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
-import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
-import { BufferModifyType } from "../../Design/2D/IRender2DDataHandle";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IPool, Pool } from "../../../../utils/Pool";
+import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 
 export interface IBatch2DContext {
    reset(): void;
@@ -81,8 +74,8 @@ export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
    /** @internal */
    _lists: PassRenderList[] = [];
-
-   private _priority: number = 0;
+   /** @internal */
+   _priority: number = 0;
 
    public get priority(): number {
       return this._priority;
@@ -91,7 +84,7 @@ export class WebRender2DPass implements IRender2DPass {
    public set priority(value: number) {
       this._priority = value;
       if (this.mask && this.mask.pass) {
-         this.mask.pass.priority = value + 1;
+         this.mask.pass._priority = value + 1;
       }
    }
 
@@ -152,6 +145,8 @@ export class WebRender2DPass implements IRender2DPass {
 
    shaderData: ShaderData = null;
 
+   destroyed: boolean = false;
+
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
    }
@@ -161,7 +156,6 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      // return true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -197,8 +191,8 @@ export class WebRender2DPass implements IRender2DPass {
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
       // 裁剪规则一：检查渲染层掩码
-      if (struct.globalRenderData
-         && (struct.renderLayer & struct.globalRenderData.renderLayerMask) === 0) {
+      if (struct._parentGlobalRenderData
+         && (struct.renderLayer & struct._parentGlobalRenderData.renderLayerMask) === 0) {
          return;
       }
 
@@ -247,8 +241,9 @@ export class WebRender2DPass implements IRender2DPass {
    render(context: IRenderContext2D): void {
       let lists = this._lists;
       // 清理zOrder相关队列
-      // if (this.repaint) {//如果需要重画或者直接渲染离屏，走下面流程
-      if (this.repaint ) {
+      // if (true) {//如果需要重画或者直接渲染离屏，走下面流程
+      if (this.repaint) {
+
          for (let i = 0, len = lists.length; i < len; i++)
             lists[i]?.reset();
 
@@ -279,7 +274,7 @@ export class WebRender2DPass implements IRender2DPass {
             let list = lists[i];
             if (!list || !list.renderElements.length) continue;
             let structs = list.structs.elements;
-            for (let j = 0 , m = structs.length; j < m; j++) {
+            for (let j = 0, m = structs.length; j < m; j++) {
                structs[j] && structs[j].renderUpdate(context);
             }
          }
@@ -347,15 +342,21 @@ export class WebRender2DPass implements IRender2DPass {
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
+      let offset = this.renderOffset;
       if (mask && mask.trans) {
          let maskMatrix = mask.trans.matrix;
          maskMatrix.copyTo(temp);
-         temp.invert();
       } else {
          rootTrans.matrix.copyTo(temp);
-         temp.invert();
       }
-      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx + this.renderOffset.x, temp.ty + this.renderOffset.y);
+
+      let tx = temp.tx + temp.a * offset.x + temp.c * offset.y;
+      let ty = temp.ty + temp.b * offset.x + temp.d * offset.y;
+      temp.tx = tx;
+      temp.ty = ty;
+
+      temp.invert();
+      this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }
 
 
@@ -388,6 +389,10 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    destroy(): void {
+      if (this.destroyed) {
+         return;
+      }
+      this.destroyed = true;
       for (let i = 0, n = this._lists.length; i < n; i++) {
          if (this._lists[i]) {
             this._lists[i].destroy();
@@ -537,7 +542,7 @@ class PassRenderList {
 }
 
 export class WebRender2DPassManager implements IRender2DPassManager {
-   private _modefy: boolean = false;
+   private _modify: boolean = false;
 
    private _passes: WebRender2DPass[] = [];
 
@@ -547,12 +552,12 @@ export class WebRender2DPassManager implements IRender2DPassManager {
          return;
       }
       this._passes.splice(index, 1);
-      this._modefy = true;
+      this._modify = true;
    }
 
    apply(context: IRenderContext2D): void {
-      if (this._modefy) {
-         this._modefy = false;
+      if (this._modify) {
+         this._modify = false;
          this._sortPassesByPriority();
       }
 
@@ -573,14 +578,14 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       }
 
       this._passes.push(pass);
-      this._modefy = true;
+      this._modify = true;
    }
 
    /**
     * 按照 priority 对 Pass 进行排序
     */
    private _sortPassesByPriority(): void {
-      this._passes.sort((a, b) => b.priority - a.priority); // 按 priority 从大到小排序
+      this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
    }
 }
 

@@ -215,7 +215,7 @@ export class GLESComputeShader implements IComputeShader {
     destroy(): void {
         if (this._nativeObj) {
             this._nativeObj.release();
-            this._nativeObj = null;
+            //this._nativeObj = null;
         }
         
         this._kernels.clear();

@@ -1,5 +1,5 @@
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
-import { Graphics2DVertexBlock, I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { Graphics2DVertexBlock, I2DGraphicIndexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Material } from "../../resource/Material";
 import { BlendModeHandler } from "../canvas/BlendMode";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
@@ -31,7 +31,7 @@ export class SubmitBase {
 
     indices: number[] = [];
 
-    indexView: I2DGraphicBufferDataView;
+    indexView: I2DGraphicIndexDataView;
 
     /** @internal */
     _internalInfo: GraphicsShaderInfo = null;

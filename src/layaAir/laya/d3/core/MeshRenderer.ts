@@ -414,6 +414,7 @@ export class MeshRenderer extends BaseRender {
             this.boundsChange = false;
         }
         this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+        this._baseRenderNode.ismoved = this._baseRenderNode.ismoved;
     }
 
     /**

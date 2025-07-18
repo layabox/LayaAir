@@ -82,10 +82,10 @@ export class Graphics {
     private _modified: boolean = false;
     private _display: boolean = false;
 
-
     /**
     * @en Whether to use sprite state.
     * @zh graphics是否优先使用精灵状态。
+    * @blueprintIgnore
     */
     public get useSpriteState(): boolean {
         return this._useSpriteState;
@@ -98,7 +98,7 @@ export class Graphics {
         this.repaint();
     }
 
-    /**@ignore */
+    /**@ignore @blueprintIgnore */
     constructor() {
         this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
@@ -266,7 +266,7 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        if (!this.owner || this.owner.destroyed){
+        if (!this.owner || this.owner.destroyed) {
             this._display = false;
             return;
         }
@@ -665,6 +665,7 @@ export class Graphics {
      * @param width （可选）显示图片的宽度，设置为0表示使用图片默认宽度。默认为null。
      * @param height （可选）显示图片的高度，设置为0表示使用图片默认高度。默认为null。
      * @param complete （可选）加载完成回调
+     * @blueprintIgnore
      */
     loadImage(url: string, x: number = 0, y: number = 0, width: number = null, height: number = null, complete: Function | null = null): void {
         let tex: Texture = ILaya.loader.getRes(url);

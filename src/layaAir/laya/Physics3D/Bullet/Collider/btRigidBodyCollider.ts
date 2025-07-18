@@ -448,7 +448,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      * @zh 设置刚体进入睡眠状态的角速度阈值。
      * @param value 角速度阈值。
      */
-    setSleepAngularVelocity(value: number) {
+    setSleepAngularThreshold(value: number) {
         this._btCollider && btStatics.bt.btRigidBody_setSleepingThresholds(this._btCollider, btStatics.bt.btRigidBody_getLinearSleepingThreshold(this._btCollider), value);
     }
 

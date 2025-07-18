@@ -32,6 +32,6 @@ export class GLESSpotLightShadowRP {
     }
 
     destroy() {
-        this._nativeObj = null;
+        //this._nativeObj = null;
     }
 }

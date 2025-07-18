@@ -26,7 +26,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
     getSelectedNode(): GTreeNode {
         let i = this.index;
         if (i != -1)
-            return (<GWidget>this._owner.getChildAt(i))._treeNode;
+            return (<GWidget>this._owner.getChildAt(i)).treeNode;
         else
             return null;
     }
@@ -40,7 +40,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
         let cnt = s_list.length;
         let ret: Array<GTreeNode> = [];
         for (let i = 0; i < cnt; i++) {
-            let node = (<GWidget>this._owner.getChildAt(s_list[i]))._treeNode;
+            let node = (<GWidget>this._owner.getChildAt(s_list[i])).treeNode;
             ret.push(node);
         }
         return ret;
@@ -75,7 +75,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
             return;
 
         if (this._clickToExpand != 0) {
-            let node = item._treeNode;
+            let node = item.treeNode;
             if (node && node.isFolder && this._expandedStatusInEvt == node.expanded) {
                 if (this._clickToExpand == 2) {
                     if (evt.isDblClick)
@@ -93,7 +93,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
         if (dir == 3 || dir == 7) {
             let i = this.index;
             if (i != -1) {
-                let node = (<GWidget>this._owner.getChildAt(i))._treeNode;
+                let node = (<GWidget>this._owner.getChildAt(i)).treeNode;
                 if (node.isFolder) {
                     node.expanded = dir == 3;
                     return i;

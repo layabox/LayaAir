@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -234,6 +235,8 @@ export class SubStructRender {
    private _handle: I2DPrimitiveDataHandle = null;
    private _submit: SubmitBase = null;
    private _internalInfo: GraphicsShaderInfo = null;
+   /** @internal 渲染区域 */
+   _rtRect: Rectangle = new Rectangle();
 
    constructor() {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
@@ -267,6 +270,18 @@ export class SubStructRender {
       this._renderElement.type = this._subStruct.blendMode;
    }
 
+   /**
+    * @internal
+    * @param rect 
+    */
+   _updateRenderOffset(rect: Rectangle) {
+      rect.cloneTo(this._rtRect);
+      let originPass = this._subRenderPass;
+      originPass.renderOffset.x = rect.x;
+      originPass.renderOffset.y = rect.y;
+   }
+
+
    updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
       this._handle.mask = this._sprite.mask?._struct;
 
@@ -275,25 +290,48 @@ export class SubStructRender {
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
-      var tex = destRT;
-      if (tex) {
-         var width = destRT.sourceWidth;
-         var height = destRT.sourceHeight;
-         var widthExtend = width - oriRT.sourceWidth;
-         var heightExtend = height - oriRT.sourceHeight;
-         if (width > 0 && height > 0) {
-            let px = -widthExtend / 2;
-            let py = -heightExtend / 2;
-            let vSize = Vector4.TEMP;
-            vSize.x = px;
-            vSize.y = py;
-            vSize.z = width;
-            vSize.w = height;
-            this._internalInfo.vertexSize = vSize;
-         }
+      if (destRT) {
+         // var width = destRT.sourceWidth;
+         // var height = destRT.sourceHeight;
+         // var widthExtend = width - oriRT.sourceWidth;
+         // var heightExtend = height - oriRT.sourceHeight;
+         // if (width > 0 && height > 0) {
+         //    let _rtRect = this._sprite._rtRect;
+         //    let px = _rtRect.x;
+         //    let py = _rtRect.y;
+         //    // let px = 0;
+         //    // let py = 0;
+         //    let vSize = Vector4.TEMP;
+         //    vSize.x = px;
+         //    vSize.y = py;
+         //    vSize.z = width;
+         //    vSize.w = height;
+         //    this._internalInfo.vertexSize = vSize;
+         // }
          this._renderElement.type = destRT._id << 6;
+      } else {
+         this._renderElement.type = 0;
       }
       this._internalInfo.textureHost = destRT;
+   }
+
+   _updateVertexSize() {
+      let _rtRect = this._rtRect;
+      let vSize = Vector4.TEMP;
+      vSize.x = _rtRect.x;
+      vSize.y = _rtRect.y;
+
+      let destRT = this._internalInfo.textureHost as RenderTexture2D;
+      let width = destRT.sourceWidth;
+      let height = destRT.sourceHeight;
+      if (width > 0 && height > 0) {
+         vSize.z = width;
+         vSize.w = height;
+      } else {
+         vSize.z = _rtRect.width;
+         vSize.w = _rtRect.height;
+      }
+      this._internalInfo.vertexSize = vSize;
    }
 
    destroy(): void {

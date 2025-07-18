@@ -855,6 +855,7 @@ export class Stage extends Sprite {
                 }
                 sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
             }
+            sprite._subStructRender._updateVertexSize();
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
         }

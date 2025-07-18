@@ -23,6 +23,7 @@ export class Utils {
      * @zh 将角度转换为弧度。
      * @param angle 角度值。
      * @return 返回弧度值。
+     * @blueprintPure
      */
     static toRadian(angle: number): number {
         return angle * _pi2;
@@ -35,6 +36,7 @@ export class Utils {
      * @zh 将弧度转换为角度。
      * @param radian 弧度值。
      * @return 返回角度值。
+     * @blueprintPure
      */
     static toAngle(radian: number): number {
         return radian * _pi;
@@ -63,6 +65,7 @@ export class Utils {
      * @param method 方法，可以是一个函数或者函数名。
      * @param target 目标对象，可选。
      * @return 分配到的唯一ID。
+     * @blueprintIgnore
      */
     static getGID(target: Object | null, method?: Function | string): string {
         let cid: number = target ? ((target as any)[objUidKey] || ((target as any)[objUidKey] = _gid++)) : 0;
@@ -79,7 +82,7 @@ export class Utils {
      * @zh 清空 source 数组，并复制 array 数组的值。
      * @param source 需要赋值的数组。
      * @param array 新的数组值。
-     * @return  复制后的数据 source 。
+     * @return 复制后的数据 source 。
      */
     static copyArray(source: any[], array: any[]): any[] {
         source || (source = []);
@@ -101,6 +104,7 @@ export class Utils {
      * @param str 要被解析的字符串。
      * @param radix 表示要解析的数字的基数。默认值为0，表示10进制，其他值介于 2 ~ 36 之间。如果它以 “0x” 或 “0X” 开头，将以 16 为基数。如果该参数不在上述范围内，则此方法返回 0。
      * @return 返回解析后的数字。
+     * @blueprintIgnore
      */
     static parseInt(str: string, radix: number = 0): number {
         var result: any = parseInt(str, radix);
@@ -110,21 +114,45 @@ export class Utils {
 
     /**
      * @en Gets the base name of the file from the specified path, including the extension.
+     * @param path The file path.
+     * @returns The base name of the file, including the extension.
      * @zh 从指定路径中获取文件名（包含扩展名）。
+     * @param path 文件路径。
+     * @returns 返回文件名（包含扩展名）。
+     * @blueprintPure
      */
-    static getBaseName(path: string): string {
+    static getBaseName(path: string): string;
+    /**
+     * @en Gets the base name of the file from the specified path, optionally excluding the extension.
+     * @param path The file path.
+     * @param withoutExtension Whether to exclude the file extension. Default is false.
+     * @returns The base name of the file, optionally excluding the extension.
+     * @zh 从指定路径中获取文件名（可选地不包含扩展名）。
+     * @param path 文件路径。
+     * @param withoutExtension 是否排除文件扩展名。默认值为 false。
+     * @returns 返回文件名（可选地不包含扩展名）。 
+     * @blueprintPure
+     */
+    static getBaseName(path: string, withoutExtension: boolean): string;
+    static getBaseName(path: string, withoutExtension?: boolean): string {
         let i = path.lastIndexOf("/");
         if (i != -1)
             path = path.substring(i + 1);
         i = path.indexOf("?");
         if (i != -1)
             path = path.substring(0, i);
+        if (withoutExtension) {
+            i = path.lastIndexOf(".");
+            if (i != -1)
+                path = path.substring(0, i);
+        }
         return path;
     }
 
     /**
      * @en Gets the file extension from the specified path and converts it to lowercase. For example, "1. abc" will return abc.
      * @zh 从指定路径获取文件扩展名，并转换为小写字母。例如"1.abc"将返回abc。
+     * @blueprintPure
      */
     static getFileExtension(path: string): string {
         let i = path.lastIndexOf(".");
@@ -178,9 +206,13 @@ export class Utils {
     }
 
     /**
-     * 
+     * @en Checks if the given string is a valid UUID format.
+     * @param str The string to check.
+     * @returns True if the string is in UUID format, false otherwise.
+     * @zh 判断一个字符串是否是有效的UUID格式。
      * @param str 判断一个字符串是否UUID格式
-     * @returns 
+     * @returns true表示是UUID格式，false表示不是UUID格式
+     * @blueprintPure
      */
     static isUUID(str: string): boolean {
         //uuid xxxxxxxx-xxxx-...
@@ -307,6 +339,7 @@ export class Utils {
      * @param template 模板字符串。
      * @param vars 指定值。
      * @return 新字符串。 
+     * @blueprintIgnore
      */
     static parseTemplate(template: string, vars: Record<string, any>): string {
         let pos1: number = 0, pos2: number, pos3: number;
@@ -357,14 +390,29 @@ export class Utils {
         return result;
     }
 
-    static sleep(ms: number): Promise<void> {
-        if (ms < 1)
+    /**
+     * @en Sleeps for the specified number of milliseconds.
+     * @param timeout The number of milliseconds to sleep.
+     * @zh 睡眠指定的毫秒数。
+     * @param timeout 睡眠的毫秒数。 
+     * @blueprintIgnore
+     */
+    static sleep(timeout: number): Promise<void> {
+        if (timeout < 1)
             return Promise.resolve();
         else
-            return new Promise<void>((resolve) => setTimeout(resolve, ms));
+            return new Promise<void>((resolve) => setTimeout(resolve, timeout));
     }
 
-    static until(predicate: () => boolean, timeoutInMs?: number): Promise<void> {
+    /**
+     * @en Waits until the specified predicate function returns true or the timeout is reached.
+     * @param predicate The function to check the condition.
+     * @param timeout The maximum time to wait in milliseconds. If not specified,
+     * @zh 等待直到指定的谓词函数返回 true 或超时。
+     * @param predicate 检查条件的函数。 
+     * @param timeout 最大等待时间（毫秒）。如果未指定，则不设置超时。  
+     */
+    static until(predicate: () => boolean, timeout?: number): Promise<void> {
         if (predicate())
             return Promise.resolve();
 
@@ -373,7 +421,7 @@ export class Utils {
             function timer() {
                 if (predicate())
                     resolve();
-                else if (timeoutInMs != null && performance.now() - start > timeoutInMs)
+                else if (timeout != null && performance.now() - start > timeout)
                     resolve();
                 else
                     setTimeout(timer, 10);
@@ -382,7 +430,33 @@ export class Utils {
         });
     }
 
-    static runTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: { aborted: boolean }): Promise<T[]> {
+    /**
+     * @en Runs a task function for each item in the datas array, allowing a specified number of parallel tasks.
+     * @param datas The array of data to process.
+     * @param numParallelTasks The maximum number of parallel tasks to run.
+     * @param taskFunc The function to run for each item in the datas array. It should return a value or a Promise.
+     * @param abortToken An optional token to signal task abortion. If the token's `aborted` property is true, the task will be aborted.
+     * @zh 运行任务函数处理 datas 数组中的每个项目，允许指定数量的并行任务。
+     * @param datas 要处理的数据数组。
+     * @param numParallelTasks 允许运行的最大并行任务数。
+     * @param taskFunc 要运行的函数，处理 datas 数组中的每个项目。它应该返回一个值或一个 Promise。
+     * @param abortToken 可选的令牌，用于发出任务中止信号。如果令牌的 `aborted` 属性为 true，则任务将被中止。
+     */
+    static runTasks<T, T2>(datas: Array<T2>, numParallelTasks: number, taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<T[]>;
+    /**
+     * @en Runs a task function for each item in the datas array, allowing a specified number of parallel tasks.
+     * @param datas The array of data to process.
+     * @param checkConcurrency It will be called with the number of tasks to determine if more tasks can be run.
+     * @param taskFunc The function to run for each item in the datas array. It should return a value or a Promise.
+     * @param abortToken An optional token to signal task abortion. If the token's `aborted` property is true, the task will be aborted.
+     * @zh 运行任务函数处理 datas 数组中的每个项目，允许指定数量的并行任务。
+     * @param datas 要处理的数据数组。
+     * @param checkConcurrency 它将被调用以确定是否可以运行更多任务。
+     * @param taskFunc 要运行的函数，处理 datas 数组中的每个项目。它应该返回一个值或一个 Promise。
+     * @param abortToken 可选的令牌，用于发出任务中止信号。如果令牌的 `aborted` 属性为 true，则任务将被中止。
+     */
+    static runTasks<T, T2>(datas: Array<T2>, checkConcurrency: (numTasks: number) => boolean, taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<T[]>;
+    static runTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<T[]> {
         let limitFunc: (numTasks: number) => boolean;
         if (typeof (numParallelTasks) !== "number") {
             limitFunc = numParallelTasks;
@@ -450,7 +524,33 @@ export class Utils {
             }).then(() => results);
     }
 
-    static runAllTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: { aborted: boolean }): Promise<PromiseSettledResult<T>[]> {
+    /**
+     * @en Runs a task function for each item in the datas array, allowing a specified number of parallel tasks.
+     * @param datas The array of data to process.
+     * @param numParallelTasks The maximum number of parallel tasks to run. 
+     * @param taskFunc The function to run for each item in the datas array. It should return a value or a Promise.
+     * @param abortToken An optional token to signal task
+     * @zh 运行任务函数处理 datas 数组中的每个项目，允许指定数量的并行任务。
+     * @param datas 要处理的数据数组。 
+     * @param numParallelTasks 允许运行的最大并行任务数。
+     * @param taskFunc 要运行的函数，处理 datas 数组中的每个项目。它应该返回一个值或一个 Promise。 
+     * @param abortToken 可选的令牌，用于发出任务中止信号。如果令牌的 `aborted` 属性为 true，则任务将被中止。 
+     */
+    static runAllTasks<T, T2>(datas: Array<T2>, numParallelTasks: number, taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<PromiseSettledResult<T>[]>;
+    /**
+     * @en Runs a task function for each item in the datas array, allowing a specified number of parallel tasks.
+     * @param datas The array of data to process.
+     * @param checkConcurrency it will be called with the number of tasks to determine if more tasks can be run.
+     * @param taskFunc The function to run for each item in the datas array. It should return a value or a Promise.
+     * @param abortToken An optional token to signal task
+     * @zh 运行任务函数处理 datas 数组中的每个项目，允许指定数量的并行任务。
+     * @param datas 要处理的数据数组。 
+     * @param checkConcurrency 它将被调用以确定是否可以运行更多任务。 
+     * @param taskFunc 要运行的函数，处理 datas 数组中的每个项目。它应该返回一个值或一个 Promise。 
+     * @param abortToken 可选的令牌，用于发出任务中止信号。如果令牌的 `aborted` 属性为 true，则任务将被中止。 
+     */
+    static runAllTasks<T, T2>(datas: Array<T2>, checkConcurrency: (numTasks: number) => boolean, taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<PromiseSettledResult<T>[]>;
+    static runAllTasks<T, T2>(datas: Array<T2>, numParallelTasks: number | ((numTasks: number) => boolean), taskFunc: (data: T2, index: number) => T | Promise<T>, abortToken?: IAbortToken): Promise<PromiseSettledResult<T>[]> {
         let limitFunc: (numTasks: number) => boolean;
         if (typeof (numParallelTasks) !== "number") {
             limitFunc = numParallelTasks;
@@ -530,6 +630,7 @@ export class Utils {
      * @param ver1 第一个版本字符串。
      * @param ver2 第二个版本字符串。
      * @returns 如果 ver1 > ver2 返回 1，如果 ver1 < ver2 返回 -1，如果相等返回 0。
+     * @blueprintPure
      */
     static compareVersion(ver1: string, ver2: string) {
         let v1 = ver1.split('.')
@@ -559,7 +660,15 @@ export class Utils {
 
     /**
      * @en Determines whether a point is inside a polygon.
+     * @param x The x-coordinate of the point.
+     * @param y The y-coordinate of the point.
+     * @param areaPoints An array of points representing the polygon, where each pair of numbers represents the x and y coordinates of a vertex.
+     * @returns True if the point is inside the polygon, false otherwise.
      * @zh 坐标是否在多边形内
+     * @param x 点的 x 坐标。
+     * @param y 点的 y 坐标。
+     * @param areaPoints 一个数组，表示多边形的点，每对数字表示一个顶点的 x 和 y 坐标。
+     * @returns 如果点在多边形内返回 true，否则返回 false。
      */
     static testPointInPolygon(x: number, y: number, areaPoints: number[]): boolean {
         // 交点个数
@@ -585,6 +694,14 @@ export class Utils {
         // 交点为偶数，点在多边形之外
         return (nCross % 2 == 1);
     }
+}
+
+export interface IAbortToken {
+    /**
+     * @en Indicates whether the task has been aborted.
+     * @zh 指示任务是否已被中止。
+     */
+    aborted: boolean;
 }
 
 const objUidKey = Symbol();

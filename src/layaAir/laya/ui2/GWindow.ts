@@ -340,7 +340,7 @@ export class GWindow extends GWidget {
             this.bringToFront();
     }
 
-    private _dragStart(evt: Event): void {
+    private _dragStart(): void {
         this._dragArea.stopDrag();
 
         this.startDrag();

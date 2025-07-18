@@ -116,7 +116,7 @@ export class Gear {
             return;
 
         let tc = this._tweenCfg;
-        this._tween = Tween.create(obj)
+        this._tween = Tween.create(obj, this._owner)
             .duration(tc.duration)
             .delay(tc.delay)
             .ease(Ease[tc.easeType])

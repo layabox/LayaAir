@@ -377,9 +377,6 @@ export class GLESShaderData extends ShaderData {
         return dest;
     }
     destroy(): void {
-        if (this._nativeObj) {
-            this._nativeObj.destroy();
-            this._nativeObj = null;
-        }
+        this._nativeObj.destroy();
     }
 }

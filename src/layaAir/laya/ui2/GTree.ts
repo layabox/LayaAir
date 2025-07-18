@@ -7,6 +7,9 @@ import { GPanel } from "./GPanel";
 import { Prefab } from "../resource/HierarchyResource";
 import { GWidget } from "./GWidget";
 import { Sprite } from "../display/Sprite";
+import { SerializeUtil } from "../loaders/SerializeUtil";
+import { LayaEnv } from "../../LayaEnv";
+import { GButton } from "./GButton";
 
 /**
  * @en GTree is a widget that displays a hierarchical tree structure, allowing for item rendering and selection.
@@ -169,8 +172,8 @@ export class GTree extends GPanel {
         let myLevel = node.level;
         let cnt = this.numChildren;
         for (let i = insertIndex; i < cnt; i++) {
-            let testNode = (<GWidget>this.getChildAt(i))._treeNode;
-            if (testNode.level <= myLevel)
+            let testNode = (<GWidget>this.getChildAt(i)).treeNode;
+            if (testNode && testNode.level <= myLevel)
                 break;
 
             insertIndex++;
@@ -269,7 +272,7 @@ export class GTree extends GPanel {
     private getFolderEndIndex(startIndex: number, level: number): number {
         let cnt = this.numChildren;
         for (let i = startIndex + 1; i < cnt; i++) {
-            let node = (<GWidget>this.getChildAt(i))._treeNode;
+            let node = (<GWidget>this.getChildAt(i)).treeNode;
             if (node.level <= level)
                 return i;
         }
@@ -323,4 +326,81 @@ export class GTree extends GPanel {
             }
         }
     }
+
+    /** @ignore @blueprintIgnore */
+    onAfterDeserialize(): void {
+        super.onAfterDeserialize();
+
+        if (SerializeUtil.hasProp("_initItemNum", "_itemData") && (LayaEnv.isPreview || !SerializeUtil._data._isDemo))
+            this._buildInitItems();
+    }
+
+    /** @internal */
+    _buildInitItems() {
+        this.rootNode.removeChildren();
+
+        if (this.itemTemplate == null)
+            return;
+
+        let itemData: Array<ITreeItemData> = (this as any)._itemData;
+        let prevLevel = 0;
+        let lastNode: GTreeNode;
+        for (let i = 0; i < (this as any)._initItemNum; i++) {
+            let m = (itemData && i < itemData.length) ? itemData[i] : null;
+            if (m != null) {
+                let level = m.level || 0;
+                let isFolder = (itemData[i + 1]?.level || 0) > level;
+                let node: GTreeNode = new GTreeNode(isFolder, m.res?.url);
+                node.expanded = true;
+                if (i == 0)
+                    this.rootNode.addChild(node);
+                else {
+                    if (level > prevLevel)
+                        lastNode.addChild(node);
+                    else if (level < prevLevel) {
+                        for (let j = level; j <= prevLevel; j++)
+                            lastNode = lastNode.parent;
+                        lastNode.addChild(node);
+                    }
+                    else
+                        lastNode.parent.addChild(node);
+                }
+                lastNode = node;
+                prevLevel = level;
+
+                let child = node.cell;
+                child.text = m.title;
+                if (m.icon)
+                    child.icon = m.icon;
+                if (child instanceof GButton) {
+                    if (m.selectedTitle)
+                        child.selectedTitle = m.selectedTitle;
+                    if (m.selectedIcon)
+                        child.selectedIcon = m.selectedIcon;
+                    child.selected = false;
+                }
+                if (m.name != null)
+                    child.name = m.name;
+            }
+            else {
+                let node = new GTreeNode();
+                this.rootNode.addChild(node);
+                prevLevel = 0;
+                lastNode = node;
+            }
+        }
+
+        this.selection._refresh();
+    }
+}
+
+
+interface ITreeItemData {
+    res: Prefab;
+    name: string;
+    title: string;
+    selectedTitle: string;
+    icon: string;
+    selectedIcon: string;
+    level: number;
 }

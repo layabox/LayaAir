@@ -13,8 +13,8 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphics2DBufferBlock, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphic2DBufferDataView } from "./Web2DGraphic2DBufferDataView";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphics2DBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
@@ -69,7 +69,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _bufferBlocks: Graphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    private _clonesViews: Web2DGraphic2DBufferDataView[];
+    private _clonesViews: Web2DGraphic2DIndexDataView[];
 
     applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
@@ -112,11 +112,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
                 let pos = 0, dataViewIndex = 0, ci = 0;
-                let dataView: Web2DGraphic2DBufferDataView = null;
+                let dataView: Web2DGraphic2DVertexDataView = null;
                 let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
                 let vbdata = null;
                 let blocks = this._bufferBlocks;
-                let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DBufferDataView[] = null;
+                let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DVertexDataView[] = null;
                 let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
 
                 for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
@@ -124,7 +124,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
                     for (let index = 0, len = vertexs.length; index < len; index++) {
                         positions = vertexs[index].positions;
-                        vertexViews = vertexs[index].vertexViews as Web2DGraphic2DBufferDataView[];
+                        vertexViews = vertexs[index].vertexViews as Web2DGraphic2DVertexDataView[];
 
                         vertexCount = positions.length / 2;
                         dataView = null;
@@ -157,11 +157,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     }
 
-    getCloneViews(): Web2DGraphic2DBufferDataView[] {
+    getCloneViews(): Web2DGraphic2DIndexDataView[] {
         if (!this._clonesViews) {
             this._clonesViews = [];
             for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView as Web2DGraphic2DBufferDataView);
+                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView as Web2DGraphic2DIndexDataView);
             }
         }
         return this._clonesViews;
@@ -184,16 +184,16 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         this._clonesViews.length = blockLength;
 
         for (let i = 0; i < blockLength; i++) {
-            let view = cloneViews[i] as Web2DGraphic2DBufferDataView;
+            let view = cloneViews[i] as Web2DGraphic2DIndexDataView;
             let block = this._bufferBlocks[i];
             if (block) {
-                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DBufferDataView, view);
+                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DIndexDataView, view);
             }
         }
     }
 
-    private _cloneView(view: Web2DGraphic2DBufferDataView, oView: Web2DGraphic2DBufferDataView = null) {
-        let clone: Web2DGraphic2DBufferDataView;
+    private _cloneView(view: Web2DGraphic2DIndexDataView, oView: Web2DGraphic2DIndexDataView = null) {
+        let clone: Web2DGraphic2DIndexDataView;
         if (oView && oView._geometry) {
             clone = oView;
             view.cloneView(clone);

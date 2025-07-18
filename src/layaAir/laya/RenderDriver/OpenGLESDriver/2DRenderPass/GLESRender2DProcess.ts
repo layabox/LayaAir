@@ -3,7 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
@@ -13,20 +13,30 @@ import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRend
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
 import { GLESRenderContext2D } from "./GLESRenderContext2D";
 import { GLESRenderElement2D } from "./GLESRenderElement2D";
-import { RT2DGraphic2DBufferDataView, RT2DGraphicWholeBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
+import { RT2DGraphic2DBufferDataView, RT2DGraphic2DIndexDataView, RT2DGraphicWholeBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
 import { IPrimitiveRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { GLESPrimitiveRenderElement2D } from "./GLESPrimitiveRenderElement2D";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
+    create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
+        return new RT2DGraphic2DBufferDataView(wholeBuffer as RT2DGraphicWholeBuffer, elementOffset, elementSize, stride);
+    }
+    create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
+        return new RT2DGraphic2DIndexDataView(wholeBuffer as RT2DGraphicWholeBuffer, elementSize);
+    }
+
+    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
+        throw new Error("Method not implemented.");
+    }
+
+    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
+        return new RT2DGraphicWholeBuffer();
+    }
+
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
         return new GLESPrimitiveRenderElement2D();
     }
-    create2DGraphicBufferDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
-        return new RT2DGraphic2DBufferDataView(wholeBuffer as RT2DGraphicWholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
-    }
-    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
-        return new RT2DGraphicWholeBuffer();
-    }
+
     createRender2DPassManager(): IRender2DPassManager {
         return new RTRender2DPassManager();
     }
