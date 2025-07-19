@@ -1574,14 +1574,15 @@ export class Sprite extends Node {
             if (root._subpassUpdateFlag) {
                 root.updateSubRenderPassState();
                 if (root._oriRenderPass) {
-                    root.updateRenderTexture();
+                    let result = root.updateRenderTexture();
 
                     let destrt: RenderTexture2D = root._drawOriRT;
                     root._oriRenderPass.renderTexture = destrt;
                     if (root.mask) {
                         root._oriRenderPass.mask = root.mask._subStruct;
                     }
-                    if (destrt) {
+
+                    if (result) {//有贴图需要更新
                         let process = root._oriRenderPass.postProcess;
                         if (process) {
                             process.setResource(destrt);
@@ -1590,8 +1591,11 @@ export class Sprite extends Node {
                             destrt = process._context.destination;
                         }
                         root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                    root._subStructRender._updateVertexSize();
-                    //Mask TODO
+                        //Mask TODO
+                    }
+
+                    if (destrt) {//有贴图需要更新偏移
+                        root._subStructRender._updateVertexSize();
                     }
                 }
                 root._subpassUpdateFlag = 0;
