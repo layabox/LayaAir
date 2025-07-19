@@ -413,16 +413,16 @@ export class Scene extends Sprite {
 
     protected _onAdded(): void {
         super._onAdded();
-        if (LayaEnv.isPlaying)
-            ILaya.stage._scene2Ds.push(this);
+        // if (LayaEnv.isPlaying)
+        ILaya.stage._scene2Ds.push(this);
     }
 
     protected _onRemoved(): void {
         super._onRemoved();
-        if (LayaEnv.isPlaying) {
-            let index = ILaya.stage._scene2Ds.indexOf(this);
-            ILaya.stage._scene2Ds.splice(index, 1);
-        }
+        // if (LayaEnv.isPlaying) {
+        let index = ILaya.stage._scene2Ds.indexOf(this);
+        ILaya.stage._scene2Ds.splice(index, 1);
+        // }
     }
 
     /**
