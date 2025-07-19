@@ -105,7 +105,7 @@ export class SpriteGlobalTransform {
         if (!this._sp.scene)
             return this.getMatrix();
 
-        this._sp.scene.globalTrans.getMatrix().invert().copyTo(out);
+        this._sp.scene.globalTrans.getMatrixInv(tmpMarix).copyTo(out);
         Matrix.mul(this.getMatrix(), out, out);
         return out;
     }
