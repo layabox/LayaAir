@@ -1097,7 +1097,12 @@ export class Sprite extends Node {
             structArray[j + 1] = d;
             i++;
         }
+
+        //临时关闭，否则childChanged会重复调用updateZOrder
+        let flag = this._setBit(NodeFlags.HAS_ZORDER, false);
         this._childChanged();
+        if (flag)
+            this._setBit(NodeFlags.HAS_ZORDER, true);
     }
 
     /**
