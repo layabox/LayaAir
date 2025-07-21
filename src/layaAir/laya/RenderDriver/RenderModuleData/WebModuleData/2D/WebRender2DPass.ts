@@ -244,8 +244,9 @@ export class WebRender2DPass implements IRender2DPass {
       // if (true) {//如果需要重画或者直接渲染离屏，走下面流程
       if (this.repaint) {
 
-         for (let i = 0, len = lists.length; i < len; i++)
-            lists[i]?.reset();
+         this._lists.forEach(list => {
+            list.reset();
+         });
 
          this.updateRenderQueue(context);
 
@@ -260,6 +261,7 @@ export class WebRender2DPass implements IRender2DPass {
          }
 
          if (this._mask) {
+            this._mask._handleInterData();
             this._mask.renderUpdate(context);
             context.drawRenderElementOne(this._mask.renderElements[0]);
          }
