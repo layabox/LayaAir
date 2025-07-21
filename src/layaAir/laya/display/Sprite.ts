@@ -1643,8 +1643,8 @@ export class Sprite extends Node {
         pass.root = struct;
 
         let matrix = pass.offsetMatrix;
-        let spriteMatrix = sprite.globalTrans.getMatrix();
-        spriteMatrix.copyTo(matrix);
+        let local = sprite.transform;
+        local.copyTo(matrix);
         matrix.invert();
         matrix.tx = -offsetX;
         matrix.ty = -offsetY;
