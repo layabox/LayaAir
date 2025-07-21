@@ -259,7 +259,7 @@ export class WebRender2DPass implements IRender2DPass {
             context.drawRenderElementList(list.renderElements);
          }
 
-         if (this._mask && this._mask.enabled) {
+         if (this._mask) {
             this._mask.renderUpdate(context);
             context.drawRenderElementOne(this._mask.renderElements[0]);
          }

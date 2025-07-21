@@ -2227,12 +2227,6 @@ export class Sprite extends Node {
             }
             if (b) this.repaint();
             this.parentRepaint();
-            // if (this._oriRenderPass) {
-            //     if (b)
-            //         ILaya.stage.passManager.addPass(this._oriRenderPass);
-            //     else
-            //         ILaya.stage.passManager.removePass(this._oriRenderPass);
-            // }
             return true;
         }
         else
@@ -2368,6 +2362,8 @@ export class Sprite extends Node {
                 //todo
             }
 
+            this._struct.enabled = true;
+
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
@@ -2378,6 +2374,7 @@ export class Sprite extends Node {
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
+            this._struct.enabled = this._subStruct.enabled;
             if (parent) {
                 let index = parent.children.indexOf(this._subStruct);
                 parent.removeChild(this._subStruct);
