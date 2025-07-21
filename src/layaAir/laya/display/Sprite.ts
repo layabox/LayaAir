@@ -1587,7 +1587,7 @@ export class Sprite extends Node {
                         root._oriRenderPass.mask = root.mask._subStruct;
                     }
 
-                    if (result) {//有贴图需要更新
+                    if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
                         let process = root._oriRenderPass.postProcess;
                         if (process) {
                             process.setResource(destrt);
@@ -2220,8 +2220,12 @@ export class Sprite extends Node {
      */
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
+
         if (this._struct && this._struct.enabled !== b) {
+            // if (!this._oriRenderPass || !this._oriRenderPass.enable) {
             this._struct.enabled = b;
+            // }
+
             if (this._subStruct) {
                 this._subStruct.enabled = b;
             }
