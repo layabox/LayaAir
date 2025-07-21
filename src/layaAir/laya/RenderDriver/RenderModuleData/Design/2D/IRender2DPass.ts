@@ -1,4 +1,5 @@
 import { PostProcess2D } from "../../../../display/PostProcess2D";
+import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
@@ -21,7 +22,7 @@ export interface IRender2DPass {
    priority: number;
    shaderData: ShaderData;
 
-   renderOffset: Vector2;
+   offsetMatrix: Matrix;
 
    needRender(): boolean;
    setClearColor(r: number, g: number, b: number, a: number): void;

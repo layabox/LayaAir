@@ -2,7 +2,7 @@ import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
 import { SpriteConst, TransformKind } from "./SpriteConst";
-import { NodeFlags } from "../Const"
+import { NodeFlags, SubPassFlag } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"
@@ -358,7 +358,7 @@ export class Stage extends Sprite {
             this.updateCanvasSize();
     }
 
-    static cc=0;
+    static cc = 0;
     /**
      * @en Set the screen size. The scene will adapt to the screen size. This method can be called dynamically to change the game display size.
      * @param screenWidth The width of the screen.
@@ -369,7 +369,7 @@ export class Stage extends Sprite {
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
         Stage.cc++;
-        if(Stage.cc>10)
+        if (Stage.cc > 10)
             return;
         this._needUpdateCanvasSize = false;
         let pixelRatio = Browser.pixelRatio;
@@ -844,7 +844,10 @@ export class Stage extends Sprite {
                 sprite._oriRenderPass.mask = sprite.mask._subStruct;
             }
 
-            if (result) {
+            if (
+                result ||
+                (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
+            ) {
                 sprite._oriRenderPass.renderTexture = destrt;
                 let process = sprite._oriRenderPass.postProcess;
                 if (process) {
