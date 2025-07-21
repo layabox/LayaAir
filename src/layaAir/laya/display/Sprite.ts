@@ -1582,28 +1582,33 @@ export class Sprite extends Node {
                     let result = root.updateRenderTexture();
 
                     let destrt: RenderTexture2D = root._drawOriRT;
-                    root._oriRenderPass.renderTexture = destrt;
-                    if (root.mask) {
-                        root._oriRenderPass.mask = root.mask._subStruct;
-                    }
-
-                    if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
-                        let process = root._oriRenderPass.postProcess;
-                        if (process) {
-                            process.setResource(destrt);
-                            process.clearCMD();
-                            process._render();
-                            destrt = process._context.destination;
+                    if (destrt) {
+                        root._oriRenderPass.renderTexture = destrt;
+                        if (root.mask) {
+                            root._oriRenderPass.mask = root.mask._subStruct;
                         }
-                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                        //Mask TODO
-                    }
 
-                    if (destrt) {//有贴图需要更新偏移
-                        root._subStructRender._updateVertexSize();
+                        if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
+                            let process = root._oriRenderPass.postProcess;
+                            if (process) {
+                                process.setResource(destrt);
+                                process.clearCMD();
+                                process._render();
+                                destrt = process._context.destination;
+                            }
+                            root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                            //Mask TODO
+                        }
+
+                        if (destrt) {//有贴图需要更新偏移
+                            root._subStructRender._updateVertexSize();
+                        }
+                        root._subpassUpdateFlag = 0;
+
+                    } else {
+                        root.setSubRenderPassState(false);
                     }
                 }
-                root._subpassUpdateFlag = 0;
             }
 
             if (root._struct) {

@@ -66,6 +66,7 @@ export class BlurEffect2D extends PostProcess2DEffect {
       }
       this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
       this._mat.setVector2("u_centerScale", this._centerScale);
+      this._mat.lock = true;
    }
 
    /** @ignore */
