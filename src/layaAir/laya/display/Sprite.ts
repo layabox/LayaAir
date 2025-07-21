@@ -1634,9 +1634,15 @@ export class Sprite extends Node {
         }
 
         pass.renderTexture = renderout;
-        pass.root = sprite._struct;
-        pass.renderOffset.x = offsetX;
-        pass.renderOffset.y = offsetY;
+        let struct = sprite._oriRenderPass && sprite._oriRenderPass.enable ? sprite._subStruct : sprite._struct;
+        pass.root = struct;
+
+        let matrix = pass.offsetMatrix;
+        let spriteMatrix = sprite.globalTrans.getMatrix();
+        spriteMatrix.copyTo(matrix);
+        matrix.invert();
+        matrix.tx = -offsetX;
+        matrix.ty = -offsetY;
 
         for (let pass of passSet) {
             if (pass.priority > 0) {

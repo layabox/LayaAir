@@ -8,6 +8,7 @@ import { RTRenderStruct2D } from "./RTRenderStruct2D";
 import { GLESInternalRT } from "../../../OpenGLESDriver/RenderDevice/GLESInternalRT";
 import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
+import { Matrix } from "../../../../maths/Matrix";
 
 
 export class RTRender2DPass implements IRender2DPass {
@@ -92,14 +93,14 @@ export class RTRender2DPass implements IRender2DPass {
       return this._shaderData;
    }
 
-   private _renderOffset: Vector2 = new Vector2();
-   set renderOffset(value: Vector2) {
+   private _renderOffset: Matrix = new Matrix();
+   set offsetMatrix(value: Matrix) {
       this._nativeObj.renderOffset = value;
    }
-   get renderOffset(): Vector2 {
+   get offsetMatrix(): Matrix {
       let offset = this._nativeObj.renderOffset;
-      this._renderOffset.x = offset.x;
-      this._renderOffset.y = offset.y;
+      this._renderOffset.tx = offset.x;
+      this._renderOffset.ty = offset.y;
       return this._renderOffset;
    }
    needRender(): boolean {
