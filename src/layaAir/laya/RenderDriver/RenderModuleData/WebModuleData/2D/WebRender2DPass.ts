@@ -330,7 +330,7 @@ export class WebRender2DPass implements IRender2DPass {
    static uploadBuffer(): void {
       if (WebRender2DPass.buffers.size > 0) {
          WebRender2DPass.buffers.forEach(buffer => {
-            buffer.upload();
+            buffer._upload();
             buffer._inPass = false;
          });
          WebRender2DPass.buffers.clear();

@@ -11,7 +11,7 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     _needResetData: boolean;
     _inPass: boolean;
 
-    private _num: number = 0;
+    protected _num: number = 0;
     /** @internal */
     _first: Web2DGraphicsBufferDataView;
     /** @internal */
@@ -23,9 +23,9 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     //所有的DataView
     abstract resetData(byteLength: number): void;
 
-    abstract upload(): void;
+    abstract _upload(): void;
 
-    modifyOneView(view: Web2DGraphicsBufferDataView) {
+    _modifyOneView(view: Web2DGraphicsBufferDataView) {
         this._updateRange.y = Math.max(view.start + view.length, this._updateRange.y);
         this._updateRange.x = Math.min(view.start, this._updateRange.x);
     }
@@ -49,12 +49,7 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
         this._num++;
     }
 
-    clearBufferViews() {//不清理,添加时处理
-        this._first = null;
-        this._last = null;
-        this._num = 0;
-        this._updateRange.setValue(100000000, -100000000);
-    }
+
 
     //收益存疑
     removeDataView(view: Web2DGraphicsBufferDataView): void {
@@ -114,11 +109,11 @@ export class Web2DGraphicsVertexBuffer extends Web2DGraphicWholeBuffer {
         this._needResetData = true;
     }
 
-    upload() {
+    _upload() {
         if (this._needResetData) {
             let view = this._first;
             while (view) {
-                view.updateView(this._dataView);//先更新偏移再提交
+                view._updateView(this._dataView);//先更新偏移再提交
                 view = view._next;
             }
 
@@ -154,7 +149,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
     }
 
-    upload() {
+    _upload() {
         let view = this._first;
         let start = 0;
         let length = 0;
@@ -181,7 +176,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
             if (needUpdate) {
                 view.start = start;
-                view.updateView(this._dataView);
+                view._updateView(this._dataView);
             }
 
             length += view.length;
@@ -205,13 +200,28 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         // this.clearBufferViews();
     }
 
-    modifyOneView(view: Web2DGraphic2DIndexDataView): void {
+    _modifyOneView(view: Web2DGraphic2DIndexDataView): void {
         this.addDataView(view);
         if (view._prev) {
             view.start = view._prev.start + view._prev.length;
         } else {
             view.start = 0;
         }
-        super.modifyOneView(view);
+        super._modifyOneView(view);
+    }
+}
+
+
+export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
+
+    clearBufferViews() {//不清理,添加时处理
+        this._first = null;
+        this._last = null;
+        this._num = 0;
+        this._updateRange.setValue(100000000, -100000000);
+    }
+
+    _resetData(byteLength: number) {
+        super.resetData(byteLength);
     }
 }

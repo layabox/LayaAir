@@ -31,7 +31,6 @@ export interface I2DGlobalRenderData {
 
 /** @blueprintIgnore */
 export interface I2DGraphicBufferDataView {
-    length: number;
     setData(data: ArrayLike<number>): void;
 }
 
@@ -50,8 +49,6 @@ export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
 /** @blueprintIgnore */
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
-    // bufferData: Float32Array | Uint16Array;
-    arrayBuffer: ArrayBuffer;
     resetData(byteLength: number): void;
     addDataView(dataView: I2DGraphicBufferDataView): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;

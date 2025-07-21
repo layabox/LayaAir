@@ -137,7 +137,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                                 dataView._modify();
                                 dataViewIndex++;
                                 pos = 0;
-                                vbdata = dataView.getData();
+                                vbdata = dataView._getData();
                             }
 
                             let x = positions[ci], y = positions[ci + 1];
@@ -196,9 +196,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let clone: Web2DGraphic2DIndexDataView;
         if (oView && oView._geometry) {
             clone = oView;
-            view.cloneView(clone);
+            view._cloneView(clone);
         } else {
-            clone = view.clone(false, false);
+            clone = view._clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             clone._geometry.indexFormat = IndexFormat.UInt16;
         }

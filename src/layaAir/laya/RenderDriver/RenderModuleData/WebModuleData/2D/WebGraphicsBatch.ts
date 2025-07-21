@@ -4,9 +4,8 @@ import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
-import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
+import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { Web2DGraphic2DIndexDataView} from "./Web2DGraphic2DBufferDataView";
 import { IBatch2DContext, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -15,8 +14,7 @@ import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { Web2DGraphicsIndexBuffer } from "./Web2DGraphic2DBuffer";
-
+import { Web2DGraphicsIndexBatchBuffer } from "./Web2DGraphic2DBuffer";
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
 /**
@@ -27,7 +25,7 @@ export class BatchBuffer {
     static _STEP_ = 1024;
 
     indexBuffer: IIndexBuffer;
-    wholeBuffer: Web2DGraphicsIndexBuffer;
+    wholeBuffer: Web2DGraphicsIndexBatchBuffer;
 
     indexCount: number = 0;
     maxIndexCount: number = 0;
@@ -39,7 +37,7 @@ export class BatchBuffer {
     constructor() {
         this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this.indexBuffer.indexType = IndexFormat.UInt16;
-        this.wholeBuffer = new Web2DGraphicsIndexBuffer();
+        this.wholeBuffer = new Web2DGraphicsIndexBatchBuffer();
         this.wholeBuffer.buffer = this.indexBuffer;
     }
 
@@ -48,7 +46,7 @@ export class BatchBuffer {
             let nLength = Math.ceil(this.indexCount / BatchBuffer._STEP_) * BatchBuffer._STEP_;
             let byteLength = nLength * 2;
             this.indexBuffer._setIndexDataLength(byteLength);
-            this.wholeBuffer.resetData(byteLength);
+            this.wholeBuffer._resetData(byteLength);
             this.maxIndexCount = nLength;
         }
     }
@@ -428,7 +426,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             let vertexBuffer = block.vertexBuffer;
             let bufferState = buffer.bindBuffer(vertexBuffer);
             buffer.indexCount += cview.length;
-            buffer.wholeBuffer.modifyOneView(cview);
+            buffer.wholeBuffer._modifyOneView(cview);
 
             if (cview._geometry.bufferState !== bufferState) {
                 cview._geometry.bufferState = bufferState;
