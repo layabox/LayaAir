@@ -27,6 +27,83 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Camera } from "../Camera";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Utils } from "../../../utils/Utils";
+import { Rectangle } from "../../../maths/Rectangle";
+import { SpriteUtils } from "../../../utils/SpriteUtils";
+import { RepaintFlag } from "../../../display/SpriteConst";
+
+class UI3DShellSprite extends Sprite {
+
+    _rtWidth: number;
+    _rtHeight: number;
+
+    _invertY: boolean;
+
+    updateRT: boolean = false;
+
+    get rtWidth() {
+        return this._rtWidth;
+    }
+    set rtWidth(value: number) {
+        this._rtWidth = value;
+    }
+    get rtHeight() {
+        return this._rtHeight;
+    }
+
+    set rtHeight(value: number) {
+        this._rtHeight = value;
+    }
+
+    get invertY() {
+        return this._invertY;
+    }
+
+    set invertY(value: boolean) {
+        this._invertY = value;
+    }
+
+    constructor() {
+        super();
+    }
+
+    updateRenderTexture() {
+        //计算方式调整
+        let rect = Rectangle.TEMP;
+        if (this.mask) {
+            SpriteUtils.getRect(this.mask, false, rect);
+            rect.x += this.mask._pivotX;
+            rect.y += this.mask._pivotY;
+        }
+        else {
+            SpriteUtils.getRect(this, false, rect);
+            rect.x += this._pivotX;
+            rect.y += this._pivotY;
+        }
+
+        // if (rect.width === 0 || rect.height === 0)
+        //     return false;
+
+        let oldRT = this._drawOriRT;
+        let maskRect = this._subStructRender._rtRect;
+        //判断待考虑
+        if (oldRT) {
+            if (maskRect.width === rect.width && maskRect.height === rect.height) {
+                // this._subStructRender._updateRenderOffset(rect);
+                return false;
+            }
+            oldRT.destroy();
+        }
+
+        // this._subStructRender._updateRenderOffset(rect);
+
+        let renderTexture = new RenderTexture2D(this._rtWidth, this._rtHeight, RenderTargetFormat.R8G8B8A8);
+        renderTexture._invertY = this._invertY;
+        this._drawOriRT = renderTexture;
+        this.updateRT = true;
+        return true;
+    }
+}
+
 
 /**
  * @en UI3D class, used to create 3D UI components.
@@ -40,7 +117,7 @@ export class UI3D extends BaseRender {
     static _ray: Ray = new Ray(new Vector3(), new Vector3());
 
     //功能,将2DUI显示到3D面板上 并检测射线
-    private _shellSprite: Sprite;
+    private _shellSprite: UI3DShellSprite;
     private _uisprite: Sprite;
 
     private _ui3DMat: Material;
@@ -91,6 +168,7 @@ export class UI3D extends BaseRender {
         if (value)
             this._shellSprite.addChild(value);
         this._resizeRT();
+        this._shellSprite.repaint();
         this.boundsChange = true;
     }
 
@@ -213,7 +291,7 @@ export class UI3D extends BaseRender {
             return;
         }
         this._cameraSpace = value;
-        this._resizeRT();
+        this._camera && this._resizeRT();
     }
     get cameraSpace() {
         return this._cameraSpace;
@@ -240,7 +318,7 @@ export class UI3D extends BaseRender {
         if (this._camera == value)
             return;
         this._camera = value;
-        this._resizeRT();
+        this._cameraSpace && this._resizeRT();
     }
 
     get attachCamera() {
@@ -256,8 +334,9 @@ export class UI3D extends BaseRender {
         super();
         this._size = new Vector2(1, 1);
         this._resolutionRate = 128;
-        this._shellSprite = new Sprite();
+        this._shellSprite = new UI3DShellSprite();
         this._shellSprite.name = "UI3D";
+        this._shellSprite.cacheAs = "bitmap";
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite._parent = ILaya.stage;
@@ -357,20 +436,13 @@ export class UI3D extends BaseRender {
             width = this._size.x * this._resolutionRate;
             height = this._size.y * this._resolutionRate;
         }
-        let invertY = !LayaGL.renderEngine._screenInvertY;
-
-        if (!this._rendertexure2D) {
-            this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-            this._rendertexure2D._invertY = invertY;
-        } else {
-            if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
-                this._rendertexure2D.destroy();
-                this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                this._rendertexure2D._invertY = invertY;
-                this._setMaterialTexture();
-            }
+        if(this._shellSprite && (this._shellSprite.rtWidth !== width || this._shellSprite.rtHeight !== height)) {
+            this._shellSprite && (this._shellSprite.rtWidth = width);
+            this._shellSprite && (this._shellSprite.rtHeight = height);
+            this._shellSprite && (this._shellSprite.invertY = !LayaGL.renderEngine._screenInvertY);
+            this._shellSprite && this._shellSprite.repaint(RepaintFlag.UpdateRT);
+            this._setMaterialTexture();
         }
-        this._submitRT();
     }
 
     /**
@@ -457,9 +529,10 @@ export class UI3D extends BaseRender {
      * 更新Sprite的RT
      */
     _submitRT() {
-        //判断是否需要重置
-        this._rendertexure2D && this._shellSprite.drawToRenderTexture2D(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false, true);
-        this._setMaterialTexture();
+        if(this._shellSprite.updateRT) {
+            this._shellSprite.updateRT = false;
+            this._setMaterialTexture();
+        }
     }
 
     /**
@@ -467,9 +540,10 @@ export class UI3D extends BaseRender {
      * 设置材质纹理
      */
     _setMaterialTexture() {
-        if (this._rendertexure2D) {
+        if (this._shellSprite._drawOriRT) {
             this.sharedMaterial.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-            this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
+            this.sharedMaterial.setTexture(this._bindPropertyName, this._shellSprite._drawOriRT);
+            this._rendertexure2D = this._shellSprite._drawOriRT;
         } else {
             this.sharedMaterial.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)
         }
