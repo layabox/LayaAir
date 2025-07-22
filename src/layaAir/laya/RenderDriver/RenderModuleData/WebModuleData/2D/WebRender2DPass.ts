@@ -414,7 +414,10 @@ class PassRenderList {
 
    updateRenderElements(enableBatch: boolean): void {
       this.structs.forEach(structArray => {
-         structArray.elements.forEach(struct => this._updateRenderElements(struct, enableBatch));
+         for (let i = 0, n = structArray.length; i < n; i++) {
+            let struct = structArray.elements[i];
+            this._updateRenderElements(struct, enableBatch);
+         }
       });
    }
 
@@ -526,7 +529,6 @@ class PassRenderList {
    }
 
    reset(): void {
-
       this.structs.forEach(list => {
          list.length = 0;
       });
