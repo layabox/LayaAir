@@ -83,7 +83,7 @@ export class RT2DGraphicIndexBuffer implements I2DGraphicWholeBuffer {
     }
 
     constructor() {
-        this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
+        this._nativeObj = new (window as any).conchRT2DGraphicIndexBuffer();
     }
 
     resetData(byteLength: number) {
