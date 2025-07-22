@@ -496,7 +496,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             if (!hasAni) return
         }
 
-        if (force || this._pause || this._currentPlayTime || this._animationName != nameOrIndex) {
+        if (force || this._pause || this._animationName != nameOrIndex) {
             this._animationName = nameOrIndex;
             this.spineItem.play(nameOrIndex);
             // 设置执行哪个动画

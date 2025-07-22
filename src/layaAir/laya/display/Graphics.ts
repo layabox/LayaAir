@@ -698,7 +698,7 @@ export class Graphics {
         }
 
         this._data.clear();
-        runner.clearRenderData();
+        runner.clear();
         runner.sprite = this.owner;
         runner._graphicsData = this._data;
         runner._material = this._material;
