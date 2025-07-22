@@ -36,6 +36,7 @@ export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
     _addDataView(dataView: I2DGraphicBufferDataView) {
         //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
         this._views.add(dataView);
+        this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
     removeDataView(dataView: I2DGraphicBufferDataView) {
@@ -92,6 +93,7 @@ export class RT2DGraphicIndexBuffer implements I2DGraphicWholeBuffer {
     _addDataView(dataView: RT2DGraphic2DIndexDataView) {
         //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
         this._views.add(dataView);
+        this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
     removeDataView(dataView: RT2DGraphic2DIndexDataView) {
