@@ -236,6 +236,12 @@ export class GWidget extends Sprite {
         value = !!value;
         if (this._grayed !== value) {
             this._grayed = value;
+            let c = this.getController("grayed");
+            if (c) {
+                c.selectedIndex = value ? 1 : 0;
+                value = false;
+            }
+
             let postProcess = this.getPostProcess(value);
             if (value) {
                 let effect = postProcess.getEffect(GrayscaleEffect2D);
@@ -600,6 +606,60 @@ export class GWidget extends Sprite {
             this._gears.splice(i, 1);
             value.owner = null;
         }
+    }
+
+    /**
+     * @en Registers a click event listener for the widget. It is a shorthand for `on(Event.CLICK, thisObj, listener, args)`.
+     * @param listener The function to be called when the click event occurs.
+     * @zh 为小部件注册一个点击事件监听器。它是 `on(Event.CLICK, thisObj, listener, args)` 的简写。
+     * @param listener 当点击事件发生时要调用的函数。
+     * @blueprintIgnore 
+     */
+    onClick(listener: Function): void;
+    /**
+     * @en Registers a click event listener for the widget. It is a shorthand for `on(Event.CLICK, thisObj, listener, args)`.
+     * @param caller The context in which the listener function will be called.
+     * @param listener The function to be called when the click event occurs.
+     * @param args Optional. An array of arguments to be passed to the listener function when the event is triggered.
+     * @zh 为小部件注册一个点击事件监听器。它是 `on(Event.CLICK, thisObj, listener, args)` 的简写。
+     * @param caller 监听器函数将被调用的上下文。
+     * @param listener 当点击事件发生时要调用的函数。
+     * @param args 可选。一个数组，包含在事件触发时要传递给监听器函数的参数。
+     * @blueprintIgnore 
+     */
+    onClick(caller: any, listener: Function, args?: any[]): void;
+    onClick(caller: any, listener?: Function, args?: any[]): void {
+        if (arguments.length == 1) {
+            listener = caller;
+            caller = null;
+        }
+        this.on(Event.CLICK, caller, listener, args);
+    }
+
+    /**
+     * @en Unregisters a click event listener for the widget. It is a shorthand for `off(Event.CLICK, caller, listener)`.
+     * @param listener The function that was registered to handle the click event.
+     * @zh 为小部件取消注册一个点击事件监听器。它是 `off(Event.CLICK, caller, listener)` 的简写。
+     * @param listener 处理点击事件的函数。
+     * @blueprintIgnore
+     */
+    offClick(listener: Function): void;
+    /**
+     * @en Unregisters a click event listener for the widget. It is a shorthand for `off(Event.CLICK, caller, listener)`.
+     * @param caller The context in which the listener function was called.
+     * @param listener The function that was registered to handle the click event.
+     * @zh 为小部件取消注册一个点击事件监听器。它是 `off(Event.CLICK, caller, listener)` 的简写。
+     * @param caller 监听器函数被调用的上下文。
+     * @param listener 处理点击事件的函数。
+     * @blueprintIgnore
+     */
+    offClick(caller: any, listener: Function): void;
+    offClick(caller: any, listener?: Function): void {
+        if (arguments.length == 1) {
+            listener = caller;
+            caller = null;
+        }
+        this.off(Event.CLICK, caller, listener);
     }
 
     /** @ignore */
