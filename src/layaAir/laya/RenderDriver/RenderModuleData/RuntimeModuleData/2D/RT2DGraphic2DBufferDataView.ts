@@ -135,7 +135,7 @@ export class RT2DGraphic2DVertexDataView implements I2DGraphicVertexDataView {
     //     }
     // }
 
-    destroy(){
+    destroy() {
         //??
     }
 }
@@ -156,6 +156,7 @@ export class RT2DGraphic2DIndexDataView implements I2DGraphicIndexDataView {
         this._length = length;
         this._nativeObj = new (window as any).conchRT2DGraphic2DIndexDataView(owner ? owner._nativeObj : null, length);
         this._memoryData = new NativeMemory(this.length * 2, false);
+        this._nativeObj.setIndexShareMemory(this._memoryData._buffer);
     }
 
     setData(data: ArrayLike<number>): void {
