@@ -137,4 +137,12 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
         view.length = this.length;
     }
 
+    destroy(): void {
+        this._view = null;
+        this._geometry = null;
+        this.owner = null;
+        this._next = null;
+        this._prev = null;
+    }
+
 }

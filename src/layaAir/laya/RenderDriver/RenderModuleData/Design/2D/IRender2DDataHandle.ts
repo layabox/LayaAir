@@ -44,6 +44,7 @@ export interface I2DGraphicVertexDataView extends I2DGraphicBufferDataView {
 export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
     length: number;
     setGeometry(value: IRenderGeometryElement): void;
+    destroy(): void;
 }
 
 /** @blueprintIgnore */

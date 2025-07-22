@@ -58,6 +58,7 @@ export class SubmitBase {
 
     destroy() {
         this.clear();
+        this.indexView.destroy();
         this._internalInfo.destroy();
         this._internalInfo = null;
     }
