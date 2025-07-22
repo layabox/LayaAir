@@ -1644,7 +1644,8 @@ export class Sprite extends Node {
 
         let matrix = pass.offsetMatrix;
         let local = sprite.transform;
-        local.copyTo(matrix);
+        if (local)
+            local.copyTo(matrix);
         matrix.invert();
         matrix.tx = -offsetX;
         matrix.ty = -offsetY;
