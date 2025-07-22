@@ -12,7 +12,7 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
     uniformMap: Map<number, { id: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number }>;
 
     upload(): void {
-        this.bufferBlock.needUpload();
+        this.needUpload && this.bufferBlock.needUpload();
     }
     bind(location: number): void {
         let buffer = <GLBuffer>this.bufferBlock.cluster.buffer;
@@ -48,14 +48,14 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
         this.needUpload = true;
     }
     updateOver(): void {
-       this.needUpload = false;
+        this.needUpload = false;
     }
 
     clearGPUBufferBind(): void {
         // throw new NotImplementedError();
     }
 
-    notifyGPUBufferChange(): void {
+    notifyGPUBufferChange(info?: string): void {
 
         this.offset = this.bufferBlock.offset;
         this.needUpload = true;
@@ -68,7 +68,7 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
             uniform.view = new uniform.dataView(this.bufferBlock.cluster.data, offset, size);
         });
         // this.needUpload = true;
-        //this.bufferBlock.cluster.upload();
+        // this.bufferBlock.cluster.upload();
         this.needUpload = true;
     }
 

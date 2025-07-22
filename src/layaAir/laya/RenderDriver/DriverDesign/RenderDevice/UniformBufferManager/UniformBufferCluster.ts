@@ -82,7 +82,7 @@ export class UniformBufferCluster {
         this.data = newArrayBuffer;
 
         //创建一个新的GPUBuffer
-        this.buffer = this.manager.createGPUBuffer(this._totalSize);
+        this.buffer = this.manager.createGPUBuffer(this._totalSize, null, this.data);
 
         //统计GPU内存使用量
         this.manager.statisGPUMemory(expandSize);

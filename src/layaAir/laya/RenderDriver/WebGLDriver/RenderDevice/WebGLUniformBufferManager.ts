@@ -15,14 +15,16 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
 
         this.byteAlign = offsetAlignment;
         engine.on("endFrame", this, this.endFrame);
-        engine.on("startFrame",this,this.startFrame)
+        engine.on("startFrame", this, this.startFrame)
     }
 
-    createGPUBuffer(size: number, name?: string): GLBuffer {
-        
+    createGPUBuffer(size: number, name?: string, data?: ArrayBuffer): GLBuffer {
         let buffer = this.engine.createBuffer(BufferTargetType.UNIFORM_BUFFER, BufferUsage.Dynamic);
         buffer.bindBuffer();
         buffer.setDataLength(size);
+        if (data){
+            buffer.setData(data, 0);
+        }
         return buffer;
     }
 
