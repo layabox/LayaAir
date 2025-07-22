@@ -56,7 +56,7 @@ export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
 
     //
     resetData(byteLength: number) {
-        if (this._nativeMemory._buffer.byteLength != byteLength) {//重创NativeMemory
+        if (this._nativeMemory && this._nativeMemory._buffer.byteLength != byteLength) {//重创NativeMemory
             //换Buffer
             let oldMemory = this._nativeMemory;
             this._nativeMemory = new NativeMemory(byteLength, false);
@@ -139,7 +139,7 @@ export class RT2DGraphic2DVertexDataView implements I2DGraphicVertexDataView {
         this._length = length;
         this._stride = stride;
         // this.updateView(owner.bufferData);
-        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(owner ? owner._nativeObj : null, start, length, stride);
+        this._nativeObj = new (window as any).conchRT2DGraphic2DVertexDataView(owner ? owner._nativeObj : null, start, length, stride);
         this._owner && this._owner._addDataView(this);
     }
 
