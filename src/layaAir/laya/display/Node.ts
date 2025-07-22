@@ -9,10 +9,20 @@ import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { OutOfRangeError } from "../utils/Error";
 import { type Stage } from "./Stage";
+import { type Sprite } from "./Sprite";
+import { type Sprite3D } from "../d3/core/Sprite3D";
+import { type Scene3D } from "../d3/core/scene/Scene3D";
+import { type GWidget } from "../ui2/GWidget"
 
 const ARRAY_EMPTY: any[] = [];
 const initBits = NodeFlags.ACTIVE;
 const reactiveBits = NodeFlags.DISPLAY;
+
+type ChildType<T> = T extends Sprite3D ? Sprite3D
+    : T extends GWidget ? GWidget
+    : T extends Scene3D ? Sprite3D
+    : T extends Sprite ? Sprite
+    : Node;
 
 /**
  * @en The `Node` class is the base class for all objects that can be placed in the display list.
@@ -438,12 +448,14 @@ export class Node extends EventDispatcher {
     /**
     * @en Get a child node by its name.
     * @param name The name of the child node.
+    * @param classType Optional child node type, used to specify the type of the returned child node.
     * @returns The child node with the specified name, or null if not found.
     * @zh 根据子节点的名字获取子节点对象。
     * @param name 子节点的名字。
+    * @param classType 可选的子节点类型，用于明确返回子节点的类型。
     * @returns 节点对象。
     */
-    getChild<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
+    getChild<T extends Node = ChildType<this>>(name: string, classType?: new (...args: any[]) => T): T {
         for (let child of this._$children) {
             if (child.name === name)
                 return <T>child;
@@ -452,22 +464,30 @@ export class Node extends EventDispatcher {
     }
 
     /**
-    * @en Same as getChild，recommended to use getChild
-    * @zh 同getChild，推荐使用getChild
-    */
-    getChildByName<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
+     * @en Same as getChild，recommended to use getChild
+     * @param name The name of the child node.
+     * @param classType Optional child node type, used to specify the type of the returned child node.
+     * @returns The child node with the specified name, or null if not found.
+     * @zh 同getChild，推荐使用getChild
+     * @param name 子节点的名字。
+     * @param classType 可选的子节点类型，用于明确返回子节点的类型。
+     * @returns 节点对象。
+     */
+    getChildByName<T extends Node = ChildType<this>>(name: string, classType?: new (...args: any[]) => T): T {
         return this.getChild(name, classType);
     }
 
     /**
      * @en Get a child node by its index.
      * @param index The index of the child node.
+     * @param classType Optional child node type, used to specify the type of the returned child node.
      * @returns The child node at the specified index, or null if the index is out of range.
      * @zh 根据子节点的索引位置获取子节点对象。
      * @param index 索引位置。
+     * @param classType 可选的子节点类型，用于明确返回子节点的类型。
      * @returns 指定索引处的子节点，如果索引超出范围，则为空。
      */
-    getChildAt<T extends Node>(index: number, classType?: new (...args: any[]) => T): T {
+    getChildAt<T extends Node = ChildType<this>>(index: number, classType?: new (...args: any[]) => T): T {
         if (index >= 0 && index < this.numChildren)
             return <T>this._$children[index];
         else
@@ -477,14 +497,14 @@ export class Node extends EventDispatcher {
     /**
      * @en Get the first child node with the specified path. e.g. getChildByPath("A.B.C") is similar to getChild("A") followed by getChild("B") followed by getChild("C").
      * @param path The path of the child node.
-     * @param classType The type of the child node.
+     * @param classType Optional child node type, used to specify the type of the returned child node.
      * @returns The child node with the specified path.
      * @zh 获取具有指定路径的第一个子节点。例如 getChildByPath("A.B.C") 类似于 getChild("A") 后跟 getChild("B") 后跟 getChild("C")。
      * @param path 子节点的路径。
-     * @param classType 子节点的类型。
+     * @param classType 可选的子节点类型，用于明确返回子节点的类型。
      * @returns 指定路径的子节点。
      */
-    getChildByPath<T extends Node>(path: String, classType?: new (...args: any[]) => T): T {
+    getChildByPath<T extends Node = ChildType<this>>(path: String, classType?: new (...args: any[]) => T): T {
         let arr: string[] = path.split(".");
         let cnt: number = arr.length;
         let p: Node = this;
@@ -503,14 +523,14 @@ export class Node extends EventDispatcher {
     /**
      * @en Recursively find child nodes, but will not search nodes inside Prefabs.
      * @param name The name of the child node to find. 
-     * @param classType The type of the child node. 
+     * @param classType Optional child node type, used to specify the type of the returned child node.
      * @returns The child node with the specified name. 
      * @zh 递归查找子节点，但不会查找Prefab内部的节点。
      * @param name 要查找的子节点的名称。
-     * @param classType 子节点的类型。
+     * @param classType 可选的子节点类型，用于明确返回子节点的类型。
      * @returns 指定名称的子节点。
      */
-    findChild<T extends Node>(name: string, classType?: new (...args: any[]) => T): T {
+    findChild<T extends Node = ChildType<this>>(name: string, classType?: new (...args: any[]) => T): T {
         for (let c of this._$children) {
             if (c.name == name)
                 return <T>c;
@@ -597,12 +617,14 @@ export class Node extends EventDispatcher {
     /**
      * @en Remove a child node.
      * @param node The child node to be removed.
+     * @param destroy Whether to destroy the child node. If true, the child node will be destroyed; otherwise, it will only be removed from the parent.
      * @returns The removed node.
      * @zh 删除子节点。
      * @param node 子节点。
+     * @param destroy 是否销毁子节点,若值为true,则销毁子节点,否则不销毁子节点。
      * @returns 被删除的节点。
      */
-    removeChild(node: Node, destroy?: boolean): Node {
+    removeChild<T extends Node>(node: T, destroy?: boolean): T {
         let index: number = this._$children.indexOf(node);
         if (index == -1)
             throw new Error("not a child of this node");
@@ -627,9 +649,11 @@ export class Node extends EventDispatcher {
     /**
      * @en Remove a child node by its name.
      * @param name The name of the child node.
+     * @param destroy Whether to destroy the child node. If true, the child node will be destroyed; otherwise, it will only be removed from the parent.
      * @returns The removed node.
      * @zh 根据子节点名字删除对应的子节点对象,如果找不到不会抛出异常。
      * @param name 对象名字。
+     * @param destroy 是否销毁子节点,若值为true,则销毁子节点,否则不销毁子节点。
      * @returns 查找到的节点。
      */
     removeChildByName(name: string, destroy?: boolean): Node {
@@ -641,9 +665,11 @@ export class Node extends EventDispatcher {
     /**
      * @en Remove a child node by its index.
      * @param index The index of the child node.
+     * @param destroy Whether to destroy the child node. If true, the child node will be destroyed; otherwise, it will only be removed from the parent.
      * @returns The removed node.
      * @zh 根据子节点索引位置,删除对应的子节点对象。
      * @param index 节点索引位置。
+     * @param destroy 是否销毁子节点,若值为true,则销毁子节点,否则不销毁子节点。
      * @returns 被删除的节点。
      */
     removeChildAt(index: number, destroy?: boolean): Node {
@@ -659,10 +685,12 @@ export class Node extends EventDispatcher {
      * @en Remove all children from this node.
      * @param beginIndex The begin index.
      * @param endIndex The end index.
+     * @param destroy Whether to destroy the child nodes. If true, all child nodes will be destroyed; otherwise, they will only be removed from the parent.
      * @returns The node itself.
      * @zh 删除指定索引区间的所有子对象。
      * @param beginIndex 开始索引。
      * @param endIndex 结束索引。
+     * @param destroy 是否销毁子节点,若值为true,则销毁子节点,否则不销毁子节点。
      * @returns 当前节点对象。
      */
     removeChildren(beginIndex?: number, endIndex?: number, destroy?: boolean): void {
