@@ -510,23 +510,19 @@ export class GraphicsRunner {
         this._save = null;
     }
 
-    clearRenderData(): void {
+    clear(): void {
         this._submitKey.clear();
         this._curSubmit = SubmitBase.RENDERBASE;
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
-        this._lastTex = null;
-    }
-
-    clear(): void {
-        this.clearRenderData();
-        this._alpha = 1.0;
-        this._nBlendType = BlendMode.normal;
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
+        this._alpha = 1.0;
+        this._nBlendType = BlendMode.normal;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
+        this._lastTex = null;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
     }
