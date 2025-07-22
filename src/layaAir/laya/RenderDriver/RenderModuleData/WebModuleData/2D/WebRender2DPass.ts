@@ -83,8 +83,8 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set priority(value: number) {
       this._priority = value;
-      if (this.mask && this.mask.pass) {
-         this.mask.pass._priority = value + 1;
+      if (this._mask && this._mask.pass) {
+         this._mask.pass._priority = value + 1;
       }
    }
 
@@ -112,7 +112,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set mask(value: WebRenderStruct2D) {
       this._mask = value;
-      if (value) {
+      if (value && value.pass) {
          value.pass.priority = this.priority + 1;
       }
    }
@@ -138,7 +138,7 @@ export class WebRender2DPass implements IRender2DPass {
    /**
     * rt渲染偏移
     **/
-   renderOffset: Vector2 = new Vector2();
+   offsetMatrix: Matrix = new Matrix();
 
    private _invertMat_0: Vector3 = new Vector3(1, 1);
    private _invertMat_1: Vector3 = new Vector3(0, 0);
@@ -244,8 +244,9 @@ export class WebRender2DPass implements IRender2DPass {
       // if (true) {//如果需要重画或者直接渲染离屏，走下面流程
       if (this.repaint) {
 
-         for (let i = 0, len = lists.length; i < len; i++)
-            lists[i]?.reset();
+         this._lists.forEach(list => {
+            list.reset();
+         });
 
          this.updateRenderQueue(context);
 
@@ -259,7 +260,8 @@ export class WebRender2DPass implements IRender2DPass {
             context.drawRenderElementList(list.renderElements);
          }
 
-         if (this._mask && this._mask.enabled) {
+         if (this._mask) {
+            this._mask._handleInterData();
             this._mask.renderUpdate(context);
             context.drawRenderElementOne(this._mask.renderElements[0]);
          }
@@ -342,7 +344,7 @@ export class WebRender2DPass implements IRender2DPass {
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
-      let offset = this.renderOffset;
+      let offset = this.offsetMatrix;
       if (mask && mask.trans) {
          let maskMatrix = mask.trans.matrix;
          maskMatrix.copyTo(temp);
@@ -350,11 +352,7 @@ export class WebRender2DPass implements IRender2DPass {
          rootTrans.matrix.copyTo(temp);
       }
 
-      let tx = temp.tx + temp.a * offset.x + temp.c * offset.y;
-      let ty = temp.ty + temp.b * offset.x + temp.d * offset.y;
-      temp.tx = tx;
-      temp.ty = ty;
-
+      Matrix.mul(offset, temp, temp);
       temp.invert();
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
    }

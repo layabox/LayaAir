@@ -93,6 +93,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this._mat.addDefine(Shader3D.getDefineByName("COLORFILTER"));
         this._centerScale.setValue(1, 1);
         this._mat.setVector2("u_centerScale", this._centerScale);
+        this._mat.lock = true;
         if (!this._renderElement) {
             this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;

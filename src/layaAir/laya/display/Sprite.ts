@@ -652,7 +652,10 @@ export class Sprite extends Node {
             this._blendMode = t;
             this._initShaderData();
             this._struct.blendMode = this._blendMode;
-            this.parentRepaint();
+            if (this._graphics)
+                this._graphics.repaint();
+            else
+                this.repaint();
         }
     }
 
@@ -840,7 +843,7 @@ export class Sprite extends Node {
         if (value == this || (value && this._mask == value && value._maskParent == this))
             return;
 
-        if (value.isAncestorOf(this))
+        if (value && value.isAncestorOf(this))
             throw new Error("Mask cannot be ancestor of the masked object");
 
         if (this._mask) {
@@ -1094,7 +1097,12 @@ export class Sprite extends Node {
             structArray[j + 1] = d;
             i++;
         }
+
+        //临时关闭，否则childChanged会重复调用updateZOrder
+        let flag = this._setBit(NodeFlags.HAS_ZORDER, false);
         this._childChanged();
+        if (flag)
+            this._setBit(NodeFlags.HAS_ZORDER, true);
     }
 
     /**
@@ -1571,25 +1579,36 @@ export class Sprite extends Node {
             if (root._subpassUpdateFlag) {
                 root.updateSubRenderPassState();
                 if (root._oriRenderPass) {
-                    root.updateRenderTexture();
+                    let result = root.updateRenderTexture();
 
                     let destrt: RenderTexture2D = root._drawOriRT;
-                    root._oriRenderPass.renderTexture = destrt;
-                    if (root.mask) {
-                        root._oriRenderPass.mask = root.mask._subStruct;
+                    if (destrt) {
+                        root._oriRenderPass.renderTexture = destrt;
+                        if (root.mask) {
+                            root._oriRenderPass.mask = root.mask._subStruct;
+                        }
+
+                        if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
+                            let process = root._oriRenderPass.postProcess;
+                            if (process) {
+                                process.setResource(destrt);
+                                process.clearCMD();
+                                process._render();
+                                destrt = process._context.destination;
+                            }
+                            root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                            //Mask TODO
+                        }
+
+                        if (destrt) {//有贴图需要更新偏移
+                            root._subStructRender._updateVertexSize();
+                        }
+                        root._subpassUpdateFlag = 0;
+
+                    } else {
+                        root.setSubRenderPassState(false);
                     }
-                    let process = root._oriRenderPass.postProcess;
-                    if (process) {
-                        process.setResource(destrt);
-                        process.clearCMD();
-                        process._render();
-                        destrt = process._context.destination;
-                    }
-                    root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                    root._subStructRender._updateVertexSize();
-                    //Mask TODO
                 }
-                root._subpassUpdateFlag = 0;
             }
 
             if (root._struct) {
@@ -1620,9 +1639,15 @@ export class Sprite extends Node {
         }
 
         pass.renderTexture = renderout;
-        pass.root = sprite._struct;
-        pass.renderOffset.x = offsetX;
-        pass.renderOffset.y = offsetY;
+        let struct = sprite._oriRenderPass && sprite._oriRenderPass.enable ? sprite._subStruct : sprite._struct;
+        pass.root = struct;
+
+        let matrix = pass.offsetMatrix;
+        let local = sprite.transform;
+        local.copyTo(matrix);
+        matrix.invert();
+        matrix.tx = -offsetX;
+        matrix.ty = -offsetY;
 
         for (let pass of passSet) {
             if (pass.priority > 0) {
@@ -2200,19 +2225,17 @@ export class Sprite extends Node {
      */
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
+
         if (this._struct && this._struct.enabled !== b) {
+            // if (!this._oriRenderPass || !this._oriRenderPass.enable) {
             this._struct.enabled = b;
+            // }
+
             if (this._subStruct) {
                 this._subStruct.enabled = b;
             }
             if (b) this.repaint();
             this.parentRepaint();
-            // if (this._oriRenderPass) {
-            //     if (b)
-            //         ILaya.stage.passManager.addPass(this._oriRenderPass);
-            //     else
-            //         ILaya.stage.passManager.removePass(this._oriRenderPass);
-            // }
             return true;
         }
         else
@@ -2291,8 +2314,11 @@ export class Sprite extends Node {
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
         }
-        else
+        else {
             SpriteUtils.getRect(this, false, rect);
+            rect.x += this._pivotX;
+            rect.y += this._pivotY;
+        }
 
         if (rect.width === 0 || rect.height === 0)
             return false;
@@ -2345,6 +2371,8 @@ export class Sprite extends Node {
                 //todo
             }
 
+            this._struct.enabled = true;
+
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
@@ -2355,6 +2383,7 @@ export class Sprite extends Node {
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             let parent = this._subStruct.parent;
             this._struct.pass = null;
+            this._struct.enabled = this._subStruct.enabled;
             if (parent) {
                 let index = parent.children.indexOf(this._subStruct);
                 parent.removeChild(this._subStruct);

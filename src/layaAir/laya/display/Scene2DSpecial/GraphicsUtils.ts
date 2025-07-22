@@ -277,8 +277,9 @@ export class SubStructRender {
    _updateRenderOffset(rect: Rectangle) {
       rect.cloneTo(this._rtRect);
       let originPass = this._subRenderPass;
-      originPass.renderOffset.x = rect.x;
-      originPass.renderOffset.y = rect.y;
+      let matrix = originPass.offsetMatrix;
+      matrix.tx = rect.x;
+      matrix.ty = rect.y;
    }
 
 

@@ -49,21 +49,26 @@ export class HitArea implements IHitArea {
     }
 
     /**
-     * @en  Moves the hit area to a new position.
+     * @en Moves the hit area to a new position.
      * @param x The new x-coordinate of the hit area.
      * @param y The new y-coordinate of the hit area.
+     * @param hit Whether to move the hit area.
+     * @param unhit Whether to move the unhit area.
      * @zh 将命中区域移动到新位置。
      * @param x 新的 x 轴坐标位置。
      * @param y 新的 y 轴坐标位置。 
+     * @param hit 是否移动命中区域。
+     * @param unhit 是否移动未命中区域。
      */
-    moveTo(x: number, y: number): void {
-        if (this._hit) {
+    moveTo(x: number, y: number, hit: boolean, unhit: boolean): void {
+        if (hit && this._hit) {
             for (let cmd of this._hit.cmds) {
                 (cmd as any).x = x;
                 (cmd as any).y = y;
             }
         }
-        if (this._unHit) {
+
+        if (unhit && this._unHit) {
             for (let cmd of this._unHit.cmds) {
                 (cmd as any).x = x;
                 (cmd as any).y = y;

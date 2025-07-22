@@ -282,7 +282,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          }
       }
 
-      if (this.renderDataHandler) {
+      if (this._renderDataHandler) {
 
          let data = this.spriteShaderData;
          // clip

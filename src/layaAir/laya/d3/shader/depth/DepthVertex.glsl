@@ -26,10 +26,6 @@ vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 	#endif // DEPTHPASS
     #endif // SHADOW || SHADOW_SPOT
 
-    #ifdef DEPTHPASS
-	#include "Camera.glsl";
-    #endif // DEPTHPASS
-
 vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 {
     #ifdef DEPTHPASS

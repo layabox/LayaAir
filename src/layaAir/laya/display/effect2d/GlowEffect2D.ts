@@ -153,6 +153,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         this._glowMat.setShaderName("glow2D");
         this._glowMat.setVector4("u_color", this._colorVec);
         this._glowMat.setVector4("u_blurInfo1", this.sv_blurInfo1);
+        this._glowMat.lock = true;
         if (!this._glowElement) {
             this._glowElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             this._glowElement.geometry = Blit2DCMD.InvertQuadGeometry;

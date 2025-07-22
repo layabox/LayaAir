@@ -429,6 +429,15 @@ export class GTextField extends GWidget {
         return super.size(width, height);
     }
 
+    /**
+     * @en Typeset the text, applying any changes made to the text formatting.
+     * @zh 对文本进行排版，应用对文本格式的任何更改。
+     */
+    typeset(): this {
+        this.textIns.typeset();
+        return this;
+    }
+
     /** @ignore */
     protected _transChanged(kind: TransformKind) {
         super._transChanged(kind);
