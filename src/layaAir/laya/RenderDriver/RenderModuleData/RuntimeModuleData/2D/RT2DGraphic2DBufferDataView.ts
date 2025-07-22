@@ -63,6 +63,10 @@ export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
             this._nativeObj.resetData(this._nativeMemory._buffer);
             oldMemory && oldMemory.destroy();
         }
+        else
+        {
+            this._nativeMemory = new NativeMemory(byteLength, false);
+        }
 
     }
 }
