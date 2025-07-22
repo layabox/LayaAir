@@ -2235,8 +2235,13 @@ export class Sprite extends Node {
             if (this._subStruct) {
                 this._subStruct.enabled = b;
             }
-            if (b) this.repaint();
-            this.parentRepaint();
+
+            if (b) {
+                this.repaint();
+            } else {
+                this.parentRepaint();
+                this._struct.setRepaint();
+            }
             return true;
         }
         else
