@@ -546,6 +546,14 @@ export class Scroller implements IScroller {
             this.setPosY(value * this._pageSize.y, ani);
     }
 
+    get pageCountX(): number {
+        return Math.ceil(this._contentSize.x / this._viewSize.x);
+    }
+
+    get pageCountY(): number {
+        return Math.ceil(this._contentSize.y / this._viewSize.y);
+    }
+
     get isBottomMost(): boolean {
         return this._yPos === this._overlapSize.y || this._overlapSize.y === 0;
     }
