@@ -30,7 +30,7 @@ export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
      * @internal
      */
     _setData(data: ArrayLike<number>, view: RT2DGraphic2DVertexDataView) {
-        this._nativeMemory.float32Array.set(data, view.start * 4);
+        this._nativeMemory.float32Array.set(data, view.start);
     }
 
     _addDataView(dataView: I2DGraphicBufferDataView) {
