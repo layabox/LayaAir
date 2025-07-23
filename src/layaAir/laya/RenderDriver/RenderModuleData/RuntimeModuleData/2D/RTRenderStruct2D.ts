@@ -88,7 +88,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    public set children(value: IRenderStruct2D[]) {
       this._children = value;
       let nativeArray = [];
-      for (var i = 0; i < nativeArray.length; i++) {
+      for (var i = 0; i < value.length; i++) {
          nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
       }
       this._nativeObj.setChildren(nativeArray);
@@ -224,8 +224,8 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
       if (renderUpdateFun) {
-      	this._rnUpdateFun = renderUpdateFun.bind(call);
-      	this._nativeObj.setRenderUpdate(this._rnUpdateFun);
+         this._rnUpdateFun = renderUpdateFun.bind(call);
+         this._nativeObj.setRenderUpdate(this._rnUpdateFun);
       }
       else {
          this._rnUpdateFun = null;
