@@ -91,7 +91,7 @@ export class RTRender2DPass implements IRender2DPass {
          this._nativeObj.setRenderTexture((value._renderTarget as GLESInternalRT)._nativeObj, value.width, value.height, value._invertY);
       }
       else {
-         this._nativeObj.setRenderTexture(null, 0, 0);
+         this._nativeObj.setRenderTexture(null, 0, 0, false);
       }
    }
 
