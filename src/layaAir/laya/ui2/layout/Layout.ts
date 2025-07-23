@@ -243,24 +243,24 @@ export class Layout implements ILayout {
         if (yValue !== 0) {
             for (; i < cnt; i++) {
                 obj = children[i];
-                if (yValue < obj.y) {
+                if (yValue < obj.top) {
                     if (i === 0) {
                         yValue = 0;
                         break;
                     }
                     else {
                         prev = children[i - 1];
-                        if (yValue < prev.y + prev.height / 2) //top half part
-                            yValue = prev.y;
+                        if (yValue < prev.top + prev.height / 2) //top half part
+                            yValue = prev.top;
                         else //bottom half part
-                            yValue = obj.y;
+                            yValue = obj.top;
                         break;
                     }
                 }
             }
 
             if (i === cnt)
-                yValue = obj.y;
+                yValue = obj.top;
         }
 
         if (xValue !== 0) {
@@ -268,24 +268,24 @@ export class Layout implements ILayout {
                 i--;
             for (; i < cnt; i++) {
                 obj = children[i];
-                if (xValue < obj.x) {
+                if (xValue < obj.left) {
                     if (i === 0) {
                         xValue = 0;
                         break;
                     }
                     else {
                         prev = children[i - 1];
-                        if (xValue < prev.x + prev.width / 2) //top half part
-                            xValue = prev.x;
+                        if (xValue < prev.left + prev.width / 2) //top half part
+                            xValue = prev.left;
                         else //bottom half part
-                            xValue = obj.x;
+                            xValue = obj.left;
                         break;
                     }
                 }
             }
 
             if (i === cnt)
-                xValue = obj.x;
+                xValue = obj.left;
         }
 
         resultPoint.x = xValue;
