@@ -2239,9 +2239,9 @@ export class Sprite extends Node {
             if (b) {
                 this.repaint();
             } else {
-                this.parentRepaint();
                 this._struct.setRepaint();
             }
+            this.parentRepaint();
             return true;
         }
         else
