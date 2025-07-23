@@ -2408,11 +2408,11 @@ export class Sprite extends Node {
      * @ignore
      */
     protected _setParent(value: Node): void {
+        this._globalTrans._spTransChanged(TransformKind.TRS);
+        
         super._setParent(value);
 
         this._setStructParent(value as Sprite);
-
-        this._globalTrans._spTransChanged(TransformKind.TRS);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {
