@@ -1650,6 +1650,7 @@ export class Sprite extends Node {
         matrix.invert();
         matrix.tx = -offsetX;
         matrix.ty = -offsetY;
+        pass.offsetMatrix = matrix;
 
         for (let pass of passSet) {
             if (pass.priority > 0) {
