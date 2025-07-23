@@ -34,11 +34,21 @@ import { RepaintFlag } from "../../../display/SpriteConst";
 class UI3DShellSprite extends Sprite {
 
     _rtWidth: number;
+
     _rtHeight: number;
 
     _invertY: boolean;
 
     updateRT: boolean = false;
+
+    _genMipMap: boolean = false;
+
+    get genMipMap() {
+        return this._genMipMap;
+    }
+    set genMipMap(value: boolean) {
+        this._genMipMap = value;
+    }
 
     get rtWidth() {
         return this._rtWidth;
@@ -95,8 +105,16 @@ class UI3DShellSprite extends Sprite {
         }
 
         // this._subStructRender._updateRenderOffset(rect);
-
-        let renderTexture = new RenderTexture2D(this._rtWidth, this._rtHeight, RenderTargetFormat.R8G8B8A8);
+        let renderTexture: RenderTexture2D;
+        if (this._genMipMap) {
+            renderTexture = new RenderTexture2D(this._rtWidth, this._rtHeight, RenderTargetFormat.R8G8B8A8);
+            renderTexture._renderTarget && renderTexture._renderTarget.dispose();
+            renderTexture._renderTarget = LayaGL.textureContext.createRenderTargetInternal(renderTexture.width, renderTexture.height, renderTexture.getColorFormat(), renderTexture.depthStencilFormat, true, false, 1, false);
+            renderTexture._texture = renderTexture._renderTarget._textures[0];
+            renderTexture._texture.gammaCorrection = 2.2;
+        } else {
+            renderTexture = new RenderTexture2D(this._rtWidth, this._rtHeight, RenderTargetFormat.R8G8B8A8);
+        }
         renderTexture._invertY = this._invertY;
         this._drawOriRT = renderTexture;
         this.updateRT = true;
@@ -151,6 +169,22 @@ export class UI3D extends BaseRender {
     protected _worldParams: Vector4 = new Vector4();
 
     private _cameraPlaneDistance: number;
+
+    private _genMipMap: boolean = false;
+
+
+    /**
+     * @en Whether to generate mipmap when rendering UI content, which will increase the memory usage
+     * @zh 绘制UI内容时是否生成mipmap，会增加显存占用
+     */
+    get genMipMap() {
+        return this._genMipMap;
+    }
+    set genMipMap(value: boolean) {
+        this._genMipMap = value;
+        this._shellSprite.genMipMap = value;
+        this._shellSprite.repaint(RepaintFlag.UpdateRT);
+    }
 
     /**
      * @en UI nodes for 3D rendering
@@ -436,7 +470,7 @@ export class UI3D extends BaseRender {
             width = this._size.x * this._resolutionRate;
             height = this._size.y * this._resolutionRate;
         }
-        if(this._shellSprite && (this._shellSprite.rtWidth !== width || this._shellSprite.rtHeight !== height)) {
+        if (this._shellSprite && (this._shellSprite.rtWidth !== width || this._shellSprite.rtHeight !== height)) {
             this._shellSprite && (this._shellSprite.rtWidth = width);
             this._shellSprite && (this._shellSprite.rtHeight = height);
             this._shellSprite && (this._shellSprite.invertY = !LayaGL.renderEngine._screenInvertY);
@@ -529,7 +563,7 @@ export class UI3D extends BaseRender {
      * 更新Sprite的RT
      */
     _submitRT() {
-        if(this._shellSprite.updateRT) {
+        if (this._shellSprite.updateRT) {
             this._shellSprite.updateRT = false;
             this._setMaterialTexture();
         }
