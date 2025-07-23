@@ -95,14 +95,13 @@ export class RTRender2DPass implements IRender2DPass {
 
    private _renderOffset: Matrix = new Matrix();
    set offsetMatrix(value: Matrix) {
-      this._nativeObj.renderOffset = value;
+      this._renderOffset = value;
+      this._nativeObj.offsetMatrix = value;
    }
    get offsetMatrix(): Matrix {
-      let offset = this._nativeObj.renderOffset;
-      this._renderOffset.tx = offset.x;
-      this._renderOffset.ty = offset.y;
       return this._renderOffset;
    }
+
    needRender(): boolean {
       return this._nativeObj.needRender();
    }
