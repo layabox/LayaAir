@@ -32,11 +32,6 @@ export class NativeMemory {
         else {
             this._buffer = CommonMemoryAllocater.creatBlock(size);
         }
-        this._idata = new Int32Array(this._buffer);
-        this._uidata = new Uint32Array(this._buffer);
-        this._uint16data = new Uint16Array(this._buffer);
-        this._fdata = new Float32Array(this._buffer);
-        this._byteArray = new Uint8Array(this._buffer);
         this._byteLength = size;
     }
 
@@ -44,12 +39,18 @@ export class NativeMemory {
      * Float32Array Data
      */
     get float32Array(): Float32Array {
+        if (!this._fdata) {
+             this._fdata = new Float32Array(this._buffer);
+        }
         return this._fdata;
     }
     /**
      * Uint8Array Data
      */
     get uint8Array(): Uint8Array {
+        if (!this._byteArray) {
+            this._byteArray = new Uint8Array(this._buffer);
+        }
         return this._byteArray;
     }
 
@@ -57,10 +58,16 @@ export class NativeMemory {
      * Int32Array Data
      */
     get int32Array(): Int32Array {
+        if (!this._idata) {
+            this._idata = new Int32Array(this._buffer);
+        }
         return this._idata;
     }
 
     get Uint32Array(): Uint32Array {
+        if (!this._uidata) {
+              this._uidata = new Uint32Array(this._buffer);
+        }
         return this._uidata;
     }
 
@@ -68,6 +75,9 @@ export class NativeMemory {
      * Int32Array Data
      */
     get Uint16Array(): Uint16Array {
+        if (!this._uint16data) {
+            this._uint16data = new Uint16Array(this._buffer);
+        }
         return this._uint16data;
     }
 
