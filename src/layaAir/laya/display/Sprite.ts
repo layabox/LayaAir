@@ -2457,7 +2457,7 @@ export class Sprite extends Node {
         }
         if (this._getBit(NodeFlags.HAS_ZORDER))
             ILaya.systemTimer.callLater(this, this.updateZOrder);
-        this.repaint();
+        this.repaint(RepaintFlag.ChildChange);
     }
 
     /**
