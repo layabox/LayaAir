@@ -278,6 +278,9 @@ export class Utils {
     * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
     */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<string> {
+        if((window as any).conch){
+            return Promise.resolve("not surpport");
+        }
         let pixelArray: Uint8Array | Float32Array;
         const width = rendertexture.width;
         const height = rendertexture.height;
