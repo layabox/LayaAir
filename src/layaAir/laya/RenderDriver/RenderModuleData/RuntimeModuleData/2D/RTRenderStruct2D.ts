@@ -4,7 +4,7 @@ import { Rectangle } from "../../../../maths/Rectangle";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
-import { I2DGlobalRenderData, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
 import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
@@ -28,10 +28,13 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
       this._cullRect = value;
       this._nativeObj.setCullRect(value);
    }
+
+   private _renderLayerMask: number;
    get renderLayerMask(): number {
-      return this._nativeObj.renderLayerMask;
+      return this._renderLayerMask;
    }
    set renderLayerMask(value: number) {
+      this._renderLayerMask = value;
       this._nativeObj.renderLayerMask = value;
    }
    private _globalShaderData: GLESShaderData;
@@ -48,11 +51,13 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
 
+   private _zIndex: number;
    set zIndex(value: number) {
+      this._zIndex = value;
       this._nativeObj.zIndex = value;
    }
    get zIndex(): number {
-      return this._nativeObj.zIndex;
+      return this._zIndex;
    }
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
@@ -66,11 +71,14 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._rect.height = rect.height;
       return this._rect;
    }
+
+   private _renderLayer: number;
    set renderLayer(value: number) {
+      this._renderLayer = value;
       this._nativeObj.renderLayer = value;
    }
    get renderLayer(): number {
-      return this._nativeObj.renderLayer;
+      return this._renderLayer;
    }
 
    private _parent: IRenderStruct2D = null;
@@ -93,68 +101,78 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       }
       this._nativeObj.setChildren(nativeArray);
    }
+
+   private _renderType: number;
    set renderType(value: number) {
+      this._renderType = value;
       this._nativeObj.renderType = value;
    }
    get renderType(): number {
-      return this._nativeObj.renderType;
+      return this._renderType;
    }
 
+   private _renderUpdateMask: number;
    set renderUpdateMask(value: number) {
+      this._renderUpdateMask = value;
       this._nativeObj.renderUpdateMask = value;
    }
    get renderUpdateMask(): number {
-      return this._nativeObj.renderUpdateMask;
+      return this._renderUpdateMask;
    }
+
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
+      value.cloneTo(this._renderMatrix);
       this._nativeObj.setRenderMatrix(value, Stat.loopCount);
    }
    get renderMatrix(): Matrix {
-      let matrix = this._nativeObj.getRenderMatrix();
-      this._renderMatrix.a = matrix.a;
-      this._renderMatrix.b = matrix.b;
-      this._renderMatrix.c = matrix.c;
-      this._renderMatrix.d = matrix.d;
-      this._renderMatrix.tx = matrix.tx;
-      this._renderMatrix.ty = matrix.ty;
       return this._renderMatrix;
    }
+
+   private _globalAlpha: number;
    set globalAlpha(value: number) {
+      this._globalAlpha = value;
       this._nativeObj.globalAlpha = value;
    }
    get globalAlpha(): number {
-      return this._nativeObj.globalAlpha;
+      return this._globalAlpha;
    }
 
+   private _alpha: number;
    public get alpha(): number {
-      return this._nativeObj.alpha;
+      return this._alpha;
    }
 
    public set alpha(value: number) {
+      this._alpha = value;
       this._nativeObj.alpha = value;
    }
 
+   private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
-      return this._nativeObj.blendMode;
+      return this._blendMode;
    }
 
    public set blendMode(value: BlendMode) {
       this._nativeObj.blendMode = value;
    }
 
+   private _enabled: boolean;
    public get enabled(): boolean {
-      return this._nativeObj.enable;
+      return this._enabled;
    }
 
    public set enabled(value: boolean) {
+      this._enabled = value;
       this._nativeObj.enable = value;
    }
 
+   private _isRenderStruct:boolean;
    public get isRenderStruct(): boolean {
-      return this._nativeObj.isRenderStruct;
+      return this._isRenderStruct;
    }
    public set isRenderStruct(value: boolean) {
+      this._isRenderStruct = value;
       this._nativeObj.isRenderStruct = value;
    }
 
@@ -270,9 +288,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   renderUpdate(context: GLESRenderContext2D): void {
-      this._nativeObj.renderUpdate(context);
-   }
+   // renderUpdate(context: GLESRenderContext2D): void {
+   //    this._nativeObj.renderUpdate(context);
+   // }
 
    destroy(): void {
       this._nativeObj.destroy();

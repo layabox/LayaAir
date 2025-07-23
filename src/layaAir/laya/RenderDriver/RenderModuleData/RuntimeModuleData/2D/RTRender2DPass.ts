@@ -13,25 +13,33 @@ import { Matrix } from "../../../../maths/Matrix";
 
 export class RTRender2DPass implements IRender2DPass {
    _nativeObj: any;
+   private _enable: boolean = false;
    public get enable(): boolean {
-      return this._nativeObj.enable;
+      return this._enable;
    }
 
    public set enable(value: boolean) {
+      this._enable = value;
       this._nativeObj.enable = value;
    }
+
+   private _enableBatch: boolean = false;
    public get enableBatch(): boolean {
-      return this._nativeObj.enableBatch;
+      return this._enableBatch;
    }
 
    public set enableBatch(value: boolean) {
+      this._enableBatch = value;
       this._nativeObj.enableBatch = value;
    }
+
+   private _isSupport = false;
    public get isSupport(): boolean {
-      return this._nativeObj.isSupport;
+      return this._isSupport;
    }
 
    public set isSupport(value: boolean) {
+      this._isSupport = value;
       this._nativeObj.isSupport = value;
    }
    private _root: RTRenderStruct2D = null;
@@ -43,11 +51,14 @@ export class RTRender2DPass implements IRender2DPass {
       this._root = value;
       this._nativeObj.setRoot(value ? value._nativeObj : null);
    }
+
+   private _doClearColor: boolean;
    public set doClearColor(value: boolean) {
+      this._doClearColor = value;
       this._nativeObj.doClearColor = value;
    }
    public get doClearColor(): boolean {
-      return this._nativeObj.doClearColor;
+      return this._doClearColor;
    }
    postProcess: PostProcess2D = null;
 
@@ -59,13 +70,17 @@ export class RTRender2DPass implements IRender2DPass {
    public get mask(): RTRenderStruct2D {
       return this._mask;
    }
+
+   private _repaint: boolean;
    public get repaint(): boolean {
-      return this._nativeObj.repaint;
+      return this._repaint;
    }
 
    public set repaint(value: boolean) {
+      this._repaint = value;
       this._nativeObj.repaint = value;
    }
+
    private _renderTexture: RenderTexture2D;
    public get renderTexture(): RenderTexture2D {
       return this._renderTexture;
@@ -79,12 +94,16 @@ export class RTRender2DPass implements IRender2DPass {
          this._nativeObj.setRenderTexture(null, 0, 0);
       }
    }
+
+   private _priority: number;
    public get priority(): number {
-      return this._nativeObj.priority;
+      return this._priority;
    }
    public set priority(value: number) {
+      this._priority = value;
       this._nativeObj.priority = value;
    }
+
    private _shaderData: GLESShaderData = null;
    set shaderData(value: GLESShaderData) {
       this._shaderData = value;
@@ -103,8 +122,10 @@ export class RTRender2DPass implements IRender2DPass {
    }
 
    needRender(): boolean {
-      return this._nativeObj.needRender();
+      return (this._enable && !this._isSupport && (this._repaint || !this._renderTexture));
    }
+
+
    setClearColor(r: number, g: number, b: number, a: number): void {
       this._nativeObj.setClearColor(r, g, b, a);
    }
@@ -144,13 +165,13 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.fowardRender(context._nativeObj);
    }
 
-   /**
-    * 渲染
-    * @param context 
-    */
-   render(context: GLESRenderContext2D): void {
-      this._nativeObj.render(context._nativeObj);
-   }
+   // /**
+   //  * 渲染
+   //  * @param context 
+   //  */
+   // render(context: GLESRenderContext2D): void {
+   //    this._nativeObj.render(context._nativeObj);
+   // }
    private renderCallBack(context: GLESRenderContext2D): void {
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {

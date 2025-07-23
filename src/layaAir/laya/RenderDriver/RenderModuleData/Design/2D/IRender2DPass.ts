@@ -29,7 +29,7 @@ export interface IRender2DPass {
    addStruct(object: IRenderStruct2D): void;
    removeStruct(object: IRenderStruct2D): void;
    fowardRender(context: IRenderContext2D): void;
-   render(context: IRenderContext2D): void;
+   //render(context: IRenderContext2D): void;
    destroy(): void;
    //setBuffer(buffer: I2DGraphicWholeBuffer): void;
 }

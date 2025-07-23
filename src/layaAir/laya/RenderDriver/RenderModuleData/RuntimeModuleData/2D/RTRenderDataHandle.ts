@@ -22,10 +22,13 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
         this._owner = value;
         this._nativeObj.setOwner(value ? value._nativeObj : null);
     }
+
+    private _needUseMatrix: boolean;
     public get needUseMatrix(): boolean {
-        return this._nativeObj.needUseMatrix;
+        return this._needUseMatrix;
     }
     public set needUseMatrix(value: boolean) {
+        this._needUseMatrix = value;
         this._nativeObj.needUseMatrix = value;
     }
     destroy(): void {
@@ -177,16 +180,6 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
         else this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
     }
-
-    // inheriteRenderData(context: IRenderContext2D): void {
-    //     super.inheriteRenderData(context);
-    //     if (this._renderAlpha != this._owner.globalAlpha) {
-    //         let a = this._owner.globalAlpha * this._baseColor.a;
-    //         WebMesh2DRenderDataHandle._setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
-    //         this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
-    //         this._renderAlpha = this._owner.globalAlpha;
-    //     }
-    // }
 }
 
 export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements ISpineRenderDataHandle {
@@ -228,19 +221,4 @@ export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements I
         this._offset = value;
         this._nativeObj.setOffset(this._offset);
     }
-    // inheriteRenderData(context: IRenderContext2D): void {
-    //     if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
-    //         return
-    //     let shaderData = this.owner.spriteShaderData;
-    //     let trans = this.owner.renderMatrix;
-    //     let mat = trans;
-    //     let ofx = - this.skeleton.x;
-    //     let ofy = this.skeleton.y;
-    //     this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
-    //     this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-    //     this._nMatrix_0.setValue(mat.a, mat.b, mat.tx);
-    //     this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
-    //     shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-    //     shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-    // }
 }

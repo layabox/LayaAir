@@ -68,7 +68,7 @@ export interface IRenderStruct2D {
 
    setClipRect(rect: Rectangle): void;
 
-   renderUpdate(context: IRenderContext2D): void;
+   // renderUpdate(context: IRenderContext2D): void;
 
    set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void;
 
