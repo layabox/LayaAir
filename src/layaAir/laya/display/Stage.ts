@@ -358,7 +358,6 @@ export class Stage extends Sprite {
             this.updateCanvasSize();
     }
 
-    static cc = 0;
     /**
      * @en Set the screen size. The scene will adapt to the screen size. This method can be called dynamically to change the game display size.
      * @param screenWidth The width of the screen.
@@ -368,9 +367,6 @@ export class Stage extends Sprite {
      * @param screenHeight 屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
-        Stage.cc++;
-        if (Stage.cc > 10)
-            return;
         this._needUpdateCanvasSize = false;
         let pixelRatio = Browser.pixelRatio;
         //screen width/height是乘了dpr的，先除回去
