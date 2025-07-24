@@ -150,8 +150,13 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set blendMode(value: BlendMode) {
-      this._blendMode = value;
-      this._nativeObj.blendMode = value;
+      if (value == BlendMode["destination-out"]) {
+         this._blendMode = BlendMode.destinationOut;
+      }
+      else {
+         this._blendMode = value;
+      }
+      this._nativeObj.blendMode = this._blendMode;
    }
 
    private _enabled: boolean = true;
