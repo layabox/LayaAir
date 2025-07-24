@@ -2067,7 +2067,10 @@ export class Sprite extends Node {
     */
     repaint(flag?: number): void {
         if (this._destroyed) return;
-        if (this._repaint < Stat.loopCount || this._repaintCount < LayaGL.renderEngine._framePassCount) {
+        if (
+            this._repaint < Stat.loopCount ||
+            (this._repaint === Stat.loopCount && this._repaintCount < LayaGL.renderEngine._framePassCount)
+        ) {
             this._repaint = Stat.loopCount;
             this._repaintCount = LayaGL.renderEngine._framePassCount;
 
