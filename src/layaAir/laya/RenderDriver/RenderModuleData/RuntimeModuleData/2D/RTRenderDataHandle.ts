@@ -13,6 +13,7 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     _nativeObj: any;
     constructor(nativeObj: any) {
         this._nativeObj = nativeObj;
+        this.needUseMatrix = true;
     }
     protected _owner: RTRenderStruct2D;
     public get owner(): RTRenderStruct2D {
@@ -69,6 +70,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
 export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DBaseRenderDataHandle {
     constructor(nativeObj?: any) {
         super(nativeObj || new (window as any).conchRTRender2DDataHandle());
+        this.lightReceive = false;
     }
 
     private _lightReceive: boolean;
@@ -105,6 +107,7 @@ export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DB
 export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements IMesh2DRenderDataHandle {
     constructor() {
         super(new (window as any).conchRTMesh2DRenderDataHandle());
+        this.baseColor = new Color(1, 1, 1, 1);
     }
 
     private _baseColor: Color = new Color(1, 1, 1, 1);

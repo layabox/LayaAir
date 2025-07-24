@@ -51,7 +51,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
 
-   private _zIndex: number;
+   private _zIndex: number = 0;
    set zIndex(value: number) {
       this._zIndex = value;
       this._nativeObj.zIndex = value;
@@ -61,18 +61,14 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
+      value.cloneTo(this._rect);
       this._nativeObj.rect = value;
    }
    get rect(): Rectangle {
-      let rect = this._nativeObj.rect;
-      this._rect.x = rect.x;
-      this._rect.y = rect.y;
-      this._rect.width = rect.width;
-      this._rect.height = rect.height;
       return this._rect;
    }
 
-   private _renderLayer: number;
+   private _renderLayer: number = 1;
    set renderLayer(value: number) {
       this._renderLayer = value;
       this._nativeObj.renderLayer = value;
@@ -102,7 +98,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._nativeObj.setChildren(nativeArray);
    }
 
-   private _renderType: number;
+   private _renderType: number = -1;
    set renderType(value: number) {
       this._renderType = value;
       this._nativeObj.renderType = value;
@@ -154,10 +150,11 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set blendMode(value: BlendMode) {
+      this._blendMode = value;
       this._nativeObj.blendMode = value;
    }
 
-   private _enabled: boolean;
+   private _enabled: boolean = true;
    public get enabled(): boolean {
       return this._enabled;
    }
@@ -167,7 +164,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._nativeObj.enable = value;
    }
 
-   private _isRenderStruct:boolean;
+   private _isRenderStruct: boolean;
    public get isRenderStruct(): boolean {
       return this._isRenderStruct;
    }
@@ -233,6 +230,16 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    constructor() {
       this._nativeObj = new (window as any).conchRTRenderStruct2D();
+      this.zIndex = 0;
+      this.rect = new Rectangle(0, 0, 0, 0);
+      this.renderLayer = 1;
+      this.renderType = -1;
+      this.renderUpdateMask = 0;
+      this.globalAlpha = 1.0;
+      this.alpha = 1.0;
+      this.blendMode = BlendMode.invalid;
+      this.enabled = true;
+      this.isRenderStruct = false;
    }
 
    // RenderNode

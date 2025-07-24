@@ -134,7 +134,13 @@ export class RTRender2DPass implements IRender2DPass {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
       this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
       this._nativeObj.setRenderCallback(this.renderCallBack.bind(this));
-
+      this.enable = true;
+      this.enableBatch = true;
+      this.isSupport = false;
+      this.doClearColor = true;
+      this.repaint = true;
+      this.priority = 0;
+      this.offsetMatrix = new Matrix();
    }
 
    /**
