@@ -225,6 +225,7 @@ export class Sprite extends Node {
     private _autosize: boolean = false;
     private _tfChanged: boolean;
     private _repaint: number = -1;
+    private _repaintCount: number = -1;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
     private _userBounds: Rectangle;
@@ -2066,8 +2067,10 @@ export class Sprite extends Node {
     */
     repaint(flag?: number): void {
         if (this._destroyed) return;
-        if ((this._repaint < Stat.loopCount)) {
+        if (this._repaint < Stat.loopCount || this._repaintCount < LayaGL.renderEngine._framePassCount) {
             this._repaint = Stat.loopCount;
+            this._repaintCount = LayaGL.renderEngine._framePassCount;
+
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
@@ -2089,7 +2092,8 @@ export class Sprite extends Node {
      * @zh 清除重绘标志。
      */
     clearRepaint() {
-        this._repaint = 0;
+        this._repaint = -1;
+        this._repaintCount = -1;
     }
 
     /**
@@ -2101,7 +2105,7 @@ export class Sprite extends Node {
      */
     _needRepaint(): boolean {
         //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheenableCanvasRender && this._cachereCache;
-        return !!(this._repaint >= Stat.loopCount);
+        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount);
     }
 
     /**
@@ -2114,13 +2118,12 @@ export class Sprite extends Node {
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
-            if (pass.renderTexture) {
-                p.parentRepaint();
-                if (pass.root == pStruct && !p._needRepaint()) {
-                    // 自动生成宽高需要刷新rt尺寸
-                    p.setSubpassFlag(SubPassFlag.RenderTexture);
-                    pStruct.setRepaint();
-                }
+            if (pass.renderTexture) p.parentRepaint();
+
+            if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
+                // 自动生成宽高需要刷新rt尺寸
+                p.setSubpassFlag(SubPassFlag.RenderTexture);
+                pStruct.setRepaint();
             }
         }
     }
@@ -2410,7 +2413,7 @@ export class Sprite extends Node {
      */
     protected _setParent(value: Node): void {
         this._globalTrans._spTransChanged(TransformKind.TRS);
-        
+
         super._setParent(value);
 
         this._setStructParent(value as Sprite);
