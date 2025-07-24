@@ -1,9 +1,7 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
-import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
-import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
@@ -13,7 +11,8 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphics2DBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -42,6 +41,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
         }
     }
+
     destroy(): void {
 
     }
@@ -62,16 +62,29 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 }
 
+export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
+    vertexs: IGraphics2DVertexBlock[];
+    indexView: I2DGraphicIndexDataView;
+    vertexBuffer: IVertexBuffer;
+}
+
+export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
+    positions: number[];
+    vertexViews: I2DGraphicVertexDataView[];
+}
+
+
+
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
     mask: WebRenderStruct2D | null = null;
 
-    private _bufferBlocks: Graphics2DBufferBlock[] = null;
+    private _bufferBlocks: IGraphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexDataView[];
 
-    applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
+    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
         this._needUpdateBuffer = blocks.length > 0;
         this.updateCloneView();

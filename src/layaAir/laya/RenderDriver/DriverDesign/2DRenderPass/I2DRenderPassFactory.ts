@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -28,6 +28,10 @@ export interface I2DRenderPassFactory {
     createRenderStruct2D(): IRenderStruct2D;
 
     createRender2DPassManager(): IRender2DPassManager;
+
+    createGraphic2DBufferBlock(): IGraphics2DBufferBlock;
+
+    createGraphic2DVertexBlock(): IGraphics2DVertexBlock;
 
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle;
 

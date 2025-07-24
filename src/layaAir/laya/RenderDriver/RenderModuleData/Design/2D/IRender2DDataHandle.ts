@@ -56,15 +56,17 @@ export interface I2DGraphicWholeBuffer {
     destroy(): void;
 }
 
+//需要保证get 出去不会改动
 /** @blueprintIgnore */
-export type Graphics2DVertexBlock = {
-    positions: number[],
+export interface IGraphics2DVertexBlock {
+    positions: number[],//
     vertexViews: I2DGraphicVertexDataView[],
 }
 
+//需要保证get 出去不会改动
 /** @blueprintIgnore */
-export type Graphics2DBufferBlock = {
-    vertexs: Graphics2DVertexBlock[],
+export interface IGraphics2DBufferBlock {
+    vertexs: IGraphics2DVertexBlock[],
     indexView: I2DGraphicIndexDataView,
     vertexBuffer: IVertexBuffer,
 }
@@ -75,7 +77,7 @@ export type Graphics2DBufferBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphics2DBufferBlock[]): void;
+    applyVertexBufferBlock(views: IGraphics2DBufferBlock[]): void;
 }
 
 /**

@@ -4,7 +4,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, Graphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, IGraphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -15,7 +15,6 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
-import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
@@ -70,7 +69,7 @@ export class GraphicsRenderData {
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
-   private _bufferBlocks: Graphics2DBufferBlock[] = [];
+   private _bufferBlocks: IGraphics2DBufferBlock[] = [];
 
    clear(): void {
       let len = this._submits.length;
@@ -108,7 +107,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let blocks: Graphics2DBufferBlock[] = this._bufferBlocks;
+      let blocks: IGraphics2DBufferBlock[] = this._bufferBlocks;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -138,7 +137,14 @@ export class GraphicsRenderData {
 
             let indexView = this._updateIndexViews(submit, geometry);
             let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            blocks.push({ vertexs: submit.vertexs, indexView: indexView, vertexBuffer: vertexBuffer });
+            {
+               let vertexBlock = LayaGL.render2DRenderPassFactory.createGraphic2DBufferBlock();
+               vertexBlock.vertexs = submit.vertexs;
+               vertexBlock.indexView = indexView;
+               vertexBlock.vertexBuffer = vertexBuffer;
+               blocks.push(vertexBlock);
+            }
+
             this._updateGraphicsKeys(element, submit);
          } else {
             GraphicsRenderData._pool.recover(element);
