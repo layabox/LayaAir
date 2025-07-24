@@ -70,10 +70,9 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
 export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DBaseRenderDataHandle {
     constructor(nativeObj?: any) {
         super(nativeObj || new (window as any).conchRTRender2DDataHandle());
-        this.lightReceive = false;
     }
 
-    private _lightReceive: boolean;
+    private _lightReceive: boolean = false;
 
     public get lightReceive(): boolean {
         return this._lightReceive;

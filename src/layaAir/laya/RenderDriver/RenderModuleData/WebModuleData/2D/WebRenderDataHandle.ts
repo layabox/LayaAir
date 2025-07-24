@@ -219,7 +219,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
 
 export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements I2DBaseRenderDataHandle {
-    private _lightReceive: boolean;
+    private _lightReceive: boolean = false;
 
     public get lightReceive(): boolean {
         return this._lightReceive;
