@@ -784,6 +784,26 @@ export class Scene3D extends Sprite {
         });
     }
 
+    /** @internal */
+    _setStructParent(value: Sprite): void {
+        let struct = this._struct;
+
+        if (struct.parent) {
+            struct.parent.removeChild(struct);
+            struct.parent = null;
+        }
+
+        if (value && value._struct) {
+            if (value.is3D) {//兼容代码
+                value._struct.addChild(struct, value._struct.children.length);
+            } else {
+                //奇怪的类型检测
+                let index = value._children.indexOf(this as unknown as Sprite);
+                value._struct.addChild(struct, index);
+            }
+        }
+    }
+
     /**
      * @internal
      */
