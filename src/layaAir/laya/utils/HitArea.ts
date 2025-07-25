@@ -42,10 +42,10 @@ export class HitArea implements IHitArea {
      * @blueprintIgnore
      */
     contains(x: number, y: number, sp: Sprite): boolean {
-        if (this._isHitGraphic(x, y, sp, this._unHit))
+        if (HitArea._isHitGraphic(x, y, sp, this._unHit))
             return false;
 
-        return this._isHitGraphic(x, y, sp, this._hit);
+        return HitArea._isHitGraphic(x, y, sp, this._hit);
     }
 
     /**
@@ -76,12 +76,12 @@ export class HitArea implements IHitArea {
         }
     }
 
-    private _isHitGraphic(x: number, y: number, sp: Sprite, g: Graphics): boolean {
+    private static _isHitGraphic(x: number, y: number, sp: Sprite, g: Graphics): boolean {
         if (!g) return false;
-        return g.cmds.findIndex(cmd => cmd && this._isHitCmd(x, y, sp, cmd)) !== -1;
+        return g.cmds.findIndex(cmd => cmd && HitArea._isHitCmd(x, y, sp, cmd)) !== -1;
     }
 
-    private _isHitCmd(x: number, y: number, sp: Sprite, cmd: IGraphicsCmd): boolean {
+    private static _isHitCmd(x: number, y: number, sp: Sprite, cmd: IGraphicsCmd): boolean {
         if (!cmd) return false;
         var rst: boolean = false;
         switch (cmd.cmdID) {
