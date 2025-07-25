@@ -12,6 +12,8 @@ import { AniParmType } from "./AnimatorControllerParse";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 import { Animation2DEvent } from "./Animation2DEvent";
 import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
+import { Loader } from "../net/Loader";
+import { ILaya } from "../../ILaya";
 
 /**
  * @en 2D animation components
@@ -143,11 +145,28 @@ export class Animator2D extends Component {
     private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean): void {
         var pro = o.pro;
         if (pro && pro.ower) {
-            if (additive && "number" == typeof data) {
+            if (additive && "number" === typeof data) {
                 pro.ower[pro.key] = pro.defVal + weight * data;
-            } else if ("number" == typeof data) {
+            } else if ("number" === typeof data) {
                 pro.ower[pro.key] = weight * data;
             } else {
+                if ("string" === typeof data) {
+                    if (data.startsWith("tres://")) {
+                        let url = data.replace("tres://", "");
+                        let source = Loader.getRes(url, Loader.IMAGE);
+                        if (source) {
+                            data = source;
+                        } else {
+                            ILaya.loader.load(url, { type: Loader.IMAGE }).then(tex => {
+                                if (!this.destroyed) {
+                                    pro.ower[pro.key] = tex;
+                                }
+
+                            });
+                            return;
+                        }
+                    }
+                }
                 pro.ower[pro.key] = data;
             }
         }
