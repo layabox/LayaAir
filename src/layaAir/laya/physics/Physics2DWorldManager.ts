@@ -19,6 +19,9 @@ import { PlayerConfig } from "../../Config";
  * @zh 场景对应的2D物理管理类
  */
 export class Physics2DWorldManager implements IElementComponentManager {
+
+    static _debugSprite: Sprite;
+
     /**
      * @en 2Dphysics manager class name
      * @zh 2D物理管理类类名
@@ -42,6 +45,10 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _JSQuerycallback: any;
     private _JSRayCastcallback: any;
     private _allowWorldSleep: boolean = false;
+
+    get enableDraw(): boolean {
+        return this._enableDraw;
+    }
 
     /**
      * @en Get the box2D world corresponding to the current scene
@@ -101,7 +108,12 @@ export class Physics2DWorldManager implements IElementComponentManager {
         this._worldDef.gravity = this._gravity.setValue(configlayer?.gravity.x ?? Physics2DOption.gravity.x, configlayer?.gravity.y ?? Physics2DOption.gravity.y);
         this._allowWorldSleep = configlayer?.allowSleeping ?? Physics2DOption.allowSleeping;
         this._scene = scene;
+        if (!Physics2DWorldManager._debugSprite) {
+            Physics2DWorldManager._debugSprite = new Sprite();
+            ILaya.stage.addChild(Physics2DWorldManager._debugSprite);
+        }
         this.setRootSprite(this._scene);
+
     }
     name: string;
 
@@ -131,6 +143,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         //debug draw
         const configlayer = PlayerConfig.physics2D?.defaultConfig
         if (configlayer && configlayer.debugDraw && LayaEnv.isPlaying) {
+            this._enableDraw = configlayer.debugDraw;
             this.enableDebugDraw(configlayer.drawShape, EPhycis2DBlit.Shape);
             this.enableDebugDraw(configlayer.drawJoint, EPhycis2DBlit.Joint);
             this.enableDebugDraw(configlayer.drawAABB, EPhycis2DBlit.AABB);
@@ -180,7 +193,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         if (!this._debugDraw) {
             this._debugDraw = new Physics2DDebugDraw();
             this._debugDraw.physics2DWorld = this;
-            this._scene.addChild(this._debugDraw);
+            Physics2DWorldManager._debugSprite.addChild(this._debugDraw);
             this._debugDraw.zOrder = 1000;
         }
         this._enableBox2DDraw(enable, bli);
@@ -624,30 +637,30 @@ export class Physics2DWorldManager implements IElementComponentManager {
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
         var hsize: number = size / 2;
-        
+
         let outColor = this._makeStyleString(color, 1)
         let point: any[] = [];
-        
-        point.push(this.physics2DToLaya(p.x - hsize)); 
-        point.push(this.physics2DToLaya(p.y - hsize)); 
-        point.push(this.physics2DToLaya(p.x + hsize)); 
-        point.push(this.physics2DToLaya(p.y - hsize)); 
 
-        point.push(this.physics2DToLaya(p.x + hsize)); 
-        point.push(this.physics2DToLaya(p.y - hsize)); 
-        point.push(this.physics2DToLaya(p.x + hsize)); 
-        point.push(this.physics2DToLaya(p.y + hsize)); 
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
 
-        point.push(this.physics2DToLaya(p.x + hsize)); 
-        point.push(this.physics2DToLaya(p.y + hsize)); 
-        point.push(this.physics2DToLaya(p.x - hsize)); 
-        point.push(this.physics2DToLaya(p.y + hsize)); 
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
 
-        point.push(this.physics2DToLaya(p.x - hsize)); 
-        point.push(this.physics2DToLaya(p.y + hsize)); 
-        point.push(this.physics2DToLaya(p.x - hsize)); 
-        point.push(this.physics2DToLaya(p.y - hsize)); 
-        
+        point.push(this.physics2DToLaya(p.x + hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
+
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y + hsize));
+        point.push(this.physics2DToLaya(p.x - hsize));
+        point.push(this.physics2DToLaya(p.y - hsize));
+
         this._debugDraw.addLineDebugDrawCMD(point, outColor, this._debugDraw.lineWidth);
 
         // 备用的直接绘制方法（使用drawRect）
