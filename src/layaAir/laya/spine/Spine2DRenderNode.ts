@@ -670,6 +670,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _needUpdate: boolean = false;
     onUpdate(): void {
+        if (this.owner.destroyed)
+            return;
         this._needUpdate && this._update();
     }
 
