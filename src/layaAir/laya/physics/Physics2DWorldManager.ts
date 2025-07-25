@@ -194,7 +194,6 @@ export class Physics2DWorldManager implements IElementComponentManager {
             this._debugDraw = new Physics2DDebugDraw();
             this._debugDraw.physics2DWorld = this;
             Physics2DWorldManager._debugSprite.addChild(this._debugDraw);
-            this._debugDraw.zOrder = 1000;
         }
         this._enableBox2DDraw(enable, bli);
     }
