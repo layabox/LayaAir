@@ -334,7 +334,7 @@ export class VideoNode extends Sprite {
         else {
             if (this._vtex !== vt) {
                 this._vtex = vt;
-                this._vtex.on(Event.READY, () => this._tex.setTo(this._vtex));
+                this._vtex.on(Event.READY, this, this._vtReady);
                 this._vtex.on("videoUpdate", this, this.reCache);
                 if (!this._tex)
                     this.texture = this._tex = new Texture();
@@ -358,9 +358,19 @@ export class VideoNode extends Sprite {
         this._api.load(this._source);
     }
 
+    private _vtReady() {
+        this._tex.setTo(this._vtex);
+        this.graphics.repaint();
+    }
+
     private _unload() {
-        this._vtex?.destroy();
-        this._vtex = null;
+        if (this._vtex) {
+            this._vtex.off(Event.READY, this, this._vtReady);
+            this._vtex.off("videoUpdate", this, this.reCache);
+            this._vtex.destroy();
+            this._vtex = null;
+        }
+
         this._player?.destroy();
         this._player = null;
         this._api = null;
