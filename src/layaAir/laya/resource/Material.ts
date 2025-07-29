@@ -21,6 +21,7 @@ import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDat
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { Texture2D } from "./Texture2D";
 
 
 /**
@@ -1237,6 +1238,7 @@ export class Material extends Resource implements IClone {
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
         if (texture && !texture._texture)//贴图为加载完，需要重设
+            this.shaderData.setTexture(uniformIndex, Texture2D.blackTexture);//防止采用上一个drawcall设置的纹理，强制先设置为黑色默认纹理
             texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
     }
 
