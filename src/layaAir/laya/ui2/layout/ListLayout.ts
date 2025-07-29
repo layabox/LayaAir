@@ -132,7 +132,7 @@ export class ListLayout extends Layout {
 
         this._owner.itemPool.clear(); //清空对象池，防止runtime对不上
 
-        if (this._type === LayoutType.SingleColumn || this._type === LayoutType.FlowX) {
+        if (this._type === LayoutType.SingleColumn || this._type === LayoutType.SingleRow) {
             this._owner.scroller.step = this._itemSize.y;
             if (this._loop)
                 this._owner.scroller._loop = 2;
