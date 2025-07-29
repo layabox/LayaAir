@@ -95,8 +95,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _externalSkins: ExternalSkin[];
     private _skin: string;
     private _offset: Vector2 = new Vector2();
-    /** @internal */
-    _renderAlpha: number;
 
     // private _matBuffer: Float32Array = new Float32Array(6);
     _nMatrix_0 = new Vector3;
@@ -125,6 +123,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     protected _getRenderHandle(): ISpineRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
+    }
+
+    getHandle(): ISpineRenderDataHandle {
+        return this._renderHandle;
     }
 
     /**

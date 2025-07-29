@@ -193,14 +193,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
 
         this.spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-        color.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
-        if (renderNode._renderAlpha !== undefined) {
-            color.a *= renderNode._renderAlpha;
-        } else
-            color.a *= (renderNode.owner as Sprite).alpha;
-
-        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+        renderNode.getHandle().baseColor = this.spineColor;
 
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);

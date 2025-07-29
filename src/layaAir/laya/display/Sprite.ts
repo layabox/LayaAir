@@ -2126,8 +2126,8 @@ export class Sprite extends Node {
             if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
                 // 自动生成宽高需要刷新rt尺寸
                 p.setSubpassFlag(SubPassFlag.RenderTexture);
-                pStruct.setRepaint();
             }
+            pStruct.setRepaint();
         }
     }
 
@@ -2235,15 +2235,18 @@ export class Sprite extends Node {
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
 
+        let needUpdate = false;
         if (this._struct && this._struct.enabled !== b) {
-            // if (!this._oriRenderPass || !this._oriRenderPass.enable) {
             this._struct.enabled = b;
-            // }
+            needUpdate = true;
+        }
 
-            if (this._subStruct) {
-                this._subStruct.enabled = b;
-            }
+        if (this._subStruct && this._subStruct.enabled !== b) {
+            this._subStruct.enabled = b;
+            needUpdate = true;
+        }
 
+        if (needUpdate) {
             if (b) {
                 this.repaint();
             } else {
@@ -2251,9 +2254,9 @@ export class Sprite extends Node {
             }
             this.parentRepaint();
             return true;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -2325,13 +2328,9 @@ export class Sprite extends Node {
         let rect = Rectangle.TEMP;
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
-            // rect.x += this._mask._pivotX;
-            // rect.y += this._mask._pivotY;
         }
         else {
             SpriteUtils.getRect(this, false, rect);
-            // rect.x += this._pivotX;
-            // rect.y += this._pivotY;
         }
 
         if (rect.width === 0 || rect.height === 0)

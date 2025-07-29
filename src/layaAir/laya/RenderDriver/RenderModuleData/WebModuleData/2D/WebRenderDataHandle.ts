@@ -262,8 +262,9 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
     }
 }
 
+const _setRenderColor: Color = new Color(1, 1, 1, 1);
+
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
-    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
     private _baseColor: Color = new Color(1, 1, 1, 1);
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
@@ -343,14 +344,28 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         super.inheriteRenderData(context);
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            WebMesh2DRenderDataHandle._setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
+            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
     }
 }
 
 export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
+    private _renderAlpha = -1;
+    private _baseColor: Color = new Color(1, 1, 1, 1);
+
+    public get baseColor(): Color {
+        return this._baseColor;
+    }
+    public set baseColor(value: Color) {
+        if (value != this._baseColor && this._baseColor.equal(value))
+            return
+        value = value ? value : Color.BLACK;
+        value.cloneTo(this._baseColor);
+        this._renderAlpha = -1;
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
+    }
 
     skeleton: spine.Skeleton;
 
@@ -403,5 +418,12 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+
+        if (this._renderAlpha != this._owner.globalAlpha) {
+            let a = this._owner.globalAlpha * this._baseColor.a;
+            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
+            this._renderAlpha = this._owner.globalAlpha;
+        }
     }
 }
