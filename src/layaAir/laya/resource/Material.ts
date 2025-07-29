@@ -1238,7 +1238,7 @@ export class Material extends Resource implements IClone {
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
         if (texture && !texture._texture)//贴图为加载完，需要重设
-            this.shaderData.setTexture(uniformIndex, Texture2D.blackTexture);//防止采用上一个drawcall设置的纹理，强制先设置为黑色默认纹理
+            this.shaderData.setTexture(uniformIndex, null);//防止采用上一个drawcall设置的纹理，强制先设置为null
             texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
     }
 
