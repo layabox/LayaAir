@@ -1807,7 +1807,7 @@ export class Sprite extends Node {
             }
         }
 
-        if (!this.transform) {
+        if (this.transform) {
             let len = pts.length;
             for (let i = 0; i < len; i += 2) {
                 tmpPoint.x = pts[i];
@@ -2325,13 +2325,13 @@ export class Sprite extends Node {
         let rect = Rectangle.TEMP;
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
-            rect.x += this._mask._pivotX;
-            rect.y += this._mask._pivotY;
+            // rect.x += this._mask._pivotX;
+            // rect.y += this._mask._pivotY;
         }
         else {
             SpriteUtils.getRect(this, false, rect);
-            rect.x += this._pivotX;
-            rect.y += this._pivotY;
+            // rect.x += this._pivotX;
+            // rect.y += this._pivotY;
         }
 
         if (rect.width === 0 || rect.height === 0)
