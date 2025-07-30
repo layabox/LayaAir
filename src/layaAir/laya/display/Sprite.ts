@@ -1373,6 +1373,8 @@ export class Sprite extends Node {
             this._tfChanged = true;
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
                 this._graphics.repaint();
+            else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
+                this.repaint();
             else
                 this.parentRepaint();
         }
