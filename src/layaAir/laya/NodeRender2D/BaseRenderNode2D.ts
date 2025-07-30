@@ -265,7 +265,7 @@ export class BaseRenderNode2D extends Component {
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
-        this._renderHandle = this._getRenderHandle();
+        this._renderHandle = this._createRenderHandle();
     }
 
 
@@ -313,7 +313,12 @@ export class BaseRenderNode2D extends Component {
         this._renderHandle.destroy();
     }
 
-    protected _getRenderHandle(): I2DBaseRenderDataHandle {
+    /** @ignore */
+    _getRenderHandle(): I2DBaseRenderDataHandle {
+        return this._renderHandle;
+    }
+
+    protected _createRenderHandle(): I2DBaseRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.create2DBaseRenderDataHandle();
     }
 

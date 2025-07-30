@@ -1,6 +1,3 @@
-
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { Sprite } from "../../display/Sprite";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
@@ -18,6 +15,7 @@ import { SketonOptimise, TSpineBakeData } from "./SketonOptimise";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { SkinRenderUpdate } from "./SkinRenderUpdate"; // 新增导入
 import { BaseRender2DType } from "../../display/SpriteConst";
+import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 /**
  * @en SpineOptimizeRender used for optimized rendering of Spine animations.
@@ -193,7 +191,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
 
         this.spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        renderNode.getHandle().baseColor = this.spineColor;
+        (renderNode._getRenderHandle() as ISpineRenderDataHandle).baseColor = this.spineColor;
 
         this.skinRenderArray.forEach((value) => {
             value.init(skeleton, templet, renderNode);

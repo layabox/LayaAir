@@ -1,28 +1,9 @@
-import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite";
-import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
 import { Spine2DRenderNode } from "./Spine2DRenderNode";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 
-
-/**动画开始播放调度
- * @eventType Event.PLAYED
- * */
-/*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-/**动画停止播放调度
- * @eventType Event.STOPPED
- * */
-/*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-/**动画暂停播放调度
- * @eventType Event.PAUSED
- * */
-/*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-/**自定义事件。
- * @eventType Event.LABEL
- */
-/*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
 /**
  * @deprecated 请使用Sprite+Spine2DRenderNode组件
  * spine动画由<code>SpineTemplet</code>，<code>SpineSkeletonRender</code>，<code>SpineSkeleton</code>三部分组成。
@@ -289,26 +270,4 @@ export enum ESpineRenderType {
     boneGPU = 0,
     normal = 1,
     rigidBody = 2,
-}
-
-class TimeKeeper {
-    maxDelta: number;
-    framesPerSecond: number;
-    delta: number;
-    totalTime: number;
-    lastTime: number;
-    frameCount: number;
-    frameTime: number;
-
-    timer: Timer;
-
-    constructor(timer: Timer) {
-        this.maxDelta = 0.064;
-        this.timer = timer;
-    }
-    update() {
-        this.delta = this.timer.delta / 1000;
-        if (this.delta > this.maxDelta)
-            this.delta = this.maxDelta;
-    }
 }

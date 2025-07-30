@@ -41,7 +41,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _sharedMesh: Mesh2D;
     declare _renderHandle: IMesh2DRenderDataHandle;
 
-    protected _getRenderHandle(): IMesh2DRenderDataHandle {
+    protected _createRenderHandle(): IMesh2DRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.createMesh2DRenderDataHandle();
     }
 
