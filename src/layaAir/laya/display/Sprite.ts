@@ -2322,9 +2322,13 @@ export class Sprite extends Node {
         let rect = Rectangle.TEMP;
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
+            rect.x += this._mask._pivotX;
+            rect.y += this._mask._pivotY;
         }
         else {
             SpriteUtils.getRect(this, false, rect);
+            rect.x += this._pivotX;
+            rect.y += this._pivotY;
         }
 
         if (rect.width === 0 || rect.height === 0)
