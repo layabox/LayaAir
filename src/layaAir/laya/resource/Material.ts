@@ -22,6 +22,7 @@ import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DR
 import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { Texture2D } from "./Texture2D";
+import { Browser } from "../utils/Browser";
 
 
 /**
@@ -1236,9 +1237,14 @@ export class Material extends Resource implements IClone {
      * @param texture 要设置的纹理。
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
-        this.shaderData.setTexture(uniformIndex, texture);
-        if (texture && !texture._texture) {//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+        if (Browser.onLayaRuntime) {
+            this.shaderData.setTexture(uniformIndex, texture);//加引用
+            if (texture && !texture._texture) {//贴图为加载完，需要重设
+                texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+            }
+        }
+        else {
+            this.shaderData.setTexture(uniformIndex, texture);
         }
     }
 
