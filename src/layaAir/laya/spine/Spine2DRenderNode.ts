@@ -535,7 +535,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         state.apply(this._skeleton);
 
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
-        if (!this._state || !this._skeleton) {
+        if (!this._state || !this._skeleton || this.destroyed) {
             return;
         }
 
