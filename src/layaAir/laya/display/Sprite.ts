@@ -1382,16 +1382,14 @@ export class Sprite extends Node {
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
 
-        if ((kind & TransformKind.TRS) !== 0) {
+        if (
+            (kind & TransformKind.TRS) !== 0
+            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
+        ) {
             this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
-        }
-        else if (kind & TransformKind.Size) {
-            if (this._anchorX !== 0 || this._anchorY !== 0) {
-                this._globalTrans._spTransChanged(kind);
-            }
         }
     }
 
@@ -1598,13 +1596,9 @@ export class Sprite extends Node {
                                 process._render();
                                 destrt = process._context.destination;
                             }
-                            root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                            //Mask TODO
                         }
-
-                        if (destrt) {//有贴图需要更新偏移
-                            root._subStructRender._updateVertexSize();
-                        }
+                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                        root._subStructRender._updateVertexSize();
                         root._subpassUpdateFlag = 0;
 
                     } else {
