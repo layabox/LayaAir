@@ -286,6 +286,7 @@ export class SubStructRender {
       let matrix = originPass.offsetMatrix;
       matrix.tx = rect.x;
       matrix.ty = rect.y;
+      originPass.offsetMatrix = matrix;
    }
 
 
