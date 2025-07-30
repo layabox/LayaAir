@@ -396,6 +396,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         //this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new TimeKeeper(Laya.timer);
         //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
+        if (this.spineItem)
+            this.spineItem.destroy();
+
         if (!this._useFastRender) {
             let before = SketonOptimise.normalRenderSwitch;
             SketonOptimise.normalRenderSwitch = true;
