@@ -840,13 +840,16 @@ export class Stage extends Sprite {
                 sprite._oriRenderPass.mask = sprite.mask._subStruct;
             }
 
+            if (result) {
+                sprite._oriRenderPass.renderTexture = destrt;
+            }
+
             let process = sprite._oriRenderPass.postProcess;
             if (process) {
                 if (
                     result ||
                     (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
                 ) {
-                    sprite._oriRenderPass.renderTexture = destrt;
                     process.setResource(destrt);
                     process.clearCMD();
                     process._render();

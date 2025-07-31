@@ -1592,11 +1592,14 @@ export class Sprite extends Node {
 
                         let process = root._oriRenderPass.postProcess;
                         if (process) {
+                            if (result) {
+                                root._oriRenderPass.renderTexture = destrt;
+                            }
+
                             if (
                                 result ||
                                 (root._subpassUpdateFlag & SubPassFlag.PostProcess)
                             ) {
-                                root._oriRenderPass.renderTexture = destrt;
                                 process.setResource(destrt);
                                 process.clearCMD();
                                 process._render();
