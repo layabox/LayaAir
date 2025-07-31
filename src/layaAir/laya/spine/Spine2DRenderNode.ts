@@ -43,12 +43,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     static createRenderElement2D() {
+        let element: IRenderElement2D;
         if (this._pool.length > 0) {
-            return this._pool.pop();
+            element = this._pool.pop();
+        } else {
+            element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         }
-        let element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         element.renderStateIsBySprite = false;
-        element.nodeCommonMap = ["spine2D"]
+        element.nodeCommonMap = ["spine2D"];
         return element;
     }
 
@@ -886,8 +888,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @internal */
     _updateMaterials(elements: Material[]) {
+        for (let i = 0, len = this._materials.length; i < len; i++) {
+            this._materials[i]._removeReference();
+        }
+        this._materials.length = 0;
+
         for (let i = 0, len = elements.length; i < len; i++) {
             this._materials[i] = elements[i];
+            this._materials[i]._addReference();
         }
     }
     /** @internal */
