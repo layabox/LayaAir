@@ -8,7 +8,7 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
 import { Sprite } from "../display/Sprite";
-import { BaseRender2DType } from "../display/SpriteConst";
+import { BaseRender2DType, TransformKind } from "../display/SpriteConst";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
@@ -290,6 +290,9 @@ export class BaseRenderNode2D extends Component {
     protected _onEnable(): void {
         this.owner.renderNode2D = this;
         super._onEnable();
+        //更新矩阵
+        this.owner.globalTrans._spTransChanged(TransformKind.TRS);
+
         if (this._lightReceive)
             this._addRenderToLightManager();
     }
