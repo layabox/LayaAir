@@ -264,6 +264,21 @@ export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements I
     private _offset: Vector2 = new Vector2();
     skeleton: spine.Skeleton;
 
+    private _baseColor: Color = new Color(1, 1, 1, 1);
+
+    public get baseColor(): Color {
+        return this._baseColor;
+    }
+
+    public set baseColor(value: Color) {
+        if (value != this._baseColor && this._baseColor.equal(value))
+            return
+        value = value ? value : Color.BLACK;
+        value.cloneTo(this._baseColor);
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
+        this._nativeObj.setBaseColor(this._baseColor);
+    }
+
     constructor() {
         super(new (window as any).conchRTSpineRenderDataHandle());
     }

@@ -97,6 +97,9 @@ export class FrameAnimation extends Component {
     private _loadId: number = 0;
     private _changingSize: boolean;
 
+    /** @internal */
+    _labels: string[];
+
     declare readonly owner: Sprite;
 
     /**
@@ -127,6 +130,8 @@ export class FrameAnimation extends Component {
     set frame(value: number) {
         this._index = this._frame = value;
         this.drawFrame();
+        if (this._labels?.[value])
+            this.owner.event(Event.LABEL, this._labels[value]);
     }
 
     /**
@@ -472,8 +477,11 @@ export class FrameAnimation extends Component {
 
         this._frame = frame;
 
-        if (this._playing)
+        if (this._playing) {
             this.drawFrame();
+            if (this._labels?.[frame])
+                this.owner.event(Event.LABEL, this._labels[frame]);
+        }
 
         if (emit)
             this.owner.event(Event.COMPLETE);

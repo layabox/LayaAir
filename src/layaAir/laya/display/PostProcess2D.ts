@@ -61,7 +61,7 @@ export class PostProcess2D extends EventDispatcher {
       }
       this._owner = value;
       if (this._owner) {
-         if (this._effects.length > 0)
+         if (this._effects.length > 0 && this._enabled)
             this._owner._renderType |= SpriteConst.POSTPROCESS;
       }
    }

@@ -21,6 +21,8 @@ import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDat
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { Texture2D } from "./Texture2D";
+import { LayaEnv } from "../../LayaEnv";
 
 
 /**
@@ -1235,9 +1237,15 @@ export class Material extends Resource implements IClone {
      * @param texture 要设置的纹理。
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
-        this.shaderData.setTexture(uniformIndex, texture);
-        if (texture && !texture._texture)//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+        if (LayaEnv.isConch) {
+            this.shaderData.setTexture(uniformIndex, texture);//加引用
+            if (texture && !texture._texture) {//贴图为加载完，需要重设
+                texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+            }
+        }
+        else {
+            this.shaderData.setTexture(uniformIndex, texture);
+        }
     }
 
     private reSetTexture(uniformIndex: number, texture: BaseTexture) {

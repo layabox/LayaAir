@@ -263,8 +263,6 @@ export class VideoTexture extends BaseTexture {
         this._height = height;
         this._loaded = true;
 
-        if (this._texture)
-            this._texture.dispose();
         this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, rgba ? TextureFormat.R8G8B8A8 : TextureFormat.R8G8B8, false, false, false);
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
@@ -307,6 +305,10 @@ export class VideoTexture extends BaseTexture {
     load(url: string) {
         this._source = url;
         if (url) {
+            if (this._texture) {
+                this._texture.dispose();
+                this._texture = null;
+            }
             AssetDb.inst.resolveURL(url, url2 => {
                 if (this._source === url)
                     this.onLoad(url2);

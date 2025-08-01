@@ -333,6 +333,9 @@ export class GLESShaderData extends ShaderData {
         if (value && value._texture) {
             this._setInternalTexture(index, (value._texture as GLESInternalTex)._nativeObj);
         }
+        else {
+            this._setInternalTexture(index, null);
+        }
         lastValue && lastValue._removeReference();
         value && value._addReference();
     }

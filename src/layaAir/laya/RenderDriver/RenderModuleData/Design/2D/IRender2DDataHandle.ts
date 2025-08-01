@@ -104,6 +104,7 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
  * @blueprintIgnore
  */
 export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
+    baseColor: Color;
     skeleton: spine.Skeleton;
     offset: Vector2;
 }

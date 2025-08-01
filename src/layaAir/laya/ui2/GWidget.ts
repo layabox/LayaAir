@@ -15,6 +15,7 @@ import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
 import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * @en GWidget is the base class for all UI widgets in the New UI system.
@@ -250,8 +251,11 @@ export class GWidget extends Sprite {
             } else {
                 if (postProcess) {
                     let effect = postProcess.getEffect(GrayscaleEffect2D);
-                    if (effect)
+                    if (effect) {
                         postProcess.removeEffect(effect);
+                        if (!LayaEnv.isPlaying && postProcess.effects.length === 0)
+                            this.postProcess = null;
+                    }
                 }
             }
         }

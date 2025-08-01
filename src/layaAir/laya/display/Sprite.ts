@@ -1373,6 +1373,8 @@ export class Sprite extends Node {
             this._tfChanged = true;
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
                 this._graphics.repaint();
+            else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
+                this.repaint();
             else
                 this.parentRepaint();
         }
@@ -1382,16 +1384,14 @@ export class Sprite extends Node {
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
 
-        if ((kind & TransformKind.TRS) !== 0) {
+        if (
+            (kind & TransformKind.TRS) !== 0
+            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
+        ) {
             this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
-        }
-        else if (kind & TransformKind.Size) {
-            if (this._anchorX !== 0 || this._anchorY !== 0) {
-                this._globalTrans._spTransChanged(kind);
-            }
         }
     }
 
@@ -1590,21 +1590,28 @@ export class Sprite extends Node {
                             root._oriRenderPass.mask = root.mask._subStruct;
                         }
 
-                        if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
-                            let process = root._oriRenderPass.postProcess;
-                            if (process) {
+                        let process = root._oriRenderPass.postProcess;
+                        if (process) {
+                            if (result) {
+                                root._oriRenderPass.renderTexture = destrt;
+                            }
+
+                            if (
+                                result ||
+                                (root._subpassUpdateFlag & SubPassFlag.PostProcess)
+                            ) {
                                 process.setResource(destrt);
                                 process.clearCMD();
                                 process._render();
+                            }
+
+                            if (process.enabled) {
                                 destrt = process._context.destination;
                             }
-                            root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                            //Mask TODO
                         }
 
-                        if (destrt) {//有贴图需要更新偏移
-                            root._subStructRender._updateVertexSize();
-                        }
+                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                        root._subStructRender._updateVertexSize();
                         root._subpassUpdateFlag = 0;
 
                     } else {
@@ -1807,7 +1814,7 @@ export class Sprite extends Node {
             }
         }
 
-        if (!this.transform) {
+        if (this.transform) {
             let len = pts.length;
             for (let i = 0; i < len; i += 2) {
                 tmpPoint.x = pts[i];
@@ -2126,8 +2133,8 @@ export class Sprite extends Node {
             if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
                 // 自动生成宽高需要刷新rt尺寸
                 p.setSubpassFlag(SubPassFlag.RenderTexture);
-                pStruct.setRepaint();
             }
+            pStruct.setRepaint();
         }
     }
 
@@ -2235,15 +2242,18 @@ export class Sprite extends Node {
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
 
+        let needUpdate = false;
         if (this._struct && this._struct.enabled !== b) {
-            // if (!this._oriRenderPass || !this._oriRenderPass.enable) {
             this._struct.enabled = b;
-            // }
+            needUpdate = true;
+        }
 
-            if (this._subStruct) {
-                this._subStruct.enabled = b;
-            }
+        if (this._subStruct && this._subStruct.enabled !== b) {
+            this._subStruct.enabled = b;
+            needUpdate = true;
+        }
 
+        if (needUpdate) {
             if (b) {
                 this.repaint();
             } else {
@@ -2251,9 +2261,9 @@ export class Sprite extends Node {
             }
             this.parentRepaint();
             return true;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
     /**

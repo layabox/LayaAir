@@ -649,8 +649,12 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             case Particle2DScalingMode.Hierarchy:
                 break;
             case Particle2DScalingMode.Local:
-                scaleX = this.owner.scaleX * this.owner.scene.globalScaleX;
-                scaleY = this.owner.scaleY * this.owner.scene.globalScaleY;
+                scaleX = this.owner.scaleX;
+                scaleY = this.owner.scaleY;
+                if (this.owner.scene) {
+                    scaleX *= this.owner.scene.globalScaleX;
+                    scaleY *= this.owner.scene.globalScaleY;
+                }
                 break;
             default:
                 break;
@@ -849,14 +853,14 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
         this.setParticleData(this._spriteShaderData, this.owner._globalTrans.getMatrix());
         this._updateLight();
-        
+
         if (this._renderElements.length <= 0) {
             return;
         }
         if (this._updateMark != Stat.loopCount) {
             this._updateMark = Stat.loopCount;
 
-            let elapsedTime = this.owner.scene.timer.delta / 1000;
+            let elapsedTime = this.owner.timer.delta / 1000;
             ps._update(elapsedTime);
 
             const startUpdate = ps.particlePool.updateStartIndex;

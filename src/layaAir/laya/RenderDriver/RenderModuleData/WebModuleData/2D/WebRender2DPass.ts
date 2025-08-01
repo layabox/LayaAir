@@ -263,7 +263,10 @@ export class WebRender2DPass implements IRender2DPass {
          this._list.structs.forEach(list => {
             for (let i = 0, n = list.length; i < n; i++) {
                let struct = list.elements[i];
-               struct && struct.renderUpdate(context);
+               if (struct) {
+                  struct._handleInterData();
+                  struct.renderUpdate(context);
+               }
             }
          });
 
