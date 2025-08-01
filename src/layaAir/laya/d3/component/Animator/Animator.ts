@@ -299,7 +299,8 @@ export class Animator extends Component {
         var normalizedTime: number = elapsedPlaybackTime / clipDuration;//TODO:时候可以都统一为归一化时间
         playState._normalizedTime = normalizedTime;
         var playTime: number = normalizedTime % 1.0;
-        playState._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
+        const normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
+        playState._normalizedPlayTime = normalizedPlayTime > clipDuration ? clipDuration : normalizedPlayTime;
         playState._duration = clipDuration;
         if (elapsedPlaybackTime >= clipDuration) {
             if (!islooping) {

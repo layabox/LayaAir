@@ -303,7 +303,7 @@ export class Animator2D extends Component {
 
         var playTime = normalizedTime % 1.0;
         let normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
-        playState._normalizedPlayTime = normalizedPlayTime;
+        playState._normalizedPlayTime = normalizedPlayTime > clipDuration ? clipDuration : normalizedPlayTime;
         playState._duration = clipDuration;
 
         if (1 != cycleScale) {
