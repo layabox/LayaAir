@@ -287,7 +287,10 @@ export class Sprite extends Node {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._texture && this._texture._removeReference();
+        if (this._texture) {
+            this._texture._removeReference();
+            this._texture = null;
+        }
         if (this._oriRenderPass) {
             ILaya.stage.passManager.removePass(this._oriRenderPass);
             if (this._oriRenderPass.postProcess) {
@@ -295,9 +298,17 @@ export class Sprite extends Node {
                 this._oriRenderPass.postProcess = null;
             }
             this._oriRenderPass.destroy();
+            this._oriRenderPass = null;
         }
-        this._subStructRender && this._subStructRender.destroy();
-        this._texture = null;
+        if (this._subStructRender) {
+            this._subStructRender.destroy();
+            this._subStructRender = null;
+        }
+        if (this._drawOriRT) {
+            this._drawOriRT.destroy();
+            this._drawOriRT = null;
+        }
+
         this.setGraphics(null);
         this._struct = null;
     }
@@ -756,8 +767,8 @@ export class Sprite extends Node {
         if (value) {
             let postProcess = this.getPostProcess(true);
             postProcess.clear();
-            for (var i = 0; i < this._filterArr.length; i++) {
-                postProcess.addEffect(this.filters[i].getEffect());
+            for (let f of this._filterArr) {
+                postProcess.addEffect(f.getEffect());
             }
         }
         else
@@ -872,6 +883,7 @@ export class Sprite extends Node {
         this.repaint();
     }
 
+    /** @ignore @blueprintIgnore */
     clearSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag &= ~flag;
     }
