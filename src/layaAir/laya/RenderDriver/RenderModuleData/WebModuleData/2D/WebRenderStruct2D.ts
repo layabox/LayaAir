@@ -425,6 +425,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       child._parentClipInfo = this.getClipInfo();
       child._parentBlendMode = this.blendMode;
+      child.globalAlpha = this.globalAlpha * child._alpha;
       let parentPass = this.pass;
       child._parentPass = parentPass;
       if (child._pass && parentPass) {
