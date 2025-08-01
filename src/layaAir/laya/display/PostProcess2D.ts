@@ -73,11 +73,14 @@ export class PostProcess2D extends EventDispatcher {
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
       if (this._owner) {
-         if (this._effects.length === 0 || !this._enabled)
+         if (this._effects.length === 0 || !this._enabled) {
             this._owner._renderType &= ~SpriteConst.POSTPROCESS;
-         else
+            this._owner.clearSubpassFlag(SubPassFlag.PostProcess);
+         }
+         else {
             this._owner._renderType |= SpriteConst.POSTPROCESS;
-         this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+            this._owner.setSubpassFlag(SubPassFlag.PostProcess);
+         }
          this._owner.repaint();
       }
    }

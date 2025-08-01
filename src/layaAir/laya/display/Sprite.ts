@@ -872,6 +872,10 @@ export class Sprite extends Node {
         this.repaint();
     }
 
+    clearSubpassFlag(flag: SubPassFlag) {
+        this._subpassUpdateFlag &= ~flag;
+    }
+
     /**
      * @ignore
      * @blueprintIgnore
@@ -880,6 +884,7 @@ export class Sprite extends Node {
     setSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag |= flag;
         this.stage._subpassUpdateList.add(this);
+        this._globalTrans._notifyRenderSpriteTransChange();
     }
 
     /**
@@ -2086,7 +2091,6 @@ export class Sprite extends Node {
             this.parentRepaint();
 
             if (this._subpassUpdateFlag || (this._drawOriRT && flag & RepaintFlag.UpdateRT)) {
-                this._globalTrans._notifyRenderSpriteTransChange();
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
         }
