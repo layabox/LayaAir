@@ -354,8 +354,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     onEnable(): void {
-        this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
-        this._renderHandle.offset = this._offset;
+        // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+        // this._renderHandle.offset = this._offset;
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
