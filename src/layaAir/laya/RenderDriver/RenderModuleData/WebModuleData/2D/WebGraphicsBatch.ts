@@ -5,7 +5,7 @@ import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMo
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { Web2DGraphic2DIndexDataView} from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
 import { IBatch2DContext, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -15,6 +15,7 @@ import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { Web2DGraphicsIndexBatchBuffer } from "./Web2DGraphic2DBuffer";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 
 /**
@@ -153,6 +154,11 @@ class BatchContext {
         let elementLowType = elementType & 63;
         let elementTexId = elementType & (~63);
         let elementOwner = element.owner as WebRenderStruct2D;
+
+        // 如果元素存在texRange，则不能批次化
+        if (element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE)) {
+            return false;
+        }
 
         // 检查低位类型（最常见的不匹配）
         if (this.lowType !== elementLowType) {
