@@ -1538,6 +1538,8 @@ export class Animator extends Component {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
                     controllerLayer._playType = 0;
+                }else{
+                    playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
