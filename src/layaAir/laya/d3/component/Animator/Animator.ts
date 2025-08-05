@@ -1008,7 +1008,14 @@ export class Animator extends Component {
                                     nodeOwner.animatorDataSetCallBack();
                                 }
                             } else {
-                                pro && pro.getColor(value) && (pro as Material).setColor(value, this._applyColor(pro.getColor(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                const color = pro.getColor(value);
+                                if(pro && color){
+                                    _tempColor.r = color.r;
+                                    _tempColor.g = color.g;
+                                    _tempColor.b = color.b;
+                                    _tempColor.a = color.a;
+                                    (pro as Material).setColor(value, this._applyColor(_tempColor, nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                }
                             }
                             break;
                     }
