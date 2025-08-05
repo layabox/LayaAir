@@ -166,6 +166,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+            // let rootBone = this._skeleton.getRootBone();
+            // rootBone.x -= this._templet.offsetX;
+            // rootBone.y -= this._templet.offsetY;
             this.spineItem.changeSkeleton(this._skeleton);
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
@@ -351,8 +354,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     onEnable(): void {
-        this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
-        this._renderHandle.offset = this._offset;
+        // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+        // this._renderHandle.offset = this._offset;
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
         if (this._skeleton) {
             if (LayaEnv.isPlaying && this._animationName !== undefined)
@@ -385,6 +388,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._skeleton = new spine.Skeleton(this._templet.skeletonData);
+        // let rootBone = this._skeleton.getRootBone();
+        // rootBone.x -= this._templet.offsetX;
+        // rootBone.y -= this._templet.offsetY;
+
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类

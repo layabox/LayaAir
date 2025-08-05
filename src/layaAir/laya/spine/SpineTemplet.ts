@@ -204,7 +204,7 @@ export class SpineTemplet extends Resource {
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
         //需要无物理环境
         this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
-        this.sketonOptimise.checkMainAttach(this.skeletonData);
+        this.sketonOptimise.checkMainAttach(this.skeletonData, -this.offsetX, -this.offsetY);
     }
 
     /**
