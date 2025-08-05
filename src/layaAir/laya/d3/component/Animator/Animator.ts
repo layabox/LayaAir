@@ -351,6 +351,17 @@ export class Animator extends Component {
             animatorState._eventExit();//派发播放完成的事件
         }
     }
+    /**
+     * @internal
+     * @param parentState 
+     * @param currentState 
+     */
+
+    private _switchState(parentState: AnimatorState, currentState: AnimatorState): void {
+        if (parentState) {
+            parentState._eventSwitch(currentState);
+        }
+    }
 
     private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
         if (!this.owner._getBit(NodeFlags.HAS_SCRIPT))
@@ -1009,7 +1020,7 @@ export class Animator extends Component {
                                 }
                             } else {
                                 const color = pro.getColor(value);
-                                if(pro && color){
+                                if (pro && color) {
                                     _tempColor.r = color.r;
                                     _tempColor.g = color.g;
                                     _tempColor.b = color.b;
@@ -1366,6 +1377,7 @@ export class Animator extends Component {
 
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
                             playStateInfo.currentState = crossState;
+                            this._switchState(animatorState, crossState);
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         }
                     } else {
@@ -1404,6 +1416,7 @@ export class Animator extends Component {
                             this._setClipDatasToNode(crossState, addtive, 1.0, i === 0, controllerLayer);
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
                             playStateInfo.currentState = crossState;
+                            this._switchState(animatorState, crossState);
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         } else {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
@@ -1541,11 +1554,12 @@ export class Animator extends Component {
                 (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
                 controllerLayer._playType = 0;
                 playStateInfo.currentState = animatorState;
+                this._switchState(curPlayState, animatorState);
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
                     controllerLayer._playType = 0;
-                }else{
+                } else {
                     playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }

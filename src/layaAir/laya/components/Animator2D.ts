@@ -114,6 +114,18 @@ export class Animator2D extends Component {
     }
 
     /**
+     * @internal
+     * @param parentState 
+     * @param currentState 
+     */
+
+    private _switchState(parentState: AnimatorState2D, currentState: AnimatorState2D): void {
+        if (parentState) {
+            parentState._eventSwitch(currentState);
+        }
+    }
+
+    /**
      * @en Assigns data to a Node.
      * @param stateInfo The animation state information.
      * @param additive Indicates if it is additive.
@@ -536,6 +548,7 @@ export class Animator2D extends Component {
             controllerLayer._playType = 0;
             if (curPlayState !== animatorState) {
                 playStateInfo._currentState = animatorState;
+                this._switchState(curPlayState, animatorState);
             }
             animatorState._eventStart(this, layerIndex);
             let addtive = controllerLayer.blendingMode != AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
@@ -594,11 +607,12 @@ export class Animator2D extends Component {
                 (curPlayState !== null && curPlayState !== animatorState);
                 controllerLayer._playType = 0;
                 playStateInfo._currentState = animatorState;
+                this._switchState(curPlayState, animatorState);
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
                     controllerLayer._playType = 0;
-                }else{
+                } else {
                     playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
