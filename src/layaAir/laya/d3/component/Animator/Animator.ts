@@ -300,10 +300,7 @@ export class Animator extends Component {
         playState._normalizedTime = normalizedTime;
         var playTime: number = normalizedTime % 1.0;
         const normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
-        playState._normalizedPlayTime = (normalizedPlayTime > clipDuration ? clipDuration : normalizedPlayTime);
-        if (playState._normalizedPlayTime < animatorState.clipStart) {
-            playState._normalizedPlayTime = animatorState.clipStart;
-        }
+        playState._normalizedPlayTime = normalizedPlayTime;
         playState._duration = clipDuration;
         if (elapsedPlaybackTime >= clipDuration) {
             if (!islooping) {
@@ -362,14 +359,15 @@ export class Animator extends Component {
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
         if (!events || 0 == events.length || null == playStateInfo.animatorState) return;
-        let clipDuration = clip!._duration;
-        let time = playStateInfo._normalizedPlayTime * clipDuration;
+        let clipDuration = playStateInfo._duration;
+        let time = playStateInfo.animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * clipDuration;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
             parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
         }
         if (time < parentPlayTime) {
             this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd);
+            parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
         }
         this._eventScript(events, parentPlayTime, time);
         playStateInfo._parentPlayTime = time;
