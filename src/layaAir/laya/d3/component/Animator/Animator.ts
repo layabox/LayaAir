@@ -300,13 +300,13 @@ export class Animator extends Component {
         playState._normalizedTime = normalizedTime;
         var playTime: number = normalizedTime % 1.0;
         const normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
-        playState._normalizedPlayTime = normalizedPlayTime > clipDuration ? clipDuration : normalizedPlayTime;
+        playState._normalizedPlayTime = normalizedPlayTime;
         playState._duration = clipDuration;
         if (elapsedPlaybackTime >= clipDuration) {
             if (!islooping) {
                 playState._finish = true;
                 playState._elapsedTime = clipDuration;
-                playState._normalizedPlayTime = 1.0;
+                playState._normalizedPlayTime = animatorState.clipEnd;
             } else {
                 let loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
                 let pLoopNum = Math.floor(lastElapsedTime / clipDuration);
@@ -359,14 +359,15 @@ export class Animator extends Component {
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
         if (!events || 0 == events.length || null == playStateInfo.animatorState) return;
-        let clipDuration = clip!._duration;
-        let time = playStateInfo._normalizedPlayTime * clipDuration;
+        let clipDuration = playStateInfo._duration;
+        let time = playStateInfo.animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * clipDuration;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
             parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
         }
         if (time < parentPlayTime) {
             this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd);
+            parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
         }
         this._eventScript(events, parentPlayTime, time);
         playStateInfo._parentPlayTime = time;
@@ -1537,6 +1538,8 @@ export class Animator extends Component {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
                     controllerLayer._playType = 0;
+                }else{
+                    playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
