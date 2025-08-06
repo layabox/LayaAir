@@ -1554,7 +1554,6 @@ export class Animator extends Component {
                 (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
                 controllerLayer._playType = 0;
                 playStateInfo.currentState = animatorState;
-                this._switchState(curPlayState, animatorState);
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
@@ -1563,6 +1562,7 @@ export class Animator extends Component {
                     playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
+            this._switchState(curPlayState, animatorState);
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
             animatorState._eventStart(this, layerIndex);
 
