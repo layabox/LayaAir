@@ -607,7 +607,6 @@ export class Animator2D extends Component {
                 (curPlayState !== null && curPlayState !== animatorState);
                 controllerLayer._playType = 0;
                 playStateInfo._currentState = animatorState;
-                this._switchState(curPlayState, animatorState);
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
@@ -616,6 +615,7 @@ export class Animator2D extends Component {
                     playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
+            this._switchState(curPlayState, animatorState);
             animatorState._eventStart(this, layerIndex);
         }
         // var scripts = animatorState._scripts!;
