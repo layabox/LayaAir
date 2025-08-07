@@ -171,6 +171,17 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
         particle.setLifetime(lifetime);
 
         let startPosAndDir = this.getPositionAndDirection();
+        {
+            let rot = -this.owner.rotation * Math.PI / 180; // 角度转弧度
+            let cos = Math.cos(rot);
+            let sin = Math.sin(rot);
+
+            let x = startPosAndDir.x + this.owner.pivotX / this.main.unitPixels;
+            let y = startPosAndDir.y - this.owner.pivotY / this.main.unitPixels;
+            startPosAndDir.x = x * cos - y * sin;
+            startPosAndDir.y = x * sin + y * cos;
+        }
+
         particle.setPosition(startPosAndDir.x, startPosAndDir.y);
         particle.setDirection(startPosAndDir.z, startPosAndDir.w);
 
@@ -414,7 +425,7 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
             // 处理循环播放
             if (this.time >= this.main.duration) {
                 if (this.main.looping) {
-                    this.time -= this.main.duration;
+                    this.time %= this.main.duration;
                 }
                 else {
                     this._isEmitting = false;

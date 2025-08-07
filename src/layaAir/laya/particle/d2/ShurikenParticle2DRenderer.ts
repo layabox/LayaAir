@@ -630,8 +630,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         let cosAngle = worldMat.a / scaleX;
         let sinAngle = worldMat.b / scaleX;
 
-        let translateX = nMatrix0.z;
-        let translateY = nMatrix1.z;
+        let translateX = worldMat.tx;
+        let translateY = worldMat.ty;
 
         let simulationSpace = 0;
         switch (ps.main.simulationSpace) {
