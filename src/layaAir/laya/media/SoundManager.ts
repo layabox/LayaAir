@@ -62,11 +62,8 @@ export class SoundManager {
 
     static set musicVolume(value: number) {
         value = MathUtil.clamp(value, 0, 1);
-        if (value !== mgr._musicVolume) {
-            mgr._musicVolume = value;
-            if (mgr._musicChannel)
-                mgr._musicChannel.volume = mgr._musicChannel.volume;
-        }
+        if (value !== mgr._musicVolume) mgr._musicVolume = value;
+        if (mgr._musicChannel) mgr._musicChannel.volume = value;
     }
 
     /**
@@ -167,7 +164,7 @@ export class SoundManager {
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;
-        channel.volume = 1;
+        channel.volume = mgr._soundVolume;
         channel.muted = mgr._soundMuted || mgr._muted;
         channel.completeHandler = complete;
         channel._isMusic = false;
@@ -205,7 +202,7 @@ export class SoundManager {
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;
-        channel.volume = 1;
+        channel.volume = mgr._musicVolume;
         channel.muted = mgr._musicMuted || mgr._muted;
         channel.completeHandler = complete;
         channel._isMusic = true;
