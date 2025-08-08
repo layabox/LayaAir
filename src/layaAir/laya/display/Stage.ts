@@ -768,6 +768,9 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.startFrame();
 
         if (this.renderingEnabled) {
+
+            this._runComponents();
+            
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
                 this._scene2Ds[i]._update();
             }
@@ -775,7 +778,6 @@ export class Stage extends Sprite {
                 this._scene3Ds[i]._update();
             }
 
-            this._runComponents();
             this._componentDriver.callPreRender();
 
             Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
