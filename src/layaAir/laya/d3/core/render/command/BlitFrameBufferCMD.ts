@@ -160,8 +160,6 @@ export class BlitFrameBufferCMD {
         context.destTarget = dest;
         context._contextOBJ.cameraUpdateMask = Camera._updateMark;
         context.drawRenderElement(this._renderElement._renderElementOBJ);
-
-        Stat.blitDrawCall++;
     }
 
     /**

@@ -15,6 +15,9 @@ import { RenderListQueue } from "./RenderListQueue";
 import { Viewport } from "../../maths/Viewport";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Texture2D } from "../../resource/Texture2D";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { Browser } from "../../utils/Browser";
 
 /**
  * 前向渲染流程通用类
@@ -120,14 +123,22 @@ export class ForwardAddClusterRP {
     render(context: IRenderContext3D, list: WebBaseRenderNode[], count: number): void {
         context.cameraUpdateMask++
         this._clearRenderList();
+
+        var time = Browser.now();//T_CameraMainCull Stat
         RenderCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this._opaqueList, this._transparent, context)
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_CullMain, Browser.now() - time);
+
+        time = Browser.now();
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0)
             this._renderDepthPass(context);
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0)
             this._renderDepthNormalPass(context);
-        this._cacheViewPortAndScissor();
-        this._mainPass(context);
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_DepthPass, Browser.now() - time);
 
+        this._cacheViewPortAndScissor();
+        time = Browser.now();
+        this._mainPass(context);
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_3DMainPass, Browser.now() - time);
         this._opaqueList._batch.recoverData();
     }
 
@@ -165,6 +176,7 @@ export class ForwardAddClusterRP {
         context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._opaqueList.renderQueue(context);
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_DepthCastDrawCall, this._opaqueList.elements.length);
         //渲染完后传入使用的参数
         const far = this.camera.farPlane;
         const near = this.camera.nearPlane;
@@ -195,7 +207,7 @@ export class ForwardAddClusterRP {
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
         this._opaqueList.renderQueue(context);
-
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_DepthCastDrawCall, this._opaqueList.elements.length);
         Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, this.camera);
     }
 
@@ -208,7 +220,11 @@ export class ForwardAddClusterRP {
         RenderPassUtil.renderCmd(this.beforeForwardCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
-        // this._opaqueList.renderQueue(context);
+
+        var time = Browser.now();//T_Render_OpaqueRender Stat
+        this._opaqueList.renderQueue(context);
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_3DMainPass_Opaque, Browser.now() - time);//Stat
+
         RenderPassUtil.renderCmd(this.beforeSkyboxCmds, context);
 
         if (this.skyRenderNode) {
@@ -220,7 +236,9 @@ export class ForwardAddClusterRP {
             this._opaqueTexturePass();
         RenderPassUtil.renderCmd(this.beforeTransparentCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
+        time = Browser.now()//T_Render_TransparentRender Stat
         this._transparent.renderQueue(context);
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_3DMainPass_Trans, Browser.now() - time);//Stat
     }
 
     /**

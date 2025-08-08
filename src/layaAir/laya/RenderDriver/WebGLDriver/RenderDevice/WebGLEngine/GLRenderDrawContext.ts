@@ -1,8 +1,9 @@
 
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { StatisticsElement } from "../../../../layagl/StatisticsContext";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { WebGLEngine } from "../WebGLEngine";
 import { WebGLRenderGeometryElement } from "../WebGLRenderGeometryElement";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
@@ -68,10 +69,7 @@ export class GLRenderDrawContext extends GLObject {
             (<WebGL2RenderingContext>this._gl).drawElementsInstanced(mode, count, type, offset, instanceCount);
         else
             this._angleInstancedArrays.drawElementsInstancedANGLE(mode, count, type, offset, instanceCount);
-
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3 * instanceCount);
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_Triangle, count / 3 * instanceCount);
 
     }
 
@@ -83,9 +81,8 @@ export class GLRenderDrawContext extends GLObject {
             (<WebGL2RenderingContext>this._gl).drawArraysInstanced(mode, first, count, instanceCount);
         else
             this._angleInstancedArrays.drawArraysInstancedANGLE(mode, first, count, instanceCount);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, (count - 2) * instanceCount);
+
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_Triangle, (count - 2) * instanceCount);
     }
 
     /**
@@ -96,8 +93,7 @@ export class GLRenderDrawContext extends GLObject {
      */
     drawArrays(mode: number, first: number, count: number): void {
         this._gl.drawArrays(mode, first, count);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, (count - 2));
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_Triangle, (count - 2));
     }
 
     /**
@@ -109,23 +105,7 @@ export class GLRenderDrawContext extends GLObject {
      */
     drawElements(mode: number, count: number, type: IndexFormat, offset: number): void {
         this._gl.drawElements(mode, count, type, offset);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3);
-    }
-
-    /**
-     * @internal
-     * @param mode 
-     * @param count 
-     * @param type 
-     * @param offset 
-     */
-    drawElements2DTemp(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
-        mode = this.getMeshTopology(mode);
-        type = this.getIndexType(type);
-        this._gl.drawElements(mode, count, type, offset);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount, 1);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount, count / 3);
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_Triangle, count / 3);
     }
 
     /**
@@ -141,6 +121,7 @@ export class GLRenderDrawContext extends GLObject {
                 for (let i = 0; i < length; i += 2) {
                     this.drawArrays(geometryElement._glmode, element[i], element[i + 1]);
                 }
+
                 break;
             case DrawType.DrawElement:
                 for (let i = 0; i < length; i += 2) {
@@ -150,15 +131,18 @@ export class GLRenderDrawContext extends GLObject {
             case DrawType.DrawArrayInstance:
                 for (let i = 0; i < length; i += 2) {
                     this.drawArraysInstanced(geometryElement._glmode, element[i], element[i + 1], geometryElement.instanceCount);
+                    LayaGL.statAgent.recordCTData(StatisticsElement.CT_Instancing_DrawCallCount, length);
                 }
                 break;
             case DrawType.DrawElementInstance:
                 for (let i = 0; i < length; i += 2) {
                     this.drawElementsInstanced(geometryElement._glmode, element[i + 1], geometryElement._glindexFormat, element[i], geometryElement.instanceCount);
+                    LayaGL.statAgent.recordCTData(StatisticsElement.CT_Instancing_DrawCallCount, length);
                 }
                 break;
             default:
                 break;
         }
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_DrawCall, length);
     }
 }

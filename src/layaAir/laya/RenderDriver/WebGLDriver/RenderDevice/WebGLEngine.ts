@@ -27,7 +27,6 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { EventDispatcher } from "../../../events/EventDispatcher";
 import { WebGLInternalRT } from "./WebGLInternalRT";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -77,7 +76,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     /**@internal ShaderDebugMode*/
     _isShaderDebugMode: boolean = true;
-    _enableStatistics: boolean = false;
     /**@internal gl.TextureID*/
     _glTextureIDParams: Array<number>;
 
@@ -147,8 +145,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     _uboBindingMap: { buffer: WebGLBuffer, offset: number, size: number }[];
 
-    //GPU统计数据
-    private _GLStatisticsInfo: Map<GPUEngineStatisticsInfo, number> = new Map();
     static instance: WebGLEngine;
     /** @ignore */
     constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
@@ -160,7 +156,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         this._lastClearColor = new Color(0, 0, 0, 0);
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
-        this._initStatisticsInfo();
         WebGLEngine.instance = this;
     }
 
@@ -217,43 +212,6 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     get webglConfig() {
         return this._config;
-    }
-
-    private _initStatisticsInfo() {
-        for (var i = 0; i < GPUEngineStatisticsInfo.Count; i++) {
-            this._GLStatisticsInfo.set(i, 0);
-        }
-    }
-
-    /**
-     * @internal
-     * @param info 
-     * @param value 
-     */
-    _addStatisticsInfo(info: GPUEngineStatisticsInfo, value: number) {
-        this._enableStatistics && this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
-    }
-
-    /**
-     * 清除
-     * @internal
-     * @param info 
-     */
-    clearStatisticsInfo() {
-        if (this._enableStatistics) {
-            for (var i = 0; i < GPUEngineStatisticsInfo.FrameClearCount; i++) {
-                this._GLStatisticsInfo.set(i, 0);
-            }
-        }
-    }
-
-    /**
-     * @internal
-     * @param info 
-     * @returns 
-     */
-    getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
-        return this._GLStatisticsInfo.get(info);
     }
 
     /**

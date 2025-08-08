@@ -40,7 +40,7 @@ export class NativeMemory {
      */
     get float32Array(): Float32Array {
         if (!this._fdata) {
-             this._fdata = new Float32Array(this._buffer);
+            this._fdata = new Float32Array(this._buffer);
         }
         return this._fdata;
     }
@@ -66,7 +66,7 @@ export class NativeMemory {
 
     get Uint32Array(): Uint32Array {
         if (!this._uidata) {
-              this._uidata = new Uint32Array(this._buffer);
+            this._uidata = new Uint32Array(this._buffer);
         }
         return this._uidata;
     }

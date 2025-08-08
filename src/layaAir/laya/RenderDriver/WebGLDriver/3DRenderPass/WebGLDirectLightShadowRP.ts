@@ -1,22 +1,22 @@
-import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowCascadesMode } from "../../../d3/core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatisticsElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { Browser } from "../../../utils/Browser";
 import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
@@ -24,7 +24,6 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
-import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -182,9 +181,9 @@ export class WebGLDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
-            var time = performance.now();//T_ShadowMapCull Stat
+            var time = Browser.now();//T_ShadowMapCull Stat
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
-            Stat.renderPassStatArray[RenderPassStatisticsInfo.T_ShadowMapCull] += (performance.now() - time);//Stat
+            LayaGL.statAgent.recordTimeData(StatisticsElement.T_CullShadow, Browser.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;
@@ -209,7 +208,7 @@ export class WebGLDirectLightShadowRP {
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             this._renderQueue.renderQueue(context);
-            Stat.shadowMapDrawCall += this._renderQueue.elements.length;
+            LayaGL.statAgent.recordCTData(StatisticsElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);

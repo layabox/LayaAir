@@ -5,7 +5,6 @@ import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
@@ -95,12 +94,6 @@ export class NoRenderEngine implements IRenderEngine {
     }
     getTextureContext(): ITextureContext {
         return new NoTextureContext();
-    }
-    clearStatisticsInfo(): void {
-
-    }
-    getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
-        return 0
     }
 }
 

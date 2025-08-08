@@ -10,6 +10,9 @@ import { BaseRenderType, IBaseRenderNode, IMeshRenderNode, ISimpleSkinRenderNode
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { Browser } from "../../utils/Browser";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _simpleAnimatorTexture: Texture2D;
@@ -101,8 +104,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @param context 3D 渲染上下文。
      */
     renderUpdate(context: RenderContext3D): void {
+        let t = Browser.now();
         super.renderUpdate(context);
         this._computeSkinnedData();
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_SkinBoneUpdate, Browser.now() - t);
     }
 
     /**

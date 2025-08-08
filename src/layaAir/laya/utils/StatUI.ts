@@ -5,8 +5,9 @@ import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
+import { StatisticsElement } from "../layagl/StatisticsContext";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
-import { Stat, StatUIParams } from "./Stat";
+import { Stat, StatUIParams, StatUnit } from "./Stat";
 
 export class StatUI {
     private _txt: Text;
@@ -35,6 +36,8 @@ export class StatUI {
         sp.addChild(leftText);
 
         strArray.length = 0;
+        strArray.push("FPS:");
+        strArray.push("FPS Time:");
         for (let one of this._view)
             strArray.push(one.title);
         leftText.text = strArray.join("\n");
@@ -63,12 +66,38 @@ export class StatUI {
      * @param y Y轴显示位置。
      * @param views 用于显示统计信息的UI参数数组。
      */
-    show(x?: number, y?: number, views?: Array<StatUIParams>): void {
+    show(x?: number, y?: number, views?: Array<StatisticsElement>): void {
         x = x || 0;
         y = y || 0;
-        views = views || Stat.AllShow;
+        views = views || Stat.ShowStatArray;
 
-        this._view = views;
+        //转换为_view
+        this._view = new Array();
+        // 根据StatisticsElement枚举的名字转换为StatUIParams，并去掉前缀
+        for (let i = 0; i < views.length; i++) {
+            let element = views[i];
+            let name = StatisticsElement[element];
+            // 去掉前缀
+            let title = name.replace(/^(T_|C_|M_|CT_)/, "");
+            // 解析单位和显示模式
+            let units = "";
+            let mode: "normal" | "average" = "normal";
+            if (name.startsWith("M_")) {
+                units = "M";
+            }
+            if (name.startsWith("T_")) {
+                units = "ms";
+            }
+            if (name.startsWith("CT_") || name.startsWith("C_")) {
+                units = "int";
+            }
+            this._view.push({
+                title: title,
+                value: element,
+                units: units as StatUnit,
+                color: "white"
+            });
+        }
         this._show = true;
 
         if (!this._sp)
@@ -91,23 +120,20 @@ export class StatUI {
     update(): void {
         if (this._show) {
             strArray.length = 0;
+            // 先输出T_FPS_Frame和T_FPS_Time
+            let fps = LayaGL.statAgent.getElementData(StatisticsElement.T_FPS_Frame);
+            let fpsTime = LayaGL.statAgent.getElementData(StatisticsElement.T_FPS_Time);
+            strArray.push(fps.toString());
+            strArray.push(fpsTime.toFixed(3) + "ms");
             for (let i = 0; i < this._view.length; i++) {
                 let item: StatUIParams = this._view[i];
-                let isAverage: boolean = item.mode == "average";
-
-                let value: any = (Stat as any)[item.value];
-                (item.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100);
-                (item.units == "K") && (value = Math.floor(value / (1024) * 100) / 100);
-
-                if (isAverage) {
-                    value /= Stat._count;
-                    value = Math.floor(value);
+                let datavalue = LayaGL.statAgent.getElementData(item.value);
+                if (item.units === "int") {
+                    // 保留三位小数
+                    strArray.push(Math.floor(datavalue).toString());
+                } else {
+                    strArray.push(datavalue.toFixed(3) + item.units);
                 }
-
-                (item.units == "M") && (value += "M");
-                (item.units == "K") && (value += "K");
-
-                strArray.push(value);
             }
             this._txt.text = strArray.join("\n");
         }

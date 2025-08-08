@@ -32,17 +32,7 @@ export class UniformBufferAlone {
      * 上传数据
      */
     upload() {
-        let t: number;
-        if (this._manager._enableStat)
-            t = performance.now();
-        this.uploadNum++;
         this._manager.writeBuffer(this.buffer, this.data, 0, this._size);
-        if (this._manager._enableStat) {
-            //记录上传次数，字节数
-            this._manager.statisUpload(1, this._size);
-            //记录时间，用于计算上传耗费的平均时间
-            this._manager.statisTimeCostAvg(performance.now() - t);
-        }
     }
 
     /**

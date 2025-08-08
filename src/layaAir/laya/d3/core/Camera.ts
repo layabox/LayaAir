@@ -31,8 +31,6 @@ import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I
 import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
-import { RenderPassStatisticsInfo } from "../../RenderEngine/RenderEnum/RenderStatInfo";
-import { Config } from "../../../Config";
 import { PostProcess } from "./render/postProcessBase/PostProcess";
 
 /**
@@ -1403,9 +1401,7 @@ export class Camera extends BaseCamera {
         if (multiLight) {
             Cluster.instance.update(this, scene);
         }
-        var time = performance.now();//T_CameraRender Stat
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
-        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_CameraRender] += (performance.now() - time);//Stat
 
         scene._componentDriver.callPostRender();
     }

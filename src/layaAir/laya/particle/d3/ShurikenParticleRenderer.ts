@@ -8,6 +8,7 @@ import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { LayaGL } from "../../layagl/LayaGL";
+import { StatisticsElement } from "../../layagl/StatisticsContext";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -175,13 +176,10 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
     protected _onEnable(): void {
         super._onEnable();
-
-        Stat.particleRenderNode++;
         (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
     protected _onDisable(): void {
         super._onDisable();
-        Stat.particleRenderNode--;
         (this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
     }
 
@@ -354,13 +352,13 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     protected _statAdd() {
-        Stat.renderNode++;
-        Stat.particleRenderNode++;
+        super._statAdd();
+        LayaGL.statAgent.recordCountData(StatisticsElement.C_ShurikenParticleRenderCount, 1);
     }
 
     protected _statRemove() {
-        Stat.renderNode--;
-        Stat.particleRenderNode--;
+        super._statRemove();
+        LayaGL.statAgent.recordCountData(StatisticsElement.C_ShurikenParticleRenderCount, -1);
     }
 
 }

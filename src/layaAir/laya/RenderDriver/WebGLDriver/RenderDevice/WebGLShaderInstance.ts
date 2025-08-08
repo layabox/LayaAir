@@ -14,7 +14,6 @@ import { WebGLCommandUniformMap } from "./WebGLCommandUniformMap";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { Config } from "../../../../Config";
 import { WebGLRenderContext3D } from "../3DRenderPass/WebGLRenderContext3D";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
@@ -245,7 +244,7 @@ export class WebGLShaderInstance implements IShaderInstance {
      * @param uploadUnTexture 
      */
     uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: WebGLShaderData, uploadUnTexture: boolean) {
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount, WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture));
+        WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
     }
 
     /**

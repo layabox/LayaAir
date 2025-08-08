@@ -1,6 +1,8 @@
 import { LayaGL } from "../layagl/LayaGL";
+import { StatisticsElement } from "../layagl/StatisticsContext";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRender2DPass, IRender2DPassManager } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { Browser } from "../utils/Browser";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 
 /**
@@ -52,7 +54,9 @@ export class Render2DProcessor {
      * @param context2D 2D 渲染上下文
      */
     apply(context2D: IRenderContext2D): void {
+        let t = Browser.now();
         this._manager.apply(context2D);
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_2DPass, Browser.now() - t);
     }
 
 

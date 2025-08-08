@@ -49,10 +49,6 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createRenderContext3D(): WebGLRenderContext3D {
         let context = new WebGLRenderContext3D();
-        if (Stat.enableRenderPassStatArray) {
-            context.drawRenderElementOne = context.drawRenderElementOne_StatUse;
-            context.drawRenderElementList = context.drawRenderElementList_StatUse;
-        }
         return context;
     }
     createRenderElement3D(): WebGLRenderElement3D {

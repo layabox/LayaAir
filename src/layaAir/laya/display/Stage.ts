@@ -25,6 +25,7 @@ import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
+import { StatisticsElement } from "../layagl/StatisticsContext";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -781,14 +782,14 @@ export class Stage extends Sprite {
             Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
 
             //先渲染3d
-            //performance.mark('3d-start')
+            let t = Browser.now();
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 this._scene3Ds[i].renderSubmit();
-
-            //performance.mark('3d-end')
-            //performance.measure('3dsumbimt', '3d-start', '3d-end')
+            LayaGL.statAgent.recordTimeData(StatisticsElement.T_AllRender3D, Browser.now() - t);
             //再渲染2d
+            t = Browser.now();
             this._render2d();
+            LayaGL.statAgent.recordTimeData(StatisticsElement.T_AllRender2D, Browser.now() - t);
 
             this._componentDriver.callPostRender();
         }
@@ -811,8 +812,6 @@ export class Stage extends Sprite {
      * @perfTag PerformanceDefine.T_UIRender
     */
     private _render2d() {
-        Stat.draw2D = 0;
-
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);

@@ -15,7 +15,6 @@ import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { Stat } from "../../../../utils/Stat";
 import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
@@ -97,8 +96,6 @@ export class CommandBuffer {
             //render && cmd.getRenderCMD && rendertype.push(cmd.getRenderCMD());
         }
         render && this.context._contextOBJ.runCMDList(this._renderCMDs);
-        //draw array
-        Stat.cmdDrawCall += this._renderCMDs.length;
     }
 
     /**
