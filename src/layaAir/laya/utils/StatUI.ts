@@ -1,4 +1,5 @@
 
+import { PlayerConfig } from "../../Config";
 import { Laya } from "../../Laya";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
