@@ -1403,6 +1403,7 @@ export class Sprite extends Node {
 
         if (
             (kind & TransformKind.TRS) !== 0
+            || (kind & TransformKind.Anchor) !== 0
             || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
         ) {
             this._globalTrans._spTransChanged(kind);
