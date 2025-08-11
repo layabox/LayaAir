@@ -581,7 +581,7 @@ export class InputManager {
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
         if ((sp._renderType & SpriteConst.AREA2D) !== 0) {
-            (<Area2D>sp).transformPoint(x, y, Point.TEMP);
+            (<Area2D>sp).localToView(x, y, Point.TEMP);
             x = Point.TEMP.x;
             y = Point.TEMP.y;
         }
