@@ -165,6 +165,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
     endFrame(): void {
         this.event("endFrame", null);
+        this._framePassCount = 0;
     }
 
     getInnerWidth() {

@@ -242,19 +242,23 @@ export interface IStaticsContext {
 
 export class DefaultStaticsContext implements IStaticsContext {
 
-    private _tQueue: Set<StatisticsElement> = new Set();
-    private _ctQueue: Set<StatisticsElement> = new Set();
-    private statArray: Float32Array;
-    private _timeArray: Float32Array;//因为可能会计算时间的均值
-    private _cacheCount: number = 0;
-    private _cacheTime: number = 0;
-    private _init() {
+    protected _tQueue: Set<StatisticsElement> = new Set();
+    protected _ctQueue: Set<StatisticsElement> = new Set();
+    protected statArray: Float32Array;
+    protected _timeArray: Float32Array;//因为可能会计算时间的均值
+    protected _cacheCount: number = 0;
+    protected _cacheTime: number = 0;
+    protected _init() {
         //引擎默认的统计数据列表
 
     }
-    constructor() {
+
+    protected _createStatBuffer() {
         this.statArray = new Float32Array(StatisticsElement.StatEnd);
         this._timeArray = new Float32Array(StatisticsElement.StatEnd);
+    }
+    constructor() {
+        this._createStatBuffer();
         for (let i = 0; i < StatisticsElement.StatEnd; i++) {
             const elementName = StatisticsElement[i];
             if (!elementName) continue;
@@ -313,7 +317,7 @@ export class DefaultStaticsContext implements IStaticsContext {
         if (deltytime < 1000) return;
 
         let fps = Math.round(this._cacheCount * 1000) / (time - this._cacheTime);
-      
+
 
         for (let element of this._tQueue) {
             this.statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
@@ -323,7 +327,7 @@ export class DefaultStaticsContext implements IStaticsContext {
             this.statArray[element] = this._timeArray[element] / this._cacheCount;
             this._timeArray[element] = 0;
         }
-        this.statArray[StatisticsElement.T_FPS_Frame] =  Math.round(fps);
+        this.statArray[StatisticsElement.T_FPS_Frame] = Math.round(fps);
         this.statArray[StatisticsElement.T_FPS_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
 
         this._cacheTime = time;
