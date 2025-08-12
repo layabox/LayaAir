@@ -1,4 +1,5 @@
 
+import { PlayerConfig } from "../../Config";
 import { Laya } from "../../Laya";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
@@ -67,6 +68,13 @@ export class StatUI {
      * @param views 用于显示统计信息的UI参数数组。
      */
     show(x?: number, y?: number, views?: Array<StatisticsElement>): void {
+        const statEnum = PlayerConfig.statEnum;
+        Stat.ShowStatArray.length = 0;
+        for (let k in statEnum) {
+            if (statEnum[k]) {
+                Stat.ShowStatArray.push(StatisticsElement[k as keyof typeof StatisticsElement]);
+            }
+        }
         x = x || 0;
         y = y || 0;
         views = views || Stat.ShowStatArray;
