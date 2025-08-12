@@ -69,10 +69,12 @@ export class StatUI {
      */
     show(x?: number, y?: number, views?: Array<StatisticsElement>): void {
         const statEnum = PlayerConfig.statEnum;
-        Stat.ShowStatArray.length = 0;
-        for (let k in statEnum) {
-            if (statEnum[k]) {
-                Stat.ShowStatArray.push(StatisticsElement[k as keyof typeof StatisticsElement]);
+        if(statEnum){
+            Stat.ShowStatArray.length = 0;
+            for (let k in statEnum) {
+                if (statEnum[k]) {
+                    Stat.ShowStatArray.push(StatisticsElement[k as keyof typeof StatisticsElement]);
+                }
             }
         }
         x = x || 0;
