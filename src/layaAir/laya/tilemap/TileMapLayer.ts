@@ -24,6 +24,7 @@ import { TileMapOccluderAgent } from "./TileMapOccluderAgent";
 import { Event } from "../events/Event";
 import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
 import { Area2D } from "../display/Area2D";
+import { Vector4 } from "../maths/Vector4";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -128,6 +129,7 @@ export class TileMapLayer extends BaseRenderNode2D {
                 }
             }
         }
+        this._boundsChange = true;
     }
 
     get layerColor(): Color {
@@ -192,10 +194,17 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
     }
 
+
     get renderTileSize(): number {
         return this._renderTileSize;
     }
 
+    /**
+     * @en The size of the chunk, when set, it will recalculate the range of all tiles.
+     * @param value how many tiles in a chunk.
+     * @zh 设置chunk 的尺寸,当设置后会重新计算所有格子的范围
+     * @param value 一个chunk 多少格子
+     */
     set renderTileSize(value: number) {
         if (this._renderTileSize === value) return;
         this._renderTileSize = value;
@@ -299,6 +308,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
 
         allDatas.forEach(data => data._destroy());
+        this._boundsChange = true;
         this.owner?.repaint();
     }
 
@@ -330,6 +340,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             this._chunkDatas[chunkY] = rowData;
         }
         rowData[chunkX] = tile;
+        this._boundsChange = true;
     }
 
 
@@ -348,6 +359,7 @@ export class TileMapLayer extends BaseRenderNode2D {
             data._tileLayer = this;
             data._updateChunkData(chunkX, chunkY);
             rowData[chunkX] = data;
+            this._boundsChange = true;
         }
         return data;
     }
@@ -412,6 +424,60 @@ export class TileMapLayer extends BaseRenderNode2D {
         // context._copyClipInfoToShaderData(this._spriteShaderData);
     }
 
+
+    get rect(): Vector4 {
+        if (this._boundsChange) {
+            this._calculateLayerRect();
+            this._boundsChange = false;
+        }
+        return this._rect;
+    }
+
+    /**
+     * 计算所有chunkdata的包围盒合并到layer
+     * @private
+     */
+    private _calculateLayerRect(): void {
+        if (!this._chunkDatas || Object.keys(this._chunkDatas).length === 0) {
+            this._rect.setValue(0, 0, 0, 0);
+            return;
+        }
+
+        let minX = Number.MAX_VALUE, minY = Number.MAX_VALUE;
+        let maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE;
+        let hasValidChunk = false;
+
+        // 遍历所有chunkdata，计算包围盒
+        for (const col in this._chunkDatas) {
+            let rowData = this._chunkDatas[col];
+            if (!rowData) continue;
+
+            for (const row in rowData) {
+                let chunkData = rowData[row];
+                if (!chunkData) continue;
+
+                // 获取chunk的包围盒
+                let chunkRect = chunkData.getRange();
+                if (chunkRect && chunkRect.width > 0 && chunkRect.height > 0) {
+                    hasValidChunk = true;
+
+                    // 更新最小和最大边界
+                    minX = Math.min(minX, chunkRect.x);
+                    minY = Math.min(minY, chunkRect.y);
+                    maxX = Math.max(maxX, chunkRect.x + chunkRect.width);
+                    maxY = Math.max(maxY, chunkRect.y + chunkRect.height);
+                }
+            }
+        }
+
+        if (hasValidChunk) {
+            // 设置layer的包围盒为所有chunk包围盒的并集
+            this._rect.setValue(minX, minY, maxX, maxY);
+        } else {
+            this._rect.setValue(0, 0, 0, 0);
+        }
+    }
+
     /**
      * 根据相机和设置做裁剪;更新所有格子的渲染数据
      * @param context 
@@ -468,6 +534,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         let chuckendRow = tempVec3.x;
         let chuckendCol = tempVec3.y;
 
+        let _needUpdateBounds = false;
         for (let j = chuckstartCol; j <= chuckendCol; j++) {
             if (!this._chunkDatas[j]) { continue; }
             let rowData = this._chunkDatas[j];
@@ -477,12 +544,14 @@ export class TileMapLayer extends BaseRenderNode2D {
                 this._chunk._getChunkLeftTop(i, j, checkPoint);
                 //是否需要渲染
                 if (!this._cliper.isClipper(checkPoint.x, checkPoint.y)) {
+                    _needUpdateBounds = _needUpdateBounds || chunkData._needUpdateRange;
                     chunkData._update();//更新数据
                     chunkData._mergeToElement(this._renderElements);//更新渲染元素
                 }
             }
         }
 
+        this._boundsChange = _needUpdateBounds;
         let needUpdatePhysics = this._tileMapPhysics.enable && this._needUpdateDirtys[DirtyFlagType.PHYSICS];
         if (needUpdatePhysics) {
             this._tileMapPhysics._updateTransfrom();

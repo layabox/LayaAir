@@ -189,7 +189,9 @@ export class BaseRenderNode2D extends Component {
     /**
      * 渲染范围，用于裁剪规则二
      */
-    private _rect: Vector4 = new Vector4();
+    protected _rect: Vector4 = new Vector4();
+
+    protected _boundsChange: boolean = false;
 
     protected _renderHandle: I2DBaseRenderDataHandle;
 
@@ -218,7 +220,6 @@ export class BaseRenderNode2D extends Component {
         return this._rect;
     }
 
-    private _boundsChange: boolean = false;
 
     public get boundsChange(): boolean {
         return this._boundsChange;

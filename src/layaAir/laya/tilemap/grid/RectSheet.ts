@@ -1,6 +1,9 @@
 import { Vector2 } from "../../maths/Vector2";
 import { BaseSheet } from "./BaseSheet";
 
+/**
+ * 四边形
+ */
 export class RectSheet extends BaseSheet {
 
     constructor() {

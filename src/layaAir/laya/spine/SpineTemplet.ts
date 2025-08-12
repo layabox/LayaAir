@@ -198,13 +198,13 @@ export class SpineTemplet extends Resource {
         this.mainTexture = this._mainTexture;
         this.width = this.skeletonData.width;
         this.height = this.skeletonData.height;
-        this.offsetX = this.skeletonData.x;
-        this.offsetY = this.skeletonData.y;
+        this.offsetX = this.width / 2;
+        this.offsetY = -this.height;
         this._premultipliedAlpha = premultipliedAlpha;
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
         //需要无物理环境
         this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
-        this.sketonOptimise.checkMainAttach(this.skeletonData, -this.offsetX, -this.offsetY);
+        this.sketonOptimise.checkMainAttach(this.skeletonData, this.offsetX, this.offsetY);
     }
 
     /**
