@@ -816,7 +816,12 @@ export class Animator2D extends Component {
      * @param name 名字
      */
     setParamsTrigger(name: string) {
-        this._parameters[name] = { name: name, type: AniParmType.Trigger, value: true };
+        const data = this._parameters[name];
+        if (data && data.type === AniParmType.Trigger) {
+            data.value = true;
+        } else {
+            this._parameters[name] = { name: name, type: AniParmType.Trigger, value: true };
+        }
     }
 
     /**
@@ -828,7 +833,12 @@ export class Animator2D extends Component {
      * @param value 值
      */
     setParamsNumber(name: string, value: number) {
-        this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+        const data = this._parameters[name];
+        if (data && data.type === AniParmType.Float) {
+            data.value = value;
+        } else {
+            this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+        }
     }
 
     /**
@@ -840,7 +850,12 @@ export class Animator2D extends Component {
      * @param value 值
      */
     setParamsBool(name: string, value: boolean) {
-        this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+        const data = this._parameters[name];
+        if (data && data.type === AniParmType.Bool) {
+            data.value = value;
+        } else {
+            this._parameters[name] = { name: name, type: AniParmType.Bool, value: value };
+        }
     }
 
     /**
