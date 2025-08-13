@@ -308,14 +308,14 @@ export class TileSetCellData {
     _noticeRenderChange() {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element.modifyRenderData()
+            element._modifyData()
         });
     }
 
     private _updateTransData() {
         this._updateTrans = false;
         let tileshape = this.cellowner.owner._owner.tileShape;
-        let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v,this._transpose, this._rotateCount);
+        let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v, this._transpose, this._rotateCount);
         out.cloneTo(this._transData);
     }
 
@@ -357,11 +357,11 @@ export class TileSetCellData {
     }
 
 
-    getTerrainsParams():TerrainsParams{
+    getTerrainsParams(): TerrainsParams {
         let params = new TerrainsParams;
         params.terrainSet = this.terrainSet;
         params.terrain = this.terrain;
-        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,16);
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0, 16);
         return params;
     }
 

@@ -1405,6 +1405,7 @@ export class Sprite extends Node {
 
         if (
             (kind & TransformKind.TRS) !== 0
+            || (kind & TransformKind.Anchor) !== 0
             || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
         ) {
             this._globalTrans._spTransChanged(kind);
@@ -1879,8 +1880,17 @@ export class Sprite extends Node {
         if (this._graphics != null)
             out.push(...this._graphics.getBoundPoints());
 
-        if (this._renderNode != null || this._texture != null)
+        if (this._texture != null)
             tmpRect2.setTo(0, 0, this._width || this._texture?.width, this._height || this._texture?.height).getBoundPoints(out);
+
+        if (this._renderNode != null) {
+            let rect = this._renderNode.rect;
+            if (rect.x != 0 || rect.y != 0 || rect.z != 0 || rect.w != 0) {
+                out.push(rect.x, rect.y, rect.z, rect.w);
+            } else {
+                out.push(0, 0, this._width, this._height);
+            }
+        }
 
         //处理子对象区域
         let chidren = this._children;

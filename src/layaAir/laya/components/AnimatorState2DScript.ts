@@ -62,6 +62,13 @@ export class AnimatorState2DScript {
     }
 
     /**
+     * @en Executed when switching to a new state
+     * @zh 切换到新状态时执行
+     */
+    onStateSwitch(currentState: AnimatorState2D): void {
+    }
+
+    /**
      * @en Executed at the end of each loop cycle if the animation is set to loop.
      * @zh 如果动画设置为循环，在每次循环结束时执行。
      */

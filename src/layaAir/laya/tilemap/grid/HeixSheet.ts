@@ -1,6 +1,9 @@
 import { Vector2 } from "../../maths/Vector2";
 import { BaseSheet } from "./BaseSheet";
 
+/**
+ * 六边形
+ */
 export class HeixSheet extends BaseSheet {
     private _offset: number = 0;
     constructor(_offset: number = -1) {
@@ -12,7 +15,7 @@ export class HeixSheet extends BaseSheet {
         this._origMatix.setTo(1, 0, 0.5, 0.75, 0.5, 0.5);
         this._ibData = [0, 1, 2, 0, 2, 3];
         this._vbData = [1, 1, 0, 1, 0, 0, 1, 0];
-        this._outline = [ 0.5 , 0 , 1 , 0.25 , 1 , 0.75 , 0.5 , 1 , 0 , 0.75 , 0 , 0.25];
+        this._outline = [0.5, 0, 1, 0.25, 1, 0.75, 0.5, 1, 0, 0.75, 0, 0.25];
     }
 
     private prixToGrid(out: Vector2, offset: number) {

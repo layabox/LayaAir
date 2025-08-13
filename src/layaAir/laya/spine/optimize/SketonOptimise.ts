@@ -143,9 +143,9 @@ export class SketonOptimise {
     checkMainAttach(skeletonData: spine.SkeletonData, offsetX: number, offsetY: number) {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
-        // let rootBone = this.sketon.getRootBone();
-        // rootBone.x += offsetX;
-        // rootBone.y += offsetY;
+        let rootBone = this.sketon.getRootBone();
+        rootBone.x = offsetX;
+        rootBone.y = offsetY;
         //@ts-ignore
         this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类

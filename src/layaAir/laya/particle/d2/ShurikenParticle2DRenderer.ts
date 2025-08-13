@@ -22,6 +22,7 @@ import { Particle2DGeomotry } from "./Particle2DGeomotry";
 import { Particle2DShader } from "./Particle2DShader";
 import { Particle2DVertexMesh } from "./Particle2DVertexMesh";
 import { ShurikenParticle2DSystem, Particle2DSystemDirtyFlagBits } from "./ShurikenParticle2DSystem";
+import { Utils } from "../../utils/Utils";
 
 const nMatrix0 = new Vector3();
 const nMatrix1 = new Vector3();
@@ -630,8 +631,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         let cosAngle = worldMat.a / scaleX;
         let sinAngle = worldMat.b / scaleX;
 
-        let translateX = nMatrix0.z;
-        let translateY = nMatrix1.z;
+        let translateX = worldMat.tx;
+        let translateY = worldMat.ty;
 
         let simulationSpace = 0;
         switch (ps.main.simulationSpace) {
@@ -659,8 +660,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             default:
                 break;
         }
-
         ps.main._spriteRotAndScale.setValue(cosAngle, sinAngle, scaleX, scaleY);
+        shaderData.setVector(Particle2DShader.SpriteRotAndScale, ps.main._spriteRotAndScale);
         ps.main._spriteTranslateAndSpace.setValue(translateX, translateY, simulationSpace);
 
         // gravity
