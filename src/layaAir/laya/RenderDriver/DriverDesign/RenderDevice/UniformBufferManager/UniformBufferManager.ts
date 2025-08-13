@@ -43,18 +43,6 @@ export function roundDown(n: number, align: number) {
 }
 
 /**
- * UBO统计信息
- */
-export class UBOStat {
-    moveNum: number = 0; //内存块的移动次数
-    uploadNum: number = 0; //每帧上传次数
-    uploadByte: number = 0; //每帧上传字节数
-    timeCostAvg: number = 0; //花费时间（帧平均）
-    timeCostSum: number = 0; //花费时间（总数）
-    timeCostCount: number = 0; //统计花费时间的计数器
-}
-
-/**
  * Uniform内存块管理
  */
 export class UniformBufferManager {
@@ -81,10 +69,6 @@ export class UniformBufferManager {
     //config
     removeHoleThreshold: number = 10; //移除内存空洞的阈值
 
-    //统计相关
-    _stat: UBOStat;
-    _enableStat: boolean = true;
-
     //单独的UniformBuffer
     aloneBuffers: UniformBufferAlone[] = [];
 
@@ -92,7 +76,6 @@ export class UniformBufferManager {
         this._useBigBuffer = useBigBuffer;
         this._clustersAll = new Map();
         this._clustersCur = new Map();
-        this._stat = new UBOStat();
     }
 
     /**
@@ -138,15 +121,6 @@ export class UniformBufferManager {
         //     console.log('BigBuffer ' + info);
         // else console.log('AloneBuffer ' + info);
 
-        if (this._enableStat) {
-            //按帧计数的清零
-            this._stat.moveNum = 0;
-            this._stat.uploadNum = 0;
-            this._stat.uploadByte = 0;
-            //记录累加帧数
-            this._stat.timeCostCount++;
-        }
-
         // if (this._useBigBuffer) {
         //     if (this._removeHoleArray.length > 0) {
         //         for (let i = this._removeHoleArray.length - 1; i > -1; i--)
@@ -168,7 +142,6 @@ export class UniformBufferManager {
      */
     getBufferAlone(size: number, name?: string) {
         const alignedSize = roundUp(size, this.byteAlign);
-        this.statisGPUMemory(alignedSize);
         return this.createGPUBuffer(alignedSize, name);
     }
 
@@ -273,8 +246,6 @@ export class UniformBufferManager {
     upload() {
         if (this._useBigBuffer) {
             let t: number;
-            if (this._enableStat)
-                t = performance.now();
             let cluster: UniformBufferCluster;
             for (let i = this._needUpdateClusters.length - 1; i > -1; i--) {
                 cluster = this._needUpdateClusters[i];
@@ -282,9 +253,6 @@ export class UniformBufferManager {
                 cluster._inManagerUpdateArray = false;
             }
             this._needUpdateClusters.length = 0;
-
-            if (this._enableStat)
-                this.statisTimeCostAvg(performance.now() - t);
         }
     }
 
@@ -356,28 +324,5 @@ export class UniformBufferManager {
      */
     statisGPUMemory(bytes: number) {
         //todo
-    }
-
-    /**
-     * 统计时间花费（平均值）
-     * @param time 耗费时间（毫秒）
-     */
-    statisTimeCostAvg(time: number) {
-        this._stat.timeCostSum += time;
-        if (this._stat.timeCostCount > 100) {
-            this._stat.timeCostAvg = ((this._stat.timeCostSum / this._stat.timeCostCount) * 10000 | 0) / 10; //微秒
-            this._stat.timeCostSum = 0;
-            this._stat.timeCostCount = 0;
-        }
-    }
-
-    /**
-     * 统计上传次数
-     * @param count 上传次数
-     * @param bytes 上传字节
-     */
-    statisUpload(count: number, bytes: number) {
-        this._stat.uploadNum += count;
-        this._stat.uploadByte += bytes;
     }
 }

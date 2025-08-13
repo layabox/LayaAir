@@ -21,6 +21,7 @@ import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/Web
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { RTStatisContext } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTStatisticContext";
 
 export class Main {
     static useWebGPU: boolean = false;
@@ -66,8 +67,9 @@ export class Main {
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
+            LayaGL.render2DRenderPassFactory = new GLESRender2DProcess();
+            LayaGL.statAgent = new RTStatisContext();
 
-            LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
         }
 
         await Laya.init(this._is3D ? 0 : 1280, this._is3D ? 0 : 720)

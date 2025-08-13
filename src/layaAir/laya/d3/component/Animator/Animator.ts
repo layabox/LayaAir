@@ -26,6 +26,9 @@ import { Vector4 } from "../../../maths/Vector4";
 import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { Delegate } from "../../../utils/Delegate";
+import { Browser } from "../../../utils/Browser";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatisticsElement } from "../../../layagl/StatisticsContext";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -1302,6 +1305,7 @@ export class Animator extends Component {
      * @perfTag PerformanceDefine.T_AnimatorUpdate
      */
     onUpdate(): void {
+        let t = Browser.now();
         let timer = this.owner._scene.timer;
         let delta = timer.delta / 1000.0;//Laya.timer.delta已包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
@@ -1409,6 +1413,7 @@ export class Animator extends Component {
         }
         this._LateUpdateEvents.invoke();
         this._LateUpdateEvents.clear();
+        LayaGL.statAgent.recordTimeData(StatisticsElement.T_AnimatorUpdate, Browser.now() - t);
     }
 
     /**

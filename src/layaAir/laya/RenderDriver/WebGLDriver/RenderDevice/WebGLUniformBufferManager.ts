@@ -1,6 +1,7 @@
 
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatisticsElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { UniformBufferManager } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferManager";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLBuffer } from "./WebGLEngine/GLBuffer";
@@ -22,7 +23,7 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
         let buffer = this.engine.createBuffer(BufferTargetType.UNIFORM_BUFFER, BufferUsage.Dynamic);
         buffer.bindBuffer();
         buffer.setDataLength(size);
-        if (data){
+        if (data) {
             buffer.setData(data, 0);
         }
         return buffer;
@@ -32,16 +33,7 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
         buffer.bindBuffer();
         let gl = <WebGL2RenderingContext>this.engine.gl;
         gl.bufferSubData(buffer._glTarget, offset, new Float32Array(data, offset, size / 4));
-
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_UBOBufferUploadCount, 1);
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_UBOBufferUploadMemory, size / 1048576);
     }
-
-    statisGPUMemory(bytes: number): void {
-        this.engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, bytes);
-        this.engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer, bytes);
-    }
-
-    statisUpload(count: number, bytes: number): void {
-        this.engine._addStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount, count);
-    }
-
 }

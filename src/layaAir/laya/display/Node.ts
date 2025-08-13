@@ -3,7 +3,6 @@ import { Component } from "../components/Component"
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Pool } from "../utils/Pool"
-import { Stat } from "../utils/Stat"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
@@ -13,6 +12,8 @@ import { type Sprite } from "./Sprite";
 import { type Sprite3D } from "../d3/core/Sprite3D";
 import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { type GWidget } from "../ui2/GWidget"
+import { LayaGL } from "../layagl/LayaGL"
+import { StatisticsElement } from "../layagl/StatisticsContext"
 
 const ARRAY_EMPTY: any[] = [];
 const initBits = NodeFlags.ACTIVE;
@@ -1083,7 +1084,7 @@ export class Node extends EventDispatcher {
      * @zh 节点激活时执行的操作。
      */
     protected _onActive(): void {
-        Stat.spriteCount++;
+        LayaGL.statAgent.recordCountData(StatisticsElement.C_Sprite2DCount, 1);
     }
 
     /**
@@ -1091,7 +1092,7 @@ export class Node extends EventDispatcher {
      * @zh 节点停用时执行的操作。
      */
     protected _onInActive(): void {
-        Stat.spriteCount--;
+        LayaGL.statAgent.recordCountData(StatisticsElement.C_Sprite2DCount, 1);
     }
 
     /**

@@ -34,6 +34,8 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
+import { Browser } from "../utils/Browser";
+import { StatisticsElement } from "../layagl/StatisticsContext";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -1686,7 +1688,6 @@ export class Sprite extends Node {
         processor.apply(Render2DProcessor.rendercontext2D);
         processor.clear();
         pass.destroy();
-
         return renderout;
     }
 

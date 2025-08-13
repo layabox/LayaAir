@@ -1,6 +1,7 @@
 
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatisticsElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGLEngine } from "./WebGLEngine";
@@ -27,20 +28,15 @@ export class WebGLVertexBuffer implements IVertexBuffer {
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_VertexBuffer, 1);
-    }
-
-    private _changeMemory(bytelength: number) {
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.M_VertexBuffer, -this._glBuffer._byteLength+bytelength);
     }
 
     setDataLength(byteLength: number): void {
-        this._changeMemory(byteLength);
         this._glBuffer.setDataLength(byteLength);
     }
 
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
         this.bind();
+
         var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
         if (needSubData) {
             var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
@@ -48,6 +44,7 @@ export class WebGLVertexBuffer implements IVertexBuffer {
         } else {
             this._glBuffer.setData(buffer, bufferOffset);
         }
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_GeometryBufferUploadCount, 1);
     }
 
     /**
@@ -72,8 +69,6 @@ export class WebGLVertexBuffer implements IVertexBuffer {
     destroy(): void {
         this._glBuffer.destroy();
         this._vertexDeclaration = null
-        this._changeMemory(0);
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_VertexBuffer, -1);
     }
 
 }

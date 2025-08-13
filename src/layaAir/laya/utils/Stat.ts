@@ -1,19 +1,17 @@
 import { ILaya } from "../../ILaya";
-import { GPUEngineStatisticsInfo, RenderPassStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { LayaGL } from "../layagl/LayaGL";
+import { StatisticsElement } from "../layagl/StatisticsContext";
 import { Browser } from "./Browser";
 import type { StatUI } from "./StatUI";
 
-export type StatUnit = "M" | "K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
+export type StatUnit = "M" | "ms"|"K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
 export type StatColor = "yellow" | "white" | "red";//颜色
-export type StatMode = "summit" | "average";//是否根据帧分配
 
 export interface StatUIParams {
     title: string,//显示title
-    value: string,//对应Stat的数据
+    value: StatisticsElement,//对应Stat的数据
     color: StatColor,//显示颜色
-    units: StatUnit,//"M"/"k"/"int"//显示单位
-    mode: StatMode//"resource/average"//显示模式
+    units: StatUnit,//"M" "int"//显示单位\
 }
 
 export interface StatToggleUIParams {
@@ -41,136 +39,19 @@ export interface StatToggleUIParams {
  */
 export class Stat {
     /**
-     * @en The current frame rate.
-     * @zh 当前帧率
-     */
-    public static FPSStatUIParams: StatUIParams = { title: "FPS", value: "_fpsStr", color: "yellow", units: "int", mode: "summit" };
-    /**
-     * @en Node nums
-     * @zh 节点数量
-     */
-    public static NodeStatUIParams: StatUIParams = { title: "Node", value: "spriteCount", color: "white", units: "int", mode: "summit" };
-    /**
-     * @en Sprite3D nums
-     * @zh 3D精灵数量
-     */
-    public static Sprite3DStatUIParams: StatUIParams = { title: "Sprite3D", value: "sprite3DCount", color: "white", units: "int", mode: "summit" };
-    /**
-     * @en DrawCall
-     * @zh 渲染提交批次
-     */
-    public static DrawCall: StatUIParams = { title: "DrawCall", value: "drawCall", color: "white", units: "int", mode: "average" };
-    /**
-     * @en triangleFace
-     * @zh 三角形面数量
-     */
-    public static TriangleFace: StatUIParams = { title: "TriangleFace", value: "trianglesFaces", color: "white", units: "int", mode: "average" };
-    /**
-     * @en RenderNoe
-     * @zh 渲染节点数量
-     */
-    public static RenderNode: StatUIParams = { title: "RenderNode", value: "renderNode", color: "white", units: "int", mode: "summit" };
-    /**
-     * @en SkinRenderNode
-     * @zh 蒙皮（骨骼动画）渲染节点数量
-     */
-    public static SkinRenderNode: StatUIParams = { title: "SkinRenderNode", value: "skinRenderNode", color: "white", units: "int", mode: "summit" };
-    /**
-     * @en ParticleRenderNode
-     * @zh 粒子渲染节点数量
-     */
-    public static ParticleRenderNode: StatUIParams = { title: "ParticleRenderNode", value: "particleRenderNode", color: "white", units: "int", mode: "summit" }
-    /**
-     * @en FrustumCulling
-     * @zh 视锥体剔除
-     */
-    public static FrustumCulling: StatUIParams = { title: "FrustumCulling", value: "frustumCulling", color: "white", units: "int", mode: "average" }
-    /**
-     * @en uniformUpload
-     * @zh uniform上传
-     */
-    public static UniformUpload: StatUIParams = { title: "UniformUpload", value: "uniformUpload", color: "white", units: "int", mode: "average" }
-    /**
-     * @en OpaqueDrawCall
-     * @zh 不透明物体渲染提交批次
-     */
-    public static OpaqueDrawCall: StatUIParams = { title: "OpaqueDrawCall", value: "opaqueDrawCall", color: "white", units: "int", mode: "average" }
-    /**
-     * @en TransformDrawCall
-     * @zh 透明物体渲染提交批次
-     */
-    public static TransDrawCall: StatUIParams = { title: "TransDrawCall", value: "transDrawCall", color: "white", units: "int", mode: "average" }
-    /**
-     * @en DepthCastDrawCall
-     * @zh 深度投射渲染提交批次
-     */
-    public static DepthCastDrawCall: StatUIParams = { title: "DepthCastDrawCall", value: "depthCastDrawCall", color: "white", units: "int", mode: "average" }
-    /**
-    * @en TransformDrawCall
-    * @zh 透明物体渲染提交批次
-    */
-    public static ShadowDrawCall: StatUIParams = { title: "ShadowDrawCall", value: "shadowMapDrawCall", color: "white", units: "int", mode: "average" }
-    /**
-     * @en InstanceDrawCall
-     * @zh 实例绘制渲染提交批次
-     */
-    public static InstanceDrawCall: StatUIParams = { title: "InstanceDrawCall", value: "instanceDrawCall", color: "white", units: "int", mode: "average" }
-    /**
-     * @en CMDDrawCall
-     * @zh CMD渲染提交批次
-     */
-    public static CMDDrawCall: StatUIParams = { title: "CMDDrawCall", value: "cmdDrawCall", color: "white", units: "int", mode: "average" };
-    /**
-     * @en BlitDrawCall
-     * @zh 位块渲染提交批次
-     */
-    public static BlitDrawCall: StatUIParams = { title: "BlitDrawCall", value: "blitDrawCall", color: "white", units: "int", mode: "average" };
-    /**
-     * @en GPU memory
-     * @zh GPU 显存
-     */
-    public static GPUMemory: StatUIParams = { title: "GPUMemory", value: "gpuMemory", color: "white", units: "M", mode: "summit" };
-    /**
-     * @en Texture2D memory
-     * @zh 2D纹理内存
-     */
-    public static TextureMemeory: StatUIParams = { title: "TextureMemory", value: "textureMemory", color: "white", units: "M", mode: "summit" };
-    /**
-     * @en RenderTexture memory
-     * @zh 渲染纹理内存
-     */
-    public static RenderTextureMemory: StatUIParams = { title: "RenderTextureMemory", value: "renderTextureMemory", color: "white", units: "M", mode: "summit" };
-    /**
-     * @en BufferMemory
-     * @zh Buffer内存
-     */
-    public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "M", mode: "summit" };
-    /**
-     * @en upload Uniform
-     * @zh Uniform上传数量
-     */
-    public static uploadUniformNum: StatUIParams = { title: "UploadUniformNum", value: "uploadUniform", color: "white", units: "int", mode: "average" };
     /**
      * @en All Show
      * @zh 所有显示
      */
-    public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
-        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.ShadowDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory, Stat.uploadUniformNum];
-    /**
-     * @en Memory Show
-     * @zh 内存显示
-     */
-    public static memoryShow: Array<StatUIParams> = [Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
-    /**
-     * @en Rendering Show
-     * @zh 渲染显示
-     */
-    public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.ShadowDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
-    /**
-     * @internal 
-     * @en Enable/disable shadows
-     * @zh 开启关闭阴影 
-     */
+    public static ShowStatArray: Array<StatisticsElement> = [StatisticsElement.C_Sprite2DCount, StatisticsElement.C_Sprite3DCount, StatisticsElement.CT_DrawCall, StatisticsElement.CT_Triangle, StatisticsElement.C_BaseRenderCount, StatisticsElement.C_SkinnedMeshRenderCount, StatisticsElement.C_ShurikenParticleRenderCount
+        , StatisticsElement.T_CullMain, StatisticsElement.CT_OpaqueDrawCall, StatisticsElement.CT_TransDrawCall, StatisticsElement.CT_ShadowDrawCall, StatisticsElement.CT_DepthCastDrawCall, StatisticsElement.CT_Instancing_DrawCallCount,
+    StatisticsElement.M_GPUMemory, StatisticsElement.M_ALLTexture, StatisticsElement.M_RenderTexture, StatisticsElement.M_GPUBuffer];
+
+    /*
+       * @internal 
+    * @en Enable/disable shadows
+    * @zh 开启关闭阴影 
+    */
     public static toogle_Shadow: StatToggleUIParams = { title: "Shadow", value: "enableShadow", color: "white" };
     /**
      * @internal 
@@ -263,11 +144,7 @@ export class Stat {
      * @zh 主舞台 Stage 的渲染次数计数。
      */
     public static loopCount: number = 0;
-    /**
-     * @en Number of Sprites that use cache for rendering.
-     * @zh 精灵渲染使用缓存 Sprite 的数量。
-     */
-    public static spriteRenderUseCacheCount: number = 0;
+
     /**
      * @en Number of times the canvas has used standard rendering.
      * @zh 画布 canvas 使用标准渲染的次数。
@@ -294,115 +171,6 @@ export class Stat {
      */
     //static gpuMemory: number;
     static cpuMemory: number;
-
-    /**@internal */
-    public static _timer: number = 0;
-    /**@internal */
-    public static _count: number = 0;
-
-    /**@internal */
-    public static _fpsStr: string = "";
-    /**@internal */
-    public static spriteCount: number = 0;//TODO
-    /**@internal */
-    public static sprite3DCount: number = 0;//TODO
-    /**@internal */
-    private static _drawCall: number = 0;
-    public static get drawCall(): number {
-        return Stat._drawCall;
-    }
-    public static set drawCall(value: number) {
-        Stat._drawCall = value;
-    }
-    public static draw2D = 0;
-    /**@internal */
-    public static trianglesFaces: number = 0;
-    /**@internal */
-    public static renderNode: number = 0;
-    /**@internal */
-    public static meshRenderNode: number = 0;
-    /**@internal */
-    public static skinRenderNode: number = 0;
-    /**@internal */
-    public static particleRenderNode: number = 0;
-    /**@internal 视锥剔除次数。*/
-    public static frustumCulling: number = 0;
-    /**@internal */
-    public static uniformUpload: number = 0;
-    /**@internal */
-    public static opaqueDrawCall: number = 0;
-    /**@internal */
-    public static transDrawCall: number = 0;
-    /**@internal */
-    public static depthCastDrawCall: number = 0;
-    /**@internal */
-    public static shadowMapDrawCall: number = 0;
-    /**@internal */
-    public static instanceDrawCall: number = 0;
-    /**@internal */
-    public static cmdDrawCall: number = 0;
-
-    public static blitDrawCall: number = 0;
-
-    public static renderPassStatArray: number[] = new Array(RenderPassStatisticsInfo.RenderPassStatisticCount);
-    //是否开启渲染流程统计，会将一些消耗较多的统计放入事件中,在最开始的时候设置最准确
-    public static enableRenderPassStatArray: boolean = false;
-
-    /**
-     * @en The cumulative memory of the resources managed by the resource manager, in bytes. 
-     * @zh 资源管理器所管理资源的累计内存，以字节为单位。
-     */
-    public static gpuMemory: number;
-    /**@internal */
-    public static textureMemory: number = 0;
-    /**@internal */
-    public static renderTextureMemory: number = 0;
-    /**@internal */
-    public static bufferMemory: number = 0;
-    /**@internal */
-    private static _uploadUniform: number = 0;
-    public static get uploadUniform(): number {
-        return Stat._uploadUniform;
-    }
-    public static set uploadUniform(value: number) {
-        Stat._uploadUniform = value;
-    }
-
-    /**
-     * @en The count of dynamic rigid bodies in the physics system.
-     * @zh 物理系统中动态刚体的数量。
-     */
-    public static physics_dynamicRigidBodyCount: number;
-
-    /**
-     * @en The count of static rigid bodies in the physics system.
-     * @zh 物理系统中静态刚体的数量。
-     */
-    public static physics_staticRigidBodyCount: number;
-
-    /**
-     * @en The count of kinematic rigid bodies in the physics system.
-     * @zh 物理系统中运动学刚体的数量。
-     */
-    public static phyiscs_KinematicRigidBodyCount: number;
-
-    /**
-     * @en The count of character controllers in the physics system.
-     * @zh 物理系统中角色控制器的数量。
-     */
-    public static physics_CharacterControllerCount: number;
-
-    /**
-     * @en The count of joints in the physics system.
-     * @zh 物理系统中关节的数量。
-     */
-    public static physics_jointCount: number;
-
-    /**
-     * @en The count of physics events.
-     * @zh 物理事件的数量。
-     */
-    public static phyiscs_EventCount: number
 
     //Toggle
     /**
@@ -470,7 +238,7 @@ export class Stat {
     static _statUI: StatUI;
 
     /**@internal */
-    private static _currentShowArray: Array<StatUIParams>;
+    private static _currentShowArray: Array<StatisticsElement>;
     /**@internal */
     private static _show: boolean;
 
@@ -486,15 +254,15 @@ export class Stat {
      * @param y 统计信息显示的 Y 轴坐标位置。
      * @param views 可选的 StatUIParams 数组，定义要显示哪些统计信息。
      */
-    static show(x?: number, y?: number, views?: Array<StatUIParams>): void {
+    static show(x?: number, y?: number, views?: Array<StatisticsElement>): void {
         if (!Stat._statUI)
             Stat._statUI = new Stat._statUIClass();
         this.hide();
 
         Stat._show = true;
-        LayaGL.renderEngine._enableStatistics = true;
-        Stat._currentShowArray = views || Stat.AllShow;
-        Stat._statUI.show(x, y, Stat._currentShowArray);
+        Stat._currentShowArray = views;
+        Stat._currentShowArray = views || Stat.ShowStatArray;
+        Stat._statUI.show(x, y, Stat.ShowStatArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
         ILaya.timer.frameLoop(1, null, Stat.clear);
     }
@@ -521,40 +289,11 @@ export class Stat {
      * @zh 性能统计参数计算循环处理函数。
      */
     static loop(): void {
-        Stat._count++;
-        let timer: number = Browser.now();
-        if (timer - Stat._timer < 1000) return;
-
-        let count: number = Stat._count;
         //计算更精确的FPS值
-        Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
 
         if (Stat._show) {
-            Stat.updateEngineData();
-            let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
-            Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
             Stat._statUI.update();
-            // Stat.clear();
         }
-
-        Stat._count = 0;
-        Stat._timer = timer;
-    }
-
-    /**
-     * @en Updates the engine data for statistics such as triangle count, draw call count, and memory usage.
-     * @zh 更新引擎数据，包括三角形数量、绘制调用计数和内存使用情况等统计信息。
-     */
-    static updateEngineData(): void {
-        Stat.trianglesFaces += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_TriangleCount);
-        Stat.drawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_DrawCallCount);
-        Stat.instanceDrawCall += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_Instancing_DrawCallCount);
-        Stat.uploadUniform += LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.C_UniformBufferUploadCount);
-
-        Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory);
-        Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture);
-        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_ALLRenderTexture);
-        Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(GPUEngineStatisticsInfo.M_GPUBuffer);
     }
 
     /**
@@ -563,14 +302,12 @@ export class Stat {
      * @zh 清零性能统计计算相关的数据。
      */
     static clear(): void {
-        if (!Stat._currentShowArray || Stat._count)
-            return;
-        Stat._currentShowArray.forEach(element => {
-            if (element.mode == "average")
-                (Stat as any)[element.value] = 0;
-        });
-        LayaGL.renderEngine.clearStatisticsInfo();
-        Stat.renderPassStatArray.fill(0);
+        // if (!Stat._currentShowArray )
+        //     return;
+        // Stat._currentShowArray.forEach(element => {
+        //     if (element.mode == "average")
+        //         (Stat as any)[element.value] = 0;
+        // });
     }
 
     static render() {
