@@ -3,29 +3,29 @@ import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
 /**
- * @en The `HBox` class is a horizontal layout container.
  * @zh `HBox` 是一个水平布局容器类。
+ * @en The `HBox` class is a horizontal layout container.
  * @blueprintInheritable
  */
 export class HBox extends LayoutBox {
     /**
-     * @en No alignment.
      * @zh 无对齐。
+     * @en No alignment.
      */
     static readonly NONE: string = "none";
     /**
-     * @en Align to the top.
      * @zh 居顶部对齐。
+     * @en Align to the top.
      */
     static readonly TOP: string = "top";
     /**
-     * @en Align to the center.
      * @zh 居中对齐。
+     * @en Align to the center.
      */
     static readonly MIDDLE: string = "middle";
     /**
-     * @en Align to the bottom.
      * @zh 居底部对齐。
+     * @en Align to the bottom.
      */
     static readonly BOTTOM: string = "bottom";
 
@@ -49,6 +49,7 @@ export class HBox extends LayoutBox {
         let maxHeight = 0;
         for (let i = 0, n = this.numChildren; i < n; i++) {
             let item = (<UIComponent>this.getChildAt(i));
+            if (this.skipHidden && !item.visible) continue; // ← 新增过滤隐藏的子项节点逻辑
             if (item) {
                 item.x = 0;
                 items.push(item);
