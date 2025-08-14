@@ -520,6 +520,9 @@ export class SpriteCache{
                 }
             }
 
+            if(cache){
+                cache.reset();
+            }
             cache = sprite._cacheStyle.cacheInfo.page = new CachePage();
             cache.sprite = sprite;
             Stat.canvasNormal++;
