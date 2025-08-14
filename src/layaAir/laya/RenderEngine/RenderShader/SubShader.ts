@@ -116,7 +116,7 @@ export class SubShader {
 
         let uniform: UniformProperty = {
             id: Shader3D.propertyNameToID(uniformName),
-            propertyName: name,
+            propertyName: uniformName,
             uniformtype: type,
             arrayLength: arrayLength
         };
