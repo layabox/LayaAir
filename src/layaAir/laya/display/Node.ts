@@ -1092,7 +1092,7 @@ export class Node extends EventDispatcher {
      * @zh 节点停用时执行的操作。
      */
     protected _onInActive(): void {
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_Sprite2DCount, 1);
+        LayaGL.statAgent.recordCountData(StatisticsElement.C_Sprite2DCount, -1);
     }
 
     /**
