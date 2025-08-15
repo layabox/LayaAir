@@ -578,10 +578,15 @@ export class SkinAniRenderData {
 
             let framesLength = frames.length;
             let order: number[];
+            let lastData: FrameRenderData;
+
             for (let i = 0; i < framesLength; i++) {
                 let frame = frames[i];
                 let fcs = changeMap.get(frame);
-                if (!fcs) continue;
+                if (!fcs) {
+                    this.renderDatas[i] = lastData;
+                    continue;
+                }
 
                 let iChanges = fcs.iChanges;
 
@@ -624,7 +629,8 @@ export class SkinAniRenderData {
                     data.vChanges = myChangeVB;
                 }
 
-                this.renderDatas.push(data);
+                this.renderDatas[i] = data;
+                lastData = data;
 
                 if (!frame) {
                     if (!data.ib) {

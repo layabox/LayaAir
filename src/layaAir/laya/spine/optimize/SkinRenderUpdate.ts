@@ -118,7 +118,7 @@ export class SkinRenderUpdate {
         let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
 
         let currentChanges = this.vChanges;
-        
+
         let frameData = skindata.getFrameData(frame);
 
         let isFirst = lastFrame < 0;
@@ -128,7 +128,7 @@ export class SkinRenderUpdate {
             this._resetVertexBuffset(skindata);
             currentChanges.length = 0;
         }
-       
+
         //统计vchange
         for (let f = lastFrame + 1; f <= frame; f++) {
             let frameData = skindata.getFrameData(f);
@@ -161,10 +161,10 @@ export class SkinRenderUpdate {
         }
 
         let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        return this.handleRender(skindata, frame, renderNode, mesh , needUpdateMesh);
+        return this.handleRender(skindata, frame, renderNode, mesh, needUpdateMesh);
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D , forceUpdateMesh = false): boolean {
+    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D, forceUpdateMesh = false): boolean {
         let frameData = skindata.getFrameData(frame);
         let needUpdate = false;
         let mulitRenderData = frameData.mulitRenderData;
@@ -177,7 +177,7 @@ export class SkinRenderUpdate {
             }
         }
 
-        return !renderNode._onMeshChange(mesh , forceUpdateMesh) || needUpdate;
+        return !renderNode._onMeshChange(mesh, forceUpdateMesh) || needUpdate;
     }
 
     private createMaterials(mulitRenderData: MultiRenderData): Material[] {
@@ -251,10 +251,10 @@ export class SkinRenderUpdate {
         let slots = this.owner._skeleton.slots;
         let map = skindata.vb.slotVBMap;
         let renderDatas = skindata.renderDatas;
-        let resetSlots:Set<number> = new Set();
+        let resetSlots: Set<number> = new Set();
 
         renderDatas.forEach(data => {
-            if (data.vChanges) {
+            if (data && data.vChanges) {
                 for (const change of data.vChanges) {
                     resetSlots.add(change.slotId);
                 }

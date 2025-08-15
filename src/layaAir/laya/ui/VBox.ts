@@ -3,35 +3,35 @@ import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
 /**
- * @en VBox is a vertical layout container class.
  * @zh VBox 是一个垂直布局容器类。
+ * @en VBox is a vertical layout container class.
  * @blueprintInheritable
  */
 export class VBox extends LayoutBox {
     /**
-     * @en No alignment.
      * @zh 无对齐。
+     * @en No alignment.
      */
     static readonly NONE: string = "none";
     /**
-     * @en Left aligned.
      * @zh 左对齐。
+     * @en Left aligned.
      */
     static readonly LEFT: string = "left";
     /**
-     * @en Center alignment.
      * @zh 居中对齐。
+     * @en Center alignment.
      */
     static readonly CENTER: string = "center";
     /**
-     * @en Right aligned.
      * @zh 右对齐。
+     * @en Right aligned.
      */
     static readonly RIGHT: string = "right";
 
     /** 
-     * @en Compatible with previous changeItems logic, whether to use sortItem to sort all items when changes occur.
      * @zh 兼容以前的changeItems逻辑，是否在发生变动时，使用 sortItem 排序所有item。
+     * @en Compatible with previous changeItems logic, whether to use sortItem to sort all items when changes occur.
     */
     public isSortItem: boolean = false;
 
@@ -52,6 +52,7 @@ export class VBox extends LayoutBox {
 
         for (let i = 0, n = this.numChildren; i < n; i++) {
             let item = (<UIComponent>this.getChildAt(i));
+            if (this.skipHidden && !item.visible) continue; // ← 新增过滤隐藏的子项节点逻辑
             if (item) {
                 item.y = 0;
                 items.push(item);
