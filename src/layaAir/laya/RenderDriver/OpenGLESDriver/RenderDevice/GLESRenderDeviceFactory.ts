@@ -105,7 +105,7 @@ Laya.addBeforeInitCallback(() => {
     if (!LayaGL.renderDeviceFactory) {
         LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
         let statisticsContext = new RTStatisContext();
-        LayaGL.statAgent.cloneTo(statisticsContext);
+        LayaGL.statAgent?.cloneTo(statisticsContext);
         LayaGL.statAgent = statisticsContext;
     }
 })
