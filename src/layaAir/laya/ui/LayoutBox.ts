@@ -10,9 +10,20 @@ export class LayoutBox extends Box {
     protected _space: number = 0;
     protected _align: string = "none";
     protected _itemChanged: boolean = false;
+    /** 
+     * @zh 自适应模式 - 无
+     * @en AUTO_SIZE_NONE - No adaptive mode.
+     */
+    static readonly AUTO_SIZE_NONE: string = "none";
+    /** 
+     * @zh 自适应模式 - 宽高适配 
+     * @en AUTO_SIZE_BOTH - Both width and height are adaptive.
+     */
+    static readonly AUTO_SIZE_BOTH: string = "both";
     /** 排序和布局时是否跳过隐藏（不可见）的子节点。 */
     protected _skipHidden: boolean = false;
-
+    /** 自适应模式, 默认值为 AUTO_SIZE_NONE。*/
+    protected _autoSizeMode: string = LayoutBox.AUTO_SIZE_NONE;
     /**
      * @zh 子对象的间隔。
      * @en The space between child objects.
@@ -68,14 +79,18 @@ export class LayoutBox extends Box {
         this._itemChanged = false;
     }
 
-    /**
-     * @en Sort the item list. Default sorting rules can be changed by overriding.
-     * @param items The item list.
-     * @zh 排序项目列表。可通过重写改变默认排序规则。
-     * @param items  项目列表。
+    /** 
+     * @zh 计算包含间距的总大小（宽或高）
+     * @param totalChildSize 子项总大小（宽或高）
+     * @param count 子项数量
+     * @returns 包含间距的总大小（宽或高）
+     * @en Calculate the total size with spacing.
+     * @param totalChildSize The total size of child items.
+     * @param count The number of child items.
+     * @returns The total size with spacing.
      */
-    protected sortItem(items: any[]): void {
-        if (items) items.sort(function (a: any, b: any): number { return a.y - b.y; });
+    protected _calcSizeWithSpace(totalChildSize: number, count: number): number {
+        return count > 0 ? totalChildSize + (count - 1) * this._space : 0;
     }
 
     private onResize(e: Event): void {
