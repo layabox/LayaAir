@@ -526,19 +526,35 @@ export class GraphicsRunner {
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
     }
-
+    /**
+     * @zh 获取当前的 X 方向缩放
+     * @returns 当前的 X 方向缩放
+     * @en Get the current X-axis scaling
+     * @returns The current X-axis scaling
+     */
     getCurrentScaleX(): number {
         let scaleX = this.getMatScaleX();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleX = matrix.a;
-        return scaleX * spriteScaleX;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第一列向量的模长 sqrt(a² + b²)，避免旋转影响
+            scaleX *= Math.hypot(matrix.a, matrix.b);
+        }
+        return Math.abs(scaleX);  // 取绝对值，防止负缩放导致错误
     }
-
+    /**
+     * @zh 获取当前的 Y 方向缩放
+     * @returns 当前的 Y 方向缩放
+     * @en Get the current Y-axis scaling
+     * @returns The current Y-axis scaling
+     */
     getCurrentScaleY(): number {
         let scaleY = this.getMatScaleY();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleY = matrix.d;
-        return scaleY * spriteScaleY;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第二列向量的模长 sqrt(c² + d²)，避免旋转影响
+            scaleY *= Math.hypot(matrix.c, matrix.d);
+        }
+        return Math.abs(scaleY);
     }
 
     /**
