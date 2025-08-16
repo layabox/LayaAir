@@ -32,7 +32,6 @@ export class Render {
     static __init__() {
 
         Render.frameInterval = 1000 / Config.FPS;
-       (!LayaGL.statAgent) &&(LayaGL.statAgent = new DefaultStaticsContext());
         let timeId: number = 0;
         PAL.browser.on("visibilitychange", (visible: boolean) => {
             if (!visible)
