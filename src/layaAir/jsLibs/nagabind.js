@@ -314,17 +314,17 @@ let wasm_bindgen;
 
     wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
 
+    var _in__wbg_load = __wbg_load;
+    myWasmLoad = function (url, imp) {
+        if (!qg.instantiate) {
+            console.warn("不支持wasm加载使用");
+        }
+        return qg.instantiate("libs/nagabind_bg.wasm", imp);
+    }
+    if (window.qg) {
+        __wbg_load = myWasmLoad;
+    } else {
+        __wbg_load = _in__wbg_load;
+    }
 })();
 
-var _in__wbg_load = __wbg_load;
-myWasmLoad = function (url, imp) {
-    if (!qg.instantiate) {
-        console.warn("不支持wasm加载使用");
-    }
-    return qg.instantiate("libs/nagabind_bg.wasm", imp);
-}
-if (window.qg) {
-    __wbg_load = myWasmLoad;
-} else {
-    __wbg_load = _in__wbg_load;
-}
