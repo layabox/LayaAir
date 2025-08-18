@@ -126,6 +126,7 @@ export class GraphicsRenderData {
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);
                element.materialShaderData = submit.material.shaderData;
+               submit.material._setOwner2DElement(element);
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
             }
@@ -147,6 +148,7 @@ export class GraphicsRenderData {
 
             this._updateGraphicsKeys(element, submit);
          } else {
+            graphics.material && (graphics.material._removeOwnerElement(element));
             GraphicsRenderData._pool.recover(element);
          }
       }
