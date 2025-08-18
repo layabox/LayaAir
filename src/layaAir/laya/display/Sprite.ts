@@ -735,7 +735,7 @@ export class Sprite extends Node {
 
         if (value) {
             if (!this._graphicsData)
-                this._graphicsData = new GraphicsRenderData();
+                this._graphicsData = new GraphicsRenderData(this);
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
@@ -2328,7 +2328,7 @@ export class Sprite extends Node {
         if (this._maskParent) return;
         let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
 
-        if (struct.parent) {
+        if (struct && struct.parent) {
             struct.parent.removeChild(struct);
             struct.parent = null;
         }
@@ -2364,6 +2364,8 @@ export class Sprite extends Node {
             SpriteUtils.getRect(this._mask, false, rect);
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
+            //local
+            SpriteUtils.transformBounds(rect, this._mask.transform);
         }
         else {
             SpriteUtils.getRect(this, false, rect);

@@ -311,4 +311,54 @@ export class SpriteUtils {
         sprite.size(rect.width, rect.height);
         sprite.pos(rect.x + sprite.pivotX, rect.y + sprite.pivotY);
     }
+
+    /**
+     * @en Transforms a rectangle from the local coordinate space of a Sprite to another target coordinate space.
+     * @param rect The local rectangle to be transformed.
+     * @param transform The transform matrix to be applied.
+     * @returns The transformed rectangle in the target coordinate space.
+     * @zh 将矩形从本地坐标空间转换为另一个目标坐标空间。
+     * @param rect 要转换的本地矩形。
+     * @param transform 要应用的变换矩阵。
+     * @returns 转换结果。
+     */
+    static transformBounds(rect: Rectangle, transform: Matrix): Rectangle {
+        if (!rect || !transform) {
+            return rect;
+        }
+        // 获取变换矩阵的分量
+        let a = transform.a, b = transform.b, c = transform.c, d = transform.d;
+
+        // 计算变换后的左上角和右下角
+        let x1 = rect.x;
+        let y1 = rect.y;
+        let x2 = x1 + rect.width;
+        let y2 = y1 + rect.height;
+
+        // 预计算四个基础变换值
+        let tx1 = x1 * a;
+        let tx2 = x2 * a;
+        let ty1 = y1 * c;
+        let ty2 = y2 * c;
+
+        let px1 = x1 * b;
+        let px2 = x2 * b;
+        let py1 = y1 * d;
+        let py2 = y2 * d;
+
+        // 计算包围盒
+        let minX = Math.min(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let maxX = Math.max(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let minY = Math.min(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+        let maxY = Math.max(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+
+        // 设置新的包围盒,加上mask的位置偏移
+        rect.setTo(
+            minX,
+            minY,
+            maxX - minX,
+            maxY - minY
+        );
+        return rect;
+    }
 }

@@ -101,7 +101,9 @@ class BatchContext {
     /** 批次的bufferState */
     bufferState: any = null;
 
-    shaderData: any = null;
+    primitiveShaderData: any = null;
+
+    materialShaderData: any = null;
 
     type: number = 0;
 
@@ -118,7 +120,8 @@ class BatchContext {
         this.clipInfo = null;
         this.subShader = null;
         this.bufferState = null;
-        this.shaderData = null;
+        this.primitiveShaderData = null;
+        this.materialShaderData = null;
         this.type = 0;
         this.lowType = 0;
         this.globalRenderData = null;
@@ -129,7 +132,8 @@ class BatchContext {
      */
     initFromElement(element: IPrimitiveRenderElement2D): void {
         this.textureId = element.type & (~63);
-        this.shaderData = element.primitiveShaderData;
+        this.primitiveShaderData = element.primitiveShaderData;
+        this.materialShaderData = element.materialShaderData;
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.subShader = element.subShader;
@@ -165,6 +169,11 @@ class BatchContext {
             return false;
         }
 
+        // 检查材质 自定义材质直接比对 shaderdata
+        if (this.lowType & 16 && element.materialShaderData !== this.materialShaderData) {
+            return false;
+        }
+
         // 检查透明度（数值比较，较快）
         if (this.globalAlpha !== elementOwner.globalAlpha) {
             return false;
@@ -183,7 +192,7 @@ class BatchContext {
             // 批次还没有确定贴图，接受任何贴图并更新状态
             if (elementTexId !== 0) {
                 this.textureId = elementTexId;
-                this.shaderData = element.primitiveShaderData;
+                this.primitiveShaderData = element.primitiveShaderData;
             }
             return true;
         }
@@ -371,7 +380,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
-                staticBatchRenderElement.primitiveShaderData = batchContext.shaderData;
+                staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
             }
 
