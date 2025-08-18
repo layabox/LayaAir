@@ -1,7 +1,6 @@
 import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { Draw2DLineCMD } from "../Line2D/Draw2DLineCMD";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
 import { Sprite } from "../display/Sprite"
 import { Color } from "../maths/Color";
@@ -12,6 +11,7 @@ import { Material } from "../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { Texture2D } from "../resource/Texture2D";
 import { Physics2DWorldManager } from "./Physics2DWorldManager";
+import { PhysicsDrawLine2DCMD } from "./Render/PhysicsDrawLine2DCMD";
 
 /**
  * @en Physical auxiliary line
@@ -29,13 +29,7 @@ export class Physics2DDebugDraw extends Sprite {
     /**@internal */
     protected _mG: Graphics;
 
-    /**@internal */
-    private _textSp: Sprite;
-
-    /**@internal */
-    protected _textG: Graphics;
-
-    protected _lineWidth: number = 3;
+    protected _lineWidth: number = 1;
 
     private _matrix: Matrix = new Matrix();
 
@@ -44,7 +38,7 @@ export class Physics2DDebugDraw extends Sprite {
 
     private _cmdBuffer: CommandBuffer2D;
 
-    private _cmdDrawLineList: Draw2DLineCMD[] = [];
+    private _cmdDrawLineList: PhysicsDrawLine2DCMD[] = [];
 
     private _linePointsList: any[] = [];
 
@@ -76,14 +70,6 @@ export class Physics2DDebugDraw extends Sprite {
      */
     get mG(): Graphics {
         return this._mG;
-    }
-
-    /**
-     * @en The Graphics object used for drawing text.
-     * @zh 用于绘制文本的 Graphics 对象。
-     */
-    get textG(): Graphics {
-        return this._textG;
     }
 
     /**
@@ -121,10 +107,6 @@ export class Physics2DDebugDraw extends Sprite {
         this._mG = new Graphics();
         this.graphics = this._mG;
 
-        this._textSp = new Sprite();
-        this._textG = this._textSp.graphics;
-        this.addChild(this._textSp);
-
         this._cmdBuffer = new CommandBuffer2D("Physics2DDebugDraw");
         this.material = new Material();
         this.material.setShaderName("baseRender2D");
@@ -133,7 +115,6 @@ export class Physics2DDebugDraw extends Sprite {
     /**@internal */
     private _renderToGraphic(): void {
         if (!this._physics2DWorld || !this._physics2DWorld.enableDraw) return;
-        this._textG.clear();
         this._mG.clear();
         this._mG.save();
         this._mG.scale(this._physics2DWorld.getPixel_Ratio(), this._physics2DWorld.getPixel_Ratio());
@@ -142,12 +123,20 @@ export class Physics2DDebugDraw extends Sprite {
         this._cmdBuffer.setRenderTarget(null, false);
         for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
             let cmd = this._cmdDrawMeshList[i];
+            if (this.scene._area2Ds.size > 0) {
+                //@ts-ignore
+                cmd._renderElements[0] && (cmd._renderElements[0].owner = this.scene._area2Ds.values().next().value._struct);
+            }
             this._cmdBuffer.addCacheCommand(cmd);
         }
 
         //drawline cmds
         for (let i = 0; i < this._cmdDrawLineList.length; i++) {
             let cmd = this._cmdDrawLineList[i];
+            if (this.scene._area2Ds.size > 0) {
+                //@ts-ignore
+                cmd._renderElements[0] && (cmd._renderElements[0].owner = this.scene._area2Ds.values().next().value._struct);
+            }
             this._cmdBuffer.addCacheCommand(cmd);
         }
 
@@ -175,7 +164,6 @@ export class Physics2DDebugDraw extends Sprite {
 
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
-
         this._mG.restore();
     }
 
@@ -339,7 +327,7 @@ export class Physics2DDebugDraw extends Sprite {
 
     addLineDebugDrawCMD(points: any[], color: Color, lineWidth: number, matrix?: Matrix) {
         if (!matrix) matrix = this._matrix;
-        let cmd = Draw2DLineCMD.create(points, matrix, color, lineWidth);
+        let cmd = PhysicsDrawLine2DCMD.create(points, matrix, color, lineWidth);
         cmd && this._cmdDrawLineList.push(cmd);
         this._linePointsList.push(points);
     }

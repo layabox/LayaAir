@@ -193,6 +193,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         if (!this._debugDraw) {
             this._debugDraw = new Physics2DDebugDraw();
             this._debugDraw.physics2DWorld = this;
+            this._debugDraw._scene = this._scene as Scene;
             Physics2DWorldManager._debugSprite.addChild(this._debugDraw);
         }
         this._enableBox2DDraw(enable, bli);

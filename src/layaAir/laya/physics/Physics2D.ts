@@ -7,6 +7,7 @@ import { SingletonList } from "../utils/SingletonList";
 import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
 import { PlayerConfig } from "../../Config";
+import { PhysicsLineShader } from "./Render/shader/PhysicsLineShader";
 
 /**
  * @en 2D Physics Engine
@@ -77,6 +78,7 @@ export class Physics2D extends EventDispatcher {
      */
     enable(): Promise<void> {
         if (this._factory) {
+            PhysicsLineShader.__init__();
             if (PlayerConfig.physics2D != null && PlayerConfig.physics2D.defaultConfig != null)
                 Object.assign(Physics2DOption, PlayerConfig.physics2D.defaultConfig);
 
