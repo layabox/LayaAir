@@ -1,5 +1,5 @@
 let wasm_bindgen;
-(function () {
+(function() {
     const __exports = {};
     let script_src;
     if (typeof document !== 'undefined' && document.currentScript != null) {
@@ -7,7 +7,7 @@ let wasm_bindgen;
     }
     let wasm = undefined;
 
-    const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } });
+    const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
 
     if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
 
@@ -27,20 +27,20 @@ let wasm_bindgen;
 
     let WASM_VECTOR_LEN = 0;
 
-    const cachedTextEncoder = (typeof TextEncoder !== 'undefined' ? new TextEncoder('utf-8') : { encode: () => { throw Error('TextEncoder not available') } });
+    const cachedTextEncoder = (typeof TextEncoder !== 'undefined' ? new TextEncoder('utf-8') : { encode: () => { throw Error('TextEncoder not available') } } );
 
     const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
         ? function (arg, view) {
-            return cachedTextEncoder.encodeInto(arg, view);
-        }
+        return cachedTextEncoder.encodeInto(arg, view);
+    }
         : function (arg, view) {
-            const buf = cachedTextEncoder.encode(arg);
-            view.set(buf);
-            return {
-                read: arg.length,
-                written: buf.length
-            };
-        });
+        const buf = cachedTextEncoder.encode(arg);
+        view.set(buf);
+        return {
+            read: arg.length,
+            written: buf.length
+        };
+    });
 
     function passStringToWasm0(arg, malloc, realloc) {
 
@@ -86,7 +86,7 @@ let wasm_bindgen;
      * @param {boolean} validation_enabled
      * @returns {string}
      */
-    __exports.glsl_to_wgsl = function (source, stage, validation_enabled) {
+    __exports.glsl_to_wgsl = function(source, stage, validation_enabled) {
         let deferred3_0;
         let deferred3_1;
         try {
@@ -122,7 +122,7 @@ let wasm_bindgen;
      * @param {boolean} validation_enabled
      * @returns {Uint32Array}
      */
-    __exports.glsl_to_spirv = function (source, stage, validation_enabled) {
+    __exports.glsl_to_spirv = function(source, stage, validation_enabled) {
         const ptr0 = passStringToWasm0(source, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(stage, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -144,7 +144,7 @@ let wasm_bindgen;
      * @param {boolean} validation_enabled
      * @returns {string}
      */
-    __exports.spirv_to_metal = function (source, validation_enabled) {
+    __exports.spirv_to_metal = function(source, validation_enabled) {
         let deferred2_0;
         let deferred2_1;
         try {
@@ -164,7 +164,7 @@ let wasm_bindgen;
      * @param {boolean} validation_enabled
      * @returns {string}
      */
-    __exports.spirv_to_wgsl = function (source, validation_enabled) {
+    __exports.spirv_to_wgsl = function(source, validation_enabled) {
         let deferred2_0;
         let deferred2_1;
         try {
@@ -177,6 +177,20 @@ let wasm_bindgen;
         } finally {
             wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
         }
+    };
+
+    /**
+     * @param {string} source
+     * @param {boolean} validation_enabled
+     * @returns {Uint32Array}
+     */
+    __exports.wgsl_to_spirv = function(source, validation_enabled) {
+        const ptr0 = passStringToWasm0(source, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wgsl_to_spirv(ptr0, len0, validation_enabled);
+        var v2 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v2;
     };
 
     async function __wbg_load(module, imports) {
@@ -213,16 +227,17 @@ let wasm_bindgen;
     function __wbg_get_imports() {
         const imports = {};
         imports.wbg = {};
-        imports.wbg.__wbg_log_1ae1e9f741096e91 = function (arg0, arg1) {
+        imports.wbg.__wbg_log_1ae1e9f741096e91 = function(arg0, arg1) {
             console.log(arg0, arg1);
         };
-        imports.wbg.__wbindgen_init_externref_table = function () {
+        imports.wbg.__wbindgen_init_externref_table = function() {
+
         };
-        imports.wbg.__wbindgen_string_new = function (arg0, arg1) {
+        imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
             const ret = getStringFromWasm0(arg0, arg1);
             return ret;
         };
-        imports.wbg.__wbindgen_throw = function (arg0, arg1) {
+        imports.wbg.__wbindgen_throw = function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         };
 
@@ -250,7 +265,7 @@ let wasm_bindgen;
 
         if (typeof module !== 'undefined') {
             if (Object.getPrototypeOf(module) === Object.prototype) {
-                ({ module } = module)
+                ({module} = module)
             } else {
                 console.warn('using deprecated parameters for `initSync()`; pass a single object instead')
             }
@@ -275,7 +290,7 @@ let wasm_bindgen;
 
         if (typeof module_or_path !== 'undefined') {
             if (Object.getPrototypeOf(module_or_path) === Object.prototype) {
-                ({ module_or_path } = module_or_path)
+                ({module_or_path} = module_or_path)
             } else {
                 console.warn('using deprecated parameters for the initialization function; pass a single object instead')
             }
@@ -299,17 +314,17 @@ let wasm_bindgen;
 
     wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
 
-    var _in__wbg_load = __wbg_load;
-    myWasmLoad = function (url, imp) {
-        if (!qg.instantiate) {
-            console.warn("不支持wasm加载使用");
-        }
-        return qg.instantiate("libs/nagabind_bg.wasm", imp);
-    }
-    if (window.qg) {
-        __wbg_load = myWasmLoad;
-    } else {
-        __wbg_load = _in__wbg_load;
-    }
-
 })();
+
+var _in__wbg_load = __wbg_load;
+myWasmLoad = function (url, imp) {
+    if (!qg.instantiate) {
+        console.warn("不支持wasm加载使用");
+    }
+    return qg.instantiate("libs/nagabind_bg.wasm", imp);
+}
+if (window.qg) {
+    __wbg_load = myWasmLoad;
+} else {
+    __wbg_load = _in__wbg_load;
+}
