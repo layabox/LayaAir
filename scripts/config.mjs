@@ -201,6 +201,7 @@ export const allBundles = [{
         'laya/physics/factory/IPhysics2DFactory.ts',
         'laya/physics/Shape/*.*',
         'laya/physics/joint/*.*',
+        'laya/physics/Render/**/*.*',
 
         'laya/physics/ModuleDef.ts',
         'laya/physics/Physics2D.ts',
