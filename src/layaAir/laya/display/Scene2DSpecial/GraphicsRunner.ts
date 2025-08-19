@@ -1107,11 +1107,8 @@ export class GraphicsRunner {
         var oldcomp: BlendMode;
         var curMat = this._curMat;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }
@@ -1164,11 +1161,8 @@ export class GraphicsRunner {
 
         let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }

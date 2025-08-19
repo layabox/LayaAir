@@ -17,6 +17,9 @@ export interface IRenderElement2D {
     nodeCommonMap: Array<string>;
     owner: IRenderStruct2D;
     destroy(): void;
+
+    /** 在合批过程中需要收集 */
+    _index?: number;
 }
 
 /**

@@ -11,6 +11,7 @@ import { ILaya } from "../../../ILaya";
 import { NodeFlags } from "../../Const";
 import { Pool } from "../../utils/Pool";
 import { UIEvent } from "../UIEvent";
+import { SpriteUtils } from "../../utils/SpriteUtils";
 
 export class Layout implements ILayout {
     protected _owner: GBox;
@@ -467,7 +468,7 @@ export class Layout implements ILayout {
     }
 
     protected applyNone() {
-        this._owner.getChildrenBounds(false, this._foldInvisibles, false, s_rect);
+        SpriteUtils.getChildrenBounds(this._owner, false, this._foldInvisibles, false, s_rect);
         this.setContentSize(Math.max(0, Math.ceil(s_rect.right)), Math.max(0, Math.ceil(s_rect.bottom)));
     }
 

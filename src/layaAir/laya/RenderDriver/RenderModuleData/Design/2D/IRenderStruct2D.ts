@@ -1,3 +1,4 @@
+import { Sprite } from "../../../../display/Sprite";
 import { Matrix } from "../../../../maths/Matrix";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -14,10 +15,12 @@ export interface IClipInfo {
    clipMatPos: Vector4;
    clipMatrix: Matrix;
    _updateFrame: number;
-};
+}
 
 /** @ignore @blueprintIgnore */
 export interface IRenderStruct2D {
+   owner: Sprite;
+
    //-----2d 渲染组织流程数据-----
    zIndex: number;
    //TODO
@@ -45,6 +48,11 @@ export interface IRenderStruct2D {
    /** 是否启动 */
    enabled: boolean;
 
+   //自动优化dc相关
+   dcOptimize: boolean;
+   dcBounds: Rectangle;
+   dcBoundsTarget: IRenderStruct2D;
+
    //渲染数据
    isRenderStruct: boolean;
 
@@ -70,7 +78,7 @@ export interface IRenderStruct2D {
 
    // renderUpdate(context: IRenderContext2D): void;
 
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void;
+   setRenderUpdateCallback(func: Function): void;
 
    destroy(): void;
 }

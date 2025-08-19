@@ -243,18 +243,28 @@ export class SpriteUtils {
      * @returns 转换结果。 
      */
     static transformRect(sp: Sprite, rect: Rectangle, targetSpace?: Sprite, out?: Rectangle): Rectangle {
-        let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y));
-        if (targetSpace)
-            targetSpace.globalToLocal(pt);
-        let x = pt.x;
-        let y = pt.y;
+        targetSpace = targetSpace || ILaya.stage;
 
-        sp.localToGlobal(pt.setTo(rect.right, rect.bottom));
-        if (targetSpace)
-            targetSpace.globalToLocal(pt);
+        tmpPoints.length = 0;
+        rect.getBoundPoints(tmpPoints);
 
-        out = out || Rectangle.create();
-        return out.setTo(x, y, Math.max(0, pt.x - x), Math.max(0, pt.y - y));
+        if (targetSpace === sp._parent) {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.toParentPoint(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
+        }
+        else {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.localToGlobal(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                targetSpace.globalToLocal(pt);
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
+        }
+
+        return Rectangle._getWrapRec(tmpPoints, out);
     }
 
     /**
@@ -313,52 +323,46 @@ export class SpriteUtils {
     }
 
     /**
-     * @en Transforms a rectangle from the local coordinate space of a Sprite to another target coordinate space.
-     * @param rect The local rectangle to be transformed.
-     * @param transform The transform matrix to be applied.
-     * @returns The transformed rectangle in the target coordinate space.
-     * @zh 将矩形从本地坐标空间转换为另一个目标坐标空间。
-     * @param rect 要转换的本地矩形。
-     * @param transform 要应用的变换矩阵。
-     * @returns 转换结果。
+     * @en Get the bounding box of the child
+     * @param recursive Whether to get the bounding box of the child object recursively
+     * @param ignoreInvisibles Whether to ignore invisible objects
+     * @param ignoreScale Whether to ignore scaling
+     * @param out (Optional) Output object for calculation results
+     * @returns Bounding box
+     * @zh 获取孩子的包围盒
+     * @param recursive 是否递归获取所有子对象的包围盒
+     * @param ignoreInvisibles 是否忽略不可见对象 
+     * @param ignoreScale 是否忽略缩放 
+     * @param out （可选）计算结果输出对象 
+     * @returns 包围盒
      */
-    static transformBounds(rect: Rectangle, transform: Matrix): Rectangle {
-        if (!rect || !transform) {
-            return rect;
+    static getChildrenBounds(sprite: Sprite, recursive?: boolean, ignoreInvisibles?: boolean, ignoreScale?: boolean, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
+        out.setTo(0, 0, 0, 0);
+
+        let children = recursive ? sprite._children : sprite._$children;
+        for (let child of children) {
+            if (ignoreInvisibles && !child._struct.enabled)
+                continue;
+
+            let w = child.width;
+            let h = child.height;
+            if (!ignoreScale) {
+                w *= Math.abs(child._scaleX);
+                h *= Math.abs(child._scaleY);
+            }
+            out.union(tmpRect.setTo(child._x - w * child._anchorX, child._y - h * child._anchorY, w, h), out);
+
+            if (recursive && child._children.length > 0) {
+                let rect = SpriteUtils.getChildrenBounds(child, recursive, ignoreInvisibles, ignoreScale);
+                rect.x += child._x;
+                rect.y += child._y;
+                out.union(rect, out);
+            }
         }
-        // 获取变换矩阵的分量
-        let a = transform.a, b = transform.b, c = transform.c, d = transform.d;
-
-        // 计算变换后的左上角和右下角
-        let x1 = rect.x;
-        let y1 = rect.y;
-        let x2 = x1 + rect.width;
-        let y2 = y1 + rect.height;
-
-        // 预计算四个基础变换值
-        let tx1 = x1 * a;
-        let tx2 = x2 * a;
-        let ty1 = y1 * c;
-        let ty2 = y2 * c;
-
-        let px1 = x1 * b;
-        let px2 = x2 * b;
-        let py1 = y1 * d;
-        let py2 = y2 * d;
-
-        // 计算包围盒
-        let minX = Math.min(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
-        let maxX = Math.max(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
-        let minY = Math.min(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
-        let maxY = Math.max(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
-
-        // 设置新的包围盒,加上mask的位置偏移
-        rect.setTo(
-            minX,
-            minY,
-            maxX - minX,
-            maxY - minY
-        );
-        return rect;
+        return out;
     }
 }
+
+const tmpRect = new Rectangle();
+const tmpPoints: Array<number> = [];
