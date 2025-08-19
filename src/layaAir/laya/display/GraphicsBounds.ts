@@ -53,8 +53,14 @@ export class GraphicsBounds {
      */
     getBounds(g: Graphics): Readonly<Rectangle> {
         if (!this._cached) {
-            this._bound2 = this._getCmdPoints(g);
-            this._bounds = Rectangle._getWrapRec(this._bound2, this._bounds);
+            if (g._useSpriteRect) {
+                this._bounds = (this._bounds || new Rectangle()).setTo(0, 0, g.owner.width, g.owner.height);
+                this._bound2 = this._bounds.getBoundPoints(this._bound2);
+            }
+            else {
+                this._bound2 = this._getCmdPoints(g);
+                this._bounds = Rectangle._getWrapRec(this._bound2, this._bounds);
+            }
             this._cached = true;
         }
         return this._bounds;
@@ -115,7 +121,7 @@ export class GraphicsBounds {
             points.length = 0;
             rect.getBoundPoints(points);
         } else if (points.length > 8)
-            GrahamScan.scanPList(points);
+            GrahamScan.scanPList(points, points);
 
         return points;
     }

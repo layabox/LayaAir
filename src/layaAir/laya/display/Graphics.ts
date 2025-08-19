@@ -75,6 +75,13 @@ export class Graphics {
     /** @internal 是否优先使用精灵状态 */
     _useSpriteState: boolean = true;
 
+    /**
+     * @internal
+     * @en Whether to return graphics bounds as the sprite rect, instead of the bounds calculated from the commands.
+     * @zh 是否返回graphics边界为精灵矩形，而不是从命令计算的边界。对于像文本这种情况，可以优化效率。
+     */
+    _useSpriteRect: boolean = false;
+
     private _cmds: IGraphicsCmd[] = [];
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
@@ -135,6 +142,9 @@ export class Graphics {
      * @param exclude （可选）排除特定命令不被清除。默认为null。
      */
     clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
+        if (this._cmds.length === 0)
+            return;
+
         if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
                 if (!cmd.lock && cmd != exclude)

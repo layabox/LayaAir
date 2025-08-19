@@ -670,7 +670,7 @@ export class InputManager {
             if (!mouseThrough)
                 isHit = (hitArea ? hitArea : _tempRect.setTo(0, 0, sp.width, sp.height)).contains(x, y, sp);
             else //如果可穿透，则根据子对象实际大小进行碰撞
-                isHit = sp.getGraphicBounds(false, Rectangle.TEMP).contains(x, y);
+                isHit = sp.getSelfBounds(Rectangle.TEMP, false).contains(x, y);
         }
         return isHit;
     }

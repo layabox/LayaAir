@@ -243,18 +243,28 @@ export class SpriteUtils {
      * @returns 转换结果。 
      */
     static transformRect(sp: Sprite, rect: Rectangle, targetSpace?: Sprite, out?: Rectangle): Rectangle {
-        let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y));
-        if (targetSpace)
-            targetSpace.globalToLocal(pt);
-        let x = pt.x;
-        let y = pt.y;
+        targetSpace = targetSpace || ILaya.stage;
 
-        sp.localToGlobal(pt.setTo(rect.right, rect.bottom));
-        if (targetSpace)
-            targetSpace.globalToLocal(pt);
+        tmpPoints.length = 0;
+        rect.getBoundPoints(tmpPoints);
 
-        out = out || Rectangle.create();
-        return out.setTo(x, y, Math.max(0, pt.x - x), Math.max(0, pt.y - y));
+        if (targetSpace === sp._parent) {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.toParentPoint(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
+        }
+        else {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.localToGlobal(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                targetSpace.globalToLocal(pt);
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
+        }
+
+        return Rectangle._getWrapRec(tmpPoints, out);
     }
 
     /**
@@ -311,4 +321,48 @@ export class SpriteUtils {
         sprite.size(rect.width, rect.height);
         sprite.pos(rect.x + sprite.pivotX, rect.y + sprite.pivotY);
     }
+
+    /**
+     * @en Get the bounding box of the child
+     * @param recursive Whether to get the bounding box of the child object recursively
+     * @param ignoreInvisibles Whether to ignore invisible objects
+     * @param ignoreScale Whether to ignore scaling
+     * @param out (Optional) Output object for calculation results
+     * @returns Bounding box
+     * @zh 获取孩子的包围盒
+     * @param recursive 是否递归获取所有子对象的包围盒
+     * @param ignoreInvisibles 是否忽略不可见对象 
+     * @param ignoreScale 是否忽略缩放 
+     * @param out （可选）计算结果输出对象 
+     * @returns 包围盒
+     */
+    static getChildrenBounds(sprite: Sprite, recursive?: boolean, ignoreInvisibles?: boolean, ignoreScale?: boolean, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
+        out.setTo(0, 0, 0, 0);
+
+        let children = recursive ? sprite._children : sprite._$children;
+        for (let child of children) {
+            if (ignoreInvisibles && !child._struct.enabled)
+                continue;
+
+            let w = child.width;
+            let h = child.height;
+            if (!ignoreScale) {
+                w *= Math.abs(child._scaleX);
+                h *= Math.abs(child._scaleY);
+            }
+            out.union(tmpRect.setTo(child._x - w * child._anchorX, child._y - h * child._anchorY, w, h), out);
+
+            if (recursive && child._children.length > 0) {
+                let rect = SpriteUtils.getChildrenBounds(child, recursive, ignoreInvisibles, ignoreScale);
+                rect.x += child._x;
+                rect.y += child._y;
+                out.union(rect, out);
+            }
+        }
+        return out;
+    }
 }
+
+const tmpRect = new Rectangle();
+const tmpPoints: Array<number> = [];

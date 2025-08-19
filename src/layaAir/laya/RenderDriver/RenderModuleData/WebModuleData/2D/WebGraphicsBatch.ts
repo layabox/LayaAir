@@ -5,25 +5,24 @@ import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMo
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { Web2DGraphic2DIndexDataView} from "./Web2DGraphic2DBufferDataView";
-import { IBatch2DContext, IBatch2DRender, WebRender2DPass } from "./WebRender2DPass";
+import { Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";;
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { Web2DGraphicsIndexBatchBuffer } from "./Web2DGraphic2DBuffer";
-const TEMP_SINGLE_LIST = new FastSinglelist<number>();
+import { BatchManager, IBatch2DProvider } from "./BatchManager";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
+import { WebRender2DPass } from "./WebRender2DPass";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+
 
 /**
  * 简单的管理indexBuffer
  */
-export class BatchBuffer {
-
-    static _STEP_ = 1024;
-
+class BatchBuffer {
     indexBuffer: IIndexBuffer;
     wholeBuffer: Web2DGraphicsIndexBatchBuffer;
 
@@ -32,8 +31,6 @@ export class BatchBuffer {
 
     bufferStates: Map<IVertexBuffer, IBufferState> = new Map();
 
-    geometryList: IRenderGeometryElement[] = [];
-
     constructor() {
         this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         this.indexBuffer.indexType = IndexFormat.UInt16;
@@ -41,9 +38,32 @@ export class BatchBuffer {
         this.wholeBuffer.buffer = this.indexBuffer;
     }
 
+    add(element: IPrimitiveRenderElement2D) {
+        let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
+        let blocks = handle._getBlocks();
+        if (!blocks)
+            return null;
+
+        let cview = handle.getCloneViews()[element._index] as Web2DGraphic2DIndexDataView;
+        let block = blocks[element._index];
+        let vertexBuffer = block.vertexBuffer;
+        let bufferState = this.bindBuffer(vertexBuffer);
+        this.indexCount += cview.length;
+        this.wholeBuffer._modifyOneView(cview);
+
+        if (cview._geometry.bufferState !== bufferState) {
+            cview._geometry.bufferState = bufferState;
+        }
+
+        WebRender2DPass.setBuffer(this.wholeBuffer);
+        this.updateBufLength();
+
+        return cview._geometry;
+    }
+
     updateBufLength() {
         if (this.maxIndexCount <= this.indexCount) {
-            let nLength = Math.ceil(this.indexCount / BatchBuffer._STEP_) * BatchBuffer._STEP_;
+            let nLength = Math.ceil(this.indexCount / _STEP_) * _STEP_;
             let byteLength = nLength * 2;
             this.indexBuffer._setIndexDataLength(byteLength);
             this.wholeBuffer._resetData(byteLength);
@@ -64,7 +84,6 @@ export class BatchBuffer {
     clear() {
         this.indexCount = 0;
         this.wholeBuffer.clearBufferViews();
-        this.geometryList.length = 0;
     }
 
     destroy(): void {
@@ -81,54 +100,32 @@ export class BatchBuffer {
 }
 
 /**
- * @internal
  * 批次上下文，用于跟踪批次的状态信息
  */
 class BatchContext {
     /** 批次使用的贴图ID */
     textureId: number = 0;
-
     /** 批次的透明度 */
     globalAlpha: number = 1;
-
     /** 批次的clip信息 */
     clipInfo: any = null;
-
     /** 批次的shader */
     subShader: any = null;
-
     /** 批次的bufferState */
     bufferState: any = null;
-
-    shaderData: any = null;
-
+    primitiveShaderData: any = null;
+    materialShaderData: any = null;
     type: number = 0;
-
     lowType: number = 0;
-
     globalRenderData: any = null;
-
-    /**
-     * 重置批次上下文
-     */
-    reset(): void {
-        this.textureId = 0;
-        this.globalAlpha = 1;
-        this.clipInfo = null;
-        this.subShader = null;
-        this.bufferState = null;
-        this.shaderData = null;
-        this.type = 0;
-        this.lowType = 0;
-        this.globalRenderData = null;
-    }
 
     /**
      * 从渲染元素初始化批次上下文
      */
-    initFromElement(element: IPrimitiveRenderElement2D): void {
+    setHead(element: IPrimitiveRenderElement2D): void {
         this.textureId = element.type & (~63);
-        this.shaderData = element.primitiveShaderData;
+        this.primitiveShaderData = element.primitiveShaderData;
+        this.materialShaderData = element.materialShaderData;
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.subShader = element.subShader;
@@ -142,6 +139,9 @@ class BatchContext {
      * 检查元素是否与批次兼容
      */
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
+        if (this.type & 32)
+            return false;
+
         // 快速检查：最容易变化的属性先检查
         let elementType = element.type;
 
@@ -154,8 +154,18 @@ class BatchContext {
         let elementTexId = elementType & (~63);
         let elementOwner = element.owner as WebRenderStruct2D;
 
+        // 如果元素存在texRange，则不能批次化
+        if (element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE)) {
+            return false;
+        }
+
         // 检查低位类型（最常见的不匹配）
         if (this.lowType !== elementLowType) {
+            return false;
+        }
+
+        // 检查材质 自定义材质直接比对 shaderdata
+        if (this.lowType & 16 && element.materialShaderData !== this.materialShaderData) {
             return false;
         }
 
@@ -177,7 +187,7 @@ class BatchContext {
             // 批次还没有确定贴图，接受任何贴图并更新状态
             if (elementTexId !== 0) {
                 this.textureId = elementTexId;
-                this.shaderData = element.primitiveShaderData;
+                this.primitiveShaderData = element.primitiveShaderData;
             }
             return true;
         }
@@ -187,64 +197,14 @@ class BatchContext {
     }
 }
 
+/**
+ * @ignore
+ */
+export class WebGraphicsBatch implements IBatch2DProvider {
+    _buffer: BatchBuffer;
+    _merged: Array<IPrimitiveRenderElement2D>;
+    _context: BatchContext;
 
-export class WebGraphicsBatchContext implements IBatch2DContext {
-    /** @internal */
-    _batchBuffer = new BatchBuffer();
-
-    /** @internal */
-    private _list = new FastSinglelist<IPrimitiveRenderElement2D>();
-
-    constructor() {
-    }
-
-    reset(): void {
-        this._batchBuffer.clear();
-        let elements = this._list.elements;
-        let length = this._list.length;
-        let elementLength = elements.length;
-        for (let i = 0; i < elementLength; i++) {
-            let element = elements[i];
-            element.geometry.clearRenderParams();
-            if (i >= length) {
-                WebGraphicsBatch._pool.recover(element);
-            }
-        }
-        this._list.clean();
-        this._list.length = 0;
-    }
-
-    getRenderElement(): IPrimitiveRenderElement2D {
-        let elemetLength = this._list.elements.length;
-        let length = this._list.length;
-        let element: IPrimitiveRenderElement2D = null;
-        if (elemetLength > length) {
-            element = this._list.elements[length];
-            this._list.length++;
-            return element;
-        } else {
-            element = WebGraphicsBatch._pool.take();
-            this._list.add(element);
-        }
-        return element;
-    }
-
-    destroy(): void {
-        let elements = this._list.elements;
-        let elementLength = elements.length;
-        for (let i = 0; i < elementLength; i++) {
-            let element = elements[i];
-            WebGraphicsBatch._pool.recover(element);
-        }
-        this._list.destroy();
-        this._batchBuffer.destroy();
-    }
-}
-
-
-export class WebGraphicsBatch implements IBatch2DRender {
-    static instance: WebGraphicsBatch = null;
-    static batchCtx = new BatchContext();
     static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(
         () => { //create
             let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
@@ -255,7 +215,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
             return element;
         },
         null,
-        (element: IPrimitiveRenderElement2D) => { //reset
+        element => { //reset
             element.geometry.clearRenderParams();
             element.geometry.bufferState = null;
             element.materialShaderData = null;
@@ -267,105 +227,89 @@ export class WebGraphicsBatch implements IBatch2DRender {
             element.globalShaderData = null;
         });
 
-
-    createBatchContext(): IBatch2DContext {
-        return new WebGraphicsBatchContext();
+    constructor() {
+        this._buffer = new BatchBuffer();
+        this._merged = [];
+        this._context = new BatchContext();
     }
 
-    batchRenderElement(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, context: WebGraphicsBatchContext): void {
+    reset() {
+        this._buffer.clear();
+        WebGraphicsBatch._pool.recover(this._merged);
+    }
+
+    destroy(): void {
+        this._buffer.destroy();
+        WebGraphicsBatch._pool.recover(this._merged);
+    }
+
+    batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, end: number, allowReorder?: boolean): void {
         let elementArray = list.elements;
-        let batchStart = -1;
-        let count = 0;
-        let end = length - 1;
-        let batchContext = WebGraphicsBatch.batchCtx; // 批次上下文
-        batchContext.reset();
+        let ctx = this._context;
+        ctx.setHead(elementArray[start]);
+        let batchStart = start;
 
-        for (let index = 0; index <= end; index++) {
-            let offset = start + index;
-            let element = elementArray[offset];
+        for (let i = start + 1; i <= end; i++) {
+            let element = elementArray[i];
+            if (ctx.isCompatible(element))
+                continue;
 
-            if (this.canAddToBatch(element, batchContext)) {
-                if (batchStart == -1) {
-                    // 开始新批次
-                    batchStart = index;
-                    count = 1;
-                    batchContext.initFromElement(element);
-                } else {
-                    // 添加到当前批次
-                    count++;
-                }
-            } else {
-                // 无法加入当前批次，结束当前批次
-                if (count > 1) {
-                    this.batch(list, batchStart + start, count, context, batchContext);
-                } else if (count === 1) {
-                    list.add(elementArray[batchStart + start]);
-                }
-
-                // 重置批次状态
-                batchContext.reset();
-                batchStart = -1;
-                count = 0;
-
-                // 尝试用当前元素开始新批次
-                if (this.canAddToBatch(element, batchContext)) {
-                    batchStart = index;
-                    count = 1;
-                    batchContext.initFromElement(element);
-                } else {
-                    // 当前元素无法形成批次（可能有clip等），直接添加
-                    list.add(element);
+            if (allowReorder) {
+                for (let j = i + 1; j <= end; j++) {
+                    let element2 = elementArray[j];
+                    if (ctx.isCompatible(element2)) {
+                        for (let k = j - 1; k >= i; k--) {
+                            if (element2.owner.dcBounds.intersects(elementArray[k].owner.dcBounds)) {
+                                element2 = null;
+                                break;
+                            }
+                        }
+                        if (element2 != null) {
+                            elementArray.splice(j, 1);
+                            elementArray.splice(i, 0, element2);
+                            element = elementArray[++i];
+                        }
+                    }
                 }
             }
+
+            if (i - batchStart > 1)
+                this.merge(list, batchStart, i - 1, ctx);
+            else
+                this.addSingle(list, elementArray[batchStart]);
+
+            batchStart = i;
+            ctx.setHead(element);
         }
 
-        // 处理最后的批次
-        if (count > 1) {
-            this.batch(list, batchStart + start, count, context, batchContext);
-        } else if (count === 1) {
-            list.add(elementArray[batchStart + start]);
-        }
+        if (end - batchStart > 1)
+            this.merge(list, batchStart, end, ctx);
+        else
+            this.addSingle(list, elementArray[batchStart]);
     }
 
-    /**
-     * @en Check if an element can be added to the current batch.
-     * @param element The render element to check.
-     * @param batchContext The batch context for current batch.
-     * @returns True if the element can be added to the batch, false otherwise.
-     * @zh 检测元素是否可以加入当前批次。
-     * @param element 要检测的渲染元素。
-     * @param batchContext 当前批次的上下文。
-     * @returns 如果元素可以加入批次则返回 true，否则返回 false。
-     */
-    canAddToBatch(element: IPrimitiveRenderElement2D, batchContext: BatchContext): boolean {
-        if (batchContext.subShader === null) {
-            let elementType = element.type;
-            // 有clip标记的元素不能批次化
-            if (elementType & 32) return false;
-            return true;
-        }
-        return batchContext.isCompatible(element);
+    private addSingle(list: FastSinglelist<IPrimitiveRenderElement2D>, element: IPrimitiveRenderElement2D) {
+        this._buffer.add(element);
+        list.add(element);
     }
 
-    batch(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, length: number, context: WebGraphicsBatchContext, batchContext: BatchContext): void {
+    private merge(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BatchContext): void {
         let elementArray = list.elements;
-        let staticBatchRenderElement = context.getRenderElement();
+        let staticBatchRenderElement = WebGraphicsBatch._pool.take();
+        this._merged.push(staticBatchRenderElement);
         let drawArray: number[][] = [];
-        let i = 0;
         let drawLengths: number[] = [];
-        let buffer = context._batchBuffer;
 
-        for (i = 0; i < length; i++) {
-            let offset = start + i;
-            let element = elementArray[offset];
-            let geometry = buffer.geometryList[offset] || element.geometry;
-            if (!i) {
+        for (let i = start; i <= end; i++) {
+            let element = elementArray[i];
+            let geometry = this._buffer.add(element) || element.geometry;
+            if (i === start) {
                 staticBatchRenderElement.geometry.bufferState = geometry.bufferState;
                 staticBatchRenderElement.materialShaderData = element.materialShaderData;
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
-                staticBatchRenderElement.primitiveShaderData = batchContext.shaderData;
+                staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
             }
 
@@ -380,7 +324,7 @@ export class WebGraphicsBatch implements IBatch2DRender {
         let currentCount = 0;
         let isFirst = true;
 
-        for (i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             let drawParam = drawArray[i];
             let drawLength = drawLengths[i];
             for (let j = 0; j < drawLength; j += 2) {
@@ -412,45 +356,9 @@ export class WebGraphicsBatch implements IBatch2DRender {
 
         list.add(staticBatchRenderElement);
     }
-
-    prepare(strcut: WebRenderStruct2D, context: WebGraphicsBatchContext, offset: number): void {
-        let handle = strcut.renderDataHandler as WebPrimitiveDataHandle;
-        let blocks = handle._getBlocks();
-        if (!blocks) return
-
-        let buffer = context._batchBuffer;
-        let cviews = handle.getCloneViews();
-        for (let i = 0, n = blocks.length; i < n; i++) {
-            let cview = cviews[i] as Web2DGraphic2DIndexDataView;
-            let block = blocks[i];
-            let vertexBuffer = block.vertexBuffer;
-            let bufferState = buffer.bindBuffer(vertexBuffer);
-            buffer.indexCount += cview.length;
-            buffer.wholeBuffer._modifyOneView(cview);
-
-            if (cview._geometry.bufferState !== bufferState) {
-                cview._geometry.bufferState = bufferState;
-            }
-
-            buffer.geometryList[offset + i] = cview._geometry;
-        }
-
-        WebRender2DPass.setBuffer(buffer.wholeBuffer);
-        buffer.updateBufLength();
-    }
-
-    /**
-     * 
-     */
-    recover(list: FastSinglelist<IPrimitiveRenderElement2D>): void {
-        let length = list.length;
-        let recoverArray = list.elements;
-        for (let i = 0; i < length; i++) {
-            let info = recoverArray[i];
-            WebGraphicsBatch._pool.recover(info);
-        }
-        list.length = 0;
-    }
-
 }
 
+const TEMP_SINGLE_LIST = new FastSinglelist<number>();
+const _STEP_ = 1024;
+
+BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);

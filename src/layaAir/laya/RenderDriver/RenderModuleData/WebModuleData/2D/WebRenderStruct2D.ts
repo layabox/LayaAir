@@ -12,7 +12,7 @@ import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode"
 import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { Stat } from "../../../../utils/Stat";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { Vector2 } from "../../../../maths/Vector2";
+import { Sprite } from "../../../../display/Sprite";
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
@@ -43,10 +43,12 @@ interface StructTransform {
 
 export class WebRenderStruct2D implements IRenderStruct2D {
 
+   owner: Sprite;
+
    //2d 渲染组织流程数据
    zIndex: number = 0;
 
-   rect: Rectangle = new Rectangle(0, 0, 0, 0);
+   rect: Rectangle = new Rectangle();
 
    renderLayer: number = 1;
 
@@ -58,6 +60,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    renderType: number = -1;
 
    renderUpdateMask: number = 0;
+
+   //自动优化dc相关
+   dcOptimize: boolean;
+   dcOptimizeEnd: WebRenderStruct2D;
+   dcBounds = new Rectangle();
+   dcBoundsTarget: WebRenderStruct2D;
 
    public get renderMatrix(): Matrix {
       return this.trans.matrix;
@@ -106,8 +114,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._updateBlendMode();
       this.updateChildren(ChildrenUpdateType.Blend);
    }
-
-   private _destroyed: boolean = false;
 
    /** @internal */
    needUploadClip = -1;
@@ -189,15 +195,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    _clipInfo: IClipInfo = null;
 
    // RenderNode
-   private _rnUpdateCall: any = null;
    private _rnUpdateFun: any = null;
 
-
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      this._rnUpdateCall = call;
-      this._rnUpdateFun = renderUpdateFun;
+   setRenderUpdateCallback(func: Function): void {
+      this._rnUpdateFun = func;
    }
-
 
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
@@ -475,16 +477,14 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
 
       if (this._rnUpdateFun) {
-         this._rnUpdateFun.call(this._rnUpdateCall, context);
+         this._rnUpdateFun(context);
       }
    }
 
    destroy(): void {
-      this._destroyed = true;
       this._clipInfo = null;
       this._parentClipInfo = null;
       this._clipRect = null;
-      this.renderElements.length = 0;
       this.renderElements = null;
       this.spriteShaderData = null;
       this.parent = null;
