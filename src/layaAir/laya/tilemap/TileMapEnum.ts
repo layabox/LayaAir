@@ -54,7 +54,7 @@ export enum TileMapDirtyFlag {
     LAYER_PHYSICS = 1 << 12,
 }
 
-export enum DirtyFlagType{
+export enum DirtyFlagType {
     ALL = -1,
     RENDER,
     PHYSICS,

@@ -771,7 +771,7 @@ export class Stage extends Sprite {
         if (this.renderingEnabled) {
 
             this._runComponents();
-            
+
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
                 this._scene2Ds[i]._update();
             }
@@ -882,6 +882,8 @@ export class Stage extends Sprite {
         this._tranMatrixUpdateList.clear();
 
         Stat.render();
+
+        Stat.render2DCount++;
     }
 
     private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {

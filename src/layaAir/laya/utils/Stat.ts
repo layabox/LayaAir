@@ -4,7 +4,7 @@ import { StatisticsElement } from "../layagl/StatisticsContext";
 import { Browser } from "./Browser";
 import type { StatUI } from "./StatUI";
 
-export type StatUnit = "M" | "ms"|"K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
+export type StatUnit = "M" | "ms" | "K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
 export type StatColor = "yellow" | "white" | "red";//颜色
 
 export interface StatUIParams {
@@ -144,6 +144,12 @@ export class Stat {
      * @zh 主舞台 Stage 的渲染次数计数。
      */
     public static loopCount: number = 0;
+
+    /**
+     * @en Count of rendering loops of the main stage Stage.
+     * @zh 主舞台 Stage 的渲染次数计数。
+     */
+    public static render2DCount: number = 0;
 
     /**
      * @en Number of times the canvas has used standard rendering.

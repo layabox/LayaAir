@@ -64,6 +64,7 @@ class TileSetLoader implements IResourceLoader {
 }
 
 export class TileMapDatasParse {
+
     static read(buffer: ArrayBuffer) {
         let byte = new Byte(buffer);
         byte.pos = 0;
@@ -80,7 +81,8 @@ export class TileMapDatasParse {
             for (let j = 0; j < length; j++) {
                 let localId = byte.readUint32();
                 let gid = byte.readUint32();
-                tiles.push(localId, gid);
+                let transFlag = byte.readUint32();
+                tiles.push(localId, gid, transFlag);
             }
 
             let chunkInfos = { x, y, length, tiles };

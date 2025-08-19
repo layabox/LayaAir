@@ -8,7 +8,7 @@ import { Material } from "../resource/Material";
 import { Sprite } from "../display/Sprite";
 import { Grid } from "./grid/Grid";
 import { TileMapChunk } from "./TileMapChunk";
-import { ChunkCellInfo, TileMapChunkData } from "./TileMapChunkData";
+import { ChunkCellInfo, IMergeCellInfo, TileMapChunkData } from "./TileMapChunkData";
 import { TileMapShaderInit } from "./shader/TileMapShaderInit";
 import { TileSet } from "./TileSet";
 import { TileMapPhysics } from "./TileMapPhysics";
@@ -265,7 +265,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         const maxVec = TempVector2_2;
         maxVec.setValue(-Number.MIN_VALUE, -Number.MIN_VALUE);
 
-        let mergeDatas = new Map<number, Map<number, TileSetCellData>>();
+        let mergeDatas = new Map<number, Map<number, IMergeCellInfo>>();
         // let orginLength = 0;
         let allDatas: TileMapChunkData[] = [];
 
@@ -388,7 +388,7 @@ export class TileMapLayer extends BaseRenderNode2D {
 
     onDestroy(): void {
         super.onDestroy();
-        this._tileMapPhysics
+        this._tileMapPhysics.destroy();
         this._tileMapOccluder.destroy();
     }
 
@@ -581,9 +581,10 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param x 横向坐标
      * @param y 纵向坐标
      * @param cellData 格子数据
+     * @param transFlag 位操作
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
-    setCellData(x: number, y: number, cellData: TileSetCellData, isPixel: boolean = true) {
+    setCellData(x: number, y: number, cellData: TileSetCellData, transFlag: number = 0, isPixel: boolean = true) {
         //根据位置生成 TileMapChunkData
         //调用 TileMapChunkData._update
         //将生成的所有的renderelement2D添加到组件的renderElement
@@ -596,7 +597,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
 
         let chunkData = this._getLayerDataTileByPos(tempVec3.x, tempVec3.y);
-        chunkData._setCell(tempVec3.z, cellData);
+        chunkData._setCell(tempVec3.z, cellData, transFlag);
         this.owner?.repaint();
     }
 

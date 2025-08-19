@@ -10,8 +10,25 @@ const BYTE_POS_GROUP = 16;
 const BYTE_MASK_CELL = 0xff << BYTE_POS_CELL;
 const BYTE_MASK_GROUP = 0xff << BYTE_POS_GROUP;
 const BYTE_MASK_NATIVE = 0xffff;
+
+const BYTE_MASK_ROTATECOUNT = 0x07;
+const BYTE_MASK_FLIP_H = 0x08;
+const BYTE_MASK_FLIP_V = 0x10;
+const BYTE_MASK_TRANSPOSE = 0x20;
+
+// transFlag 组成 rotateCount + flip_h << 3 + flip_v << 4 + transpose << 5
 // gid组成，需要回收机制 (CellData.id << 24)  |  group.id << 16  | NativeData 的x + y * x;
 export class TileMapUtils {
+
+    private static CACHE_UVs: Map<string, Vector4> = new Map();
+
+    public static getRotateCount(transFlag: number): number { return transFlag & BYTE_MASK_ROTATECOUNT; }
+
+    public static getFlipH(transFlag: number): boolean { return (transFlag & BYTE_MASK_FLIP_H) != 0; }
+
+    public static getFlipV(transFlag: number): boolean { return (transFlag & BYTE_MASK_FLIP_V) != 0; }
+
+    public static getTranspose(transFlag: number): boolean { return (transFlag & BYTE_MASK_TRANSPOSE) != 0; }
 
     //获得CellIndex
     public static parseCellIndex(gid: number): number { return (gid & BYTE_MASK_CELL) >> 24; }
@@ -57,6 +74,35 @@ export class TileMapUtils {
         return Math.PI * 2 * rotateCount / maxCount;
     }
 
+
+    /**
+     * 获得transFlag
+     * @param rotateCount 旋转次数
+     * @param flip_h 水平翻转
+     * @param flip_v 垂直翻转
+     * @param transpose 斜角翻转
+     * @returns 
+     */
+    public static getTransFlag(rotateCount: number, flip_h: boolean, flip_v: boolean, transpose: boolean): number {
+        return rotateCount << 0 | (flip_h ? 1 : 0) << 3 | (flip_v ? 1 : 0) << 4 | (transpose ? 1 : 0) << 5;
+    }
+
+    public static parseTransFlag(tileshape: TileShape, transFlag: number): Vector4 {
+        let key = transFlag + "_" + tileshape;
+        let cache = this.CACHE_UVs.get(key);
+        if (cache) {
+            return cache;
+        }
+        let flip_h = this.getFlipH(transFlag);
+        let flip_v = this.getFlipV(transFlag);
+        let transpose = this.getTranspose(transFlag);
+        let rotateCount = this.getRotateCount(transFlag);
+        cache = new Vector4();
+        this.getUvRotate(tileshape, flip_h, flip_v, transpose, rotateCount, cache);
+        this.CACHE_UVs.set(key, cache);
+        return cache;
+    }
+
     /**
     * 对格子进行uv翻转
     * 先做45度斜角翻转，然后再做水平或者垂直翻转,最后再旋转 (六边形旋转每次旋转60度，四边形旋转每次旋转90度)
@@ -65,7 +111,7 @@ export class TileMapUtils {
     * @param transpose 斜角翻转
     * @param rountCount 旋转次数
     */
-    public static getUvRotate(tileshape: TileShape, flip_h: boolean = false, flip_v: boolean = false, transpose: boolean = false, rountCount: number = 0): Vector4 {
+    public static getUvRotate(tileshape: TileShape, flip_h: boolean = false, flip_v: boolean = false, transpose: boolean = false, rountCount: number = 0, out = Vector4.TEMP): Vector4 {
         let vx = 1;
         let vy = transpose ? -1 : 1;
         const dx = (vx + vy) * 0.5;
@@ -75,7 +121,6 @@ export class TileMapUtils {
         let rotate = -this.getRotateAngle(rountCount, tileshape);
         const cos = Math.cos(rotate);
         const sin = Math.sin(rotate);
-        let out = Vector4.TEMP;
         out.x = cos * vx * dx - sin * vx * dy;
         out.y = cos * vy * dy - sin * vy * dx;
         out.z = sin * vx * dx + cos * vx * dy;
@@ -105,18 +150,4 @@ export class TileMapUtils {
         return keys.length > 0 ? keys[keys.length - 1] + 1 : 0;
     }
 
-    public static findCellData(nativeData: TileAlternativesData, rotateCount: number, flipV: boolean, flipH: boolean): TileSetCellData {
-        let datas = nativeData._tileDatas;
-        for (const key in datas) {
-            let data = datas[key];
-            if (
-                data.rotateCount == rotateCount
-                && data.flip_h == flipH
-                && data.flip_v == flipV
-            ) {
-                return data;
-            }
-        }
-        return null;
-    }
 }
