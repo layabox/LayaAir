@@ -143,6 +143,6 @@ export class GLRenderDrawContext extends GLObject {
             default:
                 break;
         }
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_DrawCall, length);
+        LayaGL.statAgent.recordCTData(StatisticsElement.CT_DrawCall, length / 2);
     }
 }
