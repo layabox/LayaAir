@@ -282,7 +282,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             ctx.setHead(element);
         }
 
-        if (end - batchStart > 1)
+        if (end - batchStart > 0)
             this.merge(list, batchStart, end, ctx);
         else
             this.addSingle(list, elementArray[batchStart]);

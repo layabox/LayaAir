@@ -37,8 +37,8 @@ export class StatUI {
         sp.addChild(leftText);
 
         strArray.length = 0;
-        strArray.push("FPS:");
-        strArray.push("FPS Time:");
+        strArray.push("FPS");
+        strArray.push("FPS Time");
         for (let one of this._view)
             strArray.push(one.title);
         leftText.text = strArray.join("\n");
