@@ -71,7 +71,14 @@ export class GraphicsRenderData {
 
    private _bufferBlocks: IGraphics2DBufferBlock[] = [];
 
+   owner: Sprite;
+
+   constructor(owner: Sprite) {
+      this.owner = owner;
+   }
+
    clear(): void {
+
       let len = this._submits.length;
       let i = 0;
       for (i = 0; i < len; i++) {
@@ -84,12 +91,26 @@ export class GraphicsRenderData {
 
    destroy(): void {
       this.clear();
+
+      let material = this.owner.material;
+      let elements = this._renderElements;
+      for (let i = 0; i < elements.length; i++) {
+         if (material) {
+            material._removeOwnerElement(elements[i]);
+         }
+         GraphicsRenderData._pool.recover(elements[i]);
+      }
+      elements.length = 0;
+
       let submits = this._submits.elements;
       for (let i = 0; i < this._submits.length; i++) {
          submits[i].destroy();
       }
       this._submits.destroy();
       this._submits = null;
+
+      this.owner = null;
+
    }
 
    /**
@@ -176,30 +197,17 @@ export class GraphicsRenderData {
 
    // TODO
    private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
-      element.type = 0;
-
-      let key = submit._key.blendShader; // max 15
-
-      // @ts-ignore
-      element.type |= (key); // 15
-
-      let useCustomMaterial = !!submit.material;
-      // @ts-ignore
-      element.type |= useCustomMaterial << 4;
-
-      let mc = !useCustomMaterial && submit._internalInfo.materialClip;
-      // @ts-ignore
-      element.type |= mc << 5;
-
-      let texture: BaseTexture = null;
+      let useCustomMaterial = submit.material ? 1 : 0;
+      let mc = (useCustomMaterial === 0 && submit._internalInfo.materialClip) ? 1 : 0;
+      let texture: BaseTexture;
       let textureHost = submit._internalInfo.textureHost;
-      if (textureHost) {
+      if (textureHost)
          texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
-      }
 
-      let texKey = texture ? texture.id : 0;
-
-      element.type |= texKey << 6;
+      element.type = submit._key.blendShader
+         | (useCustomMaterial << 4) //16
+         | (mc << 5) //32
+         | ((texture ? texture.id : 0) << 6); //64
    }
 
    setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
@@ -286,8 +294,20 @@ export class SubStructRender {
       rect.cloneTo(this._rtRect);
       let originPass = this._subRenderPass;
       let matrix = originPass.offsetMatrix;
-      matrix.tx = rect.x;
-      matrix.ty = rect.y;
+      if (this._sprite.mask) {
+         let mask = this._sprite.mask;
+         let transform = mask.transform;
+         if (transform) {
+            transform.cloneTo(matrix)
+         }
+         matrix.invert();
+      } else {
+         matrix.identity();
+      }
+
+      matrix.tx = matrix.a * rect.x + matrix.c * rect.y + matrix.tx;
+      matrix.ty = matrix.b * rect.x + matrix.d * rect.y + matrix.ty;
+
       originPass.offsetMatrix = matrix;
    }
 

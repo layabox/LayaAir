@@ -402,6 +402,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this.spineItem)
             this.spineItem.destroy();
 
+        this._struct.renderElements = [];
+        this._struct.setRepaint();
+
         if (!this._useFastRender) {
             let before = SketonOptimise.normalRenderSwitch;
             SketonOptimise.normalRenderSwitch = true;

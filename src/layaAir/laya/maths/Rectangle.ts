@@ -1,5 +1,6 @@
 import { IClone } from "../utils/IClone";
 import { Pool } from "../utils/Pool";
+import { Matrix } from "./Matrix";
 
 /**
  * @en The `Rectangle` object is an area defined by its position, as indicated by its top-left corner point (x, y), and by its width and height.
@@ -256,6 +257,52 @@ export class Rectangle implements IClone {
         this.width *= scaleX;
         this.height *= scaleY;
         return this;
+    }
+
+    /**
+     * @en Transforms a rectangle with a transformation matrix.
+     * @param mat The transform matrix to be applied.
+     * @returns This object. 
+     * @zh 使用变换矩阵转换矩形。
+     * @param mat 变换矩阵。
+     * @returns 本对象。
+     */
+    transform(mat: Matrix, out?: Rectangle): Rectangle {
+        // 获取变换矩阵的分量
+        let a = mat.a, b = mat.b, c = mat.c, d = mat.d;
+
+        // 计算变换后的左上角和右下角
+        let x1 = this.x;
+        let y1 = this.y;
+        let x2 = x1 + this.width;
+        let y2 = y1 + this.height;
+
+        // 预计算四个基础变换值
+        let tx1 = x1 * a;
+        let tx2 = x2 * a;
+        let ty1 = y1 * c;
+        let ty2 = y2 * c;
+
+        let px1 = x1 * b;
+        let px2 = x2 * b;
+        let py1 = y1 * d;
+        let py2 = y2 * d;
+
+        // 计算包围盒
+        let minX = Math.min(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let maxX = Math.max(tx1 + ty1, tx1 + ty2, tx2 + ty1, tx2 + ty2);
+        let minY = Math.min(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+        let maxY = Math.max(px1 + py1, px1 + py2, px2 + py1, px2 + py2);
+
+        // 设置新的包围盒,加上mask的位置偏移
+        if (!out)
+            out = new Rectangle();
+        return out.setTo(
+            minX,
+            minY,
+            maxX - minX,
+            maxY - minY
+        );
     }
 
     /**

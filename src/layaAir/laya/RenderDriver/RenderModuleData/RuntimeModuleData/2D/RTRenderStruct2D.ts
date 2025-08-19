@@ -10,8 +10,8 @@ import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
-import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { Stat } from "../../../../utils/Stat";
+import { Sprite } from "../../../../display/Sprite";
 
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
@@ -50,6 +50,11 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
 export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
+
+   owner: Sprite;
+   dcOptimize: boolean;
+   dcBounds = new Rectangle();
+   dcBoundsTarget: RTRenderStruct2D;
 
    private _zIndex: number = 0;
    set zIndex(value: number) {
@@ -150,12 +155,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set blendMode(value: BlendMode) {
-      if (value == BlendMode["destination-out"]) {
-         this._blendMode = BlendMode.destinationOut;
-      }
-      else {
-         this._blendMode = value;
-      }
+      this._blendMode = value;
       this._nativeObj.blendMode = this._blendMode;
    }
 
@@ -247,20 +247,11 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this.isRenderStruct = false;
    }
 
-   // RenderNode
-   // private _rnUpdateCall: any = null;
-   private _rnUpdateFun: any = null;
-
-
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      if (renderUpdateFun) {
-         this._rnUpdateFun = renderUpdateFun.bind(call);
-         this._nativeObj.setRenderUpdate(this._rnUpdateFun);
-      }
-      else {
-         this._rnUpdateFun = null;
+   setRenderUpdateCallback(func: Function): void {
+      if (func)
+         this._nativeObj.setRenderUpdate(func);
+      else
          this._nativeObj.setRenderUpdate(null);
-      }
    }
    setClipRect(rect: Rectangle): void {
       this._nativeObj.setClipRect(rect);

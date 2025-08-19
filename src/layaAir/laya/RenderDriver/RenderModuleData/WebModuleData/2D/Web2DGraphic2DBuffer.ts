@@ -36,7 +36,6 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
 
         if (!this._first) {
             this._first = view;
-            this._first.start = 0;
         }
 
         if (this._last) {
@@ -206,6 +205,11 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
             view.start = view._prev.start + view._prev.length;
         } else {
             view.start = 0;
+        }
+        
+        if (view._geometry) {
+            view._geometry.clearRenderParams();
+            view._geometry.setDrawElemenParams(view.length, view.start * 2);
         }
         super._modifyOneView(view);
     }

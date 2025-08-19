@@ -340,6 +340,7 @@ export class SpriteGlobalTransform {
             this._flags &= ~type;
 
         if (value) {
+            this._sp._struct.dcBoundsTarget = null;
             this._sp.event(SpriteGlobalTransform.CHANGED, type);
             if (notify) {
                 this._notifyRenderSpriteTransChange();
