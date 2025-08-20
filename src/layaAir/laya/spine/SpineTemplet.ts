@@ -207,11 +207,11 @@ export class SpineTemplet extends Resource {
 
         let skeleton = this.sketonOptimise.sketon;
         let rootBone = skeleton.getRootBone();
-        rootBone.x = this.offsetX;
-        rootBone.y = this.offsetY;
-
         this.offsetX = this.skeletonData.x + this.width - rootBone.x;
         this.offsetY = -(this.skeletonData.y + this.height - rootBone.y);
+
+        rootBone.x = this.offsetX;
+        rootBone.y = this.offsetY;
     }
 
     /**
