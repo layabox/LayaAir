@@ -2249,7 +2249,9 @@ export class Sprite extends Node {
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
             //local
-            rect.transform(this._mask.transform, rect);
+            if (rect && this._mask.transform) {
+                rect.transform(this._mask.transform, rect);
+            }
         }
         else {
             SpriteUtils.getRect(this, false, rect);
