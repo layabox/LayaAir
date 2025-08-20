@@ -1234,7 +1234,7 @@ export class Scene3D extends Sprite {
                 camera.render(this);
 
                 if (!camera._offScreenRenderTexture) {
-                    this.blitMainCanvans(camera._internalRenderTexture, camera.normalizedViewport, camera);
+                    this.blitMainCanvas(camera._internalRenderTexture, camera.normalizedViewport, camera);
                 }
 
                 // if (!camera._cacheDepth) {
@@ -1255,7 +1255,7 @@ export class Scene3D extends Sprite {
      * @param camera
      * @returns
      */
-    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
+    blitMainCanvas(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)
             return;
         Scene3D.mainCavansViewPort.x = RenderContext3D.clientWidth * normalizeViewPort.x | 0;
@@ -1320,7 +1320,7 @@ export class Scene3D extends Sprite {
                 maps[i].lightmapColor = lightMap;
             }
         } else {
-            throw new Error("Scene3D: value value can't be null.");
+            throw new Error("lightmap can't be null.");
         }
     }
 
