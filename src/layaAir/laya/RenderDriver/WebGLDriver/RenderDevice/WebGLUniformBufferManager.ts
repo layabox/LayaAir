@@ -1,6 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { UniformBufferManager } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferManager";
 import { WebGLEngine } from "./WebGLEngine";
@@ -33,7 +33,7 @@ export class WebGLUniformBufferManager extends UniformBufferManager {
         buffer.bindBuffer();
         let gl = <WebGL2RenderingContext>this.engine.gl;
         gl.bufferSubData(buffer._glTarget, offset, new Float32Array(data, offset, size / 4));
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_UBOBufferUploadCount, 1);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_UBOBufferUploadMemory, size / 1048576);
+        LayaGL.statAgent.recordCTData(StatElement.CT_UBOBufferUploadCount, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_UBOBufferUploadMemory, size / 1048576);
     }
 }

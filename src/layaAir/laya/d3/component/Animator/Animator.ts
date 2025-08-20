@@ -28,7 +28,7 @@ import { AnimatorStateCondition } from "../../../components/AnimatorStateConditi
 import { Delegate } from "../../../utils/Delegate";
 import { Browser } from "../../../utils/Browser";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -1434,7 +1434,7 @@ export class Animator extends Component {
         }
         this._LateUpdateEvents.invoke();
         this._LateUpdateEvents.clear();
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_AnimatorUpdate, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_AnimatorUpdate, Browser.now() - t);
     }
 
     /**

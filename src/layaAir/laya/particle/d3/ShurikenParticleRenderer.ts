@@ -8,7 +8,7 @@ import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { LayaGL } from "../../layagl/LayaGL";
-import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -353,12 +353,12 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     protected _statAdd() {
         super._statAdd();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_ShurikenParticleRenderCount, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_ShurikenParticleRenderCount, 1);
     }
 
     protected _statRemove() {
         super._statRemove();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_ShurikenParticleRenderCount, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_ShurikenParticleRenderCount, -1);
     }
 
 }

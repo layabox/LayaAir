@@ -7,7 +7,7 @@ import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { VertexElement } from "../../../renders/VertexElement";
@@ -159,7 +159,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
             let element = list.elements[i];
             element._render(this);//render
         }
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_2DDrawCall, list.length);
+        LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, list.length);
         LayaGL.renderEngine._framePassCount++;
         return 0;
     }
@@ -190,7 +190,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
     drawRenderElementOne(node: WebGLRenderElement2D): void {
         node._prepare(this);
         node._render(this);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_2DDrawCall, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, 1);
         LayaGL.renderEngine._framePassCount++;
     }
 

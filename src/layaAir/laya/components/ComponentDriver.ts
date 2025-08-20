@@ -1,5 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL";
-import { StatisticsElement } from "../layagl/StatisticsContext";
+import { StatElement } from "../layagl/StatisticsContext";
 import { Browser } from "../utils/Browser";
 import { Component } from "./Component";
 
@@ -53,7 +53,7 @@ export class ComponentDriver {
                 }
             }
         }
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_ScriptUpdateTime, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_ScriptUpdateTime, Browser.now() - t);
     }
 
     /**
@@ -73,7 +73,7 @@ export class ComponentDriver {
                 }
             }
         }
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_ScriptLateUpdateTime, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_ScriptLateUpdateTime, Browser.now() - t);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -42,9 +42,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     }
 
     private _changeTexMemory(value: number) {
-        LayaGL.statAgent.recordMemoryData(StatisticsElement.M_GPUMemory, -this._gpuMemory + value);
-        LayaGL.statAgent.recordMemoryData(StatisticsElement.M_RenderTexture, -this._gpuMemory + value);
-        LayaGL.statAgent.recordMemoryData(StatisticsElement.M_ALLTexture, -this._gpuMemory + value);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_GPUMemory, -this._gpuMemory + value);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_RenderTexture, -this._gpuMemory + value);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_ALLTexture, -this._gpuMemory + value);
 
     }
     constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
@@ -63,7 +63,7 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         if (samples > 1) {
             this._msaaFramebuffer = this._gl.createFramebuffer();
         }
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_RenderTexture, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_RenderTexture, 1);
     }
 
 
@@ -87,6 +87,6 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
         this._changeTexMemory(0);
         this._gpuMemory = 0;
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_RenderTexture, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_RenderTexture, -1);
     }
 }

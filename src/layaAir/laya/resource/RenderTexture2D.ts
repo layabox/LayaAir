@@ -6,6 +6,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { NotImplementedError } from "../utils/Error";
+
 /**
  * @en RenderTexture2D class used to create 2D render targets.
  * @zh RenderTexture2D 类用于创建2D渲染目标。
@@ -36,7 +37,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture2D._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat ) {
+            if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat) {
                 rt._inPool = false;
                 let end = RenderTexture2D._pool[n - 1];
                 RenderTexture2D._pool[index] = end;
@@ -80,24 +81,11 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._poolMemory = 0;
     }
 
+    /** @internal */
     static _clearColor: Color = new Color(0, 0, 0, 0);
     /** @internal */
     static _clear: boolean = false;
-    /** @internal */
-    static _clearLinearColor: Color = new Color();
 
-    //为push,pop 用的。以后和上面只保留一份。
-    //由于可能递归，所以不能简单的用save，restore
-    /**
-     * @en Default UV coordinates.
-     * @zh 默认的UV坐标。
-     */
-    static readonly defuv: any[] = [0, 0, 1, 0, 1, 1, 0, 1];
-    /**
-     * @en Default flipped UV coordinates.
-     * @zh 默认翻转的UV坐标。
-     */
-    static readonly flipyuv: any[] = [0, 1, 1, 1, 1, 0, 0, 0];
     /**
      * @en The currently active RenderTexture.
      * @zh 当前激活的渲染纹理。
@@ -114,7 +102,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /**@internal */
     _invertY: boolean = false;
     /** @internal */
-    _inPool:boolean = false;
+    _inPool: boolean = false;
     /**
      * @en Depth format.
      * @zh 深度格式。
@@ -315,7 +303,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
                 pixelArray = new Float32Array(pixelCount);
                 break;
             default:
-                throw "this function is not surpprt " + this._renderTarget.colorFormat.toString() + "format Material";
+                throw new Error("getData is not supported " + this._renderTarget.colorFormat.toString() + "format");
         }
         LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, x, y, width, height, pixelArray);
         return pixelArray;
@@ -357,5 +345,5 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this._renderTarget && this._renderTarget.dispose();
     }
 
-    
+
 }

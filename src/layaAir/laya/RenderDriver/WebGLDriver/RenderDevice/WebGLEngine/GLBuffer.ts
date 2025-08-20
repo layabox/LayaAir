@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../../layagl/StatisticsContext";
+import { StatElement } from "../../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { WebGLEngine } from "../WebGLEngine";
 import { GLObject } from "./GLObject";
@@ -13,8 +13,8 @@ export class GLBuffer extends GLObject {
     //Common Enum
     _glTargetType: BufferTargetType;
     _glBufferUsageType: BufferUsage;
-    private _statistics_M_Buffer: StatisticsElement;
-    private _statistics_RC_Buffer: StatisticsElement;
+    private _statistics_M_Buffer: StatElement;
+    private _statistics_RC_Buffer: StatElement;
     //size
     _byteLength: number = 0;
 
@@ -28,19 +28,19 @@ export class GLBuffer extends GLObject {
 
         switch (targetType) {
             case BufferTargetType.ARRAY_BUFFER:
-                this._statistics_M_Buffer = StatisticsElement.M_VertexBuffer;
-                this._statistics_RC_Buffer = StatisticsElement.C_VertexBuffer;
+                this._statistics_M_Buffer = StatElement.M_VertexBuffer;
+                this._statistics_RC_Buffer = StatElement.C_VertexBuffer;
                 break;
             case BufferTargetType.ELEMENT_ARRAY_BUFFER:
-                this._statistics_M_Buffer = StatisticsElement.M_IndexBuffer;
-                this._statistics_RC_Buffer = StatisticsElement.C_IndexBuffer;
+                this._statistics_M_Buffer = StatElement.M_IndexBuffer;
+                this._statistics_RC_Buffer = StatElement.C_IndexBuffer;
                 break;
             case BufferTargetType.UNIFORM_BUFFER:
-                this._statistics_M_Buffer = StatisticsElement.M_UBOBuffer;
-                this._statistics_RC_Buffer = StatisticsElement.C_UBOBuffer;
+                this._statistics_M_Buffer = StatElement.M_UBOBuffer;
+                this._statistics_RC_Buffer = StatElement.C_UBOBuffer;
                 break;
         }
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_GPUBuffer, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_GPUBuffer, 1);
         LayaGL.statAgent.recordCountData(this._statistics_RC_Buffer, 1);
     }
 
@@ -78,8 +78,8 @@ export class GLBuffer extends GLObject {
     }
 
     private _memorychange(bytelength: number) {
-        LayaGL.statAgent.recordMemoryData(StatisticsElement.M_GPUBuffer, -this._byteLength + bytelength);
-        LayaGL.statAgent.recordMemoryData(StatisticsElement.M_GPUMemory, -this._byteLength + bytelength);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_GPUBuffer, -this._byteLength + bytelength);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_GPUMemory, -this._byteLength + bytelength);
         LayaGL.statAgent.recordMemoryData(this._statistics_M_Buffer, -this._byteLength + bytelength);
     }
 
@@ -118,7 +118,7 @@ export class GLBuffer extends GLObject {
         let gl = this._gl;
         this.bindBuffer();
         gl.bufferSubData(this._glTarget, offset, srcData);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_BufferUploadCount, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_BufferUploadCount, 1);
         this.unbindBuffer();
     }
 
@@ -126,7 +126,7 @@ export class GLBuffer extends GLObject {
         let gl = this._gl;
         this.bindBuffer();
         gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_BufferUploadCount, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_BufferUploadCount, 1);
         this.unbindBuffer();
     }
 
@@ -173,7 +173,7 @@ export class GLBuffer extends GLObject {
         const gl = this._gl;
         gl.deleteBuffer(this._glBuffer);
         this._memorychange(0);
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_GPUBuffer, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_GPUBuffer, -1);
         LayaGL.statAgent.recordCountData(this._statistics_RC_Buffer, -1);
         this._byteLength = 0;
         this._engine = null;

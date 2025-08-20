@@ -55,7 +55,7 @@ import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboa
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
 import { Browser } from "../../utils/Browser";
 import { LayaGL } from "../../layagl/LayaGL";
-import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { StatElement } from "../../layagl/StatisticsContext";
 
 const tempV3 = new Vector3();
 
@@ -2307,7 +2307,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 this.addNewParticlesToVertexBuffer();
             this._drawCounter++;
         }
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_ShurikenUpdate, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_ShurikenUpdate, Browser.now() - t);
 
         if (this._firstActiveElement != this._firstFreeElement)
             return true;

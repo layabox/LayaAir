@@ -34,7 +34,7 @@ import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { Browser } from "../utils/Browser";
-import { StatisticsElement } from "../layagl/StatisticsContext";
+import { StatElement } from "../layagl/StatisticsContext";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 

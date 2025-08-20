@@ -7,6 +7,7 @@ import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../layagl/LayaGL";
+import { NotImplementedError } from "../utils/Error";
 import { Resource } from "./Resource";
 
 /**
@@ -283,7 +284,7 @@ export class BaseTexture extends Resource {
             case TextureFormat.R32G32B32A32:
                 return 4;
             default:
-                throw "Texture2D: unknown format.";
+                throw new Error("unknown format.");
         }
     }
 
@@ -299,7 +300,7 @@ export class BaseTexture extends Resource {
      * @zh 默认贴图
      */
     get defaultTexture(): BaseTexture {
-        throw "defaulte"
+        throw new NotImplementedError();
     }
 
     protected _disposeResource(): void {

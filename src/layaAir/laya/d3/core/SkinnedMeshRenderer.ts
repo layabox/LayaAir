@@ -22,7 +22,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Browser } from "../../utils/Browser";
-import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { StatElement } from "../../layagl/StatisticsContext";
 /**
  * @en The `SkinnedMeshRenderer` class is used for skinned mesh rendering.
  * @zh `SkinnedMeshRenderer` 类用于蒙皮网格渲染。
@@ -266,12 +266,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     protected _statAdd() {
         super._statAdd();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_SkinnedMeshRenderCount, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_SkinnedMeshRenderCount, 1);
     }
 
     protected _statRemove() {
         super._statRemove();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_SkinnedMeshRenderCount, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_SkinnedMeshRenderCount, -1);
     }
 
 
@@ -285,7 +285,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         let t = Browser.now();
         super.renderUpdate(context);
         this._isISkinRenderNode() && this._ownerSkinRenderNode.computeSkinnedData();
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_SkinBoneUpdate, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_SkinBoneUpdate, Browser.now() - t);
     }
     _cloneTo(dest: SkinnedMeshRenderer): void {
         //get common parent

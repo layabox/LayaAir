@@ -10,7 +10,7 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
@@ -246,7 +246,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             }
         }
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_ShadowPass, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_ShadowPass, Browser.now() - time);//Stat
 
         renderpass.renderpass.render(context, list, count);
         renderpass._beforeImageEffectCMDS && this._rendercmd(renderpass._beforeImageEffectCMDS, context)
@@ -254,7 +254,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         if (renderpass.enablePostProcess) {
             time = Browser.now();//T_Render_PostProcess Stat
             renderpass.postProcess && this._renderPostProcess(renderpass.postProcess, context);
-            LayaGL.statAgent.recordTimeData(StatisticsElement.T_Render_PostProcess, Browser.now() - time);//Stat
+            LayaGL.statAgent.recordTimeData(StatElement.T_Render_PostProcess, Browser.now() - time);//Stat
         }
         renderpass._afterAllRenderCMDS && this._rendercmd(renderpass._afterAllRenderCMDS, context);
 

@@ -9,7 +9,7 @@ import { Plane } from "../../../d3/math/Plane";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowCullInfo, ShadowSliceData } from "../../../d3/shadowMap/ShadowSliceData";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -183,7 +183,7 @@ export class WebGLDirectLightShadowRP {
             //cull
             var time = Browser.now();//T_ShadowMapCull Stat
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
-            LayaGL.statAgent.recordTimeData(StatisticsElement.T_CullShadow, Browser.now() - time);
+            LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;
@@ -208,7 +208,7 @@ export class WebGLDirectLightShadowRP {
 
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             this._renderQueue.renderQueue(context);
-            LayaGL.statAgent.recordCTData(StatisticsElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
+            LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);

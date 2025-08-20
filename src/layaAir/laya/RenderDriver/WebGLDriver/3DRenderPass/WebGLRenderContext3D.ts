@@ -2,7 +2,7 @@ import { Config } from "../../../../Config";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
@@ -261,7 +261,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_3DDrawCall, list.length);
+        LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, list.length);
         LayaGL.renderEngine._framePassCount++;
         return 0;
     }
@@ -282,7 +282,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             bufferMgr.upload();
         }
         node._render(this);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_3DDrawCall, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, 1);
         LayaGL.renderEngine._framePassCount++;
         return 0;
     }

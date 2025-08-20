@@ -11,7 +11,7 @@ import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { Browser } from "../../utils/Browser";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
@@ -107,7 +107,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         let t = Browser.now();
         super.renderUpdate(context);
         this._computeSkinnedData();
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_SkinBoneUpdate, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_SkinBoneUpdate, Browser.now() - t);
     }
 
     /**

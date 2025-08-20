@@ -6,7 +6,7 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { ShadowSpotData } from "../../../d3/shadowMap/ShadowSliceData";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -105,7 +105,7 @@ export class WebGLSpotLightShadowRP {
         //cull
         var time = Browser.now();//T_ShadowMapCull Stat
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_CullShadow, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);//Stat
 
         context.cameraData = <WebGLShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;;
@@ -121,7 +121,7 @@ export class WebGLSpotLightShadowRP {
 
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._renderQueue.renderQueue(context);
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
+        LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
         this._applyCasterPassCommandBuffer(context);
         this._applyRenderData(context.sceneData, context.cameraData);
         this._renderQueue._batch.recoverData();

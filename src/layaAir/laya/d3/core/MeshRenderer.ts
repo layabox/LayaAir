@@ -20,7 +20,7 @@ import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { Stat } from "../../utils/Stat"
-import { StatisticsElement } from "../../layagl/StatisticsContext"
+import { StatElement } from "../../layagl/StatisticsContext"
 
 
 /**
@@ -238,12 +238,12 @@ export class MeshRenderer extends BaseRender {
 
     protected _statAdd() {
         super._statAdd();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_MeshRenderCount, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_MeshRenderCount, 1);
     }
 
     protected _statRemove() {
         super._statRemove();
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_MeshRenderCount, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_MeshRenderCount, -1);
     }
 
     /**

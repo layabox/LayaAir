@@ -1,7 +1,7 @@
 import { Browser } from "../utils/Browser";
 
 
-export enum StatisticsElement {
+export enum StatElement {
     //----------------------------module time Start------------------
     /**
      * fps
@@ -202,29 +202,29 @@ export interface IStaticsContext {
      * @param element 
      * @param data 
      */
-    recordCountData(element: StatisticsElement, data: number): void;
+    recordCountData(element: StatElement, data: number): void;
     /**
      * 帧数据 会累计输出平均值（比如drawCall）
      * @param element 
      * @param data 
      */
-    recordCTData(element: StatisticsElement, data: number): void;
+    recordCTData(element: StatElement, data: number): void;
     /**
      * 记录时间统计数据
      * @param element
      * @param data
      */
-    recordTimeData(element: StatisticsElement, data: number): void;
+    recordTimeData(element: StatElement, data: number): void;
     /**
      * 记录内存统计数据
      */
-    recordMemoryData(element: StatisticsElement, data: number): void;
+    recordMemoryData(element: StatElement, data: number): void;
     /**
      * 获取统计数据
      * @param element 
      * @returns 
      */
-    getElementData(element: StatisticsElement): number;
+    getElementData(element: StatElement): number;
     /**
      * 开始帧逻辑
      */
@@ -242,9 +242,9 @@ export interface IStaticsContext {
 
 export class DefaultStaticsContext implements IStaticsContext {
 
-    protected _tQueue: Set<StatisticsElement> = new Set();
-    protected _ctQueue: Set<StatisticsElement> = new Set();
-    protected statArray: Float32Array;
+    protected _tQueue: Set<StatElement> = new Set();
+    protected _ctQueue: Set<StatElement> = new Set();
+    protected _statArray: Float32Array;
     protected _timeArray: Float32Array;//因为可能会计算时间的均值
     protected _cacheCount: number = 0;
     protected _cacheTime: number = 0;
@@ -254,13 +254,13 @@ export class DefaultStaticsContext implements IStaticsContext {
     }
 
     protected _createStatBuffer() {
-        this.statArray = new Float32Array(StatisticsElement.StatEnd);
-        this._timeArray = new Float32Array(StatisticsElement.StatEnd);
+        this._statArray = new Float32Array(StatElement.StatEnd);
+        this._timeArray = new Float32Array(StatElement.StatEnd);
     }
     constructor() {
         this._createStatBuffer();
-        for (let i = 0; i < StatisticsElement.StatEnd; i++) {
-            const elementName = StatisticsElement[i];
+        for (let i = 0; i < StatElement.StatEnd; i++) {
+            const elementName = StatElement[i];
             if (!elementName) continue;
             if (elementName.startsWith("T_")) {
                 this._tQueue.add(i);
@@ -272,36 +272,36 @@ export class DefaultStaticsContext implements IStaticsContext {
 
     cloneTo(context: IStaticsContext): void {
         // 将所有以C_和M_开头的统计项设置到新的staticsContext
-        for (let i = 0; i < StatisticsElement.StatEnd; i++) {
-            const elementName = StatisticsElement[i];
+        for (let i = 0; i < StatElement.StatEnd; i++) {
+            const elementName = StatElement[i];
             if (!elementName) continue;
             if (elementName.startsWith("C_")) {
                 // 复制计数和内存相关的数据
-                (context).recordCountData(i, this.statArray[i]);
+                (context).recordCountData(i, this._statArray[i]);
             } else if (elementName.startsWith("M_")) {
-                (context).recordMemoryData(i, this.statArray[i] * 1024 * 1024);
+                (context).recordMemoryData(i, this._statArray[i] * 1024 * 1024);
             }
         }
     }
 
-    recordCountData(element: StatisticsElement, data: number): void {
-        this.statArray[element] += data;
+    recordCountData(element: StatElement, data: number): void {
+        this._statArray[element] += data;
     }
 
-    recordTimeData(element: StatisticsElement, data: number): void {
+    recordTimeData(element: StatElement, data: number): void {
         this._timeArray[element] += data;
     }
 
-    recordCTData(element: StatisticsElement, data: number): void {
+    recordCTData(element: StatElement, data: number): void {
         this._timeArray[element] += data;
     }
 
-    recordMemoryData(element: StatisticsElement, data: number): void {
-        this.statArray[element] += data / 1024 / 1024;
+    recordMemoryData(element: StatElement, data: number): void {
+        this._statArray[element] += data / 1024 / 1024;
     }
 
-    getElementData(element: StatisticsElement): number {
-        return this.statArray[element];
+    getElementData(element: StatElement): number {
+        return this._statArray[element];
     }
 
 
@@ -320,15 +320,15 @@ export class DefaultStaticsContext implements IStaticsContext {
 
 
         for (let element of this._tQueue) {
-            this.statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
+            this._statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
             this._timeArray[element] = 0;
         }
         for (let element of this._ctQueue) {
-            this.statArray[element] = this._timeArray[element] / this._cacheCount;
+            this._statArray[element] = this._timeArray[element] / this._cacheCount;
             this._timeArray[element] = 0;
         }
-        this.statArray[StatisticsElement.T_FPS_Frame] = Math.round(fps);
-        this.statArray[StatisticsElement.T_FPS_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
+        this._statArray[StatElement.T_FPS_Frame] = Math.round(fps);
+        this._statArray[StatElement.T_FPS_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
 
         this._cacheTime = time;
         this._cacheCount = 0;

@@ -21,7 +21,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { XML } from "../html/XML";
 import { Browser } from "../utils/Browser";
 import { LayaGL } from "../layagl/LayaGL";
-import { StatisticsElement } from "../layagl/StatisticsContext";
+import { StatElement } from "../layagl/StatisticsContext";
 
 export interface ILoadTask {
     readonly type: string;
@@ -646,7 +646,7 @@ export class Loader extends EventDispatcher {
         let promise: Promise<any>;
 
         try {
-            LayaGL.statAgent.recordCountData(StatisticsElement.C_LoadRequestCount, 1);
+            LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
             this._tempTime = Browser.now();
             promise = assetLoader.load(task);
         }
@@ -657,7 +657,7 @@ export class Loader extends EventDispatcher {
         }
 
         return promise.then(content => {
-            LayaGL.statAgent.recordTimeData(StatisticsElement.T_LoadResourceTime, Browser.now() - this._tempTime);
+            LayaGL.statAgent.recordTimeData(StatElement.T_LoadResourceTime, Browser.now() - this._tempTime);
             if (content instanceof Resource) {
                 content.obsolute = false;
                 content._setCreateURL(url, uuid);
@@ -766,7 +766,7 @@ export class Loader extends EventDispatcher {
     private download(item: DownloadItem) {
         this._downloadings.add(item);
         Loader.LoaderStat_LoadRequestCount++;
-        LayaGL.statAgent.recordCountData(StatisticsElement.C_LoadRequestCount, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
         item.startTime = Browser.now();
         let url = URL.postFormatURL(item.url);
 
@@ -822,7 +822,7 @@ export class Loader extends EventDispatcher {
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
         this._downloadings.delete(item);
-        LayaGL.statAgent.recordTimeData(StatisticsElement.T_LoadRequestTime, Browser.now() - item.startTime);
+        LayaGL.statAgent.recordTimeData(StatElement.T_LoadRequestTime, Browser.now() - item.startTime);
         if (content) {
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());

@@ -13,14 +13,14 @@ export class WebGLBufferState implements IBufferState {
         this._glVertexState = WebGLEngine.instance.createVertexState();
     }
 
-    
-	private applyVertexBuffers(): void {
-		this._glVertexState.applyVertexBuffer(this._vertexBuffers);
-	}
 
-	protected applyIndexBuffers(): void {
-		this._glVertexState.applyIndexBuffer(this._bindedIndexBuffer);
-	}
+    private applyVertexBuffers(): void {
+        this._glVertexState.applyVertexBuffer(this._vertexBuffers);
+    }
+
+    protected applyIndexBuffers(): void {
+        this._glVertexState.applyIndexBuffer(this._bindedIndexBuffer);
+    }
 
     applyState(vertexBuffers: WebGLVertexBuffer[], indexBuffer: WebGLIndexBuffer): void {
         this._vertexBuffers = vertexBuffers.slice();
@@ -49,7 +49,7 @@ export class WebGLBufferState implements IBufferState {
             this._glVertexState.unbindVertexArray();
             WebGLBufferState._curBindedBufferState = null;
         } else {
-            throw "BufferState: must call bind() function first.";
+            throw new Error("BufferState: must call bind() function first.");
         }
     }
 
@@ -61,7 +61,7 @@ export class WebGLBufferState implements IBufferState {
         if (WebGLBufferState._curBindedBufferState == this) {
             this._glVertexState.unbindVertexArray();
             WebGLBufferState._curBindedBufferState = null;
-        }        
+        }
         this._glVertexState.destroy();
         this._vertexBuffers = null;
         this._bindedIndexBuffer = null;

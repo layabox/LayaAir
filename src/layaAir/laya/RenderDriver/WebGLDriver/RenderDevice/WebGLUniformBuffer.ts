@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "./WebGLEngine";

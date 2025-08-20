@@ -1,6 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../layagl/StatisticsContext";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
@@ -44,7 +44,7 @@ export class WebGLVertexBuffer implements IVertexBuffer {
         } else {
             this._glBuffer.setData(buffer, bufferOffset);
         }
-        LayaGL.statAgent.recordCTData(StatisticsElement.CT_GeometryBufferUploadCount, 1);
+        LayaGL.statAgent.recordCTData(StatElement.CT_GeometryBufferUploadCount, 1);
     }
 
     /**

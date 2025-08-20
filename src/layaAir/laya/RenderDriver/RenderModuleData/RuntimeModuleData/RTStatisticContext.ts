@@ -1,4 +1,4 @@
-import { DefaultStaticsContext, StatisticsElement } from "../../../layagl/StatisticsContext";
+import { DefaultStaticsContext, StatElement } from "../../../layagl/StatisticsContext";
 import { NativeMemory } from "./NativeMemory";
 
 export class RTStatisContext extends DefaultStaticsContext {
@@ -15,9 +15,9 @@ export class RTStatisContext extends DefaultStaticsContext {
 
     protected _createStatBuffer() {
         debugger;
-        this._stateArrayMemory = new NativeMemory(StatisticsElement.StatEnd * 4, false);
-        this.statArray = this._stateArrayMemory.float32Array;
-        this._timeArrayMemory = new NativeMemory(StatisticsElement.StatEnd * 4, false);
+        this._stateArrayMemory = new NativeMemory(StatElement.StatEnd * 4, false);
+        this._statArray = this._stateArrayMemory.float32Array;
+        this._timeArrayMemory = new NativeMemory(StatElement.StatEnd * 4, false);
         this._timeArray = this._timeArrayMemory.float32Array;
     }
 }

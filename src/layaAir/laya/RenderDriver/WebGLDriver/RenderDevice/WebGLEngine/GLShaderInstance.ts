@@ -1,6 +1,6 @@
 import { ShaderVariable } from "../../../../RenderEngine/RenderShader/ShaderVariable";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { StatisticsElement } from "../../../../layagl/StatisticsContext";
+import { StatElement } from "../../../../layagl/StatisticsContext";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
@@ -242,7 +242,7 @@ export class GLShaderInstance extends GLObject {
         this._gl.useProgram(this._program);
         this._engine._glUseProgram = this;
         //不知道准不准
-       LayaGL.statAgent.recordCTData(StatisticsElement.CT_ShaderChange, 1);
+       LayaGL.statAgent.recordCTData(StatElement.CT_ShaderChange, 1);
         return true;
     }
 

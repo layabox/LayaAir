@@ -1,6 +1,6 @@
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
-import { StatisticsElement } from "../../layagl/StatisticsContext";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { Browser } from "../../utils/Browser";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { IInstanceRenderBatch, IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -38,7 +38,7 @@ export class RenderListQueue {
         if (!this._isTransparent) {
             let time = Browser.now();
             this._batch.batch(this._elements);
-            LayaGL.statAgent.recordTimeData(StatisticsElement.T_3DBatchTime, Browser.now() - time);
+            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, Browser.now() - time);
         }
     }
 
@@ -51,7 +51,7 @@ export class RenderListQueue {
         const count = this._elements.length;
         this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
-        LayaGL.statAgent.recordCTData(this._isTransparent ? StatisticsElement.CT_TransDrawCall : StatisticsElement.CT_OpaqueDrawCall, this.elements.length)
+        LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
         this._batch.clearRenderData();
     }
     /**
