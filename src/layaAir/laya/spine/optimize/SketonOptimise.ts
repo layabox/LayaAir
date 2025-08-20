@@ -133,19 +133,13 @@ export class SketonOptimise {
     /**
      * @en Check and initialize the main attachment.
      * @param skeletonData The skeleton data to check.
-     * @param offsetX The x offset of the spine.
-     * @param offsetY The y offset of the spine.
      * @zh 检查并初始化主附件。
      * @param skeletonData 要检查的骨骼数据。
-     * @param offsetX spine的x偏移。
-     * @param offsetY spine的y偏移。
      */
-    checkMainAttach(skeletonData: spine.SkeletonData, offsetX: number, offsetY: number) {
+    checkMainAttach(skeletonData: spine.SkeletonData) {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
-        let rootBone = this.sketon.getRootBone();
-        rootBone.x = offsetX;
-        rootBone.y = offsetY;
+
         //@ts-ignore
         this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类
