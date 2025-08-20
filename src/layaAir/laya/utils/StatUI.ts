@@ -10,10 +10,9 @@ import { Stat } from "./Stat";
 
 interface StatUIParams {
     value: StatElement,//对应Stat的数据
-    color: "yellow" | "white" | "red",//显示颜色
-    unit: "" | "M" | "ms" | "K" | "int" //显示单位
+    fractionDigits: number,//小数位数
+    unit: "" | "M" | "ms" | "K" //显示单位
 }
-
 
 /** @ignore */
 export class StatUI {
@@ -41,6 +40,7 @@ export class StatUI {
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
         leftText.fontSize = fontSize;
+        leftText.stroke = 1;
         sp.addChild(leftText);
 
         let rightText = this._txt = new Text();
@@ -48,6 +48,7 @@ export class StatUI {
         rightText.pos(100, 5);
         rightText.color = "#ffffff";
         rightText.fontSize = fontSize;
+        rightText.stroke = 1;
         sp.addChild(rightText);
 
         sp.graphics.clear();
@@ -55,16 +56,6 @@ export class StatUI {
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
     }
 
-    /**
-     * @en Display the performance statistics.
-     * @param x The X-axis display position. 
-     * @param y The Y-axis display position.
-     * @param views The UI parameter array for displaying statistics.
-     * @zh 显示性能统计信息。
-     * @param x X轴显示位置。
-     * @param y Y轴显示位置。
-     * @param views 用于显示统计信息的UI参数数组。
-     */
     show(): void {
         //转换为_view
         this._items = new Array();
@@ -76,22 +67,17 @@ export class StatUI {
             let title = name.replace(/^(T_|C_|M_|CT_)/, "").replace(/_/g, " ");
             // 解析单位和显示模式
             let unit: StatUIParams["unit"] = "";
-            if (name == "T_FPS_Frame") {
-                title = "FPS";
-                unit = "int";
-            }
-            else if (name.startsWith("CT_") || name.startsWith("C_"))
-                unit = "int";
-            else if (name.startsWith("M_")) {
+            let fractionDigits = 3;
+            if (name.startsWith("CT_") || name.startsWith("C_"))
+                fractionDigits = 0;
+            else if (name.startsWith("M_"))
                 unit = "M";
-            }
-            else if (name.startsWith("T_")) {
+            else if (name.startsWith("T_"))
                 unit = "ms";
-            }
             this._items.push({
                 value: element,
-                unit: unit,
-                color: "white"
+                fractionDigits,
+                unit
             });
             strArray.push(title);
         }
@@ -103,20 +89,15 @@ export class StatUI {
         this._sp.size(this._title.textWidth + 100, this._title.textHeight + 10);
     }
 
-    /**
-     * @en Update the performance statistics.
-     * @zh 更新性能统计信息。
-     */
     update(): void {
         strArray.length = 0;
         for (let i = 0; i < this._items.length; i++) {
             let item: StatUIParams = this._items[i];
             let datavalue = LayaGL.statAgent.getElementData(item.value);
-            if (item.unit === "int") {
-                strArray.push(Math.floor(datavalue).toString());
-            } else {
-                strArray.push(datavalue.toFixed(3) + " " + item.unit);
-            }
+            let str = datavalue.toFixed(item.fractionDigits).replace(digitPattern, '$1');
+            if (str == "-0")
+                str = "0";
+            strArray.push(str + " " + item.unit);
         }
         this._txt.text = strArray.join("\n");
     }
@@ -128,5 +109,6 @@ export class StatUI {
 
 const fontSize: number = 16;
 const strArray: Array<string> = [];
+const digitPattern = /\.0*$|(\.\d*[1-9])0+$/;
 
 Stat._statUIClass = StatUI;

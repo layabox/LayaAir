@@ -241,14 +241,6 @@ export class Loader extends EventDispatcher {
      * @zh Spine 资源。
      */
     static readonly SPINE = "SPINE";
-    // Loader ResourceTime  
-
-    /**
-     * @en Number of network file requests.
-     * @zh 网络文件请求次数。
-     * @readonly
-     */
-    static LoaderStat_LoadRequestCount: number;//网络文件请求次数
 
     /**
      * @en Number of retry attempts after loading fails, default is 1.
@@ -646,7 +638,7 @@ export class Loader extends EventDispatcher {
         let promise: Promise<any>;
 
         try {
-            LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
+            LayaGL.statAgent.recordCountData(StatElement.C_LoadResourceCount, 1);
             this._tempTime = Browser.now();
             promise = assetLoader.load(task);
         }
@@ -765,7 +757,6 @@ export class Loader extends EventDispatcher {
 
     private download(item: DownloadItem) {
         this._downloadings.add(item);
-        Loader.LoaderStat_LoadRequestCount++;
         LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
         item.startTime = Browser.now();
         let url = URL.postFormatURL(item.url);

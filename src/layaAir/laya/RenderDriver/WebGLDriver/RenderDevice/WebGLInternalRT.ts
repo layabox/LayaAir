@@ -44,7 +44,7 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     private _changeTexMemory(value: number) {
         LayaGL.statAgent.recordMemoryData(StatElement.M_GPUMemory, -this._gpuMemory + value);
         LayaGL.statAgent.recordMemoryData(StatElement.M_RenderTexture, -this._gpuMemory + value);
-        LayaGL.statAgent.recordMemoryData(StatElement.M_ALLTexture, -this._gpuMemory + value);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_AllTexture, -this._gpuMemory + value);
 
     }
     constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {

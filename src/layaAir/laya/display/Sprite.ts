@@ -33,8 +33,6 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
-import { Browser } from "../utils/Browser";
-import { StatElement } from "../layagl/StatisticsContext";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 

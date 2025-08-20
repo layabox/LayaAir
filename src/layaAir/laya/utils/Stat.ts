@@ -20,7 +20,7 @@ export class Stat {
      * @zh 当前每秒帧数（FPS）。
      */
     public static get FPS() {
-        return LayaGL.statAgent.getElementData(StatElement.T_FPS_Frame);
+        return LayaGL.statAgent.getElementData(StatElement.CT_FPS);
     }
 
     /**
@@ -184,9 +184,9 @@ const defaultElements = [
     StatElement.CT_TransDrawCall,
     StatElement.CT_ShadowDrawCall,
     StatElement.CT_DepthCastDrawCall,
-    StatElement.CT_Instancing_DrawCallCount,
+    StatElement.CT_Instancing_DrawCall,
     StatElement.M_GPUMemory,
-    StatElement.M_ALLTexture,
+    StatElement.M_AllTexture,
     StatElement.M_RenderTexture,
     StatElement.M_GPUBuffer
 ];

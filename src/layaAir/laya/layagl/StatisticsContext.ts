@@ -1,16 +1,15 @@
 import { Browser } from "../utils/Browser";
 
-
 export enum StatElement {
     //----------------------------module time Start------------------
     /**
      * fps
      */
-    T_FPS_Frame,
+    CT_FPS,
     /**
      * frame time
      */
-    T_FPS_Time,
+    T_Frame_Time,
     /**
      * render 3D time
      */
@@ -102,7 +101,7 @@ export enum StatElement {
     /**
      * instance Draw Call
      */
-    CT_Instancing_DrawCallCount,
+    CT_Instancing_DrawCall,
     //----------------------------Draw Call End------------------
     //----------------------------GPU Buffer Resource/MemoryData Start-----------------
     M_GPUBuffer,
@@ -117,8 +116,8 @@ export enum StatElement {
     C_DeviceBuffer,
     //----------------------------GPU Buffer Resource/MemoryData End-----------------
     //----------------------------GPU Texture Resource/MemoryData Start-----------------
-    M_ALLTexture,
-    C_ALLTexture,
+    M_AllTexture,
+    C_AllTexture,
     M_Texture2D,
     C_Texture2D,
     M_TextureCube,
@@ -248,16 +247,9 @@ export class DefaultStaticsContext implements IStaticsContext {
     protected _timeArray: Float32Array;//因为可能会计算时间的均值
     protected _cacheCount: number = 0;
     protected _cacheTime: number = 0;
-    protected _init() {
-        //引擎默认的统计数据列表
 
-    }
-
-    protected _createStatBuffer() {
-        this._statArray = new Float32Array(StatElement.StatEnd);
-        this._timeArray = new Float32Array(StatElement.StatEnd);
-    }
     constructor() {
+        this._cacheTime = Browser.now();
         this._createStatBuffer();
         for (let i = 0; i < StatElement.StatEnd; i++) {
             const elementName = StatElement[i];
@@ -268,6 +260,11 @@ export class DefaultStaticsContext implements IStaticsContext {
             if (elementName.startsWith("CT_"))
                 this._ctQueue.add(i);
         }
+    }
+
+    protected _createStatBuffer() {
+        this._statArray = new Float32Array(StatElement.StatEnd);
+        this._timeArray = new Float32Array(StatElement.StatEnd);
     }
 
     cloneTo(context: IStaticsContext): void {
@@ -304,8 +301,6 @@ export class DefaultStaticsContext implements IStaticsContext {
         return this._statArray[element];
     }
 
-
-
     startFrameLogic(): void {
 
     }
@@ -318,7 +313,6 @@ export class DefaultStaticsContext implements IStaticsContext {
 
         let fps = Math.round(this._cacheCount * 1000) / (time - this._cacheTime);
 
-
         for (let element of this._tQueue) {
             this._statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
             this._timeArray[element] = 0;
@@ -327,12 +321,10 @@ export class DefaultStaticsContext implements IStaticsContext {
             this._statArray[element] = this._timeArray[element] / this._cacheCount;
             this._timeArray[element] = 0;
         }
-        this._statArray[StatElement.T_FPS_Frame] = Math.round(fps);
-        this._statArray[StatElement.T_FPS_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
+        this._statArray[StatElement.CT_FPS] = Math.round(fps);
+        this._statArray[StatElement.T_Frame_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
 
         this._cacheTime = time;
         this._cacheCount = 0;
     }
 }
-
-

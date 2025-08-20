@@ -123,7 +123,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
         this.compareMode = TextureCompareMode.None;
         LayaGL.statAgent.recordCountData(this._statistics_RC_Texture, 1);
-        LayaGL.statAgent.recordCountData(StatElement.C_ALLTexture, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_AllTexture, 1);
     }
 
     private _filterMode: FilterMode;
@@ -310,7 +310,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     private _changeTexMemory(memory: number) {
         LayaGL.statAgent.recordMemoryData(StatElement.M_GPUMemory, -this._gpuMemory + memory);
-        LayaGL.statAgent.recordMemoryData(StatElement.M_ALLTexture, -this._gpuMemory + memory);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_AllTexture, -this._gpuMemory + memory);
         LayaGL.statAgent.recordMemoryData(this._statistics_M_Texture, -this._gpuMemory + memory);
 
     }
@@ -321,6 +321,6 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this._changeTexMemory(0);
         this._gpuMemory = 0;
         LayaGL.statAgent.recordCountData(this._statistics_RC_Texture, -1);
-        LayaGL.statAgent.recordCountData(StatElement.C_ALLTexture, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_AllTexture, -1);
     }
 }
