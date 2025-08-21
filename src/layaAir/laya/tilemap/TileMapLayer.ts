@@ -25,6 +25,7 @@ import { Event } from "../events/Event";
 import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
 import { Area2D } from "../display/Area2D";
 import { Vector4 } from "../maths/Vector4";
+import { TileMapUtils } from "./TileMapUtils";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -581,10 +582,25 @@ export class TileMapLayer extends BaseRenderNode2D {
      * @param x 横向坐标
      * @param y 纵向坐标
      * @param cellData 格子数据
+     * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
+     * @param rotateCount 旋转次数
+     * @param flipH 水平翻转
+     * @param flipV 垂直翻转
+     * @param transpose 斜角翻转
+     */
+    setCellData(x: number, y: number, cellData: TileSetCellData, isPixel: boolean = true, rotateCount: number = 0, flipH: boolean = false, flipV: boolean = false, transpose: boolean = false) {
+        this._setCellData(x, y, cellData, TileMapUtils.getTransFlag(rotateCount, flipH, flipV, transpose), isPixel);
+    }
+
+    /**
+     * 添加一个格子
+     * @param x 横向坐标
+     * @param y 纵向坐标
+     * @param cellData 格子数据
      * @param transFlag 位操作
      * @param isPixel 是否是像素坐标 true: 像素坐标 false: 格子坐标
      */
-    setCellData(x: number, y: number, cellData: TileSetCellData, transFlag: number = 0, isPixel: boolean = true) {
+    _setCellData(x: number, y: number, cellData: TileSetCellData, transFlag: number = 0, isPixel: boolean = true) {
         //根据位置生成 TileMapChunkData
         //调用 TileMapChunkData._update
         //将生成的所有的renderelement2D添加到组件的renderElement
