@@ -154,14 +154,6 @@ export class WebRender2DPass implements IRender2DPass {
          && (this.repaint || !this.renderTexture);
    }
 
-   /**
-    * add Render Node
-    * @param struct 
-    */
-   addStruct(struct: WebRenderStruct2D) {
-      return this._pStructs.add(struct);
-   }
-
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (!struct.enabled) return;
 
@@ -183,7 +175,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       struct.renderUpdate(context2D);
 
-      let list = this.addStruct(struct);
+      let list = this._pStructs.add(struct);
 
       if (struct.stackingRoot) {
          var oldCol = this._pStructs;

@@ -68,7 +68,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _stackingRoot: boolean = false;
    set stackingRoot(value: boolean) {
       this._stackingRoot = value;
-      //todo
       this._nativeObj.stackingRoot = value;
    }
    get stackingRoot(): boolean {
