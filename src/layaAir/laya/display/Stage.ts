@@ -1,8 +1,8 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { SpriteConst, TransformKind } from "./SpriteConst";
-import { NodeFlags, SubPassFlag } from "../Const"
+import { SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
+import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"

@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags, SubPassFlag } from "../Const";
+import { NodeFlags } from "../Const";
 import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
@@ -9,7 +9,7 @@ import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
-import { RepaintFlag, SpriteConst, TransformKind } from "./SpriteConst";
+import { RepaintFlag, SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";

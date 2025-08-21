@@ -3,12 +3,6 @@
  * 静态常量集合
  */
 export class Const {
-    static ENUM_TEXTALIGN_DEFAULT = 0;
-    static ENUM_TEXTALIGN_CENTER = 1;
-    static ENUM_TEXTALIGN_RIGHT = 2;
-
-    static INDEX_BYTES = 2;
-
     static MAX_CLIP_SIZE = 99999999;
 }
 
@@ -67,11 +61,4 @@ export class HideFlags {
      * @zh 对象隐藏且不会保存到场景或预制件中。
      */
     static HideAndDontSave = 0x7;
-}
-
-export enum SubPassFlag {
-    PostProcess = 0x1,
-    CacheAsBitmap = 0x2,
-    Mask = 0x4,
-    RenderTexture = 0x8,
 }

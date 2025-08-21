@@ -126,10 +126,10 @@ export class TextRender extends EventDispatcher {
         var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
-                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
+                nTextAlign = 1;
                 break;
             case 'right':
-                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
+                nTextAlign = 2;
                 break;
         }
         this._fast_filltext(runner, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
@@ -169,10 +169,10 @@ export class TextRender extends EventDispatcher {
 
         //水平对齐方式
         switch (textAlign) {
-            case Const.ENUM_TEXTALIGN_CENTER:
+            case 1:
                 x -= strWidth / 2;
                 break;
-            case Const.ENUM_TEXTALIGN_RIGHT:
+            case 2:
                 x -= strWidth;
                 break;
         }
