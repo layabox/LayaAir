@@ -64,6 +64,17 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    get zIndex(): number {
       return this._zIndex;
    }
+
+   private _stackingRoot: boolean = false;
+   set stackingRoot(value: boolean) {
+      this._stackingRoot = value;
+      //todo
+      this._nativeObj.stackingRoot = value;
+   }
+   get stackingRoot(): boolean {
+      return this._stackingRoot;
+   }
+
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
       value.cloneTo(this._rect);

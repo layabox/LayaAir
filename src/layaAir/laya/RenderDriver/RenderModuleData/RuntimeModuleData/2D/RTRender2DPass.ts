@@ -144,22 +144,6 @@ export class RTRender2DPass implements IRender2DPass {
    }
 
    /**
-    * add Render Node
-    * @param object 
-    */
-   addStruct(object: RTRenderStruct2D): void {
-      this._nativeObj.addStruct(object._nativeObj);
-   }
-
-   /**
-    * remove Render Node
-    * @param object 
-    */
-   removeStruct(object: RTRenderStruct2D): void {
-      this._nativeObj.removeStruct(object._nativeObj);
-   }
-
-   /**
     * pass 2D 渲染
     * @param context 
     */

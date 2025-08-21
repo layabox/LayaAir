@@ -23,6 +23,8 @@ export interface IRenderStruct2D {
 
    //-----2d 渲染组织流程数据-----
    zIndex: number;
+   stackingRoot: boolean; //是否是堆叠根节点
+
    //TODO
    rect: Rectangle;
 

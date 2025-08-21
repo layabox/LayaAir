@@ -18,15 +18,55 @@ import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { SpriteUtils } from "../../../../utils/SpriteUtils";
 import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { LayaEnv } from "../../../../../LayaEnv";
+import { Pool } from "../../../../utils/Pool";
+import { NodeFlags } from "../../../../Const";
 
+class SortedStructs {
+   readonly lists: Map<number, FastSinglelist<WebRenderStruct2D>> = new Map();
 
-const _TEMP_InvertMatrix = new Matrix();
+   private _indice = new Set<number>;
+   private _sortedIndice: Array<number> = [];
+
+   add(struct: WebRenderStruct2D) {
+      let list = this.lists.get(struct._effectZ);
+      if (!list)
+         this.lists.set(struct._effectZ, list = new FastSinglelist<WebRenderStruct2D>());
+      list.add(struct);
+      if (list.length === 1)
+         this._indice.add(struct._effectZ);
+      return list;
+   }
+
+   reset() {
+      this._indice.forEach(i => this.lists.get(i).clear());
+      this._indice.clear();
+      this._sortedIndice.length = 0;
+   }
+
+   get indice(): ReadonlyArray<number> {
+      let arr = this._sortedIndice;
+      if (arr.length === 0) {
+         for (let zIndex of this._indice) {
+            arr.push(zIndex);
+         }
+         arr.sort((a, b) => a - b);
+      }
+      return arr;
+   }
+
+   appendTo(out: FastSinglelist<WebRenderStruct2D>) {
+      this.indice.forEach(zIndex => out.addList(this.lists.get(zIndex)));
+   }
+}
+
 export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
 
    private _renderElements = new FastSinglelist<IRenderElement2D>();
    private _elementGroups: Array<any> = [];
-   private _structs: FastSinglelist<WebRenderStruct2D>[] = [];
+   private _structs: SortedStructs = new SortedStructs();
+   private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
+   private _pStructs: SortedStructs;
    private _batchProviders: IBatch2DProvider[] = [];
 
    _priority: number = 0;
@@ -102,7 +142,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-      this._renderElements = new FastSinglelist<IRenderElement2D>();
    }
 
    /**
@@ -119,20 +158,8 @@ export class WebRender2DPass implements IRender2DPass {
     * add Render Node
     * @param struct 
     */
-   addStruct(struct: WebRenderStruct2D): void {
-      (this._structs[struct.zIndex] || (this._structs[struct.zIndex] = new FastSinglelist<WebRenderStruct2D>()))
-         .add(struct);
-   }
-
-   /**
-    * remove Render Node
-    * @param struct 
-    */
-   removeStruct(struct: WebRenderStruct2D): void {
-      let zOrder = struct.zIndex;
-      if (this._structs[zOrder]) {
-         this._structs[zOrder].remove(struct);
-      }
+   addStruct(struct: WebRenderStruct2D) {
+      return this._pStructs.add(struct);
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
@@ -156,17 +183,28 @@ export class WebRender2DPass implements IRender2DPass {
 
       struct.renderUpdate(context2D);
 
-      this.addStruct(struct);
+      let list = this.addStruct(struct);
+
+      if (struct.stackingRoot) {
+         var oldCol = this._pStructs;
+         this._pStructs = this._structsPool.take();
+      }
 
       for (let i = 0, n = struct.children.length; i < n; i++) {
          const child = struct.children[i];
+         child._effectZ = child.zIndex + struct._effectZ;
          this.cullAndSort(context2D, child);
       }
 
       if (struct.dcOptimize) {
-         let descendants = this._structs[struct.zIndex];
-         let last = descendants.length - 1;
-         struct.dcOptimizeEnd = descendants.elements[last];
+         let last = list.length - 1;
+         struct.dcOptimizeEnd = list.elements[last];
+      }
+
+      if (oldCol) {
+         this._pStructs.appendTo(list);
+         this._structsPool.recover(this._pStructs);
+         this._pStructs = oldCol;
       }
    }
 
@@ -178,13 +216,14 @@ export class WebRender2DPass implements IRender2DPass {
       this._initRenderProcess(context);
 
       if (this.repaint) {
-         this._structs.forEach(list => list.length = 0);
+         this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
             this._batchProviders[i]?.reset();
          }
 
          if (this.root) {
+            this._pStructs = this._structs;
             this.cullAndSort(context, this.root);
             this.fillRenderElements();
             this._enableBatch && LayaEnv.isPlaying && this.batch();
@@ -204,7 +243,8 @@ export class WebRender2DPass implements IRender2DPass {
             this.postProcess._context.command.apply(true);
          }
       } else {
-         this._structs.forEach(list => {
+         this._structs.indice.forEach(index => {
+            let list = this._structs.lists.get(index);
             for (let i = 0, cnt = list.length; i < cnt; i++) {
                let struct = list.elements[i];
                struct._handleInterData();
@@ -225,10 +265,13 @@ export class WebRender2DPass implements IRender2DPass {
       let reorderRoot: WebRenderStruct2D;
       let renderElements = this._renderElements;
 
-      this._structs.forEach(list => {
+      this._structs.indice.forEach(index => {
+         let list = this._structs.lists.get(index);
          for (let i = 0, cnt = list.length; i < cnt; i++) {
             let struct = list.elements[i];
             let n = struct.renderElements ? struct.renderElements.length : 0;
+            if (struct.owner._getBit(NodeFlags.HIDE_BY_EDITOR)) //Editor only code, native should ignore
+               n = 0;
 
             if (struct.dcOptimize && !reorderRoot && struct.dcOptimizeEnd !== struct) {
                reorderRoot = struct;
@@ -418,7 +461,6 @@ export class WebRender2DPass implements IRender2DPass {
          return;
       }
       this.destroyed = true;
-      this._structs.length = 0;
       this._renderElements.length = 0;
       for (let i = 0, n = this._batchProviders.length; i < n; i++) {
          this._batchProviders[i] && this._batchProviders[i].destroy();
@@ -472,3 +514,5 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       this._modify = true;
    }
 }
+
+const _TEMP_InvertMatrix = new Matrix();

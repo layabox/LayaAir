@@ -47,6 +47,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    //2d 渲染组织流程数据
    zIndex: number = 0;
+   //加上父节点的zindex后的最终zIndex值
+   _effectZ: number = 0;
+   stackingRoot = false;
 
    rect: Rectangle = new Rectangle();
 

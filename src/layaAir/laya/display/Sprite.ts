@@ -33,6 +33,7 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
+import { MathUtil } from "../maths/MathUtil";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -164,10 +165,6 @@ export class Sprite extends Node {
      * @zh z排序，数值越大越靠前。
      */
     _zOrder: number = 0;
-    /**
-     * @internal 
-     */
-    _zIndex: number = 0;
     /**
      * @internal 
      */
@@ -1085,14 +1082,23 @@ export class Sprite extends Node {
      * @zh z渲染排序，会修改当前对象的渲染顺序。值越大，越靠上。默认值为 0。
      */
     get zIndex(): number {
-        return this._zIndex;
+        return this._struct.zIndex;
     }
 
     set zIndex(value: number) {
-        if (this._zIndex != value) {
-            this._zIndex = value;
-            this._struct.zIndex = value;
-        }
+        this._struct.zIndex = value;
+    }
+
+    /**
+     * @en Whether it is a stacking root node. When a node is set as a stacking root node, the rendering order of all child nodes will be sorted within this node without affecting the outside.
+     * @zh 是否为堆叠根节点。当一个节点设置为堆叠根节点时，所有子节点的渲染顺序将在此节点内部排序，而不会影响外部。
+     */
+    get stackingRoot(): boolean {
+        return this._struct.stackingRoot;
+    }
+
+    set stackingRoot(value: boolean) {
+        this._struct.stackingRoot = value;
     }
 
     /**

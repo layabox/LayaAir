@@ -26,12 +26,8 @@ export interface IRender2DPass {
 
    needRender(): boolean;
    setClearColor(r: number, g: number, b: number, a: number): void;
-   addStruct(object: IRenderStruct2D): void;
-   removeStruct(object: IRenderStruct2D): void;
    fowardRender(context: IRenderContext2D): void;
-   //render(context: IRenderContext2D): void;
    destroy(): void;
-   //setBuffer(buffer: I2DGraphicWholeBuffer): void;
 }
 
 /** @ignore @blueprintIgnore */

@@ -34,6 +34,23 @@ export class SingletonList<T> {
     }
 
     /**
+     * @en Adds all elements from another SingletonList to this list.
+     * @param list The SingletonList containing elements to add.
+     * @zh 将另一个 SingletonList 中的所有元素添加到此列表中。
+     * @param list 要添加元素的 SingletonList。
+     */
+    addList(list: SingletonList<T>): void {
+        let len = this.length;
+        let len2 = list.length;
+        this.length = len + len2;
+        if (this.elements.length < this.length)
+            this.elements.length = this.length;
+        for (let i = 0; i < len2; i++) {
+            this.elements[len + i] = list.elements[i];
+        }
+    }
+
+    /**
      * @en Finds the index of an element in the list.
      * @param element The element to find.
      * @zh 在列表中查找元素的索引。
