@@ -18,8 +18,12 @@ import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { SpriteUtils } from "../../../../utils/SpriteUtils";
 import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { LayaEnv } from "../../../../../LayaEnv";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Pool } from "../../../../utils/Pool";
 import { NodeFlags } from "../../../../Const";
+
+import { WebGraphicsBatch } from "./WebGraphicsBatch";
+BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
 class SortedStructs {
    readonly lists: Map<number, FastSinglelist<WebRenderStruct2D>> = new Map();

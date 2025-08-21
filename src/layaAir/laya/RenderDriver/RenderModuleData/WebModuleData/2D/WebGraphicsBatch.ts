@@ -361,4 +361,3 @@ export class WebGraphicsBatch implements IBatch2DProvider {
 const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 const _STEP_ = 1024;
 
-BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
