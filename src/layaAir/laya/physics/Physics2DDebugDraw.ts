@@ -29,7 +29,7 @@ export class Physics2DDebugDraw extends Sprite {
     /**@internal */
     protected _mG: Graphics;
 
-    protected _lineWidth: number = 1;
+    protected _lineWidth: number = 3;
 
     private _matrix: Matrix = new Matrix();
 
