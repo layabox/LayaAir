@@ -52,9 +52,34 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    _nativeObj: any;
 
    owner: Sprite;
-   dcOptimize: boolean;
-   dcBounds = new Rectangle();
-   dcBoundsTarget: RTRenderStruct2D;
+   private _dcOptimize: boolean = false;
+   public get dcOptimize(): boolean {
+      return this._dcOptimize;
+   }
+   public set dcOptimize(value: boolean) {
+      this._dcOptimize = value;
+      // 暂时屏蔽
+      // this._nativeObj.setDcOptimize(value);
+   }
+
+   private _dcBounds = new Rectangle();
+   public get dcBounds(): Rectangle {
+      return this._dcBounds;
+   }
+
+   public set dcBounds(value: Rectangle) {
+      this._dcBounds = value;
+      this._nativeObj.setDcBounds(value);
+   }
+
+   private _dcBoundsTarget: RTRenderStruct2D;
+   public get dcBoundsTarget(): RTRenderStruct2D {
+      return this._dcBoundsTarget;
+   }
+   public set dcBoundsTarget(value: RTRenderStruct2D) {
+      this._dcBoundsTarget = value;
+      this._nativeObj.setDcBoundsTarget(value ? value._nativeObj : null);
+   }
 
    private _zIndex: number = 0;
    set zIndex(value: number) {
