@@ -769,6 +769,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         this._renderElements.length = 0;
 
         if (!this.sharedMaterial) {
+            this._struct.renderElements = this._renderElements;
             return;
         }
 
@@ -797,6 +798,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             let element = createRenderElement(geometry);
             this._renderElements.push(element);
         }
+        this._struct.renderElements = this._renderElements;
     }
 
     private _updateParticleBuffer(startActive: number, endActive: number) {
