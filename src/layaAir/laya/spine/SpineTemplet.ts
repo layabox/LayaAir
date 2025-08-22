@@ -46,12 +46,12 @@ export class SpineTemplet extends Resource {
      * @en X-axis offset of spine animation
      * @zh spine 动画X轴偏移
      */
-    offsetX: number;
+    offsetX: number = 0;
     /**
      * @en Y-axis offset of spine animation
      * @zh spine 动画Y轴偏移
      */
-    offsetY: number;
+    offsetY: number = 0;
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -207,9 +207,10 @@ export class SpineTemplet extends Resource {
 
         let skeleton = this.sketonOptimise.sketon;
         let rootBone = skeleton.getRootBone();
-        this.offsetX = this.skeletonData.x + this.width - rootBone.x;
+        // this.offsetX = rootBone.x;
+        // this.offsetY = rootBone.y;
+        this.offsetX = this.skeletonData.x + this.width + rootBone.x;
         this.offsetY = -(this.skeletonData.y + this.height - rootBone.y);
-
         rootBone.x = this.offsetX;
         rootBone.y = this.offsetY;
     }
