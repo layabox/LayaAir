@@ -40,7 +40,6 @@ export class StatUI {
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
         leftText.fontSize = fontSize;
-        leftText.stroke = 1;
         sp.addChild(leftText);
 
         let rightText = this._txt = new Text();
@@ -48,7 +47,6 @@ export class StatUI {
         rightText.pos(100, 5);
         rightText.color = "#ffffff";
         rightText.fontSize = fontSize;
-        rightText.stroke = 1;
         sp.addChild(rightText);
 
         sp.graphics.clear();
