@@ -7,8 +7,6 @@ import { GLESInternalRT } from "../../../OpenGLESDriver/RenderDevice/GLESInterna
 import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { Matrix } from "../../../../maths/Matrix";
-import { SpriteUtils } from "../../../../utils/SpriteUtils";
-
 
 export class RTRender2DPass implements IRender2DPass {
    _nativeObj: any;
@@ -142,29 +140,6 @@ export class RTRender2DPass implements IRender2DPass {
       this.offsetMatrix = new Matrix();
    }
 
-   private traverse(struct: RTRenderStruct2D, reorderRoot: RTRenderStruct2D): void {
-      if (!struct.enabled) return;
-
-      if (reorderRoot) {
-         if (struct.renderElements?.length > 0 && struct.dcBoundsTarget != reorderRoot) {
-            struct.dcBoundsTarget = reorderRoot;
-            let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
-            SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
-            struct._nativeObj.rect = rect;
-         }
-      }
-      else if (struct.dcOptimize)
-         reorderRoot = struct;
-
-      for (let i = 0, n = struct.children.length; i < n; i++) {
-         const child = struct.children[i];
-         this.traverse(child as RTRenderStruct2D, reorderRoot);
-      }
-
-      if (struct == reorderRoot)
-         reorderRoot = null;
-   }
-
    /**
     * pass 2D 渲染
     * @param context 
@@ -174,8 +149,6 @@ export class RTRender2DPass implements IRender2DPass {
       if (rt) {
          context.invertY = rt._invertY;
       }
-      if (this.repaint)
-         this.traverse(this.root, null);
       this._nativeObj.fowardRender(context._nativeObj);
    }
 
