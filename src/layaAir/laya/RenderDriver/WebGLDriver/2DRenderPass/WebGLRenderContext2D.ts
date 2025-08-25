@@ -12,6 +12,7 @@ import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { Browser } from "../../../utils/Browser";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
@@ -151,15 +152,19 @@ export class WebglRenderContext2D implements IRenderContext2D {
     }
 
     drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
+        let time = Browser.now();
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             let element = list.elements[i];
             element._prepare(this);//render
         }
+        LayaGL.statAgent.recordTimeData(StatElement.T_2DContextPre, Browser.now() - time);
+        time = Browser.now();
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             let element = list.elements[i];
             element._render(this);//render
         }
         LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, list.length);
+        LayaGL.statAgent.recordTimeData(StatElement.T_2DContextRender, Browser.now() - time);
         LayaGL.renderEngine._framePassCount++;
         return 0;
     }

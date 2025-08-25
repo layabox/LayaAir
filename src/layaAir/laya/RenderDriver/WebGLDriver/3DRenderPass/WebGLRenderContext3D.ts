@@ -6,6 +6,7 @@ import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { Browser } from "../../../utils/Browser";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
@@ -246,8 +247,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
+        let time = Browser.now();
         this._prepareContext();
-
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
@@ -257,10 +258,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         if (bufferMgr) {
             bufferMgr.upload();
         }
-
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DContextPre, Browser.now() - time);
+        time = Browser.now();
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DContextRender, Browser.now() - time);
         LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, list.length);
         LayaGL.renderEngine._framePassCount++;
         return 0;

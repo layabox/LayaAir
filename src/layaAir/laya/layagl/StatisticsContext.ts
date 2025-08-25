@@ -27,6 +27,14 @@ export enum StatElement {
      */
     T_3DMainPass,
     /**
+     * 3D context PreRender
+     */
+    T_3DContextPre,
+    /**
+     * 3D Context render
+     */
+    T_3DContextRender,
+    /**
      * main render opaque time
      */
     T_3DMainPass_Opaque,
@@ -58,6 +66,14 @@ export enum StatElement {
      * render 2D Pass Time
      */
     T_2DPass,
+    /**
+     * 2D context PreRender
+     */
+    T_2DContextPre,
+    /**
+     * 2D Context render
+     */
+    T_2DContextRender,
     /**
      * component update time
      */
