@@ -139,6 +139,7 @@ export class SketonOptimise {
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
+
         //@ts-ignore
         this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类

@@ -75,6 +75,14 @@ export class Area2D extends Sprite {
         super._setUnBelongScene();
     }
 
+    localToView(x: number, y: number, out?: Point): Point {
+        out = out || new Point();
+        out.setTo(x, y);
+        this.localToGlobal(out);
+        this.transformPoint(out.x, out.y, out);
+        return out;
+    }
+
     /**
      * @en Convert screen coordinates to Area2D internal UI coordinates.
      * @param x The x axis of screen coordinates.

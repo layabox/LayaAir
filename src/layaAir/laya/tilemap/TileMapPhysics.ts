@@ -138,4 +138,7 @@ export class TileMapPhysics {
         Laya.physics2D.rigidBody_DestroyShape(rigidBody, fixture);
     }
 
+    destroy() {
+        this._rigidBodys = [];
+    }
 }

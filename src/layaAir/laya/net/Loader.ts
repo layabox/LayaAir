@@ -20,6 +20,8 @@ import { BaseTexture } from "../resource/BaseTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { XML } from "../html/XML";
 import { Browser } from "../utils/Browser";
+import { LayaGL } from "../layagl/LayaGL";
+import { StatElement } from "../layagl/StatisticsContext";
 
 export interface ILoadTask {
     readonly type: string;
@@ -239,31 +241,6 @@ export class Loader extends EventDispatcher {
      * @zh Spine 资源。
      */
     static readonly SPINE = "SPINE";
-    // Loader ResourceTime  
-    /**
-     * @en Resource download + parse time.
-     * @zh 资源下载 + 解析时间。
-     * @readonly
-     */
-    static LoaderStat_LoadResourceTime: number;
-    /**
-     * @en Number of resource downloads.
-     * @zh 资源下载次数。  
-     * @readonly
-     */
-    static LoaderStat_LoaderResourceCount: number;
-    /**
-     * @en Number of network file requests.
-     * @zh 网络文件请求次数。
-     * @readonly
-     */
-    static LoaderStat_LoadRequestCount: number;//网络文件请求次数
-    /**
-     * @en Network download time.
-     * @zh 网络下载时间。
-     * @readonly
-     */
-    static LoaderStat_LoadRequestTime: number;//网络下载时间
 
     /**
      * @en Number of retry attempts after loading fails, default is 1.
@@ -661,8 +638,8 @@ export class Loader extends EventDispatcher {
         let promise: Promise<any>;
 
         try {
-            Loader.LoaderStat_LoaderResourceCount++;
-            this._tempTime = performance.now();
+            LayaGL.statAgent.recordCountData(StatElement.C_LoadResourceCount, 1);
+            this._tempTime = Browser.now();
             promise = assetLoader.load(task);
         }
         catch (err: any) {
@@ -672,7 +649,7 @@ export class Loader extends EventDispatcher {
         }
 
         return promise.then(content => {
-            Loader.LoaderStat_LoadResourceTime += performance.now() - this._tempTime;
+            LayaGL.statAgent.recordTimeData(StatElement.T_LoadResourceTime, Browser.now() - this._tempTime);
             if (content instanceof Resource) {
                 content.obsolute = false;
                 content._setCreateURL(url, uuid);
@@ -780,8 +757,8 @@ export class Loader extends EventDispatcher {
 
     private download(item: DownloadItem) {
         this._downloadings.add(item);
-        Loader.LoaderStat_LoadRequestCount++;
-        item.startTime = performance.now();
+        LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
+        item.startTime = Browser.now();
         let url = URL.postFormatURL(item.url);
 
         if (item.contentType == "image") {
@@ -836,7 +813,7 @@ export class Loader extends EventDispatcher {
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
         this._downloadings.delete(item);
-        Loader.LoaderStat_LoadRequestTime += performance.now() - item.startTime;
+        LayaGL.statAgent.recordTimeData(StatElement.T_LoadRequestTime, Browser.now() - item.startTime);
         if (content) {
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());

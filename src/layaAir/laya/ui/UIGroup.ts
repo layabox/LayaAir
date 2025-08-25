@@ -34,7 +34,7 @@ export class UIGroup extends Box {
     protected _labelSize: number;
     protected _labelBold: boolean;
     protected _labelPadding: string;
-    protected _labelAlign: string;
+    protected _labelAlign: string = "center";
     protected _stateNum: number;
     protected _labelChanged: boolean;
     /**
@@ -127,6 +127,21 @@ export class UIGroup extends Box {
     set labelColors(value: string) {
         if (this._labelColors != value) {
             this._labelColors = value;
+            this._setLabelChanged();
+        }
+    }
+
+    /**
+     * @en The text alignment mode.
+     * @zh 标签水平对齐模式。
+     */
+    get labelAlign(): string {
+        return this._labelAlign;
+    }
+
+    set labelAlign(value: string) {
+        if (this._labelAlign != value) {
+            this._labelAlign = value;
             this._setLabelChanged();
         }
     }
@@ -411,7 +426,7 @@ export class UIGroup extends Box {
                 this._labelStroke != null && (btn.labelStroke = this._labelStroke);
                 this._labelStrokeColor && (btn.labelStrokeColor = this._labelStrokeColor);
                 this._strokeColors && (btn.strokeColors = this._strokeColors);
-                this._labelBold && (btn.labelBold = this._labelBold);
+                this._labelBold != null && (btn.labelBold = this._labelBold);
                 this._labelPadding && (btn.labelPadding = this._labelPadding);
                 this._labelAlign && (btn.labelAlign = this._labelAlign);
                 this._stateNum != null && (btn.stateNum = this._stateNum);

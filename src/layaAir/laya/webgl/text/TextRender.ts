@@ -42,7 +42,7 @@ export class TextRender extends EventDispatcher {
 
     constructor() {
         super();
-        this.charRender = new CharRender_Canvas(2048, 2048);
+        this.charRender = new CharRender_Canvas(4096, 4096);
         this.fontMeasure = new MeasureFont(this.charRender);
     }
 
@@ -126,17 +126,17 @@ export class TextRender extends EventDispatcher {
         var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
-                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
+                nTextAlign = 1;
                 break;
             case 'right':
-                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
+                nTextAlign = 2;
                 break;
         }
         this._fast_filltext(runner, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
     }
 
     _fast_filltext(runner: GraphicsRunner, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        if (data && !(data.length >= 1)) 
+        if (data && !(data.length >= 1))
             return; // length有可能是 undefined
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
@@ -169,10 +169,10 @@ export class TextRender extends EventDispatcher {
 
         //水平对齐方式
         switch (textAlign) {
-            case Const.ENUM_TEXTALIGN_CENTER:
+            case 1:
                 x -= strWidth / 2;
                 break;
-            case Const.ENUM_TEXTALIGN_RIGHT:
+            case 2:
                 x -= strWidth;
                 break;
         }

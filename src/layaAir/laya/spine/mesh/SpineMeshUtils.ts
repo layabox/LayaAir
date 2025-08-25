@@ -225,7 +225,7 @@ export class SpineMeshUtils {
                         offset += 8
                         break;
                     default:
-                        throw "VertexMesh: unknown vertex flag.";
+                        throw new Error("unknown vertex flag.");
                 }
                 elements.push(element);
             }

@@ -243,7 +243,7 @@ export class Utils {
                 pixelArray = new Float32Array(pixelCount);
                 break;
             default:
-                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
+                throw new Error("uint8ArrayToArrayBuffer is not supported for " + rendertexture.format.toString() + "format");
         }
         LayaGL.textureContext.readRenderTargetPixelData(rendertexture._renderTarget, 0, 0, width, height, pixelArray);
         if (colorFormat === RenderTargetFormat.R16G16B16A16) {
@@ -278,6 +278,9 @@ export class Utils {
     * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
     */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<string> {
+        if ((window as any).conch) {
+            return Promise.resolve("not surpport");
+        }
         let pixelArray: Uint8Array | Float32Array;
         const width = rendertexture.width;
         const height = rendertexture.height;

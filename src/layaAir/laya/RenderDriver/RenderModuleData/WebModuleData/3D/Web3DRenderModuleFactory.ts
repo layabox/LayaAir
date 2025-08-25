@@ -71,9 +71,6 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   createBaseRenderNode(): WebBaseRenderNode {
 
     let renderNode = new WebBaseRenderNode();
-    if (Stat.enableRenderPassStatArray) {
-      renderNode._renderUpdatePre = renderNode._renderUpdatePre_StatUse;
-    }
     return renderNode;
   }
 

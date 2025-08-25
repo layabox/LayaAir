@@ -4,6 +4,8 @@ import { HitResult } from "../../d3/physics/HitResult";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { Event } from "../../events/Event";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { NotImplementedError } from "../../utils/Error";
@@ -252,21 +254,21 @@ export class pxPhysicsManager implements IPhysicsManager {
         switch (pxcollider._type) {
             case pxColliderType.StaticCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
-                Stat.physics_staticRigidBodyCount++;
+                LayaGL.statAgent.recordCountData(StatElement.C_PhysicaStaticRigidBody, 1);
                 break;
             case pxColliderType.RigidbodyCollider:
                 pxcollider.setWorldTransform(true);
                 this._pxScene.addActor(pxcollider._pxActor, null);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
                     this._dynamicUpdateList.add(collider);
-                    Stat.physics_dynamicRigidBodyCount++;
+                    LayaGL.statAgent.recordCountData(StatElement.C_PhysicaDynamicRigidBody, 1);
                 } else {
-                    Stat.phyiscs_KinematicRigidBodyCount++;
+                    LayaGL.statAgent.recordCountData(StatElement.C_PhysicaKinematicRigidBody, 1);
                 }
                 break;
             case pxColliderType.CharactorCollider:
                 this._addCharactorCollider(collider as pxCharactorCollider);
-                Stat.physics_CharacterControllerCount++;
+                LayaGL.statAgent.recordCountData(StatElement.C_PhysicaCharacterController, 1);
                 break;
         }
         pxcollider._isSimulate = true;
@@ -286,22 +288,22 @@ export class pxPhysicsManager implements IPhysicsManager {
                 if (collider.inPhysicUpdateListIndex !== -1)
                     this._physicsUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
-                Stat.physics_staticRigidBodyCount--;
+                LayaGL.statAgent.recordCountData(StatElement.C_PhysicaStaticRigidBody, -1);
                 break;
             case pxColliderType.RigidbodyCollider:    //TODO
                 if (collider.inPhysicUpdateListIndex !== -1)
                     !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
                 if (!(collider as pxDynamicCollider).IsKinematic) {
-                    Stat.physics_dynamicRigidBodyCount--;
+                    LayaGL.statAgent.recordCountData(StatElement.C_PhysicaDynamicRigidBody, -1);
                 } else {
-                    Stat.phyiscs_KinematicRigidBodyCount--;
+                    LayaGL.statAgent.recordCountData(StatElement.C_PhysicaKinematicRigidBody, -1);
                 }
                 break;
             case pxColliderType.CharactorCollider:
                 //TODO:
                 this._removeCharactorCollider(pxcollider as pxCharactorCollider);
-                Stat.physics_CharacterControllerCount--;
+                LayaGL.statAgent.recordCountData(StatElement.C_PhysicaCharacterController, -1);
                 break;
         }
         pxcollider._isSimulate = false;

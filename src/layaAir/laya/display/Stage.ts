@@ -1,8 +1,8 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { SpriteConst, TransformKind } from "./SpriteConst";
-import { NodeFlags, SubPassFlag } from "../Const"
+import { SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
+import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"
@@ -25,6 +25,7 @@ import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
+import { StatElement } from "../layagl/StatisticsContext";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -358,7 +359,6 @@ export class Stage extends Sprite {
             this.updateCanvasSize();
     }
 
-    static cc = 0;
     /**
      * @en Set the screen size. The scene will adapt to the screen size. This method can be called dynamically to change the game display size.
      * @param screenWidth The width of the screen.
@@ -368,9 +368,6 @@ export class Stage extends Sprite {
      * @param screenHeight 屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
-        Stage.cc++;
-        if (Stage.cc > 10)
-            return;
         this._needUpdateCanvasSize = false;
         let pixelRatio = Browser.pixelRatio;
         //screen width/height是乘了dpr的，先除回去
@@ -762,7 +759,6 @@ export class Stage extends Sprite {
         let isFastMode: boolean = (frameMode !== Stage.FRAME_SLOW);
         let isDoubleLoop: boolean = (this._renderCount % 2 === 0);
 
-        Stat.renderSlow = !isFastMode;
         if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
             return;
 
@@ -772,6 +768,9 @@ export class Stage extends Sprite {
         LayaGL.renderEngine.startFrame();
 
         if (this.renderingEnabled) {
+
+            this._runComponents();
+
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
                 this._scene2Ds[i]._update();
             }
@@ -779,20 +778,19 @@ export class Stage extends Sprite {
                 this._scene3Ds[i]._update();
             }
 
-            this._runComponents();
             this._componentDriver.callPreRender();
 
             Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
 
             //先渲染3d
-            //performance.mark('3d-start')
+            let t = Browser.now();
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 this._scene3Ds[i].renderSubmit();
-
-            //performance.mark('3d-end')
-            //performance.measure('3dsumbimt', '3d-start', '3d-end')
+            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender3D, Browser.now() - t);
             //再渲染2d
+            t = Browser.now();
             this._render2d();
+            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender2D, Browser.now() - t);
 
             this._componentDriver.callPostRender();
         }
@@ -815,8 +813,6 @@ export class Stage extends Sprite {
      * @perfTag PerformanceDefine.T_UIRender
     */
     private _render2d() {
-        Stat.draw2D = 0;
-
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
@@ -844,20 +840,27 @@ export class Stage extends Sprite {
                 sprite._oriRenderPass.mask = sprite.mask._subStruct;
             }
 
-            if (
-                result ||
-                (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
-            ) {
+            if (result) {
                 sprite._oriRenderPass.renderTexture = destrt;
-                let process = sprite._oriRenderPass.postProcess;
-                if (process) {
+            }
+
+            let process = sprite._oriRenderPass.postProcess;
+            if (process) {
+                if (
+                    result ||
+                    (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
+                ) {
                     process.setResource(destrt);
                     process.clearCMD();
                     process._render();
+                }
+
+                if (process.enabled) {
                     destrt = process._context.destination;
                 }
-                sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
             }
+
+            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
             sprite._subStructRender._updateVertexSize();
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
@@ -878,6 +881,8 @@ export class Stage extends Sprite {
         this._tranMatrixUpdateList.clear();
 
         Stat.render();
+
+        Stat.render2DCount++;
     }
 
     private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {

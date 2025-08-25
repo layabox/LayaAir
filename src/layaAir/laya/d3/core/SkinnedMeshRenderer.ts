@@ -21,6 +21,8 @@ import { RenderElement } from "./render/RenderElement";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { Browser } from "../../utils/Browser";
+import { StatElement } from "../../layagl/StatisticsContext";
 /**
  * @en The `SkinnedMeshRenderer` class is used for skinned mesh rendering.
  * @zh `SkinnedMeshRenderer` 类用于蒙皮网格渲染。
@@ -263,26 +265,27 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     protected _statAdd() {
-        Stat.renderNode++;
-        Stat.skinRenderNode++;
+        super._statAdd();
+        LayaGL.statAgent.recordCountData(StatElement.C_SkinnedMeshRenderCount, 1);
     }
 
     protected _statRemove() {
-        Stat.renderNode--;
-        Stat.skinRenderNode--;
+        super._statRemove();
+        LayaGL.statAgent.recordCountData(StatElement.C_SkinnedMeshRenderCount, -1);
     }
 
 
     /**
-     * @perfTag PerformanceDefine.T_SkinBoneUpdate
      * @en Updates the render state of the skinned mesh renderer.
      * @param context The 3D render context.
      * @zh 更新蒙皮网格渲染器的渲染状态。
      * @param context 3D渲染上下文。
      */
     renderUpdate(context: RenderContext3D): void {
+        let t = Browser.now();
         super.renderUpdate(context);
         this._isISkinRenderNode() && this._ownerSkinRenderNode.computeSkinnedData();
+        LayaGL.statAgent.recordTimeData(StatElement.T_SkinBoneUpdate, Browser.now() - t);
     }
     _cloneTo(dest: SkinnedMeshRenderer): void {
         //get common parent

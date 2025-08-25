@@ -1,7 +1,6 @@
 import { ILaya } from "../../ILaya";
-import { NodeFlags, SubPassFlag } from "../Const";
+import { NodeFlags } from "../Const";
 import { Filter } from "../filters/Filter";
-import { GrahamScan } from "../maths/GrahamScan";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -10,7 +9,7 @@ import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
-import { RepaintFlag, SpriteConst, TransformKind } from "./SpriteConst";
+import { RepaintFlag, SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
@@ -34,6 +33,7 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
+import { MathUtil } from "../maths/MathUtil";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -151,7 +151,7 @@ export class Sprite extends Node {
     _blendMode: BlendMode = BlendMode.invalid;
     /**
      * @internal
-    */
+     */
     _visible: boolean = true;
     /**
      * @internal
@@ -165,10 +165,6 @@ export class Sprite extends Node {
      * @zh z排序，数值越大越靠前。
      */
     _zOrder: number = 0;
-    /**
-     * @internal 
-     */
-    _zIndex: number = 0;
     /**
      * @internal 
      */
@@ -217,19 +213,19 @@ export class Sprite extends Node {
     hitTestPrior: boolean = false;
 
     /** 
-    * @en If the node needs to load related skins but placed in different domains, you can set it here.
-    * @zh 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置。
-    **/
+     * @en If the node needs to load related skins but placed in different domains, you can set it here.
+     * @zh 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置。
+     */
     _skinBaseUrl: string;
 
     private _autosize: boolean = false;
     private _tfChanged: boolean;
     private _repaint: number = -1;
+    private _repaintCount: number = -1;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
     private _userBounds: Rectangle;
     private _ownGraphics: boolean;
-    private _tmpBounds: Array<number>;
     private _mask: Sprite;
     /** @internal */
     _maskParent: Sprite;
@@ -247,15 +243,15 @@ export class Sprite extends Node {
 
     /** @internal */
     _texture: Texture;
-    /**@internal */
+    /** @internal */
     _ownerArea: Sprite;
     /** @internal */
     _subStructRender: SubStructRender;
-    /** @internal  渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效*/
+    /** @internal 渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效 */
     _oriRenderPass: IRender2DPass;
-    /**@internal 渲染真实sprite所需的rt大小 */
+    /** @internal 渲染真实sprite所需的rt大小 */
     _drawOriRT: RenderTexture2D;
-    /** @internal 片，代替的结构 ，真正的结构划到了rt上*/
+    /** @internal 片，代替的结构 ，真正的结构划到了rt上 */
     _subStruct: IRenderStruct2D;
     /** @internal */
     _shaderData: ShaderData;
@@ -264,6 +260,7 @@ export class Sprite extends Node {
     constructor() {
         super();
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
+        this._struct.owner = this;
         this._globalTrans = new SpriteGlobalTransform(this);
     }
 
@@ -286,7 +283,10 @@ export class Sprite extends Node {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._texture && this._texture._removeReference();
+        if (this._texture) {
+            this._texture._removeReference();
+            this._texture = null;
+        }
         if (this._oriRenderPass) {
             ILaya.stage.passManager.removePass(this._oriRenderPass);
             if (this._oriRenderPass.postProcess) {
@@ -294,9 +294,17 @@ export class Sprite extends Node {
                 this._oriRenderPass.postProcess = null;
             }
             this._oriRenderPass.destroy();
+            this._oriRenderPass = null;
         }
-        this._subStructRender && this._subStructRender.destroy();
-        this._texture = null;
+        if (this._subStructRender) {
+            this._subStructRender.destroy();
+            this._subStructRender = null;
+        }
+        if (this._drawOriRT) {
+            this._drawOriRT.destroy();
+            this._drawOriRT = null;
+        }
+
         this.setGraphics(null);
         this._struct = null;
     }
@@ -647,7 +655,9 @@ export class Sprite extends Node {
     }
 
     set blendMode(value: keyof typeof BlendMode | null) {
-        let t = BlendMode[value] ?? BlendMode.invalid;
+        let t = BlendMode[value];
+        if (typeof (t) !== "number")
+            t = (value as any) === "destination-out" ? BlendMode.destinationOut : 0;
         if (this._blendMode != t) {
             this._blendMode = t;
             this._initShaderData();
@@ -721,7 +731,7 @@ export class Sprite extends Node {
 
         if (value) {
             if (!this._graphicsData)
-                this._graphicsData = new GraphicsRenderData();
+                this._graphicsData = new GraphicsRenderData(this);
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();
@@ -755,8 +765,8 @@ export class Sprite extends Node {
         if (value) {
             let postProcess = this.getPostProcess(true);
             postProcess.clear();
-            for (var i = 0; i < this._filterArr.length; i++) {
-                postProcess.addEffect(this.filters[i].getEffect());
+            for (let f of this._filterArr) {
+                postProcess.addEffect(f.getEffect());
             }
         }
         else
@@ -871,6 +881,11 @@ export class Sprite extends Node {
         this.repaint();
     }
 
+    /** @ignore @blueprintIgnore */
+    clearSubpassFlag(flag: SubPassFlag) {
+        this._subpassUpdateFlag &= ~flag;
+    }
+
     /**
      * @ignore
      * @blueprintIgnore
@@ -879,6 +894,7 @@ export class Sprite extends Node {
     setSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag |= flag;
         this.stage._subpassUpdateList.add(this);
+        this._globalTrans._notifyRenderSpriteTransChange();
     }
 
     /**
@@ -940,17 +956,22 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Draw call optimization: when set to true, draw call optimization is enabled. During engine rendering, all text is automatically brought to the top layer to avoid interruptions by text when drawing images from the same atlas, thus reducing the number of draw calls.
-     * Enabling this will cause text to be non-obstructable. Use this feature cautiously if your project requires text to be obstructed.
-     * @zh 绘制调用优化，为true时，开启drawcall优化。引擎绘制时自动将所有文本提到显示最上层，避免同一个图集内的图像绘制时被文本打断，可以减少drawcall数量。
-     * 开启后，会导致文本无法被遮挡，存在文本遮挡需求的项目，请谨慎使用该功能。
+     * @en Automatically optimize DrawCall. When enabled, all rendering elements contained in the children and grandchildren of this node will be merged into as few DrawCalls as possible without affecting the actual display effect, such as images from the same texture atlas or text. They will be adjusted to a continuous rendering order so that they can be merged into the same DrawCall.
+     * 
+     * Note that if the number of elements is large (e.g., greater than 500), it may significantly consume CPU performance. Developers need to balance the number of DrawCalls and CPU performance consumption.
+     * @zh 自动优化DrawCall。开启后，本节点的所有孩子节点和孙子节点包含的渲染元素，在不影响实际显示效果的前提下，会通过调整渲染顺序的手段尽可能进行DrawCall合并，例如同图集的图片，又或者文本，调整到连续渲染的渲染顺序后它们可以合并为同一个DrawCall。
+     * 
+     * 注意，如果元素数量巨大（例如大于500)，可能会显著消耗CPU性能。开发者需要均衡考虑DrawCall数量和CPU性能消耗。
      */
     set drawCallOptimize(value: boolean) {
-        this._setBit(NodeFlags.DRAWCALL_OPTIMIZE, value);
+        if (this._struct.dcOptimize !== value) {
+            this._struct.dcOptimize = value;
+            this._struct.setRepaint();
+        }
     }
 
     get drawCallOptimize(): boolean {
-        return this._getBit(NodeFlags.DRAWCALL_OPTIMIZE);
+        return this._struct.dcOptimize;
     }
 
     /**
@@ -1061,14 +1082,23 @@ export class Sprite extends Node {
      * @zh z渲染排序，会修改当前对象的渲染顺序。值越大，越靠上。默认值为 0。
      */
     get zIndex(): number {
-        return this._zIndex;
+        return this._struct.zIndex;
     }
 
     set zIndex(value: number) {
-        if (this._zIndex != value) {
-            this._zIndex = value;
-            this._struct.zIndex = value;
-        }
+        this._struct.zIndex = value;
+    }
+
+    /**
+     * @en Whether it is a stacking root node. When a node is set as a stacking root node, the rendering order of all child nodes will be sorted within this node without affecting the outside.
+     * @zh 是否为堆叠根节点。当一个节点设置为堆叠根节点时，所有子节点的渲染顺序将在此节点内部排序，而不会影响外部。
+     */
+    get stackingRoot(): boolean {
+        return this._struct.stackingRoot;
+    }
+
+    set stackingRoot(value: boolean) {
+        this._struct.stackingRoot = value;
     }
 
     /**
@@ -1098,6 +1128,7 @@ export class Sprite extends Node {
             i++;
         }
 
+        this._struct.children = structArray;
         //临时关闭，否则childChanged会重复调用updateZOrder
         let flag = this._setBit(NodeFlags.HAS_ZORDER, false);
         this._childChanged();
@@ -1162,10 +1193,10 @@ export class Sprite extends Node {
     set renderNode2D(value: BaseRenderNode2D) {
         this._renderNode = value;
         if (value) {
-            value.renderUpdate && this._struct.set_renderNodeUpdateCall(value, value.renderUpdate);
+            value.renderUpdate && this._struct.setRenderUpdateCallback(value.renderUpdate.bind(value));
             this._renderType |= SpriteConst.RENDERNODE2D;
         } else {
-            this._struct.set_renderNodeUpdateCall(null, null);
+            this._struct.setRenderUpdateCallback(null);
             this._renderType &= ~SpriteConst.RENDERNODE2D;
         }
 
@@ -1371,6 +1402,8 @@ export class Sprite extends Node {
             this._tfChanged = true;
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
                 this._graphics.repaint();
+            else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
+                this.repaint();
             else
                 this.parentRepaint();
         }
@@ -1380,16 +1413,15 @@ export class Sprite extends Node {
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
 
-        if ((kind & TransformKind.TRS) !== 0) {
+        if (
+            (kind & TransformKind.TRS) !== 0
+            || (kind & TransformKind.Anchor) !== 0
+            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
+        ) {
             this._globalTrans._spTransChanged(kind);
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
-        }
-        else if (kind & TransformKind.Size) {
-            if (this._anchorX !== 0 || this._anchorY !== 0) {
-                this._globalTrans._spTransChanged(kind);
-            }
         }
     }
 
@@ -1588,21 +1620,28 @@ export class Sprite extends Node {
                             root._oriRenderPass.mask = root.mask._subStruct;
                         }
 
-                        if (result || (root._subpassUpdateFlag & SubPassFlag.PostProcess)) {//有贴图需要更新
-                            let process = root._oriRenderPass.postProcess;
-                            if (process) {
+                        let process = root._oriRenderPass.postProcess;
+                        if (process) {
+                            if (result) {
+                                root._oriRenderPass.renderTexture = destrt;
+                            }
+
+                            if (
+                                result ||
+                                (root._subpassUpdateFlag & SubPassFlag.PostProcess)
+                            ) {
                                 process.setResource(destrt);
                                 process.clearCMD();
                                 process._render();
+                            }
+
+                            if (process.enabled) {
                                 destrt = process._context.destination;
                             }
-                            root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                            //Mask TODO
                         }
 
-                        if (destrt) {//有贴图需要更新偏移
-                            root._subStructRender._updateVertexSize();
-                        }
+                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
+                        root._subStructRender._updateVertexSize();
                         root._subpassUpdateFlag = 0;
 
                     } else {
@@ -1644,10 +1683,12 @@ export class Sprite extends Node {
 
         let matrix = pass.offsetMatrix;
         let local = sprite.transform;
-        local.copyTo(matrix);
+        if (local)
+            local.copyTo(matrix);
         matrix.invert();
         matrix.tx = -offsetX;
         matrix.ty = -offsetY;
+        pass.offsetMatrix = matrix;
 
         for (let pass of passSet) {
             if (pass.priority > 0) {
@@ -1658,7 +1699,6 @@ export class Sprite extends Node {
         processor.apply(Render2DProcessor.rendercontext2D);
         processor.clear();
         pass.destroy();
-
         return renderout;
     }
 
@@ -1701,7 +1741,8 @@ export class Sprite extends Node {
      * @returns 矩形区域。
      */
     getBounds(out?: Rectangle): Rectangle {
-        return Rectangle._getWrapRec(this._boundPointsToParent(), out);
+        out = this.getSelfBounds(out, true);
+        return SpriteUtils.transformRect(this, out, this._parent, out);
     }
 
     /**
@@ -1712,169 +1753,48 @@ export class Sprite extends Node {
      * 注意：计算量较大，尽量少用。
      * @returns 矩形区域。
      */
-    getSelfBounds(out?: Rectangle): Rectangle {
-        out = out || new Rectangle();
-
-        if (this._userBounds)
-            return out.copyFrom(this._userBounds);
-        if (!this._graphics && this._children.length === 0 && !this._texture)
-            return out.setTo(0, 0, this._width, this._height); //不要this.width，不然死循环
-        else {
-            tmpPoints.length = 0;
-            return Rectangle._getWrapRec(this._getBoundPointsM(false, tmpPoints), out);
-        }
-    }
-
-    /**
-     * @zh 获取孩子的包围盒
-     * @param recursive 是否递归获取所有子对象的包围盒
-     * @param ignoreInvisibles 是否忽略不可见对象 
-     * @param ignoreScale 是否忽略缩放 
-     * @param out （可选）计算结果输出对象 
-     * @returns 包围盒
-     * @en Get the bounding box of the child
-     * @param recursive Whether to get the bounding box of the child object recursively
-     * @param ignoreInvisibles Whether to ignore invisible objects
-     * @param ignoreScale Whether to ignore scaling
-     * @param out (Optional) Output object for calculation results
-     * @returns Bounding box 
-     */
-    getChildrenBounds(recursive?: boolean, ignoreInvisibles?: boolean, ignoreScale?: boolean, out?: Rectangle): Rectangle {
-        out = out || new Rectangle();
-        out.setTo(0, 0, 0, 0);
-
-        let children = recursive ? this._children : this._$children;
-        for (let child of children) {
-            if (ignoreInvisibles && !child._struct.enabled)
-                continue;
-
-            let w = child.width;
-            let h = child.height;
-            if (!ignoreScale) {
-                w *= Math.abs(child._scaleX);
-                h *= Math.abs(child._scaleY);
-            }
-            out.union(tmpRect2.setTo(child._x - w * child._anchorX, child._y - h * child._anchorY, w, h), out);
-
-            if (recursive && child._children.length > 0) {
-                let rect = child.getChildrenBounds(recursive, ignoreInvisibles, ignoreScale);
-                rect.x += child._x;
-                rect.y += child._y;
-                out.union(rect, out);
-            }
-        }
-        return out;
-    }
-
-    /**
-     * @internal
-     * @en Get the polygon vertex list of the display area of the object in the parent container's coordinate system.
-     * @param ifRotate Whether to consider the rotation of the object itself. 
-     * If true, and the object has rotation, the vertices will be calculated based on the object's rotated position.
-     * If false, the vertices will be calculated based on the object's unrotated position, even if the object has rotation.
-     * @returns  The vertex list in the format: [x1, y1, x2, y2, x3, y3, ...].
-     * @zh 获取本对象在父容器坐标系的显示区域多边形顶点列表。
-     * @param  ifRotate （可选）是否考虑对象自身的旋转。
-     * 如果为 true，且对象有旋转，则顶点会根据对象旋转后的位置进行计算。
-     * 如果为 false，则顶点会根据对象未旋转的位置进行计算，即使对象有旋转。
-     * @returns 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-     */
-    private _boundPointsToParent(ifRotate?: boolean): number[] {
-        let px = this._pivotX, py = this._pivotY;
-        ifRotate = ifRotate || (this._rotation !== 0);
-        if (this._scrollRect != null) {
-            px += this._scrollRect.x;
-            py += this._scrollRect.y;
-        }
-
-        let pts = this._tmpBounds || (this._tmpBounds = []); //会递归调用，所以不能用全局临时变量
-        pts.length = 0;
-        this._getBoundPointsM(ifRotate, pts);
-        if (pts.length == 0)
-            return pts;
-
-        if (pts.length != 8) {
-            if (ifRotate)
-                GrahamScan.scanPList(pts);
-            else {
-                Rectangle._getWrapRec(pts, tmpRect2);
-                pts.length = 0;
-                tmpRect2.getBoundPoints(pts);
-            }
-        }
-
-        if (!this.transform) {
-            let len = pts.length;
-            for (let i = 0; i < len; i += 2) {
-                tmpPoint.x = pts[i];
-                tmpPoint.y = pts[i + 1];
-                this.toParentPoint(tmpPoint);
-                pts[i] = tmpPoint.x;
-                pts[i + 1] = tmpPoint.y;
-            }
-        }
-        else {
-            let dx = this._x - px;
-            let dy = this._y - py;
-            let len: number = pts.length;
-            for (let i = 0; i < len; i += 2) {
-                pts[i] += dx;
-                pts[i + 1] += dy;
-            }
-        }
-
-        return pts;
-    }
-
-    /**
-     * @en Get the vertex list of the display area polygon in its own coordinate system.
-     * @param ifRotate (Optional) Whether to consider the rotation of the child objects when calculating their vertices.
-     * If true, and a child object has rotation, the child's vertices will be calculated based on its rotated position.
-     * If false, the child's vertices will be calculated based on its unrotated position, even if it has rotation.
-     * @returns A list of vertices. Structure: [x1, y1, x2, y2, x3, y3, ...].
-     * @zh 获取自己坐标系的显示区域多边形顶点列表。
-     * @param ifRotate （可选）在计算子对象的顶点时是否考虑子对象的旋转。
-     * 如果为 true,且子对象有旋转,则子对象的顶点将根据其旋转后的位置来计算。
-     * 如果为 false,则子对象的顶点将根据其未旋转的位置来计算,即使子对象有旋转。
-     * @returns 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-     */
-    protected _getBoundPointsM(ifRotate?: boolean, out?: number[]): number[] {
-        out = out || [];
+    getSelfBounds(out?: Rectangle, recursive?: boolean): Rectangle {
+        if (recursive == null) recursive = true;
 
         if (this._userBounds != null)
-            return this._userBounds.getBoundPoints(out);
+            return this._userBounds.clone(out);
+        else if (this._scrollRect != null && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING))
+            return this._scrollRect.clone(out);
+        else if (!recursive && this._oriRenderPass?.enable)
+            return this._subStructRender._rtRect.clone(out || new Rectangle());
+        else {
+            if (out)
+                out.setTo(0, 0, 0, 0);
+            else
+                out = new Rectangle();
+            if (this._graphics != null)
+                out.union(this._graphics.getBounds(), out);
 
-        if (this._scrollRect != null && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING))
-            return this._scrollRect.getBoundPoints(out);
+            if (this._texture != null)
+                out.union(tmpRect.setTo(0, 0, this._width || this._texture.width, this._height || this._texture.height), out);
 
-        if (this._graphics != null)
-            out.push(...this._graphics.getBoundPoints());
-
-        if (this._renderNode != null || this._texture != null)
-            tmpRect2.setTo(0, 0, this._width || this._texture?.width, this._height || this._texture?.height).getBoundPoints(out);
-
-        //处理子对象区域
-        let chidren = this._children;
-        for (let i = 0, n = chidren.length; i < n; i++) {
-            let child = chidren[i];
-            if (child._struct.enabled && child._maskParent != this) {
-                out.push(...child._boundPointsToParent(ifRotate));
+            if (this._renderNode != null) {
+                let rect = this._renderNode.rect;
+                Rectangle.minMaxRect(rect.x, rect.y, rect.z, rect.w, tmpRect);
+                out.union(tmpRect.isEmpty() ? tmpRect.setTo(0, 0, this._width, this._height) : tmpRect, out);
             }
-        }
 
-        return out;
+            if (recursive && this._children.length > 0) {
+                let rect = Rectangle.create(); //会递归调用，所以不能用全局临时变量
+                for (let child of this._children) {
+                    if (child._struct.enabled && child._maskParent != this) {
+                        child.getBounds(rect);
+                        out.union(rect, out);
+                    }
+                }
+                rect.recover();
+            }
+
+            return out;
+        }
     }
 
-    /**
-     * @en Returns the display area of the drawing object (`Graphics`) in this instance, excluding child objects.
-     * @param realSize (Optional) This parameters is not used.
-     * @param out (Optional) Rectangle object for output.
-     * @returns A Rectangle object representing the obtained display area.
-     * @zh 返回此实例中绘图对象（`Graphics`）的显示区域，不包括子对象。
-     * @param realSize （可选）此参数未使用。
-     * @param out （可选）矩形区域输出对象。
-     * @returns 一个 Rectangle 对象，表示获取到的显示区域。
-     */
+    /** @deprecated */
     getGraphicBounds(realSize?: boolean, out?: Rectangle): Rectangle {
         out = out || new Rectangle();
         if (this._graphics)
@@ -1899,7 +1819,7 @@ export class Sprite extends Node {
         if (createNewPoint) {
             point = new Point(point.x, point.y);
         }
-        var ele: Sprite = this;
+        let ele: Sprite = this;
         globalNode = globalNode || ILaya.stage;
         while (ele && !ele._destroyed) {
             if (ele == globalNode)
@@ -1927,17 +1847,17 @@ export class Sprite extends Node {
         if (createNewPoint) {
             point = new Point(point.x, point.y);
         }
-        var ele: Sprite = this;
-        var list: any[] = [];
+        let ele: Sprite = this;
+        tmpSpriteList.length = 0;
         globalNode = globalNode || ILaya.stage;
         while (ele && !ele._destroyed) {
             if (ele == globalNode) break;
-            list.push(ele);
+            tmpSpriteList.push(ele);
             ele = ele._parent;
         }
-        var i: number = list.length - 1;
+        let i: number = tmpSpriteList.length - 1;
         while (i >= 0) {
-            ele = list[i];
+            ele = tmpSpriteList[i];
             point = ele.fromParentPoint(point);
             i--;
         }
@@ -1956,11 +1876,10 @@ export class Sprite extends Node {
         if (!point) return point;
         point.x -= this.pivotX;
         point.y -= this.pivotY;
-        if (this.transform)
-            this._transform.transformPoint(point);
+        this.transform?.transformPoint(point);
         point.x += this._x;
         point.y += this._y;
-        var scroll: Rectangle = this._scrollRect;
+        let scroll = this._scrollRect;
         if (scroll) {
             point.x -= scroll.x * this._scaleX;
             point.y -= scroll.y * this._scaleY;
@@ -1985,8 +1904,7 @@ export class Sprite extends Node {
             point.x += scroll.x * this._scaleX;
             point.y += scroll.y * this._scaleY;
         }
-        if (this.transform)
-            this._transform.invertTransformPoint(point);
+        this.transform?.invertTransformPoint(point);
         point.x += this.pivotX;
         point.y += this.pivotY;
         return point;
@@ -2063,14 +1981,18 @@ export class Sprite extends Node {
     */
     repaint(flag?: number): void {
         if (this._destroyed) return;
-        if ((this._repaint < Stat.loopCount)) {
+        if (
+            this._repaint < Stat.loopCount ||
+            (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
+        ) {
             this._repaint = Stat.loopCount;
+            this._repaintCount = Stat.render2DCount;
+
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
 
             if (this._subpassUpdateFlag || (this._drawOriRT && flag & RepaintFlag.UpdateRT)) {
-                this._globalTrans._notifyRenderSpriteTransChange();
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
         }
@@ -2086,7 +2008,8 @@ export class Sprite extends Node {
      * @zh 清除重绘标志。
      */
     clearRepaint() {
-        this._repaint = 0;
+        this._repaint = -1;
+        this._repaintCount = -1;
     }
 
     /**
@@ -2098,7 +2021,7 @@ export class Sprite extends Node {
      */
     _needRepaint(): boolean {
         //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheenableCanvasRender && this._cachereCache;
-        return !!(this._repaint >= Stat.loopCount);
+        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount);
     }
 
     /**
@@ -2107,18 +2030,24 @@ export class Sprite extends Node {
      */
     parentRepaint(): void {
         let p: Sprite = this._parent;
-        if (!p) return
+        if (!p)
+            return;
+
+        this._struct.dcBoundsTarget = null;
+        if (this._subStruct)
+            this._subStruct.dcBoundsTarget = null;
+
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
-            if (pass.renderTexture) {
+            if (pass.renderTexture)
                 p.parentRepaint();
-                if (pass.root == pStruct && !p._needRepaint()) {
-                    // 自动生成宽高需要刷新rt尺寸
-                    p.setSubpassFlag(SubPassFlag.RenderTexture);
-                    pStruct.setRepaint();
-                }
+
+            if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
+                // 自动生成宽高需要刷新rt尺寸
+                p.setSubpassFlag(SubPassFlag.RenderTexture);
             }
+            pStruct.setRepaint();
         }
     }
 
@@ -2226,20 +2155,28 @@ export class Sprite extends Node {
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
 
+        let needUpdate = false;
         if (this._struct && this._struct.enabled !== b) {
-            // if (!this._oriRenderPass || !this._oriRenderPass.enable) {
             this._struct.enabled = b;
-            // }
+            needUpdate = true;
+        }
 
-            if (this._subStruct) {
-                this._subStruct.enabled = b;
+        if (this._subStruct && this._subStruct.enabled !== b) {
+            this._subStruct.enabled = b;
+            needUpdate = true;
+        }
+
+        if (needUpdate) {
+            if (b) {
+                this.repaint();
+            } else {
+                this._struct.setRepaint();
             }
-            if (b) this.repaint();
             this.parentRepaint();
             return true;
-        }
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -2276,8 +2213,9 @@ export class Sprite extends Node {
     protected _setStructParent(value: Sprite) {
         if (this._maskParent) return;
         let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
+        struct.dcBoundsTarget = null;
 
-        if (struct.parent) {
+        if (struct && struct.parent) {
             struct.parent.removeChild(struct);
             struct.parent = null;
         }
@@ -2295,6 +2233,7 @@ export class Sprite extends Node {
         subPass.enable = false;
         subPass.setClearColor(0, 0, 0, 0);
         let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
+        subStruct.owner = this;
         subStruct.pass = subPass;
 
         this._subStructRender = new SubStructRender();
@@ -2308,11 +2247,15 @@ export class Sprite extends Node {
     /** @internal */
     updateRenderTexture() {
         //计算方式调整
-        let rect = Rectangle.TEMP;
+        let rect = Rectangle.create();
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
+            //local
+            if (rect && this._mask.transform) {
+                rect.transform(this._mask.transform, rect);
+            }
         }
         else {
             SpriteUtils.getRect(this, false, rect);
@@ -2320,8 +2263,10 @@ export class Sprite extends Node {
             rect.y += this._pivotY;
         }
 
-        if (rect.width === 0 || rect.height === 0)
+        if (rect.width === 0 || rect.height === 0) {
+            rect.recover();
             return false;
+        }
 
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
@@ -2329,16 +2274,21 @@ export class Sprite extends Node {
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
                 this._subStructRender._updateRenderOffset(rect);
+                if (maskRect.x !== rect.x || maskRect.y !== rect.y)
+                    this._subStruct.dcBoundsTarget = null;
+                rect.recover();
                 return false;
             }
             oldRT.destroy();
         }
 
         this._subStructRender._updateRenderOffset(rect);
+        this._subStruct.dcBoundsTarget = null;
 
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
         this._drawOriRT = renderTexture;
+        rect.recover();
         return true;
     }
 
@@ -2401,11 +2351,11 @@ export class Sprite extends Node {
      * @ignore
      */
     protected _setParent(value: Node): void {
+        this._globalTrans._spTransChanged(TransformKind.TRS);
+
         super._setParent(value);
 
         this._setStructParent(value as Sprite);
-
-        this._globalTrans._spTransChanged(TransformKind.TRS);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {
@@ -2450,7 +2400,7 @@ export class Sprite extends Node {
         }
         if (this._getBit(NodeFlags.HAS_ZORDER))
             ILaya.systemTimer.callLater(this, this.updateZOrder);
-        this.repaint();
+        this.repaint(RepaintFlag.ChildChange);
     }
 
     /**
@@ -2492,9 +2442,8 @@ export class Sprite extends Node {
 }
 
 const tmpRect = new Rectangle();
-const tmpRect2 = new Rectangle();
 const tmpPoint = new Point();
-const tmpPoints: Array<number> = [];
+const tmpSpriteList: Array<Sprite> = [];
 
 function notifyTransChanged(sp: Sprite) {
     sp.event(Event.TRANSFORM_CHANGED);

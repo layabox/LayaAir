@@ -1,8 +1,9 @@
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
@@ -47,8 +48,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     /**bytelength */
     _gpuMemory: number = 0;
 
-    private _statistics_M_Texture: GPUEngineStatisticsInfo;
-    private _statistics_RC_Texture: GPUEngineStatisticsInfo;
+    private _statistics_M_Texture: StatElement;
+    private _statistics_RC_Texture: StatElement;
     _getSource() {
         return this.resource;
     }
@@ -80,20 +81,20 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
         switch (dimension) {
             case TextureDimension.Tex2D:
-                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture2D;
-                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture2D;
+                this._statistics_M_Texture = StatElement.M_Texture2D;
+                this._statistics_RC_Texture = StatElement.C_Texture2D;
                 break;
             case TextureDimension.Tex3D:
-                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture3D;
-                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture3D;
+                this._statistics_M_Texture = StatElement.M_Texture3D;
+                this._statistics_RC_Texture = StatElement.C_Texture3D;
                 break;
             case TextureDimension.Cube:
-                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_TextureCube;
-                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_TextureCube;
+                this._statistics_M_Texture = StatElement.M_TextureCube;
+                this._statistics_RC_Texture = StatElement.C_TextureCube;
                 break;
             case TextureDimension.Texture2DArray:
-                this._statistics_M_Texture = GPUEngineStatisticsInfo.M_Texture2DArray;
-                this._statistics_RC_Texture = GPUEngineStatisticsInfo.RC_Texture2DArray;
+                this._statistics_M_Texture = StatElement.M_Texture2DArray;
+                this._statistics_RC_Texture = StatElement.C_Texture2DArray;
                 break;
         }
 
@@ -121,8 +122,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this.anisoLevel = 4;
 
         this.compareMode = TextureCompareMode.None;
-        WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, 1);
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLTexture, 1);
+        LayaGL.statAgent.recordCountData(this._statistics_RC_Texture, 1);
+        LayaGL.statAgent.recordCountData(StatElement.C_AllTexture, 1);
     }
 
     private _filterMode: FilterMode;
@@ -308,9 +309,9 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     }
 
     private _changeTexMemory(memory: number) {
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_GPUMemory, -this._gpuMemory + memory);
-        this._engine._addStatisticsInfo(GPUEngineStatisticsInfo.M_ALLTexture, -this._gpuMemory + memory);
-        this._engine._addStatisticsInfo(this._statistics_M_Texture, -this._gpuMemory + memory);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_GPUMemory, -this._gpuMemory + memory);
+        LayaGL.statAgent.recordMemoryData(StatElement.M_AllTexture, -this._gpuMemory + memory);
+        LayaGL.statAgent.recordMemoryData(this._statistics_M_Texture, -this._gpuMemory + memory);
 
     }
 
@@ -319,7 +320,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         gl.deleteTexture(this.resource);
         this._changeTexMemory(0);
         this._gpuMemory = 0;
-        WebGLEngine.instance._addStatisticsInfo(this._statistics_RC_Texture, -1);
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.RC_ALLTexture, -1);
+        LayaGL.statAgent.recordCountData(this._statistics_RC_Texture, -1);
+        LayaGL.statAgent.recordCountData(StatElement.C_AllTexture, -1);
     }
 }

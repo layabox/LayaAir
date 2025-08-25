@@ -155,13 +155,19 @@ int getLightIndex(in int offset, in int index)
     int row = totalOffset / c_ClusterBufferFloatWidth;
     int lastRowFloat = totalOffset - row * c_ClusterBufferFloatWidth;
     int col = lastRowFloat / 4;
-    vec2 uv = vec2((float(col) + 0.5) / float(c_ClusterBufferWidth), (float(row) + 0.5) / float(c_ClusterBufferHeight));
-    vec4 texPixel = texture2D(u_LightClusterBuffer, uv);
-    int pixelComponent = lastRowFloat - col * 4;
 
 		#ifdef GRAPHICS_API_GLES3
+    
+    vec4 texPixel = texelFetch(u_LightClusterBuffer, ivec2(col, row), 0);
+    int pixelComponent = lastRowFloat - col * 4;
+
     return int(texPixel[pixelComponent]);
 		#else
+
+    vec2 uv = vec2((float(col) + 0.5) / float(c_ClusterBufferWidth), (float(row) + 0.5) / float(c_ClusterBufferHeight));
+    vec4 texPixel = texture2DLodEXT(u_LightClusterBuffer, uv, 0.0);
+    int pixelComponent = lastRowFloat - col * 4;
+
     if (pixelComponent == 0)
 	return int(texPixel.x);
     else if (pixelComponent == 1)
@@ -186,9 +192,20 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
     light.attenuation = 1.0;
     light.lightMode = getAttenuationByMode(float(u_DirLightMode));
 	    #else // LEGACYSINGLELIGHTING
+
+    #ifdef GRAPHICS_API_GLES3
+
+    vec4 p1 = texelFetch(u_LightBuffer, ivec2(0, index), 0);
+    vec4 p2 = texelFetch(u_LightBuffer, ivec2(1, index), 0);
+
+    #else // GRAPHICS_API_GLES3
+
     float v = (float(index) + 0.5) / float(CalculateLightCount);
-    vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
-    vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));
+    vec4 p1 = texture2DLodEXT(u_LightBuffer, vec2(0.125, v), 0.0);
+    vec4 p2 = texture2DLodEXT(u_LightBuffer, vec2(0.375, v), 0.0);
+
+    #endif // GRAPHICS_API_GLES3
+
     light.color = p1.rgb;
     light.direction = p2.rgb;
     light.attenuation = 1.0;
@@ -220,9 +237,18 @@ ivec4 getClusterInfo(mat4 viewMatrix, vec4 viewport, vec3 positionWS, vec4 fragC
     int clusterYIndex = int(floor((viewport.w * (projectParams.z < 0.0 ? 0.0 : 1.0) - fragCoord.y * projectParams.z) / (float(viewport.w) / float(CLUSTER_Y_COUNT))));
     float zSliceParam = float(CLUSTER_Z_COUNT) / log2(projectParams.y / projectParams.x);
     int clusterZIndex = int(floor(log2(-viewPos.z) * zSliceParam - log2(projectParams.x) * zSliceParam));
+
+    #ifdef GRAPHICS_API_GLES3
+
+    vec4 clusterPixel = texelFetch(u_LightClusterBuffer, ivec2(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT, clusterZIndex), 0);
+
+    #else // GRAPHICS_API_GLES3
     // todo 化简
     vec2 uv = vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT) + 0.5) / float(c_ClusterBufferWidth), (float(clusterZIndex) + 0.5) / float(c_ClusterBufferHeight));
-    vec4 clusterPixel = texture2D(u_LightClusterBuffer, uv);
+    vec4 clusterPixel = texture2DLodEXT(u_LightClusterBuffer, uv, 0.0);
+
+    #endif // GRAPHICS_API_GLES3
+
     return ivec4(clusterPixel); // X:Point Count Y:Spot Count Z、W:Light Offset
 	    #endif // LEGACYSINGLELIGHTING
 }
@@ -243,9 +269,20 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
     int pointIndex = getLightIndex(indexOffset, index);
+
+    #ifdef GRAPHICS_API_GLES3
+
+    vec4 p1 = texelFetch(u_LightBuffer, ivec2(0, pointIndex), 0);
+    vec4 p2 = texelFetch(u_LightBuffer, ivec2(1, pointIndex), 0);
+
+    #else // GRAPHICS_API_GLES3
+
     float v = (float(pointIndex) + 0.5) / float(CalculateLightCount);
-    vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
-    vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));
+    vec4 p1 = texture2DLodEXT(u_LightBuffer, vec2(0.125, v), 0.0);
+    vec4 p2 = texture2DLodEXT(u_LightBuffer, vec2(0.375, v), 0.0);
+
+    #endif // GRAPHICS_API_GLES3
+
     light.color = p1.rgb;
     light.range = p1.a;
     light.position = p2.rgb;
@@ -273,10 +310,21 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
     int spotIndex = getLightIndex(indexOffset, index + clusterInfo.x);
+    
+    #ifdef GRAPHICS_API_GLES3
+
+    vec4 p1 = texelFetch(u_LightBuffer, ivec2(0, spotIndex), 0);
+    vec4 p2 = texelFetch(u_LightBuffer, ivec2(1, spotIndex), 0);
+    vec4 p3 = texelFetch(u_LightBuffer, ivec2(2, spotIndex), 0);
+
+    #else // GRAPHICS_API_GLES3
+
     float v = (float(spotIndex) + 0.5) / float(CalculateLightCount);
-    vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
-    vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));
-    vec4 p3 = texture2D(u_LightBuffer, vec2(0.625, v));
+    vec4 p1 = texture2DLodEXT(u_LightBuffer, vec2(0.125, v), 0.0);
+    vec4 p2 = texture2DLodEXT(u_LightBuffer, vec2(0.375, v), 0.0);
+    vec4 p3 = texture2DLodEXT(u_LightBuffer, vec2(0.625, v), 0.0);
+    
+    #endif // GRAPHICS_API_GLES3
     light.color = p1.rgb;
     light.range = p1.a;
     light.position = p2.rgb;

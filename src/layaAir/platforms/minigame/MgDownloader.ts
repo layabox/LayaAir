@@ -89,7 +89,7 @@ export class MgDownloader extends Downloader {
 
     image(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         if (!url.startsWith("http://") && !url.startsWith("https://") || !this.cacheManager) {
-            super.image(owner, url, originalUrl, onProgress, onComplete);
+            super.image(owner, this.escapeURL(url), originalUrl, onProgress, onComplete);
             return;
         }
 

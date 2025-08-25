@@ -1,5 +1,6 @@
-import { GPUEngineStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ShaderVariable } from "../../../../RenderEngine/RenderShader/ShaderVariable";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { StatElement } from "../../../../layagl/StatisticsContext";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
@@ -52,7 +53,6 @@ export class GLShaderInstance extends GLObject {
 
     private _create(): void {
         WebGLEngine._lastShaderError = null;
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_ShaderCompile, 1);
         let preTime = performance.now();
         const gl: WebGLRenderingContext = this._gl;
 
@@ -137,7 +137,6 @@ export class GLShaderInstance extends GLObject {
                 this._addShaderUnifiormFun(one);
             }
         }
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.T_ShaderCompile, (performance.now() - preTime) | 0);
         this._complete = true;
     }
 
@@ -243,7 +242,7 @@ export class GLShaderInstance extends GLObject {
         this._gl.useProgram(this._program);
         this._engine._glUseProgram = this;
         //不知道准不准
-        WebGLEngine.instance._addStatisticsInfo(GPUEngineStatisticsInfo.C_SetRenderPassCount, 1);
+       LayaGL.statAgent.recordCTData(StatElement.CT_ShaderChange, 1);
         return true;
     }
 

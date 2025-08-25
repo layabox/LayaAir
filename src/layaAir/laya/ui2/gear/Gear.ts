@@ -1,4 +1,5 @@
 import { NodeFlags } from "../../Const";
+import { IGraphicsCmd } from "../../display/IGraphics";
 import { Ease } from "../../tween/Ease";
 import { Tween } from "../../tween/Tween";
 import { IClone } from "../../utils/IClone";
@@ -125,6 +126,8 @@ export class Gear {
                 this._tween.recover();
                 this._tween = null;
             });
+        if ((obj as IGraphicsCmd).cmdID)
+            this._tween.onUpdate(() => this._owner._graphics?.repaint());
     }
 
     protected runGear(initiator: Controller) {
@@ -156,6 +159,8 @@ export class Gear {
             || Gear.disableAllTweenEffect
             || this._owner._getBit(NodeFlags.EDITING_NODE)) {
             obj[key] = newValue;
+            if ((obj as IGraphicsCmd).cmdID)
+                this._owner._graphics?.repaint();
             return;
         }
 

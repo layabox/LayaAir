@@ -1,4 +1,3 @@
-import { SubPassFlag } from "../Const";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
@@ -8,7 +7,7 @@ import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
-import { SpriteConst } from "./SpriteConst";
+import { SpriteConst, SubPassFlag } from "./SpriteConst";
 
 /**
  * @en Post-process effects for 2D rendering.
@@ -61,7 +60,7 @@ export class PostProcess2D extends EventDispatcher {
       }
       this._owner = value;
       if (this._owner) {
-         if (this._effects.length > 0)
+         if (this._effects.length > 0 && this._enabled)
             this._owner._renderType |= SpriteConst.POSTPROCESS;
       }
    }
@@ -73,10 +72,12 @@ export class PostProcess2D extends EventDispatcher {
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
       if (this._owner) {
-         if (this._effects.length === 0 || !this._enabled)
+         if (this._effects.length === 0 || !this._enabled) {
             this._owner._renderType &= ~SpriteConst.POSTPROCESS;
-         else
+         }
+         else {
             this._owner._renderType |= SpriteConst.POSTPROCESS;
+         }
          this._owner.setSubpassFlag(SubPassFlag.PostProcess);
          this._owner.repaint();
       }

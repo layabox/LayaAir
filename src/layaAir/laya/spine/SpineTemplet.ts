@@ -30,28 +30,28 @@ export class SpineTemplet extends Resource {
     materialMap: Map<string, Material> = new Map();
 
     private _textures: Record<string, Texture2D>;
-    private _atlas:spine.TextureAtlas;
+    private _atlas: spine.TextureAtlas;
     private _basePath: string;
     /**
      * @en Base width of spine animation
      * @zh spine 动画基础宽度
      */
-    width:number;
+    width: number;
     /**
      * @en Base height of spine animation
      * @zh spine 动画基础高度
      */
-    height:number;
+    height: number;
     /**
      * @en X-axis offset of spine animation
      * @zh spine 动画X轴偏移
      */
-    offsetX:number;
+    offsetX: number = 0;
     /**
      * @en Y-axis offset of spine animation
      * @zh spine 动画Y轴偏移
      */
-    offsetY:number;
+    offsetY: number = 0;
     /**
      * @en Indicates if slot is needed
      * @zh 是否需要插槽
@@ -68,7 +68,7 @@ export class SpineTemplet extends Resource {
      * @en Indicates if physics is needed
      * @zh 是否需要物理
      */
-    hasPhysics:boolean = false;
+    hasPhysics: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -113,7 +113,7 @@ export class SpineTemplet extends Resource {
     public get premultipliedAlpha() {
         return this._premultipliedAlpha;
     }
-   
+
 
     /**
      * @en The base path of the Spine animation resources
@@ -151,11 +151,11 @@ export class SpineTemplet extends Resource {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
 
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat , this._premultipliedAlpha);
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat, this._premultipliedAlpha);
 
             if (this._premultipliedAlpha) {
                 mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
-            }else{
+            } else {
                 mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             }
             mat._addReference();
@@ -174,13 +174,12 @@ export class SpineTemplet extends Resource {
         return this._textures[name];
     }
 
-    setTexture(name:string , tex:Texture2D)
-    {
+    setTexture(name: string, tex: Texture2D) {
         this._textures[name] = tex;
     }
 
     /** @internal */
-    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D> , premultipliedAlpha = true): void {
+    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>, premultipliedAlpha = true): void {
 
         let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
         if (desc instanceof ArrayBuffer) {
@@ -199,13 +198,21 @@ export class SpineTemplet extends Resource {
         this.mainTexture = this._mainTexture;
         this.width = this.skeletonData.width;
         this.height = this.skeletonData.height;
-        this.offsetX = this.skeletonData.x;
-        this.offsetY = this.skeletonData.y;
+
         this._premultipliedAlpha = premultipliedAlpha;
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
         //需要无物理环境
         this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
         this.sketonOptimise.checkMainAttach(this.skeletonData);
+
+        let skeleton = this.sketonOptimise.sketon;
+        let rootBone = skeleton.getRootBone();
+        // this.offsetX = rootBone.x;
+        // this.offsetY = rootBone.y;
+        this.offsetX = this.skeletonData.x + this.width + rootBone.x;
+        this.offsetY = -(this.skeletonData.y + this.height - rootBone.y);
+        rootBone.x = this.offsetX;
+        rootBone.y = this.offsetY;
     }
 
     /**
@@ -249,9 +256,9 @@ export class SpineTemplet extends Resource {
      * @zh 释放纹理和材质
      */
     protected _disposeResource(): void {
-        
+
         this.sketonOptimise.destroy();
-        
+
         for (let k in this._textures) {
             let tex = this._textures[k];
             if (tex) {

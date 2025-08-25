@@ -1,7 +1,5 @@
-import { Config } from "../../../../Config";
 import { ILaya } from "../../../../ILaya";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { RenderPassStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
@@ -11,9 +9,12 @@ import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
+import { Browser } from "../../../utils/Browser";
 import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
@@ -21,7 +22,6 @@ import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirec
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
-import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
@@ -218,7 +218,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {
         //先渲染ShadowTexture
-        var time = performance.now();//T_Render_ShadowPassMode Stat
+        var time = Browser.now();//T_Render_ShadowPassMode Stat
         if (renderpass.shadowCastPass) {
             if (renderpass.enableDirectLightShadow) {
                 context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -246,15 +246,15 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             }
         }
-        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_ShadowPassMode] += (performance.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_ShadowPass, Browser.now() - time);//Stat
 
         renderpass.renderpass.render(context, list, count);
         renderpass._beforeImageEffectCMDS && this._rendercmd(renderpass._beforeImageEffectCMDS, context)
 
         if (renderpass.enablePostProcess) {
-            time = performance.now();//T_Render_PostProcess Stat
+            time = Browser.now();//T_Render_PostProcess Stat
             renderpass.postProcess && this._renderPostProcess(renderpass.postProcess, context);
-            Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_PostProcess] += (performance.now() - time);//Stat
+            LayaGL.statAgent.recordTimeData(StatElement.T_Render_PostProcess, Browser.now() - time);//Stat
         }
         renderpass._afterAllRenderCMDS && this._rendercmd(renderpass._afterAllRenderCMDS, context);
 
@@ -270,12 +270,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
     private _rendercmd(cmds: CommandBuffer[], context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
-
-        var time = performance.now();//T_Render_CameraEventCMD Stat
         cmds.forEach(function (value) {
             context.runCMDList(value._renderCMDs);
         });
-        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_Render_CameraEventCMD] += (performance.now() - time);//Stat
     }
 
     /**

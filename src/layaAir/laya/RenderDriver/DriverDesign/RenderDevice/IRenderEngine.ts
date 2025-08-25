@@ -1,11 +1,7 @@
-
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
-import { GLBuffer } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 import { ITextureContext } from "./ITextureContext";
 import { InternalTexture } from "./InternalTexture";
 
@@ -13,8 +9,6 @@ export interface IRenderEngine {
     _context: any;
     /**@internal */
     _isShaderDebugMode: boolean;
-
-    _enableStatistics: boolean;
 
     _framePassCount: number;
 
@@ -39,10 +33,6 @@ export interface IRenderEngine {
     getParams(params: RenderParams): number;
     getCapable(capatableType: RenderCapable): boolean;
     getTextureContext(): ITextureContext;
-    /**@internal */
-    clearStatisticsInfo(): void;
-    /**@internal */
-    getStatisticsInfo(info: GPUEngineStatisticsInfo): number;
     startFrame(): void;
     endFrame(): void;
 }

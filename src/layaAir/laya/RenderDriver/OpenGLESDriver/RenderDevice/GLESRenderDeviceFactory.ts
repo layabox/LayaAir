@@ -27,6 +27,7 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
+import { RTStatisContext } from "../../RenderModuleData/RuntimeModuleData/RTStatisticContext";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -101,6 +102,11 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
 
 
 Laya.addBeforeInitCallback(() => {
-    if (!LayaGL.renderDeviceFactory)
+    if (!LayaGL.renderDeviceFactory) {
         LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
+        let statisticsContext = new RTStatisContext();
+        LayaGL.statAgent?.cloneTo(statisticsContext);
+        LayaGL.statAgent = statisticsContext;
+    }
 })
+

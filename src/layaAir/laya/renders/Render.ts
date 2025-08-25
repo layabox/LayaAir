@@ -1,3 +1,5 @@
+import { LayaGL } from "../layagl/LayaGL";
+import { DefaultStaticsContext } from "../layagl/StatisticsContext";
 import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Config } from "./../../Config";
@@ -30,7 +32,6 @@ export class Render {
     static __init__() {
 
         Render.frameInterval = 1000 / Config.FPS;
-
         let timeId: number = 0;
         PAL.browser.on("visibilitychange", (visible: boolean) => {
             if (!visible)
@@ -38,7 +39,6 @@ export class Render {
             else if (timeId != 0)
                 window.clearInterval(timeId);
         });
-
         Render.startLoop();
     }
 
@@ -78,9 +78,11 @@ export class Render {
      * @internal
      */
     static loop() {
+        LayaGL.statAgent.startFrameLogic();
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
         ILaya.stage.render();
+        LayaGL.statAgent.endFrameLogic();
     }
 
     /**

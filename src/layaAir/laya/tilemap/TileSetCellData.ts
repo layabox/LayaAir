@@ -38,13 +38,6 @@ export class TileSetCellData {
 
     private _cellowner: TileAlternativesData;
 
-    private _flip_h: boolean = false;
-
-    private _flip_v: boolean = false;
-
-    private _transpose: boolean = false;
-
-    private _rotateCount: number = 0;
     //单位像素
     private _texture_origin: Vector2;
 
@@ -79,18 +72,7 @@ export class TileSetCellData {
 
     private _destroyed: boolean = false;
 
-    private _updateTrans = true;
-
-    /**@internal */
-    private _transData: Vector4 = new Vector4();
-
     gid: number = -1;
-
-    //贴图旋转矩阵
-    get transData(): Vector4 {
-        if (this._updateTrans) this._updateTransData();
-        return this._transData;
-    }
 
     get index() {
         return this._index;
@@ -105,58 +87,6 @@ export class TileSetCellData {
 
     public set cellowner(value: TileAlternativesData) {
         this._cellowner = value;
-    }
-
-    /**
-     *  是否水平翻转
-     */
-    public get flip_h(): boolean {
-        return this._flip_h;
-    }
-
-    public set flip_h(value: boolean) {
-        this._flip_h = value;
-        this._updateTrans = true;
-        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
-    }
-
-    /**
-     * 是否垂直翻转
-     */
-    public get flip_v(): boolean {
-        return this._flip_v;
-    }
-
-    public set flip_v(value: boolean) {
-        this._flip_v = value;
-        this._updateTrans = true;
-        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
-    }
-
-    public get transpose(): boolean {
-        return this._transpose;
-    }
-
-    /**
-     * 是否转置
-     */
-    public set transpose(value: boolean) {
-        this._transpose = value;
-        this._updateTrans = true;
-        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
-    }
-
-    /**
-     * 旋转次数
-     */
-    public get rotateCount(): number {
-        return this._rotateCount;
-    }
-
-    public set rotateCount(value: number) {
-        this._rotateCount = value;
-        this._updateTrans = true;
-        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -277,10 +207,10 @@ export class TileSetCellData {
     //custom module
     constructor() {
         this._notiveRenderTile = [];
-        this._flip_h = false;
-        this._flip_v = false;
-        this._transpose = false;
-        this._rotateCount = 0;
+        // this._flip_h = false;
+        // this._flip_v = false;
+        // this._transpose = false;
+        // this._rotateCount = 0;
         this._texture_origin = new Vector2(0, 0);
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
@@ -308,16 +238,16 @@ export class TileSetCellData {
     _noticeRenderChange() {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element.modifyRenderData()
+            element._modifyData()
         });
     }
 
-    private _updateTransData() {
-        this._updateTrans = false;
-        let tileshape = this.cellowner.owner._owner.tileShape;
-        let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v,this._transpose, this._rotateCount);
-        out.cloneTo(this._transData);
-    }
+    // private _updateTransData() {
+    //     this._updateTrans = false;
+    //     let tileshape = this.cellowner.owner._owner.tileShape;
+    //     let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v, this._transpose, this._rotateCount);
+    //     out.cloneTo(this._transData);
+    // }
 
     _removeNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         let index = this._notiveRenderTile.indexOf(layerRenderTile);
@@ -357,11 +287,11 @@ export class TileSetCellData {
     }
 
 
-    getTerrainsParams():TerrainsParams{
+    getTerrainsParams(): TerrainsParams {
         let params = new TerrainsParams;
         params.terrainSet = this.terrainSet;
         params.terrain = this.terrain;
-        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,16);
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0, 16);
         return params;
     }
 
@@ -401,17 +331,10 @@ export class TileSetCellData {
     }
 
     cloneTo(dst: TileSetCellData) {
-        dst._flip_h = this._flip_h;
-        dst._flip_v = this._flip_v;
         dst._material = this._material;
         dst._cellowner = this._cellowner;
-        dst._rotateCount = this._rotateCount;
-        dst._transpose = this._transpose;
         dst._z_index = this._z_index;
         dst._y_sort_origin = this._y_sort_origin;
-        this._transData.cloneTo(dst._transData);
-
-        dst._updateTrans = true;
     }
 
     //删除

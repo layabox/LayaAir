@@ -206,11 +206,8 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
     fowardRender(context: GLESRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
-
-        this.initRenderpass(camera, context);
-
         this.renderDepth(camera);
-
+        this.initRenderpass(camera, context);
         this.renderFowarAddCameraPass(context, this.renderpass);
     }
 

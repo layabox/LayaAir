@@ -510,39 +510,51 @@ export class GraphicsRunner {
         this._save = null;
     }
 
-    clearRenderData(): void {
+    clear(): void {
         this._submitKey.clear();
         this._curSubmit = SubmitBase.RENDERBASE;
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
-        this._lastTex = null;
-    }
-
-    clear(): void {
-        this.clearRenderData();
-        this._alpha = 1.0;
-        this._nBlendType = BlendMode.normal;
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
+        this._alpha = 1.0;
+        this._nBlendType = BlendMode.normal;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
+        this._lastTex = null;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
     }
-
+    /**
+     * @zh 获取当前的 X 方向缩放
+     * @returns 当前的 X 方向缩放
+     * @en Get the current X-axis scaling
+     * @returns The current X-axis scaling
+     */
     getCurrentScaleX(): number {
         let scaleX = this.getMatScaleX();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleX = matrix.a;
-        return scaleX * spriteScaleX;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第一列向量的模长 sqrt(a² + b²)，避免旋转影响
+            scaleX *= Math.hypot(matrix.a, matrix.b);
+        }
+        return Math.abs(scaleX);  // 取绝对值，防止负缩放导致错误
     }
-
+    /**
+     * @zh 获取当前的 Y 方向缩放
+     * @returns 当前的 Y 方向缩放
+     * @en Get the current Y-axis scaling
+     * @returns The current Y-axis scaling
+     */
     getCurrentScaleY(): number {
         let scaleY = this.getMatScaleY();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleY = matrix.d;
-        return scaleY * spriteScaleY;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第二列向量的模长 sqrt(c² + d²)，避免旋转影响
+            scaleY *= Math.hypot(matrix.c, matrix.d);
+        }
+        return Math.abs(scaleY);
     }
 
     /**
@@ -1095,11 +1107,8 @@ export class GraphicsRunner {
         var oldcomp: BlendMode;
         var curMat = this._curMat;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }
@@ -1152,11 +1161,8 @@ export class GraphicsRunner {
 
         let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }

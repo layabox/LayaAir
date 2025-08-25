@@ -14,6 +14,7 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 import { Transform3D } from "./Transform3D";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Event } from "../../events/Event";
+import { StatElement } from "../../layagl/StatisticsContext";
 /**
  * @internal
  */
@@ -194,12 +195,12 @@ export class Sprite3D extends Node {
 
     protected _onActive(): void {
         super._onActive();
-        Stat.sprite3DCount++;
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite3DCount, 1);
     }
 
     protected _onInActive(): void {
         super._onInActive();
-        Stat.sprite3DCount--;
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite3DCount, -1);
     }
 
     protected _onAdded(): void {

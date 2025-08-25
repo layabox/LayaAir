@@ -22,6 +22,7 @@ import { Particle2DGeomotry } from "./Particle2DGeomotry";
 import { Particle2DShader } from "./Particle2DShader";
 import { Particle2DVertexMesh } from "./Particle2DVertexMesh";
 import { ShurikenParticle2DSystem, Particle2DSystemDirtyFlagBits } from "./ShurikenParticle2DSystem";
+import { Utils } from "../../utils/Utils";
 
 const nMatrix0 = new Vector3();
 const nMatrix1 = new Vector3();
@@ -630,8 +631,8 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         let cosAngle = worldMat.a / scaleX;
         let sinAngle = worldMat.b / scaleX;
 
-        let translateX = nMatrix0.z;
-        let translateY = nMatrix1.z;
+        let translateX = worldMat.tx;
+        let translateY = worldMat.ty;
 
         let simulationSpace = 0;
         switch (ps.main.simulationSpace) {
@@ -649,14 +650,18 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             case Particle2DScalingMode.Hierarchy:
                 break;
             case Particle2DScalingMode.Local:
-                scaleX = this.owner.scaleX * this.owner.scene.globalScaleX;
-                scaleY = this.owner.scaleY * this.owner.scene.globalScaleY;
+                scaleX = this.owner.scaleX;
+                scaleY = this.owner.scaleY;
+                if (this.owner.scene) {
+                    scaleX *= this.owner.scene.globalScaleX;
+                    scaleY *= this.owner.scene.globalScaleY;
+                }
                 break;
             default:
                 break;
         }
-
         ps.main._spriteRotAndScale.setValue(cosAngle, sinAngle, scaleX, scaleY);
+        shaderData.setVector(Particle2DShader.SpriteRotAndScale, ps.main._spriteRotAndScale);
         ps.main._spriteTranslateAndSpace.setValue(translateX, translateY, simulationSpace);
 
         // gravity
@@ -764,6 +769,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         this._renderElements.length = 0;
 
         if (!this.sharedMaterial) {
+            this._struct.renderElements = this._renderElements;
             return;
         }
 
@@ -792,6 +798,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             let element = createRenderElement(geometry);
             this._renderElements.push(element);
         }
+        this._struct.renderElements = this._renderElements;
     }
 
     private _updateParticleBuffer(startActive: number, endActive: number) {
@@ -849,14 +856,14 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
         this.setParticleData(this._spriteShaderData, this.owner._globalTrans.getMatrix());
         this._updateLight();
-        
+
         if (this._renderElements.length <= 0) {
             return;
         }
         if (this._updateMark != Stat.loopCount) {
             this._updateMark = Stat.loopCount;
 
-            let elapsedTime = this.owner.scene.timer.delta / 1000;
+            let elapsedTime = this.owner.timer.delta / 1000;
             ps._update(elapsedTime);
 
             const startUpdate = ps.particlePool.updateStartIndex;

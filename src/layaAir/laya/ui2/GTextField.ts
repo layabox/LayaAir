@@ -387,6 +387,18 @@ export class GTextField extends GWidget {
     }
 
     /**
+     * @en Whether single character rendering is enabled. Enable this if the text content changes frequently, such as an increasing number, to prevent inefficient use of cache.
+     * @zh 是否启用单个字符渲染。如果文字内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     */
+    get singleCharRender(): boolean {
+        return this.textIns.singleCharRender;
+    }
+
+    set singleCharRender(value: boolean) {
+        this.textIns.singleCharRender = value;
+    }
+
+    /**
      * @en Text Template
      * @zh 文本模板
      */

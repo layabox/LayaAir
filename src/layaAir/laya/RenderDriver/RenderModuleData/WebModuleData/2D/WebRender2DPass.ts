@@ -1,5 +1,4 @@
 import { Color } from "../../../../maths/Color";
-import { Vector4 } from "../../../../maths/Vector4";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D";
@@ -15,68 +14,66 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
-import { WebGraphicsBatch } from "./WebGraphicsBatch";
-import { BaseRender2DType } from "../../../../display/SpriteConst";
-import { IPool, Pool } from "../../../../utils/Pool";
 import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
+import { SpriteUtils } from "../../../../utils/SpriteUtils";
+import { BatchManager, IBatch2DProvider } from "./BatchManager";
+import { LayaEnv } from "../../../../../LayaEnv";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
+import { Pool } from "../../../../utils/Pool";
+import { NodeFlags } from "../../../../Const";
 
-export interface IBatch2DContext {
-   reset(): void;
-   destroy(): void;
-}
-export interface IBatch2DRender {
+import { WebGraphicsBatch } from "./WebGraphicsBatch";
+BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
-   createBatchContext(): IBatch2DContext;
-   /**合批范围，合批的RenderElement2D直接add进list中 */
-   batchRenderElement(list: FastSinglelist<IRenderElement2D>, start: number, length: number, context: IBatch2DContext): void;
+class SortedStructs {
+   readonly lists: Map<number, FastSinglelist<WebRenderStruct2D>> = new Map();
 
-   prepare(strcut: WebRenderStruct2D, context: IBatch2DContext, offset: number): void;
-}
+   private _indice = new Set<number>;
+   private _sortedIndice: Array<number> = [];
 
+   add(struct: WebRenderStruct2D) {
+      let list = this.lists.get(struct._effectZ);
+      if (!list)
+         this.lists.set(struct._effectZ, list = new FastSinglelist<WebRenderStruct2D>());
+      list.add(struct);
+      if (list.length === 1)
+         this._indice.add(struct._effectZ);
+      return list;
+   }
 
-class Batch2DInfo {
-   batchFun: IBatch2DRender = null;
-   batchContext: IBatch2DContext = null;
-   batch: boolean = false;
-   indexStart: number = -1;
-   elementLength: number = 0;
-   elementCount: number = 0;
+   reset() {
+      this._indice.forEach(i => this.lists.get(i).clear());
+      this._indice.clear();
+      this._sortedIndice.length = 0;
+   }
 
-   static readonly _pool: IPool<Batch2DInfo> = Pool.createPool(Batch2DInfo);
-}
+   get indice(): ReadonlyArray<number> {
+      let arr = this._sortedIndice;
+      if (arr.length === 0) {
+         for (let zIndex of this._indice) {
+            arr.push(zIndex);
+         }
+         arr.sort((a, b) => a - b);
+      }
+      return arr;
+   }
 
-/**
- * 合批管理
- * TODO 需要挪出去
- */
-export class BatchManager {
-   /**
-    * @internal
-    * 根据不同的RenderNode注册合批方式，来优化性能
-    */
-   static _batchMapManager: { [key: number]: IBatch2DRender } = {};
-
-   /**
-    * 注册渲染节点之间的合批
-    * @param renderElementType 
-    * @param batch 
-    */
-   static registerBatch(renderElementType: number, batch: IBatch2DRender): void {
-      if (BatchManager._batchMapManager[renderElementType])
-         throw new Error("Overlapping batch optimization");
-      else
-         BatchManager._batchMapManager[renderElementType] = batch;
+   appendTo(out: FastSinglelist<WebRenderStruct2D>) {
+      this.indice.forEach(zIndex => out.addList(this.lists.get(zIndex)));
    }
 }
 
-const _TEMP_InvertMatrix = new Matrix();
 export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
-   /** @internal */
-   _lists: PassRenderList[] = [];
-   /** @internal */
-   _priority: number = 0;
 
+   private _renderElements = new FastSinglelist<IRenderElement2D>();
+   private _elementGroups: Array<any> = [];
+   private _structs: SortedStructs = new SortedStructs();
+   private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
+   private _pStructs: SortedStructs;
+   private _batchProviders: IBatch2DProvider[] = [];
+
+   _priority: number = 0;
    public get priority(): number {
       return this._priority;
    }
@@ -161,30 +158,8 @@ export class WebRender2DPass implements IRender2DPass {
          && (this.repaint || !this.renderTexture);
    }
 
-   /**
-    * add Render Node
-    * @param object 
-    */
-   addStruct(object: WebRenderStruct2D): void {
-      let zOrder = object.zIndex;
-      if (!this._lists[zOrder]) {
-         this._lists[zOrder] = new PassRenderList;
-         this._lists[zOrder].zOrder = zOrder;
-      }
-      this._lists[zOrder].add(object, this._enableBatch);
-   }
-
-   /**
-    * remove Render Node
-    * @param object 
-    */
-   removeStruct(object: WebRenderStruct2D): void {
-      let zOrder = object.zIndex;
-      this._lists[zOrder].remove(object);
-   }
-
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
-      if (!struct || !struct.enabled) return;
+      if (!struct.enabled) return;
 
       struct._handleInterData();
       //这里进入process2D的排序  并不帧判断
@@ -204,25 +179,29 @@ export class WebRender2DPass implements IRender2DPass {
 
       struct.renderUpdate(context2D);
 
-      this.addStruct(struct);
+      let list = this._pStructs.add(struct);
 
-      //需要处理全局透明的问题，统计并且生成新的 process。
-      for (let i = 0; i < struct.children.length; i++) {
+      if (struct.stackingRoot) {
+         var oldCol = this._pStructs;
+         this._pStructs = this._structsPool.take();
+      }
+
+      for (let i = 0, n = struct.children.length; i < n; i++) {
          const child = struct.children[i];
+         child._effectZ = child.zIndex + struct._effectZ;
          this.cullAndSort(context2D, child);
       }
-   }
 
-   /**
-     * 帧更新
-     */
-   updateRenderQueue(context: IRenderContext2D): void {
-      let root = this.root;
-      if (!root) {
-         return;
+      if (struct.dcOptimize) {
+         let last = list.length - 1;
+         struct.dcOptimizeEnd = list.elements[last];
       }
 
-      this.cullAndSort(context, root);
+      if (oldCol) {
+         this._pStructs.appendTo(list);
+         this._structsPool.recover(this._pStructs);
+         this._pStructs = oldCol;
+      }
    }
 
    /**
@@ -231,34 +210,23 @@ export class WebRender2DPass implements IRender2DPass {
     */
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
-      this.render(context);
-   }
 
-   /**
-    * 渲染
-    * @param context 
-    */
-   render(context: IRenderContext2D): void {
-      let lists = this._lists;
-      // 清理zOrder相关队列
-      // if (true) {//如果需要重画或者直接渲染离屏，走下面流程
       if (this.repaint) {
+         this._structs.reset();
+         this._renderElements.length = 0;
+         for (let i = 0, n = this._batchProviders.length; i < n; i++) {
+            this._batchProviders[i]?.reset();
+         }
 
-         this._lists.forEach(list => {
-            list.reset();
-         });
-
-         this.updateRenderQueue(context);
+         if (this.root) {
+            this._pStructs = this._structs;
+            this.cullAndSort(context, this.root);
+            this.fillRenderElements();
+            this._enableBatch && LayaEnv.isPlaying && this.batch();
+         }
 
          WebRender2DPass.uploadBuffer();
-
-         let enableBatch = this._enableBatch;
-         for (let i = 0, len = lists.length; i < len; i++) {
-            let list = lists[i];
-            if (!list || !list.renderElements.length) continue;
-            enableBatch && list.batch();
-            context.drawRenderElementList(list.renderElements);
-         }
+         context.drawRenderElementList(this._renderElements);
 
          if (this._mask) {
             this._mask._handleInterData();
@@ -267,30 +235,134 @@ export class WebRender2DPass implements IRender2DPass {
          }
 
          // 处理后期处理
-         if (this.postProcess && this.postProcess.enabled) {
+         if (this.postProcess?.enabled) {
             this.postProcess._context.command.apply(true);
          }
       } else {
-
-         for (let i = 0, len = lists.length; i < len; i++) {
-            let list = lists[i];
-            if (!list || !list.renderElements.length) continue;
-            let structs = list.structs.elements;
-            for (let j = 0, m = structs.length; j < m; j++) {
-               structs[j] && structs[j].renderUpdate(context);
+         this._structs.indice.forEach(index => {
+            let list = this._structs.lists.get(index);
+            for (let i = 0, cnt = list.length; i < cnt; i++) {
+               let struct = list.elements[i];
+               struct._handleInterData();
+               struct.renderUpdate(context);
             }
-         }
+         });
 
          WebRender2DPass.uploadBuffer();
-
-         for (let i = 0, len = lists.length; i < len; i++) {
-            let list = lists[i];
-            if (!list || !list.renderElements.length) continue;
-            context.drawRenderElementList(list.renderElements);
-         }
+         context.drawRenderElementList(this._renderElements);
       }
 
       this.repaint = false;
+   }
+
+   private fillRenderElements(): void {
+      this._elementGroups.length = 0;
+      let groupStart: number = 0;
+      let reorderRoot: WebRenderStruct2D;
+      let renderElements = this._renderElements;
+
+      this._structs.indice.forEach(index => {
+         let list = this._structs.lists.get(index);
+         for (let i = 0, cnt = list.length; i < cnt; i++) {
+            let struct = list.elements[i];
+            let n = struct.renderElements ? struct.renderElements.length : 0;
+            if (struct.owner._getBit(NodeFlags.HIDE_BY_EDITOR)) //Editor only code, native should ignore
+               n = 0;
+
+            if (struct.dcOptimize && !reorderRoot && struct.dcOptimizeEnd !== struct) {
+               reorderRoot = struct;
+               if (groupStart !== renderElements.length) {
+                  this._elementGroups.push(groupStart, renderElements.length - 1, false);
+                  groupStart = renderElements.length;
+               }
+            }
+
+            if (n > 0) {
+               if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
+                  struct.dcBoundsTarget = reorderRoot;
+                  let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
+                  SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
+               }
+
+               for (let i = 0; i < n; i++) {
+                  let element = struct.renderElements[i];
+                  element._index = i;
+                  renderElements.add(element);
+               }
+            }
+
+            if (reorderRoot?.dcOptimizeEnd === struct) {
+               reorderRoot = null;
+               if (groupStart !== renderElements.length) {
+                  this._elementGroups.push(groupStart, renderElements.length - 1, true);
+                  groupStart = renderElements.length;
+               }
+            }
+         }
+      });
+
+      if (groupStart !== renderElements.length)
+         this._elementGroups.push(groupStart, renderElements.length - 1, false);
+   }
+
+   private batch() {
+      let list = this._renderElements;
+      let length = list.length;
+      let elementArray = list.elements;
+      let groups = this._elementGroups;
+      list.length = 0;
+
+      for (let gi = 0, gl = groups.length; gi < gl; gi += 3) {
+         let groupStart = groups[gi];
+         let groupEnd = groups[gi + 1];
+         let allowReorder = groups[gi + 2];
+         let lastRenderType = elementArray[groupStart].owner.renderType;
+         let batchStart = groupStart;
+
+         for (let i = groupStart + 1; i <= groupEnd; i++) {
+            let element = elementArray[i];
+            let struct = element.owner as WebRenderStruct2D;
+            if (lastRenderType === struct.renderType)
+               continue;
+
+            if (allowReorder) {
+               for (let j = i + 1; j <= groupEnd; j++) {
+                  let element2 = elementArray[j];
+                  if (element2.owner.renderType === lastRenderType) {
+                     for (let k = j - 1; k >= i; k--) {
+                        if (element2.owner.dcBounds.intersects(elementArray[k].owner.dcBounds)) {
+                           element2 = null;
+                           break;
+                        }
+                     }
+
+                     if (element2 != null) {
+                        elementArray.splice(j, 1);
+                        elementArray.splice(i, 0, element2);
+                        element = elementArray[++i];
+                     }
+                  }
+               }
+            }
+
+            if (i - batchStart > 1)
+               this.getBatchProvider(lastRenderType).batch(list, batchStart, i - 1, allowReorder);
+            else
+               list.add(elementArray[batchStart]);
+
+            batchStart = i;
+            lastRenderType = struct.renderType;
+         }
+
+         if (groupEnd - batchStart > 0)
+            this.getBatchProvider(lastRenderType).batch(list, batchStart, groupEnd, allowReorder);
+         else
+            list.add(elementArray[batchStart]);
+      }
+   }
+
+   private getBatchProvider(renderType: number): IBatch2DProvider {
+      return this._batchProviders[renderType] || (this._batchProviders[renderType] = BatchManager.createProvider(renderType));
    }
 
    //预留
@@ -320,13 +392,17 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
-      this._setRenderSize(sizeX, sizeY);
+
+      if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {
+         this._rtsize.setValue(sizeX, sizeY);
+         this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
+      }
    }
 
    static setBuffer(buffer: Web2DGraphicWholeBuffer): void {
       if (buffer._inPass) return;
       buffer._inPass = true;
-      this.buffers.add(buffer);
+      WebRender2DPass.buffers.add(buffer);
    }
 
    static uploadBuffer(): void {
@@ -376,166 +452,21 @@ export class WebRender2DPass implements IRender2DPass {
       this.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_1, this._invertMat_1);
    }
 
-   /**
-     * @internal
-     */
-   private _setRenderSize(x: number, y: number) {
-      if (x === this._rtsize.x && y === this._rtsize.y)
-         return;
-      this._rtsize.setValue(x, y);
-      this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
-   }
-
    destroy(): void {
       if (this.destroyed) {
          return;
       }
       this.destroyed = true;
-      for (let i = 0, n = this._lists.length; i < n; i++) {
-         if (this._lists[i]) {
-            this._lists[i].destroy();
-         }
+      this._renderElements.length = 0;
+      for (let i = 0, n = this._batchProviders.length; i < n; i++) {
+         this._batchProviders[i] && this._batchProviders[i].destroy();
       }
-      this._lists.length = 0;
-      this._lists = null;
+      this._batchProviders.length = 0;
       this.root = null;
       this.renderTexture = null;
       this.postProcess = null;
       this.shaderData.destroy();
       this.shaderData = null;
-   }
-}
-class PassRenderList {
-
-   _batchInfoList = new FastSinglelist<Batch2DInfo>;
-
-   private _currentType: number = -1;
-   // private _currentElementCount: number = 0;
-   private _currentBatch: Batch2DInfo = null;
-
-   structs: FastSinglelist<WebRenderStruct2D> = null;
-   renderElements: FastSinglelist<IRenderElement2D> = null;
-   renderListType: number = -1;
-   zOrder: number = 0;
-   //预想给list更新使用
-   _dirtyFlag: number = 0;
-
-   private _batchContexts: IBatch2DContext[] = [];
-
-   constructor() {
-      this.renderElements = new FastSinglelist<IRenderElement2D>();
-      this.structs = new FastSinglelist<WebRenderStruct2D>();
-   }
-
-   add(struct: WebRenderStruct2D, isBatch: boolean = true): void {
-      this.structs.add(struct);
-
-      let n = struct.renderElements ? struct.renderElements.length : 0;
-      if (n == 0) return;
-      if (n == 1) {
-         if (isBatch) {
-            this._batchStart(struct.renderType, 1);
-            this.renderElements.add(struct.renderElements[0]);
-         } else {
-            this.renderElements.add(struct.renderElements[0]);
-         }
-      } else {
-         if (isBatch) {
-            this._batchStart(struct.renderType, n);
-            for (var i = 0; i < n; i++) {
-               this.renderElements.add(struct.renderElements[i]);
-            }
-         } else {
-            for (var i = 0; i < n; i++) {
-               this.renderElements.add(struct.renderElements[i]);
-            }
-         }
-      }
-
-      if (isBatch && this._currentBatch.batchFun) {
-         let offset = this._currentBatch.indexStart + this._currentBatch.elementLength - n;
-         this._currentBatch.batchFun.prepare(struct, this._currentBatch.batchContext, offset);
-      }
-   }
-
-   /**
-    * 开启一个Batch
-    */
-   private _batchStart(type: number, elementLength: number) {
-      if (this._currentBatch && this._currentType == type) {
-         this._currentBatch.batch = !!(this._currentBatch.batchFun);
-         this._currentBatch.elementLength += elementLength;
-         return;
-      }
-
-      if (this._currentBatch) {
-         this._batchInfoList.add(this._currentBatch);
-      }
-      this._currentBatch = Batch2DInfo._pool.take();
-      this._currentBatch.batch = false;
-      this._currentBatch.batchFun = BatchManager._batchMapManager[type];
-      if (this._currentBatch.batchFun) {
-         let context = this._batchContexts[type];
-         if (!context) {
-            context = this._currentBatch.batchFun.createBatchContext();
-            this._batchContexts[type] = context;
-         }
-         this._currentBatch.batchContext = context;
-      }
-      this._currentBatch.indexStart = this.renderElements.length;
-      this._currentBatch.elementLength = elementLength;
-      this._currentType = type;
-   }
-
-   /**
-    * 合批总循环
-    */
-   batch() {
-      if (this._currentBatch) {
-         this._batchInfoList.add(this._currentBatch);
-      }
-
-      this.renderElements.length = 0;
-
-      for (var i = 0, n = this._batchInfoList.length; i < n; i++) {
-         let info = this._batchInfoList.elements[i];
-         if (info.batch) {
-            info.batchFun.batchRenderElement(this.renderElements, info.indexStart, info.elementLength, info.batchContext);
-         } else {
-            for (let j = info.indexStart, m = info.elementLength + info.indexStart; j < m; j++)
-               this.renderElements.add(this.renderElements.elements[j]);
-         }
-      }
-   }
-
-
-   remove(struct: WebRenderStruct2D): void {
-      this.structs.remove(struct);
-   }
-
-   destroy(): void {
-      this.structs.clear();
-      this.clearRenderElements();
-      for (let i = 0, n = this._batchContexts.length; i < n; i++) {
-         this._batchContexts[i] && this._batchContexts[i].destroy();
-      }
-      this._batchContexts.length = 0;
-   }
-
-   clearRenderElements(): void {
-      this.renderElements.clear();
-      this._batchInfoList.clear();
-   }
-
-   reset(): void {
-      this.structs.length = 0;
-      this.renderElements.length = 0;
-      for (let i = 0, n = this._batchContexts.length; i < n; i++) {
-         this._batchContexts[i] && this._batchContexts[i].reset();
-      }
-      this._batchInfoList.length = 0;
-      this._currentBatch = null;
-      this._currentType = -1;
    }
 }
 
@@ -556,7 +487,7 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    apply(context: IRenderContext2D): void {
       if (this._modify) {
          this._modify = false;
-         this._sortPassesByPriority();
+         this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
       }
 
       for (const pass of this._passes) {
@@ -578,15 +509,6 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       this._passes.push(pass);
       this._modify = true;
    }
-
-   /**
-    * 按照 priority 对 Pass 进行排序
-    */
-   private _sortPassesByPriority(): void {
-      this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
-   }
 }
 
-
-WebGraphicsBatch.instance = new WebGraphicsBatch;
-BatchManager.registerBatch(BaseRender2DType.graphics, WebGraphicsBatch.instance)
+const _TEMP_InvertMatrix = new Matrix();

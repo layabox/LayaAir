@@ -261,14 +261,15 @@ export class Panel extends Box {
         if (value == "") value = null;
         if (this._vScrollBarSkin != value) {
             this._vScrollBarSkin = value;
-            if (this._scrollType == 0)
-                this.scrollType = ScrollType.Vertical;
-            else if (this._scrollType == ScrollType.Horizontal)
-                this.scrollType = ScrollType.Both;
-            else
-                this.scrollType = this._scrollType;
+            if (value) {
+                if (this._scrollType == 0)
+                    this.scrollType = ScrollType.Vertical;
+                else if (this._scrollType == ScrollType.Horizontal)
+                    this.scrollType = ScrollType.Both;
+                else
+                    this.scrollType = this._scrollType;
+            }
         }
-
     }
 
     /**
@@ -283,11 +284,14 @@ export class Panel extends Box {
         if (value == "") value = null;
         if (this._hScrollBarSkin != value) {
             this._hScrollBarSkin = value;
-            if (this._scrollType == 0)
-                this.scrollType = ScrollType.Horizontal;
-            else if (this._scrollType == ScrollType.Vertical)
-                this.scrollType = ScrollType.Both;
-            this.scrollType = this._scrollType;
+            if (value) {
+                if (this._scrollType == 0)
+                    this.scrollType = ScrollType.Horizontal;
+                else if (this._scrollType == ScrollType.Vertical)
+                    this.scrollType = ScrollType.Both;
+                else
+                    this.scrollType = this._scrollType;
+            }
         }
     }
 

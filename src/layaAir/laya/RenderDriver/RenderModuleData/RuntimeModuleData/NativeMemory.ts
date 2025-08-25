@@ -11,7 +11,6 @@ export class NativeMemory {
     protected _uidata: Uint32Array;
     protected _uint16data: Uint16Array;
     protected _fdata: Float32Array;
-    protected _f64data: Float64Array;
     protected _byteArray: Uint8Array;
     /**数据长度 */
     protected _byteLength: number;
@@ -33,12 +32,6 @@ export class NativeMemory {
         else {
             this._buffer = CommonMemoryAllocater.creatBlock(size);
         }
-        this._idata = new Int32Array(this._buffer);
-        this._uidata = new Uint32Array(this._buffer);
-        this._uint16data = new Uint16Array(this._buffer);
-        this._fdata = new Float32Array(this._buffer);
-        this._f64data = new Float64Array(this._buffer);
-        this._byteArray = new Uint8Array(this._buffer);
         this._byteLength = size;
     }
 
@@ -46,17 +39,18 @@ export class NativeMemory {
      * Float32Array Data
      */
     get float32Array(): Float32Array {
+        if (!this._fdata) {
+            this._fdata = new Float32Array(this._buffer);
+        }
         return this._fdata;
     }
-
-    get float64Array(): Float64Array {
-        return this._f64data;
-    }
-
     /**
      * Uint8Array Data
      */
     get uint8Array(): Uint8Array {
+        if (!this._byteArray) {
+            this._byteArray = new Uint8Array(this._buffer);
+        }
         return this._byteArray;
     }
 
@@ -64,10 +58,16 @@ export class NativeMemory {
      * Int32Array Data
      */
     get int32Array(): Int32Array {
+        if (!this._idata) {
+            this._idata = new Int32Array(this._buffer);
+        }
         return this._idata;
     }
 
     get Uint32Array(): Uint32Array {
+        if (!this._uidata) {
+            this._uidata = new Uint32Array(this._buffer);
+        }
         return this._uidata;
     }
 
@@ -75,6 +75,9 @@ export class NativeMemory {
      * Int32Array Data
      */
     get Uint16Array(): Uint16Array {
+        if (!this._uint16data) {
+            this._uint16data = new Uint16Array(this._buffer);
+        }
         return this._uint16data;
     }
 
@@ -99,7 +102,6 @@ export class NativeMemory {
         this._fdata = null;
         this._uidata = null;
         this._uint16data = null;
-        this._f64data = null;
         this._byteArray = null;
     }
 }

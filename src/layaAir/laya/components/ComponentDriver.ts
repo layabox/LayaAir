@@ -1,3 +1,6 @@
+import { LayaGL } from "../layagl/LayaGL";
+import { StatElement } from "../layagl/StatisticsContext";
+import { Browser } from "../utils/Browser";
 import { Component } from "./Component";
 
 /**
@@ -39,6 +42,7 @@ export class ComponentDriver {
      * @zh 调用组件OnUpdate
      */
     callUpdate() {
+        let t = Browser.now();
         for (let ele of this._onUpdates) {
             if (ele._status == 3) {
                 try {
@@ -49,6 +53,7 @@ export class ComponentDriver {
                 }
             }
         }
+        LayaGL.statAgent.recordTimeData(StatElement.T_ScriptUpdateTime, Browser.now() - t);
     }
 
     /**
@@ -57,6 +62,7 @@ export class ComponentDriver {
      * @zh 调用组件LayeUpdate
      */
     callLateUpdate() {
+        let t = Browser.now();
         for (let ele of this._onLateUpdates) {
             if (ele._status == 3) {
                 try {
@@ -67,6 +73,7 @@ export class ComponentDriver {
                 }
             }
         }
+        LayaGL.statAgent.recordTimeData(StatElement.T_ScriptLateUpdateTime, Browser.now() - t);
     }
 
     /**

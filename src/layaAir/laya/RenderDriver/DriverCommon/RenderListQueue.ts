@@ -1,4 +1,7 @@
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
+import { Browser } from "../../utils/Browser";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { IInstanceRenderBatch, IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderQuickSort } from "./RenderQuickSort";
@@ -32,8 +35,11 @@ export class RenderListQueue {
      * 合并渲染队列
      */
     private _batchQueue() {
-        if (!this._isTransparent)
+        if (!this._isTransparent) {
+            let time = Browser.now();
             this._batch.batch(this._elements);
+            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, Browser.now() - time);
+        }
     }
 
     /**
@@ -43,43 +49,11 @@ export class RenderListQueue {
     renderQueue(context: IRenderContext3D) {
         this._batchQueue(); //合并的地方
         const count = this._elements.length;
-        if(true){
-            this._quickSort.sort(this._elements, this._isTransparent,0,count-1);
-        }else{
-            if(this._isTransparent){
-                this.sort_trans(this._elements);
-            }else{
-                this.sort_opaque(this._elements);
-            }
-        }
+        this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
+        LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
         this._batch.clearRenderData();
     }
-
-    private sort_trans(elements: FastSinglelist<IRenderElement3D>) {
-        elements.elements.sort((a, b) => {
-            const renderQueue = a.materialRenderQueue - b.materialRenderQueue;
-            if (renderQueue === 0) {
-                const sort = b.owner.distanceForSort - a.owner.distanceForSort;
-                return sort;
-                return sort + b.owner.sortingFudge - a.owner.sortingFudge;//这个排序矫正值有用么？为什么不直接加到distanceForSort
-            }
-            return renderQueue;
-        });
-    }
-    private sort_opaque(elements: FastSinglelist<IRenderElement3D>) {
-        elements.elements.sort((a, b) => {
-            const renderQueue = a.materialRenderQueue - b.materialRenderQueue;
-            if (renderQueue === 0) {
-                const sort = a.owner.distanceForSort - b.owner.distanceForSort;
-                return sort;
-                return sort + a.owner.sortingFudge - b.owner.sortingFudge;  //这个排序矫正值有用么？为什么不直接加到distanceForSort
-            }
-            return renderQueue;
-        });
-    }
-
-
     /**
      * 清空队列
      */

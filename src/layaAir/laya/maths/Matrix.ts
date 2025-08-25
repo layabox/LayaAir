@@ -23,12 +23,12 @@ export class Matrix {
      * @returns 如果矩阵相等，返回 true，否则返回 false。
      */
     static equals(a: Matrix, b: Matrix): boolean {
-        return MathUtils3D.nearEqual(a.a,b.a) 
-        && MathUtils3D.nearEqual(a.b,b.b) 
-        && MathUtils3D.nearEqual(a.c,b.c) 
-        && MathUtils3D.nearEqual(a.d,b.d) 
-        && MathUtils3D.nearEqual(a.tx,b.tx) 
-        && MathUtils3D.nearEqual(a.ty,b.ty);
+        return MathUtils3D.nearEqual(a.a, b.a)
+            && MathUtils3D.nearEqual(a.b, b.b)
+            && MathUtils3D.nearEqual(a.c, b.c)
+            && MathUtils3D.nearEqual(a.d, b.d)
+            && MathUtils3D.nearEqual(a.tx, b.tx)
+            && MathUtils3D.nearEqual(a.ty, b.ty);
     }
 
     /**
@@ -560,6 +560,23 @@ export class Matrix {
      */
     clone() {
         var dec: Matrix = new Matrix();
+        dec.a = this.a;
+        dec.b = this.b;
+        dec.c = this.c;
+        dec.d = this.d;
+        dec.tx = this.tx;
+        dec.ty = this.ty;
+        dec._bTransform = this._bTransform;
+        return dec;
+    }
+
+    /**
+     * @en Returns a copy of this Matrix object.
+     * @returns A new Matrix instance with exactly the same properties as the original instance.
+     * @zh 返回此 Matrix 对象的副本。
+     * @returns 与原始实例具有完全相同的属性的新 Matrix 实例。
+     */
+    cloneTo(dec: Matrix) {
         dec.a = this.a;
         dec.b = this.b;
         dec.c = this.c;

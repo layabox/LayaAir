@@ -5,8 +5,6 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
-import { RenderTexture2D } from "./RenderTexture2D";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { AtlasResource } from "./AtlasResource";
 
 const _rect1 = new Rectangle();

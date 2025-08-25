@@ -8,6 +8,7 @@ import { Color } from "../maths/Color";
 import { Texture } from "../resource/Texture";
 import { IMeshFactory } from "../display/mesh/MeshFactory";
 
+/** @ignore */
 export class ImageRenderer {
     _meshFactory: IMeshFactory;
     _color: Color;
@@ -29,8 +30,8 @@ export class ImageRenderer {
             this._tex = null;
         }
         if (this._drawCmd) {
-            this._owner._graphics?.removeCmd(this._drawCmd, true);
-            this._drawCmd = null;
+            (this._drawCmd as IGraphicsCmd).lock = false;
+            this._drawCmd.recover();
         }
     }
 

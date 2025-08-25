@@ -1,9 +1,7 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
-import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
-import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
@@ -13,7 +11,8 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, Graphics2DBufferBlock } from "../../Design/2D/IRender2DDataHandle";
+import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
@@ -42,6 +41,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
         }
     }
+
     destroy(): void {
 
     }
@@ -62,16 +62,29 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 }
 
+export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
+    vertexs: IGraphics2DVertexBlock[];
+    indexView: I2DGraphicIndexDataView;
+    vertexBuffer: IVertexBuffer;
+}
+
+export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
+    positions: number[];
+    vertexViews: I2DGraphicVertexDataView[];
+}
+
+
+
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
 
     mask: WebRenderStruct2D | null = null;
 
-    private _bufferBlocks: Graphics2DBufferBlock[] = null;
+    private _bufferBlocks: IGraphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexDataView[];
 
-    applyVertexBufferBlock(blocks: Graphics2DBufferBlock[]): void {
+    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
         this._needUpdateBuffer = blocks.length > 0;
         this.updateCloneView();
@@ -100,8 +113,15 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 //更新位置
                 if (this.mask && this.mask.trans) {
                     let maskMatrix = this.mask.renderMatrix;
-                    this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
-                    this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
+                    let offset = this._owner.pass.offsetMatrix;
+
+                    let a = offset.a * maskMatrix.a + offset.c * maskMatrix.b;
+                    let b = offset.b * maskMatrix.a + offset.d * maskMatrix.b;
+                    let c = offset.a * maskMatrix.c + offset.c * maskMatrix.d;
+                    let d = offset.b * maskMatrix.c + offset.d * maskMatrix.d;
+                    //处理掉缩放
+                    this._nMatrix_0.setValue(a, c, maskMatrix.tx);
+                    this._nMatrix_1.setValue(b, d, maskMatrix.ty);
                 }
                 else {
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
@@ -219,7 +239,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
 
 export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements I2DBaseRenderDataHandle {
-    private _lightReceive: boolean;
+    private _lightReceive: boolean = false;
 
     public get lightReceive(): boolean {
         return this._lightReceive;
@@ -249,8 +269,9 @@ export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements 
     }
 }
 
+const _setRenderColor: Color = new Color(1, 1, 1, 1);
+
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
-    private static _setRenderColor: Color = new Color(1, 1, 1, 1);
     private _baseColor: Color = new Color(1, 1, 1, 1);
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
@@ -330,14 +351,28 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         super.inheriteRenderData(context);
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            WebMesh2DRenderDataHandle._setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, WebMesh2DRenderDataHandle._setRenderColor);
+            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
     }
 }
 
 export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
+    private _renderAlpha = -1;
+    private _baseColor: Color = new Color(1, 1, 1, 1);
+
+    public get baseColor(): Color {
+        return this._baseColor;
+    }
+    public set baseColor(value: Color) {
+        if (value != this._baseColor && this._baseColor.equal(value))
+            return
+        value = value ? value : Color.BLACK;
+        value.cloneTo(this._baseColor);
+        this._renderAlpha = -1;
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
+    }
 
     skeleton: spine.Skeleton;
 
@@ -390,5 +425,12 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+
+        if (this._renderAlpha != this._owner.globalAlpha) {
+            let a = this._owner.globalAlpha * this._baseColor.a;
+            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
+            this._renderAlpha = this._owner.globalAlpha;
+        }
     }
 }

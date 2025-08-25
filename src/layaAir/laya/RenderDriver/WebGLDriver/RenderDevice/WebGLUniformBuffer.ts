@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "./WebGLEngine";
@@ -32,9 +33,9 @@ export class WebGLUniformBuffer extends WebGLUniformBufferBase {
             uniform.view = new uniform.dataView(buffer, uniform.offset, uniform.viewByteLength / uniform.dataView.BYTES_PER_ELEMENT);
         }
         this._buffer = (LayaGL.renderEngine as WebGLEngine).createBuffer(BufferTargetType.UNIFORM_BUFFER, BufferUsage.Dynamic);
+
         this._buffer.bindBuffer();
         this._buffer.setDataLength(descriptor.byteLength);
-
         this.needUpload = true;
     }
 

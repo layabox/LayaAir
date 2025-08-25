@@ -14,6 +14,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "../utils/Browser";
+import { NotImplementedError } from "../utils/Error";
 
 /**
  * @en Interface for texture property parameters.
@@ -265,7 +266,7 @@ export class Texture2D extends BaseTexture {
      * @internal
      */
     static _parsePVR(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
-        throw "pvr !";
+        throw new NotImplementedError();
     }
 
     /**

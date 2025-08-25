@@ -53,6 +53,9 @@ import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
+import { Browser } from "../../utils/Browser";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
 
 const tempV3 = new Vector3();
 
@@ -2295,6 +2298,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     _prepareRender(state: RenderContext3D): boolean {
+        let t = Browser.now();
         if (this._updateMask != Stat.loopCount) {
             this._updateMask = Stat.loopCount;
             this._updateEmission();
@@ -2303,7 +2307,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 this.addNewParticlesToVertexBuffer();
             this._drawCounter++;
         }
-
+        LayaGL.statAgent.recordTimeData(StatElement.T_ShurikenUpdate, Browser.now() - t);
 
         if (this._firstActiveElement != this._firstFreeElement)
             return true;

@@ -47,10 +47,10 @@ export class Prefab extends Resource {
     /**
      * @en Instantiate a prefab from a URL.
      * @param url The URL of the prefab.
-     * @param options Optional parameters for instantiation.
+     * @param classType Optional child node type, used to specify the type of the returned child node.
      * @zh 从 URL 实例化一个预制体。
      * @param url 预制体的 URL。
-     * @param options 可选的实例化参数。 
+     * @param classType 可选的节点类型，用于明确返回节点的类型。
      * @returns A promise that resolves to the instantiated Node. 
      */
     static instantiate<T extends Node>(url: string, classType?: new () => T): Promise<T> {

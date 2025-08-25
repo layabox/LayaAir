@@ -4,7 +4,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, Graphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, IGraphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -15,7 +15,6 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
-import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
@@ -70,9 +69,16 @@ export class GraphicsRenderData {
    /**@internal */
    _submits: FastSinglelist<SubmitBase> = new FastSinglelist;
 
-   private _bufferBlocks: Graphics2DBufferBlock[] = [];
+   private _bufferBlocks: IGraphics2DBufferBlock[] = [];
+
+   owner: Sprite;
+
+   constructor(owner: Sprite) {
+      this.owner = owner;
+   }
 
    clear(): void {
+
       let len = this._submits.length;
       let i = 0;
       for (i = 0; i < len; i++) {
@@ -85,12 +91,26 @@ export class GraphicsRenderData {
 
    destroy(): void {
       this.clear();
+
+      let material = this.owner.material;
+      let elements = this._renderElements;
+      for (let i = 0; i < elements.length; i++) {
+         if (material) {
+            material._removeOwnerElement(elements[i]);
+         }
+         GraphicsRenderData._pool.recover(elements[i]);
+      }
+      elements.length = 0;
+
       let submits = this._submits.elements;
       for (let i = 0; i < this._submits.length; i++) {
          submits[i].destroy();
       }
       this._submits.destroy();
       this._submits = null;
+
+      this.owner = null;
+
    }
 
    /**
@@ -108,7 +128,7 @@ export class GraphicsRenderData {
 
       let flength = Math.max(originLen, submitLength);
 
-      let blocks: Graphics2DBufferBlock[] = this._bufferBlocks;
+      let blocks: IGraphics2DBufferBlock[] = this._bufferBlocks;
 
       for (let i = 0; i < flength; i++) {
          let submit = submits.elements[i];
@@ -127,6 +147,7 @@ export class GraphicsRenderData {
             if (submit.material) {
                element.subShader = submit.material.shader.getSubShaderAt(0);
                element.materialShaderData = submit.material.shaderData;
+               submit.material._setOwner2DElement(element);
             } else {
                element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
             }
@@ -138,9 +159,17 @@ export class GraphicsRenderData {
 
             let indexView = this._updateIndexViews(submit, geometry);
             let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            blocks.push({ vertexs: submit.vertexs, indexView: indexView, vertexBuffer: vertexBuffer });
+            {
+               let vertexBlock = LayaGL.render2DRenderPassFactory.createGraphic2DBufferBlock();
+               vertexBlock.vertexs = submit.vertexs;
+               vertexBlock.indexView = indexView;
+               vertexBlock.vertexBuffer = vertexBuffer;
+               blocks.push(vertexBlock);
+            }
+
             this._updateGraphicsKeys(element, submit);
          } else {
+            graphics.material && (graphics.material._removeOwnerElement(element));
             GraphicsRenderData._pool.recover(element);
          }
       }
@@ -168,30 +197,17 @@ export class GraphicsRenderData {
 
    // TODO
    private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
-      element.type = 0;
-
-      let key = submit._key.blendShader; // max 15
-
-      // @ts-ignore
-      element.type |= (key); // 15
-
-      let useCustomMaterial = !!submit.material;
-      // @ts-ignore
-      element.type |= useCustomMaterial << 4;
-
-      let mc = !useCustomMaterial && submit._internalInfo.materialClip;
-      // @ts-ignore
-      element.type |= mc << 5;
-
-      let texture: BaseTexture = null;
+      let useCustomMaterial = submit.material ? 1 : 0;
+      let mc = (useCustomMaterial === 0 && submit._internalInfo.materialClip) ? 1 : 0;
+      let texture: BaseTexture;
       let textureHost = submit._internalInfo.textureHost;
-      if (textureHost) {
+      if (textureHost)
          texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
-      }
 
-      let texKey = texture ? texture.id : 0;
-
-      element.type |= texKey << 6;
+      element.type = submit._key.blendShader
+         | (useCustomMaterial << 4) //16
+         | (mc << 5) //32
+         | ((texture ? texture.id : 0) << 6); //64
    }
 
    setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
@@ -278,8 +294,21 @@ export class SubStructRender {
       rect.cloneTo(this._rtRect);
       let originPass = this._subRenderPass;
       let matrix = originPass.offsetMatrix;
-      matrix.tx = rect.x;
-      matrix.ty = rect.y;
+      if (this._sprite.mask) {
+         let mask = this._sprite.mask;
+         let transform = mask.transform;
+         if (transform) {
+            transform.cloneTo(matrix)
+         }
+         matrix.invert();
+      } else {
+         matrix.identity();
+      }
+
+      matrix.tx = matrix.a * rect.x + matrix.c * rect.y + matrix.tx;
+      matrix.ty = matrix.b * rect.x + matrix.d * rect.y + matrix.ty;
+
+      originPass.offsetMatrix = matrix;
    }
 
 
@@ -291,24 +320,10 @@ export class SubStructRender {
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
+      if (this._internalInfo.textureHost == destRT)
+         return;
+
       if (destRT) {
-         // var width = destRT.sourceWidth;
-         // var height = destRT.sourceHeight;
-         // var widthExtend = width - oriRT.sourceWidth;
-         // var heightExtend = height - oriRT.sourceHeight;
-         // if (width > 0 && height > 0) {
-         //    let _rtRect = this._sprite._rtRect;
-         //    let px = _rtRect.x;
-         //    let py = _rtRect.y;
-         //    // let px = 0;
-         //    // let py = 0;
-         //    let vSize = Vector4.TEMP;
-         //    vSize.x = px;
-         //    vSize.y = py;
-         //    vSize.z = width;
-         //    vSize.w = height;
-         //    this._internalInfo.vertexSize = vSize;
-         // }
          this._renderElement.type = destRT._id << 6;
       } else {
          this._renderElement.type = 0;
@@ -330,6 +345,8 @@ export class SubStructRender {
       if (width > 0 && height > 0) {
          vSize.z = width;
          vSize.w = height;
+         vSize.x -= (vSize.z - _rtRect.width) / 2;
+         vSize.y -= (vSize.w - _rtRect.height) / 2;
       } else {
          vSize.z = _rtRect.width;
          vSize.w = _rtRect.height;

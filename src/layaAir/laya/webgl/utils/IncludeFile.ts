@@ -17,7 +17,7 @@ export class IncludeFile {
                 if (c == '"' || c == "'") {
                     let ofs2: number = str.indexOf(c, i + 1);
                     if (ofs2 < 0) {
-                        throw "Sharder err:" + str;
+                        throw new Error("Sharder err:" + str);
                     }
                     out.push(str.substring(i + 1, ofs2));
                     i = ofs2;
@@ -65,7 +65,7 @@ export class IncludeFile {
             }
 
             if (end < 0) {
-                throw "add include err,no #end:" + txt;
+                throw new Error("add include err,no #end:" + txt);
             }
 
             ofs = txt.indexOf('\n', begin);
@@ -87,7 +87,7 @@ export class IncludeFile {
     getWith(name: string | null = null): string {
         let r: string = name ? this.codes[name] : this.script;
         if (!r) {
-            throw "get with error:" + name;
+            throw new Error("get with error:" + name);
         }
         return r;
     }

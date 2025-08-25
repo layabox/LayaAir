@@ -28,6 +28,7 @@ import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/Shad
 import { ENodeCustomData, IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
+import { StatElement } from "../../../layagl/StatisticsContext";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -651,7 +652,6 @@ export class BaseRender extends Component {
     }
     protected _onEnable(): void {
         super._onEnable();
-
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
         this.owner.on(Event.LAYER_CHANGE, this, this._changeLayer);
         this.owner.on(Event.STATIC_MASK, this, this._changeStaticMask);
@@ -776,11 +776,11 @@ export class BaseRender extends Component {
     }
 
     protected _statAdd() {
-        Stat.renderNode++;
+        LayaGL.statAgent.recordCountData(StatElement.C_BaseRenderCount, 1);
     }
 
     protected _statRemove() {
-        Stat.renderNode--;
+        LayaGL.statAgent.recordCountData(StatElement.C_BaseRenderCount, -1);
     }
 
     /**

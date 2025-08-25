@@ -254,10 +254,12 @@ export class List extends Box {
         if (value == "") value = null;
         if (this._vScrollBarSkin != value) {
             this._vScrollBarSkin = value;
-            if (this._scrollType == 0)
-                this.scrollType = ScrollType.Vertical;
-            else
-                this.scrollType = this._scrollType;
+            if (value) {
+                if (this._scrollType == 0)
+                    this.scrollType = ScrollType.Vertical;
+                else
+                    this.scrollType = this._scrollType;
+            }
         }
 
     }
@@ -274,10 +276,12 @@ export class List extends Box {
         if (value == "") value = null;
         if (this._hScrollBarSkin != value) {
             this._hScrollBarSkin = value;
-            if (this._scrollType == 0)
-                this.scrollType = ScrollType.Horizontal;
-            else
-                this.scrollType = this._scrollType;
+            if (value) {
+                if (this._scrollType == 0)
+                    this.scrollType = ScrollType.Horizontal;
+                else
+                    this.scrollType = this._scrollType;
+            }
         }
     }
 

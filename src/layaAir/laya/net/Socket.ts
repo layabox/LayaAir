@@ -41,8 +41,6 @@ export class Socket extends EventDispatcher {
     protected _connected: boolean;
     protected _inputPos: number;
 
-    /** @deprecated */
-    constructor(host?: string, port?: number, byteClass?: new () => any, protocols?: string[], isSecure?: boolean);
     /**
      * @en Create a new Socket object. The default byte order is Socket.BIG_ENDIAN. If no parameters are specified, a socket initially in a disconnected state will be created. If valid parameters are specified, it attempts to connect to the specified host and port.
      * @param host The server address.

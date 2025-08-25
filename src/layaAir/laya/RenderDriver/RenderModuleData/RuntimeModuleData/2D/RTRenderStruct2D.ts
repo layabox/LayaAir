@@ -4,14 +4,14 @@ import { Rectangle } from "../../../../maths/Rectangle";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
-import { I2DGlobalRenderData, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
 import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
-import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { Stat } from "../../../../utils/Stat";
+import { Sprite } from "../../../../display/Sprite";
 
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
@@ -28,10 +28,13 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
       this._cullRect = value;
       this._nativeObj.setCullRect(value);
    }
+
+   private _renderLayerMask: number;
    get renderLayerMask(): number {
-      return this._nativeObj.renderLayerMask;
+      return this._renderLayerMask;
    }
    set renderLayerMask(value: number) {
+      this._renderLayerMask = value;
       this._nativeObj.renderLayerMask = value;
    }
    private _globalShaderData: GLESShaderData;
@@ -48,29 +51,70 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
 
+   owner: Sprite;
+   private _dcOptimize: boolean = false;
+   public get dcOptimize(): boolean {
+      return this._dcOptimize;
+   }
+   public set dcOptimize(value: boolean) {
+      this._dcOptimize = value;
+      // 暂时屏蔽
+      // this._nativeObj.setDcOptimize(value);
+   }
+
+   private _dcBounds = new Rectangle();
+   public get dcBounds(): Rectangle {
+      return this._dcBounds;
+   }
+
+   public set dcBounds(value: Rectangle) {
+      this._dcBounds = value;
+      this._nativeObj.setDcBounds(value);
+   }
+
+   private _dcBoundsTarget: RTRenderStruct2D;
+   public get dcBoundsTarget(): RTRenderStruct2D {
+      return this._dcBoundsTarget;
+   }
+   public set dcBoundsTarget(value: RTRenderStruct2D) {
+      this._dcBoundsTarget = value;
+      this._nativeObj.setDcBoundsTarget(value ? value._nativeObj : null);
+   }
+
+   private _zIndex: number = 0;
    set zIndex(value: number) {
+      this._zIndex = value;
       this._nativeObj.zIndex = value;
    }
    get zIndex(): number {
-      return this._nativeObj.zIndex;
+      return this._zIndex;
    }
+
+   private _stackingRoot: boolean = false;
+   set stackingRoot(value: boolean) {
+      this._stackingRoot = value;
+      this._nativeObj.stackingRoot = value;
+   }
+   get stackingRoot(): boolean {
+      return this._stackingRoot;
+   }
+
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
+      value.cloneTo(this._rect);
       this._nativeObj.rect = value;
    }
    get rect(): Rectangle {
-      let rect = this._nativeObj.rect;
-      this._rect.x = rect.x;
-      this._rect.y = rect.y;
-      this._rect.width = rect.width;
-      this._rect.height = rect.height;
       return this._rect;
    }
+
+   private _renderLayer: number = 1;
    set renderLayer(value: number) {
+      this._renderLayer = value;
       this._nativeObj.renderLayer = value;
    }
    get renderLayer(): number {
-      return this._nativeObj.renderLayer;
+      return this._renderLayer;
    }
 
    private _parent: IRenderStruct2D = null;
@@ -88,73 +132,84 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    public set children(value: IRenderStruct2D[]) {
       this._children = value;
       let nativeArray = [];
-      for (var i = 0; i < nativeArray.length; i++) {
+      for (var i = 0; i < value.length; i++) {
          nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
       }
       this._nativeObj.setChildren(nativeArray);
    }
+
+   private _renderType: number = -1;
    set renderType(value: number) {
+      this._renderType = value;
       this._nativeObj.renderType = value;
    }
    get renderType(): number {
-      return this._nativeObj.renderType;
+      return this._renderType;
    }
 
+   private _renderUpdateMask: number;
    set renderUpdateMask(value: number) {
+      this._renderUpdateMask = value;
       this._nativeObj.renderUpdateMask = value;
    }
    get renderUpdateMask(): number {
-      return this._nativeObj.renderUpdateMask;
+      return this._renderUpdateMask;
    }
+
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
+      value.cloneTo(this._renderMatrix);
       this._nativeObj.setRenderMatrix(value, Stat.loopCount);
    }
    get renderMatrix(): Matrix {
-      let matrix = this._nativeObj.getRenderMatrix();
-      this._renderMatrix.a = matrix.a;
-      this._renderMatrix.b = matrix.b;
-      this._renderMatrix.c = matrix.c;
-      this._renderMatrix.d = matrix.d;
-      this._renderMatrix.tx = matrix.tx;
-      this._renderMatrix.ty = matrix.ty;
       return this._renderMatrix;
    }
+
+   private _globalAlpha: number;
    set globalAlpha(value: number) {
+      this._globalAlpha = value;
       this._nativeObj.globalAlpha = value;
    }
    get globalAlpha(): number {
-      return this._nativeObj.globalAlpha;
+      return this._globalAlpha;
    }
 
+   private _alpha: number;
    public get alpha(): number {
-      return this._nativeObj.alpha;
+      return this._alpha;
    }
 
    public set alpha(value: number) {
+      this._alpha = value;
       this._nativeObj.alpha = value;
    }
 
+   private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
-      return this._nativeObj.blendMode;
+      return this._blendMode;
    }
 
    public set blendMode(value: BlendMode) {
-      this._nativeObj.blendMode = value;
+      this._blendMode = value;
+      this._nativeObj.blendMode = this._blendMode;
    }
 
+   private _enabled: boolean = true;
    public get enabled(): boolean {
-      return this._nativeObj.enable;
+      return this._enabled;
    }
 
    public set enabled(value: boolean) {
+      this._enabled = value;
       this._nativeObj.enable = value;
    }
 
+   private _isRenderStruct: boolean;
    public get isRenderStruct(): boolean {
-      return this._nativeObj.isRenderStruct;
+      return this._isRenderStruct;
    }
    public set isRenderStruct(value: boolean) {
+      this._isRenderStruct = value;
       this._nativeObj.isRenderStruct = value;
    }
 
@@ -215,22 +270,23 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    constructor() {
       this._nativeObj = new (window as any).conchRTRenderStruct2D();
+      this.zIndex = 0;
+      this.rect = new Rectangle(0, 0, 0, 0);
+      this.renderLayer = 1;
+      this.renderType = -1;
+      this.renderUpdateMask = 0;
+      this.globalAlpha = 1.0;
+      this.alpha = 1.0;
+      this.blendMode = BlendMode.invalid;
+      this.enabled = true;
+      this.isRenderStruct = false;
    }
 
-   // RenderNode
-   // private _rnUpdateCall: any = null;
-   private _rnUpdateFun: any = null;
-
-
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      if (renderUpdateFun) {
-      	this._rnUpdateFun = renderUpdateFun.bind(call);
-      	this._nativeObj.setRenderUpdate(this._rnUpdateFun);
-      }
-      else {
-         this._rnUpdateFun = null;
+   setRenderUpdateCallback(func: Function): void {
+      if (func)
+         this._nativeObj.setRenderUpdate(func);
+      else
          this._nativeObj.setRenderUpdate(null);
-      }
    }
    setClipRect(rect: Rectangle): void {
       this._nativeObj.setClipRect(rect);
@@ -270,9 +326,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   renderUpdate(context: GLESRenderContext2D): void {
-      this._nativeObj.renderUpdate(context);
-   }
+   // renderUpdate(context: GLESRenderContext2D): void {
+   //    this._nativeObj.renderUpdate(context);
+   // }
 
    destroy(): void {
       this._nativeObj.destroy();

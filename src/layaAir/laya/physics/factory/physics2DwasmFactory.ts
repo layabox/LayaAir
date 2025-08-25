@@ -834,7 +834,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      * @param shape The circle shape.
      * @param x The x-coordinate of the circle shape's position.
      * @param y The y-coordinate of the circle shape's position.
-     * @param scale The scale of the circle shape.
+     * @param scaleX The horizontal scale of the circle shape's position.
+     * @param scaleY The vertical scale of the circle shape's position.
      * @zh 设置圆形形状的位置。
      * @param shape 圆形形状。
      * @param x 圆形形状的位置的x坐标。

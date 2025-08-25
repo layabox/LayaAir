@@ -44,26 +44,29 @@ export interface I2DGraphicVertexDataView extends I2DGraphicBufferDataView {
 export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
     length: number;
     setGeometry(value: IRenderGeometryElement): void;
+    destroy(): void;
 }
 
 /** @blueprintIgnore */
 export interface I2DGraphicWholeBuffer {
     buffer: IVertexBuffer | IIndexBuffer
     resetData(byteLength: number): void;
-    addDataView(dataView: I2DGraphicBufferDataView): void;
+    addDataView?(dataView: I2DGraphicBufferDataView): void;
     removeDataView(dataView: I2DGraphicBufferDataView): void;
     destroy(): void;
 }
 
+//需要保证get 出去不会改动
 /** @blueprintIgnore */
-export type Graphics2DVertexBlock = {
-    positions: number[],
+export interface IGraphics2DVertexBlock {
+    positions: number[],//
     vertexViews: I2DGraphicVertexDataView[],
 }
 
+//需要保证get 出去不会改动
 /** @blueprintIgnore */
-export type Graphics2DBufferBlock = {
-    vertexs: Graphics2DVertexBlock[],
+export interface IGraphics2DBufferBlock {
+    vertexs: IGraphics2DVertexBlock[],
     indexView: I2DGraphicIndexDataView,
     vertexBuffer: IVertexBuffer,
 }
@@ -74,7 +77,7 @@ export type Graphics2DBufferBlock = {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
-    applyVertexBufferBlock(views: Graphics2DBufferBlock[]): void;
+    applyVertexBufferBlock(views: IGraphics2DBufferBlock[]): void;
 }
 
 /**
@@ -101,6 +104,7 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
  * @blueprintIgnore
  */
 export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
+    baseColor: Color;
     skeleton: spine.Skeleton;
     offset: Vector2;
 }

@@ -44,6 +44,8 @@ export class Particle2DShader {
 
     static UnitPixels: number;
 
+    static SpriteRotAndScale: number;
+
     static init() {
 
         const uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("_Particle2D");
@@ -60,6 +62,7 @@ export class Particle2DShader {
 
         Particle2DShader.CurrentTime = addUniform("u_CurrentTime", ShaderDataType.Float);
         Particle2DShader.UnitPixels = addUniform("u_UnitPixels", ShaderDataType.Float);
+        Particle2DShader.SpriteRotAndScale = addUniform("u_SpriteRotAndScale", ShaderDataType.Vector4);
 
         {
             // color over life time
