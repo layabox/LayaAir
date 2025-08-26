@@ -54,7 +54,7 @@ export class StatUI {
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
     }
 
-    show(): void {
+    show(x?: number, y?: number): void {
         //转换为_view
         this._items = new Array();
         strArray.length = 0;
@@ -85,6 +85,7 @@ export class StatUI {
         this._title.text = strArray.join("\n");
         this._txt.x = this._title.textWidth + 10;
         this._sp.size(this._title.textWidth + 100, this._title.textHeight + 10);
+        this._sp.pos(x || 0, y || 0);
     }
 
     update(): void {
