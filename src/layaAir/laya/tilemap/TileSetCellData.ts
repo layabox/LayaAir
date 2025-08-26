@@ -45,6 +45,11 @@ export class TileSetCellData {
     private _transpose: boolean = false;
 
     private _rotateCount: number = 0;
+
+    private _transChange: boolean = false;
+
+    private _transFlag: number = 0;
+
     //单位像素
     private _texture_origin: Vector2;
 
@@ -85,6 +90,14 @@ export class TileSetCellData {
         return this._index;
     }
 
+    get transFlag(): number {
+        if (this._transChange) {
+            this._transFlag = TileMapUtils.getTransFlag(this.rotateCount, this._flip_h, this._flip_v, this._transpose);
+            this._transChange = false;
+        }
+        return this._transFlag;
+    }
+
     /**
      * 原始顶点图块的引用
      */
@@ -105,7 +118,8 @@ export class TileSetCellData {
 
     public set flip_h(value: boolean) {
         this._flip_h = value;
-        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._transChange = true;
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -117,7 +131,8 @@ export class TileSetCellData {
 
     public set flip_v(value: boolean) {
         this._flip_v = value;
-        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._transChange = true;
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     public get transpose(): boolean {
@@ -129,7 +144,8 @@ export class TileSetCellData {
      */
     public set transpose(value: boolean) {
         this._transpose = value;
-        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._transChange = true;
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -141,7 +157,8 @@ export class TileSetCellData {
 
     public set rotateCount(value: number) {
         this._rotateCount = value;
-        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+        this._transChange = true;
+        this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
