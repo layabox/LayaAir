@@ -391,7 +391,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let rootBone = this._skeleton.getRootBone();
         rootBone.x = this._templet.offsetX;
         rootBone.y = this._templet.offsetY;
-
+        
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
@@ -404,6 +404,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._struct.renderElements = [];
         this._struct.setRepaint();
+
+        this._rect.z = this._templet.width;
+        this._rect.w = this._templet.height;
 
         if (!this._useFastRender) {
             let before = SketonOptimise.normalRenderSwitch;
