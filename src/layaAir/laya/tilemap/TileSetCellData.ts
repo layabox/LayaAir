@@ -38,6 +38,13 @@ export class TileSetCellData {
 
     private _cellowner: TileAlternativesData;
 
+    private _flip_h: boolean = false;
+
+    private _flip_v: boolean = false;
+
+    private _transpose: boolean = false;
+
+    private _rotateCount: number = 0;
     //单位像素
     private _texture_origin: Vector2;
 
@@ -87,6 +94,54 @@ export class TileSetCellData {
 
     public set cellowner(value: TileAlternativesData) {
         this._cellowner = value;
+    }
+
+    /**
+     *  是否水平翻转
+     */
+    public get flip_h(): boolean {
+        return this._flip_h;
+    }
+
+    public set flip_h(value: boolean) {
+        this._flip_h = value;
+        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+    }
+
+    /**
+     * 是否垂直翻转
+     */
+    public get flip_v(): boolean {
+        return this._flip_v;
+    }
+
+    public set flip_v(value: boolean) {
+        this._flip_v = value;
+        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+    }
+
+    public get transpose(): boolean {
+        return this._transpose;
+    }
+
+    /**
+     * 是否转置
+     */
+    public set transpose(value: boolean) {
+        this._transpose = value;
+        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
+    }
+
+    /**
+     * 旋转次数
+     */
+    public get rotateCount(): number {
+        return this._rotateCount;
+    }
+
+    public set rotateCount(value: number) {
+        this._rotateCount = value;
+        // this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
     /**
@@ -207,10 +262,10 @@ export class TileSetCellData {
     //custom module
     constructor() {
         this._notiveRenderTile = [];
-        // this._flip_h = false;
-        // this._flip_v = false;
-        // this._transpose = false;
-        // this._rotateCount = 0;
+        this._flip_h = false;
+        this._flip_v = false;
+        this._transpose = false;
+        this._rotateCount = 0;
         this._texture_origin = new Vector2(0, 0);
         this._colorModulate = new Color(1, 1, 1, 1);
         this._z_index = 0;
