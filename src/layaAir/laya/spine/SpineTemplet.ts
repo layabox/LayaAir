@@ -196,8 +196,9 @@ export class SpineTemplet extends Resource {
         this._atlas = atlas;
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
-        this.width = this.skeletonData.width;
-        this.height = this.skeletonData.height;
+        
+        this.width = this.skeletonData.width || 0;
+        this.height = this.skeletonData.height || 0;
 
         this._premultipliedAlpha = premultipliedAlpha;
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
@@ -209,8 +210,8 @@ export class SpineTemplet extends Resource {
         let rootBone = skeleton.getRootBone();
         // this.offsetX = rootBone.x;
         // this.offsetY = rootBone.y;
-        this.offsetX = this.skeletonData.x + this.width + rootBone.x;
-        this.offsetY = -(this.skeletonData.y + this.height - rootBone.y);
+        this.offsetX = (this.skeletonData.x || 0) + this.width + rootBone.x;
+        this.offsetY = -((this.skeletonData.y || 0) + this.height - rootBone.y);
         rootBone.x = this.offsetX;
         rootBone.y = this.offsetY;
     }
