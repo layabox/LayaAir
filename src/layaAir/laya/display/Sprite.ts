@@ -2336,8 +2336,6 @@ export class Sprite extends Node {
                 //todo
             }
 
-            this._struct.enabled = true;
-
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
