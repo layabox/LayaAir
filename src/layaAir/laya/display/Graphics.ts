@@ -294,8 +294,8 @@ export class Graphics {
             this.owner._renderType |= SpriteConst.GRAPHICS;
             struct.renderType = BaseRender2DType.graphics;
             struct.renderDataHandler = this._renderDataHandle;
-            struct.renderMatrix = this.owner.globalTrans.getMatrix();
             struct.renderElements = this._data._renderElements;
+            this.owner._updateStruct();
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
             if (struct.renderElements === this._data._renderElements) {

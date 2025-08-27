@@ -67,7 +67,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    //自动优化dc相关
    dcOptimize: boolean;
    dcOptimizeEnd: WebRenderStruct2D;
-   dcBounds = new Rectangle();
    dcBoundsTarget: WebRenderStruct2D;
 
    public get renderMatrix(): Matrix {

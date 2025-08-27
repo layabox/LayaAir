@@ -122,7 +122,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _createRenderHandle(): ISpineRenderDataHandle {
-        return LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
+        let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
+        handle.offset = this._offset;
+        return handle;
     }
 
     /**
@@ -350,6 +352,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this.changeNormal();
         }
         this.play(this._animationName, this._loop, true, this._currentPlayTime);
+    }
+
+    get offset(): Vector2 {
+        return this._offset;
+    }
+
+    set offset(value: Vector2) {
+        this._offset = value;
+        this._renderHandle.offset = this._offset;
     }
 
     /** @ignore @blueprintIgnore */

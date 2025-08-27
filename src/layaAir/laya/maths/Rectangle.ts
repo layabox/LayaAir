@@ -270,6 +270,7 @@ export class Rectangle implements IClone {
     transform(mat: Matrix, out?: Rectangle): Rectangle {
         // 获取变换矩阵的分量
         let a = mat.a, b = mat.b, c = mat.c, d = mat.d;
+        let tx = mat.tx, ty = mat.ty;
 
         // 计算变换后的左上角和右下角
         let x1 = this.x;
@@ -298,8 +299,8 @@ export class Rectangle implements IClone {
         if (!out)
             out = new Rectangle();
         return out.setTo(
-            minX,
-            minY,
+            minX + tx,
+            minY + ty,
             maxX - minX,
             maxY - minY
         );

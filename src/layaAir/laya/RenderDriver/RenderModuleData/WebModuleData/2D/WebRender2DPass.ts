@@ -23,6 +23,8 @@ import { Pool } from "../../../../utils/Pool";
 import { NodeFlags } from "../../../../Const";
 
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
+import { Vector4 } from "../../../../maths/Vector4";
+import { Rectangle } from "../../../../maths/Rectangle";
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
 class SortedStructs {
@@ -166,16 +168,20 @@ export class WebRender2DPass implements IRender2DPass {
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
       // 裁剪规则一：检查渲染层掩码
-      if (struct._parentGlobalRenderData
-         && (struct.renderLayer & struct._parentGlobalRenderData.renderLayerMask) === 0) {
-         return;
-      }
 
-      // // 裁剪规则二：检查矩形相交
-      // const nodeRect = renderNode.rect;
-      // if (!this._isRectIntersect(nodeRect, this._cullRect)) {
-      //     return;
-      // }
+      let globalRenderData = struct.globalRenderData;
+      if (globalRenderData) {
+         if (struct._parentGlobalRenderData
+            && (struct.renderLayer & globalRenderData.renderLayerMask) === 0) {
+            return;
+         }
+   
+         // 裁剪规则二：检查矩形相交
+         let cullRect = globalRenderData.cullRect;
+         if (cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
+             return;
+         }
+      }
 
       struct.renderUpdate(context2D);
 
@@ -203,6 +209,16 @@ export class WebRender2DPass implements IRender2DPass {
          this._pStructs = oldCol;
       }
    }
+  
+   private _isRectIntersect(rect: Rectangle, cullRect: Vector4): boolean {
+      // return true;
+      //cullRect minx , maxx , miny , maxy
+      let rect_minx = rect.x;
+      let rect_maxx = rect.x + rect.width;
+      let rect_miny = rect.y;
+      let rect_maxy = rect.y + rect.height;
+      return !(rect_maxx < cullRect.x || rect_minx > cullRect.y || rect_maxy < cullRect.z || rect_miny > cullRect.w);
+   }
 
    /**
     * pass 2D 渲染
@@ -211,7 +227,8 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
 
-      if (this.repaint) {
+      // if (this.repaint) {
+      if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
@@ -280,8 +297,8 @@ export class WebRender2DPass implements IRender2DPass {
             if (n > 0) {
                if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
                   struct.dcBoundsTarget = reorderRoot;
-                  let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
-                  SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
+                  // let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
+                  // SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
                }
 
                for (let i = 0; i < n; i++) {
@@ -330,7 +347,7 @@ export class WebRender2DPass implements IRender2DPass {
                   let element2 = elementArray[j];
                   if (element2.owner.renderType === lastRenderType) {
                      for (let k = j - 1; k >= i; k--) {
-                        if (element2.owner.dcBounds.intersects(elementArray[k].owner.dcBounds)) {
+                        if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
                            element2 = null;
                            break;
                         }

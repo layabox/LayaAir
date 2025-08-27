@@ -1651,9 +1651,7 @@ export class Sprite extends Node {
             }
 
             if (root._struct) {
-                let matrix = root.globalTrans.getMatrix();
-                root._struct.renderMatrix = matrix;
-                root._subStruct && (root._subStruct.renderMatrix = matrix);
+                root._updateStruct();
                 if (root._struct.pass)
                     passSet.add(root._struct.pass);
             }
@@ -2297,6 +2295,23 @@ export class Sprite extends Node {
         this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
 
+    /** @internal */
+    _updateStruct() {
+        let trans = this.globalTrans;
+        if (this._destroyed || !trans)
+            return;
+
+        let matrix = trans.getMatrix();
+        let struct = this._struct;
+        this._struct.renderMatrix = matrix;
+        if (this._subStruct)
+            this._subStruct.renderMatrix = matrix;
+
+        let rect = this.getSelfBounds(struct.rect, false);
+        rect.transform(matrix, rect);
+        struct.rect = rect;
+    }
+    
     /**
      * @en Set the state of the sub-render pass.
      * @param enable Whether to enable the sub-render pass.
