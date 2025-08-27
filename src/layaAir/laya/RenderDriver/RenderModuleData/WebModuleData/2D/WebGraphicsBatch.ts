@@ -259,7 +259,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                     let element2 = elementArray[j];
                     if (ctx.isCompatible(element2)) {
                         for (let k = j - 1; k >= i; k--) {
-                            if (element2.owner.dcBounds.intersects(elementArray[k].owner.dcBounds)) {
+                            if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
                                 element2 = null;
                                 break;
                             }

@@ -330,7 +330,7 @@ export class DefaultStaticsContext implements IStaticsContext {
         let fps = Math.round(this._cacheCount * 1000) / (time - this._cacheTime);
 
         for (let element of this._tQueue) {
-            this._statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
+            this._statArray[element] = this._timeArray[element] / this._cacheCount;
             this._timeArray[element] = 0;
         }
         for (let element of this._ctQueue) {

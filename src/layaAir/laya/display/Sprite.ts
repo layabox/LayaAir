@@ -1651,9 +1651,7 @@ export class Sprite extends Node {
             }
 
             if (root._struct) {
-                let matrix = root.globalTrans.getMatrix();
-                root._struct.renderMatrix = matrix;
-                root._subStruct && (root._subStruct.renderMatrix = matrix);
+                root._updateStruct();
                 if (root._struct.pass)
                     passSet.add(root._struct.pass);
             }
@@ -1717,7 +1715,7 @@ export class Sprite extends Node {
         x = point.x;
         y = point.y;
         var rect: IHitArea = this._hitArea ? this._hitArea :
-            (this._isWidthSet && this._isHeightSet) ? tmpRect.setTo(0, 0, this._width, this._height) : this.getSelfBounds(tmpRect);
+            (this._isWidthSet && this._isHeightSet) ? tmpRect.setTo(0, 0, this._width, this._height) : this.getGraphicBounds(false, tmpRect);
         return rect.contains(x, y, this);
     }
 
@@ -1761,23 +1759,9 @@ export class Sprite extends Node {
         else if (this._scrollRect != null && !this._getBit(NodeFlags.DISABLE_INNER_CLIPPING))
             return this._scrollRect.clone(out);
         else if (!recursive && this._oriRenderPass?.enable)
-            return this._subStructRender._rtRect.clone(out || new Rectangle());
+            return this._subStructRender._rtRect.clone(out);
         else {
-            if (out)
-                out.setTo(0, 0, 0, 0);
-            else
-                out = new Rectangle();
-            if (this._graphics != null)
-                out.union(this._graphics.getBounds(), out);
-
-            if (this._texture != null)
-                out.union(tmpRect.setTo(0, 0, this._width || this._texture.width, this._height || this._texture.height), out);
-
-            if (this._renderNode != null) {
-                let rect = this._renderNode.rect;
-                Rectangle.minMaxRect(rect.x, rect.y, rect.z, rect.w, tmpRect);
-                out.union(tmpRect.isEmpty() ? tmpRect.setTo(0, 0, this._width, this._height) : tmpRect, out);
-            }
+            out = this.getGraphicBounds(false, out);
 
             if (recursive && this._children.length > 0) {
                 let rect = Rectangle.create(); //会递归调用，所以不能用全局临时变量
@@ -1794,13 +1778,33 @@ export class Sprite extends Node {
         }
     }
 
-    /** @deprecated */
+    /**
+     * @en Get the rectangle display area of the drawn content of the object in its own coordinate system.
+     * @param realSize This parameter is reserved for future use.
+     * @param out The output rectangle object.
+     * @zh 获取本对象在自己坐标系的矩形显示区域，只计算绘制的内容。
+     * @param realSize 此参数预留以后使用。
+     * @param out 输出的矩形对象。
+     * @returns 矩形区域。
+     */
     getGraphicBounds(realSize?: boolean, out?: Rectangle): Rectangle {
-        out = out || new Rectangle();
-        if (this._graphics)
-            return out.copyFrom(this._graphics.getBounds());
+        if (out)
+            out.setTo(0, 0, 0, 0);
         else
-            return out.setTo(0, 0, 0, 0);
+            out = new Rectangle();
+        if (this._graphics != null)
+            out.union(this._graphics.getBounds(), out);
+
+        if (this._texture != null)
+            out.union(tmpRect.setTo(0, 0, this._width || this._texture.width, this._height || this._texture.height), out);
+
+        if (this._renderNode != null) {
+            let rect = this._renderNode.rect;
+            Rectangle.minMaxRect(rect.x, rect.y, rect.z, rect.w, tmpRect);
+            out.union(tmpRect.isEmpty() ? tmpRect.setTo(0, 0, this._width, this._height) : tmpRect, out);
+        }
+
+        return out;
     }
 
     /**
@@ -2297,6 +2301,23 @@ export class Sprite extends Node {
         this.setSubRenderPassState((this._renderType & SpriteConst.DRAW2RT) !== 0);
     }
 
+    /** @internal */
+    _updateStruct() {
+        let trans = this.globalTrans;
+        if (this._destroyed || !trans)
+            return;
+
+        let matrix = trans.getMatrix();
+        let struct = this._struct;
+        this._struct.renderMatrix = matrix;
+        if (this._subStruct)
+            this._subStruct.renderMatrix = matrix;
+
+        let rect = this.getSelfBounds(struct.rect, false);
+        rect.transform(matrix, rect);
+        struct.rect = rect;
+    }
+
     /**
      * @en Set the state of the sub-render pass.
      * @param enable Whether to enable the sub-render pass.
@@ -2320,8 +2341,6 @@ export class Sprite extends Node {
             } else {
                 //todo
             }
-
-            this._struct.enabled = true;
 
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;

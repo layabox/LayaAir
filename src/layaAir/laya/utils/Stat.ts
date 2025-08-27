@@ -140,9 +140,7 @@ export class Stat {
         }
 
         Stat._show = true;
-        Stat._statUI.show();
-        Stat._statUI._sp.pos(x || 0, y || 0);
-
+        Stat._statUI.show(x, y);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
 

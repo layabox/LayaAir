@@ -52,7 +52,6 @@ export interface IRenderStruct2D {
 
    //自动优化dc相关
    dcOptimize: boolean;
-   dcBounds: Rectangle;
    dcBoundsTarget: IRenderStruct2D;
 
    //渲染数据

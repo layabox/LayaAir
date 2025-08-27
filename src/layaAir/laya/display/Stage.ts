@@ -26,6 +26,7 @@ import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { StatElement } from "../layagl/StatisticsContext";
+import { SpriteUtils } from "../utils/SpriteUtils";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -887,22 +888,7 @@ export class Stage extends Sprite {
 
     private _updateMatrixList(changeMatrixList: Iterable<Sprite>, frame: number) {
         for (let sprite of changeMatrixList) {
-            let trans = sprite.globalTrans;
-            if (sprite._destroyed || !trans)
-                continue;
-
-            // trans._modifiedFrame = frame;
-            // trans._setFlag(TransformKind.Matrix, true, false);
-
-            // if (sprite._renderType & SpriteConst.UPDATETRANS) {
-            let matrix = trans.getMatrix();
-            // if (sprite._struct)//有可能被删除
-            sprite._struct.renderMatrix = matrix;
-            if (sprite._subStruct)
-                sprite._subStruct.renderMatrix = matrix;
-            // }
-
-            // this._updateMatrixList(sprite._children, frame);
+            sprite._updateStruct();
         }
     }
 

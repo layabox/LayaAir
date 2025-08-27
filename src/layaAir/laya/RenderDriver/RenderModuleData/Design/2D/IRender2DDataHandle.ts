@@ -24,6 +24,7 @@ export interface IRender2DDataHandle {
  * @blueprintIgnore
  */
 export interface I2DGlobalRenderData {
+    /** minx , maxx , miny , maxy */
     cullRect: Vector4;
     renderLayerMask: number;
     globalShaderData: ShaderData;

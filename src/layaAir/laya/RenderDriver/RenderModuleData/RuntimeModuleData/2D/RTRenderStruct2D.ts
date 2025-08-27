@@ -62,16 +62,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       // this._nativeObj.setDcOptimize(value);
    }
 
-   private _dcBounds = new Rectangle();
-   public get dcBounds(): Rectangle {
-      return this._dcBounds;
-   }
-
-   public set dcBounds(value: Rectangle) {
-      this._dcBounds = value;
-      this._nativeObj.setDcBounds(value);
-   }
-
    private _dcBoundsTarget: RTRenderStruct2D;
    public get dcBoundsTarget(): RTRenderStruct2D {
       return this._dcBoundsTarget;
