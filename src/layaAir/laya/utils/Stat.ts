@@ -170,6 +170,8 @@ export class Stat {
 }
 
 const defaultElements = [
+    StatElement.CT_FPS,
+    StatElement.T_Frame_Time,
     StatElement.C_Sprite2DCount,
     StatElement.C_Sprite3DCount,
     StatElement.CT_DrawCall,
