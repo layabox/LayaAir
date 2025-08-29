@@ -227,8 +227,8 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
 
-      // if (this.repaint) {
-      if (true) {
+      if (this.repaint) {
+      // if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
