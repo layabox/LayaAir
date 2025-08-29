@@ -5,6 +5,7 @@ import glsl from "rollup-plugin-glsl";
 import esbuild from 'rollup-plugin-esbuild';
 import { onRollupWarn } from "./utils.mjs";
 
+const platform = process.argv[2];
 const sourcemap = true;
 
 //引用插件模块
@@ -200,13 +201,14 @@ function mySamplesMultiInput(options) {
 }
 
 async function start() {
+    console.log(`Watching samples for ${platform}...`);
     let config = {
         "target": "es2017",
         "module": "es6",
         "baseUrl": "../layaAir",
     }
     watch({
-        input: samplesBathURL + '/index_webgl.ts',
+        input: samplesBathURL + `/index_${platform}.ts`,
         treeshake: false, //建议忽略
         onwarn: onRollupWarn(ignoreCircularDependencyWarnings),
         external: ['Laya'],
