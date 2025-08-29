@@ -178,7 +178,7 @@ export class WebRender2DPass implements IRender2DPass {
    
          // 裁剪规则二：检查矩形相交
          let cullRect = globalRenderData.cullRect;
-         if (cullRect && !struct.rect.isEmpty() && !this._isRectIntersect(struct.rect, cullRect)) {
+         if (struct.enableCulling && cullRect &&  !this._isRectIntersect(struct.rect, cullRect)) {
              return;
          }
       }
@@ -227,8 +227,8 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
 
-      if (this.repaint) {
-      // if (true) {
+      // if (this.repaint) {
+      if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
@@ -295,11 +295,11 @@ export class WebRender2DPass implements IRender2DPass {
             }
 
             if (n > 0) {
-               if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
-                  struct.dcBoundsTarget = reorderRoot;
+               // if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
+               //    struct.dcBoundsTarget = reorderRoot;
                   // let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
                   // SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
-               }
+               // }
 
                for (let i = 0; i < n; i++) {
                   let element = struct.renderElements[i];

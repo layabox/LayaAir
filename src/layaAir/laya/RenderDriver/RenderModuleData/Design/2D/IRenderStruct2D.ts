@@ -17,7 +17,10 @@ export interface IClipInfo {
    _updateFrame: number;
 }
 
-/** @ignore @blueprintIgnore */
+/** 
+ * @ignore @blueprintIgnore
+ * 需要传递的属性 get 效率慢
+ */
 export interface IRenderStruct2D {
    owner: Sprite;
 
@@ -25,7 +28,8 @@ export interface IRenderStruct2D {
    zIndex: number;
    stackingRoot: boolean; //是否是堆叠根节点
 
-   //TODO
+   enableCulling: boolean;
+   
    rect: Rectangle;
 
    renderLayer: number;
@@ -52,7 +56,7 @@ export interface IRenderStruct2D {
 
    //自动优化dc相关
    dcOptimize: boolean;
-   dcBoundsTarget: IRenderStruct2D;
+   // dcBoundsTarget: IRenderStruct2D;
 
    //渲染数据
    isRenderStruct: boolean;

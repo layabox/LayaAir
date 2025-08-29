@@ -34,6 +34,8 @@ enum ChildrenUpdateType {
    Alpha = 4,
    Pass = 8,
    Global = 16,
+   Culling = 32,
+   DcOptimize = 64,
 }
 
 interface StructTransform {
@@ -53,6 +55,19 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    rect: Rectangle = new Rectangle();
 
+   private _enableCulling: boolean = false;
+   private _parentEnableCulling: boolean = false;
+
+   public get enableCulling(): boolean {
+      return this._enableCulling || this._parentEnableCulling;
+   }
+
+   public set enableCulling(value: boolean) {
+      this._enableCulling = value;
+      this.updateChildren(ChildrenUpdateType.Culling);
+   }
+
+
    renderLayer: number = 1;
 
    parent: WebRenderStruct2D | null;
@@ -65,9 +80,19 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    renderUpdateMask: number = 0;
 
    //自动优化dc相关
-   dcOptimize: boolean;
+   private _dcOptimize: boolean;
+   private _parentDcOptimize: boolean;
+   public get dcOptimize(): boolean {
+      return this._dcOptimize || this._parentDcOptimize;
+   }
+   
+   public set dcOptimize(value: boolean) {
+      this._dcOptimize = value;
+      this.updateChildren(ChildrenUpdateType.DcOptimize);
+   }
+
    dcOptimizeEnd: WebRenderStruct2D;
-   dcBoundsTarget: WebRenderStruct2D;
+   // dcBoundsTarget: WebRenderStruct2D;
 
    public get renderMatrix(): Matrix {
       return this.trans.matrix;
@@ -185,6 +210,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this.updateChildren(ChildrenUpdateType.Pass);
       }
    }
+
+   
 
    constructor() {
    }
@@ -337,9 +364,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
-      let priority: number = 0, pass: WebRender2DPass = null;
+      let priority: number = 0, pass: WebRender2DPass = null , enableCulling: boolean = false, dcOptimize: boolean = false;
       let globalShaderData: ShaderData = null, globalRenderData: WebGlobalRenderData = null;
-      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false, updateGlobal = false;
+      let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false, updateGlobal = false, updateCulling = false, updateDcOptimize = false;
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
@@ -368,6 +395,16 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          updateGlobal = true;
          globalShaderData = this._globalShaderData;
          globalRenderData = this._globalRenderData;
+      }
+
+      if (type & ChildrenUpdateType.Culling) {
+         updateCulling = true;
+         enableCulling = this.enableCulling;
+      }
+
+      if (type & ChildrenUpdateType.DcOptimize) {
+         updateDcOptimize = true;
+         dcOptimize = this.dcOptimize;
       }
 
       for (const child of this.children) {
@@ -409,6 +446,16 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             }
 
             child._parentGlobalRenderData = globalRenderData;
+         }
+
+         if (updateCulling) {
+            child._parentEnableCulling = enableCulling;
+            updateChild = true;
+         }
+
+         if (updateDcOptimize) {
+            child._parentDcOptimize = dcOptimize;
+            updateChild = true;
          }
 
          if (updateChild) {

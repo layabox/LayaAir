@@ -974,6 +974,22 @@ export class Sprite extends Node {
         return this._struct.dcOptimize;
     }
 
+    
+    /**
+     * @en Whether to enable culling.
+     * @zh 是否启用裁剪。
+     */
+    set enableCulling(value: boolean) {
+        if (this._struct.enableCulling === value) return;
+        this._struct.enableCulling = value;
+        this._struct.setRepaint();
+        value && this._globalTrans._notifyRenderSpriteTransChange();
+    }
+
+    get enableCulling(): boolean {
+        return this._struct.enableCulling;
+    }
+
     /**
      * @en You can set a rectangular area as the clickable region, or set a HitArea instance as the clickable region. The HitArea can have both clickable and non-clickable areas defined. If the hitArea is not set, the mouse collision detection will be based on the area formed by the width and height of the object.
      * @zh 可以设置一个矩形区域作为点击区域，或者设置一个 `HitArea` 实例作为点击区域，HitArea 内可以设置可点击和不可点击区域。如果不设置 hitArea，则根据宽高形成的区域进行鼠标碰撞检测。
@@ -1409,6 +1425,10 @@ export class Sprite extends Node {
         }
         else {
             this.parentRepaint();
+            // 如果开启了dc优化，则需要重排
+            if (this._struct.dcOptimize) {
+                this._struct.setRepaint();
+            }
         }
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
@@ -2037,9 +2057,9 @@ export class Sprite extends Node {
         if (!p)
             return;
 
-        this._struct.dcBoundsTarget = null;
-        if (this._subStruct)
-            this._subStruct.dcBoundsTarget = null;
+        // this._struct.dcBoundsTarget = null;
+        // if (this._subStruct)
+        //     this._subStruct.dcBoundsTarget = null;
 
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
@@ -2050,8 +2070,8 @@ export class Sprite extends Node {
             if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
                 // 自动生成宽高需要刷新rt尺寸
                 p.setSubpassFlag(SubPassFlag.RenderTexture);
+                pStruct.setRepaint();
             }
-            pStruct.setRepaint();
         }
     }
 
@@ -2217,7 +2237,7 @@ export class Sprite extends Node {
     protected _setStructParent(value: Sprite) {
         if (this._maskParent) return;
         let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
-        struct.dcBoundsTarget = null;
+        // struct.dcBoundsTarget = null;
 
         if (struct && struct.parent) {
             struct.parent.removeChild(struct);
@@ -2278,8 +2298,8 @@ export class Sprite extends Node {
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
                 this._subStructRender._updateRenderOffset(rect);
-                if (maskRect.x !== rect.x || maskRect.y !== rect.y)
-                    this._subStruct.dcBoundsTarget = null;
+                // if (maskRect.x !== rect.x || maskRect.y !== rect.y)
+                //     this._subStruct.dcBoundsTarget = null;
                 rect.recover();
                 return false;
             }
@@ -2287,7 +2307,7 @@ export class Sprite extends Node {
         }
 
         this._subStructRender._updateRenderOffset(rect);
-        this._subStruct.dcBoundsTarget = null;
+        // this._subStruct.dcBoundsTarget = null;
 
         let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
         renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
@@ -2313,9 +2333,13 @@ export class Sprite extends Node {
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
 
-        let rect = this.getSelfBounds(struct.rect, false);
-        rect.transform(matrix, rect);
-        struct.rect = rect;
+        if (this._struct.enableCulling || this._struct.dcOptimize) {
+            let rect = this.getSelfBounds(struct.rect, false);
+            rect.transform(matrix, struct.rect);
+            struct.rect = struct.rect;
+        } else {
+            struct.rect.reset();
+        }
     }
 
     /**

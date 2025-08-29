@@ -13,6 +13,7 @@ import { Camera2D } from "laya/display/Scene2DSpecial/Camera2D";
 import { Script } from "laya/components/Script";
 import { Event } from "laya/events/Event";
 import { Area2D } from "laya/display/Area2D";
+import { RenderState2D } from "laya/webgl/utils/RenderState2D";
 
 export class Camera2DDemo {
     Main: typeof Main = null;
@@ -33,6 +34,7 @@ export class Camera2DDemo {
 
     private area;
     static camera: Camera2D;
+    private _drawLine: Sprite;
     private showApe(): void {
 
         var scene = new Scene();
@@ -47,7 +49,8 @@ export class Camera2DDemo {
         bg.width = Laya.stage.width;
         bg.height = Laya.stage.height;
 
-        Laya.loader.load("res/apes/monkey2.png", Loader.IMAGE).then(() => {
+
+        Laya.loader.load(["res/apes/monkey2.png", "res/apes/monkey3.png"], Loader.IMAGE).then(() => {
             var ape: Sprite = new Sprite();
             ape.loadImage("res/apes/monkey2.png");
             ape.pos(500, 500);
@@ -60,7 +63,21 @@ export class Camera2DDemo {
             ape.addComponent(testMove);
             this.area.addChild(ape);
             Camera2DDemo.camera = camera;
+
+            for (let i = 0; i < 10; i++) {
+                this.addApeOutCamera(camera, i);
+            }
         });
+    }
+
+
+    private addApeOutCamera(camera: Camera2D, i: number) {
+        var ape: Sprite = new Sprite();
+        ape.loadImage("res/apes/monkey3.png");
+        ape.pos(400 - RenderState2D.width / 2, 400 + i * 50);
+        this.area.addChild(ape);
+        ape.enableCulling = true;
+
     }
 
 

@@ -1,4 +1,5 @@
 import { ILaya } from "../../../ILaya";
+import { Event } from "../../events/Event";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
@@ -9,7 +10,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import type { Area2D } from "../Area2D";
 import { Sprite } from "../Sprite";
-import { SpriteConst } from "../SpriteConst";
+import { SpriteConst, TransformKind } from "../SpriteConst";
 
 export class Camera2D extends Sprite {
     /**@internal */
@@ -270,6 +271,18 @@ export class Camera2D extends Sprite {
     }
 
 
+    onEnable(): void {
+        this.on(Event.TRANSFORM_CHANGED, this, this._onTransChanged);
+    }
+
+    onDisable(): void {
+        this.off(Event.TRANSFORM_CHANGED, this, this._onTransChanged);
+    }
+
+    private _onTransChanged(e: Event): void {
+        this._struct.setRepaint();
+    }
+    
     /**
      * @internal
      * @returns 
