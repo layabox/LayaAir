@@ -198,7 +198,7 @@ export class WebRender2DPass implements IRender2DPass {
          this.cullAndSort(context2D, child);
       }
 
-      if (struct.dcOptimize) {
+      if (struct._dcOptimize) {
          let last = list.length - 1;
          struct.dcOptimizeEnd = list.elements[last];
       }

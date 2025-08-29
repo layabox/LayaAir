@@ -37,7 +37,7 @@ enum ChildrenUpdateType {
    Culling = 32,
    DcOptimize = 64,
 }
-
+ 
 interface StructTransform {
    matrix: Matrix;
    modifiedFrame: number;
@@ -80,7 +80,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    renderUpdateMask: number = 0;
 
    //自动优化dc相关
-   private _dcOptimize: boolean;
+   /** @internal */
+   _dcOptimize: boolean;
    private _parentDcOptimize: boolean;
    public get dcOptimize(): boolean {
       return this._dcOptimize || this._parentDcOptimize;

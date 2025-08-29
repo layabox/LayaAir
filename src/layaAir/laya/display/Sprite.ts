@@ -256,6 +256,11 @@ export class Sprite extends Node {
     /** @internal */
     _shaderData: ShaderData;
 
+    /** @internal */
+    _dcOptimize: boolean = false;
+    /** @internal */
+    _enableCulling: boolean = false;
+
     /** @ignore */
     constructor() {
         super();
@@ -964,14 +969,16 @@ export class Sprite extends Node {
      * 注意，如果元素数量巨大（例如大于500)，可能会显著消耗CPU性能。开发者需要均衡考虑DrawCall数量和CPU性能消耗。
      */
     set drawCallOptimize(value: boolean) {
-        if (this._struct.dcOptimize !== value) {
+        if (this._dcOptimize !== value) {
+            this._dcOptimize = value;
             this._struct.dcOptimize = value;
             this._struct.setRepaint();
+            value && this._globalTrans._notifyRenderSpriteTransChange();
         }
     }
 
     get drawCallOptimize(): boolean {
-        return this._struct.dcOptimize;
+        return this._dcOptimize;
     }
 
     
@@ -980,14 +987,15 @@ export class Sprite extends Node {
      * @zh 是否启用裁剪。
      */
     set enableCulling(value: boolean) {
-        if (this._struct.enableCulling === value) return;
+        if (this._enableCulling === value) return;
+        this._enableCulling = value;
         this._struct.enableCulling = value;
         this._struct.setRepaint();
         value && this._globalTrans._notifyRenderSpriteTransChange();
     }
 
     get enableCulling(): boolean {
-        return this._struct.enableCulling;
+        return this._enableCulling;
     }
 
     /**
