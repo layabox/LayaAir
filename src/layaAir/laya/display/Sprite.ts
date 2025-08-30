@@ -2295,10 +2295,11 @@ export class Sprite extends Node {
             rect.y += this._pivotY;
         }
 
-        if (rect.width === 0 || rect.height === 0) {
-            rect.recover();
-            return false;
-        }
+        // if (rect.width === 0 || rect.height === 0) {
+        //     this._drawOriRT = RenderTexture2D._empty;
+        //     rect.recover();
+        //     return false;
+        // }
 
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
@@ -2311,15 +2312,21 @@ export class Sprite extends Node {
                 rect.recover();
                 return false;
             }
-            oldRT.destroy();
+
+            if (oldRT !== RenderTexture2D._empty)
+                oldRT.destroy();
         }
 
         this._subStructRender._updateRenderOffset(rect);
         // this._subStruct.dcBoundsTarget = null;
-
-        let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
-        renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
-        this._drawOriRT = renderTexture;
+        if (rect.width === 0 || rect.height === 0) {
+            this._drawOriRT = RenderTexture2D._empty;
+        } else {
+            let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
+            renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
+            this._drawOriRT = renderTexture;
+        }
+        
         rect.recover();
         return true;
     }

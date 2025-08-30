@@ -33,6 +33,7 @@ import { Render2DProcessor } from "./laya/display/Render2DProcessor";
 import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
 import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { Scene } from "./laya/display/Scene";
+import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -206,6 +207,7 @@ export class Laya {
         Shader2D.__init__();
         BlendModeHandler._init_();
         Texture2D.__init__();
+        RenderTexture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();

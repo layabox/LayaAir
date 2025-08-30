@@ -12,6 +12,12 @@ import { NotImplementedError } from "../utils/Error";
  * @zh RenderTexture2D 类用于创建2D渲染目标。
  */
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
+    static _empty: RenderTexture2D;
+    /** @internal */
+    static __init__() {
+        RenderTexture2D._empty = new RenderTexture2D(1, 1, RenderTargetFormat.R8G8B8, RenderTargetFormat.None);
+    }
+
     private static _currentActive: RenderTexture2D;
 
     private static _pool: RenderTexture2D[] = [];
