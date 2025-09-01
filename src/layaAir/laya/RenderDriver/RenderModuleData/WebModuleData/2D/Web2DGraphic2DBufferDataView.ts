@@ -70,7 +70,10 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
 }
 
 export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicIndexDataView {
-    private _view: Uint16Array;
+    /** @internal */
+    _isClone: boolean = false;
+
+    protected _view: Uint16Array;
 
     declare owner: Web2DGraphicsIndexBuffer;
 
@@ -121,7 +124,7 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
     _clone(cloneOwner = true, create = true) {
         let owner = cloneOwner ? this.owner : null
         // start 不确定， length 是固定的
-        let nview = new Web2DGraphic2DIndexDataView(owner, this.length, create);
+        let nview = new Web2DGraphic2DIndexCloneDataView(owner, this.length, create);
         if (!create) {
             this._cloneView(nview);
         }
@@ -141,6 +144,40 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
         this._view = null;
         this._geometry = null;
         this.owner = null;
+        this._next = null;
+        this._prev = null;
+    }
+}
+
+export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataView {
+
+    _next: Web2DGraphic2DIndexCloneDataView;
+    _prev: Web2DGraphic2DIndexCloneDataView;
+
+    _isClone: boolean = true;
+  
+    _lastWholeData: Uint16Array;
+    _lastStart: number = -1;
+
+    // 更新数据视图
+    _updateView(wholeData: Uint16Array) {
+        if (
+            this._lastWholeData !== wholeData ||
+            this._lastStart !== this.start
+        ) {
+            wholeData.set(this._view, this.start);
+            this._lastWholeData = wholeData;
+            this._lastStart = this.start;
+            return true;
+        }
+
+        return false;
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._lastWholeData = null;
+        this._lastStart = 0;
         this._next = null;
         this._prev = null;
     }

@@ -2,7 +2,7 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DIndexCloneDataView } from "./Web2DGraphic2DBufferDataView";
 
 export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
@@ -130,7 +130,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     declare buffer: IIndexBuffer;
 
     declare _dataView: Uint16Array;
-
+    
     /** @internal */
     declare _first: Web2DGraphic2DIndexDataView;
     /** @internal */
@@ -164,6 +164,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
                     geometry.clearRenderParams();
                     geometry.setDrawElemenParams(length, start * 2);
                 }
+
                 geometry = view._geometry;
                 start = start + length;
                 length = 0;
@@ -195,22 +196,22 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
         this.buffer.setData(this.arrayBuffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
         this._needResetData = false;
-
-        // this.clearBufferViews();
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexDataView): void {
         this.addDataView(view);
+
         if (view._prev) {
             view.start = view._prev.start + view._prev.length;
         } else {
             view.start = 0;
         }
-        
-        if (view._geometry) {
+            
+        if ( view._isClone && view._geometry) {
             view._geometry.clearRenderParams();
             view._geometry.setDrawElemenParams(view.length, view.start * 2);
         }
+
         super._modifyOneView(view);
     }
 }
@@ -218,6 +219,44 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
 export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
+    declare _first: Web2DGraphic2DIndexCloneDataView;
+    declare _last: Web2DGraphic2DIndexCloneDataView;
+
+    _upload() {
+        let view = this._first;
+        let uploadStart = this._needResetData ? 0 : this._updateRange.x;
+
+        // let mark = 0 ;
+        while (view) {
+            
+            if (this._needResetData || view.start >= uploadStart) {
+                let result = view._updateView(this._dataView);
+                if (!result) {
+                   uploadStart = view.start + view.length;
+                }
+            }
+
+            view = view._next;
+        }
+
+        let len = this._last.start + this._last.length - uploadStart;
+        if (len == 0) return;
+
+        let offset = uploadStart * 2;
+
+        offset = Math.floor(offset / 4) * 4;
+
+        let dataLength = len * 2 + (uploadStart * 2 - offset);
+
+        if (dataLength + offset > this.arrayBuffer.byteLength) { 
+            offset -= (dataLength + offset - this.arrayBuffer.byteLength);
+        }
+
+        this.buffer.setData(this.arrayBuffer, offset, offset, dataLength);
+
+        this._needResetData = false;
+    }
+    
     clearBufferViews() {//不清理,添加时处理
         this._first = null;
         this._last = null;
