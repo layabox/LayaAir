@@ -12,7 +12,6 @@ import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "./VBCreator";
 import { IPreRender } from "./interface/IPreRender";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
-import { t } from "../../../../../node_modules/i18next/index.v4";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 
 /**

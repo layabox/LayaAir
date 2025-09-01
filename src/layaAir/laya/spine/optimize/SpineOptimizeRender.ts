@@ -159,6 +159,13 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
+        this.geoMap.forEach((value) => {
+            value.geo.destroy();
+            value.vb.destroy();
+            value.ib.destroy();
+        });
+        this.geoMap.clear();
+        this.animatorMap.clear();
         //throw new NotImplementedError();
     }
 

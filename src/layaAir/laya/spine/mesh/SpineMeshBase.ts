@@ -173,6 +173,19 @@ export abstract class SpineMeshBase {
         this.indicesLength = 0;
     }
 
+    
+    destroy(): void {
+        this.geo.destroy();
+        this.vb.destroy();
+        this.ib.destroy();
+        this.element.destroy();
+        this.geo = null;
+        this.vb = null;
+        this.ib = null;
+        this.element = null;
+        this.material = null;
+    }
+
     /** @internal */
     _cloneTo(target: SpineMeshBase) {
         target.verticesLength = this.verticesLength;

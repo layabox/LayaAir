@@ -21,6 +21,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @zh 销毁渲染器。
      */
     destroy(): void {
+        this._renerer.destroy();
         //throw new NotImplementedError();
     }
     /**

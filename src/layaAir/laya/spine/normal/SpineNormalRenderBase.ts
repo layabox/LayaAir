@@ -57,4 +57,11 @@ export abstract class SpineNormalRenderBase {
         vmesh.material = material;
         return vmesh;
     }
+
+    destroy(): void {
+        this.vmeshs.forEach((value) => {
+            value.destroy();
+        });
+        this.nextBatchIndex = 0;
+    }
 }
