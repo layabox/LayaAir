@@ -70,8 +70,6 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
 }
 
 export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicIndexDataView {
-    /** @internal */
-    _isClone: boolean = false;
 
     protected _view: Uint16Array;
 
@@ -154,8 +152,6 @@ export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataVie
     _next: Web2DGraphic2DIndexCloneDataView;
     _prev: Web2DGraphic2DIndexCloneDataView;
 
-    _isClone: boolean = true;
-  
     _lastWholeData: Uint16Array;
     _lastStart: number = -1;
 

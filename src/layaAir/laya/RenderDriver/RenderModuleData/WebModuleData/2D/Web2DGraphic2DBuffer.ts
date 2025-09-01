@@ -206,11 +206,6 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         } else {
             view.start = 0;
         }
-            
-        if ( view._isClone && view._geometry) {
-            view._geometry.clearRenderParams();
-            view._geometry.setDrawElemenParams(view.length, view.start * 2);
-        }
 
         super._modifyOneView(view);
     }
@@ -255,6 +250,14 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         this.buffer.setData(this.arrayBuffer, offset, offset, dataLength);
 
         this._needResetData = false;
+    }
+
+    _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
+        super._modifyOneView(view);
+        if ( view._geometry ) {
+            view._geometry.clearRenderParams();
+            view._geometry.setDrawElemenParams(view.length, view.start * 2);
+        }
     }
     
     clearBufferViews() {//不清理,添加时处理
