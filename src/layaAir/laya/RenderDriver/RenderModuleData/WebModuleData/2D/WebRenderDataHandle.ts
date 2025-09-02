@@ -13,7 +13,7 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
@@ -82,7 +82,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
-    private _clonesViews: Web2DGraphic2DIndexDataView[];
+    private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
@@ -177,7 +177,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     }
 
-    getCloneViews(): Web2DGraphic2DIndexDataView[] {
+    getCloneViews(): Web2DGraphic2DIndexCloneDataView[] {
         if (!this._clonesViews) {
             this._clonesViews = [];
             for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
@@ -204,7 +204,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         this._clonesViews.length = blockLength;
 
         for (let i = 0; i < blockLength; i++) {
-            let view = cloneViews[i] as Web2DGraphic2DIndexDataView;
+            let view = cloneViews[i] as Web2DGraphic2DIndexCloneDataView;
             let block = this._bufferBlocks[i];
             if (block) {
                 cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DIndexDataView, view);
@@ -212,11 +212,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         }
     }
 
-    private _cloneView(view: Web2DGraphic2DIndexDataView, oView: Web2DGraphic2DIndexDataView = null) {
-        let clone: Web2DGraphic2DIndexDataView;
+    private _cloneView(view: Web2DGraphic2DIndexDataView, oView: Web2DGraphic2DIndexCloneDataView = null) {
+        let clone: Web2DGraphic2DIndexCloneDataView;
         if (oView && oView._geometry) {
             clone = oView;
             view._cloneView(clone);
+            //更新需要提交
+            clone._lastStart = -1;
         } else {
             clone = view._clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
