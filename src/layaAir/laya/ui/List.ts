@@ -260,8 +260,9 @@ export class List extends Box {
                 else
                     this.scrollType = this._scrollType;
             }
+            else if (this._scrollType === ScrollType.Vertical)
+                this.scrollType = 0;
         }
-
     }
 
     /**
@@ -282,6 +283,8 @@ export class List extends Box {
                 else
                     this.scrollType = this._scrollType;
             }
+            else if (this._scrollType === ScrollType.Horizontal)
+                this.scrollType = 0;
         }
     }
 
