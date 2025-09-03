@@ -69,7 +69,7 @@ export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
 
    private _renderElements = new FastSinglelist<IRenderElement2D>();
-   private _elementGroups: Array<any> = [];
+   private _elementGroups: FastSinglelist<any> = new FastSinglelist<any>();
    private _structs: SortedStructs = new SortedStructs();
    private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
    private _pStructs: SortedStructs;
@@ -227,8 +227,8 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       this._initRenderProcess(context);
 
-      if (this.repaint) {
-      // if (true) {
+      // if (this.repaint) {
+      if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
@@ -289,7 +289,9 @@ export class WebRender2DPass implements IRender2DPass {
             if (struct.dcOptimize && !reorderRoot && struct.dcOptimizeEnd !== struct) {
                reorderRoot = struct;
                if (groupStart !== renderElements.length) {
-                  this._elementGroups.push(groupStart, renderElements.length - 1, false);
+                  this._elementGroups.add(groupStart);
+                  this._elementGroups.add(renderElements.length - 1);
+                  this._elementGroups.add(false);
                   groupStart = renderElements.length;
                }
             }
@@ -311,15 +313,20 @@ export class WebRender2DPass implements IRender2DPass {
             if (reorderRoot?.dcOptimizeEnd === struct) {
                reorderRoot = null;
                if (groupStart !== renderElements.length) {
-                  this._elementGroups.push(groupStart, renderElements.length - 1, true);
+                  this._elementGroups.add(groupStart);
+                  this._elementGroups.add(renderElements.length - 1);
+                  this._elementGroups.add(true);
                   groupStart = renderElements.length;
                }
             }
          }
       });
 
-      if (groupStart !== renderElements.length)
-         this._elementGroups.push(groupStart, renderElements.length - 1, false);
+      if (groupStart !== renderElements.length) { 
+         this._elementGroups.add(groupStart);
+         this._elementGroups.add(renderElements.length - 1);
+         this._elementGroups.add(false);
+      }
    }
 
    private batch() {
@@ -327,12 +334,13 @@ export class WebRender2DPass implements IRender2DPass {
       let length = list.length;
       let elementArray = list.elements;
       let groups = this._elementGroups;
+      let groupsArray = groups.elements;
       list.length = 0;
 
       for (let gi = 0, gl = groups.length; gi < gl; gi += 3) {
-         let groupStart = groups[gi];
-         let groupEnd = groups[gi + 1];
-         let allowReorder = groups[gi + 2];
+         let groupStart = groupsArray[gi];
+         let groupEnd = groupsArray[gi + 1];
+         let allowReorder = groupsArray[gi + 2];
          let lastRenderType = elementArray[groupStart].owner.renderType;
          let batchStart = groupStart;
 
