@@ -365,6 +365,42 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.boundsChange = true;
     }
 
+    private _autoAdjust: boolean = false;
+
+    public get autoAdjust(): boolean {
+        return this._autoAdjust;
+    }
+
+    public set autoAdjust(value: boolean) {
+        if (this._autoAdjust === value)
+            return;
+        this._autoAdjust = value;
+        if (value) {
+            this._doAutoAdjust();
+        }
+    }
+
+    private _doAutoAdjust() {
+        if (!this._templet)
+            return;
+        let templet = this._templet;
+        let data = templet.skeletonData;
+        let x = Math.ceil(data.x ?? 0);
+        let y = Math.ceil(data.y ?? 0);
+        let width = data.width;
+        let height = data.height;
+
+        if (width < 1) width = 100;
+        if (height < 1) height = 100;
+
+        
+        let pivotX =  width + x;
+        let pivotY = height + y;
+
+        this.owner.size(width, height);
+        this.owner.pivot(pivotX, pivotY);
+    }
+
     /** @ignore @blueprintIgnore */
     onEnable(): void {
         // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
@@ -418,8 +454,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._struct.renderElements = [];
         this._struct.setRepaint();
 
-        // this._rect.z = this._templet.width;
-        // this._rect.w = this._templet.height;
+        if (this._autoAdjust) { 
+            this._doAutoAdjust();
+        }
+
         this.boundsChange = true;
 
         if (!this._useFastRender) {

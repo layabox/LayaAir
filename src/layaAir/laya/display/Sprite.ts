@@ -1428,8 +1428,13 @@ export class Sprite extends Node {
                 this._graphics.repaint();
             else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
                 this.repaint();
-            else
+            else { 
                 this.parentRepaint();
+                // 如果开启了dc优化，则需要重排
+                if (this._struct.dcOptimize) {
+                    this._struct.setRepaint();
+                }
+            }
         }
         else {
             this.parentRepaint();
@@ -1444,7 +1449,7 @@ export class Sprite extends Node {
         if (
             (kind & TransformKind.TRS) !== 0
             || (kind & TransformKind.Anchor) !== 0
-            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0))
+            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0 || this._struct.dcOptimize))
         ) {
             this._globalTrans._spTransChanged(kind);
 
