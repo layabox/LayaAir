@@ -299,8 +299,9 @@ export class SubStructRender {
          let transform = mask.transform;
          if (transform) {
             transform.cloneTo(matrix)
-         }
-         matrix.invert();
+            matrix.invert();
+         }else
+            matrix.identity();
       } else {
          matrix.identity();
       }
