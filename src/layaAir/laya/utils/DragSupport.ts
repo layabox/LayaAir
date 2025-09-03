@@ -184,6 +184,7 @@ export class DragSupport {
             let v = DragSupport.computeVelocity(this._points, this.maxOffset);
             this._points[0] = v.x;
             this._points[1] = v.y;
+            this._dragging = false;
             ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 
         } else if (!this.area.isEmpty() && this.elasticDistance > 0) {
@@ -253,6 +254,8 @@ export class DragSupport {
         let s = this.ratio * (1 - n) / (1 - this.ratio); //  S = r(1-rⁿ)/(1-r), r is this.ratio
         let dx = this._points[0] * s * this._elasticRateX;
         let dy = this._points[1] * s * this._elasticRateY;
+        this._points[0] = dx;
+        this._points[1] = dy;
         if (dx < 0)
             dx = Math.ceil(dx);
         else
@@ -261,8 +264,6 @@ export class DragSupport {
             dy = Math.ceil(dy);
         else
             dy = Math.floor(dy);
-        this._points[0] *= n * this._elasticRateX;
-        this._points[1] *= n * this._elasticRateY;
 
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1 || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
             ILaya.systemTimer.clear(this, this.tweenMove);
