@@ -21,7 +21,7 @@ import { PhysicsLineShader } from "./shader/PhysicsLineShader";
 
 export class PhysicsDrawLine2DCMD extends Command2D {
     private static readonly _pool = Pool.createPool(PhysicsDrawLine2DCMD);
-    private _renderElements: IRenderElement2D[] = [];
+    _renderElements: IRenderElement2D[] = [];
     private _physicsGeometry: PhysicsLineGemetry;
     private _material: Material;
 
