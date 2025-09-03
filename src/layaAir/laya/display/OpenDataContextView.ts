@@ -194,8 +194,8 @@ export class OpenDataContextView extends Sprite {
 
     updateViewPort(): void {
         let stage: Stage = ILaya.stage;
-        let sx = stage._canvasTransform.getScaleX() * this.globalScaleX * stage.transform.getScaleX();
-        let sy = stage._canvasTransform.getScaleY() * this.globalScaleY * stage.transform.getScaleY();
+        let sx = stage._canvasTransform.getScaleX() * this.scaleX * stage.transform.getScaleX();
+        let sy = stage._canvasTransform.getScaleY() * this.scaleY * stage.transform.getScaleY();
 
         this.postMsg({
             type: "updateViewPort",
