@@ -23,6 +23,7 @@ import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
 
 /**
  * @zh Spine动画渲染节点。
@@ -361,6 +362,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     set offset(value: Vector2) {
         this._offset = value;
         this._renderHandle.offset = this._offset;
+        this.boundsChange = true;
     }
 
     /** @ignore @blueprintIgnore */
@@ -416,8 +418,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._struct.renderElements = [];
         this._struct.setRepaint();
 
-        this._rect.z = this._templet.width;
-        this._rect.w = this._templet.height;
+        // this._rect.z = this._templet.width;
+        // this._rect.w = this._templet.height;
+        this.boundsChange = true;
 
         if (!this._useFastRender) {
             let before = SketonOptimise.normalRenderSwitch;
@@ -977,6 +980,18 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this._mesh = mesh;
         return hasChange;
+    }
+
+
+    get rect(): Vector4 {
+        if (this._boundsChange) {
+            this._rect.z = this._templet.width;
+            this._rect.w = this._templet.height;
+            this._rect.x = this._offset.x;
+            this._rect.y = this._offset.y;
+            this._boundsChange = false;
+        }
+        return this._rect;
     }
 
 }
