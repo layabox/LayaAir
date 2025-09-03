@@ -226,7 +226,7 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
             
             if (this._needResetData || view.start >= uploadStart) {
                 let result = view._updateView(this._dataView);
-                if (!result) {
+                if (!result && view.start == uploadStart) {
                    uploadStart = view.start + view.length;
                 }
             }
