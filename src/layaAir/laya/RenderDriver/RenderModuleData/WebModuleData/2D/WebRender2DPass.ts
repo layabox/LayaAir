@@ -225,8 +225,8 @@ export class WebRender2DPass implements IRender2DPass {
     * @param context 
     */
    fowardRender(context: IRenderContext2D) {
-      this._initRenderProcess(context);
-
+      let success = this._initRenderProcess(context);
+      if (!success) return;
       if (this.repaint) {
       // if (true) {
          this._structs.reset();
@@ -391,12 +391,14 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    //预留
-   private _initRenderProcess(context: IRenderContext2D) {
+   private _initRenderProcess(context: IRenderContext2D) : boolean {
       //设置viewport 切换rt
       let sizeX, sizeY;
 
       let rt = this.renderTexture;
       if (rt) {
+         if (rt.width == 0 || rt.height == 0)
+            return false;
          context.invertY = rt._invertY;
          context.setRenderTarget(rt._renderTarget, this.doClearColor, this._clearColor);
          sizeX = rt.width;
@@ -405,9 +407,11 @@ export class WebRender2DPass implements IRender2DPass {
          this.shaderData.addDefine(ShaderDefines2D.RENDERTEXTURE);//??
 
       } else {
-         context.invertY = false;
          sizeX = RenderState2D.width;
          sizeY = RenderState2D.height;
+         if (sizeX === 0 || sizeY === 0)
+            return false
+         context.invertY = false;
          context.setOffscreenView(sizeX, sizeY);
 
          context.setRenderTarget(null, this.doClearColor, this._clearColor);
@@ -422,6 +426,8 @@ export class WebRender2DPass implements IRender2DPass {
          this._rtsize.setValue(sizeX, sizeY);
          this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
       }
+
+      return true;
    }
 
    static setBuffer(buffer: Web2DGraphicWholeBuffer): void {

@@ -15,7 +15,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     static _empty: RenderTexture2D;
     /** @internal */
     static __init__() {
-        RenderTexture2D._empty = new RenderTexture2D(1, 1, RenderTargetFormat.R8G8B8, RenderTargetFormat.None);
+        RenderTexture2D._empty = new RenderTexture2D(0, 0, RenderTargetFormat.R8G8B8, RenderTargetFormat.None);
+        RenderTexture2D._empty._create();
+        RenderTexture2D._empty.lock = true;
     }
 
     private static _currentActive: RenderTexture2D;
