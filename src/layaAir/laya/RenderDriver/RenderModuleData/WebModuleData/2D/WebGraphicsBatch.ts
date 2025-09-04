@@ -18,6 +18,7 @@ import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { Vector4 } from "../../../../maths/Vector4";
 
 
 /**
@@ -177,6 +178,7 @@ class BatchContext {
     lowType: number = 0;
     globalRenderData: any = null;
 
+    texRange: Vector4;
 
     constructor() {
         let isWebgl = !!(LayaGL.renderEngine as any).gl;
@@ -201,6 +203,7 @@ class BatchContext {
         this.type = element.type;
         this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
+        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
     
     _setHeadWebgpu(element: IPrimitiveRenderElement2D): void {
@@ -219,6 +222,7 @@ class BatchContext {
         this.type = element.type;
         this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
+        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
     /**
      * 从渲染元素初始化批次上下文
@@ -246,9 +250,12 @@ class BatchContext {
 
         //@ts-ignore
         let primitiveShaderData = element.primitiveShaderData;
+        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
         // 如果元素存在texRange，则不能批次化
-        if (primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE)) {
-            return false;
+        if (
+            (range && (!this.texRange || range.equal(this.texRange)))
+            || (!range && this.texRange)) {
+                return false;
         }
 
         // 检查低位类型（最常见的不匹配）
@@ -309,9 +316,12 @@ class BatchContext {
 
         //@ts-ignore
         let primitiveShaderData = element._primitiveShaderData;
+        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
         // 如果元素存在texRange，则不能批次化
-        if (primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE)) {
-            return false;
+        if (
+            (range && (!this.texRange || range.equal(this.texRange)))
+            || (!range && this.texRange)) {
+                return false;
         }
 
         // 检查低位类型（最常见的不匹配）
