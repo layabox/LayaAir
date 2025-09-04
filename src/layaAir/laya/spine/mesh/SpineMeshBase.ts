@@ -183,7 +183,7 @@ export abstract class SpineMeshBase {
         this.vb = null;
         this.ib = null;
         this.element = null;
-        this.material = null;
+        this._material = null;
     }
 
     /** @internal */
