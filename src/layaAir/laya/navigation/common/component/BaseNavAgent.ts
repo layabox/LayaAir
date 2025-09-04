@@ -1,4 +1,3 @@
-
 import { Component } from "../../../components/Component";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Vector3 } from "../../../maths/Vector3";
@@ -6,7 +5,7 @@ import { BaseNavigationManager } from "../BaseNavigationManager";
 import { NavigationPathData } from "../NavigationPathData";
 import { AreaMask } from "../AreaMask";
 import { NavAgentLinkAnim } from "../NavAgentLinkAnim";
-import { CrowdAgentState, NavigationConfig, ObstacleAvoidanceType, UpdateFlags } from "../NavigationConfig";
+import { CrowdAgentState, ObstacleAvoidanceType, UpdateFlags } from "../NavigationConfig";
 import { BaseNavMeshSurface } from "./BaseNavMeshSurface";
 import { NavMeshLinkData } from "../data/NavMeshLinkData";
 import { NotImplementedError } from "../../../utils/Error";
@@ -81,6 +80,8 @@ export class BaseNavAgent extends Component {
     _filter: any;
     /**@internal */
     _curentSpeed: Vector3;
+    /**@internal navMeshSurface是否准备好，这里处理先添加agent再初始化navMeshSurface的情况*/
+    private _navMeshSurfaceReady: boolean = false;
 
     /**
      * @en Radius of the agent.
@@ -259,6 +260,7 @@ export class BaseNavAgent extends Component {
      */
     onUpdate() {
         if (this._crowAgent != null) return;
+        if (!this._navMeshSurfaceReady) this._addAgent();
         if (!this._navAgentLinkAnim._active) return;
         let position = tempVector3;
         let dir = tempVector31;
@@ -410,11 +412,11 @@ export class BaseNavAgent extends Component {
         this._getpos(tempVector3);
         let surface = this._navManager.getNavMeshSurface(tempVector3, this._agentType);
         if (surface == null) {
-            console.error("not get the NavMeshSurface in this position.");
             return;
         }
         this._currentNaveSurface = surface;
         this._currentNaveSurface._navMesh._addAgent(this);
+        this._navMeshSurfaceReady = true;
     }
 
     /**
@@ -425,6 +427,7 @@ export class BaseNavAgent extends Component {
             return;
         this._currentNaveSurface._navMesh._removeAgent(this);
         this._currentNaveSurface = null;
+        this._navMeshSurfaceReady = false;
     }
 
     /**
