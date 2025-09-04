@@ -33,7 +33,7 @@ import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUt
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
-import { MathUtil } from "../maths/MathUtil";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -981,7 +981,7 @@ export class Sprite extends Node {
         return this._dcOptimize;
     }
 
-    
+
     /**
      * @en Whether to enable culling.
      * @zh 是否启用裁剪。
@@ -1200,6 +1200,16 @@ export class Sprite extends Node {
     }
 
     set material(value: Material) {
+        if (value) {
+            let shaderType = value.shader.shaderType;
+            if (shaderType != null
+                && shaderType !== ShaderFeatureType.D2_BaseRednerNode2D
+                && shaderType !== ShaderFeatureType.D2_TextureSV
+                && shaderType !== ShaderFeatureType.D2_primitive) {
+                throw new Error("Material shader type is not match Sprite.");
+            }
+        }
+
         if (this._graphics == null && value == null)
             return;
 
@@ -1428,7 +1438,7 @@ export class Sprite extends Node {
                 this._graphics.repaint();
             else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
                 this.repaint();
-            else { 
+            else {
                 this.parentRepaint();
                 // 如果开启了dc优化，则需要重排
                 if (this._struct.dcOptimize) {
@@ -2331,7 +2341,7 @@ export class Sprite extends Node {
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }
-        
+
         rect.recover();
         return true;
     }
