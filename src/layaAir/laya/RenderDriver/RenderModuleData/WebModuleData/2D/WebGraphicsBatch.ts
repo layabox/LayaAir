@@ -178,6 +178,7 @@ class BatchContext {
     lowType: number = 0;
     globalRenderData: any = null;
 
+    fillTexture: boolean = false;
     texRange: Vector4;
 
     constructor() {
@@ -203,6 +204,7 @@ class BatchContext {
         this.type = element.type;
         this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
+        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
     
@@ -222,6 +224,7 @@ class BatchContext {
         this.type = element.type;
         this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
+        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
     /**
@@ -250,11 +253,13 @@ class BatchContext {
 
         //@ts-ignore
         let primitiveShaderData = element.primitiveShaderData;
+        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
         // 如果元素存在texRange，则不能批次化
         if (
-            (range && (!this.texRange || range.equal(this.texRange)))
-            || (!range && this.texRange)) {
+            (!fillTexture && this.fillTexture)
+            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
+        ) {
                 return false;
         }
 
@@ -316,11 +321,13 @@ class BatchContext {
 
         //@ts-ignore
         let primitiveShaderData = element._primitiveShaderData;
+        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
         // 如果元素存在texRange，则不能批次化
         if (
-            (range && (!this.texRange || range.equal(this.texRange)))
-            || (!range && this.texRange)) {
+            (!fillTexture && this.fillTexture)
+            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
+        ) {
                 return false;
         }
 
