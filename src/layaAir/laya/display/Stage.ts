@@ -846,7 +846,7 @@ export class Stage extends Sprite {
             }
 
             let process = sprite._oriRenderPass.postProcess;
-            if (process) {
+            if (process && destrt != RenderTexture2D._empty ) {
                 if (
                     result ||
                     (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)

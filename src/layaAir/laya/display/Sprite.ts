@@ -1663,11 +1663,15 @@ export class Sprite extends Node {
                             root._oriRenderPass.mask = root.mask._subStruct;
                         }
 
+                        if (result) {
+                            root._oriRenderPass.renderTexture = destrt;
+                        }
+
                         let process = root._oriRenderPass.postProcess;
-                        if (process) {
-                            if (result) {
-                                root._oriRenderPass.renderTexture = destrt;
-                            }
+                        if (
+                            process 
+                           && destrt != RenderTexture2D._empty
+                        ) {
 
                             if (
                                 result ||
@@ -2333,6 +2337,7 @@ export class Sprite extends Node {
         }
 
         this._subStructRender._updateRenderOffset(rect);
+
         // this._subStruct.dcBoundsTarget = null;
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
