@@ -5,11 +5,9 @@ import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShad
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
 import { FastSinglelist } from "../../../utils/SingletonList";
-import { IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLBufferState } from "../RenderDevice/WebGLBufferState";
-import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
@@ -21,7 +19,7 @@ export interface WebGLInstanceStateInfo {
     lightmapScaleOffsetVB?: WebGLVertexBuffer;
     simpleAnimatorVB?: WebGLVertexBuffer;
 }
-export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implements IInstanceRenderElement3D {
+export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D  {
     /**
      * get Instance BufferState
      */

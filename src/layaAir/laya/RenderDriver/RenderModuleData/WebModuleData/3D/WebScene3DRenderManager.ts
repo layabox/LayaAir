@@ -1,5 +1,6 @@
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
 import { SingletonList } from "../../../../utils/SingletonList";
+import { IBatchModuleAgent } from "../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ISceneRenderManager } from "../../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
@@ -8,11 +9,23 @@ import { WebBaseRenderNode } from "./WebBaseRenderNode";
  * @zh `SceneRenderManagerOBJ` 类用于管理场景的渲染节点。
  */
 export class WebSceneRenderManager implements ISceneRenderManager {
+
     /** @internal */
     _list: SingletonList<BaseRender> = new SingletonList();
-    //_motionRenders: SingletonList<BaseRender> = new SingletonList(); TODO
+
+    /**@internal 合批队列 */
+    batchAgentList: Map<number, IBatchModuleAgent> = new Map();
+
     /** @ignore */
     constructor() {
+    }
+
+    registerBatchModuleAgent(agent: IBatchModuleAgent): void {
+        throw new Error("Method not implemented.");
+    }
+
+    updateProperty(object: BaseRender, property: string): void {
+        throw new Error("Method not implemented.");
     }
 
     /**

@@ -135,10 +135,10 @@ export class GLESRender3DProcess implements IRender3DProcess {
             if (needDirectionShadow) {
                 this.renderpass.directLightShadowPass.camera = <RTCameraNodeData>camera._renderDataModule;
                 this.renderpass.directLightShadowPass.light = <RTDirectLight>mainDirectionLight._dataModule;
-                let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
-                this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as GLESInternalRT;
+              //  let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+               // this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget as GLESInternalRT;
                 shadowParams.x = this.renderpass.directLightShadowPass.light.shadowStrength;
-                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
+              //  sceneShaderData.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
             }
 
             // spot light shadow
@@ -147,10 +147,10 @@ export class GLESRender3DProcess implements IRender3DProcess {
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = mainSpotLight;
-                let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
-                this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget as GLESInternalRT;
+           //     let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+              //  this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget as GLESInternalRT;
                 shadowParams.y = this.renderpass.spotLightShadowPass.light.shadowStrength;
-                sceneShaderData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
+              //  sceneShaderData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
             sceneShaderData.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowParams);
 

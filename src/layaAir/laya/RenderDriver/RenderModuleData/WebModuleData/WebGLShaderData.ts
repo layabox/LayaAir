@@ -70,8 +70,11 @@ export class WebGLShaderData extends ShaderData {
      * @param uniformMap 
      * @returns 
      */
-    createUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>): WebGLUniformBuffer {
+    createUniformBuffer(name: string, uniformMap: Map<number, UniformProperty>, needUpdata: boolean = false): WebGLUniformBuffer {
         if (this._uniformBuffers.has(name)) {
+            if (needUpdata) {
+                this._updateUBOBuffer(name);
+            }
             return this._uniformBuffers.get(name);
         }
 
@@ -97,7 +100,7 @@ export class WebGLShaderData extends ShaderData {
         return uboBuffer;
     }
 
-    updateUBOBuffer(name: string): void {
+    private _updateUBOBuffer(name: string): void {
         if (!Config._uniformBlock) {
             return;
         }

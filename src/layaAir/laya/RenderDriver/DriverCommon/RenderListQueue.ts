@@ -3,7 +3,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { StatElement } from "../../layagl/StatisticsContext";
 import { Browser } from "../../utils/Browser";
 import { FastSinglelist } from "../../utils/SingletonList";
-import { IInstanceRenderBatch, IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderQuickSort } from "./RenderQuickSort";
 
 /**
@@ -15,12 +15,10 @@ export class RenderListQueue {
     private _quickSort: RenderQuickSort;
     private _isTransparent: boolean;
 
-    _batch: IInstanceRenderBatch;
 
     constructor(isTransParent: boolean) {
         this._isTransparent = isTransParent;
         this._quickSort = new RenderQuickSort();
-        this._batch = Laya3DRender.Render3DPassFactory.createInstanceBatch();
     }
 
     /**
@@ -31,28 +29,17 @@ export class RenderListQueue {
         renderelement.materialShaderData && this._elements.add(renderelement);
     }
 
-    /**
-     * 合并渲染队列
-     */
-    private _batchQueue() {
-        if (!this._isTransparent) {
-            let time = Browser.now();
-            this._batch.batch(this._elements);
-            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, Browser.now() - time);
-        }
-    }
+
 
     /**
      * 渲染队列
      * @param context 
      */
     renderQueue(context: IRenderContext3D) {
-        this._batchQueue(); //合并的地方
         const count = this._elements.length;
         this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
         LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
-        this._batch.clearRenderData();
     }
     /**
      * 清空队列

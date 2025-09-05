@@ -1,4 +1,5 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
@@ -35,5 +36,9 @@ export class WebGLCommandUniformMap extends CommandUniformMap {
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
         this._idata.set(propertyID, { id: propertyID, uniformtype: uniformtype, propertyName: propertyName, arrayLength: arrayLength });
+    }
+
+    setDefaultTextureData(key: number, defaultTex: BaseTexture) {
+
     }
 }

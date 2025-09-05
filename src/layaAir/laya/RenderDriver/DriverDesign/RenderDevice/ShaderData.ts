@@ -13,6 +13,7 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
 import { IDeviceBuffer } from "./IDeviceBuffer";
+import { InternalRenderTarget } from "./InternalRenderTarget";
 
 export enum ShaderDataType {
     None,
@@ -466,7 +467,7 @@ export class ShaderData implements IClone {
     /**
      * @private
      */
-    _setInternalTexture(index: number, value: InternalTexture): void {
+    _setInternalTexture(index: number, value: InternalTexture | InternalRenderTarget): void {
         throw new NotImplementedError();
     }
 

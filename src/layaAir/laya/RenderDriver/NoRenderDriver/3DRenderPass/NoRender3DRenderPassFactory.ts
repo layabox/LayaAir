@@ -6,12 +6,14 @@ import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
+import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
-import { IRender3DProcess, IRenderContext3D, IRenderElement3D, IInstanceRenderBatch, IInstanceRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
+import { IBatchModuleAgent } from "../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
-import { SetRenderDataCMD, SetShaderDefineCMD, IRenderCMD, RenderCMDType } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { SetRenderDataCMD, SetShaderDefineCMD, IRenderCMD, RenderCMDType, ComputeCommandAppatchCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
@@ -22,6 +24,12 @@ import { NoRenderSetRenderData, NoRenderSetShaderDefine, NoRenderShaderData } fr
 import { NoInternalRT } from "../DriverDevice/NoRenderEngineFactory";
 
 export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
+    createMeshRenderBatchModule(): IBatchModuleAgent {
+        throw new NotImplementedError();
+    }
+    createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
+        throw new NotImplementedError();
+    }
     createRender3DProcess(): IRender3DProcess {
         return new NoRenderRender3DProcess();
     }
@@ -30,12 +38,6 @@ export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createRenderElement3D(): IRenderElement3D {
         return new NoRenderRenderElement3D();
-    }
-    createInstanceBatch(): IInstanceRenderBatch {
-        return new NoRenderInstanceRenderBatch();
-    }
-    createInstanceRenderElement3D(): IInstanceRenderElement3D {
-        return new NoRenderInstanceRenderElement3D;
     }
     createSkinRenderElement(): ISkinRenderElement3D {
         return new NoRenderSkinRenderElement3D();
@@ -75,6 +77,13 @@ export class NoRenderRender3DProcess implements IRender3DProcess {
 }
 
 export class NoRenderSceneRenderManager implements ISceneRenderManager {
+    batchAgentList: Map<number, IBatchModuleAgent>;
+    registerBatchModuleAgent(agent: IBatchModuleAgent): void {
+
+    }
+    updateProperty(object: BaseRender, property: string): void {
+
+    }
     addRenderObject(object: BaseRender): void {
 
     }
@@ -101,6 +110,7 @@ export class NoRenderSceneRenderManager implements ISceneRenderManager {
 }
 
 export class NoRenderRenderContext3D implements IRenderContext3D {
+    preDrawUniformMaps: Set<string>;
     globalShaderData: ShaderData;
     sceneData: ShaderData;
     sceneModuleData: ISceneNodeData;
@@ -150,39 +160,6 @@ export class NoRenderRenderElement3D implements IRenderElement3D {
     materialId: number;
     destroy(): void {
     }
-}
-
-export class NoRenderInstanceRenderBatch implements IInstanceRenderBatch {
-    batch(elements: SingletonList<IRenderElement3D>): void {
-    }
-    clearRenderData(): void {
-    }
-    recoverData(): void {
-    }
-
-}
-
-export class NoRenderInstanceRenderElement3D implements IInstanceRenderElement3D {
-    instanceElementList: SingletonList<IRenderElement3D>;
-    setGeometry(geometry: IRenderGeometryElement): void {
-    }
-    clearRenderData(): void {
-    }
-    recover(): void {
-    }
-    geometry: IRenderGeometryElement;
-    materialShaderData: ShaderData;
-    materialRenderQueue: number;
-    renderShaderData: ShaderData;
-    transform: Transform3D;
-    canDynamicBatch: boolean;
-    isRender: boolean;
-    owner: IBaseRenderNode;
-    subShader: SubShader;
-    materialId: number;
-    destroy(): void {
-    }
-
 }
 
 export class NoRenderSkinRenderElement3D implements ISkinRenderElement3D {

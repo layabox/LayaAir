@@ -13,19 +13,31 @@ import "laya/platform/MediaAdapter";
 import "laya/platform/PlatformAdapters";
 import "laya/platform/StorageAdapter";
 import "laya/platform/TextInputAdapter";
+import { TextureDemo } from "./3d/LayaAir3D_Texture/TextureDemo";
+import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
+import { RealTimeShadow } from "./3d/LayaAir3D_Lighting/RealTimeShadow";
+import { SpotLightShadowMap } from "./3d/LayaAir3D_Lighting/SpotLightShadowMap";
+import { CameraDepthModeTextureDemo } from "./3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
+import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
 
 Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 var useWebGPU = true;
-async function start(){
+async function start() {
     if (useWebGPU) {
         var webGPUFile = './importWebGPU';//使用变量，避免tsc检查，因为有时候没有webgpu源码
         await import(webGPUFile)
     } else {
-        await import ("./importWebGL")
+        await import("./importWebGL")
     }
-    new Main(false, false);
+    new Main(true, false, PostProcessBloom);
+    //TextureDemo
+    // SceneLoad1
+    // RealTimeShadow
+    // SpotLightShadowMap
+    // CameraDepthModeTextureDemo
+    // PostProcessBloom
 }
 
 start();

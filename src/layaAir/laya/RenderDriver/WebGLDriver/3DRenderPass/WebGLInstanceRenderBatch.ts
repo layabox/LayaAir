@@ -1,10 +1,14 @@
 import { Config3D } from "../../../../Config3D";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { BatchMark } from "../../../d3/core/render/BatchMark";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
-import { IInstanceRenderElement3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
+import { WebGLInstanceRenderElement3D } from "./WebGLInstanceRenderElement3D";
+import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
 /**
@@ -14,7 +18,7 @@ export class WebGLInstanceRenderBatch {
 
     static MaxInstanceCount: number = 1024;
 
-    private recoverList: FastSinglelist<IInstanceRenderElement3D>;
+    private recoverList: FastSinglelist<WebGLInstanceRenderElement3D>;
     private _batchOpaqueMarks: any[] = [];
     private _updateCountMark: number = 0;
 
@@ -56,14 +60,14 @@ export class WebGLInstanceRenderBatch {
         this._updateCountMark++;
 
         for (let i = 0; i < elementCount; i++) {
-            const element = elementArray[i];
+            const element = elementArray[i] as WebGLRenderElement3D;
             if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
                 // shader 支持 instance
                 const instanceMark = this.getBatchMark(element);
                 if (this._updateCountMark == instanceMark.updateMark) {
                     const instanceIndex = instanceMark.indexInList;
                     if (instanceMark.batched) {
-                        const originElement = <IInstanceRenderElement3D>elementArray[instanceIndex];
+                        const originElement = <WebGLInstanceRenderElement3D>elementArray[instanceIndex];
                         const instanceElements = originElement.instanceElementList;
                         // 达到 最大 instance 数量 放弃合并 // todo
                         if (instanceElements.length === maxInstanceCount) {
@@ -75,16 +79,16 @@ export class WebGLInstanceRenderBatch {
                             instanceElements.add(element);
                         }
                     } else {
-                        const originElement = elementArray[instanceIndex];
+                        const originElement = elementArray[instanceIndex] as WebGLRenderElement3D;
                         // 替换 renderElement
-                        const instanceRenderElement = Laya3DRender.Render3DPassFactory.createInstanceRenderElement3D()
+                        const instanceRenderElement = WebGLInstanceRenderElement3D.create();
                         this.recoverList.add(instanceRenderElement);
                         instanceRenderElement.subShader = element.subShader;
-                        instanceRenderElement.materialShaderData = element.materialShaderData;
+                        instanceRenderElement.materialShaderData = element.materialShaderData as WebGLShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
-                        instanceRenderElement.renderShaderData = element.renderShaderData;
-                        instanceRenderElement.owner = element.owner;
-                        instanceRenderElement.setGeometry(element.geometry);
+                        instanceRenderElement.renderShaderData = element.renderShaderData as WebGLShaderData;
+                        instanceRenderElement.owner = element.owner as WebBaseRenderNode;
+                        instanceRenderElement.setGeometry(element.geometry as WebGLRenderGeometryElement);
 
                         const list = instanceRenderElement.instanceElementList;
                         list.length = 0;

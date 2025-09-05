@@ -111,7 +111,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 
         let context = WebGLRenderContext3D._instance;
 
-        let preDrawUniforms = context._preDrawUniformMaps;
+        let preDrawUniforms = context.preDrawUniformMaps;
         let preDrawParams = [];
         for (let key of preDrawUniforms) {
             let params = LayaGL.renderDeviceFactory.createGlobalUniformMap(key) as WebGLCommandUniformMap;
