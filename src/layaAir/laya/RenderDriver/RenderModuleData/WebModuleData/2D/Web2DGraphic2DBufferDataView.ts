@@ -149,39 +149,39 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
 
 export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataView {
     /** @internal */
-    private static _idCounter = 0;
+    // private static _idCounter = 0;
     declare owner: Web2DGraphicsIndexBatchBuffer;
     declare _next: Web2DGraphic2DIndexCloneDataView;
     declare _prev: Web2DGraphic2DIndexCloneDataView;
 
     /** @internal */
-    _lastWholeData: Uint16Array;
-    /** @internal */
-    _lastStart: number = -1;
-    /** @internal */
-    _id = ++ Web2DGraphic2DIndexCloneDataView._idCounter;
+    // _lastWholeData: Uint16Array;
+    // /** @internal */
+    // _lastStart: number = -1;
+    // /** @internal */
+    // _id = ++ Web2DGraphic2DIndexCloneDataView._idCounter;
     
     // 更新数据视图
-    _updateCloneView(wholeData: Uint16Array , mask:Record<number , number>) {
-        if (
-            this._lastWholeData !== wholeData
-            || this._lastStart !== this.start
-            || this._id != mask[this.start]
-        ) {
-            wholeData.set(this._view, this.start);
-            this._lastWholeData = wholeData;
-            this._lastStart = this.start;
-            mask[this.start] = this._id;
-            return true;
-        }
+    // _updateCloneView(wholeData: Uint16Array , mask:Record<number , number>) {
+    //     if (
+    //         this._lastWholeData !== wholeData
+    //         || this._lastStart !== this.start
+    //         || this._id != mask[this.start]
+    //     ) {
+    //         wholeData.set(this._view, this.start);
+    //         this._lastWholeData = wholeData;
+    //         this._lastStart = this.start;
+    //         mask[this.start] = this._id;
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     destroy(): void {
         super.destroy();
-        this._lastWholeData = null;
-        this._lastStart = 0;
+        // this._lastWholeData = null;
+        // this._lastStart = 0;
         this._next = null;
         this._prev = null;
     }

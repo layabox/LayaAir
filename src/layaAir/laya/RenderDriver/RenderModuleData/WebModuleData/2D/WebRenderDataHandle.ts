@@ -218,7 +218,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             clone = oView;
             view._cloneView(clone);
             //更新需要提交
-            clone._lastStart = -1;
+            // clone._lastStart = -1;
         } else {
             clone = view._clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
