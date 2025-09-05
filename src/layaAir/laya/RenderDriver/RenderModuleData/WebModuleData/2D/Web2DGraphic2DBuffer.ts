@@ -216,6 +216,8 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
     declare _first: Web2DGraphic2DIndexCloneDataView;
     declare _last: Web2DGraphic2DIndexCloneDataView;
+    /** @internal */
+    _uploadMask: Record<number, number> = {};
 
     _upload() {
         let view = this._first;
@@ -225,7 +227,7 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         while (view) {
             
             if (this._needResetData || view.start >= uploadStart) {
-                let result = view._updateView(this._dataView);
+                let result = view._updateCloneView(this._dataView , this._uploadMask );
                 if (!result && view.start == uploadStart) {
                    uploadStart = view.start + view.length;
                 }
@@ -253,11 +255,20 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
+        // let startTimer = Date.now();
         super._modifyOneView(view);
-        if ( view._geometry ) {
+        // let modifyOneViewTime = Date.now();
+        // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.super._modifyOneView", modifyOneViewTime - startTimer);
+        if (view._geometry) {
             view._geometry.clearRenderParams();
+            // let clearRenderParamsTime = Date.now();
+            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.clearRenderParams", clearRenderParamsTime - modifyOneViewTime);
             view._geometry.setDrawElemenParams(view.length, view.start * 2);
+            // let setDrawElemenParamsTime = Date.now();
+            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.setDrawElemenParams", setDrawElemenParamsTime - clearRenderParamsTime);
+            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer._modifyOneView", setDrawElemenParamsTime - startTimer);
         }
+
     }
     
     clearBufferViews() {//不清理,添加时处理

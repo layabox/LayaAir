@@ -447,7 +447,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    private _updateInvertMatrix() {
-      let rootTrans = this.root.trans;
+      let rootTrans = this.root?.trans;
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
