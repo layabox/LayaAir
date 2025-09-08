@@ -8,6 +8,7 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
+import { Vector2 } from "../maths/Vector2";
 
 /**
  * @en UIGroup is an item collection control that can be automatically laid out. 
@@ -37,7 +38,11 @@ export class UIGroup extends Box {
     protected _labelBold: boolean;
     protected _labelPadding: string;
     protected _labelAlign: string = "center";
+    protected _labelVAlign: string = "middle";
     protected _labelChanged: boolean;
+    protected _labelOverflow: string = "hidden";
+    protected _fitContent: boolean = false;
+    protected _labelFixedSize: Vector2 = new Vector2(0, 0);
     private _labelFont: string;
 
     /**
@@ -118,7 +123,24 @@ export class UIGroup extends Box {
             this.initItems();
         }
     }
+    /**
+     * @zh 标签文本溢出模式。
+     * - hidden: 默认值，隐藏超出部分，超出部分被裁切。
+     * - visible: 超出部分可见，不裁切。
+     * @en The text overflow mode for the label.
+     * - hidden: The default value. The overflow part is hidden and clipped.
+     * - visible: The overflow part is visible and not clipped.
+     */
+    get labelOverflow(): string {
+        return this._labelOverflow;
+    }
 
+    set labelOverflow(value: string) {
+        if (this._labelOverflow != value) {
+            this._labelOverflow = value;
+            this._setLabelChanged();
+        }
+    }
     /**
      * @zh 组件的标签颜色字符串。
      * @en The label colors string for the component.
@@ -136,7 +158,13 @@ export class UIGroup extends Box {
 
     /**
      * @zh 标签水平对齐模式。
+     * - left: 居左对齐。
+     * - center: 居中对齐。
+     * - right: 居右对齐。
      * @en The text alignment mode.
+     * - left: Left alignment.
+     * - center: Center alignment.
+     * - right: Right alignment.
      */
     get labelAlign(): string {
         return this._labelAlign;
@@ -145,6 +173,26 @@ export class UIGroup extends Box {
     set labelAlign(value: string) {
         if (this._labelAlign != value) {
             this._labelAlign = value;
+            this._setLabelChanged();
+        }
+    }
+    /**
+     * @zh 标签垂直对齐模式。
+     * - top: 顶部对齐。
+     * - middle: 居中对齐。
+     * - bottom: 底部对齐。
+     * @en The vertical alignment mode for the label.
+     * - top: Top alignment.
+     * - middle: Middle alignment.
+     * - bottom: Bottom alignment.
+     */
+    get labelVAlign(): string {
+        return this._labelVAlign;
+    }
+
+    set labelVAlign(value: string) {
+        if (this._labelVAlign != value) {
+            this._labelVAlign = value;
             this._setLabelChanged();
         }
     }
@@ -473,8 +521,12 @@ export class UIGroup extends Box {
                 this._labelBold != null && (btn.labelBold = this._labelBold);
                 this._labelPadding && (btn.labelPadding = this._labelPadding);
                 this._labelAlign && (btn.labelAlign = this._labelAlign);
+                this._labelVAlign && (btn.labelVAlign = this._labelVAlign);
                 this._stateNum != null && (btn.stateNum = this._stateNum);
                 this._labelFont && (btn.labelFont = this._labelFont);
+                this._labelOverflow && (btn.text.overflow = this._labelOverflow);
+                if (this._fitContent && btn.text.textWidth > 0 && btn.text.textHeight > 0) btn.text.size(btn.text.textWidth, btn.text.textHeight)//按文本宽高自动适配
+                else if (this._labelFixedSize.x > 0 && this._labelFixedSize.y > 0) btn.text.size(this._labelFixedSize.x, this._labelFixedSize.y);//不适配的时候可以指定固定宽高，不指定的时候采用默认方式
 
                 if (this._direction === "horizontal") {
                     // ---- 横向布局 ----
