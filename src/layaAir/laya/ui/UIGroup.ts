@@ -526,7 +526,11 @@ export class UIGroup extends Box {
                 this._labelFont && (btn.labelFont = this._labelFont);
                 this._labelOverflow && (btn.text.overflow = this._labelOverflow);
                 if (this._fitContent && btn.text.textWidth > 0 && btn.text.textHeight > 0) btn.text.size(btn.text.textWidth, btn.text.textHeight)//按文本宽高自动适配
-                else if (this._labelFixedSize.x > 0 && this._labelFixedSize.y > 0) btn.text.size(this._labelFixedSize.x, this._labelFixedSize.y);//不适配的时候可以指定固定宽高，不指定的时候采用默认方式
+                else if (this._labelFixedSize.x > 0 && this._labelFixedSize.y > 0) {
+                    btn.text.size(this._labelFixedSize.x, this._labelFixedSize.y);//不适配的时候可以指定固定宽高，不指定的时候采用默认方式
+                    btn.width = btn.text.width + btn._graphics.width; // 确保按钮宽度=皮肤+文本
+                    btn.height = Math.max(btn.text.height, btn._graphics.height);
+                }
 
                 if (this._direction === "horizontal") {
                     // ---- 横向布局 ----
