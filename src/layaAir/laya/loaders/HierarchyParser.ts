@@ -70,12 +70,20 @@ export class HierarchyParser {
                             node = map?.[pstr[i]];
                             if (!node)
                                 break;
+
+                            if (node == prefab) { //不能引用自己
+                                node = null;
+                                break;
+                            }
                         }
                     }
                     else {
                         let map = prefabNodeDict.get(prefab);
-                        if (map)
+                        if (map) {
                             node = map[nodeData._$override];
+                            if (node == prefab)
+                                node = null;
+                        }
                     }
                 }
             }
