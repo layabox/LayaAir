@@ -43,8 +43,8 @@ interface StructTransform {
    modifiedFrame: number;
 }
 
-export class WebRenderStruct2D implements IRenderStruct2D {
 
+export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
 
    //2d 渲染组织流程数据
@@ -66,7 +66,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._enableCulling = value;
       this.updateChildren(ChildrenUpdateType.Culling);
    }
-
 
    renderLayer: number = 1;
 
@@ -212,7 +211,26 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
+   private _subStruct: WebRenderStruct2D;
    
+   public get subStruct(): WebRenderStruct2D {
+      return this._subStruct;
+   }
+
+   public set subStruct(value: WebRenderStruct2D) {
+      if (value != this._subStruct) {
+         if (value) {
+            let parentClipInfo = this._subStruct ? this._subStruct.getClipInfo() : this._parentClipInfo;
+            value._updateParentClipInfo(parentClipInfo);
+            this._parentClipInfo = null;
+         } else if (this._subStruct) {
+            this._parentClipInfo = this._subStruct.getClipInfo();
+            this._subStruct._updateParentClipInfo(null);
+         }
+         
+         this._subStruct = value;
+      }
+   }
 
    constructor() {
    }
@@ -233,14 +251,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    //处理Struct的继承数据，后续没有必要就删除
    _handleInterData(): void {
-      // if (this.parent) {
-      //    this.globalAlpha = this.alpha * this.parent.globalAlpha;
-      //    this._parentBlendMode = this.parent.getBlendMode();
-      //    this._parentClipInfo = this.parent.getClipInfo();
-      // } else {
-      //    this.globalAlpha = this.alpha;
-      // }
-
       //clip处理 
       let rect = this._clipRect;
 
@@ -358,10 +368,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._clipInfo._updateFrame = -1;
    }
 
+   /**
+    *  @internal
+    * 父节点的裁剪影响substruct
+    */
+   private _updateParentClipInfo(clipInfo: IClipInfo): void {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._parentClipInfo = clipInfo;         
+      }else{
+         this._parentClipInfo = clipInfo;
+      }
+   }
+
    getClipInfo(): IClipInfo {
       return this._clipInfo || this._parentClipInfo || _DefaultClipInfo;
    }
-
 
    private updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
@@ -411,7 +432,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       for (const child of this.children) {
          let updateChild = false;
          if (updateClip) {
-            child._parentClipInfo = info;
+            child._updateParentClipInfo(info);
             if (!child._clipInfo) {
                updateChild = true;
             }
@@ -475,7 +496,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       child.parent = this;
       this.children.splice(index, 0, child);
 
-      child._parentClipInfo = this.getClipInfo();
+      child._updateParentClipInfo(this.getClipInfo());
       child._parentBlendMode = this.blendMode;
       child.globalAlpha = this.globalAlpha * child._alpha;
       let parentPass = this.pass;
@@ -512,7 +533,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          if (child._pass) {
             child._pass.priority = 0;
          }
-         child._parentClipInfo = null;
+         child._updateParentClipInfo(null);
          child._parentBlendMode = BlendMode.invalid;
          child.globalAlpha = child._alpha;
          child._parentGlobalRenderData = null;

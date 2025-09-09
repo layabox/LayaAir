@@ -864,13 +864,11 @@ export class Sprite extends Node {
         if (this._mask) {
             this._mask.cacheAs = "none";
             this._mask._maskParent = null;
-            this._mask._setStructParent(this._mask._parent);
         }
 
         this._mask = value;
 
         if (value) {
-            value._setStructParent(null);
             value._maskParent = this;
             value._transChanged(TransformKind.Pos);
 
@@ -1660,7 +1658,7 @@ export class Sprite extends Node {
                     if (destrt) {
                         root._oriRenderPass.renderTexture = destrt;
                         if (root.mask) {
-                            root._oriRenderPass.mask = root.mask._subStruct;
+                            root._oriRenderPass.mask = root.mask._struct;
                         }
 
                         if (result) {
@@ -2205,19 +2203,8 @@ export class Sprite extends Node {
      */
     _processVisible(): boolean {
         let b = this._visible && !this._getBit(hiddenBits);
-
-        let needUpdate = false;
         if (this._struct && this._struct.enabled !== b) {
             this._struct.enabled = b;
-            needUpdate = true;
-        }
-
-        if (this._subStruct && this._subStruct.enabled !== b) {
-            this._subStruct.enabled = b;
-            needUpdate = true;
-        }
-
-        if (needUpdate) {
             if (b) {
                 this.repaint();
             } else {
@@ -2225,9 +2212,8 @@ export class Sprite extends Node {
             }
             this.parentRepaint();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -2262,8 +2248,7 @@ export class Sprite extends Node {
     }
 
     protected _setStructParent(value: Sprite) {
-        if (this._maskParent) return;
-        let struct = this._oriRenderPass?.enable ? this._subStruct : this._struct;
+        let struct = this._struct
         // struct.dcBoundsTarget = null;
 
         if (struct && struct.parent) {
@@ -2390,16 +2375,9 @@ export class Sprite extends Node {
         }
 
         if (enable && !this._oriRenderPass.enable) {
-            let parent = this._struct.parent;
             this._struct.pass = this._oriRenderPass;
-            this._subStruct.enabled = this._struct.enabled;
-            if (parent) {
-                let index = parent.children.indexOf(this._struct);
-                parent.removeChild(this._struct);
-                parent.addChild(this._subStruct, index);
-            } else {
-                //todo
-            }
+            this._struct.subStruct = this._subStruct;
+            this._subStruct.enabled = true;
 
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
@@ -2409,16 +2387,9 @@ export class Sprite extends Node {
             }
 
         } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
-            let parent = this._subStruct.parent;
             this._struct.pass = null;
-            this._struct.enabled = this._subStruct.enabled;
-            if (parent) {
-                let index = parent.children.indexOf(this._subStruct);
-                parent.removeChild(this._subStruct);
-                parent.addChild(this._struct, index);
-            } else { // todo
-
-            }
+            this._subStruct.enabled = false;
+            this._struct.subStruct = null;
 
             ILaya.stage.passManager.removePass(this._oriRenderPass);
         }

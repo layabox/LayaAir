@@ -161,9 +161,23 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
-      if (!struct.enabled) return;
+      if (
+         !struct.enabled
+         || this._mask === struct
+      )
+         return;
 
-      struct._handleInterData();
+      let renderStruct: WebRenderStruct2D;
+      if (this.root === struct) {
+         renderStruct = struct;
+      } 
+      else if (struct.subStruct) {
+         renderStruct = struct.subStruct;
+      } else
+         renderStruct = struct;
+
+      
+      renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
@@ -178,22 +192,22 @@ export class WebRender2DPass implements IRender2DPass {
    
          // 裁剪规则二：检查矩形相交
          let cullRect = globalRenderData.cullRect;
-         if (struct.enableCulling && cullRect &&  !this._isRectIntersect(struct.rect, cullRect)) {
+         if (struct.enableCulling && cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
              return;
          }
       }
+         
+      renderStruct.renderUpdate(context2D);
 
-      struct.renderUpdate(context2D);
-
-      let list = this._pStructs.add(struct);
+      let list = this._pStructs.add(renderStruct);
 
       if (struct.stackingRoot) {
          var oldCol = this._pStructs;
          this._pStructs = this._structsPool.take();
       }
 
-      for (let i = 0, n = struct.children.length; i < n; i++) {
-         const child = struct.children[i];
+      for (let i = 0, n = renderStruct.children.length; i < n; i++) {
+         const child = renderStruct.children[i];
          child._effectZ = child.zIndex + struct._effectZ;
          this.cullAndSort(context2D, child);
       }
@@ -246,9 +260,10 @@ export class WebRender2DPass implements IRender2DPass {
          context.drawRenderElementList(this._renderElements);
 
          if (this._mask) {
-            this._mask._handleInterData();
-            this._mask.renderUpdate(context);
-            context.drawRenderElementOne(this._mask.renderElements[0]);
+            let renderMask = this._mask.subStruct;
+            renderMask._handleInterData();
+            renderMask.renderUpdate(context);
+            context.drawRenderElementOne(renderMask.renderElements[0]);
          }
 
          // 处理后期处理

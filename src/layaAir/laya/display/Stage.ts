@@ -838,7 +838,7 @@ export class Stage extends Sprite {
             }
 
             if (sprite.mask) {
-                sprite._oriRenderPass.mask = sprite.mask._subStruct;
+                sprite._oriRenderPass.mask = sprite.mask._struct;
             }
 
             if (result) {
