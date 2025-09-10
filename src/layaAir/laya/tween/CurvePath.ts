@@ -95,9 +95,9 @@ export class CurvePath {
 
     private createSplineSegment(splinePoints: Array<Vector3>): void {
         let cnt = splinePoints.length;
-        splinePoints.splice(0, 0, splinePoints[0]);
-        splinePoints.push(splinePoints[cnt]);
-        splinePoints.push(splinePoints[cnt]);
+        splinePoints.splice(0, 0, splinePoints[0].cloneTo(pool.take()));
+        splinePoints.push(splinePoints[cnt].cloneTo(pool.take()));
+        splinePoints.push(splinePoints[cnt].cloneTo(pool.take()));
         cnt += 3;
 
         let seg: Segment = {};
@@ -105,7 +105,7 @@ export class CurvePath {
         seg.ptStart = this._points.length;
         seg.ptCount = cnt;
 
-        this._points = this._points.concat(splinePoints);
+        this._points.push(...splinePoints);
 
         seg.length = 0;
         for (let i = 1; i < cnt; i++) {
