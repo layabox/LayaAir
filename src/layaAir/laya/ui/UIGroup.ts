@@ -34,7 +34,7 @@ export class UIGroup extends Box {
     protected _labelStrokeColor: string;
     protected _strokeColors: string;
     protected _labelStroke: number;
-    protected _labelSize: number;
+    protected _labelSize: number = 20;
     protected _labelBold: boolean;
     protected _labelPadding: string;
     protected _labelAlign: string = "center";
@@ -556,6 +556,18 @@ export class UIGroup extends Box {
                     btn.y = top;
                     top += btn.height + this._space;
                     maxLineSize = Math.max(maxLineSize, btn.width);
+                }
+            }
+            // 不换行时，自适应容器宽高
+            if (!this._lineWrap) {
+                if (this._direction === "horizontal") {
+                    // 适配宽度，高度保持子项最大高度
+                    this.width = left - this._space; // 去掉最后一个间隔
+                    this.height = maxLineSize;
+                } else {
+                    // 适配高度，宽度保持子项最大宽度
+                    this.width = maxLineSize;
+                    this.height = top - this._space; // 去掉最后一个间隔
                 }
             }
         }
