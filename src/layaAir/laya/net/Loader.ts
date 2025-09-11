@@ -1226,7 +1226,7 @@ export class Loader extends EventDispatcher {
      * @param onProgress 加载进度回调。
      * @returns 当包加载完成时解析的 Promise。
      */
-    loadPackage(path: string, onProgress?: ProgressCallback): Promise<void>;
+    loadPackage(path: string, onProgress?: ProgressCallback): Promise<boolean>;
     /**
      * @en Loads a sub-package.
      * @param path The path of the sub-package.
@@ -1239,7 +1239,7 @@ export class Loader extends EventDispatcher {
      * @param onProgress 加载进度回调。
      * @returns 当包加载完成时解析的 Promise。
      */
-    loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void>;
+    loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<boolean>;
     /**
      * @en Loads a sub-package. This method can handle both remote packages and local mini-game packages.
      * @param path The path of the sub-package.
@@ -1252,7 +1252,7 @@ export class Loader extends EventDispatcher {
      * @param arg3 可选。当 arg2 是远程 URL 时的进度回调函数。
      * @returns 当包加载完成时解析的 Promise。
      */
-    loadPackage(path: string, arg2?: string | ProgressCallback, arg3?: ProgressCallback): Promise<void> {
+    loadPackage(path: string, arg2?: string | ProgressCallback, arg3?: ProgressCallback): Promise<boolean> {
         let progress: ProgressCallback;
         let remoteUrl: string;
 
@@ -1270,7 +1270,7 @@ export class Loader extends EventDispatcher {
             return this._loadSubFileConfig(path, null, progress);
         } else {
             if (LayaEnv.isPreview)
-                return Promise.resolve();
+                return Promise.resolve(true);
 
             let mini = ILaya.Browser.miniGameContext;
 
@@ -1278,25 +1278,30 @@ export class Loader extends EventDispatcher {
                 return this._loadSubFileConfig(path, null, progress);
             }
             else {
-                return this._loadMiniPackage(mini, path, progress).then(() =>
-                    this._loadSubFileConfig(path, mini, progress)
-                );
+                return this._loadMiniPackage(mini, path, progress).then(ret => {
+                    if (ret)
+                        return this._loadSubFileConfig(path, mini, progress);
+                    else
+                        return false;
+                });
             }
         }
     }
 
-    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
+    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<boolean> {
         if (mini.subPkgNameSeperator)
             packName = packName.replace(/\//g, mini.subPkgNameSeperator);
-        if (!(packName.length > 0)) return Promise.resolve();
-        return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
+        if (packName.length === 0)
+            return Promise.resolve(true);
+        return new Promise(resolve => {
             let loadTask: any = mini.loadSubpackage({
                 name: packName,
-                success: (res: any) => {
-                    resolve(res);
+                success: () => {
+                    resolve(true);
                 },
-                fail: (res: any) => {
-                    reject(res);
+                fail: (error: any) => {
+                    Loader.warn(`Failed to load package '${packName}'`, error);
+                    resolve(false);
                 }
             });
 
@@ -1306,13 +1311,16 @@ export class Loader extends EventDispatcher {
         })
     }
 
-    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<any> {
+    private _loadSubFileConfig(path: string, mini: any, onProgress: ProgressCallback): Promise<boolean> {
         if (mini && mini.subPkgPathSeperator)
             path = path.replace(/\//g, mini.subPkgPathSeperator);
         if (path.length > 0)
             path += "/";
 
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
+            if (!fileConfig)
+                return false;
+
             let files: Array<string> = [];
             let col = fileConfig.files;
             for (let k in col) {
@@ -1392,9 +1400,9 @@ export class Loader extends EventDispatcher {
             }
 
             if (!mini && fileConfig.entry)
-                return ILaya.Browser.loadLib(path + fileConfig.entry);
+                return ILaya.Browser.loadLib(path + fileConfig.entry).then(() => true);
             else
-                return Promise.resolve();
+                return true;
         });
     }
 }
