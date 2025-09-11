@@ -845,11 +845,11 @@ export class Stage extends Sprite {
                 sprite._oriRenderPass.renderTexture = destrt;
             }
 
-            let process = sprite._oriRenderPass.postProcess;
+            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite._oriRenderPass.postProcess : null;
             if (process && destrt != RenderTexture2D._empty ) {
                 if (
                     result ||
-                    (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
+                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                 ) {
                     process.setResource(destrt);
                     process.clearCMD();
@@ -861,8 +861,7 @@ export class Stage extends Sprite {
                 }
             }
 
-            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
-            sprite._subStructRender._updateVertexSize();
+            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
         }
@@ -883,6 +882,7 @@ export class Stage extends Sprite {
 
         Stat.render();
 
+        RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
     }
 

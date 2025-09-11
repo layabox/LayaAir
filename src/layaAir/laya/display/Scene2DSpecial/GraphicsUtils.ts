@@ -253,7 +253,8 @@ export class SubStructRender {
    private _internalInfo: GraphicsShaderInfo = null;
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
-
+   private _scaleX: number = 1;
+   private _scaleY: number = 1;
    constructor() {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
@@ -290,8 +291,11 @@ export class SubStructRender {
     * @internal
     * @param rect 
     */
-   _updateRenderOffset(rect: Rectangle) {
+   _updateRenderOffset(rect: Rectangle, scaleX :number, scaleY :number) {
       rect.cloneTo(this._rtRect);
+      this._scaleX = scaleX;
+      this._scaleY = scaleY;
+
       let originPass = this._subRenderPass;
       let matrix = originPass.offsetMatrix;
       if (this._sprite.mask) {
@@ -308,12 +312,16 @@ export class SubStructRender {
 
       matrix.tx = matrix.a * rect.x + matrix.c * rect.y + matrix.tx;
       matrix.ty = matrix.b * rect.x + matrix.d * rect.y + matrix.ty;
-
+      matrix.scale(1 / scaleX, 1 / scaleY);
       originPass.offsetMatrix = matrix;
    }
 
-
-   updateQuat(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
+   /**
+    * @internal
+    * @param oriRT 
+    * @param destRT 
+    */
+   _updateRenderTexture(oriRT: RenderTexture2D, destRT: RenderTexture2D) {
       this._handle.mask = this._sprite.mask?._struct;
 
       if (this._submit._key.blendShader !== this._subStruct.blendMode) {
@@ -330,11 +338,6 @@ export class SubStructRender {
          this._renderElement.type = 0;
       }
       this._internalInfo.textureHost = destRT;
-   }
-
-   _updateVertexSize() {
-      let destRT = this._internalInfo.textureHost as RenderTexture2D;
-      if (!destRT) return;
 
       let _rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
@@ -344,13 +347,13 @@ export class SubStructRender {
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.z = width;
-         vSize.w = height;
-         vSize.x -= (vSize.z - _rtRect.width) / 2;
-         vSize.y -= (vSize.w - _rtRect.height) / 2;
+         vSize.z = width / this._scaleX;
+         vSize.w = height / this._scaleY;
+         vSize.x -= (width - _rtRect.width) / 2 / this._scaleX;
+         vSize.y -= (height - _rtRect.height) / 2 / this._scaleY;
       } else {
-         vSize.z = _rtRect.width;
-         vSize.w = _rtRect.height;
+         vSize.z = _rtRect.width / this._scaleX;
+         vSize.w = _rtRect.height / this._scaleY;
       }
       this._internalInfo.vertexSize = vSize;
    }

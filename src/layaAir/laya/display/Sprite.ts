@@ -34,6 +34,7 @@ import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
+import { Config } from "../../Config";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -749,8 +750,7 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
 
-        if (!this._destroyed)
-            this.repaint(RepaintFlag.Graphics);
+        this.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -870,9 +870,6 @@ export class Sprite extends Node {
 
         if (value) {
             value._maskParent = this;
-            value._transChanged(TransformKind.Pos);
-
-            value.setSubRenderPassState(true);
             value.cacheAs = "bitmap";
 
             this._renderType |= SpriteConst.MASK;
@@ -896,8 +893,16 @@ export class Sprite extends Node {
      */
     setSubpassFlag(flag: SubPassFlag) {
         this._subpassUpdateFlag |= flag;
-        this.stage._subpassUpdateList.add(this);
-        this._globalTrans._notifyRenderSpriteTransChange();
+        if (this._needUpdateSubpass()) {
+            this.stage._subpassUpdateList.add(this);
+            this._globalTrans._notifyRenderSpriteTransChange();
+        }
+    }
+
+    /** @internal */
+    _needUpdateSubpass(): boolean {
+        let sprite = this._maskParent || this;
+        return sprite.displayedInStage && sprite._visible;
     }
 
     /**
@@ -1665,7 +1670,7 @@ export class Sprite extends Node {
                             root._oriRenderPass.renderTexture = destrt;
                         }
 
-                        let process = root._oriRenderPass.postProcess;
+                        let process = root._renderType & SpriteConst.POSTPROCESS ? root.postProcess : null;
                         if (
                             process 
                            && destrt != RenderTexture2D._empty
@@ -1673,7 +1678,7 @@ export class Sprite extends Node {
 
                             if (
                                 result ||
-                                (root._subpassUpdateFlag & SubPassFlag.PostProcess)
+                                (root._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                             ) {
                                 process.setResource(destrt);
                                 process.clearCMD();
@@ -1685,8 +1690,7 @@ export class Sprite extends Node {
                             }
                         }
 
-                        root._subStructRender.updateQuat(root._drawOriRT, destrt);
-                        root._subStructRender._updateVertexSize();
+                        root._subStructRender._updateRenderTexture(root._drawOriRT, destrt);
                         root._subpassUpdateFlag = 0;
 
                     } else {
@@ -1725,9 +1729,19 @@ export class Sprite extends Node {
         pass.root = struct;
 
         let matrix = pass.offsetMatrix;
+        matrix.identity();
+
         let local = sprite.transform;
         if (local)
             local.copyTo(matrix);
+        
+        // if (Config.useRetinalCanvas) {
+        //     let tempMatrix = Matrix.TEMP.identity();
+        //     tempMatrix.scale(ILaya.stage._scaleX, ILaya.stage._scaleY);
+        //     tempMatrix.invert();
+        //     Matrix.mul(tempMatrix, matrix, matrix);
+        // }
+
         matrix.invert();
         matrix.tx = -offsetX;
         matrix.ty = -offsetY;
@@ -2082,10 +2096,6 @@ export class Sprite extends Node {
         if (!p)
             return;
 
-        // this._struct.dcBoundsTarget = null;
-        // if (this._subStruct)
-        //     this._subStruct.dcBoundsTarget = null;
-
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
@@ -2211,6 +2221,7 @@ export class Sprite extends Node {
                 this._struct.setRepaint();
             }
             this.parentRepaint();
+            this._refreshRenderPass();    
             return true;
         }
         return false;
@@ -2304,13 +2315,21 @@ export class Sprite extends Node {
         //     rect.recover();
         //     return false;
         // }
-
+        let scaleX = 1 , scaleY = 1;
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
+
+        if (Config.useRetinalCanvas) {
+            scaleX = ILaya.stage._scaleX;
+            scaleY = ILaya.stage._scaleY;
+            rect.width = Math.round(rect.width * scaleX);
+            rect.height = Math.round(rect.height * scaleY);
+        }
+        
         //判断待考虑
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
-                this._subStructRender._updateRenderOffset(rect);
+                this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
                 // if (maskRect.x !== rect.x || maskRect.y !== rect.y)
                 //     this._subStruct.dcBoundsTarget = null;
                 rect.recover();
@@ -2321,7 +2340,7 @@ export class Sprite extends Node {
                 oldRT.destroy();
         }
 
-        this._subStructRender._updateRenderOffset(rect);
+        this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
 
         // this._subStruct.dcBoundsTarget = null;
         if (rect.width === 0 || rect.height === 0) {
@@ -2374,26 +2393,28 @@ export class Sprite extends Node {
             this.createSubRenderPass();
         }
 
-        if (enable && !this._oriRenderPass.enable) {
+        if (enable && !this._oriRenderPass.enable)
+        {
             this._struct.pass = this._oriRenderPass;
             this._struct.subStruct = this._subStruct;
             this._subStruct.enabled = true;
 
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
-                ILaya.stage.passManager.addPass(this._oriRenderPass);
-            } else if (this.displayedInStage) {
-                ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
 
-        } else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
+        }
+        else if (!enable && this._oriRenderPass && this._oriRenderPass.enable)
+        {
             this._struct.pass = null;
             this._subStruct.enabled = false;
             this._struct.subStruct = null;
 
-            ILaya.stage.passManager.removePass(this._oriRenderPass);
         }
+
         this._oriRenderPass.enable = enable;
+
+        this._refreshRenderPass();
     }
 
     /**
@@ -2415,16 +2436,52 @@ export class Sprite extends Node {
             this.setDemandTransEventUp();
     }
 
-    /** @ignore */
-    _setDisplay(value: boolean): void {
-        super._setDisplay(value);
-        if (this._oriRenderPass) {
-            if (value) {
+    private _checkSubRenderPass() {
+        if (this._needUpdateSubpass()) {
+            if (this._subpassUpdateFlag) {
+                this.stage._subpassUpdateList.add(this);
+                this._globalTrans._notifyRenderSpriteTransChange();
+            }
+            if (this._mask) {
+                this._mask._checkSubRenderPass();
+            }
+        } else {
+            this.stage._subpassUpdateList.delete(this);
+        }
+
+    }
+    
+    /**
+     * @internal
+     */
+    private _refreshRenderPass() {
+
+        if (this._oriRenderPass) { 
+            
+            let result = this._needUpdateSubpass() && this._oriRenderPass.enable;
+
+            if (result) {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
-            } else {
+            }
+            else
+            {
+                if (this._drawOriRT) {
+                    // todo recover
+                }
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }
         }
+
+        if (this._mask) {
+            this._mask._refreshRenderPass();
+        }
+    }
+
+    /** @ignore */
+    _setDisplay(value: boolean): void {
+        super._setDisplay(value);
+        this._checkSubRenderPass();
+        this._refreshRenderPass();
     }
 
     /**
