@@ -573,6 +573,7 @@ export class RigidBody extends Component {
      */
     setVelocity(velocity: IV2): void {
         if (!this._body) this._onAwake();
+        this._linearVelocity = velocity;
         Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, velocity);
     }
 
