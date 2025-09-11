@@ -376,6 +376,18 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Whether single character rendering is enabled. Enable this if the text content changes frequently, such as an increasing number, to prevent inefficient use of cache.
+     * @zh 是否启用单个字符渲染。如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     */
+    get singleCharRender(): boolean {
+        return this._tf.singleCharRender;
+    }
+
+    set singleCharRender(value: boolean) {
+        this._tf.singleCharRender = value;
+    }
+
+    /**
      * @en Text template variables.
      * When set to true, templateVars is set to an empty object;
      * When set to false, templateVars is set to null;
