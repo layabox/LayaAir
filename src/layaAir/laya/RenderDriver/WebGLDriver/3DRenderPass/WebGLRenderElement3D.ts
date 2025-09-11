@@ -42,6 +42,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     owner: WebBaseRenderNode;//GLESRenderNode
 
+    customData: any;//每个RenderElement自带的数据
+
     protected _invertFront: boolean;
 
     constructor() {

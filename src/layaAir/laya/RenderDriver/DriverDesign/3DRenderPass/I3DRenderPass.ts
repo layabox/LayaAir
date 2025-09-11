@@ -46,13 +46,15 @@ export interface IMain3DRP {
     setBeforeForwardCmds(value: CommandBuffer[]): void;
     setBeforeSkyboxCmds(value: CommandBuffer[]): void;
     setBeforeTransparentCmds(value: CommandBuffer[]): void;
+    setCameraCullInfo(sceneManager: ISceneRenderManager): void;
     render(context: IRenderContext3D, renderManager: ISceneRenderManager): void;
     destory(): void;
 }
 
 export interface IDirShadowRP {
     setShadowCasterCommanBuffer(cmd: CommandBuffer[]): void;
-    setRPData(dirLight: IDirectLightData, camera: ICameraNodeData, context: IRenderContext3D): void;
+    setRPData(dirLight: IDirectLightData, camera: ICameraNodeData, context: IRenderContext3D, renderManager: ISceneRenderManager): void;
+    setCameraCullInfo(sceneManager: ISceneRenderManager): void;
     update(context: IRenderContext3D): void
     render(context: IRenderContext3D, manager: ISceneRenderManager): void;
     useRPResource(context: IRenderContext3D): void;
@@ -61,7 +63,8 @@ export interface IDirShadowRP {
 }
 
 export interface ISpotShadowRP {
-    setRPData(spotLight: ISpotLightData, context: IRenderContext3D): void;
+    setRPData(spotLight: ISpotLightData, context: IRenderContext3D, renderManager: ISceneRenderManager): void;
+    setCameraCullInfo(sceneManager: ISceneRenderManager): void;
     update(context: IRenderContext3D): void
     render(context: IRenderContext3D, manager: ISceneRenderManager): void;
     useRPResource(context: IRenderContext3D): void;

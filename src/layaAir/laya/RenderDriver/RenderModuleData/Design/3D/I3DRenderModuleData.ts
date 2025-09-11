@@ -95,7 +95,6 @@ export interface IBaseRenderNode {
 }
 
 export interface IMeshRenderNode extends IBaseRenderNode {
-
 }
 
 export interface ISkinRenderNode extends IMeshRenderNode {

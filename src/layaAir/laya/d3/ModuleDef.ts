@@ -47,8 +47,6 @@ import { PostProcess } from "./core/render/postProcessBase/PostProcess";
 import { PostProcessEffect } from "./core/render/postProcessBase/PostProcessEffect";
 
 import { AnimatorController } from "./component/Animator/AnimatorController";
-import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
-import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/StaticInstanceBatchRender";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Viewport } from "../maths/Viewport";
 import { UI3D } from "./core/UI3D/UI3D";
@@ -87,8 +85,6 @@ c("Transform3D", Transform3D);
 c("Lightmap", Lightmap);
 c("ReflectionProbe", ReflectionProbe);
 c("VolumetricGI", VolumetricGI);
-c("StaticBatchVolume", StaticBatchVolume);
-c("StaticInstanceBatchRender", StaticInstanceBatchRender);
 c("SphericalHarmonicsL2", SphericalHarmonicsL2);
 c("Viewport", Viewport);
 c("Bounds", Bounds);

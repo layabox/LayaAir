@@ -16,6 +16,7 @@ import { RenderCullUtil } from "../../../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../../../DriverCommon/RenderListQueue";
 import { RenderPassUtil } from "../../../../DriverCommon/RenderPassUtil";
 import { IMain3DRP, IRenderContext3D, PipelineMode } from "../../../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ISceneRenderManager } from "../../../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { InternalRenderTarget } from "../../../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../WebBaseRenderNode";
@@ -92,6 +93,13 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         this._transparent.clear();
     }
 
+    setCameraCullInfo(sceneManager: ISceneRenderManager) {
+        let agent = sceneManager.batchAgentList;
+        for (var [key, value] of agent) {
+            value.setCullCamera([this._cameraCullInfo])
+        }
+    }
+
     constructor() {
         this._opaqueList = new RenderListQueue(false);
         this._transparent = new RenderListQueue(true);
@@ -154,6 +162,21 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         var time = Browser.now();//T_CameraMainCull Stat
         let _list = renderManager.baseRenderList as FastSinglelist<WebBaseRenderNode>;
         RenderCullUtil.cullByCameraCullInfo(this._cameraCullInfo, _list.elements, _list.length, this._opaqueList, this._transparent, context)
+
+        let agent = renderManager.batchAgentList;
+        for (var [key, agentModule] of agent) {
+            let agentrenderList = agentModule.appendRenderElement(CullMode.Camera, 0, context);
+            let opaqueList = agentrenderList.opaqueList;
+            let translist = agentrenderList.transparentList;
+            let element = opaqueList.elements;
+            for (var jj = 0; jj < opaqueList.length; jj++) {
+                this._opaqueList.addRenderElement(element[jj]);
+            }
+            element = translist.elements;
+            for (var jj = 0; jj < translist.length; jj++) {
+                this._transparent.addRenderElement(element[jj]);
+            }
+        }
         LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, Browser.now() - time);
 
         time = Browser.now();

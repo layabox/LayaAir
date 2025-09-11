@@ -1,8 +1,8 @@
 import { Camera } from "../../../d3/core/Camera";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
+import { CameraCullInfo, ShadowCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderElement3D } from "./I3DRenderPass";
-import { ISceneRenderManager } from "./ISceneRenderManager";
+import { IRenderContext3D, IRenderElement3D } from "./I3DRenderPass";
 
 export enum CullMode {
     None,
@@ -33,22 +33,24 @@ export interface IBatchModuleAgent {
      * @returns 
      */
     removeRenderNode(object: BaseRender): boolean;
+
+    updateProperty(object: BaseRender, property: string | number): void;
     /**
      * 设置相机裁剪信息
      */
-    setCullCamera(cameraCullInfo: any[]): boolean;
+    setCullCamera(cameraCullInfo: CameraCullInfo[]): void;
     /**
      * 设置方向光裁剪信息
      */
-    setCullingDir(DirectLightCullInfo: any[]): boolean;
+    setDirLightCullInfo(directLightCullInfo: ShadowCullInfo[]): void;
     /**
      * 设置点光源裁剪信息
      */
-    setFrustumCulling(SpotCullInfo: any[]): boolean;
+    setSpotCullingDir(directLightCullInfo: CameraCullInfo[]): void;
     /**
      * 添加渲染元素
      */
-    appendRenderElement(cullMode: CullMode, cullInfoIndex: number,): IModuleAgentResource;
+    appendRenderElement(cullMode: CullMode, cullInfoIndex: number, context: IRenderContext3D): IModuleAgentResource;
     /**
      * 释放
      */

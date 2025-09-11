@@ -1,5 +1,4 @@
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
-import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Vector2 } from "../../../../maths/Vector2";
 import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IMeshRenderNode } from "../../Design/3D/I3DRenderModuleData";

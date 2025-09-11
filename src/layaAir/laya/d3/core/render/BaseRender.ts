@@ -13,12 +13,10 @@ import { Mesh } from "../../resource/models/Mesh";
 import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
-import { Stat } from "../../../utils/Stat";
 import { Scene3D } from "../scene/Scene3D";
 import { RenderElement } from "./RenderElement";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
@@ -29,6 +27,7 @@ import { ENodeCustomData, IBaseRenderNode } from "../../../RenderDriver/RenderMo
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
 import { StatElement } from "../../../layagl/StatisticsContext";
+import { IBatchModuleAgent } from "../../../RenderDriver/DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -43,6 +42,19 @@ export enum IrradianceMode {
     LightMap,
     VolumetricGI,
     Common
+}
+
+export enum propertyChangeFlag {
+    material,
+    renderELement,
+    geometry,
+    lightmap,
+    invertY,
+    reflection,
+    volumGI,
+    castShadow,
+    receiveShadow
+
 }
 
 /**
@@ -182,7 +194,7 @@ export class BaseRender extends Component {
     _LOD: number = -1;
 
     /**@internal TODO*/
-    _batchRender: BatchRender;
+    _batchRender: IBatchModuleAgent;
 
     /**@interface */
     _receiveShadow: boolean;
@@ -311,6 +323,7 @@ export class BaseRender extends Component {
         }
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.lightmap);
     }
 
     /**
@@ -352,8 +365,8 @@ export class BaseRender extends Component {
             this._materialsInstance[0] = false;
             element.material = value;
         }
-
         this._isSupportRenderFeature();
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.material);
     }
 
     /**
@@ -428,6 +441,7 @@ export class BaseRender extends Component {
                 this._baseRenderNode.shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
             else
                 this._baseRenderNode.shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.receiveShadow);
         }
         this._baseRenderNode.receiveShadow = value;
     }
@@ -442,6 +456,7 @@ export class BaseRender extends Component {
 
     set castShadow(value: boolean) {
         this._baseRenderNode.castShadow = value;
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.castShadow);
     }
 
     /**
@@ -507,7 +522,7 @@ export class BaseRender extends Component {
             this._baseRenderNode.additionShaderData.delete(ReflectionProbeBlockName);
         }
         this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.reflection);
         this._getIrradientMode();
     }
 
@@ -537,7 +552,7 @@ export class BaseRender extends Component {
         }
 
         this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.volumGI);
         this._getIrradientMode();
     }
 
@@ -616,7 +631,7 @@ export class BaseRender extends Component {
             arrayElement.push(element._renderElementOBJ);
         });
         this._baseRenderNode.setRenderelements(arrayElement);
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.renderELement);
     }
 
     /**
@@ -625,7 +640,9 @@ export class BaseRender extends Component {
     protected _onWorldMatNeedChange(flag: number): void {
         this.boundsChange = true;
         this._addReflectionProbeUpdate();
-        this._batchRender && this._batchRender._updateOneRender(this);
+        if (this._batchRender && this._transform.getScaleChangeFlag()) {//scale 变化的时候 标签才会通过
+            this._batchRender.updateProperty(this, propertyChangeFlag.invertY);
+        }
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -770,7 +787,7 @@ export class BaseRender extends Component {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
         this._isSupportRenderFeature();
-        this._batchRender && this._batchRender._batchOneRender(this);
+        //this._batchRender && this._batchRender._batchOneRender(this);
         this.setLightmapIndex(this.lightmapIndex);
         this._statAdd();
     }
@@ -792,7 +809,7 @@ export class BaseRender extends Component {
         this._statRemove();
         this._scene._volumeManager.removeMotionObject(this);
         let batch = this._batchRender;
-        this._batchRender && this._batchRender._removeOneRender(this);
+        //this._batchRender && this._batchRender._removeOneRender(this);
         this._batchRender = batch;
         this._scene = null;
     }

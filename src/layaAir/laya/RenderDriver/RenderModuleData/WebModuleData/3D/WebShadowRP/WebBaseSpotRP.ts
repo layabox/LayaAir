@@ -25,6 +25,7 @@ import { WebBaseRenderNode } from "../WebBaseRenderNode";
 import { SingletonList } from "../../../../../utils/SingletonList";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
 import { RenderTexture } from "../../../../../resource/RenderTexture";
+import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export class WebBaseSpotRP implements ISpotShadowRP {
 
@@ -182,6 +183,16 @@ export class WebBaseSpotRP implements ISpotShadowRP {
         this._shadowCasterCommanBuffer = cmd;
     }
 
+    setCameraCullInfo(sceneManager: ISceneRenderManager): void {
+        const shadowSpotData = this._shadowSpotData;
+        this._getSpotLightShadowData(shadowSpotData, this._shadowResolution, this._shadowSpotMatrices, this._shadowSpotMapSize);
+        let agent = sceneManager.batchAgentList;
+        for (var [key, value] of agent) {
+            value.setSpotCullingDir([shadowSpotData.cameraCullInfo]);
+        }
+    }
+
+
     setRPData(spotLight: WebSpotLight, context: IRenderContext3D): void {
         this._setLight(spotLight);
         this._destShadowRT = Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotLight);
@@ -192,12 +203,11 @@ export class WebBaseSpotRP implements ISpotShadowRP {
         context.sceneData.setVector(ShadowCasterPass.SHADOW_PARAMS, v4);
 
     }
+
+
     update(context: IRenderContext3D): void {
         context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
         context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        const shadowSpotData = this._shadowSpotData;
-        this._getSpotLightShadowData(shadowSpotData, this._shadowResolution, this._shadowSpotMatrices, this._shadowSpotMapSize);
-
     }
     render(context: IRenderContext3D, manager: ISceneRenderManager): void {
         const originCameraData = context.cameraData;
@@ -214,6 +224,14 @@ export class WebBaseSpotRP implements ISpotShadowRP {
         let list = manager.baseRenderList as SingletonList<WebBaseRenderNode>;
         var time = Browser.now();//T_ShadowMapCull Stat
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list.elements, list.length, this._renderQueue, context);
+        let agent = manager.batchAgentList;
+        for (var [key, agentModule] of agent) {
+            let agentrenderList = agentModule.appendRenderElement(CullMode.Spot, 0, context).opaqueList;
+            let element = agentrenderList.elements;
+            for (var jj = 0; jj < agentrenderList.length; jj++) {
+                this._renderQueue.addRenderElement(element[jj]);
+            }
+        }
         LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);//Stat
 
         let cameraDepthTex = context.cameraData.getTexture(DepthPass.DEPTHTEXTURE);

@@ -18,7 +18,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
-import { ISceneNodeData, ICameraNodeData, IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ISceneNodeData, ICameraNodeData, IBaseRenderNode, BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine, NoRenderShaderData } from "../DriverDevice/NoRenderDeviceFactory";
 import { NoInternalRT } from "../DriverDevice/NoRenderEngineFactory";
@@ -78,7 +78,7 @@ export class NoRenderRender3DProcess implements IRender3DProcess {
 
 export class NoRenderSceneRenderManager implements ISceneRenderManager {
     batchAgentList: Map<number, IBatchModuleAgent>;
-    registerBatchModuleAgent(agent: IBatchModuleAgent): void {
+    registerBatchModuleAgent(renderNodeType: number | BaseRenderType, agent: IBatchModuleAgent): void {
 
     }
     updateProperty(object: BaseRender, property: string): void {

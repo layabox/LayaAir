@@ -13,7 +13,7 @@ import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/W
 import { WebBaseSpotRP } from "../../RenderModuleData/WebModuleData/3D/WebShadowRP/WebBaseSpotRP";
 import { WebDirCascadeShadowRP } from "../../RenderModuleData/WebModuleData/3D/WebShadowRP/WebDirCascadeShadowRP";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
-import { WebGLInstanceRenderElement3D } from "./WebGLInstanceRenderElement3D";
+import { WebGLMeshRenderBatchAgent } from "./BatchModule/WebGLMeshRenderBatchAgent";
 import { WebGLBlitQuadCMDData, WebGLDrawElementCMDData, WebGLDrawNodeCMDData, WebGLSetRenderTargetCMD, WebGLSetViewportCMD } from "./WebGLRenderCMD/WebGL3DRenderCMD";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
@@ -21,12 +21,12 @@ import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
 WebBaseRenderNode.BaseRenderNodeClass = WebBaseRenderNode;
 export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createMeshRenderBatchModule(): IBatchModuleAgent {
-        throw new NotImplementedError();
+        return new WebGLMeshRenderBatchAgent();
     }
 
-    createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
-        throw new NotImplementedError();
-    }
+    // createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
+    //     throw new NotImplementedError();
+    // }
 
     createSetRenderDataCMD(): WebGLSetRenderData {
         return new WebGLSetRenderData();
@@ -73,9 +73,6 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGLRenderElement3D();
     }
 
-    createInstanceRenderElement3D(): WebGLInstanceRenderElement3D {
-        return WebGLInstanceRenderElement3D.create();
-    }
 
     createRender3DProcess(): IRender3DProcess {
         let renderPass = new Web3DRenderPass();

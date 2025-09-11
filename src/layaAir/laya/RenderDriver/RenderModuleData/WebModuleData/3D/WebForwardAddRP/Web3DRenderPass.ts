@@ -4,7 +4,6 @@ import { ShadowMode } from "../../../../../d3/core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../../../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
-import { Scene3DShaderDeclaration } from "../../../../../d3/core/scene/Scene3DShaderDeclaration";
 import { DepthPass } from "../../../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../../../d3/shadowMap/ShadowCasterPass";
 import { LayaGL } from "../../../../../layagl/LayaGL";
@@ -93,6 +92,9 @@ export class Web3DRenderPass implements IRender3DProcess {
 
         let needInternalRT = camera._needInternalRenderTexture();
 
+        //设置合批流程里面的裁剪数据
+        renderPass.setCameraCullInfo(this.render3DManager);
+
         if (needInternalRT) {
             viewport.set(0, 0, renderRT.width, renderRT.height);
         }
@@ -132,14 +134,15 @@ export class Web3DRenderPass implements IRender3DProcess {
             const needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode !== ShadowMode.None;
             this._renderPass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
-                this._renderPass.dirShadowRenderPass.setRPData(mainDirectionLight._dataModule, camera._renderDataModule, context)
-
+                this._renderPass.dirShadowRenderPass.setRPData(mainDirectionLight._dataModule, camera._renderDataModule, context, this.render3DManager)
+                this._renderPass.dirShadowRenderPass.setCameraCullInfo(this.render3DManager);
             }
             const mainSpotLight = camera.scene._mainSpotLight;
             const needSpotShadow = mainSpotLight && mainSpotLight.shadowMode !== ShadowMode.None;
             this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
-                this._renderPass.spotShadowRenderPass.setRPData(mainSpotLight._dataModule, context);
+                this._renderPass.spotShadowRenderPass.setRPData(mainSpotLight._dataModule, context, this.render3DManager);
+                this._renderPass.spotShadowRenderPass.setCameraCullInfo(this.render3DManager);
             }
             if (needDirectionShadow || needSpotShadow) {
                 context.preDrawUniformMaps.add("Shadow");

@@ -1,6 +1,6 @@
 import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
-import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IBatchModuleAgent } from "./IBatchModuleAgent";
 
 
@@ -17,7 +17,7 @@ export interface ISceneRenderManager {
      * 注册批处理模块
      * @param agent 
      */
-    registerBatchModuleAgent(agent: IBatchModuleAgent): void;
+    registerBatchModuleAgent(renderNodeType: number | BaseRenderType, agent: IBatchModuleAgent): void;
     /**
      * add one BaseRender
      * @param object 
@@ -49,7 +49,8 @@ export interface ISceneRenderManager {
      * @param object 
      * @param property 
      */
-    updateProperty(object: BaseRender, property: string): void;
+    updateProperty(object: BaseRender, property: string | number): void;
+
     /**
      * release Manager Node
      */

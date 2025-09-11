@@ -16,8 +16,8 @@ export interface I3DRenderPassFactory {
 
     createSceneRenderManager(): ISceneRenderManager;
 
-    createMeshRenderBatchModule(): IBatchModuleAgent;
-
+    createMeshRenderBatchModule?(): IBatchModuleAgent;
+    createSimpleSkinRenderBatchModule?(): IBatchModuleAgent;
     //Render3D CMD
     createDrawNodeCMDData(): DrawNodeCMDData;
 

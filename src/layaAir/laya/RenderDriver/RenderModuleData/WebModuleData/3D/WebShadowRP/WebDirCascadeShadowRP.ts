@@ -30,12 +30,9 @@ import { Scene3DShaderDeclaration } from "../../../../../d3/core/scene/Scene3DSh
 import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
 import { RenderTexture } from "../../../../../resource/RenderTexture";
+import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export class WebDirCascadeShadowRP implements IDirShadowRP {
-    unuseRPResource(context: IRenderContext3D): void {
-        context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-    }
-
     /** @internal 最大cascade*/
     private static _maxCascades: number = 4;
 
@@ -71,7 +68,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
     /** @internal */
     private _shadowTileResolution: number = 0;
     /** @internal */
-    private _shadowCullInfo: ShadowCullInfo;
+    private _shadowCullInfo: ShadowCullInfo[] = [new ShadowCullInfo(), new ShadowCullInfo(), new ShadowCullInfo(), new ShadowCullInfo()];
 
     private _shadowCastMode: ShadowCascadesMode;
 
@@ -92,9 +89,8 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
         this._lightForward = new Vector3();
         this._cascadesSplitDistance = new Array(WebDirCascadeShadowRP._maxCascades + 1);
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
-        this._shadowCullInfo = new ShadowCullInfo();
         this._renderQueue = new RenderListQueue(false);
-       
+
     }
 
     private _setLight(value: WebDirectLight) {
@@ -214,20 +210,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
         this._shadowCasterCommanBuffer = cmd;
     }
 
-    setRPData(dirLight: WebDirectLight, camera: WebCameraNodeData, context: IRenderContext3D): void {
-        this._setLight(dirLight);
-        this._camera = camera;
-        this._destShadowRT = Scene3D._shadowCasterPass.getDirectLightShadowMap(dirLight);
-        let v4 = context.sceneData.getVector(ShadowCasterPass.SHADOW_PARAMS);
-        v4 = v4 ? v4 : new Vector4();
-        v4.x = dirLight.shadowStrength;
-        context.sceneData.setVector(ShadowCasterPass.SHADOW_PARAMS, v4);
-        context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
-    }
-
-    update(context: IRenderContext3D): void {
-        context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-        context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+    private _caculateDirCullInfo() {
         var splitDistance: number[] = this._cascadesSplitDistance;
         var frustumPlanes: Plane[] = this._frustumPlanes;
         var cameraNear: number = this._camera.nearplane;
@@ -248,7 +231,44 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
                 ShadowUtils.applySliceTransform(sliceData, this._shadowMapWidth, this._shadowMapHeight, i, shadowMatrices);
         }
         ShadowUtils.prepareShadowReceiverShaderValues(this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, shadowMatrices, boundSpheres);
-      
+
+        for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
+            var shadowCullInfo = this._shadowCullInfo[i];
+            var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
+
+            shadowCullInfo.position = sliceData.position;
+            shadowCullInfo.cullPlanes = sliceData.cullPlanes;
+            shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
+            shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
+            shadowCullInfo.direction = this._lightForward;
+        }
+    }
+
+    setCameraCullInfo(sceneManager: ISceneRenderManager): void {
+        let cullInfos = this._shadowCullInfo.slice(0, this._cascadeCount);
+        let agent = sceneManager.batchAgentList;
+        for (var [key, value] of agent) {
+            value.setDirLightCullInfo(cullInfos);
+        }
+    }
+
+
+    setRPData(dirLight: WebDirectLight, camera: WebCameraNodeData, context: IRenderContext3D): void {
+        this._setLight(dirLight);
+        this._camera = camera;
+        this._destShadowRT = Scene3D._shadowCasterPass.getDirectLightShadowMap(dirLight);
+        let v4 = context.sceneData.getVector(ShadowCasterPass.SHADOW_PARAMS);
+        v4 = v4 ? v4 : new Vector4();
+        v4.x = dirLight.shadowStrength;
+        context.sceneData.setVector(ShadowCasterPass.SHADOW_PARAMS, v4);
+        context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
+        this._caculateDirCullInfo();
+
+    }
+
+    update(context: IRenderContext3D): void {
+        context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+        context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
     }
 
     render(context: IRenderContext3D, manager: ISceneRenderManager): void {
@@ -265,16 +285,19 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
             this._getShadowBias(sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
             this._setupShadowCasterShaderValues(shaderValues, sliceData, this._lightForward, this._shadowBias);
-            var shadowCullInfo: ShadowCullInfo = this._shadowCullInfo;
-            shadowCullInfo.position = sliceData.position;
-            shadowCullInfo.cullPlanes = sliceData.cullPlanes;
-            shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
-            shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
-            shadowCullInfo.direction = this._lightForward;
+            var shadowCullInfo: ShadowCullInfo = this._shadowCullInfo[i];
             //cull
             let list = manager.baseRenderList as SingletonList<WebBaseRenderNode>;
             var time = Browser.now();//T_ShadowMapCull Stat
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list.elements, list.length, this._renderQueue, context);
+            let agent = manager.batchAgentList;
+            for (var [key, agentModule] of agent) {
+                let agentrenderList = agentModule.appendRenderElement(CullMode.DirectLight, i, context).opaqueList;
+                let element = agentrenderList.elements;
+                for (var jj = 0; jj < agentrenderList.length; jj++) {
+                    this._renderQueue.addRenderElement(element[jj]);
+                }
+            }
             LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
@@ -312,6 +335,11 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
         context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
         context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._destShadowRT);
     }
+
+    unuseRPResource(context: IRenderContext3D): void {
+        context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+    }
+
     destory(): void {
         throw new Error("Method not implemented.");
     }

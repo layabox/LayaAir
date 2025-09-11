@@ -22,7 +22,6 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { Stat } from "../../utils/Stat"
 import { StatElement } from "../../layagl/StatisticsContext"
 
-
 /**
  * @en The `MeshRenderer` class is used for mesh rendering.
  * @zh `MeshRenderer` 类用于网格渲染器。

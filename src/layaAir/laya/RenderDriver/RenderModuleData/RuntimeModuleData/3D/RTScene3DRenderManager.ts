@@ -2,7 +2,7 @@ import { BaseRender } from "../../../../d3/core/render/BaseRender";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { IBatchModuleAgent } from "../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ISceneRenderManager } from "../../../DriverDesign/3DRenderPass/ISceneRenderManager";
-import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { RTBaseRenderNode } from "./RTBaseRenderNode";
 
 export class RTScene3DRenderManager implements ISceneRenderManager {
@@ -75,7 +75,7 @@ export class RTScene3DRenderManager implements ISceneRenderManager {
     baseRenderList: SingletonList<IBaseRenderNode>;
     batchAgentList: Map<number, IBatchModuleAgent>;
 
-    registerBatchModuleAgent(agent: IBatchModuleAgent): void {
+    registerBatchModuleAgent(renderNodeType: number | BaseRenderType, agent: IBatchModuleAgent): void {
         //TODO;
     }
 
