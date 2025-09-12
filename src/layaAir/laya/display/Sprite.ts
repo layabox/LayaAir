@@ -2324,6 +2324,13 @@ export class Sprite extends Node {
             scaleY = ILaya.stage._scaleY;
             rect.width = Math.round(rect.width * scaleX);
             rect.height = Math.round(rect.height * scaleY);
+            // if (rect.width >= 2048 || rect.height >= 2048) {
+            //     let detla = Math.max(2048 / rect.width, 2048 / rect.height);
+            //     rect.width = Math.round(rect.width * detla);
+            //     rect.height = Math.round(rect.height * detla);
+            //     scaleX *= detla;
+            //     scaleY *= detla;
+            // }
         }
         
         //判断待考虑
@@ -2402,14 +2409,12 @@ export class Sprite extends Node {
             if (this._maskParent) {
                 this._subStruct.blendMode = BlendMode.mask;
             }
-
         }
         else if (!enable && this._oriRenderPass && this._oriRenderPass.enable)
         {
             this._struct.pass = null;
             this._subStruct.enabled = false;
             this._struct.subStruct = null;
-
         }
 
         this._oriRenderPass.enable = enable;
@@ -2466,7 +2471,14 @@ export class Sprite extends Node {
             else
             {
                 if (this._drawOriRT) {
-                    // todo recover
+                    RenderTexture2D.recoverToPool(this._drawOriRT);
+                    this._drawOriRT = null;
+                }
+
+                if (this._renderType & SpriteConst.POSTPROCESS) {
+                    if (this._oriRenderPass.postProcess) {
+                        this._oriRenderPass.postProcess.recoverAllRTS();
+                    }
                 }
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }

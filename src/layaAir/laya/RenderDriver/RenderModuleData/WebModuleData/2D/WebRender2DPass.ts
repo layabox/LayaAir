@@ -164,6 +164,7 @@ export class WebRender2DPass implements IRender2DPass {
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (
          !struct.enabled
+         || struct.globalAlpha < 0.01
          || this._mask === struct
       )
          return;
@@ -408,7 +409,11 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    //预留
-   private _initRenderProcess(context: IRenderContext2D) : boolean {
+   private _initRenderProcess(context: IRenderContext2D): boolean {
+      if (!this.root || this.root.globalAlpha < 0.01) {
+         return false;
+      }
+
       //设置viewport 切换rt
       let sizeX, sizeY;
 
@@ -464,7 +469,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    private _updateInvertMatrix() {
-      let rootTrans = this.root?.trans;
+      let rootTrans = this.root.trans;
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;

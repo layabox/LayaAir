@@ -173,6 +173,12 @@ export class PostProcess2D extends EventDispatcher {
       }
    }
 
+   recoverAllRTS() {
+      this._effects.forEach(effect => {
+         effect.clearRT();
+      });
+   }
+
    /**
     * @en Clear all post-processing effects.
     * @zh 清除所有后期处理效果。
@@ -257,8 +263,8 @@ export class PostProcessRenderContext2D {
    getRenderTexture(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
       // 使用RenderTexture2D的静态方法从对象池创建纹理
       let rt = RenderTexture2D.createFromPool(width, height, colorFormat, depthFormat);
-      // 记录创建的临时RT
-      this.deferredReleaseTextures.push(rt);
+      // 记录创建的临时RT //先还是自己回收
+      // this.deferredReleaseTextures.push(rt);
       return rt;
    }
    

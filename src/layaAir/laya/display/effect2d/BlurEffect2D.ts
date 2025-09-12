@@ -89,12 +89,20 @@ export class BlurEffect2D extends PostProcess2DEffect {
    }
 
    private _checkRenderTarget(width: number, height: number, context: PostProcessRenderContext2D) {
-      if (!this._destRT || this._destRT._inPool) {
+      if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
          // 回收旧纹理到对象池
-         this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+         RenderTexture2D.recoverToPool(this._destRT);
       }
+      this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
    }
 
+   clearRT(): void {
+      if (this._destRT) {
+         RenderTexture2D.recoverToPool(this._destRT);
+      }
+      this._destRT = null;
+   }
+  
    /**
      * @en The strength of the blur filter.
      * @zh 模糊滤镜的强度。

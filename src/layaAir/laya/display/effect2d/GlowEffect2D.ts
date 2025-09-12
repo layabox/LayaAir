@@ -213,17 +213,33 @@ export class GlowEffect2D extends PostProcess2DEffect {
 
     private _checkRenderTarget(width: number, height: number , context: PostProcessRenderContext2D) {
         
-        if (!this._destRT || this._destRT._inPool) {
-            this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
+            RenderTexture2D.recoverToPool(this._destRT);
         }
+        this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
 
 
-        if (!this._blitExtendRT || this._blitExtendRT._inPool) {
-            // 回收旧纹理到对象池
-            this._blitExtendRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        if (this._blitExtendRT && (this._blitExtendRT._inPool || this._blitExtendRT.destroyed || this._blitExtendRT.width !== width || this._blitExtendRT.height !== height)) {
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
         }
+        // 回收旧纹理到对象池
+        this._blitExtendRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        
     }
 
+    /** @ignore */
+    clearRT(): void {
+        if (this._destRT) {
+            RenderTexture2D.recoverToPool(this._destRT);
+        }
+        this._destRT = null;
+
+        if (this._blitExtendRT) {
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
+        }
+        this._blitExtendRT = null;
+    }
+    
     /** @ignore */
     destroy() {
         if (this._destRT) {
