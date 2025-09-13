@@ -1443,18 +1443,10 @@ export class Sprite extends Node {
                 this.repaint();
             else {
                 this.parentRepaint();
-                // 如果开启了dc优化，则需要重排
-                if (this._struct.dcOptimize) {
-                    this._struct.setRepaint();
-                }
             }
         }
         else {
             this.parentRepaint();
-            // 如果开启了dc优化，则需要重排
-            if (this._struct.dcOptimize) {
-                this._struct.setRepaint();
-            }
         }
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
@@ -2055,8 +2047,10 @@ export class Sprite extends Node {
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
 
-            if (this._subpassUpdateFlag || (this._drawOriRT && flag & RepaintFlag.UpdateRT)) {
-                this.setSubpassFlag(SubPassFlag.RenderTexture);
+            if (this._renderType & SpriteConst.DRAW2RT) {
+                if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
+                    this.setSubpassFlag(SubPassFlag.RenderTexture);
+                }
             }
         }
 
@@ -2099,14 +2093,16 @@ export class Sprite extends Node {
         let pStruct = p._struct;
         let pass = pStruct ? pStruct.pass : null;
         if (pStruct && pass) {
-            if (pass.renderTexture)
+            if (pass.renderTexture) {
                 p.parentRepaint();
-
-            if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
-                // 自动生成宽高需要刷新rt尺寸
-                p.setSubpassFlag(SubPassFlag.RenderTexture);
-                pStruct.setRepaint();
+                if (p._renderType & SpriteConst.DRAW2RT && !p._needRepaint()) {
+                    // 自动生成宽高需要刷新rt尺寸
+                    p.setSubpassFlag(SubPassFlag.RenderTexture);
+                    pStruct.setRepaint();
+                }
             }
+            else pStruct.setRepaint();
+
         }
     }
 
@@ -2216,12 +2212,13 @@ export class Sprite extends Node {
         if (this._struct && this._struct.enabled !== b) {
             this._struct.enabled = b;
             if (b) {
+                //visible = false 会清理 rt 
                 this.repaint();
             } else {
                 this._struct.setRepaint();
             }
             this.parentRepaint();
-            this._refreshRenderPass();    
+            this._refreshRenderPass();
             return true;
         }
         return false;
@@ -2300,7 +2297,7 @@ export class Sprite extends Node {
             rect.x += this._mask._pivotX;
             rect.y += this._mask._pivotY;
             //local
-            if (rect && this._mask.transform) {
+            if (this._mask.transform) {
                 rect.transform(this._mask.transform, rect);
             }
         }
@@ -2353,7 +2350,7 @@ export class Sprite extends Node {
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
-            let renderTexture = new RenderTexture2D(rect.width, rect.height, RenderTargetFormat.R8G8B8A8);
+            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }
@@ -2415,6 +2412,8 @@ export class Sprite extends Node {
             this._struct.pass = null;
             this._subStruct.enabled = false;
             this._struct.subStruct = null;
+            //主Pass 需要重绘
+            this._struct.setRepaint();
         }
 
         this._oriRenderPass.enable = enable;
@@ -2486,6 +2485,10 @@ export class Sprite extends Node {
 
         if (this._mask) {
             this._mask._refreshRenderPass();
+            //mask 不显示时，需要重绘
+            if (!this._mask.displayedInStage) {
+                this._mask.repaint(RepaintFlag.Graphics);
+            }
         }
     }
 

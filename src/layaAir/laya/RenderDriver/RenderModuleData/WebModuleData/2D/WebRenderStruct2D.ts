@@ -204,7 +204,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set pass(value: WebRender2DPass) {
       if (value !== this._pass) {
          this._pass = value;
-         if (this._parentPass) {
+         if (value && this._parentPass) {
             value.priority = this._parentPass.priority + 1;
          }
          this.updateChildren(ChildrenUpdateType.Pass);

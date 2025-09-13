@@ -825,7 +825,9 @@ export class Stage extends Sprite {
                 continue;
 
             sprite.updateSubRenderPassState();
-            if (!sprite._oriRenderPass) {
+            if (!sprite._oriRenderPass
+                || !sprite._oriRenderPass.enable
+            ) {
                 sprite._subpassUpdateFlag = 0;
                 continue;
             }

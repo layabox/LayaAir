@@ -253,6 +253,7 @@ export class SubStructRender {
    private _internalInfo: GraphicsShaderInfo = null;
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
+
    private _scaleX: number = 1;
    private _scaleY: number = 1;
    constructor() {
@@ -288,11 +289,14 @@ export class SubStructRender {
    }
 
    /**
-    * @internal
+    * @internal 更新渲染区域
     * @param rect 
+    * @param scaleX
+    * @param scaleY
     */
    _updateRenderOffset(rect: Rectangle, scaleX :number, scaleY :number) {
       rect.cloneTo(this._rtRect);
+
       this._scaleX = scaleX;
       this._scaleY = scaleY;
 
