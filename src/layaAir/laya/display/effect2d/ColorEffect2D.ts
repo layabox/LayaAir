@@ -325,8 +325,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
     private _checkRenderTarget(width: number, height: number, context: PostProcessRenderContext2D) {
         if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
             RenderTexture2D.recoverToPool(this._destRT);
+            this._destRT = null;
         }
-        this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        if (!this._destRT) {
+            this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
     }
 
     clearRT(): void {

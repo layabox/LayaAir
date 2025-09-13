@@ -92,8 +92,12 @@ export class BlurEffect2D extends PostProcess2DEffect {
       if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
          // 回收旧纹理到对象池
          RenderTexture2D.recoverToPool(this._destRT);
+         this._destRT = null;
       }
-      this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+
+      if (!this._destRT) {
+         this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+      }
    }
 
    clearRT(): void {

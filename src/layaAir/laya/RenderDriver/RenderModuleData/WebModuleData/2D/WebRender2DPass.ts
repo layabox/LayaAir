@@ -155,7 +155,7 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      return true;
+      // return true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -244,8 +244,8 @@ export class WebRender2DPass implements IRender2DPass {
       let success = this._initRenderProcess(context);
       if (!success) return;
 
-      // if (this.repaint) {
-      if (true) {
+      if (this.repaint) {
+      // if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
@@ -271,7 +271,7 @@ export class WebRender2DPass implements IRender2DPass {
 
          // 处理后期处理
          if (this.postProcess?.enabled) {
-            this.postProcess._context.apply();
+            this.postProcess.apply();
          }
       } else {
          this._structs.indice.forEach(index => {

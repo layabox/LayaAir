@@ -22,6 +22,10 @@ export class PostProcess2D extends EventDispatcher {
    _context: PostProcessRenderContext2D;
 
    /**@internal */
+   _hasCleanRT: boolean = false;
+
+
+   /**@internal */
    static init() {
       Effect2DShaderInit.colorEffect2DShaderInit();
       Effect2DShaderInit.blurEffect2DShaderInit();
@@ -171,12 +175,7 @@ export class PostProcess2D extends EventDispatcher {
             this._context.indirectTarget = this._context.destination;
          }
       }
-   }
-
-   recoverAllRTS() {
-      this._effects.forEach(effect => {
-         effect.clearRT();
-      });
+      this._hasCleanRT = false;
    }
 
    /**
@@ -200,6 +199,37 @@ export class PostProcess2D extends EventDispatcher {
     * @en Destroy the post-processing instance.
     * @zh 销毁后期处理实例。
     */
+   /**
+    * @en Recover all RTs used in post-processing effects.
+    * @zh 回收后处理效果中使用的所有RT。
+    */
+   recoverAllRTS(): void {
+      // 回收所有效果中的RT
+      for (let effect of this._effects) {
+         effect.clearRT();
+      }
+      this._hasCleanRT = true;
+      // 回收deferredReleaseTextures中的RT
+      // for (let rt of this._context.deferredReleaseTextures) {
+      //    if (rt && !rt.destroyed) {
+      //       RenderTexture2D.recoverToPool(rt);
+      //    }
+      // }
+      // this._context.deferredReleaseTextures.length = 0;
+   }
+
+   apply() {
+      // console.log("apply", this._hasCleanRT);
+      if (this._hasCleanRT) {//恢复
+         this.clearCMD();
+         this._render();
+         this._hasCleanRT = false;
+      }
+      
+      this._context._apply();
+      this._hasCleanRT = true;
+   }
+
    destroy(): void {
       this.owner = null;
       this._context.compositeShaderData.destroy();
@@ -263,24 +293,27 @@ export class PostProcessRenderContext2D {
    getRenderTexture(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
       // 使用RenderTexture2D的静态方法从对象池创建纹理
       let rt = RenderTexture2D.createFromPool(width, height, colorFormat, depthFormat);
-      // 记录创建的临时RT //先还是自己回收
-      // this.deferredReleaseTextures.push(rt);
+      // 记录创建的临时RT，用于自动回收
+      this.deferredReleaseTextures.push(rt);
       return rt;
    }
    
    /**
+    * @internal
     * @en Apply post-processing effects and recycle unused textures.
-    * @zh 应用后处理效果并回收未使用的纹理。
+    * @zh 应用后处理效果并回收纹理。
     */
-   apply() {
+   _apply() {
       this.command.apply(true);
       
-      // 回收所有非destination的纹理到对象池
-      // for (let i = this.deferredReleaseTextures.length - 1; i >= 0; i--) {
-      //    let rt = this.deferredReleaseTextures[i];
-      //    if (rt && rt !== this.destination && !rt.destroyed) {
-      //       RenderTexture2D.recoverToPool(rt);
-      //    }
-      // }
+      // 回收所有非destination的纹理到对象池 不回收最后一张保证 输出 rt 不错
+      for (let i = this.deferredReleaseTextures.length - 1; i >= 0; i--) {
+         let rt = this.deferredReleaseTextures[i];
+         if (rt && rt !== this.destination && !rt.destroyed) {
+            RenderTexture2D.recoverToPool(rt);
+            this.deferredReleaseTextures.splice(i, 1);
+         }
+      }
    }
+
 }

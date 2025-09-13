@@ -210,21 +210,27 @@ export class GlowEffect2D extends PostProcess2DEffect {
         context.command.drawRenderElement(this._compositeElement, Matrix.EMPTY);
         context.destination = this._destRT;
     }
-
+    
     private _checkRenderTarget(width: number, height: number , context: PostProcessRenderContext2D) {
         
         if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
             RenderTexture2D.recoverToPool(this._destRT);
+            this._destRT = null;
         }
-        this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-
 
         if (this._blitExtendRT && (this._blitExtendRT._inPool || this._blitExtendRT.destroyed || this._blitExtendRT.width !== width || this._blitExtendRT.height !== height)) {
+            // 回收旧纹理到对象池
             RenderTexture2D.recoverToPool(this._blitExtendRT);
+            this._blitExtendRT = null;
         }
-        // 回收旧纹理到对象池
-        this._blitExtendRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-        
+
+        if (!this._destRT) {
+            this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
+
+        if (!this._blitExtendRT) {
+            this._blitExtendRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
     }
 
     /** @ignore */

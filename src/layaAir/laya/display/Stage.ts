@@ -1,7 +1,7 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
+import { SpriteConst, SubPassFlag, TransformKind, RepaintFlag } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
@@ -882,7 +882,7 @@ export class Stage extends Sprite {
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
-        Stat.render();
+        Stat.render(); 
 
         RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
