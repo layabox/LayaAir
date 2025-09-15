@@ -1,5 +1,6 @@
 
 import { EventDispatcher } from "../events/EventDispatcher";
+import { Vector3 } from "../maths/Vector3";
 import { IClone } from "../utils/IClone";
 import { Animation2DParm } from "./Animation2DParm";
 import { AnimationClip2D } from "./AnimationClip2D";
@@ -116,7 +117,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     _scripts: AnimatorState2DScript[] | null = null;
 
     /**@internal */
-    _realtimeDatas: Array<number | string | boolean> = [];
+    _realtimeDatas: Array<number | string | boolean | Vector3> = [];
 
     /**
      * @en Animation Clip
