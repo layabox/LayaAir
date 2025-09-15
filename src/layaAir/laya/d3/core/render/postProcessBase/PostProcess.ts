@@ -206,21 +206,16 @@ export class PostProcess {
         if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
+        let runIndex = 0;
         for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
-                if (i === n - 2) {//last effect:destination RenderTexture is CameraTarget
-                    context.indirectTarget = context.destination;
-                    context.destination = cameraTarget;
-                } else {
-                    context.indirectTarget = context.destination;
-                    context.destination = Indirect[(i + 1) % 2];
-                }
-            } else if (i === n - 1) {//兼容最后一个Effect Active为false
-                context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+                context.indirectTarget = context.destination;
+                context.destination = Indirect[(runIndex + 1) % 2];
+                runIndex++;
             }
         }
-
+        context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 
         if (camera._offScreenRenderTexture) {
