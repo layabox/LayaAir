@@ -902,7 +902,7 @@ export class Sprite extends Node {
     /** @internal */
     _needUpdateSubpass(): boolean {
         let sprite = this._maskParent || this;
-        return sprite.displayedInStage && sprite._visible;
+        return sprite.displayedInStage && sprite._struct.enabled;
     }
 
     /**
@@ -2364,7 +2364,7 @@ export class Sprite extends Node {
 
         rect.recover();
         oriRect.recover();
-        
+
         return true;
     }
 
