@@ -353,8 +353,8 @@ export class SubStructRender {
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.z = width / this._scaleX;
-         vSize.w = height / this._scaleY;
+         vSize.z = Math.round(width / this._scaleX);
+         vSize.w = Math.round(height / this._scaleY);
          vSize.x -= (vSize.z - oriRect.width) / 2;
          vSize.y -= (vSize.w - oriRect.height) / 2;
       } else {
