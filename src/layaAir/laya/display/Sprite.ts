@@ -2292,6 +2292,8 @@ export class Sprite extends Node {
     updateRenderTexture() {
         //计算方式调整
         let rect = Rectangle.create();
+        let oriRect = Rectangle.create();
+
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
             rect.x += this._mask._pivotX;
@@ -2316,6 +2318,8 @@ export class Sprite extends Node {
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
 
+        rect.cloneTo(oriRect);
+
         if (Config.useRetinalCanvas) {
             scaleX = ILaya.stage._scaleX;
             scaleY = ILaya.stage._scaleY;
@@ -2328,15 +2332,18 @@ export class Sprite extends Node {
             //     scaleX *= detla;
             //     scaleY *= detla;
             // }
+            rect.x = rect.x * scaleX;
+            rect.y = rect.y * scaleY;
         }
         
         //判断待考虑
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
-                this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
+                this._subStructRender._updateRenderOffset( rect, oriRect, scaleX, scaleY);
                 // if (maskRect.x !== rect.x || maskRect.y !== rect.y)
                 //     this._subStruct.dcBoundsTarget = null;
                 rect.recover();
+                oriRect.recover();
                 return false;
             }
 
@@ -2344,7 +2351,7 @@ export class Sprite extends Node {
                 oldRT.destroy();
         }
 
-        this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
+        this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
 
         // this._subStruct.dcBoundsTarget = null;
         if (rect.width === 0 || rect.height === 0) {
@@ -2356,6 +2363,8 @@ export class Sprite extends Node {
         }
 
         rect.recover();
+        oriRect.recover();
+        
         return true;
     }
 

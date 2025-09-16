@@ -253,6 +253,7 @@ export class SubStructRender {
    private _internalInfo: GraphicsShaderInfo = null;
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
+   _oriRect: Rectangle = new Rectangle();
 
    private _scaleX: number = 1;
    private _scaleY: number = 1;
@@ -294,8 +295,9 @@ export class SubStructRender {
     * @param scaleX
     * @param scaleY
     */
-   _updateRenderOffset(rect: Rectangle, scaleX :number, scaleY :number) {
+   _updateRenderOffset(rect: Rectangle , oriRect: Rectangle, scaleX :number, scaleY :number) {
       rect.cloneTo(this._rtRect);
+      oriRect.cloneTo(this._oriRect);
 
       this._scaleX = scaleX;
       this._scaleY = scaleY;
@@ -343,21 +345,21 @@ export class SubStructRender {
       }
       this._internalInfo.textureHost = destRT;
 
-      let _rtRect = this._rtRect;
+      let oriRect = this._oriRect;
       let vSize = Vector4.TEMP;
-      vSize.x = _rtRect.x;
-      vSize.y = _rtRect.y;
+      vSize.x = oriRect.x;
+      vSize.y = oriRect.y;
 
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
          vSize.z = width / this._scaleX;
          vSize.w = height / this._scaleY;
-         vSize.x -= (width - _rtRect.width) / 2 / this._scaleX;
-         vSize.y -= (height - _rtRect.height) / 2 / this._scaleY;
+         vSize.x -= (vSize.z - oriRect.width) / 2;
+         vSize.y -= (vSize.w - oriRect.height) / 2;
       } else {
-         vSize.z = _rtRect.width / this._scaleX;
-         vSize.w = _rtRect.height / this._scaleY;
+         vSize.z = oriRect.width;
+         vSize.w = oriRect.height;
       }
       this._internalInfo.vertexSize = vSize;
    }
