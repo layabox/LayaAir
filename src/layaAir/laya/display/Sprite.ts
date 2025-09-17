@@ -2051,6 +2051,8 @@ export class Sprite extends Node {
                 if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
+            }else if (this._renderType & SpriteConst.GRAPHICS) {
+                this._globalTrans._notifyRenderSpriteTransChange();
             }
         }
 
@@ -2451,9 +2453,8 @@ export class Sprite extends Node {
 
     private _checkSubRenderPass() {
         if (this._needUpdateSubpass()) {
-            if (this._subpassUpdateFlag) {
-                this.stage._subpassUpdateList.add(this);
-                this._globalTrans._notifyRenderSpriteTransChange();
+            if (this._subpassUpdateFlag || !this._drawOriRT) {
+                this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
             if (this._mask) {
                 this._mask._checkSubRenderPass();

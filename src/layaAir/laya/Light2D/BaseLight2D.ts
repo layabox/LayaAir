@@ -622,17 +622,12 @@ export class BaseLight2D extends Component {
     }
 
     /**
-     * @en Get light scene position
-     * @zh 获取灯光位置的X坐标值（基于scene和stage）
+     * @en Get light global position
+     * @zh 获取灯光位置的X坐标值（基于全局坐标系）
      * @param out 
      */
-    getScenePos(out: Point) {
-        this.owner.globalTrans.getScenePos(out);
-        const m = ILaya.stage.transform;
-        const x = m.a * out.x + m.c * out.y + m.tx;
-        const y = m.b * out.x + m.d * out.y + m.ty;
-        out.x = x;
-        out.y = y;
+    getGlobalPos(out: Point) {
+        this.owner.globalTrans.getPos(out);
         return out;
     }
 
@@ -714,10 +709,8 @@ export class BaseLight2D extends Component {
      */
     protected _lightScaleAndRotation() {
         //获取放缩量（基于scene和stage）
-        const m = ILaya.stage.transform;
-        const p = this.owner.globalTrans.getSceneScale(Point.TEMP);
-        const sx = Math.abs(p.x * m.getScaleX());
-        const sy = Math.abs(p.y * m.getScaleY());
+        const sx = this.owner.globalTrans.scaleX;
+        const sy = this.owner.globalTrans.scaleY;
 
         //设置灯光放缩
         Vector2.TEMP.x = 1 / sx;
