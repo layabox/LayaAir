@@ -1601,10 +1601,12 @@ export class Sprite extends Node {
      * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
      * @param clearColor 可选。如果提供，则在绘制前清除纹理为该颜色。默认为 null。
+     * @param renderScaleX 可选。渲染缩放 X。默认为 1。
+     * @param renderScaleY 可选。渲染缩放 Y。默认为 1。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color): RenderTexture2D {
-        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY, clearColor);
+    drawToRenderTexture2D(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color, renderScaleX = 1, renderScaleY = 1): RenderTexture2D {
+        let res = Sprite.drawToRenderTexture2D(this, canvasWidth, canvasHeight, offsetX, offsetY, rt, isDrawRenderRect, flipY, clearColor, renderScaleX, renderScaleY);
         return res;
     }
 
@@ -1619,6 +1621,8 @@ export class Sprite extends Node {
      * @param isDrawRenderRect A boolean indicating whether to draw the render rectangle. When true, it starts drawing from (0,0) of the render texture and subtracts the offset of the cache rectangle. When false, it keeps the sprite's original relative position for drawing.
      * @param flipY Optional. If true, the texture will be flipped vertical. Default is false.
      * @param clearColor Optional. If provided, the texture will be cleared to this color before drawing. Default is null.
+     * @param renderScaleX Optional. The scale of the render texture. Default is 1.
+     * @param renderScaleY Optional. The scale of the render texture. Default is 1.
      * @returns The drawn RenderTexture2D object.
      * @zh 将指定的 Sprite 绘制到 RenderTexture2D 对象上。
      * @param sprite 要绘制的 Sprite。
@@ -1630,9 +1634,11 @@ export class Sprite extends Node {
      * @param isDrawRenderRect 表示是否绘制渲染矩形。为 true 时，从渲染纹理的(0,0)点开始绘制，但要减去缓存矩形的偏移；为 false 时，保持精灵的原始相对位置进行绘制。
      * @param flipY 可选。如果为 true，则垂直翻转纹理。默认为 false。
      * @param clearColor 可选。如果为 true，则清除颜色。默认为 null。
+     * @param renderScaleX 可选。渲染缩放 X。默认为 1。
+     * @param renderScaleY 可选。渲染缩放 Y。默认为 1。
      * @returns 绘制的 RenderTexture2D 对象。
      */
-    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color): RenderTexture2D {
+    static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color, renderScaleX = 1, renderScaleY = 1): RenderTexture2D {
         if (isDrawRenderRect == null)
             isDrawRenderRect = true;
 
@@ -1667,8 +1673,8 @@ export class Sprite extends Node {
 
                         let process = root._renderType & SpriteConst.POSTPROCESS ? root.postProcess : null;
                         if (
-                            process 
-                           && destrt != RenderTexture2D._empty
+                            process
+                            && destrt != RenderTexture2D._empty
                         ) {
 
                             if (
@@ -1729,13 +1735,8 @@ export class Sprite extends Node {
         let local = sprite.transform;
         if (local)
             local.copyTo(matrix);
-        
-        // if (Config.useRetinalCanvas) {
-        //     let tempMatrix = Matrix.TEMP.identity();
-        //     tempMatrix.scale(ILaya.stage._scaleX, ILaya.stage._scaleY);
-        //     tempMatrix.invert();
-        //     Matrix.mul(tempMatrix, matrix, matrix);
-        // }
+
+        matrix.scale(renderScaleX, renderScaleY);
 
         matrix.invert();
         matrix.tx = -offsetX;
@@ -1855,7 +1856,9 @@ export class Sprite extends Node {
         if (this._renderNode != null) {
             let rect = this._renderNode.rect;
             Rectangle.minMaxRect(rect.x, rect.y, rect.z, rect.w, tmpRect);
-            out.union(tmpRect.isEmpty() ? tmpRect.setTo(0, 0, this._width, this._height) : tmpRect, out);
+            out.union(tmpRect, out);
+            tmpRect.setTo(0, 0, this._width, this._height);
+            out.union(tmpRect, out);
         }
 
         return out;
@@ -2054,7 +2057,7 @@ export class Sprite extends Node {
                 if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            }else if (this._renderType & SpriteConst.GRAPHICS) {
+            } else if (this._renderType & SpriteConst.GRAPHICS) {
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
         }
@@ -2319,7 +2322,7 @@ export class Sprite extends Node {
         //     rect.recover();
         //     return false;
         // }
-        let scaleX = 1 , scaleY = 1;
+        let scaleX = 1, scaleY = 1;
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
 
@@ -2340,11 +2343,11 @@ export class Sprite extends Node {
             rect.x = rect.x * scaleX;
             rect.y = rect.y * scaleY;
         }
-        
+
         //判断待考虑
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
-                this._subStructRender._updateRenderOffset( rect, oriRect, scaleX, scaleY);
+                this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
                 // if (maskRect.x !== rect.x || maskRect.y !== rect.y)
                 //     this._subStruct.dcBoundsTarget = null;
                 rect.recover();
@@ -2411,8 +2414,7 @@ export class Sprite extends Node {
             this.createSubRenderPass();
         }
 
-        if (enable && !this._oriRenderPass.enable)
-        {
+        if (enable && !this._oriRenderPass.enable) {
             this._struct.pass = this._oriRenderPass;
             this._struct.subStruct = this._subStruct;
             this._subStruct.enabled = true;
@@ -2421,8 +2423,7 @@ export class Sprite extends Node {
                 this._subStruct.blendMode = BlendMode.mask;
             }
         }
-        else if (!enable && this._oriRenderPass && this._oriRenderPass.enable)
-        {
+        else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             this._struct.pass = null;
             this._subStruct.enabled = false;
             this._struct.subStruct = null;
@@ -2467,21 +2468,20 @@ export class Sprite extends Node {
         }
 
     }
-    
+
     /**
      * @internal
      */
     private _refreshRenderPass() {
 
-        if (this._oriRenderPass) { 
-            
+        if (this._oriRenderPass) {
+
             let result = this._needUpdateSubpass() && this._oriRenderPass.enable;
 
             if (result) {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
-            else
-            {
+            else {
                 if (this._drawOriRT) {
                     RenderTexture2D.recoverToPool(this._drawOriRT);
                     this._drawOriRT = null;
