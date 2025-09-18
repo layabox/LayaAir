@@ -48,8 +48,16 @@ export abstract class PostProcess2DEffect {
    abstract render(context: PostProcessRenderContext2D): void;
 
    /**
+    * @en Clears the render texture.
+    * @zh 清理渲染纹理。
+    */
+   abstract clearRT(): void;
+   
+   /**
     * @en Destroys the effect.
     * @zh 销毁效果。
     */
    abstract destroy(): void;
+
+   
 }

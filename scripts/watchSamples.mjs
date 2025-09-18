@@ -237,7 +237,7 @@ async function start() {
             }),
         ],
         output: {
-            file: './bin/rollUp/bundle.js',
+            file: `./bin/${platform}/bundle.js`,
             format: 'iife',
             name: 'Laya',
             extend: true,
@@ -290,7 +290,7 @@ function startLaya() {
             }),
         ],
         output: {
-            file: './bin/rollUp/laya.js',
+            file: `./bin/${platform}/laya.js`,
             format: 'iife',
             name: 'Laya',
             sourcemap: sourcemap,

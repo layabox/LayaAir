@@ -6,6 +6,8 @@ import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { NotImplementedError } from "../utils/Error";
+import { Stat } from "../utils/Stat";
+import { Browser } from "../utils/Browser";
 
 /**
  * @en RenderTexture2D class used to create 2D render targets.
@@ -15,6 +17,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     static _empty: RenderTexture2D;
     /** @internal */
     static __init__() {
+        // 0 像素webgpu 报错
         RenderTexture2D._empty = new RenderTexture2D(1, 1, RenderTargetFormat.R8G8B8, RenderTargetFormat.None);
         RenderTexture2D._empty.width = 0;
         RenderTexture2D._empty.height = 0;
@@ -25,6 +28,22 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture2D[] = [];
     private static _poolMemory: number = 0;
+    private static _poolTimeouts: Map<number, number> = new Map();
+    /**
+     * @en The timeout for cleanup checks.
+     * @zh 清理检查的超时时间。
+     * @default 30000
+     */
+    static cleanupTimeout: number = 30000;
+    /**
+     * @en The frame interval for cleanup checks.
+     * @zh 清理检查的帧间隔。
+     * @default 360
+     */
+    static cleanupFrameInterval: number = 360;
+
+    // 上次清理的帧数
+    private static _lastCleanupFrame: number = 0;
 
     /**
      * @en Creates a RenderTexture instance from the pool.
@@ -52,6 +71,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
                 RenderTexture2D._pool[index] = end;
                 RenderTexture2D._pool.length -= 1;
                 RenderTexture2D._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
+                // 从池中取出时，移除时间记录
+                RenderTexture2D._poolTimeouts.delete(rt._id);
                 return rt;
             }
         }
@@ -73,6 +94,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._pool.push(rt);
         RenderTexture2D._poolMemory += (rt._renderTarget.gpuMemory / 1024 / 1024);
         rt._inPool = true;
+        // 记录回收到池子的时间
+        RenderTexture2D._poolTimeouts.set(rt.id, Browser.now());
     }
 
     /**
@@ -88,6 +111,45 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         }
         RenderTexture2D._pool = [];
         RenderTexture2D._poolMemory = 0;
+        RenderTexture2D._poolTimeouts.clear();
+    }
+
+    /**
+     * @en Cleans up expired RenderTexture2D instances from the pool.
+     * @returns Number of cleaned up instances.
+     * @zh 清理池中过期的RenderTexture2D实例。
+     * @returns 清理的实例数量。
+     */
+    static cleanupExpired(): number {
+        let currentFrame = Stat.loopCount;
+        // 检查是否到了清理的帧间隔
+        if (currentFrame - RenderTexture2D._lastCleanupFrame < RenderTexture2D.cleanupFrameInterval) {
+            return -1; // 跳过清理
+        }
+        
+        // 更新上次清理的帧数
+        RenderTexture2D._lastCleanupFrame = currentFrame;
+
+        let timeout =  RenderTexture2D.cleanupTimeout;
+        let currentTime = Browser.now();
+        let cleanedCount = 0;
+        
+        // 从后往前遍历，避免删除元素时索引问题
+        for (let i = RenderTexture2D._pool.length - 1; i >= 0; i--) {
+            let rt = RenderTexture2D._pool[i];
+            let poolTime = RenderTexture2D._poolTimeouts.get(rt.id);
+            
+            if (poolTime && (currentTime - poolTime) > timeout) {
+                // 从池中移除
+                RenderTexture2D._pool.splice(i, 1);
+                RenderTexture2D._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
+                RenderTexture2D._poolTimeouts.delete(rt.id);
+                rt.destroy();
+                cleanedCount++;
+            }
+        }
+        
+        return cleanedCount;
     }
 
     /** @internal */

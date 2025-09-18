@@ -1,7 +1,7 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
+import { SpriteConst, SubPassFlag, TransformKind, RepaintFlag } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
@@ -825,7 +825,9 @@ export class Stage extends Sprite {
                 continue;
 
             sprite.updateSubRenderPassState();
-            if (!sprite._oriRenderPass) {
+            if (!sprite._oriRenderPass
+                || !sprite._oriRenderPass.enable
+            ) {
                 sprite._subpassUpdateFlag = 0;
                 continue;
             }
@@ -838,18 +840,18 @@ export class Stage extends Sprite {
             }
 
             if (sprite.mask) {
-                sprite._oriRenderPass.mask = sprite.mask._subStruct;
+                sprite._oriRenderPass.mask = sprite.mask._struct;
             }
 
             if (result) {
                 sprite._oriRenderPass.renderTexture = destrt;
             }
 
-            let process = sprite._oriRenderPass.postProcess;
+            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite._oriRenderPass.postProcess : null;
             if (process && destrt != RenderTexture2D._empty ) {
                 if (
                     result ||
-                    (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
+                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                 ) {
                     process.setResource(destrt);
                     process.clearCMD();
@@ -861,8 +863,7 @@ export class Stage extends Sprite {
                 }
             }
 
-            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
-            sprite._subStructRender._updateVertexSize();
+            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
         }
@@ -881,8 +882,9 @@ export class Stage extends Sprite {
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
-        Stat.render();
+        Stat.render(); 
 
+        RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
     }
 

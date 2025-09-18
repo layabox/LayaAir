@@ -315,15 +315,28 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     /** @ignore */
     render(context: PostProcessRenderContext2D): void {
-        if (!this._destRT || this._destRT.width != context.indirectTarget.width || context.indirectTarget.height != this._destRT.height) {
-            if (this._destRT)
-                this._destRT.destroy();
-            this._destRT = new RenderTexture2D(context.indirectTarget.width, context.indirectTarget.height, RenderTargetFormat.R8G8B8A8);
-        }
+        this._checkRenderTarget(context.indirectTarget.width, context.indirectTarget.height, context);
         this._mat.setTexture("u_MainTex", context.indirectTarget);
         context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
         context.destination = this._destRT;
+    }
+
+    private _checkRenderTarget(width: number, height: number, context: PostProcessRenderContext2D) {
+        if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
+            RenderTexture2D.recoverToPool(this._destRT);
+            this._destRT = null;
+        }
+        if (!this._destRT) {
+            this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
+    }
+
+    clearRT(): void {
+        if (this._destRT) {
+            RenderTexture2D.recoverToPool(this._destRT);
+        }
+        this._destRT = null;
     }
 
     /**
@@ -341,7 +354,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     /** @ignore */
     destroy() {
-        this._destRT && (this._destRT.destroy());
+        if (this._destRT) {
+            // 回收纹理到对象池
+            RenderTexture2D.recoverToPool(this._destRT);
+        }
+        this._destRT = null;
         this._mat && (this._mat.destroy());
         this._renderElement && (this._renderElement.destroy());
     }

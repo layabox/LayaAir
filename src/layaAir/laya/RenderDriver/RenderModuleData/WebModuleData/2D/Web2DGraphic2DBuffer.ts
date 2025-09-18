@@ -217,7 +217,7 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     declare _first: Web2DGraphic2DIndexCloneDataView;
     declare _last: Web2DGraphic2DIndexCloneDataView;
     /** @internal */
-    _uploadMask: Record<number, number> = {};
+    // _uploadMask: Record<number, number> = {};
 
     _upload() {
         let view = this._first;
@@ -269,7 +269,6 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
             // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.setDrawElemenParams", setDrawElemenParamsTime - clearRenderParamsTime);
             // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer._modifyOneView", setDrawElemenParamsTime - startTimer);
         }
-
     }
     
     clearBufferViews() {//不清理,添加时处理

@@ -22,6 +22,9 @@ export interface IClipInfo {
  * 需要传递的属性 get 效率慢
  */
 export interface IRenderStruct2D {
+
+   subStruct: IRenderStruct2D;
+
    owner: Sprite;
 
    //-----2d 渲染组织流程数据-----

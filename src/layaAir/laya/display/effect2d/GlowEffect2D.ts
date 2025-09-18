@@ -185,17 +185,8 @@ export class GlowEffect2D extends PostProcess2DEffect {
         let height = context.indirectTarget.height;
         let texwidth = width + 2 * marginLeft;
         let texheight = height + 2 * marginTop;
-        if (!this._destRT || this._destRT.width != texwidth || texheight != this._destRT.height) {
-            if (this._destRT)
-                this._destRT.destroy();
-            this._destRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
-        }
 
-        if (!this._blitExtendRT || this._blitExtendRT.width != texwidth || texheight != this._blitExtendRT.height) {
-            if (this._blitExtendRT)
-                this._blitExtendRT.destroy();
-            this._blitExtendRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
-        }
+        this._checkRenderTarget(texwidth, texheight, context);
 
         //extend rt
         this._blitmat.setTexture("u_MainTex", context.indirectTarget);
@@ -219,11 +210,55 @@ export class GlowEffect2D extends PostProcess2DEffect {
         context.command.drawRenderElement(this._compositeElement, Matrix.EMPTY);
         context.destination = this._destRT;
     }
+    
+    private _checkRenderTarget(width: number, height: number , context: PostProcessRenderContext2D) {
+        
+        if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
+            RenderTexture2D.recoverToPool(this._destRT);
+            this._destRT = null;
+        }
+
+        if (this._blitExtendRT && (this._blitExtendRT._inPool || this._blitExtendRT.destroyed || this._blitExtendRT.width !== width || this._blitExtendRT.height !== height)) {
+            // 回收旧纹理到对象池
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
+            this._blitExtendRT = null;
+        }
+
+        if (!this._destRT) {
+            this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
+
+        if (!this._blitExtendRT) {
+            this._blitExtendRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        }
+    }
 
     /** @ignore */
+    clearRT(): void {
+        if (this._destRT) {
+            RenderTexture2D.recoverToPool(this._destRT);
+        }
+        this._destRT = null;
+
+        if (this._blitExtendRT) {
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
+        }
+        this._blitExtendRT = null;
+    }
+    
+    /** @ignore */
     destroy() {
-        this._destRT && this._destRT.destroy();
-        this._blitExtendRT && this._blitExtendRT.destroy();
+        if (this._destRT) {
+            // 回收纹理到对象池
+            RenderTexture2D.recoverToPool(this._destRT);
+        }
+        this._destRT = null;
+        
+        if (this._blitExtendRT) {
+            // 回收纹理到对象池
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
+        }
+        this._blitExtendRT = null;
 
         this._blitmat && (this._blitmat.destroy());
         this._blitmat = null;

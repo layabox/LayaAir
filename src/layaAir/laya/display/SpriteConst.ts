@@ -55,4 +55,7 @@ export enum SubPassFlag {
     CacheAsBitmap = 0x2,
     Mask = 0x4,
     RenderTexture = 0x8,
+    
+    /** @internal */
+    UPDATE_POSTPROCESS = RenderTexture | PostProcess,
 }

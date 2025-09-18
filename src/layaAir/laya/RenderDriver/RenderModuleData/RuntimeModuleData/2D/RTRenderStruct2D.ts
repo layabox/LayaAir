@@ -116,6 +116,17 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._renderLayer;
    }
 
+   private _subStruct: RTRenderStruct2D;
+
+   public get subStruct(): RTRenderStruct2D {
+      return this._subStruct;
+   }
+   
+   public set subStruct(value: RTRenderStruct2D) {
+      this._subStruct = value;
+      this._nativeObj.setSubStruct(value ? value._nativeObj : null);
+   }
+
    private _parent: RTRenderStruct2D = null;
    set parent(value: RTRenderStruct2D) {
       this._parent = value;

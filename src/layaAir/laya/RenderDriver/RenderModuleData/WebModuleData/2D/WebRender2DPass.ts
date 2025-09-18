@@ -155,15 +155,31 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
+      // return true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
    }
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
-      if (!struct.enabled) return;
+      if (
+         !struct.enabled
+         || struct.globalAlpha < 0.01
+         || this._mask === struct
+      )
+         return;
 
-      struct._handleInterData();
+      let renderStruct: WebRenderStruct2D;
+      if (this.root === struct) {
+         renderStruct = struct;
+      } 
+      else if (struct.subStruct) {
+         renderStruct = struct.subStruct;
+      } else
+         renderStruct = struct;
+
+      
+      renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
       //    struct.renderUpdateMask = Stat.loopCount;
@@ -178,22 +194,22 @@ export class WebRender2DPass implements IRender2DPass {
    
          // 裁剪规则二：检查矩形相交
          let cullRect = globalRenderData.cullRect;
-         if (struct.enableCulling && cullRect &&  !this._isRectIntersect(struct.rect, cullRect)) {
+         if (struct.enableCulling && cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
              return;
          }
       }
+         
+      renderStruct.renderUpdate(context2D);
 
-      struct.renderUpdate(context2D);
-
-      let list = this._pStructs.add(struct);
+      let list = this._pStructs.add(renderStruct);
 
       if (struct.stackingRoot) {
          var oldCol = this._pStructs;
          this._pStructs = this._structsPool.take();
       }
 
-      for (let i = 0, n = struct.children.length; i < n; i++) {
-         const child = struct.children[i];
+      for (let i = 0, n = renderStruct.children.length; i < n; i++) {
+         const child = renderStruct.children[i];
          child._effectZ = child.zIndex + struct._effectZ;
          this.cullAndSort(context2D, child);
       }
@@ -227,6 +243,7 @@ export class WebRender2DPass implements IRender2DPass {
    fowardRender(context: IRenderContext2D) {
       let success = this._initRenderProcess(context);
       if (!success) return;
+
       if (this.repaint) {
       // if (true) {
          this._structs.reset();
@@ -246,14 +263,15 @@ export class WebRender2DPass implements IRender2DPass {
          context.drawRenderElementList(this._renderElements);
 
          if (this._mask) {
-            this._mask._handleInterData();
-            this._mask.renderUpdate(context);
-            context.drawRenderElementOne(this._mask.renderElements[0]);
+            let renderMask = this._mask.subStruct;
+            renderMask._handleInterData();
+            renderMask.renderUpdate(context);
+            context.drawRenderElementOne(renderMask.renderElements[0]);
          }
 
          // 处理后期处理
          if (this.postProcess?.enabled) {
-            this.postProcess._context.command.apply(true);
+            this.postProcess.apply();
          }
       } else {
          this._structs.indice.forEach(index => {
@@ -391,7 +409,11 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    //预留
-   private _initRenderProcess(context: IRenderContext2D) : boolean {
+   private _initRenderProcess(context: IRenderContext2D): boolean {
+      if (!this.root || this.root.globalAlpha < 0.01) {
+         return false;
+      }
+
       //设置viewport 切换rt
       let sizeX, sizeY;
 
@@ -447,7 +469,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    private _updateInvertMatrix() {
-      let rootTrans = this.root?.trans;
+      let rootTrans = this.root.trans;
       if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;

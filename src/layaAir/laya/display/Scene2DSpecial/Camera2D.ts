@@ -292,8 +292,9 @@ export class Camera2D extends Sprite {
         let viewport = this._getScreenSize();
         let curPosPoint = Point.TEMP;
         this.globalTrans.getPos(curPosPoint);
-        let extendHorizental = viewport.x * 0.5;
-        let extendVertical = viewport.y * 0.5
+        let extendHorizental = viewport.x * 0.5 * this._zoom.x;
+        let extendVertical = viewport.y * 0.5 * this._zoom.y;
+        
         if (!this._firstUpdate) {
             //drag
             if (this.dragHorizontalEnable) {
@@ -364,6 +365,7 @@ export class Camera2D extends Sprite {
         } else {
             this._cameraRotation = 0;
         }
+
 
         this._rect.setValue(this._cameraSmoothPos.x - extendHorizental, this._cameraSmoothPos.x + extendHorizental, this._cameraSmoothPos.y - extendVertical, this._cameraSmoothPos.y + extendVertical)
         Matrix3x3.createMatrixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, this._zoom, this._cameraMatrix);
