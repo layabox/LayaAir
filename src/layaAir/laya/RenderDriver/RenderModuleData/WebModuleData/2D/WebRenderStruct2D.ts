@@ -506,6 +506,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
       child._parentGlobalRenderData = this.globalRenderData;
       if (!child._globalRenderData) child._globalShaderData = this._globalShaderData;
+      child._parentEnableCulling = this.enableCulling;
+      child._parentDcOptimize = this.dcOptimize;
       //效率
       child.updateChildren(ChildrenUpdateType.All);
       return;
@@ -537,6 +539,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          child._parentBlendMode = BlendMode.invalid;
          child.globalAlpha = child._alpha;
          child._parentGlobalRenderData = null;
+         child._parentEnableCulling = false;
+         child._parentDcOptimize = false;
          if (!child._globalRenderData) child._globalShaderData = null;
          child.updateChildren(ChildrenUpdateType.All);
       }
