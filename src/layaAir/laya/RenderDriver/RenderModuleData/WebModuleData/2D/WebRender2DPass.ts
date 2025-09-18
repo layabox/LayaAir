@@ -33,13 +33,13 @@ class SortedStructs {
    private _indice = new Set<number>;
    private _sortedIndice: Array<number> = [];
 
-   add(struct: WebRenderStruct2D) {
-      let list = this.lists.get(struct._effectZ);
+   add(struct: WebRenderStruct2D, zIndex: number) {
+      let list = this.lists.get(zIndex);
       if (!list)
-         this.lists.set(struct._effectZ, list = new FastSinglelist<WebRenderStruct2D>());
+         this.lists.set(zIndex, list = new FastSinglelist<WebRenderStruct2D>());
       list.add(struct);
       if (list.length === 1)
-         this._indice.add(struct._effectZ);
+         this._indice.add(zIndex);
       return list;
    }
 
@@ -172,13 +172,13 @@ export class WebRender2DPass implements IRender2DPass {
       let renderStruct: WebRenderStruct2D;
       if (this.root === struct) {
          renderStruct = struct;
-      } 
+      }
       else if (struct.subStruct) {
          renderStruct = struct.subStruct;
       } else
          renderStruct = struct;
 
-      
+
       renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断
       // if (struct.renderUpdateMask !== Stat.loopCount) {
@@ -191,17 +191,17 @@ export class WebRender2DPass implements IRender2DPass {
             && (struct.renderLayer & globalRenderData.renderLayerMask) === 0) {
             return;
          }
-   
+
          // 裁剪规则二：检查矩形相交
          let cullRect = globalRenderData.cullRect;
          if (struct.enableCulling && cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
-             return;
+            return;
          }
       }
-         
+
       renderStruct.renderUpdate(context2D);
 
-      let list = this._pStructs.add(renderStruct);
+      let list = this._pStructs.add(renderStruct, struct._effectZ);
 
       if (struct.stackingRoot) {
          var oldCol = this._pStructs;
@@ -225,7 +225,7 @@ export class WebRender2DPass implements IRender2DPass {
          this._pStructs = oldCol;
       }
    }
-  
+
    private _isRectIntersect(rect: Rectangle, cullRect: Vector4): boolean {
       // return true;
       //cullRect minx , maxx , miny , maxy
@@ -245,7 +245,7 @@ export class WebRender2DPass implements IRender2DPass {
       if (!success) return;
 
       if (this.repaint) {
-      // if (true) {
+         // if (true) {
          this._structs.reset();
          this._renderElements.length = 0;
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
@@ -317,8 +317,8 @@ export class WebRender2DPass implements IRender2DPass {
             if (n > 0) {
                // if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
                //    struct.dcBoundsTarget = reorderRoot;
-                  // let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
-                  // SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
+               // let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
+               // SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
                // }
 
                for (let i = 0; i < n; i++) {
@@ -340,7 +340,7 @@ export class WebRender2DPass implements IRender2DPass {
          }
       });
 
-      if (groupStart !== renderElements.length) { 
+      if (groupStart !== renderElements.length) {
          this._elementGroups.add(groupStart);
          this._elementGroups.add(renderElements.length - 1);
          this._elementGroups.add(false);
