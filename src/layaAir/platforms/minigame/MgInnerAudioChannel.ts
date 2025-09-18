@@ -85,7 +85,7 @@ export class MgInnerAudioChannel extends SoundChannel {
     }
 
     protected releaseContext(): void {
-        this._ctx.destroy();
+        this._ctx?.destroy();
         this._ctx = null;
     }
 }

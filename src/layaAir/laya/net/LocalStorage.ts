@@ -51,7 +51,7 @@ export class LocalStorage {
      * @returns 与键关联的 Object 类型值。
      */
     static getJSON(key: string): any {
-        return JSON.parse(PAL.storage.getItem(key));
+        return JSON.parse(PAL.storage.getItem(key) || null);
     }
 
     /**
