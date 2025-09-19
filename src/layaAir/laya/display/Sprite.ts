@@ -416,6 +416,14 @@ export class Sprite extends Node {
         return this._texture ? this._texture.height : 0;
     }
 
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_TextureSV);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is D2_TextureSV, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
+    }
+
     /**
      * @en The display width of the object, in pixels, including X axis scaling.
      * @returns The display width.
@@ -1179,15 +1187,8 @@ export class Sprite extends Node {
     }
 
     set material(value: Material) {
-        if (value) {
-            let shaderType = value.shader.shaderType;
-            if (shaderType != null
-                && shaderType !== ShaderFeatureType.D2_BaseRednerNode2D
-                && shaderType !== ShaderFeatureType.D2_TextureSV
-                && shaderType !== ShaderFeatureType.D2_primitive) {
-                throw new Error("Material shader type is not match Sprite.");
-            }
-        }
+        if (!this._isMaterialVaild(value))
+            return;
 
         if (this._graphics == null && value == null)
             return;

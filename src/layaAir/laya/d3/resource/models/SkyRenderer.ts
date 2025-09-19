@@ -1,6 +1,6 @@
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Material } from "../../../resource/Material";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
@@ -68,6 +68,8 @@ export class SkyRenderer {
     }
 
     set material(value: Material) {
+        if (!this._isMaterialVaild(value))
+            return;
         if (this._material !== value) {
             (this._material) && (this._material._removeReference());
             this._material = value;
@@ -118,6 +120,14 @@ export class SkyRenderer {
         this._renderData = new BaseRender();
         this._baseRenderNode = Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
         this._baseRenderNode.transform = new Transform3D(null);
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Sky);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is Sky, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     /**

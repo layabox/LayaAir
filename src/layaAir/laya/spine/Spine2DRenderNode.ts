@@ -24,6 +24,7 @@ import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @zh Spine动画渲染节点。
@@ -116,6 +117,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_BaseRednerNode2D);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is D2_BaseRednerNode2D, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -389,7 +398,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let y = Math.ceil(data.y ?? 0);
         let width = data.width;
         let height = data.height;
-        
+
         if (width === undefined || height === undefined) {
             console.warn('Spine.SkeletonData: width or height is undefined');
             this._autoAdjust = false;
@@ -398,8 +407,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         if (width < 1) width = 100;
         if (height < 1) height = 100;
-        
-        let pivotX =  width + x;
+
+        let pivotX = width + x;
         let pivotY = height + y;
 
         this.owner.size(width, height);
@@ -445,7 +454,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let rootBone = this._skeleton.getRootBone();
         rootBone.x = this._templet.offsetX;
         rootBone.y = this._templet.offsetY;
-        
+
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
@@ -459,7 +468,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._struct.renderElements = [];
         this._struct.setRepaint();
 
-        if (this._autoAdjust) { 
+        if (this._autoAdjust) {
             this._doAutoAdjust();
         }
 

@@ -11,7 +11,7 @@ import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
-import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Material } from "../resource/Material";
 import { Texture2D } from "../resource/Texture2D";
@@ -235,6 +235,13 @@ export class Line2DRender extends BaseRenderNode2D {
         }
     }
 
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.DEFAULT);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is DEFAULT, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
+    }
 
     /**
      * 基于不同BaseRender的uniform集合

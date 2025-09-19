@@ -30,6 +30,7 @@ import { Utils } from "../../../utils/Utils";
 import { Rectangle } from "../../../maths/Rectangle";
 import { SpriteUtils } from "../../../utils/SpriteUtils";
 import { RepaintFlag } from "../../../display/SpriteConst";
+import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 
 class UI3DShellSprite extends Sprite {
 
@@ -378,6 +379,14 @@ export class UI3D extends BaseRender {
 
         this._matrix = new Matrix4x4();
         this._scale = new Vector3(1.0, 1.0, 1.0);
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D3);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is D3, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     private _creatDefaultMat() {

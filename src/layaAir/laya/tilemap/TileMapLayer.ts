@@ -26,6 +26,7 @@ import { TileMapTerrainUtil } from "./terrain/TileMapTerrainUtils";
 import { Area2D } from "../display/Area2D";
 import { Vector4 } from "../maths/Vector4";
 import { TileMapUtils } from "./TileMapUtils";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 export enum TILEMAPLAYERDIRTYFLAG {
     CELL_CHANGE = 1 << 0,//add remove create...
@@ -244,6 +245,14 @@ export class TileMapLayer extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.sortMode = TileLayerSortMode.YSort;
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Effect);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is Effect, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     private _initialTileSet() {
