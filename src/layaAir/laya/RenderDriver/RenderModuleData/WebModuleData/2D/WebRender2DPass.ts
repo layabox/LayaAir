@@ -15,16 +15,15 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { CommandBuffer2D } from "../../../../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
-import { SpriteUtils } from "../../../../utils/SpriteUtils";
 import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { LayaEnv } from "../../../../../LayaEnv";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Pool } from "../../../../utils/Pool";
 import { NodeFlags } from "../../../../Const";
-
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Rectangle } from "../../../../maths/Rectangle";
+
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
 class SortedStructs {
@@ -64,6 +63,10 @@ class SortedStructs {
       this.indice.forEach(zIndex => out.addList(this.lists.get(zIndex)));
    }
 }
+
+/**
+ * @ignore
+ */
 
 export class WebRender2DPass implements IRender2DPass {
    static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
@@ -169,15 +172,7 @@ export class WebRender2DPass implements IRender2DPass {
       )
          return;
 
-      let renderStruct: WebRenderStruct2D;
-      if (this.root === struct) {
-         renderStruct = struct;
-      }
-      else if (struct.subStruct) {
-         renderStruct = struct.subStruct;
-      } else
-         renderStruct = struct;
-
+      let renderStruct = (struct.subStruct && struct !== this.root) ? struct.subStruct : struct;
 
       renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断
@@ -194,7 +189,7 @@ export class WebRender2DPass implements IRender2DPass {
 
          // 裁剪规则二：检查矩形相交
          let cullRect = globalRenderData.cullRect;
-         if (struct.enableCulling && cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
+         if (struct.inheritedEnableCulling && cullRect && !this._isRectIntersect(struct.rect, cullRect)) {
             return;
          }
       }
@@ -214,7 +209,7 @@ export class WebRender2DPass implements IRender2DPass {
          this.cullAndSort(context2D, child);
       }
 
-      if (struct._dcOptimize) {
+      if (struct.dcOptimize) {
          let last = list.length - 1;
          struct.dcOptimizeEnd = list.elements[last];
       }
@@ -315,12 +310,6 @@ export class WebRender2DPass implements IRender2DPass {
             }
 
             if (n > 0) {
-               // if (reorderRoot != null && struct.dcBoundsTarget != reorderRoot) {
-               //    struct.dcBoundsTarget = reorderRoot;
-               // let rect = struct.owner.getSelfBounds(struct.dcBounds, false);
-               // SpriteUtils.transformRect(struct.owner, rect, reorderRoot.owner, rect);
-               // }
-
                for (let i = 0; i < n; i++) {
                   let element = struct.renderElements[i];
                   element._index = i;
@@ -349,7 +338,6 @@ export class WebRender2DPass implements IRender2DPass {
 
    private batch() {
       let list = this._renderElements;
-      let length = list.length;
       let elementArray = list.elements;
       let groups = this._elementGroups;
       let groupsArray = groups.elements;

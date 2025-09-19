@@ -128,12 +128,6 @@ export class Sprite extends Node {
     _scrollRect: Rectangle;
     /**
      * @internal
-     * @en Viewport
-     * @zh 视口
-     */
-    _viewport: Rectangle;
-    /**
-     * @internal
      * @en Hit area
      * @zh 点击区域
      */
@@ -256,11 +250,6 @@ export class Sprite extends Node {
     _subStruct: IRenderStruct2D;
     /** @internal */
     _shaderData: ShaderData;
-
-    /** @internal */
-    _dcOptimize: boolean = false;
-    /** @internal */
-    _enableCulling: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -924,13 +913,11 @@ export class Sprite extends Node {
             return;
 
         this._scrollRect = value;
-        if (value) {
+        if (value)
             this._renderType |= SpriteConst.CLIP;
-            this._struct.setClipRect(value);
-        } else {
+        else
             this._renderType &= ~SpriteConst.CLIP;
-            this._struct.setClipRect(null);
-        }
+        this._struct.setClipRect(value);
         if (this._oriRenderPass)
             this._oriRenderPass.repaint = true;
         this._globalTrans._spTransChanged(TransformKind.Layout);
@@ -938,29 +925,13 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en The viewport size. Child objects outside the viewport will not be rendered (if you want to achieve a clipping effect, please use scrollRect). Proper use can improve rendering performance. For example, map tiles composed of small images will not render small images outside the viewport.
-     * The default value is null.
-     * The differences between scrollRect and viewport:
-     * 1. scrollRect comes with a clipping effect, while viewport only affects whether child objects are rendered without clipping (better performance).
-     * 2. Setting the x and y properties of the rect can achieve a scrolling effect in the area, but scrollRect will keep the position of point 0,0 unchanged.
-     * @zh 视口大小，视口外的子对象将不被渲染（如果想实现裁剪效果，请使用scrollRect），合理使用能提高渲染性能。例如，由一个个小图片拼成的地图块，viewport外面的小图片将不渲染。
-     * 默认值为null。
-     * scrollRect和viewport的区别：
-     * 1. scrollRect自带裁剪效果，viewport只影响子对象是否渲染，不具有裁剪效果（性能更高）。
-     * 2. 设置rect的x,y属性均能实现区域滚动效果，但scrollRect会保持0,0点位置不变。
+     * @deprecated
      */
     get viewport(): Rectangle {
-        return this._viewport;
+        return null;
     }
 
     set viewport(value: Rectangle) {
-        if (typeof (value) == 'string') {
-            let recArr = (<any>value).split(",");
-            if (recArr.length > 3) {
-                value = new Rectangle(parseFloat(recArr[0]), parseFloat(recArr[1]), parseFloat(recArr[2]), parseFloat(recArr[3]));
-            }
-        }
-        this._viewport = value;
     }
 
     /**
@@ -972,10 +943,9 @@ export class Sprite extends Node {
      * 注意，如果元素数量巨大（例如大于500)，可能会显著消耗CPU性能。开发者需要均衡考虑DrawCall数量和CPU性能消耗。
      */
     set drawCallOptimize(value: boolean) {
-        if (this._dcOptimize === value)
+        if (this._struct.dcOptimize === value)
             return;
 
-        this._dcOptimize = value;
         this._struct.dcOptimize = value;
         this._struct.setRepaint();
         this.parentRepaint();
@@ -983,17 +953,17 @@ export class Sprite extends Node {
     }
 
     get drawCallOptimize(): boolean {
-        return this._dcOptimize;
+        return this._struct.dcOptimize;
     }
-
 
     /**
      * @en Whether to enable culling.
      * @zh 是否启用裁剪。
      */
     set enableCulling(value: boolean) {
-        if (this._enableCulling === value) return;
-        this._enableCulling = value;
+        if (this._struct.enableCulling === value)
+            return;
+
         this._struct.enableCulling = value;
         this._struct.setRepaint();
         this.parentRepaint();
@@ -1001,7 +971,7 @@ export class Sprite extends Node {
     }
 
     get enableCulling(): boolean {
-        return this._enableCulling;
+        return this._struct.enableCulling;
     }
 
     /**
@@ -1116,7 +1086,10 @@ export class Sprite extends Node {
     }
 
     set zIndex(value: number) {
-        this._struct.zIndex = value;
+        if (this._struct.zIndex !== value) {
+            this._struct.zIndex = value;
+            this.parentRepaint();
+        }
     }
 
     /**
@@ -1457,7 +1430,7 @@ export class Sprite extends Node {
         if (
             (kind & TransformKind.TRS) !== 0
             || (kind & TransformKind.Anchor) !== 0
-            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0 || this._struct.dcOptimize))
+            || ((kind & TransformKind.Size) !== 0 && (this._anchorX !== 0 || this._anchorY !== 0 || this._struct.inheritedDcOptimize))
         ) {
             this._globalTrans._spTransChanged(kind);
 
@@ -2264,8 +2237,7 @@ export class Sprite extends Node {
     }
 
     protected _setStructParent(value: Sprite) {
-        let struct = this._struct
-        // struct.dcBoundsTarget = null;
+        let struct = this._struct;
 
         if (struct && struct.parent) {
             struct.parent.removeChild(struct);
@@ -2348,8 +2320,6 @@ export class Sprite extends Node {
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
                 this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
-                // if (maskRect.x !== rect.x || maskRect.y !== rect.y)
-                //     this._subStruct.dcBoundsTarget = null;
                 rect.recover();
                 oriRect.recover();
                 return false;
@@ -2361,7 +2331,6 @@ export class Sprite extends Node {
 
         this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
 
-        // this._subStruct.dcBoundsTarget = null;
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
@@ -2393,7 +2362,7 @@ export class Sprite extends Node {
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
 
-        if (this._struct.enableCulling || this._struct.dcOptimize) {
+        if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
             let rect = this.getSelfBounds(struct.rect, false);
             rect.transform(matrix, struct.rect);
             struct.rect = struct.rect;
@@ -2469,9 +2438,6 @@ export class Sprite extends Node {
 
     }
 
-    /**
-     * @internal
-     */
     private _refreshRenderPass() {
 
         if (this._oriRenderPass) {
@@ -2513,7 +2479,7 @@ export class Sprite extends Node {
     }
 
     /**
-     * @internal
+     * @ignore
      */
     _setChildIndex(node: Sprite, oldIndex: number, index: number): number {
         let out = super._setChildIndex(node, oldIndex, index);

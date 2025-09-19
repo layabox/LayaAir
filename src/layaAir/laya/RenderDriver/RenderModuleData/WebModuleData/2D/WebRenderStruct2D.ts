@@ -37,7 +37,7 @@ enum ChildrenUpdateType {
    Culling = 32,
    DcOptimize = 64,
 }
- 
+
 interface StructTransform {
    matrix: Matrix;
    modifiedFrame: number;
@@ -58,13 +58,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    private _enableCulling: boolean = false;
    private _parentEnableCulling: boolean = false;
 
-   public get enableCulling(): boolean {
-      return this._enableCulling || this._parentEnableCulling;
+   get enableCulling(): boolean {
+      return this._enableCulling;
    }
 
-   public set enableCulling(value: boolean) {
+   set enableCulling(value: boolean) {
       this._enableCulling = value;
       this.updateChildren(ChildrenUpdateType.Culling);
+   }
+
+   get inheritedEnableCulling(): boolean {
+      return this._enableCulling || this._parentEnableCulling;
    }
 
    renderLayer: number = 1;
@@ -82,17 +86,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** @internal */
    _dcOptimize: boolean;
    private _parentDcOptimize: boolean;
-   public get dcOptimize(): boolean {
-      return this._dcOptimize || this._parentDcOptimize;
+
+   get dcOptimize(): boolean {
+      return this._dcOptimize;
    }
-   
-   public set dcOptimize(value: boolean) {
+
+   set dcOptimize(value: boolean) {
       this._dcOptimize = value;
       this.updateChildren(ChildrenUpdateType.DcOptimize);
    }
 
+   get inheritedDcOptimize(): boolean {
+      return this._dcOptimize || this._parentDcOptimize;
+   }
+
    dcOptimizeEnd: WebRenderStruct2D;
-   // dcBoundsTarget: WebRenderStruct2D;
 
    public get renderMatrix(): Matrix {
       return this.trans.matrix;
@@ -212,7 +220,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    private _subStruct: WebRenderStruct2D;
-   
+
    public get subStruct(): WebRenderStruct2D {
       return this._subStruct;
    }
@@ -227,7 +235,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._parentClipInfo = this._subStruct.getClipInfo();
             this._subStruct._updateParentClipInfo(null);
          }
-         
+
          this._subStruct = value;
       }
    }
@@ -374,8 +382,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
     */
    private _updateParentClipInfo(clipInfo: IClipInfo): void {
       if (this._subStruct && this._subStruct.enabled) {
-         this._subStruct._parentClipInfo = clipInfo;         
-      }else{
+         this._subStruct._parentClipInfo = clipInfo;
+      } else {
          this._parentClipInfo = clipInfo;
       }
    }
@@ -386,7 +394,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    private updateChildren(type: ChildrenUpdateType): void {
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
-      let priority: number = 0, pass: WebRender2DPass = null , enableCulling: boolean = false, dcOptimize: boolean = false;
+      let priority: number = 0, pass: WebRender2DPass = null, enableCulling: boolean = false, dcOptimize: boolean = false;
       let globalShaderData: ShaderData = null, globalRenderData: WebGlobalRenderData = null;
       let updateBlend = false, updateClip = false, updateAlpha = false, updatePass = false, updateGlobal = false, updateCulling = false, updateDcOptimize = false;
 
@@ -421,12 +429,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (type & ChildrenUpdateType.Culling) {
          updateCulling = true;
-         enableCulling = this.enableCulling;
+         enableCulling = this.inheritedEnableCulling;
       }
 
       if (type & ChildrenUpdateType.DcOptimize) {
          updateDcOptimize = true;
-         dcOptimize = this.dcOptimize;
+         dcOptimize = this.inheritedDcOptimize;
       }
 
       for (const child of this.children) {
@@ -506,8 +514,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
       child._parentGlobalRenderData = this.globalRenderData;
       if (!child._globalRenderData) child._globalShaderData = this._globalShaderData;
-      child._parentEnableCulling = this.enableCulling;
-      child._parentDcOptimize = this.dcOptimize;
+      child._parentEnableCulling = this.inheritedEnableCulling;
+      child._parentDcOptimize = this.inheritedDcOptimize;
       //效率
       child.updateChildren(ChildrenUpdateType.All);
       return;
