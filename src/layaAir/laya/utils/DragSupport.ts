@@ -5,7 +5,6 @@ import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "../../ILaya";
 import { Ease } from "../tween/Ease";
 import { Tween } from "../tween/Tween";
-import { Browser } from "./Browser";
 
 /**
  * @en The `DragSupport` class is a touch sliding control.
@@ -92,7 +91,7 @@ export class DragSupport {
         this._elasticRateX = this._elasticRateY = 1;
         let pt = this.target._parent.getMousePoint();
         this._points.length = 0;
-        this._points.push(pt.x, pt.y, Browser.now());
+        this._points.push(pt.x, pt.y, performance.now());
         this._data = data;
 
         ILaya.stage.on(Event.MOUSE_MOVE, this, this.onMouseMove);
@@ -162,7 +161,7 @@ export class DragSupport {
             this._testing = false;
         }
 
-        let now = Browser.now();
+        let now = performance.now();
         while (this._points.length > 0 && this._points[2] < now - 100)
             this._points.splice(0, 3);
         this._points.push(mouseX, mouseY, now);
@@ -293,7 +292,7 @@ export class DragSupport {
      * @blueprintIgnore
      */
     static computeVelocity(points: Array<number>, max?: number): Readonly<Point> {
-        let now = Browser.now();
+        let now = performance.now();
         while (points.length > 0 && points[2] < now - 100)
             points.splice(0, 3);
 

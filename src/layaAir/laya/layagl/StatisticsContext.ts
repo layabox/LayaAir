@@ -1,4 +1,3 @@
-import { Browser } from "../utils/Browser";
 
 export enum StatElement {
     //----------------------------module time Start------------------

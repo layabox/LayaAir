@@ -363,7 +363,6 @@ export class Loader extends EventDispatcher {
     private _loadings: Map<string, LoadTask>;
     private _queue: Array<DownloadItem>;
     private _downloadings: Set<DownloadItem>;
-    private _tempTime: number;
 
     /** @ignore @blueprintIgnore */
     constructor() {
@@ -636,10 +635,10 @@ export class Loader extends EventDispatcher {
         this._loadings.set(loadingKey, task);
 
         let promise: Promise<any>;
+        let now = performance.now();
 
         try {
             LayaGL.statAgent.recordCountData(StatElement.C_LoadResourceCount, 1);
-            this._tempTime = Browser.now();
             promise = assetLoader.load(task);
         }
         catch (err: any) {
@@ -649,7 +648,7 @@ export class Loader extends EventDispatcher {
         }
 
         return promise.then(content => {
-            LayaGL.statAgent.recordTimeData(StatElement.T_LoadResourceTime, Browser.now() - this._tempTime);
+            LayaGL.statAgent.recordTimeData(StatElement.T_LoadResourceTime, performance.now() - now);
             if (content instanceof Resource) {
                 content.obsolute = false;
                 content._setCreateURL(url, uuid);
@@ -758,7 +757,7 @@ export class Loader extends EventDispatcher {
     private download(item: DownloadItem) {
         this._downloadings.add(item);
         LayaGL.statAgent.recordCountData(StatElement.C_LoadRequestCount, 1);
-        item.startTime = Browser.now();
+        item.startTime = performance.now();
         let url = URL.postFormatURL(item.url);
 
         if (item.contentType == "image") {
@@ -813,7 +812,7 @@ export class Loader extends EventDispatcher {
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
         this._downloadings.delete(item);
-        LayaGL.statAgent.recordTimeData(StatElement.T_LoadRequestTime, Browser.now() - item.startTime);
+        LayaGL.statAgent.recordTimeData(StatElement.T_LoadRequestTime, performance.now() - item.startTime);
         if (content) {
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());

@@ -371,8 +371,8 @@ export class Browser {
     }
 
     /**
-     * @en Gets the current timestamp in milliseconds since the epoch.
-     * @zh 获取浏览器当前时间戳，单位为毫秒。
+     * @en Gets the current timestamp in milliseconds since the epoch. It is equivalent to `performance.now()`.
+     * @zh 获取浏览器当前时间戳，单位为毫秒。等同于 `performance.now()`。
      */
     static now(): number {
         return performance.now(); //before 3.3.2 is Date.now();

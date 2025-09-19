@@ -7,7 +7,6 @@ import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { NotImplementedError } from "../utils/Error";
 import { Stat } from "../utils/Stat";
-import { Browser } from "../utils/Browser";
 
 /**
  * @en RenderTexture2D class used to create 2D render targets.
@@ -95,7 +94,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._poolMemory += (rt._renderTarget.gpuMemory / 1024 / 1024);
         rt._inPool = true;
         // 记录回收到池子的时间
-        RenderTexture2D._poolTimeouts.set(rt.id, Browser.now());
+        RenderTexture2D._poolTimeouts.set(rt.id, performance.now());
     }
 
     /**
@@ -131,7 +130,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._lastCleanupFrame = currentFrame;
 
         let timeout =  RenderTexture2D.cleanupTimeout;
-        let currentTime = Browser.now();
+        let currentTime = performance.now();
         let cleanedCount = 0;
         
         // 从后往前遍历，避免删除元素时索引问题

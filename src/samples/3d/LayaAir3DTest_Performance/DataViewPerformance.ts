@@ -35,38 +35,38 @@ export class DataViewPerformance {
 		var t: number = 0;
 		var v: number = 0;
 
-		t = Browser.now();
+		t = performance.now();
 		for (i = 0; i < this.count; i++) {
 			this.float32Array[i] = this.count - i;
 		}
-		console.log("Write_Float32Array：", Browser.now() - t);
+		console.log("Write_Float32Array：", performance.now() - t);
 
-		t = Browser.now();
+		t = performance.now();
 		for (i = 0; i < this.count; i++) {
 			this.dataView.setFloat32(i * 4, this.count - i, true);
 		}
-		console.log("Write_DataView：", Browser.now() - t);
+		console.log("Write_DataView：", performance.now() - t);
 
-		t = Browser.now();
+		t = performance.now();
 		v = 0;
 		for (i = 0; i < this.count; i++) {
 			v += this.float32Array[i];
 		}
-		console.log("Read_Float32Array：", Browser.now() - t);
+		console.log("Read_Float32Array：", performance.now() - t);
 
-		t = Browser.now();
+		t = performance.now();
 		v = 0;
 		for (i = 0; i < this.count; i++) {
 			v + this.dataView.getFloat32(i * 4, true);
 		}
-		console.log("Read_DataView：", Browser.now() - t);
+		console.log("Read_DataView：", performance.now() - t);
 
-		t = Browser.now();
+		t = performance.now();
 		v = 0;
 		for (i = 0; i < this.count; i++) {
 			v += HalfFloatUtils.convertToNumber(this.float32Array[i]);
 		}
-		console.log("Convert_Float16Array：", Browser.now() - t);
+		console.log("Convert_Float16Array：", performance.now() - t);
 	}
 
 }
