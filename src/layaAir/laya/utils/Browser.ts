@@ -375,7 +375,7 @@ export class Browser {
      * @zh 获取浏览器当前时间戳，单位为毫秒。
      */
     static now(): number {
-        return Date.now();
+        return performance.now(); //before 3.3.2 is Date.now();
     }
 
     /**

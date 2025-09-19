@@ -731,9 +731,11 @@ export class Stage extends Sprite {
 
     /**
      * @en Render all display objects on the stage
+     * @param timestamp Current time stamp
      * @zh 渲染舞台上的所有显示对象
+     * @param timestamp 当前时间戳
      */
-    render(): void {
+    render(timestamp: number): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
             if (now - this._frameStartTime < 1000)
@@ -743,11 +745,11 @@ export class Stage extends Sprite {
             if (!this._visible) {
                 this._renderCount++;
                 if (this._renderCount % 5 === 0) {
-                    Timer.callLaters._update();
+                    Timer.callLaters._update(timestamp);
                     Stat.loopCount++;
                     RenderInfo.loopCount = Stat.loopCount;
                     this._runComponents();
-                    this._updateTimers();
+                    this._updateTimers(timestamp);
                 }
                 return;
             }
@@ -763,7 +765,7 @@ export class Stage extends Sprite {
         if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
             return;
 
-        Timer.callLaters._update();
+        Timer.callLaters._update(timestamp);
         Stat.loopCount++;
         RenderInfo.loopCount = Stat.loopCount;
         LayaGL.renderEngine.startFrame();
@@ -798,7 +800,7 @@ export class Stage extends Sprite {
         else
             this._runComponents();
 
-        this._updateTimers();
+        this._updateTimers(timestamp);
 
         LayaGL.renderEngine.endFrame();
     }
@@ -848,7 +850,7 @@ export class Stage extends Sprite {
             }
 
             let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite._oriRenderPass.postProcess : null;
-            if (process && destrt != RenderTexture2D._empty ) {
+            if (process && destrt != RenderTexture2D._empty) {
                 if (
                     result ||
                     (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
@@ -882,7 +884,7 @@ export class Stage extends Sprite {
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
-        Stat.render(); 
+        Stat.render();
 
         RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
@@ -901,10 +903,10 @@ export class Stage extends Sprite {
         this._componentDriver.callDestroy();
     }
 
-    private _updateTimers(): void {
-        ILaya.systemTimer._update();
-        ILaya.physicsTimer._update();
-        ILaya.timer._update();
+    private _updateTimers(timestamp: number): void {
+        ILaya.systemTimer._update(timestamp);
+        ILaya.physicsTimer._update(timestamp);
+        ILaya.timer._update(timestamp);
         Tweener._runAll();
     }
 

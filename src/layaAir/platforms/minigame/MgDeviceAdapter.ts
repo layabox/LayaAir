@@ -4,6 +4,7 @@ import { PAL } from "../../laya/platform/PlatformAdapters";
 import { DeviceAdapter } from "../../laya/platform/DeviceAdapter";
 import { RotationInfo } from "../../laya/device/motion/RotationInfo";
 import { AccelerationInfo } from "../../laya/device/motion/AccelerationInfo";
+import { Browser } from "../../laya/utils/Browser";
 
 export class MgDeviceAdapter extends DeviceAdapter {
     private _watchDic: Map<number, { successCallback: (info: GeolocationInfo) => void, errorCallback?: (err: { code: number; message: string }) => void }>;
@@ -33,7 +34,7 @@ export class MgDeviceAdapter extends DeviceAdapter {
                     successCallback({
                         latitude: res.latitude,
                         longitude: res.longitude,
-                        timestamp: Date.now()
+                        timestamp: Browser.now()
                     });
                 },
                 fail: (err) => {
@@ -50,7 +51,7 @@ export class MgDeviceAdapter extends DeviceAdapter {
                         speed: res.speed,
                         altitude: res.altitude,
                         accuracy: res.accuracy,
-                        timestamp: Date.now()
+                        timestamp: Browser.now()
                     });
                 },
                 fail: (err) => {
