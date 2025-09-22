@@ -788,6 +788,8 @@ export class Stage extends Sprite {
 
         this._updateTimers(timestamp);
 
+        Stat.render();
+
         LayaGL.renderEngine.endFrame();
     }
 
@@ -869,8 +871,6 @@ export class Stage extends Sprite {
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
-
-        Stat.render();
 
         RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
