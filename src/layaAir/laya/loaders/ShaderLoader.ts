@@ -1,5 +1,5 @@
 
-import { IShaderpassStructor, Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { IShaderpassStructor, Shader3D, ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../RenderEngine/RenderShader/SubShader";
 import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
 import { AssetDb } from "../resource/AssetDb";
@@ -34,6 +34,11 @@ class ShaderLoader implements IResourceLoader {
 
                 let shader = Shader3D.add(obj.name, obj.enableInstancing, obj.supportReflectionProbe);
                 shader._surportVolumetricGI = obj.surportVolumetricGI;
+                if (typeof obj.shaderType === 'string') {
+                    shader.shaderType = ShaderFeatureType[obj.shaderType as keyof typeof ShaderFeatureType] ? ShaderFeatureType[obj.shaderType as keyof typeof ShaderFeatureType] : ShaderFeatureType.LEGACY_DEFAULT;
+                } else {
+                    shader.shaderType = obj.shaderType as ShaderFeatureType ? obj.shaderType as ShaderFeatureType : ShaderFeatureType.LEGACY_DEFAULT;
+                }
                 let subshader = new SubShader(obj.attributeMap ? obj.attributeMap : SubShader.DefaultAttributeMap, obj.uniformMap, obj.defaultValue);
                 shader.addSubShader(subshader);
 
