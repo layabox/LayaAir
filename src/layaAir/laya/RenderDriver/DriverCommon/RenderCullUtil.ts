@@ -1,7 +1,6 @@
 import { FrustumCulling } from "../../d3/graphics/FrustumCulling";
 import { CameraCullInfo, ShadowCullInfo } from "../../d3/shadowMap/ShadowSliceData";
 import { Vector3 } from "../../maths/Vector3";
-import { Stat } from "../../utils/Stat";
 import { IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { RenderListQueue } from "./RenderListQueue";

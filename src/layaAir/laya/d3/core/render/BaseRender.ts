@@ -642,9 +642,11 @@ export class BaseRender extends Component {
     protected _onWorldMatNeedChange(flag: number): void {
         this.boundsChange = true;
         this._addReflectionProbeUpdate();
-        if (this._batchRender && this._transform.getScaleChangeFlag()) {//scale 变化的时候 标签才会通过
-            this._batchRender.updateProperty(this, propertyChangeFlag.invertY);
+        if (this._batchRender) {//scale 变化的时候 标签才会通过
+            this._transform.getScaleChangeFlag() && this._batchRender.updateProperty(this, propertyChangeFlag.invertY);
+            this._batchRender.updateProperty(this, propertyChangeFlag.transform);
         }
+
     }
 
     protected _getcommonUniformMap(): Array<string> {
