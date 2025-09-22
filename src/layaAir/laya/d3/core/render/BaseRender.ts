@@ -343,7 +343,7 @@ export class BaseRender extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        if (this._isMaterialVaild(value)) {
+        if (!this._isMaterialVaild(value)) {
             return;
         }
         var lastValue = this._sharedMaterials[0];

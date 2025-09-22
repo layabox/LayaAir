@@ -112,7 +112,12 @@ export class Graphics {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return (value.shader && value.shader.shaderType == ShaderFeatureType.D2_TextureSV);
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_TextureSV);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is D2_TextureSV, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
+
     }
 
     /**
