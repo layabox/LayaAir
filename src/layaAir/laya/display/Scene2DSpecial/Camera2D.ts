@@ -125,6 +125,8 @@ export class Camera2D extends Sprite {
     public set zoom(value: Vector2) {
         if (value) {
             value.cloneTo(this._zoom);
+            // todo check
+            this._struct.setRepaint();
         }
     }
     /** @internal min_x max_x min_y max_y */
