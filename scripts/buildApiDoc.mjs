@@ -3,20 +3,26 @@ import path from "path";
 import { rimrafSync } from "rimraf";
 import { Application, OptionDefaults } from "typedoc";
 
-const outDir = path.join(".", "docs");
+const outDir = path.join(".", "docs");// 文档输出的根目录
 const ourTags = ["@en", "@zh", "@perfTag",
     "@blueprintable", "@blueprintableSubclasses", "@blueprintIgnore", "@blueprintIgnoreSubclasses",
     "@blueprintEvent", "@blueprintDefaultEvent", "@blueprintPure", "@blueprintInheritable"
 ];
 const currentVersion = "3.3";
-
+/**
+ * @zh 要生成 API 文档的版本列表。
+ * @en The list of versions to generate API documentation for.
+ */
 const configVersions = [
     "3.3",
     "3.2",
     "3.1",
     "3.0",
 ];
-
+/**
+ * @zh 模拟 package.json 中的 typedoc 配置。
+ * @en The simulated typedoc configuration from package.json.
+ */
 const packageJson = {
     "versions": {
         [currentVersion]: {
@@ -28,7 +34,7 @@ const packageJson = {
 };
 
 async function main() {
-    rimrafSync(outDir);
+    rimrafSync(outDir);// 清空 docs 目录，避免旧文件残留
 
     // 直接使用导入的 Application
     const app = await Application.bootstrapWithPlugins({
@@ -36,8 +42,8 @@ async function main() {
         excludePrivate: true,
         excludeProtected: true,
         hideGenerator: true,
-        // theme: "default",
-        // darkHighlightTheme: "dark-plus",
+        theme: "default",
+        darkHighlightTheme: "dark-plus",
         exclude: [
             "**/node_modules/**",
             "platforms/**",
@@ -181,7 +187,6 @@ async function main() {
         tsconfig: path.join(".", "src", "layaAir", "tsconfig.json"),
         plugin: ["@shipgirl/typedoc-plugin-versions"],
         lang: "zh", // 设置中文
-        favicon: "./favicon.ico",
         readme: "./README.zh-CN.md",
         name: "LayaAir3引擎API"
     });
@@ -207,7 +212,29 @@ async function main() {
     await app.generateDocs(project, docDir);
     console.log(`✅ 版本 ${currentVersion} 文档已生成: ${docDir}`);
 
-    // 
+    // === 自动注入 favicon ===
+    const faviconSrc = path.join(".", "favicon.ico");
+    const faviconDest = path.join(docDir, "favicon.ico");
+    try {
+        if (fs.existsSync(faviconSrc)) {
+            fs.copyFileSync(faviconSrc, faviconDest);// 拷贝 favicon.ico 到文档输出目录
+            console.log("✅ favicon.ico 已拷贝");
+        }
+        // 修改 index.html，注入 <link rel="icon">
+        const indexFile = path.join(docDir, "index.html");
+        let html = await fs.promises.readFile(indexFile, "utf8");
+        if (!html.includes('<link rel="icon"')) {
+            html = html.replace(
+                "</head>",
+                '  <link rel="icon" href="./favicon.ico" type="image/x-icon" />\n</head>'
+            );
+            await fs.promises.writeFile(indexFile, html, "utf8");
+            console.log("✅ favicon 已注入到 index.html");
+        }
+    } catch (err) {
+        console.error("❌ favicon 注入失败:", err);
+    }
+    // === 拷贝 versionsMenu.js 到当前版本的 assets 目录 ===
     let sourceFile = path.join(outDir, "dev", "assets", "versionsMenu.js");
     try {
         fs.copyFileSync(sourceFile, path.join(docDir, "assets", "versionsMenu.js"));
@@ -216,7 +243,7 @@ async function main() {
         console.error(`❌ 拷贝versionMenu.js失败: ${error.message}`);
     }
 
-    // configVersions
+    // === 更新 docs/versions.js 中的版本号列表 ===
     try {
         // 读取 version.js 文件内容（同步）
         const data = await fs.promises.readFile(path.join(outDir, "versions.js"), 'utf8');
@@ -236,7 +263,7 @@ async function main() {
         console.error('❌ 文件操作失败:', err);
     }
 
-    //
+    // === 修改 docs/index.html 的跳转路径，默认跳到最新版本 ===
     try {
         // 读取 HTML 文件内容
         const data = await fs.promises.readFile(path.join(outDir, "index.html"), 'utf8');
