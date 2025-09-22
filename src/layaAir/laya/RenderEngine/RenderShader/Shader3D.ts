@@ -304,7 +304,7 @@ export class Shader3D {
     /**@internal */
     _subShaders: SubShader[] = [];
 
-    shaderType: ShaderFeatureType;
+    shaderType: ShaderFeatureType = ShaderFeatureType.D3;
     /**
      * 名字。
      */
