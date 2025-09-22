@@ -1,11 +1,10 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
@@ -48,6 +47,14 @@ export class Mesh2DRender extends BaseRenderNode2D {
     protected _initDefaultRenderData(): void {
         this.color = new Color();
         this.texture = null;
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_BaseRednerNode2D);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is D2_BaseRednerNode2D, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     renderUpdate(context: IRenderContext2D): void {

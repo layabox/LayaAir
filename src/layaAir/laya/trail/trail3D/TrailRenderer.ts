@@ -8,6 +8,8 @@ import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I
 import { FloatKeyframe } from "../../maths/FloatKeyframe";
 import { Gradient } from "../../maths/Gradient";
 import { TrailTextureMode } from "../trailCommon/RenderFeatureComman/Trail/TrailTextureMode";
+import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../resource/Material";
 
 /**
  * @en The `TrailRenderer` class is used to create a trail renderer.
@@ -20,6 +22,14 @@ export class TrailRenderer extends BaseRender {
     /** @ignore */
     constructor() {
         super();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Effect);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is Effect, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     protected _getcommonUniformMap(): Array<string> {

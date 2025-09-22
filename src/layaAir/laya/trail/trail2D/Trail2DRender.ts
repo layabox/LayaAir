@@ -6,6 +6,7 @@ import { Gradient } from "../../maths/Gradient";
 import { Point } from "../../maths/Point";
 import { Vector3 } from "../../maths/Vector3";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Texture2D } from "../../resource/Texture2D";
@@ -149,7 +150,13 @@ export class Trail2DRender extends BaseRenderNode2D {
         return this._color;
     }
 
-
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Effect);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is Effect, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
+    }
 
     /**
      * 基于不同BaseRender的uniform集合

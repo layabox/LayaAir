@@ -15,6 +15,8 @@ import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I
 import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
+import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../resource/Material";
 import { Stat } from "../../utils/Stat";
 import { ParticleShuriKenShaderInit } from "./shader/ParticleShuriKenShaderInit";
 import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
@@ -150,6 +152,14 @@ export class ShurikenParticleRenderer extends BaseRender {
         super();
         this.renderMode = 0;
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Effect);
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is Effect, but the Material shader type is " + value.shader.shaderType + ".");
+        }
+        return isVaild;
     }
 
     protected _getcommonUniformMap(): Array<string> {
