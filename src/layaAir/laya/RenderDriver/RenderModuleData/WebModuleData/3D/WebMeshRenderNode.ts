@@ -3,10 +3,10 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IMeshRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode"
-var CLS: any = null;
+var baseRenderNode: any = null;
 export function WebMeshRenderNode() {//这么封装是为了避免此时WebBaseRenderNode.BaseRenderNodeClass还没有赋值
-    if (!CLS)
-        CLS = class extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
+    if (!baseRenderNode)
+        baseRenderNode = class extends WebBaseRenderNode.BaseRenderNodeClass implements IMeshRenderNode {
             private _cacheMoved: Vector2 = new Vector2(-1, -1);
 
             constructor() {
@@ -37,5 +37,5 @@ export function WebMeshRenderNode() {//这么封装是为了避免此时WebBaseR
             }
 
         } as any;   //这是为了不让ts报错，否则返回类的函数里的类必须全部是public的
-    return CLS;
+    return baseRenderNode;
 }

@@ -20,7 +20,7 @@ import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
-    createMeshRenderBatchModule?(): IBatchModuleAgent {
+    createMeshRenderBatchModule(): IBatchModuleAgent {
         throw new NotImplementedError;
     }
     createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {

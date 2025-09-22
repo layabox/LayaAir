@@ -125,6 +125,10 @@ export class WebGLUniformBufferDescriptor implements IClone {
                 alignStride = 3;
                 this.addUniformItem(index, 3, alignStride, arraySize, Float32Array);
                 break;
+            case ShaderDataType.Vector4u:
+                alignStride = 4;
+                this.addUniformItem(index, 4, alignStride, arraySize, Uint32Array);
+                break;
             case ShaderDataType.Vector4:
             case ShaderDataType.Color:
                 alignStride = 4;

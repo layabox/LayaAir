@@ -53,8 +53,10 @@ export enum propertyChangeFlag {
     reflection,
     volumGI,
     castShadow,
-    receiveShadow
-
+    receiveShadow,
+    transform,
+    lightmapData,
+    RenderCustomData
 }
 
 /**

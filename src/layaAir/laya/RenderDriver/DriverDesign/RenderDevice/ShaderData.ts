@@ -23,6 +23,7 @@ export enum ShaderDataType {
     Vector2,
     Vector3,
     Vector4,
+    Vector4u,
     Color,
     Matrix4x4,
     Buffer,
