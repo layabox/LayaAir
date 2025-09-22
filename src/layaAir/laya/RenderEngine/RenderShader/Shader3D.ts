@@ -11,7 +11,7 @@ export interface IShaderObjStructor {
     supportReflectionProbe: boolean,
     surportVolumetricGI: boolean,
     attributeMap: any;
-    shaderType: ShaderFeatureType;
+    shaderType: ShaderFeatureType | string;
     uniformMap: any;
     defaultValue: any;
     shaderPass: Array<any>;
@@ -29,6 +29,7 @@ export interface IShaderpassStructor {
 }
 
 export enum ShaderFeatureType {
+    LEGACY_DEFAULT,
     DEFAULT,
     D3,
     D2_primitive,
@@ -267,8 +268,11 @@ export class Shader3D {
 
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         shader._surportVolumetricGI = data.surportVolumetricGI;
-
-        shader.shaderType = data.shaderType;
+        if (typeof data.shaderType === 'string') {
+            shader.shaderType = ShaderFeatureType[data.shaderType as keyof typeof ShaderFeatureType] ? ShaderFeatureType[data.shaderType as keyof typeof ShaderFeatureType] : ShaderFeatureType.LEGACY_DEFAULT;
+        } else {
+            shader.shaderType = data.shaderType as ShaderFeatureType ? data.shaderType as ShaderFeatureType : ShaderFeatureType.LEGACY_DEFAULT;
+        }
 
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
@@ -304,7 +308,7 @@ export class Shader3D {
     /**@internal */
     _subShaders: SubShader[] = [];
 
-    shaderType: ShaderFeatureType = ShaderFeatureType.D3;
+    shaderType: ShaderFeatureType = ShaderFeatureType.LEGACY_DEFAULT;
     /**
      * 名字。
      */

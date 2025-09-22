@@ -123,6 +123,8 @@ export class SkyRenderer {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
+        if (value.shader && value.shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
+            return true;
         let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.Sky);
         if (!isVaild) {
             console.warn("This Renderer expect Material shader type is Sky, but the Material shader type is " + value.shader.shaderType + ".");
