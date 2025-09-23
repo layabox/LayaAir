@@ -140,9 +140,7 @@ export class Stat {
         }
 
         Stat._show = true;
-        Stat._statUI.show();
-        Stat._statUI._sp.pos(x || 0, y || 0);
-
+        Stat._statUI.show(x, y);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
 
@@ -155,7 +153,7 @@ export class Stat {
             return;
 
         Stat._show = false;
-        ILaya.timer.clear(null, Stat.loop);
+        ILaya.systemTimer.clear(null, Stat.loop);
     }
 
     private static loop(): void {
@@ -172,6 +170,8 @@ export class Stat {
 }
 
 const defaultElements = [
+    StatElement.CT_FPS,
+    StatElement.T_Frame_Time,
     StatElement.C_Sprite2DCount,
     StatElement.C_Sprite3DCount,
     StatElement.CT_DrawCall,

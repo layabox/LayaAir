@@ -13,6 +13,11 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         Browser.isDomSupported = false;
         PAL.g = (window as any).conch;
 
+        //ios glBufferSubData is versy slow
+        if ((window as any).conchConfig.getOS() == "Conch-ios") {
+            Config.enableUniformBufferObject = false;
+            Config.matUseUBO = false;
+        }
         WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
             wasmFile = WasmAdapter.locateFileDefault(wasmFile);
             return Laya.loader.fetch(wasmFile, "arraybuffer").then(data => {

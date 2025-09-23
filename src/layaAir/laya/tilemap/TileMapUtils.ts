@@ -87,16 +87,23 @@ export class TileMapUtils {
         return rotateCount << 0 | (flip_h ? 1 : 0) << 3 | (flip_v ? 1 : 0) << 4 | (transpose ? 1 : 0) << 5;
     }
 
-    public static parseTransFlag(tileshape: TileShape, transFlag: number): Vector4 {
-        let key = transFlag + "_" + tileshape;
+    public static parseTransFlag(tileshape: TileShape, transFlag: number, cellData: TileSetCellData): Vector4 {
+        let cellFlag = cellData.transFlag;
+        let key = transFlag + "_" + cellFlag + "_" + tileshape;
         let cache = this.CACHE_UVs.get(key);
         if (cache) {
             return cache;
         }
-        let flip_h = this.getFlipH(transFlag);
-        let flip_v = this.getFlipV(transFlag);
-        let transpose = this.getTranspose(transFlag);
-        let rotateCount = this.getRotateCount(transFlag);
+
+        let transFlagHigh = transFlag & ~BYTE_MASK_ROTATECOUNT;
+        let cellFlagsHigh = cellFlag & ~BYTE_MASK_ROTATECOUNT;
+        let realFlagHigh = transFlagHigh ^ cellFlagsHigh;
+
+        let rotateCount = (this.getRotateCount(transFlag) + cellData.rotateCount) % 4;
+        let flip_h = this.getFlipH(realFlagHigh);
+        let flip_v = this.getFlipV(realFlagHigh);
+        let transpose = this.getTranspose(realFlagHigh);
+        
         cache = new Vector4();
         this.getUvRotate(tileshape, flip_h, flip_v, transpose, rotateCount, cache);
         this.CACHE_UVs.set(key, cache);

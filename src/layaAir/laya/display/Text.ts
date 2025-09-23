@@ -1865,12 +1865,14 @@ export class Text extends Sprite {
 
             let cmds = this.graphics.cmds;
             let i = cmds.indexOf(cmd);
-            if (i != 0) {
-                if (i != -1)
+            if (i !== 0) {
+                if (i !== -1)
                     cmds.splice(i, 1);
                 cmds.unshift(cmd);
                 this.graphics.cmds = cmds;
             }
+            else
+                this.graphics.repaint();
         }
         else if (cmd) {
             this.graphics.removeCmd(cmd, true);

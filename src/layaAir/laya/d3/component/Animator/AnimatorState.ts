@@ -184,7 +184,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @zh 动画是否循环播放。
      */
     get islooping() {
-        if (0 != this._isLooping) {
+        if (this._isLooping) {
             return 1 == this._isLooping;
         }
         return this._clip.islooping;

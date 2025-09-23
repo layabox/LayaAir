@@ -5,7 +5,7 @@ import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMo
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
@@ -17,6 +17,8 @@ import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { Vector4 } from "../../../../maths/Vector4";
 
 
 /**
@@ -36,15 +38,20 @@ class BatchBuffer {
         this.indexBuffer.indexType = IndexFormat.UInt16;
         this.wholeBuffer = new Web2DGraphicsIndexBatchBuffer();
         this.wholeBuffer.buffer = this.indexBuffer;
+        if (!!(LayaGL.renderEngine as any).gl) {
+            this.add = this._addWebgl;
+        } else {
+            this.add = this._addWebgpu;
+        }
     }
 
-    add(element: IPrimitiveRenderElement2D) {
+    _addWebgl(element: IPrimitiveRenderElement2D) {
         let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
         let blocks = handle._getBlocks();
         if (!blocks)
             return null;
 
-        let cview = handle.getCloneViews()[element._index] as Web2DGraphic2DIndexDataView;
+        let cview = handle.getCloneViews()[element._index];
         let block = blocks[element._index];
         let vertexBuffer = block.vertexBuffer;
         let bufferState = this.bindBuffer(vertexBuffer);
@@ -59,6 +66,58 @@ class BatchBuffer {
         this.updateBufLength();
 
         return cview._geometry;
+        //@ts-ignore
+        // return block.indexView._geometry;
+    }   
+
+    _addWebgpu(element: IPrimitiveRenderElement2D) {
+
+        let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
+        let blocks = handle._getBlocks();
+        if (!blocks)
+            return null;
+
+        let cview = handle.getCloneViews()[element._index];
+        let block = blocks[element._index];
+        let vertexBuffer = block.vertexBuffer;
+        let bufferState = this.bindBuffer(vertexBuffer);
+        this.indexCount += cview.length;
+        this.wholeBuffer._modifyOneView(cview);
+
+        //@ts-ignore
+        if (cview._geometry._bufferState !== bufferState) {
+            cview._geometry.bufferState = bufferState;
+        }
+
+        WebRender2DPass.setBuffer(this.wholeBuffer);
+        this.updateBufLength();
+
+        return cview._geometry;
+        //@ts-ignore
+        // return block.indexView._geometry;
+    }
+
+    add(element: IPrimitiveRenderElement2D) : IRenderGeometryElement {
+        // let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
+        // let blocks = handle._getBlocks();
+        // if (!blocks)
+        //     return null;
+
+        // let cview = handle.getCloneViews()[element._index] as Web2DGraphic2DIndexDataView;
+        // let block = blocks[element._index];
+        // let vertexBuffer = block.vertexBuffer;
+        // let bufferState = this.bindBuffer(vertexBuffer);
+        // this.indexCount += cview.length;
+        // this.wholeBuffer._modifyOneView(cview);
+
+        // if (cview._geometry.bufferState !== bufferState) {
+        //     cview._geometry.bufferState = bufferState;
+        // }
+
+        // WebRender2DPass.setBuffer(this.wholeBuffer);
+        // this.updateBufLength();
+
+        return null;
     }
 
     updateBufLength() {
@@ -119,26 +178,64 @@ class BatchContext {
     lowType: number = 0;
     globalRenderData: any = null;
 
-    /**
-     * 从渲染元素初始化批次上下文
-     */
-    setHead(element: IPrimitiveRenderElement2D): void {
-        this.textureId = element.type & (~63);
+    fillTexture: boolean = false;
+    texRange: Vector4;
+
+    constructor() {
+        let isWebgl = !!(LayaGL.renderEngine as any).gl;
+        if (isWebgl) {
+            this.setHead = this._setHeadWebgl;
+            this.isCompatible = this._isCompatibleWebgl;
+        } else {
+            this.setHead = this._setHeadWebgpu;
+            this.isCompatible = this._isCompatibleWebgpu;
+        }
+    }
+
+    _setHeadWebgl(element: IPrimitiveRenderElement2D): void {
         this.primitiveShaderData = element.primitiveShaderData;
         this.materialShaderData = element.materialShaderData;
-        this.globalAlpha = element.owner.globalAlpha;
-        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.subShader = element.subShader;
         this.bufferState = element.geometry.bufferState;
+
+        this.textureId = element.type & (~63);
+        this.globalAlpha = element.owner.globalAlpha;
+        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.type = element.type;
         this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
+        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
+    
+    _setHeadWebgpu(element: IPrimitiveRenderElement2D): void {
+        //@ts-ignore
+        this.primitiveShaderData = element._primitiveShaderData;
+        //@ts-ignore
+        this.materialShaderData = element._materialShaderData;
+        //@ts-ignore
+        this.subShader = element._subShader;
+        //@ts-ignore
+        this.bufferState = element.geometry._bufferState;
+
+        this.textureId = element.type & (~63);
+        this.globalAlpha = element.owner.globalAlpha;
+        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
+        this.type = element.type;
+        this.lowType = element.type & 63;
+        this.globalRenderData = element.owner.globalRenderData;
+        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
+    }
+    /**
+     * 从渲染元素初始化批次上下文
+     */
+    setHead(element: IPrimitiveRenderElement2D): void { }
 
     /**
-     * 检查元素是否与批次兼容
+     * @internal WebGL 检查元素是否与批次兼容
      */
-    isCompatible(element: IPrimitiveRenderElement2D): boolean {
+    _isCompatibleWebgl(element: IPrimitiveRenderElement2D): boolean {
         if (this.type & 32)
             return false;
 
@@ -154,9 +251,16 @@ class BatchContext {
         let elementTexId = elementType & (~63);
         let elementOwner = element.owner as WebRenderStruct2D;
 
+        //@ts-ignore
+        let primitiveShaderData = element.primitiveShaderData;
+        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
         // 如果元素存在texRange，则不能批次化
-        if (element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE)) {
-            return false;
+        if (
+            (!fillTexture && this.fillTexture)
+            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
+        ) {
+                return false;
         }
 
         // 检查低位类型（最常见的不匹配）
@@ -187,13 +291,90 @@ class BatchContext {
             // 批次还没有确定贴图，接受任何贴图并更新状态
             if (elementTexId !== 0) {
                 this.textureId = elementTexId;
-                this.primitiveShaderData = element.primitiveShaderData;
+                this.primitiveShaderData = primitiveShaderData;
             }
             return true;
         }
 
         // 批次已有确定的贴图ID，检查是否匹配
         return elementTexId === 0 || elementTexId === this.textureId;
+    }
+
+    /**
+     * @internal WebGPU 检查元素是否与批次兼容
+     */
+    _isCompatibleWebgpu(element: IPrimitiveRenderElement2D): boolean {
+        if (this.type & 32)
+            return false;
+
+        // 快速检查：最容易变化的属性先检查
+        let elementType = element.type;
+
+        // clip检查：如果元素有clip标记，立即返回false
+        if (elementType & 32) {
+            return false;
+        }
+
+        let elementLowType = elementType & 63;
+        let elementTexId = elementType & (~63);
+        let elementOwner = element.owner as WebRenderStruct2D;
+
+        //@ts-ignore
+        let primitiveShaderData = element._primitiveShaderData;
+        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
+        // 如果元素存在texRange，则不能批次化
+        if (
+            (!fillTexture && this.fillTexture)
+            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
+        ) {
+                return false;
+        }
+
+        // 检查低位类型（最常见的不匹配）
+        if (this.lowType !== elementLowType) {
+            return false;
+        }
+
+        // 检查材质 自定义材质直接比对 shaderdata
+        //@ts-ignore
+        if (this.lowType & 16 && element._materialShaderData !== this.materialShaderData) {
+            return false;
+        }
+
+        // 检查透明度（数值比较，较快）
+        if (this.globalAlpha !== elementOwner.globalAlpha) {
+            return false;
+        }
+
+        // 检查对象引用（指针比较，较快）
+        if (this.subShader !== element.subShader ||
+            this.bufferState !== element.geometry.bufferState ||
+            this.clipInfo !== elementOwner.getClipInfo() ||
+            elementOwner.globalRenderData !== this.globalRenderData) {
+            return false;
+        }
+
+        // 纹理ID检查（放在最后，因为可能需要更新状态）
+        if (this.textureId === 0) {
+            // 批次还没有确定贴图，接受任何贴图并更新状态
+            if (elementTexId !== 0) {
+                this.textureId = elementTexId;
+                this.primitiveShaderData = primitiveShaderData;
+            }
+            return true;
+        }
+
+        // 批次已有确定的贴图ID，检查是否匹配
+        return elementTexId === 0 || elementTexId === this.textureId;
+    }
+
+    /**
+     * 检查元素是否与批次兼容
+     */
+    isCompatible(element: IPrimitiveRenderElement2D): boolean {
+        // 批次已有确定的贴图ID，检查是否匹配
+        return true
     }
 }
 
@@ -259,7 +440,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                     let element2 = elementArray[j];
                     if (ctx.isCompatible(element2)) {
                         for (let k = j - 1; k >= i; k--) {
-                            if (element2.owner.dcBounds.intersects(elementArray[k].owner.dcBounds)) {
+                            if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
                                 element2 = null;
                                 break;
                             }

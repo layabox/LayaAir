@@ -52,6 +52,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    _nativeObj: any;
 
    owner: Sprite;
+
    private _dcOptimize: boolean = false;
    public get dcOptimize(): boolean {
       return this._dcOptimize;
@@ -62,23 +63,8 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       // this._nativeObj.setDcOptimize(value);
    }
 
-   private _dcBounds = new Rectangle();
-   public get dcBounds(): Rectangle {
-      return this._dcBounds;
-   }
-
-   public set dcBounds(value: Rectangle) {
-      this._dcBounds = value;
-      this._nativeObj.setDcBounds(value);
-   }
-
-   private _dcBoundsTarget: RTRenderStruct2D;
-   public get dcBoundsTarget(): RTRenderStruct2D {
-      return this._dcBoundsTarget;
-   }
-   public set dcBoundsTarget(value: RTRenderStruct2D) {
-      this._dcBoundsTarget = value;
-      this._nativeObj.setDcBoundsTarget(value ? value._nativeObj : null);
+   public get inheritedDcOptimize(): boolean {
+      return this._dcOptimize || this._parent?.dcOptimize;
    }
 
    private _zIndex: number = 0;
@@ -99,6 +85,19 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._stackingRoot;
    }
 
+   private _enableCulling: boolean = false;
+   get enableCulling(): boolean {
+      return this._enableCulling;
+   }
+   set enableCulling(value: boolean) {
+      this._enableCulling = value;
+      this._nativeObj.setEnableCulling(value);
+   }
+
+   get inheritedEnableCulling(): boolean {
+      return this._enableCulling || this._parent?.enableCulling;
+   }
+
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
       value.cloneTo(this._rect);
@@ -117,23 +116,34 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._renderLayer;
    }
 
-   private _parent: IRenderStruct2D = null;
-   set parent(value: IRenderStruct2D) {
+   private _subStruct: RTRenderStruct2D;
+
+   public get subStruct(): RTRenderStruct2D {
+      return this._subStruct;
+   }
+
+   public set subStruct(value: RTRenderStruct2D) {
+      this._subStruct = value;
+      this._nativeObj.setSubStruct(value ? value._nativeObj : null);
+   }
+
+   private _parent: RTRenderStruct2D = null;
+   set parent(value: RTRenderStruct2D) {
       this._parent = value;
       this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
    }
-   get parent(): IRenderStruct2D | null {
+   get parent(): RTRenderStruct2D | null {
       return this._parent;
    }
-   private _children: IRenderStruct2D[] = [];
-   public get children(): IRenderStruct2D[] {
+   private _children: RTRenderStruct2D[] = [];
+   public get children(): RTRenderStruct2D[] {
       return this._children;
    }
-   public set children(value: IRenderStruct2D[]) {
+   public set children(value: RTRenderStruct2D[]) {
       this._children = value;
       let nativeArray = [];
       for (var i = 0; i < value.length; i++) {
-         nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
+         nativeArray.push(value[i]._nativeObj);
       }
       this._nativeObj.setChildren(nativeArray);
    }
@@ -186,7 +196,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
-      return this._blendMode;
+      return this._blendMode || this._parent?.blendMode || BlendMode.normal;
    }
 
    public set blendMode(value: BlendMode) {
@@ -257,10 +267,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    private _pass: RTRender2DPass;
-   private _parentPass: RTRender2DPass;
 
    public get pass(): RTRender2DPass {
-      return this._pass || this._parentPass;
+      return this._pass || this._parent?.pass;
    }
 
    public set pass(value: RTRender2DPass) {
@@ -296,7 +305,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._nativeObj.setRepaint();
    }
 
-   addChild(child: IRenderStruct2D, index: number) {
+   addChild(child: RTRenderStruct2D, index: number) {
       child.parent = this;
       this._children.splice(index, 0, child);
 
@@ -304,7 +313,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return;
    }
 
-   updateChildIndex(child: IRenderStruct2D, oldIndex: number, index: number): void {
+   updateChildIndex(child: RTRenderStruct2D, oldIndex: number, index: number): void {
       if (oldIndex === index)
          return;
 
@@ -314,15 +323,15 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       } else {
          this.children.splice(index, 0, child);
       }
-      this._nativeObj.updateChildIndex((child as unknown as RTRenderStruct2D)._nativeObj, oldIndex, index);
+      this._nativeObj.updateChildIndex(child._nativeObj, oldIndex, index);
    }
 
-   removeChild(child: IRenderStruct2D): void {
+   removeChild(child: RTRenderStruct2D): void {
       const index = this.children.indexOf(child);
       if (index !== -1) {
          child.parent = null;
          this.children.splice(index, 1);
-         this._nativeObj.removeChild((child as unknown as RTRenderStruct2D)._nativeObj);
+         this._nativeObj.removeChild(child._nativeObj);
       }
    }
 

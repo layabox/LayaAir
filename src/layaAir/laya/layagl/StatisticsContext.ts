@@ -1,4 +1,3 @@
-import { Browser } from "../utils/Browser";
 
 export enum StatElement {
     //----------------------------module time Start------------------
@@ -26,6 +25,14 @@ export enum StatElement {
      * main render pass time
      */
     T_3DMainPass,
+    /**
+     * 3D context PreRender
+     */
+    T_3DContextPre,
+    /**
+     * 3D Context render
+     */
+    T_3DContextRender,
     /**
      * main render opaque time
      */
@@ -58,6 +65,14 @@ export enum StatElement {
      * render 2D Pass Time
      */
     T_2DPass,
+    /**
+     * 2D context PreRender
+     */
+    T_2DContextPre,
+    /**
+     * 2D Context render
+     */
+    T_2DContextRender,
     /**
      * component update time
      */
@@ -226,12 +241,14 @@ export interface IStaticsContext {
     getElementData(element: StatElement): number;
     /**
      * 开始帧逻辑
+     * @param timestamp
      */
-    startFrameLogic(): void;
+    startFrameLogic(timestamp: number): void;
     /**
      * 结束帧逻辑
+     * @param timestamp
      */
-    endFrameLogic(): void;
+    endFrameLogic(timestamp: number): void;
     /**
      * 中途切换统计信息 将当前统计信息复制到另一个统计信息中
      * @param context 
@@ -249,7 +266,7 @@ export class DefaultStaticsContext implements IStaticsContext {
     protected _cacheTime: number = 0;
 
     constructor() {
-        this._cacheTime = Browser.now();
+        this._cacheTime = performance.now();
         this._createStatBuffer();
         for (let i = 0; i < StatElement.StatEnd; i++) {
             const elementName = StatElement[i];
@@ -305,16 +322,15 @@ export class DefaultStaticsContext implements IStaticsContext {
 
     }
 
-    endFrameLogic(): void {
+    endFrameLogic(timestamp: number): void {
         this._cacheCount++;
-        let time = Browser.now();
-        let deltytime = time - this._cacheTime;
-        if (deltytime < 1000) return;
+        let deltaTime = timestamp - this._cacheTime;
+        if (deltaTime < 1000) return;
 
-        let fps = Math.round(this._cacheCount * 1000) / (time - this._cacheTime);
+        let fps = Math.round(this._cacheCount * 1000) / deltaTime;
 
         for (let element of this._tQueue) {
-            this._statArray[element] = this._timeArray[element] / this._cacheCount / 1000;
+            this._statArray[element] = this._timeArray[element] / this._cacheCount;
             this._timeArray[element] = 0;
         }
         for (let element of this._ctQueue) {
@@ -324,7 +340,7 @@ export class DefaultStaticsContext implements IStaticsContext {
         this._statArray[StatElement.CT_FPS] = Math.round(fps);
         this._statArray[StatElement.T_Frame_Time] = fps > 0 ? Math.floor(1000 / fps) : 0;
 
-        this._cacheTime = time;
+        this._cacheTime = timestamp;
         this._cacheCount = 0;
     }
 }

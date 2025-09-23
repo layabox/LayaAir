@@ -95,9 +95,9 @@ export class CurvePath {
 
     private createSplineSegment(splinePoints: Array<Vector3>): void {
         let cnt = splinePoints.length;
-        splinePoints.splice(0, 0, splinePoints[0]);
-        splinePoints.push(splinePoints[cnt]);
-        splinePoints.push(splinePoints[cnt]);
+        splinePoints.splice(0, 0, splinePoints[0].cloneTo(pool.take()));
+        splinePoints.push(splinePoints[cnt].cloneTo(pool.take()));
+        splinePoints.push(splinePoints[cnt].cloneTo(pool.take()));
         cnt += 3;
 
         let seg: Segment = {};
@@ -105,7 +105,7 @@ export class CurvePath {
         seg.ptStart = this._points.length;
         seg.ptCount = cnt;
 
-        this._points = this._points.concat(splinePoints);
+        this._points.push(...splinePoints);
 
         seg.length = 0;
         for (let i = 1; i < cnt; i++) {
@@ -330,9 +330,9 @@ export class CurvePath {
 
         if (ptCount == 4) {
             let cp1 = pts[ptStart + 3];
-            Vector3.add(p0.scale(t2 * t2 * t2, tmpVec3), cp0.scale(3 * t2 * t2 * t, tmpVec31), tmpVec3);
-            Vector3.add(cp1.scale(3 * t2 * t * t, tmpVec3), p1.scale(t * t * t, tmpVec31), tmpVec31);
-            Vector3.add(tmpVec3, tmpVec31, out);
+            Vector3.add(p0.scale(t2 * t2 * t2, tmpVec3), cp0.scale(3 * t2 * t2 * t, tmpVec31), tmpVec31);
+            Vector3.add(cp1.scale(3 * t2 * t * t, tmpVec3), p1.scale(t * t * t, tmpVec32), tmpVec32);
+            Vector3.add(tmpVec31, tmpVec32, out);
         }
         else {
             Vector3.add(p0.scale(t2 * t2, tmpVec3), cp0.scale(2 * t2 * t, tmpVec31), tmpVec3);
@@ -345,6 +345,7 @@ export class CurvePath {
 
 const tmpVec3 = new Vector3();
 const tmpVec31 = new Vector3();
+const tmpVec32 = new Vector3();
 const pool = Pool.createPool(Vector3, null, e => e.set(0, 0, 0));
 
 interface Segment {

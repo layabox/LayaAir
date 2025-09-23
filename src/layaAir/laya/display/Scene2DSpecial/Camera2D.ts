@@ -1,4 +1,5 @@
 import { ILaya } from "../../../ILaya";
+import { Event } from "../../events/Event";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Point } from "../../maths/Point";
 import { Vector2 } from "../../maths/Vector2";
@@ -9,7 +10,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import type { Area2D } from "../Area2D";
 import { Sprite } from "../Sprite";
-import { SpriteConst } from "../SpriteConst";
+import { SpriteConst, TransformKind } from "../SpriteConst";
 
 export class Camera2D extends Sprite {
     /**@internal */
@@ -124,6 +125,8 @@ export class Camera2D extends Sprite {
     public set zoom(value: Vector2) {
         if (value) {
             value.cloneTo(this._zoom);
+            // todo check
+            this._struct.setRepaint();
         }
     }
     /** @internal min_x max_x min_y max_y */
@@ -270,6 +273,18 @@ export class Camera2D extends Sprite {
     }
 
 
+    onEnable(): void {
+        this.on(Event.TRANSFORM_CHANGED, this, this._onTransChanged);
+    }
+
+    onDisable(): void {
+        this.off(Event.TRANSFORM_CHANGED, this, this._onTransChanged);
+    }
+
+    private _onTransChanged(e: Event): void {
+        this._struct.setRepaint();
+    }
+    
     /**
      * @internal
      * @returns 
@@ -279,8 +294,9 @@ export class Camera2D extends Sprite {
         let viewport = this._getScreenSize();
         let curPosPoint = Point.TEMP;
         this.globalTrans.getPos(curPosPoint);
-        let extendHorizental = viewport.x * 0.5;
-        let extendVertical = viewport.y * 0.5
+        let extendHorizental = viewport.x * 0.5 * this._zoom.x;
+        let extendVertical = viewport.y * 0.5 * this._zoom.y;
+        
         if (!this._firstUpdate) {
             //drag
             if (this.dragHorizontalEnable) {
@@ -351,6 +367,7 @@ export class Camera2D extends Sprite {
         } else {
             this._cameraRotation = 0;
         }
+
 
         this._rect.setValue(this._cameraSmoothPos.x - extendHorizental, this._cameraSmoothPos.x + extendHorizental, this._cameraSmoothPos.y - extendVertical, this._cameraSmoothPos.y + extendVertical)
         Matrix3x3.createMatrixFromValue(this._cameraSmoothPos, this._cameraRotation * Math.PI / 180, this._zoom, this._cameraMatrix);

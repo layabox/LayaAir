@@ -11,6 +11,7 @@ import { AlignType, LoaderFitMode, VAlignType } from "./Const";
 import { GWidget } from "./GWidget";
 import { ImageRenderer } from "./ImageRenderer";
 import { IMeshFactory } from "../display/mesh/MeshFactory";
+import { Material } from "../resource/Material";
 
 /**
  * @en GLoader is a widget that displays an image or animation resource.
@@ -230,6 +231,14 @@ export class GLoader extends GWidget {
 
     set mesh(value: IMeshFactory) {
         this._renderer.setMesh(value);
+    }
+
+    get material(): Material {
+        return this._content.material;
+    }
+
+    set material(value: Material) {
+        this._content.material = value;
     }
 
     protected loadContent() {

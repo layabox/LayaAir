@@ -30,6 +30,7 @@ import { Utils } from "../../../utils/Utils";
 import { Rectangle } from "../../../maths/Rectangle";
 import { SpriteUtils } from "../../../utils/SpriteUtils";
 import { RepaintFlag } from "../../../display/SpriteConst";
+import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 
 class UI3DShellSprite extends Sprite {
 
@@ -370,14 +371,18 @@ export class UI3D extends BaseRender {
         this._resolutionRate = 128;
         this._shellSprite = new UI3DShellSprite();
         this._shellSprite.name = "UI3D";
-        this._shellSprite.cacheAs = "bitmap";
+        this._shellSprite._parent = ILaya.stage;
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
-        this._shellSprite._parent = ILaya.stage;
+        this._shellSprite.cacheAs = "bitmap";
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
 
         this._matrix = new Matrix4x4();
         this._scale = new Vector3(1.0, 1.0, 1.0);
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D3);
     }
 
     private _creatDefaultMat() {

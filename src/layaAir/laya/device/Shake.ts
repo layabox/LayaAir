@@ -3,7 +3,6 @@ import { Accelerator } from "./motion/Accelerator"
 import { RotationInfo } from "./motion/RotationInfo"
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Event } from "../events/Event";
-import { Browser } from "../utils/Browser";
 
 /**
  * @en Shake is usually achieved through the built-in accelerometer and gyroscope sensors in a mobile phone, and it only works on devices that support this operation.
@@ -66,7 +65,7 @@ export class Shake extends EventDispatcher {
             this.lastY = accelerationIncludingGravity.y;
             this.lastZ = accelerationIncludingGravity.z;
 
-            this.lastMillSecond = Browser.now();
+            this.lastMillSecond = performance.now();
             return;
         }
 
@@ -77,12 +76,12 @@ export class Shake extends EventDispatcher {
 
         // 是否满足摇晃选项。
         if (this.isShaked(deltaX, deltaY, deltaZ)) {
-            let deltaMillSecond: number = Browser.now() - this.lastMillSecond;
+            let deltaMillSecond: number = performance.now() - this.lastMillSecond;
 
             // 按照设定间隔触发摇晃。
             if (deltaMillSecond > this.shakeInterval) {
                 this.event(Event.CHANGE);
-                this.lastMillSecond = Browser.now();
+                this.lastMillSecond = performance.now();
             }
         }
 

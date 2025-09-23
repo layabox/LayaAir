@@ -1,6 +1,5 @@
 import { Pool } from "../utils/Pool";
 import { Tween } from "./Tween";
-import { Browser } from "../utils/Browser";
 import { Handler } from "../utils/Handler";
 import { Utils } from "../utils/Utils";
 import { Event } from "../events/Event"
@@ -206,7 +205,7 @@ export class TimeLine extends EventDispatcher {
         this._tweenDic.length = 0;
         this._index = 0;
         this._currTime = time;
-        this._lastTime = Browser.now();
+        this._lastTime = performance.now();
         var tTweenDataCopyList: any[];
         if (this._endTweenDataList == null || this._endTimeSort) {
             this._endTimeSort = false;
@@ -342,7 +341,7 @@ export class TimeLine extends EventDispatcher {
             this.gotoTime(timeOrLabel);
         }
         this._loopKey = loop;
-        this._lastTime = Browser.now();
+        this._lastTime = performance.now();
         ILaya.timer.frameLoop(1, this, this._update);
     }
 
@@ -364,7 +363,7 @@ export class TimeLine extends EventDispatcher {
             }
         }
 
-        var tNow: number = Browser.now();
+        var tNow: number = performance.now();
         var tFrameTime: number = tNow - this._lastTime;
         var tCurrTime: number = this._currTime += tFrameTime * this.scale;
         this._lastTime = tNow;

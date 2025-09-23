@@ -71,13 +71,12 @@ export class SpriteLight2D extends BaseLight2D {
         super._calcWorldRange(screen);
         this._lightScaleAndRotation();
 
-        const mm = ILaya.stage.transform;
-        const pp = this.owner.globalTrans.getScenePos(Point.TEMP);
-        const px = mm.a * pp.x + mm.c * pp.y + mm.tx;
-        const py = mm.b * pp.x + mm.d * pp.y + mm.ty;
-        this.owner.globalTrans.getSceneScale(pp);
-        const sx = Math.abs(pp.x * mm.getScaleX());
-        const sy = Math.abs(pp.y * mm.getScaleY());
+        let globalTrans = this.owner.globalTrans;
+        const pp = globalTrans.getPos(Point.TEMP);
+        const px = pp.x;
+        const py = pp.y;
+        const sx = globalTrans.scaleX;
+        const sy = globalTrans.scaleY;
 
         const x = this._localRange.x;
         const y = this._localRange.y;

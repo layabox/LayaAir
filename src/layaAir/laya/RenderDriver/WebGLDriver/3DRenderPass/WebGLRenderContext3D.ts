@@ -246,8 +246,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
             this._needStart = false;
         }
 
+        let time = performance.now();
         this._prepareContext();
-
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
@@ -257,10 +257,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         if (bufferMgr) {
             bufferMgr.upload();
         }
-
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DContextPre, performance.now() - time);
+        time = performance.now();
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DContextRender, performance.now() - time);
         LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, list.length);
         LayaGL.renderEngine._framePassCount++;
         return 0;

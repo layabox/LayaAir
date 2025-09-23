@@ -33,7 +33,7 @@ export class MgDeviceAdapter extends DeviceAdapter {
                     successCallback({
                         latitude: res.latitude,
                         longitude: res.longitude,
-                        timestamp: Date.now()
+                        timestamp: performance.now()
                     });
                 },
                 fail: (err) => {
@@ -50,7 +50,7 @@ export class MgDeviceAdapter extends DeviceAdapter {
                         speed: res.speed,
                         altitude: res.altitude,
                         accuracy: res.accuracy,
-                        timestamp: Date.now()
+                        timestamp: performance.now()
                     });
                 },
                 fail: (err) => {

@@ -11,7 +11,6 @@ import { Rectangle } from "../maths/Rectangle";
 import { Prefab } from "../resource/HierarchyResource";
 import { ITweener } from "../tween/ITween";
 import { Tween } from "../tween/Tween";
-import { Browser } from "../utils/Browser";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { LayoutType, ScrollBarDisplay, ScrollBounceBackEffect, ScrollDirection, ScrollTouchEffect } from "./Const";
 import { IScroller } from "./IScroller";
@@ -1229,7 +1228,7 @@ export class Scroller implements IScroller {
         this._beginTouchPos.setTo(pt.x, pt.y);
         this._isHoldAreaDone = false;
         this._slidingPoints.length = 0;
-        this._slidingPoints.push(pt.x, pt.y, Browser.now());
+        this._slidingPoints.push(pt.x, pt.y, performance.now());
 
         ILaya.stage.on(Event.MOUSE_MOVE, this, this._touchMove);
         ILaya.stage.on(Event.MOUSE_UP, this, this._touchEnd);
@@ -1340,7 +1339,7 @@ export class Scroller implements IScroller {
         }
 
         //更新速度
-        let now = Browser.now();
+        let now = performance.now();
         while (this._slidingPoints.length > 0 && this._slidingPoints[2] < now - 100)
             this._slidingPoints.splice(0, 3);
         this._slidingPoints.push(pt.x, pt.y, now);

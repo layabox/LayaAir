@@ -1324,7 +1324,7 @@ export class Animator extends Component {
      * @perfTag PerformanceDefine.T_AnimatorUpdate
      */
     onUpdate(): void {
-        let t = Browser.now();
+        let t = performance.now();
         let timer = this.owner._scene.timer;
         let delta = timer.delta / 1000.0;//Laya.timer.delta已包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
@@ -1434,7 +1434,7 @@ export class Animator extends Component {
         }
         this._LateUpdateEvents.invoke();
         this._LateUpdateEvents.clear();
-        LayaGL.statAgent.recordTimeData(StatElement.T_AnimatorUpdate, Browser.now() - t);
+        LayaGL.statAgent.recordTimeData(StatElement.T_AnimatorUpdate, performance.now() - t);
     }
 
     /**

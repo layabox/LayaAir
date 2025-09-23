@@ -16,8 +16,6 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { Browser } from "../../../utils/Browser";
-import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
@@ -181,9 +179,9 @@ export class WebGLDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
-            var time = Browser.now();//T_ShadowMapCull Stat
+            var time = performance.now();//T_ShadowMapCull Stat
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
-            LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);
+            LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, performance.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;

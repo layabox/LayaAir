@@ -343,6 +343,9 @@ export class BaseRender extends Component {
     }
 
     set sharedMaterial(value: Material) {
+        if (!this._isMaterialVaild(value)) {
+            return;
+        }
         var lastValue = this._sharedMaterials[0];
         this._changeMaterialReference(lastValue, value);
         this._sharedMaterials[0] = value;
@@ -848,10 +851,17 @@ export class BaseRender extends Component {
         return this._sharedMaterials[0];
     }
 
+    protected _isMaterialVaild(value: Material): boolean {
+        return true;
+    }
+
     set material(value: Material) {
+        if (!this._isMaterialVaild(value))
+            return;
         this.sharedMaterial = value;
         this._isSupportRenderFeature();
     }
+
     get materials(): Material[] {
         for (var i: number = 0, n: number = this._sharedMaterials.length; i < n; i++) {
             if (!this._materialsInstance[i]) {

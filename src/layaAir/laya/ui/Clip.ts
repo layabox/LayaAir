@@ -183,7 +183,13 @@ export class Clip extends UIComponent {
 
     set index(value: number) {
         this._index = value;
-        this._graphics && (this._graphics.source = this._sources[value]);
+        if (this._sources && this._sources.length > 0) {
+            const idx = Math.max(0, Math.min(this._index, this._sources.length - 1));
+            this._index = idx;
+            this._graphics.source = this._sources[idx];
+        } else {
+            this._graphics.source = null;
+        }
         this.event(Event.CHANGE);
     }
 

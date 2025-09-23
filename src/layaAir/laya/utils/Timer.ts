@@ -53,8 +53,8 @@ export class Timer {
      */
     constructor(autoActive?: boolean, greedyMode?: boolean) {
         (autoActive || autoActive == null) && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
-        this.currTimer = Date.now();
-        this._lastTimer = Date.now();
+        this.currTimer = performance.now();
+        this._lastTimer = performance.now();
         this._greedy = !!greedyMode;
     }
 
@@ -70,20 +70,21 @@ export class Timer {
      * @en The frame update handling function.
      * @zh 帧循环处理函数。
      */
-    _update(): void {
+    _update(timestamp: number): void {
+        if (timestamp == null)
+            timestamp = performance.now();
         if (this.scale <= 0) {
-            this._lastTimer = Date.now();
+            this._lastTimer = timestamp;
             this.delta = 0;
             return;
         }
 
         let frame: number = this.currFrame = this.currFrame + this.scale;
-        let now: number = Date.now();
-        this.unscaledDelta = now - this._lastTimer;
+        this.unscaledDelta = timestamp - this._lastTimer;
         let awake: boolean = this.unscaledDelta > 30000;
         this.delta = this.unscaledDelta * this.scale;
         let timer: number = this.currTimer = this.currTimer + this.delta;
-        this._lastTimer = now;
+        this._lastTimer = timestamp;
 
         let handlers = this._handlers;
         let killed = 0;
@@ -156,7 +157,7 @@ export class Timer {
                 handler.caller = caller;
                 handler.method = method;
                 handler.args = args;
-                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
+                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + performance.now() - this._lastTimer);
                 return handler;
             }
         }
@@ -170,7 +171,7 @@ export class Timer {
         handler.caller = caller;
         handler.method = method;
         handler.args = args;
-        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
+        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + performance.now() - this._lastTimer);
 
         //索引handler
         this._map[key] = handler;

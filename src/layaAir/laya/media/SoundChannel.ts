@@ -1,7 +1,6 @@
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher"
 import { AssetDb } from "../resource/AssetDb";
-import { Browser } from "../utils/Browser";
 import { Handler } from "../utils/Handler"
 import { SoundManager } from "./SoundManager";
 
@@ -103,7 +102,7 @@ export class SoundChannel extends EventDispatcher {
         if (this._paused)
             return this._pauseTime;
         else if (this._startTime != 0)
-            return (Browser.now() - this._startTime) / 1000 + this.startTime;
+            return (performance.now() - this._startTime) / 1000 + this.startTime;
         else
             return this.startTime;
     }
@@ -147,7 +146,7 @@ export class SoundChannel extends EventDispatcher {
         this._loaded = false;
         this._completed = false;
         this._repeated = 0;
-        this._startTime = Browser.now();
+        this._startTime = performance.now();
         SoundManager.addChannel(this);
 
         AssetDb.inst.resolveURL(this.url, url => {
