@@ -417,13 +417,7 @@ export class Sprite extends Node {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        if (value.shader && value.shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
-            return true;
-        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_TextureSV);
-        if (!isVaild) {
-            console.warn("This Renderer expect Material shader type is D2_TextureSV, but the Material shader type is " + value.shader.shaderType + ".");
-        }
-        return isVaild;
+        return value.checkType(ShaderFeatureType.D2_TextureSV);
     }
 
     /**
@@ -1832,7 +1826,7 @@ export class Sprite extends Node {
         if (this._renderNode != null) {
             let rect = this._renderNode.rect;
             Rectangle.minMaxRect(rect.x, rect.y, rect.z, rect.w, tmpRect);
-            out.union( tmpRect, out);
+            out.union(tmpRect, out);
             tmpRect.setTo(0, 0, this._width, this._height);
             out.union(tmpRect, out);
         }
@@ -2429,17 +2423,13 @@ export class Sprite extends Node {
     }
 
     private _checkSubRenderPass() {
-        if (this._renderType & SpriteConst.DRAW2RT)
-        {
-            if (this._needUpdateSubpass())
-            {
-                if ( this._subpassUpdateFlag || !this._drawOriRT)
-                {
+        if (this._renderType & SpriteConst.DRAW2RT) {
+            if (this._needUpdateSubpass()) {
+                if (this._subpassUpdateFlag || !this._drawOriRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
             }
-            else
-            {
+            else {
                 ILaya.stage._subpassUpdateList.delete(this);
             }
         }
@@ -2451,24 +2441,19 @@ export class Sprite extends Node {
 
     private _refreshRenderPass() {
 
-        if (this._oriRenderPass)
-        {
+        if (this._oriRenderPass) {
             let result = this._needUpdateSubpass() && this._oriRenderPass.enable;
-            if (result)
-            {
+            if (result) {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
             else {
-                if (this._drawOriRT)
-                {
+                if (this._drawOriRT) {
                     RenderTexture2D.recoverToPool(this._drawOriRT);
                     this._drawOriRT = null;
                 }
 
-                if (this._renderType & SpriteConst.POSTPROCESS)
-                {
-                    if (this._oriRenderPass.postProcess)
-                    {
+                if (this._renderType & SpriteConst.POSTPROCESS) {
+                    if (this._oriRenderPass.postProcess) {
                         this._oriRenderPass.postProcess.recoverAllRTS();
                     }
                 }
@@ -2476,12 +2461,10 @@ export class Sprite extends Node {
             }
         }
 
-        if (this._mask)
-        {
+        if (this._mask) {
             this._mask._refreshRenderPass();
             //mask 不显示时，需要重绘
-            if (!this._mask.displayedInStage)
-            {
+            if (!this._mask.displayedInStage) {
                 this._mask.repaint(RepaintFlag.Graphics);
             }
         }

@@ -70,13 +70,7 @@ export class MeshRenderer extends BaseRender {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        if (value.shader && value.shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
-            return true;
-        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D3);
-        if (!isVaild) {
-            console.warn("This Renderer expect Material shader type is D3, but the Material shader type is " + value.shader.shaderType + ".");
-        }
-        return isVaild;
+        return value.checkType(ShaderFeatureType.D3);
     }
 
     /**
