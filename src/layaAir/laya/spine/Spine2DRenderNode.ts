@@ -120,13 +120,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        if (value.shader && value.shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
-            return true;
-        let isVaild: boolean = (value.shader && value.shader.shaderType == ShaderFeatureType.D2_BaseRednerNode2D);
-        if (!isVaild) {
-            console.warn("This Renderer expect Material shader type is D2_BaseRednerNode2D, but the Material shader type is " + value.shader.shaderType + ".");
-        }
-        return isVaild;
+        return value.checkType(ShaderFeatureType.D2_BaseRednerNode2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {

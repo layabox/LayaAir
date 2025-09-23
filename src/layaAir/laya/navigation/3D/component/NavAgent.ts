@@ -86,6 +86,8 @@ export class NavAgent extends BaseNavAgent {
         let up = tempVector3;
         transform.getUp(up);
         Vector3.normalize(dir, dir);
+        // 修复z轴朝向问题：只反转z轴分量
+        dir.z = -dir.z;
         Quaternion.rotationLookAt(dir, up, TempQuaternion);
         transform.rotation = TempQuaternion;
     }

@@ -1,6 +1,6 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
-import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -1421,6 +1421,23 @@ export class Material extends Resource implements IClone {
         var dest: Material = new Material();
         this.cloneTo(dest);
         return dest;
+    }
+
+    /**
+     * @en Checks if the material type matches the expected type.
+     * @param type The expected type.
+     * @zh 检查材质类型是否匹配预期类型。
+     * @param type 预期类型。
+     * @returns 是否匹配。
+     */
+    checkType(type: ShaderFeatureType): boolean {
+        if (this._shader && this._shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
+            return true;
+        let isVaild = this._shader && this._shader.shaderType == type;
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is " + ShaderFeatureType[type] + ", but the Material shader type is " + ShaderFeatureType[this._shader.shaderType] + ".");
+        }
+        return isVaild;
     }
 
     //--------------------------------------------兼容-------------------------------------------------
