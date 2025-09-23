@@ -132,13 +132,13 @@ export class GLRenderDrawContext extends GLObject {
                 for (let i = 0; i < length; i += 2) {
                     this.drawArraysInstanced(geometryElement._glmode, element[i], element[i + 1], geometryElement.instanceCount);
                 }
-                LayaGL.statAgent.recordCTData(StatElement.CT_Instancing_DrawCall, length/2);
+                LayaGL.statAgent.recordCTData(StatElement.CT_Instancing_DrawCall, length / 2);
                 break;
             case DrawType.DrawElementInstance:
                 for (let i = 0; i < length; i += 2) {
                     this.drawElementsInstanced(geometryElement._glmode, element[i + 1], geometryElement._glindexFormat, element[i], geometryElement.instanceCount);
                 }
-                LayaGL.statAgent.recordCTData(StatElement.CT_Instancing_DrawCall, length/2);
+                LayaGL.statAgent.recordCTData(StatElement.CT_Instancing_DrawCall, length / 2);
                 break;
             default:
                 break;

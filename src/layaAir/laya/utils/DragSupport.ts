@@ -5,7 +5,6 @@ import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "../../ILaya";
 import { Ease } from "../tween/Ease";
 import { Tween } from "../tween/Tween";
-import { Browser } from "./Browser";
 
 /**
  * @en The `DragSupport` class is a touch sliding control.
@@ -92,7 +91,7 @@ export class DragSupport {
         this._elasticRateX = this._elasticRateY = 1;
         let pt = this.target._parent.getMousePoint();
         this._points.length = 0;
-        this._points.push(pt.x, pt.y, Browser.now());
+        this._points.push(pt.x, pt.y, performance.now());
         this._data = data;
 
         ILaya.stage.on(Event.MOUSE_MOVE, this, this.onMouseMove);
@@ -162,7 +161,7 @@ export class DragSupport {
             this._testing = false;
         }
 
-        let now = Browser.now();
+        let now = performance.now();
         while (this._points.length > 0 && this._points[2] < now - 100)
             this._points.splice(0, 3);
         this._points.push(mouseX, mouseY, now);
@@ -184,6 +183,7 @@ export class DragSupport {
             let v = DragSupport.computeVelocity(this._points, this.maxOffset);
             this._points[0] = v.x;
             this._points[1] = v.y;
+            this._dragging = false;
             ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 
         } else if (!this.area.isEmpty() && this.elasticDistance > 0) {
@@ -253,6 +253,8 @@ export class DragSupport {
         let s = this.ratio * (1 - n) / (1 - this.ratio); //  S = r(1-rⁿ)/(1-r), r is this.ratio
         let dx = this._points[0] * s * this._elasticRateX;
         let dy = this._points[1] * s * this._elasticRateY;
+        this._points[0] = dx;
+        this._points[1] = dy;
         if (dx < 0)
             dx = Math.ceil(dx);
         else
@@ -261,8 +263,6 @@ export class DragSupport {
             dy = Math.ceil(dy);
         else
             dy = Math.floor(dy);
-        this._points[0] *= n * this._elasticRateX;
-        this._points[1] *= n * this._elasticRateY;
 
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1 || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
             ILaya.systemTimer.clear(this, this.tweenMove);
@@ -292,7 +292,7 @@ export class DragSupport {
      * @blueprintIgnore
      */
     static computeVelocity(points: Array<number>, max?: number): Readonly<Point> {
-        let now = Browser.now();
+        let now = performance.now();
         while (points.length > 0 && points[2] < now - 100)
             points.splice(0, 3);
 

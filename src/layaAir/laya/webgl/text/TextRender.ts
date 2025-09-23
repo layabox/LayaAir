@@ -1,16 +1,15 @@
 import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point"
-import { RenderInfo } from "../../renders/RenderInfo"
 import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { CharRender_Canvas } from "./CharRender_Canvas"
-import { Const } from "../../Const";
 import { MeasureFont } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { TextRenderConfig } from "./TextRenderConfig";
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
+import { Stat } from "../../utils/Stat";
 
 
 /** @ignore */
@@ -449,7 +448,7 @@ export class TextRender extends EventDispatcher {
         var dt = 0;
         var destroyDt = TextRenderConfig.destroyAtlasDt;
         var totalUsedRateAtlas = 0;
-        var curloop = RenderInfo.loopCount;
+        var curloop = Stat.loopCount;
 
         //var minUsedRateID:int = -1;
         //var minUsedRate:Number = 1;

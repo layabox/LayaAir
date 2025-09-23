@@ -78,11 +78,7 @@ export class BlurEffect2D extends PostProcess2DEffect {
       let texwidth = width + 2 * marginLeft;
       let texheight = height + 2 * marginTop;
       this._blurInfo.setValue(texwidth, texheight);
-      if (!this._destRT || this._destRT.width != texwidth || this._destRT.height != texheight) {
-         if (this._destRT)
-            this._destRT.destroy();
-         this._destRT = new RenderTexture2D(texwidth, texheight, RenderTargetFormat.R8G8B8A8);
-      }
+      this._checkRenderTarget(texwidth, texheight, context);
       this._centerScale.setValue(width / texwidth, height / texheight);
       this._mat.setVector2("u_centerScale", this._centerScale);
       this._mat.setVector2("u_blurInfo", this._blurInfo);
@@ -92,6 +88,25 @@ export class BlurEffect2D extends PostProcess2DEffect {
       context.destination = this._destRT;
    }
 
+   private _checkRenderTarget(width: number, height: number, context: PostProcessRenderContext2D) {
+      if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
+         // 回收旧纹理到对象池
+         RenderTexture2D.recoverToPool(this._destRT);
+         this._destRT = null;
+      }
+
+      if (!this._destRT) {
+         this._destRT = context.getRenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+      }
+   }
+
+   clearRT(): void {
+      if (this._destRT) {
+         RenderTexture2D.recoverToPool(this._destRT);
+      }
+      this._destRT = null;
+   }
+  
    /**
      * @en The strength of the blur filter.
      * @zh 模糊滤镜的强度。
@@ -132,7 +147,11 @@ export class BlurEffect2D extends PostProcess2DEffect {
 
    /** @ignore */
    destroy() {
-      this._destRT && this._destRT.destroy();
+      if (this._destRT) {
+         // 回收纹理到对象池
+         RenderTexture2D.recoverToPool(this._destRT);
+      }
+      this._destRT = null;
       this._mat.destroy();
       this._mat = null;
       this._renderElement?.destroy();

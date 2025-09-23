@@ -98,7 +98,7 @@ export class WebAudioChannel extends SoundChannel {
             PAL.media.resumeUntilGotFocus(this);
         }
         else
-            this._startTime = Browser.now();
+            this._startTime = performance.now();
     }
 
     private reset(): void {

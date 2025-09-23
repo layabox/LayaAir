@@ -624,21 +624,18 @@ export class LightOccluder2DCore {
             let sx = this._scaleX;
             let sy = this._scaleY;
             if (this._owner) {
-                const mm = ILaya.stage.transform;
-                const pp = this._owner.globalTrans.getScenePos(Point.TEMP);
-                px = mm.a * pp.x + mm.c * pp.y + mm.tx;
-                py = mm.b * pp.x + mm.d * pp.y + mm.ty;
-                this._owner.globalTrans.getSceneScale(pp);
-                sx = Math.abs(pp.x * mm.getScaleX());
-                sy = Math.abs(pp.y * mm.getScaleY());
+                let globalTrans = this._owner.globalTrans;
+                const pp = globalTrans.getPos(Point.TEMP);
+                px = pp.x;
+                py = pp.y;
+                sx = globalTrans.scaleX;
+                sy = globalTrans.scaleY;
             }
 
             const globalPoly = this._globalPolygon.points;
             const polygon = this._occluderPolygon.points;
             const len = polygon.length / 2 | 0;
-            let m = this._owner ? this._owner.globalTrans.getSceneMatrix(this._sceneMatrix) : this.transform;
-            Matrix.mul(ILaya.stage.transform, m, this._sceneMatrix); //加上stage变换
-            m = this._sceneMatrix;
+            let m = this._owner ? this._owner.globalTrans.getMatrix() : this.transform;
             if (m) {
                 for (let i = 0; i < len; i++) {
                     const x = polygon[i * 2 + 0];

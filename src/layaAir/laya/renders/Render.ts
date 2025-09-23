@@ -1,5 +1,4 @@
 import { LayaGL } from "../layagl/LayaGL";
-import { DefaultStaticsContext } from "../layagl/StatisticsContext";
 import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Config } from "./../../Config";
@@ -21,7 +20,6 @@ export class Render {
      */
     static lastFrame = 0;
 
-
     // 全局重画标志。一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
     private static _globalRepaintSet: boolean = false;
     private static _globalRepaintGet: boolean = false;
@@ -30,7 +28,6 @@ export class Render {
      * @internal
      */
     static __init__() {
-
         Render.frameInterval = 1000 / Config.FPS;
         let timeId: number = 0;
         PAL.browser.on("visibilitychange", (visible: boolean) => {
@@ -42,30 +39,36 @@ export class Render {
         Render.startLoop();
     }
 
+    /**
+     * @internal
+     */
     static startLoop() {
-        let lastFrmTm = performance.now();
+        let requestFrame = PAL.browser.requestFrame;
+        let lastTime: number = null;
         let first = true;
         let startTm = 0; //刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间
-        let requestFrame = PAL.browser.requestFrame;
+        let leftTime = 0;
 
-        function loop(stamp: number) {
-            let sttm = performance.now();
-            lastFrmTm = sttm;
+        function loop(timestamp: number) {
+            //使用传入的timestamp值可以获得平稳的间隔时间，如果自己用performance.now计算差值则会有波动
+            //但在小游戏平台（例如淘宝），rAF的stamp参数可能与performance.now()差距较大，所以一刀切不使用
+            if (timestamp == null || PAL.g !== null)
+                timestamp = performance.now();
+            let interval = Render.frameInterval;
+
             if (first) {
                 // 把starttm转成帧对齐
-                startTm = Math.floor(stamp / Render.frameInterval) * Render.frameInterval;
+                startTm = Math.floor(timestamp / interval) * interval;
                 first = false;
             }
-            // 与第一帧开始时间的delta
-            stamp -= startTm;
-            // 计算当前帧数
-            let frm = Math.floor(stamp / Render.frameInterval);    // 不能|0 在微信下会变成负的
-            // 是否已经跨帧了
-            let dfrm = frm - Render.lastFrame;
-            if (dfrm > 0 || !Config.fixedFrames) {
-                //不限制
-                Render.lastFrame = frm;
-                Render.loop();
+
+            let delta = leftTime + timestamp - lastTime;
+            if (delta + 1 >= interval || !Config.fixedFrames) {
+                leftTime = Math.min(delta - interval, interval);
+                lastTime = timestamp;
+
+                Render.lastFrame = Math.floor((timestamp - startTm) / interval);
+                Render.loop(timestamp);
             }
 
             requestFrame(loop);
@@ -77,12 +80,12 @@ export class Render {
     /**
      * @internal
      */
-    static loop() {
-        LayaGL.statAgent.startFrameLogic();
+    static loop(timestamp: number) {
+        LayaGL.statAgent.startFrameLogic(timestamp);
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
-        ILaya.stage.render();
-        LayaGL.statAgent.endFrameLogic();
+        ILaya.stage.render(timestamp);
+        LayaGL.statAgent.endFrameLogic(timestamp);
     }
 
     /**

@@ -162,7 +162,7 @@ export class RTRender2DPass implements IRender2DPass {
    private renderCallBack(context: GLESRenderContext2D): void {
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess._context.command.apply(true);
+         this.postProcess.apply();
       }
    }
    destroy(): void {

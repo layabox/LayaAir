@@ -23,6 +23,8 @@ import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @zh Spine动画渲染节点。
@@ -115,6 +117,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D2_BaseRednerNode2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -361,6 +367,48 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     set offset(value: Vector2) {
         this._offset = value;
         this._renderHandle.offset = this._offset;
+        this.boundsChange = true;
+    }
+
+    private _autoAdjust: boolean = false;
+
+    public get autoAdjust(): boolean {
+        return this._autoAdjust;
+    }
+
+    public set autoAdjust(value: boolean) {
+        if (this._autoAdjust === value)
+            return;
+        this._autoAdjust = value;
+        if (value) {
+            this._doAutoAdjust();
+        }
+    }
+
+    private _doAutoAdjust() {
+        if (!this._templet)
+            return;
+        let templet = this._templet;
+        let data = templet.skeletonData;
+        let x = Math.ceil(data.x ?? 0);
+        let y = Math.ceil(data.y ?? 0);
+        let width = data.width;
+        let height = data.height;
+
+        if (width === undefined || height === undefined) {
+            console.warn('Spine.SkeletonData: width or height is undefined');
+            this._autoAdjust = false;
+            return;
+        }
+
+        if (width < 1) width = 100;
+        if (height < 1) height = 100;
+
+        let pivotX = width + x;
+        let pivotY = height + y;
+
+        this.owner.size(width, height);
+        this.owner.pivot(pivotX, pivotY);
     }
 
     /** @ignore @blueprintIgnore */
@@ -402,7 +450,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let rootBone = this._skeleton.getRootBone();
         rootBone.x = this._templet.offsetX;
         rootBone.y = this._templet.offsetY;
-        
+
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
         // 动画状态类
@@ -416,8 +464,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._struct.renderElements = [];
         this._struct.setRepaint();
 
-        this._rect.z = this._templet.width;
-        this._rect.w = this._templet.height;
+        if (this._autoAdjust) {
+            this._doAutoAdjust();
+        }
+
+        this.boundsChange = true;
 
         if (!this._useFastRender) {
             let before = SketonOptimise.normalRenderSwitch;
@@ -977,6 +1028,18 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this._mesh = mesh;
         return hasChange;
+    }
+
+
+    get rect(): Vector4 {
+        if (this._boundsChange) {
+            this._rect.z = this._templet.width;
+            this._rect.w = this._templet.height;
+            this._rect.x = this._offset.x;
+            this._rect.y = this._offset.y;
+            this._boundsChange = false;
+        }
+        return this._rect;
     }
 
 }

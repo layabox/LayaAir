@@ -5,7 +5,7 @@ import { BaseRenderType, IBaseRenderNode, IMeshRenderNode } from "../../RenderDr
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
 import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 import { Mesh } from "../resource/models/Mesh"
@@ -21,6 +21,7 @@ import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { Stat } from "../../utils/Stat"
 import { StatElement } from "../../layagl/StatisticsContext"
+import { Material } from "../../resource/Material"
 
 /**
  * @en The `MeshRenderer` class is used for mesh rendering.
@@ -64,8 +65,11 @@ export class MeshRenderer extends BaseRender {
         this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
     }
     protected _createBaseRenderNode(): IBaseRenderNode {
-
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D3);
     }
 
     /**

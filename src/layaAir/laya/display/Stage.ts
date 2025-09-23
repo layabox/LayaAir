@@ -1,13 +1,12 @@
 import { Sprite } from "./Sprite";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { SpriteConst, SubPassFlag, TransformKind } from "./SpriteConst";
+import { SpriteConst, SubPassFlag, TransformKind, RepaintFlag } from "./SpriteConst";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
-import { RenderInfo } from "../renders/RenderInfo"
 import { Browser } from "../utils/Browser"
 import { ColorUtils } from "../utils/ColorUtils"
 import { Stat } from "../utils/Stat";
@@ -26,7 +25,6 @@ import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { StatElement } from "../layagl/StatisticsContext";
-import { SpriteUtils } from "../utils/SpriteUtils";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -697,21 +695,13 @@ export class Stage extends Sprite {
     }
 
     /**
-     * @en Get frame start time.
-     * @zh 获取帧开始时间
-     */
-    getFrameTm(): number {
-        return this._frameStartTime;
-    }
-
-    /**
      * @en Get the time elapsed since the current frame started, in milliseconds.
      * This can be used to judge the time consumption within functions, reasonably control the processing time of each frame function, avoid doing too much in one frame, and process complex calculations across frames, which can effectively reduce frame rate fluctuations.
      * @zh 获得距当前帧开始后，过了多少时间，单位为毫秒。
      * 可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。
      */
     getTimeFromFrameStart(): number {
-        return Browser.now() - this._frameStartTime;
+        return performance.now() - this._frameStartTime;
     }
 
     /**
@@ -731,41 +721,39 @@ export class Stage extends Sprite {
 
     /**
      * @en Render all display objects on the stage
+     * @param timestamp Current time stamp
      * @zh 渲染舞台上的所有显示对象
+     * @param timestamp 当前时间戳
      */
-    render(): void {
+    render(timestamp: number): void {
         if (this._frameRate === Stage.FRAME_SLEEP) {
-            var now: number = Browser.now();
-            if (now - this._frameStartTime < 1000)
+            if (timestamp - this._frameStartTime < 1000)
                 return;
-            this._frameStartTime = now;
+            this._frameStartTime = timestamp;
         } else {
             if (!this._visible) {
                 this._renderCount++;
                 if (this._renderCount % 5 === 0) {
-                    Timer.callLaters._update();
+                    Timer.callLaters._update(timestamp);
                     Stat.loopCount++;
-                    RenderInfo.loopCount = Stat.loopCount;
                     this._runComponents();
-                    this._updateTimers();
+                    this._updateTimers(timestamp);
                 }
                 return;
             }
-            this._frameStartTime = Browser.now();
-            RenderInfo.loopStTm = this._frameStartTime;
+            this._frameStartTime = timestamp;
         }
 
         this._renderCount++;
-        let frameMode: string = this._frameRate === Stage.FRAME_MOUSE ? (((this._frameStartTime - InputManager.lastMouseTime) < 2000) ? Stage.FRAME_FAST : Stage.FRAME_SLOW) : this._frameRate;
+        let frameMode: string = this._frameRate === Stage.FRAME_MOUSE ? (((timestamp - InputManager.lastMouseTime) < 2000) ? Stage.FRAME_FAST : Stage.FRAME_SLOW) : this._frameRate;
         let isFastMode: boolean = (frameMode !== Stage.FRAME_SLOW);
         let isDoubleLoop: boolean = (this._renderCount % 2 === 0);
 
         if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
             return;
 
-        Timer.callLaters._update();
+        Timer.callLaters._update(timestamp);
         Stat.loopCount++;
-        RenderInfo.loopCount = Stat.loopCount;
         LayaGL.renderEngine.startFrame();
 
         if (this.renderingEnabled) {
@@ -784,21 +772,23 @@ export class Stage extends Sprite {
             Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
 
             //先渲染3d
-            let t = Browser.now();
+            let t = performance.now();
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 this._scene3Ds[i].renderSubmit();
-            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender3D, Browser.now() - t);
+            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender3D, performance.now() - t);
             //再渲染2d
-            t = Browser.now();
+            t = performance.now();
             this._render2d();
-            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender2D, Browser.now() - t);
+            LayaGL.statAgent.recordTimeData(StatElement.T_AllRender2D, performance.now() - t);
 
             this._componentDriver.callPostRender();
         }
         else
             this._runComponents();
 
-        this._updateTimers();
+        this._updateTimers(timestamp);
+
+        Stat.render();
 
         LayaGL.renderEngine.endFrame();
     }
@@ -825,7 +815,9 @@ export class Stage extends Sprite {
                 continue;
 
             sprite.updateSubRenderPassState();
-            if (!sprite._oriRenderPass) {
+            if (!sprite._oriRenderPass
+                || !sprite._oriRenderPass.enable
+            ) {
                 sprite._subpassUpdateFlag = 0;
                 continue;
             }
@@ -838,18 +830,18 @@ export class Stage extends Sprite {
             }
 
             if (sprite.mask) {
-                sprite._oriRenderPass.mask = sprite.mask._subStruct;
+                sprite._oriRenderPass.mask = sprite.mask._struct;
             }
 
             if (result) {
                 sprite._oriRenderPass.renderTexture = destrt;
             }
 
-            let process = sprite._oriRenderPass.postProcess;
-            if (process) {
+            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite._oriRenderPass.postProcess : null;
+            if (process && destrt != RenderTexture2D._empty) {
                 if (
                     result ||
-                    (sprite._subpassUpdateFlag & SubPassFlag.PostProcess)
+                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                 ) {
                     process.setResource(destrt);
                     process.clearCMD();
@@ -861,8 +853,7 @@ export class Stage extends Sprite {
                 }
             }
 
-            sprite._subStructRender.updateQuat(sprite._drawOriRT, destrt);
-            sprite._subStructRender._updateVertexSize();
+            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
             //Mask TODO
             sprite._subpassUpdateFlag = 0;
         }
@@ -881,8 +872,7 @@ export class Stage extends Sprite {
         this._subpassUpdateList.clear();
         this._tranMatrixUpdateList.clear();
 
-        Stat.render();
-
+        RenderTexture2D.cleanupExpired();
         Stat.render2DCount++;
     }
 
@@ -899,10 +889,10 @@ export class Stage extends Sprite {
         this._componentDriver.callDestroy();
     }
 
-    private _updateTimers(): void {
-        ILaya.systemTimer._update();
-        ILaya.physicsTimer._update();
-        ILaya.timer._update();
+    private _updateTimers(timestamp: number): void {
+        ILaya.systemTimer._update(timestamp);
+        ILaya.physicsTimer._update(timestamp);
+        ILaya.timer._update(timestamp);
         Tweener._runAll();
     }
 

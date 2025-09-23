@@ -153,7 +153,7 @@ export class Stat {
             return;
 
         Stat._show = false;
-        ILaya.timer.clear(null, Stat.loop);
+        ILaya.systemTimer.clear(null, Stat.loop);
     }
 
     private static loop(): void {
@@ -170,6 +170,8 @@ export class Stat {
 }
 
 const defaultElements = [
+    StatElement.CT_FPS,
+    StatElement.T_Frame_Time,
     StatElement.C_Sprite2DCount,
     StatElement.C_Sprite3DCount,
     StatElement.CT_DrawCall,

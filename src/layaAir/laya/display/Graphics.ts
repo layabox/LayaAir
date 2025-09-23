@@ -41,6 +41,7 @@ import { IGraphicsCmd } from "./IGraphics";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
@@ -109,6 +110,11 @@ export class Graphics {
     constructor() {
         this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D2_TextureSV);
+    }
+
 
     /**
      * @en Destroy this object.
@@ -339,6 +345,9 @@ export class Graphics {
     }
 
     set material(value: Material) {
+        if (!this._isMaterialVaild(value))
+            return;
+
         if (this._material == value)
             return;
         this._material && this._material._removeReference();

@@ -24,8 +24,11 @@ class AtlasLoader implements IResourceLoader {
 
                 //带图片信息的类型
                 let pics: Array<string> = data.meta.image.split(",");
-                for (let pic of pics)
-                    toloadPics.push(task.loader.load(folderPath + pic + query, null, task.progress.createCallback()));
+                for (let pic of pics) {
+                    if (!pic.startsWith("res://"))
+                        pic = folderPath + pic + query;
+                    toloadPics.push(task.loader.load(pic, null, task.progress.createCallback()));
+                }
             } else {  //不带图片信息
                 toloadPics.push(task.loader.load(Utils.replaceFileExtension(task.url, "png"), null, task.progress.createCallback()));
             }

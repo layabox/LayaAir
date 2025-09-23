@@ -298,7 +298,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
                     this._renderQueue.addRenderElement(element[jj]);
                 }
             }
-            LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);
+            LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, performance.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;

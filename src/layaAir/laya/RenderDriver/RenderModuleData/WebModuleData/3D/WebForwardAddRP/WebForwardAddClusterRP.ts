@@ -159,7 +159,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         context.cameraUpdateMask++;
         this._clearRenderList();
 
-        var time = Browser.now();//T_CameraMainCull Stat
+        var time = performance.now();//T_CameraMainCull Stat
         let _list = renderManager.baseRenderList as FastSinglelist<WebBaseRenderNode>;
         RenderCullUtil.cullByCameraCullInfo(this._cameraCullInfo, _list.elements, _list.length, this._opaqueList, this._transparent, context)
 
@@ -177,18 +177,18 @@ export class WebForwardAddClusterRP implements IMain3DRP {
                 this._transparent.addRenderElement(element[jj]);
             }
         }
-        LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, performance.now() - time);
 
-        time = Browser.now();
+        time = performance.now();
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0)
             this._renderDepthPass(context);
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0)
             this._renderDepthNormalPass(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_DepthPass, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_DepthPass, performance.now() - time);
 
-        time = Browser.now();
+        time = performance.now();
         this._mainPass(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass, performance.now() - time);
     }
 
 
@@ -251,9 +251,9 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         this._recoverRenderContext3D(context, this.destTarget);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
 
-        var time = Browser.now();//T_Render_OpaqueRender Stat
+        var time = performance.now();//T_Render_OpaqueRender Stat
         this._opaqueList.renderQueue(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, performance.now() - time);//Stat
 
         RenderPassUtil.renderCmd(this._beforeSkyboxCmds, context);
 
@@ -267,9 +267,9 @@ export class WebForwardAddClusterRP implements IMain3DRP {
 
         RenderPassUtil.renderCmd(this._beforeTransparentCmds, context);
         this._recoverRenderContext3D(context, this.destTarget);
-        time = Browser.now()//T_Render_TransparentRender Stat
+        time = performance.now()//T_Render_TransparentRender Stat
         this._transparent.renderQueue(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Trans, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Trans, performance.now() - time);//Stat
     }
 
     /**
