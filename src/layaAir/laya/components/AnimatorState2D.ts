@@ -35,6 +35,13 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     static EVENT_OnStateExit = "OnStateExit";
 
     /**
+     * @en Event triggered when switching to a new state
+     * @zh 切换到新状态时触发的事件
+     * @blueprintIgnore
+     */
+    static EVENT_OnStateSwitch = "OnStateSwitch";
+
+    /**
      * @en Event triggered when the state loops
      * @zh 状态循环时触发的事件
      * @blueprintIgnore
@@ -110,7 +117,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     _scripts: AnimatorState2DScript[] | null = null;
 
     /**@internal */
-    _realtimeDatas: Array<number | string | boolean | Vector3> = [];
+    _realtimeDatas: Array<number | string | boolean | { pos: Vector3, rotation: Vector3 }> = [];
 
     /**
      * @en Animation Clip
@@ -168,6 +175,14 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
         if (this._scripts) {
             for (let i = 0, n = this._scripts.length; i < n; i++) {
                 this._scripts[i].onStateExit();
+            }
+        }
+    }
+    _eventSwitch(currentState: AnimatorState2D) {
+        this.event(AnimatorState2D.EVENT_OnStateSwitch, currentState);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateSwitch && this._scripts[i].onStateSwitch(currentState);
             }
         }
     }

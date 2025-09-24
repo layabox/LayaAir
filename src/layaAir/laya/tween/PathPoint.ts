@@ -49,6 +49,12 @@ export class PathPoint {
      */
     curve: CurveType = 0;
 
+
+    /**
+     * 0或者null为不旋转，1为沿路径曲线路径旋转，2为沿运动路径旋转
+     */
+    rotationType?: 0 | 1 | 2
+
     /**
      * @en Create a cardinalspline curve point.
      * @zh 创建一个 PathPoint 的实例。
