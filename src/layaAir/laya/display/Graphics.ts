@@ -345,7 +345,7 @@ export class Graphics {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
 
         if (this._material == value)

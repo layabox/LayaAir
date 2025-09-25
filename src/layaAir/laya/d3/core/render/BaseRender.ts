@@ -343,7 +343,7 @@ export class BaseRender extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        if (!this._isMaterialVaild(value)) {
+        if (value && !this._isMaterialVaild(value)) {
             return;
         }
         var lastValue = this._sharedMaterials[0];
@@ -375,6 +375,9 @@ export class BaseRender extends Component {
             let count = value.length;
             for (let i = 0; i < count; i++) {
                 let mat = value[i];
+                if (mat && !this._isMaterialVaild(mat)) {
+                    continue;
+                }
                 let lastMat = sharedMats[i];
                 this._changeMaterialReference(lastMat, mat);
                 sharedMats[i] = mat;
@@ -856,7 +859,7 @@ export class BaseRender extends Component {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
         this.sharedMaterial = value;
         this._isSupportRenderFeature();
