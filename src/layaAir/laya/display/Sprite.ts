@@ -856,7 +856,6 @@ export class Sprite extends Node {
 
         if (this._mask) {
             this._mask.cacheAs = "none";
-            this._mask._subStruct.blendMode = this._mask._blendMode;
             this._mask._maskParent = null;
         }
 
@@ -2394,6 +2393,7 @@ export class Sprite extends Node {
         else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             this._struct.pass = null;
             this._subStruct.enabled = false;
+            this._subStruct.blendMode = this._blendMode;
             this._struct.subStruct = null;
             //主Pass 需要重绘
             this._struct.setRepaint();
