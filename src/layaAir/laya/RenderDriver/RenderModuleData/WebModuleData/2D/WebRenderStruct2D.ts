@@ -29,6 +29,7 @@ export class WebGlobalRenderData implements I2DGlobalRenderData {
 
 enum ChildrenUpdateType {
    All = -1,
+   None = 0,
    Clip = 1,
    Blend = 2,
    Alpha = 4,
@@ -445,6 +446,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    private updateChildren(type: ChildrenUpdateType): void {
+      if (type == ChildrenUpdateType.None) return;
       let info: IClipInfo, blendMode: BlendMode, alpha: number;
       let priority: number = 0, pass: WebRender2DPass = null, enableCulling: boolean = false, dcOptimize: boolean = false;
       let globalShaderData: ShaderData = null, globalRenderData: WebGlobalRenderData = null;
