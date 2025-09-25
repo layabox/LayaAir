@@ -196,6 +196,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
+      if (this._subStruct && this._subStruct.enabled) {
+         return BlendMode.normal;
+      }
       return this._blendMode || this._parent?.blendMode || BlendMode.normal;
    }
 

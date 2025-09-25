@@ -8,7 +8,7 @@ import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
-import { SpriteConst, SubPassFlag } from "./SpriteConst";
+import { RepaintFlag, SpriteConst, SubPassFlag } from "./SpriteConst";
 
 /**
  * @en Post-process effects for 2D rendering.
@@ -84,7 +84,8 @@ export class PostProcess2D extends EventDispatcher {
             this._owner._renderType |= SpriteConst.POSTPROCESS;
          }
          this._owner.setSubpassFlag(SubPassFlag.PostProcess);
-         this._owner.repaint();
+         
+         this._owner.repaint(RepaintFlag.Graphics);
       }
    }
 

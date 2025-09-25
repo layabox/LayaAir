@@ -661,10 +661,7 @@ export class Sprite extends Node {
             this._blendMode = t;
             this._initShaderData();
             this._struct.blendMode = this._blendMode;
-            if (this._graphics)
-                this._graphics.repaint();
-            else
-                this.repaint();
+            this.repaint(RepaintFlag.Graphics);
         }
     }
 
@@ -836,7 +833,8 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.CANVAS;
         }
         this.setSubpassFlag(SubPassFlag.CacheAsBitmap);
-        this.repaint();
+
+        this.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -2028,6 +2026,9 @@ export class Sprite extends Node {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
             } else if (this._renderType & SpriteConst.GRAPHICS) {
+                if (flag & RepaintFlag.Graphics) {
+                    this._graphics.onModified();
+                }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
         }

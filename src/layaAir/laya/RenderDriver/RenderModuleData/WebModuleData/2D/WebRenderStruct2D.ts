@@ -255,7 +255,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._parentClipInfo = this._subStruct._parentClipInfo;
             this._blendMode = this._subStruct._blendMode;
             this._parentBlendMode = this._subStruct._parentBlendMode;
-
+            
             if (!this._clipInfo && this._parentClipInfo) { 
                updateFlag |= ChildrenUpdateType.Clip;
             }
@@ -271,6 +271,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          this.updateChildren(updateFlag);
          this._subStruct = value;
+         this._setBlendMode();
       }
    }
 
