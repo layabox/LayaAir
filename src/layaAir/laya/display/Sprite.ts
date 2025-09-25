@@ -1183,7 +1183,7 @@ export class Sprite extends Node {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
 
         if (this._graphics == null && value == null)
