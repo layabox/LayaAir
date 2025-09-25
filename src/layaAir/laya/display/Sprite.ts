@@ -856,6 +856,7 @@ export class Sprite extends Node {
 
         if (this._mask) {
             this._mask.cacheAs = "none";
+            this._mask._subStruct.blendMode = this._mask._blendMode;
             this._mask._maskParent = null;
         }
 
@@ -2324,7 +2325,7 @@ export class Sprite extends Node {
             }
 
             if (oldRT !== RenderTexture2D._empty)
-                oldRT.destroy();
+                RenderTexture2D.recoverToPool(oldRT);
         }
 
         this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);

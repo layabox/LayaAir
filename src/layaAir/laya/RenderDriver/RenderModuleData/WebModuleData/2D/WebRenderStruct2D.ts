@@ -145,9 +145,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set blendMode(value: BlendMode) {
-      this._blendMode = value;
-      this._updateBlendMode();
-      this.updateChildren(ChildrenUpdateType.Blend);
+      this._updateBlendMode(value);
+      this._setBlendMode();
    }
 
    /** @internal */
@@ -226,16 +225,49 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set subStruct(value: WebRenderStruct2D) {
+      //不存在上一个
       if (value != this._subStruct) {
+         let updateFlag = 0;
+
          if (value) {
-            let parentClipInfo = this._subStruct ? this._subStruct.getClipInfo() : this._parentClipInfo;
-            value._updateParentClipInfo(parentClipInfo);
+            value._parentClipInfo = this._parentClipInfo;
+            value._updateBlendMode(this._blendMode);
+            value._updateParentBlendMode(this._parentBlendMode);
+
+            //自己没有裁剪，有父裁剪
+            if (!this._clipInfo && this._parentClipInfo) {
+               updateFlag |= ChildrenUpdateType.Clip;
+            }
+
+            //只要有混合就需要重新更新
+            if ( this._blendMode !== BlendMode.invalid|| this._parentBlendMode !== BlendMode.invalid ) {
+               updateFlag |= ChildrenUpdateType.Blend;
+            }
+
             this._parentClipInfo = null;
+            this._blendMode = BlendMode.invalid;
+            this._parentBlendMode = BlendMode.invalid;
+
          } else if (this._subStruct) {
-            this._parentClipInfo = this._subStruct.getClipInfo();
-            this._subStruct._updateParentClipInfo(null);
+
+            this._parentClipInfo = this._subStruct._parentClipInfo;
+            this._blendMode = this._subStruct._blendMode;
+            this._parentBlendMode = this._subStruct._parentBlendMode;
+
+            if (!this._clipInfo && this._parentClipInfo) { 
+               updateFlag |= ChildrenUpdateType.Clip;
+            }
+
+            if (this._blendMode !== BlendMode.invalid || this._parentBlendMode !== BlendMode.invalid) {
+               updateFlag |= ChildrenUpdateType.Blend;
+            }
+
+            this._subStruct._parentClipInfo = null;
+            this._subStruct._blendMode = BlendMode.invalid;
+            this._subStruct._parentBlendMode = BlendMode.invalid;
          }
 
+         this.updateChildren(updateFlag);
          this._subStruct = value;
       }
    }
@@ -351,9 +383,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
-   private _updateBlendMode(): void {
+   private _setBlendMode(): void {
       if (!this.spriteShaderData) return;
       BlendModeHandler.setShaderData(this.blendMode, this.spriteShaderData);
+      if (this._subStruct) {
+         this._subStruct._setBlendMode();
+      }
    }
 
 
@@ -385,6 +420,23 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._subStruct._parentClipInfo = clipInfo;
       } else {
          this._parentClipInfo = clipInfo;
+      }
+   }
+
+   private _updateParentBlendMode(blendMode: BlendMode): void {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._parentBlendMode = blendMode;
+      } else {
+         this._parentBlendMode = blendMode;
+      }
+   }
+   
+   private _updateBlendMode(blendMode: BlendMode): void {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._blendMode = blendMode;
+      } else {
+         this._blendMode = blendMode;
+         this.updateChildren(ChildrenUpdateType.Blend);
       }
    }
 
@@ -448,8 +500,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (updateBlend) {
             if (child._blendMode === BlendMode.invalid) {//有效值
-               child._parentBlendMode = blendMode;
-               child._updateBlendMode();
+               child._updateParentBlendMode(blendMode);
+               child._setBlendMode();
                updateChild = true;
             }
          }
@@ -505,7 +557,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.children.splice(index, 0, child);
 
       child._updateParentClipInfo(this.getClipInfo());
-      child._parentBlendMode = this.blendMode;
+      child._updateParentBlendMode(this.blendMode);
       child.globalAlpha = this.globalAlpha * child._alpha;
       let parentPass = this.pass;
       child._parentPass = parentPass;
@@ -544,7 +596,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             child._pass.priority = 0;
          }
          child._updateParentClipInfo(null);
-         child._parentBlendMode = BlendMode.invalid;
+         child._updateParentBlendMode(BlendMode.invalid);
          child.globalAlpha = child._alpha;
          child._parentGlobalRenderData = null;
          child._parentEnableCulling = false;
