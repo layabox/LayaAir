@@ -342,7 +342,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
      */
     onAfterDeserialize() {
         if (SerializeUtil.hasProp("_color"))
-            this.setColor((<any>this)._color);
+            this.setColor((<any>this)._color || "#ffffff");
         if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
             this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
     }
