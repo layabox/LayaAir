@@ -22,6 +22,9 @@ export interface IClipInfo {
  * 需要传递的属性 get 效率慢
  */
 export interface IRenderStruct2D {
+
+   subStruct: IRenderStruct2D;
+
    owner: Sprite;
 
    //-----2d 渲染组织流程数据-----
@@ -29,7 +32,8 @@ export interface IRenderStruct2D {
    stackingRoot: boolean; //是否是堆叠根节点
 
    enableCulling: boolean;
-   
+   readonly inheritedEnableCulling: boolean;
+
    rect: Rectangle;
 
    renderLayer: number;
@@ -56,7 +60,7 @@ export interface IRenderStruct2D {
 
    //自动优化dc相关
    dcOptimize: boolean;
-   // dcBoundsTarget: IRenderStruct2D;
+   readonly inheritedDcOptimize: boolean;
 
    //渲染数据
    isRenderStruct: boolean;

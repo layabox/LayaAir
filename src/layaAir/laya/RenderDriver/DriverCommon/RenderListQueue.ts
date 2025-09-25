@@ -1,7 +1,6 @@
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { StatElement } from "../../layagl/StatisticsContext";
-import { Browser } from "../../utils/Browser";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { IInstanceRenderBatch, IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderQuickSort } from "./RenderQuickSort";
@@ -36,9 +35,9 @@ export class RenderListQueue {
      */
     private _batchQueue() {
         if (!this._isTransparent) {
-            let time = Browser.now();
+            let time = performance.now();
             this._batch.batch(this._elements);
-            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, Browser.now() - time);
+            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, performance.now() - time);
         }
     }
 

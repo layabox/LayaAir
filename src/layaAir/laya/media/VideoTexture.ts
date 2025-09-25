@@ -6,7 +6,6 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Texture2D } from "../resource/Texture2D";
-import { Browser } from "../utils/Browser";
 import { LayaGL } from "../layagl/LayaGL";
 import { Event } from "../events/Event";
 import { PAL } from "../platform/PlatformAdapters";
@@ -287,9 +286,11 @@ export class VideoTexture extends BaseTexture {
             return;
 
         if (!this._useMediaFrameRate && !force) {
-            let timer = Browser.now();
-            if (timer - this._lastTimer < this._interval)
+            let now = performance.now();
+            if (now - this._lastTimer < this._interval)
                 return;
+
+            this._lastTimer = now;
         }
 
         if (this.onRender())

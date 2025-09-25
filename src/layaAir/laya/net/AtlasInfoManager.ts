@@ -4,11 +4,11 @@ import { URL } from "./URL";
 
 /**
  * 自动图集管理类
- * @internal
+ * @ignore
  */
 export class AtlasInfoManager {
 
-    static _fileLoadDic: Record<string, { url: string, baseUrl?: string }> = {};
+    static readonly _fileLoadDic: Record<string, { url: string, baseUrl?: string }> = {};
 
     static enable(infoFile: string, callback: Handler | null = null): void {
         ILaya.loader.fetch(infoFile, "json").then(data => {
@@ -34,12 +34,16 @@ export class AtlasInfoManager {
         }
     }
 
-    static addAtlas(atlasUrl: string, prefix: string, frames: Array<string>) {
+    static addAtlas(atlasUrl: string, prefix: string, frames: Array<string>, allowOverride?: boolean) {
         prefix = URL.formatURL(prefix);
+        if (allowOverride == null)
+            allowOverride = true;
         let dic = AtlasInfoManager._fileLoadDic;
         let entry = { url: atlasUrl };
         for (let i of frames) {
-            dic[prefix + i] = entry;
+            let j = prefix + i;
+            if (allowOverride || !dic[j])
+                dic[j] = entry;
         }
     }
 

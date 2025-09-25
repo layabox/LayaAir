@@ -9,8 +9,6 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
-import { Browser } from "../../../utils/Browser";
-import { Stat } from "../../../utils/Stat";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -159,26 +157,26 @@ export class WebGLForwardAddClusterRP {
         this.opaqueList.clear();
         this.transparent.clear();
 
-        var time = Browser.now();//T_CameraMainCull Stat
+        var time = performance.now();//T_CameraMainCull Stat
         RenderCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
-        LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, performance.now() - time);
 
 
-        time = Browser.now();
+        time = performance.now();
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);
         }
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0) {
             this._renderDepthNormalPass(context);
         }
-        LayaGL.statAgent.recordTimeData(StatElement.T_DepthPass, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_DepthPass, performance.now() - time);
 
         this._viewPort.cloneTo(WebGLForwardAddClusterRP._context3DViewPortCatch);
         this._scissor.cloneTo(WebGLForwardAddClusterRP._contextScissorPortCatch);
 
-        time = Browser.now();
+        time = performance.now();
         this._mainPass(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass, Browser.now() - time);
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass, performance.now() - time);
 
         this.opaqueList._batch.recoverData();
     }
@@ -264,9 +262,9 @@ export class WebGLForwardAddClusterRP {
         this._recoverRenderContext3D(context);
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
 
-        var time = Browser.now();//T_Render_OpaqueRender Stat
+        var time = performance.now();//T_Render_OpaqueRender Stat
         this.enableOpaque && this._opaqueListRender(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, performance.now() - time);//Stat
 
         this._rendercmd(this.beforeSkyboxCmds, context);
 
@@ -283,9 +281,9 @@ export class WebGLForwardAddClusterRP {
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
 
-        time = Browser.now()//T_Render_TransparentRender Stat
+        time = performance.now()//T_Render_TransparentRender Stat
         this.transparent && this._transparentListRender(context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Trans, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Trans, performance.now() - time);//Stat
     }
 
     /**

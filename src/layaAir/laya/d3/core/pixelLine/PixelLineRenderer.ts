@@ -1,10 +1,9 @@
-import { Component } from "../../../components/Component";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-
+import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../../resource/Material";
 import { OutOfRangeError } from "../../../utils/Error";
 import { Stat } from "../../../utils/Stat";
@@ -15,7 +14,6 @@ import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration"
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { Sprite3D } from "../Sprite3D";
 import { PixelLineData } from "./PixelLineData";
 import { PixelLineFilter } from "./PixelLineFilter";
 import { PixelLineMaterial } from "./PixelLineMaterial";
@@ -129,6 +127,10 @@ export class PixelLineRenderer extends BaseRender {
 
     protected _createBaseRenderNode(): IMeshRenderNode {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D3);
     }
 
     /**

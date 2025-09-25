@@ -355,18 +355,19 @@ export class SkinAttach {
      * @param slots spine插槽数据数组。
      */
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
-        let type: ESpineRenderType = ESpineRenderType.rigidBody;
         let vertexBones = 0;
         let attachments = skinData.attachments;
         let vertexCount = 0;
         let indexCount = 0;
         let twoColorTint = false;
+        let bones = new Set<number>();
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
             let slot = slots[i];
             let boneIndex = slot.boneData.index;
             let map = this.slotAttachMap.get(i);
             let slotAttachName = slot.attachmentName;
+            bones.add(boneIndex);
 
             if (!map) {
                 map = new Map();
@@ -382,10 +383,10 @@ export class SkinAttach {
                     parse.init(attach, boneIndex, i, deform, slot);
                     // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    if (tempType < type) {
-                        type = tempType;
-                    }
+                    // let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    // if (tempType < type) {
+                    //     type = tempType;
+                    // }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     twoColorTint = twoColorTint || !!parse.darkColor;
@@ -397,10 +398,10 @@ export class SkinAttach {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    if (tempType < type) {
-                        type = tempType;
-                    }
+                    // let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
+                    // if (tempType < type) {
+                    //     type = tempType;
+                    // }
                     twoColorTint = twoColorTint || !!parse.darkColor;
                 }
             }
@@ -415,7 +416,16 @@ export class SkinAttach {
             }
         }
 
-        this.type = type;
+        let size = bones.size;
+        if (size > 1) {
+            this.type = ESpineRenderType.boneGPU;
+        }
+        else if(size === 1){
+            this.type = ESpineRenderType.rigidBody;
+        }
+        else {
+            this.type = ESpineRenderType.normal;
+        }
         this.vertexBones = vertexBones;
 
         let flag: string;

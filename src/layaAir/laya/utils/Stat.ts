@@ -153,7 +153,7 @@ export class Stat {
             return;
 
         Stat._show = false;
-        ILaya.timer.clear(null, Stat.loop);
+        ILaya.systemTimer.clear(null, Stat.loop);
     }
 
     private static loop(): void {

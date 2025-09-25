@@ -24,7 +24,6 @@ import { IAniLib } from "../AniLibPack";
 import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
-import { Browser } from "../../utils/Browser";
 
 /**
  * @en Skeleton animation consists of three parts: Template, AnimationPlayer, and Skeleton.
@@ -1035,7 +1034,7 @@ export class Skeleton extends Sprite {
                     this._templet.showSkinByIndex(this._boneSlotDic, this._skinIndex);
                 if (this._pause) {
                     this._pause = false;
-                    this._lastTime = Browser.now();
+                    this._lastTime = performance.now();
                     this.timer.frameLoop(1, this, this._update, null, true);
                 }
                 this._update();
@@ -1114,7 +1113,7 @@ export class Skeleton extends Sprite {
                     }
                 }
             }
-            this._lastTime = Browser.now();
+            this._lastTime = performance.now();
             this.timer.frameLoop(1, this, this._update, null, true);
         }
 

@@ -1,7 +1,6 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { Loader } from "../net/Loader";
-import { Browser } from "../utils/Browser";
 
 const EXPIRE_TIME = 30000; // 30s
 const CHECK_INTERVAL = 10000; // 10s
@@ -33,7 +32,7 @@ export class AudioDataCache {
         if (this._items[url])
             this._size -= this._items[url].size;
 
-        let time = Browser.now();
+        let time = performance.now();
         this._items[url] = { obj, size: size, time };
         this._size += size;
         if (this._size > Config.audioBufferCacheMaxSize && time - this._lastCheck > CHECK_INTERVAL) {
@@ -62,7 +61,7 @@ export class AudioDataCache {
     get(url: string, callback: (obj: any) => void, callbackThis?: any): void {
         let item = this._items[url];
         if (item != null) {
-            item.time = Browser.now();
+            item.time = performance.now();
             callback.call(callbackThis, item.obj);
             return;
         }

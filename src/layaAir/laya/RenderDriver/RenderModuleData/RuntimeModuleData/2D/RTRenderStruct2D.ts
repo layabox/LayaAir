@@ -52,9 +52,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    _nativeObj: any;
 
    owner: Sprite;
+
    private _dcOptimize: boolean = false;
    public get dcOptimize(): boolean {
-      return this._dcOptimize || this._parent?.dcOptimize;
+      return this._dcOptimize;
    }
    public set dcOptimize(value: boolean) {
       this._dcOptimize = value;
@@ -62,14 +63,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       // this._nativeObj.setDcOptimize(value);
    }
 
-   // private _dcBoundsTarget: RTRenderStruct2D;
-   // public get dcBoundsTarget(): RTRenderStruct2D {
-   //    return this._dcBoundsTarget;
-   // }
-   // public set dcBoundsTarget(value: RTRenderStruct2D) {
-   //    this._dcBoundsTarget = value;
-   //    this._nativeObj.setDcBoundsTarget(value ? value._nativeObj : null);
-   // }
+   public get inheritedDcOptimize(): boolean {
+      return this._dcOptimize || this._parent?.dcOptimize;
+   }
 
    private _zIndex: number = 0;
    set zIndex(value: number) {
@@ -90,11 +86,15 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    private _enableCulling: boolean = false;
+   get enableCulling(): boolean {
+      return this._enableCulling;
+   }
    set enableCulling(value: boolean) {
       this._enableCulling = value;
       this._nativeObj.setEnableCulling(value);
    }
-   get enableCulling(): boolean {
+
+   get inheritedEnableCulling(): boolean {
       return this._enableCulling || this._parent?.enableCulling;
    }
 
@@ -114,6 +114,17 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    get renderLayer(): number {
       return this._renderLayer;
+   }
+
+   private _subStruct: RTRenderStruct2D;
+
+   public get subStruct(): RTRenderStruct2D {
+      return this._subStruct;
+   }
+
+   public set subStruct(value: RTRenderStruct2D) {
+      this._subStruct = value;
+      this._nativeObj.setSubStruct(value ? value._nativeObj : null);
    }
 
    private _parent: RTRenderStruct2D = null;
@@ -312,7 +323,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       } else {
          this.children.splice(index, 0, child);
       }
-      this._nativeObj.updateChildIndex(child ._nativeObj, oldIndex, index);
+      this._nativeObj.updateChildIndex(child._nativeObj, oldIndex, index);
    }
 
    removeChild(child: RTRenderStruct2D): void {

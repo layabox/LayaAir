@@ -160,7 +160,7 @@ export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataVie
     // _lastStart: number = -1;
     // /** @internal */
     // _id = ++ Web2DGraphic2DIndexCloneDataView._idCounter;
-    
+
     // 更新数据视图
     // _updateCloneView(wholeData: Uint16Array , mask:Record<number , number>) {
     //     if (
@@ -182,8 +182,8 @@ export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataVie
         super.destroy();
         // this._lastWholeData = null;
         // this._lastStart = 0;
-        this._next = null;
-        this._prev = null;
+        // this._next = null;
+        // this._prev = null;
     }
 
 }

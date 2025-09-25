@@ -107,22 +107,22 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _needCollectOccluderInLight: number = 0; //是否需要更新各层中影响各灯光的遮光器
     private _lightsNeedCheckRange: BaseLight2D[] = []; //需要检查范围的灯光
 
-    static LIGHTANDSHADOW_SCENE_INV_0: number;
-    static LIGHTANDSHADOW_SCENE_INV_1: number;
-    static LIGHTANDSHADOW_STAGE_MAT_0: number;
-    static LIGHTANDSHADOW_STAGE_MAT_1: number;
+    // static LIGHTANDSHADOW_SCENE_INV_0: number;
+    // static LIGHTANDSHADOW_SCENE_INV_1: number;
+    // static LIGHTANDSHADOW_STAGE_MAT_0: number;
+    // static LIGHTANDSHADOW_STAGE_MAT_1: number;
     static __init__() {
         if (!Scene.scene2DUniformMap)
             Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap('Sprite2DGlobal');
-        const scene2DUniformMap = Scene.scene2DUniformMap;
-        this.LIGHTANDSHADOW_SCENE_INV_0 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv0');
-        this.LIGHTANDSHADOW_SCENE_INV_1 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv1');
-        this.LIGHTANDSHADOW_STAGE_MAT_0 = Shader3D.propertyNameToID('u_LightAndShadow2DStageMat0');
-        this.LIGHTANDSHADOW_STAGE_MAT_1 = Shader3D.propertyNameToID('u_LightAndShadow2DStageMat1');
-        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENE_INV_0, 'u_LightAndShadow2DSceneInv0', ShaderDataType.Vector3);
-        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENE_INV_1, 'u_LightAndShadow2DSceneInv1', ShaderDataType.Vector3);
-        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_0, 'u_LightAndShadow2DStageMat0', ShaderDataType.Vector3);
-        scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_1, 'u_LightAndShadow2DStageMat1', ShaderDataType.Vector3);
+        // const scene2DUniformMap = Scene.scene2DUniformMap;
+        // this.LIGHTANDSHADOW_SCENE_INV_0 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv0');
+        // this.LIGHTANDSHADOW_SCENE_INV_1 = Shader3D.propertyNameToID('u_LightAndShadow2DSceneInv1');
+        // this.LIGHTANDSHADOW_STAGE_MAT_0 = Shader3D.propertyNameToID('u_LightAndShadow2DStageMat0');
+        // this.LIGHTANDSHADOW_STAGE_MAT_1 = Shader3D.propertyNameToID('u_LightAndShadow2DStageMat1');
+        // scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENE_INV_0, 'u_LightAndShadow2DSceneInv0', ShaderDataType.Vector3);
+        // scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_SCENE_INV_1, 'u_LightAndShadow2DSceneInv1', ShaderDataType.Vector3);
+        // scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_0, 'u_LightAndShadow2DStageMat0', ShaderDataType.Vector3);
+        // scene2DUniformMap.addShaderUniform(this.LIGHTANDSHADOW_STAGE_MAT_1, 'u_LightAndShadow2DStageMat1', ShaderDataType.Vector3);
     }
 
     constructor(scene: Scene) {
@@ -175,22 +175,22 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 场景矩阵发生变化
      */
     private _sceneTransformChange() {
-        let mat = ILaya.stage.transform; //获取Stage的矩阵
-        this._stageMat0.set(mat.a, mat.c, mat.tx);
-        this._stageMat1.set(mat.b, mat.d, mat.ty);
-        if (false) {//IDE 判断 是否需要画到纹理上
-            this._sceneInv0.set(mat.a, mat.c, mat.tx);
-            this._sceneInv1.set(mat.b, mat.d, mat.ty);
-        } else {
-            mat = this._scene.globalTrans.getMatrixInv(Matrix.TEMP); //获取Scene的Global逆矩阵
-            this._sceneInv0.set(mat.a, mat.c, mat.tx);
-            this._sceneInv1.set(mat.b, mat.d, mat.ty);
-        }
+        // let mat = ILaya.stage._globalTrans.getMatrix(); //获取Stage的矩阵
+        // this._stageMat0.set(mat.a, mat.c, mat.tx);
+        // this._stageMat1.set(mat.b, mat.d, mat.ty);
+        // if (false) {//IDE 判断 是否需要画到纹理上
+        //     this._sceneInv0.set(mat.a, mat.c, mat.tx);
+        //     this._sceneInv1.set(mat.b, mat.d, mat.ty);
+        // } else {
+        //     mat = this._scene.globalTrans.getMatrixInv(Matrix.TEMP); //获取Scene的Global逆矩阵
+        //     this._sceneInv0.set(mat.a, mat.c, mat.tx);
+        //     this._sceneInv1.set(mat.b, mat.d, mat.ty);
+        // }
 
-        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, ShaderDataType.Vector3, this._sceneInv0);
-        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, ShaderDataType.Vector3, this._sceneInv1);
-        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, ShaderDataType.Vector3, this._stageMat0);
-        this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, ShaderDataType.Vector3, this._stageMat1);
+        // this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_0, ShaderDataType.Vector3, this._sceneInv0);
+        // this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_SCENE_INV_1, ShaderDataType.Vector3, this._sceneInv1);
+        // this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_0, ShaderDataType.Vector3, this._stageMat0);
+        // this._scene.setglobalRenderData(Light2DManager.LIGHTANDSHADOW_STAGE_MAT_1, ShaderDataType.Vector3, this._stageMat1);
     }
 
     /**
@@ -875,7 +875,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 const shadowMesh = renderRes.shadowMeshs[j];
                 const material = renderRes.material[j];
                 const materialShadow = renderRes.materialShadow[j];
-                light.getScenePos(this._lightScenePos); //获取基于Scene的位置
+                light.getGlobalPos(this._lightScenePos); //获取基于Scene的位置
                 light.renderLightTexture(); //按需更新灯光贴图
                 if (!screenChange) {
                     lightChange = _isLightUpdate(light);
@@ -992,37 +992,48 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        if (this._scene._area2Ds.size > 0) {
-            let xL = 10000000;
-            let xR = -10000000;
-            let yB = 10000000;
-            let yT = -10000000;
-            for (let area of this._scene._area2Ds) {
-                const camera = area.mainCamera;
-                if (camera) {
-                    let rect = camera._rect;
-                    xL = Math.min(xL, rect.x);
-                    xR = Math.max(xR, rect.y);
-                    yB = Math.min(yB, rect.z);
-                    yT = Math.max(yT, rect.w);
-                }
-            }
-            this._screen.x = xL;
-            this._screen.y = yB;
-            this._screen.width = xR - xL;
-            this._screen.height = yT - yB;
-            if (this._screen.width < 0 || this._screen.height < 0) {
-                this._screen.x = 0;
-                this._screen.y = 0;
-                this._screen.width = RenderState2D.width | 0;
-                this._screen.height = RenderState2D.height | 0;
-            }
-        } else {
+        // if (this._scene._area2Ds.size > 0) {
+        //     let xL = 10000000;
+        //     let xR = -10000000;
+        //     let yB = 10000000;
+        //     let yT = -10000000;
+        // TODO::因为现在sprite 找灯光数据只是layer查找，还要区分 area2d ，暂时先做全局。可以尝试设置个对应的 Area2D GlobalShaderData.
+        //     for (let i = 0 , n = this._lights.length; i < n; i++) {
+        //         let sprite = this._lights[i].owner;
+        //         if (sprite) { 
+        //             let renderData = sprite._struct.globalRenderData;
+        //             // 相机
+        //             let cameraRect = renderData ? renderData.cullRect : null;
+        //             if (cameraRect) {
+        //                 xL = Math.min(xL, cameraRect.x);
+        //                 xR = Math.max(xR, cameraRect.y);
+        //                 yB = Math.min(yB, cameraRect.z);
+        //                 yT = Math.max(yT, cameraRect.w);
+        //             } else {
+        //                 xR = -1 , yT = -1;
+        //                 break;
+        //             }
+        //         }else{
+        //             xR = -1 , yT = -1;
+        //             break;
+        //         }
+        //     }
+        //     this._screen.x = xL;
+        //     this._screen.y = yB;
+        //     this._screen.width = xR - xL;
+        //     this._screen.height = yT - yB;
+        //     if (this._screen.width < 0 || this._screen.height < 0) {
+        //         this._screen.x = 0;
+        //         this._screen.y = 0;
+        //         this._screen.width = RenderState2D.width | 0;
+        //         this._screen.height = RenderState2D.height | 0;
+        //     }
+        // } else {
             this._screen.x = 0;
             this._screen.y = 0;
             this._screen.width = RenderState2D.width | 0;
             this._screen.height = RenderState2D.height | 0;
-        }
+        // }
 
         if (this._screen.width <= 0 || this._screen.height <= 0)
             return false; //屏幕尺寸不合理
@@ -1172,7 +1183,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 && idx.length >= indices.length
                 && ver.byteLength >= vertices.byteLength) { //mesh可以复用
                 mesh.setIndices(indices);
-                mesh.setVertexByIndex(vertices.buffer, 0);
+                mesh.setVertexByIndex(vertices.buffer as ArrayBuffer, 0);
                 mesh.getSubMesh(0).clearRenderParams();
                 mesh.getSubMesh(0).setDrawElemenParams(indices.length, 0);
                 return mesh; //返回原mesh

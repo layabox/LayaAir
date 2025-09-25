@@ -38,49 +38,49 @@ export class ArrayObjectPerformance {
 
 			Laya.stage.on(Event.MOUSE_DOWN, this, function (): void {
 				var f: number = 0;
-				var t: number = Browser.now();
+				var t: number = performance.now();
 				// for (var i: number = 0; i < this.count; i++) {
 				// 	f += this.offset + i * this.c;
 				// }
-				// console.log("ArrayKey", Browser.now() - t);
+				// console.log("ArrayKey", performance.now() - t);
 
 				// f = 0;
-				// t = Browser.now();
+				// t = performance.now();
 				// for (var i: number = 0; i < this.count; i++) {
 				// 	f += this.offset + i * this.c;
 				// }
-				// console.log("ObjectKey", Browser.now() - t);
+				// console.log("ObjectKey", performance.now() - t);
 
 				// f = 0;
-				// t = Browser.now();
+				// t = performance.now();
 				// for (var i: number; i < this.count; i++) {
 				// 	f += this.array[this.offset + i * this.c];
 				// }
-				// console.log("Array", Browser.now() - t);
+				// console.log("Array", performance.now() - t);
 
 				// f = 0;
-				// t = Browser.now();
+				// t = performance.now();
 				// for (var i: number = 0; i < this.count; i++) {
 				// 	f += this.object[this.offset + i * this.c];
 				// }
-				// console.log("Object", Browser.now() - t);
+				// console.log("Object", performance.now() - t);
 
 
 
-				t = Browser.now();
+				t = performance.now();
 				for (var i: number = 0; i < 32; i++) {
 					this.defineObject[1 << i] = 1 << i;
 				}
-				console.log("DefineKeyObject", Browser.now() - t);
+				console.log("DefineKeyObject", performance.now() - t);
 
 
-				t = Browser.now();
+				t = performance.now();
 				f = 0;
 				for (var i: number = 0; i < this.count; i++) {
 					for (var j: number = 0; j < 32; j++)
 						f = this.defineObject[1 << j];
 				}
-				console.log("DefineObject", Browser.now() - t);
+				console.log("DefineObject", performance.now() - t);
 
 			});
 		});

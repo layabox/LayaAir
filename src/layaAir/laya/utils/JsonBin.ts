@@ -43,7 +43,7 @@ export class JsonBin {
         _createObjWithClass = createObjWithClass;
 
         //trace("read jsonbin:", data.byteLength);
-        //let time = Browser.now();
+        //let time = performance.now();
         let bData: Byte = new Byte();
         let strMap: string;
         let binMark: number;
@@ -76,13 +76,13 @@ export class JsonBin {
         for (var i: number = 0, n: number = keyMap.strs.length; i < n; i += 2) {
             keyMap.keyArray[i / 2] = [keyMap.strs[i], parseInt(keyMap.strs[i + 1])];
         }
-        //let time2 = Browser.now();
-        //if( (Browser.now()-time)>10) console.log("jsonbinread delay:",(Browser.now()-time),keyMap.strs.toString());
+        //let time2 = performance.now();
+        //if( (performance.now()-time)>10) console.log("jsonbinread delay:",(performance.now()-time),keyMap.strs.toString());
         _dataStartOfs = bData.pos;
         var r: any = {};
         readOne(r, bData, null, OBJECT, keyMap);
 
-        //if ((Browser.now() - time) > 10) console.log("jsonbinread delay:", (Browser.now() - time) + "/" + (time2 - time), data.byteLength);
+        //if ((performance.now() - time) > 10) console.log("jsonbinread delay:", (performance.now() - time) + "/" + (time2 - time), data.byteLength);
 
         return binMark == ISJSONBIN3 ? r.top : r;
     }

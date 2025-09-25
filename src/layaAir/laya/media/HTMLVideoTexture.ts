@@ -123,7 +123,5 @@ export class HTMLVideoTexture extends VideoTexture {
     protected onDestroy() {
         HTMLVideoPlayer.setSrc(this.element, null);
         this.element.remove();
-        if (LayaEnv.isConch)
-            (this.element as any)._destroy();
     }
 }

@@ -135,6 +135,7 @@ export class AttachmentParse {
             this.uvs = region.uvs;
             //region.region.
             this.textureName = (region.region as any).page.name;
+            this.vertexBones = 1;
         }
         else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;

@@ -22,7 +22,7 @@ import { Particle2DGeomotry } from "./Particle2DGeomotry";
 import { Particle2DShader } from "./Particle2DShader";
 import { Particle2DVertexMesh } from "./Particle2DVertexMesh";
 import { ShurikenParticle2DSystem, Particle2DSystemDirtyFlagBits } from "./ShurikenParticle2DSystem";
-import { Utils } from "../../utils/Utils";
+import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 
 const nMatrix0 = new Vector3();
 const nMatrix1 = new Vector3();
@@ -229,6 +229,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
 
         this._particleSystem = new ShurikenParticle2DSystem();
         // this.particleSystem.shape = new Shape2DModule();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.DEFAULT);
     }
 
     protected _getcommonUniformMap(): Array<string> {

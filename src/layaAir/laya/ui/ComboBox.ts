@@ -14,10 +14,10 @@ import { HideFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
 
 /**
- * @en The `ComboBox` component contains a drop-down list from which the user can select a single value.
- * - `change` event: Dispatched when the user changes the selected content in `ComboBox` component.
  * @zh `ComboBox` 组件包含一个下拉列表，用户可以从该列表中选择单个值。
  * - `change`事件：当用户更改 `ComboBox` 组件中的选定内容时调度。
+ * @en The `ComboBox` component contains a drop-down list from which the user can select a single value.
+ * - `change` event: Dispatched when the user changes the selected content in `ComboBox` component.
  * @blueprintInheritable
  */
 export class ComboBox extends UIComponent {
@@ -43,14 +43,14 @@ export class ComboBox extends UIComponent {
     protected _scrollType: ScrollType = 0;
     protected _isCustomList: boolean;
     /**
-     * @en Rendering item, used to display a dropdown list to display objects
      * @zh 渲染项，用来显示下拉列表展示对象
+     * @en Rendering item, used to display a dropdown list to display objects
      */
     itemRender: any = null;
 
     /**
-     * @en The skin resource address of the object. Supports single state, two states and three states, set with the `stateNum` property.
      * @zh 对象的皮肤纹理资源地址。 支持单态，两态和三态，用 `stateNum` 属性设置
+     * @en The skin resource address of the object. Supports single state, two states and three states, set with the `stateNum` property.
      */
     get skin(): string {
         return this._button.skin;
@@ -63,10 +63,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The padding of the drop-down list text.
-     * - The format is: top, right, bottom, left
      * @zh 下拉列表文本的边距。
      * - 格式：上边距,右边距,下边距,左边距
+     * @en The padding of the drop-down list text.
+     * - The format is: top, right, bottom, left
      */
     get itemPadding(): string {
         return this._itemPadding.join(",");
@@ -77,8 +77,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The string of label collection.
      * @zh 标签集合字符串。
+     * @en The string of label collection.
      */
     get labels(): string {
         return this._labels.join(",");
@@ -95,8 +95,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Indicates the index of the selected drop-down list item.
      * @zh 表示选择的下拉列表项的索引。
+     * @en Indicates the index of the selected drop-down list item.
      */
     get selectedIndex(): number {
         return this._selectedIndex;
@@ -117,8 +117,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The default drop-down prompt text.
      * @zh 默认的下拉提示文本。
+     * @en The default drop-down prompt text.
      */
     get defaultLabel(): string {
         return this._defaultLabel;
@@ -130,8 +130,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The handler to be executed when changing the selection of the drop-down list (default returns parameter index:int).
      * @zh 改变下拉列表的选择项时执行的处理器(默认返回参数index:int)。
+     * @en The handler to be executed when changing the selection of the drop-down list (default returns parameter index:int).
      */
     get selectHandler(): Handler {
         return this._selectHandler;
@@ -142,8 +142,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Indicates the label of the selected drop-down list item.
      * @zh 表示选择的下拉列表项的的标签。
+     * @en Indicates the label of the selected drop-down list item.
      */
     get selectedLabel(): string {
         return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : this.defaultLabel;
@@ -154,8 +154,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Gets or sets the maximum number of rows that can be displayed in the drop-down list without a scrollbar.
      * @zh 获取或设置没有滚动条的下拉列表中可显示的最大行数。
+     * @en Gets or sets the maximum number of rows that can be displayed in the drop-down list without a scrollbar.
      */
     get visibleNum(): number {
         return this._visibleNum;
@@ -167,8 +167,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The height of the drop-down list item.
      * @zh 下拉列表项的高度。
+     * @en The height of the drop-down list item.
      */
     get itemHeight(): number {
         return this._itemHeight;
@@ -179,10 +179,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The color of drop-down list items.
-     * The format is: "background color when hovering or selected, label color when hovering or selected, label color, border color, background color"
      * @zh 下拉列表项颜色。
      * 格式：悬停或被选中时背景颜色,悬停或被选中时标签颜色,标签颜色,边框颜色,背景颜色"。
+     * @en The color of drop-down list items.
+     * The format is: "background color when hovering or selected, label color when hovering or selected, label color, border color, background color"
      */
     get itemColors(): string {
         return this._itemColors.join(",");
@@ -194,8 +194,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The font size of the drop-down list item label.
      * @zh 下拉列表项标签的字体大小。
+     * @en The font size of the drop-down list item label.
      */
     get itemSize(): number {
         return this._itemSize;
@@ -207,8 +207,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Indicates the open state of the drop-down list.
      * @zh 表示下拉列表的打开状态。
+     * @en Indicates the open state of the drop-down list.
      */
     get isOpen(): boolean {
         return this._isOpen;
@@ -245,8 +245,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The scroll type.
      * @zh 滚动类型。
+     * @en The scroll type.
      */
     get scrollType() {
         return this._scrollType;
@@ -257,8 +257,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The scrollbar skin.
      * @zh 滚动条皮肤。
+     * @en The scrollbar skin.
      */
     get scrollBarSkin(): string {
         return this._scrollBarSkin;
@@ -269,14 +269,14 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en The size grid of the texture.
-     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
-     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
-     * The values are separated by commas. For example: "6,6,6,6,1".
      * @zh 纹理的九宫格数据。
      * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
      * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
      * 值以逗号分隔。例如："6,6,6,6,1"。
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
      */
     get sizeGrid(): string {
         return this._button.sizeGrid;
@@ -287,24 +287,24 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en a reference to the `VScrollBar` scrollbar component contained in the `ComboBox` component.
      * @zh `ComboBox` 组件所包含的 `VScrollBar` 滚动条组件的引用。
+     * @en a reference to the `VScrollBar` scrollbar component contained in the `ComboBox` component.
      */
     get scrollBar(): VScrollBar {
         return (<VScrollBar>this.list.scrollBar);
     }
 
     /**
-     * @en a reference to the `Button` component contained in the `ComboBox` component.
      * @zh `ComboBox` 组件所包含的 `Button` 组件的引用。
+     * @en a reference to the `Button` component contained in the `ComboBox` component.
      */
     get button(): Button {
         return this._button;
     }
 
     /**
-     * @en a reference to the `List` list component contained in the `ComboBox` component.
      * @zh `ComboBox` 组件所包含的 `List` 列表组件的引用。
+     * @en a reference to the `List` list component contained in the `ComboBox` component.
      */
     get list(): List {
         this._list || this._createList();
@@ -322,10 +322,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en the text label color of the `Button` component contained in the `ComboBox` component.
-     * The format is: upColor,overColor,downColor
      * @zh  `ComboBox` 组件所包含的 `Button` 组件的文本标签颜色。
      * 格式：upColor,overColor,downColor
+     * @en the text label color of the `Button` component contained in the `ComboBox` component.
+     * The format is: upColor,overColor,downColor
      */
     get labelColors(): string {
         return this._button.labelColors;
@@ -338,10 +338,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en the text margin of the `Button` component contained in the `ComboBox` component.
-     * The format is: top, right, bottom, left
      * @zh `ComboBox` 组件所包含的 `Button` 组件的文本边距。
      * 格式：上边距,右边距,下边距,左边距
+     * @en the text margin of the `Button` component contained in the `ComboBox` component.
+     * The format is: top, right, bottom, left
      */
     get labelPadding(): string {
         return this._button.text.padding.join(",");
@@ -352,8 +352,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-    * @en the label font size of the `Button` component contained in the `ComboBox` component.
     * @zh `ComboBox` 组件所包含的 `Button` 组件的标签字体大小。
+    * @en the label font size of the `Button` component contained in the `ComboBox` component.
     */
     get labelSize(): number {
         return this._button.text.fontSize;
@@ -364,8 +364,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-    * @en Indicates whether the button text label is bold.
     * @zh 表示按钮文本标签是否为粗体字。
+    * @en Indicates whether the button text label is bold.
     */
     get labelBold(): boolean {
         return this._button.text.bold;
@@ -376,8 +376,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Indicates the font name of the button text label, expressed as a string.
      * @zh 表示按钮文本标签的字体名称，以字符串形式表示。
+     * @en Indicates the font name of the button text label, expressed as a string.
      */
     get labelFont(): string {
         return this._button.text.font;
@@ -388,8 +388,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Indicates the state value of the button.
      * @zh 表示按钮的状态值。
+     * @en Indicates the state value of the button.
      */
     get stateNum(): number {
         return this._button.stateNum;
@@ -400,12 +400,12 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en `ComboBox` constructor.
-     * @param skin The skin resource address.
-     * @param labels The string of the label collection in the drop-down list. Separated by commas, such as "item0,item1,item2,item3,item4,item5".
      * @zh  `ComboBox` UI组件的构造函数。
      * @param skin 皮肤资源地址。
      * @param labels 下拉列表的标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
+     * @en `ComboBox` constructor.
+     * @param skin The skin resource address.
+     * @param labels The string of the label collection in the drop-down list. Separated by commas, such as "item0,item1,item2,item3,item4,item5".
      */
     constructor(skin: string = null, labels: string = null) {
         super();
@@ -465,8 +465,8 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Close the drop-down list of ComboBox.
      * @zh 关闭下拉列表。
+     * @en Close the drop-down list of ComboBox.
      */
     protected removeList(e: Event): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
@@ -499,7 +499,7 @@ export class ComboBox extends UIComponent {
         var labelWidth: number = this.width - 2;
         var labelColor: string = this._itemColors[2];
         this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
-        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,`10`";
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,10";
         this._list.itemRender = this.itemRender || {
             _$type: "Box",
             _$child: [
@@ -520,12 +520,12 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Handles mouse events on a list item. This method manages the visual state of the list item based on mouse interaction, such as hover and click.
-     * @param e The mouse event.
-     * @param index The index of the list item.
      * @zh 处理列表项的鼠标事件。该方法根据鼠标交互（如悬停和点击）管理列表项的视觉状态。
      * @param e 鼠标事件。
      * @param index 列表项的索引。
+     * @en Handles mouse events on a list item. This method manages the visual state of the list item based on mouse interaction, such as hover and click.
+     * @param e The mouse event.
+     * @param index The index of the list item.
      */
     protected onlistItemMouse(e: Event, index: number): void {
         let type: string = e.type;
@@ -554,16 +554,16 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Changing the open state of the drop-down list.
      * @zh 更改下拉列表的打开状态。
+     * @en Changing the open state of the drop-down list.
      */
     protected changeOpen(): void {
         this.isOpen = !this._isOpen;
     }
 
     /**
-     * @en Updates the items in the list and adjusts its visual representation. This method recalculates the list height, updates the background if it's not a custom list, and populates the list with new data.
      * @zh 更新列表中的项目并调整其视觉表现。此方法重新计算列表高度，如果不是自定义列表，则更新背景，并使用新数据填充列表。
+     * @en Updates the items in the list and adjusts its visual representation. This method recalculates the list height, updates the background if it's not a custom list, and populates the list with new data.
      */
     protected changeItem(): void {
         this._itemChanged = false;
@@ -591,10 +591,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Destroy the component and release the memory occupied by the component. Destroy the child objects of the component at the same time by default.
-     * @param destroyChild Whether to simultaneously destroy the child objects of the component. The default value is true.
      * @zh 销毁组件并释放组件所占用的内存。默认会同时销毁组件的子对象。
      * @param destroyChild 是否同时销毁组件的子对象。默认值为true。
+     * @en Destroy the component and release the memory occupied by the component. Destroy the child objects of the component at the same time by default.
+     * @param destroyChild Whether to simultaneously destroy the child objects of the component. The default value is true.
      */
     destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
@@ -613,10 +613,10 @@ export class ComboBox extends UIComponent {
     }
 
     /**
-     * @en Set the data source of the ComboBox.
-     * @param value The new data source.
      * @zh 设置下拉选项框的数据源。
      * @param value 新的数据源。
+     * @en Set the data source of the ComboBox.
+     * @param value The new data source.
      */
     set_dataSource(value: any): void {
         this._dataSource = value;

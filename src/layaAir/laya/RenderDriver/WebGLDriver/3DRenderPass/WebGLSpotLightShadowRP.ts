@@ -13,7 +13,6 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { Browser } from "../../../utils/Browser";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -103,9 +102,9 @@ export class WebGLSpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowBias);
         //cull
-        var time = Browser.now();//T_ShadowMapCull Stat
+        var time = performance.now();//T_ShadowMapCull Stat
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
-        LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, Browser.now() - time);//Stat
+        LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, performance.now() - time);//Stat
 
         context.cameraData = <WebGLShaderData>shadowSpotData.cameraShaderValue;
         context.cameraUpdateMask++;;

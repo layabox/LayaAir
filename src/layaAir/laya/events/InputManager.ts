@@ -271,7 +271,7 @@ export class InputManager {
         this._eventType = type;
         this._nativeEvent = ev;
         InputManager.lastTouchId = 0;
-        let now = Browser.now();
+        let now = performance.now();
         if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
             return;
 
@@ -393,7 +393,7 @@ export class InputManager {
     handleTouch(ev: TouchEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
-        this._lastTouchTime = Browser.now();
+        this._lastTouchTime = performance.now();
 
         let touches = ev.changedTouches;
         for (let i = 0; i < touches.length; ++i) {

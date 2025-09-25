@@ -326,6 +326,10 @@ export class BaseRenderNode2D extends Component {
         return LayaGL.render2DRenderPassFactory.create2DBaseRenderDataHandle();
     }
 
+    protected _isMaterialVaild(value: Material): boolean {
+        return true;
+    }
+
     /**
      * @en render layer
      * @zh 渲染层。
@@ -413,6 +417,8 @@ export class BaseRenderNode2D extends Component {
     }
 
     set sharedMaterial(value: Material) {
+        if (value && !this._isMaterialVaild(value))
+            return;
         const lastValue: Material = this._materials[0];
         if (lastValue !== value) {
             this._materials[0] = value;
