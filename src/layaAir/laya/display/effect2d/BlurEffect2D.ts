@@ -100,7 +100,9 @@ export class BlurEffect2D extends PostProcess2DEffect {
       }
    }
 
-   clearRT(): void {
+   clearRT(saveDestRT: boolean = false): void {
+      if (saveDestRT) return;
+      
       if (this._destRT) {
          RenderTexture2D.recoverToPool(this._destRT);
       }

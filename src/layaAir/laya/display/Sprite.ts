@@ -2454,10 +2454,8 @@ export class Sprite extends Node {
                     this._drawOriRT = null;
                 }
 
-                if (this._renderType & SpriteConst.POSTPROCESS) {
-                    if (this._oriRenderPass.postProcess) {
-                        this._oriRenderPass.postProcess.recoverAllRTS();
-                    }
+                if (this._oriRenderPass.postProcess) {
+                    this._oriRenderPass.postProcess.recoverAllRTS();
                 }
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }

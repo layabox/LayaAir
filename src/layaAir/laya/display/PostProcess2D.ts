@@ -70,6 +70,14 @@ export class PostProcess2D extends EventDispatcher {
       }
    }
 
+   /** @internal */
+   _checkEnabled() {
+      if (this._effects.length === 0 || !this._enabled) return false;
+      for (let i = 0; i < this._effects.length; i++) {
+         if (this._effects[i].active) return true;
+      }
+      return false;
+   }
    /**
     * @en Refresh render
     * @zh 刷新渲染
@@ -77,11 +85,11 @@ export class PostProcess2D extends EventDispatcher {
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
       if (this._owner) {
-         if (this._effects.length === 0 || !this._enabled) {
-            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         if (this._checkEnabled()) {
+            this._owner._renderType |= SpriteConst.POSTPROCESS;
          }
          else {
-            this._owner._renderType |= SpriteConst.POSTPROCESS;
+            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
          }
          this._owner.setSubpassFlag(SubPassFlag.PostProcess);
          
@@ -228,6 +236,14 @@ export class PostProcess2D extends EventDispatcher {
       }
       
       this._context._apply();
+
+      //保留最后一个后处理的RT
+      for (let i = 0 , n = this._effects.length; i < n; i++) {
+         let effect = this._effects[i];
+         if (effect.active) {
+            effect.clearRT(i === n - 1);
+         }
+      }
       this._hasCleanRT = true;
    }
 
@@ -295,7 +311,7 @@ export class PostProcessRenderContext2D {
       // 使用RenderTexture2D的静态方法从对象池创建纹理
       let rt = RenderTexture2D.createFromPool(width, height, colorFormat, depthFormat);
       // 记录创建的临时RT，用于自动回收
-      this.deferredReleaseTextures.push(rt);
+      // this.deferredReleaseTextures.push(rt);
       return rt;
    }
    
@@ -308,13 +324,13 @@ export class PostProcessRenderContext2D {
       this.command.apply(true);
       
       // 回收所有非destination的纹理到对象池 不回收最后一张保证 输出 rt 不错
-      for (let i = this.deferredReleaseTextures.length - 1; i >= 0; i--) {
-         let rt = this.deferredReleaseTextures[i];
-         if (rt && rt !== this.destination && !rt.destroyed) {
-            RenderTexture2D.recoverToPool(rt);
-            this.deferredReleaseTextures.splice(i, 1);
-         }
-      }
+      // for (let i = this.deferredReleaseTextures.length - 1; i >= 0; i--) {
+      //    let rt = this.deferredReleaseTextures[i];
+      //    if (rt && rt !== this.destination && !rt.destroyed) {
+      //       RenderTexture2D.recoverToPool(rt);
+      //       this.deferredReleaseTextures.splice(i, 1);
+      //    }
+      // }
    }
 
 }

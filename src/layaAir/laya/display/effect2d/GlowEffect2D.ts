@@ -234,16 +234,19 @@ export class GlowEffect2D extends PostProcess2DEffect {
     }
 
     /** @ignore */
-    clearRT(): void {
+    clearRT(saveDestRT: boolean = false): void {
+        if (this._blitExtendRT) {
+            RenderTexture2D.recoverToPool(this._blitExtendRT);
+        }
+        this._blitExtendRT = null;
+
+        if (saveDestRT) return;
+
         if (this._destRT) {
             RenderTexture2D.recoverToPool(this._destRT);
         }
         this._destRT = null;
 
-        if (this._blitExtendRT) {
-            RenderTexture2D.recoverToPool(this._blitExtendRT);
-        }
-        this._blitExtendRT = null;
     }
     
     /** @ignore */
