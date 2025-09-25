@@ -147,6 +147,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set blendMode(value: BlendMode) {
       this._updateBlendMode(value);
       this._setBlendMode();
+      this.updateChildren(ChildrenUpdateType.Blend);
    }
 
    /** @internal */
@@ -231,8 +232,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (value) {
             value._parentClipInfo = this._parentClipInfo;
-            value._updateBlendMode(this._blendMode);
-            value._updateParentBlendMode(this._parentBlendMode);
+            value._blendMode = this._blendMode;
+            value._parentBlendMode = this._parentBlendMode;
 
             //自己没有裁剪，有父裁剪
             if (!this._clipInfo && this._parentClipInfo) {
@@ -436,7 +437,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          this._subStruct._blendMode = blendMode;
       } else {
          this._blendMode = blendMode;
-         this.updateChildren(ChildrenUpdateType.Blend);
       }
    }
 
