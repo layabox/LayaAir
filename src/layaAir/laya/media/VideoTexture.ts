@@ -388,7 +388,7 @@ export class VideoTexture extends BaseTexture {
         ILaya.timer.clear(this, this.render);
         ILaya.stage.off(Event.BLUR, this, this.onBlur);
         this.onDestroy();
-        super.destroy();
+        this._texture && super.destroy();
     }
 
     protected onBlur() {
