@@ -329,13 +329,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
         }
     }
 
-    clearRT(saveDestRT: boolean = false): void {
-        if (saveDestRT) return;
-        
-        if (this._destRT) {
+    clearRT(context: PostProcessRenderContext2D): void {
+        if (this._destRT && this._destRT !== context.destination) {
             RenderTexture2D.recoverToPool(this._destRT);
+            this._destRT = null;
         }
-        this._destRT = null;
     }
 
     /**

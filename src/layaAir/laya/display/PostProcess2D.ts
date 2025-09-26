@@ -213,9 +213,11 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 回收后处理效果中使用的所有RT。
     */
    recoverAllRTS(): void {
+      
+      this._context.destination = null;
       // 回收所有效果中的RT
       for (let effect of this._effects) {
-         effect.clearRT();
+         effect.clearRT(this._context);
       }
       this._hasCleanRT = true;
       // 回收deferredReleaseTextures中的RT
@@ -240,9 +242,7 @@ export class PostProcess2D extends EventDispatcher {
       //保留最后一个后处理的RT
       for (let i = 0 , n = this._effects.length; i < n; i++) {
          let effect = this._effects[i];
-         if (effect.active) {
-            effect.clearRT(i === n - 1);
-         }
+         effect.clearRT(this._context);
       }
       this._hasCleanRT = true;
    }
