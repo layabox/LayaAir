@@ -44,10 +44,6 @@ export class Physics2DDebugDraw {
         this._camera.m_height = 800;
 
         this._cmdBuffer = new CommandBuffer2D("Physics2DDebugDraw");
-        this._material = new Material();
-        this._material.setShaderName("baseRender2D");
-        // 设置材质为透明模式以支持透明度
-        this._material.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
     }
 
     setActive(value: boolean) {
