@@ -59,8 +59,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    public set dcOptimize(value: boolean) {
       this._dcOptimize = value;
-      // 暂时屏蔽
-      // this._nativeObj.setDcOptimize(value);
+      this._nativeObj.setDcOptimize(value);
    }
 
    public get inheritedDcOptimize(): boolean {
@@ -123,6 +122,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set subStruct(value: RTRenderStruct2D) {
+      value._parent = this._parent;
+      value._blendMode = this._blendMode;
+
       this._subStruct = value;
       this._nativeObj.setSubStruct(value ? value._nativeObj : null);
    }
@@ -130,6 +132,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _parent: RTRenderStruct2D = null;
    set parent(value: RTRenderStruct2D) {
       this._parent = value;
+      if (this._subStruct) {
+         this._subStruct._parent = value;
+      }
       this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
    }
    get parent(): RTRenderStruct2D | null {
@@ -203,6 +208,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set blendMode(value: BlendMode) {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._blendMode = value;
+      }
       this._blendMode = value;
       this._nativeObj.blendMode = this._blendMode;
    }
