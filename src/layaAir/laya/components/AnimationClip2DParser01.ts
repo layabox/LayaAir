@@ -229,6 +229,7 @@ export class AnimationClip2DParse01 {
                     const jsonData = JSON.parse(reader.readUTFString());
                     if (Array.isArray(jsonData)) {
                         const curvePath = new CurvePath();
+                        curvePath.is2D = true;
                         k.data.val = curvePath;
                         (curvePath as any)._$data = jsonData;
                         curvePath.create(...this.createPathPoints(jsonData));

@@ -41,6 +41,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @blueprintIgnore
      */
     static readonly EVENT_OnStateExit = "OnStateExit";
+    /**
+     * @en Event triggered when switching to a new state
+     * @zh 切换到新状态时触发的事件
+     * @blueprintIgnore
+     */
+    static readonly EVENT_OnStateSwitch = "OnStateSwitch";
 
     /** @internal */
     private _referenceCount: number = 0;
@@ -238,6 +244,19 @@ export class AnimatorState extends EventDispatcher implements IClone {
         if (this._scripts) {
             for (let i = 0, n = this._scripts.length; i < n; i++) {
                 this._scripts[i].onStateExit();
+            }
+        }
+    }
+
+    /**
+ * @internal
+ * @param currentState 
+ */
+    _eventSwitch(currentState: AnimatorState) {
+        this.event(AnimatorState.EVENT_OnStateSwitch, currentState);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateSwitch && this._scripts[i].onStateSwitch(currentState);
             }
         }
     }

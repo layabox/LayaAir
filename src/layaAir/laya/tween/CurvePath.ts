@@ -2,7 +2,7 @@
 import { MathUtil } from "../maths/MathUtil";
 import { Vector3 } from "../maths/Vector3";
 import { Pool } from "../utils/Pool";
-import { CurveType, PathPoint } from "./PathPoint";
+import { CurveType, PathPoint, RotationType } from "./PathPoint";
 
 export class CurvePath {
     private _segments: Array<Segment>;
@@ -15,7 +15,7 @@ export class CurvePath {
     /**
     * 0或者null为不旋转，1为沿路径曲线路径旋转，2为沿运动路径旋转
     */
-    rotationType: 0 | 1 | 2;
+    rotationType: RotationType;
 
     constructor() {
         this._segments = [];
@@ -31,6 +31,7 @@ export class CurvePath {
     get length(): number {
         return this._fullLength;
     }
+    is2D: boolean;
 
     /**
      * @en Create a curve.
@@ -153,7 +154,7 @@ export class CurvePath {
      */
     getRotationAt(t: number, out?: Vector3): Vector3 {
         if (!this.rotationType) return null;
-        if (2 === this.rotationType) {
+        if (RotationType.RotateAlongMotionPath === this.rotationType) {
             const ret = CurvePath.getRotation(this._parPos, this._curPt);
             if (!this._parPos) {
                 this._parPos = this._parPosCatch;
@@ -223,7 +224,7 @@ export class CurvePath {
     private tangentToEulerAngles(tangent: Vector3, out: Vector3): void {
         // 检查是否为2D数据（z分量接近0）
         const epsilon = 0.0001;
-        const is2D = this.isCurve2D(epsilon);
+        const is2D = this.is2D
 
         if (is2D) {
             // 2D情况：返回Vector3(0, 0, 旋转角度)
@@ -247,22 +248,6 @@ export class CurvePath {
         }
     }
 
-    /**
-     * @en Check if the curve is 2D (all z coordinates are approximately 0).
-     * @param epsilon The tolerance for considering z coordinates as 0.
-     * @returns True if the curve is 2D, false otherwise.
-     * @zh 检查曲线是否为2D（所有z坐标都接近0）。
-     * @param epsilon 将z坐标视为0的容差。
-     * @returns 如果曲线是2D则返回true，否则返回false。
-     */
-    private isCurve2D(epsilon: number = 0.0001): boolean {
-        for (let i = 0; i < this._points.length; i++) {
-            if (Math.abs(this._points[i].z) > epsilon) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 
     /**

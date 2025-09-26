@@ -23,6 +23,23 @@ export enum CurveType {
      */
     Straight
 }
+export enum RotationType {
+    /**
+     * @en No rotation.
+     * @zh 不旋转。
+     */
+    NoRotation,
+    /**
+     * @en Rotate along the path curve.
+     * @zh 沿路径曲线旋转。
+     */
+    RotateAlongPathCurve,
+    /**
+     * @en Rotate along the motion path.
+     * @zh 沿运动路径旋转。
+     */
+    RotateAlongMotionPath,
+}
 
 export class PathPoint {
     /**
@@ -53,7 +70,7 @@ export class PathPoint {
     /**
      * 0或者null为不旋转，1为沿路径曲线路径旋转，2为沿运动路径旋转
      */
-    rotationType?: 0 | 1 | 2
+    rotationType?: RotationType
 
     /**
      * @en Create a cardinalspline curve point.
