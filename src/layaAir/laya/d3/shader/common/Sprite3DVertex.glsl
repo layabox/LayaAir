@@ -29,13 +29,6 @@ mat4 getWorldMatrix()
     mat4 worldMat = u_WorldMat;
     #endif // GPU_INSTANCE
 
-    #ifdef GPU_Storage_INSTANCE
-        uint Instanceindex = gl_InstanceIndex;
-        uint instanceOffset = batchPosdatas[uint(u_oneBathMarkIndex.x)]+gl_InstanceIndex;
-        uint instanceDatasID =  datas[instanceOffset];
-        worldMat = instances[instanceDatasID].insWorldMat;
-    #endif
-
     #ifdef BONE
 
 	#ifdef SIMPLEBONE

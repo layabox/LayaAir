@@ -22,24 +22,6 @@ uniform vec4 u_WorldInvertFront; // x: invert front face,yzw NodeCustomData
     #endif // GPU_INSTANCE
 
 
-#ifdef GPU_Storage_INSTANCE
-    struct gpu_instanceData{
-        mat4 insWorldMat;
-        vec4 lightMapUV;
-        vec4 customData;
-    };
-    //0 是Uniform u_oneBathMarkIndex
-
-    layout(set = 2, binding = 1) readonly buffer instanceIDBuffer {
-        uint datas[];
-    };
-    layout(set = 2, binding = 2) readonly buffer batchPosBuffer {
-        uint batchPosdatas[];
-    };
-    layout(set = 2, binding = 3) readonly buffer instanceDatas {
-        gpu_instanceData instances[];
-    };
-#endif
 
 vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
 {

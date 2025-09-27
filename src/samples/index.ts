@@ -19,8 +19,9 @@ import { RealTimeShadow } from "./3d/LayaAir3D_Lighting/RealTimeShadow";
 import { SpotLightShadowMap } from "./3d/LayaAir3D_Lighting/SpotLightShadowMap";
 import { CameraDepthModeTextureDemo } from "./3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
 import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
+import { DynamicBatchTest } from "./3d/LayaAir3D_Performance/DynamicBatchTest";
 
-Resource.DEBUG = true;
+Resource.DEBUG = false;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 var useWebGPU = true;
@@ -31,7 +32,7 @@ async function start() {
     } else {
         await import("./importWebGL")
     }
-    new Main(true, false, PostProcessBloom);
+    new Main(true, false, DynamicBatchTest);
     //TextureDemo
     // SceneLoad1
     // RealTimeShadow

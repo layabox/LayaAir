@@ -6,6 +6,8 @@ export enum EDeviceBufferUsage {
     COPY_DST = 1 << 3,
     STORAGE = 1 << 4,
     INDIRECT = 1 << 5,
+    VERTEX = 1<<6,
+    
 }
 
 /**

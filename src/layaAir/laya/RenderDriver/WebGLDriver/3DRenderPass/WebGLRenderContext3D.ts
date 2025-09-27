@@ -46,9 +46,9 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     /**@internal */
     private _scissor: Vector4;
     /**@internal */
-    private _sceneUpdataMask: number;
+    private _sceneUpdataMask: number = 0;
     /**@internal */
-    private _cameraUpdateMask: number;
+    private _cameraUpdateMask: number = 0;
     /**@internal */
     private _pipelineMode: PipelineMode;
     /**@internal */
