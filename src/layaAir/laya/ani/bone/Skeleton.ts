@@ -978,7 +978,7 @@ export class Skeleton extends Sprite {
                         GraphicsAni.recycle(gp);
                     }
                 }
-                this._graphicsCache[i].length = 0;
+                this._graphicsCache[i] = []; // TBMinigame set arry.length = 0 not work,use [] instead
             }
         }
     }
