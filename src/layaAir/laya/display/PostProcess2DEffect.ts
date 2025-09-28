@@ -3,7 +3,7 @@ import { PostProcess2D, PostProcessRenderContext2D } from "./PostProcess2D";
 export abstract class PostProcess2DEffect {
    protected _active: boolean = true;
    protected _owner: PostProcess2D;
-
+   destroyed = false;
    protected _singleton: boolean = false;
 
    /**
@@ -59,7 +59,8 @@ export abstract class PostProcess2DEffect {
     * @en Destroys the effect.
     * @zh 销毁效果。
     */
-   abstract destroy(): void;
-
+   destroy(): void { 
+      this.destroyed = true;
+   }
    
 }

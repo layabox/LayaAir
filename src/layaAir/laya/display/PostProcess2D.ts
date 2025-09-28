@@ -142,6 +142,11 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要添加的后期处理效果。
     */
    addEffect<T extends PostProcess2DEffect>(effect: T): T | null {
+      if (effect.destroyed) {
+         console.error("the target effect is destroyed", effect);
+         return null;
+      }
+
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
          console.error("the target effect is a singleton", effect);
          return null;
@@ -160,11 +165,11 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要移除的后期处理效果。
     */
    removeEffect(effect: PostProcess2DEffect) {
-      effect.destroy();
 
       let index = this._effects.indexOf(effect);
       if (index !== -1) {
          this._effects.splice(index, 1);
+         effect.destroy();
          this._onChangeRender();
       }
    }
@@ -179,7 +184,7 @@ export class PostProcess2D extends EventDispatcher {
       this._context.destination = this._context.source;
       for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
          let effect = this._effects[i];
-         if (effect.active) {
+         if (effect.active && !effect.destroyed) {
             effect.render(this._context);
             this._context.indirectTarget = this._context.destination;
          }
