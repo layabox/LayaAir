@@ -30,7 +30,7 @@ import { Scene3DShaderDeclaration } from "../../../../../d3/core/scene/Scene3DSh
 import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
 import { RenderTexture } from "../../../../../resource/RenderTexture";
-import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
+import { BatchCullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export class WebDirCascadeShadowRP implements IDirShadowRP {
     /** @internal 最大cascade*/
@@ -292,7 +292,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
             RenderCullUtil.cullDirectLightShadow(shadowCullInfo, list.elements, list.length, this._renderQueue, context);
             let agent = manager.batchAgentList;
             for (var [key, agentModule] of agent) {
-                let agentrenderList = agentModule.appendRenderElement(CullMode.DirectLight, i, context).opaqueList;
+                let agentrenderList = agentModule.appendRenderElement(BatchCullMode.DirectLight, i, context).opaqueList;
                 let element = agentrenderList.elements;
                 for (var jj = 0; jj < agentrenderList.length; jj++) {
                     this._renderQueue.addRenderElement(element[jj]);

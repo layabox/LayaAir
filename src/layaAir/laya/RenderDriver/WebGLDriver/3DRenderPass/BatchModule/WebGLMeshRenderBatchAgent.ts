@@ -4,7 +4,7 @@ import { FastSinglelist, SingletonList } from "../../../../utils/SingletonList";
 import { RenderCullUtil } from "../../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../../DriverCommon/RenderListQueue";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { CullMode, IBatchModuleAgent, IModuleAgentResource } from "../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
+import { BatchCullMode, IBatchModuleAgent, IModuleAgentResource } from "../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { WebBaseRenderNode } from "../../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebGLInstanceRenderElement3D } from "./WebGLInstanceRenderElement3D";
 import { WebGLRenderContext3D } from "../WebGLRenderContext3D";
@@ -255,25 +255,25 @@ export class WebGLMeshRenderBatchAgent implements IBatchModuleAgent {
         this._spotCullInfo = spotCullInfo;
     }
 
-    appendRenderElement(cullMode: CullMode, cullInfoIndex: number, context: WebGLRenderContext3D): IModuleAgentResource {
+    appendRenderElement(cullMode: BatchCullMode, cullInfoIndex: number, context: WebGLRenderContext3D): IModuleAgentResource {
         let moduleBatchQueue: WebGLBatchQueue;
         let cullInfo;
         switch (cullMode) {
-            case CullMode.Camera:
+            case BatchCullMode.Camera:
                 cullInfo = this._cameraCullInfo[cullInfoIndex];
                 moduleBatchQueue = this._mainBatchQueue.elements[cullInfoIndex];
                 moduleBatchQueue.clearList();
                 RenderCullUtil.cullByCameraCullInfo(cullInfo, this._baseRenderList.elements, this._list.length, moduleBatchQueue.opaqueQueue, moduleBatchQueue.transparentQueue, context);
                 this._opaqueInstanceBatch(moduleBatchQueue.opaqueList);
                 break;
-            case CullMode.DirectLight:
+            case BatchCullMode.DirectLight:
                 cullInfo = this._dirShadowCullInfo[cullInfoIndex];
                 moduleBatchQueue = this._shadowBatchQueue.elements[cullInfoIndex];
                 moduleBatchQueue.clearList();
                 RenderCullUtil.cullDirectLightShadow(cullInfo, this._baseRenderList.elements, this._list.length, moduleBatchQueue.opaqueQueue, context);
                 this._opaqueInstanceBatch(moduleBatchQueue.opaqueList);
                 break;
-            case CullMode.Spot:
+            case BatchCullMode.Spot:
                 cullInfo = this._spotCullInfo[cullInfoIndex];
                 moduleBatchQueue = this._spotBatchQueue.elements[cullInfoIndex];
                 moduleBatchQueue.clearList();
