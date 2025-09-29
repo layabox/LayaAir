@@ -268,11 +268,7 @@ export class Shader3D {
 
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         shader._surportVolumetricGI = data.surportVolumetricGI;
-        if (typeof data.shaderType === 'string') {
-            shader.shaderType = ShaderFeatureType[data.shaderType as keyof typeof ShaderFeatureType] ? ShaderFeatureType[data.shaderType as keyof typeof ShaderFeatureType] : ShaderFeatureType.LEGACY_DEFAULT;
-        } else {
-            shader.shaderType = data.shaderType as ShaderFeatureType ? data.shaderType as ShaderFeatureType : ShaderFeatureType.LEGACY_DEFAULT;
-        }
+        shader.shaderType = data.shaderType as ShaderFeatureType;
 
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
