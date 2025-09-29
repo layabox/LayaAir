@@ -38,6 +38,10 @@ class ShaderLoader implements IResourceLoader {
                     shader.shaderType = ShaderFeatureType[obj.shaderType as keyof typeof ShaderFeatureType] ? ShaderFeatureType[obj.shaderType as keyof typeof ShaderFeatureType] : ShaderFeatureType.LEGACY_DEFAULT;
                 } else {
                     shader.shaderType = obj.shaderType as ShaderFeatureType ? obj.shaderType as ShaderFeatureType : ShaderFeatureType.LEGACY_DEFAULT;
+                    if (shader.shaderType === ShaderFeatureType.D2_primitive) {
+                        console.warn("D2_primitive is deprecated, please use D2_TextureSV instead.");
+                        shader.shaderType = ShaderFeatureType.D2_TextureSV;
+                    }
                 }
                 let subshader = new SubShader(obj.attributeMap ? obj.attributeMap : SubShader.DefaultAttributeMap, obj.uniformMap, obj.defaultValue);
                 shader.addSubShader(subshader);

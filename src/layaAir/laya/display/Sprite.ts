@@ -417,7 +417,7 @@ export class Sprite extends Node {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.D2_TextureSV) || value.checkType(ShaderFeatureType.D2_primitive);
+        return value.checkType(ShaderFeatureType.D2_TextureSV);
     }
 
     /**
