@@ -108,7 +108,7 @@ export class VolumetricGIManager implements IVolumeManager {
     handleMotionlist(motionObjects: SingletonList<BaseRender>): void {
         for (let index = 0; index < motionObjects.length; index++) {
             let render = motionObjects.elements[index];
-            if (render._surportVolumetricGI) {
+            if (render._supportVolumetricGI) {
                 this._updateRenderObject(render);
             }
         }
@@ -124,7 +124,7 @@ export class VolumetricGIManager implements IVolumeManager {
     reCaculateAllRenderObjects(renders: SingletonList<BaseRender>): void {
         for (let index = 0; index < renders.length; index++) {
             let render = renders.elements[index];
-            if (render._surportVolumetricGI) {
+            if (render._supportVolumetricGI) {
                 this._updateRenderObject(render);
             }
         }

@@ -33,7 +33,7 @@ class ShaderLoader implements IResourceLoader {
                 }
 
                 let shader = Shader3D.add(obj.name, obj.enableInstancing, obj.supportReflectionProbe);
-                shader._surportVolumetricGI = obj.surportVolumetricGI;
+                shader._supportVolumetricGI = obj.supportVolumetricGI;
                 shader.shaderType = obj.shaderType as ShaderFeatureType;
                 let subshader = new SubShader(obj.attributeMap ? obj.attributeMap : SubShader.DefaultAttributeMap, obj.uniformMap, obj.defaultValue);
                 shader.addSubShader(subshader);
