@@ -367,7 +367,6 @@ export class SkinAttach {
             let boneIndex = slot.boneData.index;
             let map = this.slotAttachMap.get(i);
             let slotAttachName = slot.attachmentName;
-            bones.add(boneIndex);
 
             if (!map) {
                 map = new Map();
@@ -383,14 +382,13 @@ export class SkinAttach {
                     parse.init(attach, boneIndex, i, deform, slot);
                     // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    // let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    // if (tempType < type) {
-                    //     type = tempType;
-                    // }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     twoColorTint = twoColorTint || !!parse.darkColor;
                     map.set(key, parse);
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
                 }
             } else if (slotAttachName) {
                 let parse = map.get(slotAttachName);
@@ -398,11 +396,10 @@ export class SkinAttach {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    // let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    // if (tempType < type) {
-                    //     type = tempType;
-                    // }
                     twoColorTint = twoColorTint || !!parse.darkColor;
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
                 }
             }
 
