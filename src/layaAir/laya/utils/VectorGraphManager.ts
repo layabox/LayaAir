@@ -54,8 +54,8 @@ export class VectorGraphManager {
      */
     addLine(id: number, Line: any): void {
         this.shapeLineDic[id] = Line;
-        if (!this.shapeLineDic[id]) {
-            this.shapeLineDic[id] = true;
+        if (!this.useDic[id]) {
+            this.useDic[id] = true;
         }
     }
 
