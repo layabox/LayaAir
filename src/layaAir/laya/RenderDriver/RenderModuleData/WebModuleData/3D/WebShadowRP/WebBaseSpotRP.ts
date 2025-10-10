@@ -25,7 +25,7 @@ import { WebBaseRenderNode } from "../WebBaseRenderNode";
 import { SingletonList } from "../../../../../utils/SingletonList";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
 import { RenderTexture } from "../../../../../resource/RenderTexture";
-import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
+import { BatchCullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export class WebBaseSpotRP implements ISpotShadowRP {
 
@@ -226,7 +226,7 @@ export class WebBaseSpotRP implements ISpotShadowRP {
         RenderCullUtil.cullSpotShadow(shadowSpotData.cameraCullInfo, list.elements, list.length, this._renderQueue, context);
         let agent = manager.batchAgentList;
         for (var [key, agentModule] of agent) {
-            let agentrenderList = agentModule.appendRenderElement(CullMode.Spot, 0, context).opaqueList;
+            let agentrenderList = agentModule.appendRenderElement(BatchCullMode.Spot, 0, context).opaqueList;
             let element = agentrenderList.elements;
             for (var jj = 0; jj < agentrenderList.length; jj++) {
                 this._renderQueue.addRenderElement(element[jj]);

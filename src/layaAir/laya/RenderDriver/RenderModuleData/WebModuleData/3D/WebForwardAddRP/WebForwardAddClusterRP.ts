@@ -16,7 +16,7 @@ import { RenderCullUtil } from "../../../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../../../DriverCommon/RenderListQueue";
 import { RenderPassUtil } from "../../../../DriverCommon/RenderPassUtil";
 import { IMain3DRP, IRenderContext3D, PipelineMode } from "../../../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { CullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
+import { BatchCullMode } from "../../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ISceneRenderManager } from "../../../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { InternalRenderTarget } from "../../../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../WebBaseRenderNode";
@@ -165,7 +165,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
 
         let agent = renderManager.batchAgentList;
         for (var [key, agentModule] of agent) {
-            let agentrenderList = agentModule.appendRenderElement(CullMode.Camera, 0, context);
+            let agentrenderList = agentModule.appendRenderElement(BatchCullMode.Camera, 0, context);
             let opaqueList = agentrenderList.opaqueList;
             let translist = agentrenderList.transparentList;
             let element = opaqueList.elements;

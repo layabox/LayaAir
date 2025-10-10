@@ -4,7 +4,7 @@ import { CameraCullInfo, ShadowCullInfo } from "../../../d3/shadowMap/ShadowSlic
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "./I3DRenderPass";
 
-export enum CullMode {
+export enum BatchCullMode {
     None,
     Camera,
     DirectLight,
@@ -55,7 +55,7 @@ export interface IBatchModuleAgent {
     /**
      * 添加渲染元素
      */
-    appendRenderElement(cullMode: CullMode, cullInfoIndex: number, context: IRenderContext3D): IModuleAgentResource;
+    appendRenderElement(cullMode: BatchCullMode, cullInfoIndex: number, context: IRenderContext3D): IModuleAgentResource;
     /**
      * 释放
      */
