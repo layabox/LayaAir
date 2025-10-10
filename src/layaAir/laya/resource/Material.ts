@@ -1431,7 +1431,7 @@ export class Material extends Resource implements IClone {
      * @returns 是否匹配。
      */
     checkType(type: ShaderFeatureType): boolean {
-        if (this._shader && this._shader.shaderType == ShaderFeatureType.LEGACY_DEFAULT)
+        if (this._shader && this._shader.shaderType === ShaderFeatureType.None)
             return true;
         let isVaild = this._shader && this._shader.shaderType == type;
         if (!isVaild) {

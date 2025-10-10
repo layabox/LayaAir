@@ -50,7 +50,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.D2_BaseRednerNode2D);
+        return value.checkType(ShaderFeatureType.D2_BaseRenderNode2D);
     }
 
     renderUpdate(context: IRenderContext2D): void {

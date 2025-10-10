@@ -29,15 +29,15 @@ export interface IShaderpassStructor {
 }
 
 export enum ShaderFeatureType {
-    LEGACY_DEFAULT,
-    DEFAULT,
-    D3,
-    D2_primitive,
-    D2_TextureSV,
-    D2_BaseRednerNode2D,
-    PostProcess,
-    Sky,
-    Effect
+    None = -1,
+    Default = 0,
+    D3 = 1,
+    D2_primitive = 2,
+    D2_TextureSV = 3,
+    D2_BaseRenderNode2D = 4,
+    PostProcess = 5,
+    Sky = 6,
+    Effect = 7
 }
 
 /**
@@ -304,7 +304,7 @@ export class Shader3D {
     /**@internal */
     _subShaders: SubShader[] = [];
 
-    shaderType: ShaderFeatureType = ShaderFeatureType.LEGACY_DEFAULT;
+    shaderType: ShaderFeatureType = ShaderFeatureType.None;
     /**
      * 名字。
      */

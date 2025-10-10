@@ -98,7 +98,7 @@ export class GLESRenderContext2D implements IRenderContext2D {
             "u_MainTex": ShaderDataType.Texture2D,
         };
         let shader = Shader3D.add("GLESblitScreen", false, false);
-        shader.shaderType = ShaderFeatureType.DEFAULT;
+        shader.shaderType = ShaderFeatureType.Default;
         let subShader = new SubShader(attributeMap, uniformMap, {});
         shader.addSubShader(subShader);
         let vs = `

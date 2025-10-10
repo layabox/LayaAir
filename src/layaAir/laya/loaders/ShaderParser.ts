@@ -80,9 +80,9 @@ export class ShaderParser {
             shaderObj = ParseJSON.parse(shaderData);//TODO new FIle parse(1、去掉繁琐的json格式报错，2、可以有注释)
 
             if (typeof shaderObj.shaderType === 'string') {
-                shaderObj.shaderType = ShaderFeatureType[shaderObj.shaderType as keyof typeof ShaderFeatureType] ? ShaderFeatureType[shaderObj.shaderType as keyof typeof ShaderFeatureType] : ShaderFeatureType.LEGACY_DEFAULT;
+                shaderObj.shaderType = ShaderFeatureType[shaderObj.shaderType as keyof typeof ShaderFeatureType] ?? ShaderFeatureType.None;
             } else {
-                shaderObj.shaderType = shaderObj.shaderType as ShaderFeatureType ? shaderObj.shaderType as ShaderFeatureType : ShaderFeatureType.LEGACY_DEFAULT;
+                shaderObj.shaderType = shaderObj.shaderType as ShaderFeatureType ?? ShaderFeatureType.None;
             }
             // D2_primitive is deprecated
             if (shaderObj.shaderType === ShaderFeatureType.D2_primitive) {

@@ -120,7 +120,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.D2_BaseRednerNode2D);
+        return value.checkType(ShaderFeatureType.D2_BaseRenderNode2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {
