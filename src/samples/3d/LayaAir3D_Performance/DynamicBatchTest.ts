@@ -80,8 +80,8 @@ export class DynamicBatchTest {
 				//this.test5(scene, camera);
 				//this.test6(scene, camera);
 				//this.test7(scene, camera);
-				this.test8(scene, camera);
-				//this.test9(scene, camera);
+				//this.test8(scene, camera);
+				this.test9(scene, camera);
 				//this.test10(scene, camera);
 			}));
 
@@ -206,7 +206,6 @@ export class DynamicBatchTest {
 
 	//测试五  测试扩张RenderNodeCount的流程
 	test5(scene: Scene3D, camera: Camera) {
-		let batcucull = scene._sceneRenderManager._sceneManagerOBJ.batchAgentList.get(BaseRenderType.MeshRender) as any;
 		//先改_maxRenderNodeCount 为400
 		camera.transform.position = new Vector3(39.54820590529586, 14.969745756280817, 57.85090397492968);
 		camera.transform.rotation = new Quaternion(0.04542888842020109, -0.0293354336761753, 0.0013346312567456974, 0.9985358617432548);
@@ -380,7 +379,7 @@ export class DynamicBatchTest {
 		node.meshRenderer.receiveShadow = true;
 		node.transform.localPosition = new Vector3(Count, -1, Count);
 		scene.addChild(node);
-		
+
 		for (let i = 0; i < meshes.length; i++) {
 			for (let j = 0; j < materials.length; j++) {
 				if (curCount >= Count) {
@@ -414,7 +413,7 @@ export class DynamicBatchTest {
 		let meshArray = this._testUtil.meshArray;
 		let matArray = this._testUtil.materialArray;
 		let spriteArray = [];
-		let allCube = false;
+		let allCube = true;
 		if (!allCube) {
 			for (let i = 0; i < meshCount; i++) {
 				for (let j = 0; j < materialCOunt; j++) {
@@ -427,12 +426,12 @@ export class DynamicBatchTest {
 			}
 		} else {
 			for (let i = 0; i < meshCount; i++) {
-				//let mesh = PrimitiveMesh.createBox(0.5, 0.5,0.5);
-				let mesh = PrimitiveMesh.createSphere(0.5, 16, 16);
+				let mesh = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
+				//let mesh = PrimitiveMesh.createSphere(0.5, 16, 16);
 				for (let j = 0; j < materialCOunt; j++) {
-					for (let k = 0; k < 100; k++) {
+					for (let k = 0; k < 10; k++) {
 						var boxSprite: MeshSprite3D = new MeshSprite3D(mesh);
-						boxSprite.meshRenderer.sharedMaterial = matArray[i];
+						boxSprite.meshRenderer.sharedMaterial = matArray[j];
 						spriteArray.push(boxSprite);
 					}
 				}

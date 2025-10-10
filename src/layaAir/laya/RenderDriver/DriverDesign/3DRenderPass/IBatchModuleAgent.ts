@@ -34,6 +34,11 @@ export interface IBatchModuleAgent {
      */
     removeRenderNode(object: BaseRender): boolean;
 
+    /**
+     * 更新属性
+     * @param object 
+     * @param property 
+     */
     updateProperty(object: BaseRender, property: string | number): void;
     /**
      * 设置相机裁剪信息
