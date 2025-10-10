@@ -235,10 +235,16 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             value._parentClipInfo = this._parentClipInfo;
             value._blendMode = this._blendMode;
             value._parentBlendMode = this._parentBlendMode;
+            value._parentGlobalRenderData = this._parentGlobalRenderData;
+            value._globalShaderData = this._globalShaderData;
 
             //自己没有裁剪，有父裁剪
             if (!this._clipInfo && this._parentClipInfo) {
                updateFlag |= ChildrenUpdateType.Clip;
+            }
+
+            if (!this._globalRenderData && this._parentGlobalRenderData) {
+               updateFlag |= ChildrenUpdateType.Global;
             }
 
             //只要有混合就需要重新更新
@@ -249,15 +255,23 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._parentClipInfo = null;
             this._blendMode = BlendMode.invalid;
             this._parentBlendMode = BlendMode.invalid;
+            this._parentGlobalRenderData = null;
+            this._globalShaderData = null;
 
          } else if (this._subStruct) {
 
             this._parentClipInfo = this._subStruct._parentClipInfo;
             this._blendMode = this._subStruct._blendMode;
             this._parentBlendMode = this._subStruct._parentBlendMode;
+            this._parentGlobalRenderData = this._subStruct._parentGlobalRenderData;
+            this._globalShaderData = this._subStruct._globalShaderData;
             
             if (!this._clipInfo && this._parentClipInfo) { 
                updateFlag |= ChildrenUpdateType.Clip;
+            }
+            
+            if (!this._globalRenderData && this._subStruct._parentGlobalRenderData) {
+               updateFlag |= ChildrenUpdateType.Global;
             }
 
             if (this._blendMode !== BlendMode.invalid || this._parentBlendMode !== BlendMode.invalid) {
@@ -267,6 +281,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._subStruct._parentClipInfo = null;
             this._subStruct._blendMode = BlendMode.invalid;
             this._subStruct._parentBlendMode = BlendMode.invalid;
+            this._subStruct._parentGlobalRenderData = null;
+            this._subStruct._globalShaderData = null;
          }
 
          this.updateChildren(updateFlag);
@@ -426,6 +442,24 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       }
    }
 
+   /**
+    *  @internal
+    * 父节点的全局渲染数据影响substruct
+    */
+   private _updateParentGlobalRenderData(globalRenderData: WebGlobalRenderData): void {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._parentGlobalRenderData = globalRenderData;
+         if (globalRenderData) {
+            this._subStruct._globalShaderData = globalRenderData.globalShaderData;
+         }
+      } else {
+         this._parentGlobalRenderData = globalRenderData;
+         if (!this._globalRenderData && globalRenderData) {
+            this._globalShaderData = globalRenderData.globalShaderData;
+         }
+      }
+   }
+
    private _updateParentBlendMode(blendMode: BlendMode): void {
       if (this._subStruct && this._subStruct.enabled) {
          this._subStruct._parentBlendMode = blendMode;
@@ -525,12 +559,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          }
 
          if (updateGlobal) {
+            child._updateParentGlobalRenderData(globalRenderData);
+
             if (!child._globalRenderData) {
                updateChild = true;
-               child._globalShaderData = globalShaderData;
             }
-
-            child._parentGlobalRenderData = globalRenderData;
          }
 
          if (updateCulling) {
@@ -567,8 +600,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (child._pass && parentPass) {
          child._pass.priority = parentPass.priority + 1;
       }
-      child._parentGlobalRenderData = this.globalRenderData;
-      if (!child._globalRenderData) child._globalShaderData = this._globalShaderData;
+      child._updateParentGlobalRenderData(this.globalRenderData);
       child._parentEnableCulling = this.inheritedEnableCulling;
       child._parentDcOptimize = this.inheritedDcOptimize;
       //效率
@@ -604,7 +636,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          child._parentGlobalRenderData = null;
          child._parentEnableCulling = false;
          child._parentDcOptimize = false;
-         if (!child._globalRenderData) child._globalShaderData = null;
+         child._updateParentGlobalRenderData(null);
          child.updateChildren(ChildrenUpdateType.All);
       }
    }
