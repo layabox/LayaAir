@@ -572,7 +572,9 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     private computeWorldVertices_MeshAttachment(attachment: spine.VertexAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
         count = offset + (count >> 1) * stride;
         let skeleton = slot.bone.skeleton;
-        let deformArray = slot.deform;
+        //@ts-ignore
+        let deformArray = slot.deform || slot.attachmentVertices;
+        
         let vertices = attachment.vertices;
         let bones = attachment.bones;
         if (bones == null) {
