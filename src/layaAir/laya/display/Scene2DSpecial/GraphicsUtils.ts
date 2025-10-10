@@ -255,6 +255,8 @@ export class SubStructRender {
    _rtRect: Rectangle = new Rectangle();
    _oriRect: Rectangle = new Rectangle();
 
+   private _needUpdateVertexSize: boolean = true;
+
    private _scaleX: number = 1;
    private _scaleY: number = 1;
    constructor() {
@@ -297,6 +299,11 @@ export class SubStructRender {
     */
    _updateRenderOffset(rect: Rectangle , oriRect: Rectangle, scaleX :number, scaleY :number) {
       rect.cloneTo(this._rtRect);
+
+      if (!oriRect.equals(this._oriRect)) {
+         this._needUpdateVertexSize = true;
+      }
+
       oriRect.cloneTo(this._oriRect);
 
       this._scaleX = scaleX;
@@ -335,7 +342,7 @@ export class SubStructRender {
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
-      if (this._internalInfo.textureHost == destRT)
+      if (this._internalInfo.textureHost == destRT && !this._needUpdateVertexSize)
          return;
 
       if (destRT) {
@@ -362,6 +369,7 @@ export class SubStructRender {
          vSize.w = oriRect.height;
       }
       this._internalInfo.vertexSize = vSize;
+      this._needUpdateVertexSize = false;
    }
 
    destroy(): void {
