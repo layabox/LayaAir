@@ -205,6 +205,8 @@ export class Tween {
         tweener.duration = duration;
 
         for (let p in props) {
+            if (p == "ease" || p == "easeArgs" || p == "update" || p == "complete")
+                continue;
             let value = props[p];
             if (p in tweener.target) {
                 isTo ? tweener.go(p, tweener.target[p], value) : tweener.go(p, value, tweener.target[p]);
