@@ -327,6 +327,11 @@ export class SkinAttach {
      * @zh 影响一个顶点的最大骨骼数。
      */
     vertexBones: number = 0;
+    /**
+     * @en The index of the rigid body bone.
+     * @zh 刚体骨骼的索引。
+     */
+    rbBoneIndex: number = -1;
 
     /** @ignore */
     constructor() {
@@ -361,6 +366,7 @@ export class SkinAttach {
         let indexCount = 0;
         let twoColorTint = false;
         let bones = new Set<number>();
+        
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
             let slot = slots[i];
@@ -419,6 +425,7 @@ export class SkinAttach {
         }
         else if(size === 1){
             this.type = ESpineRenderType.rigidBody;
+            this.rbBoneIndex = bones.values().next().value;
         }
         else {
             this.type = ESpineRenderType.normal;
@@ -438,7 +445,7 @@ export class SkinAttach {
                 this.mainVB = new VBBoneCreator(flag, vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
-                flag = "UV,COLOR,POSITION,RIGIDBODY";
+                flag = "UV,COLOR,POSITION";
                 if (twoColorTint) flag += ",COLOR2";
                 this.mainVB = new VBRigBodyCreator(flag, vertexCount);
                 break;
