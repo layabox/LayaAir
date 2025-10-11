@@ -85,8 +85,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set priority(value: number) {
       this._priority = value;
-      if (this._mask && this._mask.pass) {
-         this._mask.pass._priority = value + 1;
+      
+      if (this._mask && this._mask._pass) {
+         this._mask._pass._priority = value + 1;
       }
    }
 
@@ -114,8 +115,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set mask(value: WebRenderStruct2D) {
       this._mask = value;
-      if (value && value.pass) {
-         value.pass.priority = this.priority + 1;
+
+      if (value && value._pass) {
+         value._pass.priority = this.priority + 1;
       }
    }
 
