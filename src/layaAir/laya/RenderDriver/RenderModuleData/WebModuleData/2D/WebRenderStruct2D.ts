@@ -202,8 +202,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._globalRenderData = value;
       this.updateChildren(ChildrenUpdateType.Global);
    }
-
-   private _pass: WebRender2DPass;
+   
+   /** @internal */
+   _pass: WebRender2DPass;
    private _parentPass: WebRender2DPass;
 
    public get pass(): WebRender2DPass {

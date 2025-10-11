@@ -2361,12 +2361,18 @@ export class Sprite extends Node {
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
 
+        let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
-            let rect = this.getSelfBounds(struct.rect, false);
-            rect.transform(matrix, struct.rect);
-            struct.rect = struct.rect;
+            this.getSelfBounds(rect, false);
+            rect.transform(matrix, rect);
+            struct.rect = rect;
         } else {
             struct.rect.reset();
+        }
+
+        if (this._subStruct) {
+            rect.cloneTo(this._subStruct.rect);
+            this._subStruct.rect = this._subStruct.rect;
         }
     }
 
