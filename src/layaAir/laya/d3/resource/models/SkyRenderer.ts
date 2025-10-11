@@ -68,7 +68,7 @@ export class SkyRenderer {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
         if (this._material !== value) {
             (this._material) && (this._material._removeReference());

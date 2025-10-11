@@ -417,7 +417,7 @@ export class BaseRenderNode2D extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
         const lastValue: Material = this._materials[0];
         if (lastValue !== value) {

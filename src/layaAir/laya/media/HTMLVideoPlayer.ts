@@ -112,8 +112,6 @@ export class HTMLVideoPlayer extends VideoPlayer {
     protected onDestroy() {
         HTMLVideoPlayer.setSrc(this.element, null);
         this.element.remove();
-        if (LayaEnv.isConch)
-            (this.element as any)._destroy();
     }
 
     static createElement(): HTMLVideoElement {

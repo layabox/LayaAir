@@ -661,10 +661,7 @@ export class Sprite extends Node {
             this._blendMode = t;
             this._initShaderData();
             this._struct.blendMode = this._blendMode;
-            if (this._graphics)
-                this._graphics.repaint();
-            else
-                this.repaint();
+            this.repaint(RepaintFlag.Graphics);
         }
     }
 
@@ -836,7 +833,8 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.CANVAS;
         }
         this.setSubpassFlag(SubPassFlag.CacheAsBitmap);
-        this.repaint();
+
+        this.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -1183,7 +1181,7 @@ export class Sprite extends Node {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
 
         if (this._graphics == null && value == null)
@@ -2028,6 +2026,9 @@ export class Sprite extends Node {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
             } else if (this._renderType & SpriteConst.GRAPHICS) {
+                if (flag & RepaintFlag.Graphics) {
+                    this._graphics.onModified();
+                }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
         }
@@ -2324,7 +2325,7 @@ export class Sprite extends Node {
             }
 
             if (oldRT !== RenderTexture2D._empty)
-                oldRT.destroy();
+                RenderTexture2D.recoverToPool(oldRT);
         }
 
         this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
@@ -2393,6 +2394,7 @@ export class Sprite extends Node {
         else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
             this._struct.pass = null;
             this._subStruct.enabled = false;
+            this._subStruct.blendMode = this._blendMode;
             this._struct.subStruct = null;
             //主Pass 需要重绘
             this._struct.setRepaint();
@@ -2452,10 +2454,8 @@ export class Sprite extends Node {
                     this._drawOriRT = null;
                 }
 
-                if (this._renderType & SpriteConst.POSTPROCESS) {
-                    if (this._oriRenderPass.postProcess) {
-                        this._oriRenderPass.postProcess.recoverAllRTS();
-                    }
+                if (this._oriRenderPass.postProcess) {
+                    this._oriRenderPass.postProcess.recoverAllRTS();
                 }
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }

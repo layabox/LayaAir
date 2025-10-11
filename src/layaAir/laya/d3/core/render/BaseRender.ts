@@ -173,7 +173,7 @@ export class BaseRender extends Component {
     _lightProb: VolumetricGI;
 
     /**@internal */
-    _surportVolumetricGI: boolean = false;
+    _supportVolumetricGI: boolean = false;
 
     /**@internal motion list index，not motion is -1*/
     _motionIndexList: number = -1;
@@ -343,7 +343,7 @@ export class BaseRender extends Component {
     }
 
     set sharedMaterial(value: Material) {
-        if (!this._isMaterialVaild(value)) {
+        if (value && !this._isMaterialVaild(value)) {
             return;
         }
         var lastValue = this._sharedMaterials[0];
@@ -375,6 +375,9 @@ export class BaseRender extends Component {
             let count = value.length;
             for (let i = 0; i < count; i++) {
                 let mat = value[i];
+                if (mat && !this._isMaterialVaild(mat)) {
+                    continue;
+                }
                 let lastMat = sharedMats[i];
                 this._changeMaterialReference(lastMat, mat);
                 sharedMats[i] = mat;
@@ -741,16 +744,16 @@ export class BaseRender extends Component {
     private _isSupportRenderFeature() {
         //surportReflectionProbe
         let preReflection = this._surportReflectionProbe;
-        let prelightprob = this._surportVolumetricGI;
+        let prelightprob = this._supportVolumetricGI;
         this._surportReflectionProbe = false;
-        this._surportVolumetricGI = false;
+        this._supportVolumetricGI = false;
         var sharedMats: Material[] = this._sharedMaterials;
         for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
             var mat: Material = sharedMats[i];
             this._surportReflectionProbe ||= (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
-            this._surportVolumetricGI ||= (this._surportVolumetricGI || (mat && mat._shader._surportVolumetricGI));
+            this._supportVolumetricGI ||= (this._supportVolumetricGI || (mat && mat._shader._supportVolumetricGI));
         }
-        if ((!preReflection && this._surportReflectionProbe) || (!prelightprob && this._surportVolumetricGI))//如果变成支持Reflection
+        if ((!preReflection && this._surportReflectionProbe) || (!prelightprob && this._supportVolumetricGI))//如果变成支持Reflection
             this._addReflectionProbeUpdate();
     }
 
@@ -856,7 +859,7 @@ export class BaseRender extends Component {
     }
 
     set material(value: Material) {
-        if (!this._isMaterialVaild(value))
+        if (value && !this._isMaterialVaild(value))
             return;
         this.sharedMaterial = value;
         this._isSupportRenderFeature();

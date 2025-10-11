@@ -14,7 +14,6 @@ export class NativeVideoTexture extends VideoTexture {
 
     constructor() {
         super();
-        debugger
         //@ts-ignore
         this.decoder = PAL.g.createVideoDecoder({
             type: "wemedia" // 3.0.0以上基础库支持传入type参数
