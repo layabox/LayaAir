@@ -1,12 +1,12 @@
 import TexMergeVS from "./TexMerge.vs";
 import TexMergeFS from "./TexMerge.fs";
-import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
 
 export class TextureMergeShaderInit {
 
