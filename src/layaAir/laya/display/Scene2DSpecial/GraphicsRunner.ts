@@ -38,6 +38,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { Resource } from "../../resource/Resource";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -166,6 +167,14 @@ export class GraphicsRunner {
      */
     touchRes(res: IAutoExpiringResource) {
         this._graphicsData.touchRes(res);
+    }
+
+    /**
+     * 添加需要引用的资源
+     * @param res 
+     */
+    referenceRes(res: Resource) {
+        this._graphicsData.referenceRes(res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
@@ -763,6 +772,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
+        this.referenceRes(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -868,6 +878,7 @@ export class GraphicsRunner {
             return;
         }
 
+        this.referenceRes(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -884,6 +895,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
+        this.referenceRes(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
     }
 
@@ -1155,7 +1167,8 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
-
+        this.referenceRes(tex);
+        
         if (alpha == null) alpha = 1.0;
         if (colorNum == null) colorNum = 0xffffffff;
 

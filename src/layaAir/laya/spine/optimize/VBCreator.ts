@@ -543,10 +543,10 @@ export class VBRigBodyCreator extends VBCreator {
                 vertexArray[offset + 6] = slotVertex[j];
                 vertexArray[offset + 7] = slotVertex[j + 1];
 
-                vertexArray[offset + 8] = boneid;
+                // vertexArray[offset + 8] = boneid;
 
                 if (this.twoColorTint) {
-                    let tColorOffset = offset + 9;
+                    let tColorOffset = offset + 8;
                     vertexArray[tColorOffset] = c2r;
                     vertexArray[tColorOffset + 1] = c2g;
                     vertexArray[tColorOffset + 2] = c2b;
