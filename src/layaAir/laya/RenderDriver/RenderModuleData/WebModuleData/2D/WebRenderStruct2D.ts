@@ -207,6 +207,24 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    _pass: WebRender2DPass;
    private _parentPass: WebRender2DPass;
 
+   /** @internal */
+   _maskParentPass: WebRender2DPass;
+
+   /** @internal */
+   setMaskParentPass(pass: WebRender2DPass): void {
+      this._maskParentPass = pass;
+      if (this._pass) {
+         if (pass) {
+            this._pass.priority = pass.priority + 1;
+         } else if (this._parentPass) {
+            this._pass.priority = this._parentPass.priority + 1;
+         } else {
+            this._pass.priority = 0;
+         }
+         this.updateChildren(ChildrenUpdateType.Pass);
+      }
+   }
+
    public get pass(): WebRender2DPass {
       return this._pass || this._parentPass;
    }
@@ -546,6 +564,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (updateAlpha) {
             child.globalAlpha = alpha * child.alpha;
+            if (child._pass) {
+               child._pass.repaint = true;
+            }
             updateChild = true;
          }
 
@@ -569,11 +590,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (updateCulling) {
             child._parentEnableCulling = enableCulling;
+            if (child._pass) {
+               child._pass.repaint = true;
+            }
             updateChild = true;
          }
 
          if (updateDcOptimize) {
             child._parentDcOptimize = dcOptimize;
+            if (child._pass) {
+               child._pass.repaint = true;
+            }
             updateChild = true;
          }
 

@@ -85,10 +85,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set priority(value: number) {
       this._priority = value;
-      
-      if (this._mask && this._mask._pass) {
-         this._mask._pass._priority = value + 1;
-      }
+      if (this._mask) this._mask.setMaskParentPass(this);
    }
 
    enable: boolean = true;
@@ -114,12 +111,11 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    public set mask(value: WebRenderStruct2D) {
+      if (this._mask) this._mask.setMaskParentPass(null);
       this._mask = value;
-
-      if (value && value._pass) {
-         value._pass.priority = this.priority + 1;
-      }
+      if (value) value.setMaskParentPass(this);
    }
+
 
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
