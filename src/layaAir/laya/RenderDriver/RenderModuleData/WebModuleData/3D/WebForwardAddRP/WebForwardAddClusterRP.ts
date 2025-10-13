@@ -168,11 +168,16 @@ export class WebForwardAddClusterRP implements IMain3DRP {
             let agentrenderList = agentModule.appendRenderElement(BatchCullMode.Camera, 0, context);
             let opaqueList = agentrenderList.opaqueList;
             let translist = agentrenderList.transparentList;
-            let element = opaqueList.elements;
-            for (var jj = 0; jj < opaqueList.length; jj++) {
-                this._opaqueList.addRenderElement(element[jj]);
+            if (agentrenderList.opaqueCustomSort) {
+                this._opaqueList.addBatchAgent(agentrenderList);
+            } else {
+                let element = opaqueList.elements;
+                for (var jj = 0; jj < opaqueList.length; jj++) {
+                    this._opaqueList.addRenderElement(element[jj]);
+                }
             }
-            element = translist.elements;
+
+            let element = translist.elements;
             for (var jj = 0; jj < translist.length; jj++) {
                 this._transparent.addRenderElement(element[jj]);
             }

@@ -81,8 +81,9 @@ export class DynamicBatchTest {
 				//this.test6(scene, camera);
 				//this.test7(scene, camera);
 				//this.test8(scene, camera);
-				this.test9(scene, camera);
+				//this.test9(scene, camera);
 				//this.test10(scene, camera);
+				this.test11(scene, camera);
 			}));
 
 		});
@@ -487,6 +488,56 @@ export class DynamicBatchTest {
 				}
 			}
 
+		}
+	}
+
+	test11(scene: Scene3D, camera: Camera) {
+		//Texture2D.load("res/threeDimen/layabox.png", Handler.create(null, function (tex: Texture2D): void {
+		var radius: Vector3 = new Vector3(0, 0, 1);
+		var radMatrix: Matrix4x4 = new Matrix4x4();
+		var circleCount: number = 100;
+
+		var boxMesh: Mesh = PrimitiveMesh.createBox(0.02, 0.02, 0.02);
+		var boxMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+
+		let count = 0;
+		let materialCOunt = 40;
+		let meshCount = 25;
+		let meshArray = this._testUtil.meshArray;
+		let matArray = this._testUtil.materialArray;
+		let spriteArray = [];
+
+		for (let i = 0; i < meshCount; i++) {
+			for (let j = 0; j < materialCOunt * 4; j++) {
+				for (let k = 0; k < 10; k++) {
+					var boxSprite: MeshSprite3D = new MeshSprite3D(meshArray[j]);
+					boxSprite.meshRenderer.sharedMaterial = matArray[i];
+					spriteArray.push(boxSprite);
+				}
+			}
+		}
+
+		for (var i: number = 0; i < circleCount; i++) {
+			radius.z = 1.0 + i * 0.15;
+			radius.y = i * 0.03;
+			var oneCircleCount: number = 100 + i * 15;
+			for (var j: number = 0; j < oneCircleCount; j++) {
+
+				if (count >= spriteArray.length)
+					return;
+
+				var boxSprite: MeshSprite3D = spriteArray[count];
+
+				var localPos: Vector3 = boxSprite.transform.localPosition;
+				var rad: number = ((Math.PI * 2) / oneCircleCount) * j;
+				Matrix4x4.createRotationY(rad, radMatrix);
+				Vector3.transformCoordinate(radius, radMatrix, localPos);
+				boxSprite.transform.localPosition = localPos;
+				let scalesss = 0.1;
+				boxSprite.transform.localScale = new Vector3(scalesss, scalesss, scalesss);
+				scene.addChild(boxSprite);
+				count++
+			}
 		}
 	}
 }

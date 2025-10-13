@@ -39,7 +39,8 @@ export class WebGLBatchQueue implements IModuleAgentResource {
     opaqueList: FastSinglelist<WebGLRenderElement3D>;
     transparentQueue: RenderListQueue;
     transparentList: FastSinglelist<IRenderElement3D>;
-
+    opaqueCustomSort: boolean = false;
+    transCustomSort: boolean = false;
     constructor(createTransList: boolean) {
         this.opaqueQueue = new RenderListQueue(false)
         this.opaqueList = this.opaqueQueue.elements as FastSinglelist<WebGLRenderElement3D>;
@@ -49,6 +50,7 @@ export class WebGLBatchQueue implements IModuleAgentResource {
             this.transparentList = this.transparentQueue.elements as FastSinglelist<WebGLRenderElement3D>;
         }
     }
+
 
     clearList() {
         this.opaqueList.length = 0;

@@ -14,6 +14,8 @@ export enum BatchCullMode {
 export interface IModuleAgentResource {
     opaqueList: SingletonList<IRenderElement3D>;
     transparentList: SingletonList<IRenderElement3D>;
+    opaqueCustomSort: boolean;
+    transCustomSort: boolean;
 }
 
 export interface IBatchModuleAgent {
