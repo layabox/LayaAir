@@ -64,7 +64,10 @@ export class MgVideoPlayer extends VideoPlayer {
         this._ended = false;
         if (this._loaded)
             this.video.destroy();
-
+        if (!PAL.g.createVideo) {
+            console.error("MgVideoPlayer: createVideo is not defined");
+            return;
+        }
         (<Mutable<this>>this).video = PAL.g.createVideo(Object.assign({},
             this.options,
             this.getNodeTransform(),
