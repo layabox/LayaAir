@@ -7,9 +7,9 @@ import { NativeVideoTexture } from "./NativeVideoTexture";
 export class NativeMediaAdapter extends MediaAdapter {
 
     protected init() {
-        this.shortAudioClass =  HTMLAudioChannel;
+        this.shortAudioClass = HTMLAudioChannel;
         this.longAudioClass = HTMLAudioChannel;
-        this.videoPlayerClass = NativeVideoPlayer;
+        this.videoPlayerClass = PAL.hasAPI("createVideo") ? NativeVideoPlayer : null;;
         this.videoTextureClass = NativeVideoTexture;
     }
 }
