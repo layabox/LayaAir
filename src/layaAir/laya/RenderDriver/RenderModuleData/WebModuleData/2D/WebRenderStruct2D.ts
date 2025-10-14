@@ -308,7 +308,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             }
 
             this._blendMode = BlendMode.invalid;
-            this.globalAlpha = this._alpha;
             this._currentData = _DefaultParentData;
 
          } else if (this._subStruct) {
@@ -640,7 +639,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       let childParentData = child._parentData;
       childParentData.clipInfo = this.getClipInfo();
       childParentData.blendMode = this.blendMode;
-      this._updateGlobalAlpha(child.alpha , this.globalAlpha);
+      child._updateGlobalAlpha(child.alpha , this.globalAlpha);
       let parentPass = this.pass;
 
       childParentData.pass = parentPass;
@@ -677,7 +676,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          child._updatePriority();
          childParentData.clipInfo = null;
          childParentData.blendMode = BlendMode.invalid;
-         this._updateGlobalAlpha(child._alpha);
+         child._updateGlobalAlpha(child._alpha);
          childParentData.globalRenderData = null;
          childParentData.enableCulling = false;
          childParentData.dcOptimize = false;
