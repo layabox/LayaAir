@@ -432,7 +432,7 @@ export class MeshRenderer extends BaseRender {
             return;
         }
 
-        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) && this._mesh.morphTargetData) {
+        if (this._mesh.morphTargetData &&LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) ) {
             this._applyMorphdata();
         }
 

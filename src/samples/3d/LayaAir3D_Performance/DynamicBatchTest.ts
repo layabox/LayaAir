@@ -80,10 +80,10 @@ export class DynamicBatchTest {
 				//this.test5(scene, camera);
 				//this.test6(scene, camera);
 				//this.test7(scene, camera);
-				//this.test8(scene, camera);
+				this.test8(scene, camera);
 				//this.test9(scene, camera);
 				//this.test10(scene, camera);
-				this.test11(scene, camera);
+				//this.test11(scene, camera);
 			}));
 
 		});
@@ -359,11 +359,11 @@ export class DynamicBatchTest {
 		let meshes: Mesh[] = this._testUtil.meshArray;
 		let materials: Material[] = this._testUtil.materialArray;
 		const meshCount = Math.min(meshes.length, materials.length);
-		let Count = 20;
+		let Count = 625;
 		let curCount = 0;
 		let elementCount = 10;
-		camera.transform.position = new Vector3(-2.4685432650148846, 13.560541376881313, 52.87579307546343);
-		camera.transform.rotation = new Quaternion(-0.19076877031314224, -0.2504873641246638, -0.04553611704744473, 0.948045261963442);
+		camera.transform.position = new Vector3(-10.808851850002986, 41.07002728417983, -14.432153815427254);
+		camera.transform.rotation = new Quaternion(-0.1078350694262135, -0.8960223514808572, -0.30990185345037524, 0.29912603476892685);
 		//light
 		var directionLight: Sprite3D = new Sprite3D();
 		var directionLightCom: DirectionLightCom = directionLight.addComponent(DirectionLightCom);
@@ -380,20 +380,24 @@ export class DynamicBatchTest {
 		node.meshRenderer.receiveShadow = true;
 		node.transform.localPosition = new Vector3(Count, -1, Count);
 		scene.addChild(node);
-
-		for (let i = 0; i < meshes.length; i++) {
-			for (let j = 0; j < materials.length; j++) {
+		let elementCCC = 0;
+		for (let i = 0; i < 30; i++) {
+			for (let j = 0; j < 30; j++) {
 				if (curCount >= Count) {
 					return;
 				}
 				curCount++;
 				// 根据你的逻辑，生成十个MeshSprite3D，并设置对应的mesh和material
-				for (let k = 0; k < curCount; k++) {
+				let heng = curCount / 80 | 0;
+				let zong = (curCount % 80) | 0;
+				for (let k = 0; k < elementCount; k++) {
+
 					let node = new MeshSprite3D(meshes[i]);
 					node.meshRenderer.sharedMaterial = materials[j];
 					node.meshRenderer.castShadow = true;
-					node.transform.localPosition = new Vector3(k * 2, 0, curCount * 2);
+					node.transform.localPosition = new Vector3(k * 2 + heng * elementCount * 2, 0, zong * 2);
 					scene.addChild(node);
+					elementCCC++
 				}
 			}
 		}
