@@ -116,7 +116,6 @@ export class WebRender2DPass implements IRender2DPass {
       if (value) value.setMaskParentPass(this);
    }
 
-
    private _enableBatch: boolean = true;
    /** 需要挪出去? */
    public get enableBatch(): boolean {
@@ -180,7 +179,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       let globalRenderData = struct.globalRenderData;
       if (globalRenderData) {
-         if (struct._parentGlobalRenderData
+         if (struct._currentData.globalRenderData
             && (struct.renderLayer & globalRenderData.renderLayerMask) === 0) {
             return;
          }

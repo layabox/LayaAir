@@ -1622,24 +1622,26 @@ export class Sprite extends Node {
         let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
 
-        const updateSprites = function (root: Sprite): void {
-            if (root._subpassUpdateFlag) {
-                root.updateSubRenderPassState();
-                if (root._oriRenderPass) {
-                    let result = root.updateRenderTexture();
+        const updateSprites = function (sprite: Sprite): void {
+            if (!sprite._struct || !sprite._struct.enabled)
+                return;
+            if (sprite._subpassUpdateFlag) {
+                sprite.updateSubRenderPassState();
+                if (sprite._oriRenderPass) {
+                    let result = sprite.updateRenderTexture();
 
-                    let destrt: RenderTexture2D = root._drawOriRT;
+                    let destrt: RenderTexture2D = sprite._drawOriRT;
                     if (destrt) {
-                        root._oriRenderPass.renderTexture = destrt;
-                        if (root.mask) {
-                            root._oriRenderPass.mask = root.mask._struct;
+                        sprite._oriRenderPass.renderTexture = destrt;
+                        if (sprite.mask) {
+                            sprite._oriRenderPass.mask = sprite.mask._struct;
                         }
 
                         if (result) {
-                            root._oriRenderPass.renderTexture = destrt;
+                            sprite._oriRenderPass.renderTexture = destrt;
                         }
 
-                        let process = root._renderType & SpriteConst.POSTPROCESS ? root.postProcess : null;
+                        let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
                         if (
                             process
                             && destrt != RenderTexture2D._empty
@@ -1647,7 +1649,7 @@ export class Sprite extends Node {
 
                             if (
                                 result ||
-                                (root._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                             ) {
                                 process.setResource(destrt);
                                 process.clearCMD();
@@ -1659,29 +1661,27 @@ export class Sprite extends Node {
                             }
                         }
 
-                        root._subStructRender._updateRenderTexture(root._drawOriRT, destrt);
-                        root._subpassUpdateFlag = 0;
+                        sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
+                        sprite._subpassUpdateFlag = 0;
 
                     } else {
-                        root.setSubRenderPassState(false);
+                        sprite.setSubRenderPassState(false);
                     }
                 }
             }
 
-            if (root._struct) {
-                root._updateStruct();
-                if (root._struct.pass)
-                    passSet.add(root._struct.pass);
+            if (sprite._struct) {
+                sprite._updateStruct();
+                if (sprite._struct.pass)
+                    passSet.add(sprite._struct.pass);
             }
 
-            if (root._graphics) {
-                root._graphics._render(runner, 0, 0);
+            if (sprite._graphics) {
+                sprite._graphics._render(runner, 0, 0);
             }
 
-            for (let i = 0, len = root._children.length; i < len; i++) {
-                let child = root._children[i];
-                updateSprites(child);
-            }
+            for (let i = 0, len = sprite._children.length; i < len; i++)
+                updateSprites(sprite._children[i]);
         }
 
         updateSprites(sprite);
@@ -2390,6 +2390,7 @@ export class Sprite extends Node {
 
         if (enable && !this._oriRenderPass.enable) {
             this._struct.pass = this._oriRenderPass;
+            this._oriRenderPass.repaint = true;
             this._struct.subStruct = this._subStruct;
             this._subStruct.enabled = true;
 
@@ -2435,6 +2436,7 @@ export class Sprite extends Node {
             if (this._needUpdateSubpass()) {
                 if (this._subpassUpdateFlag || !this._drawOriRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
+                    // this._struct.setRepaint();
                 }
             }
             else {
