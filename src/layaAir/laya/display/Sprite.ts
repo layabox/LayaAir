@@ -2390,7 +2390,6 @@ export class Sprite extends Node {
 
         if (enable && !this._oriRenderPass.enable) {
             this._struct.pass = this._oriRenderPass;
-            this._oriRenderPass.repaint = true;
             this._struct.subStruct = this._subStruct;
             this._subStruct.enabled = true;
 
@@ -2436,7 +2435,6 @@ export class Sprite extends Node {
             if (this._needUpdateSubpass()) {
                 if (this._subpassUpdateFlag || !this._drawOriRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
-                    // this._struct.setRepaint();
                 }
             }
             else {
@@ -2465,6 +2463,7 @@ export class Sprite extends Node {
                 if (this._oriRenderPass.postProcess) {
                     this._oriRenderPass.postProcess.recoverAllRTS();
                 }
+                this._oriRenderPass.repaint = true;
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }
         }
