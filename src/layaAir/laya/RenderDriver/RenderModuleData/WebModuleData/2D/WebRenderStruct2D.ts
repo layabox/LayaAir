@@ -51,7 +51,7 @@ type ParentData = {
    pass: WebRender2DPass;
    enableCulling: boolean;
    dcOptimize: boolean;
-   // globalAlpha: number;
+   globalAlpha: number;
 }
 
 const _DefaultParentData: ParentData = {
@@ -61,14 +61,14 @@ const _DefaultParentData: ParentData = {
    pass: null,
    enableCulling: false,
    dcOptimize: false,
-   // globalAlpha: 1,
+   globalAlpha: 1,
 }
 
 export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
 
    /** @internal 原始数据，修改操作时修改这个 */
-   private _parentData: ParentData = {
+   _parentData: ParentData = {
       ..._DefaultParentData,
    };
 
@@ -147,7 +147,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    trans: StructTransform;
 
-   globalAlpha: number = 1.0;
+   public get globalAlpha(): number {
+      return this._currentData.globalAlpha;
+   }
+
+   public set globalAlpha(value: number) {
+      this._parentData.globalAlpha = value;
+   }
 
    private _alpha: number = 1.0;
 
@@ -226,17 +232,23 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** @internal */
    _maskParentPass: WebRender2DPass;
 
-   /** @internal */
-   setMaskParentPass(pass: WebRender2DPass): void {
-      this._maskParentPass = pass;
+   private _updatePriority(){
       if (this._pass) {
-         if (pass) {
-            this._pass.priority = pass.priority + 1;
-         } else if (this._currentData.pass) {
-            this._pass.priority = this._currentData.pass.priority + 1;
+         if (this._maskParentPass) {
+            this._pass.priority = this._maskParentPass.priority + 1;
+         } else if (this._parentData.pass) {//按真实的父节点来
+            this._pass.priority = this._parentData.pass.priority + 1;
          } else {
             this._pass.priority = 0;
          }
+      }
+   }
+
+   /** @internal */
+   setMaskParentPass(pass: WebRender2DPass): void {
+      this._maskParentPass = pass;
+      this._updatePriority();
+      if (this._pass) {
          this.updateChildren(ChildrenUpdateType.Pass);
       }
    }
@@ -248,15 +260,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    public set pass(value: WebRender2DPass) {
       if (value !== this._pass) {
          this._pass = value;
-         if (value) { 
-            if (this._maskParentPass) {
-               value.priority = this._maskParentPass.priority + 1;
-            } else if (this._currentData.pass) {
-               value.priority = this._currentData.pass.priority + 1;
-            } else {
-               value.priority = 0;
-            }
-         } 
+         this._updatePriority();
          this.updateChildren(ChildrenUpdateType.Pass);
       }
    }
@@ -277,9 +281,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
             value._blendMode = this._blendMode;
             value._currentData = parentData;
-            value.globalAlpha = this.parent ? this.parent.globalAlpha : 1;
             
-            if (this.globalAlpha !== this._alpha) {
+            if (parentData.globalAlpha !== 1) {
                updateFlag |= ChildrenUpdateType.Alpha;
             }
 
@@ -311,11 +314,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          } else if (this._subStruct) {
 
             let parentData = this._parentData;
-
+            this._subStruct._currentData = this._subStruct._parentData;
             this._blendMode = this._subStruct._blendMode;
-            this.globalAlpha = this._subStruct.globalAlpha * this._alpha;
 
-            if (this.globalAlpha !== this._alpha) {
+            if (parentData.globalAlpha !== 1) {
                updateFlag |= ChildrenUpdateType.Alpha;
             }
 
@@ -338,7 +340,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             }
 
             this._subStruct._blendMode = BlendMode.invalid;
-            this._subStruct.globalAlpha = 1;
             this._currentData = parentData;
          }
 
@@ -355,6 +356,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    _clipRect: Rectangle = null;
    /** @internal */
    _clipInfo: IClipInfo = null;
+
+   /**@deprecated 使用_currentData.clipInfo代替 */
+   get _parentClipInfo(): IClipInfo {
+      return this._currentData.clipInfo;
+   }
 
    // RenderNode
    private _rnUpdateFun: any = null;
@@ -487,12 +493,13 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    private _updateGlobalAlpha(value: number , parentAlpha: number = 1): void {
-      if (this._subStruct) {
-         this.globalAlpha = value;
-         this._subStruct.globalAlpha = parentAlpha;
-      } else {
-         this.globalAlpha = parentAlpha * value;
-      }
+      this._parentData.globalAlpha = parentAlpha * value;
+      // if (this._subStruct) {
+      //    this.globalAlpha = value;
+      //    this._subStruct.globalAlpha = parentAlpha;
+      // } else {
+      //    this.globalAlpha = parentAlpha * value;
+      // }
    }
 
    private _updateBlendMode(blendMode: BlendMode): void {
@@ -637,9 +644,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       let parentPass = this.pass;
 
       childParentData.pass = parentPass;
-      if (child._pass && parentPass) {
-         child._pass.priority = parentPass.priority + 1;
-      }
+      child._updatePriority();
       childParentData.globalRenderData = this.globalRenderData;
       childParentData.enableCulling = this.inheritedEnableCulling;
       childParentData.dcOptimize = this.inheritedDcOptimize;
@@ -669,9 +674,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          let childParentData = child._parentData;
          childParentData.pass = null;
 
-         if (child._pass) {
-            child._pass.priority = 0;
-         }
+         child._updatePriority();
          childParentData.clipInfo = null;
          childParentData.blendMode = BlendMode.invalid;
          this._updateGlobalAlpha(child._alpha);
