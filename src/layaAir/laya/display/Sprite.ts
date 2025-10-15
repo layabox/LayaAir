@@ -2025,9 +2025,11 @@ export class Sprite extends Node {
                 if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            } else if (this._renderType & SpriteConst.GRAPHICS) {
+            } 
+            
+            if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
-                    this._graphics.onModified();
+                    this._graphics?.onModified();
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
