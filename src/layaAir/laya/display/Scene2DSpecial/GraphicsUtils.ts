@@ -1,3 +1,4 @@
+import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
@@ -14,6 +15,7 @@ import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
@@ -84,6 +86,11 @@ export class GraphicsRenderData {
       for (i = 0; i < len; i++) {
          this._submits.elements[i].clear();
       }
+
+      this.texturesMap.forEach(res => {
+         res.off(Event.CHANGE, this, this._resourceRepaint);
+      });
+      this.texturesMap.clear();
 
       this._bufferBlocks.length = 0;
       this._submits.length = 0;
@@ -230,11 +237,26 @@ export class GraphicsRenderData {
       return submit;
    }
 
+   texturesMap: Map<number, Texture> = new Map();
    // touchResources: IAutoExpiringResource[] = [];
 
    touchRes(res: IAutoExpiringResource) {
       // res.referenceCount++;
       // this.touchResources.push(res);
+   }
+
+   referenceRes(res: Resource) {
+      if (res instanceof Texture) {
+         let old = this.texturesMap.get(res.id);
+         if (!old) {
+            res.on(Event.CHANGE, this, this._resourceRepaint);
+            this.texturesMap.set(res.id, res);
+         }
+      }
+   }
+
+   private _resourceRepaint() {
+      this.owner._graphics.repaint();
    }
 
 }
