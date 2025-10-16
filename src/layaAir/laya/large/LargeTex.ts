@@ -11,6 +11,7 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Texture2D } from "../resource/Texture2D";
+import { TextureArrayRegistry2D } from "../webgl/utils/TextureArrayRegistry2D";
 import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
 
 
@@ -40,6 +41,26 @@ export class LargeTex extends RenderTexture {
                 this._setMaxMipmapLevel(this._limitMipmap);
         }
         this._shader = Shader3D.find("TexMerge");
+
+        // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
+        const isWebGPU = !!((LayaGL.renderEngine as any).objectName as string).includes('GPU');
+        if (isWebGPU) {
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
+            const tc: any = LayaGL.textureContext;
+            if (alloc && tc ) {
+                // 用数组层重建 RT
+                this._disposeResource();
+                // 内部纹理对象
+                const internalArrayTex = alloc.array._texture;
+                this._renderTarget = tc.createRenderTargetFromArrayLayer(internalArrayTex, alloc.layer, format, 
+                    depthStencilFormat, sRGB);
+                // RenderTexture 的采样源沿用 color attachment
+                // @ts-ignore
+                this._texture = (this._renderTarget as any)._textures[0];
+                // 注册映射：采样 LargeTex 时自动切换为数组纹理指定层
+                TextureArrayRegistry2D.register(this as any, alloc.array, alloc.layer);
+            }
+        }
     }
 
     /**

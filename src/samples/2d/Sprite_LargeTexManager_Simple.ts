@@ -56,7 +56,7 @@ export class Sprite_LargeTexManager_Simple {
     private initLargeTexManager(): void {
         // 创建大图合集管理器
         this.largeTexManager = new LargeTexManager(
-            [512, 512],  // 大纹理尺寸 512x512
+            [1024, 1024],  // 大纹理尺寸 512x512
             2,            // 最多2张大纹理
             16,           // 小纹理单元尺寸 16x16
             1,            // 小纹理扩边尺寸 1像素
