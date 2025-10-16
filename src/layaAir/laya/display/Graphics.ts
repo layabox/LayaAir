@@ -169,15 +169,12 @@ export class Graphics {
         else
             this._cmds.length = 0;
         
-        this._repaint();
+        this.repaint();
     }
 
-    /** @internal */
+    /** @deprecated Use repaint */
     _repaint(): void {
-        this._modified = true;
-        this._graphicBounds?.reset();
-        this._checkDisplay();
-        this.owner?.repaint(RepaintFlag.Graphics);
+        this.repaint();
     }
 
     /**
@@ -187,6 +184,7 @@ export class Graphics {
     repaint(): void {
         this._modified = true;
         this._graphicBounds?.reset();
+        this._checkDisplay();
         this.owner?.repaint(RepaintFlag.Graphics);
     }
 
@@ -206,7 +204,7 @@ export class Graphics {
             });
         }
         this._cmds = value;
-        this._repaint();
+        this.repaint();
     }
 
     /**
@@ -226,7 +224,7 @@ export class Graphics {
         else
             this._cmds.splice(index, 0, cmd);
         // this.repaint();
-        this._repaint();
+        this.repaint();
         return cmd;
     }
 
@@ -242,7 +240,7 @@ export class Graphics {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-            this._repaint();
+            this.repaint();
         }
 
         if (recover) {
@@ -268,11 +266,11 @@ export class Graphics {
                 this._cmds[index] = newCmd;
             else
                 this._cmds.push(newCmd);
-            this._repaint();
+            this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this._repaint();
+            this.repaint();
         }
 
         if (oldCmd && recover) {

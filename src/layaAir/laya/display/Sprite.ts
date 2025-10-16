@@ -1161,10 +1161,10 @@ export class Sprite extends Node {
         this._texture = value;
         if (value) {
             value._addReference();
-            this.graphics._repaint();
+            this.graphics.repaint();
         } else {
             if (this._graphics) {
-                this._graphics._repaint();
+                this._graphics.repaint();
             } else {
                 this.repaint();
             }
