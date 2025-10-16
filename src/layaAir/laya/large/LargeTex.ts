@@ -1,8 +1,9 @@
 
 import { Laya } from "../../Laya";
-import { BlitScreenQuadCMD } from "../d3/core/render/command/BlitScreenQuadCMD";
-import { Command } from "../d3/core/render/command/Command";
-import { CommandBuffer } from "../d3/core/render/command/CommandBuffer";
+import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
+import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
+import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
+import { LayaGL } from "../layagl/LayaGL";
 import { Vector4 } from "../maths/Vector4";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -14,7 +15,7 @@ import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
 
 
 export class LargeTex extends RenderTexture {
-    cmdBuffer: CommandBuffer;
+    cmdBuffer: CommandBuffer2D;
     private _limitMipmap: number = -1; //是否限制mipmap层数
     private _willDestroyTex : Texture2D[] = []; //待删除小贴图队列
     private _shader: Shader3D; //合图的着色器
@@ -27,7 +28,7 @@ export class LargeTex extends RenderTexture {
      * @en Commands
      * @zh 命令
      */
-    commands: Set<Command> = new Set();
+    commands: Set<Command2D> = new Set();
 
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8A8,
         depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true) {
@@ -51,8 +52,8 @@ export class LargeTex extends RenderTexture {
         let values = this.commands.values();
         let cmd = values.next().value;
         while (cmd && (force || Laya.stage.getTimeFromFrameStart() < 30)) {
-            this.cmdBuffer.addCustomCMD(cmd);
-            this.cmdBuffer._applyOne();
+            this.cmdBuffer.addCacheCommand(cmd);
+            this.cmdBuffer.applyOne(true);
             this.commands.delete(cmd);
             cmd = values.next().value;
         }
@@ -242,7 +243,7 @@ export class LargeTex extends RenderTexture {
             console.log("linear to gamma url =", smallTex.url);
         }
         //采用实时渲染方式将小贴图绘制到大贴图上
-        let cmd = BlitScreenQuadCMD.create(smallTex, this, offsetScale, this._shader, sd , 0, BlitScreenQuadCMD.SCREENTYPE_QUAD, this.cmdBuffer);
+        let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd);
         this.commands.add(cmd);
         //立即执行绘制
         if (this.immediately) { 

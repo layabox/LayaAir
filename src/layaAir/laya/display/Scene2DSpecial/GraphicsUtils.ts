@@ -1,4 +1,6 @@
 import { Event } from "../../events/Event";
+import { AutoTextureConfig } from "../../large/AutoTextureConfig";
+import { LargeTexProcessor } from "../../large/LargeTexProcessor";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
@@ -17,6 +19,7 @@ import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
+import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
@@ -245,12 +248,17 @@ export class GraphicsRenderData {
       // this.touchResources.push(res);
    }
 
-   referenceRes(res: Resource) {
+   referenceRes(runner: GraphicsRunner, res: Resource) {
       if (res instanceof Texture) {
          let old = this.texturesMap.get(res.id);
          if (!old) {
             res.on(Event.CHANGE, this, this._resourceRepaint);
             this.texturesMap.set(res.id, res);
+            if (
+               runner._textureProcessor.shouldAddToDynamicAtlas(res)
+            ) {
+               runner._textureProcessor.addTexture(res);
+            }
          }
       }
    }

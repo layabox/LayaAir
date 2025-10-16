@@ -4,13 +4,14 @@
  * 支持动态添加、移除纹理，自动管理UV坐标，替换原始纹理对象
  */
 
+import { ILaya } from "../../ILaya";
 import { Laya } from "../../Laya";
 import { Vector4 } from "../maths/Vector4";
 import { Loader } from "../net/Loader";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
-import { LargeTexManager, TextureItem, TextureOut } from "./LargeTexManager";
+import { LargeTexBase, LargeTexManager, TextureItem, TextureOut } from "./LargeTexManager";
 
 /**
  * 纹理信息接口
@@ -191,7 +192,7 @@ export class DynamicAtlasManager {
             return false;
         }
 
-        let texture = Laya.loader.getRes(url, Loader.IMAGE) as Texture;
+        let texture = ILaya.loader.getRes(url, Loader.IMAGE) as Texture;
         if (!texture) {
             console.warn(`DynamicAtlasManager: 纹理 ${url} 未加载，请先加载纹理`);
             return false;

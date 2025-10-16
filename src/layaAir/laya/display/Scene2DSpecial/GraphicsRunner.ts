@@ -42,6 +42,7 @@ import { Resource } from "../../resource/Resource";
 import { Texture2DArray } from "../../resource/Texture2DArray";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { TextureArrayAutoPacker2D } from "../../webgl/utils/TextureArrayAutoPacker2D";
+import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -79,6 +80,7 @@ export class GraphicsRunner {
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
+    _textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
     _clipRect = SaveClipRect.MAX;
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     _clip_x: number = 0;	//clip的x坐标
@@ -177,7 +179,7 @@ export class GraphicsRunner {
      * @param res 
      */
     referenceRes(res: Resource) {
-        this._graphicsData.referenceRes(res);
+        this._graphicsData.referenceRes(this, res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
