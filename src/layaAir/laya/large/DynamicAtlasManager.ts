@@ -3,12 +3,13 @@
  * 动态图集管理器 - 封装LargeTexManager，提供便捷的图集管理功能
  * 支持动态添加、移除纹理，自动管理UV坐标，替换原始纹理对象
  */
-import { Laya } from "Laya";
-import { Loader } from "laya/net/Loader";
-import { Texture } from "laya/resource/Texture";
-import { Texture2D } from "laya/resource/Texture2D";
-import { Vector4 } from "laya/maths/Vector4";
-import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+
+import { Laya } from "../../Laya";
+import { Vector4 } from "../maths/Vector4";
+import { Loader } from "../net/Loader";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Texture } from "../resource/Texture";
+import { Texture2D } from "../resource/Texture2D";
 import { LargeTexManager, TextureItem, TextureOut } from "./LargeTexManager";
 
 /**
