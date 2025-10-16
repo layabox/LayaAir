@@ -70,6 +70,7 @@ export interface IGraphics2DBufferBlock {
     vertexs: IGraphics2DVertexBlock[],
     indexView: I2DGraphicIndexDataView,
     vertexBuffer: IVertexBuffer,
+    textureArrayIndex: number;
 }
 
 /**

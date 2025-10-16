@@ -19,6 +19,7 @@ import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Vector4 } from "../../../../maths/Vector4";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 
 
 /**
@@ -159,9 +160,9 @@ class BatchBuffer {
 }
 
 /**
- * 批次上下文，用于跟踪批次的状态信息
+ * WebGL批次上下文基类，用于跟踪批次的状态信息
  */
-class BatchContext {
+abstract class BaseBatchContext {
     /** 批次使用的贴图ID */
     textureId: number = 0;
     /** 批次的透明度 */
@@ -181,18 +182,23 @@ class BatchContext {
     fillTexture: boolean = false;
     texRange: Vector4;
 
-    constructor() {
-        let isWebgl = !!(LayaGL.renderEngine as any).gl;
-        if (isWebgl) {
-            this.setHead = this._setHeadWebgl;
-            this.isCompatible = this._isCompatibleWebgl;
-        } else {
-            this.setHead = this._setHeadWebgpu;
-            this.isCompatible = this._isCompatibleWebgpu;
-        }
-    }
+    /**
+     * 从渲染元素初始化批次上下文
+     */
+    abstract setHead(element: IPrimitiveRenderElement2D): void;
 
-    _setHeadWebgl(element: IPrimitiveRenderElement2D): void {
+    /**
+     * 检查元素是否与批次兼容
+     */
+    abstract isCompatible(element: IPrimitiveRenderElement2D): boolean;
+}
+
+/**
+ * WebGL批次上下文，用于跟踪批次的状态信息
+ */
+class WebGLBatchContext extends BaseBatchContext {
+
+    setHead(element: IPrimitiveRenderElement2D): void {
         this.primitiveShaderData = element.primitiveShaderData;
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
@@ -207,35 +213,8 @@ class BatchContext {
         this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
-    
-    _setHeadWebgpu(element: IPrimitiveRenderElement2D): void {
-        //@ts-ignore
-        this.primitiveShaderData = element._primitiveShaderData;
-        //@ts-ignore
-        this.materialShaderData = element._materialShaderData;
-        //@ts-ignore
-        this.subShader = element._subShader;
-        //@ts-ignore
-        this.bufferState = element.geometry._bufferState;
 
-        this.textureId = element.type & (~63);
-        this.globalAlpha = element.owner.globalAlpha;
-        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
-        this.type = element.type;
-        this.lowType = element.type & 63;
-        this.globalRenderData = element.owner.globalRenderData;
-        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
-        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
-    }
-    /**
-     * 从渲染元素初始化批次上下文
-     */
-    setHead(element: IPrimitiveRenderElement2D): void { }
-
-    /**
-     * @internal WebGL 检查元素是否与批次兼容
-     */
-    _isCompatibleWebgl(element: IPrimitiveRenderElement2D): boolean {
+    isCompatible(element: IPrimitiveRenderElement2D): boolean {
         if (this.type & 32)
             return false;
 
@@ -273,10 +252,10 @@ class BatchContext {
             return false;
         }
 
-        // 检查透明度（数值比较，较快）
-        if (this.globalAlpha !== elementOwner.globalAlpha) {
-            return false;
-        }
+        // // 检查透明度（数值比较，较快）
+        // if (this.globalAlpha !== elementOwner.globalAlpha) {
+        //     return false;
+        // }
 
         // 检查对象引用（指针比较，较快）
         if (this.subShader !== element.subShader ||
@@ -299,11 +278,34 @@ class BatchContext {
         // 批次已有确定的贴图ID，检查是否匹配
         return elementTexId === 0 || elementTexId === this.textureId;
     }
+}
 
-    /**
-     * @internal WebGPU 检查元素是否与批次兼容
-     */
-    _isCompatibleWebgpu(element: IPrimitiveRenderElement2D): boolean {
+/**
+ * WebGPU批次上下文，用于跟踪批次的状态信息
+ */
+class WebGPUBatchContext extends BaseBatchContext {
+
+    setHead(element: IPrimitiveRenderElement2D): void {
+        //@ts-ignore
+        this.primitiveShaderData = element._primitiveShaderData;
+        //@ts-ignore
+        this.materialShaderData = element._materialShaderData;
+        //@ts-ignore
+        this.subShader = element._subShader;
+        //@ts-ignore
+        this.bufferState = element.geometry._bufferState;
+
+        this.textureId = element.type & (~63);
+        this.globalAlpha = element.owner.globalAlpha;
+        this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
+        this.type = element.type;
+        this.lowType = element.type & 63;
+        this.globalRenderData = element.owner.globalRenderData;
+        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
+    }
+
+    isCompatible(element: IPrimitiveRenderElement2D): boolean {
         if (this.type & 32)
             return false;
 
@@ -342,10 +344,10 @@ class BatchContext {
             return false;
         }
 
-        // 检查透明度（数值比较，较快）
-        if (this.globalAlpha !== elementOwner.globalAlpha) {
-            return false;
-        }
+        // // 检查透明度（数值比较，较快）
+        // if (this.globalAlpha !== elementOwner.globalAlpha) {
+        //     return false;
+        // }
 
         // 检查对象引用（指针比较，较快）
         if (this.subShader !== element.subShader ||
@@ -368,14 +370,6 @@ class BatchContext {
         // 批次已有确定的贴图ID，检查是否匹配
         return elementTexId === 0 || elementTexId === this.textureId;
     }
-
-    /**
-     * 检查元素是否与批次兼容
-     */
-    isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        // 批次已有确定的贴图ID，检查是否匹配
-        return true
-    }
 }
 
 /**
@@ -384,7 +378,7 @@ class BatchContext {
 export class WebGraphicsBatch implements IBatch2DProvider {
     _buffer: BatchBuffer;
     _merged: Array<IPrimitiveRenderElement2D>;
-    _context: BatchContext;
+    _context: BaseBatchContext;
 
     static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(
         () => { //create
@@ -411,7 +405,13 @@ export class WebGraphicsBatch implements IBatch2DProvider {
     constructor() {
         this._buffer = new BatchBuffer();
         this._merged = [];
-        this._context = new BatchContext();
+
+        let isWebgl = !!(LayaGL.renderEngine as any).gl;
+        if (isWebgl) {
+            this._context = new WebGLBatchContext();
+        } else {
+            this._context = new WebGPUBatchContext();
+        }
     }
 
     reset() {
@@ -474,7 +474,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         list.add(element);
     }
 
-    private merge(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BatchContext): void {
+    private merge(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BaseBatchContext): void {
         let elementArray = list.elements;
         let staticBatchRenderElement = WebGraphicsBatch._pool.take();
         this._merged.push(staticBatchRenderElement);

@@ -27,6 +27,7 @@ export class GraphicsShaderInfo {
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
       this.textureHost = null;
       this.enableVertexSize = false;
+      this.enableTextureArray = false;
       this.materialClip = false;
       this.fillTexture = false;
    }
@@ -66,10 +67,24 @@ export class GraphicsShaderInfo {
 
    }
 
+   get enableTextureArray() {
+      return this.shaderData.hasDefine(ShaderDefines2D.TEXTUREARRAY);
+   }
+
+   set enableTextureArray(value:boolean) {
+      if (value) {
+         this.shaderData.addDefine(ShaderDefines2D.TEXTUREARRAY);
+      } else {
+         this.shaderData.removeDefine(ShaderDefines2D.TEXTUREARRAY);
+      }
+   }
+
    set enableVertexSize(value: boolean) {
       if (value) {
          this.shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
+         this.shaderData.removeDefine(ShaderDefines2D.VERTEXALPHA);
       } else {
+         this.shaderData.addDefine(ShaderDefines2D.VERTEXALPHA);
          this.shaderData.removeDefine(ShaderDefines2D.VERTEX_SIZE);
       }
    }

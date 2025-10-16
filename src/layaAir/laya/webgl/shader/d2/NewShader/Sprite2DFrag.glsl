@@ -56,11 +56,21 @@ varying vec2 v_cliped;
     #endif
 
     vec4 getSpriteTextureColor(){
-        #ifdef FILLTEXTURE
-            vec4 color = texture2D(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
+        #ifdef TEXTUREARRAY
+            #ifdef FILLTEXTURE
+                vec3 uvw = vec3(fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy, v_texcoordAlpha.z);
+                vec4 color = texture2D(u_spriteTexture, uvw);
+            #else
+                vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xyz);
+            #endif
         #else
-            vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xy);
+            #ifdef FILLTEXTURE
+                vec4 color = texture2D(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
+            #else
+                vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xy);
+            #endif
         #endif
+
         return transspaceColor(color);
     }
 

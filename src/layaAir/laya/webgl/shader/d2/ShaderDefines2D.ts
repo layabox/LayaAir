@@ -14,8 +14,12 @@ export class ShaderDefines2D {
     static INVERTY: ShaderDefine;
     /**@internal */
     static GAMMATEXTURE: ShaderDefine;
-
+    /** @internal */
     static VERTEX_SIZE: ShaderDefine;
+    /** @internal */
+    static VERTEXALPHA: ShaderDefine;
+    /** @intenal */
+    static TEXTUREARRAY: ShaderDefine;
 
     /**@internal */
     static TEXTURESHADER: ShaderDefine;
@@ -73,6 +77,8 @@ export class ShaderDefines2D {
         ShaderDefines2D.TEXTURESHADER = Shader3D.getDefineByName("TEXTUREVS");
         ShaderDefines2D.PRIMITIVESHADER = Shader3D.getDefineByName("PRIMITIVEMESH");
 
+        ShaderDefines2D.VERTEXALPHA = Shader3D.getDefineByName("VERTEXALPHA");
+        ShaderDefines2D.TEXTUREARRAY = Shader3D.getDefineByName("TEXTUREARRAY");
         ShaderDefines2D.initSprite2DCommandEncoder();
     }
 

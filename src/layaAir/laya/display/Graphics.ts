@@ -115,6 +115,10 @@ export class Graphics {
         return value.checkType(ShaderFeatureType.D2_TextureSV);
     }
 
+    /** @internal */
+    onModified() {
+        this._modified = true;
+    }
 
     /**
      * @en Destroy this object.
