@@ -217,6 +217,7 @@ export class Sprite extends Node {
     private _tfChanged: boolean;
     private _repaint: number = -1;
     private _repaintCount: number = -1;
+    private _previousType: number = 0;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
     private _userBounds: Rectangle;
@@ -1160,12 +1161,10 @@ export class Sprite extends Node {
         this._texture = value;
         if (value) {
             value._addReference();
-            this.graphics._checkDisplay();
-            this._graphics.repaint();
+            this.graphics._repaint();
         } else {
             if (this._graphics) {
-                this._graphics._checkDisplay();
-                this._graphics.repaint();
+                this._graphics._repaint();
             } else {
                 this.repaint();
             }
@@ -1209,8 +1208,7 @@ export class Sprite extends Node {
         }
 
         if (this._graphics) {
-            this._graphics._checkDisplay();
-            this.repaint();
+            this._graphics.repaint();
         }
     }
 
@@ -2010,13 +2008,15 @@ export class Sprite extends Node {
     */
     repaint(flag?: number): void {
         if (this._destroyed) return;
+
         if (
-            this._repaint < Stat.loopCount ||
-            (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
+            this._repaint < Stat.loopCount 
+            || (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
+            || !this._previousType
         ) {
             this._repaint = Stat.loopCount;
             this._repaintCount = Stat.render2DCount;
-
+            this._previousType = this._renderType;
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
@@ -2059,7 +2059,7 @@ export class Sprite extends Node {
      */
     _needRepaint(): boolean {
         //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheenableCanvasRender && this._cachereCache;
-        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount);
+        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount && this._previousType === 0);
     }
 
     /**
