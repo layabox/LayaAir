@@ -151,12 +151,13 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     varying float v_useClip;
     varying vec4 v_customs;
 
+    #ifdef USE_TEX_ARRAY
+        varying float v_texLayer;
+    #endif
+
     void getVertexInfo(inout vertexInfo info){
        	//texcoordAlpha
         info.texcoordAlpha.xy = a_posuv.zw;
-        #ifdef TEXTUREARRAY
-            info.texcoordAlpha.z = a_attribFlags.w;
-        #endif
         //color
         info.color = a_attribColor;
 
