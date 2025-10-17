@@ -7,6 +7,7 @@ import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { AutoTextureConfig } from "./AutoTextureConfig";
 import { DynamicAtlasManager } from "./DynamicAtlasManager";
+import { LayaGL } from "../layagl/LayaGL";
 
 
 /**
@@ -17,8 +18,8 @@ export class TextureProcessorAdapter implements ITextureProcessor {
     private _dynamicAtlas: DynamicAtlasManager | null = null;
 
     constructor() {
-        if (AutoTextureConfig.enableAutoDynamicAtlas && !this._dynamicAtlas) {
-            this._dynamicAtlas = new DynamicAtlasManager();
+        if (AutoTextureConfig.enableAutoDynamicAtlas) {
+            this._dynamicAtlas = new DynamicAtlasManager(undefined, true);
         }
     }
 
@@ -52,10 +53,6 @@ export class LargeTexProcessor {
     mgrs: LargeTexManager[] = [];
 
     private _textureProcessor: ITextureProcessor;
-
-    constructor(textureProcessor?: ITextureProcessor) {
-        this._textureProcessor = textureProcessor || new TextureProcessorAdapter();
-    }
 
     static addMgr(mgr: LargeTexManager) { 
         this._instance.addManager(mgr);
@@ -117,7 +114,14 @@ export class LargeTexProcessor {
 }
 
 Laya.addAfterInitCallback(() => {
+    let objectName = (LayaGL.renderEngine as any).objectName? (LayaGL.renderEngine as any).objectName as string: '';
+    let isWebGPU = !!objectName.includes('GPU');
+    if (isWebGPU) {
+        AutoTextureConfig.enableAutoDynamicAtlas = true;
+    }
     TextureMergeShaderInit.init();
-    LargeTexProcessor._instance = new LargeTexProcessor();
-    Render2DProcessor.runner._textureProcessor = LargeTexProcessor._instance.textureProcessor;
+    let processor = LargeTexProcessor._instance = new LargeTexProcessor();
+    let textureProcessor = new TextureProcessorAdapter();
+    processor.setTextureProcessor(textureProcessor);
+    Render2DProcessor.runner._textureProcessor = textureProcessor;
 });
