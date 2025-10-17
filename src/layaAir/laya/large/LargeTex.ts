@@ -46,7 +46,6 @@ export class LargeTex extends RenderTexture {
         }
         this._shader = Shader3D.find("TexMerge");
 
-        let objectName = (LayaGL.renderEngine as any).objectName? (LayaGL.renderEngine as any).objectName as string: '';
         // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
         if (Config.useTextureArray) {
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
