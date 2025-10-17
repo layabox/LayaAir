@@ -42,8 +42,9 @@ export class LargeTex extends RenderTexture {
         }
         this._shader = Shader3D.find("TexMerge");
 
+        let objectName = (LayaGL.renderEngine as any).objectName? (LayaGL.renderEngine as any).objectName as string: '';
         // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
-        const isWebGPU = !!((LayaGL.renderEngine as any).objectName as string).includes('GPU');
+        const isWebGPU = !!objectName.includes('GPU');
         if (isWebGPU) {
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
             const tc: any = LayaGL.textureContext;
@@ -250,13 +251,15 @@ export class LargeTex extends RenderTexture {
         const height = this.height; //大贴图高度
         const offsetScale = new Vector4(); //偏移和放缩系数
         offsetScale.x = Math.max(0, x - expand) / width;
-        offsetScale.y = Math.max(0, height - y - h - expand) / height;
+        
+        if (LayaGL.renderEngine._screenInvertY) {
+            offsetScale.y = Math.max(0, y - expand) / height;
+        } else {
+            offsetScale.y = Math.max(0, height - y - h - expand) / height;
+        }
         offsetScale.z = (w + expand * 2) / width;
         offsetScale.w = (h + expand * 2) / height;
 
-        if (LayaGL.renderEngine._screenInvertY) {
-            offsetScale.y = expand;
-        }
 
         let sd = TextureMergeShaderInit._sdNotChange;
         if (this.gammaSpace && !smallTex.gammaSpace) {
