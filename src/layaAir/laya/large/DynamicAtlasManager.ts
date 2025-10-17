@@ -72,6 +72,7 @@ export class DynamicAtlasManager {
     private _isDestroyed: boolean = false;
     private _autoReplace: boolean = false;
     private _totalDrawCount: number = 1;
+    private _waitReplace: Set<number> = new Set();
 
     constructor(config?: Partial<DynamicAtlasConfig> , autoReplace: boolean = true) {
         this._config = {
@@ -139,10 +140,9 @@ export class DynamicAtlasManager {
                 return true;
             }
             textureSet.add(texture);
-
+            //不能在当前帧切换，会影响渲染
             if (this._autoReplace && textureInfo.merged) {
-                let textureOut = this._largeTexManager.getTexture(textureId, textureInfo.largeTextureIndex);
-                this._replaceTexture(textureInfo , textureOut);
+                this._waitReplace.add(textureId);
             }
             return true;
         }
@@ -174,6 +174,18 @@ export class DynamicAtlasManager {
         this._textureMap.set(textureId, textureInfo);
 
         return true;
+    }
+
+    onUpdate(): void {
+        if (this._waitReplace.size > 0) {
+            for (const textureId of this._waitReplace) {
+                let textureInfo = this._textureMap.get(textureId);
+                if (textureInfo) {
+                    this._replaceTexture(textureInfo , this._largeTexManager.getTexture(textureId, textureInfo.largeTextureIndex));
+                }
+            }
+        }
+        this._waitReplace.clear();
     }
 
     private afterUpdate(index: number, completedIds: number[]): void {

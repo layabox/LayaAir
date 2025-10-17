@@ -19,10 +19,19 @@ export interface ITextureProcessor {
      * @returns true if should be added
      */
     shouldAddToDynamicAtlas(texture: Texture): boolean;
+
+    /**
+     * @en Update dynamic atlas
+     * @zh 更新动态图集
+     */
+    onUpdate(): void;
 }
 
 export class EmptyTextureProcessor implements ITextureProcessor {
     addTexture(texture: Texture): void {
+        // do nothing
+    }
+    onUpdate(): void {
         // do nothing
     }
     shouldAddToDynamicAtlas(texture: Texture): boolean {
