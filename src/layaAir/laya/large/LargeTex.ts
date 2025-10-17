@@ -1,4 +1,5 @@
 
+import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
@@ -43,8 +44,7 @@ export class LargeTex extends RenderTexture {
         this._shader = Shader3D.find("TexMerge");
 
         // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
-        const isWebGPU = !!((LayaGL.renderEngine as any).objectName as string).includes('GPU');
-        if (isWebGPU) {
+        if (Config.useTextureArray) {
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
             const tc: any = LayaGL.textureContext;
             if (alloc && tc ) {
@@ -56,7 +56,7 @@ export class LargeTex extends RenderTexture {
                     depthStencilFormat, sRGB);
                 // RenderTexture 的采样源沿用 color attachment
                 // @ts-ignore
-                this._texture = (this._renderTarget as any)._textures[0];
+                this._texture = this._renderTarget._textures[0];
                 // 注册映射：采样 LargeTex 时自动切换为数组纹理指定层
                 TextureArrayRegistry2D.register(this as any, alloc.array, alloc.layer);
             }

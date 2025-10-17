@@ -21,4 +21,6 @@ export class TextRenderConfig {
     static simClean = false; // 测试用。强制清理占用低的图集
     static debugCharCanvas = false;
     static useImageData = true;
+    static useTextureArray=true;
+    static premultiplyAlpha=false;  //是否需要自己预乘.webgpu如果用textureArray就要预乘
 }

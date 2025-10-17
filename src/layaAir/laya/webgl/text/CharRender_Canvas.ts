@@ -161,6 +161,21 @@ export class CharRender_Canvas {
         ctx.restore();
         cri.bmpWidth = imgdt.width;
         cri.bmpHeight = imgdt.height;
+        
+        //预乘一下
+        if(TextRenderConfig.premultiplyAlpha){
+            let pix = imgdt.data.length/4;
+            let dt = imgdt.data;
+            for(let i=0; i<pix; i++){
+                let pos = i*4;
+                let k = dt[pos+3]/255;
+                if(k>0){
+                    dt[pos]=dt[pos]*k;
+                    dt[pos+1]=dt[pos+1]*k;
+                    dt[pos+2]=dt[pos+2]*k;
+                }
+            }
+        }
         return imgdt;
     }
 
