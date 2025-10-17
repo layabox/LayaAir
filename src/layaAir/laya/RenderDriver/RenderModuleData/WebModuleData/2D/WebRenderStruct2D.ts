@@ -424,7 +424,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (type & ChildrenUpdateType.Global) {
          updateGlobal = true;
          globalShaderData = this._globalShaderData;
-         globalRenderData = this._globalRenderData;
+         globalRenderData = this.globalRenderData;
       }
 
       if (type & ChildrenUpdateType.Culling) {

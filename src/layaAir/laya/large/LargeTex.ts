@@ -87,7 +87,6 @@ export class LargeTex extends RenderTexture {
             this._waitMergeIds.delete(cmd.source.id);
             ids.push(cmd.source.id);
 
-            cmd.recover();
             cmd = values.next().value;
         }
 
