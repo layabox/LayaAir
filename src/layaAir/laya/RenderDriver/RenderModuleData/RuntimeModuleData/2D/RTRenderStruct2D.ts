@@ -122,8 +122,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set subStruct(value: RTRenderStruct2D) {
-      value._parent = this._parent;
-      value._blendMode = this._blendMode;
+      if (value) {
+         value._parent = this._parent;
+         value._blendMode = this._blendMode;
+      }
 
       this._subStruct = value;
       this._nativeObj.setSubStruct(value ? value._nativeObj : null);
